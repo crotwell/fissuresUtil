@@ -34,6 +34,8 @@ public interface TimeRangeConfig {
 
     public HashMap getData();
 
+    public void setData(HashMap newData);
+
     /**
      * Add the values in this seismogram to the configuration
      *
