@@ -66,12 +66,12 @@ public class LeftTitleBorder extends AbstractBorder {
             titleBounds = g2D.getFontMetrics().getStringBounds(title, g2D);
             left = (int)titleBounds.getHeight();
         }
-        double yTranslate = (height - y - titleBounds.getWidth())/2;
-        double xTranslate = x;
+        double yTranslate = height - (height - y - titleBounds.getWidth())/2;
+        double xTranslate = x + titleBounds.getHeight();
         g2D.translate(xTranslate, yTranslate);
-        g2D.rotate(Math.PI/2);
-        g2D.drawString(title, 0, 0);
         g2D.rotate(-Math.PI/2);
+        g2D.drawString(title, 0, 0);
+        g2D.rotate(Math.PI/2);
         g2D.translate(-xTranslate, -yTranslate);
     }
 
