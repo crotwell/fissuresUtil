@@ -24,7 +24,7 @@ public class SeismogramDisplayConfigurationTest extends TestCase {
 
     public static SeismogramDisplayConfiguration create(String name)
             throws Exception {
-        return new SeismogramDisplayConfiguration(createElement("edu/sc/seis/fissuresUtil/display/configuration/"
+        return SeismogramDisplayConfiguration.create(createElement("edu/sc/seis/fissuresUtil/display/configuration/"
                 + name + ".xml"));
     }
 
