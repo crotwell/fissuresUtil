@@ -1,9 +1,4 @@
 package edu.sc.seis.fissuresUtil.display;
-import java.util.*;
-
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
@@ -11,13 +6,15 @@ import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.BoxLayout;
 import org.apache.log4j.Category;
-import java.awt.event.MouseEvent;
 
 /**
  * VerticalSeismogramDisplay(VSD) is a JComponent that can contain multiple
@@ -258,9 +255,9 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             try{
                 ((BasicSeismogramDisplay)it.next()).setAmpConfig((AmpConfig)configClass.newInstance());
             }catch(IllegalAccessException e){
-                ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
+                GlobalExceptionHandler.handle("Problem creating ampConfig from class", e);
             }catch(InstantiationException e){
-                ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
+                GlobalExceptionHandler.handle("Problem creating ampConfig from class", e);
             }
         }
         tc.removeListener(ac);

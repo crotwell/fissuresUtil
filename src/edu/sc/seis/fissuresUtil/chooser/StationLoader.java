@@ -7,9 +7,8 @@
 package edu.sc.seis.fissuresUtil.chooser;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -107,7 +106,7 @@ public class StationLoader extends Thread
         }
         catch (Exception e)
         {
-            ExceptionHandlerGUI.handleException("Unable to get stations.", e);
+            GlobalExceptionHandler.handle("Unable to get stations.", e);
         } // end of try-catch   }
 
         //chooser.addStations((Station[])stations.toArray(new Station[stations.size()]));

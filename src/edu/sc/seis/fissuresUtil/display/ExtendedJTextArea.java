@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -177,7 +177,7 @@ class MyMouseListener extends MouseAdapter {
         try {
             data = (String)transferable.getTransferData(DataFlavor.stringFlavor);
         } catch(Exception e) {
-            GlobalExceptionHandler.handleStatic("Problem transfering data.", e);
+            GlobalExceptionHandler.handle("Problem transfering data.", e);
         }
         int pos = area.getCaretPosition();
         area.insert(data, pos);

@@ -13,7 +13,7 @@ import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import java.awt.dnd.DropTargetDragEvent;
@@ -128,7 +128,7 @@ public class SeismogramInfoDisplay extends TextInfoDisplay {
             appendLabelValue(doc, "Max", stat.max()+"");
             appendLabelValue(doc, "Mean", stat.mean()+"");
         } catch (BadLocationException e) {
-            GlobalExceptionHandler.handleStatic("Can't append seismogram info to display", e);
+            GlobalExceptionHandler.handle("Can't append seismogram info to display", e);
         }
     }
 

@@ -10,7 +10,7 @@ import edu.iris.Fissures.IfNetwork.ChannelNotFound;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import java.util.Collections;
@@ -38,7 +38,7 @@ public class InstrumentationLoader extends Thread
                 logger.debug("added response to dss for "+
                                  ChannelIdUtil.toStringNoDates(nextWork.seis.getRequestFilter().channel_id));
             } catch (ChannelNotFound e) {
-                GlobalExceptionHandler.handleStatic("Could not load instrumentation for channel "+
+                GlobalExceptionHandler.handle("Could not load instrumentation for channel "+
                                 ChannelIdUtil.toString(nextWork.seis.getRequestFilter().channel_id),
                             e);
             } catch (org.omg.CORBA.SystemException e) {
@@ -48,7 +48,7 @@ public class InstrumentationLoader extends Thread
                     addToQueue(nextWork);
                 }
             } catch (Exception e) {
-                GlobalExceptionHandler.handleStatic("A problem occured loading the instrumentation for channel "+
+                GlobalExceptionHandler.handle("A problem occured loading the instrumentation for channel "+
                                 ChannelIdUtil.toString(nextWork.seis.getRequestFilter().channel_id),
                             e);
             }

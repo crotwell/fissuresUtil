@@ -13,7 +13,7 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
 import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
@@ -139,10 +139,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     // this updates the request filter internally as a side effect
                     LocalSeismogramImpl seis = getSeismogram(url[i]);
                 } catch(IOException e) {
-                    GlobalExceptionHandler.handleStatic("Cannot get seismogram for "+url[i].toString(),
+                    GlobalExceptionHandler.handle("Cannot get seismogram for "+url[i].toString(),
                                                         e);
                 } catch(FissuresException e) {
-                    GlobalExceptionHandler.handleStatic("Cannot get seismogram for "+url[i].toString(),
+                    GlobalExceptionHandler.handle("Cannot get seismogram for "+url[i].toString(),
                                                         e);
                 }
             }
@@ -197,7 +197,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             // probably should throw something instead of this, but the error may be ok?
             String dssName = "dss is null";
             if (dss != null) dssName = dss.getName();
-            GlobalExceptionHandler.handleStatic("A problem occured trying to localize the "+
+            GlobalExceptionHandler.handle("A problem occured trying to localize the "+
                                                     dssName+" dataset seismogram.",
                                                 saver.getError());
         }

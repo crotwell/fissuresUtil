@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
 //import edu.sc.seis.sac.*;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.*;
+import edu.sc.seis.fissuresUtil.exceptionHandler.*;
 import java.awt.*;
 import java.io.*;
 import java.net.*;

@@ -8,7 +8,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -42,9 +42,9 @@ public class Selection implements TimeListener, Drawable{
                 ((PhaseAlignedTimeConfig)tc).setTauP(((PhaseAlignedTimeConfig)parentConfig).getTauP());
             }
         } catch (IllegalAccessException e) {
-            GlobalExceptionHandler.handleStatic("Problem trying to create new TimeCongig for pick zone", e);
+            GlobalExceptionHandler.handle("Problem trying to create new TimeCongig for pick zone", e);
         } catch (InstantiationException e) {
-            GlobalExceptionHandler.handleStatic("Problem trying to create new TimeCongig for pick zone", e);
+            GlobalExceptionHandler.handle("Problem trying to create new TimeCongig for pick zone", e);
         }
         seismos = parent.getSeismograms();
         this.parent = parent;

@@ -1,10 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.Iterator;
 
@@ -110,9 +109,9 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
             try{
                 ((BasicSeismogramDisplay)it.next()).setAmpConfig(new IndividualizedAmpConfig((AmpConfig)configClass.newInstance()));
             }catch(IllegalAccessException e){
-                ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
+                GlobalExceptionHandler.handle("Problem creating ampConfig from class", e);
             }catch(InstantiationException e){
-                ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
+                GlobalExceptionHandler.handle("Problem creating ampConfig from class", e);
             }
         }
     }

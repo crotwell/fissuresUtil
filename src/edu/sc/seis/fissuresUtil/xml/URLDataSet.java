@@ -10,7 +10,7 @@ import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.io.IOException;
 import java.net.URL;
 import javax.xml.parsers.ParserConfigurationException;
@@ -207,11 +207,11 @@ public class URLDataSet implements DataSet {
             try {
                 cache = DataSetToXML.load(url);
             } catch (IOException e) {
-                GlobalExceptionHandler.handleStatic(e);
+                GlobalExceptionHandler.handle(e);
             } catch (SAXException e) {
-                GlobalExceptionHandler.handleStatic(e);
+                GlobalExceptionHandler.handle(e);
             } catch (ParserConfigurationException e) {
-                GlobalExceptionHandler.handleStatic(e);
+                GlobalExceptionHandler.handle(e);
             }
         }
         return cache;
