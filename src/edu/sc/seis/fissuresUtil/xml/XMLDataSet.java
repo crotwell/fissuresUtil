@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2576 2002-09-10 17:55:39Z telukutl $
+ * @version $Id: XMLDataSet.java 2909 2002-11-14 16:58:40Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -876,22 +876,13 @@ public class XMLDataSet implements DataSet, Serializable {
                     } // end of if (urlString == null || urlString == "")
 		    //logger.debug("IN GET SEISMOGRAM   The base str is "+base.toString());
 		    
-		    URL sacURL = new URL(base, urlString);
-		    //logger.debug("The sacUrl is "+sacURL.toString());
-                    DataInputStream dis = new DataInputStream(new BufferedInputStream(sacURL.openStream())); 
-                    SacTimeSeries sac = new SacTimeSeries();
-                    sac.read(dis);
-                    LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
+
 		    //get the Seismogram Attributes from the xml .. only the data must 
 		    // must be obtained fromt the SAC.
 		    NodeList seisAttrNode = XMLUtil.evalNodeList(e, "../seismogramAttr");
+		    SeismogramAttr seisAttr = null;
 		    if(seisAttrNode != null && seisAttrNode.getLength() != 0) {
-			SeismogramAttr seisAttr = XMLSeismogramAttr.getSeismogramAttr((Element)seisAttrNode.item(0));
-			//logger.debug("The &&&&&&&&&&&&&&&&&&&  chan_cdoe from dsml file is "+
-			// ((SeismogramAttrImpl)seisAttr).getChannelID().channel_code);
-			seis.setAttributes(seisAttr);
-			//logger.debug("The &&&&&&&&&&&&&&&&&&& chan_code after setting is "+
-			//     seis.getChannelID().channel_code);
+			seisAttr = XMLSeismogramAttr.getSeismogramAttr((Element)seisAttrNode.item(0));
 		    }
 		       
                     NodeList propList = evalNodeList(e, "property");
@@ -917,6 +908,18 @@ public class XMLDataSet implements DataSet, Serializable {
 //                                                                name);
 //                     seis.setProperties(newProps);
 
+		    URL sacURL = new URL(base, urlString);
+		    //logger.debug("The sacUrl is "+sacURL.toString());
+                    DataInputStream dis = new DataInputStream(new BufferedInputStream(sacURL.openStream())); 
+                    SacTimeSeries sac = new SacTimeSeries();
+                    sac.read(dis);
+                    LocalSeismogramImpl seis;
+		    if (seisAttr != null) {
+			seis = SacToFissures.getSeismogram(sac, seisAttr);
+		    } else {
+			seis = SacToFissures.getSeismogram(sac);
+		    } // end of else
+		    
                     if (seis != null) {
 			logger.debug("***************************************************CACHING SOFTREFERENCE AS THE SEISMOGRAM IS NOT NULL");
 			seismogramCache.put(name, new SoftReference(seis));
