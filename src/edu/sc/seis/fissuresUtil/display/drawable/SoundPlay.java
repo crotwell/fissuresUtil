@@ -36,13 +36,11 @@ public class SoundPlay extends MouseAdapter implements Plotter, MouseMotionListe
 	private SeismogramContainer container;
 	private TimeEvent timeEvent;
 	private FissuresToWAV seisWAV;
-	private SeismogramIterator seisIterator;
 
 	public SoundPlay(SeismogramDisplay display, SeismogramContainer container){
 		this.display = display;
 		this.container = container;
-		seisIterator = container.getIterator();
-		seisWAV = new FissuresToWAV(seisIterator, 200);
+		seisWAV = new FissuresToWAV(container, 200);
 		SeismogramDisplay.getMouseForwarder().addPermMouseListener(this);
 		SeismogramDisplay.getMouseMotionForwarder().addMouseMotionListener(this);
 	}
@@ -82,7 +80,7 @@ public class SoundPlay extends MouseAdapter implements Plotter, MouseMotionListe
 		if(intersects(e)){
 			System.out.println("This should be playing something...");
 			sendToWAV();
-			seisIterator.setTimeRange(timeEvent.getTime(container.getDataSetSeismogram()));
+			container.getIterator().setTimeRange(timeEvent.getTime(container.getDataSetSeismogram()));
 			seisWAV.play();
 		}
     }
