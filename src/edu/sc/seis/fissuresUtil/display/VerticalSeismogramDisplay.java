@@ -237,28 +237,28 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      * @param amp the new label amp
      */
     public void setTimeAmp(MicroSecondDate newTime, QuantityImpl newAmp, UnitRangeImpl ampRange){
-        /*if(curAmpRange != ampRange){
-         double absMax = Math.abs(ampRange.getMaxValue());
-         double absMin = Math.abs(ampRange.getMinValue());
-         double maxVal;
-         if(absMax > absMin){
-         maxVal = absMax;
-         }else{
-         maxVal = absMin;
-         }
-         if(maxVal < 1){
-         formatter = new DecimalFormat(" 0.###E0;-0.###E0");
-         }else{
-         StringBuffer formatPattern = new StringBuffer(" 0.00;-0.00");
-         while(maxVal > 10){
-         formatPattern.insert(1,"0");
-         formatPattern.insert(formatPattern.length() - 4, "0");
-         maxVal /= 10;
-         }
-         formatter = new DecimalFormat(formatPattern.toString());
-         }
-         curAmpRange = ampRange;
-         }*/
+        if(curAmpRange != ampRange){
+            double absMax = Math.abs(ampRange.getMaxValue());
+            double absMin = Math.abs(ampRange.getMinValue());
+            double maxVal;
+            if(absMax/10 > absMin){
+                maxVal = absMax;
+            }else{
+                maxVal = absMin;
+            }
+            if(maxVal < 1){
+                formatter = new DecimalFormat(" 0.000E0;-0.000E0");
+            }else{
+                StringBuffer formatPattern = new StringBuffer(" 0.00;-0.00");
+                while(maxVal > 10){
+                    formatPattern.insert(1,"0");
+                    formatPattern.insert(formatPattern.length() - 4, "0");
+                    maxVal /= 10;
+                }
+                formatter = new DecimalFormat(formatPattern.toString());
+            }
+            curAmpRange = ampRange;
+        }
         double newAmpVal = newAmp.getValue();
         if(newAmpVal == Double.NaN){
             amp = "";
@@ -275,19 +275,19 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             timeBuffer.append(output.format(calendar.getTime()) + "0");
         else
             timeBuffer.append(output.format(calendar.getTime()));
-        //int numSpaces = amp.length() - timeString.length() - 10;//Amplitude: is 10 chars
-        //if(numSpaces < 0){
-        timeBuffer.insert(0, "Time:");
-        time = timeBuffer.toString();
-        /*}else{
-         StringBuffer spaces = new StringBuffer(numSpaces);
-         for (int i = 0; i < numSpaces; i++){
-         spaces.append(" ");
-         }
-         timeString.insert(0, spaces);
-         timeString.insert(0, "Time:");
-         time = timeString.toString();
-         }*/
+        int numSpaces = amp.length() - timeBuffer.length() - 10;//Amplitude: is 10 chars
+        if(numSpaces <= 0){
+            timeBuffer.insert(0, "Time:");
+            time = timeBuffer.toString();
+        }else{
+            StringBuffer spaces = new StringBuffer(numSpaces);
+            for (int i = 0; i < numSpaces; i++){
+                spaces.append(" ");
+            }
+            timeBuffer.insert(0, spaces);
+            timeBuffer.insert(0, "Time:");
+            time = timeBuffer.toString();
+        }
     }
     /**
      * <code>setOriginalDisplay</code> sets the display of the unfiltered
