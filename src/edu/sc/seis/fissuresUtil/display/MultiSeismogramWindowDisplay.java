@@ -91,10 +91,19 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     }
     
     public void remove(DataSetSeismogram[] dss){
-        for (int i = 0; i < dss.length; i++){
-            sorter.remove(dss[i]);
-        }
+        removeFromSorter(dss);
         super.remove(dss);
+    }
+    
+    public boolean removeDisplay(BasicSeismogramDisplay disp){
+        DataSetSeismogram[] dss = disp.getSeismograms();
+        boolean removed = super.removeDisplay(disp);
+        if(removed) removeFromSorter(dss);
+        return removed;
+    }
+    
+    private void removeFromSorter(DataSetSeismogram[] dss){
+        for (int i = 0; i < dss.length; i++) sorter.remove(dss[i]);
     }
     
     public void removeAll(){
