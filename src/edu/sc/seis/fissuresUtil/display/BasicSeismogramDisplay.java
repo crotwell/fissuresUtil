@@ -449,7 +449,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	}
 
 	public synchronized void setImage(Image newImage){
-	    System.out.println("setting image");
 	    overTimeRange = timeRegistrar.getTimeRange().getOversizedTimeRange(OVERSIZED_SCALE);
 	    displayTime = displayInterval.getValue();
 	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
