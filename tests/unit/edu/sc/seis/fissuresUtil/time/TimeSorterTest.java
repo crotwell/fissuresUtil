@@ -10,7 +10,6 @@ import junitx.framework.ArrayAssert;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 
@@ -18,13 +17,13 @@ public class TimeSorterTest extends TestCase {
 
     public void testSortByDateSorted() {
         LocalSeismogramImpl[] seisArray = createThreeSeisArray();
-        ArrayAssert.assertEquals(seisArray, SortTool.sortByDate(seisArray));
+        ArrayAssert.assertEquals(seisArray, SortTool.byBeginTimeAscending(seisArray));
     }
 
     public void testSortByDateUnsorted() {
         LocalSeismogramImpl[] originalSeis = createThreeSeisArray();
         LocalSeismogramImpl[] unsortedSeis = createUnsortedThreeSeisArray(originalSeis);
-        LocalSeismogramImpl[] sortedSeis = SortTool.sortByDate(unsortedSeis);
+        LocalSeismogramImpl[] sortedSeis = SortTool.byBeginTimeAscending(unsortedSeis);
         ArrayAssert.assertEquals(originalSeis, sortedSeis);
     }
 
