@@ -84,7 +84,7 @@ public class PlottableSelection{
     private Rectangle2D extractLocation;
 
     public boolean intersectsExtract(int x, int y){
-        if(extractLocation.contains(x, y)){
+        if(extractLocation != null && extractLocation.contains(x, y)){
             return true;
         }
         return false;
@@ -234,6 +234,12 @@ public class PlottableSelection{
     private void setEnd(int x, int row){
         endRowX = x;
         endRow = row;
+    }
+
+    public void set(int[][] rowX){
+        visible = true;
+        setStart(rowX[0][1], rowX[0][0]);
+        setEnd(rowX[1][1], rowX[1][0]);
     }
 
     public void setXY(int x, int y, int width){
