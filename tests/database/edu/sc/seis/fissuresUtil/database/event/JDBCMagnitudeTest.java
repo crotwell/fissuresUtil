@@ -17,11 +17,12 @@ public class JDBCMagnitudeTest extends JDBCTearDown {
     }
 
     public void testPutAndGet() throws NotFound, SQLException {
+        int originId = 100;
         Magnitude[] mags = MockMagnitude.MAGS;
         for (int i = 0; i < mags.length; i++) {
-            jdbcMagnitude.put(mags[i], 0);
+            jdbcMagnitude.put(mags[i], originId);
         }
-        Magnitude[] outMag = jdbcMagnitude.get(0);
+        Magnitude[] outMag = jdbcMagnitude.get(originId);
         for (int i = 0; i < outMag.length; i++) {
             assertTrue(areEqual(mags[i], outMag[i]));
         }
@@ -30,14 +31,15 @@ public class JDBCMagnitudeTest extends JDBCTearDown {
     public void testDoubleInsert() throws SQLException, NotFound {
         Magnitude[] mags = MockMagnitude.MAGS;
         for (int i = 1; i < mags.length; i++) {
-            jdbcMagnitude.put(mags[i], i);
-            jdbcMagnitude.put(mags[i], i);
-            assertEquals(1, jdbcMagnitude.get(i).length);
+            int origingDbId = i+10;
+            jdbcMagnitude.put(mags[i], origingDbId);
+            jdbcMagnitude.put(mags[i], origingDbId);
+            assertEquals(1, jdbcMagnitude.get(origingDbId).length);
         }
     }
     
     public void tearDown() throws SQLException {
-        jdbcMagnitude.clean();
+       jdbcMagnitude.clean();
     }
 
     public static boolean areEqual(Magnitude first, Magnitude second){
