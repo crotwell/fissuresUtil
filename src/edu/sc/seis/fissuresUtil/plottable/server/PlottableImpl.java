@@ -17,7 +17,7 @@ import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
@@ -41,24 +41,29 @@ public class PlottableImpl extends PlottableDCPOA {
         try {
             RequestFilter[] filters = {request};
             MicroSecondTimeRange requestRange = new MicroSecondTimeRange(request);
-            LocalSeismogram[] localSeismograms = dataCenter.retrieve_seismograms(filters);
-            logger.debug("Got " + localSeismograms.length + " seismograms for request " + requestRange);
-            Plottable[] plottable = new Plottable[localSeismograms.length];
-            for(int i = 0; i < localSeismograms.length; i++) {
-                LocalSeismogramImpl curSeis = (LocalSeismogramImpl)localSeismograms[i];
-                java.awt.Dimension size = new java.awt.Dimension(pixel_size.width,
-                                                                 pixel_size.height);
-                int[][] coordinates = SimplePlotUtil.compressXvalues(curSeis,
-                                                                     requestRange,
-                                                                     size);
-                plottable[i] = new Plottable(coordinates[0], coordinates[1]);
-            }
-            return plottable;
+            LocalSeismogram[] seis = dataCenter.retrieve_seismograms(filters);
+            logger.debug("Got " + seis.length + " seismograms for request "
+                    + requestRange);
+            return makePlottables(seis, pixel_size.width, requestRange);
         } catch(Throwable e) {
             logger.error("Exception occured while retrieving plottable using get_plottable",
                          e);
             throw new UNKNOWN(e.toString());
         }
+    }
+
+    public static Plottable[] makePlottables(LocalSeismogram[] seis,
+                                             int width,
+                                             MicroSecondTimeRange time)
+            throws CodecException {
+        Plottable[] plottable = new Plottable[seis.length];
+        for(int i = 0; i < seis.length; i++) {
+            int[][] coordinates = SimplePlotUtil.compressXvalues(seis[i],
+                                                                 time,
+                                                                 width);
+            plottable[i] = new Plottable(coordinates[0], coordinates[1]);
+        }
+        return plottable;
     }
 
     public synchronized Plottable[] get_for_day(ChannelId channel_id,
@@ -104,8 +109,8 @@ public class PlottableImpl extends PlottableDCPOA {
 
     private static DataCenterOperations getDataCenter() throws NotFound,
             CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
-        return Initializer.getNS().getSeismogramDC("edu/sc/seis",
-                                                   "SCEPPSeismogramDC");
+        return Initializer.getNS().getSeismogramDC("edu/iris/dmc",
+                                                   "IRIS_BudDataCenter");
     }
 
     private DataCenterOperations dataCenter;
