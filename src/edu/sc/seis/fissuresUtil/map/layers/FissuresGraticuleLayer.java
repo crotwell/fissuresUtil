@@ -8,7 +8,8 @@ import com.bbn.openmap.proj.Projection;
 /**
  * @author oliverpa Created on Aug 19, 2004
  */
-public class FissuresGraticuleLayer extends GraticuleLayer implements OverriddenOMLayer{
+public class FissuresGraticuleLayer extends GraticuleLayer implements
+        OverriddenOMLayer {
 
     public void setOverrideProjectionChanged(boolean override) {
         overrideProjectionChanged = override;
