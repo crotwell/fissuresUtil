@@ -22,6 +22,12 @@ public class PlottableSelection implements Plotter{
         this.plottableDisplay.date = Calendar.getInstance().getTime();
     }
 
+    public PlottableSelection(PlottableDisplay display, Color color) {
+        this(display);
+        this.color = color;
+    }
+    
+
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         //in this draw of PlottableSelection the following are not used
         //currentTime , currentAmp, size.
@@ -68,13 +74,14 @@ public class PlottableSelection implements Plotter{
             affine.concatenate(affine.getScaleInstance(1, -1));
 
             newG.setTransform(affine);
-            newG.setPaint(Color.red);
-
             AlphaComposite originalComposite = (AlphaComposite)newG.getComposite();
             AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
                                                                      .4f);
             Point2D.Float beginPoint = new Point2D.Float(beginx, endx);
-            newG.setPaint(Color.green);
+            if(this.color == null) {
+                this.color = Color.green;
+            }
+            newG.setPaint(this.color);
             newG.setComposite(newComposite);
             if(isRowSelected(selectedRows, currRow)) {
                 int bx = 0;
@@ -102,7 +109,7 @@ public class PlottableSelection implements Plotter{
                 newG.drawRect(bx, by, ex, ey);
                 newG.fillRect(bx, by, ex, ey);
                 newG.setComposite(originalComposite);
-                newG.setPaint(Color.green);
+                newG.setPaint(this.color);
                 newG.setStroke(new BasicStroke(2.0f));
                 newG.drawLine(bx, by, bx, by+ey);
                 newG.drawLine((bx+ex), by, (bx+ex), by+ey);
@@ -142,6 +149,7 @@ public class PlottableSelection implements Plotter{
         return rtnValues;
      }
 
+   
 
     public void setSelectedRectangle(int beginx, int beginy, int endx, int endy) {
         if(getSelectedRows(beginy, endy).length == 1) {
@@ -155,6 +163,16 @@ public class PlottableSelection implements Plotter{
         this.endy = endy;
     }
 
+    public void setXY(int currx, int curry) {
+        setSelectedRectangle(beginx, beginy, currx, curry);
+    }
+
+
+    public void startXY(int beginx, int beginy) {
+        this.beginx = beginx;
+        this.beginy = beginy;
+    }
+
     private boolean isRowSelected(int[] rows, int currrow) {
         for(int counter = 0; counter < rows.length; counter++) {
             if(rows[counter] == currrow) return true;
@@ -163,16 +181,19 @@ public class PlottableSelection implements Plotter{
     }
 
     public boolean isSelectionSelected(int currx, int curry) {
-        if( (currx > (endx - 2) && currx < (endx + 2) &&
+        if( (currx > (endx - 10) && currx < (endx + 10) &&
             curry >= beginy && curry <= endy) || 
-            (currx > (beginx - 2) && currx < (beginx + 2) &&
+            (currx > (beginx - 10) && currx < (beginx + 10) &&
              curry >= beginy && curry <= endy) 
             ) {
+            System.out.println("returning true");
             return true;
         }
+        System.out.println("return false");
         return false;
     }
 
+    private Color color;
 
     private PlottableDisplay plottableDisplay;
     
