@@ -60,7 +60,7 @@ public class SeismogramShapeIterator implements PathIterator {
 	}
 	min = !min;
 	coordinates[0] = currentIndex;
-	coordinates[1] = plot[0][currentIndex];
+	coordinates[1] = plot[i][currentIndex];
 	if(currentIndex == startIndex){
 	    return SEG_MOVETO;
 	}else{
