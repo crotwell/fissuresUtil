@@ -31,20 +31,35 @@ import java.awt.print.*;
 
 public class BasicSeismogramDisplay extends JComponent implements ConfigListener{
  
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, String name, VerticalSeismogramDisplay parent){
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, String name, 
+				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
 	this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), name, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, String name, VerticalSeismogramDisplay parent){
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, String name, 
+				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
 	this(seismos, tc, new RMeanAmpConfig(seismos), name, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, AmpConfig ac, String name, VerticalSeismogramDisplay parent){
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, AmpConfig ac, String name, 
+				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
 	this(seismos, new BasicTimeConfig(seismos), ac, name, parent);
     }
     
     public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, AmpConfig ac, String name, 
-				  VerticalSeismogramDisplay parent){
+				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
+	if(seismos.length == 0){
+	    throw new IllegalArgumentException("The array of seismograms given to a basic seismogram display must not be of length 0.");
+	}
+	boolean allNull = true;
+	for(int i = 0; i < seismos.length; i++){
+	    if(seismos[i] != null){
+		allNull = false;
+	    }
+	}
+	if(allNull){
+	    throw new IllegalArgumentException("A BasicSeismogramDisplay requires at least one non-null seismogram to initialize");
+	}
 	registrar = new Registrar(seismos, tc, ac);
 	this.name = name;
 	this.parent = parent;
