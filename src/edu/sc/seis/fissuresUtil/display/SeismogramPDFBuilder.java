@@ -18,6 +18,7 @@ import com.lowagie.text.pdf.PdfWriter;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -30,7 +31,11 @@ public class SeismogramPDFBuilder {
     }
 
     public static  void createPDF(SeismogramDisplay disp, String fileName,int dispPerPage) throws FileNotFoundException {
-        createPDF(disp, new FileOutputStream(fileName), dispPerPage);
+        createPDF(disp, new File(fileName), dispPerPage);
+    }
+
+    public static void createPDF(SeismogramDisplay disp, File f, int dispPerPage) throws FileNotFoundException{
+        createPDF(disp, new FileOutputStream(f), dispPerPage);
     }
 
     public static void createPDF(SeismogramDisplay disp, FileOutputStream fos, int dispPerPage) {

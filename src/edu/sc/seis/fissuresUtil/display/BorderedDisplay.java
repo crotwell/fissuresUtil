@@ -21,14 +21,17 @@ public class BorderedDisplay extends JPanel{
     public JComponent get(int position){ return comps[position]; }
 
     public void outputToPNG(String filename) throws IOException{
-        outputToPNG(filename, getPreferredSize());
+        outputToPNG(new File(filename));
     }
 
-    public void outputToPNG(String filename, Dimension size) throws IOException{
+    public void outputToPNG(File f) throws IOException{
+        outputToPNG(f, getPreferredSize());
+    }
+
+    public void outputToPNG(File loc, Dimension size) throws IOException{
         BufferedImage bImg = new BufferedImage(size.width, size.height,
                                                BufferedImage.TYPE_INT_RGB);
         renderToGraphics(bImg.createGraphics(), size);
-        File loc = new File(filename);
         loc.getCanonicalFile().getParentFile().mkdirs();
         File temp = File.createTempFile(loc.getName(), null);
         ImageIO.write(bImg, "png", temp);
