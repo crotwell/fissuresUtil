@@ -168,6 +168,7 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     protected synchronized AmpEvent calculateAmp(){
+       //System.out.println("Calculating");
         Iterator e = ampData.keySet().iterator();
         boolean changed = false;
         while(e.hasNext()){
@@ -188,6 +189,7 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     protected synchronized AmpEvent recalculateAmp(){
+        //System.out.println("Basic recalculate");
         Iterator e = ampData.keySet().iterator();
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
@@ -212,7 +214,8 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
         return currentAmpEvent;
     }
 
-    private synchronized boolean setAmpRange(DataSetSeismogram seismo){
+    protected synchronized boolean setAmpRange(DataSetSeismogram seismo){
+        //System.out.println("Basic setAmpRange");
         AmpConfigData data = (AmpConfigData)ampData.get(seismo);
 
         if ( data.getSeismograms().length == 0) {
