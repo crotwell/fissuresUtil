@@ -64,6 +64,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
             setLayout(getNewLayoutConfig());
         }
         layout.add(seismos);
+        checkDrawHeight = true;
         for (int i = 0; i < seismos.length; i++){
             if(!contains(seismos[i])){
                 drawables.add(new DrawableSeismogram(this, seismos[i], (Color)null));
@@ -263,12 +264,16 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                 LayoutData current = (LayoutData)it.next();
                 double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
                 int drawHeight = (int)((current.getEnd() - current.getStart())*height);
-                //If the draw height is less than 40, change the scale so that
+                //If the draw height is less than 20, change the scale so that
                 //it is
-                if(drawHeight < 40){
-                    double percentIncreaseNeeded = 41/(double)drawHeight;
-                    System.out.println(percentIncreaseNeeded);
-                    scalingChanged(scaling * percentIncreaseNeeded);
+                if(drawHeight < 40 && checkDrawHeight){
+                    double percentIncreaseNeeded = 20/(double)drawHeight;
+                    scalingChanged(scaling * percentIncreaseNeeded *4.5);
+                    if(scaler != null){
+                        scaler.setMinPoint((int)((scaling * percentIncreaseNeeded)/10),
+                                               (int)(scaling * percentIncreaseNeeded *4.5)/10);
+                    }
+                    checkDrawHeight = false;
                     return;
                 }
                 double neededYPos = midPoint - drawHeight/2;
@@ -357,6 +362,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         // TODO
     }
     
+    public void setLayoutScaler(LayoutScaler scaler){ this.scaler = scaler; }
+    
     private SeismogramDisplayRemovalBorder displayRemover;
     
     private List drawables = new ArrayList();
@@ -388,5 +395,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     private Border etched  = BorderFactory.createEtchedBorder();
     
     private Border loweredBevel = BorderFactory.createLoweredBevelBorder();
+    
+    private LayoutScaler scaler = null;
+    
+    private boolean checkDrawHeight = false;
 }
-
