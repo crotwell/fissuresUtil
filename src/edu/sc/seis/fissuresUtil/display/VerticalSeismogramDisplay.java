@@ -447,7 +447,23 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	DataSetSeismogram first = ((DataSetSeismogram)creator.getSeismograms().getFirst());
 	LocalSeismogramImpl seis = first.getSeismogram();
 	XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
-	ChannelId[] channelIds = dataSet.getChannelIds();
+	//ChannelId[] channelIds = dataSet.getChannelIds();
+
+	String[] paramNames = dataSet.getParameterNames();
+	LinkedList list = new LinkedList();
+	String origChannelIdStr = ChannelIdUtil.toString(seis.getChannelID());
+	origChannelIdStr = origChannelIdStr.substring(0, origChannelIdStr.indexOf(seis.getChannelID().channel_code)+2);
+	String chanGroupString = edu.sc.seis.fissuresUtil.xml.StdDataSetParamNames.CHANNEL +
+	    origChannelIdStr;
+	for (int i=0; i<paramNames.length; i++) {
+	    if (paramNames[i].startsWith(chanGroupString)) {
+	 	logger.debug("found match parameter channelId "+paramNames[i]);
+		list.add(((edu.iris.Fissures.IfNetwork.Channel)dataSet.getParameter(paramNames[i])).get_id());
+	    } // end of if (paramNames[i].startsWith(origChannelIdStr))
+	    
+	} // end of for (int i=0; i<paramNames[i]; i++)
+	ChannelId[] channelIds = (ChannelId[])list.toArray(new ChannelId[0]);
+
 	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
 	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
 	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
