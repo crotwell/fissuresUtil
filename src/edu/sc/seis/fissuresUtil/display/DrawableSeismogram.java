@@ -14,33 +14,33 @@ import javax.swing.JComponent;
 
 public class DrawableSeismogram implements NamedPlotter{
     public DrawableSeismogram(JComponent parent, DataSetSeismogram seis){
-        this(parent, seis, Color.blue);
+		this(parent, seis, Color.blue);
     }
     
     public DrawableSeismogram(JComponent parent, DataSetSeismogram seis, Color color){
-        this(parent, seis, color, seis.toString());
+		this(parent, seis, color, seis.toString());
     }
     
     public DrawableSeismogram(JComponent parent, 
-			      DataSetSeismogram seis, 
-			      Color color, 
-			      String name){
-        this(parent, new SeismogramShape(parent, seis), color, name);
+							  DataSetSeismogram seis, 
+							  Color color, 
+							  String name){
+		this(parent, new SeismogramShape(parent, seis), color, name);
     }
     
     public DrawableSeismogram(JComponent parent, SeismogramShape shape, Color color, String name){
-	this.parent = parent;
-        this.color = color;
-        this.name = name;
-        this.shape = shape;
+		this.parent = parent;
+		this.color = color;
+		this.name = name;
+		this.shape = shape;
     }
-
+	
     public JComponent getParent() {
-	return parent;
+		return parent;
     }
     
     public void setVisibility(boolean b){
-        visible = b;
+		visible = b;
     }
     
     public boolean getVisiblity(){ return visible; }
@@ -49,25 +49,25 @@ public class DrawableSeismogram implements NamedPlotter{
     }
     
     public void draw(Graphics2D canvas,
-                     Dimension size,
-                     TimeEvent currentTime,
-                     AmpEvent currentAmp){
-        if(visible && size.width > 0 && size.height > 0){
-            canvas.setPaint(color);
-            shape.update(currentTime.getTime(shape.getSeismogram()),
-                         currentAmp.getAmp(shape.getSeismogram()),
-                         size);
-            canvas.draw(shape);
-        }
+					 Dimension size,
+					 TimeEvent currentTime,
+					 AmpEvent currentAmp){
+		if(visible && size.width > 0 && size.height > 0){
+			canvas.setPaint(color);
+			shape.update(currentTime.getTime(shape.getSeismogram()),
+						 currentAmp.getAmp(shape.getSeismogram()),
+						 size);
+			canvas.draw(shape);
+		}
     }
     
     public boolean drawName(Graphics2D canvas, int xPosition, int yPosition){
-        if(visible){
-            canvas.setPaint(color);
-            canvas.drawString(name, xPosition, yPosition);
-            return true;
-        }
-        return false;
+		if(visible){
+			canvas.setPaint(color);
+			canvas.drawString(name, xPosition, yPosition);
+			return true;
+		}
+		return false;
     }
     
     public String getName(){ return name; }
@@ -76,7 +76,9 @@ public class DrawableSeismogram implements NamedPlotter{
     
     public DataSetSeismogram getSeismogram(){ return shape.getSeismogram(); }
     
-    private Color color;
+    private JComponent parent; 
+	
+	private Color color;
     
     private String name;
     
