@@ -507,7 +507,7 @@ public class DateChooser extends JPanel {
             if(calJulianDay ==  todaysJulianDay-1 ){
                 yesButton.setSelected(true);
             }
-        } else {
+        } else if(yearBox != null) {
             int indexofyear = todaysYear - calYear;
             yearBox.setSelectedIndex(indexofyear);
         }
