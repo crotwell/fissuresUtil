@@ -70,4 +70,7 @@ public interface AmpConfig extends DataSetSeismogramReceptacle{
     public AmpEvent updateAmpTime(TimeEvent event);
 
     public AmpConfigData getAmpData(DataSetSeismogram seis);
+
+    public AmpConfigData[] getAmpData();
 }// AmpConfig
+

@@ -14,6 +14,10 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  */
 
 public class AmpEvent {
+    public AmpEvent(DataSetSeismogram[] seismos, AmpConfig amp){
+
+    }
+
     public AmpEvent(DataSetSeismogram[] seismos, UnitRangeImpl[] amps){
         if ( seismos.length != amps.length) {
             throw new IllegalArgumentException("seismogram and amp arrays must have equal length "+seismos.length+" != "+amps.length);

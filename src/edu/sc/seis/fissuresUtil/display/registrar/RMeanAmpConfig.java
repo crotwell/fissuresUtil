@@ -25,21 +25,20 @@ public class RMeanAmpConfig extends BasicAmpConfig {
     }
 
     protected AmpEvent recalculateAmp(){
-        DataSetSeismogram[] seis = getSeismograms();
+        AmpConfigData[] ad = getAmpData();
         double range = Double.NEGATIVE_INFINITY;
-        for (int i = 0; i < seis.length; i++){
-            UnitRangeImpl current = getAmpData(seis[i]).getRange();
+        for (int i = 0; i < ad.length; i++){
+            UnitRangeImpl current = ad[i].getRange();
             if(current != null &&
                current.getMaxValue() - current.getMinValue() > range){
                 range = current.getMaxValue() - current.getMinValue();
             }
         }
-        DataSetSeismogram[] seismos = getSeismograms();
-        UnitRangeImpl[] amps = new UnitRangeImpl[seismos.length];
-        for(int i = 0; i < seismos.length; i++){
-            amps[i] = setRange(getAmpData(seismos[i]).getRange(),range);
+        UnitRangeImpl[] amps = new UnitRangeImpl[ad.length];
+        for(int i = 0; i < ad.length; i++){
+            amps[i] = setRange(ad[i].getRange(),range);
         }
-        return new AmpEvent(seismos, amps);
+        return new AmpEvent(getSeismograms(ad), amps);
     }
 
     protected boolean setAmpRange(DataSetSeismogram seismo){

@@ -189,6 +189,8 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         return seismosArray;
     }
 
+    public AmpConfigData[] getAmpData(){ return ampConfig.getAmpData(); }
+
     public AmpConfigData getAmpData(DataSetSeismogram seis){
         return ampConfig.getAmpData(seis);
     }
@@ -537,3 +539,4 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
 
     private AmpEvent ampEvent;
 }// Registrar
+
