@@ -16,20 +16,25 @@ import java.util.*;
  * @version 0.2
  */
 
-public class TimeScaleCalc implements ScaleMapper {
+public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
     /**
        @param totalPixels the width of the axis being used in pixels
        @param beginTime the start time of the axis
        @param endTime the end time of the axis
     */
-    TimeScaleCalc (int totalPixels, MicroSecondDate beginTime, MicroSecondDate endTime){
+    TimeScaleCalc (int totalPixels, MicroSecondDate beginTime, MicroSecondDate endTime, TimeConfigRegistrar tr){
 	if (endTime.before(beginTime)) {
 	    throw new IllegalArgumentException("endTime must be after beginTime, "+beginTime.toString()+"  "+endTime.toString());
 	} 
 	this.totalPixels = totalPixels;
-	this.beginTime = beginTime.getMicroSecondTime();
-        this.endTime = endTime.getMicroSecondTime();
-	timeIntv = (this.endTime - this.beginTime);
+	setTimes();
+	calculateTicks();
+    }
+    
+    TimeScaleCalc (int totalPixels, TimeConfigRegistrar tr){
+	this.totalPixels = totalPixels;
+	this.timeRegistrar = new TimeConfigRegistrar(tr, this);
+	setTimes();
 	calculateTicks();
     }
 
@@ -112,11 +117,18 @@ public class TimeScaleCalc implements ScaleMapper {
         calculateTicks();
     }
     
-    public synchronized void setTimes(MicroSecondDate beginTime,
+    public void setTimes(MicroSecondDate beginTime,
                          MicroSecondDate endTime) {
         this.beginTime = beginTime.getMicroSecondTime();
         this.endTime = endTime.getMicroSecondTime();
         timeIntv = (this.endTime - this.beginTime);
+	calculateTicks();
+    }
+
+    public void setTimes(){
+	this.beginTime = timeRegistrar.getTimeRange().getBeginTime().getMicroSecondTime();
+	this.endTime = timeRegistrar.getTimeRange().getEndTime().getMicroSecondTime();
+	timeIntv = (this.endTime - this.beginTime);
 	calculateTicks();
     }
     
@@ -124,7 +136,7 @@ public class TimeScaleCalc implements ScaleMapper {
        @returns the long time if  75 pixels are between the major ticks, else it returns a shortened version of the time 
        @param i the current tick
     */
-    public synchronized String getLabel(int i){
+    public  String getLabel(int i){
 	if (isLabelTick(i)) {
 	    MicroSecondDate date = new MicroSecondDate((long)(firstLabelTime + i/majTickRatio * majTickTime));
 	    calendar.setTime(date);
@@ -137,27 +149,31 @@ public class TimeScaleCalc implements ScaleMapper {
        @returns the location of the tick i in pixels
        @param i the current tick
     */
-    public synchronized int getPixelLocation(int i){ return (int)(i*tickSpacing + tickOffset); }
+    public  int getPixelLocation(int i){ return (int)(i*tickSpacing + tickOffset); }
 
     /**
        @returns the number of ticks
     */
-    public synchronized int getNumTicks(){ return numTicks; }
+    public  int getNumTicks(){ return numTicks; }
 
     /**
        @returns if tick i is labeled
        @param i the current tick
     */
-    public synchronized boolean isLabelTick(int i){ return isMajorTick(i); }
+    public  boolean isLabelTick(int i){ return isMajorTick(i); }
 
     /**
        @returns if the tick i is major
        @param i the current tick
     */
-    public synchronized boolean isMajorTick(int i){
+    public  boolean isMajorTick(int i){
 	if(i%majTickRatio - majTickOffset == 0)
 	    return true;
 	return false;
+    }
+
+    public void updateTimeRange(){
+	setTimes();
     }
 
     protected SimpleDateFormat timeFormat;
@@ -183,4 +199,6 @@ public class TimeScaleCalc implements ScaleMapper {
     protected int majTickOffset;
     
     protected double tickSpacing, tickOffset;
+
+    protected TimeConfigRegistrar timeRegistrar;
 }// TimeScaleCalc
