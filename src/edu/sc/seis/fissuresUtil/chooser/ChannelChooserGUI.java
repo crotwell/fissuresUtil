@@ -570,6 +570,33 @@ public class ChannelChooserGUI extends JPanel{
 	return returnValue;
 
     }
+
+    public String[]  getNetworks() {
+
+	return mychannelchooser.getNetworks();
+
+    }
+
+    /*public String[] getChannels() {
+
+	return mychannelchooser.getChannels();
+
+    }
+
+    public String[] getStations() {
+
+	return mychannelchooser.getStations();
+
+	}*/
+
+    public String[] getSites() {
+
+	return mychannelchooser.getSites();
+	
+    }
+	
+
+
    /*================Class Variables===============*/
 
     ChannelChooser mychannelchooser;
