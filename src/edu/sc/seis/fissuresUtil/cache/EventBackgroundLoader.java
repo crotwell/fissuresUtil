@@ -34,6 +34,7 @@ public class EventBackgroundLoader {
         privateThread = new Thread(eventLoaderThreadGroup,
                                    r,
                                    "EventLoader"+getThreadNum());
+        privateThread.setDaemon(true);
         privateThread.start();
     }
 
