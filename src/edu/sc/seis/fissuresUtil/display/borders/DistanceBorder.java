@@ -10,7 +10,7 @@ import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
 
 
 
-public class DistanceBorder extends UnitRangeBorder{
+public class DistanceBorder extends AbstractUnitRangeBorder{
     public DistanceBorder(RecordSectionDisplay rsd){
         super(LEFT, DESCENDING);
         this.rsd = rsd;

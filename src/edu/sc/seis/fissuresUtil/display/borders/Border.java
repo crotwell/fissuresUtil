@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.borders;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -44,6 +45,7 @@ public abstract class Border extends JComponent{
 
     public void paint(Graphics g){
         Graphics2D g2d = (Graphics2D)g;
+        g.setColor(Color.BLACK);
         Iterator it = borderFormats.iterator();
         while(it.hasNext()){
             BorderFormat cur = (BorderFormat)it.next();
@@ -184,6 +186,7 @@ public abstract class Border extends JComponent{
                 nextLabelPoint = getNextPoint((float)pixelsPerLabelTick,
                                               nextLabelPoint);
             }
+            g2d.translate(-(int)translation[0], -(int)translation[1]);
         }
 
         private void label(String label, float[] nextLabelPoint, Graphics2D g2d) {

@@ -4,7 +4,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 
-public class AmpBorder extends UnitRangeBorder{
+public class AmpBorder extends AbstractUnitRangeBorder{
     public AmpBorder(SeismogramDisplay disp){ this(disp, LEFT); }
 
     public AmpBorder(SeismogramDisplay disp, int side){
