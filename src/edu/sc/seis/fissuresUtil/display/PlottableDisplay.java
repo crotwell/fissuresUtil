@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -99,7 +100,7 @@ public class PlottableDisplay extends JComponent {
             revalidate();
         }
     }
-
+    
     public void setPlottable(Plottable[] clientPlott,
                              String nameofstation,
                              String orientationName,
@@ -120,6 +121,7 @@ public class PlottableDisplay extends JComponent {
             selection = new PlottableSelection(this);
         }
         this.date = date;
+        calendar.setTime(date);
         this.channelId = channelId;
         plottableShape = makeShape(clientPlott);
         configChanged();
@@ -241,13 +243,16 @@ public class PlottableDisplay extends JComponent {
 
     void drawTimeTicks(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
-        int hour = 0;
-        String minutes = ":00 ";
+        //int hour = 0;
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        //String minutes = ":00 ";
+        String minutes = ":" + formatMinutes(date.getMinutes()) + " ";
         int hourinterval = totalHours / rows;
         String hourmin = hour + minutes;
-        int houroffset = 10;
+        int houroffset;
         int xShift = totalWidth / rows + LABEL_X_SHIFT;
         for(int currRow = 0; currRow < rows; currRow++) {
+            houroffset = calcHourOffset(hour);
             if(currRow % 2 == 0) {
                 g2.setPaint(evenColor);
             } else {
@@ -255,14 +260,26 @@ public class PlottableDisplay extends JComponent {
             }
             g2.drawString(hourmin, houroffset, titleHeight + rowOffset
                     * currRow);
-            hour += hourinterval;
+            hour = (hour + hourinterval)%24;
             hourmin = hour + minutes;
-            if(hour >= 10) {
-                houroffset = 5;
-            }
+            houroffset = calcHourOffset(hour);
             g2.drawString(hour + minutes, xShift + houroffset, titleHeight
                     + rowOffset * currRow);
         }
+    }
+    
+    private static int calcHourOffset(int hour){
+        if(hour >= 10) {
+            return 5;
+        }
+        return 10;
+    }
+    
+    private static String formatMinutes(int minutes){
+        if (minutes < 10) {
+            return "0" + minutes;
+        }
+        return "" + minutes;
     }
 
     void drawPlottableNew(Graphics g) {
@@ -486,6 +503,7 @@ public class PlottableDisplay extends JComponent {
         Iterator iterator = eventPlotterList.iterator();
         while(iterator.hasNext()) {
             EventFlag plotter = (EventFlag)iterator.next();
+            //plotter.setAlpha(127);
             plotter.draw(g);
         }
     }
@@ -598,6 +616,8 @@ public class PlottableDisplay extends JComponent {
     private float ampScalePercent = 1.0f;
 
     private Date date;
+    
+    private Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
     private static ColorFactory colorFactory = new ColorFactory();
 
