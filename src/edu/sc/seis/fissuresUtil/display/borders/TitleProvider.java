@@ -6,5 +6,7 @@ public interface TitleProvider {
 
     public String getTitle();
 
-    public Font getFont();
+    public Font getTitleFont();
+
+    public void setTitleFont(Font f);
 }
