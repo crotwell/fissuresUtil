@@ -56,6 +56,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         minMaxAll[0] = Double.POSITIVE_INFINITY;
         minMaxAll[1] = Double.NEGATIVE_INFINITY;
         boolean dataInRange = false;
+        UnitImpl seisUnit = seismograms[0].getUnit();
         for(int i = 0; i < seismograms.length; i++){
             LocalSeismogramImpl seis = seismograms[i];
             int[] seisIndex = DisplayUtils.getSeisPoints(seis, data.getTime());
@@ -93,7 +94,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
             }
             double min = mean - meanDiff;
             double max = mean + meanDiff;
-            return data.setCleanRange(new UnitRangeImpl(min, max, UnitImpl.COUNT));
+            return data.setCleanRange(new UnitRangeImpl(min, max, seisUnit));
         }else{
             return data.setCleanRange(DisplayUtils.ZERO_RANGE);
         }
@@ -101,7 +102,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
 
     private UnitRangeImpl setRange(UnitRangeImpl currRange, double range){
         double middle = currRange.getMaxValue() - (currRange.getMaxValue() - currRange.getMinValue())/2;
-        return new UnitRangeImpl(middle - range/2, middle + range/2, UnitImpl.COUNT);
+        return new UnitRangeImpl(middle - range/2, middle + range/2, currRange.getUnit());
     }
 
     private static Category logger = Category.getInstance(RMeanAmpConfig.class.getName());
