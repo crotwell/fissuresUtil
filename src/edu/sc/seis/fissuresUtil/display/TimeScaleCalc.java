@@ -100,7 +100,7 @@ public class TimeScaleCalc implements ScaleMapper {
 	       majTickTime = 86400000000l;
 	}
 	timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	numTicks = (int)((timeIntv/(double)majTickTime) * majTickRatio);
+	numTicks = ((int)(timeIntv/(double)majTickTime) * majTickRatio);
 	firstLabelTime = (beginTime/majTickTime + 1) * majTickTime;
 	majTickOffset = (int)((firstLabelTime - beginTime)/(double)timeIntv * numTicks);
 	tickOffset = (firstLabelTime - beginTime)/(double)timeIntv/majTickRatio * totalPixels;
@@ -112,7 +112,7 @@ public class TimeScaleCalc implements ScaleMapper {
         calculateTicks();
     }
     
-    public void setTimes(MicroSecondDate beginTime,
+    public synchronized void setTimes(MicroSecondDate beginTime,
                          MicroSecondDate endTime) {
         this.beginTime = beginTime.getMicroSecondTime();
         this.endTime = endTime.getMicroSecondTime();
@@ -124,7 +124,7 @@ public class TimeScaleCalc implements ScaleMapper {
        @returns the long time if  75 pixels are between the major ticks, else it returns a shortened version of the time 
        @param i the current tick
     */
-    public String getLabel(int i){
+    public synchronized String getLabel(int i){
 	if (isLabelTick(i)) {
 	    MicroSecondDate date = new MicroSecondDate((long)(firstLabelTime + i/majTickRatio * majTickTime));
 	    calendar.setTime(date);
@@ -137,24 +137,24 @@ public class TimeScaleCalc implements ScaleMapper {
        @returns the location of the tick i in pixels
        @param i the current tick
     */
-    public int getPixelLocation(int i){ return (int)(i*tickSpacing + tickOffset); }
+    public synchronized int getPixelLocation(int i){ return (int)(i*tickSpacing + tickOffset); }
 
     /**
        @returns the number of ticks
     */
-    public int getNumTicks(){ return numTicks; }
+    public synchronized int getNumTicks(){ return numTicks; }
 
     /**
        @returns if tick i is labeled
        @param i the current tick
     */
-    public boolean isLabelTick(int i){ return isMajorTick(i); }
+    public synchronized boolean isLabelTick(int i){ return isMajorTick(i); }
 
     /**
        @returns if the tick i is major
        @param i the current tick
     */
-    public boolean isMajorTick(int i){
+    public synchronized boolean isMajorTick(int i){
 	if(i%majTickRatio - majTickOffset == 0)
 	    return true;
 	return false;

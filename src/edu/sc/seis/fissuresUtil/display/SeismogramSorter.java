@@ -15,23 +15,21 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  */
 
 public class SeismogramSorter {
-    public int sort(LocalSeismogramImpl seismo, String name){
-	names.add(name);
-	return names.size();
+    public int sort(DataSetSeismogram seismo, String name){
+	seismos.add(name);
+	return seismos.size();
     }
 
     public boolean contains(String name){
-	if(names.contains(name))
+	if(seismos.contains(name))
 	    return true;
 	return false;
     }
 
     public boolean remove(String name){
-	return names.remove(name);
+	return seismos.remove(name);
     }
 	 
     
-    protected HashMap seismos;
-
-    protected LinkedList names = new LinkedList();
+    protected LinkedList seismos = new LinkedList();
 }// SeismogramSorter

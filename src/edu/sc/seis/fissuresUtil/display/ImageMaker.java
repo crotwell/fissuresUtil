@@ -50,7 +50,7 @@ public class ImageMaker implements Runnable  {
 	Graphics2D graphic;
 	Image currentImage = null;
 	Dimension size; 
-	HashMap filterPlotters, seisPlotters;
+	HashMap filterPlotters, seisPlotters, flagPlotters;
 	numLeft = requests.size();
 	while(numLeft > 0){
 	    begin = new Date();
@@ -61,6 +61,7 @@ public class ImageMaker implements Runnable  {
 		size = currentRequirements.getSize();
 		seisPlotters = ((HashMap)currentRequirements.getSeisPlotters().clone());
 		filterPlotters = ((HashMap)currentRequirements.getFilterPlotters().clone());
+		flagPlotters = ((HashMap)currentRequirements.getFlagPlotters().clone());
 	    	if(requests.contains(currentPatron) && size.width > 0){
 		    currentImage = currentPatron.createImage(size.width, size.height);
 		    graphic = (Graphics2D)currentImage.getGraphics();
@@ -85,13 +86,14 @@ public class ImageMaker implements Runnable  {
 		graphic.setColor((Color)filterPlotters.get(current));
 		graphic.draw(current.draw(size));
 	    }
-	    /*while(e.hasNext()){
+	    e = flagPlotters.keySet().iterator();
+	    while(e.hasNext()){
 		FlagPlotter current = ((FlagPlotter)e.next());
-		graphic.setColor((Color)plotters.get(current));
+		graphic.setColor((Color)flagPlotters.get(current));
 		graphic.fill(current.draw(size));
 		graphic.setColor(Color.black);
 		graphic.drawString(current.getName(), current.getStringX(), 10);
-		}*/
+	    }
 	    Date endPlotting = new Date();
 	    long interval = (endPlotting.getTime() - beginPlotting.getTime());
 	    //logger.debug("plotting: " + interval + "ms");
