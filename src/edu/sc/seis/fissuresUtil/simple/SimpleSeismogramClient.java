@@ -11,6 +11,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+import edu.sc.seis.fissuresUtil.cache.BulletproofVestFactory;
 
 
 
@@ -49,7 +50,7 @@ public class SimpleSeismogramClient implements TestingClient{
              *  is the individual server name. The dmc lists their servers under
              *  the edu/iris/dmc and their main network server is IRIS_EventDC.
              */
-            seisDC = Initializer.getNS().getSeismogramDC(serverDNS, serverName);
+            seisDC =  BulletproofVestFactory.vestSeismogramDC(serverDNS, serverName, Initializer.getNS());
             logger.info("got SeisDC");
         }catch (org.omg.CORBA.ORBPackage.InvalidName e) {
             logger.error("Problem with name service: ", e);
@@ -137,7 +138,7 @@ public class SimpleSeismogramClient implements TestingClient{
         return request;
     }
 
-    protected DataCenter seisDC;
+    protected DataCenterOperations seisDC;
 
     private static final TimeInterval ONE_YEAR = new TimeInterval(365, UnitImpl.DAY);
     private static final TimeInterval ONE_HOUR = new TimeInterval(1, UnitImpl.HOUR);
