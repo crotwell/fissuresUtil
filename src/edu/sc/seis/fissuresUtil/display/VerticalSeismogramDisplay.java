@@ -27,25 +27,25 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	this.getViewport().add(seismograms);
     }
     
-    public void addDisplay(LocalSeismogram seis){
-	this.addDisplay((LocalSeismogramImpl)seis);
+    public void addDisplay(LocalSeismogram seis, String name){
+	this.addDisplay((LocalSeismogramImpl)seis, name);
     }
     
-    public void addDisplay(LocalSeismogramImpl seis){
+    public void addDisplay(LocalSeismogramImpl seis, String name){
 	if(basicDisplays.size() > 0)
 	    this.addDisplay(seis,((SeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
-			((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
+			((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig(), name);
 	else{	    
 	    AmpRangeConfig ar = new RMeanAmpConfig();
 	    TimeRangeConfig tr = new BoundedTimeConfig();
 	    //ar.visibleAmpCalc(tr);
-	    this.addDisplay(seis, tr, ar);
+	    this.addDisplay(seis, tr, ar, name);
 	}	    
     }
     
-    public void addDisplay(LocalSeismogramImpl seis, TimeRangeConfig tr, AmpRangeConfig ar){
+    public void addDisplay(LocalSeismogramImpl seis, TimeRangeConfig tr, AmpRangeConfig ar, String name){
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay((LocalSeismogram)seis, tr,
-								 ar, true);
+								 ar, true, name);
 	seismograms.add(disp);
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
@@ -105,7 +105,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	basicDisplays.remove(clicked);
 	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
 	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-	seismograms.revalidate();
     }
     
     protected LinkedList basicDisplays = new LinkedList();
@@ -124,10 +123,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    LocalSeismogram test3 = SeisPlotUtil.createSineWave();
 	    LocalSeismogram test4 = SeisPlotUtil.createTestData();
 	    VerticalSeismogramDisplay sv = new VerticalSeismogramDisplay();
-	    sv.addDisplay((LocalSeismogramImpl)test1, new BoundedTimeConfig(), new RMeanAmpConfig());
-	    sv.addDisplay((LocalSeismogramImpl)test2);
-	    sv.addDisplay((LocalSeismogramImpl)test3);
-	    sv.addDisplay((LocalSeismogramImpl)test4);
+	    sv.addDisplay((LocalSeismogramImpl)test1, new BoundedTimeConfig(), new RMeanAmpConfig(), "");
+	    sv.addDisplay((LocalSeismogramImpl)test2, "");
+	    sv.addDisplay((LocalSeismogramImpl)test3, "");
+	    sv.addDisplay((LocalSeismogramImpl)test4, "");
 	    sv.addSeismogram((LocalSeismogramImpl)test2, 0);
 	    Dimension size = new Dimension(400, 400);
 	    sv.setPreferredSize(size);

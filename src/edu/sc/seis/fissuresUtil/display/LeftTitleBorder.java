@@ -20,7 +20,7 @@ public class LeftTitleBorder extends javax.swing.border.AbstractBorder {
     
     public LeftTitleBorder(String title) {
         top = 0;
-        left = 50;
+        left = 10;
         right = 0;
         bottom = 0;
         this.title = title;
@@ -101,13 +101,13 @@ public class LeftTitleBorder extends javax.swing.border.AbstractBorder {
                     int prevNewline = -1;
                     int currNewline = title.indexOf("\n");
                     if (currNewline == -1) currNewline = title.length();
-                    while (prevNewline < title.length()) {
+                    while (prevNewline < title.length() - 1) {
                         copy.drawString(title.substring(prevNewline+1,
-                                                        currNewline),
-                                        0,
+                                                        prevNewline+2),
+                                        5,
                                         vOffset);
                         
-                        prevNewline = currNewline;
+                        prevNewline += 1;
                         currNewline = title.indexOf("\n", prevNewline);
                         if (currNewline == -1) currNewline = title.length();
                         vOffset += fm.getHeight();
