@@ -23,9 +23,9 @@ public class ExceptionHandlerGUI {
     /**
      * Creates a new <code>ExceptionHandlerGUI</code> instance.
      *
-     * @param e an <code>Exception</code> value
+     * @param e an <code>Throwable</code> value
      */
-    public ExceptionHandlerGUI (Exception e){
+    public ExceptionHandlerGUI (Throwable e){
 	
 	this.exception = e;
 	
@@ -37,7 +37,7 @@ public class ExceptionHandlerGUI {
      *
      * @return a <code>JPanel</code> value
      */
-    public static  JPanel handleException(Exception exception) {
+    public static  JPanel handleException(Throwable exception) {
 	
 	JPanel mainPanel = new JPanel();
 	JTabbedPane tabbedPane = new JTabbedPane();
@@ -103,10 +103,10 @@ public class ExceptionHandlerGUI {
     /**
      * retuns the stackTrace of the exception as a string.
      *
-     * @param e an <code>Exception</code> value
+     * @param e an <code>Throwable</code> value
      * @return a <code>String</code> value
      */
-    public static String getStackTrace(Exception e) {
+    public static String getStackTrace(Throwable e) {
 
 
 	StringWriter  stringWriter = new StringWriter();
@@ -117,5 +117,5 @@ public class ExceptionHandlerGUI {
 
     }
 
-    private Exception exception;
+    private Throwable exception;
 }// ExceptionHandlerGUI
