@@ -34,6 +34,8 @@ public class AmpConfigData {
     public AmpConfigData (DataSetSeismogram seismo, UnitRangeImpl cleanRange, MicroSecondTimeRange timeRange,
 			  double shift, double scale){
 	if ( cleanRange == null) {
+	    // not sure if this is right or not, but I think that a 
+	    // null cleanRange should not be allowed.
 	    throw new IllegalArgumentException("CleanRange cannot be null");
 	} // end of if ()
 	
@@ -44,9 +46,6 @@ public class AmpConfigData {
 	this.scale = scale;
 	shaledRange = null;
 
-	if ( cleanRange == null) {
-	    cleanRange = new UnitRangeImpl(-1, 1, edu.iris.Fissures.model.UnitImpl.COUNT);
-	} // end of if ()
 	
     }
 
