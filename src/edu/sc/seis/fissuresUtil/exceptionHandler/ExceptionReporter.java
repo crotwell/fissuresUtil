@@ -6,10 +6,9 @@
 
 package edu.sc.seis.fissuresUtil.exceptionHandler;
 
-import java.io.File;
-import java.util.Map;
+import java.util.List;
 
 public interface ExceptionReporter{
-    public void report(String message, Throwable e, Map parsedContents);
+    public void report(String message, Throwable e, List sections) throws Exception;
 }
 
