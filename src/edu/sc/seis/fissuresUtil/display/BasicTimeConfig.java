@@ -175,5 +175,5 @@ public class BasicTimeConfig implements TimeConfig{
 
     protected double scale = 1;
 
-    private MicroSecondTimeRange time;
+    protected MicroSecondTimeRange time;
 }// BasicTimeConfig
