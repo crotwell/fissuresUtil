@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2266 2002-07-17 17:45:36Z telukutl $
+ * @version $Id: XMLDataSet.java 2275 2002-07-17 20:42:54Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -37,6 +37,7 @@ public class XMLDataSet implements DataSet, Serializable {
         Document doc = docBuilder.newDocument();
         config = doc.createElement("dataset");
         config.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        prefixResolver = new org.apache.xml.utils.PrefixResolverDefault(config);
     }
 
     /**
@@ -191,10 +192,6 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public Object getParameter(String name) {
 
-	//ChannelProxy channelProxy = new ChannelProxy();
-	//ChannelId[] channelIds = getChannelIds(); 
-	//channelProxy.retrieve_grouping(channelIds, channelIds[0]);
-	///************************************************	
         if (parameterCache.containsKey(name)) {
             return parameterCache.get(name);
         } // end of if (parameterCache.containsKey(name))
@@ -301,10 +298,70 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return a <code>String[]</code> id
      */
     public String[] getDataSetIds() {
-	if (dataSetIdCache == null) {
-	    dataSetIdCache = getAllAsStrings("*/@datasetid"); 
-	} // end of if (dataSetIdCache == null) 
-	return dataSetIdCache;  
+        if (dataSetIdCache == null) {
+            String[] internal = getAllAsStrings("*/@datasetid"); 
+            String[] external = getDataSetRefIds();
+            for (int i=0; i<external.length; i++) {
+                logger.debug("External Dataset Id cache :'"+external[i]+"'");
+            } // end of for (int i=0; i<tmp.length; i++)
+            String[] tmp = new String[internal.length+external.length];
+            System.arraycopy(internal, 0, 
+                             tmp, 0, 
+                             internal.length);
+            System.arraycopy(external, 0, 
+                             tmp, internal.length, 
+                             external.length);
+            for (int i=0; i<tmp.length; i++) {
+                logger.debug("Dataset Id cache :'"+tmp[i]+"'");
+            } // end of for (int i=0; i<tmp.length; i++)
+            
+            dataSetIdCache = tmp;
+        } // end of if (dataSetIdCache == null) 
+        return dataSetIdCache;  
+    }
+
+    String[] getDataSetRefIds() {
+        String[] xlinktmps = getAllAsStrings("datasetRef");
+        String xlinkNS= "http://www.w3.org/1999/xlink";
+        NodeList nodes = evalNodeList(config, "datasetRef");
+        if (nodes == null) {
+            return new String[0];
+        } // end of if (nodes == null)
+	System.out.println("the length of the nodes is "+nodes.getLength());
+
+        String[] xlinks = new String[nodes.getLength()];
+        String[] ids = new String[nodes.getLength()];
+        for (int i=0; i<nodes.getLength(); i++) {
+            Node n = nodes.item(i);
+            NamedNodeMap map = n.getAttributes();
+            for (int j=0; j<map.getLength(); j++) {
+                logger.debug("attribute: "+map.item(j).getLocalName());
+            } // end of for (int j=0; j<map.getLength(); j++)
+            
+            try {
+                if (n instanceof Element) {
+                    Element e = (Element)n;
+                    String href = e.getAttribute("xlink:href");
+                    logger.debug("got href="+href+"   base="+getBase());
+                    SimpleXLink sl = new SimpleXLink(docBuilder, e, getBase());
+                    Element referredElement = sl.retrieve();
+                    logger.debug("simpleLink element is"+referredElement.toString());
+                    XMLDataSet ds = new XMLDataSet(docBuilder, 
+                                                   new URL(getBase(), href),
+                                                   referredElement);
+                    dataSetCache.put(ds.getId(), ds);
+                    ids[i] = ds.getId();
+                } else {
+                    ids[i] = null;
+                } // end of else
+                
+            } catch (Exception e) {
+                logger.error("can't get dataset for "+xlinks[i], e);
+                ids[i] = null;
+            } // end of try-catch
+        } // end of for (int i=0; i<xlinks.length; i++)
+        logger.debug("got "+xlinks.length+" datasetRef ids from "+xlinktmps.length+" datasetRefs");
+        return ids;
     }
 
     /**
@@ -416,20 +473,13 @@ public class XMLDataSet implements DataSet, Serializable {
         }
 
         // not an embedded dataset, try datasetRef
-        nList = 
-            evalNodeList(config, "datasetRef[@datasetid="+dquote+id+dquote+"]");
-        if (nList != null && nList.getLength() != 0) {
-            Node n = nList.item(0); 
-            if (n instanceof Element) {
-                try {
-                    SimpleXLink sl = new SimpleXLink(docBuilder, (Element)n, base);
-                    return new XMLDataSet(docBuilder, base, sl.retrieve());
-                } catch (Exception e) {
-                    logger.error("Couldn't get datasetRef", e);
-                } // end of try-catch
-		
-            }
+        // getIds adds to cache
+        String[] ids = getDataSetRefIds();
+        if (dataSetCache.containsKey(id)) {
+            return (DataSet)dataSetCache.get(id);
         }
+
+        logger.error("Couldn't get datasetRef :"+id);
 
         // can't find it
         return null;
@@ -992,6 +1042,10 @@ public class XMLDataSet implements DataSet, Serializable {
 	//System.out.println("The path that is passed to GetALLASStrings is "+path);
 	
         NodeList nodes = evalNodeList(config, path);
+        if (nodes == null) {
+            return new String[0];
+        } // end of if (nodes == null)
+        
 	String[] out = new String[nodes.getLength()];
 	//System.out.println("the length of the nodes is "+nodes.getLength());
         for (int i=0; i<out.length; i++) {
@@ -1009,7 +1063,7 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     protected NodeList evalNodeList(Node context, String path) {
         try {
-            XObject xobj = xpath.eval(context, path);
+            XObject xobj = xpath.eval(context, path, prefixResolver);
             if (xobj != null && xobj.getType() == XObject.CLASS_NODESET) {
                 return xobj.nodelist();
             }
@@ -1052,6 +1106,8 @@ public class XMLDataSet implements DataSet, Serializable {
     }
 
     private XPathAPI xpath = new XPathAPI();
+
+    private org.apache.xml.utils.PrefixResolver prefixResolver;
 
     /**
      * Describe variable <code>base</code> here.
