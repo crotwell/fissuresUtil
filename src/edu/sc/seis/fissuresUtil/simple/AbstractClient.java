@@ -82,11 +82,11 @@ public abstract class AbstractClient {
         return props;
     }
 
-    static org.omg.CORBA_2_3.ORB orb;
+    protected static org.omg.CORBA_2_3.ORB orb;
 
-    static FissuresNamingServiceImpl fisName;
+    protected static FissuresNamingServiceImpl fisName;
 
-    static Logger logger = Logger.getLogger(AbstractClient.class);
+    private static Logger logger = Logger.getLogger(AbstractClient.class);
 
 }
 
