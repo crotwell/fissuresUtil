@@ -76,6 +76,16 @@ public class IntervalChooser extends JPanel{
 	if(tempValue > maxValue) tempValue = maxValue;
 	valueBox.setSelectedIndex(tempValue);
 	*/
+
+	for(int counter = -100; counter <= -10; counter = counter+10) {
+
+	    valueBox.addItem(new String(Integer.toString(counter)));
+	}
+	for(int counter = -9; counter <= 0; counter = counter + 1) {
+
+	    valueBox.addItem(new String(Integer.toString(counter)));
+	}
+
 	for(int counter = 1; counter <= 10; counter++) {
 
 	    valueBox.addItem(new String(Integer.toString(counter)));
