@@ -273,7 +273,9 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
             }
             if (stationsUnderMouse.size() > 0){
                 if (stationsUnderMouse.size() == 1){
-                    chooser.toggleStationSelected((Station)stationsUnderMouse.get(0));
+                    synchronized(chooser){
+                        chooser.toggleStationSelected((Station)stationsUnderMouse.get(0));
+                    }
                 }
                 else{
                     final JPopupMenu popup = new JPopupMenu();
@@ -283,7 +285,9 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
                         final JMenuItem menuItem = new JMenuItem(getStationInfo(current, currentEvent));
                         menuItem.addActionListener(new ActionListener(){
                                     public void actionPerformed(ActionEvent e) {
-                                        chooser.toggleStationSelected(current);
+                                        synchronized(chooser){
+                                            chooser.toggleStationSelected(current);
+                                        }
                                         popup.setVisible(false);
                                     }
                                 });
