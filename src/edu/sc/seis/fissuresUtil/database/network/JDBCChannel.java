@@ -107,7 +107,9 @@ public class JDBCChannel extends NetworkTable {
             // no id found so ok to add the whole thing
             dbid = seq.next();
             putId.setInt(1, dbid);
-            insertId(id, putId, 2, siteTable, time);
+            putId.setInt(2, siteTable.put(id));
+            putId.setString(3, id.channel_code);
+            putId.setInt(4, time.put(id.begin_time));
             putId.executeUpdate();
         }
         return dbid;
