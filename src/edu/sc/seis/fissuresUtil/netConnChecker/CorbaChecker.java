@@ -1,23 +1,13 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
-//import edu.sc.seis.sac.*;
 import org.apache.log4j.Category;
 import org.omg.CORBA.COMM_FAILURE;
 
-
-
-/**
- * Description: Checks for CORBA Connections. There are two constructors for this. The first constructor
- * takes a CORBA Object and  description. The second constructor takes the dns, interfaceName, objectName,
- * description and fissuresNamingService as parameters.
- *
- * CorbaChecker.java
- *
- * @author <a href="mailto:">Srinivasa Telukutla</a>
- * $Id: CorbaChecker.java 10257 2004-08-31 13:47:25Z groves $
- * @version 1.0
- */
 public class CorbaChecker extends ConcreteConnChecker  {
+    protected CorbaChecker(String description){
+        super(description);
+    }
+    
     /**
      * Creates a new <code>CorbaChecker</code> instance.
      *
@@ -56,7 +46,7 @@ public class CorbaChecker extends ConcreteConnChecker  {
         }// close run
     }
 
-    private org.omg.CORBA.Object obj;
+    protected org.omg.CORBA.Object obj;
     static Category logger = Category.getInstance(CorbaChecker.class);
 
 
