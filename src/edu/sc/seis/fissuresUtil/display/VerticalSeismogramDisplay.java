@@ -1,9 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
-import javax.swing.*;
+import java.util.*;
 
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
-import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
@@ -13,17 +12,10 @@ import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.BorderLayout;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.TimeZone;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import org.apache.log4j.Category;
 
 /**
@@ -153,36 +145,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     public LinkedList getDisplays(){ return basicDisplays; }
 
     /**
-     * <code>getAllBasicDisplays</code> returns a list of all displays held directly
-     * by this VSD or its children
-     *
-     * @return a list of all displays in this VSD or its children
-     */
-    public LinkedList getAllBasicDisplays(){
-        return getAllBasicDisplays(new LinkedList());
-    }
-
-    /**
-     * <code>getAllBasicDisplays</code> returns a list of all displays held directly
-     * by this VSD or its children
-     *
-     * @param target the linked list that will contain all the displays
-     * @return a list of all displays in this VSD or its children
-     */
-    public LinkedList  getAllBasicDisplays(LinkedList target){
-        target.addAll(basicDisplays);
-        if(selectionDisplay != null){
-            selectionDisplay.getAllBasicDisplays(target);
-        }
-        if(threeSelectionDisplay != null){
-            threeSelectionDisplay.getAllBasicDisplays(target);
-        }
-        return target;
-    }
-
-
-
-    /**
      * Sets a string to be appended to the names of each seismogram added to the display.
      * @param suffix the suffix for the seismogram names
      */
@@ -206,66 +168,17 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         return ((BasicSeismogramDisplay[])basicDisplays.toArray(new BasicSeismogramDisplay[basicDisplays.size()]));
     }
 
-    /**
-     * <code>setSort/code> changes the method by which added displays are
-     * ordered.  NOIMPL
-     *
-     * @param sorter the new sorter
-     */
-    public void setSort(SeismogramSorter sorter){
-    }
-
-    public void removeAllSelections(){
-        removeSelectionDisplay();
-        remove3CSelectionDisplay();
-    }
-
-    /**
-     * <code>removeSelectionDisplay</code> removes a particular VSD child of
-     * this VSD
-     *
-     * @param display the VSD to be removed
-     */
-    public void removeSelectionDisplay(VerticalSeismogramDisplay display){
-        if(display == selectionDisplay){
-            removeSelectionDisplay();
-        }else if(display == threeSelectionDisplay){
-            remove3CSelectionDisplay();
+    public void remove(Selection selection){
+        Iterator it = basicDisplays.iterator();
+        while(it.hasNext()){
+            ((BasicSeismogramDisplay)it.next()).remove(selection);
         }
     }
 
-    /**
-     * <code>removeSelectionDisplay</code> removes the Tag Pick Zone window
-     *
-     */
-    public void removeSelectionDisplay(){
+    public void clearSelections(){
         Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).clearSingleSelections();
-        }
-        if(selectionWindow != null){
-            selectionWindow.dispose();
-            selectionWindow = null;
-            selectionDisplay.removeAll();
-            selectionDisplay = null;
-        }
-    }
-
-    /**
-     * <code>remove3CSelectionDisplay</code> removes the tag particle motion zone
-     * window
-     *
-     */
-    public void remove3CSelectionDisplay(){
-        Iterator e = basicDisplays.iterator();
-        while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).clearThreeCSelections();
-        }
-        if(threeSelectionWindow != null){
-            threeSelectionWindow.dispose();
-            threeSelectionWindow = null;
-            threeSelectionDisplay.removeAll();
-            threeSelectionDisplay = null;
         }
     }
 
@@ -280,35 +193,12 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      */
     public void removeAll(){
         logger.debug("removing all displays");
-        if(parent != null){
-            parent.removeSelectionDisplay(this);
-        }
         super.removeAll();
         basicDisplays.clear();
         sorter = new SeismogramSorter();
         globalRegistrar = null;
         time.setText("   Time: ");
         amp.setText("   Amp: ");
-        if(selectionDisplay != null){
-            selectionDisplay.removeAll();
-            if(selectionWindow != null){
-                selectionWindow.dispose();
-            }
-            selectionDisplay = null;
-        }
-        if(threeSelectionDisplay != null){
-            threeSelectionDisplay.removeAll();
-            if(threeSelectionWindow != null){
-                threeSelectionWindow.dispose();
-            }
-            threeSelectionDisplay = null;
-        }
-        if(particleDisplay != null){
-            particleWindow.dispose();
-            particleDisplays--;
-            particleDisplay.removeAll();
-            particleDisplay = null;
-        }
         repaint();
     }
 
@@ -379,7 +269,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      * @param visible the new visibility of the unfiltered seismogram
      */
     public void setOriginalVisibility(boolean visible){
-        Iterator e = getAllBasicDisplays().iterator();
+        Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).setOriginalVisibility(visible);
         }
@@ -393,7 +283,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     public boolean getOriginalVisibility(){ return originalVisible; }
 
     public void setCurrentTimeFlag(boolean visible){
-        Iterator e = getAllBasicDisplays().iterator();
+        Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).setCurrentTimeFlag(visible);
         }
@@ -409,7 +299,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      * @param filter a <code>ColoredFilter</code> value
      */
     public void applyFilter(ColoredFilter filter){
-        Iterator e = getAllBasicDisplays().iterator();
+        Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).applyFilter(filter);
         }
@@ -473,14 +363,14 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     public TimeConfig getTimeConfig(){ return globalRegistrar.getTimeConfig(); }
 
     public void reset(){
-        Iterator e = getAllBasicDisplays().iterator();
+        Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).reset();
         }
     }
 
     public void reset(DataSetSeismogram[] seismos){
-        Iterator e = getAllBasicDisplays().iterator();
+        Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).reset(seismos);
         }
@@ -507,276 +397,19 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
                 ((BasicSeismogramDisplay)e.next()).getRegistrar().setAmpConfig((AmpConfig)globalRegistrar);
     }
 
-    /**
-     * <code>createParticleDisplay</code> adds the seismograms of creator to the Particle
-     * display held by this VSD, and if the Particle display has not been created, it does so
-     * if particleAllowed is true.  If not, it displays a message saying particle motion windows
-     * are not allowed off of this display
-     *
-     * @param creator the BSD whose seismograms will be added to the particle display
-     * @param advancedOption if true, the particle display will allow display of all 3 components
-     * individuall instead of in only N-E E-Z and N-Z pairs
-     */
-    public void createParticleDisplay(BasicSeismogramDisplay creator, boolean advancedOption){
-        if(particleAllowed){
-            if(particleDisplay == null){
-                particleDisplay = new ParticleMotionDisplay(creator.getSeismograms()[0],
-                                                            creator.getRegistrar(),
-                                                            advancedOption);
-                if(particleDisplay.getInitializationStatus()){
-                    logger.debug("creating particle display");
-                    particleWindow = new JFrame(particleWindowName);
-                    particleWindow.addWindowListener(new WindowAdapter() {
-                                public void windowClosing(WindowEvent e) {
-                                    particleDisplay.removeAll();
-                                    particleDisplays--;
-                                }
-                            });
-                    JPanel displayPanel = new JPanel();
-                    /*JButton zoomIn = new JButton("Zoom In");
-                     JButton zoomOut = new JButton("Zoom Out");
-                     zoomIn.addActionListener(new ActionListener() {
-                     public void actionPerformed(ActionEvent ae) {
-
-                     particleDisplay.setZoomIn(true);
-                     // particleDisplay.setZoomOut(false);
-                     }
-                     });
-                     zoomOut.addActionListener(new ActionListener() {
-                     public void actionPerformed(ActionEvent ae) {
-
-                     particleDisplay.setZoomOut(true);
-                     // particleDisplay.setZoomIn(false);
-                     }
-                     });
-                     JPanel buttonPanel = new JPanel();
-                     buttonPanel.setLayout(new FlowLayout());
-                     buttonPanel.add(zoomIn);
-                     buttonPanel.add(zoomOut);*/
-                    displayPanel.setLayout(new BorderLayout());
-                    displayPanel.add(particleDisplay, java.awt.BorderLayout.CENTER);
-                    //displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
-                    java.awt.Dimension size = new java.awt.Dimension(400, 400);
-                    displayPanel.setSize(size);
-                    particleWindow.getContentPane().add(displayPanel);
-                    particleWindow.addWindowListener(new WindowAdapter() {
-                                public void windowClosing(WindowEvent e) {
-                                    particleWindow.dispose();
-                                    particleDisplay = null;
-                                }
-                            });
-                    particleWindow.setSize(size);
-                    Toolkit tk = Toolkit.getDefaultToolkit();
-                    if(particleWindow.getSize().width*particleDisplays < tk.getScreenSize().width){
-                        particleWindow.setLocation(particleWindow.getSize().width * particleDisplays, tk.getScreenSize().height -
-                                                       particleWindow.getSize().width);
-                    }else{
-                        particleWindow.setLocation(tk.getScreenSize().width - particleWindow.getSize().width,
-                                                   tk.getScreenSize().height - particleWindow.getSize().height);
-                    }
-                    particleDisplays++;
-                    particleWindow.setVisible(true);
-                }else{
-                    particleDisplay = null;
-                    JOptionPane.showMessageDialog(null,
-                                                  "The other components weren't found to create the Particle Motion Display, so it can't be created.",
-                                                  "Other Components not found",
-                                                  JOptionPane.WARNING_MESSAGE);
-                }
-            }else {
-                particleDisplay.addParticleMotionDisplay(creator.getSeismograms()[0],
-                                                         creator.getRegistrar());
-                particleWindow.toFront();
-            } // end of else
-        }else{
-            JOptionPane.showMessageDialog(null,
-                                          "Particle motion isn't allowed from this display!",
-                                          "Particle Motion Display Creation",
-                                          JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
-
-    /**
-     * <code>createSelectionDisplay</code> adds the seismogram in the Selection argument
-     * to this VSD's selection display.  If the selection display does not exist, it creates it
-     * then adds them
-     *
-     * @param creator the selection whose seismograms will be added
-     */
-    public void createSelectionDisplay(Selection creator, JToolBar toolbar){
-        if(selectionDisplay == null){
-            logger.debug("creating selection display");
-            selectionDisplay = new MultiSeismogramWindowDisplay(this);
-            addSelection(creator, selectionDisplay);
-            selectionWindow = new JFrame(tagWindowName);
-            selectionWindow.addWindowListener(new WindowAdapter() {
-                        public void windowClosing(WindowEvent e) {
-                            removeSelectionDisplay();
-                        }
-                    });
-            selectionWindow.setSize(400, 200);
-            selectionWindow.getContentPane().setLayout(new BorderLayout());
-            selectionWindow.getContentPane().add(toolbar, BorderLayout.NORTH);
-            selectionWindow.getContentPane().add(new JScrollPane(selectionDisplay), BorderLayout.CENTER);
-            Toolkit tk = Toolkit.getDefaultToolkit();
-            selectionWindow.setLocation((tk.getScreenSize().width - selectionWindow.getSize().width)/2,
-                                            (tk.getScreenSize().height - selectionWindow.getSize().height)/2);
-            selectionWindow.setVisible(true);
-        }else{
-            logger.debug("adding another selection");
-            addSelection(creator,selectionDisplay);
-            selectionWindow.toFront();
-        }
-    }
-
-    private void addSelection(Selection creator, VerticalSeismogramDisplay reaper){
-        DataSetSeismogram[] creatorSeismos = creator.getSeismograms();
-        DataSetSeismogram[] newSeismos = new DataSetSeismogram[creatorSeismos.length];
-        for(int i = 0; i < creatorSeismos.length; i++){
-            newSeismos[i] = (DataSetSeismogram)creatorSeismos[i].clone();
-            newSeismos[i].setName(newSeismos[i].getName()+"."+creator.getColor());
-        }
-        BasicSeismogramDisplay selectionDisplay = reaper.addDisplay(newSeismos, (TimeConfig)creator.getInternalRegistrar());
-        creator.addDisplay(selectionDisplay);
-        //makes amp scale correctly.... pick displays show up with an unexpanded amplitude.
-        //remove when the real bug causing the amplitude not to scale when created is fixed
-        creator.getInternalRegistrar().shaleTime(0, 1);
-        Arrival[] parentArrivals = creator.getParent().getArrivals();
-        if(parentArrivals != null){
-            selectionDisplay.addFlags(parentArrivals);
-        }
-    }
-
-    /**
-     * <code>createThreeSelectionDisplay</code> adds the seismograms in creator along
-     * with the additional two components to this VSD's 3 selection display.  If it does
-     * not exist, the 3 Selection display is created here
-     *
-     * @param creator the selection whose seismograms will be added to the 3 selection
-     * display
-     */
-    public void createThreeSelectionDisplay(Selection creator){
-        if(threeSelectionDisplay == null){
-            logger.debug("creating 3C selection display");
-            threeSelectionDisplay = new MultiSeismogramWindowDisplay(this);
-            addGroupedSelection(creator, threeSelectionDisplay);
-            if(threeSelectionDisplay.getDisplays().size() > 0){
-                threeSelectionWindow = new JFrame(particleTagWindowName);
-                threeSelectionWindow.addWindowListener(new WindowAdapter() {
-                            public void windowClosing(WindowEvent e) {
-                                remove3CSelectionDisplay();
-                            }
-                        });
-                threeSelectionWindow.setSize(400, 400);
-                Toolkit tk = Toolkit.getDefaultToolkit();
-                threeSelectionWindow.setLocation((tk.getScreenSize().width - threeSelectionWindow.getSize().width)/2,
-                                                     (tk.getScreenSize().height - threeSelectionWindow.getSize().height)/2);
-                threeSelectionWindow.getContentPane().add(new JScrollPane(threeSelectionDisplay));
-                threeSelectionWindow.setVisible(true);
-            }else{
-                threeSelectionDisplay.removeAll();
-                threeSelectionDisplay = null;
-                JOptionPane.showMessageDialog(null,
-                                              "The other components weren't found to create the Particle Motion Zone, so it can't be created.",
-                                              "Other Components not found",
-                                              JOptionPane.WARNING_MESSAGE);
-            }
-        }else{
-            logger.debug("adding another 3Cselection");
-            addGroupedSelection(creator, threeSelectionDisplay);
-            threeSelectionWindow.toFront();
-        }
-    }
-
-    private void addGroupedSelection(Selection creator, VerticalSeismogramDisplay reaper){
-        DataSetSeismogram[] creatorSeismos = creator.getSeismograms();
-        DataSetSeismogram[][] componentSorted = DisplayUtils.getComponents(creatorSeismos);
-        Arrival[] parentArrivals = creator.getParent().getArrivals();
-        for(int i = 0; i < componentSorted.length; i++){
-            if(componentSorted[i].length > 0){
-                /*DataSetSeismogram[] newSeismos = new DataSetSeismogram[componentSorted[i].length];
-                 for(int j = 0; j < newSeismos.length; j++){
-                 newSeismos[j] = (DataSetSeismogram)componentSorted[i][j].clone();
-                 newSeismos[j].setName(newSeismos[j].getName()+"."+creator.getColor());
-                 }*/
-                ((TimeConfig)creator.getInternalRegistrar()).add(componentSorted[i]);
-                BasicSeismogramDisplay newDisplay = threeSelectionDisplay.addDisplay(componentSorted[i], (TimeConfig)creator.getInternalRegistrar());
-                creator.addDisplay(newDisplay);
-                if(parentArrivals != null){
-                    newDisplay.addFlags(parentArrivals);
-                }
-            }
-        }
-        Iterator g = basicDisplays.iterator();
-        while(g.hasNext()){
-            BasicSeismogramDisplay current = ((BasicSeismogramDisplay)g.next());
-            DataSetSeismogram[] basicDisplaySeismos = current.getSeismograms();
-            for(int  i = 0; i < componentSorted.length; i++){
-                for(int j = 0; j < basicDisplaySeismos.length; j++){
-                    for(int k = 0; k < componentSorted[i].length; k++){
-                        if(componentSorted[i][k].equals(basicDisplaySeismos[j])) {
-                            current.addSelection(creator);
-                            creator.addParent(current);
-                        }
-                    }
-                }
-            }
-        }
-        //makes amp scale correctly.... pick displays show up with an unexpanded amplitude.
-        //remove when the real bug causing the amplitude not to scale when created is fixed
-        creator.getInternalRegistrar().shaleTime(0, 1);
-    }
-
     public static JLabel getTimeLabel(){ return time; }
 
     public static JLabel getAmpLabel(){ return amp; }
 
-    public static void setTagWindowName(String name){
-        tagWindowName = name;
-    }
-
-    public static String getTagWindowName(){ return tagWindowName; }
-
-
-    public static void setParticleTagWindowName(String name){
-        particleTagWindowName = name;
-    }
-
-    public static String getParticleTagWindowName(){ return particleTagWindowName; }
-
-
-    public static void setParticleWindowName(String name){
-        particleWindowName = name;
-    }
-
-    public static String getParticleWindowName(){ return particleWindowName; }
-
-    public void setParticleAllowed(boolean allowed){
-        particleAllowed = allowed;
-    }
-
-    public boolean getParticleAllowed(){ return particleAllowed; }
-
-
     protected String suffix = "";
 
-    protected static int particleDisplays = 0, selectionDisplays = 0;
-
     protected boolean originalVisible, currentTimeFlag = false;
-
-    protected JFrame selectionWindow, particleWindow, threeSelectionWindow;
 
     protected SeismogramSorter sorter;
 
     protected Registrar globalRegistrar;
 
-    protected ParticleMotionDisplay particleDisplay;
-
     protected LinkedList basicDisplays = new LinkedList();
-
-    protected boolean particleAllowed = true;
 
     public static JLabel time = new JLabel("");
 
@@ -792,14 +425,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
 
     protected static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    private VerticalSeismogramDisplay selectionDisplay, threeSelectionDisplay, parent;
+    private VerticalSeismogramDisplay parent;
 
     private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
-
-    private static String tagWindowName = "Pick Zone";
-
-    private static String particleTagWindowName = "Particle Motion Zone";
-
-    private static String particleWindowName = "Particle Motion";
-
 }// VerticalSeismogramDisplay

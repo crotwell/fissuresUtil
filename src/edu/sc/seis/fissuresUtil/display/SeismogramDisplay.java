@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
 import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
@@ -46,6 +47,8 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
     public abstract void setOriginalVisibility(boolean visible);
 
     public abstract void print();
+
+    public void remove(Selection selection){}
 
     public static void setMouseMotionForwarder(MouseMotionForwarder mf){
         motionForwarder = mf;

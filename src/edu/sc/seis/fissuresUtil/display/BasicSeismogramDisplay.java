@@ -291,7 +291,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         }
     }
 
-    public void removeSelection(Selection old){
+    public void remove(Selection old){
         if( plotters.remove(old)){
             old.removeParent(this);
             repaint();
