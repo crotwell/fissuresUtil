@@ -58,6 +58,10 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
                 });
     }
 
+    public LocalSeismogramImpl[] getCache() {
+        return seisCache;
+    }
+    
     protected LocalSeismogramImpl[] seisCache;
 
     static final RequestFilter makeRequestFilter(LocalSeismogramImpl[] seis) {
