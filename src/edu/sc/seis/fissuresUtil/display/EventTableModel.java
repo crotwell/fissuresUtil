@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 4648 2003-07-03 19:54:13Z oliverpa $
+ * @version $Id: EventTableModel.java 4664 2003-07-03 21:50:55Z oliverpa $
  */
 
 public class EventTableModel
@@ -233,28 +233,6 @@ public class EventTableModel
         }
     }
 
-	//temporary fix for map selection
-	public void addEQSelectionListener(EQSelectionListener eqSelListener){
-		listenerList.add(EQSelectionListener.class, eqSelListener);
-	}
-
-	//temporary fix for map selection
-	private void fireEQSelectionChanged(){
-        EQSelectionEvent eqSelectionEvent = null;
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length-2; i>=0; i-=2) {
-            if (listeners[i]==EQSelectionListener.class) {
-                // Lazily create the event:
-                if (eqSelectionEvent == null)
-                    eqSelectionEvent = new EQSelectionEvent(this, selectedEvent);
-                ((EQSelectionListener)listeners[i+1]).eqSelectionChanged(eqSelectionEvent);
-            }
-        }
-	}
-
     public EventAccessOperations[] getAllEvents(){
         EventAccessOperations[] eaos = new EventAccessOperations[getRowCount()];
         for (int i = 0; i < getRowCount(); i++) {
@@ -262,13 +240,6 @@ public class EventTableModel
         }
         return eaos;
     }
-
-	//temporary fix for map selection of events
-	public EventAccessOperations selectEvent(int row){
-		selectedEvent = getEventForRow(row);
-		fireEQSelectionChanged();
-		return selectedEvent;
-	}
 
     protected ParseRegions FERegions = new ParseRegions();
 
@@ -283,9 +254,6 @@ public class EventTableModel
     protected NumberFormat depthFormat = new DecimalFormat("0.0");
 
     protected EventBackgroundLoaderPool loader;
-
-	//temporary fix for map selection of events
-	protected EventAccessOperations selectedEvent;
 
     protected static final int LATITUDE = 4;
     protected static final int LONGITUDE = 5;
@@ -315,5 +283,6 @@ public class EventTableModel
     static Category logger = Category.getInstance(EventTableModel.class.getName());
 
 } // EventTableModel
+
 
 
