@@ -17,7 +17,7 @@ import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
 
 
     private FilteredDataSetSeismogram(DataSetSeismogram dss,
-                                      ColoredFilter filter){
+                                      NamedFilter filter){
         super(dss.getDataSet(), filter.getName());
         this.filter = filter;
         wrappedDSS = dss;
@@ -39,7 +39,7 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
     }
 
     public static FilteredDataSetSeismogram getFiltered(DataSetSeismogram dss,
-                                                        ColoredFilter filter){
+                                                        NamedFilter filter){
         Map dssMap = (Map)filterMap.get(filter);
         if(dssMap != null){
             FilteredDataSetSeismogram fDSS = (FilteredDataSetSeismogram)dssMap.get(dss);
@@ -105,7 +105,7 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
     }
 
     public static LocalSeismogramImpl filterData(LocalSeismogramImpl seismogram,
-                                                 ColoredFilter filter){
+                                                 NamedFilter filter){
         float[] fdata;
         if(seismogram.can_convert_to_float())
             fdata = seismogram.get_as_floats();
@@ -201,11 +201,11 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
         return wrappedDSS.getRequestFilter();
     }
 
-    public ColoredFilter getFilter(){ return filter; }
+    public NamedFilter getFilter(){ return filter; }
 
     private static WorkerThreadPool filterPool = new WorkerThreadPool("FilterThread", 1, Thread.NORM_PRIORITY - 1);
 
-    private ColoredFilter filter;
+    private NamedFilter filter;
 
     private DataSetSeismogram wrappedDSS;
 
