@@ -195,9 +195,6 @@ public class AmpConfigData implements SeismogramContainerListener{
         return seisArray;
     }
 
-    public UnitImpl getUnit(){ return seismoUnit; }
-
-
     private SeismogramContainer container;
 
     private UnitRangeImpl cleanRange = DisplayUtils.ONE_RANGE;
@@ -213,8 +210,6 @@ public class AmpConfigData implements SeismogramContainerListener{
     private AmpConfig parent;
 
     private boolean newData = false;
-
-    private UnitImpl seismoUnit = UnitImpl.COUNT;
 
     private static Logger logger = Logger.getLogger(AmpConfigData.class);
 }// AmpConfigData
