@@ -29,7 +29,7 @@ import org.apache.log4j.*;
  * @version 0.1
  */
 
-public class BasicSeismogramDisplay extends JComponent implements SeismogramDisplay{
+public class BasicSeismogramDisplay extends JComponent implements SeismogramDisplay, GlobalToolbarActions{
     
     public BasicSeismogramDisplay(LocalSeismogram seis, boolean timeBorder){
 	this(seis, new BoundedTimeConfig(), new RMeanAmpConfig(), timeBorder);
@@ -115,7 +115,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      */
     public void removeSeismogram(LocalSeismogram oldSeis){}
 
-   public void removeAllSeismograms(){
+   public void remove(MouseEvent me){
        logger.debug(name + " being removed");
        Iterator e = plotters.keySet().iterator();
        while(e.hasNext()){
@@ -217,10 +217,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     
     public void setName(String name){ this.name = name; } 
 
-    public void selectionUpdateFinished(MouseEvent me){
-	parent.selectionUpdateFinished(this, currentSelection);
-    }
-
     public void selectRegion(MouseEvent one, MouseEvent two){
 	Insets insets = this.getInsets();
 	Dimension dim = getSize();
@@ -299,7 +295,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	timeConfig.fireTimeRangeEvent(new TimeSyncEvent(-.25 + centerPercent, .25 + centerPercent, false));
     }
 
-    public void dragSeismogram(MouseEvent meone, MouseEvent metwo) {
+    public void drag(MouseEvent meone, MouseEvent metwo) {
 	parent.stopImageCreation();
 	if(meone == null) return;
 	Dimension dim = this.getSize();
@@ -307,7 +303,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	timeConfig.fireTimeRangeEvent(new TimeSyncEvent(xDiff, xDiff, false));
     }
 
-    public void mouseReleased(){
+    public void mouseReleased(MouseEvent me){
 	parent.redraw();
     }
 
