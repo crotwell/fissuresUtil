@@ -37,7 +37,6 @@ public class XMLTime {
 
 		Element elem = (Element)nodeList.item(counter);
 		if(elem.getNodeName().equals("date_time")) {
-		    System.out.println(" THE VALUE is "+XMLUtil.getText(elem));
 		    date_time = XMLUtil.getText(elem);
 		} else if(elem.getNodeName().equals("leap_seconds_version")) {
 		 
