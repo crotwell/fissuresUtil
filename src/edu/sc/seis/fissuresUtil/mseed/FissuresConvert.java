@@ -88,7 +88,6 @@ public class FissuresConvert  {
                     dr.addBlockette(b1000);
                     QuantityImpl hertz = ((SamplingImpl)seis.sampling_info).getFrequency().convertTo(UnitImpl.HERTZ);
                     b100.setActualSampleRate((float)hertz.getValue());
-                    System.out.println("b100 sample rate = "+b100.getActualSampleRate()+" as float="+((float)b100.getActualSampleRate()));
                     dr.addBlockette(b100);
                     dr.setData(eData[i].values);
                     outRecords.add(dr);
