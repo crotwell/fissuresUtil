@@ -23,7 +23,7 @@ import java.util.*;
 
 public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     private DBDataCenter (DataCenterOperations dataCenterRouter) throws SQLException {
-        this.dataCenterRouter = dataCenterRouter;
+        this.dataCenter = dataCenterRouter;
         hsqlRequestFilterDb = new HSQLRequestFilterDb(dataCenterRouter);
     }
 
@@ -53,7 +53,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 
     public RequestFilter[]
         available_data(RequestFilter[] a_filterseq) {
-            return new RequestFilter[0];
+        return dataCenter.available_data(a_filterseq);
     }
 
     public String
@@ -134,8 +134,8 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
             ArrayList arrayList = new ArrayList();
             //  for(int counter = 0; counter < a_filterseq.length; counter++) {
             LocalSeismogramImpl[] localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
-            if(localSeismograms.length == 0 && dataCenterRouter != null)  {
-                localSeismograms = (LocalSeismogramImpl[])dataCenterRouter.retrieve_seismograms(a_filterseq);
+            if(localSeismograms.length == 0 && dataCenter != null)  {
+                localSeismograms = (LocalSeismogramImpl[])dataCenter.retrieve_seismograms(a_filterseq);
                 hsqlRequestFilterDb.addSeismogram(localSeismograms);
             }
             insertIntoArrayList(arrayList, localSeismograms);
@@ -150,7 +150,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
         } catch ( edu.iris.dmc.seedcodec.CodecException e) {
             throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,e.toString()));
         } // end of catch
-        
+
     }
 
     private void insertIntoArrayList(ArrayList arrayList, LocalSeismogram[] localSeismograms) {
@@ -215,12 +215,12 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
                                               endDate);
     }
 
-    public LocalSeismogram getSeismogram(String fileIds) 
+    public LocalSeismogram getSeismogram(String fileIds)
         throws SQLException, java.io.IOException, edu.iris.Fissures.FissuresException {
         return hsqlRequestFilterDb.getSeismogram(fileIds);
     }
 
-    private DataCenterOperations dataCenterRouter;
+    private DataCenterOperations dataCenter;
 
     private HSQLRequestFilterDb hsqlRequestFilterDb;
 
