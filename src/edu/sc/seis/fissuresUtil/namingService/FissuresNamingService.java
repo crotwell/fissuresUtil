@@ -322,11 +322,13 @@ public class FissuresNamingService {
                         logger.info(nfe.rest_of_name[0].id
                                 + "  IS PASSED AS A CONTEXT. ACTUALLY IT IS ALREADY BOUND AS AN OBJECT");
                         throw nfe;
-                    //break;
                     case NotFoundReason._not_object:
                         logger.info("Not an Object");
                         logger.info(nfe.rest_of_name[0].id
                                 + "  IS PASSED AS AN OBJECT. ACTUALLY IT IS ALREADY BOUND AS A CONTEXT");
+                        throw nfe;
+                    default:
+                        logger.error("Unknown NotFound error code: "+nfe.why.value(), nfe);
                         throw nfe;
                 }
             }
@@ -756,6 +758,8 @@ public class FissuresNamingService {
     public static final String DNS = "dns";
 
     public static final String CORBALOC_PROP = "edu.sc.seis.fissuresUtil.nameServiceCorbaLoc";
+    
+    public static final String ADDITIONAL_CORBALOC_PROP = "edu.sc.seis.fissuresUtil.additionalNameServiceCorbaLoc";
 
     public static final String OBJECT = "object_FVer"
             + edu.iris.Fissures.VERSION.value;
