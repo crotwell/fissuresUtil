@@ -15,8 +15,8 @@ import edu.sc.seis.fissuresUtil.bag.StreamPump;
 public class MapProjectExecute {
 
     public static int[][] forward(String projection,
-                              String region,
-                              double[][] points) throws IOException,
+                                  String region,
+                                  double[][] points) throws IOException,
             InterruptedException {
         Runtime rt = Runtime.getRuntime();
         String command = "mapproject -V -Dp -J" + projection + " -R" + region;
@@ -28,8 +28,8 @@ public class MapProjectExecute {
         BufferedWriter procWriter = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
         BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
         BufferedWriter errWriter = new BufferedWriter(new OutputStreamWriter(System.err));
-        StreamPump pump = new StreamPump(reader, writer);
-        StreamPump errPump = new StreamPump(errReader, errWriter);
+        StreamPump pump = new StreamPump(reader, writer, false);
+        StreamPump errPump = new StreamPump(errReader, errWriter, false);
         pump.start();
         errPump.start();
         for(int i = 0; i < points.length; i++) {
@@ -65,7 +65,9 @@ public class MapProjectExecute {
             int[][] pixelLocs = forward("Kf166/10i", "-14/346/-90/90", points);
             System.out.println("in : out");
             for(int i = 0; i < pixelLocs.length; i++) {
-                System.out.println("(" + points[i][0] + ", " + points[i][1] + ')' + " : (" + pixelLocs[i][0] + ", " + pixelLocs[i][1] + ')');
+                System.out.println("(" + points[i][0] + ", " + points[i][1]
+                        + ')' + " : (" + pixelLocs[i][0] + ", "
+                        + pixelLocs[i][1] + ')');
             }
         } catch(Exception e) {
             e.printStackTrace();
