@@ -1,29 +1,39 @@
 package edu.sc.seis.fissuresUtil.map.layers;
-import edu.sc.seis.fissuresUtil.chooser.*;
-import java.util.*;
-
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import org.apache.log4j.Logger;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Projection;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.TauP.SphericalCoords;
+import edu.sc.seis.fissuresUtil.chooser.AvailableStationDataEvent;
+import edu.sc.seis.fissuresUtil.chooser.AvailableStationDataListener;
+import edu.sc.seis.fissuresUtil.chooser.StationDataEvent;
+import edu.sc.seis.fissuresUtil.chooser.StationDataListener;
+import edu.sc.seis.fissuresUtil.chooser.StationSelectionEvent;
+import edu.sc.seis.fissuresUtil.chooser.StationSelectionListener;
 import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
 import edu.sc.seis.fissuresUtil.display.EventDataListener;
 import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
 import edu.sc.seis.fissuresUtil.map.graphics.OMStation;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import org.apache.log4j.Logger;
 
 public class StationLayer extends MouseAdapterLayer implements StationDataListener,
     StationSelectionListener, AvailableStationDataListener, EQSelectionListener, EventDataListener{
@@ -54,6 +64,30 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     public void repaint(){ if(honorRepaint) super.repaint(); }
 
     private boolean honorRepaint = true;
+    
+    public void printStationLocs() {
+        Iterator it = omgraphics.iterator();
+        int i = 0;
+        while (it.hasNext()) {
+            OMStation cur = (OMStation) it.next();
+            Projection proj = getProjection();
+            Point curXY = proj.forward(cur.getLat(), cur.getLon());
+            int[] x = cur.getXs();
+            int[] y = cur.getYs();
+            StringBuffer buf = new StringBuffer();
+            for(int j = 0; j < x.length; j++) {
+                int curX = (int)curXY.getX() + x[j];
+                int curY = (int)curXY.getY() + y[j];
+                System.out.println(curX);
+                System.out.println(curY);
+                buf.append(curX + "," + curY);
+                if (j != x.length - 1){
+                    buf.append(',');
+                }
+            }
+            System.out.println("<area href=\""+ i++ +"\" shape=\"poly\" coords=\"" + buf.toString() + "\"/>");
+        }
+    } 
 
     /*This adds each of these stations to the layer
      *
