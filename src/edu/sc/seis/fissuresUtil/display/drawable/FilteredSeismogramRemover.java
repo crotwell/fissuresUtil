@@ -7,18 +7,20 @@ package edu.sc.seis.fissuresUtil.display.drawable;
  */
 
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.Iterator;
 
 public class FilteredSeismogramRemover extends SeismogramRemover{
     public FilteredSeismogramRemover(SeismogramDisplay display,
-                                    DrawableFilteredSeismogram filtered){
+                                     DrawableFilteredSeismogram filtered){
         super(null, display);
         this.filtered = filtered;
     }
 
     public void clicked(){
-        filtered.setVisibility(false);
+        Iterator it = filtered.getParent().iterator(DrawableSeismogram.class);
+        while(it.hasNext()){
+            ((DrawableSeismogram)it.next()).remove(filtered);
+        }
     }
 
     private DrawableFilteredSeismogram filtered;
