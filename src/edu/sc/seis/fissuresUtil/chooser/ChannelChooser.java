@@ -2,6 +2,7 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
 import edu.iris.Fissures.IfNetwork.*;
+import java.util.*;
 import javax.swing.*;
 
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
@@ -13,11 +14,6 @@ import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.log4j.Category;
@@ -29,7 +25,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4149 2003-06-02 15:25:08Z crotwell $
+ * @version $Id: ChannelChooser.java 4156 2003-06-03 04:19:41Z crotwell $
  *
  */
 
@@ -206,6 +202,10 @@ public class ChannelChooser extends JPanel {
         return netdc;
     }
 
+    public boolean isNetworkLoadingFinished() {
+        return (networkLoaderList.size() == 0);
+    }
+    
     public void setNetworkDCs(NetworkDCOperations[] netdcgiven) {
         System.out.println("ChannelChooser: setNetworkDCs() called");
         netdc = netdcgiven;
@@ -507,14 +507,10 @@ public class ChannelChooser extends JPanel {
 
     public void addStationDataListener(StationDataListener s) {
         listenerList.add(StationDataListener.class, s);
-
-        logger.debug("StationDataListener added in ChannelChooser");
     }
 
     public void addStationSelectionListener(StationSelectionListener s){
         listenerList.add(StationSelectionListener.class, s);
-
-        logger.debug("StationSelectionListener added in ChannelChooser");
     }
 
     protected void fireStationDataChangedEvent(Station[] stations) {
@@ -591,7 +587,6 @@ public class ChannelChooser extends JPanel {
     }
 
     protected void clearStations() {
-        System.out.println("ChannelChooser: clearStations() called");
         stationNames.clear();
         stationMap.clear();
         fireStationDataClearedEvent();
@@ -680,9 +675,7 @@ public class ChannelChooser extends JPanel {
      */
     public Channel[]  getSelectedChannels(MicroSecondDate when) {
         Channel[] inChannels = getChannels();
-        logger.debug("before prune channels, length="+inChannels.length);
         inChannels = BestChannelUtil.pruneChannels(inChannels, when);
-        logger.debug("after prune channels, length="+inChannels.length);
         return getSelectedChannels(inChannels, when);
     }
 
@@ -1011,12 +1004,15 @@ public class ChannelChooser extends JPanel {
 
 
     }
+    
+    private List networkLoaderList = Collections.synchronizedList(new LinkedList());
 
     class NetworkLoader extends Thread {
         NetworkDCOperations netdc;
         boolean doSelect = true;
         public NetworkLoader(NetworkDCOperations netdc) {
             this.netdc = netdc;
+            networkLoaderList.add(this);
         }
         public void setDoSelect(boolean b) {
             doSelect = b;
@@ -1025,7 +1021,6 @@ public class ChannelChooser extends JPanel {
         public void run() {
             setProgressOwner(this);
             CacheNetworkAccess cache;
-            logger.debug("Before networks");
             if(configuredNetworks == null || configuredNetworks.length == 0) {
                 NetworkAccess[] nets =
                     netdc.a_finder().retrieve_all();
@@ -1035,7 +1030,6 @@ public class ChannelChooser extends JPanel {
                 int progressVal = 1;
                 setProgressValue(this, progressVal);
                 progressVal++;
-                logger.debug("Got all networks, num="+nets.length);
                 for (int i=0; i<nets.length; i++) {
                     // skip null networks...probably a bug on the server
                     if (nets[i] != null) {
@@ -1066,27 +1060,22 @@ public class ChannelChooser extends JPanel {
                             netdc.a_finder().retrieve_by_code(configuredNetworks[counter]);
                         logger.debug("Got "+nets.length+" networks for "+configuredNetworks[counter]);
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
-                            logger.debug("loop over "+subCounter+" networks for "+configuredNetworks[counter]);
                             if (nets[subCounter] != null) {
-                                logger.debug("before test direct call");
-                                NetworkAttr tmpattr = nets[subCounter].get_attributes();
-                                logger.debug("after test direct call "+tmpattr.get_code());
+                                // this code is here because DNDNetworkAccess
+                                // was failing to initialize under java web start
+                                // on some windows machines. Drag and Drop was disabled
 
                                 // preload attributes
-                                logger.debug("before create CacheNetworkAccess");
                                 cache = new CacheNetworkAccess(nets[subCounter]);
                                 //cache = new DNDNetworkAccess(nets[subCounter]);
-                                logger.debug("before get attributes for "+configuredNetworks[counter]);
                                 NetworkAttr attr = cache.get_attributes();
-                                logger.debug("after get attributes for "+configuredNetworks[counter]);
                                 NetworkAccess[] storedNets =
                                     (NetworkAccess[])netDCToNetMap.get(netdc);
                                 if ( storedNets == null) {
                                     storedNets = new NetworkAccess[1];
                                     storedNets[0] = cache;
                                     netDCToNetMap.put(netdc, storedNets);
-                                }
-                                else {
+                                } else {
                                     NetworkAccess[] tmp =
                                         new NetworkAccess[storedNets.length+1];
                                     System.arraycopy(storedNets, 0, tmp, 0, storedNets.length);
@@ -1096,7 +1085,6 @@ public class ChannelChooser extends JPanel {
 
                                 netIdToNetMap.put(NetworkIdUtil.toString(cache.get_attributes().get_id()),
                                                   cache);
-                                logger.debug("Got attributes "+attr.get_code());
                                 networkAdd(cache);
                                 totalNetworks++;
                             }
@@ -1116,14 +1104,13 @@ public class ChannelChooser extends JPanel {
                 // up network list before setting selection
                 SwingUtilities.invokeLater(new Runnable() {
                             public void run() {
-                                logger.debug("autoselecting all in network list");
                                 networkList.getSelectionModel().setSelectionInterval(0,
                                                                                      networkList.getModel().getSize()-1);
-                                logger.debug("done autoselecting");
                             }
                         });
             } // end of if ()
             setProgressValue(this, progressBar.getMaximum());
+            networkLoaderList.remove(this);
         }
 
         void networkAdd(final NetworkAccess n) {
