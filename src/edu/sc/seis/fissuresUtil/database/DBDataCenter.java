@@ -12,7 +12,9 @@ import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
 
 
@@ -90,37 +92,22 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
                             boolean long_lived,
                             edu.iris.Fissures.Time expiration_time)
         throws edu.iris.Fissures.FissuresException {
-        //first check the database to  see if there is any data for each
-        //of the request filters if data present return data and
-        //modify the requestFilters so that they just get only the
-        //data missing in the database.
-        //a separate thread must be spanned to get the missing data.
-
-        //first see if there is data in the database for the requested request filters.
-        //and build the new RequestFilterSequence.
-
-        /*LocalSeismogramImpl[] seis = hsqlRequestFilterDb.getSeismograms(a_filterseq);
-         if(seis.length != 0) {
-         a_client.pushData(seis, initiator);
-         }
-
-         RequestFilter[] available_seq = hsqlRequestFilterDb.available_data(a_filterseq);
-         RequestFilter[] missing_seq = RequestFilterUtil.leftOuterJoin(a_filterseq, available_seq);
-         if(missing_seq.length == 0) {
-         a_client.finished(initiator);
-         return new String();
-         }*/
-        Thread t = new Thread(dbThreadGroup,
-                              new DataCenterThread(a_filterseq,//missing_seq,
-                                                   a_client,
-                                                   initiator,
-                                                   this),
-                              "DBDataCenter"+getThreadNum());
-        t.start();
-
+        DataCenterThread dcThread = (DataCenterThread)clientToThread.get(a_client);
+        if(dcThread == null || !dcThread.getData(initiator, a_filterseq)){
+            dcThread = new DataCenterThread(a_filterseq,//missing_seq,
+                                            a_client,
+                                            initiator,
+                                            this);
+            clientToThread.put(a_client, dcThread);
+            Thread thread = new Thread(dbThreadGroup,
+                                       dcThread,
+                                       "DBDataCenter"+getThreadNum());
+            thread.start();
+        }
         return getNextRequestId();
-
     }
+
+    private Map clientToThread = new HashMap();
 
     //
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/retrieve_seismograms:1.0
@@ -163,7 +150,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
      * end.
      *
      */
-    public RequestFilter[] notCovered(RequestFilter[] filters,
+    public static RequestFilter[] notCovered(RequestFilter[] filters,
                                       LocalSeismogramImpl[] seismograms){
         if(seismograms.length == 0){
             return filters;
@@ -287,7 +274,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 
     private ThreadGroup dbThreadGroup = new ThreadGroup("DBDataCenter");
 
-    Logger logger = Logger.getLogger(DBDataCenter.class);
+    private static Logger logger = Logger.getLogger(DBDataCenter.class);
 
 }// DBDataCenter
 
