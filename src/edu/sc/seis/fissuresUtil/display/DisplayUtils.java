@@ -91,6 +91,11 @@ public class DisplayUtils {
         return new UnitRangeImpl(minValue, minValue + range * scale, ampRange.getUnit());
     }
     
+    /** Calculates the indexes within the seismogram data points,
+	correspoding to the begin and end time of the given range.
+	The amplitude of the
+	seismogram is not important for this calculation.
+    */
     public static final int[] getSeisPoints(LocalSeismogramImpl seis,
                                             MicroSecondTimeRange time){
         long seisBegin = seis.getBeginTime().getMicroSecondTime();
