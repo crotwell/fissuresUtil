@@ -242,12 +242,15 @@ public class BasicLayoutConfig implements LayoutConfig{
         if(seismoChannel != null){
             Site seisSite = seismoChannel.my_site;
             Location seisLoc =  seisSite.my_location;
-            Location eventLoc;
+            Location eventLoc = null;
             try{
                 eventLoc = event.get_preferred_origin().my_location;
             }catch(NoPreferredOrigin e){//if no preferred origin, just use the first
-                eventLoc = event.get_origins()[0].my_location;
+                if (event.get_origins().length > 0) {
+                    eventLoc = event.get_origins()[0].my_location;
+                }
             }
+            if (eventLoc == null) { return null; }
             DistAz distAz = new DistAz(seisLoc.latitude, seisLoc.longitude,
                                        eventLoc.latitude, eventLoc.longitude);
             return new QuantityImpl(distAz.delta, UnitImpl.DEGREE);
