@@ -40,11 +40,13 @@ public class FissuresConvert  {
             // encoded data
             DataHeader header;
             Blockette1000 b1000;
+            Blockette100 b100;
             EncodedData[] eData = seis.data.encoded_values();
             for ( int i=0; i< eData.length; i++) {
                 header = new DataHeader(seqStart++, 'D', false);
                 b1000 = new Blockette1000();
-                if ( eData[i].values.length + header.getSize() + b1000.getSize() < RECORD_SIZE ) {
+                b100 = new Blockette100();
+                if ( eData[i].values.length + header.getSize() + b1000.getSize() +b100.getSize() < RECORD_SIZE ) {
                     // can fit into one record
                     ChannelId chan = seis.channel_id;
                     header.setStationIdentifier(chan.station_code);
@@ -84,12 +86,15 @@ public class FissuresConvert  {
                     b1000.setDataRecordLength( RECORD_SIZE_POWER);
                     DataRecord dr = new DataRecord(header);
                     dr.addBlockette(b1000);
+                    QuantityImpl hertz = ((SamplingImpl)seis.sampling_info).getFrequency().convertTo(UnitImpl.HERTZ);
+                    b100.setActualSampleRate((float)hertz.getValue());
+                    dr.addBlockette(b100);
                     dr.setData(eData[i].values);
                     outRecords.add(dr);
                 } else {
                     throw new SeedFormatException("Can't fit data into record"+
-                                                      (eData[i].values.length + header.getSize() + b1000.getSize())+" "+
-                                                      eData[i].values.length +" "+ header.getSize() + b1000.getSize());
+                                                      (eData[i].values.length + header.getSize() + b1000.getSize() + b100.getSize())+" "+
+                                                      eData[i].values.length +" "+ (header.getSize() + b1000.getSize() + b100.getSize()));
                 } // end of else
 
             } // end of for ()
