@@ -13,11 +13,7 @@ import com.bbn.openmap.PropertyConsumer;
 import com.bbn.openmap.gui.ToolPanel;
 import com.bbn.openmap.util.Debug;
 import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Color;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.beancontext.BeanContext;
@@ -27,7 +23,6 @@ import java.beans.beancontext.BeanContextMembershipEvent;
 import java.beans.beancontext.BeanContextMembershipListener;
 import java.util.Iterator;
 import java.util.Properties;
-import javax.swing.JApplet;
 import javax.swing.JComponent;
 import javax.swing.JMenuBar;
 
@@ -225,7 +220,6 @@ public class OpenMapComponent extends JComponent  implements BeanContextMembersh
 
         getList.setProperty(Environment.Width, Integer.toString(getWidth()));
         getList.setProperty(Environment.Height, Integer.toString(getHeight()));
-
         return getList;
     }
 
