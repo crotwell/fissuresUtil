@@ -301,10 +301,14 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 			    particleDisplays--;
 			}
 		    });
-		particleDisplay = new ParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
-							    new TimeConfigRegistrar((TimeConfigRegistrar)creator.getTimeConfig()), 
-							    creator.getAmpRegistrar(), 
-							    creator.getAmpRegistrar(),
+		DataSetSeismogram first = (DataSetSeismogram)creator.getSeismograms().getFirst();
+		AmpConfigRegistrar pmAmpRegistrar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, creator.
+												   getTimeConfig().getTimeRange(first)));
+		//pmAmpRegistrar.visibleAmpCalc((TimeConfigRegistrar)creator.getTimeConfig());
+		particleDisplay = new ParticleMotionDisplay(first, 
+							    (TimeConfigRegistrar)creator.getTimeConfig(), 
+							    pmAmpRegistrar,
+							    pmAmpRegistrar,
 							    advancedOption);
 		JPanel displayPanel = new JPanel();
 		JButton zoomIn = new JButton("zoomIn");

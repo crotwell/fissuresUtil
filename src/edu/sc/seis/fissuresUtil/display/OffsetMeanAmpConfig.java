@@ -153,6 +153,17 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	ampRange = new UnitRangeImpl(-offset, offset, UnitImpl.COUNT);
     }
 
+    public void fireAmpRangeEvent(AmpSyncEvent event){
+	double begin = event.getBegin();
+	double end = event.getEnd();
+	this.ampRange = new UnitRangeImpl(begin, end, UnitImpl.COUNT);
+	Iterator e = seismoAmps.keySet().iterator();
+	while(e.hasNext()){
+	    seismoAmps.put(e.next(), ampRange);
+	}
+	this.updateAmpSyncListeners();
+    }
+
     protected int offset;
     
 }// OffsetMeanAmpConfig
