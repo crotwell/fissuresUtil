@@ -42,7 +42,11 @@ public class ExceptionHandlerGUI {
 	JPanel mainPanel = new JPanel();
 	JTabbedPane tabbedPane = new JTabbedPane();
 	JPanel messagePanel = new JPanel();
-	JLabel exceptionMessageLabel = new JLabel();
+	JTextArea exceptionMessageLabel = new JTextArea();
+	exceptionMessageLabel.setLineWrap(true);
+	exceptionMessageLabel.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
+	exceptionMessageLabel.setWrapStyleWord(true);
+	exceptionMessageLabel.setEditable(false);
 	JTextArea messageArea = new JTextArea();
 	messageArea.setLineWrap(true);
 	messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
