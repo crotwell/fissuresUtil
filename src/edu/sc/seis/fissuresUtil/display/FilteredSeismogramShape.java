@@ -48,7 +48,7 @@ public class FilteredSeismogramShape extends SeismogramShape {
 	super.dss = filteredSeis;
 	super.seis = filteredSeis.getSeismogram();
 	super.stat = new Statistics(seis);
-	visible = false;
+	setVisibility(filter.getVisibility());
     }
 
 
