@@ -76,13 +76,12 @@ public  class PlottableDisplay extends JComponent {
     }
 
     public void setAmpScale(float ampScalePercent) {
-	this.ampScalePercent = ampScalePercent;
-	int[] minmax = findMinMax(arrayplottable);
-	min = minmax[0];
-	max = minmax[1];
-	this.ampScale = ampScalePercent*plot_y/(max-min);
-	System.out.println("AmpScale "+ampScalePercent+" "+ampScale);
-	configChanged();
+	if (this.ampScalePercent != ampScalePercent) {
+	    this.ampScalePercent = ampScalePercent;
+	    //	this.ampScale = ampScalePercent;
+	    System.out.println("AmpScale "+ampScalePercent+" "+ampScale);
+	    configChanged();
+	}
     }
 
     void configChanged() {
@@ -103,7 +102,8 @@ public  class PlottableDisplay extends JComponent {
 	int[] minmax = findMinMax(arrayplottable);
 	min = minmax[0];
 	max = minmax[1];
-	setAmpScale(ampScalePercent);
+	ampScale = plot_y*1f/(max-min);
+	//	setAmpScale(ampScalePercent);
 	plottablename = nameofstation;
 
 	if (arrayplottable == null) {
@@ -112,6 +112,7 @@ public  class PlottableDisplay extends JComponent {
 	}
 
 	plottablename = nameofstation;
+	plottableShape = makeShape(clientPlott);
 	makeSegments();
 	configChanged();
     }
@@ -203,7 +204,6 @@ public  class PlottableDisplay extends JComponent {
 	mean = getMean();
 	System.out.println("plottable.length"+plot.length);
 
-	Shape wholeShape = makeShape(plot);
 	for (int currRow = 0; currRow < plotrows; currRow++) {
 System.out.println("currRow  xShift  min   max  ampScale  ampScale*min  ampScale*max  plotofset  plot_y");
 System.out.println("  plot_x");
@@ -213,29 +213,37 @@ System.out.println("  plot_x");
 	    // shift for row (left so time is in window, 
 	    //down to correct row on screen, plus
 	    //	    newG.translate(xShift*currRow, plot_y/2 + plotoffset*currRow);
-	    newG.translate(-1*xShift*currRow,  plot_y/2+plotoffset*currRow);
+	    java.awt.geom.AffineTransform affine = newG.getTransform();
 
+	    affine.concatenate(affine.getTranslateInstance(-1*xShift*currRow,
+						 plot_y/2+plotoffset*currRow));
 	    // account for graphics y positive down
-	    newG.scale(1, -1);
+	    affine.concatenate(affine.getScaleInstance(1, -1));
 
-	    newG.scale(1, ampScale);
 
+	    affine.concatenate(affine.getScaleInstance(1, ampScale));
+	    affine.concatenate(affine.getScaleInstance(1, ampScalePercent));
 	    // translate max so mean is in middle
-	    newG.translate(0, -1*mean);
+	    affine.concatenate(affine.getTranslateInstance(0, -1*mean));
+
+
+
+	    newG.setTransform(affine);
 
  	    newG.setPaint(Color.red);
  	    newG.drawLine(0, 0, 6000, 0);
 
-	     System.out.println(currRow+": "+(-1*currRow*xShift)+", "+currRow*plotoffset+"  "+getMean());
+	     System.out.println(currRow+": "+(-1*currRow*xShift)+", "+currRow*plotoffset+"  "+mean);
 	    if (currRow % 2 == 0) {
 		newG.setPaint(Color.black);
 	    } else {
 		newG.setPaint(Color.blue);
 	    }
-	    newG.draw(wholeShape);
+	    if (plottableShape != null) {
+		newG.draw(plottableShape);
+	    } // end of if (plottableShape != null)
 
 	    newG.dispose();
-	    //break; // only do first row
 	}
     }
 
@@ -270,7 +278,8 @@ System.out.println("  plot_x");
 				    plot[a].y_coor[0]);
 		wholeShape.append(currentShape, false);
 	    }
-
+	    // only do first row
+	    // break;
 	}
 	return wholeShape;
     }
@@ -426,6 +435,7 @@ System.out.println("  plot_x");
     private edu.iris.Fissures.Plottable[] arrayplottable = new edu.iris.Fissures.Plottable[0] ; 
     private String  plottablename="Please, click on DataSource.";
     Image image = null;
+    Shape plottableShape = null;
 
     /* Defaults for plottable */
     public int plotrows=12;
