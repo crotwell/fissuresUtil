@@ -201,10 +201,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     }
 
     public boolean mouseClicked(MouseEvent e){
-        if (currentPopup != null){
-            currentPopup.setVisible(false);
-            currentPopup = null;
-        }
+		maybeKillCurrentPopup();
 
         List stationsUnderMouse = new ArrayList();
         synchronized(omgraphics){
@@ -219,6 +216,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         if (stationsUnderMouse.size() > 0){
             if (stationsUnderMouse.size() > 1){
                 final JPopupMenu popup = new JPopupMenu();
+				popup.setInvoker(this);
                 Iterator it = stationsUnderMouse.iterator();
                 while (it.hasNext()){
                     final Station current = (Station)it.next();
@@ -266,6 +264,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     }
 
     public boolean mouseMoved(MouseEvent e){
+		maybeKillCurrentPopup();
+		
         synchronized(omgraphics){
             Iterator it = omgraphics.iterator();
             while(it.hasNext()){

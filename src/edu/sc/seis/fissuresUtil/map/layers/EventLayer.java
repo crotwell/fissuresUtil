@@ -159,10 +159,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     }
 	
     public boolean mouseClicked(MouseEvent e){
-		if (currentPopup != null){
-			currentPopup.setVisible(false);
-			currentPopup = null;
-		}
+		maybeKillCurrentPopup();
 		
 		synchronized(circles){
 			Iterator it = circles.iterator();
@@ -179,6 +176,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 				}
 				else{
 					final JPopupMenu popup = new JPopupMenu();
+					popup.setInvoker(this);
 					it = eventsUnderMouse.iterator();
 					while (it.hasNext()){
 						final EventAccessOperations current = (EventAccessOperations)it.next();
@@ -223,6 +221,8 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 	
 	
     public boolean mouseMoved(MouseEvent e){
+		maybeKillCurrentPopup();
+		
 		synchronized(circles){
 			Iterator it = circles.iterator();
 			while(it.hasNext()){
