@@ -56,6 +56,7 @@ public class ConnMgr {
         load(cl, loc + DEFAULT_PROPS, existing);
         if(DB_NAME == HSQL)load(cl, loc + HSQL_PROPS, existing);
         else if(DB_NAME == MCKOI)load(cl, loc + MCKOI_PROPS, existing);
+        else if(DB_NAME == POSTGRES)load(cl, loc + POSTGRES_PROPS, existing);
     }
 
     private static void load(ClassLoader cl, String loc, Properties existing) throws IOException{
