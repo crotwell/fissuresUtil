@@ -510,9 +510,10 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
                 Plotter current = (Plotter)e.next();
                 current.draw(g2, displaySize, currentTimeEvent, currentAmpEvent);
                 if(current instanceof TimeAmpPlotter){
-                    g2.setFont(monospaced);
+                    g2.setFont(MONOSPACED);
                     stringBounds.setRect(g2.getFontMetrics().getStringBounds((((TimeAmpPlotter)current).getText()), g2));
                     ((NamedPlotter)current).drawName(g2,(int)(displaySize.width - stringBounds.width), displaySize.height - 3);
+                    g2.setFont(DEFAULT);
                 }else if(current instanceof NamedPlotter){
                     if(((NamedPlotter)current).drawName(g2, 5, (int)(displaySize.height - 3 - i * stringBounds.height)))
                         i++;
@@ -583,7 +584,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     private static Set globalFilters = new HashSet();
 
-    public static Font monospaced = new Font("Monospaced", Font.PLAIN, 12);
+    private Font DEFAULT = new Font("Arial", Font.PLAIN, 12);
+
+    public static Font MONOSPACED = new Font("Monospaced", Font.PLAIN, 12);
 
     public final static int PREFERRED_HEIGHT = 100;
 
