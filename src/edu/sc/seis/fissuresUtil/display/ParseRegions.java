@@ -25,6 +25,7 @@ public class ParseRegions {
     public int getRegionValue(String region) {
 	String geoNum = feProps.getProperty(region.replace(' ','_'));
 	if (geoNum != null) {
+	    geoNum = geoNum.substring("GeogRegion".length(), geoNum.length());
 	    return Integer.parseInt(geoNum);
 	} // end of if (feProps.get(region.replace(' ','_')))
 	return 0;
