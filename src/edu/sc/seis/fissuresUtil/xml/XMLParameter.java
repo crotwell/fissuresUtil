@@ -24,20 +24,41 @@ import org.apache.log4j.*;
 public class XMLParameter {
 
     /**
-     * Describe <code>insert</code> method here.
+     * Inserts a parameter of UNKNOWN type into the dataset element.
      *
      * @param element an <code>Element</code> value
      * @param name a <code>String</code> value
      * @param value an <code>Element</code> value
      */
     public static void insert(Element element, String name, Element value){
+        insert(element, name, "UNKNOWN", "UNKNOWN", value);
+    }
+
+    public static void insert(Element element, String name, String typeDef, String typeName, String value){
+        Node valueText = element.getOwnerDocument().createTextNode(value);
+        insert(element, name, typeDef, typeName, valueText);
+    }
+
+    public static void insert(Element element, String name, String typeDef, String typeName, Element value){
+        insert(element, name, typeDef, typeName, (Node)value);
+    }
+
+    protected static void insert(Element element, String name, String typeDef, String typeName, Node value){
         Document doc = element.getOwnerDocument();
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "name",
                                                       name));
-    Element valueElement = doc.createElement("value");
-    valueElement.appendChild((Element)value.cloneNode(true));
-    element.appendChild(valueElement);
+
+        Element type = doc.createElement("type");
+        element.appendChild(type);
+        Element typeDefElement = XMLUtil.createTextElement(doc, "definition", typeDef);
+        type.appendChild(typeDefElement);
+        Element typeNameElement = XMLUtil.createTextElement(doc, "name", typeName);
+        type.appendChild(typeNameElement);
+
+        Element valueElement = doc.createElement("value");
+        valueElement.appendChild(value.cloneNode(true));
+        element.appendChild(valueElement);
     }
 
     /**
