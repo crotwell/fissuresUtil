@@ -11,10 +11,15 @@ import java.util.LinkedList;
 
 public class WorkerThreadPool
 {
+    public WorkerThreadPool(String name, int numThreads){
+        this(name, numThreads, Thread.NORM_PRIORITY);
+    }
 
-    public WorkerThreadPool(String name, int numThreads) {
+
+    public WorkerThreadPool(String name, int numThreads, int priority) {
+        this.name = name;
         for (int i = 0; i < numThreads; i++) {
-            BackgroundWorker t = new BackgroundWorker("fissures worker"+i);
+            BackgroundWorker t = new BackgroundWorker(name + i, priority);
             t.start();
             workers.add(t);
         }
@@ -46,9 +51,12 @@ public class WorkerThreadPool
 
     protected LinkedList workers = new LinkedList();
 
+    private String name;
+
     protected class BackgroundWorker extends Thread {
-        protected BackgroundWorker(String name) {
+        protected BackgroundWorker(String name, int priority) {
             super(name);
+            setPriority(priority);
         }
 
         public void run() {
