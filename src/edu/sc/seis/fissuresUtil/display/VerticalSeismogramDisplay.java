@@ -418,7 +418,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 									    new TimeRange(seis.getBeginTime().getFissuresTime(), 
 											  seis.getEndTime().getFissuresTime()));
 		
-		
 		if(seismograms.length > 0){
 		    DataSetSeismogram[] dataSetSeismograms = new DataSetSeismogram[seismograms.length];
 		    for(int j = 0; j < seismograms.length; j++){

@@ -29,7 +29,7 @@ import java.awt.print.*;
  * @version 0.1
  */
 
-public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarActions, ConfigListener{
+public class BasicSeismogramDisplay extends JComponent implements ConfigListener{
  
     public BasicSeismogramDisplay(DataSetSeismogram[] seismos, String name, VerticalSeismogramDisplay parent){
 	this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), name, parent);
@@ -276,70 +276,6 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
        clearSelections();
        registrar.removeListener(this);
        registrar.remove((DataSetSeismogram[])seismograms.toArray(new DataSetSeismogram[seismograms.size()]));
-    }
-
-    public void removeAll(MouseEvent me){
-	parent.removeAll();
-    }
-
-    public void zoomIn(MouseEvent me) {
-	Insets insets = this.getInsets();
-	Dimension dim = this.getSize();
-	if (me.getX() < insets.left ||
-	    me.getX() > dim.width-insets.right ||
-	    me.getY() < insets.top ||
-	    me.getY() > dim.height-insets.bottom) {
-	    return;
-	}
-	int x = me.getX()-insets.left - insets.right;
-	double center = (dim.width-insets.left-insets.right);
-	double centerPercent = x/center;
-	registrar.shaleTime(centerPercent - .25, .5);
-    }
-
-    public void zoomIn(MouseEvent begin, MouseEvent end){}
-
-    public void zoomOut(MouseEvent me){
-	Insets insets = getInsets();
-	Dimension dim = getSize();
-	if (me.getX() < insets.left ||
-	    me.getX() > dim.width-insets.right ||
-	    me.getY() < insets.top ||
-	    me.getY() > dim.height-insets.bottom) {
-	    return;
-	} 
-	int x = me.getX()-insets.left - insets.right;
-	double center = (dim.width-insets.left-insets.right);
-	double centerPercent = x/center;
-	registrar.shaleTime(centerPercent - 1, 2);
-    }
-
-    public void drag(MouseEvent meone, MouseEvent metwo) {
-	if(meone == null) return;
-	int insets = getInsets().right + getInsets().left;
-	double xDiff = -((metwo.getX() - insets) - (meone.getX() - insets))/(double)(getSize().width - insets);
-	registrar.shaleTime(xDiff, 1);
-    }
-
-    public void mouseReleased(MouseEvent me){
-    }
-
-    public void mouseMoved(MouseEvent me){
-	Insets insets = this.getInsets();
-	Dimension dim = this.getSize();
-	double xPercent = (me.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
-	MicroSecondTimeRange currRange = currentTimeEvent.getTime();
-	MicroSecondDate time = new MicroSecondDate((long)(currRange.getBeginTime().getMicroSecondTime() + 
-							  currRange.getInterval().getValue() * xPercent));	
-	double amp;
-	UnitRangeImpl current = currentAmpEvent.getAmp();
-	if(current == null)
-	    amp = 0;
-	else{
-	    double yPercent = (dim.getHeight() - (me.getY() + insets.bottom))/(double)(dim.getHeight() - insets.top - insets.bottom);
-	    amp = (current.getMaxValue() - current.getMinValue()) * yPercent + current.getMinValue();
-	}
-	parent.setLabels(time, amp);
     }
 
     public void setUnfilteredDisplay(boolean visible){
