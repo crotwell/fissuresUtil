@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
  */
 
 public abstract class DataSetSeismogram
-    implements LocalDataCenterCallBack, Cloneable {
+    implements LocalDataCenterCallBack, Cloneable, StdAuxillaryDataNames {
 
 
     public DataSetSeismogram(DataSet ds,
