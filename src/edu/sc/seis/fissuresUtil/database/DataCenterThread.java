@@ -1,17 +1,23 @@
 package edu.sc.seis.fissuresUtil.database;
 
+import java.util.*;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.cache.AbstractJob;
+import edu.sc.seis.fissuresUtil.cache.JobTracker;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerListener;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import javax.swing.JComponent;
 import org.apache.log4j.Category;
+import java.awt.event.ContainerEvent;
 
 /**
  * DataCenterThread.java
@@ -34,17 +40,21 @@ public class DataCenterThread implements Runnable{
             initiators.add(initiator);
         }
         this.dbDataCenter = dbDataCenter;
+        if(job == null)
+            job = new RetrievalJob();
     }
-
+    
     public void run() {
+        JobTracker.getTracker().add(job);
+        job.incrementRetrievers();
         List seismograms = new ArrayList();
         for(int counter = 0; counter <  requestFilters.length; counter++) {
+            System.out.println("getting " + new MicroSecondTimeRange(requestFilters[counter]));
             try {
                 RequestFilter[] temp = { requestFilters[counter] };
                 LocalSeismogram[] seis = dbDataCenter.retrieve_seismograms(temp);
                 LocalSeismogramImpl[] seisImpl = castToLocalSeismogramImplArray(seis);
                 synchronized(initiators){
-                    pushed = true;
                     Iterator it = initiators.iterator();
                     while(it.hasNext()){
                         a_client.pushData(seisImpl, ((SeisDataChangeListener)it.next()));
@@ -55,7 +65,8 @@ public class DataCenterThread implements Runnable{
                 }
             } catch(FissuresException fe) {
                 synchronized(initiators){
-                    pushed = true;
+                    failed = true;
+                    System.out.println("FISSURES FAILED");
                     Iterator it = initiators.iterator();
                     while(it.hasNext()){
                         a_client.error(((SeisDataChangeListener)it.next()), fe);
@@ -64,7 +75,8 @@ public class DataCenterThread implements Runnable{
                 }
             } catch(org.omg.CORBA.SystemException fe) {
                 synchronized(initiators){
-                    pushed = true;
+                    failed = true;
+                    System.out.println("CORBA FAILED");
                     Iterator it = initiators.iterator();
                     while(it.hasNext()){
                         a_client.error(((SeisDataChangeListener)it.next()), fe);
@@ -72,17 +84,51 @@ public class DataCenterThread implements Runnable{
                     continue;
                 }
             }
+            LocalSeismogramImpl[] seisArray = new LocalSeismogramImpl[seismograms.size()];
+            seisRef = new SoftReference(seismograms.toArray(seisArray));
         }
-        LocalSeismogramImpl[] seisArray = new LocalSeismogramImpl[seismograms.size()];
-        seisRef = new SoftReference(seismograms.toArray(seisArray));
         synchronized(initiators){
             Iterator it = initiators.iterator();
             while(it.hasNext()){
                 a_client.finished(((SeisDataChangeListener)it.next()));
             }
+            finished = true;
         }
+        job.decrementRetrievers();
     }
-
+    
+    private class RetrievalJob extends AbstractJob{
+        public RetrievalJob(){
+            super("Data Retriever");
+            setFinished();
+        }
+        
+        private synchronized void incrementWaiters(){
+            setStatus(retrievers + " retrieving data " + ++waiters + " waiting to retreive");
+        }
+        
+        private synchronized void incrementRetrievers(){
+            setStatus(++retrievers + " retrieving data " + --waiters + " waiting to retrieve");
+        }
+        
+        private synchronized void decrementRetrievers(){
+            setStatus(--retrievers + " retrieving data " + waiters + " waiting to retrieve");
+            if(retrievers == 0 && waiters == 0){
+                setFinished();
+            }
+        }
+        
+        private int retrievers = 0, waiters = 0;
+        
+        public void run() {}
+    }
+    
+    public static void incrementWaiters(){
+        job.incrementWaiters();
+    }
+    
+    private static RetrievalJob job;
+    
     public boolean getData(SeisDataChangeListener listener,
                            RequestFilter[] requestFilters){
         for (int i = 0; i < requestFilters.length; i++){
@@ -96,22 +142,22 @@ public class DataCenterThread implements Runnable{
                 return false;
             }
         }
-        if(!pushed){
-            synchronized(initiators){
+        synchronized(initiators){
+            if(!finished){
                 initiators.add(listener);
             }
-            return true;
         }
-        LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])seisRef.get();
-        if(seis != null){
-            a_client.pushData(seis, listener);
-            a_client.finished(listener);
+        if(!failed){
+            LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])seisRef.get();
+            if(seis != null){
+                a_client.pushData(seis, listener);
+            }
             return true;
         }else{
             return false;
         }
     }
-
+    
     private LocalSeismogramImpl[] castToLocalSeismogramImplArray(LocalSeismogram[] seismos) {
         LocalSeismogramImpl[] rtnValues = new LocalSeismogramImpl[seismos.length];
         for(int counter = 0; counter < seismos.length; counter++) {
@@ -119,20 +165,20 @@ public class DataCenterThread implements Runnable{
         }
         return rtnValues;
     }
-
+    
     private SoftReference seisRef = new SoftReference(null);
-
+    
     private RequestFilter[] requestFilters;
-
+    
     private LocalDataCenterCallBack a_client;
-
+    
     private DataCenterOperations dbDataCenter;
-
-    private List initiators = Collections.synchronizedList(new ArrayList());
-
+    
+    private Set initiators = Collections.synchronizedSet(new HashSet());
+    
     private static Category logger = Category.getInstance(DataCenterThread.class.getName());
-
-    private boolean pushed = false;
-
+    
+    private boolean finished = false, failed = false;
+    
 }// DataCenterThread
 
