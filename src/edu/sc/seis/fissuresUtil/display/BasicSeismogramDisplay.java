@@ -588,6 +588,14 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     }
 
+	public void addSoundPlay(){
+		plotters.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
+	}
+
+	public void removeSoundPlay(){
+		new PlotterIterator(SoundPlay.class).clear();
+	}
+
     private static Set globalFilters = new HashSet();
 
     public final static int PREFERRED_HEIGHT = 125;
