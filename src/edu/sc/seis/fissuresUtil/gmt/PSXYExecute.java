@@ -18,12 +18,19 @@ public class PSXYExecute {
                                  String projection,
                                  String region,
                                  String symbol,
-                                 String fill,
+                                 String fillColor,
+                                 String outlineColor,
                                  double[][] points) throws IOException,
             InterruptedException {
         Runtime rt = Runtime.getRuntime();
         String command = "psxy -V -J" + projection + " -R" + region + " -S"
-                + symbol + " -G" + fill + " -O -K";
+                + symbol + " -O -K";
+        if(fillColor != null) {
+            command += " -G" + fillColor;
+        }
+        if(outlineColor != null) {
+            command += " -W" + outlineColor;
+        }
         System.out.println("executing gmt command: " + command);
         Process proc = rt.exec(command);
         BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -37,7 +44,14 @@ public class PSXYExecute {
         pump.start();
         errPump.start();
         for(int i = 0; i < points.length; i++) {
-            procWriter.write(points[i][0] + " " + points[i][1] + '\n');
+            for(int j = 0; j < points[i].length; j++) {
+                procWriter.write(points[i][j] + "");
+                if(j < points[i].length - 1) {
+                    procWriter.write(" ");
+                } else {
+                    procWriter.write("\n");
+                }
+            }
         }
         procWriter.close();
         int exitVal = proc.waitFor();
@@ -47,27 +61,33 @@ public class PSXYExecute {
         System.out.println("command returned exit value " + exitVal);
     }
 
-    public static void main(String[] args) {
+public static void main(String[] args) {
         try {
             double[][] points = { {-180, 90},
                                  {-135, 67.5},
                                  {-90, 45},
                                  {-45, 22.5},
-                                 {0, 0},
-                                 {45, -22.5},
-                                 {90, -45},
-                                 {135, -67.5},
-                                 {180, -90}};
+                                 {0, 0}};
             addPoints("/Volumes/heff/oliverpa/gmtTest/world.ps",
                       "Kf166/10i",
                       "-14/346/-90/90",
                       "t0.4",
                       "0/0/255",
+                      "5/255",
                       points);
+            double[][] morePoints = { {45, -22.5, 0.7},
+                                  {90, -45, 0.5},
+                                  {135, -67.5, 0.4},
+                                  {180, -90, 1.0}};
+            addPoints("/Volumes/heff/oliverpa/gmtTest/world.ps",
+                      "Kf166/10i",
+                      "-14/346/-90/90",
+                      "ci",
+                      null,
+                      "12/255/0/0",
+                      morePoints);
         } catch(Exception e) {
             e.printStackTrace();
         }
-    }
-
-    //private static Logger logger = Logger.getLogger(PSXYExecute.class);
+    }    //private static Logger logger = Logger.getLogger(PSXYExecute.class);
 }
