@@ -141,4 +141,6 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 	}
     }
 
+    public void fireAmpRangeEvent(AmpSyncEvent event) {};
+
 }// MinMaxAmpConfig

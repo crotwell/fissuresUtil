@@ -145,5 +145,6 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 	    }
 	}
     }
+    public void fireAmpRangeEvent(AmpSyncEvent event) {};
     
     }// RMedianAmpConfig

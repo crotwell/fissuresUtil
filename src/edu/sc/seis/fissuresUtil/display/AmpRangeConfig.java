@@ -74,4 +74,6 @@ public interface AmpRangeConfig extends TimeSyncListener {
      */
     public void updateAmpSyncListeners();
 
+    public void fireAmpRangeEvent(AmpSyncEvent e);
+
 }// AmpRangeConfig

@@ -189,7 +189,7 @@ public class SimplePlotUtil  {
                                      tempdate);
                                  
       
-	int pixels = size.width;
+	int pixels = seisEndIndex - seisStartIndex + 1;
 	out[0] = new int[2*pixels];
 	out[1] = new int[out[0].length];
 	int tempYvalues[] = new int [out[0].length];

@@ -98,6 +98,8 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	}
 	this.updateAmpSyncListeners();
     }
+
+    public abstract void fireAmpRangeEvent(AmpSyncEvent event);
     
     protected boolean intvCalc = false;
     

@@ -57,8 +57,14 @@ public class ParticleMotionView extends JComponent{
 		    //(int)(max - (((max - min) * (fmin - me.getX()) )/ (fmax - me.getY())));
 		    //int newy =  (int)(((min - max) / fmax * me.getY()) + max);
 		    int clickCount = 0;
-		    if(zoomIn)  clickCount = 1;
-		    if(zoomOut) clickCount = 2;
+		    if(zoomIn)  {
+			clickCount = 1;
+			//particleMotionDisplay.fireAmpRangeEvent(new AmpSyncEvent(50.0, 50.0, true));
+		    }
+		    if(zoomOut) { 
+			clickCount = 2;
+			//	particleMotionDisplay.fireAmpRangeEvent(new AmpSyncEvent(-50.0, -50.0, true));
+		    }
 		    
 		    zoomInParticleMotionDisplay(clickCount, me.getX(), me.getY());
 		    //logger.debug("me x "+me.getX()+" me y "+me.getY());
@@ -159,6 +165,7 @@ public class ParticleMotionView extends JComponent{
 	    particleMotionDisplay.updateVerticalAmpScale(new UnitRangeImpl(ya, ys, UnitImpl.COUNT));
 	    vunitRangeImpl = new UnitRangeImpl(ya, ys, UnitImpl.COUNT);
 	    hunitRangeImpl = new UnitRangeImpl(xa, xs, UnitImpl.COUNT);
+	    particleMotionDisplay.fireAmpRangeEvent(new AmpSyncEvent(ya, ys, true));
 	}
     }
   
