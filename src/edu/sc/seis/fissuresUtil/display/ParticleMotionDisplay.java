@@ -352,7 +352,7 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     /**
      *@returns true if the ParticleMotionThread has correctly initialized the display
      */
-    public boolean getInitializationStatus(){ return initialized; }
+    public boolean initialized(){ return initialized; }
 
     private boolean initialized = false;
 
