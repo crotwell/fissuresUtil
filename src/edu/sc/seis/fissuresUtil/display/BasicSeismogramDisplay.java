@@ -222,6 +222,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                 it.remove();
             }
         }
+        repaint();
     }
 
     public void addSelection(Selection newSelection){
