@@ -5,7 +5,7 @@ import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfTimeSeries.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.codec.CodecException;
+import edu.iris.dmc.seedcodec.CodecException;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.IfParameterMgr.*;

@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.sac;
 
 import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.codec.CodecException;
+import edu.iris.dmc.seedcodec.CodecException;
 import edu.iris.Fissures.event.*;
 import edu.iris.Fissures.IfEvent.*;
 import edu.iris.Fissures.network.*;
