@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2129 2002-07-11 15:29:29Z crotwell $
+ * @version $Id: XMLDataSet.java 2131 2002-07-11 17:01:11Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -203,7 +203,7 @@ public class XMLDataSet implements DataSet, Serializable {
                                       "parameter[name/text()="+
                                       dquote+name+dquote+"]");
         if (nList != null && nList.getLength() != 0) {
-	    System.out.println("getting the parameter");
+	    logger.debug("getting the parameter "+name);
             Node n = nList.item(0); 
             if (n instanceof Element) {
 		return XMLParameter.getParameter((Element)n);
@@ -212,7 +212,7 @@ public class XMLDataSet implements DataSet, Serializable {
 		//                return (Element)n;
             }
         } else {
-	    System.out.println("THE NODELIST IS NULL");
+	    logger.debug("THE NODE LIST IS NULL for parameter "+name);
 	}
 
         // not a parameter, try parameterRef
@@ -228,10 +228,11 @@ public class XMLDataSet implements DataSet, Serializable {
                     parameterCache.put(name, e);
                     return e; 
                 } catch (Exception e) {
-                    logger.error("can't get paramterRef", e);
+                    logger.error("can't get paramterRef for "+name, e);
                 } // end of try-catch
             }
         }
+	logger.warn("can't find paramter for "+name);
 
         //can't find that name???
         return null;
@@ -898,12 +899,7 @@ public class XMLDataSet implements DataSet, Serializable {
     
     public edu.iris.Fissures.IfNetwork.Channel getChannel(ChannelId channelId) {
 	//System.out.println("-------- "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
-	//the conversion lower case must be investigated.. why does difference occur at
-	//all the station_code when it is inserted as part of parameter name gets inserted as lower case
-	//but here when I used channelIdUtil.toString the station_code is returned as capitals
-	//must be careful becoz .. XPATH is case sensitive.
-	channelId.station_code = channelId.station_code.toLowerCase();
-	//	System.out.println("******* after "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
+
 	Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
 	
 	return (edu.iris.Fissures.IfNetwork.Channel)obj;
