@@ -77,6 +77,13 @@ public class MicroSecondTimeRange{
 					new MicroSecondDate(beginTime.getMicroSecondTime() + totalTime));
     }
 
+    public boolean equals(MicroSecondTimeRange otherTime){
+	if(beginTime.equals(otherTime.getBeginTime()) && endTime.equals(otherTime.getEndTime())){
+	    return true;
+	}
+	return false;
+    }
+
     private MicroSecondDate beginTime;
     
     private MicroSecondDate endTime;
