@@ -136,7 +136,7 @@ public class SacToFissures  {
                                     new QuantityImpl(sac.stdp, 
                                                      UnitImpl.METER),
                                     LocationType.GEOGRAPHIC);
-        Orientation orient = new Orientation(sac.cmpaz, sac.cmpinc);
+        Orientation orient = new Orientation(sac.cmpaz, sac.cmpinc - 90);
                 SamplingImpl samp = new SamplingImpl(1,
                                          new TimeInterval(sac.delta, 
                                                           UnitImpl.SECOND));
