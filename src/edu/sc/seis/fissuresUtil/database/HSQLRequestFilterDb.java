@@ -27,7 +27,7 @@ import org.apache.log4j.*;
  */
 
 public class HSQLRequestFilterDb extends AbstractDb{
-    public HSQLRequestFilterDb (DataCenterRouter router){
+    public HSQLRequestFilterDb (DataCenterOperations router){
 	this.dataCenterRouter = router;
 	create();
     }
@@ -394,7 +394,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
 
     private PreparedStatement maxFileIDStmt;
 
-    private DataCenterRouter dataCenterRouter;
+    private DataCenterOperations dataCenterRouter;
 
     private PreparedStatement rfGetFileIdStmt;
     
