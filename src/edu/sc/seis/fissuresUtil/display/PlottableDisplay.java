@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.*;
 
-import com.sun.media.jai.codec.PNGEncodeParam;
 import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -11,23 +10,15 @@ import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.utility.Logger;
 import edu.sc.seis.fissuresUtil.display.drawable.EventFlagPlotter;
 import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
-import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
-import java.awt.image.renderable.ParameterBlock;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.awt.geom.Rectangle2D;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 
 /**
  * PlottableDisplay.java
@@ -55,31 +46,15 @@ public  class PlottableDisplay extends JComponent {
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
                                                      BorderFactory.createLoweredBevelBorder()));
         setLayout(new BorderLayout());
-        eventPlotterList = new LinkedList();
-        this.colorFactory = new ColorFactory();
-        PlottableMouseListener plottableMouseListener = new PlottableMouseListener(this);
-        this.addMouseListener(plottableMouseListener);
-        this.addMouseMotionListener(plottableMouseListener);
+        selection = new PlottableSelection(this);
         configChanged();
-
-    }
-
-    public PlottableDisplay(ChannelId channelId) {
-        this();
-        this.channelId = channelId;
-    }
-
-    public void setChannelId(ChannelId channelId) {
-        this.channelId = channelId;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
     }
 
     public void setOffset(int offset) {
-        plotoffset = offset;
-        configChanged();
+        if(plotOffset != offset){
+            plotOffset = offset;
+            configChanged();
+        }
     }
 
     public void setEvents(EventAccessOperations[] eventAccess) {
@@ -100,35 +75,39 @@ public  class PlottableDisplay extends JComponent {
         image = null;
         // signal any drawing thread to stop
         currentImageGraphics = null;
-        int newpsgramwidth = plot_x/plotrows +2*LABEL_X_SHIFT;
-        int newpsgramheight = plot_y +(plotoffset * (plotrows-1))+TITLE_Y_SHIFT;
-        setPreferredSize(new java.awt.Dimension(newpsgramwidth, newpsgramheight));
+        int newWidth = totalWidth/rows +2*LABEL_X_SHIFT;
+        int newHeight = rowHeight +(plotOffset * (rows-1))+TITLE_Y_SHIFT;
+        setPreferredSize(new Dimension(newWidth, newHeight));
         repaint();
     }
 
-    public void setPlottable(edu.iris.Fissures.Plottable[] clientPlott,
-                             String nameofstation) {
+    public void setPlottable(Plottable[] clientPlott,
+                             String nameofstation,
+                             String orientationName,
+                             Date date,
+                            ChannelId channelId) {
         eventPlotterList = new LinkedList();
-        selection = null;
         removeAll();
+        selection = new PlottableSelection(this);
+
 
         // signal any drawing thread to stop
         currentImageGraphics = null;
 
         this.arrayplottable = clientPlott;
         int[] minmax = findMinMax(arrayplottable);
-        min = minmax[0];
-        max = minmax[1];
-        ampScale = plot_y*1f/(max-min);
-
-        plottablename = nameofstation;
+        ampScale = rowHeight*1f/(minmax[1] - minmax[0]);
 
         if (arrayplottable == null) {
             Logger.warning("setPlottable:Plottable is NULL.");
             this.arrayplottable = new Plottable[0];
         }
 
-        plottablename = nameofstation;
+        stationName = nameofstation;
+        this.orientationName = orientationName;
+        dateName = dateFormater.format(date);
+        this.date = date;
+        this.channelId = channelId;
         plottableShape = makeShape(clientPlott);
         configChanged();
     }
@@ -139,8 +118,8 @@ public  class PlottableDisplay extends JComponent {
             image = createImage();
         }
         g.drawImage(image, 0, 0, this);
-        drawSelections(g);
-        drawEventFlagPlotters(g);
+        drawSelection(g);
+        drawEventFlags(g);
     }
 
     protected void drawComponent(Graphics g) {
@@ -153,45 +132,75 @@ public  class PlottableDisplay extends JComponent {
         }
 
         // for time label on left and title at top
-        g.translate(LABEL_X_SHIFT,
-                    TITLE_Y_SHIFT);
+        g.translate(LABEL_X_SHIFT, TITLE_Y_SHIFT);
         g.clipRect(0, 0,
-                   plot_x/plotrows,
-                   plot_y +(plotoffset * (plotrows-1)));
-        drawPlottableNew(g, arrayplottable);
-        drawSelections(g);
+                   totalWidth/rows,
+                   rowHeight +(plotOffset * (rows-1)));
+        drawPlottableNew(g);
+        drawSelection(g);
     }
 
 
     void drawTitle(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
         g2.setPaint(Color.blue);
-        g2.drawString(plottablename, 50, 20);
-
+        FontMetrics fm = g2.getFontMetrics();
+        Rectangle2D stringBounds;
+        Rectangle2D orientationBounds = fm.getStringBounds("Orientation: " , g2);
+        if(stationName.length() > 0){
+            g2.setFont(DisplayUtils.BOLD_FONT);
+            stringBounds = fm.getStringBounds("Station: " , g2);
+            int x = LABEL_X_SHIFT +
+                (int)(orientationBounds.getWidth() - stringBounds.getWidth());
+            g2.drawString("Station: ", x, 20);
+            g2.setFont(DisplayUtils.DEFAULT_FONT);
+            g2.drawString(stationName, (int)(x + stringBounds.getWidth()), 20);
+        }else{
+            g2.drawString("On the menu above, choose a SCEPP station from the SC icon and then click 'load data'.", 50, 20);
+        }
+        if(dateName.length() > 0){
+            g2.setFont(DisplayUtils.BOLD_FONT);
+            stringBounds = fm.getStringBounds("Date: " , g2);
+            int x = LABEL_X_SHIFT +
+                (int)(orientationBounds.getWidth() - stringBounds.getWidth());
+            g2.drawString("Date: ", x, (int)(20 +stringBounds.getHeight()));
+            g2.setFont(DisplayUtils.DEFAULT_FONT);
+            g2.drawString(dateName,(int)(x + stringBounds.getWidth()),
+                              (int)(20 +stringBounds.getHeight()));
+        }
+        if(orientationName.length() > 0){
+            g2.setFont(DisplayUtils.BOLD_FONT);
+            g2.drawString("Orientation: ",
+                          LABEL_X_SHIFT,
+                              (int)(20 + 2*orientationBounds.getHeight()));
+            g2.setFont(DisplayUtils.DEFAULT_FONT);
+            g2.drawString(orientationName,
+                              (int)(LABEL_X_SHIFT + orientationBounds.getWidth()),
+                              (int)(20 + 2*orientationBounds.getHeight()));
+        }
         String myt = "Time";
         String mygmt = "GMT";
 
         g2.setPaint(Color.black);
         g2.drawString(myt, 10, 40);
-        g2.drawString(myt,sizerow + 50, 40);
+        g2.drawString(myt,widthRow + LABEL_X_SHIFT, 40);
         g2.drawString(mygmt, 10, 50);
-        g2.drawString(mygmt,sizerow + 50, 50);
+        g2.drawString(mygmt,widthRow + LABEL_X_SHIFT, 50);
 
         return;
     }
 
     void drawTimeTicks(Graphics g) {
-
         Graphics2D g2 = (Graphics2D)g;
 
         int hour=0;
         String minutes = ":00 ";
-        int hourinterval=totalhours/plotrows;
+        int hourinterval=totalHours/rows;
         String hourmin = hour+minutes;;
 
         int houroffset=10;
-        int xShift = plot_x/plotrows+LABEL_X_SHIFT;
-        for (int currRow = 0; currRow < plotrows; currRow++) {
+        int xShift = totalWidth/rows+LABEL_X_SHIFT;
+        for (int currRow = 0; currRow < rows; currRow++) {
 
             if (currRow % 2 == 0) {
                 g2.setPaint(Color.black);
@@ -200,34 +209,32 @@ public  class PlottableDisplay extends JComponent {
             }
             g2.drawString(hourmin,
                           houroffset,
-                          TITLE_Y_SHIFT+plot_y/2 + plotoffset*currRow);
+                          TITLE_Y_SHIFT+rowHeight/2 + plotOffset*currRow);
 
             hour+=hourinterval;
             hourmin = hour+minutes;
             if(hour>=10) {  houroffset = 5; }
             g2.drawString(hour+minutes,
                           xShift+houroffset,
-                          TITLE_Y_SHIFT+plot_y/2 + plotoffset*currRow);
+                          TITLE_Y_SHIFT+rowHeight/2 + plotOffset*currRow);
         }
 
     }
 
-    void drawPlottableNew(Graphics g, Plottable[] plot) {
-        int xShift = plot_x/plotrows;
-        mean = getMean();
+    void drawPlottableNew(Graphics g) {
+        int xShift = totalWidth/rows;
+        int mean = getMean();
         // get new graphics to avoid messing up original
         Graphics2D newG = (Graphics2D)g.create();
 
-        for (int currRow = 0; currRow < plotrows; currRow++) {
-            if (g != currentImageGraphics) return;
-
+        for (int currRow = 0; currRow < rows && g == currentImageGraphics; currRow++) {
             // shift for row (left so time is in window,
             //down to correct row on screen, plus
-            java.awt.geom.AffineTransform original = newG.getTransform();
-            java.awt.geom.AffineTransform affine = newG.getTransform();
+            AffineTransform original = newG.getTransform();
+            AffineTransform affine = newG.getTransform();
 
             affine.concatenate(affine.getTranslateInstance(-1*xShift*currRow,
-                                                           plot_y/2+plotoffset*currRow));
+                                                           rowHeight/2+plotOffset*currRow));
             // account for graphics y positive down
             affine.concatenate(affine.getScaleInstance(1, -1));
 
@@ -256,10 +263,8 @@ public  class PlottableDisplay extends JComponent {
 
             newG.setTransform(original);
 
-            // draw partial image
-            if (g != currentImageGraphics) return;
-            repaint();
         }
+        repaint();
         newG.dispose();
     }
 
@@ -316,12 +321,6 @@ public  class PlottableDisplay extends JComponent {
         return wholeShape;
     }
 
-    public void psgramResize(int psgramwidth,int psgramheight ) {
-        setSize(new java.awt.Dimension (psgramwidth, psgramheight));
-        setPreferredSize(new java.awt.Dimension (psgramwidth,psgramheight));
-        return;
-    }
-
     public int getMean() {
         if (arrayplottable == null
             || arrayplottable.length == 0
@@ -344,8 +343,8 @@ public  class PlottableDisplay extends JComponent {
 
     public Image createImage() {
 
-        final int width = plot_x/plotrows +2*LABEL_X_SHIFT;
-        final int height = plot_y +(plotoffset * (plotrows-1))+TITLE_Y_SHIFT;
+        final int width = totalWidth/rows +2*LABEL_X_SHIFT;
+        final int height = rowHeight +(plotOffset * (rows-1))+TITLE_Y_SHIFT;
 
         final Image offImg = super.createImage(width, height);
 
@@ -367,37 +366,6 @@ public  class PlottableDisplay extends JComponent {
         return offImg;
     }
 
-    public void nonGUIwritePNG(String fileToWriteTo) {
-        File outputFile = new File(fileToWriteTo+".png");
-        writePNG(outputFile);
-    }
-
-    public void writePNG(File fileToWriteTo) {
-
-        /* Receives an image from the Graphics that was drawn */
-        Image g_image = createImage();
-
-        // Create the ParameterBlock.
-        ParameterBlock pb = new ParameterBlock();
-        pb.add(g_image);
-
-        // Create the AWTImage operation.
-        PlanarImage image= JAI.create("awtImage", pb);
-
-        try{
-            FileOutputStream os = new FileOutputStream(fileToWriteTo);
-            com.sun.media.jai.codec.PNGEncodeParam.RGB  param = new PNGEncodeParam.RGB();
-            param.setBitDepth(16);
-
-            JAI.create("encode", image, os, "PNG", param);
-
-            os.close();
-        }catch (FileNotFoundException e){
-        }catch(IOException ioe){
-        }
-
-    }//close writePNG
-
     public int[] findMinMax(Plottable[] arrayplottable) {
         if (arrayplottable.length == 0) {
             int[] minandmax = new int[2];
@@ -417,33 +385,28 @@ public  class PlottableDisplay extends JComponent {
         return minandmax;
     }
 
-    public void setSelectedSelection(int beginx, int beginy) {
-        if(selection != null && selection.isSelectionSelected(beginx, beginy)) {
-            return;
-        }
-        selection = new PlottableSelection(this,
-                                           colorFactory.getNextColor(),
-                                           beginx, beginy);
+    public void addToSelection(int x, int y) {
+        selection.addXY(x, y);
+        repaint();
     }
 
-    public void setSelectedRectangle(int beginx, int beginy, int endx, int endy) {
-        this.beginx = beginx;
-        this.beginy = beginy;
-        this.endx = endx;
-        this.endy = endy;
-        if(selection != null) {
-            selection.setXY(endx, endy);
-            repaint();
-        }
+    public void setSelection(int x, int y) {
+        selection.setXY(x, y);
+        repaint();
     }
 
-    private void drawSelections(Graphics g) {
-        if(selection != null){
-            selection.draw((Graphics2D)g, null, null, null);
+    public boolean indicatesExtract(int x, int y){
+        if(selection.intersectsExtract(x, y)){
+            return true;
         }
+        return false;
     }
 
-    private void drawEventFlagPlotters(Graphics g) {
+    private void drawSelection(Graphics g) {
+        selection.draw(g);
+    }
+
+    private void drawEventFlags(Graphics g) {
         Iterator iterator = eventPlotterList.iterator();
         while(iterator.hasNext()) {
             EventFlagPlotter plotter = (EventFlagPlotter) iterator.next();
@@ -451,53 +414,8 @@ public  class PlottableDisplay extends JComponent {
         }
     }
 
-    public int[] getSelectedRows(int beginy, int endy) {
-        if(beginy == -1 || endy == -1) return new int[0];
-        ArrayList arrayList = new ArrayList();
-        int selectionOffset = plotoffset / 2;
-        for(int counter = 0; counter < plotrows; counter++) {
-            int value =  (plot_y/2 + TITLE_Y_SHIFT + plotoffset*counter);
-            if( (beginy <= (value + selectionOffset)) &&
-                   (endy >= beginy) &&
-                   (endy > (value - selectionOffset))) {
-                arrayList.add(new Integer(counter));
-            }
-        }
-        int[] rtnValues = new int[arrayList.size()];
-        for(int counter = 0; counter < arrayList.size(); counter++) {
-            rtnValues[counter] = ((Integer)arrayList.get(counter)).intValue();
-        }
-        return rtnValues;
-    }
-
-    public void setSelectedEventFlag(MouseEvent me) {
-        if(me.getClickCount() == 2) {
-            Iterator iterator = eventPlotterList.iterator();
-            while(iterator.hasNext()) {
-                EventFlagPlotter plotter = (EventFlagPlotter) iterator.next();
-                if(plotter.isSelected(me.getX(), me.getY())) {
-                    plotter.setSelected(true);
-                } else {
-                    plotter.setSelected(false);
-                }
-            }
-        }
-        repaint();
-    }
-
-    private boolean isRowSelected(int[] rows, int currrow) {
-        for(int counter = 0; counter < rows.length; counter++) {
-            if(rows[counter] == currrow) return true;
-        }
-        return false;
-    }
-
     public RequestFilter getRequestFilter() {
-        if(selection != null){
-            return selection.getRequestFilter();
-        }else{
-            return null;
-        }
+        return selection.getRequestFilter();
     }
 
     public void addEventPlotterInfo(EventAccessOperations[] eventAccessArray) {
@@ -506,53 +424,82 @@ public  class PlottableDisplay extends JComponent {
         }
     }
 
-    private ColorFactory colorFactory;
+    public Date getDate(){ return date; }
+
+    public ChannelId getChannelId(){ return channelId; }
+
+    /** Solely for use to determine if drawing thread is still current. */
+    public Graphics2D getCurrentImageGraphics(){ return currentImageGraphics; }
+
+    /* Defaults for plottable */
+    public static final int ROWS = 12;
+
+    public static final int TOTAL_WIDTH = 6000;
+
+    public static final int ROW_HEIGHT = 200;
+
+    public static final int OFFSET = 75;
+
+    public static final int TITLE_Y_SHIFT = 40;
+
+    public static final int LABEL_X_SHIFT = 50;
+
+    //Plottable instance values
+    public int getRows(){ return rows; }
+
+    private int rows = ROWS;
+
+    public int getRowWidth(){ return widthRow; }
+
+    private int widthRow = TOTAL_WIDTH/ROWS;
+
+    public int getOffset(){ return plotOffset; }
+
+    private int plotOffset= OFFSET;
+
+    public int getPlotWidth(){
+        return totalWidth;
+    }
+
+    private int totalWidth = TOTAL_WIDTH;
+
+    public int getRowHeight(){ return rowHeight; }
+
+    private int rowHeight = ROW_HEIGHT;
+
+    public int getTotalHours(){ return totalHours; }
+
+    private int totalHours = 24;
+
+    private ChannelId channelId;
+
+    private float ampScale = 1.0f;
+
+    private float ampScalePercent = 1.0f;
+
+    private Date date;
+
+    private static ColorFactory colorFactory = new ColorFactory();
 
     private PlottableSelection selection;
 
-    private LinkedList eventPlotterList;
-
-    /** Solely for use to d3etermine if drawing thread is still current. */
-    public Graphics2D getCurrentImageGraphics(){ return currentImageGraphics; }
+    private LinkedList eventPlotterList = new LinkedList();
 
     private Graphics2D currentImageGraphics = null;
 
     private EventAccessOperations[] eventAccess = new EventAccess[0];
 
-    protected JLabel imagePanel = new JLabel("no image");
+    private Plottable[] arrayplottable = new Plottable[0];
 
-    private edu.iris.Fissures.Plottable[] arrayplottable = new edu.iris.Fissures.Plottable[0] ;
-    private String  plottablename="On the menu above, choose a SCEPP station from the SC icon and then click 'load data'.";
+    private String stationName = "";
+
+    private String orientationName = "";
+
+    private String dateName = "";
+
     private Image image = null;
+
     private Shape plottableShape = null;
 
-    /* Defaults for plottable */
-    public int plotrows=12;
-    public int sizerow;
-    public int plotoffset=60;
-    public String plottitle="true";
-    public int plot_x=6000;
-    public int plot_y=2000;
-    public int plotwidth=700;
-    public int plotheight=2600;
-    public int totalhours = 24;
-
-    public ChannelId channelId;
-    public int min;
-    public int max;
-    public int mean;
-    float ampScale = 1.0f;
-    float ampScalePercent = 1.0f;
-    public static final int TITLE_Y_SHIFT = 40;
-    public static final int LABEL_X_SHIFT = 50;
-
-    int beginx = -1;
-    int beginy = -1;
-
-    int endx = -1;
-    int endy  = -1;
-
-    public Date getDate(){return date;}
-
-    private Date date;
-}/*close class*/
+    private static SimpleDateFormat dateFormater = new SimpleDateFormat("EEEE, d MMMM yyyy");
+}
