@@ -27,7 +27,7 @@ import java.util.TimeZone;
 
 public class PlottableSelection{
     public PlottableSelection (PlottableDisplay display){
-        this.plottableDisplay = display;
+        this.display = display;
     }
 
     public PlottableSelection(PlottableDisplay display, int x, int y){
@@ -39,12 +39,12 @@ public class PlottableSelection{
         if(visible){
             // get new graphics to avoid messing up original
             Graphics2D newG = (Graphics2D)g.create();
-            int rowHeight = plottableDisplay.getRowOffset();
-            int yOffset = plottableDisplay.titleHeight;
+            int rowHeight = display.getRowOffset();
+            int yOffset = display.titleHeight;
             int xOffset = PlottableDisplay.LABEL_X_SHIFT;
             for (int currRow = startRow; currRow <= endRow; currRow++) {
                 int x = xOffset;
-                int width = plottableDisplay.getRowWidth();
+                int width = display.getRowWidth();
                 int y =  rowHeight*currRow + yOffset - rowHeight/2 + 5;
                 int height = rowHeight - 10;
                 if(currRow == startRow) {
@@ -93,11 +93,11 @@ public class PlottableSelection{
     private int[] getSelectedRows(int beginy, int endy) {
         if(beginy == -1 || endy == -1) return new int[0];
         ArrayList arrayList = new ArrayList();
-        int selectionOffset = plottableDisplay.getRowOffset() / 2;
-        for(int counter = 0; counter < plottableDisplay.getRows(); counter++) {
-            int value =  (plottableDisplay.getRowOffset()/2 +
-                              plottableDisplay.titleHeight +
-                              plottableDisplay.getRowOffset()*counter);
+        int selectionOffset = display.getRowOffset() / 2;
+        for(int counter = 0; counter < display.getRows(); counter++) {
+            int value =  (display.getRowOffset()/2 +
+                              display.titleHeight +
+                              display.getRowOffset()*counter);
 
             if( (beginy <= (value + selectionOffset)) &&
                    (endy > (value - selectionOffset))) {
@@ -113,10 +113,10 @@ public class PlottableSelection{
     }
 
     public int getRow(int yPixel){
-        int rowHeight = plottableDisplay.getRowOffset();
-        if(yPixel - plottableDisplay.titleHeight + rowHeight/2 <0) return -1;
-        for(int counter = 1; counter <= plottableDisplay.getRows(); counter++) {
-            int value =  plottableDisplay.titleHeight + rowHeight*counter - rowHeight/2;
+        int rowHeight = display.getRowOffset();
+        if(yPixel - display.titleHeight + rowHeight/2 <0) return -1;
+        for(int counter = 1; counter <= display.getRows(); counter++) {
+            int value =  display.titleHeight + rowHeight*counter - rowHeight/2;
             if( yPixel <= (value)) {
                 return counter-1;
             }
@@ -128,24 +128,45 @@ public class PlottableSelection{
     public RequestFilter getRequestFilter() {
         if(!visible) return null;
         if(endRow == -1) return null;
-        int rows = plottableDisplay.getRows();
-        int rowvalue = plottableDisplay.getTotalHours()/rows;
-        float plotwidth = plottableDisplay.getPlotWidth()/rows;
+        int rows = display.getRows();
+        int rowvalue = display.getTotalHours()/rows;
+        float plotwidth = display.getPlotWidth()/rows;
         float beginvalue = startRowX/plotwidth * rowvalue + startRow * rowvalue;
         float endvalue = endRowX/plotwidth * rowvalue + endRow * rowvalue;
-        return new RequestFilter(plottableDisplay.getChannelId(),
+        return new RequestFilter(display.getChannelId(),
                                  getTime(beginvalue).getFissuresTime(),
                                  getTime(endvalue).getFissuresTime());
+    }
+
+    public int[][] getSelectedArea(){
+        int[][] selectedArea = new int[endRow - startRow + 1][3];
+        System.out.println(endRow - startRow + 1);
+        if(visible && endRow != -1){
+            for (int i = 0; i < selectedArea.length; i++) {
+                selectedArea[i][0] = startRow + i;
+                if(selectedArea[i][0] == startRow){
+                    selectedArea[i][1] = startRowX;
+                }else{
+                    selectedArea[i][1] = 0;
+                }
+                if(selectedArea[i][0] == endRow){
+                    selectedArea[i][2] = endRowX;
+                }else{
+                    selectedArea[i][2] = display.getRowWidth();
+                }
+            }
+        }
+        return selectedArea;
     }
 
     public void addXY(int x, int y){
         setExtractColor(Color.BLACK);
         if(x < PlottableDisplay.LABEL_X_SHIFT ||
-           x > plottableDisplay.getRowWidth() + PlottableDisplay.LABEL_X_SHIFT){
+           x > display.getRowWidth() + PlottableDisplay.LABEL_X_SHIFT){
             return;
         }
         int row = getRow(y);
-        if(row > -1 && row < plottableDisplay.getRows()){
+        if(row > -1 && row < display.getRows()){
             int xToStart = Math.abs(x - startRowX);
             int xToEnd = Math.abs(x - endRowX);
             int rowsToStart = Math.abs(row - startRow);
@@ -176,7 +197,6 @@ public class PlottableSelection{
                         setEnd(x, row);
                     }
                 }else{
-                    System.out.println(i++);
                     if(row < startRow){
                         setStart(x, row);
                     }else if(row > endRow){
@@ -206,8 +226,6 @@ public class PlottableSelection{
         placed = true;
     }
 
-    private int i = 0;
-
     private void setStart(int x, int row){
         startRowX = x;
         startRow = row;
@@ -220,7 +238,7 @@ public class PlottableSelection{
 
     public void setXY(int x, int y, int width){
         if(x < PlottableDisplay.LABEL_X_SHIFT ||
-           x > plottableDisplay.getRowWidth() + PlottableDisplay.LABEL_X_SHIFT){
+           x > display.getRowWidth() + PlottableDisplay.LABEL_X_SHIFT){
             if(!placed) visible = false;
             return;
         }
@@ -252,7 +270,7 @@ public class PlottableSelection{
         int seconds = tempmilliseconds / 1000;
         tempmilliseconds = tempmilliseconds - seconds * 1000;
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(plottableDisplay.getDate());
+        calendar.setTime(display.getDate());
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         GregorianCalendar gregorianCalendar = new GregorianCalendar(calendar.get(Calendar.YEAR),
                                                                     calendar.get(Calendar.MONTH),
@@ -266,7 +284,7 @@ public class PlottableSelection{
 
     public void setExtractColor(Color newColor){
         extractColor = newColor;
-        plottableDisplay.repaint();
+        display.repaint();
     }
 
     public void setPlaced(boolean isPlaced){ placed = isPlaced; }
@@ -278,7 +296,7 @@ public class PlottableSelection{
                                                                            .4f);
     private Color color = Color.RED;
 
-    private PlottableDisplay plottableDisplay;
+    private PlottableDisplay display;
 
     private int startRowX, endRowX, startRow = -1, endRow = -1;
 
