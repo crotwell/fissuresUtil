@@ -20,9 +20,9 @@ import java.awt.datatransfer.*;
  * @version
  */
 
-public abstract class TextInfoDisplay 
-    extends JPanel 
-    implements DropTargetListener 
+public abstract class TextInfoDisplay
+    extends JPanel
+    implements DropTargetListener
 {
 
     public TextInfoDisplay (){
@@ -33,28 +33,31 @@ public abstract class TextInfoDisplay
         paneScrollPane.setVerticalScrollBarPolicy(
                         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         //paneScrollPane.setPreferredSize(new Dimension(250, 155));
-        paneScrollPane.setMinimumSize(new Dimension(10, 10));
+        paneScrollPane.setMinimumSize(new Dimension(10, 15));
 	add(paneScrollPane, BorderLayout.CENTER);
 	initStylesForTextPane(textPane);
 
 	dropTarget = new DropTarget(textPane, this);
 	dropTarget.setActive(true);
     }
-    
+
 
     public void appendLabelValue(Document doc, String label, String value)
 	throws javax.swing.text.BadLocationException {
-	    doc.insertString(doc.getLength(), 
-			     label+": ",
+//	    doc.insertString(doc.getLength(),
+//			     label+": ",
+//			     textPane.getStyle("label"));
+		doc.insertString(doc.getLength(),
+			     label,
 			     textPane.getStyle("label"));
-	    doc.insertString(doc.getLength(), 
+	    doc.insertString(doc.getLength(),
 			     value+"\n",
 			     textPane.getStyle("value"));
     }
 
     public  void appendLine(Document doc, String value)
 	throws javax.swing.text.BadLocationException {
-	    doc.insertString(doc.getLength(), 
+	    doc.insertString(doc.getLength(),
 			     value+"\n",
 			     textPane.getStyle("value"));
     }
@@ -62,7 +65,7 @@ public abstract class TextInfoDisplay
 
     public void appendHeader(Document doc, String value)
 	throws javax.swing.text.BadLocationException {
-	    doc.insertString(doc.getLength(), 
+	    doc.insertString(doc.getLength(),
 			     value+"\n",
 			     textPane.getStyle("header"));
     }
@@ -80,10 +83,10 @@ public abstract class TextInfoDisplay
 
     public void appendProblem(Document doc, String problem)
 	throws javax.swing.text.BadLocationException {
-	    doc.insertString(doc.getLength(), 
+	    doc.insertString(doc.getLength(),
 			     "Problem: ",
 			     textPane.getStyle("label"));
-	    doc.insertString(doc.getLength(), 
+	    doc.insertString(doc.getLength(),
 			     problem+"\n",
 			     textPane.getStyle("problem"));
     }
