@@ -43,7 +43,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
 	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
-
+	hAmpConfigRegistrar.addAmpSyncListener(this);
+	vAmpConfigRegistrar.addAmpSyncListener(this);
 
 	showScale(hSeis, 
 		  vSeis,
