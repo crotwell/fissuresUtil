@@ -19,13 +19,16 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1736 2002-05-29 19:29:34Z crotwell $
+ * @version $Id: XMLDataSet.java 1750 2002-05-30 21:17:40Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
     public XMLDataSet(DocumentBuilder docBuilder, URL datasetURL) {
 	this.base = datasetURL; 
 	this.docBuilder = docBuilder;
+	Document doc = docBuilder.newDocument();
+	config = doc.createElement("dataset");
+	config.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
     }
 
     public static XMLDataSet load(URL datasetURL) {
@@ -61,8 +64,7 @@ public class XMLDataSet implements DataSet, Serializable {
 		      String name,
 		      String owner) {
 	this(docBuilder, base);
-	Document doc = docBuilder.newDocument();
-	config = doc.createElement("dataset");
+	Document doc = config.getOwnerDocument();
 	Element nameE = doc.createElement("name");
 	Text text = doc.createTextNode(name);
 	nameE.appendChild(text);
@@ -117,7 +119,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	} // end of if (parameterCache.containsKey(name))
 	
 	NodeList nList = evalNodeList(config, 
-				      "dataset/parameter[name/text()="+
+				      "parameter[name/text()="+
 				      dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
 	    Node n = nList.item(0); 
@@ -129,7 +131,7 @@ public class XMLDataSet implements DataSet, Serializable {
 
 	// not a parameter, try parameterRef
 	nList = evalNodeList(config, 
-			     "dataset/parameterRef[text()="+dquote+name+dquote+"]");
+			     "parameterRef[text()="+dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
 	    Node n = nList.item(0);
 	    if (n instanceof Element) {
@@ -464,7 +466,7 @@ public class XMLDataSet implements DataSet, Serializable {
 
     protected String evalString(Node context, String path) {
 	try {
-	    return xpath.eval(config, "@datasetid").str();
+	    return xpath.eval(config, path).str();
  	} catch (javax.xml.transform.TransformerException e) {
 	    logger.error("Couldn't get String", e);
  	} // end of try-catch
