@@ -17,7 +17,9 @@ public class DistanceBorder extends AbstractUnitRangeBorder {
     public DistanceBorder(SeismogramDisplay rsd, int side, int order) {
         super(side, order);
         this.rsd = rsd;
-        displayNegatives = false;
+        this.clipTicks = true;
+        this.minTickValue = 0;
+        this.maxTickValue = 180;
     }
 
     public String getTitle() {
