@@ -30,7 +30,14 @@ public class DataSetToXML {
      file is returned. */
     public File save(DataSet dataset, File saveDirectory)
         throws IOException, ParserConfigurationException, MalformedURLException {
-        Element doc = createDocument(dataset, saveDirectory);
+        return save(dataset, saveDirectory, SeismogramFileTypes.SAC);
+    }
+
+    /** Saves the given dataset to an xml file in the given directory. The
+     file is returned. */
+    public File save(DataSet dataset, File saveDirectory, SeismogramFileTypes fileType)
+        throws IOException, ParserConfigurationException, MalformedURLException {
+        Element doc = createDocument(dataset, saveDirectory, fileType);
         String filename = createFileName(dataset);
         logger.debug("save to "+filename+" in "+saveDirectory.toString());
         saveDirectory.mkdirs();
@@ -79,7 +86,7 @@ public class DataSetToXML {
         return XMLDataSet.getDocumentBuilder();
     }
 
-    public Element createDocument(DataSet dataset, File dataDirectory)
+    public Element createDocument(DataSet dataset, File dataDirectory, SeismogramFileTypes fileType)
         throws IOException, ParserConfigurationException, MalformedURLException {
 
         if(!dataDirectory.exists() ) {
@@ -88,7 +95,7 @@ public class DataSetToXML {
 
         DocumentBuilder docBuilder = getDocumentBuilder();
         Document doc = docBuilder.newDocument();
-        Element element = insert(doc, dataset, dataDirectory);
+        Element element = insert(doc, dataset, dataDirectory, fileType);
         return element;
     }
 
@@ -97,15 +104,15 @@ public class DataSetToXML {
      stored. Note that all dataSetSeismograms are converted to
      URLDataSetSeismograms and stored in a directory structure that
      mirrors the dataset structure under the given directory. */
-    public Element insert(Element parent, DataSet dataset, File directory)
+    public Element insert(Element parent, DataSet dataset, File directory, SeismogramFileTypes fileType)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Element child = parent.getOwnerDocument().createElement("dataset");
-        insertInto(child, dataset, directory);
+        insertInto(child, dataset, directory, fileType);
         parent.appendChild(child);
         return child;
     }
 
-    public Element insert(Document doc, DataSet dataset, File directory)
+    public Element insert(Document doc, DataSet dataset, File directory, SeismogramFileTypes fileType)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Element element = doc.createElement("dataset");
         element.setAttribute("xmlns:dataset", "http://www.seis.sc.edu/xschema/dataset/2.0");
@@ -114,12 +121,12 @@ public class DataSetToXML {
                              "http://www.seis.sc.edu/xschema/dataset/2.0 http://www.seis.sc.edu/xschema/dataset/2.0/dataset.xsd");
         element.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         element.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-        insertInto(element, dataset, directory);
+        insertInto(element, dataset, directory, fileType);
         doc.appendChild(element);
         return element;
     }
 
-    public void insertInto(Element element, DataSet dataset, File directory)
+    public void insertInto(Element element, DataSet dataset, File directory, SeismogramFileTypes fileType)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Document doc = element.getOwnerDocument();
         element.setAttribute("datasetid", dataset.getId());
@@ -140,7 +147,7 @@ public class DataSetToXML {
             if (useDataSetRef) {
                 insertRef(element, dataset.getDataSet(childDataSets[i]), childDirectory);
             } else {
-                insert(element, dataset.getDataSet(childDataSets[i]), childDirectory);
+                insert(element, dataset.getDataSet(childDataSets[i]), childDirectory, fileType);
             }
         }
 
@@ -151,7 +158,7 @@ public class DataSetToXML {
             DataSetSeismogram dss = dataset.getDataSetSeismogram(childDSS[i]);
             URLDataSetSeismogram urlDSS;
             if (saveLocally || ! (dss instanceof URLDataSetSeismogram)) {
-                urlDSS = URLDataSetSeismogram.localize(dss, dataDir);
+                urlDSS = URLDataSetSeismogram.localize(dss, dataDir, fileType);
             } else {
                 urlDSS = (URLDataSetSeismogram)dss;
             }
