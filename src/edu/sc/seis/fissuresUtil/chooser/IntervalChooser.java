@@ -62,6 +62,7 @@ public class IntervalChooser extends JPanel{
     }
 
     private void populateValues(IntervalChooserOptions option) {
+	int tempValue = valueBox.getSelectedIndex();
 	valueBox.removeAllItems();
 	int minValue = option.getMinimumValue();
 	int maxValue = option.getMaximumValue();
@@ -70,7 +71,8 @@ public class IntervalChooser extends JPanel{
 	    valueBox.addItem(new String(new Integer(counter).toString()));
 
 	}
-	valueBox.setSelectedIndex(0);
+	if(tempValue > maxValue) tempValue = maxValue;
+	valueBox.setSelectedIndex(tempValue);
 	
 
     }
@@ -120,8 +122,8 @@ public class IntervalChooser extends JPanel{
     }
 
     /**
-     * Describe <code>getInterval</code> method here.
-     *
+     * This method returns TimeInterval. This method considers  1 MONTH = 30 DAYS and
+     * 1 YEAR = 365 DAYS. For accurate values use the addTo(Date date).
      * @return a <code>TimeInterval</code> value
      */
     public TimeInterval getInterval() {
