@@ -45,7 +45,7 @@ public class UnitRangeMapper implements ScaleMapper{
     }
 
     public String getAxisLabel() {
-        return unitDisplayUtil.getNameForUnit(getUnit());
+        return "Amplitude (" + unitDisplayUtil.getNameForUnit(getUnit()) + ")";
     }
 
     public UnitImpl getUnit() {
