@@ -9,6 +9,7 @@ package edu.sc.seis.fissuresUtil.cache;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collections;
 
 public class JobTracker implements StatusListener{
 
@@ -20,7 +21,7 @@ public class JobTracker implements StatusListener{
         statusUpdated(addend);
     }
 
-    public synchronized void statusUpdated(Job updated) {
+    public void statusUpdated(Job updated) {
         if(updated.isFinished()){
             active.remove(updated);
             if(!finished.contains(updated)){
@@ -35,43 +36,45 @@ public class JobTracker implements StatusListener{
         fireTrackerUpdated();
     }
 
-    public synchronized List getActiveJobs(){
+    public List getActiveJobs(){
         return active;
     }
 
-    public synchronized List getFinishedJobs(){
+    public List getFinishedJobs(){
         return finished;
     }
 
-    public synchronized void clearFinished(){
+    public void clearFinished(){
         finished.clear();
         fireTrackerUpdated();
     }
 
 
-    public synchronized void add(TrackerListener listener){
+    public void add(TrackerListener listener){
         listeners.add(listener);
     }
 
-    public synchronized void remove(TrackerListener listener){
+    public void remove(TrackerListener listener){
         listeners.remove(listener);
     }
 
-    private synchronized void fireTrackerUpdated(){
-        Iterator it = listeners.iterator();
-        while(it.hasNext()){
-            ((TrackerListener)it.next()).trackerUpdated(this);
+    private void fireTrackerUpdated(){
+        synchronized(listeners) {
+            Iterator it = listeners.iterator();
+            while(it.hasNext()){
+                ((TrackerListener)it.next()).trackerUpdated(this);
+            }
         }
     }
 
     public static JobTracker getTracker(){ return tracker;}
 
-    private List finished = new ArrayList();
+    private List finished = Collections.synchronizedList(new ArrayList());
 
-    private List active = new ArrayList();
+    private List active = Collections.synchronizedList(new ArrayList());
 
     private static JobTracker tracker = new JobTracker();
 
-    private List listeners = new ArrayList();
+    private List listeners = Collections.synchronizedList(new ArrayList());
 }
 
