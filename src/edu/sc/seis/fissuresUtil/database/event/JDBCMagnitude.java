@@ -13,7 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JDBCMagnitude  extends JDBCTable {
+public class JDBCMagnitude  extends EventTable {
     public JDBCMagnitude(Connection conn) throws SQLException{
         this(conn, new JDBCContributor(conn));
     }

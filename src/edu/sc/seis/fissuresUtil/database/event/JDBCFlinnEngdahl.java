@@ -11,8 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class JDBCFlinnEngdahl extends JDBCTable {
-    
+public class JDBCFlinnEngdahl extends EventTable {
+
     /**
      * Constructor for the class. The following classes are created in this.
      * 1. FlinnEngdahl
@@ -22,7 +22,7 @@ public class JDBCFlinnEngdahl extends JDBCTable {
         Statement stmt = conn.createStatement();
         //Creating the sequence
         seq = new JDBCSequence(conn, "FlinnEngdahlSeq");
-        
+
         //creating the table FlinnEngdahl
         if(!DBUtil.tableExists("flinnengdahl", conn)){
             stmt.executeUpdate(" CREATE TABLE flinnengdahl"+
@@ -36,24 +36,24 @@ public class JDBCFlinnEngdahl extends JDBCTable {
                                             " flinnengdahlnumber)"+
                                             "VALUES(?,?,?)"
                                        );
-        
+
         getDBIdStmt = conn.prepareStatement( "SELECT flinnengdahlid FROM flinnengdahl"+
                                                 " WHERE flinnengdahltype = ? "+
                                                 " AND flinnengdahlnumber = ?"
                                            );
-        
+
         getStmt = conn.prepareStatement( " SELECT flinnengdahltype , flinnengdahlnumber FROM flinnengdahl"+
                                             " WHERE  flinnengdahlid = ? "
                                        );
     }
-    
-    
+
+
     /**
      * puts the FlinnEngdahlRegion object details into a table
      * @param region - FlinnEngdahlRedion
      * @return int - the dbid of the inserted record
      */
-    
+
     public  int put(FlinnEngdahlRegion region)  throws SQLException {
         try{
             return getDBId(region);
@@ -65,8 +65,8 @@ public class JDBCFlinnEngdahl extends JDBCTable {
             return id;
         }
     }
-    
-    
+
+
     /**
      * return dbid given the object of FlinnEngdahlRegion
      * @param region - FlinnEngdahlRedion
@@ -75,22 +75,22 @@ public class JDBCFlinnEngdahl extends JDBCTable {
     public int getDBId(FlinnEngdahlRegion region)
         throws SQLException, NotFound {
         insert(region,getDBIdStmt,1);
-        
+
         ResultSet rs = getDBIdStmt.executeQuery();
         if(rs.next()) {
             return rs.getInt("flinnengdahlid");
         }
         throw new NotFound("region is not found");
     }
-    
-    
+
+
     /**
      * Returns the FlinnEngdahlRegion for a given dbid
      * @param id - the dbid
      * @return FlinnEngdahlRegion - the FLinnEngdahlRegion
      */
-    
-    
+
+
     public  FlinnEngdahlRegion get(int id)
         throws SQLException,NotFound{
         getStmt.setInt(1,id);
@@ -100,8 +100,8 @@ public class JDBCFlinnEngdahl extends JDBCTable {
         }
         throw new NotFound("No Region Found for this given id");
     }
-    
-    
+
+
     /**
      * Inserts the fields from FlinnEngdahlRegion into a preparedStatement
      * @param region - FlinnEngdahlRegion
@@ -115,8 +115,8 @@ public class JDBCFlinnEngdahl extends JDBCTable {
         stmt.setInt(index++, region.number);
         return index;
     }
-    
-    
+
+
     /**
      * Returns a FlinnEngdahlRegion given the result set
      * @param rs - the resultset
@@ -126,12 +126,12 @@ public class JDBCFlinnEngdahl extends JDBCTable {
         return new FlinnEngdahlRegionImpl(edu.iris.Fissures.FlinnEngdahlType.from_int(rs.getInt("flinnengdahltype")),
                                           rs.getInt("flinnengdahlnumber"));
     }
-    
+
     private JDBCSequence seq;
-    
+
     protected PreparedStatement getStmt;
-    
+
     protected PreparedStatement getDBIdStmt;
-    
+
     protected PreparedStatement putStmt;
 } // JDBCFlinnEngdahl
