@@ -1,14 +1,21 @@
 package edu.sc.seis.fissuresUtil.exceptionHandlerGUI;
 
+import java.io.*;
 import javax.swing.*;
 
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
@@ -34,37 +41,36 @@ public class ExceptionHandlerGUI {
     public ExceptionHandlerGUI (Throwable e){
         this("A problem has occured:",e);
     }
-
+    
     public ExceptionHandlerGUI(String message, Throwable e) {
         this.exception = e;
         this.message = message;
         logger.error(message, e);
         createGUI();
     }
-
+    
     public static ExceptionHandlerGUI getExceptionHandlerGUI(String message, Throwable e) {
         ExceptionHandlerGUI exceptionHandlerGUI = new ExceptionHandlerGUI(message, e);
         return exceptionHandlerGUI;
     }
-
+    
     public void addToButtonPanel(JButton button) {
         buttonPanel.add(button);
     }
-
+    
     public JFrame display() {
         createFrame();
         return displayFrame;
     }
-
+    
     public static JFrame handleException(String message, Throwable e) {
-
+        
         ExceptionHandlerGUI gui = getExceptionHandlerGUI(message, e);
         return gui.display();
-
+        
     }
-
+    
     private void createGUI() {
-
         JTabbedPane tabbedPane = new JTabbedPane();
         if (greeting != null) {
             tabbedPane.addTab("Information", new JScrollPane(getGreetingPanel()));
@@ -72,68 +78,97 @@ public class ExceptionHandlerGUI {
         tabbedPane.addTab("Details", new JScrollPane(getMessagePanel()));
         tabbedPane.addTab("Stack Trace", new JScrollPane(getStackTracePanel()));
         tabbedPane.addTab("System Info", new JScrollPane(getSystemInfoPanel()));
-        java.awt.Dimension dimension = new java.awt.Dimension(800, 300);
+        Iterator it = panelNameToContents.keySet().iterator();
+        while(it.hasNext()){
+            String panelName = (String)it.next();
+            String message = createString((Object)panelNameToContents.get(panelName));
+            tabbedPane.addTab(panelName,
+                              new JScrollPane(createGenericTextArea(message)));
+        }
+        Dimension dimension = new java.awt.Dimension(800, 300);
         tabbedPane.setPreferredSize(dimension);
         tabbedPane.setMinimumSize(dimension);
         mainPanel.setPreferredSize(dimension);
         mainPanel.setMinimumSize(dimension);
         mainPanel.add(tabbedPane);
     }
-
-
+    
+    
     private JTextArea getMessagePanel() {
-        JTextArea exceptionMessageLabel = new JTextArea();
-        exceptionMessageLabel.setLineWrap(true);
-        exceptionMessageLabel.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
-        exceptionMessageLabel.setWrapStyleWord(true);
-        exceptionMessageLabel.setEditable(false);
-        exceptionMessageLabel.setText(message+"\n\n"+exception.getMessage());
+        String message = this.message+"\n\n"+exception.getMessage();
         if (exception.getCause() != null) {
-            exceptionMessageLabel.append("\n  caused by\n"+exception.getCause().getMessage());
+            message += "\n  caused by\n"+exception.getCause().getMessage();
         }
-        return exceptionMessageLabel;
+        return createGenericTextArea(message);
     }
-
-
+    
+    
     private JTextArea getGreetingPanel() {
-        JTextArea greetingArea = new JTextArea();
-        greetingArea.setLineWrap(true);
-        greetingArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
-        greetingArea.setWrapStyleWord(true);
-        greetingArea.setEditable(false);
-        greetingArea.setText(greeting);
-        return greetingArea;
+        return createGenericTextArea(greeting);
     }
-
-
+    
+    
     private JTextArea getSystemInfoPanel() {
-        JTextArea messageArea = new JTextArea();
-        messageArea.setLineWrap(true);
-        messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
-        messageArea.setWrapStyleWord(true);
-        messageArea.setEditable(false);
-
-        String traceString = "";
-
-        traceString += getSystemInformation();
-
-        messageArea.setText(traceString);
-        return messageArea;
+        return createGenericTextArea(getSystemInformation());
     }
-
+    
     private JTextArea getStackTracePanel() {
+        return createGenericTextArea(getStackTraceString());
+    }
+    
+    
+    private String createString(Object item) {
+        if(item instanceof List)
+            return createString((List)item);
+        else if(item instanceof File)
+            return createString((File)item);
+        else
+            throw new IllegalArgumentException();
+    }
+    
+    private String createString(File file){
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            StringBuffer message = new StringBuffer();
+            try {
+                String line = reader.readLine();
+                while(line != null){
+                    message.append(line + "\n");
+                    line = reader.readLine();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return message.toString();
+        } catch (FileNotFoundException e) {
+            ExceptionHandlerGUI.handleException("File to be displayed in Exceptionhandler not found", e);
+        }
+        return "";
+    }
+    
+    private String createString(List stringList) {
+        StringBuffer message = new StringBuffer();
+        Iterator it = stringList.iterator();
+        while(it.hasNext()){
+            message.append((String)it.next() + "\n");
+        }
+        return message.toString();
+    }
+    
+    private static JTextArea createGenericTextArea(String message){
         JTextArea messageArea = new JTextArea();
         messageArea.setLineWrap(true);
-        messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
+        messageArea.setFont(new Font("Serif", Font.PLAIN, 14));
         messageArea.setWrapStyleWord(true);
         messageArea.setEditable(false);
-
-        messageArea.setText(getStackTraceString());
+        if(message != null){
+            messageArea.setText(message);
+        }
         return messageArea;
     }
-
+    
     public String getStackTraceString() {
-                String traceString = "";
+        String traceString = "";
         if (exception instanceof WrappedException) {
             WrappedException we = (WrappedException)exception;
             if (we.getCausalException() != null) {
@@ -141,17 +176,17 @@ public class ExceptionHandlerGUI {
                     getStackTrace(we.getCausalException())+"\n";
             } // end of if (we.getCausalException() != null)
         }
-
+        
         traceString += getStackTrace(exception);
         return traceString;
     }
-
+    
     public String getMessage() {
         return message;
     }
-
+    
     public static String getSystemInformation() {
-
+        
         String rtnValue = "";
         rtnValue += "Date : "+new java.util.Date().toString()+"\n";
         try {
@@ -169,7 +204,7 @@ public class ExceptionHandlerGUI {
         rtnValue += "user.name : "+System.getProperty("user.name")+"\n";
         rtnValue += "user.timeZone : "+System.getProperty("user.timeZone")+"\n";
         rtnValue += "user.region : "+System.getProperty("user.region")+"\n";
-
+        
         rtnValue += "\n\n\n Other Properties:\n";
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -177,61 +212,61 @@ public class ExceptionHandlerGUI {
         props.list(printWriter);
         printWriter.close();
         rtnValue += stringWriter.getBuffer();
-
+        
         return rtnValue;
     }
-
+    
     public void createFrame() {
-
-
+        
+        
         JPanel displayPanel = new JPanel();
-
+        
         JButton closeButton = new JButton("Close");
-
+        
         JButton saveToFile = new JButton("Save");
         displayPanel.setLayout(new BorderLayout());
         displayPanel.add(mainPanel,
                          BorderLayout.CENTER);
         displayPanel.add(buttonPanel, BorderLayout.SOUTH);
-
+        
         java.awt.Dimension dimension = new java.awt.Dimension(800, 400);
         displayPanel.setPreferredSize(dimension);
         displayPanel.setMinimumSize(dimension);
-
+        
         closeButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-
-                    displayFrame.dispose();
-
-                }
-            });
-
-        saveToFile.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ex) {
-
-                    JFileChooser fileChooser = new JFileChooser();
-                    int rtnVal = fileChooser.showSaveDialog(null);
-                    if(rtnVal == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            FileWriter fw = new FileWriter(fileChooser.getSelectedFile().getAbsolutePath());
-
-                            BufferedWriter bw = new BufferedWriter(fw);
-                            String str = message+"\n";
-                            bw.write(str, 0, str.length());
-                            str = getStackTrace(exception);
-                            bw.write(str, 0, str.length());
-                            str = getSystemInformation();
-                            bw.write(str, 0, str.length());
-
-                            // fw.close();
-                            bw.close();
-                            fw.close();
-                        } catch(Exception e) {}
+                    public void actionPerformed(ActionEvent e) {
+                        
+                        displayFrame.dispose();
+                        
                     }
-                }
-            });
-
-
+                });
+        
+        saveToFile.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ex) {
+                        
+                        JFileChooser fileChooser = new JFileChooser();
+                        int rtnVal = fileChooser.showSaveDialog(null);
+                        if(rtnVal == JFileChooser.APPROVE_OPTION) {
+                            try {
+                                FileWriter fw = new FileWriter(fileChooser.getSelectedFile().getAbsolutePath());
+                                
+                                BufferedWriter bw = new BufferedWriter(fw);
+                                String str = message+"\n";
+                                bw.write(str, 0, str.length());
+                                str = getStackTrace(exception);
+                                bw.write(str, 0, str.length());
+                                str = getSystemInformation();
+                                bw.write(str, 0, str.length());
+                                
+                                // fw.close();
+                                bw.close();
+                                fw.close();
+                            } catch(Exception e) {}
+                        }
+                    }
+                });
+        
+        
         if (System.getProperty("errorHandlerServlet") != null) {
             JButton submit = new JButton("Submit");
             addToButtonPanel(submit);
@@ -263,15 +298,15 @@ public class ExceptionHandlerGUI {
         }
         buttonPanel.add(closeButton);
         buttonPanel.add(saveToFile);
-
-
+        
+        
         displayFrame.getContentPane().add(displayPanel);
         displayFrame.setSize(dimension);
         displayFrame.pack();
         displayFrame.show();
     }
-
-
+    
+    
     /**
      * retuns the stackTrace of the exception as a string.
      *
@@ -279,35 +314,55 @@ public class ExceptionHandlerGUI {
      * @return a <code>String</code> value
      */
     public static String getStackTrace(Throwable e) {
-
-
+        
+        
         StringWriter  stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         e.printStackTrace(printWriter);
-
+        
         return  stringWriter.toString();
-
+        
     }
-
+    
     /** Sets a message to appear in the first tab. This is a generic message
-    that is used by all exceptions. If the initial message is null, then this
+     that is used by all exceptions. If the initial message is null, then this
      tab does not appear. */
     public static void setGreeting(String message) {
         greeting = message;
     }
-
+    
+    public static void addMessageToPanel(String panelName, String message){
+        List panelStringList = null;
+        if(panelNameToContents.containsKey(panelName)){
+            panelStringList = (List)panelNameToContents.get(panelName);
+        }else{
+            panelStringList = new LinkedList();
+            panelNameToContents.put(panelName, panelStringList);
+        }
+        if(panelStringList.size() > 1000){
+            panelStringList.remove(0);
+        }
+        panelStringList.add(message);
+    }
+    
+    public static void addFile(String panelName, File fileName){
+        panelNameToContents.put(panelName, fileName);
+    }
+    
     private Throwable exception;
-
+    
     private String message;
-
+    
     private static String greeting = null;
-
+    
+    private static Map panelNameToContents = new HashMap();
+    
     private JPanel buttonPanel = new JPanel();
-
+    
     private JPanel mainPanel = new JPanel();
-
+    
     private JFrame displayFrame = new JFrame();
-
+    
     static Logger logger = Logger.getLogger(ExceptionHandlerGUI.class);
-
+    
 }// ExceptionHandlerGUI
