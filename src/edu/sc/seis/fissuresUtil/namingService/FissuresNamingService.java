@@ -176,10 +176,9 @@ public class FissuresNamingService {
             dns = dns + "/" + objectname + ".object"+getVersion();
         }
         logger.info("the final dns resolved is "+dns);
-        // retry 3 times in case of an exception
-        Throwable throwable = null;
+        // try 2 times in case of an exception
         int maxTry = 2;
-        for (int i = 0; i <= maxTry; i++) {
+        for (int i = 0; i < 2; i++) {
             try {
                 NameComponent[] names = getNameService().to_name(dns);
                 //return resolveBySteps(names); // for debugging
