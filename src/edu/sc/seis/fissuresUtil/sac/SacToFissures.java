@@ -83,31 +83,36 @@ public class SacToFissures  {
     }
 
     public static ChannelId getChannelId(SacTimeSeries sac) {
+        return getChannelId(sac, "  ");
+    }
+
+    public static ChannelId getChannelId(SacTimeSeries sac, 
+                                         String siteCode) {
         String isoTime = ISOTime.getISOString(sac.nzyear,
                                               sac.nzjday,
                                               sac.nzhour,
                                               sac.nzmin,
                                               sac.nzsec+sac.nzmsec/1000f);
-        String net = "XX";
+        String netCode = "XX";
         if ( ! sac.knetwk.trim().equals("-12345")) {
-            net = sac.knetwk.trim();
+            netCode = sac.knetwk.trim();
         }
-        String sta = "XXXXX";
+        String staCode = "XXXXX";
         if ( ! sac.kstnm.trim().equals("-12345")) {
-            sta = sac.kstnm.trim();
+            staCode = sac.kstnm.trim();
         }
-        String chan = "XXX";
+        String chanCode = "XXX";
         if ( ! sac.kcmpnm.trim().equals("-12345")) {
-            chan = sac.kcmpnm.trim();
+            chanCode = sac.kcmpnm.trim();
         }
         Time begin = new edu.iris.Fissures.Time(isoTime, 
                                                 -1);
-        NetworkId netId = new NetworkId(net,
+        NetworkId netId = new NetworkId(netCode,
                                         begin);
         ChannelId id = new ChannelId(netId,
-                                     sta,
-                                     "  ",
-                                     chan,
+                                     staCode,
+                                     siteCode,
+                                     chanCode,
                                      begin);
         return id;
     }
@@ -115,6 +120,15 @@ public class SacToFissures  {
     public static Channel getChannel(SacTimeSeries sac) {
         ChannelId chanId = getChannelId(sac);
 
+        float stel = sac.stel;
+        if (stel == -12345.0f) {
+            stel = 0;
+        } // end of if (stel == -12345.0f)
+        float stdp = sac.stdp;
+        if (stdp == -12345.0f) {
+            stdp = 0;
+        } // end of if (stdp == -12345.0f)
+        
         Location loc = new Location(sac.stla,
                                     sac.stlo,
                                     new QuantityImpl(sac.stel, 
