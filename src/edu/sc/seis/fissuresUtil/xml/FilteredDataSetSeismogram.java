@@ -15,9 +15,9 @@ import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
-import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,20 +39,22 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
     public void updateData(){
         filterPool.invokeLater(new Filterer());
     }
-
-    private static WorkerThreadPool filterPool = new WorkerThreadPool("FilterThread", 1, Thread.NORM_PRIORITY - 1);
-
-
     private class Filterer implements Runnable{
         public void run(){
             LocalSeismogramImpl[] containedSeis = container.getSeismograms();
             List alreadyFiltered = new ArrayList();
-            Iterator it = dataMap.keySet().iterator();
+            Iterator it = data.iterator();
             boolean found = false;
             while(it.hasNext()){
-                LocalSeismogramImpl current = (LocalSeismogramImpl)it.next();
+                SoftReference currentRef = (SoftReference)it.next();
+                LocalSeismogramImpl current = (LocalSeismogramImpl)currentRef.get();
+                if(current == null){
+                    it.remove();
+                    break;
+                }
                 for (int i = 0; i < containedSeis.length && !found; i++){
-                    if(current == containedSeis[i]){
+                    if(current.getEndTime().equals(containedSeis[i].getEndTime()) &&
+                       current.getBeginTime().equals(containedSeis[i].getBeginTime())){
                         found = true;
                         alreadyFiltered.add(containedSeis[i]);
                     }
@@ -72,8 +74,8 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
                     }
                 }
                 if(!found){
-                    dataMap.put(containedSeis[i], filterData(containedSeis[i],
-                                                             filter));
+                    data.add(new SoftReference(filterData(containedSeis[i],
+                                                          filter)));
                 }
             }
             if((containedSeis.length - alreadyFiltered.size()) > 0){
@@ -118,10 +120,21 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
     }
 
     private LocalSeismogramImpl[] getFilteredSeismograms(){
-        Iterator it = dataMap.keySet().iterator();
+        boolean someCollected = false;
+        Iterator it = data.iterator();
         List filteredSeis = new ArrayList();
         while(it.hasNext()){
-            filteredSeis.add(dataMap.get(it.next()));
+            SoftReference current = (SoftReference)it.next();
+            LocalSeismogramImpl curSeis = (LocalSeismogramImpl)current.get();
+            if(curSeis != null){
+                filteredSeis.add(curSeis);
+            }else{
+                it.remove();
+                someCollected = true;
+            }
+        }
+        if(someCollected){
+            updateData();
         }
         return (LocalSeismogramImpl[])filteredSeis.toArray(new LocalSeismogramImpl[filteredSeis.size()]);
     }
@@ -170,13 +183,15 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
 
     public ColoredFilter getFilter(){ return filter; }
 
+    private static WorkerThreadPool filterPool = new WorkerThreadPool("FilterThread", 1, Thread.NORM_PRIORITY - 1);
+
     private ColoredFilter filter;
 
     private DataSetSeismogram wrappedDSS;
 
     private SeismogramContainer container;
 
-    private Map dataMap = new HashMap();
+    private List data = new ArrayList();
 
     private static final Logger logger = Logger.getLogger(FilteredDataSetSeismogram.class);
 }
