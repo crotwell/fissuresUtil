@@ -16,6 +16,7 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfPlottable.PlottableDC;
 import edu.iris.Fissures.IfPlottable.PlottableNotAvailable;
 import edu.iris.Fissures.IfPlottable.UnsupportedDimension;
@@ -35,20 +36,30 @@ public class PlottableDisplayTest extends TestCase {
     }
 
     public static void testFromServer() throws NotFound, CannotProceed,
-            InvalidName, org.omg.CORBA.ORBPackage.InvalidName,
-            PlottableNotAvailable, UnsupportedDimension {
+            InvalidName, PlottableNotAvailable, UnsupportedDimension {
         System.setProperty(FissuresNamingService.CORBALOC_PROP,
                            "corbaloc:iiop:pooh.seis.sc.edu:6371/NameService");
         PlottableDC impl = Initializer.getNS().getPlottableDC("edu/sc/seis",
                                                               "BUD");
         Time t = new Time("2004313J000000.000Z", 0);
-        show(impl.get_for_day(Initializer.ANDYChannel,
-                              2004,
-                              313,
+        show(impl.get_for_day(KZAChannel,
+                              2005,
+                              3,
                               new edu.iris.Fissures.Dimension(6000, 0)),
-                              new MicroSecondDate(t),
-                              Initializer.ANDYChannel);
+             new MicroSecondDate(t),
+             Initializer.ANDYChannel);
     }
+
+    public static final NetworkId KN = new NetworkId("KN",
+                                                     new Time("19910901T08:07:07.000Z",
+                                                              -1));
+
+    public static final ChannelId KZAChannel = new ChannelId(KN,
+                                                             "KZA",
+                                                             "  ",
+                                                             "BHZ",
+                                                             new Time("2000165T093659.0000Z",
+                                                                      -1));
 
     public static void ttMadeupData() {
         PlottableChunk c = JDBCPlottableTest.createFullDayPlottable();
