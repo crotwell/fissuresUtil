@@ -42,11 +42,10 @@ contributor.create=CREATE TABLE contributor (contributorid int, \
                                              contributor varchar, \
                                              PRIMARY KEY (contributorid) )
 
-magnitude.create=CREATE TABLE magnitude ( magnitudeid int, \
-                                          magnitudetype varchar, \
+magnitude.create=CREATE TABLE magnitude ( magnitudetype varchar, \
                                           magnitudevalue float, \
                                           magnitudecontributorid int, \
-                                          PRIMARY KEY (magnitudeid) )
+                                          originid int)
 
 catalog.create=CREATE TABLE catalog (catalogid int, \
                                      catalogcontributorid int, \
@@ -71,13 +70,6 @@ originparamref.create=CREATE TABLE originparamref (originparamrefid int, \
                                                    FOREIGN KEY (originparameterid) \
                                                    REFERENCES parameterref (parameterid))
 
-originmagnitude.create=CREATE TABLE originmagnitude (originmagnitudeid int, \
-                                                     originrefmagnitudeid int, \
-                                                     FOREIGN KEY (originmagnitudeid) \
-                                                     REFERENCES origin (originid), \
-                                                     FOREIGN KEY (originrefmagnitudeid) \
-                                                     REFERENCES magnitude (magnitudeid))
-
 EventAccess.create=CREATE TABLE eventaccess (eventid int, IOR varchar, originid int, \
                                              eventattrid int, server varchar, \
                                              dns varchar, PRIMARY KEY (eventid))
@@ -100,9 +92,6 @@ LocationSeq.nextVal=SELECT NEXTVAL ('LocationSeq')
 
 ContributorSeq.create=CREATE SEQUENCE ContributorSeq
 ContributorSeq.nextVal=SELECT NEXTVAL ('ContributorSeq')
-
-MagnitudeSeq.create=CREATE SEQUENCE MagnitudeSeq
-MagnitudeSeq.nextVal=SELECT NEXTVAL ('MagnitudeSeq')
 
 CatalogSeq.create=CREATE SEQUENCE CatalogSeq
 CatalogSeq.nextVal=SELECT NEXTVAL ('CatalogSeq')
