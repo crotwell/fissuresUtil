@@ -14,11 +14,11 @@ import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 public class RangeTool {
 
     public static boolean areContiguous(PlottableChunk one, PlottableChunk two) {
-        TimeInterval secondPerSample = new TimeInterval(1 / one.getSamplesPerSecond(),
-                                                        UnitImpl.SECOND);
+        TimeInterval sampleInterval = new TimeInterval(1d / one.getSamplesPerDay(),
+                                                        UnitImpl.DAY);
         return areContiguous(one.getTimeRange(),
                              two.getTimeRange(),
-                             secondPerSample);
+                             sampleInterval);
     }
 
     public static boolean areContiguous(LocalSeismogramImpl one,
@@ -45,8 +45,14 @@ public class RangeTool {
         }
         return false;
     }
-    
-    public static boolean areOverlapping(PlottableChunk one, PlottableChunk two){
+
+    public static boolean areContiguous(MicroSecondTimeRange one,
+                                        MicroSecondTimeRange two) {
+        return one.getEndTime().equals(two.getBeginTime())
+                || one.getBeginTime().equals(two.getEndTime());
+    }
+
+    public static boolean areOverlapping(PlottableChunk one, PlottableChunk two) {
         return areOverlapping(one.getTimeRange(), two.getTimeRange());
     }
 
@@ -83,6 +89,7 @@ public class RangeTool {
         }
         return new MicroSecondTimeRange(beginTime, endTime);
     }
+
     public static MicroSecondTimeRange getFullTime(PlottableChunk[] pc) {
         if(pc.length == 0) { return DisplayUtils.ZERO_TIME; }
         MicroSecondDate beginTime = SortTool.byBeginTimeAscending(pc)[0].getBeginTime();
