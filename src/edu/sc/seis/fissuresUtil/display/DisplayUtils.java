@@ -20,7 +20,7 @@ import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableFilteredSeismogram;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
@@ -96,7 +96,7 @@ public class DisplayUtils {
         return null;
     }
 
-    public static void applyFilter(ColoredFilter filter, DrawableIterator it){
+    public static void applyFilter(NamedFilter filter, DrawableIterator it){
         while(it.hasNext()){
             DrawableSeismogram seis =  (DrawableSeismogram)it.next();
             Iterator filterIt = seis.iterator(DrawableFilteredSeismogram.class);
