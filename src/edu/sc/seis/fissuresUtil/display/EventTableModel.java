@@ -39,18 +39,20 @@ public class EventTableModel
         columnNames = new String[10];
         columnNames[LATITUDE] = "Latitude";
         columnNames[LONGITUDE] = "Longitude";
-        columnNames[DEPTH] = "Depth";
-        columnNames[ORIGINTIME] = "Time";
-        columnNames[MAGTYPE] = "MagType";
+	columnNames[DEPTH] = "Depth";
+        columnNames[ORIGINTIME] = "Origin Time";
+	//columnNames[MAGTYPE] = "MagType";
         columnNames[MAGVALUE] = "Magnitude";
-        columnNames[CATALOG] = "Catalog";
-        columnNames[CONTRIBUTOR] = "Contributor";
-        columnNames[NAME] = "Name";
-        columnNames[FEREGION] = "FERegion";
+	columnNames[CATALOG] = "Catalog";
+	columnNames[CONTRIBUTOR] = "Contributor";
+	//columnNames[NAME] = "Name";
+        columnNames[FEREGION] = "Region";
+	///setColumnSizes();
 
     }
 
-    public int getColumnCount() { return 10; }
+   
+    public int getColumnCount() { return 8; }
 
     public int getRowCount() { return events.length; }
 
@@ -91,7 +93,9 @@ public class EventTableModel
 		edu.iris.Fissures.Time fisDate = 
 		    cache.get_preferred_origin().origin_time;
 		MicroSecondDate msd = new MicroSecondDate(fisDate);
-		return msd.toString();
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
+		return sdf.format(msd);
+		//return msd.toString();
 	    case MAGTYPE:
 		String type =  cache.get_preferred_origin().magnitudes[0].type;
 		if (type.equals(edu.iris.Fissures.MB_MAG_TYPE.value)) {
@@ -125,6 +129,7 @@ public class EventTableModel
 	    return "No Pref Origin";
 	} catch (Exception e) {
 	    logger.warn("Got exception in Table model: getValueAt("+row+", "+ col+")", e);
+	    e.printStackTrace();
 	    return "error";
 	} // end of catch
 	
@@ -188,16 +193,30 @@ public class EventTableModel
 
     protected EventBackgroundLoaderPool loader;
 
-    protected static final int LATITUDE = 0;
-    protected static final int LONGITUDE = 1;
-    protected static final int DEPTH = 2;
-    protected static final int ORIGINTIME = 3;
-    protected static final int MAGTYPE = 4;
+    protected static final int LATITUDE = 2;
+    protected static final int LONGITUDE = 3;
+    protected static final int DEPTH = 4;
+    protected static final int ORIGINTIME = 1;
+    protected static final int MAGTYPE = 9;
     protected static final int MAGVALUE = 5;
     protected static final int CATALOG = 6;
     protected static final int CONTRIBUTOR = 7;
     protected static final int NAME = 8;
-    protected static final int FEREGION = 9;
+    protected static final int FEREGION = 0;
+
+
+    protected static final int LATITUDESIZE = 50;
+    protected static final int LONGITUDESIZE = 50;
+    protected static final int DEPTHSIZE = 50;
+    protected static final int ORIGINTIMESIZE = 150;
+    protected static final int MAGTYPESIZE = 9;
+    protected static final int MAGVALUESIZE = 100;
+    protected static final int CATALOGSIZE = 100;
+    protected static final int CONTRIBUTORSIZE = 100;
+    protected static final int NAMESIZE = 8;
+    protected static final int FEREGIONSIZE = 150;
+
+
 
     protected String[] columnNames;
 
