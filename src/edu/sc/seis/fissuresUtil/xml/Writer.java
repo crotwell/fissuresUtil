@@ -79,7 +79,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Andy Clark, IBM
  *
- * @version $Id: Writer.java 4367 2003-06-11 13:39:21Z crotwell $
+ * @version $Id: Writer.java 4393 2003-06-13 04:37:46Z crotwell $
  */
 public class Writer {
 
@@ -239,7 +239,7 @@ public class Writer {
                     normalizeAndPrint(attr.getNodeValue());
                     fOut.print('"');
                 }
-                fOut.println('>');
+                fOut.print('>');
                 fOut.flush();
 
                 Node child = node.getFirstChild();
@@ -303,7 +303,7 @@ public class Writer {
         if (type == Node.ELEMENT_NODE) {
             fOut.print("</");
             fOut.print(node.getNodeName());
-            fOut.print('>');
+            fOut.println('>');
             fOut.flush();
         }
 
