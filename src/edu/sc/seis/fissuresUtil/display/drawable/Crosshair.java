@@ -34,10 +34,14 @@ public class Crosshair implements Drawable{
     }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
-        canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
-        canvas.setPaint(Color.BLACK);
-        canvas.draw(new Line2D.Float(0, y, (int)size.getWidth(), y));
-        canvas.draw(new Line2D.Float(x, 0, x, (int)size.getHeight()));
+        if(visible){
+            canvas.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
+            canvas.setPaint(Color.BLACK);
+            canvas.draw(new Line2D.Float(0, y, 5, y));
+            canvas.draw(new Line2D.Float((int)size.getWidth() - 5, y, (int)size.getWidth(), y));
+            canvas.draw(new Line2D.Float(x, 0, x, 5));
+            canvas.draw(new Line2D.Float(x, (int)size.getHeight() - 5, x, (int)size.getHeight()));
+        }
     }
 
     private int x, y;
