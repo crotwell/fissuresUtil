@@ -27,7 +27,7 @@ public abstract class Initializer{
                 props = loadProperties(args);
 
                 /** Configure log4j, not required for DHI, but is useful. */
-                //  BasicConfigurator.configure();
+                 //BasicConfigurator.configure();
                 PropertyConfigurator.configure(props);
                 logger.info("Logging configured");
 
@@ -57,9 +57,9 @@ public abstract class Initializer{
                 fisName = new FissuresNamingService(orb);
                 logger.info("create fisName helper with orb");
 
-                //fisName.setNameServiceCorbaLoc("corbaloc:iiop:dmc.iris.washington.edu:6371/NameService");
-                fisName.setNameServiceCorbaLoc(props.getProperty("edu.sc.seis.fissuresUtil.nameServiceCorbaLoc",
-                                                                 "corbaloc:iiop:pooh.seis.sc.edu:6371/NameService"));
+                fisName.setNameServiceCorbaLoc("corbaloc:iiop:dmc.iris.washington.edu:6371/NameService");
+                //fisName.setNameServiceCorbaLoc(props.getProperty("edu.sc.seis.fissuresUtil.nameServiceCorbaLoc",
+                //                                                 "corbaloc:iiop:pooh.seis.sc.edu:6371/NameService"));
 
                 fisName.getNameService();
                 logger.info("got fis name service");
