@@ -28,7 +28,9 @@ public class ParticleMotionView extends JComponent{
 			       LocalSeismogramImpl vseis,
 			       TimeRangeConfig timeRangeConfig,
 			       final AmpRangeConfig hAmpRangeConfig,
-			       AmpRangeConfig vAmpRangeConfig, ParticleMotionDisplay particleMotionDisplay){
+			       AmpRangeConfig vAmpRangeConfig, 
+			       ParticleMotionDisplay particleMotionDisplay,
+			       Color color){
 	
 	this.particleMotionDisplay = particleMotionDisplay;
 	
@@ -36,7 +38,8 @@ public class ParticleMotionView extends JComponent{
 							   vseis,
 							   timeRangeConfig,
 							   hAmpRangeConfig,
-							   vAmpRangeConfig);
+							   vAmpRangeConfig,
+							   color);
 	displays.add(particleMotion);
 	    
 	vunitRangeImpl = vAmpRangeConfig.getAmpRange(vseis);
@@ -436,12 +439,14 @@ public class ParticleMotionView extends JComponent{
 					 LocalSeismogramImpl vseis,
 					 TimeRangeConfig timeRangeConfig,
 					 AmpRangeConfig hAmpRangeConfig,
-					 AmpRangeConfig vAmpRangeConfig) {
+					 AmpRangeConfig vAmpRangeConfig, 
+					 Color color) {
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
 							   timeRangeConfig,
 							   hAmpRangeConfig,
-							   vAmpRangeConfig);
+							   vAmpRangeConfig,
+							   color);
 	displays.add(particleMotion);
 
 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
@@ -596,7 +601,8 @@ public class ParticleMotionView extends JComponent{
 			      LocalSeismogramImpl vseis,
 			      TimeRangeConfig timeRangeConfig,
 			      final AmpRangeConfig hAmpRangeConfig,
-			      AmpRangeConfig vAmpRangeConfig) {
+			      AmpRangeConfig vAmpRangeConfig, 
+			      Color color) {
 
 	    this.hseis = hseis;
 	    this.vseis = vseis;
