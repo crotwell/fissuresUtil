@@ -25,14 +25,14 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * JDBCStation.java
- * 
+ *
  * All methods are unsyncronized, the calling application should make sure that
  * a single instance of this class is not accessed by more than one thread at a
  * time. Because of the use of prepared statements and a single connection per
  * instance, this class IS NOT THREAD-SAFE!
- * 
+ *
  * Created: Fri May 4 14:11:19 2001
- * 
+ *
  * @author Philip Crotwell
  * @version
  */
