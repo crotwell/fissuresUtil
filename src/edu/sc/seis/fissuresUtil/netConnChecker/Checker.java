@@ -25,10 +25,8 @@ public class Checker {
         }
     } // close runChecks
     
-    public void addChecker(ConnChecker connChecker) {
-        System.out.println("adding checker");
+    public void add(ConnChecker connChecker) {
         connCheckers.add(connChecker);
-        System.out.println("invoking checker");
         pool.invokeLater(connChecker);
     }
     
