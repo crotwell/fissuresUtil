@@ -15,7 +15,9 @@ import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
  */
 public class SeismogramDisplayConfiguration {
 
-    public SeismogramDisplayConfiguration() {}
+    public SeismogramDisplayConfiguration() {
+        makeDefault = true;
+    }
 
     public SeismogramDisplayConfiguration(Element el) {
         type = DOMHelper.extractText(el, "type", "basic");
@@ -44,6 +46,7 @@ public class SeismogramDisplayConfiguration {
     }
 
     public SeismogramDisplay createDisplay() {
+        if(makeDefault) { return new BasicSeismogramDisplay(); }
         SeismogramDisplay disp;
         if(type.equals("recordSection")) {
             disp = new RecordSectionDisplay();
@@ -83,7 +86,7 @@ public class SeismogramDisplayConfiguration {
 
     private List colorClasses = new ArrayList();
 
-    private boolean drawNamesForNamedDrawables = true;
+    private boolean drawNamesForNamedDrawables = true, makeDefault = false;
 
     private ColorConfiguration borderBackground;
 
