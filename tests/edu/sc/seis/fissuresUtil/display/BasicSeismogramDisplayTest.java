@@ -17,26 +17,25 @@ public class BasicSeismogramDisplayTest extends TestCase
 {
     public BasicSeismogramDisplayTest(String name){
         super(name);
-	// Set up a simple configuration that logs on the console.
-	BasicConfigurator.configure();
+    // Set up a simple configuration that logs on the console.
+    BasicConfigurator.configure();
     }
-    
+
     public void setUp(){
-	SingleSeismogramWindowDisplay vsd = 
-	    new SingleSeismogramWindowDisplay(null, null, null);
+    SingleSeismogramWindowDisplay vsd =
+        new SingleSeismogramWindowDisplay(null, null, null);
         twoSineSeismos[0] = new MemoryDataSetSeismogram(simpleSineWave,
-						    "Simple");
+                            "Simple");
         twoSineSeismos[1] = new MemoryDataSetSeismogram(customSineWave,
-							"Custom");
+                            "Custom");
         twoSineDisplay = new BasicSeismogramDisplay(twoSineSeismos, vsd);
-        System.out.println("after twoSineDisplay");
-	
+
         complexSeismos[0] = twoSineSeismos[0];
         complexSeismos[1] = twoSineSeismos[1];
         complexSeismos[2] = new MemoryDataSetSeismogram(spike,
-							"spike");
+                            "spike");
         complexDisplay = new BasicSeismogramDisplay(complexSeismos, vsd);
-        
+
         spikeSeismos[0] = complexSeismos[2];
         spikeDisplay = new BasicSeismogramDisplay(spikeSeismos, vsd);
     }
@@ -51,43 +50,43 @@ public class BasicSeismogramDisplayTest extends TestCase
     }
 
     public void testComplexRemove(){
-	assertEquals(complexDisplay.getSeismogramList().size(), 3);
+    assertEquals(complexDisplay.getSeismogramList().size(), 3);
         complexDisplay.remove(spikeSeismos);
         assertEquals(complexDisplay.getSeismogramList().size(), 2);
         assertFalse(complexDisplay.contains(spikeSeismos[0]));
     }
-        
+
     public void testSpikeRemove(){
         assertEquals(spikeDisplay.getSeismogramList().size(), 1);
         spikeDisplay.remove(spikeSeismos);
         assertEquals(spikeDisplay.getSeismogramList().size(), 0);
         assertFalse(spikeDisplay.contains(spikeSeismos[0]));
     }
-        
+
     public void testComplexRemoveComplex(){
         complexDisplay.remove(complexSeismos);
         assertEquals(complexDisplay.getSeismogramList().size(), 0);
         assertFalse(complexDisplay.contains(complexSeismos[0]));
     }
-    
+
     private LocalSeismogramImpl simpleSineWave = SimplePlotUtil.createSineWave();
-    
+
     private LocalSeismogramImpl customSineWave = SimplePlotUtil.createCustomSineWave();
-    
+
     private LocalSeismogramImpl spike = SimplePlotUtil.createSpike();
-    
+
     private DataSetSeismogram[] twoSineSeismos = new DataSetSeismogram[2];
-    
+
     private DataSetSeismogram[] complexSeismos = new DataSetSeismogram[3];
-    
+
     private DataSetSeismogram[] spikeSeismos = new DataSetSeismogram[1];
-    
+
     private BasicSeismogramDisplay twoSineDisplay;
-    
+
     private BasicSeismogramDisplay complexDisplay;
-    
+
     private BasicSeismogramDisplay spikeDisplay;
-    
+
     public static void main(String[] args) {
         //junit.textui.TestRunner.run(BasicSeismogramDisplayTest.class);
     }
