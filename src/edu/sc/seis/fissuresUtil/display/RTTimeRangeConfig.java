@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
+
 import edu.sc.seis.fissuresUtil.xml.*;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 
 
 import edu.iris.Fissures.model.*;
@@ -61,13 +63,13 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
                                       new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if (speed != 0 && lastDate != null) {
-                                MicroSecondDate now = new MicroSecondDate();
+                                MicroSecondDate now = ClockUtil.now();
                                 TimeInterval timeInterval = new TimeInterval(lastDate, now);
                                 lastDate = now;
-                                shaleTime(timeInterval.getValue()/time.getInterval().getValue() * speed, 1);
+                                shaleTime(timeInterval.divideBy(time.getInterval()).getValue() * speed, 1);
                                 //logger.debug("Timer: updateTimeSyncListeners()  speed="+speed);
                             } else{
-                                lastDate = new MicroSecondDate();
+                                lastDate = ClockUtil.now();
                             }
                         }
                     });
@@ -98,39 +100,12 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
         return speed;
     }
 
-    private static TimeInterval getServerTimeOffset(){
-        try {
-            URL url = new URL("http://www.seis.sc.edu/cgi-bin/date_time.pl");
-            InputStream is = url.openStream();
-            InputStreamReader isReader = new InputStreamReader(is);
-            BufferedReader bufferedReader = new BufferedReader(isReader);
-            String str;
-            String timeStr = null;
-            while((str = bufferedReader.readLine()) != null) {
-                timeStr = str;
-            }
-            MicroSecondDate localTime = new MicroSecondDate();
-            edu.iris.Fissures.Time serverTime = new edu.iris.Fissures.Time();
-            if(timeStr != null) {
-                serverTime = new edu.iris.Fissures.Time(timeStr, -1);
-            }
-            MicroSecondDate serverDate = new MicroSecondDate(serverTime);
-            //System.out.println("server Date is "+serverDate);
-            //System.out.println("the lastDate is "+this.lastDate);
-            TimeInterval offset = new TimeInterval(localTime, serverDate);
-            if(java.lang.Math.abs(offset.value) <  2000000) offset = new TimeInterval(serverDate, serverDate);
-            //System.out.println("The offset is "+offset.value);
-            return offset;
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+
 
     private TimeInterval update;
 
-    public static final TimeInterval serverTimeOffset = RTTimeRangeConfig.getServerTimeOffset();
+    public static final TimeInterval serverTimeOffset = 
+        ClockUtil.getTimeOffset();
 
     private MicroSecondDate lastDate;
 
@@ -145,7 +120,7 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 
     private static Category logger = Category.getInstance(RTTimeRangeConfig.class.getName());
 
-    private static long MINUTE = 60 * 1000 * 1000;
+    private static TimeInterval threeMinutes = 
+        new TimeInterval(3, UnitImpl.MINUTE);
 
-    private static TimeInterval threeMinutes = new TimeInterval(new MicroSecondDate(0), new MicroSecondDate(3 * MINUTE));
 }// RTTimeRangeConfig
