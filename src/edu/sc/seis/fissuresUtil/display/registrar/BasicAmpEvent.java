@@ -12,6 +12,7 @@ import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
+import org.apache.log4j.Logger;
 
 public class BasicAmpEvent implements AmpEvent{
     public BasicAmpEvent(DataSetSeismogram[] seismos, UnitRangeImpl[] amps){
@@ -102,5 +103,8 @@ public class BasicAmpEvent implements AmpEvent{
     private UnitRangeImpl[] amps;
 
     private UnitRangeImpl genericAmp;
+
+    private static Logger logger = Logger.getLogger(BasicAmpEvent.class);
+
 }
 
