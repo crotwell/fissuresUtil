@@ -51,7 +51,7 @@ public abstract class AbstractJob implements Job{
      * Process that will be notified whenver the status changes
      *
      */
-    public void addStatusListener(StatusListener listener){
+    public void add(StatusListener listener){
         listeners.add(listener);
     }
 

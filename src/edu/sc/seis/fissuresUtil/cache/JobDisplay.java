@@ -1,5 +1,5 @@
 /**
- * ProcessDisplay.java
+ * JobDisplay.java
  *
  * @author Created by Omnicore CodeGuide
  */
@@ -10,32 +10,27 @@ import java.util.List;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
 
 
 
-public class JobDisplay extends JTable implements StatusListener{
+public class JobDisplay extends JTable implements TrackerListener{
 
     private JobDisplay(){
         setModel(ptm);
         ptm.setColumnSizes();
+        tracker.add(this);
+    }
+
+    public void trackerUpdated(JobTracker tracker) {
+        ptm.fireTableChanged(new TableModelEvent(ptm));
     }
 
     public static JobDisplay getDisplay(){
         return display;
     }
 
-    public void add(Job proc){
-        proc.addStatusListener(this);
-        ptm.add(proc);
-    }
-
     public int numColumns(){
         return ptm.getColumnCount();
-    }
-
-    public void statusUpdated(Job updated) {
-        ptm.fireTableChanged(new TableModelEvent(ptm));
     }
 
     private class ProcessTableModel extends AbstractTableModel{
@@ -69,7 +64,12 @@ public class JobDisplay extends JTable implements StatusListener{
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
-            Job rowProcess = (Job)processes.get(rowIndex);
+            Job rowProcess;
+            if(tracker.getActiveJobs().size() > rowIndex){
+                rowProcess = (Job)tracker.getActiveJobs().get(rowIndex);
+            }else{
+                rowProcess = (Job)tracker.getFinishedJobs().get(rowIndex - tracker.getActiveJobs().size());
+            }
             if(columnIndex == 0){
                 return rowProcess.getName();
             }
@@ -80,18 +80,14 @@ public class JobDisplay extends JTable implements StatusListener{
         }
 
         public int getRowCount() {
-            return processes.size();
-        }
-
-        public void add(Job proc){
-            processes.add(proc);
-            fireTableChanged(new TableModelEvent(this));
+            return tracker.getActiveJobs().size() + tracker.getFinishedJobs().size();
         }
 
         private String[] columnNames = {"Name", "Status", "Finished"};
 
-        private List processes = new ArrayList();
     }
+
+    private JobTracker tracker = JobTracker.getTracker();
 
     private ProcessTableModel ptm = new ProcessTableModel();
 
