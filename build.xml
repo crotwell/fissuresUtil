@@ -12,8 +12,19 @@
        <property name="fissuresImpljar" value="/seis/data0/crotwell/fissures/dist/lib/FissuresImpl.jar" />
        <property name="fissuresIDLjar" value="/seis/data0/crotwell/fissures/dist/lib/FissuresIDL.jar" />
        <property name="junitdir" value="/seis/data0/crotwell/junit3.7" />
+       <property name="log4j" value="/seis/data0/crotwell/log4j" />
        <property name="objar" value="/seis/data0/crotwell/OrbacusSignedJars/dist/OB.jar" />
        <property name="obnamingjar" value="/seis/data0/crotwell/OrbacusSignedJars/dist/OBNaming.jar" />
+
+              <path id="myclasspath" >
+                <pathelement location="${junit_jar}"/>
+                <pathelement location="${log4j}"/>
+                <pathelement location="${build}" />
+                <pathelement location="${fissuresIDLjar}" />
+                <pathelement location="${fissuresImpljar}" />
+                <pathelement location="${objar}" />
+                <pathelement location="${obnamingjar}" />
+              </path>
 
        <target name="prepare">
          <!-- Create the time stamp -->
@@ -29,7 +40,8 @@
        <target name="javacompile" 
                depends="prepare">
          <!-- Compile the java code from ${src} into ${build} -->
-         <javac destdir="${build}" classpath="${build}:${fissuresImpljar}:${fissuresIDLjar}:${junitdir}/junit.jar:${objar}:${obnamingjar}" >
+         <javac destdir="${build}" >
+            <classpath refid="myclasspath" />
             <src path="${src}" />
             <include name="**/*.java" />
          </javac>
@@ -38,7 +50,8 @@
 
        <target name="testcompile" depends="javacompile">
          <!-- Compile the java code from ${src}/test into ${build} -->
-         <javac destdir="${build}" classpath="${build}:${fissuresImpljar}:${fissuresIDLjar}:${junitdir}/junit.jar:${objar}:${obnamingjar}" >
+         <javac destdir="${build}" >
+            <classpath refid="myclasspath" />
             <src path="${src}" />
             <include name="test/**/*.java" />
 <!--
@@ -50,14 +63,7 @@
            <java fork="yes" classname="junit.swingui.TestRunner"
                  taskname="junit" failonerror="true" >
               <arg value="test.edu.sc.seis.anhinga.database.AllJUnitTests"/>
-              <classpath>
-                <pathelement location="${junit_jar}"/>
-                <pathelement location="/opt/local/External/Java/jre/lib/ext/postgresql.jar"/>
-                <pathelement location="/opt/local/External/Java/jre/lib/ext/log4j.jar"/>
-                <pathelement location="${build}" />
-                <pathelement location="${fissuresdir}/FissuresImpl.jar" />
-                <pathelement location="${fissuresdir}/FissuresIDL.jar" />
-              </classpath>
+            <classpath refid="myclasspath" />
            </java>
        </target>
 
@@ -65,6 +71,7 @@
          <!-- Compile the javadocs from ${src} into ${javadocs} -->
          <javadoc destdir="${javadocs}" sourcepath="${src}" 
             packagenames="edu.sc.seis.fissuresUtil.*"  maxmemory="64m" >
+            <classpath refid="myclasspath" />
 
         <link href="http://www.seis.sc.edu/software/Fissures/idljava_docs" />
          </javadoc>
