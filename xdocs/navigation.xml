@@ -13,8 +13,8 @@
     </menu>
 
     <menu name="Download">
-        <item name="Binaries"              href="/../software/mavenRepository/fissuresUtil/jars"/>
-        <item name="Source Code"           href="/../software/mavenRepository/fissuresUtil/distributions"/>
+        <item name="Binaries"              href="/../mavenRepository/fissuresUtil/jars"/>
+        <item name="Source Code"           href="/../mavenRepository/fissuresUtil/distributions"/>
     </menu>
 
     <menu name="Related Projects">
