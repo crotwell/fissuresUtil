@@ -62,7 +62,7 @@ public class IntervalChooser extends JPanel{
 	    valueBox.addItem(new String(new Integer(counter).toString()));
 
 	}
-	valueBox.setSelectedIndex(0);
+	valueBox.setSelectedIndex(10);
 	
 
     }
@@ -74,8 +74,8 @@ public class IntervalChooser extends JPanel{
 
 	    unitBox.addItem(units[counter]);
 	}
-	unitBox.setSelectedIndex(0);
-	populateValues(units[0]);
+	unitBox.setSelectedIndex(1);
+	populateValues(units[1]);
 	unitBox.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 		    JComboBox cb = (JComboBox)e.getSource();
