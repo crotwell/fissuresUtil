@@ -127,6 +127,9 @@ public class BasicTimeConfig implements TimeConfig{
     }
     
     public TimeEvent fireTimeEvent(){
+	if(seismoTimes.size() == 0 && time != null){
+	    return fireTimeEvent(new EmptyTimeEvent(time));
+	}
 	DataSetSeismogram[] seismos = getSeismograms();
 	MicroSecondTimeRange[] times = new MicroSecondTimeRange[seismos.length];
 	for(int i = 0; i < seismos.length; i++){
