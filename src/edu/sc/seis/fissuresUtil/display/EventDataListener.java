@@ -6,6 +6,8 @@ public interface EventDataListener extends EventListener{
 
     public void eventDataChanged(EQDataEvent eqDataEvent);
 
+    public void eventDataAppended(EQDataEvent eqDataEvent);
+
     public void eventDataCleared();
 
 }

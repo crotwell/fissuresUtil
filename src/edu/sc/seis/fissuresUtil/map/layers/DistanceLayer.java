@@ -77,12 +77,13 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
         }
     }
 
-    /**
-     * Method eventDataChanged
-     *
-     * @param    eqDataEvent         an EQDataEvent
-     *
-     */
+    /** No impl here, only the eventDataCleared() method is needed*/
+    public void eventDataAppended(EQDataEvent eqDataEvent) {
+    }
+
+
+
+    /** No impl here, only the eventDataCleared() method is needed*/
     public void eventDataChanged(EQDataEvent eqDataEvent) {}
 
     /**
