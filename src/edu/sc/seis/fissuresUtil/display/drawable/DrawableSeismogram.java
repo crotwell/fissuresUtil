@@ -1,11 +1,13 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.NamedColor;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplayListener;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
@@ -14,8 +16,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 
 /**
  * DrawableSeismogram.java
@@ -49,6 +49,9 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
             this.color = parent.getNextColor(DrawableSeismogram.class);
         }
         this.name = name;
+        if(color instanceof NamedColor){
+            this.name += "." + color;
+        }
         this.shape = shape;
         setRemover(new SeismogramRemover(shape.getSeismogram(), parent));
         setVisibility(defaultVisibility);
@@ -199,9 +202,9 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
 
 
-    public String getName(){ return getSeismogram().getName(); }
+    public String getName(){ return name; }
 
-    public String toString(){ return getName(); }
+    public String toString(){ return getName();}
 
     public DataSetSeismogram getSeismogram(){ return shape.getSeismogram(); }
 
