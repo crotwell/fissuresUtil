@@ -4,7 +4,11 @@
  * @author Created by Omnicore CodeGuide
  */
 
-package edu.sc.seis.fissuresUtil.display;
+package edu.sc.seis.fissuresUtil.display.drawable;
+import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.VerticalSeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;

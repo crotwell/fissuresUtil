@@ -1,6 +1,9 @@
-package edu.sc.seis.fissuresUtil.display;
+package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -20,31 +23,31 @@ import org.apache.log4j.Category;
  */
 
 public class FlagPlotter implements Plotter{
-    
+
     public FlagPlotter(MicroSecondDate flagTime, String name){
-	this.flagTime = flagTime;
-	this.name = name;
+    this.flagTime = flagTime;
+    this.name = name;
     }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
-	if(visible){
-	    MicroSecondTimeRange timeRange = timeEvent.getTime();
-	    if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
-		return;
-	    double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
-	    location = (int)(offset * (double)size.width);
-	    Area pole = new Area(new Rectangle(location, 0, 1, size.height));
-	    Rectangle2D.Float stringBounds = new Rectangle2D.Float();
-	    stringBounds.setRect(canvas.getFontMetrics().getStringBounds(name, canvas));
-	    Area flag = new Area(new Rectangle(location, 0, (int)stringBounds.width, (int)stringBounds.height));
-	    flag.add(pole);
-	    canvas.setColor(Color.red);
-	    canvas.fill(flag);
-	    canvas.setColor(Color.white);
-	    canvas.drawString(name, location, stringBounds.height - 4);
-	}
+    if(visible){
+        MicroSecondTimeRange timeRange = timeEvent.getTime();
+        if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
+        return;
+        double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
+        location = (int)(offset * (double)size.width);
+        Area pole = new Area(new Rectangle(location, 0, 1, size.height));
+        Rectangle2D.Float stringBounds = new Rectangle2D.Float();
+        stringBounds.setRect(canvas.getFontMetrics().getStringBounds(name, canvas));
+        Area flag = new Area(new Rectangle(location, 0, (int)stringBounds.width, (int)stringBounds.height));
+        flag.add(pole);
+        canvas.setColor(Color.red);
+        canvas.fill(flag);
+        canvas.setColor(Color.white);
+        canvas.drawString(name, location, stringBounds.height - 4);
     }
-    
+    }
+
     public void toggleVisibility(){ visible = !visible; }
 
     public void setVisibility(boolean b){ visible = b; }
@@ -52,7 +55,7 @@ public class FlagPlotter implements Plotter{
     protected boolean visible = true;
 
     protected MicroSecondDate flagTime;
-    
+
     protected String name;
 
     protected int location;

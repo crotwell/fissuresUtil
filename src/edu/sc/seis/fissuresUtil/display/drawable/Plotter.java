@@ -1,11 +1,13 @@
-package edu.sc.seis.fissuresUtil.display;
+package edu.sc.seis.fissuresUtil.display.drawable;
 
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 
 /**
- * Plotters are objects to be put in the main display of a SeismogramDisplay.  
- * 
+ * Plotters are objects to be put in the main display of a SeismogramDisplay.
+ *
  * Created: Fri Jun  7 10:27:49 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
@@ -19,5 +21,5 @@ public interface Plotter {
     public void toggleVisibility();
 
     public void setVisibility(boolean b);
-    
+
 }// Plotter
