@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4622 2003-07-02 21:01:50Z groves $
+ * @version $Id: ChannelChooser.java 4630 2003-07-03 16:43:55Z groves $
  *
  */
 
@@ -691,24 +691,20 @@ public class ChannelChooser extends JPanel {
     }
 
     public void toggleStationSelected(Station stat){
-        int[] selectedIndices = stationList.getSelectedIndices();
-        stationList.setSelectedValue(stat, true);
-        int stationIndex = stationList.getSelectedIndex();
-        for (int i = 0; i < selectedIndices.length; i++){
-            if(selectedIndices[i] == stationIndex){
-                if(selectedIndices.length > 1){
-                    int[] newSelection = new int[selectedIndices.length -1];
-                    System.arraycopy(selectedIndices, 0, newSelection, 0, i);
-                    System.arraycopy(selectedIndices, i + 1, newSelection, i, selectedIndices.length - (i + 1));
-                    stationList.setSelectedIndices(newSelection);
+        ListSelectionModel selModel = stationList.getSelectionModel();
+        ListModel listModel = stationList.getModel();
+        for (int i = 0; i < listModel.getSize(); i++){
+            Station cur = (Station)listModel.getElementAt(i);
+            if(cur.equals(stat)){
+                if(selModel.isSelectedIndex(i)){
+                    selModel.removeSelectionInterval(i, i);
+                }else{
+                    selModel.addSelectionInterval(i, i);
                 }
+                stationList.ensureIndexIsVisible(i);
                 return;
             }
         }
-        int[] newSelection = new int[selectedIndices.length +1];
-        System.arraycopy(selectedIndices, 0, newSelection, 0, selectedIndices.length);
-        newSelection[selectedIndices.length] = stationIndex;
-        stationList.setSelectedIndices(newSelection);
     }
     public Site[]  getSelectedSites() {
         return castSiteArray(siteList.getSelectedValues());
@@ -1330,6 +1326,7 @@ public class ChannelChooser extends JPanel {
         Category.getInstance(ChannelChooser.class.getName());
 
 } // ChannelChooser
+
 
 
 
