@@ -45,20 +45,15 @@ public class ImageMaker implements Runnable  {
 	Graphics2D graphic;
 	Image currentImage; 
 	Dimension size; 
-	numLeft = requests.size();
+	HashMap plotters;
+	    numLeft = requests.size();
 	while(numLeft > 0){
 	    logger.debug("creating an image with " + numLeft + " in the queue");
 	    synchronized(this){ 
 		currentPatron = ((BasicSeismogramDisplay.ImagePainter)requests.getFirst()); 
 		currentRequirements = ((PlotInfo)patrons.get(currentPatron)); 
 		size = currentRequirements.getSize();
-	    }
-	    HashMap plotters = currentRequirements.getPlotters();
-	    if(size.height <= 0 || size.width <= 0){
-		numLeft = requests.size();
-		break;
-	    }	    
-	    synchronized(this){
+		plotters = ((HashMap)currentRequirements.getPlotters().clone());
 		if(requests.contains(currentPatron)){
 		    currentImage = currentPatron.createImage(size.width, size.height);
 		    graphic = (Graphics2D)currentImage.getGraphics();
@@ -68,6 +63,17 @@ public class ImageMaker implements Runnable  {
 		}
 	    }
 	    Iterator e = plotters.keySet().iterator();
+	    LinkedList afterSeismograms = new LinkedList();
+	    while(e.hasNext()){
+		Plotter current = ((Plotter)e.next());
+		if(current instanceof SeismogramPlotter){
+		    graphic.setColor((Color)plotters.get(current));
+		    graphic.draw(current.draw(size));
+		}else{
+		    afterSeismograms.add(current);
+		}
+	    }
+	    e = afterSeismograms.iterator();
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
 		graphic.setColor((Color)plotters.get(current));
@@ -80,8 +86,8 @@ public class ImageMaker implements Runnable  {
 		    requests.removeFirst();
 		    currentPatron.setImage(currentImage);
 		}
+		numLeft = requests.size();
 	    }
-	    numLeft = requests.size();
 	}
 	logger.debug("image creation thread is finished");
     }

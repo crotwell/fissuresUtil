@@ -32,26 +32,28 @@ public class FilteredSeismogramPlotter implements Plotter{
     }
 
     public Shape draw(Dimension size){
-	try{
-	    MicroSecondTimeRange overTimeRange = timeConfig.getTimeRange(seis).
-		getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
-	    int[][] pixels = SimplePlotUtil.compressYvalues(filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size);
-	    SimplePlotUtil.scaleYvalues(pixels, filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size); 
-	    int[] xPixels = pixels[0];
-	    int[] yPixels = pixels[1];
-	    if(xPixels.length >= 2){
-		GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, xPixels.length - 1);
-		currentShape.moveTo(xPixels[0], yPixels[0]);
-		for(int i = 1; i < xPixels.length; i++)
-		    currentShape.lineTo(xPixels[i], yPixels[i]);
-		return currentShape;
-	    }else if(xPixels.length == 1){
-		GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, 2);
-		currentShape.moveTo(0, yPixels[0]);
-		currentShape.lineTo(size.width, yPixels[0]);
-		return currentShape;		
-	    }
-	}catch(Exception e){ e.printStackTrace(); }
+	if(visible){
+	    try{
+		MicroSecondTimeRange overTimeRange = timeConfig.getTimeRange(seis).
+		    getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
+		int[][] pixels = SimplePlotUtil.compressYvalues(filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size);
+		SimplePlotUtil.scaleYvalues(pixels, filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size); 
+		int[] xPixels = pixels[0];
+		int[] yPixels = pixels[1];
+		if(xPixels.length >= 2){
+		    GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, xPixels.length - 1);
+		    currentShape.moveTo(xPixels[0], yPixels[0]);
+		    for(int i = 1; i < xPixels.length; i++)
+			currentShape.lineTo(xPixels[i], yPixels[i]);
+		    return currentShape;
+		}else if(xPixels.length == 1){
+		    GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, 2);
+		    currentShape.moveTo(0, yPixels[0]);
+		    currentShape.lineTo(size.width, yPixels[0]);
+		    return currentShape;		
+		}
+	    }catch(Exception e){ e.printStackTrace(); }
+	}
 	return new GeneralPath();
     }
 
@@ -80,6 +82,14 @@ public class FilteredSeismogramPlotter implements Plotter{
 	filteredSeis = new LocalSeismogramImpl(seis, sel);
     }
 
+    public ButterworthFilter getFilter(){ return filter; }
+
+    public void toggleVisibility(){ visible = !visible; } 
+
+    public void setVisibility(boolean b){ visible = b; }
+
+    public LocalSeismogramImpl getUnfilteredSeismogram(){ return seis; }
+
     protected LocalSeismogramImpl seis, filteredSeis;
     
     protected TimeRangeConfig timeConfig;
@@ -88,9 +98,9 @@ public class FilteredSeismogramPlotter implements Plotter{
     
     protected ButterworthFilter filter;
     
+    protected boolean visible = true;
+    
     protected static SeisGramText localeText = new SeisGramText(null);
-
-    protected static ButterworthFilter test = new ButterworthFilter(localeText,  0.0, 0.05, 2, ButterworthFilter.TWOPASS);
-
+    
     static Category logger = Category.getInstance(FilteredSeismogramPlotter.class.getName());
 }// FilteredSeismogramPlotter

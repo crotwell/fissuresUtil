@@ -20,5 +20,7 @@ public interface Plotter {
      *
      */
     public Shape draw(Dimension size);
+
+    public void toggleVisibility();
     
 }// Plotter
