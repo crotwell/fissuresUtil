@@ -1,19 +1,52 @@
 package edu.sc.seis.fissuresUtil.map.tools;
+import com.bbn.openmap.event.PanListener;
+import com.bbn.openmap.event.PanSupport;
+import com.bbn.openmap.proj.Proj;
+import edu.sc.seis.fissuresUtil.map.OpenMap;
 import java.awt.event.MouseEvent;
-import java.awt.Cursor;
 
 
 
 public class PanTool extends OpenMapTool{
 
-	String id = "pan";
+	private OpenMap openMap;
+	private String id = "pan";
+	private int[] startXYCoords;
+	private int[] endXYCoords;
+	private int[] centerXYCoords;
 
-	public PanTool(){
-
+	public PanTool(OpenMap om){
+		openMap = om;
 	}
 
 	public String getID(){
 		return id;
 	}
 
+	public void mousePressed(MouseEvent e){
+		if (isActive()){
+			startXYCoords = new int[]{e.getX(), e.getY()};
+		}
+	}
+
+	public void mouseDragged(MouseEvent e){
+		if (isActive()){
+			translate(e);
+			startXYCoords = endXYCoords;
+		}
+	}
+
+	public void mouseReleased(MouseEvent e){
+		if (isActive()){
+			translate(e);
+		}
+	}
+
+	private void translate(MouseEvent e){
+		Proj proj = (Proj)openMap.getMapBean().getProjection();
+		endXYCoords = new int[]{e.getX(), e.getY()};
+		int[] diff = new int[]{endXYCoords[0] - startXYCoords[0], endXYCoords[1] - startXYCoords[1]};
+		centerXYCoords = new int[]{proj.getWidth()/2 - diff[0], proj.getHeight()/2 - diff[1]};
+		openMap.getMapBean().setCenter(proj.inverse(centerXYCoords[0], centerXYCoords[1]));
+	}
 }
