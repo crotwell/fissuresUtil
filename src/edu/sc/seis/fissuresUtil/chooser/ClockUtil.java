@@ -1,12 +1,15 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import java.io.*;
-import org.apache.log4j.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.apache.log4j.Category;
 
 /**
  * ClockUtil.java
@@ -18,7 +21,7 @@ import org.apache.log4j.*;
  * @version 1.0
  */
 public class ClockUtil {
-
+    
     /** Calculates the difference between the CPU clock and the time retreived
         from the server. This uses a simple cgi-bin script located at
         http://www.seis.sc.edu/cgi-bin/date_time.pl. The URL can be overridden
@@ -43,9 +46,10 @@ public class ClockUtil {
      *  cannot be estabilished, then the current CPU time is used.
      */
     public static MicroSecondDate now() {
-        MicroSecondDate nowTime = new MicroSecondDate();
-        return nowTime.add(getTimeOffset());
+        return new MicroSecondDate().add(getTimeOffset());
     }
+    
+    public static MicroSecondDate future() { return now().add(ONE_DAY); }
 
     /** Sets the URL used to get a time. The format of the string returned
      *  from the URL must correspond to the form at
@@ -102,6 +106,8 @@ public class ClockUtil {
             logger.error("Caught MalformedURL with seis data_time.pl URL. This should never happen.", e);
         } // end of try-catch
     }
+    
+    private static TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 
     private static URL timeURL = null;
 
