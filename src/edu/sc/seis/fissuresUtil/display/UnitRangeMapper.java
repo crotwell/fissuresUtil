@@ -45,7 +45,7 @@ public class UnitRangeMapper implements ScaleMapper{
     }
 
     public String getAxisLabel() {
-        return "Amplitude (" + unitDisplayUtil.getNameForUnit(getUnit()) + ")";
+        return "";
     }
 
     public UnitImpl getUnit() {
@@ -70,11 +70,11 @@ public class UnitRangeMapper implements ScaleMapper{
             return;
         }
         double rangeWidth = range.getMaxValue()-range.getMinValue();
-        if ( rangeWidth == 0) {
-            // not a real range
-            numTicks = 0;
-            return;
-        } // end of if ()
+        if ( rangeWidth == 0 || rangeWidth == Double.NaN) {
+                // not a real range
+                numTicks = 0;
+                return;
+            } // end of if ()
         // find power of ten just larger than the goalTickInc
         tickInc = Math.pow(10,
                            Math.ceil(Math.log(rangeWidth) /
