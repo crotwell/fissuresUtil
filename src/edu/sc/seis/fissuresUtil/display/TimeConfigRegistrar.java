@@ -70,10 +70,15 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     }
 
     public MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){
-	return timeConfig.getTimeRange(seis);
+	MicroSecondTimeRange current =  timeConfig.getTimeRange(seis);
+	seismoDisplayTime.put(seis, current);
+	return current;
     }
 
-    public MicroSecondTimeRange getTimeRange(){ return timeConfig.getTimeRange(); }
+    public MicroSecondTimeRange getTimeRange(){ 
+	genericTime = timeConfig.getTimeRange();
+	return genericTime; 
+    }
     
     /**
      * Adds a time sync listener to the list to be informed when a time sync event occurs
@@ -106,13 +111,7 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     }
 
     public synchronized TimeSnapshot takeSnapshot(){
-	HashMap seismoDisplayTime = new HashMap();
-	Iterator e = seismos.keySet().iterator();
-	while(e.hasNext()){
-	    DataSetSeismogram current = (DataSetSeismogram)e.next();
-	    seismoDisplayTime.put(current, this.getTimeRange(current));
-	}
-	return new TimeSnapshot(seismoDisplayTime, this.getTimeRange());
+	return new TimeSnapshot((HashMap)seismoDisplayTime.clone(), genericTime);
     }
     
     public void unregister(){ timeConfig.removeTimeSyncListener(this); }
@@ -146,11 +145,15 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
  
     protected HashMap seismos = new HashMap();
 
+    protected HashMap seismoDisplayTime = new HashMap();
+    
     protected TimeRangeConfig timeConfig;
 
     protected Set timeListeners = new HashSet();
 
     protected TimeFinder timeFinder;
+
+    protected MicroSecondTimeRange genericTime;
 
     protected Category logger = Category.getInstance(TimeConfigRegistrar.class.getName());
 }// TimeConfigRegistrar
