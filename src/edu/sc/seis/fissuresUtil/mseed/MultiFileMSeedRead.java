@@ -55,11 +55,12 @@ public class MultiFileMSeedRead extends MiniSeedRead {
                 current.close();
                 current = null;
             }
-            logger.debug("Loading next mseed file: "+currentIndex+" "+files[currentIndex].getName());
+            logger.debug("Loading next mseed file: "+currentIndex+" of "+files.length+" "+files[currentIndex].getName());
             current = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(files[currentIndex]))));
             currentIndex++;
+        } else {
+            logger.debug("Last loaded "+currentIndex);
         }
-        logger.debug("Last load "+currentIndex);
     }
 
     int numReadTotal = 0;
