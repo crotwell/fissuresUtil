@@ -98,13 +98,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
-                DrawableSeismogram newPlotter;
-                if (autoColor) {
-                    newPlotter = new DrawableSeismogram(this, seismos[i],
-                                                        seisColors[(seismograms.size() -1) % seisColors.length]);
-                }else {
-                    newPlotter = new DrawableSeismogram(this, seismos[i]);
-                } // end of else
+                DrawableSeismogram newPlotter = new DrawableSeismogram(this, seismos[i],
+                                                                       seisColors[(seismograms.size() -1) % seisColors.length]);
                 if(parent != null){
                     newPlotter.setVisibility(parent.getOriginalVisibility());
                 }
@@ -315,10 +310,6 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public Dimension getDisplaySize(){ return displaySize; }
 
     public static Set getGlobalFilters(){ return globalFilters; }
-
-    public void setAutoColor(boolean b){ autoColor = b; }
-
-    public boolean getAutoColor(){ return autoColor; }
 
     public boolean hasBottomTimeBorder(){
         if(scaleBorder.getBottomScaleMapper() != null){
@@ -556,6 +547,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     private static Set globalFilters = new HashSet();
 
     public static Font monospaced = new Font("Monospaced", Font.PLAIN, 12);
+
     public final static int preferredBSDHeight = 100;
 
     public final static int preferredBSDWidth = 200;
@@ -583,8 +575,6 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     private AmpScaleMapper ampScaleMap;
 
     private PlotPainter plotPainter;
-
-    private boolean autoColor = true;
 
     private DataSetSeismogram[] seismogramArray;
 
