@@ -22,12 +22,13 @@ public class PSXYExecute {
                                  double[][] points) throws IOException,
             InterruptedException {
         Runtime rt = Runtime.getRuntime();
-        String command = "psxy -V -J" + projection + " -R" + region
-        + " -S" + symbol + " -G" + fill + " -O -K";
+        String command = "psxy -V -J" + projection + " -R" + region + " -S"
+                + symbol + " -G" + fill + " -O -K";
         logger.debug("executing gmt command: " + command);
         Process proc = rt.exec(command);
         BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(psFilename, true)));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(psFilename,
+                                                                                               true)));
         BufferedWriter procWriter = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
         BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
         BufferedWriter errWriter = new BufferedWriter(new OutputStreamWriter(System.err));
@@ -41,18 +42,14 @@ public class PSXYExecute {
         procWriter.close();
         int exitVal = proc.waitFor();
         //waiting for finish of StreamPump runs
-        synchronized(pump){
-            ;
-        }
-        synchronized(errPump){
-            ;
-        }       
+        synchronized(pump) {}
+        synchronized(errPump) {}
         logger.debug("command returned exit value " + exitVal);
     }
 
     public static void main(String[] args) {
         try {
-            double[][] points = {{-180, 90},
+            double[][] points = { {-180, 90},
                                  {-135, 67.5},
                                  {-90, 45},
                                  {-45, 22.5},
@@ -71,6 +68,6 @@ public class PSXYExecute {
             e.printStackTrace();
         }
     }
-    
+
     private static Logger logger = Logger.getLogger(PSXYExecute.class);
 }
