@@ -44,7 +44,7 @@ public class Selection implements TimeListener, Drawable{
         try {
             tc = (TimeConfig)dispTimeConfigClass.newInstance();
             if(parentConfig instanceof PhaseAlignedTimeConfig){
-                ((PhaseAlignedTimeConfig)tc).setTauP(((PhaseAlignedTimeConfig)parentConfig).getTauP());
+                ((PhaseAlignedTimeConfig)tc).setPhaseName(((PhaseAlignedTimeConfig)parentConfig).getPhaseName());
             }
         } catch (IllegalAccessException e) {
             GlobalExceptionHandler.handle("Problem trying to create new TimeCongig for pick zone", e);
