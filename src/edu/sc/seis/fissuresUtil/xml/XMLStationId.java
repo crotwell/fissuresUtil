@@ -41,7 +41,7 @@ public class XMLStationId {
 	}
 
 	//get the station_code
-	String station_code = XMLUtil.evalString(base, "network_code");
+	String station_code = XMLUtil.evalString(base, "station_code");
 
 	//get the begin_time
 	NodeList begin_time_node = XMLUtil.evalNodeList(base, "begin_time");
