@@ -14,7 +14,17 @@ import org.omg.CORBA.*;
  */
 
 public interface ChannelGrouper {
+    /**
+     * Given a channel and an array of Channels, this method returns the ChannelGroup
+     * as an array of Channels corresponding to channel.
+     **/
     public Channel[] retrieve_grouping(org.omg.CORBA_2_3.ORB orb, ChannelId channelId);
+
+    /**
+     * Given a channelId and an array of ChannelIds, this method returns the ChannelGroup
+     * as an array of ChannelIds corresponding to channelId.
+     */
+    public ChannelId[] retrieve_grouping( ChannelId[] channelIds, ChannelId channelId);
     // public Channel[] retrieve_grouping(NetworkDC networkDC, ChannelId channelId);
     //public Channel[] retrieve_grouping(Channel[] channels, ChannelId channelId);
 }// ChannelGrouper

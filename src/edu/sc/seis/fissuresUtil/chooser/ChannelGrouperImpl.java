@@ -29,11 +29,12 @@ public class ChannelGrouperImpl {
 
 
     /**
-     * This function returns a ChannelGroup corresponding to the channelId.
+     * Given a channel and an array of Channels, this method returns the ChannelGroup
+     * as an array of Channels corresponding to channel.
      *
      * @param channels a <code>Channel[]</code> value
-     * @param channelId a <code>ChannelId</code> value
-     * @return a <code>ChannelId[]</code> value
+     * @param channel a <code>Channel</code> value
+     * @return a <code>Channel[]</code> value
      */
     public Channel[] retrieve_grouping( Channel[] channels, Channel channel) {
 	ChannelId channelId = channel.get_id();
@@ -91,6 +92,14 @@ public class ChannelGrouperImpl {
 	
     }
    
+    /**
+     * Given a channelId and an array of ChannelIds, this method returns the ChannelGroup
+     * as an array of ChannelIds corresponding to channelId.
+     *
+     * @param channelIds a <code>ChannelId[]</code> value
+     * @param channelId a <code>ChannelId</code> value
+     * @return a <code>ChannelId[]</code> value
+     */
     public ChannelId[] retrieve_grouping( ChannelId[] channelIds, ChannelId channelId) {
 	String givenChannelStr = channelId.channel_code;
 	String givenPrefixMatchStr = ChannelIdUtil.toString(channelId).substring(0, 
@@ -158,6 +167,13 @@ public class ChannelGrouperImpl {
 	
     }
 
+    /**
+     * Given an array of channelIds this method returns sorted array of 
+     * channelIds. It sorts the channelIds based on the channel code.
+     *
+     * @param channelIds a <code>ChannelId[]</code> value
+     * @return a <code>ChannelId[]</code> value
+     */
     public ChannelId[] sortChannelGroup(ChannelId[] channelIds) {
 	ChannelId[] rtnValues = new ChannelId[channelIds.length];
 	TreeMap treeMap = new TreeMap();
@@ -174,7 +190,7 @@ public class ChannelGrouperImpl {
 	return rtnValues;
     }
 
-    String[] patterns = new String[] {"NEZ",
+    private String[] patterns = new String[] {"NEZ",
 				      "12Z",
 				      "UVZ",
 				      "123",
@@ -185,40 +201,4 @@ public class ChannelGrouperImpl {
      
 }//ChannelGrouperImpl
 
-/***************
-	Channel[] channelGroup = new Channel[3];
-	String givenChannelStr = ChannelIdUtil.toString(channelId);
-	String matchedGroup  = new String();
-	String keyOrientation = "";
-	matchedGroup = "";
-	String searchGroup = new String();
-	searchGroup = "Z";
-	System.out.println("The channelId String is "+givenChannelStr);
-	
-	for(int counter = 0; counter < channels.length; counter++) {
 
-	    String channelStr = ChannelIdUtil.toString(channels[counter].get_id());
-	    char orientation = channelStr.charAt(channelStr.length() - 1);
-	    for(int subcounter = 0; subcounter < orientationHeuristic.length; subcounter++) {
-		if(orientation == 'Z') {
-		    searchGroup = "Z";
-		} else if(orientation == '3') {
-		    searchGroup = "3";
-		} else if(orientation == 'W') {
-		    searchGroup = "W";
-		}
-		if(searchGroup.indexOf(orientation) != -1) {
-		    matchedGroup = matchedGroup + Character.toString(orientation);
-		}
-	    }
-	    if(searchGroup == "Z") {
-		searchGroup = "NE";
-	    } else if(searchGroup  == "12"){
-		searchGroup = "UV";
-	    } else if(searchGroup == "UV") {
-		searchGroup = null;
-	    }
-	}
-	return null;
-
-*****************/
