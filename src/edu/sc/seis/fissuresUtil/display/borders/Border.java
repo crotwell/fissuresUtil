@@ -17,38 +17,51 @@ import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 public abstract class Border extends JComponent {
 
     public Border(int side, int order) {
-        this.side = side;
-        this.order = order;
-        this.type = side + order;
-        if(side == TOP) {
-            labelTickHeight = -LABEL_TICK_LENGTH;
-            tickHeight = -TICK_LENGTH;
-        } else if(side == BOTTOM) {
-            labelTickHeight = LABEL_TICK_LENGTH;
-            tickHeight = TICK_LENGTH;
-        } else if(side == RIGHT) {
-            labelTickWidth = LABEL_TICK_LENGTH;
-            tickWidth = TICK_LENGTH;
-        } else if(side == LEFT) {
-            labelTickWidth = -LABEL_TICK_LENGTH;
-            tickWidth = -TICK_LENGTH;
-        } else throw new IllegalArgumentException("side must be LEFT, RIGHT, BOTTOM, or TOP as defined in Border");
-        if(side == LEFT || side == RIGHT) {
-            this.direction = VERTICAL;
-            labelTickHeight = 0;
-            tickHeight = 0;
-            setMinimumSize(new Dimension(65, 100));
-        } else {
-            this.direction = HORIZONTAL;
-            labelTickWidth = 0;
-            tickWidth = 0;
-            setMinimumSize(new Dimension(100, 45));
-        }
+        setSide(side);
+        setOrder(order);
         borderFormats = createFormats();
     }
 
     public void setColor(Color c) {
         color = c;
+    }
+
+    public void setOrder(int o) {
+        this.order = o;
+    }
+
+    public void setSide(int s) {
+        this.side = s;
+        if(tickLength == 0 && labelTickLength == 0) {
+            tickHeight = 0;
+            tickWidth = 0;
+            labelTickHeight = 0;
+            labelTickWidth = 0;
+        } else {
+            if(side == TOP) {
+                labelTickHeight = -labelTickLength;
+                tickHeight = -tickLength;
+            } else if(side == BOTTOM) {
+                labelTickHeight = labelTickLength;
+                tickHeight = tickLength;
+            } else if(side == RIGHT) {
+                labelTickWidth = labelTickLength;
+                tickWidth = tickLength;
+            } else if(side == LEFT) {
+                labelTickWidth = -labelTickLength;
+                tickWidth = -tickLength;
+            } else throw new IllegalArgumentException("side must be LEFT, RIGHT, BOTTOM, or TOP as defined in Border");
+        }
+        if(side == LEFT || side == RIGHT) {
+            this.direction = VERTICAL;
+            labelTickHeight = 0;
+            tickHeight = 0;
+        } else {
+            this.direction = HORIZONTAL;
+            labelTickWidth = 0;
+            tickWidth = 0;
+        }
+        fixSize();
     }
 
     public void paint(Graphics g) {
@@ -76,11 +89,31 @@ public abstract class Border extends JComponent {
      */
     public void add(TitleProvider tp) {
         titles.add(0, tp);
-        Dimension curSize = getPreferredSize();
+        fixSize();
+    }
+
+    private void fixSize() {
+        int tpHeight = 0;
+        Iterator it = titles.iterator();
+        while(it.hasNext()) {
+            //TODO - calculate based on actual string, font metrics
+            TitleProvider tp = (TitleProvider)it.next();
+            tpHeight += tp.getTitleFont().getSize();
+        }
         if(direction == HORIZONTAL) {
-            setPreferredSize(new Dimension(curSize.width, curSize.height + 10));
+            int height = 25 + labelTickLength + tpHeight;
+            if(labelTickLength == 0) {
+                height = tpHeight + 10;
+            }
+            setMinimumSize(new Dimension(0, height));
+            setPreferredSize(new Dimension(100, height));
         } else {
-            setPreferredSize(new Dimension(curSize.width + 10, curSize.height));
+            int width = 55 + labelTickLength + tpHeight;
+            if(labelTickLength == 0) {
+                width = tpHeight + 10;
+            }
+            setMinimumSize(new Dimension(width, 0));
+            setPreferredSize(new Dimension(width, 100));
         }
     }
 
@@ -118,7 +151,7 @@ public abstract class Border extends JComponent {
             double labelSize = getLimitingLabelSize(g2d);
             int numTicks = (int)Math.ceil(numDivisions * ticksPerDiv);
             double maxSize = getLimitingSize();
-            if(numTicks * TICK_PAD < maxSize
+            if(numTicks * tickPad < maxSize
                     && labelSize * numDivisions < maxSize) return true;
             return false;
         }
@@ -138,19 +171,20 @@ public abstract class Border extends JComponent {
         public abstract String getMaxString();
 
         public void draw(UnitRangeImpl range, Graphics2D g2d) {
-            FontMetrics fm = g2d.getFontMetrics();
             Iterator it = titles.iterator();
             int cumulativeTitleHeight = 0;
             while(it.hasNext()) {
                 TitleProvider tp = (TitleProvider)it.next();
-                g2d.setFont(tp.getFont());
+                g2d.setFont(tp.getTitleFont());
+                FontMetrics fm = g2d.getFontMetrics();
                 Rectangle2D titleBounds = fm.getStringBounds(tp.getTitle(), g2d);
                 cumulativeTitleHeight += titleBounds.getHeight();
                 if(direction == VERTICAL) {
                     double y = (int)(getSize().height / 2 + titleBounds.getWidth() / 2);
                     double x;
-                    if(side == LEFT) x = cumulativeTitleHeight;
-                    else x = getWidth() - cumulativeTitleHeight;
+                    if(side == LEFT) x = cumulativeTitleHeight - 5;
+                    else x = getWidth() - cumulativeTitleHeight
+                            + (int)titleBounds.getHeight() - 5;
                     g2d.translate(x, y);
                     g2d.rotate(-Math.PI / 2);
                     g2d.drawString(tp.getTitle(), 0, 0);
@@ -159,8 +193,9 @@ public abstract class Border extends JComponent {
                 } else {
                     int x = (int)(getWidth() / 2 - titleBounds.getWidth() / 2);
                     int y;
-                    if(side == TOP) y = cumulativeTitleHeight;
-                    else y = getHeight() - cumulativeTitleHeight;
+                    if(side == TOP) y = cumulativeTitleHeight - 5;
+                    else y = getHeight() - cumulativeTitleHeight
+                            + (int)titleBounds.getHeight() - 5;
                     g2d.drawString(tp.getTitle(), x, y);
                 }
             }
@@ -219,6 +254,7 @@ public abstract class Border extends JComponent {
                 g2d.draw(minorTickShape);
                 double value = getFirstLabelValue(range);
                 nextLabelPoint = getFirstPoint();
+                g2d.setFont(getFont());
                 for(int i = 0; i < numLabelTicks; i++) {
                     if(displayNegatives || value >= 0) {
                         label(getLabel(value),
@@ -243,14 +279,14 @@ public abstract class Border extends JComponent {
             float x, y;
             if(direction == VERTICAL) {
                 y = nextLabelPoint[1] + (float)(bounds.getHeight() / 4);
-                int xMod = LABEL_TICK_LENGTH + 2;
+                int xMod = labelTickLength + 2;
                 if(side == LEFT) x = nextLabelPoint[0] - xMod
                         - (int)bounds.getWidth();
                 else x = nextLabelPoint[0] + xMod;
             } else {//Must be horizontal
                 x = nextLabelPoint[0] - (int)(bounds.getWidth() / 2);
-                if(side == TOP) y = nextLabelPoint[1] - LABEL_TICK_LENGTH - 3;
-                else y = LABEL_TICK_LENGTH + (float)bounds.getHeight() - 3;
+                if(side == TOP) y = nextLabelPoint[1] - labelTickLength - 3;
+                else y = labelTickLength + (float)bounds.getHeight() - 3;
             }
             if(y + trans <= getSize().height
                     && y - bounds.getHeight() + trans >= 0) g2d.drawString(label,
@@ -360,8 +396,7 @@ public abstract class Border extends JComponent {
     //LEFT and RIGHT borders are VERTICAL, TOP and BOTTOM are HORIZONTAL
     private static final int VERTICAL = 0, HORIZONTAL = 1;
 
-    private static final int TICK_PAD = 3, LABEL_TICK_LENGTH = 10,
-            TICK_LENGTH = 4;
+    protected int tickPad = 3, labelTickLength = 10, tickLength = 4;
 
     private Color color = Color.BLACK;
 }
