@@ -6,6 +6,7 @@
 
 package edu.sc.seis.fissuresUtil.exceptionHandler;
 
+import edu.iris.Fissures.FissuresException;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,6 +15,10 @@ import java.io.StringWriter;
 public class ExceptionReporterUtils{
     public static String getTrace(Throwable exception) {
         String traceString = "";
+        if (exception instanceof FissuresException) {
+            traceString += "Description: "+((FissuresException)exception).the_error.error_description+"\n";
+            traceString += "Error Code= "+((FissuresException)exception).the_error.error_code+"\n";
+        }
         if (exception instanceof WrappedException) {
             WrappedException we = (WrappedException)exception;
             if (we.getCausalException() != null) {
