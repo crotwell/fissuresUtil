@@ -1,0 +1,28 @@
+# start of log4j configuration
+log4j.rootCategory=debug, R, E, Console
+log4j.appender.R=org.apache.log4j.RollingFileAppender
+log4j.appender.R.File=logs/MockDC.log
+log4j.appender.R.MaxFileSize=1000KB
+log4j.appender.R.MaxBackupIndex=3
+log4j.appender.R.layout=org.apache.log4j.PatternLayout
+log4j.appender.R.layout.ConversionPattern=%d{ISO8601} %p %t %c{2} - %m%n
+
+log4j.appender.Console=org.apache.log4j.ConsoleAppender
+log4j.appender.Console.layout=org.apache.log4j.PatternLayout
+log4j.appender.Console.layout.ConversionPattern=%d{ISO8601} %p %t %c{2} - %m%n
+
+log4j.appender.E=org.apache.log4j.RollingFileAppender
+log4j.appender.E.File=logs/MockDC_Error.log
+log4j.appender.E.MaxFileSize=1000KB
+log4j.appender.E.MaxBackupIndex=3
+log4j.appender.E.layout=org.apache.log4j.PatternLayout
+log4j.appender.E.layout.ConversionPattern=%d{ISO8601} %p %t %c{2} - %m%n
+log4j.appender.E.Threshold=error
+# end of log4j configuration.
+
+edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+
+#JacORB Props
+jacorb.connection.client.pending_reply_timeout=120000
+org.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
+org.omg.CORBA.ORBClass=org.jacorb.orb.ORB
