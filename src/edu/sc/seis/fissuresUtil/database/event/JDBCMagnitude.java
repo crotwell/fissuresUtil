@@ -1,10 +1,11 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
-import edu.sc.seis.fissuresUtil.*;
-
-import edu.sc.seis.fissuresUtil.database.*;
-
 import edu.iris.Fissures.IfEvent.Magnitude;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.DBUtil;
+import edu.sc.seis.fissuresUtil.database.JDBCSequence;
+import edu.sc.seis.fissuresUtil.database.JDBCTable;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

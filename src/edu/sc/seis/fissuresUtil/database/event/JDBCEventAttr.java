@@ -1,8 +1,6 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
-import edu.sc.seis.fissuresUtil.*;
 import edu.sc.seis.fissuresUtil.database.*;
-
 import java.sql.*;
 
 import edu.iris.Fissures.FlinnEngdahlRegion;
