@@ -1,13 +1,18 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.TauP.TauModelException;
+import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
@@ -16,6 +21,7 @@ import edu.sc.seis.fissuresUtil.display.TextTable;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
@@ -36,7 +42,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Category;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 
 /**
  * FlagPlotter.java
@@ -127,6 +132,13 @@ public class Flag implements Drawable{
 	public static TextTable getFlagData(DataSetSeismogram dss,
 										EventAccessOperations event,
 										String[] template){
+		Arrival[] arrivals = null;
+		try {
+			TauPUtil taup = new TauPUtil("iasp91");
+			arrivals = getArrivals(taup, dss, event);
+		} catch (TauModelException e) {
+			GlobalExceptionHandler.handle("There was a problem getting TauP model", e);
+		}
 		String[] header = getFlagDataHeader(template);
 		TextTable table = new TextTable(header.length, true);
 		Iterator it = dss.getAuxillaryDataKeys().iterator();
@@ -140,9 +152,7 @@ public class Flag implements Drawable{
 						dataCells.add(flag.getName());
 					}
 					else if (template[i].equals(TIME)){ //Flag Time
-						SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
-						sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-						dataCells.add(sdf.format(flag.getFlagTime()));
+						dataCells.add(formatTime(flag.getFlagTime()));
 					}
 					else if (template[i].equals(CHANNEL)){ //Channel Id
 						ChannelId chanId = dss.getRequestFilter().channel_id;
@@ -155,7 +165,7 @@ public class Flag implements Drawable{
 										  + chanId.channel_code);
 					}
 					else if (template[i].equals(EVENT_NAME)){ //Event Name
-						dataCells.add(getEventInfo(event, CacheEvent.LOC));
+						dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.LOC));
 					}
 					else if (template[i].equals(EVENT_MAG)){ //Event Magnitude
 						dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.MAG));
@@ -183,28 +193,54 @@ public class Flag implements Drawable{
 					}else if (template[i].equals(BACK_AZIMUTH)){
 						QuantityImpl backAz = DisplayUtils.calculateBackAzimuth(dss);
 						dataCells.add(UnitDisplayUtil.formatQuantityImpl(backAz));
+					}else if (template[i].equals(TAUP_P)){
+						if (arrivals != null && arrivals.length > 0){
+							dataCells.add(UnitDisplayUtil.formatQuantityImpl(getFirstPWaveInSeconds(arrivals)));
+						}
+						else{
+							dataCells.add("...");
+						}
+					}else if (template[i].equals(TIME_DIFF_ORIG_P)){
+						if (arrivals != null && arrivals.length > 0){
+							TimeInterval timeDiff = getTimeDifferenceFromOrigin(flag, event);
+							TimeInterval timeDiffTauPDiff = timeDiff.subtract(getFirstPWaveInSeconds(arrivals));
+							QuantityImpl timeDiffTauPDiffConverted = timeDiffTauPDiff.convertTo(UnitImpl.SECOND);
+							dataCells.add(UnitDisplayUtil.formatQuantityImpl(timeDiffTauPDiffConverted));
+						}
+						else{
+							dataCells.add("...");
+						}
 					}
 				}
-				table.addRow(((String[])dataCells.toArray(new String[0])));
+				table.addRow((String[])dataCells.toArray(new String[0]));
 			}
 		}
 		return table;
 	}
 	
-	private static String getEventInfo(EventAccessOperations event, String format){
-		Origin origin = null;
+	private static Arrival[] getArrivals(TauPUtil taup,
+										 DataSetSeismogram dss,
+										 EventAccessOperations event){
+		Station station =
+			dss.getDataSet().getChannel(dss.getRequestFilter().channel_id).my_site.my_station;
+		Origin origin = CacheEvent.extractOrigin(event);
 		try {
-			origin = event.get_preferred_origin();
-		} catch (NoPreferredOrigin e) {
-			Origin[] origins = event.get_origins();
-			if (origins.length > 0){
-				origin = origins[0];
-			}
+			Arrival [] arrivals = taup.calcTravelTimes(station, origin, new String[]{"P"});
+			return arrivals;
+		} catch (TauModelException e) {
+			GlobalExceptionHandler.handle("problem calculating travel times", e);
 		}
-		if (origin != null){
-			return CacheEvent.getEventInfo(event, format);
-		}
-		return "...";
+		return null;
+	}
+	
+	private static TimeInterval getFirstPWaveInSeconds(Arrival[] arrivals){
+		return new TimeInterval(arrivals[0].getTime(), UnitImpl.SECOND);
+	}
+	
+	private static String formatTime(MicroSecondDate msd){
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:sss z");
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		return sdf.format(msd);
 	}
 	
 	//There definitely won't be a great need for this method once
@@ -245,27 +281,20 @@ public class Flag implements Drawable{
 				dataCells.add(DISTANCE_FROM_ORIG);
 			}else if (template[i].equals(BACK_AZIMUTH)){
 				dataCells.add(BACK_AZIMUTH);
+			}else if (template[i].equals(TAUP_P)){
+				dataCells.add(TAUP_P);
+			}else if (template[i].equals(TIME_DIFF_ORIG_P)){
+				dataCells.add(TIME_DIFF_ORIG_P);
 			}
 		}
 		return (String[])dataCells.toArray(new String[0]);
 	}
 	
 	public static TimeInterval getTimeDifferenceFromOrigin(Flag flag, EventAccessOperations event){
-		Origin origin = null;
-		try {
-			origin = event.get_preferred_origin();
-		} catch (NoPreferredOrigin e) {
-			Origin[] origins = event.get_origins();
-			if (origins.length > 0){
-				origin = origins[0];
-			}
-		}
-		if (origin != null){
-			MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
-			MicroSecondDate flagTime = flag.getFlagTime();
-			return originTime.difference(flagTime);
-		}
-		return null;
+		Origin origin = CacheEvent.extractOrigin(event);
+		MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
+		MicroSecondDate flagTime = flag.getFlagTime();
+		return originTime.difference(flagTime);
 	}
 	
 	public String getName(){ return name; }
@@ -306,8 +335,8 @@ public class Flag implements Drawable{
 	//names for the data template
 	public static final String NAME = "Flag Name";
 	public static final String ORIGIN_DIFF = "Time from Origin"; //flag time minus origin time
-	public static final String TAUP_P = "TauP P Wave"; //todo
-	public static final String TIME_DIFF_ORIG_P = "FLAG_TIME_DIFF_ORIG_PWAVE"; //todo
+	public static final String TAUP_P = "TauP P Wave";
+	public static final String TIME_DIFF_ORIG_P = "Prediction Difference";
 	public static final String DISTANCE_FROM_ORIG = "Distance From Origin";
 	public static final String BACK_AZIMUTH = "Back Azimuth";
 	public static final String CHANNEL = "Channel";
