@@ -5,6 +5,7 @@ import java.awt.*;
 import com.sun.media.jai.codec.PNGEncodeParam;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.utility.Logger;
+import java.awt.geom.Point2D;
 import java.awt.geom.GeneralPath;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
@@ -18,6 +19,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
+import java.util.ArrayList;
+
 /**
  * PlottableDisplay.java
  *
@@ -29,7 +32,6 @@ import javax.swing.JScrollPane;
  * @version
  */
 
-  
 
 public  class PlottableDisplay extends JComponent {
 
@@ -50,7 +52,7 @@ public  class PlottableDisplay extends JComponent {
 						     BorderFactory.createLoweredBevelBorder()));  
 	setLayout(new BorderLayout());
 	//	add(imagePanel, BorderLayout.CENTER);
-
+	this.addMouseListener(new PlottableMouseListener(this));
 	configChanged();
     }
 
@@ -112,6 +114,7 @@ public  class PlottableDisplay extends JComponent {
 	if (image == null) {
 	   image = createImage();
 	}
+	//	g.fillRect(beginx, beginy, (endx - beginx), (endy - beginy));
 	g.drawImage(image, 0, 0, this);
     }
 
@@ -193,7 +196,10 @@ public  class PlottableDisplay extends JComponent {
 
 	// get new graphics to avoid messing up original
 	Graphics2D newG = (Graphics2D)g.create(); 
+	
+	int[] selectedRows = getSelectedRows(beginy, endy);
 
+	System.out.println("The plot_y is "+plot_y+" plottoffset is "+plotoffset);
 	for (int currRow = 0; currRow < plotrows; currRow++) {
 	    if (g != currentImageGraphics) return;
 
@@ -204,7 +210,7 @@ public  class PlottableDisplay extends JComponent {
 	    //	    newG.translate(xShift*currRow, plot_y/2 + plotoffset*currRow);
 	    java.awt.geom.AffineTransform original = newG.getTransform();
 	    java.awt.geom.AffineTransform affine = newG.getTransform();
-
+	    
 	    affine.concatenate(affine.getTranslateInstance(-1*xShift*currRow,
 						 plot_y/2+plotoffset*currRow));
 	    // account for graphics y positive down
@@ -212,16 +218,54 @@ public  class PlottableDisplay extends JComponent {
 
 	    newG.setTransform(affine);
  	    newG.setPaint(Color.red);
- 	    newG.drawLine(0, 0, 6000, 0);
 
+	    newG.drawLine(0, 0, 6000, 0);
+	    AlphaComposite originalComposite = (AlphaComposite)newG.getComposite();
+	    AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
+								     .4f);
+	    Point2D.Float beginPoint = new Point2D.Float(beginx, endx);
+	    newG.setPaint(Color.green);
+	    newG.setComposite(newComposite);
+	    if(isRowSelected(selectedRows, currRow)) {
+		int bx = 0;
+		int by = 0;
+		int ex = 0;
+		int ey = 0;
+		if(currRow == selectedRows[0] ) {
+		    System.out.println("Calculating values for start row");
+		    bx =  beginx + xShift*currRow ;//-labelXShift + beginx;
+		    if(selectedRows.length  != 1) {
+			ex = 6000;
+		    } else {
+			ex = endx - beginx;
+		    }
+		    by = -10;
+		    ey = 20;
+		} else if(currRow == selectedRows[selectedRows.length -1 ]) {
+		    System.out.println("Caculating values for end row "+currRow);
+		    bx = xShift*currRow;
+		    ex = (endx);
+		    by = -10;
+		    ey = 20;
+		} else {
+		    bx = 0;
+		    ex = 6000;
+		    by = -10;
+		    ey = 20;
+		}
+		System.out.println("NOW DRAW THE rectangle for row "+currRow);
+		newG.drawRect(bx, by, ex, ey);
+		newG.fillRect(bx, by, ex, ey);
+	    }
+	   
+	    newG.setComposite(originalComposite);
 	    affine.concatenate(affine.getScaleInstance(1, ampScale));
 	    affine.concatenate(affine.getScaleInstance(1, ampScalePercent));
+	  
 	    // translate max so mean is in middle
 	    affine.concatenate(affine.getTranslateInstance(0, -1*mean));
-
 	    newG.setTransform(affine);
-
-
+	    
 	     System.out.println(currRow+": "+(-1*currRow*xShift)+", "+currRow*plotoffset+"  "+mean);
 	    if (currRow % 2 == 0) {
 		newG.setPaint(Color.black);
@@ -297,6 +341,9 @@ public  class PlottableDisplay extends JComponent {
 	}
 	return wholeShape;
     }
+
+    
+
 
     public void psgramResize(int psgramwidth,int psgramheight ) {
 	setSize(new java.awt.Dimension (psgramwidth, psgramheight));
@@ -433,7 +480,7 @@ public  class PlottableDisplay extends JComponent {
 	    minandmax[1]= 1;
 	    return minandmax;
 	} // end of if (arrayplottable.length == 0)
-	
+
        int min = arrayplottable[0].y_coor[0];
        int max = arrayplottable[0].y_coor[0];
        for(int arrayi=0; arrayi<arrayplottable.length ; arrayi++) {        
@@ -447,10 +494,50 @@ public  class PlottableDisplay extends JComponent {
        minandmax[0]= min;
        minandmax[1]= max;
 
-       System.out.println("Array Min:"+min+" ArrayMax:"+max);
+       //       System.out.println("Array Min:"+min+" ArrayMax:"+max);
 
        return minandmax;
    }
+
+
+    public void setSelectedRectangle(int beginx, int beginy, int endx, int endy) {
+
+	this.beginx = beginx;
+	this.beginy = beginy;
+	this.endx = endx;
+	this.endy = endy;
+	System.out.println("beginx = "+beginx+" endx = "+endx);
+	System.out.println("beginy = "+beginy+" endy = "+endy);
+	System.out.println("NOW call repaint");
+	configChanged();
+	
+	//	repaint();
+    }
+    
+    private int[] getSelectedRows(int beginy, int endy) {
+	ArrayList arrayList = new ArrayList();
+	for(int counter = 0; counter < plotrows; counter++) {
+	    int value =  plot_y/2 + titleYShift + plotoffset*counter;
+	    if(value >= beginy && value <= endy) {
+		arrayList.add(new Integer(counter));
+	    }
+	}
+	int[] rtnValues = new int[arrayList.size()];
+	for(int counter = 0; counter < arrayList.size(); counter++) {
+	    rtnValues[counter] = ((Integer)arrayList.get(counter)).intValue();
+	    System.out.println("The row selected is "+rtnValues[counter]);
+	}
+	return rtnValues;
+    }
+
+
+    private boolean isRowSelected(int[] rows, int currrow) {
+	for(int counter = 0; counter < rows.length; counter++) {
+	    if(rows[counter] == currrow) return true;
+	}
+	return false;
+    }
+
 
     protected JLabel imagePanel = new JLabel("no image");
 
@@ -477,5 +564,12 @@ public  class PlottableDisplay extends JComponent {
     float ampScalePercent = 1.0f;
     int titleYShift = 40;
     int labelXShift = 50;
+
+    int beginx = -1;
+    int beginy = -1;
+
+    int endx = -1;
+    int endy  = -1;
+
     }/*close class*/
 
