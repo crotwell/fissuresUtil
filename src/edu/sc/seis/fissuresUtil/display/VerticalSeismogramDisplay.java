@@ -133,7 +133,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void removeSelectionDisplay(VerticalSeismogramDisplay display){
 	if(display == selectionDisplay){
 	    removeSelectionDisplay();
-	}else{
+	}else if(display != null){
 	    remove3CSelectionDisplay();
 	}
     }
@@ -145,7 +145,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		((BasicSeismogramDisplay)e.next()).clearRegSelections();
 	    }
 	    selectionWindow.dispose();
-	    //selectionDisplays -= selectionWindow.getSize().height;
+	    selectionDisplay.parent = null;
+	    selectionDisplay.removeAll();
 	    selectionDisplay = null;
 	}
     }
@@ -157,7 +158,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		((BasicSeismogramDisplay)e.next()).clear3CSelections();
 	    }
 	    threeSelectionWindow.dispose();
-	    //selectionDisplays -= threeSelectionWindow.getSize().height;
+	    threeSelectionDisplay.parent = null;
+	    threeSelectionDisplay.removeAll();
 	    threeSelectionDisplay = null;
 	}
     }
