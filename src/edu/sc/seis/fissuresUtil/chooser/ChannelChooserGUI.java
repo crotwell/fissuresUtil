@@ -12,7 +12,7 @@ import edu.iris.Fissures.display.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.utility.*;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.TauP.*;
+//import edu.sc.seis.TauP.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
