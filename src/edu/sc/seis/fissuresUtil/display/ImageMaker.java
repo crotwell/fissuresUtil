@@ -91,7 +91,7 @@ public class ImageMaker implements Runnable  {
 		FlagPlotter current = ((FlagPlotter)e.next());
 		graphic.setColor((Color)flagPlotters.get(current));
 		graphic.fill(current.draw(size));
-		graphic.setColor(Color.black);
+		graphic.setColor(Color.white);
 		graphic.drawString(current.getName(), current.getStringX(), 10);
 	    }
 	    Date endPlotting = new Date();

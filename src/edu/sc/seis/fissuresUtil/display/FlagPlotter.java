@@ -34,7 +34,7 @@ public class FlagPlotter implements Plotter{
 	    double offset = flagTime.difference(overTimeRange.getBeginTime()).getValue()/overTimeRange.getInterval().getValue();
 	    location = (int)(offset * (double)size.width);
 	    Area pole = new Area(new Rectangle(location, 0, 1, size.height));
-	    Area flag = new Area(new Rectangle(location, 0, name.length() * 9, 13));
+	    Area flag = new Area(new Rectangle(location, 0, name.length() * 12, 13));
 	    flag.add(pole);
 	    return flag; 
 	}
