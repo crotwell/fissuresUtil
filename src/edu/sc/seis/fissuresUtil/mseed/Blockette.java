@@ -25,10 +25,9 @@ public abstract class  Blockette {
     public abstract void writeASCII(Writer out) throws IOException;
     
     public static Blockette parseBlockette(int type, byte[] bytes)
-        throws IOException {
+        throws IOException, SeedFormatException {
         
         try {
-            //System.out.println(" Class.forName    Blockette"+type);
             Class blocketteClass = Class.forName("edu.sc.seis.fissuresUtil.mseed.Blockette"+type);
             //System.out.println(" Class.forName suceeded");
             
@@ -36,13 +35,8 @@ public abstract class  Blockette {
             //      argTypes[0] = Class.forName("byte[]");
             argTypes[0] = byte[].class;
             Constructor read = blocketteClass.getConstructor(argTypes);
-            // blockette needs 4 bytes for type and next offset values, even
-            // though their values are not used directly
-            byte[] fullBytes = new byte[4+bytes.length];
-            System.arraycopy(Utility.intToByteArray(type), 2, fullBytes, 0, 2);
-            System.arraycopy(bytes, 0, fullBytes, 4, bytes.length);
             Object[] arguments = new Object[1];
-            arguments[0] = fullBytes;
+            arguments[0] = bytes;
             //System.out.println("Constructor  suceeded");
             
             Blockette blockette = (Blockette)read.newInstance(arguments);
@@ -57,17 +51,13 @@ public abstract class  Blockette {
             
             return blockette;
         } catch ( NoSuchMethodException e) {
-            // must not be installed, skip this blockette
-            return null;
+            throw new SeedFormatException("Can't load blockette for type="+type, e);
         } catch (InstantiationException e) {
-            // must not be installed, skip this blockette
-            return null;
+            throw new SeedFormatException("Can't load blockette for type="+type, e);
         } catch (IllegalAccessException  e) {
-            // must not be installed, skip this blockette
-            return null;
+            throw new SeedFormatException("Can't load blockette for type="+type, e);
         } catch (InvocationTargetException  e) {
-            // must not be installed, skip this blockette
-            return null;
+            throw new SeedFormatException("Can't load blockette for type="+type, e);
         }
     }
     

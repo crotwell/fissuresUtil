@@ -25,6 +25,10 @@ public class DataRecord extends SeedRecord
 
     public void addBlockette(Blockette b)
         throws SeedFormatException {
+        if (b == null) {
+            throw new IllegalArgumentException("Blockette cannot be null");
+        }
+        
         if (b instanceof DataBlockette) {
             super.addBlockette(b);
             getHeader().setNumBlockettes((byte)(getHeader().getNumBlockettes()+1));
