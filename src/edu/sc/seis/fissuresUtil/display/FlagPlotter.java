@@ -31,11 +31,10 @@ public class FlagPlotter implements Plotter{
 
     public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState){
 	if(visible){
-	    MicroSecondTimeRange overTimeRange = timeState.getTimeRange().
-		getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
-	    if(flagTime.before(overTimeRange.getBeginTime()) || flagTime.after(overTimeRange.getEndTime()))
+	    MicroSecondTimeRange timeRange = timeState.getTimeRange();
+	    if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
 		return;
-	    double offset = flagTime.difference(overTimeRange.getBeginTime()).getValue()/overTimeRange.getInterval().getValue();
+	    double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
 	    location = (int)(offset * (double)size.width);
 	    Area pole = new Area(new Rectangle(location, 0, 1, size.height));
 	    Rectangle2D.Float stringBounds = new Rectangle2D.Float();
