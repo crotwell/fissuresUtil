@@ -6,6 +6,7 @@ import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.model.*;
+import edu.iris.Fissures.network.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -43,7 +44,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	this.hAmpRangeConfig = hAmpRangeConfig;
 	this.vAmpRangeConfig = vAmpRangeConfig;
 
-	this.setLayout(new OverlayLayout(this));
+
 	showScale(hSeis, 
 		  vSeis,
 		  timeRangeConfig,
@@ -67,6 +68,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 			  TimeRangeConfig timeRangeConfig,
 			  AmpRangeConfig hAmpRangeConfig,
 			  AmpRangeConfig vAmpRangeConfig, Color color) {
+	this.setLayout(new OverlayLayout(this));
 	view = new ParticleMotionView(hSeis, 
 				      vSeis, 
 				      timeRangeConfig,
@@ -137,10 +139,13 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
     public ParticleMotionDisplay(LocalSeismogramImpl hseis,
 				 TimeRangeConfig timeRangeConfig,
+				 AmpRangeConfig hAmpRangeConfig,
+				 AmpRangeConfig vAmpRangeConfig,
 				 org.omg.CORBA_2_3.ORB orb) {
 
 	ChannelProxy channelProxy = new ChannelProxy();
-	Channel[] channelGroup = channelProxy.retrieve_grouping(orb, hseis.getChannelID());
+	Channel[] channelGroup = channelProxy.retrieve_grouping(orb, ((LocalSeismogram)hseis).channel_id);
+	System.out.println("THe length of the channel group is "+channelGroup.length);
 	FissuresNamingServiceImpl fissuresNamingServiceImpl = null;
 	edu.iris.Fissures.Time startTime;
 	edu.iris.Fissures.Time endTime;
@@ -152,14 +157,21 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	    startTime = hseis.getBeginTime().getFissuresTime();
 	    endTime = hseis.getEndTime().getFissuresTime();
 	}
+	System.out.println("Start Time is "+new MicroSecondDate(startTime));
+	System.out.println("end Time is "+new MicroSecondDate(endTime));
 	try {
 	    fissuresNamingServiceImpl = new FissuresNamingServiceImpl(orb);
 	    DataCenter dataCenter = fissuresNamingServiceImpl.getSeismogramDC("edu/sc/seis", "SCEPPSeismogramDC");
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
+		System.out.println("The channel that is considered is "+ChannelIdUtil.toString(channelGroup[counter].get_id()));
 		LocalSeismogram[] localSeismograms = retreiveSeismograms(startTime,
 									 endTime,
 									 channelGroup[counter].get_id(),
 									 dataCenter);
+		System.out.println(" channelid is "+ channelGroup[counter].get_id().channel_code);
+		System.out.println(" the length of seismogram is "+localSeismograms.length);
+		if(localSeismograms[0] == null) System.out.println("The seismogram is null");
+		else System.out.println("The seismogram is not null");
 		seismograms[counter] = localSeismograms[0];
 	    }
 								     
@@ -167,14 +179,13 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	    
 	     e.printStackTrace();
 	}
-	AmpRangeConfig ampRangeConfig = new RMeanAmpConfig();
-	this.hAmpRangeConfig = ampRangeConfig;
-	this.vAmpRangeConfig = ampRangeConfig;
+	this.hAmpRangeConfig = hAmpRangeConfig;
+	this.vAmpRangeConfig = vAmpRangeConfig;
 	showScale((LocalSeismogramImpl)seismograms[0], 
 	     (LocalSeismogramImpl)seismograms[1], 
 	     timeRangeConfig, 
-	     ampRangeConfig, 
-	     ampRangeConfig, 
+	     hAmpRangeConfig, 
+	     vAmpRangeConfig, 
 	     null);
 	this.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -186,19 +197,21 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 		}
 	    });
 	updateTimeRange();
-	addParticleMotionDisplay((LocalSeismogramImpl)seismograms[1], 
+	System.out.println(" ADDED THe first seismograme ");
+		addParticleMotionDisplay((LocalSeismogramImpl)seismograms[1], 
 	     (LocalSeismogramImpl)seismograms[2], 
 	     timeRangeConfig, 
-	     ampRangeConfig, 
-	     ampRangeConfig, 
+	     hAmpRangeConfig, 
+	     vAmpRangeConfig, 
 	     null);
+	System.out.println(" ADDED he second SEismograme");
 	addParticleMotionDisplay((LocalSeismogramImpl)seismograms[0], 
 				 (LocalSeismogramImpl)seismograms[2], 
 				 timeRangeConfig, 
-				 ampRangeConfig, 
-				 ampRangeConfig, 
+				 hAmpRangeConfig, 
+				 vAmpRangeConfig, 
 				 null);
-
+	System.out.println("Added the third display ");
 	
     }
 
