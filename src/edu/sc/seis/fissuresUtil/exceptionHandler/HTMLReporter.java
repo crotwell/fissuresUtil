@@ -36,15 +36,18 @@ public class HTMLReporter implements ExceptionReporter{
     }
 
     protected void initIndexFile() throws IOException {
+        char q = '"';
         File index = new File(directory, "index.html");
         BufferedWriter out = new BufferedWriter(new FileWriter(index));
         writeln(out, "<html>");
         writeln(out, "   <head>");
         writeln(out, "      <title>Errors</title>");
+        writeln(out, "      <style media="+q+"all"+q+">@import "+q+"../main.css"+q+";</style>");
         writeln(out, "   </head>");
         writeln(out, "   <body>");
-        writeln(out, "      <h2>Errors found:</h2>");
+        writeln(out, "      <div id="+q+"Header"+q+">Errors found:</div>");
         writeln(out, "<br/>");
+        writeln(out, "<div id="+q+"Content"+q+">");
         out.close();
         // we do not end the body or html tags to allow simple appends to this
         // file. Most browsers are ok with this
