@@ -167,8 +167,6 @@ public class IntervalChooser extends JPanel{
 	
 	int unitValue = option.getIntervalChooserValue();
 	
-	java.util.Date returnDate = new java.util.Date();
-	
 	if( unitValue == 0 ) { 
 	    calendar.add(Calendar.SECOND, rollBackValue);
 	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000);

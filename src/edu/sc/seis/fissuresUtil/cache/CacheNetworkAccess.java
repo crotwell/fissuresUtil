@@ -19,11 +19,11 @@ public class CacheNetworkAccess implements NetworkAccess {
 
     public NetworkAttr
     get_attributes() {
-if (attr == null) {
-attr = net.get_attributes();
-}
-return attr;
-}
+	if (attr == null) {
+	    attr = net.get_attributes();
+	}
+	return attr;
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_stations:1.0
@@ -31,12 +31,12 @@ return attr;
     /***/
 
     public Station[]
-    retrieve_stations() {
-if (stations == null) {
-stations = net.retrieve_stations();
-}
-return stations;
-}
+	retrieve_stations() {
+	if (stations == null) {
+	    stations = net.retrieve_stations();
+	}
+	return stations;
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_for_station:1.0
@@ -44,13 +44,13 @@ return stations;
     /***/
 
     public Channel[]
-    retrieve_for_station(StationId id) {
-String idStr = StationIdUtil.toString(id);
-if ( ! channelMap.containsKey(idStr)) {
-channelMap.put(idStr, net.retrieve_for_station(id));
-}
-return (Channel[])channelMap.get(idStr);
-}
+	retrieve_for_station(StationId id) {
+	String idStr = StationIdUtil.toString(id);
+	if ( ! channelMap.containsKey(idStr)) {
+	    channelMap.put(idStr, net.retrieve_for_station(id));
+	}
+	return (Channel[])channelMap.get(idStr);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_grouping:1.0
@@ -60,8 +60,8 @@ return (Channel[])channelMap.get(idStr);
     public ChannelId[]
     retrieve_grouping(ChannelId id)
         throws ChannelNotFound {
-return net.retrieve_grouping(id);
-}
+	return net.retrieve_grouping(id);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_groupings:1.0
@@ -70,8 +70,8 @@ return net.retrieve_grouping(id);
 
     public ChannelId[][]
     retrieve_groupings() {
-return net.retrieve_groupings();
-}
+	return net.retrieve_groupings();
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_channel:1.0
@@ -81,8 +81,8 @@ return net.retrieve_groupings();
     public Channel
     retrieve_channel(ChannelId id)
         throws ChannelNotFound {
-return net.retrieve_channel(id);
-}
+	return net.retrieve_channel(id);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_channels_by_code:1.0
@@ -94,8 +94,8 @@ return net.retrieve_channel(id);
                               String site_code,
                               String channel_code)
         throws ChannelNotFound {
-return net.retrieve_channels_by_code(station_code, site_code, channel_code);
-}
+	return net.retrieve_channels_by_code(station_code, site_code, channel_code);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/locate_channels:1.0
@@ -106,8 +106,8 @@ return net.retrieve_channels_by_code(station_code, site_code, channel_code);
     locate_channels(edu.iris.Fissures.Area the_area,
                     SamplingRange sampling,
                     OrientationRange orientation) {
-return locate_channels(the_area, sampling, orientation);
-}
+	return locate_channels(the_area, sampling, orientation);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_instrumentation:1.0
@@ -118,8 +118,8 @@ return locate_channels(the_area, sampling, orientation);
     retrieve_instrumentation(ChannelId id,
                              edu.iris.Fissures.Time the_time)
         throws ChannelNotFound {
-return retrieve_instrumentation(id, the_time);
-}
+	return retrieve_instrumentation(id, the_time);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_calibrations:1.0
@@ -131,8 +131,8 @@ return retrieve_instrumentation(id, the_time);
                           edu.iris.Fissures.TimeRange the_time)
         throws ChannelNotFound,
                edu.iris.Fissures.NotImplemented {
-return net.retrieve_calibrations(id, the_time);
-}
+	return net.retrieve_calibrations(id, the_time);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_time_corrections:1.0
@@ -144,8 +144,8 @@ return net.retrieve_calibrations(id, the_time);
                               edu.iris.Fissures.TimeRange time_range)
         throws ChannelNotFound,
                edu.iris.Fissures.NotImplemented {
-return retrieve_time_corrections(id, time_range);
-}
+	return retrieve_time_corrections(id, time_range);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_all_channels:1.0
@@ -155,8 +155,8 @@ return retrieve_time_corrections(id, time_range);
     public ChannelId[]
     retrieve_all_channels(int seq_max,
                           ChannelIdIterHolder iter) {
-return retrieve_all_channels(seq_max, iter);
-}
+	return retrieve_all_channels(seq_max, iter);
+    }
 
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/get_audit_trail_for_channel:1.0
@@ -167,8 +167,8 @@ return retrieve_all_channels(seq_max, iter);
     get_audit_trail_for_channel(ChannelId id)
         throws ChannelNotFound,
                edu.iris.Fissures.NotImplemented {
-return get_audit_trail_for_channel(id);
-}
+	return get_audit_trail_for_channel(id);
+    }
 
     //
     // IDL:iris.edu/Fissures/AuditSystemAccess/get_audit_trail:1.0
@@ -178,11 +178,11 @@ return get_audit_trail_for_channel(id);
     public AuditElement[]
     get_audit_trail()
         throws NotImplemented {
-return net.get_audit_trail();
-}
+	return net.get_audit_trail();
+    }
 
-NetworkAccess net;
-NetworkAttr attr;
-Station[] stations;
-HashMap channelMap = new HashMap();
+    NetworkAccess net;
+    NetworkAttr attr;
+    Station[] stations;
+    HashMap channelMap = new HashMap();
 }

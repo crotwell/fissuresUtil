@@ -1,26 +1,18 @@
 
 package edu.sc.seis.fissuresUtil.chooser;
 
+import edu.sc.seis.fissuresUtil.cache.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.IfPlottable.*;
 import edu.iris.Fissures.display.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.utility.*;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-//import edu.sc.seis.TauP.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.*;
-import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.*;
 
 
 
@@ -41,570 +33,230 @@ Use as the follwoing:
 public class ChannelChooserGUI extends JPanel{
 
 
-    public ChannelChooserGUI() {
-
-	initializeComponents();
-
-    }
-
-    
-
     public ChannelChooserGUI(NetworkDC netdcgiven){
-
-        mychannelchooser = new ChannelChooser(netdcgiven);	
         initFrame();
-	addChannelListListener();
+	setNetworkDC(netdcgiven);
     }
 
     public void setNetworkDC(NetworkDC netdcgiven) {
-
-	mychannelchooser = new ChannelChooser(netdcgiven);	
-      
-	addChannelListListener();
-
-	
-    }
-
-
-    public void initializeComponents() {
-
-	 this.setForeground(fg);
-	
-         //subPane.setBackground(bg);
-         subPane.setForeground(fg);	
-         /*subPane.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createRaisedBevelBorder(),
-                BorderFactory.createLoweredBevelBorder())); */        
-         subPane.setSize(new java.awt.Dimension (mywidth, myheight));
-	 subPane.setPreferredSize(new java.awt.Dimension (mywidth, myheight));
-   
-	 subPane.setLayout(new GridBagLayout());
-	 gbc = new GridBagConstraints();
-	 gbc.fill = gbc.BOTH;
-	 gbc.weightx = 1.0;
-	 gbc.weighty = 1.0;
-	 gbc.gridx = 0;
-	 gbc.gridy = 0;
-
-	 JLabel netLabel = new JLabel("NETWORK   ");
-	 JLabel staLabel = new JLabel("STATIONS   ");
-	 JLabel siLabel = new JLabel("SITES   ");
-	 JLabel chLabel = new JLabel("CHANNELS");
-	 netLabel.setToolTipText(lnettip);
-	 staLabel.setToolTipText(lstatip);
-	 siLabel.setToolTipText(lsittip);
-	 chLabel.setToolTipText(lchatip);
-
-	 subPane.add(netLabel, gbc);
-	 gbc.gridx++;
-	 subPane.add(staLabel, gbc);
-	 gbc.gridx++;
-	 subPane.add(siLabel, gbc);
-	 gbc.gridx++;
-	 subPane.add(chLabel, gbc);
-	 gbc.gridx++;
-	 gbc.gridy++;
-
-	 gbc.gridx = 0;
-	 
-         
-
-         netlist = new JList();
-	 netlist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-         JScrollPane scroller1 = new JScrollPane(netlist);
-         subPane.add(scroller1, gbc);
-	 gbc.gridx++;
-
-         stalist = new JList();
-	 stalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller2 = new JScrollPane(stalist);
-         subPane.add(scroller2, gbc);
-	 gbc.gridx++;
- 
-         sitlist = new JList();
-	 sitlist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller3 = new JScrollPane(sitlist);
-         subPane.add(scroller3, gbc);
-	 gbc.gridx++;
-
-         chalist = new JList();
-	 chalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller4 = new JScrollPane(chalist);
-         subPane.add(scroller4, gbc);
-	 gbc.gridx++;
-
-	 add(subPane);
-
-	 
-
-    }
-
-
-    public void populateComponents() {
-
-	
-	mychannelchooser.setNetworks();
-	networks = mychannelchooser.getNetworks();
-
-	netlist = new JList(networks);
-	netlist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-	JScrollPane scroller1 = new JScrollPane(netlist);
-	subPane.add(scroller1, gbc);
-	 gbc.gridx++;
-	 
-         stalist = new JList(stations);
-	 stalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller2 = new JScrollPane(stalist);
-         subPane.add(scroller2, gbc);
-	 gbc.gridx++;
- 
-         sitlist = new JList(sites);
-	 sitlist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller3 = new JScrollPane(sitlist);
-         subPane.add(scroller3, gbc);
-	 gbc.gridx++;
-
-         chalist = new JList(channels);
-	 chalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller4 = new JScrollPane(chalist);
-         subPane.add(scroller4, gbc);
-	 gbc.gridx++;
-
-	 add(subPane);
-	  
-
-
-
+	netdc = netdcgiven;
+	channels.clear();
+	sites.clear();
+	stations.clear();
+	networks.clear();
+	Thread networkLoader = new Thread() {
+		public void run() {
+		    NetworkAccess[] nets = 
+			netdc.a_finder().retrieve_all();
+		    for (int i=0; i<nets.length; i++) {
+			networks.addElement(new CacheNetworkAccess(nets[i]));
+		    }
+		}
+	    };
+	networkLoader.start();
     }
 
     public void initFrame(){
-
-      //Initialize drawing colors, border, opacity.
-         //this.setBackground(bg);
-         this.setForeground(fg);
-	
-         //subPane.setBackground(bg);
-         subPane.setForeground(fg);	
-         /*subPane.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createRaisedBevelBorder(),
-                BorderFactory.createLoweredBevelBorder())); */        
-         subPane.setSize(new java.awt.Dimension (mywidth, myheight));
-	 subPane.setPreferredSize(new java.awt.Dimension (mywidth, myheight));
+	//	setSize(new java.awt.Dimension (mywidth, myheight));
+	//setPreferredSize(new java.awt.Dimension (mywidth, myheight));
    
-	 subPane.setLayout(new GridBagLayout());
-	 gbc = new GridBagConstraints();
-	 gbc.fill = gbc.BOTH;
-	 gbc.weightx = 1.0;
-	 gbc.weighty = 1.0;
-	 gbc.gridx = 0;
-	 gbc.gridy = 0;
+	setLayout(new GridBagLayout());
+	gbc = new GridBagConstraints();
+	gbc.fill = gbc.BOTH;
+	gbc.weightx = 1.0;
+	gbc.weighty = 0.0;
+	gbc.gridx = 0;
+	gbc.gridy = 0;
 
-	 JLabel netLabel = new JLabel("NETWORK   ");
-	 JLabel staLabel = new JLabel("STATIONS   ");
-	 JLabel siLabel = new JLabel("SITES   ");
-	 JLabel chLabel = new JLabel("CHANNELS");
-	 netLabel.setToolTipText(lnettip);
-	 staLabel.setToolTipText(lstatip);
-	 siLabel.setToolTipText(lsittip);
-	 chLabel.setToolTipText(lchatip);
+	JLabel netLabel = new JLabel("NETWORKS  ");
+	JLabel staLabel = new JLabel("STATIONS   ");
+	JLabel siLabel = new JLabel("SITES   ");
+	JLabel chLabel = new JLabel("CHANNELS");
+	netLabel.setToolTipText(lnettip);
+	staLabel.setToolTipText(lstatip);
+	siLabel.setToolTipText(lsittip);
+	chLabel.setToolTipText(lchatip);
+	
+	add(netLabel, gbc);
+	gbc.gridx++;
+	add(staLabel, gbc);
+	gbc.gridx++;
+	add(siLabel, gbc);
+	gbc.gridx++;
+	add(chLabel, gbc);
+	gbc.gridx++;
+	
+	gbc.gridy++;
+	gbc.gridx = 0;
+	gbc.weighty = 1.0;
+	ListCellRenderer renderer = new NameListCellRenderer(true);
 
-	 subPane.add(netLabel, gbc);
-	 gbc.gridx++;
-	 subPane.add(staLabel, gbc);
-	 gbc.gridx++;
-	 subPane.add(siLabel, gbc);
-	 gbc.gridx++;
-	 subPane.add(chLabel, gbc);
-	 gbc.gridx++;
-	 gbc.gridy++;
+	netlist = new JList(networks);
+	netlist.setCellRenderer(renderer);
+	netlist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	netlist.addListSelectionListener(new ListSelectionListener() {
 
-	 gbc.gridx = 0;
-
-	 /*   Obtain list of networks available and display the 4 lists*/
-
-         /*** findChannels Was replaced   ***/
-	 //mychannelchooser.findChannels();
-
-	 /* After server code is fixed do the following: */
-	 /* setNetworks() then getNetworks(netcode) to obtain the array */
-
-         mychannelchooser.setNetworks();
-         networks = mychannelchooser.getNetworks();
-
-         netlist = new JList(networks);
-	 netlist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-         JScrollPane scroller1 = new JScrollPane(netlist);
-         subPane.add(scroller1, gbc);
-	 gbc.gridx++;
-
-         stalist = new JList(stations);
-	 stalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller2 = new JScrollPane(stalist);
-         subPane.add(scroller2, gbc);
-	 gbc.gridx++;
- 
-         sitlist = new JList(sites);
-	 sitlist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller3 = new JScrollPane(sitlist);
-         subPane.add(scroller3, gbc);
-	 gbc.gridx++;
-
-         chalist = new JList(channels);
-	 chalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-         JScrollPane scroller4 = new JScrollPane(chalist);
-         subPane.add(scroller4, gbc);
-	 gbc.gridx++;
-
-	 add(subPane);
-
-
-
-	 /*
-            String[] netarray = mychan.getNetworks();
-            System.out.println("netarray: ");
-		for(int ai=0; ai<netarray.length; ai++) {
-		   System.out.print(netarray[ai]+" ");
+		public void valueChanged(ListSelectionEvent e) {
+		    if(e.getValueIsAdjusting()){
+			return;
+		    }
+		    NetworkAccess net = getSelectedNetwork();
+		    Station[] newStations = net.retrieve_stations();
+		    stations.clear();
+		    for (int i=0; i<newStations.length; i++) {
+			stations.addElement(newStations[i]);
+		    }
 		}
-	 */
-
-
-
-    }
-
-     private void populateList(String[] items, JList list) {
-
-	 final DefaultListModel model = new DefaultListModel();
-	 for(int i=0; i<items.length; i++){
-	     model.addElement(items[i]);
-	 }
-
-	 list.setModel(model);
-
-	 if(list.isShowing()){
-	     list.revalidate();
-	 }
-
-	 if(items.length==1){
-	     list.setSelectedIndex(0);
-	 }
-
-	 model.addListDataListener(new ListDataListener() {
-	     public void contentsChanged(ListDataEvent e) {
-		 showStatus("contents changed");
-	     }
-             public void intervalRemoved(ListDataEvent e) {
-		 java.lang.Object[] message = new java.lang.Object[] {
-		     "Removed item at index" + e.getIndex0(),
-		     "",
-		     "There are now" + model.getSize() + "items"
-		 };
-
-		 JOptionPane.showMessageDialog(ChannelChooserGUI.this, message, "Items Removed", 
- 	                                      JOptionPane.INFORMATION_MESSAGE);//type
-
-	     }
-
-             public void intervalAdded(ListDataEvent e) {
-		 showStatus("contents added");
-	     }
-
-	 });
-        
-   
-    }
-
-   public void popStations(String networkchosen){
-       mychannelchooser.setStations(networkchosen);
-       populateList(mychannelchooser.getStations(), stalist);
-    }
-
-   public void popSites(String networkchosen, String station){
-       mychannelchooser.setChannels(networkchosen, station);   
-       populateList(mychannelchooser.getSites(), sitlist);
-      
-    }
-
-   public void popChannels(String networkchosen, String station){
-
-       System.out.println("The network chosen is "+networkchosen);
-       mychannelchooser.setChannels(networkchosen, getStations());   
-       populateList(mychannelchooser.getChannels(), chalist);
-       chalist.setSelectedIndex(chalist.getModel().getSize() - 1);
-    }
-
-
-    public void showStatus(String printtoscreen){
-	//	System.out.println(printtoscreen);
-    }
-
-
-     protected void createComponents() {
-
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        java.awt.Dimension screen = toolkit.getScreenSize();
-        setLocation(screen.width/5 , screen.height/5 );
- 
-    }
-
-    protected void addChannelListListener(){
-
-
-      /* Populates the station list according to network selected */
-       netlist.addListSelectionListener(
-                               new javax.swing.event.ListSelectionListener() {
-           public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-
-           try {
- 
-               String s = ("Netlist: " );
-	       if(e.getValueIsAdjusting()){
-		   s="\nadjusting...";
-	       } else{
-		   s= "selection from" + e.getFirstIndex() +
-		       "to" + e.getLastIndex();
-		   String selected = getNet();
-		   clearThreeLists();
-		   popStations(selected);
-		   //System.out.println("*** User made a selection:" +selected);
-
-	       }
-
-               //System.out.println(s);
-
-              
-            }catch (Exception exception) {
-		exception.printStackTrace();
-               System.out.println(exception);
-            }
-
-           } /*close valueChanged */
-      }); /*close addList... */
-
-      /* Populates the site, channel lists according to station selected */
-      stalist.addListSelectionListener(
-                               new javax.swing.event.ListSelectionListener() {
-           public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-
-           try {
- 
-               String s;;
-	       if(e.getValueIsAdjusting()){
-		   s="\nadjusting...";
-	       } else{
-		   s= "selection from" + e.getFirstIndex() +
-		       "to" + e.getLastIndex();
-		   String selected = getStation();
-		   popSites(getNet(), selected);
-		   popChannels(getNet(), selected);
-	
-	       }
-
-               //System.out.println(s);
-
-              
-            }catch (Exception exception) {
-		exception.printStackTrace();
-               System.out.println(exception);
-            }
-
-           } /*close valueChanged */
-      }); /*close addList... */
-
-
-      /* User selects channel and we obtain all query information */
-      chalist.addListSelectionListener(
-                               new javax.swing.event.ListSelectionListener() {
-           public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-
-           try {
- 
-               String s;;
-	       if(e.getValueIsAdjusting()){
-		   s="\nadjusting...";
-	       } else{
-		   s= "selection from" + e.getFirstIndex() +
-		       "to" + e.getLastIndex();
-		   String mynet= getNet();
-		   String mysta= getStation();
-		   String mysit= getSite();
-		   //String mycha= getChannel();
-		   String[] mycha = getChannels();
-			  
-	       }
-	  
-               //System.out.println(s);
-
-              
-            }catch (Exception exception) {
-		exception.printStackTrace();
-               System.out.println(exception);
-            }
-
-           } /*close valueChanged */
-      }); /*close addList... */
-
-
-	   // clearFourLists();
-
-    }
- 
-
-    public String  getNet(){
-	String netchosen = (String)netlist.getSelectedValue();
-	return netchosen;
-    }         
-
-    public String  getStation(){
-        String stationchosen = (String)stalist.getSelectedValue();
-	return stationchosen;
-    }
-
-    /**
-       The below function is added by Srinivasa Reddy Telukutla
-    ****/
-    public String[] getStations() {
-   
-	java.lang.Object[] objects = stalist.getSelectedValues();
-	String[] channelsChosen = new String[objects.length];
-	for(int counter = 0; counter < objects.length; counter++) {
-
-	    channelsChosen[counter] = (String)objects[counter];
-	}
-	return channelsChosen;
-
-    }
-
-    public String  getChannel(){
-	String channelchosen = (String)chalist.getSelectedValue();
-	return channelchosen;
-     }    
-
-    /**
-       The below method is added by Srinivasa Reddy Telukutla
-    *****/
-    public String[] getChannels() {
-
-	java.lang.Object[] objects = chalist.getSelectedValues();
-	String[] channelsChosen = new String[objects.length];
-	for(int counter = 0; counter < objects.length; counter++) {
-
-	    channelsChosen[counter] = (String)objects[counter];
-	    
-	}
-	return channelsChosen;
-
-    }
- 
-    public String  getSite(){      
-	String sitechosen = (String)sitlist.getSelectedValue();
-	return sitechosen;
-    }  
-
-  
-    /**
-	 This function returns the ChannelId corresponding to the selected
-	 networkName, stationName, siteName, channelName
-     **/
-
-    public ChannelId newgetChannelId() {
-	//(String networkName, String stationName, String siteName, String channelName) {
-	edu.iris.Fissures.Time dummyTime = 
-	    new edu.iris.Fissures.Time("19990101T000000.0Z", -1);
-	NetworkId netId = 
-            new NetworkId(getNet(),
-                          dummyTime);
-	if(netId != null && getStation()!= null &&
-	   getSite()!= null && getChannel()!= null) {
-
-           ChannelId chanId = 
-	        new ChannelId(netId,
-                          getStation(),
-                          getSite(),
-                          getChannel(),
-                          dummyTime);
-           return chanId;
-	} else
-	    return null;
-
-	
-	
-    }
-
-    public void  clearThreeLists(){ 
-
-	stalist.clearSelection(); 
-	sitlist.clearSelection(); 
-	chalist.clearSelection(); 
-
-    }
-
-    /**
-       The below two methods are added by srinivasa Reddy Telukutla
-    ******/
-
-     public ChannelId getChannelId() {
-	String keyStr = new String();
-	keyStr = getNet() + "." + getStation() + "." + getSite() + "." + getChannel();
-	System.out.println("The key is "+keyStr);
-        return mychannelchooser.getChannelId(keyStr);
-    }
-
-    public ChannelId[] getChannelIds() {
- 
-	String keyStr = new String();
-	ArrayList arrayList = new ArrayList();
-	String[] channels = getChannels();
-	String[] stations = getStations();
-	for(int stationCounter = 0; stationCounter < stations.length; stationCounter++) {
-	    
-	    for(int counter = 0; counter < channels.length; counter++) {
-		
-		keyStr = getNet() + "." + stations[stationCounter] + "." + getSite() + "." + channels[counter];
-		arrayList.add(mychannelchooser.getChannelId(keyStr));
-	    
 	    }
+					 );
+
+	JScrollPane scroller = new JScrollPane(netlist);
+	add(scroller, gbc);
+	gbc.gridx++;
+
+	stalist = new JList(stations);
+	stalist.setCellRenderer(renderer);
+	stalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	stalist.addListSelectionListener(new ListSelectionListener() {
+
+		public void valueChanged(ListSelectionEvent e) {
+		    if(e.getValueIsAdjusting()){
+			return;
+		    }
+		    ListSelectionModel selModel = stalist.getSelectionModel();
+		    for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
+			if (stalist.isSelectedIndex(i)) {
+			    NetworkAccess net = getSelectedNetwork();
+			    Station selectedStation = 
+				(Station)stations.getElementAt(i);
+			    Channel[] chans =
+				net.retrieve_for_station(selectedStation.get_id());
+			    for (int j=0; j<chans.length; j++) {
+				String chanKey = ChannelIdUtil.toString(chans[j].get_id());
+				System.out.println(chanKey+" is selected");
+				if ( ! channelMap.containsKey(chanKey)) {
+				    channelMap.put(chanKey, chans[j]);
+				    if ( ! sites.contains(chans[j].my_site.get_code())) {
+					sites.addElement(chans[j].my_site.get_code());
+				    }
+				    if ( ! channels.contains(chans[j].get_code())) {
+					channels.addElement(chans[j].get_code());
+				    }
+				}
+			    } // end of for (int j=0; j<chans.length; j++)
+			    
+			} else {
+			    NetworkAccess net = getSelectedNetwork();
+			    Station selectedStation = 
+				(Station)stations.getElementAt(i);
+			    Channel[] chans =
+				net.retrieve_for_station(selectedStation.get_id());
+			    for (int j=0; j<chans.length; j++) {
+				String chanKey = ChannelIdUtil.toString(chans[j].get_id());
+				System.out.println(chanKey+" is not selected");
+				if ( channelMap.containsKey(chanKey)) {
+				    channelMap.remove(chanKey);
+				}
+			    }
+			}
+			
+		    } // end of for (int i=e.getFirstIndex(); i<e.getLastIndex(); i++)
+		}
+	    }
+					 );
+	scroller = new JScrollPane(stalist);
+	add(scroller, gbc);
+	gbc.gridx++;
+ 
+	sitlist = new JList(sites);
+	sitlist.setCellRenderer(renderer);
+	sitlist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	scroller = new JScrollPane(sitlist);
+	add(scroller, gbc);
+	gbc.gridx++;
+	
+	chalist = new JList(channels);
+	chalist.setCellRenderer(renderer);
+	chalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	scroller = new JScrollPane(chalist);
+	add(scroller, gbc);
+	gbc.gridx++;
+    }
+
+    public NetworkAccess[] getNetworks(){
+	Object[] objArray = networks.toArray();
+	return castNetworkArray(objArray);
+    }      
+
+    protected NetworkAccess[] castNetworkArray(Object[] objArray){
+	NetworkAccess[] nets 
+	    = new NetworkAccess[objArray.length];
+	for (int i=0; i<nets.length; i++) {
+	    nets[i] = (NetworkAccess)objArray[i];
 	}
-	ChannelId[] returnValue = new ChannelId[arrayList.size()];
-	returnValue = (ChannelId[]) arrayList.toArray(returnValue);
-	return returnValue;
-
+	return nets;
     }
 
-    public String[]  getNetworks() {
-
-	return mychannelchooser.getNetworks();
-
+    public Station[]  getStations(){
+	Object[] objArray = stations.toArray();
+	return castStationArray(objArray);
     }
 
-    /*public String[] getChannels() {
-
-	return mychannelchooser.getChannels();
-
+    protected Station[] castStationArray(Object[] objArray){
+	Station[] sta 
+	    = new Station[objArray.length];
+	for (int i=0; i<sta.length; i++) {
+	    sta[i] = (Station)objArray[i];
+	}
+	return sta;
     }
 
-    public String[] getStations() {
-
-	return mychannelchooser.getStations();
-
-	}*/
-
-    public String[] getSites() {
-
-	return mychannelchooser.getSites();
-	
-    }
-	
-    public ChannelChooser getChannelChooser() {
-	return mychannelchooser;
+    public Site[]  getSites(){
+	Object[] objArray = sites.toArray();
+	return castSiteArray(objArray);
     }
 
+    protected Site[] castSiteArray(Object[] objArray){
+	Site[] site 
+	    = new Site[objArray.length];
+	for (int i=0; i<site.length; i++) {
+	    site[i] = (Site)objArray[i];
+	} 
+	return site;
+    }
+
+    public Channel[]  getChannels(){
+	Object[] objArray = channels.toArray();
+	return castChannelArray(objArray);
+    }
+
+    protected Channel[] castChannelArray(Object[] objArray){
+	Channel[] chan 
+	    = new Channel[objArray.length];
+	for (int i=0; i<chan.length; i++) {
+	    chan[i] = (Channel)objArray[i];
+	} 
+	return chan;
+    }
+
+    public NetworkAccess getSelectedNetwork(){
+	return (NetworkAccess)netlist.getSelectedValue();
+    }      
+
+    public Station[]  getSelectedStations(){
+        return castStationArray(stalist.getSelectedValues());
+    }
+
+    public Site[]  getSelectedSites(){
+        return castSiteArray(sitlist.getSelectedValues());
+    }
+
+    public Channel[]  getSelectedChannels(){
+        return castChannelArray(chalist.getSelectedValues());
+    }
 
    /*================Class Variables===============*/
 
-    ChannelChooser mychannelchooser;
-
-    protected JPanel contentPane = new JPanel();  
- 
     String lnettip = "Source of data";
     String lstatip = "Station";
     String lsittip = "Seismometer site";
@@ -617,40 +269,98 @@ public class ChannelChooserGUI extends JPanel{
     String bhntip = "B=Broad Band | H=High Gain Seismometer | N=North-South";
  
 
-    /*================Class Variables===============*/
-
-
-    protected String[] networks;
-    protected String[] stations = {"    "};
-    protected String[] sites={"    "}; 
-    protected String[] channels={"    "};
-
     protected JList netlist;
     protected JList stalist;
     protected JList sitlist;
     protected JList chalist;
 
+    protected DefaultListModel networks = new DefaultListModel();
+    protected DefaultListModel stations = new DefaultListModel();
+    protected DefaultListModel sites = new DefaultListModel();
+    protected DefaultListModel channels = new DefaultListModel();
+    protected HashMap channelMap = new HashMap();
 
-    protected HashMap chanMap = new HashMap();
-    
-    protected static org.omg.CORBA_2_3.ORB orb;
     private NetworkDC netdc;
-    private PlottableDC plottableRef;
 
-    String defaultnameoffile;
-
-    protected JPanel subPane = new JPanel();
     private GridBagConstraints gbc;
     int x_leftcorner=0;
     int y_leftcorner=0;
 
-    final Color bg = Color.white;
-    final Color fg = Color.blue;
-
     int mywidth = 400;
     int myheight = 200;
 
+    class NameListCellRenderer extends DefaultListCellRenderer {
+	NameListCellRenderer(boolean useNames){
+	    this.useNames = useNames;
+	}
 
+	public Component getListCellRendererComponent(JList list,
+						      Object value,
+						      int index,
+						      boolean isSelected,
+						      boolean cellHasFocus) {
+	    String name = "XXXX";
+	    if (value instanceof NetworkAccess) {
+		if (useNames) {
+		    name = ((NetworkAccess)value).get_attributes().name;
+		    if (name == null || name.length() == 0) {
+			name = ((NetworkAccess)value).get_attributes().get_code();
+			if (name.startsWith("X") || name.startsWith("Y") || name.startsWith("Z")) {
+			    edu.iris.Fissures.Time start = 
+				((NetworkAccess)value).get_attributes().get_id().begin_time;
+			    name += start.date_time.substring(2,4);
+			} // end of if (name.startsWith("X"))
+			
+		    }
+		} else {
+		    name = ((NetworkAccess)value).get_attributes().get_code();
+		}
+	    }
+	    if (value instanceof Station) {
+		if (useNames) {
+		    name = ((Station)value).name;
+		    if (name == null || name.length() == 0) {
+			name = ((Station)value).get_code();
+		    }
+		} else {
+		    name = ((Station)value).get_code();
+		}
+	    }
+	    if (value instanceof Site) {
+		if (useNames) {
+		    name = ((Site)value).get_code();
+		    if (name == null || name.length() == 0) {
+			name = ((Site)value).get_code();
+		    }
+		} else {
+		    name = ((Site)value).get_code();
+		}
+	    }
+	    
+	    if (value instanceof Channel) {
+		if (useNames) {
+		    name = ((Channel)value).name;
+		    if (name == null || name.length() == 0) {
+			name = ((Channel)value).get_code();
+		    }
+		} else {
+		    name = ((Channel)value).get_code();
+		}
+	    }
+
+	    if (value instanceof String) {
+		name = (String)value;
+	    } // end of if (value instanceof String)
+	    
+	    
+	    return super.getListCellRendererComponent(list, 
+						      name, 
+						      index, 
+						      isSelected, 
+						      cellHasFocus);
+	}
+	boolean useNames;
+    }
 
 } // ChannelGUI
 
