@@ -118,8 +118,8 @@ public class DataCenterUtil {
         curr = new MicroSecondDate(currChunk.begin_time);
 
         TimeInterval gap =
-        (TimeInterval)curr.subtract(prev);
-        SamplingImpl samps = (SamplingImpl)getSampling(prevChunk);
+        curr.subtract(prev);
+        SamplingImpl samps = getSampling(prevChunk);
         TimeInterval period = samps.getPeriod();
         // end time is last sample, not time of first sample of next chunk
         gap = gap.subtract(period);
