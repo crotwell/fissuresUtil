@@ -181,6 +181,18 @@ public class UnitDisplayUtil {
         if(unit.equals(UnitImpl.COUNT)){
             return "COUNTS";
         }
+        if(unit.equals(UnitImpl.MILLICOUNT)){
+            return "COUNTS x 10^-3";
+        }
+        if(unit.equals(UnitImpl.MICROCOUNT)){
+            return "COUNTS x 10^-6";
+        }
+        if(unit.equals(UnitImpl.KILOCOUNT)){
+            return "COUNTS x 10^3";
+        }
+        if(unit.equals(UnitImpl.MEGACOUNT)){
+            return "COUNTS x 10^6";
+        }
         // not a unit we have a friendly name for
         //logger.debug("not a unit we have a friendly name for"+unit.toString());
         return unit.toString();
