@@ -29,21 +29,22 @@ public class OpenMap extends OpenMapComponent{
     private MapHandler mapHandler;
     private LayerHandler lh;
     private EventLayer el;
+    private StationLayer stl;
+    private DistanceLayer dl;
     private MapBean mapBean;
     private MouseDelegator mouseDelegator;
     private List tools = new ArrayList();
-    private EventTableModel tableModel;
+
 
     /**Creates a new openmap.  Both the channel chooser and the event table
      * model can be null.  If so, channels and events just won't get drawn
      */
-    public OpenMap(EventTableModel etm, ListSelectionModel lsm, String shapefile){
+    public OpenMap(String shapefile){
         try{
             mapHandler = new MapHandler();
             mapHandler.add(this);
             // Create a MapBean
             mapBean = getMapBean();
-            tableModel = etm;
 
             //get the projection and set its background color and center point
             //            Proj proj = new Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT, mapBean.DEFAULT_CENTER_LON),
@@ -65,18 +66,6 @@ public class OpenMap extends OpenMapComponent{
             lh = new LayerHandler();
             mapHandler.add(lh);
 
-            if(etm != null){
-                el = new EventTableLayer(etm, lsm, mapBean);
-                mapHandler.add(el);
-                lh.addLayer(el, 1);
-
-                DistanceLayer dl = new DistanceLayer(mapBean);
-                el.addEQSelectionListener(dl);
-                mapHandler.add(dl);
-                lh.addLayer(dl);
-                etm.addEventDataListener(dl);
-            }
-
             GraticuleLayer gl = new GraticuleLayer();
             Properties graticuleLayerProps = gl.getProperties(new Properties());
             graticuleLayerProps.setProperty("10DegreeColor", "FF888888");
@@ -85,7 +74,8 @@ public class OpenMap extends OpenMapComponent{
             gl.setShowRuler(true);
 
             mapHandler.add(gl);
-            lh.addLayer(gl);
+            lh.addLayer(gl, 0);
+            System.out.println("GraticuleLayer added");
 
             // Create a ShapeLayer to show world political boundaries.
             ShapeLayer shapeLayer = new ShapeLayer();
@@ -100,6 +90,8 @@ public class OpenMap extends OpenMapComponent{
             shapeLayer.setProperties(shapeLayerProps);
             shapeLayer.setVisible(true);
             mapHandler.add(shapeLayer);
+            lh.addLayer(shapeLayer);
+            System.out.println("ShapeLayer added");
 
             // Create the directional and zoom control tool
             //OMToolSet omts = new OMToolSet();
@@ -135,19 +127,47 @@ public class OpenMap extends OpenMapComponent{
     }
 
     /**
+     * Creates an OpenMap with an EventTableLayer.  Consider this deprecated.
+     */
+    public OpenMap(EventTableModel etm, ListSelectionModel lsm, String shapefile){
+        this(shapefile);
+        setEventLayer(new EventTableLayer(etm, lsm, mapBean));
+    }
+
+    /**
      * Deprecated
      */
     public void addStationsFromChannelChooser(ChannelChooser chooser){
         if(chooser != null){
-            addStationLayer(new ChannelChooserLayer(chooser));
+            setStationLayer(new ChannelChooserLayer(chooser));
         }
     }
 
-    public void addStationLayer(StationLayer staLayer){
-        mapHandler.add(staLayer);
-        lh.addLayer(staLayer,0);
-        el.addEQSelectionListener(staLayer);
-        tableModel.addEventDataListener(staLayer);
+    public void setStationLayer(StationLayer staLayer){
+        stl = staLayer;
+        mapHandler.add(stl);
+        lh.addLayer(stl,0);
+        System.out.println("stationlayer added");
+        el.addEQSelectionListener(stl);
+        if (el instanceof EventTableLayer){
+            ((EventTableLayer)el).getTableModel().addEventDataListener(stl);
+        }
+    }
+
+    public void setEventLayer(EventLayer evl){
+        el = evl;
+        mapHandler.add(el);
+        lh.addLayer(el,0);
+        System.out.println("EventLayer added");
+
+        dl = new DistanceLayer(mapBean);
+        el.addEQSelectionListener(dl);
+        mapHandler.add(dl);
+        lh.addLayer(dl, 1);
+        System.out.println("DistanceLayer added");
+        if (el instanceof EventTableLayer){
+            ((EventTableLayer)el).getTableModel().addEventDataListener(dl);
+        }
     }
 
     public Layer[] getLayers(){
