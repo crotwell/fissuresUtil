@@ -34,7 +34,10 @@ public class TauPUtil {
                                    origin.my_location.latitude,
                                    origin.my_location.longitude);
         taup_time.setSourceDepth(depth.getValue());
-        taup_time.setPhaseNames(phaseNames );
+        taup_time.clearPhaseNames();
+        for (int i = 0; i < phaseNames.length; i++) {
+            taup_time.appendPhaseName(phaseNames[i]);
+        }
         taup_time.calculate(distAz.delta);
         Arrival[] arrivals = taup_time.getArrivals();
         return arrivals;
