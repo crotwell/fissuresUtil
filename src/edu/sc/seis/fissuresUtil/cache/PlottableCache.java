@@ -79,7 +79,8 @@ public class PlottableCache implements PlottableDCOperations{
 	UnsupportedDimension {
 	SoftReference ref;
 	Plottable[] plottableArray;
-	ref = (SoftReference)dayCache.get(ChannelIdUtil.toString(channel_id));
+	String key = ChannelIdUtil.toString(channel_id)+"."+Integer.toString(year)+"."+Integer.toString(jday);
+	ref = (SoftReference)dayCache.get(key);
 	if(ref != null) {
 	    plottableArray = (Plottable[])ref.get();
 	    if(plottableArray != null) {
@@ -90,7 +91,7 @@ public class PlottableCache implements PlottableDCOperations{
 	}
 	plottableArray = plottableDC.get_for_day(channel_id, year, jday, pixel_size);
 	
-	dayCache.put(ChannelIdUtil.toString(channel_id), new SoftReference(plottableArray));
+	dayCache.put(key, new SoftReference(plottableArray));
 	return plottableArray;
     }
 
