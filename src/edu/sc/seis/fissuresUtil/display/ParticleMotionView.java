@@ -36,13 +36,29 @@ import org.apache.log4j.Category;
 
 public class ParticleMotionView extends JComponent{
 
+    /**
+     * Constructor
+     *
+     * @param    particleMotionDisplaya  ParticleMotionDisplay
+     *
+     */
     public ParticleMotionView(ParticleMotionDisplay particleMotionDisplay) {
         this.particleMotionDisplay = particleMotionDisplay;
         addListeners();
     }
 
+    /**
+     * Method addListeners
+     *
+     */
     public void addListeners() {
         this.addMouseListener(new MouseAdapter() {
+                    /**
+                     * Method mouseClicked
+                     *
+                     * @param    me                  a  MouseEvent
+                     *
+                     */
                     public void mouseClicked(MouseEvent me) {
                         int clickCount = 0;
                         if(zoomIn)  {
@@ -55,21 +71,45 @@ public class ParticleMotionView extends JComponent{
                     }
                 });
         this.addComponentListener(new ComponentAdapter() {
+                    /**
+                     * Method componentResized
+                     *
+                     * @param    e                   a  ComponentEvent
+                     *
+                     */
                     public void componentResized(ComponentEvent e) {
                         resize();
                     }
+                    /**
+                     * Method componentShown
+                     *
+                     * @param    e                   a  ComponentEvent
+                     *
+                     */
                     public void componentShown(ComponentEvent e) {
                         resize();
                     }
                 });
     }
 
+    /**
+     * Method resize
+     *
+     */
     public synchronized void resize() {
         setSize(super.getSize());
         recalculateValues = true;
         repaint();
     }
 
+    /**
+     * Method zoomInParticleMotionDisplay
+     *
+     * @param    clickCount          an int
+     * @param    mx                  an int
+     * @param    my                  an int
+     *
+     */
     public synchronized void zoomInParticleMotionDisplay(int clickCount, int mx, int my) {
         double hmin = hunitRangeImpl.getMinValue();
         double hmax = hunitRangeImpl.getMaxValue();
@@ -118,6 +158,12 @@ public class ParticleMotionView extends JComponent{
         particleMotionDisplay.shaleAmp(0, (ys-ya));
     }
 
+    /**
+     * Method paintComponent
+     *
+     * @param    g                   a  Graphics
+     *
+     */
     public synchronized void paintComponent(Graphics g) {
         if(displayKeys.size() == 0) return;
         Graphics2D graphics2D = (Graphics2D)g;
@@ -152,6 +198,13 @@ public class ParticleMotionView extends JComponent{
         }
     }
 
+    /**
+     * Method drawAzimuth
+     *
+     * @param    particleMotion      a  ParticleMotion
+     * @param    graphics2D          a  Graphics2D
+     *
+     */
     public synchronized void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
         if(!particleMotion.isHorizontalPlane()) return;
         Shape sector = getSectorShape();
@@ -165,11 +218,25 @@ public class ParticleMotionView extends JComponent{
         graphics2D.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
     }
 
+    /**
+     * Method drawTitles
+     *
+     * @param    hseis               a  LocalSeismogramImpl
+     * @param    vseis               a  LocalSeismogramImpl
+     *
+     */
     public void drawTitles(LocalSeismogramImpl hseis, LocalSeismogramImpl vseis) {
         particleMotionDisplay.setHorizontalTitle(hseis.getName());
         particleMotionDisplay.setVerticalTitle(vseis.getName());
     }
 
+    /**
+     * Method drawParticleMotion
+     *
+     * @param    particleMotion      a  ParticleMotion
+     * @param    g                   a  Graphics
+     *
+     */
     public synchronized void drawParticleMotion(ParticleMotion particleMotion, Graphics g) {
         Graphics2D graphics2D = (Graphics2D) g;
         if(!recalculateValues) {
@@ -218,6 +285,15 @@ public class ParticleMotionView extends JComponent{
         }
     }
 
+    /**
+     * Method getParticleMotionPath
+     *
+     * @param    x                   an int[]
+     * @param    y                   an int[]
+     *
+     * @return   a Shape
+     *
+     */
     public synchronized Shape getParticleMotionPath(int[] x, int[] y) {
         int len = x.length;
         if(y.length < len) { len = y.length;}
@@ -231,6 +307,12 @@ public class ParticleMotionView extends JComponent{
         return (Shape)generalPath;
     }
 
+    /**
+     * Method getAzimuthPath
+     *
+     * @return   a Shape
+     *
+     */
     public Shape getAzimuthPath() {
         int size = azimuths.size();
         Insets insets = getInsets();
@@ -252,6 +334,12 @@ public class ParticleMotionView extends JComponent{
         return (Shape)generalPath;
     }
 
+    /**
+     * Method getSectorShape
+     *
+     * @return   a Shape
+     *
+     */
     public synchronized Shape getSectorShape() {
         Insets insets = getInsets();
         double  fmin = super.getSize().getWidth() - insets.left - insets.right;
@@ -279,6 +367,17 @@ public class ParticleMotionView extends JComponent{
         return (Shape)generalPath;
     }
 
+    /**
+     * Method addParticleMotionDisplay
+     *
+     * @param    hseis               a  DataSetSeismogram
+     * @param    vseis               a  DataSetSeismogram
+     * @param    registrar           a  Registrar
+     * @param    color               a  Color
+     * @param    key                 a  String
+     * @param    horizPlane          a  boolean
+     *
+     */
     public synchronized void addParticleMotionDisplay(DataSetSeismogram hseis,
                                                       DataSetSeismogram vseis,
                                                       Registrar registrar,
@@ -302,10 +401,23 @@ public class ParticleMotionView extends JComponent{
 
     }
 
+    /**
+     * Method addSector
+     *
+     * @param    degreeone           a  double
+     * @param    degreetwo           a  double
+     *
+     */
     public void addSector(double degreeone, double degreetwo) {
         sectors.add(new java.awt.geom.Point2D.Double(degreeone, degreetwo));
     }
 
+    /**
+     * Method getMinHorizontalAmplitude
+     *
+     * @return   a double
+     *
+     */
     public double getMinHorizontalAmplitude() {
         int size = displays.size();
         double min = Double.POSITIVE_INFINITY;
@@ -324,6 +436,12 @@ public class ParticleMotionView extends JComponent{
         return min;
     }
 
+    /**
+     * Method getMaxHorizontalAmplitude
+     *
+     * @return   a double
+     *
+     */
     public double getMaxHorizontalAmplitude() {
         int size = displays.size();
         double max = Double.NEGATIVE_INFINITY;
@@ -365,6 +483,12 @@ public class ParticleMotionView extends JComponent{
         return min;
     }
 
+    /**
+     * Method getMaxVerticalAmplitude
+     *
+     * @return   a double
+     *
+     */
     public double getMaxVerticalAmplitude() {
         int size = displays.size();
         double max = Double.NEGATIVE_INFINITY;
@@ -383,6 +507,12 @@ public class ParticleMotionView extends JComponent{
         return max;
     }
 
+    /**
+     * Method addAzimuthLine
+     *
+     * @param    degrees             a  double
+     *
+     */
     public void addAzimuthLine(double degrees) {
 
         azimuths.add(new Double(degrees));
@@ -402,11 +532,19 @@ public class ParticleMotionView extends JComponent{
         }
     }
 
+    /**
+     * Method setZoomIn
+     *
+     */
     public void setZoomIn() {
         this.zoomIn  = true;
         this.zoomOut = false;
     }
 
+    /**
+     * Method setZoomOut
+     *
+     */
     public void setZoomOut() {
         this.zoomIn = false;
         this.zoomOut = true;
@@ -432,12 +570,24 @@ public class ParticleMotionView extends JComponent{
         this.displayKey = key;
     }
 
+    /**
+     * Method addDisplayKey
+     *
+     * @param    key                 a  String
+     *
+     */
     public void addDisplayKey(String key) {
         if(!this.displayKeys.contains(key)) {
             this.displayKeys.add(key);
         }
     }
 
+    /**
+     * Method removeDisplaykey
+     *
+     * @param    key                 a  String
+     *
+     */
     public void removeDisplaykey(String key) {
         this.displayKeys.remove(key);
     }
@@ -450,11 +600,16 @@ public class ParticleMotionView extends JComponent{
         return this.displayKey;
     }
 
+    /**
+     * Method getSelectedParticleMotion
+     *
+     * @return   a ParticleMotion[]
+     *
+     */
     public ParticleMotion[] getSelectedParticleMotion() {
         ArrayList arrayList = new ArrayList();
         for(int counter = 0; counter < displays.size(); counter++) {
             ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
-            //if(!getDisplayKey().equals(particleMotion.key)) continue;
             if(displayKeys.contains(particleMotion.key)) {
                 arrayList.add(particleMotion);
             }
@@ -489,6 +644,17 @@ public class ParticleMotionView extends JComponent{
             Color.black};
 
     class ParticleMotion implements ConfigListener, TimeListener, AmpListener, SeisDataChangeListener{
+                /**
+                 * Constructor
+                 *
+                 * @param    hseis               a  DataSetSeismogram
+                 * @param    vseis               a  DataSetSeismogram
+                 * @param    registrar           a  Registrar
+                 * @param    color               a  Color
+                 * @param    key                 a  String
+                 * @param    horizPlane          a  boolean
+                 *
+                 */
         public ParticleMotion(final DataSetSeismogram hseis,
                               DataSetSeismogram vseis,
                               Registrar registrar,
@@ -513,6 +679,12 @@ public class ParticleMotionView extends JComponent{
             }
         }
 
+        /**
+         * Method pushData
+         *
+         * @param    sdce                a  SeisDataChangeEvent
+         *
+         */
         public void pushData(SeisDataChangeEvent sdce) {
             if(sdce.getSeismograms().length >= 1){
                 if(sdce.getSource() == hseis){
@@ -523,62 +695,158 @@ public class ParticleMotionView extends JComponent{
             }
         }
 
+        /**
+         * Method finished
+         *
+         * @param    sdce                a  SeisDataChangeEvent
+         *
+         */
         public void finished(SeisDataChangeEvent sdce) {
         }
 
+        /**
+         * Method error
+         *
+         * @param    sdce                a  SeisDataErrorEvent
+         *
+         */
         public void error(SeisDataErrorEvent sdce) {
             //do nothing as someone else should handle error notification to user
             logger.warn("Error with data retrieval.",
                         sdce.getCausalException());
         }
 
+        /**
+         * Method update
+         *
+         * @param    ce                  a  ConfigEvent
+         *
+         */
         public void update(ConfigEvent ce){
             updateTime(ce.getTimeEvent());
             updateAmp(ce.getAmpEvent());
         }
 
+        /**
+         * Method updateTime
+         *
+         * @param    timeEvent           a  TimeEvent
+         *
+         */
         public void updateTime(TimeEvent timeEvent) {
             this.microSecondTimeRange = timeEvent.getTime();
         }
 
+        /**
+         * Method updateAmp
+         *
+         * @param    ampEvent            an AmpEvent
+         *
+         */
         public void updateAmp(AmpEvent ampEvent){
             this.ampEvent = ampEvent;
         }
 
+        /**
+         * Method getLatestAmp
+         *
+         * @return   an AmpEvent
+         *
+         */
         public AmpEvent getLatestAmp(){ return ampEvent; }
 
+        /**
+         * Method getTimeRange
+         *
+         * @return   a MicroSecondTimeRange
+         *
+         */
         public MicroSecondTimeRange getTimeRange() {
             return this.microSecondTimeRange;
         }
+        /**
+         * Method isHorizontalPlane
+         *
+         * @return   a boolean
+         *
+         */
         public boolean isHorizontalPlane() {
             return this.horizPlane;
         }
+        /**
+         * Method setShape
+         *
+         * @param    shape               a  Shape
+         *
+         */
         public void setShape(Shape shape) {
             this.shape = shape;
         }
 
+        /**
+         * Method getShape
+         *
+         * @return   a Shape
+         *
+         */
         public Shape getShape() {
             return shape;
         }
+        /**
+         * Method setColor
+         *
+         * @param    color               a  Color
+         *
+         */
         public void setColor(Color color) {
             this.color = color;
         }
 
+        /**
+         * Method getColor
+         *
+         * @return   a Color
+         *
+         */
         public Color getColor() {
             if(selected) return Color.cyan;
             return this.color;
         }
 
+        /**
+         * Method isSelected
+         *
+         * @return   a boolean
+         *
+         */
         public boolean isSelected() {
             return this.selected;
         }
 
+        /**
+         * Method setSelected
+         *
+         * @param    value               a  boolean
+         *
+         */
         public void setSelected(boolean value) {
             this.selected = value;
         }
 
+        /**
+         * Method getLocalHSeis
+         *
+         * @return   a LocalSeismogramImpl
+         *
+         */
         public LocalSeismogramImpl getLocalHSeis(){ return hSeisLocal; }
 
+        /**
+         * Method getLocalVSeis
+         *
+         * @return   a LocalSeismogramImpl
+         *
+         */
         public LocalSeismogramImpl getLocalVSeis(){ return vSeisLocal; }
 
         public DataSetSeismogram hseis;
