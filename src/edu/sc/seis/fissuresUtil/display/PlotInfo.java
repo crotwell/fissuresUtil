@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.awt.Dimension;
 import edu.iris.Fissures.model.TimeInterval;
 
@@ -15,28 +15,27 @@ import edu.iris.Fissures.model.TimeInterval;
  */
 
 public class PlotInfo {
-    public PlotInfo(Dimension size, HashMap seisPlotters, HashMap filterPlotters, HashMap flagPlotters, TimeSnapshot imageState){
+    public PlotInfo(Dimension size, LinkedList plotters, TimeSnapshot timeState, AmpSnapshot ampState){
 	this.size = size;
-	this.seisPlotters = seisPlotters;
-	this.flagPlotters = flagPlotters;
-	this.filterPlotters = filterPlotters;
-	this.imageState = imageState;
+	this.plotters = plotters;
+	this.timeState = timeState;
+	this.ampState = ampState;
     }
 
     public Dimension getSize(){ return size; }
 
-    public HashMap getFilterPlotters(){ return filterPlotters; }
+    public LinkedList getPlotters(){ return plotters; }
 
-    public HashMap getSeisPlotters(){ return seisPlotters; }
+    public TimeSnapshot getTimeSnapshot(){ return timeState; }
 
-    public HashMap getFlagPlotters(){ return flagPlotters; }
-
-    public TimeSnapshot getSnapshot(){ return imageState; }
+    public AmpSnapshot getAmpSnapshot(){ return ampState; }
 
     private Dimension size;
     
-    private HashMap seisPlotters, filterPlotters, flagPlotters;
+    private LinkedList plotters;
 
-    private TimeSnapshot imageState;
+    private TimeSnapshot timeState;
+
+    private AmpSnapshot ampState;
 
 }// PlotInfo

@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.Shape;
-import java.awt.Dimension;
+import java.awt.*;
 
 /**
  * Plotters are objects to be put in the main display of a SeismogramDisplay.  
@@ -10,17 +9,15 @@ import java.awt.Dimension;
  *
  * @author <a href="mailto:">Charlie Groves</a>
  * @version 0.1
- * @see BasicPlotter, SeismogramPlotter
+ * @see SeismogramPlotter
  */
 
 public interface Plotter {
-    /**
-     * This method takes the object to be drawn and returns a shape represetnting
-     * it
-     *
-     */
-    public Shape draw(Dimension size, TimeSnapshot imageState);
+
+    public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState);
 
     public void toggleVisibility();
+
+    public void setVisibility(boolean b);
     
 }// Plotter

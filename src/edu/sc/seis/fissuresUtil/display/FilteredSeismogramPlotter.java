@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display;
 import java.awt.geom.GeneralPath;
 import java.awt.Shape;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.lang.ref.SoftReference;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
@@ -24,38 +25,37 @@ import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
  */
 
 public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
-    public FilteredSeismogramPlotter(ColoredFilter filter, DataSetSeismogram seis, AmpConfigRegistrar ar){
+    public FilteredSeismogramPlotter(ColoredFilter filter, DataSetSeismogram seis){
 	this.seismogram = seis;
-	this.ampConfig = ar;
 	this.filter = filter;
 	filterData();
     }
 
-    public Shape draw(Dimension size, TimeSnapshot imageState){
+    public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState){
 	if(visible){
 	    try{
-		MicroSecondTimeRange overTimeRange = imageState.getTimeRange(filteredSeis).
+		MicroSecondTimeRange overTimeRange = timeState.getTimeRange(filteredSeis).
 		    getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
-		int[][] pixels = SimplePlotUtil.compressYvalues(filteredSeis.getSeismogram(), overTimeRange, ampConfig.getAmpRange(filteredSeis), size);
-		SimplePlotUtil.scaleYvalues(pixels, filteredSeis.getSeismogram(), overTimeRange, ampConfig.getAmpRange(filteredSeis), size); 
+		int[][] pixels = SimplePlotUtil.compressYvalues(filteredSeis.getSeismogram(), overTimeRange, ampState.getAmpRange(filteredSeis), size);
+		SimplePlotUtil.scaleYvalues(pixels, filteredSeis.getSeismogram(), overTimeRange, ampState.getAmpRange(filteredSeis), size); 
 		SimplePlotUtil.flipArray(pixels[1], size.height);
 		int[] xPixels = pixels[0];
 		int[] yPixels = pixels[1];
+		GeneralPath currentShape = new GeneralPath();
 		if(xPixels.length >= 2){
-		    GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, xPixels.length - 1);
+		    currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, xPixels.length - 1);
 		    currentShape.moveTo(xPixels[0], yPixels[0]);
 		    for(int i = 1; i < xPixels.length; i++)
 			currentShape.lineTo(xPixels[i], yPixels[i]);
-		    return currentShape;
 		}else if(xPixels.length == 1){
-		    GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, 2);
+		    currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, 2);
 		    currentShape.moveTo(0, yPixels[0]);
 		    currentShape.lineTo(size.width, yPixels[0]);
-		    return currentShape;		
 		}
+		canvas.setColor(filter.getColor());
+		canvas.draw(currentShape);
 	    }catch(Exception e){ e.printStackTrace(); }
 	}
-	return new GeneralPath();
     }
 
     public void filterData(){
@@ -94,21 +94,8 @@ public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
 
     public ColoredFilter getFilter(){ return filter; }
 
-    public DataSetSeismogram getUnfilteredSeismogram(){ return seismogram; }
-
     public DataSetSeismogram getFilteredSeismogram(){ return filteredSeis; }
-
-     public void setVisibility(boolean b){ 
-	 if (b == true) {
-	     ampConfig.addSeismogram(filteredSeis);
-	 } // end of if (b == true)
-	 else {
-	     ampConfig.removeSeismogram(filteredSeis);
-	 } // end of else
-	 
-	 super.setVisibility(b);
-     }
-
+    
     protected DataSetSeismogram filteredSeis;
 
     protected ColoredFilter filter;

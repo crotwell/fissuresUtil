@@ -3,11 +3,15 @@ package edu.sc.seis.fissuresUtil.display;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import org.apache.log4j.*;
 import edu.iris.Fissures.model.MicroSecondDate;
+import java.awt.Color;
+
 /**
  * FlagPlotter.java
  *
@@ -25,26 +29,26 @@ public class FlagPlotter implements Plotter{
 	this.name = name;
     }
 
-    public Shape draw(Dimension size, TimeSnapshot imageState){
+    public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState){
 	if(visible){
-	    MicroSecondTimeRange overTimeRange = imageState.getTimeRange().
+	    MicroSecondTimeRange overTimeRange = timeState.getTimeRange().
 		getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
 	    if(flagTime.before(overTimeRange.getBeginTime()) || flagTime.after(overTimeRange.getEndTime()))
-		return new GeneralPath();
+		return;
 	    double offset = flagTime.difference(overTimeRange.getBeginTime()).getValue()/overTimeRange.getInterval().getValue();
 	    location = (int)(offset * (double)size.width);
 	    Area pole = new Area(new Rectangle(location, 0, 1, size.height));
-	    Area flag = new Area(new Rectangle(location, 0, name.length() * 12, 13));
+	    Rectangle2D.Float stringBounds = new Rectangle2D.Float();
+	    stringBounds.setRect(canvas.getFontMetrics().getStringBounds(name, canvas));
+	    Area flag = new Area(new Rectangle(location, 0, (int)stringBounds.width, (int)stringBounds.height));
 	    flag.add(pole);
-	    return flag; 
+	    canvas.setColor(Color.red);
+	    canvas.fill(flag);
+	    canvas.setColor(Color.white);
+	    canvas.drawString(name, location, stringBounds.height - 4);
 	}
-	return new GeneralPath();
     }
-
-    public String getName(){ return name; }
     
-    public int getStringX(){ return (location + 3); }
-
     public void toggleVisibility(){ visible = !visible; }
 
     public void setVisibility(boolean b){ visible = b; }
@@ -53,8 +57,6 @@ public class FlagPlotter implements Plotter{
 
     protected MicroSecondDate flagTime;
     
-    protected TimeConfigRegistrar timeRegistrar;
-
     protected String name;
 
     protected int location;

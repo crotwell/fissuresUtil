@@ -46,13 +46,13 @@ public class ImageMaker implements Runnable  {
 	imageTotals = 0;
 	PlotInfo currentRequirements;
 	BasicSeismogramDisplay.ImagePainter currentPatron;
-	int numLeft;
+	int numLeft = requests.size();
 	Graphics2D graphic;
-	Image currentImage = null;
+	Image currentImage;
 	Dimension size; 
-	HashMap filterPlotters, seisPlotters, flagPlotters;
-	TimeSnapshot imageState;
-	numLeft = requests.size();
+	LinkedList plotters;
+	TimeSnapshot timeState;
+	AmpSnapshot ampState;
 	while(numLeft > 0){
 	    begin = new Date();
 	    //logger.debug("creating an image with " + numLeft + " in the queue");
@@ -60,10 +60,9 @@ public class ImageMaker implements Runnable  {
 		currentPatron = ((BasicSeismogramDisplay.ImagePainter)requests.getFirst()); 
 		currentRequirements = ((PlotInfo)patrons.get(currentPatron)); 
 		size = currentRequirements.getSize();
-		seisPlotters = ((HashMap)currentRequirements.getSeisPlotters().clone());
-		filterPlotters = ((HashMap)currentRequirements.getFilterPlotters().clone());
-		flagPlotters = ((HashMap)currentRequirements.getFlagPlotters().clone());
-		imageState = currentRequirements.getSnapshot();
+		plotters = ((LinkedList)currentRequirements.getPlotters().clone());
+		timeState = currentRequirements.getTimeSnapshot();
+		ampState = currentRequirements.getAmpSnapshot();
 	    	if(requests.contains(currentPatron) && size.width > 0){
 		    currentImage = currentPatron.createImage(size.width, size.height);
 		    graphic = (Graphics2D)currentImage.getGraphics();
@@ -73,39 +72,23 @@ public class ImageMaker implements Runnable  {
 		    break;
 		}
 	    }
-	    Iterator e = seisPlotters.keySet().iterator();
+	    Iterator e = plotters.iterator();
 	    graphic.setColor(Color.white);
 	    graphic.fill(new Rectangle(0, 0, size.width, size.height));
 	    Date beginPlotting = new Date();
 	    while(e.hasNext()){
-		Plotter current = ((Plotter)e.next());
-		graphic.setColor((Color)seisPlotters.get(current));
-		graphic.draw(current.draw(size, imageState));
-	    }
-	    e = filterPlotters.keySet().iterator();
-	    while(e.hasNext()){
-		Plotter current = ((Plotter)e.next());
-		graphic.setColor((Color)filterPlotters.get(current));
-		graphic.draw(current.draw(size, imageState));
-	    }
-	    e = flagPlotters.keySet().iterator();
-	    while(e.hasNext()){
-		FlagPlotter current = ((FlagPlotter)e.next());
-		graphic.setColor((Color)flagPlotters.get(current));
-		graphic.fill(current.draw(size, imageState));
-		graphic.setColor(Color.white);
-		graphic.drawString(current.getName(), current.getStringX(), 10);
+		((Plotter)e.next()).draw(graphic, size, timeState, ampState);
 	    }
 	    Date endPlotting = new Date();
 	    long interval = (endPlotting.getTime() - beginPlotting.getTime());
 	    //logger.debug("plotting: " + interval + "ms");
 	    plottingTotals += interval;
 	    synchronized(this){
-		if(imageState.getTimeRange().getInterval().getValue() == 
+		if(timeState.getTimeRange().getInterval().getValue() == 
 		   currentPatron.getTimeConfig().getTimeRange().getInterval().getValue() &&
 		   requests.contains(currentPatron)){
 		    requests.removeFirst();
-		    currentPatron.setImage(currentImage, imageState);
+		    currentPatron.setImage(currentImage, timeState);
 		}
 		numLeft = requests.size();
 	    }
