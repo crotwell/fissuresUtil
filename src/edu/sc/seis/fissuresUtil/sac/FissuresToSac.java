@@ -95,6 +95,7 @@ public class FissuresToSac {
         } else {
             sac.kcmpnm = seis.channel_id.channel_code;
         } // end of else
+        sac.khole = seis.channel_id.site_code;
 
         return sac;
     }
