@@ -33,7 +33,7 @@ public class LongShortStoN {
      * @param shortTime Time Interval for the short term average
      * @param threshold ration of short to long termaverages above which a trigger is declared
      **/
-    LongShortStoN(TimeInterval longTime, TimeInterval shortTime, float threshold) {
+    public LongShortStoN(TimeInterval longTime, TimeInterval shortTime, float threshold) {
         this(longTime, shortTime, threshold, (TimeInterval)shortTime.multiplyBy(2));
     }
 
@@ -43,7 +43,7 @@ public class LongShortStoN {
      * @param shortTime Time Interval for the short term average
      * @param threshold ration of short to long termaverages above which a trigger is declared
      **/
-    LongShortStoN(TimeInterval longTime, TimeInterval shortTime, float threshold, TimeInterval delay) {
+    public LongShortStoN(TimeInterval longTime, TimeInterval shortTime, float threshold, TimeInterval delay) {
         if (longTime.lessThanEqual(shortTime)) {
             throw new IllegalArgumentException("longTime must be longer than shortTime, longTime="+longTime+
                                                    "  shortTime="+shortTime);
