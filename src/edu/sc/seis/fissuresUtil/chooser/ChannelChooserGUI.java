@@ -396,8 +396,7 @@ public class ChannelChooserGUI extends JPanel{
 		   String selected = getStation();
 		   popSites(getNet(), selected);
 		   popChannels(getNet(), selected);
-		   System.out.println("*** User made a selection:" +selected);
-
+	
 	       }
 
                //System.out.println(s);
@@ -430,9 +429,7 @@ public class ChannelChooserGUI extends JPanel{
 		   String mysit= getSite();
 		   //String mycha= getChannel();
 		   String[] mycha = getChannels();
-		   System.out.println("*** User finished a selection:\t");
-                   System.out.print(mynet + ":"+ mysta+ ":"+mysit+ ":"+mycha);
-		  
+			  
 	       }
 	  
                //System.out.println(s);
@@ -472,7 +469,6 @@ public class ChannelChooserGUI extends JPanel{
 	for(int counter = 0; counter < objects.length; counter++) {
 
 	    channelsChosen[counter] = (String)objects[counter];
-	    System.out.println("The station is "+channelsChosen[counter]);
 	}
 	return channelsChosen;
 
@@ -562,7 +558,7 @@ public class ChannelChooserGUI extends JPanel{
 	for(int stationCounter = 0; stationCounter < stations.length; stationCounter++) {
 	    
 	    for(int counter = 0; counter < channels.length; counter++) {
-	    
+		
 		keyStr = getNet() + "." + stations[stationCounter] + "." + getSite() + "." + channels[counter];
 		arrayList.add(mychannelchooser.getChannelId(keyStr));
 	    
