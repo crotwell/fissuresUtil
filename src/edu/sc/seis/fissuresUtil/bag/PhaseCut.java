@@ -16,6 +16,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.TauP_Time;
+import org.apache.log4j.Logger;
 
 public class PhaseCut {
     
@@ -67,6 +68,8 @@ public class PhaseCut {
                                            " does not exist at this distance, "+
                                            distAz.delta+" degrees");
         }
+        beginTime = beginTime.add(beginOffset);
+        
         for (int i=0; i< arrivals.length; i++) {
             if (arrivals[i].getName().equals(endPhase)) {
                 endTime = originTime.add(new TimeInterval(arrivals[i].getTime(),
@@ -79,6 +82,8 @@ public class PhaseCut {
                                            " does not exist at this distance, "+
                                            distAz.delta+" degrees");
         }
+        endTime = endTime.add(endOffset);
+        logger.debug("Phase cut from "+beginTime+" to "+endTime);
         
         Cut cut = new Cut(beginTime, endTime);
         return cut.apply(seis);
@@ -94,6 +99,6 @@ public class PhaseCut {
     
     TimeInterval endOffset;
     
-    
+    Logger logger = Logger.getLogger(PhaseCut.class);
 }
 
