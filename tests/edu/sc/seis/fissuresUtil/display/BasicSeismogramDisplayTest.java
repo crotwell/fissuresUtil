@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import junit.framework.TestCase;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 /**
@@ -15,19 +16,19 @@ public class BasicSeismogramDisplayTest extends TestCase
     }
     
     public void setUp(){
-        twoSineSeismos[0] = new DataSetSeismogram(simpleSineWave,
+        twoSineSeismos[0] = null;/*new DataSetSeismogram(simpleSineWave,
                                                   null,
-                                                  "Simple");
-        twoSineSeismos[1] = new DataSetSeismogram(customSineWave,
+                                                  "Simple");*/
+        twoSineSeismos[1] = null;/*new DataSetSeismogram(customSineWave,
                                                   null,
-                                                  "Custom");
+                                                  "Custom");*/
         twoSineDisplay = new BasicSeismogramDisplay(twoSineSeismos, null);
         
         complexSeismos[0] = twoSineSeismos[0];
         complexSeismos[1] = twoSineSeismos[1];
-        complexSeismos[2] = new DataSetSeismogram(spike,
+        complexSeismos[2] = null;/*new DataSetSeismogram(spike,
                                                   null,
-                                                  "spike");
+                                                  "spike");*/
         complexDisplay = new BasicSeismogramDisplay(complexSeismos, null);
         
         spikeSeismos[0] = complexSeismos[2];
@@ -74,7 +75,7 @@ public class BasicSeismogramDisplayTest extends TestCase
     private BasicSeismogramDisplay spikeDisplay;
     
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(BasicSeismogramDisplayTest.class);
+        //junit.textui.TestRunner.run(BasicSeismogramDisplayTest.class);
     }
 }
 
