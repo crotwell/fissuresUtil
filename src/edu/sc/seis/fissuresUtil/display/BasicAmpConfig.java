@@ -85,11 +85,7 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public void reset(){
-	Iterator e = ampData.keySet().iterator();
-	while(e.hasNext()){
-	    ((AmpConfigData)e.next()).reset();
-	}
-	fireAmpEvent();
+	reset(getSeismograms());
     }
 
     public void reset(DataSetSeismogram[] seismos){
