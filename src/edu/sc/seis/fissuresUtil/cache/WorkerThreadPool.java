@@ -7,9 +7,10 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 public class WorkerThreadPool{
@@ -18,22 +19,14 @@ public class WorkerThreadPool{
     }
 
     public WorkerThreadPool(String name, int numThreads, int priority) {
-        this.name = name;
-        this.priority = priority;
-        for (int i = 0; i < numThreads; i++) { createWorker(); }
-    }
-
-    protected synchronized void createWorker(){
-        BackgroundWorker t = new BackgroundWorker(name + workers.size(),
-                                                  priority);
-        t.start();
-        workers.add(t);
+        this.numThreads = numThreads;
+        for (int i = 0; i < numThreads; i++) {
+            new BackgroundWorker(name + i, priority).start();
+        }
     }
 
     public synchronized void invokeLater(Runnable runnable) {
-        if(!queue.contains(runnable)){
-            queue.addFirst(runnable);
-        }
+        if(!queue.contains(runnable)){ queue.addFirst(runnable); }
         notifyAll();
     }
 
@@ -44,25 +37,24 @@ public class WorkerThreadPool{
         return defaultPool;
     }
 
-    private static WorkerThreadPool defaultPool;
-
-
     private synchronized Runnable getFromQueue() throws InterruptedException {
-        while (queue.isEmpty()) {
-            wait();
-        }
+        while (queue.isEmpty()) { wait(); }
+        idle.remove(Thread.currentThread());
         return (Runnable)queue.removeLast();
     }
 
     public synchronized int getNumWaiting(){ return queue.size(); }
 
-    protected LinkedList workers = new LinkedList();
+    public int getNumIdle(){ return idle.size(); }
 
-    protected LinkedList queue = new LinkedList();
+    public synchronized boolean isEmployed(){
+        return getNumWaiting() != 0 || getNumIdle() < numThreads;
+    }
 
-    private String name;
-
-    private int priority;
+    private int numThreads;
+    private LinkedList queue = new LinkedList();
+    private Set idle = Collections.synchronizedSet(new HashSet());
+    private static WorkerThreadPool defaultPool;
 
     private class BackgroundWorker extends Thread {
         protected BackgroundWorker(String name, int priority) {
@@ -72,20 +64,17 @@ public class WorkerThreadPool{
         }
 
         public void run() {
-            while (noQuit) {
+            while (true) {
                 try {
-                    Runnable r = getFromQueue();
-                    r.run();
+                    getFromQueue().run();
                 } catch (Throwable e) {
                     GlobalExceptionHandler.handle(e);
+                }finally{
+                    idle.add(this);
                 }
             }
-            logger.info("Background worker "+getName()+" is exiting!");
         }
-
-        boolean noQuit = true;
     }
 
     private static Logger logger = Logger.getLogger(WorkerThreadPool.class);
 }
-
