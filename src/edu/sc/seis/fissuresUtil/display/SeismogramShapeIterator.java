@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.geom.PathIterator;
-
+import java.awt.geom.AffineTransform;
 /**
  * SeismogramShapeIterator.java
  *
@@ -13,11 +13,12 @@ import java.awt.geom.PathIterator;
  */
 
 public class SeismogramShapeIterator implements PathIterator {
-    public SeismogramShapeIterator(int[][] plot, int startIndex, int endIndex){
+    public SeismogramShapeIterator(int[][] plot, int startIndex, int endIndex, AffineTransform at){
 	this.plot = plot;
 	this.startIndex = startIndex;
 	currentIndex = startIndex;
-	this.endIndex = endIndex;    
+	this.endIndex = endIndex; 
+	this.at = at;
     }
  
     public void next(){
@@ -45,6 +46,9 @@ public class SeismogramShapeIterator implements PathIterator {
 	min = !min;
 	coordinates[0] = currentIndex;
 	coordinates[1] = plot[i][currentIndex];
+	if(at != null){
+	    at.transform(coordinates, 0, coordinates, 0, 1);
+	}
 	if(currentIndex == startIndex){
 	    return SEG_MOVETO;
 	}else{
@@ -61,6 +65,7 @@ public class SeismogramShapeIterator implements PathIterator {
 	min = !min;
 	coordinates[0] = currentIndex;
 	coordinates[1] = plot[i][currentIndex];
+	at.transform(coordinates, 0, coordinates, 0, 1);
 	if(currentIndex == startIndex){
 	    return SEG_MOVETO;
 	}else{
@@ -68,10 +73,12 @@ public class SeismogramShapeIterator implements PathIterator {
 	}	
     }
 
-    protected boolean min = false;
+    private boolean min = false;
 
-    protected int[][] plot;
+    private int[][] plot;
 
-    protected int startIndex, endIndex, currentIndex;
+    private int startIndex, endIndex, currentIndex;
+
+    private AffineTransform at;
 
 }// SeismogramShapeIterator
