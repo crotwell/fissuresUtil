@@ -34,7 +34,7 @@ public class NameServiceCopy {
                 continue;
             }
             String name = from[i].getServerName();
-            logger.info("Checking on " + name);
+            logger.info(name + " is in " + dnsToCopy + ".  Checking it");
             org.omg.CORBA.Object fromObj;
             try {
                 fromObj = from[i].getCorbaObject();
@@ -59,7 +59,7 @@ public class NameServiceCopy {
                     try {
                         org.omg.CORBA.Object toObj = to[j].getCorbaObject();
                         if(!toObj._non_existent() && fromObj.equals(toObj)) {
-                            logger.info("Copy to name service copy of "
+                            logger.info("Not going to rebind.  Copy to name service copy of "
                                     + name
                                     + " is the same as the one in copy from name service");
                             rebind = false;
@@ -133,7 +133,6 @@ public class NameServiceCopy {
         if(copyToNSLoc == null) {
             logErrExit("System property nameServiceCopy.copyTo must be set");
         }
-        logger.info("Copying all from " + dnsToCopy + " to " + copyToNSLoc);
         copyFromNS = Initializer.getNS();
         if(copyFromNS.getNameService() == null) {
             logErrExit("Copy from ns is null!");
@@ -144,6 +143,10 @@ public class NameServiceCopy {
         copyToNS.setNameServiceCorbaLoc(copyToNSLoc);
         org.omg.CORBA.Object ncObj = orb.string_to_object(copyToNSLoc);
         copyToNameContext = NamingContextExtHelper.narrow(ncObj);
+        String copyFromNSLoc = System.getProperty("edu.sc.seis.fissuresUtil.nameServiceCorbaLoc");
+        logger.info("Copying all data centers in " + dnsToCopy
+                + " from a naming service at " + copyFromNSLoc
+                + " to naming service at " + copyToNSLoc);
         copySeisDC();
         copyNetDC();
         copyEventDC();
