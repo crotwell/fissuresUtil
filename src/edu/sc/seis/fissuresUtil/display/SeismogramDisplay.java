@@ -136,5 +136,5 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     protected static Set activeFilters = new HashSet();
 
-    private static Color[] colors = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69), new Color(103,109,92),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
+    private static Color[] colors = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
 }
