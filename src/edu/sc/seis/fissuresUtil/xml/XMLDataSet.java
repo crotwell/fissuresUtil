@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 8916 2004-05-26 19:10:40Z oliverpa $
+ * @version $Id: XMLDataSet.java 9819 2004-07-27 15:18:24Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -1008,6 +1008,7 @@ public class XMLDataSet implements DataSet, Serializable{
 
     static DocumentBuilderFactory factory = null;
     static DocumentBuilder staticDocBuilder = null;
+
 
     private Map dataSetSeismograms = new HashMap();
 

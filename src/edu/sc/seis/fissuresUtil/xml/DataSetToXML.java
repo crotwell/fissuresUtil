@@ -254,29 +254,36 @@ public class DataSetToXML {
      * @return a <code>XMLDataSet</code> populated form the URL
      */
     public static DataSet load(URL datasetURL)
-        throws IOException, ParserConfigurationException, SAXException, UnsupportedFileTypeException {
+        throws IOException, ParserConfigurationException, IncomprehensibleDSMLException, UnsupportedFileTypeException {
         DataSet dataset = null;
 
         DocumentBuilder docBuilder = getDocumentBuilder();
 
-        Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
-        Element docElement = doc.getDocumentElement();
+        try {
+            Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
+            Element docElement = doc.getDocumentElement();
 
-        if (docElement.getTagName().equals("dataset") &&
-            docElement.getAttribute("xsi:schemaLocation").equals(DSML_SCHEMA2_0)) {
-            DataSetToXML dataSetToXML = new DataSetToXML();
-            dataset = dataSetToXML.extract(datasetURL, docElement);
-        } else {
-            logger.warn("Not a 2.0 dsml. "+docElement.getTagName()+"  "+docElement.getAttribute("xsi:schemaLocation"));
-            dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
-            AuditInfo[] audit = new AuditInfo[1];
-            audit[0] = new AuditInfo("loaded from "+datasetURL.toString(),
-                                     System.getProperty("user.name"));
-            dataset.addParameter("xml:base", datasetURL.toString(), audit);
+            if (docElement.getTagName().equals("dataset")) {
+                if (docElement.getAttribute("xsi:schemaLocation").equals(DSML_SCHEMA2_0)) {
+                    DataSetToXML dataSetToXML = new DataSetToXML();
+                    dataset = dataSetToXML.extract(datasetURL, docElement);
+                } else {
+                    logger.warn("Not a 2.0 dsml. "+docElement.getTagName()+"  "+docElement.getAttribute("xsi:schemaLocation"));
+                    dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
+                    AuditInfo[] audit = new AuditInfo[1];
+                    audit[0] = new AuditInfo("loaded from "+datasetURL.toString(),
+                                             System.getProperty("user.name"));
+                    dataset.addParameter("xml:base", datasetURL.toString(), audit);
+                }
+                return dataset;
+            } else {
+                throw new IncomprehensibleDSMLException("This does not appear to be a dsml file, starting tag is not dataset. "+datasetURL.toString());
+            }
+        } catch (SAXException e) {
+            throw new IncomprehensibleDSMLException("This does not appear to be a dsml file."+datasetURL.toString(), e);
         }
-        return dataset;
-
     }
+
     public static final String DSML_SCHEMA2_0 = "http://www.seis.sc.edu/xschema/dataset/2.0 http://www.seis.sc.edu/xschema/dataset/2.0/dataset.xsd";
 
     /** Extracts the dataset from the element, which is assumed to be a
