@@ -8,6 +8,7 @@ import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.network.*;
 
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
@@ -26,7 +27,7 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListener, TimeSyncListener {
+public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, TimeSyncListener {
     /**
      * Creates a new <code>ParticleMotionDisplay</code> instance.
      *
@@ -51,7 +52,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 		  hAmpConfigRegistrar,
 		  vAmpConfigRegistrar,
 		  color);
-	this.addComponentListener(new ComponentAdapter() {
+	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
 		    resolveParticleMotion();
 		    resize();
@@ -68,7 +69,13 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 			  TimeConfigRegistrar timeConfigRegistrar,
 			  AmpConfigRegistrar hAmpConfigRegistrar,
 			  AmpConfigRegistrar vAmpConfigRegistrar, Color color) {
-	this.setLayout(new OverlayLayout(this));
+	particleDisplayPanel = new JLayeredPane();
+	radioPanel = new JPanel();
+	this.setLayout(new BorderLayout());
+	particleDisplayPanel.setLayout(new OverlayLayout(particleDisplayPanel));
+	radioPanel.setLayout(new GridLayout(1, 0));
+	
+	
 	view = new ParticleMotionView(hSeis, 
 				      vSeis, 
 				      timeConfigRegistrar,
@@ -80,7 +87,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	    timeConfigRegistrar.addTimeSyncListener(this);
 	}
 	view.setSize(new java.awt.Dimension(300, 300));
-	add(view, PARTICLE_MOTION_LAYER);
+	particleDisplayPanel.add(view, PARTICLE_MOTION_LAYER);
 	hAmpScaleMap = new AmpScaleMapper(50,
                                           4,
 					  hAmpConfigRegistrar.getAmpRange(hSeis));
@@ -94,7 +101,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
             new CenterTitleBorder(((LocalSeismogramImpl)hSeis).getName());
         vTitleBorder = 
             new CenterTitleBorder(((LocalSeismogramImpl)vSeis).getName());
-	setBorder(BorderFactory.createCompoundBorder(
+	particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(
 						     //	     BorderFactory.createCompoundBorder(
 			 BorderFactory.createRaisedBevelBorder(),
 			 //hTitleBorder),
@@ -106,7 +113,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	  );
 
 	
-	
+	add(particleDisplayPanel, BorderLayout.CENTER);
+	add(radioPanel, BorderLayout.SOUTH);
 	
     }
 
@@ -146,7 +154,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	
 	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSet).getChannelIds();
 	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, ((LocalSeismogram)hseis).channel_id);
+	logger.debug("the original channel_code from the seismogram is "+((LocalSeismogramImpl)hseis).getChannelID().channel_code);
+	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, ((LocalSeismogramImpl)hseis).getChannelID());
 	System.out.println("THe length of the channel group is "+channelGroup.length);
 	edu.iris.Fissures.Time startTime;
 	edu.iris.Fissures.Time endTime;
@@ -164,6 +173,10 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
 		
 		seismograms[counter] = dataSet.getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter]));
+		if(seismograms[counter] == null) 
+		    logger.debug(" seismograms["+counter+"] is NULL");
+		else 
+		    logger.debug(" seismograms["+counter+"] is NOT NULL");
 	    }
 								     
 	 } catch(Exception e) {
@@ -172,13 +185,15 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	}
 	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	
 	showScale((LocalSeismogramImpl)seismograms[0], 
 	     (LocalSeismogramImpl)seismograms[1], 
 	     timeConfigRegistrar, 
 	     hAmpConfigRegistrar, 
 	     vAmpConfigRegistrar, 
 	     null);
-	this.addComponentListener(new ComponentAdapter() {
+	formRadioSetPanel(channelGroup);
+	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
 		    resolveParticleMotion();
 		    resize();
@@ -342,19 +357,19 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	Dimension dim = view.getSize();
 	logger.debug("view coordinates before width = "+view.getSize().width+" height = "+view.getSize().height);
 	Insets insets =	view.getInsets();
-	int width = super.getSize().width;
-	int height = super.getSize().height;
-	width = width - super.getInsets().left - super.getInsets().right;
-	height = height - super.getInsets().top - super.getInsets().bottom;
+	int width = particleDisplayPanel.getSize().width;
+	int height = particleDisplayPanel.getSize().height;
+	width = width - particleDisplayPanel.getInsets().left - particleDisplayPanel.getInsets().right;
+	height = height - particleDisplayPanel.getInsets().top - particleDisplayPanel.getInsets().bottom;
 	if(width < height) {
 	    
-	    this.setSize(new Dimension(super.getSize().width,
-				       width + super.getInsets().top + super.getInsets().bottom));
+	    particleDisplayPanel.setSize(new Dimension(particleDisplayPanel.getSize().width,
+				       width + particleDisplayPanel.getInsets().top + particleDisplayPanel.getInsets().bottom));
 	   
 	    
 	} else {
-	    this.setSize(new Dimension(height  + super.getInsets().left + super.getInsets().right,
-				       super.getSize().height));
+	    particleDisplayPanel.setSize(new Dimension(height  + particleDisplayPanel.getInsets().left + particleDisplayPanel.getInsets().right,
+				       particleDisplayPanel.getSize().height));
 
 	}
 	view.resize();
@@ -439,6 +454,28 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     public void updateTimeRange() {
 
 	view.updateTimeRange();
+    }
+
+    public void formRadioSetPanel(ChannelId[] channelGroup) {
+	ArrayList arrayList = new ArrayList();
+	for(int counter = 0; counter < channelGroup.length; counter++) {
+	    for(int subcounter = counter+1; subcounter < channelGroup.length; subcounter++) {
+		String labelStr = channelGroup[counter].channel_code+"-"+channelGroup[subcounter].channel_code;
+		JRadioButton radioButton = new JRadioButton(labelStr);
+		radioButton.setActionCommand(labelStr);
+		arrayList.add(radioButton);
+	    }
+	}
+	JRadioButton[] radioButtons = new JRadioButton[arrayList.size()];
+	radioButtons = (JRadioButton[])arrayList.toArray(radioButtons);
+	radioButtons[0].setSelected(true);
+	ButtonGroup buttonGroup = new ButtonGroup();
+	for(int counter = 0; counter < channelGroup.length; counter++) {
+	    buttonGroup.add(radioButtons[counter]);
+	    radioPanel.add(radioButtons[counter]);
+	}
+
+	
     }
 
     /**
@@ -548,9 +585,46 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
     private AmpConfigRegistrar hAmpConfigRegistrar, vAmpConfigRegistrar;
 
+    private JLayeredPane particleDisplayPanel;
+    private JPanel radioPanel;
 
     static Category logger = 
         Category.getInstance(ParticleMotionDisplay.class.getName());
     int count = 0;
     
 }// ParticleMotionDisplay
+
+/*********************
+ public void resize() {
+	    
+	Dimension dim = view.getSize();
+	logger.debug("view coordinates before width = "+view.getSize().width+" height = "+view.getSize().height);
+	Insets insets =	view.getInsets();
+	int width = super.getSize().width;
+	int height = super.getSize().height;
+	width = width - super.getInsets().left - super.getInsets().right;
+	height = height - super.getInsets().top - super.getInsets().bottom;
+	if(width < height) {
+	    
+	    particleDisplayPanel.setSize(new Dimension(super.getSize().width,
+				       width + super.getInsets().top + super.getInsets().bottom));
+	   
+	    
+	} else {
+	    particleDisplayPanel.setSize(new Dimension(height  + super.getInsets().left + super.getInsets().right,
+				       super.getSize().height));
+
+	}
+	view.resize();
+	logger.debug("view coordinates are  width = "+view.getSize().width+" height = "+view.getSize().height);
+	logger.debug("view insets left = "+insets.left+" right = "+insets.right);
+	logger.debug("view insets top = "+insets.top+" bottom = "+insets.bottom);
+	logger.debug("display after width = "+getSize().width+" height = "+getSize().height);
+	if(hAmpScaleMap != null) {
+	    hAmpScaleMap.setTotalPixels(dim.width  - insets.left - insets.right);
+	    vAmpScaleMap.setTotalPixels(dim.height  - insets.top - insets.bottom);
+	}
+	repaint();
+    }
+
+**********/
