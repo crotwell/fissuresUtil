@@ -62,12 +62,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	if(timeBorder)
 	    scaleBorder.setBottomScaleMapper(timeScaleMap);
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
-        titleBorder = 
-            new LeftTitleBorder("");
 	setBorder(BorderFactory.createCompoundBorder(
 		  BorderFactory.createCompoundBorder(
 		  BorderFactory.createRaisedBevelBorder(),
-		  titleBorder),
+		  new LeftTitleBorder("")),
 						     BorderFactory.createCompoundBorder(
 											scaleBorder,
 											BorderFactory.createLoweredBevelBorder())));
@@ -90,7 +88,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	plotters.put(newPlotter, colors[plotters.size()%colors.length]);
 	timeConfig.addSeismogram(newSeismogram); 
 	ampConfig.addSeismogram(newSeismogram);
-	overSizedImage = null;
+	redo = true;
     }
     
     /**
@@ -107,7 +105,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	   timeConfig.removeSeismogram(current);
 	   ampConfig.removeSeismogram(current);
        }
-       imageMaker.remove(imagePainter);
+       this.stopImageCreation();
        timeConfig.removeTimeSyncListener(this);
        ampConfig.removeAmpSyncListener(this);
    }
@@ -120,7 +118,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     public AmpRangeConfig getAmpConfig(){ return ampConfig; }
     
     public void updateAmpRange(){
-	overSizedImage = null;
+	redo = true;
 	this.ampScaleMap.setUnitRange(ampConfig.getAmpRange());
 	repaint();
     }
@@ -176,7 +174,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	overSize = new Dimension(w, h);
 	timeScaleMap.setTotalPixels(d.width-insets.left-insets.right);
         ampScaleMap.setTotalPixels(d.height-insets.top-insets.bottom);
-	overSizedImage = null;
+	redo = true;
 	repaint();
     }
 
@@ -184,17 +182,38 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	synchronized(imageMaker){ imageMaker.remove(imagePainter); }
     }
 
-    protected class ImagePainter extends JComponent{
-	public ImagePainter(){
-	    displayInterval = timeConfig.getTimeRange().getInterval();
-	}
+    protected static ImageMaker imageMaker = new ImageMaker();
 
+    protected Dimension overSize;
+
+    protected HashMap plotters = new HashMap();
+    
+    protected AmpRangeConfig ampConfig;
+    
+    protected TimeRangeConfig timeConfig;
+
+    protected ScaleBorder scaleBorder;
+
+    protected TimeScaleMapper timeScaleMap = new TimeScaleCalc(200, new MicroSecondDate(0), new MicroSecondDate(50000000));//placeholder
+    
+    protected AmpScaleMapper ampScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder
+   
+    private Color[] colors = { Color.blue, Color.red, Color.yellow, Color.green, Color.black };
+    
+    static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
+
+    protected ImagePainter imagePainter;
+
+    protected boolean redo;
+
+    protected class ImagePainter extends JComponent{
 	public void paint(Graphics g){
 	    if(overSizedImage == null){
 		logger.debug("the image is null and is being created");
+		synchronized(this){ displayInterval = timeConfig.getTimeRange().getInterval(); }
 		this.createImage();
 		return;
-	    }
+		}
 	    if(overSizedImage.get() == null){
 		logger.debug("image was garbage collected, and is being recreated");
 		synchronized(this){ displayInterval = timeConfig.getTimeRange().getInterval(); }
@@ -209,8 +228,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		    double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * overSize.getWidth();
 		    g2.drawImage(((Image)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
 		}
-		if(redo)
+		if(redo){
+		    logger.debug("the image is being redone");
 		    this.createImage();
+		}
 		redo = false;
 	    } else{
 		synchronized(this){
@@ -249,34 +270,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	protected MicroSecondTimeRange overTimeRange;
 	
 	protected TimeInterval displayInterval;
+    
+	protected SoftReference overSizedImage;
+
     }
-
-    protected static ImageMaker imageMaker = new ImageMaker();
-
-    protected Dimension overSize;
-
-    protected HashMap plotters = new HashMap();
-    
-    protected AmpRangeConfig ampConfig;
-    
-    protected TimeRangeConfig timeConfig;
-
-    protected ScaleBorder scaleBorder;
-
-    protected TimeScaleMapper timeScaleMap = new TimeScaleCalc(200, new MicroSecondDate(0), new MicroSecondDate(50000000));//placeholder
-    
-    protected AmpScaleMapper ampScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder
-   
-    protected LeftTitleBorder titleBorder;
-
-    private Color[] colors = { Color.blue, Color.red, Color.yellow, Color.green, Color.black };
-    
-    protected SoftReference overSizedImage;
-
-    static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
-
-    protected ImagePainter imagePainter;
-
-    protected boolean redo;
-
 }// BasicSeismogramDisplay
