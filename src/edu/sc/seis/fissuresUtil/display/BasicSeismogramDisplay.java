@@ -95,6 +95,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	registrar.add(seismos);
 	for(int i = 0; i < seismos.length; i++){
 	    if(seismos[i] != null){
+		/*System.out.println("new seismogram begin time: " + seismos[i].getSeismogram().getBeginTime() + 
+				   ", new seismogram end time: " + seismos[i].getSeismogram().getEndTime() + 
+				   ", number of points:" + seismos[i].getSeismogram().getNumPoints()); */
 		seismograms.add(seismos[i]);	
 		SeismogramShape newPlotter;
 		if (autoColor) {
@@ -136,6 +139,11 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	    }
 	}catch(Exception e){}
 	repaint();
+    }
+
+    public void addCurrentTimeFlag(){
+	plotters.addLast(new CurrentTimeFlagPlotter());
+	flagCount++;
     }
 
     public void removeAllFlags(){
