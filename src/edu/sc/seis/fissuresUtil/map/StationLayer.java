@@ -152,7 +152,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
                   stat.my_location.longitude, xPoints, yPoints,
                   OMPoly.COORDMODE_ORIGIN);
             station = stat;
-            setDefaultColor(STATION);
+            setDefaultColor(DOWN_STATION);
             setLinePaint(Color.BLACK);
             generate(getProjection());
         }
