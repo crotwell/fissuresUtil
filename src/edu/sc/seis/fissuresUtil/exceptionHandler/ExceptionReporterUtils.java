@@ -6,12 +6,11 @@
 
 package edu.sc.seis.fissuresUtil.exceptionHandler;
 
-import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,7 +35,10 @@ public class ExceptionReporterUtils{
 
     public static String getSysInfo() {
         String sysInfo = "";
+        //Date does local time
         sysInfo += "Date : "+new java.util.Date().toString()+"\n";
+        //MicroSecondDate does GMT by default
+        sysInfo += "Date(GMT) : "+new MicroSecondDate().toString()+"\n";
         try {
             sysInfo += "Server offset : "+ClockUtil.getServerTimeOffset()+"\n";
         } catch (IOException e) {
