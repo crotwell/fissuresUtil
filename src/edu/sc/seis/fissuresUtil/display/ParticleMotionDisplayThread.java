@@ -11,6 +11,7 @@ import edu.iris.Fissures.IfEvent.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.network.*;
 
+import java.util.*;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -54,6 +55,7 @@ public class ParticleMotionDisplayThread{
 				       AmpConfigRegistrar hAmpConfigRegistrar,
 				       AmpConfigRegistrar vAmpConfigRegistrar,
 				       boolean advancedOption,
+				       boolean displayButtonPanel,
 				       ParticleMotionDisplay particleMotionDisplay) {
 	
 	
@@ -67,6 +69,7 @@ public class ParticleMotionDisplayThread{
 	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
 	this.advancedOption = advancedOption;
+	this.displayButtonPanel = displayButtonPanel;
 	this.particleMotionDisplay = particleMotionDisplay;
     }
 
@@ -76,8 +79,23 @@ public class ParticleMotionDisplayThread{
 
 	if(dataSetSeismogram.length == 1) {
 	    dataSetSeismogram = retrieve_seismograms();
+	} else {
+	    channelGroup = new ChannelId[dataSetSeismogram.length];
+	    for(int counter = 0; counter < dataSetSeismogram.length; counter++) {
+
+		channelGroup[counter] = dataSetSeismogram[counter].getSeismogram().getChannelID();
+	    }
 	}
 
+
+	//decide whether to form the radioSetPanel or the checkBoxPanel.
+	if(displayButtonPanel) {
+	    if(!advancedOption) {
+		particleMotionDisplay.formRadioSetPanel(channelGroup);
+	    } else {
+		particleMotionDisplay.formCheckBoxPanel(channelGroup);
+	    }
+	}
 
 	for(int counter = 0; counter < dataSetSeismogram.length; counter++) {
 
@@ -110,20 +128,20 @@ public class ParticleMotionDisplayThread{
 
     public DataSetSeismogram[] retrieve_seismograms() {
 	LocalSeismogramImpl seis = dataSetSeismogram[0].getSeismogram();
+	Date chanIdStartTime = Calendar.getInstance().getTime();
 	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSetSeismogram[0].getDataSet()).getChannelIds();
+	Date chanIdendTime = Calendar.getInstance().getTime();
+	logger.debug(" Time for CHan ID is "+(chanIdendTime.getTime() - chanIdStartTime.getTime()));
+	
+	Date channelGroupStartTime = Calendar.getInstance().getTime();
 	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
 	logger.debug("the original channel_code from the seismogram is "+seis.getChannelID().channel_code);
 	 channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
+	 Date channelGroupEndTime = Calendar.getInstance().getTime();
+	 logger.debug(" Time for Chan Grouper is "+(channelGroupEndTime.getTime() - channelGroupStartTime.getTime()));
 	logger.debug("THe length of the channel group is "+channelGroup.length);
 
-		//decide whether to form the radioSetPanel or the checkBoxPanel.
-	if(displayButtonPanel) {
-	    if(!advancedOption) {
-		particleMotionDisplay.formRadioSetPanel(channelGroup);
-	    } else {
-		particleMotionDisplay.formCheckBoxPanel(channelGroup);
-	    }
-	}
+
 
 
 	edu.iris.Fissures.Time startTime;
