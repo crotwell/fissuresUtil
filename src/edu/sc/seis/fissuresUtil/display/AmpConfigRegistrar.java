@@ -19,10 +19,20 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
     public AmpConfigRegistrar(){
 	ampConfig = new RMeanAmpConfig();
 	ampConfig.addAmpSyncListener(this);
+    }   
+
+    public AmpConfigRegistrar(AmpRangeConfig ar){
+	ampConfig = ar;
+	ampConfig.addAmpSyncListener(this);
+    }   
+
+    public AmpConfigRegistrar(AmpSyncListener creator){
+	this(new RMeanAmpConfig(), creator);
     }
 
-    public AmpConfigRegistrar (AmpRangeConfig ampConfig){
+    public AmpConfigRegistrar (AmpRangeConfig ampConfig, AmpSyncListener creator){
 	this.ampConfig = ampConfig;
+	this.addAmpSyncListener(creator);
 	ampConfig.addAmpSyncListener(this);
     }	
      
