@@ -41,8 +41,9 @@ public class DateChooser extends JPanel {
     
       currentDate = "dd MMMMM yyyy 'at' hh:mm:ss z";      
       int option=0;
-     
+    
       calendar.setTime(today);
+      calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
       todaycalendar.setTime(today);
       createComponents();
 
@@ -66,6 +67,7 @@ public class DateChooser extends JPanel {
       int option=0;
      
       calendar.setTime(today);
+      calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
       todaycalendar.setTime(today);
       createComponents();
 
@@ -324,14 +326,14 @@ public class DateChooser extends JPanel {
 	}
 
 	hourbox= new JComboBox(hourst);
-        hourbox.setSelectedIndex(calendar.HOUR);
+        hourbox.setSelectedIndex(calendar.HOUR_OF_DAY);
         hourbox.setAlignmentX(Component.LEFT_ALIGNMENT);
         hourbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 String newSelection = (String)cb.getSelectedItem();
                 hour= Integer.parseInt(newSelection);
-		calendar.set(Calendar.HOUR, hour);
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
                 //dateChanged();
             }
         });
