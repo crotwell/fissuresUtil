@@ -1,0 +1,7 @@
+plottable.create=CREATE TABLE plottable (channel_id int, \
+                                         samples_per_second double, \
+                                         start_time timestamp, \
+                                         sample_count int, \
+                                         data binary, \
+                                         PRIMARY KEY (channel_id, samples_per_second, start_time), \
+                                         FOREIGN KEY (channel_id) REFERENCES channel (chan_id))
