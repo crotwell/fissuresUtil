@@ -6,6 +6,8 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.*;
 
 import java.util.*;
+import java.net.*;
+import java.io.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
@@ -42,6 +44,28 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 	this.update = update;
 	this.speed = speed;
 	this.lastDate = new MicroSecondDate();
+	try {
+	    URL url = new URL("http://www.seis.sc.edu/cgi-bin/date_time.pl");
+	    InputStream is = url.openStream();
+	    InputStreamReader isReader = new InputStreamReader(is);
+	    BufferedReader bufferedReader = new BufferedReader(isReader);
+	    String str;
+	    String timeStr = null;
+	    while((str = bufferedReader.readLine()) != null) {
+		timeStr = str;
+	    }
+	    //	    System.out.println("*** serverTime is "+ timeStr);
+	    edu.iris.Fissures.Time serverTime = new edu.iris.Fissures.Time();
+	    if(timeStr != null) {
+		serverTime = new edu.iris.Fissures.Time(timeStr, -1);
+	    }
+	    MicroSecondDate serverDate = new MicroSecondDate(serverTime);
+	    System.out.println("server Date is "+serverDate);
+	    System.out.println("the lastDate is "+this.lastDate);
+	    offset = new TimeInterval(this.lastDate, serverDate);
+	    if(java.lang.Math.abs(offset.value) <  2000000) offset = new TimeInterval(serverDate, serverDate);
+	    System.out.println("The offset is "+offset.value);
+	} catch(Exception e) {e.printStackTrace();}
     }
 
     public void startTimer() {
@@ -54,6 +78,7 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 			     if (beginTime != null && speed != 0) {
 				 MicroSecondDate now = new MicroSecondDate();
 				 TimeInterval timeInterval = new TimeInterval(lastDate, now);
+				 timeInterval = timeInterval.add(offset);
 				 width = 
 				     (TimeInterval)timeInterval.multiplyBy(speed);
 				 lastDate = now;
@@ -77,6 +102,8 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
     }
 
     private TimeInterval update;
+
+    private TimeInterval offset;
 
     private MicroSecondDate lastDate;
 
