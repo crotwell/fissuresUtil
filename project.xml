@@ -3,7 +3,7 @@
     <artifactId>fissuresUtil</artifactId>
     <name>fissuresUtil</name>
     <groupId>fissuresUtil</groupId>
-    <currentVersion>1.0.11</currentVersion>
+    <currentVersion>1.0.12beta</currentVersion>
     <organization>
         <name>Seismology at the University of South Carolina</name>
         <url>http://www.seis.sc.edu</url>
@@ -249,7 +249,7 @@
     <build>
         <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>
         <sourceDirectory>src</sourceDirectory>
-        <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+        <unitTestSourceDirectory>tests/database</unitTestSourceDirectory>
         <unitTest>
             <includes>
                 <include>edu/**/*Test.java</include>
