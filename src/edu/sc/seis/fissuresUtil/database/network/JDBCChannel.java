@@ -90,6 +90,16 @@ public class JDBCChannel extends NetworkTable {
         getByDBId = conn.prepareStatement("SELECT * FROM channel WHERE chan_id = ?");
         getDBId = conn.prepareStatement("SELECT chan_id FROM channel WHERE site_id = ? AND " +
                                             "chan_code = ? AND chan_begin_id = ?");
+        getChannelDbId = conn.prepareStatement(getAllIdsQuery + ", site, station, network, time " +
+                                               "WHERE channel.site_id = site.site_id AND " +
+                                               "site.sta_id = station.sta_id AND " +
+                                               "station.net_id = network.net_id AND "+
+                                               "channel.chan_code = ? AND "+
+                                               "site.site_code = ? AND "+
+                                               "station.sta_code = ? AND "+
+                                               "network.net_code = ? AND "+
+                                               "channel.chan_begin_id = time.time_id AND "+
+                                               "time.time_stamp = ? AND time_nanos = ? AND time_leapsec = ?");
     }
 
     public int put(Channel chan)  throws SQLException {
@@ -164,6 +174,18 @@ public class JDBCChannel extends NetworkTable {
         return get(getDBId(id, site));
     }
 
+    public int getDBId(ChannelId id)  throws SQLException, NotFound {
+        int index = 1;
+        getChannelDbId.setString(index++, id.channel_code);
+        getChannelDbId.setString(index++, id.site_code);
+        getChannelDbId.setString(index++, id.station_code);
+        getChannelDbId.setString(index++, id.network_id.network_code);
+        time.insert(id.begin_time, getChannelDbId, index);
+        ResultSet rs = getChannelDbId.executeQuery();
+        if(rs.next()){ return rs.getInt("chan_id"); }
+        throw new NotFound("No such channel id in the db");
+    }
+    
     public int getDBId(ChannelId id, Site site)  throws SQLException, NotFound {
         insertId(id, site, getDBId, 1, siteTable, time);
         ResultSet rs = getDBId.executeQuery();
@@ -242,7 +264,7 @@ public class JDBCChannel extends NetworkTable {
     private PreparedStatement getAllIds, getAllIdsForStation, getAllIdsForNetwork;
 
     private PreparedStatement getAllChans, getAllChansForSite,
-        getAllChansForStation, getAllChansForNetwork;
+        getAllChansForStation, getAllChansForNetwork, getChannelDbId;
 
     private PreparedStatement getIfNameExists, getByDBId, getDBId, updateSite,
         putAll;
