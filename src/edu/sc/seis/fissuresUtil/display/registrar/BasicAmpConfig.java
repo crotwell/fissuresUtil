@@ -143,7 +143,7 @@ public class BasicAmpConfig implements AmpConfig{
 
     private AmpEvent fireAmpEvent(AmpEvent event){
         AmpListener[] al = getAmpListeners();
-        for (int i = 0; i < ampListeners.length; i++){
+        for (int i = 0; i < al.length; i++){
             al[i].updateAmp(event);
         }
         return event;
@@ -184,8 +184,8 @@ public class BasicAmpConfig implements AmpConfig{
         DataSetSeismogram[] seis = getSeismograms();
         for (int i = 0; i < seis.length; i++){
             AmpConfigData current = getAmpData(seis[i]);
-
-            if(current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
+            if(current!=null && //checks for the seismogram being removed between getSeismograms and here
+               current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
                 if(setAmpRange(current.getDSS())){ //checks if the new time changes the amp range
                     changed = true;// only generates a new amp event if the amp ranges have changed
                 }
