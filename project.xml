@@ -148,6 +148,22 @@ oot:${pom.id}</connection>
       </includes>
     </unitTest>
     <sourceDirectory>src</sourceDirectory>
+    <resources>
+       <resource>
+          <directory>src/edu/sc/seis/fissuresUtil/chooser</directory>
+          <targetPath>edu/sc/seis/fissuresUtil/chooser</targetPath>
+          <includes>
+             <include>ChannelChooser.properties</include>
+          </includes>
+       </resource>
+       <resource>
+          <directory>src/edu/sc/seis/fissuresUtil/display</directory>
+          <targetPath>edu/sc/seis/fissuresUtil/display</targetPath>
+          <includes>
+             <include>*.prop</include>
+          </includes>
+       </resource>
+    </resources>
   </build>
 
 </project>
