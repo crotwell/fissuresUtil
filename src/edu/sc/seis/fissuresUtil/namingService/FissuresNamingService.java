@@ -159,10 +159,10 @@ public class FissuresNamingService {
 
         dns = appendKindNames(dns);
 
-        if(interfacename != null && interfacename.length() != 0)
+        if(interfacename != null && interfacename.length() != 0){
             dns = dns + "/" + interfacename + ".interface";
+        }
         if(objectname != null && objectname.length() != 0) {
-            objectname = objectname;// + getVersion();
             dns = dns + "/" + objectname + ".object"+getVersion();
         }
         logger.info("the final dns resolved is "+dns);
