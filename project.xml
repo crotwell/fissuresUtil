@@ -284,6 +284,18 @@
             <artifactId>namespace</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <id>velocity</id>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <id>velocity</id>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <id>commons-collections</id>
+            <version>3.0</version>
+        </dependency>
     </dependencies>
     <build>
         <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>
@@ -314,6 +326,14 @@
         </unitTest>
         <resources>
             <resource>
+						<directory>src/edu/sc/seis/fissuresUtil/database/util</directory>
+						<targetPath>edu/sc/seis/fissuresUtil/database/util</targetPath>
+						<includes>
+								<include>SQLLoader.prop</include>
+						</includes>
+						<filtering>false</filtering>
+				</resource>
+				 <resource>
                 <directory>src/edu/sc/seis/fissuresUtil/database/props</directory>
                 <targetPath>edu/sc/seis/fissuresUtil/database/props</targetPath>
                 <includes>
