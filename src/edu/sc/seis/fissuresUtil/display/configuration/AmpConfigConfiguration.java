@@ -16,24 +16,10 @@ public class AmpConfigConfiguration implements Cloneable {
         if(type.equals("individual")) {
             if(DOMHelper.hasElement(element, "ampConfig")) {
                 Element ampConfigEl = DOMHelper.getElement(element, "ampConfig");
-                ampConfig = getAmpConfig(ampConfigEl);
+                ampConfig = AmpConfigConfiguration.create(ampConfigEl)
+                        .createAmpConfig();
             }
         }
-    }
-
-    private AmpConfig getAmpConfig(Element el) {
-        AmpConfigConfiguration aConfig = new AmpConfigConfiguration();
-        aConfig.configure(el);
-        aConfig.setAmpConfig(aConfig.createAmpConfig());
-        return aConfig.getAmpConfig();
-    }
-
-    private AmpConfig getAmpConfig() {
-        return ampConfig;
-    }
-
-    private void setAmpConfig(AmpConfig ampConfig) {
-        this.ampConfig = ampConfig;
     }
 
     public AmpConfig createAmpConfig() {
