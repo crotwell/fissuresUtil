@@ -68,7 +68,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
 
 
     public RequestFilter getRequestFilter() {
-        if(requestFilter == null) {
+        if(super.getRequestFilter() == null) {
             LocalSeismogramImpl seis = getSeismogram();
             requestFilter = new RequestFilter(seis.getChannelID(),
                                               seis.getBeginTime().getFissuresTime(),
