@@ -51,7 +51,7 @@ public class FissuresShapeLayer extends ShapeLayer implements OverriddenOMLayer{
     }
     
     public Properties getProperties(Properties props){
-        super.getProperties(props);
+        props = super.getProperties(props);
         props.put("overviewLineWidth", "" + overviewLineWidth);
         props.put("lineWidthThreshold", "" + lineWidthThreshold);
         return props;
