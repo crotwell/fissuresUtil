@@ -47,7 +47,7 @@ public class PSXYExecute {
                                  String outlineColor,
                                  double[][] points) throws IOException,
             InterruptedException {
-        String command = "psxy -V -J" + projection + " -R" + region + " -S"
+        String command = "psxy -J" + projection + " -R" + region + " -S"
                 + symbol + " -O -K";
         if(fillColor != null) {
             command += " -G" + fillColor;

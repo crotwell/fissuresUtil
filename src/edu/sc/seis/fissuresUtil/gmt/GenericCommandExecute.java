@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.bag.StreamPump;
 
 /**
@@ -26,7 +27,7 @@ public class GenericCommandExecute {
                               OutputStream stderr) throws InterruptedException,
             IOException {
         Runtime rt = Runtime.getRuntime();
-        System.out.println("executing command: " + command);
+        //System.out.println("executing command: " + command);
         Process proc = rt.exec(command);
         BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdout));
@@ -61,7 +62,7 @@ public class GenericCommandExecute {
         } catch (InterruptedException e) {
             // assume all is well???
         }
-        System.out.println("command returned exit value " + exitVal);
+        logger.info("command " + command + " returned exit value " + exitVal);
         if(!pump.hasCompleted() || !errPump.hasCompleted()) { 
             throw new IllegalStateException("Pumps must complete: stdout:"+pump.hasCompleted()+"  stderr:"+errPump.hasCompleted()+"  exitValue:"+exitVal);
         }
@@ -79,4 +80,6 @@ public class GenericCommandExecute {
             e.printStackTrace();
         }
     }
+    
+    private static Logger logger = Logger.getLogger(GenericCommandExecute.class);
 }

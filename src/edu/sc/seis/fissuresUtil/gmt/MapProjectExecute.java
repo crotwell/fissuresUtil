@@ -19,8 +19,8 @@ public class MapProjectExecute {
                                   double[][] points) throws IOException,
             InterruptedException {
         Runtime rt = Runtime.getRuntime();
-        String command = "mapproject -V -Dp -J" + projection + " -R" + region;
-        System.out.println("executing gmt command: " + command);
+        String command = "mapproject -Dp -J" + projection + " -R" + region;
+        //System.out.println("executing gmt command: " + command);
         Process proc = rt.exec(command);
         BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
         StringWriter outputSW = new StringWriter();
@@ -40,8 +40,8 @@ public class MapProjectExecute {
         //waiting for finish of StreamPump runs
         synchronized(pump) {}
         synchronized(errPump) {}
-        System.out.println("command returned exit value " + exitVal);
-        System.out.println("processing output from gmt command");
+        //System.out.println("command returned exit value " + exitVal);
+        //System.out.println("processing output from gmt command");
         StringTokenizer tok = new StringTokenizer(outputSW.toString());
         int[][] pixelLocs = new int[points.length][2];
         for(int i = 0; i < points.length; i++) {
