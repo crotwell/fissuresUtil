@@ -33,23 +33,27 @@ public class DisplayUtils {
 		   (((SeismogramAttrImpl)attrs[counter]).getEndTime().equals(endDate) ||
 		    ((SeismogramAttrImpl)attrs[counter]).getEndTime().after(endDate))){
 		    arrayList.add(((SeismogramAttrImpl)attrs[counter]).getName());
-		    //return ((SeismogramAttrImpl)attrs[counter]).getName();
+		    
 		}
 	    }
 	}
 	String[] rtnValues = new String[arrayList.size()];
-	rtnValues = (String[]) arrayList.toArray(rtnValues);												return rtnValues;
+	rtnValues = (String[]) arrayList.toArray(rtnValues);						
+	return rtnValues;
+
     }    
 	
-    public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
-	String[] seisNames = DisplayUtils.getSeismogramNames(channelId, dataset, timeRange);
-	LocalSeismogram[] localSeismograms = new LocalSeismogram[seisNames.length];
-	for(int counter = 0 ; counter < seisNames.length; counter++) {
-	    localSeismograms[counter] = ((XMLDataSet)dataset).getSeismogram(seisNames[counter]);
-	}
-	return localSeismograms;
+	
+
+public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
+		String[] seisNames = DisplayUtils.getSeismogramNames(channelId, dataset, timeRange);
+		LocalSeismogram[] localSeismograms = new LocalSeismogram[seisNames.length];
+		for(int counter = 0 ; counter < seisNames.length; counter++) {
+				localSeismograms[counter] = ((XMLDataSet)dataset).getSeismogram(seisNames[counter]);
+		}
+		return localSeismograms;
     }
-    
+   
     public static String getSeismogramName(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
 	Channel channel = ((XMLDataSet)dataset).getChannel(channelId);
 	SeismogramAttr[] attrs = ((XMLDataSet)dataset).getSeismogramAttrs();
@@ -109,6 +113,7 @@ public class DisplayUtils {
     }
     
     public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
+    
 
     public static final Map statCache = new HashMap();
 }// DisplayUtils
