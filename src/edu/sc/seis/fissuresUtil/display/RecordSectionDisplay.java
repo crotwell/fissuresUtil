@@ -46,6 +46,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         setAmpConfig(new RMeanAmpConfig());
         seisToPixelMap = new HashMap();
     }
+    public RecordSectionDisplay(LayoutConfig customLayout){
+        this();
+        setLayout(customLayout);
+    }
 
     public RecordSectionDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
                                 AmpConfig ac){
