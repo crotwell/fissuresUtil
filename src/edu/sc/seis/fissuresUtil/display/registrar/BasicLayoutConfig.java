@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 
 
 public class BasicLayoutConfig implements LayoutConfig{
-    public BasicLayoutConfig(){}
+    public BasicLayoutConfig(){ }
 
     public BasicLayoutConfig(DataSetSeismogram[] seismos){
         add(seismos);
@@ -185,33 +185,35 @@ public class BasicLayoutConfig implements LayoutConfig{
         DataSetSeismogram[] seis = getSeismograms();
         if(seis.length > 0){
             List orderedSeis = new ArrayList(seis.length);
-            orderedSeis.add(0, seis[0]);
+            orderedSeis.add(seis[0]);
             double minDistBetween = Double.POSITIVE_INFINITY;
             for (int i = 1; i < seis.length; i++){
                 DataSetSeismogram curSeis = seis[i];
                 double curSeisDelt = ((QuantityImpl)distanceMap.get(curSeis)).getValue();
                 ListIterator orIt = orderedSeis.listIterator();
                 boolean added = false;
-                while(orIt.hasNext()){
+                while(orIt.hasNext() && !added){
                     DataSetSeismogram orSeis = (DataSetSeismogram)orIt.next();
                     double orSeisDelt = ((QuantityImpl)distanceMap.get(orSeis)).getValue();
-                    if(curSeisDelt < orSeisDelt){
+                    double distDiff = orSeisDelt - curSeisDelt;
+                    if(distDiff > 0){
                         orIt.previous();
                         orIt.add(curSeis);
                         added = true;
-                        break;
                     }
-                    double distDiff = Math.abs(orSeisDelt - curSeisDelt);
-                    if(distDiff != 0 && distDiff < minDistBetween){
-                        minDistBetween = distDiff;
+                    if(distDiff != 0 && Math.abs(distDiff) < minDistBetween){
+                        minDistBetween = Math.abs(distDiff);
                     }
                 }
                 if(!added){
                     orderedSeis.add(curSeis);
                 }
             }
-            if(minDistBetween == Double.POSITIVE_INFINITY){//if minDistBetween hasn't changed, there is only one seis
-                LayoutData[] data = { new LayoutData(seis[0], 0.0, 1.0)};
+            if(minDistBetween == Double.POSITIVE_INFINITY){//if minDistBetween hasn't changed, all the seis are at one place
+                LayoutData[] data = new LayoutData[seis.length];
+                for (int i = 0; i < data.length; i++){
+                    data[i] = new LayoutData(seis[i], 0.0, 1.0);
+                }
                 return new LayoutEvent(data, LayoutEvent.ONE_DEGREE);
             }
             double offset = minDistBetween * scale/2;
