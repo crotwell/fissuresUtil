@@ -11,6 +11,8 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
+
+import org.apache.log4j.*;
 /**
  * RTTimeRangeConfig.java
  *
@@ -75,7 +77,7 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 				 width = (TimeInterval)timeInterval.multiplyBy(speed);
 				 lastDate = now;
 				 shaleTime(timeInterval.getValue()/time.getInterval().getValue() * speed, 1);
-				 System.out.println("Timer: updateTimeSyncListeners()  speed="+speed);
+				 logger.debug("Timer: updateTimeSyncListeners()  speed="+speed);
 			     } // end of if (beginTime != null)
 			 }
 		     });
@@ -95,6 +97,7 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 	speed = 1;
 	stopTimer();
 	super.reset();
+	startTimer();
     }
     
     public void setSpeed(float speed) {
@@ -120,5 +123,5 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 
     protected TimeInterval width = new TimeInterval(1, UnitImpl.SECOND);
 
-           
+    private static Category logger = Category.getInstance(RTTimeRangeConfig.class.getName());
 }// RTTimeRangeConfig
