@@ -152,7 +152,7 @@ public class GUIReporter implements ExceptionReporter{
 
                     public void writeFile()throws IOException{
                         JFileChooser fileChooser = new JFileChooser();
-                        fileChooser.setSelectedFile(new File(ExceptionReporterUtils.getExceptionClassName(e) + ".txt"));
+                        fileChooser.setSelectedFile(new File(ExceptionReporterUtils.getClassName(e) + ".txt"));
                         int rtnVal = fileChooser.showSaveDialog(displayPanel);
                         if(rtnVal == JFileChooser.APPROVE_OPTION) {
                             FileWriterReporter writer = new FileWriterReporter(fileChooser.getSelectedFile().getAbsoluteFile());
