@@ -198,10 +198,9 @@ public class DisplayUtils {
         List east = new ArrayList();
         List z = new ArrayList();
         for(int i = 0; i < seismos.length; i++) {
-            if(DisplayUtils.getOrientationName(seismos[i]).equals("North")) {
+            if(DisplayUtils.getOrientationName(seismos[i]).equals(NORTH)) {
                 north.add(seismos[i]);
-            } else if(DisplayUtils.getOrientationName(seismos[i])
-                    .equals("East")) {
+            } else if(DisplayUtils.getOrientationName(seismos[i]).equals(EAST)) {
                 east.add(seismos[i]);
             } else {
                 z.add(seismos[i]);
