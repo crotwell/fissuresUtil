@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.util.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.display.*;
+import org.apache.log4j.*;
 
 /**
  * ParticleMotionView.java
@@ -56,7 +57,7 @@ public class ParticleMotionView extends JComponent{
 		    if(zoomOut) clickCount = 2;
 		    
 		    zoomInParticleMotionDisplay(clickCount, me.getX(), me.getY());
-		    //System.out.println("me x "+me.getX()+" me y "+me.getY());
+		    //logger.debug("me x "+me.getX()+" me y "+me.getY());
 		    //findPoint(me.getClickCount(), me.getX(), me.getY());
 		    startPoint = null;
 		    endPoint = null;
@@ -110,12 +111,12 @@ public class ParticleMotionView extends JComponent{
 	}
 	int xone = (int)(((hmax - hmin)/width * mx) + hmin);
 	int yone = (int)(((vmin - vmax)/height * my) + vmax);
-	System.out.println("----------------------------------------------------------");
-	System.out.println("clickCount = "+clickCount);
-	System.out.println(" hmin = "+hmin+" hmax = "+hmax);
-	System.out.println(" vmin = "+vmin+" vmax = "+vmax);
-	System.out.println(" xone = "+xone+" yone = "+yone);
-	System.out.println(" bcenterx = "+centerx+" bcentery = "+centery);	
+	logger.debug("----------------------------------------------------------");
+	logger.debug("clickCount = "+clickCount);
+	logger.debug(" hmin = "+hmin+" hmax = "+hmax);
+	logger.debug(" vmin = "+vmin+" vmax = "+vmax);
+	logger.debug(" xone = "+xone+" yone = "+yone);
+	logger.debug(" bcenterx = "+centerx+" bcentery = "+centery);	
 	if(clickCount == 1) {
 	    if(xone < 0) centerx = -centerx;
 	    if(yone < 0) centery = -centery;
@@ -142,9 +143,9 @@ public class ParticleMotionView extends JComponent{
 	}
 	if(xa > xs) { int temp = xs; xs = xa; xa = temp;}
 	if(ya > ys) {int temp = ys; ys = ya; ya = temp;}
-	System.out.println(" acenterx = "+centerx+" acentery = "+centery);
-	System.out.println(" xa = "+xa+" xs = "+xs);	
-	System.out.println(" ya = "+ya+" ys = "+ys);
+	logger.debug(" acenterx = "+centerx+" acentery = "+centery);
+	logger.debug(" xa = "+xa+" xs = "+xs);	
+	logger.debug(" ya = "+ya+" ys = "+ys);
 	//int xtwo = (int)(((hmax - hmin)/width * endPoint.getX()) - hmax);
 	//int ytwo = (int)(((vmin - vmax)/height * endPoint.getY()) + vmax);
 	startPoint = null;
@@ -176,7 +177,7 @@ public class ParticleMotionView extends JComponent{
 		      //}
 	  }
 	 
-	  //System.out.println("The return value is "+rtn);
+	  //logger.debug("The return value is "+rtn);
 	  if(rtn == true) {repaint();}
 	  return rtn;
 			
@@ -197,8 +198,8 @@ public class ParticleMotionView extends JComponent{
    
 	if(startPoint != null && endPoint != null) {
 	    graphics2D.setColor(Color.yellow);
-	    //System.out.println("Start Point "+startPoint.getX()+"  "+startPoint.getY());
-	    //System.out.println("End Point "+endPoint.getX()+"  "+endPoint.getY());
+	    //logger.debug("Start Point "+startPoint.getX()+"  "+startPoint.getY());
+	    //logger.debug("End Point "+endPoint.getX()+"  "+endPoint.getY());
 	    java.awt.geom.Rectangle2D.Double rect = new java.awt.geom.Rectangle2D.Double(startPoint.getX(),
 											 startPoint.getY(),
 											 endPoint.getX() - startPoint.getX(),
@@ -239,14 +240,14 @@ public class ParticleMotionView extends JComponent{
 					       
 	    Dimension flipDimension = new Dimension(dimension.height,
 						    dimension.width);
-	    System.out.println("The width is "+dimension.width+" height is "+dimension.height);
+	    logger.debug("The width is "+dimension.width+" height is "+dimension.height);
 	    
 	    try {
 
 		
-		System.out.println("In PaintSeismogram hmax = "+hunitRangeImpl.getMaxValue()+
+		logger.debug("In PaintSeismogram hmax = "+hunitRangeImpl.getMaxValue()+
 				   " hmin = "+hunitRangeImpl.getMinValue());
-		System.out.println("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
+		logger.debug("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
 				   " vmin = "+vunitRangeImpl.getMinValue());
 				   
 		int[][] hPixels = SimplePlotUtil.compressYvalues(hseis, 
@@ -269,7 +270,7 @@ public class ParticleMotionView extends JComponent{
 								 dimension);
 
 
-		System.out.println("---------------------->Scaling THE Y VALUES ");
+		logger.debug("---------------------->Scaling THE Y VALUES ");
 		SimplePlotUtil.scaleYvalues(vPixels,
 					    vseis, 
 					    new MicroSecondTimeRange(new MicroSecondDate(vseis.getBeginTime()),
@@ -286,10 +287,10 @@ public class ParticleMotionView extends JComponent{
 		x = hPixels[1];
 		y = vPixels[1];
 		if (hPixels[1].length < len) { len = hPixels.length; }
-		System.out.println("-----------------------------------------");
+		logger.debug("-----------------------------------------");
 		for(int c = 0;  c < len; c++) {
 
-		    // System.out.println("x = "+hPixels[1][c]+" y = "+vPixels[1][c]);
+		    // logger.debug("x = "+hPixels[1][c]+" y = "+vPixels[1][c]);
 		  
 		}
 		g.drawPolyline(hPixels[1], vPixels[1], len);
@@ -328,7 +329,7 @@ public class ParticleMotionView extends JComponent{
     
     public Shape getAzimuthPath() {
 
-	//System.out.println("*******************************************************");
+	//logger.debug("*******************************************************");
 	int size = azimuths.size();
 	ParticleMotion particleMotion = (ParticleMotion)displays.get(0);
 	AmpRangeConfig ampRangeConfig = particleMotion.vAmpRangeConfig;
@@ -352,25 +353,25 @@ public class ParticleMotionView extends JComponent{
 	int newy =  originy;
 	    //(int)(fmax - (((originy-vmin)*fmax)/(vmax - vmin)));
 	    //(int)(((min - max) / fmax * me.getY()) + max);
-	//System.out.println(" min= "+hmin+" max= "+hmax+" fmin= "+fmin+" fmax= "+fmax);
-	//System.out.println("newx = "+newx+" newy = "+newy);
+	//logger.debug(" min= "+hmin+" max= "+hmax+" fmin= "+fmin+" fmax= "+fmax);
+	//logger.debug("newx = "+newx+" newy = "+newy);
 	GeneralPath generalPath = new GeneralPath();
 	for(int counter = 0; counter < size; counter++) {
 	    
 	    double degrees = ((Double)azimuths.get(counter)).doubleValue();
 	    degrees = degrees;
-	    //System.out.println("The degrees are "+degrees);
+	    //logger.debug("The degrees are "+degrees);
  	    int x = (int)(fmin * Math.cos(Math.toRadians(degrees)));
 	    int y = (int)(fmax * Math.sin(Math.toRadians(degrees)));
 
-	    //System.out.println("x = "+x+" y= "+y);
+	    //logger.debug("x = "+x+" y= "+y);
 	    generalPath.moveTo(newx+x, newy-y);
 	    generalPath.lineTo(newx-x, newy+y);
-	    //System.out.println("resulttwox = "+(newx-x)+" resulttwoy = "+(newy+y));
-	    //System.out.println("resultonex = "+(newx+x)+" resultoney = "+(newy-y));
+	    //logger.debug("resulttwox = "+(newx-x)+" resulttwoy = "+(newy+y));
+	    //logger.debug("resultonex = "+(newx+x)+" resultoney = "+(newy-y));
 	      
 	}
-	//System.out.println("-----------------------------------------------------------");
+	//logger.debug("-----------------------------------------------------------");
 	return (Shape)generalPath;
     }
     public Shape getSectorShape() {
@@ -603,5 +604,8 @@ public class ParticleMotionView extends JComponent{
 	private Color color = null;
 	private boolean selected = false;
     }
+
+    static Category logger = 
+        Category.getInstance(ParticleMotionView.class.getName());
 
 }// ParticleMotionView

@@ -10,6 +10,8 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import org.apache.log4j.*;
+
 
 /**
  * ParticleMotionDisplay.java
@@ -104,9 +106,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	this.vAmpScaleMap.setUnitRange(vAmpRangeConfig.getAmpRange());
     }
     public void updateHorizontalAmpScale(UnitRangeImpl r) {
-	//System.out.println("The amplitudeRange is being updated ");
-	//System.out.println("The minimum value of the updated value is "+r.getMinValue());
-	//System.out.println("The maximum value of the updated vlue is "+r.getMaxValue());
+	//logger.debug("The amplitudeRange is being updated ");
+	//logger.debug("The minimum value of the updated value is "+r.getMinValue());
+	//logger.debug("The maximum value of the updated vlue is "+r.getMaxValue());
 	this.hAmpScaleMap.setUnitRange(r);
 	resize();
     }
@@ -213,9 +215,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	sv.addParticleMotionDisplay(hSeisex, vSeisex,
 				    vAmpRangeConfig,
 				    vAmpRangeConfig);
-	//System.out.println("The min amp of second before "+
+	//logger.debug("The min amp of second before "+
 	//	vAmpRangeConfig.getAmpRange(vSeisex).getMinValue());
-	//System.out.println("The max amp of second before "
+	//logger.debug("The max amp of second before "
 	///+vAmpRangeConfig.getAmpRange(vSeisex).getMaxValue());
 	//sv.addAzimuthLine(30);
 	//sv.addAzimuthLine(60);
@@ -275,6 +277,10 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
 
     private AmpRangeConfig hAmpRangeConfig, vAmpRangeConfig;
+
+
+    static Category logger = 
+        Category.getInstance(ParticleMotionDisplay.class.getName());
     
     
 }// ParticleMotionDisplay
