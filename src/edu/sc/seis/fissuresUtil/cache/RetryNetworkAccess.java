@@ -37,6 +37,10 @@ public class RetryNetworkAccess implements NetworkAccess {
         this.retry = retry;
     }
 
+    public NetworkAccess getNetworkAccess() {
+        return net;
+    }
+
     public ChannelId[] retrieve_grouping(ChannelId id) throws ChannelNotFound {
         int count = 0;
         RuntimeException lastException = null;
