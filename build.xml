@@ -6,7 +6,7 @@
        <property name="build" value="build" />
        <property name="dist" value="dist" />
        <property name="doc" value="${dist}/doc" />
-       <property name="javadocs" value="${dist}/javadocs" />
+       <property name="javadocs" value="${doc}/javadocs" />
        <property file="../KeySigning/ant.props" />
        <property name="junit_jar" value="../junit3.7/junit.jar" />
        <property name="fissuresImpljar" value="/seis/data0/crotwell/fissures/dist/lib/FissuresImpl.jar" />
@@ -63,7 +63,7 @@
        <target name="javadoc" depends="prepare">
          <!-- Compile the javadocs from ${src} into ${javadocs} -->
          <javadoc destdir="${javadocs}" sourcepath="${src}" 
-packagenames="edu.sc.seis.fissuresUtil.*.*"  maxmemory="64m" >
+            packagenames="edu.sc.seis.fissuresUtil.*"  maxmemory="64m" >
 
         <link href="http://www.seis.sc.edu/software/Fissures/idljava_docs" />
          </javadoc>
@@ -80,7 +80,7 @@ packagenames="edu.sc.seis.fissuresUtil.*.*"  maxmemory="64m" >
                   keystore="../KeySigning/SCEPPKeystore"/>
        </target>
 
-       <target name="dist" depends="testcompile, jar, signjar">
+       <target name="dist" depends="jar, signjar, javadoc, testcompile">
          <zip zipfile="${dist}/lib/fissuresUtil_src.zip" >
               <fileset dir=".." >
                  <include name="fissuresUtil/**/*.java" />
