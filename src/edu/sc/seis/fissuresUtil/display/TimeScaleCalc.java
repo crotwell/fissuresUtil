@@ -48,7 +48,7 @@ public class TimeScaleCalc implements ScaleMapper {
 	    }
 	}else if(majTickTime <= 30000000){
 	    majTickRatio = 10;
-	    timeFormat = new SimpleDateFormat("mm:ss");
+	    timeFormat = new SimpleDateFormat("HH:mm:ss");
 	       if(majTickTime <= 1000000){
 		majTickTime = 1000000;
 	    }else if(majTickTime <= 5000000){
@@ -60,7 +60,7 @@ public class TimeScaleCalc implements ScaleMapper {
 	}
 	else if(majTickTime <= 180000000){
 	    majTickRatio = 6;
-	    timeFormat = new SimpleDateFormat("HH:mm");
+	    timeFormat = new SimpleDateFormat("HH:mm:ss");
 	       if(majTickTime <= 60000000){
 		majTickTime = 60000000;
 	    }else if(majTickTime <= 120000000){
@@ -70,7 +70,7 @@ public class TimeScaleCalc implements ScaleMapper {
 	}
 	else if(majTickTime <= 1800000000){
 	    majTickRatio = 10;
-	    timeFormat = new SimpleDateFormat("HH:mm");
+	    timeFormat = new SimpleDateFormat("HH:mm:ss");
 	       if(majTickTime <= 300000000)
 		majTickTime = 300000000;
 	    else if(majTickTime <= 600000000)
