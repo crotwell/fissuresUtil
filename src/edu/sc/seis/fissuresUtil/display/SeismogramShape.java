@@ -18,7 +18,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3276 2003-02-19 01:05:00Z groves $
+ * @version $Id: SeismogramShape.java 3278 2003-02-19 21:05:05Z groves $
  */
 
 public class SeismogramShape implements Shape{
@@ -33,8 +33,10 @@ public class SeismogramShape implements Shape{
 		SeismogramShapeIterator newIterator = new SeismogramShapeIterator(time,
 																		  amp,
 																		  size);
-		if(newIterator.isDraggedFrom(currentIterator) &&
-		   newIterator.hasSimilarAmp(currentIterator)){
+		if(lessThanOnePointPerPixel(newIterator)){
+			//compressPlot(newIterator);
+		}else if(newIterator.isDraggedFrom(currentIterator) &&
+				 newIterator.hasSimilarAmp(currentIterator)){
 			dragPlot(newIterator);
 		}else{
 			plot(newIterator);
@@ -42,7 +44,7 @@ public class SeismogramShape implements Shape{
     }
 	
     public void plot(SeismogramShapeIterator iterator){
-		//System.out.println("Plotting alll points");
+		//	System.out.println("Plotting all points");
 		iterator.setSeisPoints(DisplayUtils.getSeisPoints(dss.getSeismogram(),
 														  iterator.getTime()));
 		iterator.setBaseSeisPoint();
@@ -72,12 +74,18 @@ public class SeismogramShape implements Shape{
 		}else{
 			iterator.setSeisPoints(currentIterator.getSeisPoints());
 			iterator.setDrawnPixels(currentIterator.getDrawnPixels());
+			iterator.setTotalShift(currentIterator.getTotalShift() + shift);
 		}
 		iterator.setLeftoverPixels(pixels - shift);
 		currentIterator = iterator;
 	}
 	
-    private void drag(int dragAmount, int dragFrom,
+    public boolean lessThanOnePointPerPixel(SeismogramShapeIterator iterator){
+		
+		return false;
+	}
+	
+	private void drag(int dragAmount, int dragFrom,
 					  SeismogramShapeIterator iterator){
 		iterator.setTotalShift(currentIterator.getTotalShift() + dragAmount);
 		double pointsPerPixel = iterator.getPointsPerPixel();
@@ -94,6 +102,9 @@ public class SeismogramShape implements Shape{
 		System.arraycopy(points[1], dragFrom, points[1], dragFrom + dragAmount, length);
 		int[] drawnPixels = getPixels(iterator);
 		iterator.setDrawnPixels(drawnPixels);
+		if(drawnPixels[0] < 0|| drawnPixels[1] < 0){
+			return;
+		}
 		int drawStart, drawEnd;
 		if(dragAmount < 0){
 			drawStart = drawnPixels[1] + dragAmount;
@@ -103,9 +114,11 @@ public class SeismogramShape implements Shape{
 			drawEnd = dragAmount--;
 			++dragAmount;
 		}
-		//System.out.println("DragAmount: " + dragAmount + " reDrawStart: " + drawStart + 
-		//					   " reDrawEnd: " + drawEnd + " DragFrom: " + dragFrom + 
-		//					   " DrawStart: " + drawnPixels[0] + " DrawEnd: " + drawnPixels[1]);
+		/*System.out.println("DragAmount: " + dragAmount + " reDrawStart: " + drawStart + 
+							   " reDrawEnd: " + drawEnd + " DragFrom: " + dragFrom + 
+							   " DrawStart: " + drawnPixels[0] + " DrawEnd: " + drawnPixels[1]+
+							   " totalShift: " + iterator.getTotalShift() + 
+		 " SeismogramPoints: " + seisPoints[0] + ", " + seisPoints[1]);*/
 		plotPixels(drawStart, drawEnd, iterator);
     }
 	
@@ -116,7 +129,7 @@ public class SeismogramShape implements Shape{
     }
 	
     private void plotPixels(int start, int end, SeismogramShapeIterator iterator){
-		if(start >= end){
+		if(start >= end || start < 0){
 			return;
 		}
 		int[][] points = iterator.getPoints();
@@ -158,6 +171,13 @@ public class SeismogramShape implements Shape{
 		double pointsPerPixel = iterator.getPointsPerPixel();
 		int displayWidth = iterator.getSize().width;
 		double seisPointRange = seisPoints[1] - seisPoints[0];
+		if(seisPoints[1] < 0 || 
+		   seisPoints[0] > dss.getSeismogram().getNumPoints()){
+			displayPixels[0] = -1;
+			displayPixels[1] = -1;
+			iterator.setDrawnPixels(displayPixels);
+			return displayPixels;
+		}
 		if(seisPoints[0] >= 0){
 			displayPixels[0] = 0;
 		}else{
@@ -215,4 +235,5 @@ public class SeismogramShape implements Shape{
     private static Category logger =
 		Category.getInstance(SeismogramShape.class.getName());
 }// SeismogramShape
+
 
