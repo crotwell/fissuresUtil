@@ -127,6 +127,10 @@ public class XMLUtil {
                 XMLUtil.writeEndElementWithNewLine(writer);
                 break;
 
+            case XMLStreamConstants.PROCESSING_INSTRUCTION:
+                writer.writeProcessingInstruction(reader.getPITarget(), reader.getPIData());
+                break;
+
             case XMLStreamConstants.CHARACTERS:
                 if (!reader.getText().equals("\n")){
                     writer.writeCharacters(reader.getText());
