@@ -83,7 +83,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
     class ImageMaker extends JComponent{
 	public void paint(Graphics g){
-	    if(overSizedImage == null){
+	    if(overSizedImage == null || overSizedImage.get() == null){
 		logger.debug("the image is null and is being recreated");
 		this.createOversizedImage();
 	    }
@@ -94,18 +94,16 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    if(endTime >= overEndTime || beginTime <= overBeginTime) 
 		this.createOversizedImage();
 	    Graphics2D g2 = (Graphics2D)g;
-	    double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * overSize.getWidth();
-	    AffineTransform tx;
 	    if(displayInterval.getValue() == timeConfig.getTimeRange().getInterval().getValue()){
-		tx = AffineTransform.getTranslateInstance(-offset, 0.0);
-		if(overSizedImage.get() == null) 
-		    this.createOversizedImage();
+		double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * overSize.getWidth();
+		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		g2.drawImage(((Image)overSizedImage.get()), tx, null);
 	    } else{
 		double scale = displayInterval.getValue()/timeConfig.getTimeRange().getInterval().getValue();
-		tx = AffineTransform.getTranslateInstance(-offset * scale, 0.0);
+		System.out.println(scale);
+		double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * (overSize.getWidth() * scale);
+		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		tx.scale(scale, 1);
-		this.createOversizedImage(); 
 		g2.drawImage(((Image)overSizedImage.get()), tx, null);
 		overSizedImage = null;
 		repaint();
