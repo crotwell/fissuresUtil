@@ -56,7 +56,7 @@ public class EventFlag{
     }
 
     private int getX(double xPercentage){
-        return (int)(xPercentage * display.getRowWidth());// + PlottableDisplay.LABEL_X_SHIFT;
+        return (int)(xPercentage * display.getRowWidth()) + PlottableDisplay.LABEL_X_SHIFT;
     }
 
     public int getY(Arrival arrival){
