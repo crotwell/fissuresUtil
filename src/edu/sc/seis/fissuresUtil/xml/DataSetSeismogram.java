@@ -113,7 +113,7 @@ public abstract class DataSetSeismogram
         return ChannelIdUtil.toStringNoDates(getRequestFilter().channel_id);
     }
 
-    public String toString(){ return name; }
+    public String toString(){ return getName(); }
 
     public MicroSecondDate getBeginMicroSecondDate() {
         return new MicroSecondDate(getBeginTime());
