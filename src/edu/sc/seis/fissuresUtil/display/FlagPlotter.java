@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Dimension;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Area;
 import org.apache.log4j.*;
@@ -26,11 +27,11 @@ public class FlagPlotter implements Plotter{
     }
 
     public Shape draw(Dimension size){
-	if(visible){
+	if(visible ){
 	    MicroSecondTimeRange overTimeRange = timeRegistrar.getTimeRange().
 		getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
 	    if(flagTime.before(overTimeRange.getBeginTime()) || flagTime.after(overTimeRange.getEndTime()))
-		return null;
+		return new GeneralPath();
 	    double offset = flagTime.difference(overTimeRange.getBeginTime()).getValue()/overTimeRange.getInterval().getValue();
 	    location = (int)(offset * (double)size.width);
 	    Area pole = new Area(new Rectangle(location, 0, 1, size.height));
@@ -38,7 +39,7 @@ public class FlagPlotter implements Plotter{
 	    flag.add(pole);
 	    return flag; 
 	}
-	return null;
+	return new GeneralPath();
     }
 
     public String getName(){ return name; }
