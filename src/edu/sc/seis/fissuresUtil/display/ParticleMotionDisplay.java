@@ -77,6 +77,20 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
    
     }
 
+    public ParticleMotionDisplay(LocalSeismogramImpl hseis,
+				 LocalSeismogramImpl vseis,
+				 AmpRangeConfig ampRangeConfig) {
+
+	this(hseis, vseis, ampRangeConfig, ampRangeConfig);
+    }
+
+    public ParticleMotionDisplay(LocalSeismogramImpl hseis,
+				 LocalSeismogramImpl vseis) {
+
+	//	AmpRangeConfig ampConfig = new RMeanAmpConfig();
+	this(hseis, vseis, new RMeanAmpConfig());
+    }
+
 
     public void resolveParticleMotion() {
 
