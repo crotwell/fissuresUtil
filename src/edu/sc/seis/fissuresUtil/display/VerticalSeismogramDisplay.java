@@ -202,7 +202,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         sorter = new SeismogramSorter();
         globalRegistrar = null;
         timeLabel.setText("   Time: ");
-        ampLabel.setText("   Amp: ");
+        ampLabel.setText("   Amplitude: ");
         repaint();
     }
 
