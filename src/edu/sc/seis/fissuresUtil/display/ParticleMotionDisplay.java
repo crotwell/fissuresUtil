@@ -20,8 +20,6 @@ import org.apache.log4j.*;
 
 
 /**
- * ParticleMotionDisplay.java
- *
  *
  * Created: Tue Jun 11 15:22:30 2002
  *
@@ -29,17 +27,12 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, TimeSyncListener {
+public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpListener {
 
-    public ParticleMotionDisplay(DataSetSeismogram hseis,
-				 TimeConfigRegistrar timeConfigRegistrar,
-				 AmpConfigRegistrar hAmpConfigRegistrar,
-				 AmpConfigRegistrar vAmpConfigRegistrar,
-				 Color color,
+    public ParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
+				 Registrar registrar,
 				 boolean advancedOption) {
 	
-	
-
 	JFrame displayFrame = new JFrame();
 	JPanel informationPanel = new JPanel();
 	String message = " Please Wait ....For the Particle Motion Window";
@@ -52,77 +45,87 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 	displayFrame.getContentPane().setLayout(new BorderLayout());
 	displayFrame.getContentPane().add(jLabel, BorderLayout.CENTER);
-
+	
 	displayFrame.setSize(new java.awt.Dimension(500, 300));
 	informationPanel.setVisible(true);
 	displayFrame.pack();
 	displayFrame.setVisible(true);
-
-	createGUI(timeConfigRegistrar,
-		  hAmpConfigRegistrar,
-		  vAmpConfigRegistrar);
-
-	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(hseis,
-							      timeConfigRegistrar,
-							      hAmpConfigRegistrar,
-							      vAmpConfigRegistrar,
-							      advancedOption, 
-							      true,
-							      this);
 	
+	createGUI(registrar);
+	
+	
+	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
+									registrar,
+									false,
+									true,
+									this);
 	t.execute();
 	displayFrame.dispose();
-					  
     }
 
-    public ParticleMotionDisplay(DataSetSeismogram[] seismograms,
-				 TimeConfigRegistrar timeConfigRegistrar,
-				 AmpConfigRegistrar hAmpConfigRegistrar,
-				 AmpConfigRegistrar vAmpConfigRegistrar,
-				 Color color,
-				 boolean advancedOption) {
+    /**
+     * Creates a new <code>ParticleMotionDisplay</code> instance.
+     *
+     * @param seismograms a <code>DataSetSeismogram[]</code> value
+     * @param timeConfigRegistrar a <code>TimeConfigRegistrar</code> value
+     * @param hAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+     * @param vAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+     * @param color a <code>Color</code> value
+     * @param advancedOption a <code>boolean</code> value
+     */
+  //   public ParticleMotionDisplay(DataSetSeismogram[] seismograms,
+// 				 TimeConfigRegistrar timeConfigRegistrar,
+// 				 AmpConfigRegistrar hAmpConfigRegistrar,
+// 				 AmpConfigRegistrar vAmpConfigRegistrar,
+// 				 Color color,
+// 				 boolean advancedOption) {
 	
 	
 
-	JFrame displayFrame = new JFrame();
-	JPanel informationPanel = new JPanel();
-	String message = " Please Wait ....For the Particle Motion Window";
- 	JLabel jLabel = new JLabel(message);
-	JTextArea textArea = new JTextArea("SDJSLDJDKJDKJSKJDJDSKJKLSDJSJD");
-	informationPanel.setLayout(new BorderLayout());
-	informationPanel.add(textArea, BorderLayout.CENTER);
-	informationPanel.setSize(new java.awt.Dimension(500, 300));
+// 	JFrame displayFrame = new JFrame();
+// 	JPanel informationPanel = new JPanel();
+// 	String message = " Please Wait ....For the Particle Motion Window";
+//  	JLabel jLabel = new JLabel(message);
+// 	JTextArea textArea = new JTextArea("SDJSLDJDKJDKJSKJDJDSKJKLSDJSJD");
+// 	informationPanel.setLayout(new BorderLayout());
+// 	informationPanel.add(textArea, BorderLayout.CENTER);
+// 	informationPanel.setSize(new java.awt.Dimension(500, 300));
 
-	displayFrame.getContentPane().setLayout(new BorderLayout());
-	displayFrame.getContentPane().add(informationPanel, BorderLayout.CENTER);
-	displayFrame.setSize(new java.awt.Dimension(500, 300));
-	displayFrame.pack();
-	displayFrame.show();
+// 	displayFrame.getContentPane().setLayout(new BorderLayout());
+// 	displayFrame.getContentPane().add(informationPanel, BorderLayout.CENTER);
+// 	displayFrame.setSize(new java.awt.Dimension(500, 300));
+// 	displayFrame.pack();
+// 	displayFrame.show();
 
 	
-	createGUI(timeConfigRegistrar,
-		  hAmpConfigRegistrar,
-		  vAmpConfigRegistrar);
+// 	createGUI(timeConfigRegistrar,
+// 		  hAmpConfigRegistrar,
+// 		  vAmpConfigRegistrar);
 
-	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(seismograms,
-							      timeConfigRegistrar,
-							      hAmpConfigRegistrar,
-							      vAmpConfigRegistrar,
-							      advancedOption, 
-							      true,
-							      this);
+// 	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(seismograms,
+// 							      timeConfigRegistrar,
+// 							      hAmpConfigRegistrar,
+// 							      vAmpConfigRegistrar,
+// 							      advancedOption, 
+// 							      true,
+// 							      this);
 	
-	t.execute();
-	displayFrame.dispose();
+// 	t.execute();
+// 	displayFrame.dispose();
 					  
-    }
+//     }
 
-    public void createGUI(TimeConfigRegistrar timeConfigRegistrar,
-			  AmpConfigRegistrar hAmpConfigRegistrar,
-			  AmpConfigRegistrar vAmpConfigRegistrar) {
+    /**
+     *  creates the GUI needed for the particleMotionDisplay like scaleBorders,
+     *  titleBorders, ParticleMotionView .
+     *
+     * @param timeConfigRegistrar a <code>TimeConfigRegistrar</code> value
+     * @param hAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+     * @param vAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+     */
+    public void createGUI(Registrar registrar) {
 
-		this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	this.registrar = registrar;
 	particleDisplayPanel = new JLayeredPane();
 	OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
 
@@ -131,9 +134,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	particleDisplayPanel.setLayout(overlayLayout);
 	radioPanel.setLayout(new GridLayout(1, 0));
 
-	if(timeConfigRegistrar != null) {
-	    timeConfigRegistrar.addTimeSyncListener(this);
-	}
+
 
 	view = new ParticleMotionView(this);
 	view.setSize(new java.awt.Dimension(300, 300));
@@ -141,15 +142,11 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 	hAmpScaleMap = new AmpScaleMapper(50,
                                           4,
-					  new UnitRangeImpl(-100,
-							    100,
-							    UnitImpl.COUNT)
+					  registrar
 					  );
         vAmpScaleMap = new AmpScaleMapper(50,
                                           4,
-					  new UnitRangeImpl(-100,
-							    100,
-							    UnitImpl.COUNT)
+					  registrar
 					  );
 					  
 	scaleBorder = new ScaleBorder();
@@ -159,6 +156,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
             new BottomTitleBorder("X - axis Title");
         vTitleBorder = 
             new LeftTitleBorder("Y - axis Title");
+	
 
 	particleDisplayPanel.setBorder(
 				       BorderFactory.createCompoundBorder(
@@ -177,6 +175,11 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	add(particleDisplayPanel, BorderLayout.CENTER);
 	radioPanel.setVisible(false);
 	add(radioPanel, BorderLayout.SOUTH);
+
+	if(this.registrar != null) {
+	    this.registrar.addListener((AmpListener)this);
+	    this.registrar.addListener((TimeListener)this);
+	}
 		
 	this.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -189,74 +192,25 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	    });
 
 
-	updateTimeRange();
+	//updateTimeRange();
 
 
     }
 	
 
-    public ParticleMotionDisplay (DataSetSeismogram hSeis,
-				  TimeConfigRegistrar timeConfigRegistrar,
-				  AmpConfigRegistrar hAmpConfigRegistrar,
-				  AmpConfigRegistrar vAmpConfigRegistrar, boolean advancedOption){
-	this(hSeis,
-	     timeConfigRegistrar,
-	     hAmpConfigRegistrar,
-	     vAmpConfigRegistrar,
-	     null,
-	     advancedOption); //setting the advanced option to be false;
-    }
-
-    
-    /**
-     * Creates a new <code>ParticleMotionDisplay</code> instance.
-     *
-     * @param hSeis a <code>LocalSeismogramImpl</code> value
-     * @param vSeis a <code>LocalSeismogramImpl</code> value
-     * @param hAmpRangeConfig an <code>AmpRangeConfig</code> value
-     * @param vAmpRangeConfig an <code>AmpRangeConfig</code> value
-     */
-    public ParticleMotionDisplay (DataSetSeismogram hSeis,
-				  TimeConfigRegistrar timeConfigRegistrar,
-				  AmpConfigRegistrar hAmpConfigRegistrar,
-				  AmpConfigRegistrar vAmpConfigRegistrar, Color color){
-	this(hSeis,
-	     timeConfigRegistrar,
-	     hAmpConfigRegistrar,
-	     vAmpConfigRegistrar,
-	     color,
-	     false); //setting the advanced option to be false;
-    }
 
 
-    public ParticleMotionDisplay (DataSetSeismogram hSeis,
-				  TimeConfigRegistrar timeConfigRegistrar,
-				  AmpConfigRegistrar hAmpConfigRegistrar,
-				  AmpConfigRegistrar vAmpConfigRegistrar){
-	this(hSeis,
-	     timeConfigRegistrar,
-	     hAmpConfigRegistrar,
-	     vAmpConfigRegistrar,
-	     null,
-	     false); //setting the advanced option to be false;
-    }
-
-
-  public ParticleMotionDisplay(DataSetSeismogram hseis,
-			       TimeConfigRegistrar timeConfigRegistrar,
-			       AmpConfigRegistrar ampRangeConfig) {
-
-      this(hseis, timeConfigRegistrar, ampRangeConfig, ampRangeConfig);
-    }
-
-    public ParticleMotionDisplay(DataSetSeismogram hseis,
-				 TimeConfigRegistrar timeConfigRegistrar) {
-	this(hseis,timeConfigRegistrar, new AmpConfigRegistrar());
-    }
-
- 
 
 		 
+    /**
+     * returns an array of seismograms for the given ChannelId, startTime, endTime and dataCenter
+     * @param startTime an <code>edu.iris.Fissures.Time</code> value
+     * @param endTime an <code>edu.iris.Fissures.Time</code> value
+     * @param channelId a <code>ChannelId</code> value
+     * @param dataCenter a <code>DataCenter</code> value
+     * @return a <code>LocalSeismogram[]</code> value
+     * @exception edu.iris.Fissures.FissuresException if an error occurs
+     */
     public LocalSeismogram[] retreiveSeismograms(edu.iris.Fissures.Time startTime, 
 						 edu.iris.Fissures.Time endTime, 
 						 ChannelId channelId,
@@ -277,14 +231,40 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
     }
 
 
-
-    public void updateAmpRange() {
-	this.hAmpScaleMap.setUnitRange(hAmpConfigRegistrar.getAmpRange());
-    }
     
-    public void updateVerticalAmpRange() {
-	this.vAmpScaleMap.setUnitRange(vAmpConfigRegistrar.getAmpRange());
+    public void updateAmp(AmpEvent event){
+	//range = event.getAmp();
+	if(hAmpScaleMap == null) System.out.println("horizontal ampscale mpa is null");
+	else System.out.println("The Horizontal amp scale map is not nULL");
+	this.hAmpScaleMap.setUnitRange(event.getAmp());
+	this.vAmpScaleMap.setUnitRange(event.getAmp());
     }
+
+    
+    public void updateTime(edu.sc.seis.fissuresUtil.display.TimeEvent timeEvent) {
+	view.updateTime();
+    }
+
+  
+
+
+   //  /**
+//      * updates the amplitude range of the horizontalScale.
+//      */
+//     public void updateAmpRange() {
+// 	this.hAmpScaleMap.setUnitRange(hAmpConfigRegistrar.getAmpRange());
+//     }
+    
+//     /**
+//      * updates the amplitude range of the verticalScale.
+//      */
+//     public void updateVerticalAmpRange() {
+// 	this.vAmpScaleMap.setUnitRange(vAmpConfigRegistrar.getAmpRange());
+//     }
+    /**
+     * udpates the amplitude of the verticalScale.
+     * @param r an <code>UnitRangeImpl</code> value
+     */
     public void updateHorizontalAmpScale(UnitRangeImpl r) {
 	//logger.debug("The amplitudeRange is being updated ");
 	//logger.debug("The minimum value of the updated value is "+r.getMinValue());
@@ -293,6 +273,10 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	resize();
     }
 
+    /**
+     * sets the amplitude of he verticalScale to the given value.
+     * @param r an <code>UnitRangeImpl</code> value
+     */
     public void updateVerticalAmpScale(UnitRangeImpl r) {
 
 	this.vAmpScaleMap.setUnitRange(r);
@@ -300,8 +284,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
     }
 
     /**
-     * Describe <code>resize</code> method here.
-     *
+     * the method resize() is overridden so that the view of the 
+     * particleMotionDisplay is always a square.
      */
     public synchronized void resize() {
 	if(getSize().width == 0 || getSize().height == 0) return;  
@@ -342,19 +326,40 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	repaint();
     }//
     
-    public synchronized void addParticleMotionDisplay(DataSetSeismogram hseis,
-					  TimeConfigRegistrar timeConfigRegistrar,
-					  AmpConfigRegistrar hAmpConfigRegistrar,
-					  AmpConfigRegistrar vAmpConfigRegistrar) {
+   //  /**
+//      *	adds another particleMotion to the display. 
+//      * @param hseis a <code>DataSetSeismogram</code> value
+//      * @param timeConfigRegistrar a <code>TimeConfigRegistrar</code> value
+//      * @param hAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+//      * @param vAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+//      */
+//     public synchronized void addParticleMotionDisplay(DataSetSeismogram hseis,
+// 					  TimeConfigRegistrar timeConfigRegistrar,
+// 					  AmpConfigRegistrar hAmpConfigRegistrar,
+// 					  AmpConfigRegistrar vAmpConfigRegistrar) {
 
-	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+// 	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+// 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+// 	boolean buttonPanel = this.displayButtonPanel;
+// 	this.displayButtonPanel = false;
+// 	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(hseis,
+// 									timeConfigRegistrar,
+// 									hAmpConfigRegistrar,
+// 									vAmpConfigRegistrar,
+// 									buttonPanel, 
+// 									false,
+// 									this);
+// 	t.execute();
+
+//     }
+
+    public synchronized void addParticleMotionDisplay(DataSetSeismogram datasetSeismogram, 
+						      Registrar registrar) {
+	this.registrar = registrar;
 	boolean buttonPanel = this.displayButtonPanel;
 	this.displayButtonPanel = false;
-	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(hseis,
-									timeConfigRegistrar,
-									hAmpConfigRegistrar,
-									vAmpConfigRegistrar,
+	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
+									registrar,
 									buttonPanel, 
 									false,
 									this);
@@ -362,6 +367,13 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
     }
 
+    /**
+     * calculates the backAzimuthAngle and displays the azimuth angle and a sector surrouding
+     * the azimuth angle.
+     *
+     * @param dataset an <code>edu.sc.seis.fissuresUtil.xml.DataSet</code> value
+     * @param chanId a <code>ChannelId</code> value
+     */
     public synchronized void displayBackAzimuth(edu.sc.seis.fissuresUtil.xml.DataSet dataset, ChannelId chanId) {
 	edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent = 
 	    ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getEvent();
@@ -386,52 +398,84 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
    
 
-    /**
-     * sets the AmplitudeRange of the ParticleMotionDisplay.
-     *
-     * @param amplitudeRange an <code>AmpConfigRegistrar</code> value
-     */
-    public synchronized void setAmplitudeRange(AmpConfigRegistrar amplitudeRange) {
+   //  /**
+//      * sets the AmplitudeRange of the ParticleMotionDisplay.
+//      *
+//      * @param amplitudeRange an <code>AmpConfigRegistrar</code> value
+//      */
+//     public synchronized void setAmplitudeRange(AmpConfigRegistrar amplitudeRange) {
 	
-	this.hAmpConfigRegistrar = amplitudeRange;
-	this.vAmpConfigRegistrar = amplitudeRange;
-    }
+// 	this.hAmpConfigRegistrar = amplitudeRange;
+// 	this.vAmpConfigRegistrar = amplitudeRange;
+//     }
 
+    /*
+     * adds an azimuthLine to the display at angle of degrees
+     * @param degrees a <code>double</code> value
+     */
     public synchronized void addAzimuthLine(double degrees) {
 
 	view.addAzimuthLine(degrees);
     }
 
+    /**
+     * adds a sector to the display 
+     * @param degreeone a <code>double</code> value
+     * @param degreetwo a <code>double</code> value
+     */
     public synchronized void addSector(double degreeone, double degreetwo) {
 
 	view.addSector(degreeone, degreetwo);
     }
 
+    /**
+     * sets the zoomStatus of the display to be ZoomIN
+     */
     public synchronized void setZoomIn(boolean value) {
 
 	view.setZoomIn(value);
     }
 
+    /**
+     * sets the zoomstatus fo the display to be ZoomOut
+     * @param value a <code>boolean</code> value
+     */
     public synchronized void setZoomOut(boolean value) {
 
 	view.setZoomOut(value);
     }
 
 
+    /**
+     * returns the ParticleMotionView corresponding to this ParticleMotionDisplay
+     * @return a <code>ParticleMotionView</code> value
+     */
     public synchronized ParticleMotionView getView() {
 	return this.view;
     }
 
-    public void fireAmpRangeEvent(AmpSyncEvent event) {
+    /**
+     * fires AmpRangeChangeEvent to all the registered Listeners
+     * @param event an <code>AmpSyncEvent</code> value
+     */
+    public void shaleAmp(double shift, double scale) {
 
-	this.hAmpConfigRegistrar.fireAmpRangeEvent(event);
+	this.registrar.shaleAmp(shift, scale);
     }
 
-    public synchronized void updateTimeRange() {
+//     /**
+//      * updates the timeRange of the view.
+//      */
+//     public synchronized void updateTimeRange() {
 
-	view.updateTimeRange();
-    }
+// 	view.updateTimeRange();
+//     }
 
+    /**
+     * builds a checkBoxPanel. using the checkBox Panel the particleMotions of 
+     * all the three planes can be viewed simultaneouly by overlapping.
+     * @param channelGroup a <code>ChannelId[]</code> value
+     */
     public void formCheckBoxPanel(ChannelId[] channelGroup) {
 	//radioPanel.removeAll();
 	ArrayList arrayList = new ArrayList();
@@ -458,6 +502,11 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	//	view.repaint();
    }
 
+    /**
+     * builds a radioButtonPanel. using the radioButton Panel only one of the
+     * particleMotions among all the three planes can be viewed at a time.
+     * @param channelGroup a <code>ChannelId[]</code> value
+     */
     public void formRadioSetPanel(ChannelId[] channelGroup) {
 	//radioPanel.removeAll();
 	ArrayList arrayList = new ArrayList();
@@ -488,11 +537,19 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	//view.repaint();
   }
 
+    /**
+     * sets the initialRadioButton or checkBox checked.
+     */
     public void setInitialButton() {
 	initialButton.setSelected(true);
     }
 
 
+    /**
+     * returns the actual direction for the given orientation.
+     * @param orientation a <code>String</code> value
+     * @return a <code>String</code> value
+     */
     public String getOrientationName(String orientation) {
 
 	char ch = orientation.charAt(2);
@@ -501,10 +558,18 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	else return "Up";
     }
 
+    /**
+     * sets the title of the Horizontal Border
+     * @param name a <code>String</code> value
+     */
     public void setHorizontalTitle(String name) {
 	hTitleBorder.setTitle(name);
    }
     
+    /**
+     * sets the title of the vertical Border
+     * @param name a <code>String</code> value
+     */
     public void setVerticalTitle(String name) {
 	vTitleBorder.setTitle(name);
   }
@@ -516,6 +581,10 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
      */
     public static final Integer PARTICLE_MOTION_LAYER = new Integer(2);
 
+    /**
+     * Describe variable <code>hAmpScaleMap</code> here.
+     *
+     */
     protected AmpScaleMapper hAmpScaleMap, vAmpScaleMap;
 
     protected ScaleBorder scaleBorder;
@@ -527,7 +596,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
     protected ParticleMotionView view;
 
 
-    private AmpConfigRegistrar hAmpConfigRegistrar, vAmpConfigRegistrar;
+    private Registrar registrar;
 
     private JLayeredPane particleDisplayPanel;
     private JPanel radioPanel;
@@ -542,12 +611,11 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 	public void itemStateChanged(ItemEvent ae) {
 	    if(ae.getStateChange() == ItemEvent.SELECTED) {
-		System.out.println("$$&$&%$&%$&$&&$$&$&$&$&%^&$%&$^$&%&$^&$^%&$%^&$The radiobutton selected is "+ ((AbstractButton)ae.getItem()).getText());
 		view.addDisplayKey(((AbstractButton)ae.getItem()).getText());
 		
 		setHorizontalTitle(view.getSelectedParticleMotion()[0].hseis.getSeismogram().getName());
 		setVerticalTitle(view.getSelectedParticleMotion()[0].vseis.getSeismogram().getName());
-		view.updateTimeRange();
+		view.updateTime();
 	
 	    } else if(ae.getStateChange() == ItemEvent.DESELECTED){
 		System.out.println("The radiobutton UN SELECTED is "+ ((AbstractButton)ae.getItem()).getText());
