@@ -45,9 +45,14 @@ public class ExceptionHandlerGUI {
 
 	JPanel stackTracePanel = new JPanel();
 	JScrollPane scrollPane = new JScrollPane(stackTracePanel);
-	JLabel stackTraceLabel = new JLabel();
-	stackTraceLabel.setText(getStackTrace(exception));
-	messageArea.setText(getStackTrace(exception));
+	String traceString = "";
+	if (exception instanceof WrappedException) {
+	    traceString += 
+		getStackTrace(((WrappedException)exception).getCausalException());
+	}
+	traceString += getStackTrace(exception);
+
+	messageArea.setText(traceString);
 	stackTracePanel.setLayout(new BorderLayout());
 	stackTracePanel.add(messageArea);
 	tabbedPane.addTab("stackTrace", scrollPane);
