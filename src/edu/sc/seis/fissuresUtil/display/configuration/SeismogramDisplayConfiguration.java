@@ -13,32 +13,51 @@ import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 /**
  * @author groves Created on Feb 17, 2005
  */
-public class SeismogramDisplayConfiguration {
+public class SeismogramDisplayConfiguration implements Cloneable {
 
     public SeismogramDisplayConfiguration() {
         makeDefault = true;
     }
 
-    public SeismogramDisplayConfiguration(Element el) {
-        type = DOMHelper.extractText(el, "type", "basic");
-        borderBackground = ColorConfiguration.create(el, "borderBackground");
-        ColorConfiguration borderColor = ColorConfiguration.create(el,
-                                                                   "borderColor");
-        NodeList borderNodes = DOMHelper.extractNodes(el, "border");
-        borders = new BorderConfiguration[borderNodes.getLength()];
-        for(int i = 0; i < borders.length; i++) {
-            borders[i] = new BorderConfiguration((Element)borderNodes.item(i),
-                                                 borderColor,
-                                                 borderBackground);
-        }
+    public void configure(Element el) {
+        makeDefault = false;
+        type = DOMHelper.extractText(el, "type", type);
         checkForColorClass(el, "flagColors");
         checkForColorClass(el, "traceColors");
+        if(DOMHelper.hasElement(el, "borderBackground")) {
+            borderBackground = ColorConfiguration.create(DOMHelper.getElement(el,
+                                                                              "borderBackground"));
+        }
+        ColorConfiguration borderColor = null;
+        if(DOMHelper.hasElement(el, "borderColor")) {
+            borderColor = ColorConfiguration.create(DOMHelper.getElement(el,
+                                                                         "borderColor"));
+        }
+        NodeList borderNodes = DOMHelper.extractNodes(el, "border");
+        for(int i = 0; i < borderNodes.getLength(); i++) {
+            borders.add(BorderConfiguration.create((Element)borderNodes.item(i),
+                                                   borderColor,
+                                                   borderBackground));
+        }
         if(DOMHelper.hasElement(el, "dontDrawNamedDrawableNames")) {
             drawNamesForNamedDrawables = false;
         }
         if(DOMHelper.hasElement(el, "swapAxes")) {
             swapAxes = true;
         }
+    }
+
+    public static SeismogramDisplayConfiguration create(Element el) {
+        SeismogramDisplayConfiguration c = null;
+        if(defs.hasDefinition(el)) {
+            SeismogramDisplayConfiguration base = (SeismogramDisplayConfiguration)defs.getDefinition(el);
+            c = (SeismogramDisplayConfiguration)base.clone();
+        } else {
+            c = new SeismogramDisplayConfiguration();
+        }
+        c.configure(el);
+        defs.updateDefinitions(el, c);
+        return c;
     }
 
     private void checkForColorClass(Element el, String tagName) {
@@ -68,14 +87,15 @@ public class SeismogramDisplayConfiguration {
         }
         disp.setDrawNamesForNamedDrawables(drawNamesForNamedDrawables);
         disp.clearBorders();
-        for(int i = 0; i < borders.length; i++) {
-            BorderConfiguration border = borders[i];
+        Iterator it = borders.iterator();
+        while(it.hasNext()) {
+            BorderConfiguration border = (BorderConfiguration)it.next();
             disp.add(border.createBorder(disp), border.getPosition());
         }
         if(borderBackground != null) {
             disp.setBackground(borderBackground.createColor());
         }
-        Iterator it = colorClasses.iterator();
+        it = colorClasses.iterator();
         while(it.hasNext()) {
             ColorClassConfiguration cur = (ColorClassConfiguration)it.next();
             disp.setColors(cur.getColorClass(), cur.getColors());
@@ -83,9 +103,20 @@ public class SeismogramDisplayConfiguration {
         return disp;
     }
 
-    private String type;
+    public Object clone() {
+        SeismogramDisplayConfiguration clone = new SeismogramDisplayConfiguration();
+        clone.type = type;
+        clone.colorClasses.addAll(colorClasses);
+        clone.borders.addAll(borders);
+        clone.swapAxes = swapAxes;
+        clone.drawNamesForNamedDrawables = drawNamesForNamedDrawables;
+        clone.borderBackground = borderBackground;
+        return clone;
+    }
 
-    private BorderConfiguration[] borders = new BorderConfiguration[0];
+    private String type = "basic";
+
+    private List borders = new ArrayList();
 
     private List colorClasses = new ArrayList();
 
@@ -94,6 +125,8 @@ public class SeismogramDisplayConfiguration {
     private boolean drawNamesForNamedDrawables = true, makeDefault = false;
 
     private ColorConfiguration borderBackground;
+
+    private static ConfigDefinitions defs = new ConfigDefinitions();
 
     public String getType() {
         return type;

@@ -21,7 +21,12 @@ public class DOMHelper {
     }
 
     public static boolean hasElement(Element el, String name) {
-        return el.getElementsByTagName(name).getLength() > 0;
+        try {
+            return XPathAPI.selectNodeList(el, name).getLength() > 0;
+        } catch(TransformerException e) {
+            handle(e, name);
+        }
+        throw new RuntimeException("Should be unreachable");
     }
 
     public static String extractText(Element el, String xpath) {
@@ -81,4 +86,5 @@ public class DOMHelper {
                                            + xpath + " is screwed up.",
                                    e);
     }
+
 }

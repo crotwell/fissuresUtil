@@ -1,5 +1,8 @@
 package edu.sc.seis.fissuresUtil.display.configuration;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.JComponent;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -15,21 +18,37 @@ import edu.sc.seis.fissuresUtil.display.borders.TitleProvider;
 /**
  * @author groves Created on Feb 17, 2005
  */
-public class BorderConfiguration {
+public class BorderConfiguration implements Cloneable {
 
-    public BorderConfiguration(Element element, ColorConfiguration color,
-            ColorConfiguration background) {
-        type = DOMHelper.extractText(element, "type", TITLE);
-        order = DOMHelper.extractText(element, "order", "ascending");
-        position = DOMHelper.extractText(element, "position", LEFT);
+    public void configure(Element element) {
+        type = DOMHelper.extractText(element, "type", type);
+        order = DOMHelper.extractText(element, "order", order);
+        position = DOMHelper.extractText(element, "position", position);
         NodeList titleList = DOMHelper.extractNodes(element, "title");
-        titles = new BorderTitleConfiguration[titleList.getLength()];
         for(int i = 0; i < titleList.getLength(); i++) {
-            titles[i] = new BorderTitleConfiguration((Element)titleList.item(i));
+            titles.add(new BorderTitleConfiguration((Element)titleList.item(i)));
         }
-        this.color = color;
-        this.background = background;
-        this.titleFont = FontConfiguration.create(element, "titleFont");
+        if(DOMHelper.hasElement(element, "titleFont")) {
+            this.titleFont = FontConfiguration.create(DOMHelper.getElement(element,
+                                                                           "titleFont"));
+        }
+    }
+
+    public static BorderConfiguration create(Element el,
+                                             ColorConfiguration color,
+                                             ColorConfiguration background) {
+        BorderConfiguration c = null;
+        if(defs.hasDefinition(el)) {
+            BorderConfiguration base = (BorderConfiguration)defs.getDefinition(el);
+            c = (BorderConfiguration)base.clone();
+        } else {
+            c = new BorderConfiguration();
+        }
+        c.configure(el);
+        c.color = color;
+        c.background = background;
+        defs.updateDefinitions(el, c);
+        return c;
     }
 
     public int getPosition() {
@@ -61,8 +80,9 @@ public class BorderConfiguration {
         }
         b.setSide(side);
         b.setOrder(getOrder(order));
-        for(int i = 0; i < titles.length; i++) {
-            b.add(titles[i].createTitle());
+        Iterator it = titles.iterator();
+        while(it.hasNext()) {
+            b.add(((BorderTitleConfiguration)it.next()).createTitle());
         }
         if(background != null) {
             b.setBackground(background.createColor());
@@ -93,16 +113,35 @@ public class BorderConfiguration {
         }
     }
 
-    private String type, order, position;
+    public String toString() {
+        return "BorderConfiguration that produces " + type + " borders in "
+                + order + " order in position " + position;
+    }
+
+    public Object clone() {
+        BorderConfiguration clone = new BorderConfiguration();
+        clone.background = background;
+        clone.color = color;
+        clone.titleFont = titleFont;
+        clone.type = type;
+        clone.order = order;
+        clone.position = position;
+        clone.titles.addAll(titles);
+        return this;
+    }
+
+    private String type = TITLE, order = ASCENDING, position = LEFT;
 
     private ColorConfiguration background, color;
 
     private FontConfiguration titleFont;
+
+    private static ConfigDefinitions defs = new ConfigDefinitions();
 
     private static final String LEFT = "left", RIGHT = "right", TOP = "top",
             BOTTOM = "bottom", AMP = "amp", TIME = "time", DIST = "dist",
             TITLE = "title", ASCENDING = "ascending",
             DESCENDING = "descending";
 
-    private BorderTitleConfiguration[] titles;
+    private List titles = new ArrayList();
 }

@@ -11,7 +11,7 @@ public class BorderTitleConfiguration {
 
     public BorderTitleConfiguration(Element el) {
         title = DOMHelper.extractText(el, "text");
-        f = new FontConfiguration(DOMHelper.extractElement(el, "font"));
+        f = FontConfiguration.create(DOMHelper.extractElement(el, "font"));
     }
 
     public TitleProvider createTitle() {

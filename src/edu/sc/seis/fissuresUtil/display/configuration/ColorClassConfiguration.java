@@ -12,17 +12,25 @@ import edu.sc.seis.fissuresUtil.display.drawable.Flag;
 public class ColorClassConfiguration {
 
     public ColorClassConfiguration(Element el) {
-        NodeList colorNodes = DOMHelper.extractNodes(el, "color");
-        if(colorNodes.getLength() > 0) {
-            colors = new Color[colorNodes.getLength()];
-            for(int i = 0; i < colors.length; i++) {
-                colors[i] = new ColorConfiguration((Element)colorNodes.item(i)).createColor();
+        if(defs.hasDefinition(el)) {
+            ColorClassConfiguration definer = (ColorClassConfiguration)defs.getDefinition(el);
+            colorClass = definer.colorClass;
+            colors = definer.colors;
+        } else {
+            NodeList colorNodes = DOMHelper.extractNodes(el, "color");
+            if(colorNodes.getLength() > 0) {
+                colors = new Color[colorNodes.getLength()];
+                for(int i = 0; i < colors.length; i++) {
+                    colors[i] = ColorConfiguration.create((Element)colorNodes.item(i))
+                            .createColor();
+                }
             }
-        }
-        if(el.getTagName().equals("flagColors")) {
-            colorClass = Flag.class;
-        } else if(el.getTagName().equals("traceColors")) {
-            colorClass = DrawableSeismogram.class;
+            if(el.getTagName().equals("flagColors")) {
+                colorClass = Flag.class;
+            } else if(el.getTagName().equals("traceColors")) {
+                colorClass = DrawableSeismogram.class;
+            }
+            defs.updateDefinitions(el, this);
         }
     }
 
@@ -35,6 +43,8 @@ public class ColorClassConfiguration {
     }
 
     private Class colorClass;
+
+    private static ConfigDefinitions defs = new ConfigDefinitions();
 
     private Color[] colors = new Color[] {Color.BLACK};
 }

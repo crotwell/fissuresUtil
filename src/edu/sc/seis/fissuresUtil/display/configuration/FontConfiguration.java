@@ -2,16 +2,39 @@ package edu.sc.seis.fissuresUtil.display.configuration;
 
 import java.awt.Font;
 import org.w3c.dom.Element;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * @author groves Created on Feb 18, 2005
  */
-public class FontConfiguration {
+public class FontConfiguration implements Cloneable {
 
-    public FontConfiguration(Element el) {
-        String size = DOMHelper.extractText(el, "size", "12");
-        String name = DOMHelper.extractText(el, "name", "Serif");
-        String styleString = DOMHelper.extractText(el, "style", "plain");
+    private FontConfiguration() {}
+
+    public void configure(Element el) {
+        size = DOMHelper.extractText(el, "size", size);
+        name = DOMHelper.extractText(el, "name", name);
+        styleString = DOMHelper.extractText(el, "style", styleString);
+    }
+
+    public static FontConfiguration create(Element el) {
+        FontConfiguration c = null;
+        if(defs.hasDefinition(el)) {
+            try {
+                FontConfiguration base = (FontConfiguration)defs.getDefinition(el);
+                c = (FontConfiguration)base.clone();
+            } catch(CloneNotSupportedException e) {
+                GlobalExceptionHandler.handle("But I added clone to this object....");
+            }
+        } else {
+            c = new FontConfiguration();
+        }
+        c.configure(el);
+        defs.updateDefinitions(el, c);
+        return c;
+    }
+
+    public Font createFont() {
         int style;
         if(styleString.equals("plain")) {
             style = Font.PLAIN;
@@ -23,22 +46,15 @@ public class FontConfiguration {
             throw new IllegalArgumentException("The value of style must be plain, bold or italic.  You specified "
                     + styleString + ".");
         }
-        f = new Font(name, style, Integer.parseInt(size));
+        return new Font(name, style, Integer.parseInt(size));
     }
 
-    /**
-     * Creates a font configuration from the element named name that is a child
-     * of el if one exists. Returns null if no such element is found
-     */
-    public static FontConfiguration create(Element el, String name) {
-        if(DOMHelper.hasElement(el, name)) { return new FontConfiguration(DOMHelper.getElement(el,
-                                                                                               name)); }
-        return null;
+    public String toString() {
+        return "FontConfiguration of size " + size + " font " + name
+                + " with style " + styleString;
     }
 
-    public Font createFont() {
-        return f;
-    }
+    private String size = "12", name = "Serif", styleString = "plain";
 
-    private Font f;
+    private static ConfigDefinitions defs = new ConfigDefinitions();
 }
