@@ -191,6 +191,13 @@ public class CacheEvent implements EventAccessOperations {
     private boolean hashSet = false;
     private int hashValue;
 
+    /**
+     * @return  true if both the attributes and the preferred origin are cached
+     */
+    public boolean isLoaded(){
+        return attr != null && preferred != null;
+    }
+
     public Origin getOrigin(){ return extractOrigin(this); }
 
     /**
