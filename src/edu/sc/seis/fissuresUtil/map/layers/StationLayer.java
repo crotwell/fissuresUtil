@@ -188,8 +188,6 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
     private static String[] modeList = { SelectMouseMode.modeID } ;
 
-    private JPopupMenu currentPopup;
-
     private EventAccessOperations currentEvent;
 
     private Map stationMap = new HashMap();

@@ -252,8 +252,6 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 	
     private MapBean mapBean;
 	
-    private JPopupMenu currentPopup;
-	
     private EventBackgroundLoaderPool localLoader;
 	
 	private EventColorizer colorizer;
