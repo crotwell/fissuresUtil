@@ -35,14 +35,14 @@ public class ParseRegions {
 	if (geoNum > 0 && geoNum <= 729) {
 	    return feProps.getProperty("GeogRegion"+geoNum);
 	} // end of if (geoNum > 0 && geoNum <= 729)
-	return "Unknown";
+	return "GeoRegion"+geoNum;
     }
 
     public String getSeismicRegionName(int seisNum) {
 	if (seisNum > 0 && seisNum <= 50) {
 	    return feProps.getProperty("SeismicRegion"+seisNum);
 	} // end of if (seisNum > 0 && seisNum <= 50)
-	return "Unknown";
+	return "SeisRegion"+seisNum;
     }
 
     public String getRegionName(FlinnEngdahlRegion region){
