@@ -21,7 +21,7 @@ import java.awt.datatransfer.*;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 2143 2002-07-11 19:33:01Z crotwell $
+ * @version $Id: EventInfoDisplay.java 2156 2002-07-12 01:33:13Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay 
@@ -50,17 +50,23 @@ public class EventInfoDisplay extends TextInfoDisplay
     }
 
     public void appendEvent(EventAccessOperations event)
-	throws BadLocationException 
     {
-	appendEvent(event, getDocument());
+        try {
+	    appendEvent(event, getDocument());
+        } catch (BadLocationException ble) {
+            System.err.println("Couldn't insert message.");
+        }
     }
 
     public void appendEventStation(EventAccessOperations event, Station[] station)
-	throws BadLocationException 
     {
-	Document doc = getDocument();
-	appendEvent(event, doc);
-	appendEventStation(event, station, getDocument());
+        try {
+	    Document doc = getDocument();
+	    appendEvent(event, doc);
+	    appendEventStation(event, station, getDocument());
+        } catch (BadLocationException ble) {
+            System.err.println("Couldn't insert message.");
+        }    
     }
 
     protected void appendEvent(EventAccessOperations event, Document doc)
@@ -91,10 +97,11 @@ public class EventInfoDisplay extends TextInfoDisplay
 				event.get_preferred_origin().my_location.longitude,
 				station[i].my_location.latitude,
 				station[i].my_location.longitude);
+	    appendLabelValue(doc, station[i].get_code(), dist+" degrees" );
 	    } catch (NoPreferredOrigin e) {
 		appendLabelValue(doc, station[i].get_code(), " --- degrees" );
 	    } // end of try-catch
-	    appendLabelValue(doc, station[i].get_code(), dist+" degrees" );
+
 	} // end of for (int i=0; i<station.length; i++)
 	appendLine(doc, "");
     }
