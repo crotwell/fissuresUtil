@@ -20,7 +20,7 @@ import edu.iris.Fissures.model.*;
 
 public class IntervalChooser extends JPanel{
     /**
-     * Creates a new <code>IntervalChooser</code> instance.
+     * constructor for the intervalchooser.
      *
      */
     public IntervalChooser (){
@@ -29,8 +29,8 @@ public class IntervalChooser extends JPanel{
     }
 
     /**
-     * Creates a new <code>IntervalChooser</code> instance.
-     *
+     * constructor which takes an array of IntervalChooserOptions[]
+     * Based on the IntervalChooserOptions the IntervalChooser is configured.
      * @param options an <code>IntervalChooserOptions[]</code> value
      */
     public IntervalChooser(IntervalChooserOptions[] options) {
@@ -40,6 +40,10 @@ public class IntervalChooser extends JPanel{
 	setEditable(true);
     }
 
+    /**
+     * this function is used to create the GUI for the intervalChooser.
+     *
+     */
     private void initFrame() {
     
 	bagLayout = new GridBagLayout();
@@ -62,6 +66,10 @@ public class IntervalChooser extends JPanel{
 	this.add(unitBox);
 
     }
+
+    /*
+     * this method is used to populate the values of the valueBox of the intervalchooser.
+     */
 
     private void populateValues(IntervalChooserOptions option) {
 	/*int tempValue = valueBox.getSelectedIndex();
@@ -96,6 +104,10 @@ public class IntervalChooser extends JPanel{
 	}
     }
 
+    /*
+     * this method is used to populate the units of the unitBox of the interval choooser.
+     */
+
     private void populateUnits(IntervalChooserOptions[] options) {
     
 	for( int counter = 0; counter < options.length; counter++) {
@@ -119,7 +131,8 @@ public class IntervalChooser extends JPanel{
 
     }
     /**
-     * Describe <code>setEditable</code> method here.
+     * this method is used to set if the value displayed in the interval chooser is 
+     * editable or not.
      *
      * @param bool a <code>boolean</code> value
      */
@@ -128,7 +141,7 @@ public class IntervalChooser extends JPanel{
     }
 
     /**
-     * Describe <code>setDefault</code> method here.
+     * sets the default value for the inteval chooser.
      *
      * @param index an <code>int</code> value
      * @param option an <code>IntervalChooserOptions</code> value
@@ -140,6 +153,8 @@ public class IntervalChooser extends JPanel{
 
     }
 
+    
+    
     public void setSelectedValue(int value) {
 
 	valueBox.setSelectedItem(String.valueOf(value));
@@ -187,12 +202,13 @@ public class IntervalChooser extends JPanel{
     }
 
     /**
-     * Describe <code>getDate</code> method here.
+     * This method adds the current value displayed in the intervalchooser, to the date passed to it 
+     * and returns the resultant date.
      *
      * @param date a <code>Date</code> value
      * @return a <code>Date</code> value
      */
-    public Date getDate(Date date) {
+    public Date addTo(Date date) {
 	
 	Calendar calendar = Calendar.getInstance(); 
 	calendar.setTime(date);
