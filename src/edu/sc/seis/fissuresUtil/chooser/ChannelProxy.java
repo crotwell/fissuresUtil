@@ -2,7 +2,7 @@ package edu.sc.seis.fissuresUtil.chooser;
 
 import edu.iris.Fissures.IfNetwork.*;
 
-import edu.sc.seis.fissuresUtil.cache.BulletproofNetworkAccess;
+import edu.sc.seis.fissuresUtil.cache.BulletproofNetworkAccessFactory;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 /**
@@ -27,7 +27,7 @@ public class ChannelProxy implements ChannelGrouper{
                 try {
                     NetworkId netId = channelId.network_id;
                     NetworkAccess net = finder.retrieve_by_id(netId);
-                    net = new BulletproofNetworkAccess(net, netRefs[i], netId);
+                    net = BulletproofNetworkAccessFactory.vest(net, netRefs[i]);
                     Channel channel = net.retrieve_channel(channelId);
                     StationId staId = channel.my_site.my_station.get_id();
                     Channel[] channels = net.retrieve_for_station(staId);
