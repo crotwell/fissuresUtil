@@ -19,7 +19,7 @@ import junit.framework.TestCase;
  */
 public class FissuresNamingServiceTest extends TestCase {
 
-    public void testGetInterfaceName() {
+    public void testGetInterfaceName() throws Exception {
         String out = FissuresNamingService.getInterfaceNameForClass(PlottableDCPOA.class);
         assertEquals("PlottableDC", out);
         PlottableDCOperations dummy = new PlottableDCOperations() {
@@ -56,6 +56,10 @@ public class FissuresNamingServiceTest extends TestCase {
             
         };
         out = FissuresNamingService.getInterfaceNameForClass(dummy.getClass());
+        assertEquals("PlottableDC", out);
+        Class c = Class.forName("edu.iris.Fissures.IfPlottable.PlottableDCOperations");
+        if (c == null) {assertTrue(false);}
+        out = FissuresNamingService.getInterfaceNameForClass(Class.forName("edu.iris.Fissures.IfPlottable.PlottableDCOperations"));
         assertEquals("PlottableDC", out);
     }
     
