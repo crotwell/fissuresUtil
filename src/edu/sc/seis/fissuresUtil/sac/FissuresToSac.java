@@ -184,7 +184,7 @@ public class FissuresToSac {
         MicroSecondDate beginTime = isoTime.getDate();
         MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
 
-        TimeInterval sacOMarker = (TimeInterval)beginTime.subtract(originTime);
+        TimeInterval sacOMarker = (TimeInterval)originTime.subtract(beginTime);
 	sacOMarker = (TimeInterval)sacOMarker.convertTo(UnitImpl.SECOND);
 	sac.o = (float)sacOMarker.value;
     }
