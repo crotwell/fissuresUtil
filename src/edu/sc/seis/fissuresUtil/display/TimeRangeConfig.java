@@ -38,6 +38,8 @@ public interface TimeRangeConfig {
      */
     public void addSeismogram(LocalSeismogram seis);
 
+    public void addSeismogram(LocalSeismogram seis, MicroSecondDate b);
+
     /**
      * Remove the values from this seismogram from the configuration
      *
@@ -70,4 +72,10 @@ public interface TimeRangeConfig {
      *
      */
     public void fireTimeRangeEvent(TimeSyncEvent e);
+
+    public void setDisplayInterval(TimeInterval t);
+
+    public void setBeginTime(MicroSecondDate b);
+    
+    public void setAllBeginTime(MicroSecondDate b);
 }// TimeRangeConfig

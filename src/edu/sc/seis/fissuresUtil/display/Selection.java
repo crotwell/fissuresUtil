@@ -3,6 +3,11 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
+import java.util.HashMap;
+import java.util.Iterator;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+
 /**
  * Selection.java
  *
@@ -14,10 +19,16 @@ import edu.iris.Fissures.model.TimeInterval;
  */
 
 public class Selection {
-    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeRangeConfig tr){
+    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeRangeConfig tr, HashMap plotters){
 	this.begin = begin;
 	this.end = end;
 	this.timeConfig = tr;
+	this.plotters = plotters;
+	internalTimeConfig = new BoundedTimeConfig();
+	Iterator e = plotters.keySet().iterator();
+	while(e.hasNext())
+	    internalTimeConfig.addSeismogram(((SeismogramPlotter)e.next()).getSeismogram(), begin);
+	internalTimeConfig.setDisplayInterval(begin.difference(end));
     }
 
     public boolean isVisible(){
@@ -34,10 +45,13 @@ public class Selection {
 	double endDistance = Math.abs(end.getMicroSecondTime() - selectionBegin.getMicroSecondTime())/timeWidth;
 	if(beginDistance < .05 || endDistance < .05){
 	    if(beginDistance < endDistance){
-		this.begin = selectionBegin; 
+		this.begin = selectionBegin;
+		internalTimeConfig.setAllBeginTime(selectionBegin);
+		internalTimeConfig.setDisplayInterval(end.difference(begin));
 		return true;
 	    }else{
 		this.end = selectionEnd;
+		internalTimeConfig.setDisplayInterval(end.difference(begin));
 		return true;
 	    }
 	}
@@ -73,11 +87,27 @@ public class Selection {
 
     public MicroSecondDate getEnd(){ return end; }
 
-    public void setBegin(MicroSecondDate newBegin){ this.begin = newBegin; } 
+    public void setBegin(MicroSecondDate newBegin){ 
+	internalTimeConfig.setBeginTime(newBegin);
+	this.begin = newBegin; } 
     
-    public void setEnd(MicroSecondDate newEnd){ this.end = newEnd; }
-    
+    public void setEnd(MicroSecondDate newEnd){ 
+	internalTimeConfig.setDisplayInterval(newEnd.difference(begin));
+	this.end = newEnd; 
+    }
+
+    public LocalSeismogramImpl getSeismogram(){ 
+	Iterator e = plotters.keySet().iterator();
+	return ((LocalSeismogramImpl)((SeismogramPlotter)e.next()).getSeismogram());
+    }
+
+    public TimeRangeConfig getInternalConfig(){ 
+	System.out.println(internalTimeConfig.getTimeRange().getBeginTime());
+	return internalTimeConfig; }
+
     protected MicroSecondDate begin, end;
 
-    protected TimeRangeConfig timeConfig;
+    protected TimeRangeConfig timeConfig, internalTimeConfig;
+
+    protected HashMap plotters;
 }// Selection
