@@ -18,13 +18,14 @@ import com.bbn.openmap.layer.shape.ShapeLayer;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
 import java.util.Properties;
+import javax.swing.ListSelectionModel;
 
 public class OpenMap extends OpenMapComponent{
 
     /**Creates a new openmap.  Both the channel chooser and the event table
      * model can be null.  If so, channels and events just won't get drawn
      */
-    public OpenMap(ChannelChooser chooser, EventTableModel etm){
+    public OpenMap(ChannelChooser chooser, EventTableModel etm, ListSelectionModel lsm){
         try{
             MapHandler mapHandler = new MapHandler();
             mapHandler.add(this);
@@ -45,7 +46,7 @@ public class OpenMap extends OpenMapComponent{
             mapHandler.add(lh);
 
             if(etm != null){
-                EventLayer el = new EventLayer(etm, mapBean);
+                EventLayer el = new EventLayer(etm, lsm, mapBean);
                 mapHandler.add(el);
                 lh.addLayer(el, 1);
             }
