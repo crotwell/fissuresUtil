@@ -72,7 +72,7 @@ site.create = CREATE TABLE site ( site_id int, \
 SiteSeq.create=CREATE SEQUENCE SiteSeq
 SiteSeq.nextVal=SELECT NEXTVAL ('SiteSeq')
 
-site.getDBIdsForStaAndCode = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ?
+site.getDBIdsForStaAndCode = SELECT site_id FROM site WHERE sta_id = ? and site_code = ?
 
 site.putAll = INSERT INTO site (site_id, sta_id, site_code, site_begin_id, site_end_id, site_comment, loc_id) \
                                VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -106,6 +106,15 @@ channel.create = CREATE TABLE channel (chan_id int, \
                                        REFERENCES time (time_id), \
                                        FOREIGN KEY (chan_end_id) \
                                        REFERENCES time (time_id))
+                                       
+channel.putAll = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id, \
+                 chan_end_id, chan_name, chan_orientation_az, chan_orientation_dip, \
+                 chan_sampling_interval_id, chan_sampling_numpoints) \
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 
+channel.putId = INSERT INTO channel (chan_id, chan_code, chan_begin_id) VALUES (?, ?, ?)
+
+channel.getByDBId = SELECT * FROM channel WHERE chan_id = ?
 
 ChannelSeq.create=CREATE SEQUENCE ChannelSeq
 ChannelSeq.nextVal=SELECT NEXTVAL ('ChannelSeq')
