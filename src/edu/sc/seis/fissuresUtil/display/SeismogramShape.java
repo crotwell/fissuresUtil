@@ -26,7 +26,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version
+ * @version $Id: SeismogramShape.java 2595 2002-09-19 14:24:55Z crotwell $
  */
 
 public class SeismogramShape implements Shape, Plotter {
