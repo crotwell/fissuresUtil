@@ -35,10 +35,8 @@ public class BorderConfiguration implements Cloneable {
         if(DOMHelper.hasElement(element, "clipTicks")) {
             clipTicks = true;
             Element tickConfig = DOMHelper.getElement(element, "clipTicks");
-            minTickValue = new Double(DOMHelper.extractText(tickConfig,
-                                                            "minTickValue")).doubleValue();
-            maxTickValue = new Double(DOMHelper.extractText(tickConfig,
-                                                            "maxTickValue")).doubleValue();
+            minTickValue = new Double(DOMHelper.extractText(tickConfig, "min")).doubleValue();
+            maxTickValue = new Double(DOMHelper.extractText(tickConfig, "max")).doubleValue();
         }
     }
 
@@ -86,18 +84,20 @@ public class BorderConfiguration implements Cloneable {
         if(b instanceof TitleProvider && titleFont != null) {
             ((TitleProvider)b).setTitleFont(titleFont.createFont());
         }
-        b.setSide(side);
-        b.setOrder(getOrder(order));
-        b.clipTicks(clipTicks, minTickValue, maxTickValue);
-        Iterator it = titles.iterator();
-        while(it.hasNext()) {
-            b.add(((BorderTitleConfiguration)it.next()).createTitle());
+        if(color != null) {
+            b.setColor(color.createColor());
         }
         if(background != null) {
             b.setBackground(background.createColor());
         }
-        if(color != null) {
-            b.setColor(color.createColor());
+        b.setSide(side);
+        b.setOrder(getOrder(order));
+        if(clipTicks) {
+            b.setClipTicks(minTickValue, maxTickValue);
+        }
+        Iterator it = titles.iterator();
+        while(it.hasNext()) {
+            b.add(((BorderTitleConfiguration)it.next()).createTitle());
         }
         return b;
     }
@@ -150,9 +150,9 @@ public class BorderConfiguration implements Cloneable {
 
     private boolean clipTicks = false;
 
-    private double minTickValue;
+    private double minTickValue = Double.NEGATIVE_INFINITY;
 
-    private double maxTickValue;
+    private double maxTickValue = Double.POSITIVE_INFINITY;
 
     private static ConfigDefinitions defs = new ConfigDefinitions();
 
