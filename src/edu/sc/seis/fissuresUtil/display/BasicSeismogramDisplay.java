@@ -55,6 +55,10 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac,
                                   SeismogramDisplay parent)throws IllegalArgumentException{
+        this(tc, ac, parent, null);
+    }
+    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac,
+                                  SeismogramDisplay parent, Color borderColor)throws IllegalArgumentException{
         this.parent = parent;
         setLayout(new OverlayLayout(this));
         addComponentListener(new ComponentAdapter() {
@@ -72,6 +76,10 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         scale = new ScaleBorder();
         scale.setLeftScaleMapper(ampScaleMap);
         Border etch = BorderFactory.createEtchedBorder();
+        if(borderColor != null){
+            etch = BorderFactory.createEtchedBorder(borderColor.brighter(), borderColor);
+            color = borderColor;
+        }
         Border removal = new SeismogramDisplayRemovalBorder(this);
         Border etchRemoval = BorderFactory.createCompoundBorder(etch, removal);
         Border bevel = BorderFactory.createLoweredBevelBorder();
@@ -86,17 +94,25 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         add(plotPainter);
     }
 
+    public void add(DataSetSeismogram seis, Color color) {
+        // TODO
+    }
+
     public void add(DataSetSeismogram[] seismos){
+        add(seismos, null);
+    }
+
+    public void add(DataSetSeismogram[] seismos, Color color){
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
-                drawables.add(new DrawableSeismogram(this, seismos[i]));
+                drawables.add(new DrawableSeismogram(this, seismos[i], color));
             }
         }
         Iterator e = activeFilters.iterator();
         while(e.hasNext()){
             DisplayUtils.applyFilter((NamedFilter)e.next(), new DrawableIterator(DrawableSeismogram.class,
-                                                                                   drawables));
+                                                                                 drawables));
         }
         seismogramArray = null;
     }
@@ -365,94 +381,94 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public int getAmplitudeLabelWidth() {
-      return scale.getLabelWidth();
+        return scale.getLabelWidth();
     }
     public int getAmplitudeLabelHeight() {
-          return scale.getLabelHeight();
+        return scale.getLabelHeight();
     }
 
     public Dimension drawTimeBorders(Graphics2D g2, int twidth, int theight){
 
-      int timeSizeSave = timeScaleMap.getTotalPixels();
-      int ampSizeSave = ampScaleMap.getTotalPixels();
+        int timeSizeSave = timeScaleMap.getTotalPixels();
+        int ampSizeSave = ampScaleMap.getTotalPixels();
 
-      Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
+        Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
 
-      JPanel comp = new JPanel();
-      comp.setSize(dsize.width,dsize.height);
-      comp.setSize(twidth,theight);
+        JPanel comp = new JPanel();
+        comp.setSize(dsize.width,dsize.height);
+        comp.setSize(twidth,theight);
 
-      int topBorder = scale.paintTopTimeBorder(comp,g2,0,0,twidth,theight);
-      int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
+        int topBorder = scale.paintTopTimeBorder(comp,g2,0,0,twidth,theight);
+        int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
 
-      // reset the scales
-      timeScaleMap.setTotalPixels(timeSizeSave);
+        // reset the scales
+        timeScaleMap.setTotalPixels(timeSizeSave);
 
-      dsize = new Dimension(twidth,topBorder);
-      return dsize;
+        dsize = new Dimension(twidth,topBorder);
+        return dsize;
 
     }
 
     public Dimension drawTopTimeBorders(Graphics2D g2, int twidth, int theight){
 
-      int timeSizeSave = timeScaleMap.getTotalPixels();
-      int ampSizeSave = ampScaleMap.getTotalPixels();
+        int timeSizeSave = timeScaleMap.getTotalPixels();
+        int ampSizeSave = ampScaleMap.getTotalPixels();
 
-      Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
+        Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
 
-      JPanel comp = new JPanel();
-      comp.setSize(dsize.width,dsize.height);
-      comp.setSize(twidth,theight);
+        JPanel comp = new JPanel();
+        comp.setSize(dsize.width,dsize.height);
+        comp.setSize(twidth,theight);
 
-      int topBorder = scale.paintTopTimeBorder(comp,g2,0,0,twidth,theight);
-      int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
+        int topBorder = scale.paintTopTimeBorder(comp,g2,0,0,twidth,theight);
+        int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
 
-      // reset the scales
-      timeScaleMap.setTotalPixels(timeSizeSave);
+        // reset the scales
+        timeScaleMap.setTotalPixels(timeSizeSave);
 
-      dsize = new Dimension(twidth,topBorder);
-      return dsize;
+        dsize = new Dimension(twidth,topBorder);
+        return dsize;
 
     }
 
     public Dimension drawBottomTimeBorders(Graphics2D g2, int twidth, int theight){
 
-      int timeSizeSave = timeScaleMap.getTotalPixels();
-      int ampSizeSave = ampScaleMap.getTotalPixels();
+        int timeSizeSave = timeScaleMap.getTotalPixels();
+        int ampSizeSave = ampScaleMap.getTotalPixels();
 
-      Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
+        Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
 
-      JPanel comp = new JPanel();
-      comp.setSize(dsize.width,dsize.height);
-      comp.setSize(twidth,theight);
+        JPanel comp = new JPanel();
+        comp.setSize(dsize.width,dsize.height);
+        comp.setSize(twidth,theight);
 
-      int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
+        int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
 
-      // reset the scales
-      timeScaleMap.setTotalPixels(timeSizeSave);
+        // reset the scales
+        timeScaleMap.setTotalPixels(timeSizeSave);
 
-      dsize = new Dimension(bottomBorder, theight);
-      return dsize;
+        dsize = new Dimension(bottomBorder, theight);
+        return dsize;
 
     }
 
     public Dimension drawAmpBorders(Graphics2D g2, int width, int height){
 
-      int timeSizeSave = timeScaleMap.getTotalPixels();
-      int ampSizeSave = ampScaleMap.getTotalPixels();
+        int timeSizeSave = timeScaleMap.getTotalPixels();
+        int ampSizeSave = ampScaleMap.getTotalPixels();
 
-      Dimension size = new Dimension(timeSizeSave,ampSizeSave);
+        Dimension size = new Dimension(timeSizeSave,ampSizeSave);
 
 
-      JPanel comp = new JPanel();
+        JPanel comp = new JPanel();
 
-      comp.setSize(size.width,size.height);
+        comp.setSize(size.width,size.height);
 
-      int leftBorder = scale.paintLeftAmpBorder(comp,g2,0,0,width,height);
+        int leftBorder = scale.paintLeftAmpBorder(comp,g2,0,0,width,height);
 
-      size = new Dimension(leftBorder,height);
+        size = new Dimension(leftBorder,height);
 
-      return size;
+        return size;
 
     }
 
@@ -513,6 +529,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
             }
         }
     }
+
+    public Color getColor(){ return color; }
+
     public final static int PREFERRED_HEIGHT = 150;
 
     public final static int PREFERRED_WIDTH = 250;
@@ -542,6 +561,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     private DataSetSeismogram[] seismogramArray;
 
     private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
+
+    private Color color;
 
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay
