@@ -31,7 +31,12 @@ public class SeismogramContainer implements SeisDataChangeListener{
     }
 
     public synchronized SeismogramIterator getIterator(){
-        return getIterator(DisplayUtils.getFullTime(getSeismograms()));
+        if(time == null){
+            time = DisplayUtils.getFullTime(getSeismograms());
+            return getIterator(time);
+        }else{
+            return getIterator(time);
+        }
     }
 
     public synchronized SeismogramIterator getIterator(MicroSecondTimeRange timeRange){
@@ -86,6 +91,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
             }
         }
         if(changed){
+            time = null;
             noData = false;
             Iterator it = listeners.iterator();
             while(it.hasNext()){//let all listeners know about new data
@@ -113,6 +119,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
             }
         }
         if(callRetrieve){
+            time = null;
             seismogram.retrieveData(this);
         }
         return (LocalSeismogramImpl[])existant.toArray(new LocalSeismogramImpl[existant.size()]);
@@ -161,5 +168,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
     private static final String EMPTY = "";
 
     private boolean changed;
+
+    private MicroSecondTimeRange time;
 }
 
