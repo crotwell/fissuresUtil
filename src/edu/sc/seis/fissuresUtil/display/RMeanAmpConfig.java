@@ -34,6 +34,9 @@ public class RMeanAmpConfig extends BasicAmpConfig {
                     // only generates a new amp event if the amp ranges change
                     changed = true;
                 }
+            }else if(current.hasNewData()){
+                setAmpRange(current.getDSS());
+                    changed = true;
             }
         }
         if(changed || currentAmpEvent == null){
@@ -65,11 +68,11 @@ public class RMeanAmpConfig extends BasicAmpConfig {
     private boolean setAmpRange(DataSetSeismogram seismo){
         AmpConfigData data = (AmpConfigData)ampData.get(seismo);
 
-	if ( data.getSeismograms().length == 0) {
-	    return data.setCleanRange(DisplayUtils.ZERO_RANGE);
-	} // end of if ()
-	
-        LocalSeismogramImpl seis = (LocalSeismogramImpl)data.getSeismograms()[0];
+    if ( data.getSeismograms().length == 0) {
+        return data.setCleanRange(DisplayUtils.ZERO_RANGE);
+    } // end of if ()
+
+        LocalSeismogramImpl seis = data.getSeismograms()[0];
         int[] seisIndex = DisplayUtils.getSeisPoints(seis, data.getTime());
         if(seisIndex[1] < 0 || seisIndex[0] >= seis.getNumPoints()) {
             //no data points in window, set range to 0

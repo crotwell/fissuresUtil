@@ -31,7 +31,6 @@ import java.util.Map;
 
 public class DisplayUtils {
     public static String[] getSeismogramNames(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
-        Channel channel = ((XMLDataSet)dataset).getChannel(channelId);
         SeismogramAttr[] attrs = ((XMLDataSet)dataset).getSeismogramAttrs();
         MicroSecondDate startDate = new MicroSecondDate(timeRange.start_time);
         MicroSecondDate endDate = new MicroSecondDate(timeRange.end_time);
@@ -43,18 +42,18 @@ public class DisplayUtils {
                        (((SeismogramAttrImpl)attrs[counter]).getEndTime().equals(endDate) ||
                             ((SeismogramAttrImpl)attrs[counter]).getEndTime().after(endDate))){
                     arrayList.add(((SeismogramAttrImpl)attrs[counter]).getName());
-                    
+
                 }
             }
         }
         String[] rtnValues = new String[arrayList.size()];
         rtnValues = (String[]) arrayList.toArray(rtnValues);
         return rtnValues;
-        
+
     }
-    
-    
-    
+
+
+
     public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
         String[] seisNames = DisplayUtils.getSeismogramNames(channelId, dataset, timeRange);
         LocalSeismogram[] localSeismograms = new LocalSeismogram[seisNames.length];
@@ -63,9 +62,8 @@ public class DisplayUtils {
         }
         return localSeismograms;
     }
-    
+
     public static String getSeismogramName(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
-        Channel channel = ((XMLDataSet)dataset).getChannel(channelId);
         SeismogramAttr[] attrs = ((XMLDataSet)dataset).getSeismogramAttrs();
         MicroSecondDate startDate = new MicroSecondDate(timeRange.start_time);
         MicroSecondDate endDate = new MicroSecondDate(timeRange.end_time);
@@ -81,8 +79,8 @@ public class DisplayUtils {
         }
         return null;
     }
-    
-    
+
+
     public static UnitRangeImpl getShaledRange(UnitRangeImpl ampRange, double shift, double scale){
         if(shift == 0 && scale == 1.0){
             return ampRange;
@@ -91,11 +89,11 @@ public class DisplayUtils {
         double minValue = ampRange.getMinValue() + range * shift;
         return new UnitRangeImpl(minValue, minValue + range * scale, ampRange.getUnit());
     }
-    
+
     /** Calculates the indexes within the seismogram data points,
-	correspoding to the begin and end time of the given range.
-	The amplitude of the
-	seismogram is not important for this calculation.
+    correspoding to the begin and end time of the given range.
+    The amplitude of the
+    seismogram is not important for this calculation.
     */
     public static final int[] getSeisPoints(LocalSeismogramImpl seis,
                                             MicroSecondTimeRange time){
@@ -115,7 +113,7 @@ public class DisplayUtils {
                                         time.getEndTime().getMicroSecondTime()));
         return values;
     }
-    
+
     public static String[] getSeismogramNames(DataSetSeismogram[] dss){
         String[] names = new String[dss.length];
         for(int i = 0; i < dss.length; i++){
@@ -123,15 +121,15 @@ public class DisplayUtils {
         }
         return names;
     }
-    
+
     public static String getOrientationName(String orientation) {
-        
+
         char ch = orientation.charAt(2);
         if(ch == 'E' || ch == '1' || ch == 'U') return "East";
         else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
         else return "Up";
     }
-    
+
     /**
      * <code>getComponents</code> sorts the passed in seismograms in by their east-west, north-south or z
      * component and finds all available components in their data sets for each component
@@ -141,7 +139,7 @@ public class DisplayUtils {
     public static DataSetSeismogram[][] getComponents(DataSetSeismogram[] dss){
         return getComponents(dss, "");
     }
-    
+
     /**
      * <code>getComponents</code> performs the same operation as getComponents, but also adds a suffix to each created
      * datasetseismogram
@@ -164,7 +162,7 @@ public class DisplayUtils {
                     for(int j = 0; j < newSeismograms.length; j++){
                         DataSetSeismogram current = null;/*new DataSetSeismogram((LocalSeismogramImpl)newSeismograms[j],
                                                                           dataSet,
-									  ((LocalSeismogramImpl)newSeismograms[i]).getName()+ suffix);*/
+                                      ((LocalSeismogramImpl)newSeismograms[i]).getName()+ suffix);*/
                         if(DisplayUtils.getOrientationName(channelGroup[counter].channel_code).equals("North")){
                             north.add(current);
                         }else if(DisplayUtils.getOrientationName(channelGroup[counter].channel_code).equals("East")){
@@ -183,7 +181,7 @@ public class DisplayUtils {
         sortedSeismos[2] = ((DataSetSeismogram[])z.toArray(new DataSetSeismogram[z.size()]));
         return sortedSeismos;
     }
-    
+
     public static DataSetSeismogram[] addSuffix(DataSetSeismogram[] dss, String suffix){
         DataSetSeismogram[] suffixedDss = new DataSetSeismogram[dss.length];
         for(int i = 0; i < dss.length; i++){
@@ -191,14 +189,18 @@ public class DisplayUtils {
         }
         return dss;
     }
-    
+
     private static final double linearInterp(long xa, long xb, int y,
                                              long x) {
         if (x == xa) return 0;
         if (x == xb) return y;
         return y*(x-xa)/(double)(xb-xa);
     }
-    
+
     public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
-    
+
+    public static final UnitRangeImpl ONE_RANGE = new UnitRangeImpl(1, 1, UnitImpl.COUNT);
+
+    public static final MicroSecondTimeRange ONE_TIME = new MicroSecondTimeRange(new MicroSecondDate(), new MicroSecondDate(1));
+
 }// DisplayUtils
