@@ -230,7 +230,9 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 		buf.append(location + " | ");
 		buf.append(sdf.format(msd) + " | ");
 		buf.append("Mag " + mag + " | ");
-		buf.append("Depth " + depth.value + " " + depth.the_units);
+
+		UnitDisplayUtil udu = new UnitDisplayUtil();
+		buf.append("Depth " + depth.value + " " + udu.getNameForUnit((UnitImpl)depth.the_units));
 		return buf.toString();
 	}
 
