@@ -22,27 +22,18 @@ import org.apache.log4j.Logger;
  */
 
 public class RTTimeRangeConfig implements TimeConfig, TimeListener{
-    public RTTimeRangeConfig(DataSetSeismogram[] seismos){
-        this(seismos, new TimeInterval(.125, UnitImpl.SECOND));
+    public RTTimeRangeConfig(TimeConfig internalConfig){
+        this(internalConfig, DEFAULT_REFRESH);
     }
 
-    public RTTimeRangeConfig (DataSetSeismogram[] seismos,
-                              TimeInterval update){
-        this(seismos, update, 1);
+    public RTTimeRangeConfig(TimeConfig internalConfig, TimeInterval update){
+        this(internalConfig, update, 1);
     }
 
-    public RTTimeRangeConfig(DataSetSeismogram[] seismos,
-                             TimeInterval update,
-                             float speed){
-        this(seismos, update, speed, new BasicTimeConfig());
-    }
-
-    public RTTimeRangeConfig(DataSetSeismogram[] seismos, TimeInterval update,
-                             float speed, TimeConfig internalConfig){
+    public RTTimeRangeConfig(TimeConfig internalConfig, TimeInterval update, float speed){
         this.update = update;
         this.speed = speed;
         setInternalConfig(internalConfig);
-        add(seismos);
     }
 
     public void setInternalConfig(TimeConfig config){
@@ -173,6 +164,7 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
     protected TimeInterval width;
 
     private static Logger logger = Logger.getLogger(RTTimeRangeConfig.class);
+    public static TimeInterval DEFAULT_REFRESH = new TimeInterval(.125, UnitImpl.SECOND);
 
     private static TimeInterval THREE_MINUTES = new TimeInterval(3, UnitImpl.MINUTE);
 
