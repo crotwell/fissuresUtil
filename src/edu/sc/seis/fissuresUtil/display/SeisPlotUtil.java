@@ -696,15 +696,15 @@ public class SeisPlotUtil  {
         int j=0, i, startIndex, endIndex;
 	int xvalue;
 	startIndex = 0; 
-	xvalue = 0;
-	for(i = 0, j = 0; i < uncomp[0].length; i++) {
+	if(uncomp[0].length != 0) xvalue = umcomp[0][0];;
+	for(i = 1, j = 0; i < uncomp[0].length; i++) {
 	  
 	    if(uncomp[0][i] != xvalue) {
 		endIndex = i-1;
 		comp[1][j] = getMinValue(uncomp[1], startIndex, endIndex);
 		comp[1][j+1] = (int)getMaxValue(uncomp[1], startIndex, endIndex);
-		comp[0][j] = uncomp[0][i];
-		comp[0][j+1] = uncomp[0][i];
+		comp[0][j] = uncomp[0][endIndex];
+		comp[0][j+1] = uncomp[0][endIndex];
 		j = j + 2;
 	   
 		startIndex = endIndex + 1;
@@ -712,6 +712,9 @@ public class SeisPlotUtil  {
 	    }  
 	   
 	}
+	
+	
+
       
 	return comp;
     }
