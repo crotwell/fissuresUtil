@@ -99,13 +99,11 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     }
 
     public void setIndividualizedAmpConfig(AmpConfig ac){
-        ampConfig = new IndividualizedAmpConfig(ac);
+        this.ac = new IndividualizedAmpConfig(ac);
         if(basicDisplays.size() != 0){
             BasicSeismogramDisplay  disp = (BasicSeismogramDisplay)basicDisplays.getFirst();
-            disp.setAmpConfig(ampConfig);
+            disp.setAmpConfig(this.ac);
         }
     }
-
-    private AmpConfig ampConfig;
 
 }// SingleSeismogramWindowDisplay
