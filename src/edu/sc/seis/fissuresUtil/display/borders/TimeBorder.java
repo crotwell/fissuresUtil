@@ -34,8 +34,7 @@ public class TimeBorder extends Border implements TitleProvider {
 
     public String getTitle() {
         MicroSecondTimeRange time = disp.getTimeConfig().getTime();
-        if(roundTheEpoch.intersects(time))
-            return "Relative time";
+        if(roundTheEpoch.intersects(time)) return "Relative time";
         else {
             Date middleDate = time.getBeginTime()
                     .add(new TimeInterval(time.getInterval().divideBy(2)));
@@ -49,18 +48,18 @@ public class TimeBorder extends Border implements TitleProvider {
     }
 
     protected List createFormats() {
-        List borderFormats = new ArrayList();
-        borderFormats.add(new TimeBorderFormat("mm:ss.SSS",
-                                               new TimeInterval(1,
-                                                                UnitImpl.MILLISECOND)));
-        borderFormats.add(new TimeBorderFormat("mm:ss.SSS",
-                                               new TimeInterval(10,
-                                                                UnitImpl.MILLISECOND)));
-        createSecondFormats(secDivs, borderFormats);
-        createMinuteSecondFormats(minSecDivs, borderFormats);
-        createMinuteFormats(minDivs, borderFormats);
-        createHourFormats(hourDivs, borderFormats);
-        return borderFormats;
+        List formats = new ArrayList();
+        formats.add(new TimeBorderFormat("mm:ss.SSS",
+                                         new TimeInterval(1,
+                                                          UnitImpl.MILLISECOND)));
+        formats.add(new TimeBorderFormat("mm:ss.SSS",
+                                         new TimeInterval(10,
+                                                          UnitImpl.MILLISECOND)));
+        createSecondFormats(secDivs, formats);
+        createMinuteSecondFormats(minSecDivs, formats);
+        createMinuteFormats(minDivs, formats);
+        createHourFormats(hourDivs, formats);
+        return formats;
     }
 
     //this is used to create formats with the given number of seconds between
@@ -119,10 +118,10 @@ public class TimeBorder extends Border implements TitleProvider {
         }
     }
 
-    private void createMinuteFormats(double[][] minDivs, List recip) {
-        for(int i = 0; i < minDivs.length; i++) {
-            createHourFormat(minDivs[i][0],
-                             (int)minDivs[i][1],
+    private void createMinuteFormats(double[][] divs, List recip) {
+        for(int i = 0; i < divs.length; i++) {
+            createHourFormat(divs[i][0],
+                             (int)divs[i][1],
                              recip,
                              UnitImpl.MINUTE);
         }
@@ -136,9 +135,9 @@ public class TimeBorder extends Border implements TitleProvider {
         recip.add(new TimeBorderFormat("HH:mm:ss", inter, divPerLabel));
     }
 
-    private void createHourFormats(double[][] minDivs, List recip) {
-        for(int i = 0; i < minDivs.length; i++) {
-            createDayFormat(minDivs[i][0], (int)minDivs[i][1], recip);
+    private void createHourFormats(double[][] divs, List recip) {
+        for(int i = 0; i < divs.length; i++) {
+            createDayFormat(divs[i][0], (int)divs[i][1], recip);
         }
     }
 
