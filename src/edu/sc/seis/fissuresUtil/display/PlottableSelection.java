@@ -238,6 +238,43 @@ public class PlottableSelection implements Plotter{
         return false;
     }
 
+
+//     private class DialogBox extends JFrame{
+//         public DialogBox (String[] choices){
+//             this.choices = choices;
+//         }
+        
+
+//         public void init() {
+//             JPanel panel = new JPanel();
+//             ButtonGroup buttonGroup = new ButtonGroup();
+//             panel.setLayout(new FlowLayout(choices.length+2, 1));
+//             JButton[] buttons = new JButton[choices.length];
+//             for(int counter = 0; counter < choices.length; counter++) {
+//                 buttons[counter] = new JRadioButton(choices[counter]);
+//                 buttonGroup.add(buttons[counter]);
+//                 panel.add(button);
+//             }
+//             JButton okButton = new JButton("OK");
+//             okButton.addActionListener(new ActionListener() {
+//                     public void actionPerformed(ActionEvent ae) {
+//                         for(int counter = 0; counter < choice.length; counter++) {
+//                             if(buttons[counter].isSelected()) {
+                                
+//                             }
+//                         }
+//                     }
+//                 });
+//     }
+        
+    
+        
+//         private String[] choices;
+
+    
+//     }// DialogBox
+
+
     private Color color;
 
     private PlottableDisplay plottableDisplay;

@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import com.sun.media.jai.codec.PNGEncodeParam;
 import edu.iris.Fissures.Plottable;
@@ -18,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
+import javax.swing.*;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -57,6 +59,7 @@ public  class PlottableDisplay extends JComponent {
 						     BorderFactory.createLoweredBevelBorder()));  
         setLayout(new BorderLayout());
         selectionList = new LinkedList();
+        eventPlotterList = new LinkedList();
         //	add(imagePanel, BorderLayout.CENTER);
         this.colorFactory = new ColorFactory();
         PlottableMouseListener plottableMouseListener = new PlottableMouseListener(this);
@@ -85,8 +88,10 @@ public  class PlottableDisplay extends JComponent {
     }
 
     public void setEvents(EventAccess[] eventAccess) {
-	this.eventAccess = eventAccess;
-	repaint();
+        this.eventAccess = eventAccess;
+        eventPlotterList = new LinkedList();
+        addEventPlotterInfo(eventAccess);
+        repaint();
     }
 
     public void setAmpScale(float ampScalePercent) {
@@ -114,6 +119,8 @@ public  class PlottableDisplay extends JComponent {
 
     public void setPlottable(edu.iris.Fissures.Plottable[] clientPlott, 
 			     String nameofstation) {
+        eventPlotterList = new LinkedList();
+        selectionList = new LinkedList();
         removeAll();
 
 	// signal any drawing thread to stop
@@ -147,7 +154,7 @@ public  class PlottableDisplay extends JComponent {
 	//System.out.println("Repaiting high light region");
 	//drawHighlightRegion(g);
     drawSelections(g);
-	addEventInfo(this.eventAccess, g);
+	drawEventFlagPlotters(g);
     }
 
     protected void drawComponent(Graphics g) {
@@ -536,8 +543,17 @@ public  class PlottableDisplay extends JComponent {
             plottableSelection.draw((Graphics2D)g, null, null, null);
         }
     }
+
+    private void drawEventFlagPlotters(Graphics g) {
+        Iterator iterator = eventPlotterList.iterator();
+        while(iterator.hasNext()) {
+            EventFlagPlotter plotter = (EventFlagPlotter) iterator.next();
+            plotter.draw((Graphics2D)g, null, null, null);
+        }
+    }
     
-    private int[] getSelectedRows(int beginy, int endy) {
+    
+    public int[] getSelectedRows(int beginy, int endy) {
         
         if(beginy == -1 || endy == -1) return new int[0];
         // beginy = (int)(beginy * this.ampScalePercent);
@@ -563,6 +579,22 @@ public  class PlottableDisplay extends JComponent {
         return rtnValues;
     }
 
+    public void setSelectedEventFlag(MouseEvent me) {
+        if(me.getClickCount() == 2) {
+            Iterator iterator = eventPlotterList.iterator();
+            while(iterator.hasNext()) {
+                EventFlagPlotter plotter = (EventFlagPlotter) iterator.next();
+                if(plotter.isSelected(me.getX(), me.getY())) {
+                    plotter.setSelected(true);
+                } else {
+                    plotter.setSelected(false);
+                }
+                //   plotter.draw((Graphics2D)g, null, null, null);
+            }
+        }
+        repaint();
+    }
+
 
     private boolean isRowSelected(int[] rows, int currrow) {
         for(int counter = 0; counter < rows.length; counter++) {
@@ -571,77 +603,7 @@ public  class PlottableDisplay extends JComponent {
         return false;
     }
 
-    private void drawHighlightRegion(Graphics g) {
-	// get new graphics to avoid messing up original
-	Graphics2D newG = (Graphics2D)g.create(); 
-	int[] minmax = findMinMax(arrayplottable);
-	if(g != currentImageGraphics) {
-	    newG.translate(labelXShift,
-			   titleYShift);
-	    newG.clipRect(0, 0, 
-			  plot_x/plotrows, 
-			  plot_y +(plotoffset * (plotrows-1)));
-	}
-
-	int xShift = plot_x/plotrows;
-	int mean = getMean();
-	int[] selectedRows = getSelectedRows(beginy, endy);
-	for (int currRow = 0; currRow < plotrows; currRow++) {
-
-	    // shift for row (left so time is in window, 
-	    //down to correct row on screen, plus
-	    //	    newG.translate(xShift*currRow, plot_y/2 + plotoffset*currRow);
-	    java.awt.geom.AffineTransform original = newG.getTransform();
-	    java.awt.geom.AffineTransform affine = newG.getTransform();
-	  
-	    affine.concatenate(affine.getTranslateInstance(-1*xShift*currRow,
-						 plot_y/2+plotoffset*currRow));
-	    // account for graphics y positive down
-	    affine.concatenate(affine.getScaleInstance(1, -1));
-
-	    newG.setTransform(affine);
- 	    newG.setPaint(Color.red);
-
-	    AlphaComposite originalComposite = (AlphaComposite)newG.getComposite();
-	    AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
-								     .4f);
-	    Point2D.Float beginPoint = new Point2D.Float(beginx, endx);
-	    newG.setPaint(Color.green);
-	    newG.setComposite(newComposite);
-	    if(isRowSelected(selectedRows, currRow)) {
-		int bx = 0;
-		int ex = 0;
-		int by =  -plotoffset/2 + 10;
-		int ey = plotoffset - 10;
-		if(currRow == selectedRows[0] ) {
-		    //System.out.println("Calculating values for start row");
-		    bx =  beginx + xShift*currRow -labelXShift;// + beginx;
-		    if(selectedRows.length  != 1) {
-                ex = 6000;
-		    } else {
-                ex = endx - beginx;
-		    }
-        } else if(currRow == selectedRows[selectedRows.length -1 ]) {
-		    //System.out.println("Caculating values for end row "+currRow);
-		    bx = xShift*currRow - labelXShift;;
-		    ex = (endx);
-		} else {
-		    bx = 0;
-		    ex = 6000;
-        }
-        
-		//System.out.println("NOW DRAW THE rectangle for row "+currRow);
-		newG.drawRect(bx, by, ex, ey);
-		newG.fillRect(bx, by, ex, ey);
-		
-	    }//end of if
-	    newG.setTransform(original);
-	}//end of for
-	//getRequestFilter();
-	    newG.dispose();
-	   
-    }
-
+   
    
     public RequestFilter[] getRequestFilters() {
 
@@ -656,122 +618,18 @@ public  class PlottableDisplay extends JComponent {
     }
 
 
-    public void addEventInfo(EventAccess[] eventAccessArray, Graphics g) {
-	System.out.println("The length of the eventArray is "+eventAccessArray.length);
-	int[] rows = new int[eventAccessArray.length];
-	int[] cols = new int[eventAccessArray.length];
-	for(int  counter = 0; counter < eventAccessArray.length; counter++) {
-	    rows[counter] = getEventRow(eventAccessArray[counter]);
-	    cols[counter] = getEventColumn(eventAccessArray[counter]);
-	}
-	drawEvents(eventAccessArray, rows, cols, g);
+    public void addEventPlotterInfo(EventAccess[] eventAccessArray) {
+        
+        for(int counter = 0; counter < eventAccessArray.length; counter++) {
+            eventPlotterList.add(new EventFlagPlotter(this, eventAccess[counter]));
+        }
+        
     }
-
-    private int getEventRow(EventAccess eventAccess) {
-	try {
-	    Origin origin = eventAccess.get_preferred_origin();
-	    edu.iris.Fissures.Time time = origin.origin_time;
-	    System.out.println("ORIGIN TIME: "+new MicroSecondDate(time));
-	    
-	    long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
-	    float colhours = microSeconds/(1000 * 1000 * 60 * 60);
-	    Calendar calendar = Calendar.getInstance();
-	    Date date = new Date(microSeconds/1000);
-	    System.out.println("The date rebuilt ORIGIN TIME: "+new MicroSecondDate(date));
-	    calendar.setTime(date);
-	    calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-	    int hours = calendar.get(Calendar.HOUR_OF_DAY);
-	    System.out.println("THe hour of the day is "+hours);
-	    return hours/2; 
-				     
-	} catch(Exception e) {
-
-	}
-	return -1;
-
-    }
-
-
-     private int getEventColumn(EventAccess eventAccess) {
-	try {
-	    Origin origin = eventAccess.get_preferred_origin();
-	    edu.iris.Fissures.Time time = origin.origin_time;
-	    long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
-	    Calendar calendar = Calendar.getInstance();
-	    Date date = new Date(microSeconds/1000);
-	    calendar.setTime(date);
-	    calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-	    int minutes = calendar.get(Calendar.MINUTE);
-	    int seconds = calendar.get(Calendar.SECOND);
-	    
-	    float colhours = (minutes * 60 + seconds) / (float) (60 * 60);
-	    
-	    System.out.println("The value of colhours is "+colhours);
-	    int rowvalue = 24/plotrows;
-	    int plotwidth = plot_x/plotrows;
-	    int  rtnvalue = (int)(((float)plotwidth/rowvalue) * colhours);
-	    
-	    return rtnvalue;
-				     
-	} catch(Exception e) {
-
-	}
-	return -1;
-
-    }
-
-    private void drawEvents(EventAccess[] eventAccessArray, int[] rows, int[] columns, Graphics g) {
-	// get new graphics to avoid messing up original
-	Graphics2D newG = (Graphics2D)g.create(); 
-	int[] minmax = findMinMax(arrayplottable);
-	if(g != currentImageGraphics) {
-	    newG.translate(labelXShift,
-			   titleYShift);
-	    newG.clipRect(0, 0, 
-			  plot_x/plotrows, 
-			  plot_y +(plotoffset * (plotrows-1)));
-	}
-	
-	int xShift = plot_x/plotrows;
-	int mean = getMean();
-	int[] selectedRows = getSelectedRows(beginy, endy);
-	for (int currRow = 0; currRow < plotrows; currRow++) {
-
-	    // shift for row (left so time is in window, 
-	    //down to correct row on screen, plus
-	    //	    newG.translate(xShift*currRow, plot_y/2 + plotoffset*currRow);
-	    java.awt.geom.AffineTransform original = newG.getTransform();
-	    java.awt.geom.AffineTransform affine = newG.getTransform();
-	  
-	    affine.concatenate(affine.getTranslateInstance(-1*xShift*currRow,
-						 plot_y/2+plotoffset*currRow));
-	    // account for graphics y positive down
-	    affine.concatenate(affine.getScaleInstance(1, -1));
-
-	    newG.setTransform(affine);
- 	    newG.setPaint(Color.red);
-
-	    AlphaComposite originalComposite = (AlphaComposite)newG.getComposite();
-	    AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
-								     .4f);
-	    newG.setComposite(newComposite);
-	    
-	    for(int counter = 0; counter < eventAccessArray.length; counter++) {
-		if(rows[counter] == currRow) {
-		    System.out.println("Drawing on row currRow "+currRow+" column = "+columns[counter]);
-		    newG.drawRect( xShift*currRow + columns[counter] - 5, -20,10,40);
-		    newG.fillRect( xShift*currRow +  columns[counter] - 5, -20,10,40);
-		}
-	    }
-	    newG.setTransform(original);
-	}//end of for
-	//getRequestFilter();
-	newG.dispose();
-    }
-
+    
     
     private ColorFactory colorFactory;
     private LinkedList selectionList;
+    private LinkedList eventPlotterList;
 
     private PlottableSelection plottableSelection = null;
 
