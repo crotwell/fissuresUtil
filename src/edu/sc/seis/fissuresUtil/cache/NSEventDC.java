@@ -32,6 +32,10 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
         eventDC = null;
     }
 
+    public org.omg.CORBA.Object getRealCorbaObject() {
+        return getCorbaObject();
+    }
+
     public synchronized EventDC getCorbaObject() {
         if(eventDC == null) {
             try {
