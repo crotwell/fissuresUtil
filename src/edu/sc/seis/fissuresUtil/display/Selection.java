@@ -25,7 +25,7 @@ public class Selection implements TimeSyncListener{
 		      BasicSeismogramDisplay parent, Color color){
 	this.externalTimeConfig = tr;
 	this.seismograms = seismograms;
-	this.parent = parent;
+	parents.add(parent);
 	this.color = color;
 	internalTimeConfig = new TimeConfigRegistrar();
 	Iterator e = seismograms.iterator();
@@ -68,10 +68,10 @@ public class Selection implements TimeSyncListener{
 	    internalTimeConfig.setDisplayInterval(new TimeInterval(selectionBegin, 
 								   currentInternal.getEndTime()));
 	    internalTimeConfig.setAllBeginTime(selectionBegin);
-	    parent.repaint();
+	    repaintParents();
 	}else{
 	    internalTimeConfig.setDisplayInterval(new TimeInterval(currentInternal.getBeginTime(), selectionEnd));
-	    parent.repaint();
+	    repaintParents();
 	}
     }
     
@@ -83,8 +83,12 @@ public class Selection implements TimeSyncListener{
     }
 
     public void remove(){ 
-	if(display != null)
-	    display.remove(); 
+	if(displays.size() > 0){
+	    Iterator e = displays.iterator();
+	    while(e.hasNext()){
+		((BasicSeismogramDisplay)e.next()).remove(); 
+	    }
+	}
     }
 	
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
@@ -96,7 +100,16 @@ public class Selection implements TimeSyncListener{
 	return false;
     }
     
-    public BasicSeismogramDisplay getParent(){ return parent; }
+    public BasicSeismogramDisplay getParent(){ return (BasicSeismogramDisplay)parents.getFirst(); }
+
+    public LinkedList getParents(){ return parents; }
+
+    public void repaintParents(){ 
+	Iterator e = parents.iterator();
+	while(e.hasNext()){
+	    ((BasicSeismogramDisplay)e.next()).repaint();
+	}
+    }
 
     public float getX(int width){
 	MicroSecondTimeRange currentExternal = externalTimeConfig.getTimeRange();
@@ -117,15 +130,17 @@ public class Selection implements TimeSyncListener{
 
     public LinkedList getSeismograms(){ return seismograms; }
 
-    public void setDisplay(BasicSeismogramDisplay display){this.display = display; }
+    public void addDisplay(BasicSeismogramDisplay display){ displays.add(display); }
 
     public void release(){ released = true; }
 
     public TimeConfigRegistrar getInternalConfig(){ return internalTimeConfig; }
 
-    public void updateTimeRange(){ parent.repaint(); }
+    public void updateTimeRange(){ repaintParents(); }
 
-    protected BasicSeismogramDisplay parent, display;
+    protected LinkedList  displays = new LinkedList();
+
+    protected LinkedList parents = new LinkedList();
 
     protected TimeConfigRegistrar externalTimeConfig, internalTimeConfig;
     
