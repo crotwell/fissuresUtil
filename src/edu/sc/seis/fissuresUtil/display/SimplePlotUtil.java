@@ -26,10 +26,14 @@ import org.apache.log4j.*;
 
 public class SimplePlotUtil  {
     
-    protected static int[][] scaleXvalues(LocalSeismogram seismogram, 
-					  MicroSecondTimeRange timeRange,
-					  UnitRangeImpl ampRange,
-					  Dimension size) 
+    /**
+     * Compresses the seismogram to fit the given dimension for the
+     * given timeRange. The returned arrays represent pixel coordinates
+     * and should have at most 2 values (min and max) per x pixel coordinate.
+     */
+    public static int[][] compressXvalues(LocalSeismogram seismogram, 
+					     MicroSecondTimeRange timeRange,
+					     Dimension size) 
 	throws CodecException {
 
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
@@ -53,9 +57,6 @@ public class SimplePlotUtil  {
 
         MicroSecondDate tMin = timeRange.getBeginTime();
         MicroSecondDate tMax = timeRange.getEndTime();
-	double yMin = ampRange.getMinValue();
-        double yMax = ampRange.getMaxValue();
-
 
 	int seisStartIndex = getPixel(seis.getNumPoints(),
 				      seis.getBeginTime(),
@@ -155,7 +156,7 @@ public class SimplePlotUtil  {
 	if(pointsPerPixel  < 3 ){
 	return getPlottableSimpl(seis, ampRange, tr, size);
 	}else{*/
-	    int[][] uncomp = scaleXvalues(seismogram, tr, ampRange, size);
+	    int[][] uncomp = compressXvalues(seismogram, tr, size);
 	    // enough points to take the extra time to compress the line
 	    int[][] comp = new int[2][2 * size.width];
 	    int j = 0, startIndex = 0, xvalue = 0, endIndex = 0;
