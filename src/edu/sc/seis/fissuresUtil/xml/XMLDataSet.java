@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3099 2003-01-14 19:05:19Z crotwell $
+ * @version $Id: XMLDataSet.java 3139 2003-01-17 14:37:41Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -834,7 +834,7 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public LocalSeismogramImpl getSeismogram(String name) {
         if (seismogramCache.containsKey(name)) {
-	    logger.debug("getting the seismogram fromt the cache");
+	    logger.debug("getting the seismogram from the cache");
 	    Object obj = seismogramCache.get(name);
 	    if(obj instanceof SoftReference) {
 		SoftReference softReference = (SoftReference)obj;
@@ -918,10 +918,8 @@ public class XMLDataSet implements DataSet, Serializable {
 		    } // end of else
 		    
                     if (seis != null) {
-			logger.debug("***************************************************CACHING SOFTREFERENCE AS THE SEISMOGRAM IS NOT NULL");
 			seismogramCache.put(name, new SoftReference(seis));
                     } // end of if (seis != null)
-		    else logger.debug("****************************************THE SEISMOGRAM RETURNED IS NULL");
 		    
                     return seis;
                 }
