@@ -16,24 +16,22 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.gee.FrameManager;
-import edu.sc.seis.gee.NetworkGateKeeper;
-import edu.sc.seis.gee.task.VersionTask;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 
 public class UpdateCheckerJob  extends AbstractJob {
-    public UpdateCheckerJob(String displayName, String updateURL, boolean gui) {
-        this(displayName, updateURL, gui, false);
+    public UpdateCheckerJob(String displayName, String version, String updateURL, boolean gui) {
+        this(displayName, version, updateURL, gui, false);
     }
 
-    public UpdateCheckerJob(String displayName, String updateURL, boolean gui, boolean forceCheck) {
+    public UpdateCheckerJob(String displayName, String version, String updateURL, boolean gui, boolean forceCheck) {
         super(displayName);
         this.updateURL = updateURL;
         this.isGui = gui;
         this.forceCheck = forceCheck;
+        this.version = version;
         prefs = Preferences.userNodeForPackage(this.getClass());
     }
 
@@ -68,12 +66,12 @@ public class UpdateCheckerJob  extends AbstractJob {
         setStatus("Connect to server");
 
         XMLUpdateCheckerClient updateChecker =
-            new XMLUpdateCheckerClient(VersionTask.getVersion(),
+            new XMLUpdateCheckerClient(version,
                                        updateURL);
         setStatus("Check for update");
         if (updateChecker.isUpdateAvailable()) {
             UpdateInformation[] updates = updateChecker.getUpdates();
-            logger.info("our version is "+VersionTask.getVersion()+", update version is "+updates[updates.length-1].getVersion());
+            logger.info("our version is "+version+", update version is "+updates[updates.length-1].getVersion());
             UpdateAction[] actions = updates[updates.length-1].getUpdateActions();
             LocationUpdate locationUpdate = (LocationUpdate)actions[0];
             if (isGui) {
@@ -82,7 +80,7 @@ public class UpdateCheckerJob  extends AbstractJob {
                 handleUpdateNonGUI(locationUpdate);
             }
         }else if(showNoUpdate) {
-            JOptionPane.showMessageDialog(FrameManager.getManager().getCurrentFrame(),
+            JOptionPane.showMessageDialog(null,
                                           "No update is available",
                                           "Update Check",
                                           JOptionPane.INFORMATION_MESSAGE);
@@ -96,7 +94,7 @@ public class UpdateCheckerJob  extends AbstractJob {
         options[0] = "Go To Update Page";
         options[1] = "Remind in a fortnight";
         options[2] = "Remind in a month";
-        int n = JOptionPane.showOptionDialog(FrameManager.getManager().getCurrentFrame(),
+        int n = JOptionPane.showOptionDialog(null,
                                              "An updated version of GEE is available!\nPlease go to\n"+locationUpdate.getLocation()+"\nto get the latest version.",
                                              "An updated version of GEE is available!",
                                              JOptionPane.YES_NO_OPTION,
@@ -136,6 +134,8 @@ public class UpdateCheckerJob  extends AbstractJob {
         System.out.println();
         System.out.println("*******************************************************");
     }
+
+    String version;
 
     boolean forceCheck;
 
