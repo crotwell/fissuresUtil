@@ -355,6 +355,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 							 (TimeConfigRegistrar)creator.getTimeConfig(), 
 							 creator.getAmpRegistrar(), 
 							 creator.getAmpRegistrar());
+		particleWindow.toFront();
 	    } // end of else
 	}else{
 	    JOptionPane.showMessageDialog(null,
@@ -394,6 +395,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	 	}else{
 	    logger.debug("adding another selection");
 	    addSelection(creator,selectionDisplay);
+	    selectionWindow.toFront();
 	}
     }
 
@@ -439,6 +441,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}else{
 	    logger.debug("adding another 3Cselection");
 	    groupSelection(creator, threeSelectionDisplay);
+	    threeSelectionWindow.toFront();
 	}
     }
 
