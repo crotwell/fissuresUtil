@@ -5,11 +5,14 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
@@ -98,33 +101,46 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     public Color getColor() {
         return null;
     }
-    public void setColors(Color[] colors){
+
+    public void setColors(Color[] colors) {
         this.colors = colors;
     }
 
+    protected boolean hasConfiguredColors(Class class1) {
+        return classToColor.containsKey(class1);
+    }
+
+    public void setColors(Class colorGroupClass, Color[] colors) {
+        classToColor.put(colorGroupClass, colors);
+    }
+
     public Color getNextColor(Class colorGroupClass) {
-        int[] usages = new int[colors.length];
-        for(int i = 0; i < colors.length; i++) {
+        Color[] classColors = colors;
+        if(classToColor.containsKey(colorGroupClass)) {
+            classColors = (Color[])classToColor.get(colorGroupClass);
+        }
+        int[] usages = new int[classColors.length];
+        for(int i = 0; i < classColors.length; i++) {
             Iterator it = iterator(colorGroupClass);
             while(it.hasNext()) {
                 Drawable cur = (Drawable)it.next();
-                if(cur.getColor().equals(colors[i])) usages[i]++;
+                if(cur.getColor().equals(classColors[i])) usages[i]++;
                 if(cur instanceof DrawableSeismogram) {
                     DrawableSeismogram curSeis = (DrawableSeismogram)cur;
                     Iterator childIterator = curSeis.iterator(colorGroupClass);
                     while(childIterator.hasNext()) {
                         Drawable curChild = (Drawable)childIterator.next();
-                        if(curChild.getColor().equals(colors[i])) usages[i]++;
+                        if(curChild.getColor().equals(classColors[i])) usages[i]++;
                     }
                 }
             }
         }
         for(int minUsage = 0; minUsage >= 0; minUsage++) {
             for(int i = 0; i < usages.length; i++) {
-                if(usages[i] == minUsage) return colors[i];
+                if(usages[i] == minUsage) return classColors[i];
             }
         }
-        return colors[i++ % colors.length];
+        return classColors[i++ % classColors.length];
     }
 
     private int i = 0;
@@ -192,8 +208,10 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     private static boolean currentTimeFlag = false;
 
     protected static Set activeFilters = new HashSet();
-    
-    public Color[] colors;
+
+    private Color[] colors;
+
+    protected boolean drawNamesForNamedDrawables = true;
 
     public static final Color[] COLORS = {Color.BLUE,
                                           new Color(217, 91, 23),
@@ -205,7 +223,17 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
                                           new Color(54, 72, 21),
                                           new Color(119, 17, 136)};
 
+    private Map classToColor = new HashMap();
+
     private static final Logger logger = Logger.getLogger(SeismogramDisplay.class);
 
     public static boolean PRINTING = false;
+
+    public UnitRangeImpl getDistance() {
+        throw new UnsupportedOperationException("Generic seismogram displays dont have distances");
+    }
+
+    public void setDrawNamesForNamedDrawables(boolean drawNamesForNamedDrawables) {
+        this.drawNamesForNamedDrawables = drawNamesForNamedDrawables;
+    }
 }
