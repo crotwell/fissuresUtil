@@ -429,6 +429,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    }
 	    Date plotEnd = new Date();
 	    timeRegistrar.returnSnapshot();
+	    ampRegistrar.returnSnapshot();
 	    if(name != null){
 		g2.setPaint(new Color(0, 0, 0, 128));
 		g2.drawString(name, 5, getSize().height - 3);
