@@ -21,7 +21,7 @@ public class BulletproofVestFactory{
      *
      * @throws IllegalArguemtnException if the netDC does not wrap a NSNetworkDC at some level.
      */
-    public static ProxyNetworkAccess networkAccessVest(NetworkAccess na, ProxyNetworkDC netDC) {
+    public static ProxyNetworkAccess vestNetworkAccess(NetworkAccess na, ProxyNetworkDC netDC) {
         //avoid vesting if it is already vested.
         if(na instanceof CacheNetworkAccess) {
             return (ProxyNetworkAccess) na;
