@@ -9,6 +9,7 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 import edu.iris.Fissures.IfNetwork.Response;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 
@@ -21,11 +22,11 @@ public class BasicAmpEvent implements AmpEvent{
         this.amps = amps;
         generateGenericAmp();
     }
-
+    
     public UnitRangeImpl getAmp(DataSetSeismogram seismo){
         return amps[indexOf(seismo)];
     }
-
+    
     public boolean contains(DataSetSeismogram seismo){
         try{
             indexOf(seismo);
@@ -34,11 +35,11 @@ public class BasicAmpEvent implements AmpEvent{
             return false;
         }
     }
-
+    
     public UnitRangeImpl getAmp(){
         return genericAmp;
     }
-
+    
     private void generateGenericAmp(){
         // Currently, we only do "real world units" in the case of one seismogram
         // eventually, the overlays should
@@ -62,29 +63,31 @@ public class BasicAmpEvent implements AmpEvent{
             }
         }
     }
-
+    
     /** calculates a new generic amp using the response of the given seismogram.
      If seis does not have a response, then the initial amp is used. */
     protected static UnitRangeImpl calcGenericAmp(UnitRangeImpl inAmp, DataSetSeismogram seis) {
         Object obj = seis.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
         Response resp = (Response)obj;
         if (obj != null) {
-            return new UnitRangeImpl(inAmp.min_value/resp.the_sensitivity.sensitivity_factor,
-                                     inAmp.max_value/resp.the_sensitivity.sensitivity_factor,
-                                     resp.stages[0].input_units);
+            UnitRangeImpl respUnitRange =
+                new UnitRangeImpl(inAmp.min_value/resp.the_sensitivity.sensitivity_factor,
+                                  inAmp.max_value/resp.the_sensitivity.sensitivity_factor,
+                                  resp.stages[0].input_units);
+            return UnitDisplayUtil.getBestForDisplay(respUnitRange);
         } else {
             return inAmp;
         }
     }
-
+    
     public void setAmp(UnitRangeImpl amp){
         genericAmp = amp;
     }
-
+    
     public DataSetSeismogram[] getSeismograms() {
         return seismos;
     }
-
+    
     private int indexOf(DataSetSeismogram seismo){
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] == seismo){
@@ -93,11 +96,11 @@ public class BasicAmpEvent implements AmpEvent{
         }
         throw new IllegalArgumentException("Seismogram is not in this AmpEvent");
     }
-
+    
     private DataSetSeismogram[] seismos;
-
+    
     private UnitRangeImpl[] amps;
-
+    
     private UnitRangeImpl genericAmp;
 }
 
