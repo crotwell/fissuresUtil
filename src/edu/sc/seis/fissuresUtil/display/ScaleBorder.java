@@ -90,9 +90,9 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                 // left
                 if (leftScaleMap != null) {
                     numTicks = leftScaleMap.getNumTicks();
-                    if ( numTicks == 0) {
+                    if ( numTicks == 0 || numTicks ==1) {
                         copy.drawString("No Data",
-                                        0,
+                                        fontHeight + 2,
                                         top + (height - top - bottom)/2-
                                             fm.getLeading());
                     } // end of if ()
@@ -128,12 +128,12 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                     if(leftAxisLabelBounds == null){
                         leftAxisLabelBounds = copy.getFontMetrics().getStringBounds(leftScaleMap.getAxisLabel(), copy);
                     }
-                    double yTranslate = (height - y - leftAxisLabelBounds.getWidth())/2;
-                    double xTranslate = x;
+                    double yTranslate = height - (height - leftAxisLabelBounds.getWidth())/2;
+                    double xTranslate = leftAxisLabelBounds.getHeight();
                     copy.translate(xTranslate, yTranslate);
-                    copy.rotate(Math.PI/2);
-                    copy.drawString(leftScaleMap.getAxisLabel(), 0, 0);
                     copy.rotate(-Math.PI/2);
+                    copy.drawString(leftScaleMap.getAxisLabel(), 0, 0);
+                    copy.rotate(Math.PI/2);
                     copy.translate(-xTranslate, -yTranslate);
                 }
 
