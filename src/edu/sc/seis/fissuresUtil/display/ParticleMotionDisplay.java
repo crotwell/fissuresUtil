@@ -103,8 +103,10 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
         } else {
             formCheckBoxPanel();
         }
-        setInitialButton();
         initialized = t.getCompletion();
+        if(initialized){
+            setInitialButton();
+        }
     }
 
     /**
