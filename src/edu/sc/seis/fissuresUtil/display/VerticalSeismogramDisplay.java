@@ -36,7 +36,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	this.getViewport().add(seismograms);
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
-	sorter = new SeismogramSorter();
+	sorter = new AlphaSeisSorter();
     }
     
     public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, String name){
@@ -49,7 +49,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay((LocalSeismogram)seis, tr,
 								 name, this);
-	int i = sorter.sort(seis);
+	int i = sorter.sort(seis, name);
 	seismograms.add(disp, i);
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
@@ -88,7 +88,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.removeAll();
 	remove(seismograms);
 	basicDisplays = new LinkedList();
-	sorter = new SeismogramSorter();
+	sorter = new AlphaSeisSorter();
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	this.time.setText("   Time: ");
@@ -98,7 +98,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     public void removeSeismogram(MouseEvent me){
 	BasicSeismogramDisplay clicked = ((BasicSeismogramDisplay)me.getComponent());
-	clicked.remove(me);
+	clicked.remove();
 	seismograms.remove(clicked);
 	basicDisplays.remove(clicked);
 	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
@@ -180,8 +180,42 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void createSelectionDisplay(BasicSeismogramDisplay creator){
 	if(selectionDisplay == null){
 	    logger.debug("creating selection display");
+	    JFrame selectionWindow = new JFrame("Selection Display");
+	    selectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    selectionWindow.setSize(400, 220);
+	    JToolBar infoBar = new JToolBar();
+	    infoBar.add(new FilterSelection(selectionDisplay));
+	    infoBar.setFloatable(false);
+	    selectionWindow.getContentPane().add(infoBar, BorderLayout.SOUTH);
+	    Iterator e = creator.getSeismograms().iterator();
+	    TimeConfigRegistrar tr = creator.getCurrentSelection().getInternalConfig();
+	    LocalSeismogramImpl first = ((LocalSeismogramImpl)e.next());
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange((LocalSeismogram)first)));
+	    ar.visibleAmpCalc(tr);
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
-	}}
+	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, first.getName() + " " +
+										 creator.getCurrentSelection().getColor()));
+	    while(e.hasNext()){
+		selectionDisplay.addSeismogram(((LocalSeismogramImpl)e.next()), 0);
+	    }
+	    selectionWindow.getContentPane().add(selectionDisplay);
+	    Toolkit tk = Toolkit.getDefaultToolkit();
+	    selectionWindow.setLocation(tk.getScreenSize().width, tk.getScreenSize().height);
+	    selectionWindow.setVisible(true);	
+	}else{
+	    logger.debug("adding another selection");
+	    Iterator e = creator.getSeismograms().iterator();
+	    TimeConfigRegistrar tr = creator.getCurrentSelection().getInternalConfig();
+	    LocalSeismogramImpl first = ((LocalSeismogramImpl)e.next());
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange((LocalSeismogram)first)));
+	    ar.visibleAmpCalc(tr);
+	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, first.getName() + " " +  
+										 creator.getCurrentSelection().getColor()));
+	    while(e.hasNext()){
+		selectionDisplay.addSeismogram(((LocalSeismogramImpl)e.next()), 0);
+	    }
+	}
+    }
 	
     
     protected SeismogramSorter sorter;
