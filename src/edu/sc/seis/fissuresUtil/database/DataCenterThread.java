@@ -100,6 +100,15 @@ public class DataCenterThread implements Runnable{
                     // try it again
                     counter--;
                 }
+            } catch(Throwable e) {
+                synchronized(initiators){
+                    failed = true;
+                    Iterator it = initiators.iterator();
+                    while(it.hasNext()){
+                        a_client.error(((SeisDataChangeListener)it.next()), e);
+                    }
+                    continue;
+                }
             }
         }
         synchronized(initiators){
