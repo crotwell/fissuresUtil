@@ -18,24 +18,26 @@ import java.util.*;
 
 public class FullTimeConfig extends AbstractTimeRangeConfig{
     
-    /** Gets the MicroSecondTimeRange for a particular seismogram, and checks if the seismogram has an earlier begin time or later end time than the
-     *  one being used by this config.  It also checks for null for this beginTime and endTime so that when a seismogram is removed, 
-     *  calling an update works correctly to redefine any values that may have changed.
+    /** Gets the MicroSecondTimeRange for a particular seismogram, and checks if the seismogram has an earlier begin time or later end
+     *  time than the one being used by this config.  It also checks for null for this beginTime and display interval so that when a 
+     *  seismogram is removed, calling an update works correctly to redefine any values that may have changed.
      *
      */
     public MicroSecondTimeRange getTimeRange(LocalSeismogram seis){
 	if(beginTime == null || beginTime.getMicroSecondTime() > ((LocalSeismogramImpl)seis).getBeginTime().getMicroSecondTime())
 	    this.beginTime = ((LocalSeismogramImpl)seis).getBeginTime();
-	if(endTime == null || endTime.getMicroSecondTime() < ((LocalSeismogramImpl)seis).getEndTime().getMicroSecondTime())
-	    this.endTime = ((LocalSeismogramImpl)seis).getEndTime();
-	return new MicroSecondTimeRange(this.beginTime, this.endTime);
+	if(displayInterval == null || 
+	   beginTime.add(displayInterval).getMicroSecondTime() < ((LocalSeismogramImpl)seis).getEndTime().getMicroSecondTime())
+	    this.displayInterval = new TimeInterval(((LocalSeismogramImpl)seis).getBeginTime(), 
+						    ((LocalSeismogramImpl)seis).getEndTime());
+	return new MicroSecondTimeRange(this.beginTime, this.beginTime.add(displayInterval));
     }
     
     /** Simply returns the current time range
      *
      */
     public MicroSecondTimeRange getTimeRange(){
-	return new MicroSecondTimeRange(this.beginTime, this.endTime);
+	return new MicroSecondTimeRange(this.beginTime, this.beginTime.add(displayInterval));
     }
     
     /** Adds a seismogram to the list of those currently contained in the config.  It obtains the time range for this seismogram so that
@@ -57,10 +59,10 @@ public class FullTimeConfig extends AbstractTimeRangeConfig{
 	if(seismos.containsKey(seis)){
 	    if(beginTime.getMicroSecondTime() == ((LocalSeismogramImpl)seis).getBeginTime().getMicroSecondTime())
 		beginTime = null;
-	    if(endTime.getMicroSecondTime() == ((LocalSeismogramImpl)seis).getEndTime().getMicroSecondTime())
-		endTime = null;
+	    if(beginTime.add(displayInterval).getMicroSecondTime() == ((LocalSeismogramImpl)seis).getEndTime().getMicroSecondTime())
+		displayInterval = null;
 	    seismos.remove(seis);
-	    if(beginTime == null || endTime == null){
+	    if(beginTime == null || displayInterval == null){
 		Iterator e = seismos.keySet().iterator();
 		while(e.hasNext())
 		    this.getTimeRange(((LocalSeismogram)e.next()));
@@ -72,6 +74,4 @@ public class FullTimeConfig extends AbstractTimeRangeConfig{
      */
     public void fireTimeRangeEvent(TimeSyncEvent e){}
     
-    private MicroSecondDate beginTime, endTime;
-
-}// FullTimeConfig
+    }// FullTimeConfig
