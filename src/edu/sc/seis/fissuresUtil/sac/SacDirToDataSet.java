@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 9748 2004-07-22 20:21:30Z crotwell $
+ * @version $Id: SacDirToDataSet.java 9749 2004-07-22 20:23:43Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -138,9 +138,6 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         //sac.read(dis);
         edu.iris.Fissures.seismogramDC.LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
 
-
-        System.out.println("The PATH is "+sacFile.getParent());
-
         edu.sc.seis.fissuresUtil.cache.CacheEvent event =
             SacToFissures.getEvent(sac);
 
@@ -192,7 +189,6 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         if (seisName.endsWith(".SAC")) {
             seisName = seisName.substring(0,seisName.length()-4);
         } // end of if (seisName.endsWith(".SAC"))
-        System.out.println("seis name="+seisName+" url="+seisURL);
         MemoryDataSetSeismogram memDSS = new MemoryDataSetSeismogram(seis, dataset, seisName);
 
         AuditInfo[] seisAudit = new AuditInfo[1];
@@ -200,7 +196,6 @@ public class SacDirToDataSet implements StdDataSetParamNames {
                                      "seismogram loaded from sac file.");
 
         dataset.addDataSetSeismogram(memDSS, seisAudit);
-        System.out.println("Done with "+seisName);
     }
 
     String userName = System.getProperty("user.name");
@@ -281,4 +276,5 @@ public class SacDirToDataSet implements StdDataSetParamNames {
     static DataSetToXML dataSetToXML = new DataSetToXML();
 
 }// SacDirToDataSet
+
 
