@@ -24,8 +24,9 @@ public class BasicSeismogramDisplayTest extends TestCase {
     }
 
     public void setUp(){
-        SingleSeismogramWindowDisplay vsd =
-            new SingleSeismogramWindowDisplay(null, null, null);
+        SeismogramDisplay.setMouseMotionForwarder(new MouseMotionForwarder());
+        SeismogramDisplay.setMouseForwarder(new MouseForwarder());
+        SingleSeismogramWindowDisplay vsd = new SingleSeismogramWindowDisplay(null);
         twoSineSeismos[0] = new MemoryDataSetSeismogram(simpleSineWave,
                                                         "Simple");
         twoSineSeismos[1] = new MemoryDataSetSeismogram(customSineWave,
