@@ -17,7 +17,7 @@ public class MicroSecondTimeRange{
     /**
      * Creates a new MicroSecondTimeRange.  The order of the times passed in
      * doesn't matter
-     * 
+     *
      */
     public MicroSecondTimeRange(MicroSecondDate time, MicroSecondDate anotherTime){
 	if(time.before(anotherTime)){
@@ -70,21 +70,21 @@ public class MicroSecondTimeRange{
     /**
      * Returns the beginning time for this range
      *
-     * 
+     *
      */
     public MicroSecondDate getBeginTime(){ return beginTime;}
         
     /**
      * Returns the ending time for this range
      *
-     * 
+     *
      */
     public MicroSecondDate getEndTime(){ return endTime; }
     
     /**
      * Returns the interval that this range comprises
      *
-     * 
+     *
      */
     public TimeInterval getInterval(){ return interval; }
 
@@ -95,7 +95,7 @@ public class MicroSecondTimeRange{
 	return false;
     }
 
-    public String toString(){ return beginTime + " " + endTime; }
+    public String toString(){ return beginTime + " to " + endTime; }
 
     private final MicroSecondDate beginTime;
     
