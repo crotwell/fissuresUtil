@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -16,9 +18,12 @@ import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class CacheNetworkAccess extends ProxyNetworkAccess {
 
@@ -34,6 +39,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         attr = null;
         stations = null;
         channelMap.clear();
+        instrumentationMap.clear();
         super.reset();
     }
 
@@ -80,6 +86,39 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
             channelMap.put(idStr, chans);
         }
         return (Channel[])channelMap.get(idStr);
+    }
+    
+    public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
+        throws ChannelNotFound {
+        MicroSecondDate date = new MicroSecondDate(the_time);
+        Instrumentation inst = null;
+        String idString = ChannelIdUtil.toString(id);
+        List instForChannel = (List)instrumentationMap.get(idString);
+        if (instForChannel == null) {
+            instForChannel = new ArrayList();
+            instrumentationMap.put(idString, instForChannel);
+        }
+        for(Iterator iter = instForChannel.iterator(); iter.hasNext();) {
+            InstHolder instHold = (InstHolder)iter.next();
+            if (instHold.range.intersects(date)) {
+                inst = instHold.inst;
+            }
+        }
+        if (inst == null) {
+            inst =  net.retrieve_instrumentation(id, the_time);
+            InstHolder instHold = new InstHolder(inst);
+            instForChannel.add(instHold);
+        }
+        return inst;
+    }
+    
+    class InstHolder {
+        InstHolder(Instrumentation inst) {
+            this.inst = inst;
+            this.range = new MicroSecondTimeRange(inst.effective_time);
+        }
+        Instrumentation inst;
+        MicroSecondTimeRange range;
     }
 
     /**
@@ -265,6 +304,8 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     private Station[] stations;
 
     private HashMap channelMap = new HashMap();
+    
+    private HashMap instrumentationMap = new HashMap();
 
     private static Logger logger = Logger.getLogger(CacheNetworkAccess.class);
 }
