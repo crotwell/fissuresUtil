@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 public class JDBCEventAccess extends EventTable{
+
+    public JDBCEventAccess() throws SQLException{
+        this(ConnMgr.createConnection());
+    }
+
     public JDBCEventAccess(Connection conn) throws SQLException{
         this(conn, new JDBCOrigin(conn), new JDBCEventAttr(conn));
     }
