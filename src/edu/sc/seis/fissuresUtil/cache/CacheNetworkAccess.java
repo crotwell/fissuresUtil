@@ -17,28 +17,28 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 public class CacheNetworkAccess implements NetworkAccess {
-    
+
     public CacheNetworkAccess(NetworkAccess net) {
         if (net == null) {
             throw new NullPointerException("network is null");
         } // end of if (net == null)
         this.net = net;
     }
-    
+
     public NetworkAccess getNetworkAccess() { return net; }
-    
+
     //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/get_attributes:1.0
     //
     /***/
-    
+
     public NetworkAttr get_attributes() {
         if (attr == null) {
             attr = net.get_attributes();
         }
         return attr;
     }
-    
+
     /** retreives the stations for the network, but uses the cached copy
      *  if it has been previously retrieved. The stations are also cleaned
      *  of duplicate networkAttr objects to free memory.
@@ -47,7 +47,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     public Station[] retrieve_stations() {
         if (stations == null) {
             stations = net.retrieve_stations();
-            clean(stations);
+           // clean(stations);
         }
         return stations;
     }
@@ -60,12 +60,12 @@ public class CacheNetworkAccess implements NetworkAccess {
         String idStr = StationIdUtil.toString(id);
         if ( ! channelMap.containsKey(idStr)) {
             Channel[] chans = net.retrieve_for_station(id);
-            clean(chans);
+          //  clean(chans);
             channelMap.put(idStr, chans);
         }
         return (Channel[])channelMap.get(idStr);
     }
-    
+
     /** Cleans the array of channels so that the sites are shared
      *  if they are identical. This frees memory that is otherwise wasted on
      *  identical copies of the same objects. */
@@ -90,7 +90,7 @@ public class CacheNetworkAccess implements NetworkAccess {
         }
         clean((Site[])knownSites.toArray(new Site[0]));
     }
-    
+
     public static void clean(ChannelId id){
         id.channel_code = getKnownChannelCode(id.channel_code);
         id.network_id = getKnown(id.network_id);
@@ -98,20 +98,20 @@ public class CacheNetworkAccess implements NetworkAccess {
         id.site_code = getKnownSiteCode(id.site_code);
         id.begin_time = getKnown(id.begin_time);
     }
-    
+
     public static void clean(SiteId id){
         id.network_id = getKnown(id.network_id);
         id.station_code = getKnownStationCode(id.station_code);
         id.site_code = getKnownSiteCode(id.site_code);
         id.begin_time = getKnown(id.begin_time);
     }
-    
+
     public static void clean(StationId id){
         id.network_id = getKnown(id.network_id);
         id.station_code = getKnownStationCode(id.station_code);
         id.begin_time = getKnown(id.begin_time);
     }
-    
+
     /** Cleans the array of sites so that the stations are shared
      *  if they are identical. This frees memory that is otherwise wasted on
      *  identical copies of the same objects. */
@@ -135,7 +135,7 @@ public class CacheNetworkAccess implements NetworkAccess {
         }
         clean((Station[])knownStations.toArray(new Station[0]));
     }
-    
+
     /** Cleans the array of stations so that the Network Attributes are shared
      *  if they are identical. This frees memory that is otherwise wasted on
      *  identical copies of the same objects. */
@@ -158,7 +158,7 @@ public class CacheNetworkAccess implements NetworkAccess {
             }
         }
     }
-    
+
     private static String getKnownChannelCode(String unkownCode){
         synchronized(knownChannelCodes){
             Iterator it = knownChannelCodes.iterator();
@@ -170,9 +170,9 @@ public class CacheNetworkAccess implements NetworkAccess {
         }
         return unkownCode;
     }
-    
+
     private static List knownChannelCodes = Collections.synchronizedList(new ArrayList());
-    
+
     private static String getKnownStationCode(String unkownCode){
         synchronized(knownStationCodes){
             Iterator it = knownStationCodes.iterator();
@@ -184,9 +184,9 @@ public class CacheNetworkAccess implements NetworkAccess {
         }
         return unkownCode;
     }
-    
+
     private static List knownStationCodes = Collections.synchronizedList(new ArrayList());
-    
+
     private static String getKnownSiteCode(String unkownCode){
         synchronized(knownSiteCodes){
             Iterator it = knownSiteCodes.iterator();
@@ -198,9 +198,9 @@ public class CacheNetworkAccess implements NetworkAccess {
         }
         return unkownCode;
     }
-    
+
     private static List knownSiteCodes = Collections.synchronizedList(new ArrayList());
-    
+
     private static NetworkId getKnown(NetworkId unknownId){
         synchronized(knownNetworkIds){
             Iterator it = knownNetworkIds.iterator();
@@ -212,9 +212,9 @@ public class CacheNetworkAccess implements NetworkAccess {
         }
         return unknownId;
     }
-    
+
     private static List knownNetworkIds = Collections.synchronizedList(new ArrayList());
-    
+
     private static Time getKnown(Time unknownTime){
         synchronized(knownTimes){
             Iterator it = knownTimes.iterator();
@@ -224,83 +224,83 @@ public class CacheNetworkAccess implements NetworkAccess {
                    cur.leap_seconds_version == unknownTime.leap_seconds_version)
                     return cur;
             }
-            knownNetworkIds.add(unknownTime);
+            knownTimes.add(unknownTime);
         }
         return unknownTime;
     }
-    
+
     private static List knownTimes = Collections.synchronizedList(new ArrayList());
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_grouping:1.0
 //
     /***/
-    
+
     public ChannelId[]
         retrieve_grouping(ChannelId id)
         throws ChannelNotFound {
         return net.retrieve_grouping(id);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_groupings:1.0
 //
     /***/
-    
+
     public ChannelId[][]
         retrieve_groupings() {
         return net.retrieve_groupings();
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_channel:1.0
 //
     /***/
-    
+
     public Channel retrieve_channel(ChannelId id) throws ChannelNotFound {
         return net.retrieve_channel(id);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_channels_by_code:1.0
 //
     /***/
-    
+
     public Channel[] retrieve_channels_by_code(String station_code,
                                                String site_code,
                                                String channel_code)
         throws ChannelNotFound {
         return net.retrieve_channels_by_code(station_code, site_code, channel_code);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/locate_channels:1.0
 //
     /***/
-    
+
     public Channel[] locate_channels(edu.iris.Fissures.Area the_area,
                                      SamplingRange sampling,
                                      OrientationRange orientation) {
         return net.locate_channels(the_area, sampling, orientation);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_instrumentation:1.0
 //
     /***/
-    
+
     public Instrumentation
         retrieve_instrumentation(ChannelId id,
                                  edu.iris.Fissures.Time the_time)
         throws ChannelNotFound {
         return net.retrieve_instrumentation(id, the_time);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_calibrations:1.0
 //
     /***/
-    
+
     public Calibration[]
         retrieve_calibrations(ChannelId id,
                               edu.iris.Fissures.TimeRange the_time)
@@ -308,12 +308,12 @@ public class CacheNetworkAccess implements NetworkAccess {
         edu.iris.Fissures.NotImplemented {
         return net.retrieve_calibrations(id, the_time);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_time_corrections:1.0
 //
     /***/
-    
+
     public TimeCorrection[]
         retrieve_time_corrections(ChannelId id,
                                   edu.iris.Fissures.TimeRange time_range)
@@ -321,46 +321,47 @@ public class CacheNetworkAccess implements NetworkAccess {
         edu.iris.Fissures.NotImplemented {
         return net.retrieve_time_corrections(id, time_range);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_all_channels:1.0
 //
     /***/
-    
+
     public ChannelId[]
         retrieve_all_channels(int seq_max,
                               ChannelIdIterHolder iter) {
-        
+
         return net.retrieve_all_channels(seq_max, iter);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/get_audit_trail_for_channel:1.0
 //
     /***/
-    
+
     public edu.iris.Fissures.AuditElement[]
         get_audit_trail_for_channel(ChannelId id)
         throws ChannelNotFound,
         edu.iris.Fissures.NotImplemented {
         return net.get_audit_trail_for_channel(id);
     }
-    
+
 //
     // IDL:iris.edu/Fissures/AuditSystemAccess/get_audit_trail:1.0
 //
     /***/
-    
+
     public AuditElement[]
         get_audit_trail()
         throws NotImplemented {
         return net.get_audit_trail();
     }
-    
+
     NetworkAccess net;
     NetworkAttr attr;
     Station[] stations;
     HashMap channelMap = new HashMap();
-    
+
     static Logger logger = Logger.getLogger(CacheNetworkAccess.class);
 }
+
