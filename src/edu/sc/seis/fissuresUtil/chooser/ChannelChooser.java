@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
 /**
  * ChannelChooser.java
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 7940 2004-03-31 20:20:14Z groves $
+ * @version $Id: ChannelChooser.java 8312 2004-04-28 02:51:38Z groves $
  *
  */
 
@@ -574,7 +574,7 @@ public class ChannelChooser extends JPanel {
     public void addStationDataListener(StationDataListener s) {
         listenerList.add(StationDataListener.class, s);
         s.stationDataCleared();
-        s.stationDataChanged(new StationDataEvent(this, getStations()));
+        s.stationDataChanged(new StationDataEvent(getStations()));
     }
 
     public void addStationSelectionListener(StationSelectionListener s){
@@ -583,59 +583,33 @@ public class ChannelChooser extends JPanel {
     }
 
     protected void fireStationDataChangedEvent(Station[] stations) {
-        StationDataEvent stationDataEvent = null;
-        //logger.debug("fireStationDataEvent called");
-        // Guaranteed to return a non-null array
+        StationDataEvent stationDataEvent = new StationDataEvent(stations);
         Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
+        // Process the listeners last to first
         for (int i = listeners.length-2; i>=0; i-=2) {
             if (listeners[i]==StationDataListener.class) {
-                // Lazily create the event:
-                if (stationDataEvent == null)
-                    stationDataEvent = new StationDataEvent(this, stations);
                 ((StationDataListener)listeners[i+1]).stationDataChanged(stationDataEvent);
-
-                //logger.debug("fireStationDataEvent!");
             }
         }
     }
 
     protected void fireStationDataClearedEvent() {
-        StationDataEvent stationDataEvent = null;
-        //logger.debug("fireStationDataEvent called");
-        // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
+        // Process the listeners last to first
         for (int i = listeners.length-2; i>=0; i-=2) {
             if (listeners[i]==StationDataListener.class) {
-                // Lazily create the event:
-                if (stationDataEvent == null)
-                    stationDataEvent = new StationDataEvent(this, null);
                 ((StationDataListener)listeners[i+1]).stationDataCleared();
-
-                //logger.debug("fireStationDataEvent!");
             }
         }
     }
 
     protected void fireStationSelectedEvent(ListSelectionEvent e) {
-        StationSelectionEvent stationSelectionEvent = null;
-        //logger.debug("fireStationDataEvent called");
-        // Guaranteed to return a non-null array
+        StationSelectionEvent stationSelectionEvent = new StationSelectionEvent(this, getSelectedStations());
         Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
+        // Process the listeners last to first
         for (int i = listeners.length-2; i>=0; i-=2) {
             if (listeners[i]==StationSelectionListener.class) {
-                // Lazily create the event:
-                if (stationSelectionEvent == null)
-                    stationSelectionEvent =
-                        new StationSelectionEvent(this, getSelectedStations());
                 ((StationSelectionListener)listeners[i+1]).stationSelectionChanged(stationSelectionEvent);
-
-                //logger.debug("fireStationDataEvent!");
             }
         }
     }
