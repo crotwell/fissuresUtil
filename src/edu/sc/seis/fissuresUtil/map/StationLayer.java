@@ -135,10 +135,6 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
     private ChannelChooser chooser;
 
-    public MapMouseListener getMapMouseListener(){
-        return this;
-    }
-
     public String[] getMouseModeServiceList() {
         return modeList;
     }
@@ -149,11 +145,9 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
             OMStation current = (OMStation)it.next();
             if(current.contains(e.getX(), e.getY())){
                 chooser.toggleStationSelected(current.getStation());
-                //current.toggleSelection();
-                //chooser.setStationSelected(current.getStation());
-                //repaint();
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }
