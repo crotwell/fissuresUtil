@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -12,6 +13,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Dimension;
 import java.awt.geom.*;
+import org.apache.log4j.*;
+
 
 /**
  * Selection.java
@@ -75,6 +78,7 @@ public class Selection implements TimeListener, Plotter{
     }
     
     public void adjustRange(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
+logger.debug("adjust "+selectionBegin+"   "+selectionEnd);
 	MicroSecondTimeRange currentInternal = latestTime.getTime();
 	double timeWidth = externalRegistrar.getLatestTime().getTime().getInterval().getValue();
 	if(released == true){
@@ -95,8 +99,8 @@ public class Selection implements TimeListener, Plotter{
 	    setBegin(selectionBegin);
 	    repaintParents();
 	}else{
-	    repaintParents();
 	    setEnd(selectionEnd);
+	    repaintParents();
 	}
     }
     
@@ -193,9 +197,11 @@ public class Selection implements TimeListener, Plotter{
 	if ( latestTime.getTime().getEndTime().equals(newBegin)) {
 	    throw new IllegalArgumentException("Selection must not have zero width, newBegin and end are the same.");
 	} // end of if ()
+	logger.debug("setBegin "+newBegin);
 	
 	MicroSecondDate currentBegin = latestTime.getTime().getBeginTime();
-	double currentInterval = latestTime.getTime().getInterval().getValue();
+	TimeInterval timeInt = (TimeInterval)latestTime.getTime().getInterval().convertTo(UnitImpl.MICROSECOND);
+	double currentInterval = timeInt.getValue();
 	double shift = (newBegin.getMicroSecondTime() - currentBegin.getMicroSecondTime())/currentInterval;
 	double scale = (currentInterval + currentBegin.subtract(newBegin).getValue())/currentInterval;
 	internalRegistrar.shaleTime(shift, scale);
@@ -207,11 +213,13 @@ public class Selection implements TimeListener, Plotter{
 
     public void setEnd(MicroSecondDate newEnd){
 	if ( latestTime.getTime().getBeginTime().equals(newEnd)) {
-	    throw new IllegalArgumentException("Selection must not have zero width, newBegin and end are the same.");
+	    throw new IllegalArgumentException("Selection must not have zero width, begin and newEnd are the same.");
 	} // end of if ()
+	logger.debug("setEnd "+newEnd);
 
 	MicroSecondDate currentEnd = latestTime.getTime().getEndTime();
-	double currentInterval = latestTime.getTime().getInterval().getValue();
+	TimeInterval timeInt = (TimeInterval)latestTime.getTime().getInterval().convertTo(UnitImpl.MICROSECOND);
+	double currentInterval = timeInt.getValue();
 	double scale = (currentInterval + newEnd.subtract(currentEnd).getValue())/currentInterval;
 	internalRegistrar.shaleTime(0, scale);
     }
@@ -235,4 +243,7 @@ public class Selection implements TimeListener, Plotter{
     private boolean selectedBegin, released = true, visible = true;
 
     private TimeEvent latestTime;
+
+    private static Category logger = Category.getInstance(Selection.class.getName());
+
 }// Selection
