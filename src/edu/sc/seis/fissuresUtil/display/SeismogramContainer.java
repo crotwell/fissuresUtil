@@ -29,7 +29,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
         }
         this.seismogram = seismogram;
         seismogram.addSeisDataChangeListener(this);
-        seismogram.retrieveData(this);
+        //seismogram.retrieveData(this);
     }
 
     public void finished(SeisDataChangeEvent sdce) {
@@ -88,7 +88,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
 
     private void addSeismograms(LocalSeismogramImpl[] seismograms){
         boolean newData = false;
-        LocalSeismogramImpl[] currentSeis = getSeismograms();
+        LocalSeismogramImpl[] currentSeis = getSeismograms(false);
         synchronized(softSeis){
             for (int j = 0; j < seismograms.length; j++) {
                 boolean found = false;
@@ -127,29 +127,37 @@ public class SeismogramContainer implements SeisDataChangeListener{
     }
 
     public LocalSeismogramImpl[] getSeismograms(){
+        return getSeismograms(true);
+    }
+
+    private LocalSeismogramImpl[] getSeismograms(boolean retrieveOnEmpty){
         boolean callRetrieve = false;
         List existant = new ArrayList();
+        LocalSeismogramImpl[] seis = EMPTY_ARRAY;
         synchronized(softSeis){
-            if(softSeis.size() == 0){
-                return EMPTY_ARRAY;
-            }
-            Iterator it = softSeis.iterator();
-            while(it.hasNext()){
-                SoftReference current = (SoftReference)it.next();
-                Object o = current.get();
-                if(o != null){
-                    existant.add(o);
-                }else{
-                    callRetrieve = true;
-                    it.remove();
+            if(softSeis.size() == 0 && retrieveOnEmpty){
+                callRetrieve = true;
+            }else{
+                Iterator it = softSeis.iterator();
+                while(it.hasNext()){
+                    SoftReference current = (SoftReference)it.next();
+                    Object o = current.get();
+                    if(o != null){
+                        existant.add(o);
+                    }else{
+                        callRetrieve = true;
+                        it.remove();
+                    }
                 }
+                seis = new LocalSeismogramImpl[existant.size()];
+                existant.toArray(seis);
             }
         }
         if(callRetrieve){
             time = null;
             seismogram.retrieveData(this);
         }
-        return (LocalSeismogramImpl[])existant.toArray(new LocalSeismogramImpl[existant.size()]);
+        return seis;
     }
 
     public void addListener(SeismogramContainerListener listener){
@@ -200,4 +208,5 @@ public class SeismogramContainer implements SeisDataChangeListener{
 
     private MicroSecondTimeRange time;
 }
+
 
