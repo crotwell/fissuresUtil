@@ -7,7 +7,8 @@ import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
+import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -28,21 +29,15 @@ import org.apache.log4j.Category;
  * @version
  */
 
-public abstract class Selection implements TimeListener, Plotter{
-    public Selection (MicroSecondDate begin, MicroSecondDate end, Registrar reg, DataSetSeismogram[] seismograms,
-                      SeismogramDisplay parent, Color color){
-        if ( end.equals(begin)) {
-            throw new IllegalArgumentException("Selection must not have zero width, begin and end are the same.");
-        } // end of if ()
-
-        externalRegistrar = reg;
-        seismos = seismograms;
+public class Selection implements TimeListener, Plotter{
+    public Selection (MicroSecondTimeRange range, SeismogramDisplay parent, Color color){
+        seismos = parent.getSeismograms();
         this.parent = parent;
         this.color = color;
-        internalRegistrar = new Registrar(seismos);
-        internalRegistrar.addListener(this);
-        setBegin(begin);
-        setInterval(new TimeInterval(begin, end));
+        tc.addListener(this);
+        tc.add(seismos);
+        setBegin(range.getBeginTime());
+        setInterval(range.getInterval());
         parent.repaint();
     }
 
@@ -82,7 +77,7 @@ public abstract class Selection implements TimeListener, Plotter{
 
     public boolean isRemoveable(){
         if(latestTime.getTime().getInterval().getValue()/
-           externalRegistrar.getLatestTime().getTime().getInterval().getValue() < .01){
+           parent.getTimeConfig().getTime().getInterval().getValue() < .01){
             return true;
         }
         return false;
@@ -100,7 +95,7 @@ public abstract class Selection implements TimeListener, Plotter{
     }
 
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
-        double timeWidth = externalRegistrar.getLatestTime().getTime().getInterval().getValue();
+        double timeWidth = parent.getTimeConfig().getTime().getInterval().getValue();
         MicroSecondTimeRange currentInternal = latestTime.getTime();
         if(Math.abs(currentInternal.getEndTime().getMicroSecondTime() - selectionBegin.getMicroSecondTime())/timeWidth <.03 ||
            Math.abs(currentInternal.getBeginTime().getMicroSecondTime() - selectionEnd.getMicroSecondTime())/timeWidth < .03)
@@ -139,8 +134,6 @@ public abstract class Selection implements TimeListener, Plotter{
 
     public DataSetSeismogram[] getSeismograms(){ return seismos; }
 
-    public Registrar getInternalRegistrar(){ return internalRegistrar; }
-
     public void setTime(MicroSecondTimeRange selRange) {
         MicroSecondDate currentBegin = latestTime.getTime().getBeginTime();
         MicroSecondDate newBegin = selRange.getBeginTime();
@@ -149,7 +142,7 @@ public abstract class Selection implements TimeListener, Plotter{
         double currentInterval = timeInt.getValue();
         double shift = (newBegin.getMicroSecondTime() - currentBegin.getMicroSecondTime())/currentInterval;
         double scale = newInt.getValue()/currentInterval;
-        internalRegistrar.shaleTime(shift, scale);
+        tc.shaleTime(shift, scale);
     }
 
     public MicroSecondDate getBegin() {
@@ -165,7 +158,7 @@ public abstract class Selection implements TimeListener, Plotter{
         double currentInterval = timeInt.getValue();
         double shift = (newBegin.getMicroSecondTime() - currentBegin.getMicroSecondTime())/currentInterval;
         double scale = (currentInterval + currentBegin.subtract(newBegin).getValue())/currentInterval;
-        internalRegistrar.shaleTime(shift, scale);
+        tc.shaleTime(shift, scale);
     }
 
     public MicroSecondDate getEnd() {
@@ -182,18 +175,28 @@ public abstract class Selection implements TimeListener, Plotter{
         TimeInterval timeInt = (TimeInterval)latestTime.getTime().getInterval().convertTo(UnitImpl.MICROSECOND);
         double currentInterval = timeInt.getValue();
         double scale = (currentInterval + newEnd.subtract(currentEnd).getValue())/currentInterval;
-        internalRegistrar.shaleTime(0, scale);
+        tc.shaleTime(0, scale);
     }
 
     private void setInterval(TimeInterval newInterval){
         double currentInterval = latestTime.getTime().getInterval().getValue();
         double scale = newInterval.getValue()/currentInterval;
-        internalRegistrar.shaleTime(0, scale);
+        tc.shaleTime(0, scale);
     }
+
+    public void setTimeConfig(TimeConfig config){
+        tc.removeListener(this);
+        tc.remove(seismos);
+        tc = config;
+        tc.addListener(this);
+        tc.add(seismos);
+    }
+
+    public TimeConfig getTimeConfig(){ return tc; }
 
     private SeismogramDisplay parent, child;
 
-    private Registrar externalRegistrar, internalRegistrar;
+    private TimeConfig tc = new BasicTimeConfig();
 
     private DataSetSeismogram[] seismos;
 

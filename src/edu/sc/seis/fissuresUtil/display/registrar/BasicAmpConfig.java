@@ -1,6 +1,4 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import java.util.*;
-
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -8,6 +6,11 @@ import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import org.apache.log4j.Category;
 
 /**
@@ -44,7 +47,7 @@ public class BasicAmpConfig implements AmpConfig{
 
             if(someAdded){
                 dataArray = null;
-                currentAmpEvent = null;
+                ampEvent = new LazyAmpEvent(this);
                 seisArray = null;
             }
         }
@@ -72,7 +75,7 @@ public class BasicAmpConfig implements AmpConfig{
             }
             if(someRemoved){
                 dataArray = null;
-                currentAmpEvent = null;
+                ampEvent = new LazyAmpEvent(this);
                 seisArray = null;
             }
         }
@@ -95,6 +98,15 @@ public class BasicAmpConfig implements AmpConfig{
         }
         return seisArray;
     }
+
+    public UnitRangeImpl getAmp() {
+        return ampEvent.getAmp();
+    }
+
+    public UnitRangeImpl getAmp(DataSetSeismogram seis) {
+        return ampEvent.getAmp(seis);
+    }
+
 
     //TODO make get seis and amp data method so that cached copies of each can be
     //returned in sync
@@ -202,9 +214,9 @@ public class BasicAmpConfig implements AmpConfig{
         return ampListeners;
     }
 
-    public AmpEvent updateAmpTime(TimeEvent timeEvent){
+    public void updateTime(TimeEvent timeEvent){
         currentTimeEvent = timeEvent;
-        return new LazyAmpEvent(this);
+        fireAmpEvent(new LazyAmpEvent(this));
     }
 
     public AmpEvent calculateAmp(){
@@ -222,11 +234,11 @@ public class BasicAmpConfig implements AmpConfig{
             }
         }
 
-        if(changed || currentAmpEvent == null){
-            currentAmpEvent = recalculateAmp();
+        if(changed || ampEvent instanceof LazyAmpEvent){
+            ampEvent = recalculateAmp();
         }
 
-        return currentAmpEvent;
+        return ampEvent;
     }
 
 
@@ -302,7 +314,7 @@ public class BasicAmpConfig implements AmpConfig{
 
     private TimeEvent currentTimeEvent;
 
-    private AmpEvent currentAmpEvent;
+    private AmpEvent ampEvent = new LazyAmpEvent(this);
 
     private static Category logger = Category.getInstance(BasicAmpConfig.class.getName());
 }//BasicAmpConfig

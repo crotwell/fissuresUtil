@@ -1,7 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
+import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
@@ -26,29 +27,18 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss) {
-        return addDisplay(dss, registrar, registrar);
+        return addDisplay(dss, tc, ac);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac) {
-        return addDisplay(dss, registrar, ac);
+        return addDisplay(dss, tc, ac);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc) {
-        return addDisplay(dss, tc, registrar);
+        return addDisplay(dss, tc, ac);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac) {
-        if(tc == registrar && registrar == null){
-            boolean setAC = false;
-            if(ac == registrar){
-                setAC = true;
-            }
-            registrar = new Registrar(dss);
-            if(setAC){
-                ac = registrar;
-            }
-            tc = registrar;
-        }
         Map stationDss = new HashMap();
         for (int i = 0; i < dss.length; i++){
             String stationCode = dss[i].getRequestFilter().channel_id.station_code;
@@ -67,19 +57,19 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
             DataSetSeismogram[] curSeis = (DataSetSeismogram[])((List)stationDss.get(stationCode)).toArray(new DataSetSeismogram[0]);
             if(stationDisplay.containsKey(stationCode)){
                 current = (BasicSeismogramDisplay)stationDisplay.get(stationCode);
-                current.add(curSeis);
             }else{
-                current = new BasicSeismogramDisplay(curSeis, tc, ac, this);
+                current = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(),
+                                                     this);
                 current.addLeftTitleBorder(new LeftTitleBorder(stationCode));
                 super.add(current);
                 basicDisplays.add(current);
                 stationDisplay.put(stationCode, current);
                 addTimeBorders();
             }
+            current.add(curSeis);
         }
         return current;
     }
 
     private Map stationDisplay = new HashMap();
 }
-

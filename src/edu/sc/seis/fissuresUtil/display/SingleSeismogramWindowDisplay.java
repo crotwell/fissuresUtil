@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-        return addDisplay(dss, registrar, registrar);
+        return addDisplay(dss, tc, ac);
     }
 
     /**
@@ -49,7 +48,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc){
-        return addDisplay(dss, tc, registrar);
+        return addDisplay(dss, tc, ac);
     }
 
     /**
@@ -61,7 +60,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
-        return addDisplay(dss, registrar, ac);
+        return addDisplay(dss, tc, ac);
     }
 
     /**
@@ -75,21 +74,6 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return a <code>BasicSeismogramDisplay</code> value
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
-        if(tc == registrar && registrar == null){
-            boolean setAC = false;
-            if(ac == registrar){
-                setAC = true;
-            }
-            registrar = new Registrar(dss);
-            if(setAC){
-                if(ampConfig != null){
-                    ac = ampConfig;
-                }else{
-                    ac = registrar;
-                }
-            }
-            tc = registrar;
-        }
         List toAdd = new ArrayList();
         for (int i = 0; i < dss.length; i++){
             if(!contains(dss[i])){
@@ -100,7 +84,8 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
         DataSetSeismogram[] newSeis = new DataSetSeismogram[toAdd.size()];
         toAdd.toArray(newSeis);
         if(basicDisplays.size() == 0){
-            disp = new BasicSeismogramDisplay(newSeis, tc, ac, this);
+            disp = new BasicSeismogramDisplay(tc, ac, this);
+            disp.add(newSeis);
             super.add(disp);
             disp.addBottomTimeBorder();
             disp.addTopTimeBorder();

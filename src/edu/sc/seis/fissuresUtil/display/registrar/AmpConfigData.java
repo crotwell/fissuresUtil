@@ -23,8 +23,7 @@ public class AmpConfigData implements SeismogramContainerListener{
 
     public AmpConfigData (DataSetSeismogram seismo,  AmpConfig parent) {
         this.parent = parent;
-        this.container = new SeismogramContainer(seismo);
-        container.addListener(this);
+        this.container = new SeismogramContainer(this, seismo);
     }
 
     public void updateData() {

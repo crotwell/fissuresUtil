@@ -20,6 +20,7 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
     }
 
     public synchronized AmpEvent recalculateAmp(){
+        ((BasicAmpConfig)wrapped).calculateAmp();
         AmpConfigData[] ad = getAmpData();
         UnitRangeImpl[] amps = new UnitRangeImpl[ad.length];
         for (int i = 0; i < ad.length; i++){
@@ -54,9 +55,9 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
         listeners.remove(listener);
     }
 
-    public AmpEvent updateAmpTime(TimeEvent event) {
-        wrapped.updateAmpTime(event);
-        return recalculateAmp();
+    public void updateTime(TimeEvent event) {
+        wrapped.updateTime(event);
+        fireAmpEvent();
     }
 
     public void addListener(AmpListener listener) {
@@ -73,6 +74,14 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
 
     public void shaleAmp(double shift, double scale) {
         wrapped.shaleAmp(shift, scale);
+    }
+
+    public UnitRangeImpl getAmp() {
+        return wrapped.getAmp();
+    }
+
+    public UnitRangeImpl getAmp(DataSetSeismogram seis) {
+        return wrapped.getAmp(seis);
     }
 
     public AmpConfigData getAmpData(DataSetSeismogram seis){

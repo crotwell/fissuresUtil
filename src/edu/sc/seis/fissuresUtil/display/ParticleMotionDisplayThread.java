@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
@@ -19,10 +18,10 @@ import org.apache.log4j.Category;
 
 public class ParticleMotionDisplayThread{
     public ParticleMotionDisplayThread(DataSetSeismogram dataSetSeismogram,
-                                       Registrar registrar,
+                                       TimeConfig tc,
                                        ParticleMotionDisplay particleMotionDisplay) {
         this.dataSetSeismogram = dataSetSeismogram;
-        this.registrar = registrar;
+        this.tc = tc;
         this.particleMotionDisplay = particleMotionDisplay;
     }
 
@@ -75,7 +74,7 @@ public class ParticleMotionDisplayThread{
                 }
                 particleMotionDisplay.getView().addParticleMotionDisplay(hSeis,
                                                                          vSeis,
-                                                                         registrar,
+                                                                         tc,
                                                                          displayColor,
                                                                          orientationString,
                                                                          horizPlane);
@@ -108,7 +107,7 @@ public class ParticleMotionDisplayThread{
 
     private DataSetSeismogram[] dssArray;
 
-    private Registrar registrar;
+    private TimeConfig tc;
 
     private boolean advancedOption = false;
 

@@ -44,7 +44,6 @@ public class RMeanAmpConfig extends BasicAmpConfig {
     protected boolean setAmpRange(AmpConfigData data){
         SeismogramIterator it = data.getIterator();
         if ( !it.hasNext()) {
-            System.out.println(" it time: " + it.getTimeRange() + " seisTime: " + it.getSeisTime() + " using zero range");
             return data.setRange(DisplayUtils.ZERO_RANGE);
         }
         double[] minMaxMean = it.minMaxMean();

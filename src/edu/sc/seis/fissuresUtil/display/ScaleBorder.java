@@ -49,13 +49,15 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
         Graphics2D copy = (Graphics2D)g.create();
         if (copy != null) {
             copy.translate(x,y);
-            Rectangle currentClip = copy.getClip().getBounds();
-            copy.setClip(currentClip.x,currentClip.y, width, height);
+            //Rectangle currentClip = copy.getClip().getBounds();
+            //copy.setClip(currentClip.x,currentClip.y, width, height);
             try {
                 copy.setFont(DisplayUtils.BORDER_FONT);
                 copy.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
                 // in case there are borders inside of this one
                 Insets insets = ((JComponent)c).getInsets();
+                insets = new Insets(insets.top - y, insets.left - x,
+                                    insets.bottom, insets.right);
                 FontMetrics fm = copy.getFontMetrics();
 
                 // top
@@ -65,7 +67,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                 if (map != null) {
                     numTicks = map.getNumTicks();
                     for (int i=0; i<numTicks; i++) {
-                        pixelLoc = insets.left + map.getPixelLocation(i);
+                        pixelLoc = map.getPixelLocation(i) + insets.left;
                         if(map.isMajorTick(i)){
                             copy.draw(new Line2D.Float(pixelLoc, top, pixelLoc, top - majorTickLength));
                             String label = map.getLabel(i);
@@ -281,6 +283,9 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
      */
     public void setMinorTickLength(int  v) {this.minorTickLength = v;}
 
+    /**
+     *@returns the height of the DisplayUtils.BORDER_FONT for the given text
+     */
     public static int getFontHeight(String text){
         if(fontHeight == 0){
             LineMetrics lm = DisplayUtils.BORDER_FONT.getLineMetrics(text,frc);
