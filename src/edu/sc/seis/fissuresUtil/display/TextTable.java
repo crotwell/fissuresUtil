@@ -32,6 +32,10 @@ public class TextTable{
 		initColWidthArray();
 	}
 	
+	public boolean containsHeader(){
+		return hasHeader;
+	}
+	
 	public void addRow(String tabDelimitedData){
 		addRow(tabDelimitedData, false);
 	}
@@ -91,26 +95,38 @@ public class TextTable{
 		}
 	}
 	
-	public String toString(){
+	public String toString(String delimeter){
 		//printTableStats();
 		StringBuffer buf = new StringBuffer();
 		if (hasHeader){
-			String headerString = getRow(header);
+			String headerString = getRow(header, delimeter);
 			buf.append(headerString);
-			buf.append(getHeaderHyphens(headerString.length()));
+			if (delimeter == null){
+				buf.append(getHeaderHyphens(headerString.length()));
+			}
 		}
 		
 		for (int i = 0; i < rows.size(); i++) {
-			buf.append(getRow((String[])rows.get(i)));
+			buf.append(getRow((String[])rows.get(i), delimeter));
 		}
 		
 		return buf.toString();
 	}
 	
-	private String getRow(String[] rowCells){
+	public String toString(){
+		return toString(null);
+	}
+	
+	private String getRow(String[] rowCells, String delimeter){
 		StringBuffer buf = new StringBuffer();
 		for (int i = 0; i < rowCells.length; i++) {
-			buf.append(fillInWithSpaces(rowCells[i], i));
+			buf.append(rowCells[i]);
+			if (delimeter == null){
+				buf.append(fillInWithSpaces(rowCells[i], i));
+			}
+			else if (i < rowCells.length - 1){
+				buf.append(delimeter);
+			}
 		}
 		buf.append('\n');
 		return buf.toString();
@@ -146,7 +162,6 @@ public class TextTable{
 	
 	private String fillInWithSpaces(String cellValue, int column){
 		StringBuffer buf = new StringBuffer();
-		buf.append(cellValue);
 		int width = widths[column];
 		logger.debug("width of cell value is " + cellValue.length());
 		logger.debug("width for column " + column + " is " + width);
