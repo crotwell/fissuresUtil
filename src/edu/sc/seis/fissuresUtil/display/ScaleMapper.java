@@ -14,12 +14,12 @@ package edu.sc.seis.fissuresUtil.display;
  */
 
 public interface ScaleMapper  {
-  
-    /** Gets the pixel location for the ith tick.
-     * @param i The number of the tick of interest.     
-     * @returns The pixel location for the ith tick.
-     */
-    public int getPixelLocation(int i);
+
+  /** Gets the pixel location for the ith tick.
+   * @param i The number of the tick of interest.
+   * @returns The pixel location for the ith tick.
+   */
+  public int getPixelLocation(int i);
 
     /** Gets the label if there is one for the ith tick. If there is no label
      *  then a empty string should be returned instead of a null.
@@ -33,12 +33,19 @@ public interface ScaleMapper  {
 
     /** True if the ith tick is a major tick. This could be used by the
      *  plotting component to draw major tick longer or thicker.
-     * 
+     *
      * @param i The number of the tick of interest.
      * @returns True if the ith tick is major, false otherwise.
      */
     public boolean isMajorTick(int i);
 
     public String getAxisLabel();
+
+    /**
+     * returns the total pixels used to calculate map.
+     * SBH
+     * @return
+     */
+    public int getTotalPixels();
 
 } // ScaleMapper
