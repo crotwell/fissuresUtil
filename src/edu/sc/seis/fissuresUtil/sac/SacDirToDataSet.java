@@ -18,7 +18,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 2566 2002-09-03 19:15:10Z telukutl $
+ * @version $Id: SacDirToDataSet.java 2567 2002-09-03 19:33:49Z telukutl $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -173,8 +173,9 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         if (channel != null && 
             dataset.getParameter(channelParamName) == null) {
 
-
-	    File outFile = new File(sacFile.getParent(), ChannelIdUtil.toString(seis.channel_id));
+	    String chanFileName = ChannelIdUtil.toString(seis.channel_id);
+	    chanFileName = chanFileName.replace(' ', '_');
+	    File outFile = new File(sacFile.getParent(), chanFileName);
 	    BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
 
             // add event
