@@ -27,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2817 2002-10-24 18:08:20Z groves $
+ * @version $Id: SeismogramShape.java 2818 2002-10-24 18:10:34Z groves $
  */
 
 public class SeismogramShape implements Shape, Plotter {
@@ -117,7 +117,6 @@ public class SeismogramShape implements Shape, Plotter {
 	    samplesPerPixel = (seisEnd - seisStart - 1)/(double)(endPixel - startPixel);
 	    for(int i = 0; i < points.length; i++){
 		points[i][0] = (int)(i/samplesPerPixel) + startPixel;
-		System.out.println(points[i][0]);
 		points[i][1] = (int)((seis.getValueAt(i + seisStart).getValue()  - minAmp)/range * size.height);
 	    }
 	}
