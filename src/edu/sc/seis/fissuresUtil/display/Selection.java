@@ -82,6 +82,12 @@ public class Selection implements TimeSyncListener{
 		((BasicSeismogramDisplay)e.next()).remove(); 
 	    }
 	}
+	if(parents.size() > 0){
+	    Iterator e = parents.iterator();
+	    while(e.hasNext()){
+		((BasicSeismogramDisplay)e.next()).removeSelection(this);
+	    }
+	}
     }
 	
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){

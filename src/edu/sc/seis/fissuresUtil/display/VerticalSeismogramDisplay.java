@@ -51,11 +51,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
     
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram dss, String name){
-	return addDisplay(dss, globalTimeRegistrar, globalAmpRegistrar,  name);
+	return addDisplay(dss, globalTimeRegistrar, new AmpConfigRegistrar(),  name);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram dss, TimeConfigRegistrar tr, String name){
-	return addDisplay(dss, tr, globalAmpRegistrar, name);
+	return addDisplay(dss, tr, new AmpConfigRegistrar(), name);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram dss, AmpConfigRegistrar ar, String name){
@@ -66,7 +66,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(sorter.contains(name)){
 	    return null;
 	}
-	BasicSeismogramDisplay disp = new BasicSeismogramDisplay(dss, (TimeRangeConfig)tr, ar, name, this);
+	BasicSeismogramDisplay disp = new BasicSeismogramDisplay(dss, (TimeRangeConfig)tr, name, this);
 	int i = sorter.sort(dss, name);
 	seismograms.add(disp, i);
 	disp.addMouseMotionListener(motionForwarder);
@@ -367,10 +367,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
-	    ar.visibleAmpCalc(tr);
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    creator.addDisplay(selectionDisplay.addDisplay(first, tr, ar, 
 							   creator.getParent().getName() + "." + creator.getColor()));
+	    ar.visibleAmpCalc(tr);
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
@@ -389,7 +389,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange(first)));
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
 	    ar.visibleAmpCalc(tr);
 	    creator.addDisplay(selectionDisplay.addDisplay(first, tr, ar, 
 							   creator.getParent().getName() + "." + creator.getColor()));
@@ -406,6 +406,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
 	    DataSetSeismogram first = ((DataSetSeismogram)creator.getSeismograms().getFirst());
 	    LocalSeismogramImpl seis = first.getSeismogram();
 	    XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
@@ -427,11 +428,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 			    while(h.hasNext()){
 				if(((DataSetSeismogram)h.next()).getSeismogram() == seismograms[counter].getSeismogram()){
 				    current.addSelection(creator);
+				    creator.addParent(current);
 				}
 			    }
 			}
-			AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
-			ar.visibleAmpCalc(tr);
 			creator.addDisplay(threeSelectionDisplay.addDisplay(seismograms[counter], tr, ar, 
 									    seismograms[counter].getSeismogram().getName() + "." 
 									    + creator.getColor()));
@@ -440,6 +440,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    }catch(Exception f){ 
 		f.printStackTrace();
 	    }	
+	    ar.visibleAmpCalc(tr);
 	    threeSelectionWindow.getContentPane().add(threeSelectionDisplay);
 	    threeSelectionWindow.setSize(400, 400);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
@@ -457,7 +458,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange(first)));
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
 	    ar.visibleAmpCalc(tr);
 	    creator.addDisplay(threeSelectionDisplay.addDisplay(first, tr, ar, 
 								creator.getParent().getName() + "." + creator.getColor()));
