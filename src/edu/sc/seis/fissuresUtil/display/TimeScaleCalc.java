@@ -83,7 +83,7 @@ public class TimeScaleCalc implements ScaleMapper {
 	else if(majTickTime <= 43200000000l){
 	    majTickRatio = 6;
 	    timeFormat = new SimpleDateFormat("MM/dd HH:mm");
-	       if(majTickTime <= 3600000000l){
+	    if(majTickTime <= 3600000000l){
 		majTickTime = 3600000000l;
 	    }else if(majTickTime <= 7200000000l){
 		majTickTime = 7200000000l;
