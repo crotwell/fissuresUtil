@@ -46,11 +46,7 @@ public class DisplayUtils {
     public static DataSetSeismogram[] getComponents(DataSetSeismogram seismogram){
         DataSet dataSet = seismogram.getDataSet();
         RequestFilter rf = seismogram.getRequestFilter();
-        return getComponents(dataSet, rf);
-    }
-    
-    public static DataSetSeismogram[] getComponents(DataSet dataSet, RequestFilter rf){
-        List componentSeismograms = new ArrayList();
+        Set componentSeismograms = new HashSet();
         MicroSecondTimeRange tr = new MicroSecondTimeRange(rf);
         ChannelId chanId = rf.channel_id;
         String[] names = dataSet.getDataSetSeismogramNames();
@@ -524,3 +520,4 @@ public class DisplayUtils {
     public static final Rectangle2D EMPTY_RECTANGLE = new Rectangle2D.Float(0,0,0,0);
     
 }// DisplayUtils
+
