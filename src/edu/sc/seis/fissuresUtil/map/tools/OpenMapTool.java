@@ -21,15 +21,44 @@ public abstract class OpenMapTool implements MapMouseMode{
 	}
 
 	/**
+	 * Gets the Icon to represent the Mouse Mode in a GUI.
+	 */
+	public Icon getGUIIcon() {
+		return null;
+	};
+
+	/**
+	 * Gets the mouse cursor recommended for use when this mouse mode
+	 * is active.
+	 * @return Cursor the mouse cursor recommended for use when this
+	 * mouse mode is active.
+	 */
+	public Cursor getModeCursor() {
+		return null;
+	}
+
+	/**
 	 * Add a MapMouseListener to the MouseMode.
 	 * @param l the MapMouseListener to add.
 	 */
 	public void addMapMouseListener(MapMouseListener l) {}
 
 	/**
-	 * Gets the Icon to represent the Mouse Mode in a GUI.
+	 * Remove all MapMouseListeners from the mode.
 	 */
-	public Icon getGUIIcon() { return null; };
+	public void removeAllMapMouseListeners() {}
+
+	/**
+	 * Remove a MapMouseListener from the MouseMode.
+	 * @param l the MapMouseListener to remove.
+	 */
+	public void removeMapMouseListener(MapMouseListener l) {}
+
+	/**
+	 * Invoked when the mouse button has been clicked (pressed
+	 * and released) on a component.
+	 */
+	public void mouseClicked(MouseEvent e) {}
 
 	/**
 	 * Invoked when a mouse button is pressed on a component and then
@@ -45,20 +74,30 @@ public abstract class OpenMapTool implements MapMouseMode{
 	public void mouseDragged(MouseEvent e) {}
 
 	/**
-	 * Remove all MapMouseListeners from the mode.
-	 */
-	public void removeAllMapMouseListeners() {}
-
-	/**
-	 * Remove a MapMouseListener from the MouseMode.
-	 * @param l the MapMouseListener to remove.
-	 */
-	public void removeMapMouseListener(MapMouseListener l) {}
-
-	/**
 	 * Invoked when the mouse cursor has been moved onto a component
 	 * but no buttons have been pushed.
 	 */
 	public void mouseMoved(MouseEvent e) {}
+
+	/**
+	 * Invoked when the mouse enters a component.
+	 */
+	public void mouseEntered(MouseEvent e) {}
+
+	/**
+	 * Invoked when a mouse button has been released on a component.
+	 */
+	public void mouseReleased(MouseEvent e) {}
+
+	/**
+	 * Invoked when the mouse exits a component.
+	 */
+	public void mouseExited(MouseEvent e) {}
+
+	/**
+	 * Invoked when a mouse button has been pressed on a component.
+	 */
+	public void mousePressed(MouseEvent e) {}
+
 
 }

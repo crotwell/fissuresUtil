@@ -133,10 +133,6 @@ public class OpenMap extends OpenMapComponent{
 		return mapBean;
 	}
 
-	public MouseDelegator getMouseDelegator(){
-		return mouseDelegator;
-	}
-
 	public void addMouseMode(MapMouseMode mode){
 		mouseDelegator.addMouseMode(mode);
 		if (mode instanceof ZoomTool){
@@ -144,7 +140,6 @@ public class OpenMap extends OpenMapComponent{
 				((ZoomTool)mode).addZoomListener(getMapBean());
 			}
 			catch(Exception e){
-				System.out.println("MapBean: " + mapBean);
 				e.printStackTrace();
 			}
 		}
