@@ -4,6 +4,8 @@ import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SingleSeismogramWindowDisplay displays every seismogram added to it
@@ -88,12 +90,17 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             }
             tc = globalRegistrar;
         }
-        if(sorter.contains(dss)){
-            return null;
+        List toAdd = new ArrayList();
+        for (int i = 0; i < dss.length; i++){
+            if(!contains(dss[i])){
+                toAdd.add(dss[i]);
+            }
         }
         BasicSeismogramDisplay disp;
+        DataSetSeismogram[] newSeis = new DataSetSeismogram[toAdd.size()];
+        toAdd.toArray(newSeis);
         if(basicDisplays.size() == 0){
-            disp = new BasicSeismogramDisplay(dss, tc, ac, this);
+            disp = new BasicSeismogramDisplay(newSeis, tc, ac, this);
             super.add(disp);
             disp.addBottomTimeBorder();
             disp.addTopTimeBorder();
@@ -101,7 +108,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
         }
         else{
             disp = (BasicSeismogramDisplay)basicDisplays.getFirst();
-            disp.add(dss);
+            disp.add(newSeis);
         }
         return disp;
     }
