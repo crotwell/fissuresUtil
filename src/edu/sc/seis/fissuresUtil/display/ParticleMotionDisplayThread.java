@@ -68,7 +68,7 @@ public class ParticleMotionDisplayThread{
 	    channelGroup = new ChannelId[dataSetSeismogram.length];
 	    for(int counter = 0; counter < dataSetSeismogram.length; counter++) {
 
-		channelGroup[counter] = dataSetSeismogram[counter].getSeismogram().getChannelID();
+		channelGroup[counter] = dataSetSeismogram[counter].getRequestFilter().channel_id;
 	    }
 	}
 
@@ -88,8 +88,8 @@ public class ParticleMotionDisplayThread{
 
 	    for(int subcounter = counter+1; subcounter < dataSetSeismogram.length; subcounter++) {
 		
-		boolean horizPlane = isHorizontalPlane(dataSetSeismogram[counter].getSeismogram().getChannelID(),
-						       dataSetSeismogram[subcounter].getSeismogram().getChannelID(),
+		boolean horizPlane = isHorizontalPlane(dataSetSeismogram[counter].getRequestFilter().channel_id,
+						       dataSetSeismogram[subcounter].getRequestFilter().channel_id,
 						       dataSetSeismogram[counter].getDataSet());
 		if(horizPlane) {
 		    particleMotionDisplay.displayBackAzimuth(dataSetSeismogram[counter].getDataSet(), channelGroup[counter]);
@@ -113,7 +113,7 @@ public class ParticleMotionDisplayThread{
     }
 
     public DataSetSeismogram[] retrieve_seismograms() {
-	LocalSeismogramImpl seis = dataSetSeismogram[0].getSeismogram();
+	LocalSeismogramImpl seis = null;///dataSetSeismogram[0].retrieveData();
 	Date chanIdStartTime = Calendar.getInstance().getTime();
 	//	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSetSeismogram[0].getDataSet()).getChannelIds();
 
@@ -147,11 +147,12 @@ public class ParticleMotionDisplayThread{
 	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
 	try {
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		seismograms[counter] = new DataSetSeismogram(dataSetSeismogram[0].getDataSet().
+		seismograms[counter] = null;//new DataSetSeismogram();
+		    /*new DataSetSeismogram(dataSetSeismogram[0].getDataSet().
 							     getSeismogram(DisplayUtils.getSeismogramName(channelGroup[counter], 
 													  dataSetSeismogram[0].getDataSet(),
 													  new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), seis.getEndTime().getFissuresTime()))), dataSetSeismogram[0].getDataSet());
-		
+				       */
 		//ChannelIdUtil.toStringNoDates(channelGroup[counter]));
 		//registrar.addSeismogram(seismograms[counter]);
 		//hAmpRangeConfigRegistrar.addSeismogram(seismograms[counter]);

@@ -154,7 +154,7 @@ public class DisplayUtils {
         List z = new ArrayList();
         for(int i = 0; i < dss.length; i++){
             if(!names.contains(dss[i].getName())){
-                LocalSeismogramImpl seis = dss[i].getSeismogram();
+                LocalSeismogramImpl seis = null;//dss[i].retrieveData();
                 XMLDataSet dataSet = (XMLDataSet)dss[i].getDataSet();
                 ChannelId[] channelGroup = DataSetChannelGrouper.retrieveGrouping(dataSet, seis.getChannelID());
                 for(int counter = 0; counter < channelGroup.length; counter++) {
@@ -162,9 +162,9 @@ public class DisplayUtils {
                                                                                    new TimeRange(seis.getBeginTime().getFissuresTime(),
                                                                                                  seis.getEndTime().getFissuresTime()));
                     for(int j = 0; j < newSeismograms.length; j++){
-                        DataSetSeismogram current = new DataSetSeismogram((LocalSeismogramImpl)newSeismograms[j],
+                        DataSetSeismogram current = null;/*new DataSetSeismogram((LocalSeismogramImpl)newSeismograms[j],
                                                                           dataSet,
-                                                                              ((LocalSeismogramImpl)newSeismograms[i]).getName()+ suffix);
+									  ((LocalSeismogramImpl)newSeismograms[i]).getName()+ suffix);*/
                         if(DisplayUtils.getOrientationName(channelGroup[counter].channel_code).equals("North")){
                             north.add(current);
                         }else if(DisplayUtils.getOrientationName(channelGroup[counter].channel_code).equals("East")){
