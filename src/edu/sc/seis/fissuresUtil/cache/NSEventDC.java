@@ -36,7 +36,7 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
         eventDC = null;
     }
 
-    public synchronized EventDC getEventDC() {
+    public synchronized EventDC getCorbaObject() {
         if ( eventDC == null) {
             try {
                 try {
@@ -55,7 +55,7 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
                 repackageException(e);
             } // end of try-catch
         } // end of if ()
-        return eventDC;
+        return (EventDC)eventDC;
     }
 
     protected void repackageException(org.omg.CORBA.UserException e) {
@@ -69,23 +69,23 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
 
     public EventChannelFinder a_channel_finder() {
         try {
-            return getEventDC().a_channel_finder();
+            return getCorbaObject().a_channel_finder();
         } catch (Throwable e) {
             // retry in case regetting from name service helps
             logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
             reset();
-            return getEventDC().a_channel_finder();
+            return getCorbaObject().a_channel_finder();
         } // end of try-catch
     }
 
     public EventFinder a_finder() {
         try {
-            return getEventDC().a_finder();
+            return getCorbaObject().a_finder();
         } catch (Throwable e) {
             // retry in case regetting from name service helps
             logger.warn("Exception in a_finder(), regetting from nameservice to try again.", e);
             reset();
-            return getEventDC().a_finder();
+            return getCorbaObject().a_finder();
         } // end of try-catch
     }
 

@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
 
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
-import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventFinder;
 
 /**
@@ -15,7 +14,7 @@ import edu.iris.Fissures.IfEvent.EventFinder;
  */
 public class RetryEventDC extends ProxyEventDC {
 
-	public RetryEventDC(EventDC eventDC, int retry){
+	public RetryEventDC(ProxyEventDC eventDC, int retry){
 		setEventDC(eventDC);
 		this.retry = retry;
 	}

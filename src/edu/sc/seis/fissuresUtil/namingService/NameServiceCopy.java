@@ -76,7 +76,7 @@ public class NameServiceCopy
         for (int i = 0; i < eventDC.length; i++) {
             if (eventDC[i].getServerDNS().equals(dnsToCopy)) {
                 System.out.println("Rebind "+eventDC[i].getServerDNS()+", "+eventDC[i].getServerName());
-                fisNS.rebind(eventDC[i].getServerDNS(), eventDC[i].getServerName(), eventDC[i].getEventDC());
+                //fisNS.rebind(eventDC[i].getServerDNS(), eventDC[i].getServerName(), eventDC[i].getEventDC());
             } else {
                 System.out.println("Doesn't match "+eventDC[i].getServerDNS()+", "+eventDC[i].getServerName());
             }
