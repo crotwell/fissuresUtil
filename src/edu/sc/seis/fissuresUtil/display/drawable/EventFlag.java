@@ -6,6 +6,8 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
@@ -34,8 +36,7 @@ public class EventFlag{
     }
 
     public int getEventX(){
-        double xPercentage = getEventXPercent();
-        return (int)(xPercentage * display.getRowWidth());
+        return getX(getEventXPercent());
     }
 
     public int getEventY(){
@@ -47,8 +48,15 @@ public class EventFlag{
     }
 
     public int getX(Arrival arrival){
-        double xPercentage = getXPercent(arrival);
-        return (int)(xPercentage * display.getRowWidth());
+       return getX(getXPercent(arrival));
+    }
+
+    private int getX(MicroSecondDate time){
+        return getX(getXPercent(time));
+    }
+
+    private int getX(double xPercentage){
+        return (int)(xPercentage * display.getRowWidth()) + PlottableDisplay.LABEL_X_SHIFT;
     }
 
     public int getY(Arrival arrival){
@@ -187,24 +195,34 @@ public class EventFlag{
 
     public String getTitle(){
         if(eventTitle == null){
-            eventTitle = EventLayer.getEventInfo(eventAccess);
+            boolean[] include =  {false, true, false, true, true };
+            eventTitle = EventLayer.getEventInfo(eventAccess,include);
         }
         return eventTitle;
     }
 
-    public int getEventWidth(){
-        int evX = getEventX();
-        int evRow = getEventRow();
-        int width = 0;
+    public int[][] getEventCoverage(){
+        MicroSecondDate earliestTime = null;
+        MicroSecondDate latestTime = null;
         for (int i = 0; i < arrivals.length; i++) {
-            int arX = getX(arrivals[i]);
-            int arRow = getRow(arrivals[i]);
-            int curWidth = (arRow - evRow) * display.getRowWidth() + (arX - evX);
-            if(curWidth > width)
-                width = curWidth;
+            MicroSecondDate arrivalTime = getTime(arrivals[i]);
+            if(earliestTime == null || arrivalTime.before(earliestTime)){
+                earliestTime = arrivalTime;
+            }
+            if(latestTime == null || arrivalTime.after(latestTime)){
+                latestTime = arrivalTime;
+            }
         }
-        return width;
+        MicroSecondDate twoEarlier = earliestTime.subtract(TWO_MINUTES);
+        MicroSecondDate tenLater = latestTime.add(TEN_MINUTES);
+        int[][] coverage ={{ getRow(twoEarlier), getX(twoEarlier)},
+            {getRow(tenLater), getX(tenLater)}};
+        return coverage;
     }
+
+    private static final TimeInterval TWO_MINUTES= new TimeInterval(2, UnitImpl.MINUTE);
+
+    private static final TimeInterval TEN_MINUTES = new TimeInterval(10, UnitImpl.MINUTE);
 
     public EventAccessOperations getEvent(){ return eventAccess; }
 
