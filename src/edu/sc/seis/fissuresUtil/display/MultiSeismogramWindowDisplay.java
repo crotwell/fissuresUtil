@@ -79,39 +79,41 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
 	 * @return a <code>BasicSeismogramDisplay</code> value
 	 */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
-        if(tc == registrar && registrar == null){
-            registrar = new Registrar(dss);
-            tc = registrar;
-        }
-        BasicSeismogramDisplay disp = null;
-        for(int i = 0; i < dss.length; i++){
-            if(contains(dss[i])){
-                continue;
-            }
-            DataSetSeismogram[] seismos = { dss[i] };
-            disp = new BasicSeismogramDisplay(seismos, tc, ac, this);
-            if(currentTimeFlag){
-                disp.setCurrentTimeFlag(currentTimeFlag);
-            }
-            int j = sorter.sort(dss[i]);
-            super.add(disp, j);
-            basicDisplays.add(j, disp);
-            addTimeBorders();
-        }
-        disp.addSoundPlay();
-        return disp;
+		if(tc == registrar && registrar == null){
+			registrar = new Registrar(dss);
+			tc = registrar;
+		}
+		BasicSeismogramDisplay disp = null;
+
+		for(int i = 0; i < dss.length; i++){
+			if(contains(dss[i])){
+				continue;
+			}
+			DataSetSeismogram[] seismos = { dss[i] };
+			disp = new BasicSeismogramDisplay(seismos, tc, ac, this);
+			if(currentTimeFlag){
+				disp.setCurrentTimeFlag(currentTimeFlag);
+			}
+			int j = sorter.sort(dss[i]);
+			super.add(disp, j);
+			basicDisplays.add(j, disp);
+			addTimeBorders();
+
+			disp.addSoundPlay();
+		}
+		return disp;
     }
 
     public void remove(DataSetSeismogram[] dss){
-        for (int i = 0; i < dss.length; i++){
-            sorter.remove(dss[i]);
-        }
-        super.remove(dss);
+		for (int i = 0; i < dss.length; i++){
+			sorter.remove(dss[i]);
+		}
+		super.remove(dss);
     }
 
     public void removeAll(){
-        sorter.clear();
-        super.removeAll();
+		sorter.clear();
+		super.removeAll();
     }
 
     private SeismogramSorter sorter;
