@@ -22,7 +22,7 @@ import javax.swing.event.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 1559 2002-05-01 14:32:50Z crotwell $
+ * @version $Id: ChannelChooser.java 1566 2002-05-01 20:02:49Z crotwell $
  *
  */
 
@@ -97,12 +97,14 @@ public class ChannelChooser extends JPanel{
 		    if(e.getValueIsAdjusting()){
 			return;
 		    }
-		    NetworkAccess net = getSelectedNetwork();
-		    Station[] newStations = net.retrieve_stations();
+		    NetworkAccess[] nets = getSelectedNetworks();
 		    stations.clear();
-		    for (int i=0; i<newStations.length; i++) {
-			stations.addElement(newStations[i]);
-		    }
+		    for (int i=0; i<nets.length; i++) {
+			Station[] newStations = nets[i].retrieve_stations();
+			for (int j=0; j<newStations.length; j++) {
+			    stations.addElement(newStations[j]);
+			}
+		    } // end of for ((int i=0; i<nets.length; i++)
 		}
 	    }
 					 );
@@ -121,9 +123,11 @@ public class ChannelChooser extends JPanel{
 			return;
 		    }
 		    ListSelectionModel selModel = stationList.getSelectionModel();
+		    // assume only one selected network at at time...
+		    NetworkAccess[] nets = getSelectedNetworks();
+		    NetworkAccess net = nets[0];
 		    for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
 			if (stationList.isSelectedIndex(i)) {
-			    NetworkAccess net = getSelectedNetwork();
 			    Station selectedStation = 
 				(Station)stations.getElementAt(i);
 			    Channel[] chans =
@@ -142,7 +146,6 @@ public class ChannelChooser extends JPanel{
 			    } // end of for (int j=0; j<chans.length; j++)
 			    
 			} else {
-			    NetworkAccess net = getSelectedNetwork();
 			    Station selectedStation = 
 				(Station)stations.getElementAt(i);
 			    Channel[] chans =
@@ -243,8 +246,8 @@ public class ChannelChooser extends JPanel{
 	return chan;
     }
 
-    public NetworkAccess getSelectedNetwork(){
-	return (NetworkAccess)netList.getSelectedValue();
+    public NetworkAccess[] getSelectedNetworks(){
+	return (NetworkAccess[])netList.getSelectedValues();
     }      
 
     public Station[]  getSelectedStations(){
