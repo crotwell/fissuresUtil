@@ -7,10 +7,11 @@ import edu.iris.Fissures.IfNetwork.Station;
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
+import org.apache.log4j.Logger;
 
-class NameListCellRenderer extends DefaultListCellRenderer {
+public class NameListCellRenderer extends DefaultListCellRenderer {
 
-    NameListCellRenderer(boolean useNames){
+    public NameListCellRenderer(boolean useNames){
         this(useNames, ! useNames, true);
     }
 
@@ -22,9 +23,9 @@ class NameListCellRenderer extends DefaultListCellRenderer {
      * @param codeIsFirst true if the string should be code - name, false if
      *    it should be name - code
      */
-    NameListCellRenderer(boolean useNames,
-                         boolean useCodes,
-                         boolean codeIsFirst){
+    public NameListCellRenderer(boolean useNames,
+                                boolean useCodes,
+                                boolean codeIsFirst){
         this.useNames = useNames;
         this.useCodes = useCodes;
         this.codeIsFirst = codeIsFirst;
@@ -45,7 +46,7 @@ class NameListCellRenderer extends DefaultListCellRenderer {
             }
             return out;
         }
-        return code; 
+        return code;
     }
 
     public Component getListCellRendererComponent(JList list,
@@ -55,44 +56,49 @@ class NameListCellRenderer extends DefaultListCellRenderer {
                                                   boolean cellHasFocus) {
         String name = "XXXX";
         if (value instanceof NetworkAccess) {
-            String netCode =
-                ((NetworkAccess)value).get_attributes().get_code();
-            if (netCode.startsWith("X") || 
-                netCode.startsWith("Y") ||
-                netCode.startsWith("Z")) {
-                edu.iris.Fissures.Time start =
-                    ((NetworkAccess)value).get_attributes().get_id().begin_time;
-                netCode += start.date_time.substring(2,4);
+            try {
+                String netCode =
+                    ((NetworkAccess)value).get_attributes().get_code();
+                if (netCode.startsWith("X") ||
+                    netCode.startsWith("Y") ||
+                    netCode.startsWith("Z")) {
+                    edu.iris.Fissures.Time start =
+                        ((NetworkAccess)value).get_attributes().get_id().begin_time;
+                    netCode += start.date_time.substring(2,4);
+                }
+                name =
+                    getDisplayString(((NetworkAccess)value).get_attributes().name,
+                                     netCode);
+            } catch (Throwable e) {
+                logger.warn("in renderer for network "+name, e);
             }
-            name = 
-                getDisplayString(((NetworkAccess)value).get_attributes().name,
-                                 netCode);    
-		    
         }
         if (value instanceof Station) {
             name = getDisplayString(((Station)value).name,
-                                    ((Station)value).get_code());
+                                        ((Station)value).get_code());
         }
         if (value instanceof Site) {
             // sites do not have names
             name = ((Site)value).get_code();
         }
-	
+
         if (value instanceof Channel) {
             name = getDisplayString(((Channel)value).name,
-                                    ((Channel)value).get_code());
+                                        ((Channel)value).get_code());
         }
-	
+
         if (value instanceof String) {
             name = (String)value;
         } // end of if (value instanceof String)
-	
-	
-        return super.getListCellRendererComponent(list,
-                                                  name,
-                                                  index,
-                                                  isSelected,
-                                                  cellHasFocus);
+
+        logger.debug("render "+name);
+        Component c = super.getListCellRendererComponent(list,
+                                                         name,
+                                                         index,
+                                                         isSelected,
+                                                         cellHasFocus);
+        logger.debug("component for "+name+" is "+c.getClass().getName());
+        return c;
     }
 
     boolean useNames;
@@ -100,5 +106,7 @@ class NameListCellRenderer extends DefaultListCellRenderer {
     boolean useCodes;
 
     boolean codeIsFirst;
+
+    private static Logger logger = Logger.getLogger(NameListCellRenderer.class);
 
 }
