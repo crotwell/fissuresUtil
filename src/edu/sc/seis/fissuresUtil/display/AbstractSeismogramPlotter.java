@@ -16,21 +16,17 @@ import java.awt.Dimension;
 
 public abstract class AbstractSeismogramPlotter implements Plotter{
     
-    public abstract Shape draw(Dimension size, TimeSnapshot imageState);
-
     public DataSetSeismogram getSeismogram(){ return seismogram; }
 
-    public  AmpConfigRegistrar getAmpConfig(){ return ampConfig; }
-    
     public void setVisibility(boolean b){ visible = b;  }
 
     public void toggleVisibility(){ 
 	setVisibility(!visible);
     } 
 
-    protected DataSetSeismogram seismogram;
+    public boolean getVisibility(){ return visible; }
 
-    protected AmpConfigRegistrar ampConfig;
+    protected DataSetSeismogram seismogram;
 
     protected boolean visible = true;
     
