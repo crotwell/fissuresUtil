@@ -1,0 +1,15 @@
+seis.sc.edu:7371
+CORBA
+
+google
+HTTP
+http://www.google.com
+seis
+HTTP
+http://www.seis.sc.edu
+non_existent
+HTTP
+http:This_link_is_non_existent
+iris
+HTTP
+http://www.iris.washington.edu
