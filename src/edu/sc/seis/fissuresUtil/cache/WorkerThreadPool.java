@@ -26,7 +26,9 @@ public class WorkerThreadPool
     }
 
     public synchronized void invokeLater(Runnable runnable) {
-        queue.addFirst(runnable);
+        if(!queue.contains(runnable)){
+            queue.addFirst(runnable);
+        }
         notifyAll();
     }
 
