@@ -40,7 +40,15 @@ public class Event implements NamedDrawable{
         visible = b;
     }
 
-    public Color getColor(){ return Color.RED; }
+    public void setColor(Color color){
+        Iterator it = flags.iterator();
+        while(it.hasNext()){
+            ((Flag)it.next()).setColor(color);
+        }
+        this.color = color;
+    }
+
+    public Color getColor(){ return color; }
 
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
         if(visible && name != null){
@@ -60,6 +68,8 @@ public class Event implements NamedDrawable{
             }
         }
     }
+
+    private Color color = Color.RED;
 
     private List flags;
 

@@ -46,7 +46,7 @@ public class Flag implements Drawable{
                                                    (int)(stringBounds.width + PADDING),
                                                    (int)(stringBounds.height + PADDING)));
             flag.add(pole);
-            canvas.setColor(Color.RED);
+            canvas.setColor(color);
             canvas.fill(flag);
             canvas.setColor(Color.BLACK);
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
@@ -55,7 +55,9 @@ public class Flag implements Drawable{
         }
     }
 
-    public Color getColor(){ return Color.RED; }
+    public Color getColor(){ return color; }
+
+    public void setColor(Color color){ this.color = color; }
 
     public void setVisibility(boolean b){ visible = b; }
 
@@ -64,6 +66,8 @@ public class Flag implements Drawable{
     public void setFlagTime(MicroSecondDate flagTime){
         this.flagTime = flagTime;
     }
+
+    private Color color = Color.RED;
 
     private boolean visible = true;
 
