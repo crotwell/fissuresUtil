@@ -127,8 +127,8 @@ public  class PlottableDisplay extends JComponent {
                 g.drawImage(image, 0, 0, this);
             }
         }
-        drawSelection(g);
         drawEventFlags(g);
+        drawSelection(g);
     }
 
     protected void drawComponent(Graphics g) {
@@ -190,9 +190,9 @@ public  class PlottableDisplay extends JComponent {
         g2.setPaint(Color.black);
         if(titleYPos < 30) titleYPos = 40;
         g2.drawString(myt, 10, titleYPos - 10);
-        g2.drawString(myt,widthRow + LABEL_X_SHIFT, titleYPos -10);
+        g2.drawString(myt,rowWidth + LABEL_X_SHIFT, titleYPos -10);
         g2.drawString(mygmt, 10, titleYPos -20);
-        g2.drawString(mygmt,widthRow + LABEL_X_SHIFT, titleYPos -20);
+        g2.drawString(mygmt,rowWidth + LABEL_X_SHIFT, titleYPos -20);
         if(titleHeight != titleYPos + rowOffset) {
             titleHeight = titleYPos + rowOffset;
             configChanged();
@@ -206,7 +206,7 @@ public  class PlottableDisplay extends JComponent {
         int hour=0;
         String minutes = ":00 ";
         int hourinterval=totalHours/rows;
-        String hourmin = hour+minutes;;
+        String hourmin = hour+minutes;
 
         int houroffset=10;
         int xShift = totalWidth/rows+LABEL_X_SHIFT;
@@ -232,7 +232,6 @@ public  class PlottableDisplay extends JComponent {
     }
 
     void drawPlottableNew(Graphics g) {
-        int rowWidth = totalWidth/rows;
         int mean = getMean();
         // get new graphics to avoid messing up original
         Graphics2D g2 = (Graphics2D)g.create();
@@ -472,9 +471,11 @@ public  class PlottableDisplay extends JComponent {
 
     private int rows = ROWS;
 
-    public int getRowWidth(){ return widthRow; }
+    private int totalWidth = TOTAL_WIDTH;
 
-    private int widthRow = TOTAL_WIDTH/ROWS;
+    public int getRowWidth(){ return rowWidth; }
+
+    private int rowWidth = totalWidth/rows;
 
     public int getRowOffset(){ return rowOffset; }
 
@@ -483,8 +484,6 @@ public  class PlottableDisplay extends JComponent {
     public int getPlotWidth(){
         return totalWidth;
     }
-
-    private int totalWidth = TOTAL_WIDTH;
 
     public int getTotalHours(){ return totalHours; }
 
