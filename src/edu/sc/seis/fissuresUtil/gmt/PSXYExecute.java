@@ -9,11 +9,34 @@ import java.io.StringReader;
  */
 public class PSXYExecute {
 
+    public static void open(String psFilename, String projection, String region)
+            throws InterruptedException, IOException {
+        String command = "psxy /dev/null -V -J" + projection + " -R" + region
+                + " -K";
+        FileOutputStream fos = new FileOutputStream(psFilename, true);
+        try {
+            GenericCommandExecute.execute(command,
+                                          new StringReader(""),
+                                          fos,
+                                          System.err);
+        } finally {
+            fos.close();
+        }
+    }
+
     public static void close(String psFilename, String projection, String region)
             throws InterruptedException, IOException {
         String command = "psxy /dev/null -V -J" + projection + " -R" + region
                 + " -O";
-        GenericCommandExecute.execute(command);
+        FileOutputStream fos = new FileOutputStream(psFilename, true);
+        try {
+            GenericCommandExecute.execute(command,
+                                          new StringReader(""),
+                                          fos,
+                                          System.err);
+        } finally {
+            fos.close();
+        }
     }
 
     public static void addPoints(String psFilename,
@@ -56,12 +79,15 @@ public class PSXYExecute {
 
     public static void main(String[] args) {
         try {
+            open("world.ps",
+                      "Kf166/10i",
+                      "-14/346/-90/90");
             double[][] points = { {-180, 90},
                                  {-135, 67.5},
                                  {-90, 45},
                                  {-45, 22.5},
                                  {0, 0}};
-            addPoints("/Volumes/heff/oliverpa/gmtTest/world.ps",
+            addPoints("world.ps",
                       "Kf166/10i",
                       "-14/346/-90/90",
                       "t0.4",
@@ -72,13 +98,16 @@ public class PSXYExecute {
                                      {90, -45, 0.5},
                                      {135, -67.5, 0.4},
                                      {180, -90, 1.0}};
-            addPoints("/Volumes/heff/oliverpa/gmtTest/world.ps",
+            addPoints("world.ps",
                       "Kf166/10i",
                       "-14/346/-90/90",
                       "ci",
                       null,
                       "12/255/0/0",
                       morePoints);
+            close("world.ps",
+                 "Kf166/10i",
+                 "-14/346/-90/90");
         } catch(Exception e) {
             e.printStackTrace();
         }
