@@ -11,7 +11,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 10896 2004-10-14 20:10:28Z crotwell $
+ * @version $Id: Statistics.java 11888 2005-02-01 16:00:38Z crotwell $
  */
 
 public class Statistics  {
@@ -333,10 +333,20 @@ public class Statistics  {
      */
     public double var() {
         if ( ! varianceCalculated) {
-            variance = binarySumDevSqr(0, getLength(), mean()) /
-                (getLength()-1);
+            variance = var(mean());
         }
         return variance;
+    }
+    
+    /** 
+     * calculates the unbiased variance w.r.t the given mean. This
+     * allows a psuedo-variance to be calculated based on a longer 
+     * term mean.
+     * 
+     */
+    public double var(double mean) {
+        return binarySumDevSqr(0, getLength(), mean) /
+        (getLength()-1);
     }
 
     /**

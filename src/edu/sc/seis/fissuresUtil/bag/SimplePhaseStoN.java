@@ -88,11 +88,14 @@ public class SimplePhaseStoN {
         LocalSeismogramImpl longSeis = longCut.cut(stationLoc, origin, seis);
         if (shortSeis == null || longSeis == null) { return null; }
 
-        Statistics shortStat = new Statistics(shortSeis);
-        double numerator = shortStat.stddev();
+        
         Statistics longStat = new Statistics(longSeis);
         double denominator = longStat.stddev();
-
+        Statistics shortStat = new Statistics(shortSeis);
+        // use the stddev of the short, but based on the mean of the
+        // long term
+        double numerator = Math.sqrt(shortStat.var(longStat.mean()));
+        
         Arrival[] arrivals = taup.calcTravelTimes(stationLoc, origin, new String[] {phase});
         MicroSecondDate phaseTime = null;
         MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
