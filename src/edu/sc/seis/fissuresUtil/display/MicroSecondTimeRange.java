@@ -17,12 +17,16 @@ public class MicroSecondTimeRange{
     /**
      * Creates a new MicroSecondTimeRange
      *
-     * @param beginTime the beginning time
-     * @param endTime the ending time
+     * 
      */
-    public MicroSecondTimeRange(MicroSecondDate beginTime, MicroSecondDate endTime){
-	this.beginTime = beginTime;
-	this.endTime = endTime;
+    public MicroSecondTimeRange(MicroSecondDate time, MicroSecondDate anotherTime){
+	if(time.before(anotherTime){
+	    this.beginTime = time;
+	    this.endTime = anotherTime;
+	}else{
+	    this.beginTime = anotherTime;
+	    this.endTime = time;
+	}
 	this.interval = new TimeInterval(beginTime, endTime);
      }
 
