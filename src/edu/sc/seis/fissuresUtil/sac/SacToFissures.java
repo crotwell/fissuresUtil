@@ -139,6 +139,9 @@ public class SacToFissures  {
     }
 
     public static ChannelId getChannelId(SacTimeSeries sac) {
+        if ( ! sac.khole.equals(sac.STRING8_UNDEF) && sac.khole.trim().length() == 2) {
+            return getChannelId(sac, sac.khole.trim());
+        }
         return getChannelId(sac, "  ");
     }
 
