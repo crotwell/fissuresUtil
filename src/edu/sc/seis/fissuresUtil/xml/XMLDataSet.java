@@ -18,7 +18,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 1869 2002-06-12 21:09:20Z crotwell $
+ * @version $Id: XMLDataSet.java 1876 2002-06-14 14:10:14Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -221,11 +221,14 @@ public class XMLDataSet implements DataSet, Serializable {
      * @param audit the audit related to this paramter 
      */
     public void addParameter(String name, 
-                             Object param,
+                             Object value,
                              AuditInfo[] audit) {
-        parameterCache.put(name, param);
-        if (param instanceof Element) {
-            config.appendChild((Element)param);
+        parameterCache.put(name, value);
+        if (value instanceof Element) {
+	    Element parameter = 
+		config.getOwnerDocument().createElement("parameter");
+	    XMLParameter.insert(parameter, name, (Element)value);
+            config.appendChild(parameter);
         } else {
             logger.warn("Parameter is only stored in memory.");
         } // end of else
@@ -398,7 +401,21 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return the names.
      */
     public String[] getSeismogramNames() {
-        return getAllAsStrings("SacSeismogram/name/text()");
+	String[] names = getAllAsStrings("SacSeismogram/name/text()");
+	logger.debug("found "+names.length+" names in xml");
+	logger.debug("cache has "+seismogramCache.keySet().size());
+	String outNames[] = 
+	    new String[names.length+seismogramCache.keySet().size()];
+	System.arraycopy(names, 0, outNames, 0, names.length);
+	java.util.Iterator it = seismogramCache.keySet().iterator();
+	int i=names.length;
+	while (it.hasNext()) {
+	    outNames[i] = (String)it.next();
+	    logger.debug("outNames "+outNames[i]);
+			 i++;
+	} // end of while (it.hasNext())
+	
+        return outNames;
     }
 
     /**
@@ -482,11 +499,12 @@ public class XMLDataSet implements DataSet, Serializable {
         Element sac = doc.createElement("SacSeismogram");
 
         String name =seis.getProperty("name");
-        if (name != null && name.length() != 0) {
-            Element nameE = doc.createElement("name");
-            nameE.setNodeValue(seis.getProperty("name"));
-            sac.appendChild(nameE);
-        }
+        if (name == null || name.length() == 0) {
+	    name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
+	}
+	Element nameE = doc.createElement("name");
+	nameE.setNodeValue(name);
+	sac.appendChild(nameE);
 	
         Property[] props = seis.getProperties();
         Element propE, propNameE, propValueE;
@@ -504,7 +522,11 @@ public class XMLDataSet implements DataSet, Serializable {
         }
         config.appendChild(sac);
 
-        seismogramCache.put(seis.getProperty("name"), seis);
+        seismogramCache.put(name, seis);
+
+	logger.debug("added seis now "+getSeismogramNames().length+" seisnogram names.");
+xpath = new CachedXPathAPI();
+	logger.debug("2 added seis now "+getSeismogramNames().length+" seisnogram names.");
     }
 
     /**
