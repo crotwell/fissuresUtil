@@ -18,7 +18,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 1861 2002-06-12 13:49:27Z crotwell $
+ * @version $Id: XMLDataSet.java 1869 2002-06-12 21:09:20Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -53,9 +53,7 @@ public class XMLDataSet implements DataSet, Serializable {
             Element docElement = doc.getDocumentElement();
 
             if (docElement.getTagName().equals("dataset")) {
-                System.out.println("dataset yes");
                 dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
-                System.out.println(docElement.getTagName()+" {"+docElement.getAttribute("datasetid")+"}");
             }
         } catch (java.io.IOException e) {
             logger.error("Error loading XMLDataSet",e);
