@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
+
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.SeismogramShape;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -10,7 +10,6 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JComponent;
-import org.apache.log4j.Category;
 import org.apache.log4j.Logger;
 
 /**
@@ -20,7 +19,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3922 2003-05-19 17:22:30Z groves $
+ * @version $Id: SeismogramShape.java 3934 2003-05-19 18:36:12Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -326,3 +325,4 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
 
     private static Logger logger = Logger.getLogger(SeismogramShape.class);
 }// SeismogramShape
+
