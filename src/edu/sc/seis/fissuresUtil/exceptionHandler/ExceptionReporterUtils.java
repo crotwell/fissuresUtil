@@ -19,6 +19,8 @@ public class ExceptionReporterUtils{
             if (we.getCausalException() != null) {
                 traceString += extractTrace(we.getCausalException())+"\n";
             } // end of if (we.getCausalException() != null)
+        } else if (exception.getCause() != null) {
+            traceString += extractTrace(exception.getCause())+"\n";
         }
         traceString += extractTrace(exception);
         return traceString;
