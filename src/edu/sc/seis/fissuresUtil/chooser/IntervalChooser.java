@@ -62,7 +62,7 @@ public class IntervalChooser extends JPanel{
 	    valueBox.addItem(new String(new Integer(counter).toString()));
 
 	}
-	valueBox.setSelectedIndex(10);
+	valueBox.setSelectedIndex(9);
 	
 
     }
