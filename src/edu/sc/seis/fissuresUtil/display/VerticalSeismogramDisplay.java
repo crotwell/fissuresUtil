@@ -255,7 +255,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    LocalSeismogramImpl first = ((LocalSeismogramImpl)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange((LocalSeismogram)first)));
 	    ar.visibleAmpCalc(tr);
-	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, first.getName() + " " +  
+	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, creator.getName() + "." +  
 										 creator.getCurrentSelection().getColor()));
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((LocalSeismogramImpl)e.next()), 0);

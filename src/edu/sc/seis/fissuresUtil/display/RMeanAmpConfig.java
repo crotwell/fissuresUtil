@@ -23,13 +23,13 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     
     public RMeanAmpConfig(){}
 
-    public RMeanAmpConfig(AmpRangeConfig registrar){
-	this.ampRegistrar = registrar;
+    public RMeanAmpConfig(AmpConfigRegistrar registrar){
+	super.ampRegistrar = registrar;
     }
 
-    public RMeanAmpConfig(AmpRangeConfig registrar, TimeConfigRegistrar tr){
-	this.ampRegistrar = registrar;
-	timeRegistrar = tr;
+    public RMeanAmpConfig(AmpConfigRegistrar registrar, TimeConfigRegistrar tr){
+	super.ampRegistrar = registrar;
+	super.timeRegistrar = tr;
     }
 
 

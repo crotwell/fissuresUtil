@@ -34,7 +34,7 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      
     public void setRegistrar(AmpConfigRegistrar ampRegistrar){ 
 	if(ampConfig instanceof AmpConfigRegistrar)
-	((AmpConfigRegistrar)ampConfig).removeAmpSyncListener(this);
+	    ((AmpConfigRegistrar)ampConfig).removeAmpSyncListener(this);
 	Iterator e = seismograms.iterator();
 	while(e.hasNext())
 	    ampRegistrar.addSeismogram(((LocalSeismogram)e.next()));
