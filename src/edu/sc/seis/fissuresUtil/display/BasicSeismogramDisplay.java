@@ -8,7 +8,6 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
@@ -125,7 +124,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     public void addFlags(Arrival[] arrivals) {
         this.arrivals = arrivals;
         try{
-            MicroSecondDate originTime = new MicroSecondDate(((XMLDataSet)((DataSetSeismogram)seismograms.getFirst()).getDataSet()).
+            MicroSecondDate originTime = new MicroSecondDate(((DataSetSeismogram)seismograms.getFirst()).getDataSet().
                                                                  getEvent().get_preferred_origin().origin_time);
 
             for(int i = 0; i < arrivals.length; i++){

@@ -18,7 +18,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 4052 2003-05-26 20:37:30Z crotwell $
+ * @version $Id: SacDirToDataSet.java 4122 2003-05-28 15:38:17Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -154,12 +154,6 @@ public class SacDirToDataSet implements StdDataSetParamNames {
             XMLParameter.write(fos, event);
             fos.close();
             dataset.addParameterRef( new URL("file:"+eName), EVENT, event,eventAudit);
-            edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent = (edu.sc.seis.fissuresUtil.cache.CacheEvent)((XMLDataSet)dataset).getParameter(EVENT);
-            if(cacheEvent == null){
-                System.out.println("CACHE EVENT IS NULL");
-                throw new NullPointerException("Cache event is null");
-            }
-            else System.out.println("CACHE EVENT IS NOT NULL");
             } // end of if (event != null)
 
         Channel channel =

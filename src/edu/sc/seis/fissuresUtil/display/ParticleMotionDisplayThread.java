@@ -89,8 +89,8 @@ public class ParticleMotionDisplayThread{
                                      ChannelId channelIdtwo,
                                      edu.sc.seis.fissuresUtil.xml.DataSet dataset) {
 
-        Channel channelOne = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getChannel(channelIdone);
-        Channel channelTwo = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getChannel(channelIdtwo);
+        Channel channelOne = dataset.getChannel(channelIdone);
+        Channel channelTwo = dataset.getChannel(channelIdtwo);
         if((Math.abs(channelOne.an_orientation.dip) == 0 &&
             channelTwo.an_orientation.dip == 0))  {
             return true;
