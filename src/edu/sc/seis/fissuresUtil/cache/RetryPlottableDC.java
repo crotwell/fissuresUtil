@@ -145,7 +145,7 @@ public class RetryPlottableDC implements ProxyPlottableDC {
         }else if(getWrappedDC().getClass().equals(ProxySeismogramDC.class)){
             ((ProxySeismogramDC)getWrappedDC()).getWrappedDC(wrappedClass);
         }
-        throw new IllegalArgumentException("This RetryDataCenter doesn't contain a DC of class " + wrappedClass);
+        throw new IllegalArgumentException("This doesn't contain a DC of class " + wrappedClass);
     }
 
     public void reset() {
@@ -166,7 +166,6 @@ public class RetryPlottableDC implements ProxyPlottableDC {
 
     PlottableDCOperations plottable;
     int retry;
-
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RetryPlottableDC.class);
 

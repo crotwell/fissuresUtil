@@ -56,8 +56,8 @@ public class BulletproofVestFactory{
     public static ProxyPlottableDC vestPlottableDC(String serverDNS, String serverName, FissuresNamingService fisName) {
         NSPlottableDC ns = new NSPlottableDC(serverDNS, serverName, fisName);
         RetryPlottableDC retry = new RetryPlottableDC(ns, 3);
-        return retry;
-
+        CachePlottableDC cache = new CachePlottableDC(retry);
+        return cache;
     }
 }
 
