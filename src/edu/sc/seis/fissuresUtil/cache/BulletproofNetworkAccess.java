@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
@@ -16,9 +17,9 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
  *
  */
 public class BulletproofNetworkAccess extends ProxyNetworkAccess{
-    public BulletproofNetworkAccess(NetworkDCOperations netDC, NetworkId id)
+    public BulletproofNetworkAccess(NetworkAccess na, NetworkDCOperations netDC, NetworkId id)
         throws NetworkNotFound{
-        super(new CacheNetworkAccess(new RetryNetworkAccess(new NSNetworkAccess(id, netDC), 3)));
+        super(new CacheNetworkAccess(new RetryNetworkAccess(new NSNetworkAccess(na, id, netDC), 3)));
     }
 }
 
