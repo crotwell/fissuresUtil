@@ -48,7 +48,7 @@ public class DisplayUtils {
         RequestFilter rf = seismogram.getRequestFilter();
         return getComponents(dataSet, rf);
     }
-    
+
     public static DataSetSeismogram[] getComponents(DataSet dataSet, RequestFilter rf){
         List componentSeismograms = new ArrayList();
         MicroSecondDate startDate = new MicroSecondDate(rf.start_time);
@@ -72,6 +72,11 @@ public class DisplayUtils {
         DataSetSeismogram[] components = new DataSetSeismogram[componentSeismograms.size()];
         componentSeismograms.toArray(components);
         return components;
+    }
+
+    public static boolean areFriends(DataSetSeismogram seis, DataSetSeismogram otherSeis){
+        return areFriends(seis.getRequestFilter().channel_id,
+                          otherSeis.getRequestFilter().channel_id);
     }
 
     public static boolean areFriends(ChannelId a, ChannelId b) {
@@ -301,6 +306,27 @@ public class DisplayUtils {
         if(ch == 'E' || ch == '1' || ch == 'U') return EAST;
         else if(ch == 'N' || ch == '2' || ch == 'V') return NORTH;
         else return UP;
+    }
+
+
+    public static DataSetSeismogram[][] sortByComponents(DataSetSeismogram[] seismos){
+        List north = new ArrayList();
+        List east = new ArrayList();
+        List z = new ArrayList();
+        for (int i = 0; i < seismos.length; i++) {
+            if(DisplayUtils.getOrientationName(seismos[i]).equals("North")){
+                north.add(seismos[i]);
+            }else if(DisplayUtils.getOrientationName(seismos[i]).equals("East")){
+                east.add(seismos[i]);
+            }else{
+                z.add(seismos[i]);
+            }
+        }
+        DataSetSeismogram[][] sortedSeismos = new DataSetSeismogram[3][];
+        sortedSeismos[0] = ((DataSetSeismogram[])north.toArray(new DataSetSeismogram[north.size()]));
+        sortedSeismos[1] = ((DataSetSeismogram[])east.toArray(new DataSetSeismogram[east.size()]));
+        sortedSeismos[2] = ((DataSetSeismogram[])z.toArray(new DataSetSeismogram[z.size()]));
+        return sortedSeismos;
     }
 
     /**
