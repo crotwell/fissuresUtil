@@ -36,10 +36,17 @@ public class BasicAmpConfig implements AmpConfig{
      * @param seismo the seismogram to be added
      */
     public synchronized void add(DataSetSeismogram[] seismos){
+        boolean someAdded = false;
         for(int i = 0; i < seismos.length; i++){
             if(!ampData.containsKey(seismos[i])){
                 ampData.put(seismos[i], new AmpConfigData(seismos[i], this));
+                someAdded = true;
             }
+        }
+        if(someAdded){
+            currentAmpEvent = null;
+            this.seismos = null;
+            fireAmpEvent();
         }
     }
 
@@ -63,6 +70,7 @@ public class BasicAmpConfig implements AmpConfig{
         }
         if(someRemoved){
             this.seismos = null;
+            currentAmpEvent = null;
             fireAmpEvent();
         }
         return allRemoved;
