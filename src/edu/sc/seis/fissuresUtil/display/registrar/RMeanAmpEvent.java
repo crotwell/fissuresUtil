@@ -16,13 +16,14 @@ public class RMeanAmpEvent extends BasicAmpEvent {
         super(seismos, amps);
     }
 
-    protected UnitRangeImpl calcGenericAmp(UnitRangeImpl inAmp, DataSetSeismogram seis) {
-        UnitRangeImpl basic = super.calcGenericAmp(inAmp, seis);
-        double offset = (basic.getMaxValue() - basic.getMinValue())/2;
-        UnitRangeImpl out = new UnitRangeImpl(-1 * offset,
-                                              offset ,
-                                              basic.getUnit());
-        return UnitDisplayUtil.getBestForDisplay(out);
+    protected void generateGenericAmp(){
+        super.generateGenericAmp();
+        if(amps.length == 1){
+            double offset = (genericAmp.getMaxValue() - genericAmp.getMinValue())/2;
+            genericAmp = UnitDisplayUtil.getBestForDisplay(new UnitRangeImpl(-1 * offset,
+                                                                             offset ,
+                                                                             genericAmp.getUnit()));
+        }
     }
 
 }
