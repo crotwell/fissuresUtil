@@ -62,7 +62,7 @@ public abstract class AbstractProcess implements Process{
         }
     }
 
-    public boolean finished(){ return finished; }
+    public boolean isFinished(){ return finished; }
 
     protected void setFinished(){
         finished = true;

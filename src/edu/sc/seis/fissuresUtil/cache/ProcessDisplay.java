@@ -76,7 +76,7 @@ public class ProcessDisplay extends JTable implements StatusListener{
             if(columnIndex == 1){
                 return rowProcess.getStatus();
             }
-            return Boolean.valueOf(rowProcess.finished());
+            return Boolean.valueOf(rowProcess.isFinished());
         }
 
         public int getRowCount() {

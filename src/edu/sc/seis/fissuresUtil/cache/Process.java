@@ -44,7 +44,7 @@ public interface Process extends Runnable{
      * @return true if finished, false otherwise
      *
      */
-    public boolean finished();
+    public boolean isFinished();
 
     /**
      *String used to set status when a task is finished
