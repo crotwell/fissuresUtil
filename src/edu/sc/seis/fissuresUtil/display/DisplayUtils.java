@@ -230,6 +230,9 @@ public class DisplayUtils {
      * in seismograms to the latest end time
      */
     public static MicroSecondTimeRange getFullTime(LocalSeismogramImpl[] seis){
+        if(seis.length == 0){
+            return ZERO_TIME;
+        }
         MicroSecondDate beginTime = sortByDate(seis)[0].getBeginTime();
         MicroSecondDate endTime = new MicroSecondDate(0);
         for(int i = 0; i < seis.length; i++){
@@ -343,6 +346,8 @@ public class DisplayUtils {
 
     public static final UnitRangeImpl ONE_RANGE = new UnitRangeImpl(1, 1, UnitImpl.COUNT);
 
-    public static final MicroSecondTimeRange ONE_TIME = new MicroSecondTimeRange(new MicroSecondDate(), new MicroSecondDate(1));
+    public static final MicroSecondTimeRange ZERO_TIME = new MicroSecondTimeRange(new MicroSecondDate(0), new MicroSecondDate(0));
+
+    public static final MicroSecondTimeRange ONE_TIME = new MicroSecondTimeRange(new MicroSecondDate(0), new MicroSecondDate(1));
 
 }// DisplayUtils
