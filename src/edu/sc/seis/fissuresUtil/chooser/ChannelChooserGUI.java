@@ -372,21 +372,10 @@ public class ChannelChooserGUI extends JPanel{
     }
 
      public ChannelId getChannelId() {
-
 	String keyStr = new String();
 	keyStr = getNet() + "." + getStation() + "." + getSite() + "." + getChannel();
 	System.out.println("The key is "+keyStr);
-
-	if( mychannelchooser.allchanMap.containsKey(keyStr)) {
-	    System.out.println("Found the channelID ");
-	    return (ChannelId)(mychannelchooser.allchanMap.get(keyStr));
-	}
-	else {
-	    System.out.println("The channelID is not Found");
-	    return null;
-
-	}
-
+        return mychannelchooser.getChannelId(keyStr);
     }
  
 
@@ -411,6 +400,14 @@ public class ChannelChooserGUI extends JPanel{
 
     /*================Class Variables===============*/
 
+
+    protected edu.iris.Fissures.Plottable[] arrayplottable;
+    protected edu.iris.Fissures.Plottable[] arrayplottabletemp;
+    protected edu.iris.Fissures.Plottable clientPlottable;
+    protected SeisPlotUtilTemp seisplotutil = 
+        new SeisPlotUtilTemp();
+
+    protected PaintSeismogram psgram = new PaintSeismogram();
 
     protected String[] networks;
     protected String[] stations = {"    "};

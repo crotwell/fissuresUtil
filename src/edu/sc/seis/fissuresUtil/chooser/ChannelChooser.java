@@ -1,4 +1,5 @@
 
+
 package edu.sc.seis.fissuresUtil.chooser;
 
 import java.awt.*;
@@ -153,6 +154,7 @@ System.out.println("8 netSet.add ");
 	edu.iris.Fissures.IfNetwork.Station[] allstations = netAccess.retrieve_stations();
 
 	Set staSet = new HashSet();
+	staMap.clear();
 
 	for (int i=0; i < allstations.length; i++) {
 	    StationId id = allstations[i].get_id();
@@ -182,7 +184,9 @@ System.out.println("8 netSet.add ");
 	Channel[] allChannels = netAccess.retrieve_for_station(station.get_id());
 
 
-	
+	sitMap.clear();
+	chanMap.clear();
+
 	for (int i=0; i<allChannels.length; i++) {
 
 	    edu.iris.Fissures.IfNetwork.Site thesite = allChannels[i].my_site;
@@ -224,11 +228,27 @@ System.out.println("8 netSet.add ");
 	return channels;
     }
 
-   
+    public ChannelId getChannelId(String keyStr) {
+
+	if( chanMap.containsKey(keyStr)) {
+	    System.out.println("Found the channelID: ");
+	    return (ChannelId)(chanMap.get(keyStr));
+	}
+	else {
+	    System.out.println("The channelID is not Found");
+	    return null;
+
+	}
+
+    }
+ 
+ 
 
     /*================Class Variables===============*/
 
     protected HashMap allchanMap = new HashMap(); 
+    protected SeisPlotUtilTemp seisplotutil = 
+        new SeisPlotUtilTemp();
 
     private NetworkDC netdc;
     private NetworkFinder netfound;
