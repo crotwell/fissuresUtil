@@ -15,12 +15,12 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 public class MicroSecondTimeRange{
     
     /**
-     * Creates a new MicroSecondTimeRange
-     *
+     * Creates a new MicroSecondTimeRange.  The order of the times passed in
+     * doesn't matter
      * 
      */
     public MicroSecondTimeRange(MicroSecondDate time, MicroSecondDate anotherTime){
-	if(time.before(anotherTime){
+	if(time.before(anotherTime)){
 	    this.beginTime = time;
 	    this.endTime = anotherTime;
 	}else{
