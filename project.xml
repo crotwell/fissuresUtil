@@ -71,6 +71,18 @@ oot:${pom.artifactId}</connection>
     </developers>
 
   <dependencies>
+<!-- hopefully temporary JAI support -->
+    <dependency>
+      <id>jai_core</id>
+      <version>1.0</version>
+      <jar>jai_core.jar</jar>
+    </dependency>
+<!-- hopefully temporary JAI support -->
+    <dependency>
+      <id>jai_codec</id>
+      <version>1.0</version>
+      <jar>jai_codec.jar</jar>
+    </dependency>
 <!-- hopefully temporary Java3D support -->
     <dependency>
       <id>j3dcore</id>
