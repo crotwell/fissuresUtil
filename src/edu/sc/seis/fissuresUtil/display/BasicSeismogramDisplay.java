@@ -135,8 +135,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     public void updateTimeRange(){
 	this.timeScaleMap.setTimes(timeRegistrar.getTimeRange().getBeginTime(), 
 				   timeRegistrar.getTimeRange().getEndTime());
+	redo = true;
 	repaint();
-	
     }
 
    public void addBottomTimeBorder(){	
