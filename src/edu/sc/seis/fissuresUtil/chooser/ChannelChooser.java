@@ -22,17 +22,29 @@ import javax.swing.event.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 1566 2002-05-01 20:02:49Z crotwell $
+ * @version $Id: ChannelChooser.java 1567 2002-05-01 21:06:02Z crotwell $
  *
  */
 
 
 public class ChannelChooser extends JPanel{
 
+    public ChannelChooser(NetworkDC netdcgiven) {
+	this(netdcgiven,
+	     false,
+	     THREE_COMPONENT,
+	     defaultSelectable,
+	     defaultAutoSelect);
+    }
 
-    public ChannelChooser(NetworkDC netdcgiven){
+    public ChannelChooser(NetworkDC netdcgiven, 
+			  boolean showSites,
+			  int orientationConfig,
+			  String[] selectableBandGain,
+			  String[] autoSelectBandGain){
         initFrame();
 	setNetworkDC(netdcgiven);
+	this.orientationConfig = orientationConfig;
     }
 
     public void setNetworkDC(NetworkDC netdcgiven) {
@@ -166,10 +178,10 @@ public class ChannelChooser extends JPanel{
 	add(scroller, gbc);
 	gbc.gridx++;
  
-	siteList = new JList(sites);
-	siteList.setCellRenderer(renderer);
-	siteList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	scroller = new JScrollPane(siteList);
+	bandList = new JList(sites);
+	bandList.setCellRenderer(renderer);
+	bandList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	scroller = new JScrollPane(bandList);
 	add(scroller, gbc);
 	gbc.gridx++;
 	
@@ -293,10 +305,50 @@ public class ChannelChooser extends JPanel{
     String bhetip = "B=Broad Band | H=High Gain Seismometer | E=East-West";
     String bhntip = "B=Broad Band | H=High Gain Seismometer | N=North-South";
  
+    private int orientationConfig;
+    public static final int THREE_COMPONENT = 0;
+    public static final int VERTICAL_ONLY = 1;
+    public static final int HORIZONTAL_ONLY = 2;
+    public static final int ALL_COMPONENTS = 3;
+
+    public static final String EXTREMELY_SHORT_PERIOD = "E";
+    public static final String SHORT_PERIOD = "S";
+    public static final String HIGH_BROAD_BAND = "H";
+    public static final String BROAD_BAND = "B";
+    public static final String MID_PERIOD = "M";
+    public static final String LONG_PERIOD = "L";
+    public static final String VERY_LONG_PERIOD = "V";
+    public static final String ULTRA_LONG_PERIOD = "U";
+    public static final String EXTREMELY_LONG_PERIOD = "R";
+    public static final String ADMINISTRATIVE = "A";
+    public static final String WEATHER_ENVIRONMENTAL = "W";
+    public static final String EXPERIMENTAL = "X";
+    public static final HashMap bandCodeNames;
+
+    static {
+	bandCodeNames = new HashMap();
+	bandCodeNames.put(EXTREMELY_SHORT_PERIOD, "EXTREMELY_SHORT_PERIOD");
+	bandCodeNames.put(SHORT_PERIOD , "SHORT_PERIOD");
+	bandCodeNames.put(HIGH_BROAD_BAND , "HIGH_BROAD_BAND");
+	bandCodeNames.put(BROAD_BAND , "BROAD_BAND");
+	bandCodeNames.put(MID_PERIOD , "MID_PERIOD");
+	bandCodeNames.put(LONG_PERIOD , "LONG_PERIOD");
+	bandCodeNames.put(VERY_LONG_PERIOD , "VERY_LONG_PERIOD");
+	bandCodeNames.put(ULTRA_LONG_PERIOD , "ULTRA_LONG_PERIOD");
+	bandCodeNames.put(EXTREMELY_LONG_PERIOD , "EXTREMELY_LONG_PERIOD");
+	bandCodeNames.put(ADMINISTRATIVE , "ADMINISTRATIVE");
+	bandCodeNames.put(WEATHER_ENVIRONMENTAL , "WEATHER_ENVIRONMENTAL");
+	bandCodeNames.put(EXPERIMENTAL , "EXPERIMENTAL");
+    }
+
+    private static final String[] defaultSelectable = { BROAD_BAND, LONG_PERIOD };
+    private static final String[] defaultAutoSelect = { LONG_PERIOD };
+
 
     protected JList netList;
     protected JList stationList;
     protected JList siteList;
+    protected JList bandList;
     protected JList channelList;
 
     protected DefaultListModel networks = new DefaultListModel();
