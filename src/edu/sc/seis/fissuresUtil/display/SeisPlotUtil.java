@@ -43,7 +43,7 @@ public class SeisPlotUtil  {
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 
 	double pointsPerPixal = t.getInterval().divideBy(seis.getSampling().getPeriod()).getValue() / 
-	    size.width;
+	    size.width/1000;
         if (pointsPerPixal > 3) {
             return getPlottableCompress(seis, a, t, size);
         } else {
