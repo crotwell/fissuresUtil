@@ -15,11 +15,11 @@ import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCLocation;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 /**
  * JDBCSite.java All methods are unsynchronized, the calling application should
@@ -51,10 +51,7 @@ public class JDBCSite extends NetworkTable {
         this.stationTable = stationTable;
         this.time = time;
         seq = new JDBCSequence(conn, "SiteSeq");
-        if(!DBUtil.tableExists("site", conn)) {
-            conn.createStatement().executeUpdate(ConnMgr.getSQL("site.create"));
-        }
-        prepareStatements();
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     public Site get(int dbid) throws SQLException, NotFound {

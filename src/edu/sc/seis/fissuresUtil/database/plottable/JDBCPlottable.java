@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +19,9 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.time.RangeTool;
@@ -37,11 +36,7 @@ public class JDBCPlottable extends PlottableTable {
     public JDBCPlottable(Connection conn) throws SQLException {
         super("plottable", conn);
         chanTable = new JDBCChannel(conn);
-        if(!DBUtil.tableExists("plottable", conn)) {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(ConnMgr.getSQL("plottable.create"));
-        }
-        prepareStatements();
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/plottable/default.props");
     }
 
     public void put(PlottableChunk[] chunks) throws SQLException, IOException {

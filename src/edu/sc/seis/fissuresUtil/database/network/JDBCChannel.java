@@ -21,11 +21,11 @@ import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCQuantity;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 /**
  * JDBCChannel.java All methods are unsyncronized, the calling application
@@ -59,37 +59,7 @@ public class JDBCChannel extends NetworkTable {
         stationTable = siteTable.getStationTable();
         netTable = stationTable.getNetTable();
         seq = new JDBCSequence(conn, "ChannelSeq");
-        if(!DBUtil.tableExists("channel", conn)) {
-            conn.createStatement()
-                    .executeUpdate(ConnMgr.getSQL("channel.create"));
-        }
-        String getAllIdsQuery = "SELECT " + getNeededForChanId()
-                + " FROM channel";
-        getAllIds = conn.prepareStatement(getAllIdsQuery);
-        getAllIdsForStation = conn.prepareStatement(getAllIdsQuery + ", site "
-                + "WHERE channel.site_id = site.site_id AND "
-                + "site.sta_id = ?");
-        getAllIdsForNetwork = conn.prepareStatement(getAllIdsQuery
-                + ", site, station "
-                + "WHERE channel.site_id = site.site_id AND "
-                + "site.sta_id = station.sta_id AND " + "station.net_id = ?");
-        String getAllQuery = "SELECT " + getNeededForChannel() + "FROM channel";
-        getAllChans = conn.prepareStatement(getAllQuery);
-        getAllChansForStation = conn.prepareStatement(getAllQuery + ", site "
-                + "WHERE channel.site_id = site.site_id AND "
-                + "site.sta_id = ?");
-        getByCodes = conn.prepareStatement(getAllQuery
-                + ", site, station "
-                + "WHERE channel.site_id = site.site_id AND "
-                + "site.sta_id = station.sta_id AND "
-                + "station.net_id = ? AND "
-                + " station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ? ");
-        getAllChansForNetwork = conn.prepareStatement(getAllQuery
-                + ", site, station "
-                + "WHERE channel.site_id = site.site_id AND "
-                + "site.sta_id = station.sta_id AND " + "station.net_id = ?");
-        getStationDbId = conn.prepareStatement("SELECT sta_id FROM channel, site where Channel.site_id = site.site_id AND chan_id = ?");
-        prepareStatements();
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     private ChannelId[] extractAllChanIds(PreparedStatement query)
@@ -315,16 +285,6 @@ public class JDBCChannel extends NetworkTable {
         } catch(NotFound e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static String getNeededForChanId() {
-        return "chan_id, channel.site_id, chan_code, chan_begin_id";
-    }
-
-    public static String getNeededForChannel() {
-        return getNeededForChanId()
-                + ", chan_end_id, chan_name, chan_sampling_numpoints, "
-                + "chan_sampling_interval_id, chan_orientation_dip, chan_orientation_az ";
     }
 
     public static int insertAll(Channel chan,
