@@ -1,10 +1,10 @@
 package edu.sc.seis.fissuresUtil.database.event;
 import edu.iris.Fissures.FlinnEngdahlRegion;
 import edu.iris.Fissures.model.FlinnEngdahlRegionImpl;
-import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.fissuresUtil.JDBCTable;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
+import edu.sc.seis.fissuresUtil.database.JDBCTable;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

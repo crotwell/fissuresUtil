@@ -1,10 +1,8 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
-import edu.sc.seis.fissuresUtil.*;
 import edu.sc.seis.fissuresUtil.database.*;
 
 import edu.iris.Fissures.Location;
-import edu.iris.Fissures.utility.Logger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

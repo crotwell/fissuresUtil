@@ -1,14 +1,12 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
-import edu.sc.seis.fissuresUtil.*;
-import edu.sc.seis.fissuresUtil.database.*;
 
+import edu.sc.seis.fissuresUtil.database.*;
 import java.sql.*;
 
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-import edu.iris.Fissures.Location;
 import edu.iris.Fissures.event.OriginImpl;
 import java.util.ArrayList;
 import java.util.List;

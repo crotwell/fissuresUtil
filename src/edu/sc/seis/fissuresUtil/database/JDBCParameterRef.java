@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.database;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-import edu.sc.seis.fissuresUtil.JDBCTable;
+import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
