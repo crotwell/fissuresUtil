@@ -41,11 +41,10 @@ public class DataCenterThread implements Runnable{
         for(int counter = 0; counter <  requestFilters.length; counter++) {
             try {
                 RequestFilter[] temp = { requestFilters[counter] };
-                //System.out.println("Making a request to retrieve seismograms");
                 LocalSeismogram[] seis = dbDataCenter.retrieve_seismograms(temp);
                 LocalSeismogramImpl[] seisImpl = castToLocalSeismogramImplArray(seis);
-                //System.out.println("The length of the seismograms in thread is "+seis.length);
                 synchronized(initiators){
+                    pushed = true;
                     Iterator it = initiators.iterator();
                     while(it.hasNext()){
                         a_client.pushData(seisImpl, ((SeisDataChangeListener)it.next()));
@@ -56,6 +55,7 @@ public class DataCenterThread implements Runnable{
                 }
             } catch(FissuresException fe) {
                 synchronized(initiators){
+                    pushed = true;
                     Iterator it = initiators.iterator();
                     while(it.hasNext()){
                         a_client.error(((SeisDataChangeListener)it.next()), fe);
@@ -64,6 +64,7 @@ public class DataCenterThread implements Runnable{
                 }
             } catch(org.omg.CORBA.SystemException fe) {
                 synchronized(initiators){
+                    pushed = true;
                     Iterator it = initiators.iterator();
                     while(it.hasNext()){
                         a_client.error(((SeisDataChangeListener)it.next()), fe);
@@ -74,7 +75,6 @@ public class DataCenterThread implements Runnable{
         }
         LocalSeismogramImpl[] seisArray = new LocalSeismogramImpl[seismograms.size()];
         seisRef = new SoftReference(seismograms.toArray(seisArray));
-        finished = true;
         synchronized(initiators){
             Iterator it = initiators.iterator();
             while(it.hasNext()){
@@ -96,7 +96,7 @@ public class DataCenterThread implements Runnable{
                 return false;
             }
         }
-        if(!finished){
+        if(!pushed){
             synchronized(initiators){
                 initiators.add(listener);
             }
@@ -132,7 +132,7 @@ public class DataCenterThread implements Runnable{
 
     private static Category logger = Category.getInstance(DataCenterThread.class.getName());
 
-    private boolean finished = false;
+    private boolean pushed = false;
 
 }// DataCenterThread
 
