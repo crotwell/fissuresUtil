@@ -30,12 +30,14 @@ public class DataSetChannelGrouper {
         origChannelIdStr = origChannelIdStr.substring(0, origChannelIdStr.indexOf(channelID.channel_code)+2);
         String chanGroupString = edu.sc.seis.fissuresUtil.xml.StdDataSetParamNames.CHANNEL +
             origChannelIdStr;
+        logger.debug("looking for "+chanGroupString);
         for (int i=0; i<paramNames.length; i++) {
             if (paramNames[i].startsWith(chanGroupString)) {
                 logger.debug("found match parameter channelId "+paramNames[i]);
                 list.add(((edu.iris.Fissures.IfNetwork.Channel)dataset.getParameter(paramNames[i])).get_id());
-            } // end of if (paramNames[i].startsWith(origChannelIdStr))
-            
+            } else {
+                logger.debug("no found match parameter channelId "+paramNames[i]);
+            }
         } // end of for (int i=0; i<paramNames[i]; i++)
         ChannelId[] channelIds = (ChannelId[])list.toArray(new ChannelId[0]);
         
@@ -53,12 +55,14 @@ public class DataSetChannelGrouper {
         ChannelId[] channelGroup =
             DataSetChannelGrouper.retrieveGrouping(dataset,
                                                    channelId);
+        System.out.println("Channel Group has "+channelGroup.length);
         DataSetSeismogram[] chGrpSeismograms = new DataSetSeismogram[3];
         String[] allSeisNames = dataset.getDataSetSeismogramNames();
         for(int counter = 0; counter < channelGroup.length; counter++) {
             for (int i=0; i < allSeisNames.length; i++) {
                 DataSetSeismogram allSeis =
                     dataset.getDataSetSeismogram(allSeisNames[i]);
+                System.out.println("Checking "+ChannelIdUtil.toStringNoDates(allSeis.getRequestFilter().channel_id));
                 if (ChannelIdUtil.areEqual(channelGroup[counter], allSeis.getRequestFilter().channel_id) &&
                     dss.getBeginTime().date_time.equals(allSeis.getBeginTime().date_time) &&
                     dss.getEndTime().date_time.equals(allSeis.getEndTime().date_time)) {
