@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.xml;
 
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -28,13 +29,33 @@ import org.apache.log4j.Logger;
 public class FilteredDataSetSeismogram extends DataSetSeismogram implements SeismogramContainerListener{
 
 
-    public FilteredDataSetSeismogram(DataSetSeismogram dss,
-                                     ColoredFilter filter){
+    private FilteredDataSetSeismogram(DataSetSeismogram dss,
+                                      ColoredFilter filter){
         super(dss.getDataSet(), filter.getName());
         this.filter = filter;
         wrappedDSS = dss;
         container = new SeismogramContainer(this, wrappedDSS);
+        container.getSeismograms();
     }
+
+    public static FilteredDataSetSeismogram getFiltered(DataSetSeismogram dss,
+                                                        ColoredFilter filter){
+        Map dssMap = (Map)filterMap.get(filter);
+        if(dssMap != null){
+            FilteredDataSetSeismogram fDSS = (FilteredDataSetSeismogram)dssMap.get(dss);
+            if(fDSS != null){
+                return fDSS;
+            }
+        }else{
+            dssMap = new HashMap();
+            filterMap.put(filter, dssMap);
+        }
+        FilteredDataSetSeismogram fDSS = new FilteredDataSetSeismogram(dss, filter);
+        dssMap.put(dss, fDSS);
+        return fDSS;
+    }
+
+    private static Map filterMap = new HashMap();
 
     public void updateData(){
         filterPool.invokeLater(new Filterer());
@@ -67,10 +88,9 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
                 it = alreadyFiltered.iterator();
                 found = false;
                 while(it.hasNext()){
-                    for (int j = 0; j < containedSeis.length && !found; j++) {
-                        if(containedSeis == it.next()){
-                            found = true;
-                        }
+                    Object o = it.next();
+                    if(containedSeis[i] == o){
+                        found = true;
                     }
                 }
                 if(!found){
@@ -156,11 +176,11 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
         return wrappedDSS.getBeginMicroSecondDate();
     }
 
-    public edu.iris.Fissures.Time getBeginTime() {
+    public Time getBeginTime() {
         return wrappedDSS.getBeginTime();
     }
 
-    public void setBeginTime(edu.iris.Fissures.Time time) {
+    public void setBeginTime(Time time) {
         throw new UnsupportedOperationException("Cannot set begin time on filtered seismogram.  It is entirely reliant on the wrapped dss time");
     }
 
@@ -168,11 +188,11 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
         return wrappedDSS.getEndMicroSecondDate();
     }
 
-    public edu.iris.Fissures.Time getEndTime() {
+    public Time getEndTime() {
         return wrappedDSS.getEndTime();
     }
 
-    public void setEndTime(edu.iris.Fissures.Time time) {
+    public void setEndTime(Time time) {
         throw new UnsupportedOperationException("Cannot set end time on filtered seismogram.  It is entirely reliant on the wrapped dss time");
 
     }
