@@ -35,12 +35,13 @@ public class SeismogramPlotter implements Plotter{
 	    SimplePlotUtil.scaleYvalues(pixels, seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size); 
 	    int[] xPixels = pixels[0];
 	    int[] yPixels = pixels[1];
-	    GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, xPixels.length - 1);
-	    if(xPixels.length >= 1)
+	    if(xPixels.length >= 2){
+		GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, xPixels.length - 1);
 		currentShape.moveTo(xPixels[0], yPixels[0]);
-	    for(int i = 1; i < xPixels.length; i++)
-		currentShape.lineTo(xPixels[i], yPixels[i]);
-	    return currentShape;
+		for(int i = 1; i < xPixels.length; i++)
+		    currentShape.lineTo(xPixels[i], yPixels[i]);
+		return currentShape;
+	    }
 	}
 	catch(Exception e){ e.printStackTrace(); }
 	return new GeneralPath();

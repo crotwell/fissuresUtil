@@ -141,6 +141,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	scaleBorder.setBottomScaleMapper(timeScaleMap); 
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+	this.revalidate();
     }
 
     public void removeBottomTimeBorder(){ 
@@ -154,6 +155,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	scaleBorder.setTopScaleMapper(timeScaleMap);
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+	this.revalidate();
     }
 
     public void removeTopTimeBorder(){ 
@@ -168,12 +170,14 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     }
 
     protected void resize() {
-        Insets insets = getInsets();
-	Dimension d = getSize();
-	int w = (d.width - insets.left - insets.right) * 5, h = d.height - insets.top - insets.bottom;
-	overSize = new Dimension(w, h);
-	timeScaleMap.setTotalPixels(d.width-insets.left-insets.right);
-        ampScaleMap.setTotalPixels(d.height-insets.top-insets.bottom);
+	Insets insets = getInsets();
+	synchronized(imagePainter){
+	    Dimension d = getSize();
+	    int w = (d.width - insets.left - insets.right) * 5, h = d.height - insets.top - insets.bottom;
+	    overSize = new Dimension(w, h);
+	    timeScaleMap.setTotalPixels(d.width-insets.left-insets.right);
+	    ampScaleMap.setTotalPixels(d.height-insets.top-insets.bottom);
+	}
 	redo = true;
 	repaint();
     }
@@ -194,7 +198,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
     protected ScaleBorder scaleBorder;
 
-    protected TimeScaleMapper timeScaleMap = new TimeScaleCalc(200, new MicroSecondDate(0), new MicroSecondDate(50000000));//placeholder
+    protected TimeScaleCalc timeScaleMap = new TimeScaleCalc(200, new MicroSecondDate(0), new MicroSecondDate(50000000));//placeholder
     
     protected AmpScaleMapper ampScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder
    

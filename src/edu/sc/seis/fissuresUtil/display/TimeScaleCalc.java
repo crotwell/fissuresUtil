@@ -16,158 +16,170 @@ import java.util.*;
  * @version 0.1
  */
 
-public class TimeScaleCalc extends TimeScaleMapper {
-    private int majTickRatio, majTickNum;
-    protected long timeIntv;//time between beginTime and endTime in microseconds
-    protected long divInc;//time between major ticks in microseconds
-    private double timeInc;//tick increment in microseconds
-    private double majTickIntv;//the interval in pixels between major ticks
-    protected DateFormat dateFormat, dateTimeFormat;
-    protected SimpleDateFormat longTimeFormat, mediumTimeFormat, shortTimeFormat;
-    protected Calendar calendar;
-    
+public class TimeScaleCalc implements ScaleMapper {
     /**
        @param totalPixels the width of the axis being used in pixels
        @param beginTime the start time of the axis
        @param endTime the end time of the axis
     */
     TimeScaleCalc (int totalPixels, MicroSecondDate beginTime, MicroSecondDate endTime){
-	super(totalPixels, beginTime, endTime);
-	dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.FULL);
-	dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	dateFormat = DateFormat.getDateInstance(DateFormat.FULL);
-	dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	longTimeFormat = new SimpleDateFormat("HH:mm:ss.S");
-	longTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	mediumTimeFormat = new SimpleDateFormat("mm:ss.S");
-	mediumTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	shortTimeFormat = new SimpleDateFormat("ss.S");
-	shortTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        this.calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        calculateTicks();
+	if (endTime.before(beginTime)) {
+	    throw new IllegalArgumentException("endTime must be after beginTime, "+beginTime.toString()+"  "+endTime.toString());
+	} 
+	this.totalPixels = totalPixels;
+	this.beginTime = beginTime.getMicroSecondTime();
+        this.endTime = endTime.getMicroSecondTime();
+	timeIntv = (this.endTime - this.beginTime);
+	calculateTicks();
     }
 
-    /**
-     Uses the time interval for the seismogram and passes a rough time division based on this to
-     divCalculateTicks
-    */
     public void calculateTicks(){
-	timeIntv = (endTime.getMicroSecondTime() - beginTime.getMicroSecondTime())/ 1000;
-	
-	if(timeIntv <= 100)
-	    this.divCalculateTicks(10);
-	else if(timeIntv <= 500)
-	    this.divCalculateTicks(50);
-	else if(timeIntv <= 1000)
-	    this.divCalculateTicks(100);
-	else if(timeIntv <= 5000)
-	    this.divCalculateTicks(500);
-	else if(timeIntv <= 10000)
-	    this.divCalculateTicks(1000);
-	else if(timeIntv <= 30000)
-	    this.divCalculateTicks(3000);
-	else if(timeIntv <= 60000)
-	    this.divCalculateTicks(6000);
-	else if(timeIntv <= 120000)
-	    this.divCalculateTicks(12000);
-	else if(timeIntv <= 300000)
-	    this.divCalculateTicks(30000);
-	else if(timeIntv <= 600000)
-	    this.divCalculateTicks(60000);
-	else if(timeIntv <= 1200000)
-	    this.divCalculateTicks(120000);
-	else if(timeIntv <= 3600000)
-	    this.divCalculateTicks(300000);
-	else if(timeIntv <= 7200000)
-	    this.divCalculateTicks(600000);
-	else
-	    this.divCalculateTicks(1200000);
-	
+	int majTickNum = totalPixels/50;
+	majTickTime = timeIntv/majTickNum;
+	majTickRatio = 10;
+	if(majTickTime <= 30000000){
+	    majTickRatio = 10;
+	    timeFormat = new SimpleDateFormat("mm:ss");
+	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+	    if(majTickTime <= 100000){
+		timeFormat = new SimpleDateFormat("ss.S");
+		timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		majTickTime = 100000;
+	    }else if(majTickTime <= 1000000){
+		majTickTime = 1000000;
+	    }else if(majTickTime <= 5000000){
+		majTickTime = 5000000;
+	    }else if(majTickTime <= 1000000){
+		majTickTime = 10000000;
+	    }else
+		majTickTime = 30000000;
+	}
+	else if(majTickTime <= 180000000){
+	    majTickRatio = 6;
+	    timeFormat = new SimpleDateFormat("HH:mm");
+	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+	    if(majTickTime <= 60000000){
+		majTickTime = 60000000;
+	    }else if(majTickTime <= 120000000){
+		majTickTime = 120000000;
+	    }else
+		majTickTime = 180000000;
+	}
+	else if(majTickTime <= 1800000000){
+	    majTickRatio = 10;
+	    timeFormat = new SimpleDateFormat("HH:mm");
+	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+	    if(majTickTime <= 300000000)
+		majTickTime = 300000000;
+	    else if(majTickTime <= 600000000)
+		majTickTime = 600000000;
+	    else if(majTickTime <= 1200000000){
+		majTickTime = 1200000000;
+	    }else             
+		majTickTime = 1800000000;
+	}
+	else if(majTickTime <= 43200000000l){
+	    majTickRatio = 6;
+	    timeFormat = new SimpleDateFormat("MM/dd HH:mm");
+	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+	    if(majTickTime <= 3600000000l){
+		majTickTime = 3600000000l;
+	    }else if(majTickTime <= 7200000000l){
+		majTickTime = 7200000000l;
+	    }else if(majTickTime <= 10800000000l){
+		majTickTime = 10800000000l;
+	    }else if(majTickTime <= 21600000000l){
+		majTickTime = 21600000000l;
+	    }else
+		majTickTime = 43200000000l;
+	}
+	else{
+	    majTickRatio = 6;
+	    timeFormat = new SimpleDateFormat("MM/dd");
+	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+	    majTickTime = 86400000000l;
+	}
+	numTicks = (int)((timeIntv/(double)majTickTime) * majTickRatio);
+	firstLabelTime = (beginTime/majTickTime + 1) * majTickTime;
+	majTickOffset = (int)((firstLabelTime - beginTime)/(double)timeIntv * numTicks);
+	tickOffset = (firstLabelTime - beginTime)/(double)timeIntv/majTickRatio * totalPixels;
+	tickSpacing = totalPixels/(double)numTicks;
+    }
+
+    public void  setTotalPixels(int totalPixels) {
+        this.totalPixels = totalPixels;
+        calculateTicks();
     }
     
-    /**
-       Takes the rough division interval from calculateTicks() and turns it into a working interval based on the
-       number of pixels.  Then it determines the number of major ticks, total ticks, and the various time and pixel
-       intervals between them.
-       @param divIntv a rough estimate of time in between major ticks in microseconds from calculateTicks()
-    */
-    public void divCalculateTicks(long divIntv){
-	int  maxMajTickNum = totalPixels/75;//calculates the maximum number of major ticks possible 
-	while(timeIntv / divIntv > maxMajTickNum)//adjusts the division so it fits the major tick number
-	    divIntv *= 2;
-	majTickNum = (int)(timeIntv/divIntv);
-	divInc = divIntv;
-	majTickIntv = totalPixels/(double)majTickNum;
-	if(majTickIntv/10 > 10)
-	    numTicks = majTickNum * 10;
-	else if(majTickIntv/5 > 10)
-	    numTicks = majTickNum * 5;
-	else if(majTickIntv/2 > 10)
-	    numTicks = majTickNum * 2;
-	else
-	    numTicks = majTickNum;
-	tickInc = majTickIntv/(numTicks/majTickNum);//get the tick increment in pixels
-	timeInc = divIntv/(double)(numTicks/majTickNum)*1000;//tick increment in microseconds
-	majTickRatio = numTicks/majTickNum--;
+    public void setTimes(MicroSecondDate beginTime,
+                         MicroSecondDate endTime) {
+        this.beginTime = beginTime.getMicroSecondTime();
+        this.endTime = endTime.getMicroSecondTime();
+        timeIntv = (this.endTime - this.beginTime);
+	calculateTicks();
     }
-	
+    
     /**
        @returns the long time if  75 pixels are between the major ticks, else it returns a shortened version of the time 
        @param i the current tick
     */
     public String getLabel(int i){
 	if (isLabelTick(i)) {
-	    if(majTickIntv > 75 || i == 0 || divInc > 120000){
-		MicroSecondDate date = new MicroSecondDate(beginTime.getMicroSecondTime()+(long)(i*timeInc));
-		calendar.setTime(date);
-		return longTimeFormat.format(calendar.getTime());
+	    MicroSecondDate date = new MicroSecondDate((long)(firstLabelTime + i/majTickRatio * majTickTime));
+	    calendar.setTime(date);
+	    return timeFormat.format(calendar.getTime());
 	    }
-	    else if(divInc <= 10000){
-		MicroSecondDate date = new MicroSecondDate(beginTime.getMicroSecondTime()+(long)(i*timeInc));
-		calendar.setTime(date);
-		return shortTimeFormat.format(calendar.getTime());
-	    }
-	    else{
-		MicroSecondDate date = new MicroSecondDate(beginTime.getMicroSecondTime()+(long)(i*timeInc));
-		calendar.setTime(date);
-		return mediumTimeFormat.format(calendar.getTime());
-	    }
-	}
-	else
-            return "";
+	return "";
     }
 
     /**
        @returns the location of the tick i in pixels
        @param i the current tick
     */
-    public int getPixelLocation(int i){
-	return (int)(i*tickInc);
-    }
+    public int getPixelLocation(int i){ return (int)(i*tickSpacing + tickOffset); }
 
     /**
        @returns the number of ticks
     */
-    public int getNumTicks(){	return numTicks;}
+    public int getNumTicks(){ return numTicks; }
 
     /**
        @returns if tick i is labeled
        @param i the current tick
     */
-    public boolean isLabelTick(int i){
-	 if (i%majTickRatio == 0 && (i/majTickRatio != majTickNum || totalPixels - this.getPixelLocation(i) > 40))
-	     return true;
-	 return false;
-    }
+    public boolean isLabelTick(int i){ return isMajorTick(i); }
 
     /**
        @returns if the tick i is major
        @param i the current tick
     */
     public boolean isMajorTick(int i){
-	if (i%majTickRatio == 0 && (i/majTickRatio != majTickNum || totalPixels - this.getPixelLocation(i) > 40))
+	if(i%majTickRatio - majTickOffset == 0)
 	    return true;
 	return false;
     }
-		
+
+    protected SimpleDateFormat timeFormat;
+    
+    protected Calendar calendar  = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+    protected int totalPixels;
+    
+    protected long beginTime;
+
+    protected long endTime;
+
+    protected long firstLabelTime;
+
+    protected long timeIntv;
+
+    protected long majTickTime;
+
+    protected int numTicks;
+
+    protected int majTickRatio;
+
+    protected int majTickOffset;
+    
+    protected double tickSpacing, tickOffset;
 }// TimeScaleCalc
