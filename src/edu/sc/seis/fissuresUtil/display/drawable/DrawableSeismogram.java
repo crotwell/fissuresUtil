@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -56,10 +57,11 @@ public class DrawableSeismogram implements NamedPlotter{
                      TimeEvent currentTime,
                      AmpEvent currentAmp){
         if(visible && size.width > 0 && size.height > 0){
-            canvas.setPaint(color);
             if(shape.update(currentTime.getTime(shape.getSeismogram()),
                             currentAmp.getAmp(shape.getSeismogram()),
                             size)){
+                canvas.setPaint(color);
+                canvas.setStroke(new BasicStroke(1));
                 canvas.draw(shape);
             }
         }
