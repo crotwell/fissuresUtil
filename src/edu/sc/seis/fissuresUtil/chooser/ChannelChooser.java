@@ -136,9 +136,10 @@ public class ChannelChooser{
 // 		e.printStackTrace();	
 // 	    } // end of try-catch
 	    
-
+	    MicroSecondDate before = new MicroSecondDate();
 	    allNets = netfromdc.retrieve_all();
-            System.out.println("3 retrieve_all() ");
+	    MicroSecondDate after = new MicroSecondDate();
+	    System.out.println("got "+allNets.length+" networks. "+after.subtract(before));
 
         } else if(netfound != null) {
             allNets = netfound.retrieve_all();
@@ -152,20 +153,20 @@ public class ChannelChooser{
 
 	for (int i=0; i< allNets.length; i++) {
 	    NetworkAttr attr = allNets[i].get_attributes();
-System.out.println("4 allNets[i].get_attributes() ");
+	    //System.out.println("4 allNets[i].get_attributes() ");
 
 	    NetworkId netid = attr.get_id();
-System.out.println("5 attr.get_id() ");
+	    //System.out.println("5 attr.get_id() ");
 
 	    String netCode = netid.network_code;
-System.out.println("6 netid.network_code ");
+	    //System.out.println("6 netid.network_code ");
 
 	    // store NetworkId/NetworkAccess in a Map to get latter
 	    netMap.put(netCode, allNets[i]);
-System.out.println("7 netMap.put ");
+	    //System.out.println("7 netMap.put ");
 
 	    netSet.add(netCode);
-System.out.println("8 netSet.add ");
+	    //System.out.println("8 netSet.add ");
 
 	}
 
@@ -184,7 +185,7 @@ System.out.println("8 netSet.add ");
 	MicroSecondDate before = new MicroSecondDate();
 	edu.iris.Fissures.IfNetwork.Station[] allstations = netAccess.retrieve_stations();
 	MicroSecondDate after = new MicroSecondDate();
-	System.out.println("got "+allstations.length+" stations.");
+	System.out.println("got "+allstations.length+" stations. "+after.subtract(before));
 	Set staSet = new HashSet();
 	staMap.clear();
 
@@ -246,8 +247,10 @@ System.out.println("8 netSet.add ");
 	NetworkAccess netAccess = (edu.iris.Fissures.IfNetwork.NetworkAccess) netMap.get(netCode);
 	Station station = (edu.iris.Fissures.IfNetwork.Station) staMap.get(stationCode);
 
+	MicroSecondDate before = new MicroSecondDate();
 	Channel[] allChannels = netAccess.retrieve_for_station(station.get_id());
-
+MicroSecondDate after = new MicroSecondDate();
+	System.out.println("got "+allChannels.length+" channels for "+station.get_id().station_code+". "+after.subtract(before));
 
 	sitMap.clear();
 	chanMap.clear();
@@ -265,7 +268,7 @@ System.out.println("8 netSet.add ");
 	    chanMap.put(channelCode, allChannels[i]);
 	    chanIdkey = netCode + "." + stationCode + "." + siteCode + "." + channelCode;
 	    chanIdMap.put(chanIdkey,thechannelid );
-	 
+	    System.out.println(chanIdkey);
             
 	}
 	
