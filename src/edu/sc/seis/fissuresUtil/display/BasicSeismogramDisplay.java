@@ -31,22 +31,21 @@ import java.awt.print.*;
 
 public class BasicSeismogramDisplay extends JComponent implements ConfigListener{
  
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, String[] names, 
-				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-	this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), names, parent);
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, VerticalSeismogramDisplay parent)throws IllegalArgumentException{
+	this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, String[] names, 
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
 				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-	this(seismos, tc, new RMeanAmpConfig(seismos), names, parent);
+	this(seismos, tc, new RMeanAmpConfig(seismos), parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, AmpConfig ac, String[] names, 
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, AmpConfig ac, 
 				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-	this(seismos, new BasicTimeConfig(seismos), ac, names, parent);
+	this(seismos, new BasicTimeConfig(seismos), ac, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, AmpConfig ac, String[] names, 
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, AmpConfig ac, 
 				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
 	if(seismos.length == 0){
 	    throw new IllegalArgumentException("The array of seismograms given to a basic seismogram display must not be of length 0.");
@@ -63,7 +62,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	registrar = new Registrar(seismos, tc, ac);
 	this.parent = parent;
 	registrar.addListener(this);
-	add(seismos, names);
+	add(seismos);
 	setLayout(new OverlayLayout(this));
 	addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -92,16 +91,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	add(plotPainter);
     }
 
-    public void add(DataSetSeismogram[] seismos, String[] names){
+    public void add(DataSetSeismogram[] seismos){
 	registrar.add(seismos);
 	for(int i = 0; i < seismos.length; i++){
 	    if(seismos[i] != null){
 		seismograms.add(seismos[i]);	
 		SeismogramShape newPlotter;
 		if (autoColor) {
-		    newPlotter = new SeismogramShape(seismos[i], seisColors[seisCount%seisColors.length], names[i]);
+		    newPlotter = new SeismogramShape(seismos[i], seisColors[seisCount%seisColors.length]);
 		}else {
-		    newPlotter = new SeismogramShape(seismos[i], Color.blue, names[i]);
+		    newPlotter = new SeismogramShape(seismos[i], Color.blue);
 		} // end of else
 		if(parent != null){
 		    newPlotter.setVisibility(parent.getOriginalVisibility());
@@ -127,6 +126,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public java.util.List getSeismogramList(){ return seismograms; }
   
     public void addFlags(Arrival[] arrivals) {
+	this.arrivals = arrivals;
 	try{
 	    MicroSecondDate originTime = new MicroSecondDate(((XMLDataSet)((DataSetSeismogram)seismograms.getFirst()).getDataSet()).
 							     getEvent().get_preferred_origin().origin_time);
@@ -142,12 +142,17 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	repaint();
     }
 
+    public Arrival[] getArrivals(){
+	return arrivals;
+    }
+
     public void addCurrentTimeFlag(){
 	plotters.addLast(new CurrentTimeFlagPlotter());
 	flagCount++;
     }
 
     public void removeAllFlags(){
+	arrivals = null;
 	plotters.subList(filterCount + seisCount, plotters.size()).clear();
 	flagCount = 0;
 	repaint();
@@ -482,6 +487,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     private DataSetSeismogram[] seismogramArray;
 
     private String[] seismogramNames;
+
+    private Arrival[] arrivals;
     
     private static Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
 

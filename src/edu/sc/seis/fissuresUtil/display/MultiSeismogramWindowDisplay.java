@@ -35,19 +35,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     }
     
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-	return addDisplay(dss, DisplayUtils.getSeismogramNames(dss));
-    }
-
-    /**
-     * creates a new BSD with an individual RMeanAmpConfig and the global time registrar for
-     * BSDs in this VSD and adds it to the the VSD
-     *
-     * @param dss the seismograms for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, String[] names){
-	return addDisplay(dss, globalRegistrar, new RMeanAmpConfig(dss), names);
+	return addDisplay(dss, globalRegistrar, new RMeanAmpConfig(dss));
     }
 
     /**
@@ -59,8 +47,8 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @param name the BSD's name
      * @return the created BSD
      */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, String[] names){
-	return addDisplay(dss, tc, new RMeanAmpConfig(dss), names);
+    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc){
+	return addDisplay(dss, tc, new RMeanAmpConfig(dss));
     }
     
      /**
@@ -72,8 +60,8 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @param name the BSD's name
      * @return the created BSD
      */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac, String[] names){
-	return addDisplay(dss, globalRegistrar, ac, names);
+    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
+	return addDisplay(dss, globalRegistrar, ac);
     }
     
      /**
@@ -87,20 +75,19 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return the created BSD
      * @return a <code>BasicSeismogramDisplay</code> value
      */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac, String[] names){
+    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
 	if(tc == globalRegistrar && globalRegistrar == null){
 	    globalRegistrar = new Registrar(dss);
 	    tc = globalRegistrar;
 	}
-	if(sorter.contains(names)){
+	if(sorter.contains(dss)){
 	    return null;
 	}
 	BasicSeismogramDisplay disp = null;
 	for(int i = 0; i < dss.length; i++){
 	    DataSetSeismogram[] seismos = { dss[i] };
-	    String[] subNames = {names[i]};
-	    disp = new BasicSeismogramDisplay(seismos, tc, ac, subNames, this);
-	    int j = sorter.sort(seismos, subNames);
+	    disp = new BasicSeismogramDisplay(seismos, tc, ac, this);
+	    int j = sorter.sort(seismos);
 	    super.add(disp, j);
 	    disp.addMouseMotionListener(motionForwarder);
 	    disp.addMouseListener(mouseForwarder);

@@ -7,7 +7,9 @@ import edu.iris.Fissures.Location;
 import java.util.Date;
 
 /**
- * DataSetSeismogram.java
+ * DataSetSeismogram represents a single instance of a displayed seismogram.  
+ * There are no two identical DataSetSeismograms.  Their names and colors are
+ * all different.
  *
  *
  * Created: Mon Jul  8 11:45:41 2002
@@ -17,14 +19,30 @@ import java.util.Date;
  */
 
 public class DataSetSeismogram {
+    public DataSetSeismogram(DataSetSeismogram dss, String suffix){
+	this(dss.getSeismogram(), dss.getDataSet(), dss.getSuffix() + suffix);
+    }
+    
     public DataSetSeismogram (LocalSeismogramImpl seismo, DataSet ds){
+	this(seismo, ds, "");
+    }
+
+    public DataSetSeismogram(LocalSeismogramImpl seismo, DataSet ds, String suffix){
 	this.seis = seismo;
 	this.dataSet = ds;
+	this.suffix = suffix;
+	this.fullName = seismo.getName() + suffix;
     }
     
     public LocalSeismogramImpl getSeismogram(){ return seis; }
 
     public DataSet getDataSet(){ return dataSet; }
+
+    public String getName(){ return seis.getName(); }
+    
+    public String getSuffix(){ return suffix; }
+
+    public String toString(){ return fullName; }
 
     public boolean isFurtherThan(DataSetSeismogram seismo){
 	
@@ -52,7 +70,9 @@ public class DataSetSeismogram {
 	return true;
     }
 
-    protected DataSet dataSet;
+    private final DataSet dataSet;
 
-    protected LocalSeismogramImpl seis;
+    private final LocalSeismogramImpl seis;
+
+    private final String suffix, fullName;
 }// DataSetSeismogram
