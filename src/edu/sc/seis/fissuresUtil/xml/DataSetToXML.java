@@ -43,6 +43,10 @@ public class DataSetToXML {
     public String createFileName(DataSet dataset) {
         String filename =  dataset.getName()+".dsml";
         filename = filename.replaceAll(" ","_");
+        filename = filename.replaceAll(",","_");
+        filename = filename.replaceAll("/","_");
+        filename = filename.replaceAll(":","_");
+        filename = filename.replaceAll("\\","_");
         return filename;
     }
     
@@ -144,7 +148,7 @@ public class DataSetToXML {
             } else {
                 urlDSS = (URLDataSetSeismogram)dss;
             }
-            insert(element, urlDSS);
+            insert(element, urlDSS, directory.toURI().toURL());
         }
         
         String[] paramNames = dataset.getParameterNames();
@@ -155,11 +159,11 @@ public class DataSetToXML {
     }
     
     /** inserts a URLDataSetSeismogram element into the parent. The URLDataSetSeismogram
-     *  Element is returned.
+     *  Element is returned. URLs are made relative to the given base.
      */
-    public Element insert(Element parent, URLDataSetSeismogram urlDSS) {
+    public Element insert(Element parent, URLDataSetSeismogram urlDSS, URL base) {
         Element child = parent.getOwnerDocument().createElement("urlDataSetSeismogram");
-        urlDSS.insertInto(child);
+        urlDSS.insertInto(child, base);
         parent.appendChild(child);
         return child;
     }
@@ -170,16 +174,16 @@ public class DataSetToXML {
     public Element insertRef(Element element, DataSet dataset, File directory)
         throws IOException, ParserConfigurationException, MalformedURLException {
         File dsFile = save(dataset, directory);
-        return insertRef(element, dsFile.toURI().toURL(), dataset.getName());
+        return insertRef(element, dsFile.toURI().toURL().toString(), dataset.getName());
     }
     
     /** inserts the child dataset as a datasetRef element. The URL is assumed
      *  to be in a subdirectory relative to the current dataset.
      */
-    public Element insertRef(Element parent, URL datasetURL, String linkTitle)
+    public Element insertRef(Element parent, String datasetURL, String linkTitle)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Element element = parent.getOwnerDocument().createElement("datasetRef");
-        element.setAttribute("xlink:href", datasetURL.toString());
+        element.setAttribute("xlink:href", datasetURL);
         element.setAttribute("xlink:type", "simple");
         element.setAttribute("xlink:title", linkTitle);
         parent.appendChild(element);
