@@ -16,6 +16,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.awt.BasicStroke;
+import java.awt.Font;
 import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
@@ -309,6 +310,10 @@ public class DisplayUtils {
         return
             (currentPoint-firstPoint)/(double)(lastPoint-firstPoint)*(numValues-1);
     }
+
+    public static Font DEFAULT_FONT = new Font("Arial", Font.PLAIN, 12);
+
+    public static Font MONOSPACED_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
     public static final Stroke ONE_PIXEL_STROKE = new BasicStroke(1);
 
