@@ -102,8 +102,11 @@ public class BasicAmpConfig implements AmpConfig{
         if(dataArray == null){
             synchronized(ampData){
                 dataArray = new AmpConfigData[ampData.size()];
-                for (int i = 0; i < ampData.size(); i++){
-                    dataArray[i] = (AmpConfigData)ampData.get(i);
+                Iterator it = ampData.iterator();
+                int i = 0;
+                while(it.hasNext()){
+                    dataArray[i] = (AmpConfigData)it.next();
+                    i++;
                 }
             }
         }
