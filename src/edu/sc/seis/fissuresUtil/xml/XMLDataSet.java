@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2111 2002-07-10 15:44:41Z crotwell $
+ * @version $Id: XMLDataSet.java 2117 2002-07-10 20:34:42Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -166,13 +166,6 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return an array of names.
      */
     public String[] getParameterNames() {
-        if (parameterNameCache == null) {
-            parameterNameCache = cacheParameterNames();
-        } // end of if (parameterNameCache == null)
-        return parameterNameCache;
-    }
-
-    public String[] cacheParameterNames() {
         String[] params = getAllAsStrings("parameter/name/text()");
         String[] paramRefs = getAllAsStrings("parameterRef/text()");
         String[] all = new String[params.length+paramRefs.length];
@@ -200,13 +193,15 @@ public class XMLDataSet implements DataSet, Serializable {
 	
         NodeList nList = evalNodeList(config, 
                                       "parameter[name/text()="+
-                                      dquote+name+dquote+"]");
+                                      dquote+name+dquote+"]../");
         if (nList != null && nList.getLength() != 0) {
+	    System.out.println("getting the parameter");
             Node n = nList.item(0); 
             if (n instanceof Element) {
-		System.out.println("THe tag name is "+((Element)n).getTagName());
-                parameterCache.put(name, n);
-                return (Element)n;
+		return XMLParameter.getParameter((Element)n);
+		//System.out.println("THe tag name is "+((Element)n).getTagName());
+		// parameterCache.put(name, n);
+		//                return (Element)n;
             }
         }
 
@@ -294,10 +289,7 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return a <code>String[]</code> id
      */
     public String[] getDataSetIds() {
-        if (dataSetIdCache == null) {
-            dataSetIdCache = getAllAsStrings("*/@datasetid");
-        } // end of if (dataSetIdCache == null)
-        return dataSetIdCache;
+        return getAllAsStrings("*/@datasetid");
     }
 
     /**
@@ -340,7 +332,6 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public void addDataSet(edu.sc.seis.fissuresUtil.xml.DataSet dataset,
                            AuditInfo[] audit) {
-        dataSetIdCache = null;
         if (dataset instanceof XMLDataSet) {
             XMLDataSet xds = (XMLDataSet)dataset;
             Element element = xds.getElement();
@@ -376,7 +367,6 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public DataSet createChildDataSet(String id, String name, String owner,
                                       AuditInfo[] audit) {
-        dataSetIdCache = null;
         XMLDataSet dataset = new XMLDataSet(docBuilder, base, id, name, owner);
         addDataSet(dataset, audit);
         return dataset;
@@ -432,14 +422,6 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return the names.
      */
     public String[] getSeismogramNames() {
-        if (seismogramNameCache == null) {
-            seismogramNameCache = cacheSeismogramNames();
-        } // end of if (seismogramNameCache == null)
-        
-        return seismogramNameCache;
-    }
-
-    protected String[] cacheSeismogramNames() {
 	String[] names = getAllAsStrings("localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
 					 "]"+"/value/text()");
         //String[] names = getAllAsStrings("SacSeismogram/name/text()");
@@ -602,7 +584,17 @@ public class XMLDataSet implements DataSet, Serializable {
                     SacTimeSeries sac = new SacTimeSeries();
                     sac.read(dis);
                     LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
-		    
+		    //get the Seismogram Attributes from the xml .. only the data must 
+		    // must be obtained fromt the SAC.
+		    /*SeismogramAttr[] seismogramAttributes = getSeismogramAttrs();
+		    for(int counter = 0; counter < seismogramAttributes.length; counter++) {
+			
+			if(ChannelIdUtil.toStringNoDates(((SeismogramAttrImpl)seismogramAttributes[counter]).getChannelID()).equals(name)) {
+			    logger.debug("************* IN XML DATASET changing the SeismogramAttr to be from the xml ");
+			    seis.setAttributes(seismogramAttributes[counter]);
+			    break;
+			}
+			}*/
                     NodeList propList = evalNodeList(e, "property");
                     int numDSProps = 0;
                     if (propList != null && propList.getLength() != 0) {
@@ -739,7 +731,7 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public void addSeismogram(LocalSeismogramImpl seis,
                               AuditInfo[] audit) {
-        seismogramNameCache = null;
+
         // Note this does not set the xlink, as the seis has not been saved anywhere yet.
 
         Document doc = config.getOwnerDocument();
@@ -799,8 +791,6 @@ public class XMLDataSet implements DataSet, Serializable {
                                  Property[] props, 
                                  ParameterRef[] parm_ids,
                                  AuditInfo[] audit) {
-        seismogramNameCache = null;
-
         String baseStr = base.toString();
         String seisStr = seisURL.toString();
         if (seisStr.startsWith(baseStr)) {
@@ -880,8 +870,10 @@ public class XMLDataSet implements DataSet, Serializable {
 
     
     public edu.iris.Fissures.IfNetwork.Channel getChannel(ChannelId channelId) {
-
+	System.out.println("-------- "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
+	
 	Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
+	
 	return (edu.iris.Fissures.IfNetwork.Channel)obj;
     }
 
@@ -1008,22 +1000,17 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     protected HashMap dataSetCache = new HashMap();
 
-    protected String[] dataSetIdCache;
-
     /**
      * Describe variable <code>seismogramCache</code> here.
      *
      */
     protected HashMap seismogramCache = new HashMap();
 
-    protected String[] seismogramNameCache = null;
     /**
      * Describe variable <code>parameterCache</code> here.
      *
      */
     protected HashMap parameterCache = new HashMap();
-
-    protected String[] parameterNameCache;
 
     private static final String dquote = ""+'"';
     private static final String xlinkNS = "http://www.w3.org/1999/xlink";
