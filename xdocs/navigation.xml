@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<project name="The Global Earthquake Explorer"
-	 href="http://www.seis.sc.edu/software/gee/">
+<project name="FissuresUtil"
+	 href="http://www.seis.sc.edu/software/fissuresUtil/">
 
   <title>Fissures Util</title>
 <logo href="/images/fissures_header.gif">The FISSURES Project</logo>
@@ -8,7 +8,7 @@
   <body>
     <menu name="Essentials">
       <item name="Front Page"            href="/index.html"/>
-      <item name="News &amp; Status"     href="/news.html"/>
+      <item name="News and Status"     href="/news.html"/>
       <item name="Bugs and Problems"          href="/bugs.html"/>
     </menu>
 
