@@ -4,6 +4,7 @@ import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import org.apache.log4j.Logger;
 
 /**
  * MultiSeismogramWindowDisplay displays every seismogram added to it
@@ -99,5 +100,8 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
 
     private SeismogramSorter sorter;
     private SoundPlay soundPlay;
+
+    private static Logger logger = Logger.getLogger(MultiSeismogramWindowDisplay.class);
+
 }// MultiSeismogramWindowDisplay
 
