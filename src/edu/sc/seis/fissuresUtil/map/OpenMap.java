@@ -9,7 +9,7 @@ package edu.sc.seis.fissuresUtil.map;
 import com.bbn.openmap.*;
 
 import com.bbn.openmap.event.MapMouseMode;
-import com.bbn.openmap.layer.EarthquakeLayer;
+import com.bbn.openmap.layer.GraticuleLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
@@ -77,6 +77,16 @@ public class OpenMap extends OpenMapComponent{
                 lh.addLayer(dl);
                 etm.addEventDataListener(dl);
             }
+
+            GraticuleLayer gl = new GraticuleLayer();
+            Properties graticuleLayerProps = gl.getProperties(new Properties());
+            graticuleLayerProps.setProperty("10DegreeColor", "FF888888");
+            gl.setProperties(graticuleLayerProps);
+
+            gl.setShowRuler(true);
+
+            mapHandler.add(gl);
+            lh.addLayer(gl);
 
             // Create a ShapeLayer to show world political boundaries.
             ShapeLayer shapeLayer = new ShapeLayer();
