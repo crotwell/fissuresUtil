@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project>
     <pomVersion>3</pomVersion>
-    <id>fissuresUtil</id>
+    <artifactId>fissuresUtil</artifactId>
     <name>fissuresUtil</name>
     <groupId>fissuresUtil</groupId>
     <currentVersion>1.0.9beta</currentVersion>
@@ -41,8 +40,8 @@
             <email>crotwell@seis.sc.edu</email>
             <organization>University of South Carolina</organization>
             <roles>
-                <role>Module Maintainer</role>
                 <role>Java Developer</role>
+                <role>Module Maintainer</role>
             </roles>
         </developer>
         <developer>
@@ -100,97 +99,131 @@
             <artifactId>jdom</artifactId>
             <version>b9</version>
             <url>http://www.jdom.org</url>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>mapData</groupId>
             <artifactId>etopo10</artifactId>
             <jar>etopo10.jar</jar>
+            <properties/>
         </dependency>
         <dependency>
-            <id>junit-addons</id>
+            <groupId>junit-addons</groupId>
+            <artifactId>junit-addons</artifactId>
             <version>1.3</version>
+            <properties/>
         </dependency>
         <dependency>
-            <!-- hopefully temporary JAI support -->
-            <id>jai_core</id>
+            <groupId>jai_core</groupId>
+            <artifactId>jai_core</artifactId>
             <version>1.0</version>
             <jar>jai_core.jar</jar>
+            <properties/>
         </dependency>
-        <!-- hopefully temporary JAI support -->
         <dependency>
-            <id>jai_codec</id>
+            <groupId>jai_codec</groupId>
+            <artifactId>jai_codec</artifactId>
             <version>1.0</version>
             <jar>jai_codec.jar</jar>
+            <properties/>
         </dependency>
-        <!-- hopefully temporary Java3D support -->
         <dependency>
-            <id>j3dcore</id>
+            <groupId>j3dcore</groupId>
+            <artifactId>j3dcore</artifactId>
             <version>1.0</version>
             <jar>j3dcore.jar</jar>
+            <properties/>
         </dependency>
-        <!-- hopefully temporary Java3D support -->
         <dependency>
-            <id>j3dutils</id>
+            <groupId>j3dutils</groupId>
+            <artifactId>j3dutils</artifactId>
             <version>1.0</version>
             <jar>j3dutils.jar</jar>
+            <properties/>
         </dependency>
-        <!-- hopefully temporary Java3D support -->
         <dependency>
-            <id>vecmath</id>
+            <groupId>vecmath</groupId>
+            <artifactId>vecmath</artifactId>
             <version>1.0</version>
             <jar>vecmath.jar</jar>
+            <properties/>
         </dependency>
         <dependency>
-            <id>hsqldb</id>
-            <version>1.7.2-rc6d</version>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>1.7.2</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>javamail</id>
+            <groupId>javamail</groupId>
+            <artifactId>javamail</artifactId>
             <version>1.3.1</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>activation</id>
+            <groupId>activation</groupId>
+            <artifactId>activation</artifactId>
             <version>1.0.2</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>fissuresImpl</id>
+            <groupId>fissuresImpl</groupId>
+            <artifactId>fissuresImpl</artifactId>
             <version>1.1.7beta</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>fissuresIDL</id>
+            <groupId>fissuresIDL</groupId>
+            <artifactId>fissuresIDL</artifactId>
             <version>1.0</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>SeedCodec</id>
+            <groupId>SeedCodec</groupId>
+            <artifactId>SeedCodec</artifactId>
             <version>1.0beta2</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>TauP</id>
+            <groupId>TauP</groupId>
+            <artifactId>TauP</artifactId>
             <version>1.1.5beta</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>xerces</id>
-            <version>2.4.0</version>
+            <groupId>xerces</groupId>
+            <artifactId>xerces</artifactId>
+            <version>2.6.2</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>xml-apis</id>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
             <version>1.0.b2</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>xalan</id>
-            <version>2.5.1</version>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.6.0</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>log4j</id>
-            <version>1.2.6</version>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.8</version>
+            <properties/>
         </dependency>
         <dependency>
-            <id>openmap</id>
+            <groupId>openmap</groupId>
+            <artifactId>openmap</artifactId>
             <version>4.6</version>
             <url>openmap.bbn.com</url>
+            <properties/>
         </dependency>
         <dependency>
-            <id>itext</id>
+            <groupId>itext</groupId>
+            <artifactId>itext</artifactId>
             <version>0.99</version>
             <properties>
                 <jnlp.jar>true</jnlp.jar>
@@ -201,59 +234,68 @@
             <artifactId>JacORB</artifactId>
             <version>2.1</version>
             <url>http://www.jacorb.org</url>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>JacORB</groupId>
             <artifactId>idl</artifactId>
             <version>2.1</version>
             <url>http://www.jacorb.org</url>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>JacORB</groupId>
             <artifactId>antlr</artifactId>
             <version>2.7.2</version>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>JacORB</groupId>
             <artifactId>avalon-framework</artifactId>
             <version>4.1.5</version>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>JacORB</groupId>
             <artifactId>concurrent</artifactId>
             <version>1.3.2</version>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>JacORB</groupId>
             <artifactId>logkit</artifactId>
             <version>1.2</version>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>stax</groupId>
             <artifactId>jax-qname</artifactId>
             <version>1.0</version>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>stax</groupId>
             <artifactId>jsr173_api</artifactId>
             <version>1.0</version>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>stax</groupId>
             <artifactId>jsr173_ri</artifactId>
             <version>1.0</version>
+            <properties/>
         </dependency>
         <dependency>
             <groupId>stax</groupId>
             <artifactId>namespace</artifactId>
             <version>1.0</version>
+            <properties/>
         </dependency>
     </dependencies>
     <build>
         <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>
         <sourceDirectory>src</sourceDirectory>
         <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-        <!-- Unit test cases -->
         <unitTest>
             <includes>
                 <include>edu/**/*Test.java</include>
@@ -265,6 +307,7 @@
                     <includes>
                         <include>*.props</include>
                     </includes>
+                    <filtering>false</filtering>
                 </resource>
                 <resource>
                     <directory>tests/unit/edu/sc/seis/fissuresUtil/bag</directory>
@@ -272,6 +315,7 @@
                     <includes>
                         <include>03.141.18.40.32.0551.6.m</include>
                     </includes>
+                    <filtering>false</filtering>
                 </resource>
             </resources>
         </unitTest>
@@ -282,6 +326,7 @@
                 <includes>
                     <include>**/*.props</include>
                 </includes>
+                <filtering>false</filtering>
             </resource>
             <resource>
                 <directory>src/edu/sc/seis/fissuresUtil/chooser</directory>
@@ -289,6 +334,7 @@
                 <includes>
                     <include>ChannelChooser.properties</include>
                 </includes>
+                <filtering>false</filtering>
             </resource>
             <resource>
                 <directory>src/edu/sc/seis/fissuresUtil/data</directory>
@@ -296,6 +342,7 @@
                 <includes>
                     <include>**</include>
                 </includes>
+                <filtering>false</filtering>
             </resource>
             <resource>
                 <directory>src/edu/sc/seis/fissuresUtil/display</directory>
@@ -303,6 +350,7 @@
                 <includes>
                     <include>*.prop</include>
                 </includes>
+                <filtering>false</filtering>
             </resource>
         </resources>
     </build>
@@ -317,10 +365,8 @@
         <report>maven-junit-report-plugin</report>
         <report>maven-jxr-plugin</report>
         <report>maven-license-plugin</report>
-        <!--
-     <report>maven-linkcheck-plugin</report>
--->
         <report>maven-pmd-plugin</report>
         <report>maven-tasklist-plugin</report>
     </reports>
+    <properties/>
 </project>
