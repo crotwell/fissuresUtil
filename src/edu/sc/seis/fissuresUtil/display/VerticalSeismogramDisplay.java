@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display;
 import javax.swing.*;
 
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -10,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -320,7 +322,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
      * @param time the new label time
      * @param amp the new label amp
      */
-    public void setLabels(MicroSecondDate newTime, double newAmp){
+    public void setLabels(MicroSecondDate newTime, QuantityImpl newAmp){
         calendar.setTime(newTime);
         if(output.format(calendar.getTime()).length() == 21)
             time.setText("Time: " + output.format(calendar.getTime()) + "00");
@@ -328,24 +330,14 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
             time.setText("Time: " + output.format(calendar.getTime()) + "0");
         else
             time.setText("Time: " + output.format(calendar.getTime()));
-        if(newAmp < 0)
-            if(Math.abs(newAmp) < 10)
-                amp.setText(" Amp:-000" + Math.abs(Math.round(newAmp)));
-            else if(Math.abs(newAmp) < 100)
-                amp.setText(" Amp:-00" + Math.abs(Math.round(newAmp)));
-            else if(Math.abs(newAmp) < 1000)
-                amp.setText(" Amp:-0" + Math.abs(Math.round(newAmp)));
-            else
-                amp.setText(" Amp:-" + Math.abs(Math.round(newAmp)));
-        else
-            if(Math.abs(newAmp) < 10)
-                amp.setText(" Amp: 000" + Math.round(newAmp));
-            else if(Math.abs(newAmp) < 100)
-                amp.setText(" Amp: 00" + Math.round(newAmp));
-            else if(Math.abs(newAmp) < 1000)
-                amp.setText(" Amp: 0" + Math.round(newAmp));
-            else
-                amp.setText(" Amp: " + Math.round(newAmp));
+        double newAmpVal = newAmp.getValue();
+        String ampString = " Amp:";
+        if(Math.abs(newAmpVal) < .001) {
+            ampString += ampFormatExp.format(newAmpVal);
+        } else {
+            ampString += ampFormat.format(newAmpVal);
+        }
+        amp.setText(ampString+" "+newAmp.getUnit());
     }
 
 
@@ -705,6 +697,10 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     public static JLabel time = new JLabel("");
 
     public static JLabel amp = new JLabel("");
+
+    public static DecimalFormat ampFormat = new DecimalFormat(" 000.00;-000.00");
+
+    public static DecimalFormat ampFormatExp = new DecimalFormat(" 0.###E0;-0.###E0");
 
     protected SimpleDateFormat output = new SimpleDateFormat("HH:mm:ss.SSS");
 
