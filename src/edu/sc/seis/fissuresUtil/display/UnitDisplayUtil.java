@@ -91,15 +91,17 @@ public class UnitDisplayUtil {
     /** calculates a new UnitRangeImpl using the response of the given seismogram.
      If seis does not have a response, then the input amp is used. */
     public static UnitRangeImpl getRealWorldUnitRange(UnitRangeImpl ur, DataSetSeismogram seismo) {
-        UnitImpl realWorldUnit = UnitImpl.COUNT;
+        UnitImpl realWorldUnit = ur.getUnit();
         // this is the constant to divide by to get real worl units (not counts)
         float sensitivity = 1.0f;
-        Object responseObj =
-            seismo.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
-        if (responseObj != null && responseObj instanceof Response) {
-            Response response = (Response)responseObj;
-            realWorldUnit = (UnitImpl)response.stages[0].input_units;
-            sensitivity = response.the_sensitivity.sensitivity_factor;
+        if(realWorldUnit.equals(UnitImpl.COUNT)){
+            Object responseObj =
+                seismo.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
+            if (responseObj != null && responseObj instanceof Response) {
+                Response response = (Response)responseObj;
+                realWorldUnit = (UnitImpl)response.stages[0].input_units;
+                sensitivity = response.the_sensitivity.sensitivity_factor;
+            }
         }
         //        logger.debug("sensitivity is "+sensitivity+" to get to "+realWorldUnit);
         UnitRangeImpl out = new UnitRangeImpl(ur.getMinValue()/sensitivity,
