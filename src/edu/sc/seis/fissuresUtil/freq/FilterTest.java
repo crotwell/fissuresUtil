@@ -53,9 +53,9 @@ public class FilterTest  {
 	    Cmplx[] fftdata = Cmplx.fft(fdata);
 	    SeisGramText localeText = new SeisGramText(null);
 	    ButterworthFilter filter = new ButterworthFilter(localeText,
-							     .01,
-							     1.0,
-							     4, ButterworthFilter.NONCAUSAL);
+							     .1,
+							     8.0,
+							     2, ButterworthFilter.TWOPASS);
 	    double dt = seis.getSampling().getPeriod().convertTo(UnitImpl.SECOND).getValue();
 	    Cmplx[] filtered = filter.apply(dt, fftdata);
 	    float[] outdata = Cmplx.fftInverse(filtered, seis.getNumPoints());

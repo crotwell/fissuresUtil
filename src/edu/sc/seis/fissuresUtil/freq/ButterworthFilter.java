@@ -48,9 +48,16 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 	private static final double TWOPI = 2.0 * Math.PI;
 
         public static final int CAUSAL = 0;
-        public static final int NONCAUSAL = 1;
+        public static final int TWOPASS = 1;
 
 	/** constructor */
+
+    public ButterworthFilter(SeisGramText localeText, 
+                             double lowFreqCorner, 
+                             double highFreqCorner, 
+			     int numPoles) {
+           this(localeText, lowFreqCorner, highFreqCorner, numPoles, CAUSAL);
+	   }
 
     public ButterworthFilter(SeisGramText localeText, 
                              double lowFreqCorner, 
@@ -288,8 +295,8 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 				cpl = Cmplx.div(Cmplx.mul(cpl, cjw), Cmplx.add(spl[j], cjw));
 			}
 			cx[i] = Cmplx.mul(cx[i], (Cmplx.mul(cph, cpl)).conjg());
-			if (filterType == NONCAUSAL) {
-			  cx[i]= Cmplx.mul(cx[i], Cmplx.exp(new Cmplx(0.,-w*dt*((npole/2)+1))));
+			if (filterType == TWOPASS) {
+			  cx[i]= Cmplx.mul(cx[i], Cmplx.mul(cph, cpl));
 			}
 			cx[npts - i] = (cx[i]).conjg();
 		}
