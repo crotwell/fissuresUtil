@@ -13,45 +13,45 @@ import edu.iris.Fissures.model.MicroSecondDate;
  */
 
 public abstract class TimeScaleMapper implements ScaleMapper {
-    
+
     public TimeScaleMapper(int totalPixels,
-			   int hintPixels,
-			   MicroSecondDate beginTime,
+                           int hintPixels,
+                           MicroSecondDate beginTime,
                            MicroSecondDate endTime) {
-	if (endTime.before(beginTime)) {
-	    throw new IllegalArgumentException("endTime must be after beginTime, "+beginTime.toString()+"  "+endTime.toString());
-	} 
-	this.totalPixels = totalPixels;
-	this.beginTime = beginTime;
-        this.endTime = endTime;
-       }
-    public TimeScaleMapper(int totalPixels,
-			   MicroSecondDate beginTime,
-                           MicroSecondDate endTime) {
-	if (endTime.before(beginTime)) {
-	    throw new IllegalArgumentException("endTime must be after beginTime, "+beginTime.toString()+"  "+endTime.toString());
-	} 
-	this.totalPixels = totalPixels;
-	this.beginTime = beginTime;
+        if (endTime.before(beginTime)) {
+            throw new IllegalArgumentException("endTime must be after beginTime, "+beginTime.toString()+"  "+endTime.toString());
+        }
+        this.totalPixels = totalPixels;
+        this.beginTime = beginTime;
         this.endTime = endTime;
     }
-     
+    public TimeScaleMapper(int totalPixels,
+                           MicroSecondDate beginTime,
+                           MicroSecondDate endTime) {
+        if (endTime.before(beginTime)) {
+            throw new IllegalArgumentException("endTime must be after beginTime, "+beginTime.toString()+"  "+endTime.toString());
+        }
+        this.totalPixels = totalPixels;
+        this.beginTime = beginTime;
+        this.endTime = endTime;
+    }
+
     public void  setTotalPixels(int totalPixels) {
         this.totalPixels = totalPixels;
         calculateTicks();
     }
-      
-   public void  setTotalPixels(int totalPixels, int hintPixels) {
+
+    public void  setTotalPixels(int totalPixels, int hintPixels) {
         this.hintPixels = hintPixels;
-	this.totalPixels = totalPixels;
+        this.totalPixels = totalPixels;
         calculateTicks();
     }
 
     public void  setHintPixels(int hintPixels) {
-        this.totalPixels = totalPixels;
+        this.hintPixels = hintPixels;
         calculateTicks();
     }
-    
+
     public void setTimes(MicroSecondDate beginTime,
                          MicroSecondDate endTime) {
         this.beginTime = beginTime;
@@ -72,11 +72,11 @@ public abstract class TimeScaleMapper implements ScaleMapper {
     }
 
     protected abstract void calculateTicks();
- 
+
     protected int totalPixels;
-    
+
     protected MicroSecondDate minTick;
-    
+
     protected MicroSecondDate beginTime;
 
     protected MicroSecondDate endTime;
@@ -88,7 +88,7 @@ public abstract class TimeScaleMapper implements ScaleMapper {
     protected double tickInc;
 
     protected int numTicks = 0;
-    
+
     protected int hintPixels;
 
 } // TimeScaleMapper
