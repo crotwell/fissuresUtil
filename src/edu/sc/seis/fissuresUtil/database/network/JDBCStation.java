@@ -296,7 +296,7 @@ public class JDBCStation extends NetworkTable {
         dbIdsToStations.clear();
     }
     
-    protected JDBCNetwork getNetTable() {
+    public JDBCNetwork getNetTable() {
         return netTable;
     }
 
