@@ -26,8 +26,11 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.awt.BasicStroke;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Stroke;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import javax.swing.JComponent;
 /**
  * DisplayUtils.java
  *
@@ -355,6 +358,18 @@ public class DisplayUtils {
             }
         }
         return true;
+    }
+
+    public static boolean inInsets(MouseEvent me){
+        JComponent comp = (JComponent)me.getComponent();
+        Insets insets = comp.getInsets();
+        if( me.getX() < insets.left  ||
+           me.getX() > comp.getSize().width - insets.right ||
+           me.getY() < insets.top ||
+           me.getY() > comp.getSize().height - insets.bottom){
+            return true;
+        }
+        return false;
     }
 
     public static final double linearInterp(long firstPoint, long lastPoint,
