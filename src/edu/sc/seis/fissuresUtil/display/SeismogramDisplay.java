@@ -10,8 +10,9 @@ import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,7 +46,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
 
     public abstract SeismogramDisplayProvider createCenter();
 
-    public void outputToPNG(String filename) throws IOException{
+    public void renderToGraphics(Graphics g, Dimension size) {
         boolean notAllHere = true;
         while(notAllHere){
             Iterator seisIt = iterator(DrawableSeismogram.class);
@@ -62,7 +63,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
             }
             notAllHere = false;
         }
-        super.outputToPNG(filename);
+        super.renderToGraphics(g, size);
     }
 
     public Color getColor(){ return null; }
@@ -73,26 +74,20 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
             Iterator it = iterator(colorGroupClass);
             while(it.hasNext()){
                 Drawable cur = (Drawable)it.next();
-                if(cur.getColor().equals(COLORS[i])){
-                    usages[i]++;
-                }
+                if(cur.getColor().equals(COLORS[i])) usages[i]++;
                 if(cur instanceof DrawableSeismogram){
                     DrawableSeismogram curSeis = (DrawableSeismogram)cur;
                     Iterator childIterator = curSeis.iterator(colorGroupClass);
                     while(childIterator.hasNext()){
                         Drawable curChild = (Drawable)childIterator.next();
-                        if(curChild.getColor().equals(COLORS[i])){
-                            usages[i]++;
-                        }
+                        if(curChild.getColor().equals(COLORS[i])) usages[i]++;
                     }
                 }
             }
         }
         for(int minUsage = 0; minUsage >= 0; minUsage++){
             for (int i = 0; i < usages.length; i++){
-                if(usages[i] == minUsage){
-                    return COLORS[i];
-                }
+                if(usages[i] == minUsage) return COLORS[i];
             }
         }
         return COLORS[i++%COLORS.length];
