@@ -26,7 +26,7 @@ import java.awt.print.*;
  * Created: Thu Jun  6 09:52:51 2002
  *
  * @author Charlie Groves
- * @version 0.1
+ *
  */
 
 public class BasicSeismogramDisplay extends JComponent implements ConfigListener{
@@ -185,13 +185,11 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public Registrar getRegistrar(){ return registrar; }
 
     public void updateAmp(AmpEvent event){
-	update++;
 	currentAmpEvent = event;
 	repaint();
     }
 
     public void updateTime(TimeEvent event){
-	update++;
 	currentTimeEvent = event;
 	repaint();
     }
@@ -201,45 +199,62 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     }
 
     public void update(ConfigEvent event){
-	update++;
 	currentTimeEvent = event.getTimeEvent();
 	currentAmpEvent = event.getAmpEvent();
 	repaint();
     }
 
-    private int update;
-
     public VerticalSeismogramDisplay getVerticalParent(){ return parent; } 
     
-    public java.util.List getAllSelections(){ 
+    public java.util.List getSelections(){ 
 	return plotters.subList(plotters.size() - selectionCount - selection3CCount, plotters.size()); 
     }
     
-    public java.util.List getSelections(){ 
+    public void removeSelection(Selection oldSelection){ 
+	if(getRegSelections().contains(oldSelection)){
+	    removeRegSelection(oldSelection);
+	}else if(get3CSelections().contains(oldSelection)){
+	    remove3CSelection(oldSelection);
+	}	
+    }
+
+    public void clearSelections(){
+	clearRegSelections();
+	clear3CSelections();
+    }
+    
+    public java.util.List getRegSelections(){ 
 	return plotters.subList(plotters.size() - selectionCount - selection3CCount, plotters.size() - selection3CCount); 
     }
 
     public void addSelection(Selection newSelection){ 
-	if(!getSelections().contains(newSelection)){
-	    getSelections().add(newSelection);
+	if(!getRegSelections().contains(newSelection)){
+	    getRegSelections().add(newSelection);
 	    selectionCount++;
 	    repaint();
 	}
-	
     }
-    
-    public void removeSelection(Selection oldSelection){ 
-	if(getSelections().remove(oldSelection)){
+    public void removeRegSelection(Selection oldSelection){
+	if(getRegSelections().remove(oldSelection)){
 	    selectionCount--; 
 	    repaint();
 	}
     }
-    
-    public void removeAllSelections(){
-	getSelections().clear();
-	selectionCount = 0;
+    public void clearRegSelections(){
+	Iterator e = getRegSelections().listIterator();
+	while(e.hasNext()){
+	    ((Selection)e.next()).removeParent(this);
+	    e.remove();
+	    selectionCount--;
+	}
+	if(selectionCount != 0){
+	    throw new RuntimeException(selectionCount + " selections left after clearing");
+	}
+	repaint();
     }
 
+
+    
     public java.util.List get3CSelections(){ 
 	return plotters.subList(plotters.size() - selection3CCount, plotters.size());
     }
@@ -259,21 +274,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	}
     }
 
-    public void clearSelections(){
-	parent.removeSelectionDisplay();
-	parent.remove3CSelectionDisplay();
-	repaint();
-    }
-    
-    public void clearRegSelections(){
-	getSelections().clear();
-	selectionCount = 0;
-	repaint();
-    }
-
     public void clear3CSelections(){
-	get3CSelections().clear();
-	selection3CCount = 0;
+	Iterator e = get3CSelections().listIterator();
+	while(e.hasNext()){
+	    ((Selection)e.next()).removeParent(this);
+	    e.remove();
+	    selection3CCount--;
+	}
+	if(selection3CCount != 0){
+	    throw new RuntimeException(selection3CCount + " component selections left after clearing");
+	}
 	repaint();
     }
 

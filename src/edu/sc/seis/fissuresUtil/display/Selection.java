@@ -4,6 +4,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.LinkedList;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -99,15 +100,28 @@ public class Selection implements TimeListener, Plotter{
 	return false; 
     }
 
+    public void remove(){
+	ListIterator e = parents.listIterator();
+	while(e.hasNext()){
+	    ((BasicSeismogramDisplay)e.next()).removeSelection(this);
+	    e.remove();
+	}
+	removeFromAllChildren();
+    }
+
+    //used only by basic seismogram display so that the removal types of both selection and bsd
+    //don't clash
     public void removeParent(BasicSeismogramDisplay disowner){ 
 	parents.remove(disowner);
-	if(parents.isEmpty()){
-	    Iterator e = displays.iterator();
-	    while(e.hasNext()){
-		((BasicSeismogramDisplay)e.next()).remove(); 
-	    }
+    }  
+
+    private void removeFromAllChildren(){
+	ListIterator e = displays.listIterator();
+	while(e.hasNext()){
+	    ((BasicSeismogramDisplay)e.next()).remove(); 
+	    e.remove();
 	}
-    }    
+    }
 
     public boolean removeChild(BasicSeismogramDisplay child){
 	return displays.remove(child);
@@ -180,7 +194,6 @@ public class Selection implements TimeListener, Plotter{
 
     private void setInterval(TimeInterval newInterval){
 	double currentInterval = latestTime.getTime().getInterval().getValue();
-	System.out.println(newInterval);
 	double scale = newInterval.getValue()/currentInterval;
 	internalRegistrar.shaleTime(0, scale);
     }
