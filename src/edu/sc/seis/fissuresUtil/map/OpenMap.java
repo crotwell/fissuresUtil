@@ -90,7 +90,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener{
                                        mapBean.DEFAULT_HEIGHT);
             //Projection proj = (Projection)mapBean.getProjection();*/
 
-            //mapBean.setBackgroundColor(WATER);
+            mapBean.setBackgroundColor(WATER);
             //mapBean.setProjection(proj);
 
             mapHandler.add(mapBean);
@@ -145,7 +145,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener{
 	            etopoProps.put("number.colors", "216");
 	            etopoProps.put("opaque", "255");
 	            etopoProps.put("view.type", "1");
-	            etopoProps.put("minute.spacing", "10");
+	            etopoProps.put("minute.spacing", "15");
 	            etopoProps.put("contrast", "5");
 	            etopoLayer.setProperties(etopoProps);
 	            etopoLayer.setVisible(true);
