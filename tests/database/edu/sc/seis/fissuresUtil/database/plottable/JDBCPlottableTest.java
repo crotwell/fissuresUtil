@@ -173,8 +173,7 @@ public class JDBCPlottableTest extends JDBCTest {
                                                               CHAN_ID);
         MicroSecondTimeRange fullRange = new MicroSecondTimeRange(startTime,
                                                                   end);
-        int[][] coords = SimplePlotUtil.makePlottable(seis, fullRange, SPD);
-        return new Plottable(coords[0], coords[1]);
+        return SimplePlotUtil.makePlottable(seis, fullRange, SPD);
     }
 
     private PlottableChunk data;
