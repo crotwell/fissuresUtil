@@ -85,7 +85,7 @@ public class UnitDisplayUtil
             realWorldUnit = (UnitImpl)response.stages[0].input_units;
             sensitivity = response.the_sensitivity.sensitivity_factor;
         }
-        logger.debug("sensitivity is "+sensitivity+" to get to "+realWorldUnit);
+//        logger.debug("sensitivity is "+sensitivity+" to get to "+realWorldUnit);
         UnitRangeImpl out = new UnitRangeImpl(ur.getMinValue()/sensitivity,
                                               ur.getMaxValue()/sensitivity,
                                               realWorldUnit);
