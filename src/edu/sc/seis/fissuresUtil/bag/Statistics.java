@@ -8,7 +8,7 @@ package edu.sc.seis.fissuresUtil.bag;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 2098 2002-07-10 02:49:00Z crotwell $
+ * @version $Id: Statistics.java 2663 2002-10-02 21:52:15Z crotwell $
  */
 
 public class Statistics  {
@@ -19,6 +19,34 @@ public class Statistics  {
 
     public Statistics(float[] fSeries) {
 	this.fSeries = fSeries;
+    }
+
+    public double min() {
+	double min=Double.MAX_VALUE;
+	if (iSeries != null) {
+	    for (int i=0; i<iSeries.length; i++) {
+		min = Math.min(min, iSeries[i]);
+	    } // end of for (int i=0; i<iSeries.length; i++)
+	} else if (fSeries != null) {
+	    for (int i=0; i<fSeries.length; i++) {
+		min = Math.min(min, fSeries[i]);
+	    } // end of for (int i=0; i<iSeries.length; i++)
+	}
+	return min;
+    }
+
+    public double max() {
+	double max=-1*Double.MAX_VALUE;
+	if (iSeries != null) {
+	    for (int i=0; i<iSeries.length; i++) {
+		max = Math.max(max, iSeries[i]);
+	    } // end of for (int i=0; i<iSeries.length; i++)
+	} else if (fSeries != null) {
+	    for (int i=0; i<fSeries.length; i++) {
+		max = Math.max(max, fSeries[i]);
+	    } // end of for (int i=0; i<iSeries.length; i++)
+	}
+	return max;
     }
 
     public double mean() {
@@ -140,6 +168,34 @@ public class Statistics  {
 	    return fSeries.length;
 	}
 	return 0;
+    }
+
+    /** Creates a histogram of the values. Each value is added to the bin
+	Math.floor((value-start)/width) and the returned int array has
+	length number
+    */
+    public int[] histogram(double start, double width, int number) {
+	int[] histo = new int[number];
+	int bin;
+	if (iSeries != null) {
+	    for (int i=0; i< iSeries.length; i++) {
+		bin = (int)Math.floor((iSeries[i]-start)/width);
+		if (bin >= 0 && bin < number) {
+		    histo[bin]++;
+		} // end of if (bin >= 0 && bin < number)
+	    } // end of for (int i=0; i< iSeries.length; i++)
+	    return histo;	    
+	}
+	if (fSeries != null) {
+	    for (int i=0; i< fSeries.length; i++) {
+		bin = (int)Math.floor((fSeries[i]-start)/width);
+		if (bin >= 0 && bin < number) {
+		    histo[bin]++;
+		} // end of if (bin >= 0 && bin < number)
+	    } // end of for (int i=0; i< iSeries.length; i++)
+	    return histo;	    
+	}
+	return new int[0];
     }
 
     protected double binarySum(int start, int finish) {
