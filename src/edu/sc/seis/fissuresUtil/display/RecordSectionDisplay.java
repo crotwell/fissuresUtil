@@ -224,7 +224,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 Dimension drawSize = new Dimension(size.width, drawHeight);
                 DrawableSeismogram cur = (DrawableSeismogram)dssPlotter.get(current.getSeis());
                 cur.draw(g2, drawSize, curTimeEvent, curAmpEvent);
-                cur.drawName(g2, 0, drawHeight);
+                cur.drawName(g2, 0, drawHeight/2);
             }
             g2.translate(-insets.left, -curYPos - insets.top);
             g2.setColor(Color.BLACK);
