@@ -35,12 +35,12 @@ public class UnitDisplayUtil {
         if (inRange.getUnit().isConvertableTo(UnitImpl.METER_PER_SECOND)) {
             // velocity
             inRange = inRange.convertTo(UnitImpl.METER_PER_SECOND);
-            if (Math.abs(inRange.getMinValue()) < .00001 &&
-                Math.abs(inRange.getMaxValue()) < .00001) {
+            if (Math.abs(inRange.getMinValue()) < .000001 &&
+                Math.abs(inRange.getMaxValue()) < .000001) {
                 // use micron/sec
                 outRange = inRange.convertTo(UnitImpl.NANOMETER_PER_SECOND);
-            } else if (Math.abs(inRange.getMinValue()) < .01 &&
-                       Math.abs(inRange.getMaxValue()) < .01) {
+            } else if (Math.abs(inRange.getMinValue()) < .001 &&
+                       Math.abs(inRange.getMaxValue()) < .001) {
                 // use micron/sec
                 outRange = inRange.convertTo(UnitImpl.MICRON_PER_SECOND);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
@@ -51,12 +51,12 @@ public class UnitDisplayUtil {
         } else if (inRange.getUnit().isConvertableTo(UnitImpl.METER)) {
             // displacement
             inRange = inRange.convertTo(UnitImpl.METER);
-            if (Math.abs(inRange.getMinValue()) < .00001 &&
-                Math.abs(inRange.getMaxValue()) < .00001) {
+            if (Math.abs(inRange.getMinValue()) < .000001 &&
+                Math.abs(inRange.getMaxValue()) < .000001) {
                 // use nanometer
                 outRange = inRange.convertTo(UnitImpl.NANOMETER);
-            } else if (Math.abs(inRange.getMinValue()) < .01 &&
-                       Math.abs(inRange.getMaxValue()) < .01) {
+            } else if (Math.abs(inRange.getMinValue()) < .001 &&
+                       Math.abs(inRange.getMaxValue()) < .001) {
                 // use micron
                 outRange = inRange.convertTo(UnitImpl.MICRON);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
@@ -67,18 +67,36 @@ public class UnitDisplayUtil {
         } else if (inRange.getUnit().isConvertableTo(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
             //acceleration
             inRange = inRange.convertTo(UnitImpl.METER_PER_SECOND_PER_SECOND);
-            if (Math.abs(inRange.getMinValue()) < .00001 &&
-                Math.abs(inRange.getMaxValue()) < .00001) {
+            if (Math.abs(inRange.getMinValue()) < .000001 &&
+                Math.abs(inRange.getMaxValue()) < .000001) {
                 // use nanometer/sec/sec
                 outRange = inRange.convertTo(UnitImpl.NANOMETER_PER_SECOND_PER_SECOND);
-            } else if (Math.abs(inRange.getMinValue()) < .01 &&
-                       Math.abs(inRange.getMaxValue()) < .01) {
+            } else if (Math.abs(inRange.getMinValue()) < .001 &&
+                       Math.abs(inRange.getMaxValue()) < .001) {
                 // use micron/sec/sec
                 outRange = inRange.convertTo(UnitImpl.MICROMETER_PER_SECOND_PER_SECOND);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
                        Math.abs(inRange.getMaxValue()) < 1) {
                 // use mm/sec/sec
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER_PER_SECOND_PER_SECOND);
+            }
+        }  else if (inRange.getUnit().isConvertableTo(UnitImpl.COUNT)) {
+            //acceleration
+            inRange = inRange.convertTo(UnitImpl.COUNT);
+            if (Math.abs(inRange.getMinValue()) < .001 &&
+                Math.abs(inRange.getMaxValue()) < .001) {
+                outRange = inRange.convertTo(UnitImpl.MICROCOUNT);
+            } else if (Math.abs(inRange.getMinValue()) < 1 &&
+                       Math.abs(inRange.getMaxValue()) < 1) {
+                outRange = inRange.convertTo(UnitImpl.MILLICOUNT);
+            } else if (Math.abs(inRange.getMinValue()) < 1000 &&
+                       Math.abs(inRange.getMaxValue()) < 1000) {
+                outRange = inRange.convertTo(UnitImpl.COUNT);
+            } else if (Math.abs(inRange.getMinValue()) < 1000000 &&
+                       Math.abs(inRange.getMaxValue()) < 1000000) {
+                outRange = inRange.convertTo(UnitImpl.KILOCOUNT);
+            } else {
+                outRange = inRange.convertTo(UnitImpl.MEGACOUNT);
             }
         } else {
             //            logger.debug("No case, using amp range of "+outRange.getMinValue()+" to "
