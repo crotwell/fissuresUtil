@@ -262,7 +262,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	    
 	} catch(Exception e) {
 	    
-	    e.printStackTrace();
+	    e.printStackTrace();//strack trace
 	}
 	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
