@@ -3,13 +3,12 @@ package edu.sc.seis.fissuresUtil.database.event;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import junit.framework.TestCase;
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.JDBCTest;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockMagnitude;
-public class JDBCMagnitudeTest extends TestCase {
-    public JDBCMagnitudeTest(String testname) { super(testname); }
+public class JDBCMagnitudeTest extends JDBCTest {
 
     protected void setUp() throws SQLException {
         Connection conn = ConnMgr.createConnection();

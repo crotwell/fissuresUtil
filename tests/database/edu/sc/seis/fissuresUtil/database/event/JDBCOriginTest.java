@@ -2,19 +2,18 @@ package edu.sc.seis.fissuresUtil.database.event;
 
 
 import java.sql.SQLException;
-import junit.framework.TestCase;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.JDBCTest;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockOrigin;
 
-public class JDBCOriginTest extends TestCase {
-    public JDBCOriginTest(String testname) throws SQLException{
-        super(testname);
+public class JDBCOriginTest extends JDBCTest {
+    public void setUp()throws SQLException{
         originTable = new JDBCOrigin(ConnMgr.createConnection());
     }
     
