@@ -37,8 +37,27 @@ public class DataCenterThread implements Runnable{
         if(job == null)
             job = new RetrievalJob();
     }
-    
+
+    /**
+     * Sets max number of times to retry on corba System exceptions
+     *
+     * @param    RetryNum            an int
+     */
+    public void setRetryNum(int retryNum) {
+        this.retryNum = retryNum;
+    }
+
+    /**
+     * Returns max number of times to retry on corba System exceptions
+     *
+     * @return    an int
+     */
+    public int getRetryNum() {
+        return retryNum;
+    }
+
     public void run() {
+        int numFailsAllowed = retryNum;
         JobTracker.getTracker().add(job);
         job.incrementRetrievers();
         //TODO use array of rf in retrieve call
@@ -67,13 +86,19 @@ public class DataCenterThread implements Runnable{
                     continue;
                 }
             } catch(org.omg.CORBA.SystemException fe) {
-                synchronized(initiators){
-                    failed = true;
-                    Iterator it = initiators.iterator();
-                    while(it.hasNext()){
-                        a_client.error(((SeisDataChangeListener)it.next()), fe);
+                numFailsAllowed--;
+                if (numFailsAllowed <= 0) {
+                    synchronized(initiators){
+                        failed = true;
+                        Iterator it = initiators.iterator();
+                        while(it.hasNext()){
+                            a_client.error(((SeisDataChangeListener)it.next()), fe);
+                        }
+                        continue;
                     }
-                    continue;
+                } else {
+                    // try it again
+                    counter--;
                 }
             }
         }
@@ -89,23 +114,25 @@ public class DataCenterThread implements Runnable{
         }
         job.decrementRetrievers();
     }
-    
+
+    int retryNum = 3;
+
     private class RetrievalJob extends AbstractJob{
         public RetrievalJob(){
             super("Data Retriever");
             setFinished();
         }
-        
+
         private synchronized void incrementWaiters(){
             setFinished(false);
             setStatus(retrievers + " retrieving data " + ++waiters + " waiting to retreive");
         }
-        
+
         private synchronized void incrementRetrievers(){
             setFinished(false);
             setStatus(++retrievers + " retrieving data " + --waiters + " waiting to retrieve");
         }
-        
+
         private synchronized void decrementRetrievers(){
             setStatus(--retrievers + " retrieving data " + waiters + " waiting to retrieve");
             if(retrievers == 0 && waiters == 0)
@@ -113,18 +140,18 @@ public class DataCenterThread implements Runnable{
             else
                 setFinished(false);
         }
-        
+
         private int retrievers = 0, waiters = 0;
-        
+
         public void run() {}
     }
-    
+
     public static void incrementWaiters(){
         job.incrementWaiters();
     }
-    
+
     private static RetrievalJob job;
-    
+
     public boolean getData(SeisDataChangeListener listener,
                            RequestFilter[] requestFilters){
         for (int i = 0; i < requestFilters.length; i++){
@@ -154,7 +181,7 @@ public class DataCenterThread implements Runnable{
         }
         return false;
     }
-    
+
     private LocalSeismogramImpl[] castToLocalSeismogramImplArray(LocalSeismogram[] seismos) {
         LocalSeismogramImpl[] rtnValues = new LocalSeismogramImpl[seismos.length];
         for(int counter = 0; counter < seismos.length; counter++) {
@@ -162,20 +189,20 @@ public class DataCenterThread implements Runnable{
         }
         return rtnValues;
     }
-    
+
     private SoftReference seisRef  = new SoftReference(null);
-    
+
     private RequestFilter[] requestFilters;
-    
+
     private LocalDataCenterCallBack a_client;
-    
+
     private DataCenterOperations dbDataCenter;
-    
+
     private Set initiators = Collections.synchronizedSet(new HashSet());
-    
+
     private static Category logger = Category.getInstance(DataCenterThread.class.getName());
-    
+
     private boolean finished = false, failed = false;
-    
+
 }// DataCenterThread
 
