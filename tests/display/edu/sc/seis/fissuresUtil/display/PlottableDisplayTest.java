@@ -22,6 +22,7 @@ import edu.iris.Fissures.IfPlottable.UnsupportedDimension;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.database.plottable.JDBCPlottableTest;
 import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 /**
@@ -36,7 +37,7 @@ public class PlottableDisplayTest extends TestCase {
     public static void testFromServer() throws NotFound, CannotProceed,
             InvalidName, org.omg.CORBA.ORBPackage.InvalidName,
             PlottableNotAvailable, UnsupportedDimension {
-        System.setProperty("edu.sc.seis.fissuresUtil.nameServiceCorbaLoc",
+        System.setProperty(FissuresNamingService.CORBALOC_PROP,
                            "corbaloc:iiop:pooh.seis.sc.edu:6371/NameService");
         PlottableDC impl = Initializer.getNS().getPlottableDC("edu/sc/seis",
                                                               "BUDPlottable");
