@@ -35,22 +35,29 @@ public class GenericCommandExecute {
         BufferedWriter errWriter = new BufferedWriter(new OutputStreamWriter(stderr));
         StreamPump pump = new StreamPump(reader, writer, false);
         pump.setName("stdout");
+        pump.start();
         StreamPump errPump = new StreamPump(errReader, errWriter, false);
         errPump.setName("stderr");
+        errPump.start();
         StreamPump stdInPump = new StreamPump(new BufferedReader(stdin),
                                               inWriter,
                                               true);
         stdInPump.setName("stdin");
-        pump.start();
         stdInPump.start();
-        errPump.start();
         int exitVal = proc.waitFor();
         //waiting for finish of StreamPump runs
+        try {
+            pump.join();
+        } catch (InterruptedException e) {
+            // assume all is well???
+        }
         synchronized(pump) {}
         synchronized(stdInPump) {}
         synchronized(errPump) {}
         System.out.println("command returned exit value " + exitVal);
-        if(!pump.hasCompleted() || !errPump.hasCompleted()) { throw new IllegalStateException("Pumps must complete"); }
+        if(!pump.hasCompleted() || !errPump.hasCompleted()) { 
+            throw new IllegalStateException("Pumps must complete: stdout:"+pump.hasCompleted()+"  stderr:"+errPump.hasCompleted()+"  exitValue:"+exitVal);
+        }
         return exitVal;
     }
 
