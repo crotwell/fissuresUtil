@@ -84,6 +84,18 @@ public class JDBCChannelTest extends JDBCTest {
                                           otherNetChans[0].get_id()));
     }
     
+    public void testPutIdThenChannel() throws SQLException{
+        int idDbId = chanTable.put(chan.get_id());
+        int chanDbId = chanTable.put(chan);
+        assertEquals(idDbId, chanDbId);
+    }
+    
+    public void testPutChannelThenId() throws SQLException{
+        int chanDbId = chanTable.put(chan);
+        int idDbId = chanTable.put(chan.get_id());
+        assertEquals(idDbId, chanDbId);
+    }
+    
     
     private JDBCChannel chanTable;
 
