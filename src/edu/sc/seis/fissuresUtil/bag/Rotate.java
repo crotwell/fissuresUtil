@@ -15,18 +15,18 @@ import edu.iris.Fissures.Location;
  * Created: Sun Dec 15 13:43:21 2002
  *
  * @author Philip Crotwell
- * @version $Id: Rotate.java 6725 2004-01-12 03:31:06Z crotwell $
+ * @version $Id: Rotate.java 6977 2004-02-06 02:49:27Z crotwell $
  */
 public class Rotate implements LocalMotionVectorFunction {
-    
+
     public Rotate() {
-        
+
     } // Rotate constructor
-    
+
     public LocalMotionVector apply(LocalMotionVector vec) {
         VectorComponent[] data = new VectorComponent[3];
-        
-        
+
+
         return new  LocalMotionVectorImpl(vec.get_id(),
                                           vec.properties,
                                           vec.begin_time,
@@ -39,7 +39,7 @@ public class Rotate implements LocalMotionVectorFunction {
                                           vec.sample_rate_history,
                                           data);
     }
-        
+
     /** rotates the two seismograms to the great circle path radial and transverse.
      It is assumed that
      the two seismograms orientation are perpendicular to each other and
@@ -52,9 +52,9 @@ public class Rotate implements LocalMotionVectorFunction {
                                       Location evtLoc) {
         DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
                                    evtLoc.latitude, evtLoc.longitude);
-        return Rotate.rotate(x, y, (180-distAz.baz)*Math.PI/180);
+        return Rotate.rotate(x, y, -1*(180+distAz.baz)*Math.PI/180);
     }
-    
+
     /** rotates the two seismograms by the given angle. It is assumed that
      the two seismograms orientation are perpendicular to each other and
      that the sense of the rotation is from x towards y.
@@ -73,7 +73,7 @@ public class Rotate implements LocalMotionVectorFunction {
         rotate(data[0], data[1], radians);
         return data;
     }
-    
+
     /**
      * Rotates x and y by the given angle in radians. The x and y axis are
      * assumed to be perpendicular. Theta, in radians, is positive from
@@ -83,7 +83,7 @@ public class Rotate implements LocalMotionVectorFunction {
     public static void rotate(float[] x, float[] y, double radians) {
         rotate(x, y, AffineTransform.getRotateInstance(radians));
     }
-    
+
     /** Performs the rotation from the given matrix. It is assumed to be
      a pure rotation matrix (no translation) and the translation components
      of the affine transform are ignored if present. */
@@ -104,21 +104,21 @@ public class Rotate implements LocalMotionVectorFunction {
             y[i] = (float)(tempx*matrix[1] + tempy*matrix[3]);
         }
     }
-    
+
     public static void rotate(float[] x,
                               float[] y,
                               float[] z,
                               double theta,
                               double phi) {
-        
+
     }
-    
+
     public static double dtor(double degree) {
         return Math.PI*degree/180.0;
     }
-    
+
     public static double rtod(double radian) {
         return radian*180.0/Math.PI;
     }
-    
+
 } // Rotate
