@@ -140,7 +140,7 @@ useful things already done.</description>
     </dependency>
     <dependency>
       <id>hsqldb</id>
-      <version>1.7.2-rc5</version>
+      <version>1.7.2-rc6c</version>
     </dependency>
     <dependency>
       <id>javamail</id>
