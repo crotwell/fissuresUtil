@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.network.StationIdUtil;
 
 /**
  * @author groves Created on Dec 1, 2004
@@ -18,12 +20,15 @@ public class FilterNetworkAccess extends ProxyNetworkAccess {
         this.patterns = patterns;
     }
 
+    public static String getStationString(StationId s) {
+        return StationIdUtil.toStringNoDates(s);
+    }
+
     public Station[] retrieve_stations() {
         Station[] stations = net.retrieve_stations();
         List acceptableStations = new ArrayList();
         for(int i = 0; i < stations.length; i++) {
-            String netAndStaCode = stations[i].my_network.get_code() + "."
-                    + stations[i].get_code();
+            String netAndStaCode = getStationString(stations[i].get_id());
             for(int j = 0; j < patterns.length; j++) {
                 if(patterns[j].matcher(netAndStaCode).matches()) {
                     acceptableStations.add(stations[i]);
