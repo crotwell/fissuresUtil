@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3640 2003-04-07 17:59:14Z crotwell $
+ * @version $Id: XMLDataSet.java 3643 2003-04-07 18:09:08Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -138,7 +138,6 @@ public class XMLDataSet implements DataSet, Serializable{
                                                  SeismogramFileTypes.SAC,
                                                  this);
                     addDataSetSeismogram(dsstemp, new AuditInfo[0]);
-                    logger.info("Created DSS for LS, name="+dsstemp.getName());
                 }
             }
         }
