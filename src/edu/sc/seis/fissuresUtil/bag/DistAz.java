@@ -36,7 +36,7 @@ public class DistAz {
 
    public double baz;
 
-   public void calc(double stalat, double stalon, double evtlat, double evtlon){
+   public DistAz(double stalat, double stalon, double evtlat, double evtlon){
       if ((stalat == evtlat)&&(stalon == evtlon)) {
          delta = 0.0;
          az = 0.0;
@@ -148,8 +148,7 @@ c
       double evtlat = Double.valueOf(args[2]).doubleValue();
       double evtlon = Double.valueOf(args[3]).doubleValue();
 
-      DistAz distaz = new DistAz();
-      distaz.calc(stalat, stalon, evtlat, evtlon);
+      DistAz distaz = new DistAz(stalat, stalon, evtlat, evtlon);
       System.out.println("   dist="+distaz.delta+"   baz="+distaz.baz+
          "   az="+distaz.az);
    }
