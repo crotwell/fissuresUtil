@@ -6,7 +6,9 @@ import java.lang.*;
 import java.io.*;
 
 /**
- * ExceptionHandlerGUI.java
+ * Description: This class can be used to display the GUI showing the exception along with useful information. 
+ * It also shows the stackTrace. It also gives the option of saving the exception stack trace along with other
+ * useful information added by the user.
  *
  *
  * Created: Thu Jan 31 16:39:57 2002
@@ -18,12 +20,23 @@ import java.io.*;
 
 
 public class ExceptionHandlerGUI {
+    /**
+     * Creates a new <code>ExceptionHandlerGUI</code> instance.
+     *
+     * @param e an <code>Exception</code> value
+     */
     public ExceptionHandlerGUI (Exception e){
 	
 	this.exception = e;
 	
     }
 
+    /**
+     * displays a GUI showing the stackTrace in one tabbedPane and a brief description
+     * of the exception in a separate tabbed pane.
+     *
+     * @return a <code>JPanel</code> value
+     */
     public static  JPanel handleException(Exception exception) {
 	
 	JPanel mainPanel = new JPanel();
@@ -53,6 +66,8 @@ public class ExceptionHandlerGUI {
 		    getStackTrace(we.getCausalException());
 	    } // end of if (we.getCausalException() != null)
 	}
+
+	traceString += getSystemInformation();
 	traceString += getStackTrace(exception);
 
 	messageArea.setText(traceString);
@@ -70,6 +85,27 @@ public class ExceptionHandlerGUI {
 
     }
 
+    private static String getSystemInformation() {
+
+	String rtnValue = new String();
+	rtnValue += "os.name : "+System.getProperty("os.name")+"\n";
+	rtnValue += "os.version : "+System.getProperty("os.version")+"\n";
+	rtnValue += "os.arch : "+System.getProperty("os.arch")+"\n";
+	rtnValue += "java.runtime.version : "+System.getProperty("java.runtime.version")+"\n";
+	rtnValue += "java.class.version : "+System.getProperty("java.class.version")+"\n";
+	rtnValue += "java.class.path : "+System.getProperty("java.class.path")+"\n";
+	rtnValue += "user.name : "+System.getProperty("user.name")+"\n";
+	rtnValue += "user.timeZone : "+System.getProperty("user.timeZone")+"\n";
+	rtnValue += "user.region : "+System.getProperty("user.region")+"\n";
+	return rtnValue;
+    }
+
+    /**
+     * retuns the stackTrace of the exception as a string.
+     *
+     * @param e an <code>Exception</code> value
+     * @return a <code>String</code> value
+     */
     public static String getStackTrace(Exception e) {
 
 
@@ -81,5 +117,5 @@ public class ExceptionHandlerGUI {
 
     }
 
-    Exception exception;
+    private Exception exception;
 }// ExceptionHandlerGUI
