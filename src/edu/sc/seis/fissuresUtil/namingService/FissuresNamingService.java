@@ -689,7 +689,11 @@ public class FissuresNamingService {
 
     public static Class[] getAllInterfaces(Class c) {
         List interfaces = new ArrayList();
-        while(!c.equals(Object.class)) {
+        if (c.isInterface()) {
+            interfaces.add(c);
+        }
+        // check for null in case of c being an interface with no superinterface
+        while( c != null && !c.equals(Object.class) ) {
             interfaces.addAll(Arrays.asList(c.getInterfaces()));
             c = c.getSuperclass();
         }
