@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
@@ -24,13 +25,13 @@ import java.util.TimeZone;
 public class TimeScaleCalc implements ScaleMapper, TimeListener {
     /**
      @param totalPixels the width of the axis being used in pixels
-
+     
      */
     TimeScaleCalc (int totalPixels, TimeConfig tc){
         this.totalPixels = totalPixels;
         tc.addListener(this);
     }
-
+    
     public void calculateTicks(){
         if(totalPixels == 0){
             numTicks = 0;
@@ -53,7 +54,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
                 majTickTime = 500000;
                 majTickRatio = 5;
             } // end of else
-
+            
         }else if(majTickTime <= 45 * SECOND){
             majTickRatio = 10;
             borderFormat = new SimpleDateFormat("mm:ss");
@@ -107,7 +108,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
                 majTickTime = HOUR;
             }else if(majTickTime <= 2*HOUR){
                 majTickTime = 2*HOUR;
-                majTickRatio = 4;
+                    majTickRatio = 4;
             }else if(majTickTime <= 3*HOUR){
                 majTickTime = 3*HOUR;
                 majTickRatio = 6;
@@ -139,12 +140,12 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         tickOffset = (firstLabelTime - beginTime)/(double)timeIntv/majTickRatio * totalPixels;
         tickSpacing = totalPixels/numTicksDbl;
     }
-
+    
     public void  setTotalPixels(int totalPixels) {
         this.totalPixels = totalPixels;
         calculateTicks();
     }
-
+    
     /**
      * read the number of pixels allocated for this scale;
      * @return
@@ -152,7 +153,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     public int  getTotalPixels() {
         return this.totalPixels;
     }
-
+    
     public void setTimes(MicroSecondDate beginTime,
                          MicroSecondDate endTime) {
         this.beginTime = beginTime.getMicroSecondTime();
@@ -160,7 +161,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         timeIntv = (this.endTime - this.beginTime);
         calculateTicks();
     }
-
+    
     /**
      @returns the long time if  75 pixels are between the major ticks, else it returns a shortened version of the time
      @param i the current tick
@@ -173,35 +174,38 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         return "";
     }
-
+    
     public String getAxisLabel() {
+        if(relative){
+            return "Relative time";
+        }
         if(time != null && !daysInBorder){
-        Date middleDate = time.getBeginTime().add(new TimeInterval(time.getInterval().divideBy(2)));
-        calendar.setTime(middleDate);
-        return axisFormat.format(calendar.getTime()) + " (GMT)";
+            Date middleDate = time.getBeginTime().add(new TimeInterval(time.getInterval().divideBy(2)));
+            calendar.setTime(middleDate);
+            return axisFormat.format(calendar.getTime()) + " (GMT)";
         }else{
             return "Time (GMT)";
         }
     }
-
+    
     /**
      @returns the location of the tick i in pixels
      @param i the current tick
      */
     public  int getPixelLocation(int i){
         return (int)(i*tickSpacing + tickOffset); }
-
+    
     /**
      @returns the number of ticks
      */
     public  int getNumTicks(){ return numTicks; }
-
+    
     /**
      @returns if tick i is labeled
      @param i the current tick
      */
     public  boolean isLabelTick(int i){ return isMajorTick(i); }
-
+    
     /**
      @returns if the tick i is major
      @param i the current tick
@@ -212,45 +216,55 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         return false;
     }
-
+    
     public void updateTime(TimeEvent event){
         time = event.getTime();
+        if(roundTheEpoch.intersects(time))
+            relative = true;
+        else
+            relative = false;
         setTimes(event.getTime().getBeginTime(), event.getTime().getEndTime());
     }
-
+    
     private SimpleDateFormat borderFormat;
-
+    
     private boolean daysInBorder = false;
-
+    
     private MicroSecondTimeRange time;
-
+    
     private SimpleDateFormat axisFormat = new SimpleDateFormat("MM/dd/yyyy");
-
+    //Five days before the epoch to 10 after
+    public static MicroSecondTimeRange roundTheEpoch = new MicroSecondTimeRange(new MicroSecondDate(0),
+                                                                                 new TimeInterval(20, UnitImpl.DAY));
+    
+    private boolean relative = false;
+    
     private Calendar calendar  = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-
+    
     private int totalPixels;
-
+    
     private long beginTime;
-
+    
     private long endTime;
-
+    
     private long firstLabelTime;
-
+    
     private long timeIntv;
-
+    
     private long majTickTime;
-
+    
     private int numTicks;
-
+    
     private int majTickRatio;
-
+    
     private int majTickOffset;
-
+    
     private double tickSpacing, tickOffset;
-
+    
     private static final long SECOND = 1000000;
     private static final long MINUTE = 60*SECOND;
     private static final long HOUR = 60*MINUTE;
     private static final long DAY = 24*HOUR;
     private static final long WEEK = 7*DAY;
 }// TimeScaleCalc
+
