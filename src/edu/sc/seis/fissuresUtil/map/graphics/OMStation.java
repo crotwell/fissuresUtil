@@ -12,7 +12,7 @@ import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import java.awt.Color;
 
-public class OMStation extends OMPoly{
+public class OMStation extends OMPoly implements FissuresGraphic{
     public OMStation(Station stat, Layer stationLayer){
         super(stat.my_location.latitude,
               stat.my_location.longitude, xPoints, yPoints,

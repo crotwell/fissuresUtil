@@ -20,7 +20,7 @@ import edu.sc.seis.fissuresUtil.map.colorizer.event.DefaultEventColorizer;
 import java.awt.Color;
 import java.awt.Paint;
 
-public class OMEvent extends OMGraphicList{
+public class OMEvent extends OMGraphicList implements FissuresGraphic{
 	
     public OMEvent(CacheEvent eao, Layer eventLayer, MapBean mapBean) throws NoPreferredOrigin{
 		super(2);
