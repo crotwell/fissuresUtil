@@ -11,10 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.ref.SoftReference;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.imageio.ImageIO;
@@ -84,8 +81,6 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     private MouseDelegator mouseDelegator;
 
-    private List tools = new ArrayList();
-
     private Map layerStatusMap = new HashMap();
 
     private static Logger logger = Logger.getLogger(OpenMap.class);
@@ -93,30 +88,28 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
     private ShapeLayer shapeLayer;
 
     /**
-     * Creates a new openmap. Both the channel chooser and the event table model
-     * can be null. If so, channels and events just won't get drawn
+     * Creates a map with a shapelayer based on the file in fissuresUtil, a
+     * graticule layer, an empty event layer with depth based colorizationand an
+     * empty station layer
+     */
+    public OpenMap() {
+        this("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
+        setEventLayer(new EventLayer(getMapBean(), new DepthEventColorizer()));
+        setStationLayer(new StationLayer());
+    }
+
+    /**
+     * Create a map with a shape layer and a graticule
+     * 
+     * @param shapefile -
+     *            the file to be used in the shapelayer
      */
     public OpenMap(String shapefile) {
         try {
             setLayout(new BorderLayout());
             mapHandler = new MapHandler();
             mapHandler.add(this);
-            // Create a MapBean
             mapBean = getMapBean();
-            //get the projection and set its background color and center point
-            /*
-             * String projections[] =
-             * ProjectionFactory.getAvailableProjections();
-             * System.out.println("projections:"); for(int i = 0; i <
-             * projections.length; i++) { System.out.println(projections[i]); }
-             * Projection proj = (Projection)mapBean.getProjection(); proj =
-             * ProjectionFactory.makeProjection(ProjectionFactory.getProjType(projections[4]),
-             * proj); mapBean.setProjection(proj); Projection proj = new
-             * Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT,
-             * mapBean.DEFAULT_CENTER_LON), DEFAULT_SCALE,
-             * mapBean.DEFAULT_WIDTH, mapBean.DEFAULT_HEIGHT);
-             */
-            //Projection proj = (Projection)mapBean.getProjection();
             mapBean.setBackgroundColor(WATER);
             mapHandler.add(mapBean);
             // Create and add a LayerHandler to the MapHandler. The
@@ -137,8 +130,6 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             mapHandler.add(gl);
             lh.addLayer(gl, 0);
             // Create a ShapeLayer to show world political boundaries.
-            //ShapeLayer shapeLayer = new ShapeLayer();
-            //Debug.debugAll = true;
             shapeLayer = new FissuresShapeLayer();
             shapeLayer.addLayerStatusListener(this);
             //Create shape layer properties
@@ -152,21 +143,10 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             shapeLayer.setVisible(true);
             mapHandler.add(shapeLayer);
             lh.addLayer(shapeLayer);
-            // Create the directional and zoom control tool
-            //OMToolSet omts = new OMToolSet();
-            // Create an OpenMap toolbar
-            //ToolPanel toolBar = new ToolPanel();
-            //Create an OpenMap Info Line
+
             InformationDelegator infoDel = new InformationDelegator();
             infoDel.setShowLights(false);
-            //Create an OpenMap Mouse Delegator
             mouseDelegator = new MouseDelegator();
-            // Add the ToolPanel and the OMToolSet to the MapHandler. The
-            // OpenMapFrame will find the ToolPanel and attach it to the
-            // top part of its content pane, and the ToolPanel will find
-            // the OMToolSet and add it to itself.
-            //mapHandler.add(omts);
-            //mapHandler.add(toolBar);
             mapHandler.add(mouseDelegator);
             mapHandler.add(infoDel);
         } catch(MultipleSoloMapComponentException msmce) {
@@ -230,12 +210,14 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
     public void setEtopoLayer(String etopoDir) {
         setEtopoLayer(etopoDir, null);
     }
-    
+
     public void setEtopoLayer(String etopoDir, String colorMapFilename) {
         setEtopoLayer(etopoDir, colorMapFilename, 15);
     }
 
-    public void setEtopoLayer(String etopoDir, String colorMapFilename, int minuteSpacing) {
+    public void setEtopoLayer(String etopoDir,
+                              String colorMapFilename,
+                              int minuteSpacing) {
         ETOPOLayer topoLayer = null;
         try {
             if(colorMapFilename == null) {
@@ -341,7 +323,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         loc.delete();
         temp.renameTo(loc);
     }
-    
+
     public void writeMapToPNG(String filename) throws IOException {
         synchronized(OpenMap.class) {
             Projection proj = mapBean.getProjection();
@@ -360,7 +342,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
                 layers[i].renderDataForProjection(proj, g);
             }
             File loc = new File(filename);
-            File parent = loc.getParentFile();
+            File parent = loc.getAbsoluteFile().getParentFile();
             parent.mkdirs();
             File temp = File.createTempFile(loc.getName(), null, parent);
             ImageIO.write(bufImg, "png", temp);
@@ -370,20 +352,6 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
                     + " after write image to file");
         }
     }
-
-    private BufferedImage getImage() {
-        Object img = imgRef.get();
-        if(img == null) {
-            Projection proj = mapBean.getProjection();
-            img = new BufferedImage(proj.getWidth(),
-                                    proj.getHeight(),
-                                    BufferedImage.TYPE_INT_RGB);
-            imgRef = new SoftReference(img);
-        }
-        return (BufferedImage)img;
-    }
-
-    SoftReference imgRef = new SoftReference(null);
 
     public static String translateLayerStatus(int status) {
         switch(status){
@@ -401,19 +369,16 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public static void main(final String[] args) {
         BasicConfigurator.configure();
-        final OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
+        final OpenMap om = new OpenMap();
         om.setActiveMouseMode(new PanTool(om));
         if(args.length > 2) {
             om.setEtopoLayer("edu/sc/seis/mapData", args[2]);
         } else {
             om.setEtopoLayer("edu/sc/seis/mapData");
         }
-        EventLayer evLayer = new EventLayer(om.getMapBean(),
-                                            new DepthEventColorizer());
-        om.setEventLayer(evLayer);
-        evLayer.eventDataChanged(new EQDataEvent(MockEventAccessOperations.createEvents()));
-        StationLayer staLayer = new StationLayer();
-        om.setStationLayer(staLayer);
+        om.getEventLayer()
+                .eventDataChanged(new EQDataEvent(MockEventAccessOperations.createEvents()));
+        StationLayer staLayer = om.getStationLayer();
         Station sta = MockStation.createStation();
         Station other = MockStation.createOtherStation();
         staLayer.stationDataChanged(new StationDataEvent(new Station[] {sta}));
