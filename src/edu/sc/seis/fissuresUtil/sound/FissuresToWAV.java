@@ -1,25 +1,19 @@
 package edu.sc.seis.fissuresUtil.sound;
 
+import javax.sound.sampled.*;
+
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.mseed.Utility;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
 import org.apache.log4j.Category;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.SourceDataLine;
 
 /**
  * FissuresToWAV.java
@@ -36,24 +30,25 @@ public class FissuresToWAV {
 	private int chunkSize, numChannels, sampleRate, speedUp, bitsPerSample,
 		blockAlign, byteRate, subchunk2Size;
 	private Clip clip;
-	private SeismogramIterator iterator;
+	private SeismogramContainer container;
 
-    public FissuresToWAV(SeismogramIterator iterator, int speedUp) {
-		this.iterator = iterator;
-		chunkSize = 36 + 2*iterator.getNumPoints();
+    public FissuresToWAV(SeismogramContainer container, int speedUp) {
+		this.container = container;
+		this.speedUp = speedUp;
 		numChannels = 1;
 		bitsPerSample = 16;
 		blockAlign = numChannels * (bitsPerSample/8);
-		subchunk2Size = iterator.getNumPoints() * blockAlign;
-		setSpeedUp(speedUp);
     }
 
 	public void writeWAV(DataOutput out) throws IOException {
+		setInfo();
 		writeChunkData(out);
 		writeWAVData(out);
     }
 
 	public void play(){
+		setInfo();
+
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
 		try{
@@ -97,10 +92,17 @@ public class FissuresToWAV {
 		}
 	}
 
+	private void setInfo(){
+		SeismogramIterator iterator = container.getIterator();
+		chunkSize = 36 + 2*iterator.getNumPoints();
+		subchunk2Size = iterator.getNumPoints() * blockAlign;
+		sampleRate = calculateSampleRate(container.getIterator().getSampling(), speedUp);
+		byteRate = sampleRate * blockAlign;
+	}
+
 	public void setSpeedUp(int newSpeed){
 		speedUp = newSpeed;
-		sampleRate = calculateSampleRate(iterator.getSampling(), newSpeed);
-		byteRate = sampleRate * blockAlign;
+		setInfo();
 	}
 
 	private void writeChunkData(DataOutput out) throws IOException{
@@ -127,6 +129,8 @@ public class FissuresToWAV {
 	}
 
 	private void writeWAVData(DataOutput out) throws IOException{
+
+		SeismogramIterator iterator = container.getIterator();
 
 		//calculate maximum amplification factor to avoid either
 		//clipping or dead quiet
