@@ -16,39 +16,32 @@ import java.awt.event.*;
 
 public class PlottableMouseListener extends MouseAdapter implements MouseMotionListener{
     public PlottableMouseListener (PlottableDisplay plottableDisplay){
-	this.plottableDisplay = plottableDisplay;
+        this.plottableDisplay = plottableDisplay;
     }
 
     public void mouseClicked(MouseEvent me) {
         if(me.getClickCount() == 2) {
             plottableDisplay.setSelectedEventFlag(me);
-            return;
         }
     }
     public void mousePressed(MouseEvent me) {
-        
         prevx = me.getX();
         prevy = me.getY();
         plottableDisplay.setSelectedSelection(prevx, prevy);
-    } 
-
-    public void mouseReleased(MouseEvent me) {
-        
     }
-    
+
+    public void mouseReleased(MouseEvent me) { }
+
     public void mouseDragged(MouseEvent me) {
         plottableDisplay.setSelectedRectangle(prevx, prevy, me.getX(), me.getY());
     }
-    
-    public void mouseMoved(MouseEvent me) {
 
-    }
-    
-   
+    public void mouseMoved(MouseEvent me) {    }
+
     private int prevx = 0;
 
     private int prevy = -1;
-    
+
     private PlottableDisplay plottableDisplay;
-    
+
 }// PlottableMouseListener
