@@ -233,7 +233,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		}
 	    });
 	Toolkit tk = Toolkit.getDefaultToolkit();
-	particleWindow.setLocation(400 * particleDisplays, tk.getScreenSize().height);
+	if(400*particleDisplays < tk.getScreenSize().width){
+	    particleWindow.setLocation(400 * particleDisplays, tk.getScreenSize().height - 400);
+	}else{
+	    particleWindow.setLocation(tk.getScreenSize().width - 400, tk.getScreenSize().height - 400);
+	}
 	particleDisplays++;
 	particleWindow.setVisible(true);
 	}
@@ -263,7 +267,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    }
 	    selectionWindow.getContentPane().add(selectionDisplay);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
-	    selectionWindow.setLocation(tk.getScreenSize().width, tk.getScreenSize().height - selectionDisplays * 250);
+	    if((selectionDisplays + 1) * 220 < tk.getScreenSize().height){
+		selectionWindow.setLocation(tk.getScreenSize().width - 400, tk.getScreenSize().height - (selectionDisplays + 1) * 220);
+	    }else{
+		selectionWindow.setLocation(tk.getScreenSize().width - 400, 0);
+	    }
 	    selectionDisplays++;
 	    selectionWindow.setVisible(true);	
 	}else{
