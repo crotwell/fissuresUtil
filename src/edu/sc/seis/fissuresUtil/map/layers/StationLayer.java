@@ -50,9 +50,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     }
 
     public void projectionChanged(ProjectionEvent e) {
-        synchronized(omgraphics){
-            LayerProjectionUpdater.update(e, omgraphics, this);
-        }
+        LayerProjectionUpdater.update(e, omgraphics, this);
     }
 
     /*This adds each of these stations to the layer
