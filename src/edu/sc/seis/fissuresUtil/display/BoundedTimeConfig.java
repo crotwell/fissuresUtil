@@ -35,7 +35,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	    this.beginTime = ((LocalSeismogramImpl)seis).getBeginTime();
 	if(endTime == null)
 	    this.endTime = ((LocalSeismogramImpl)seis).getEndTime();
-	seismos.add(seis);
+	seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime());
 	this.updateTimeSyncListeners();
     }	
     

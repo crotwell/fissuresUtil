@@ -45,7 +45,7 @@ public class FullTimeConfig extends AbstractTimeRangeConfig{
      */
     public void addSeismogram(LocalSeismogram seis){
 	this.getTimeRange(seis);
-	seismos.add(seis);
+	seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime());
 	this.updateTimeSyncListeners();
     }	
     
@@ -54,14 +54,14 @@ public class FullTimeConfig extends AbstractTimeRangeConfig{
      *  end time, and if so, causes the time to be reset to the values now in the config.
      */
     public void removeSeismogram(LocalSeismogram seis){
-	if(seismos.contains(seis)){
+	if(seismos.containsKey(seis)){
 	    if(beginTime.getMicroSecondTime() == ((LocalSeismogramImpl)seis).getBeginTime().getMicroSecondTime())
 		beginTime = null;
 	    if(endTime.getMicroSecondTime() == ((LocalSeismogramImpl)seis).getEndTime().getMicroSecondTime())
 		endTime = null;
 	    seismos.remove(seis);
 	    if(beginTime == null || endTime == null){
-		Iterator e = seismos.iterator();
+		Iterator e = seismos.keySet().iterator();
 		while(e.hasNext())
 		    this.getTimeRange(((LocalSeismogram)e.next()));
 		this.updateTimeSyncListeners();
@@ -74,8 +74,4 @@ public class FullTimeConfig extends AbstractTimeRangeConfig{
     
     private MicroSecondDate beginTime, endTime;
 
-    protected LinkedList seismos = new LinkedList();
-    
-    protected LinkedList timeListeners = new LinkedList();
-    
 }// FullTimeConfig
