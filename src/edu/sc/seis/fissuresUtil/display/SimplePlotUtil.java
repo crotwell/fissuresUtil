@@ -428,11 +428,11 @@ public class SimplePlotUtil  {
 	width = (TimeInterval)width.multiplyBy(index);
 	return beginTime.add(width);
     }
-    public static LocalSeismogram createTestData() {
+    public static LocalSeismogramImpl createTestData() {
         return createTestData("Fake Data");
     }
 
-    public static LocalSeismogram createTestData(String name) {
+    public static LocalSeismogramImpl createTestData(String name) {
         int[] dataBits = new int[100];
         double tmpDouble;
         for (int i=0; i<dataBits.length; i++) {
@@ -447,7 +447,7 @@ public class SimplePlotUtil  {
         return createTestData(name, dataBits);
     }
 
-    public static LocalSeismogram createTestData(String name, int[] dataBits) {
+    public static LocalSeismogramImpl createTestData(String name, int[] dataBits) {
         String id = "Nowhere: "+name;
         edu.iris.Fissures.Time time = 
                 new edu.iris.Fissures.Time("19991231T235959.000Z", 
@@ -485,7 +485,7 @@ public class SimplePlotUtil  {
 				    bits);
         return seis;
     }
-   public static LocalSeismogram createTestData(String name, int[] dataBits, edu.iris.Fissures.Time time) {
+   public static LocalSeismogramImpl createTestData(String name, int[] dataBits, edu.iris.Fissures.Time time) {
         String id = "Nowhere: "+name;
 	TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
         SamplingImpl sampling = 
@@ -520,7 +520,7 @@ public class SimplePlotUtil  {
         return seis;
     }
 
-    public static LocalSeismogram createCustomSineWave(){
+    public static LocalSeismogramImpl createCustomSineWave(){
 	int[] dataBits = new int[1200];
         double tmpDouble;
         for (int i=0; i<dataBits.length; i++) {
@@ -531,23 +531,23 @@ public class SimplePlotUtil  {
 	return createTestData("Sine Wave", dataBits, new edu.iris.Fissures.Time("19911015T163000.000Z", -1));
     }
     
-    public static LocalSeismogram createSineWave() {
+    public static LocalSeismogramImpl createSineWave() {
         return createSineWave(0);
     }
 
-    public static LocalSeismogram createSineWave(double phase) {
+    public static LocalSeismogramImpl createSineWave(double phase) {
         return createSineWave(phase, 1);
     }
 
-     public static LocalSeismogram createSineWave(double phase, double hertz) {
+     public static LocalSeismogramImpl createSineWave(double phase, double hertz) {
 	 return createSineWave(phase, hertz, 1200);
      }
 
-    public static LocalSeismogram createSineWave(double phase, double hertz, int numPoints) {
+    public static LocalSeismogramImpl createSineWave(double phase, double hertz, int numPoints) {
 	return createSineWave(phase, hertz, numPoints, 1000);
     }
 
-    public static LocalSeismogram createSineWave(double phase, double hertz, int numPoints, double amp) {
+    public static LocalSeismogramImpl createSineWave(double phase, double hertz, int numPoints, double amp) {
         int[] dataBits = new int[numPoints];
         double tmpDouble;
         for (int i=0; i<dataBits.length; i++) {
@@ -561,7 +561,7 @@ public class SimplePlotUtil  {
                               dataBits);
     }
 
-   public static LocalSeismogram createHighSineWave(double phase, double hertz) {
+   public static LocalSeismogramImpl createHighSineWave(double phase, double hertz) {
         int[] dataBits = new int[120];
         double tmpDouble;
         for (int i=0; i<dataBits.length; i++) {
@@ -575,7 +575,7 @@ public class SimplePlotUtil  {
                               dataBits);
     }
 
-    public static LocalSeismogram createLowSineWave(double phase, double hertz) {
+    public static LocalSeismogramImpl createLowSineWave(double phase, double hertz) {
         int[] dataBits = new int[120];
         double tmpDouble;
         for (int i=0; i<dataBits.length; i++) {
@@ -589,7 +589,7 @@ public class SimplePlotUtil  {
                               dataBits);
     }
 
-    public static LocalSeismogram createSpike(MicroSecondDate spikeTime) {
+    public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
         String name = "spike at "+spikeTime.toString();
         int[] dataBits = new int[1000];
         for (int i=0; i<dataBits.length; i++) {
