@@ -27,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2721 2002-10-11 20:06:05Z groves $
+ * @version $Id: SeismogramShape.java 2789 2002-10-21 14:49:46Z groves $
  */
 
 public class SeismogramShape implements Shape, Plotter {
@@ -81,7 +81,7 @@ public class SeismogramShape implements Shape, Plotter {
 		seisOffset = 0;
 		if(samplesPerPixel < 1){
 		    points = new int[seisEnd - seisStart][2];
-		    plotAll(size.height);
+		    plotAll(size);
 		    plotAll = true;
 		}else{
 		    points = new int[2][size.width];
@@ -90,7 +90,7 @@ public class SeismogramShape implements Shape, Plotter {
 		}
 	    }else if(samplesPerPixel < 1){
 		getEdgeValues(time, size);
-		plotAll(size.height);
+		plotAll(size);
 	    }else{
 		dragPlot(time, size);
 	    }
@@ -104,19 +104,19 @@ public class SeismogramShape implements Shape, Plotter {
 	return this;
     } 
 
-    private void plotAll(int height) throws UnsupportedDataEncoding{
+    private void plotAll(Dimension size) throws UnsupportedDataEncoding{
 	for(int i = 0; i < seisEnd - seisStart; i++){
 	    points[i][0] = (int)(i/samplesPerPixel);
-	    points[i][1] = (int)((seis.getValueAt(i + seisStart).getValue()  - minAmp)/range * height);
+	    points[i][1] = (int)((seis.getValueAt(i + seisStart).getValue()  - minAmp)/range * size.height);
 	}
 	if(points.length < 2){
 	    points = new int[2][2];
-	    points[0][1] = (int)((seis.getValueAt(seisStart).getValue()  - minAmp)/range * height);
-	    points[1][1] = (int)((seis.getValueAt(seisEnd).getValue()  - minAmp)/range * height);
+	    points[0][1] = (int)((seis.getValueAt(seisStart).getValue()  - minAmp)/range * size.height);
+	    points[1][1] = (int)((seis.getValueAt(seisEnd).getValue()  - minAmp)/range * size.height);
 	}
 	points[0][0] = 0;
 	if(seisStart != seisEnd){
-	    points[seisEnd - seisStart - 1][0] = plotSize.width;
+	    points[seisEnd - seisStart - 1][0] = size.width;
 	}
     }
     
