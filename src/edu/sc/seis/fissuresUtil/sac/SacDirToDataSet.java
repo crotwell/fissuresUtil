@@ -16,7 +16,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 1725 2002-05-29 13:52:11Z crotwell $
+ * @version $Id: SacDirToDataSet.java 1726 2002-05-29 14:04:34Z crotwell $
  */
 
 public class SacDirToDataSet {
@@ -37,9 +37,17 @@ public class SacDirToDataSet {
 	    = DocumentBuilderFactory.newInstance();
 	DocumentBuilder docBuilder = factory.newDocumentBuilder();
 	String userName = System.getProperty("user.name");
+	URL dirURL = base;
+	try {
+	    dirURL = new URL(base, directory.getName()+"/");
+	} catch (MalformedURLException e) {
+	    e.printStackTrace();
+	    return;	    
+	} // end of try-catch
+	
 	dataset 
 	    = new XMLDataSet(docBuilder,
-			     base,
+			     dirURL,
 			    "genid"+Math.round(Math.random()*Integer.MAX_VALUE),
 			     dsName, 
 			     userName); 
@@ -51,7 +59,6 @@ public class SacDirToDataSet {
 	    audit[0] = new AuditInfo(userName,
 				     "Added parameter "+key);
 	    try {
-		URL dirURL = new URL(base, directory.getName()+"/");
 		dataset.addParameterRef(new URL(dirURL,
 						(String)paramRefs.get(key)),
 					key,
@@ -82,7 +89,7 @@ public class SacDirToDataSet {
 		AuditInfo[] audit = new AuditInfo[1];
 		audit[0] = new AuditInfo(userName+" via SacDirToDataSet",
 					 "seismogram loaded from sacFiles[i].getCanonicalPath()");
-		URL seisURL = new URL(base, sacFiles[i].getName());
+		URL seisURL = new URL(dirURL, sacFiles[i].getName());
 		dataset.addSeismogramRef(seisURL, 
 					 sacFiles[i].getName(), 
 					 new Property[0], 
