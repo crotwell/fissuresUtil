@@ -11,13 +11,18 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.SQLException;
 
 public class ExceptionReporterUtils{
     public static String getTrace(Throwable exception) {
         String traceString = "";
         if (exception instanceof FissuresException) {
             traceString += "Description: "+((FissuresException)exception).the_error.error_description+"\n";
-            traceString += "Error Code= "+((FissuresException)exception).the_error.error_code+"\n";
+            traceString += "Error Code: "+((FissuresException)exception).the_error.error_code+"\n";
+        }
+        if(exception instanceof SQLException){
+            traceString += "SQLState: " + ((SQLException)exception).getSQLState()+ '\n';
+            traceString += "Vendor code: " + ((SQLException)exception).getErrorCode() + '\n';
         }
         if (exception.getCause() != null) {
             traceString += getTrace(exception.getCause())+"\n";
