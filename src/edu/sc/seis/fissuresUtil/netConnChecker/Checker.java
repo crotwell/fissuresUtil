@@ -230,11 +230,9 @@ public class Checker {
 	      logger.debug("Failed: " + objfromcollection.getName());
 	      
           } else if(objfromcollection.getFinished() == true) {
-	      
-	       hashMap.put(objfromcollection.getName(), ConnStatus.FAILED);
+	      hashMap.put(objfromcollection.getName(), ConnStatus.FAILED);
 	  } else {
-
-	       hashMap.put(objfromcollection.getName(), ConnStatus.UNFINISHED);
+	      hashMap.put(objfromcollection.getName(), ConnStatus.UNFINISHED);
 	  }
        }//close while
        // return collectionofFailed;
@@ -253,8 +251,13 @@ public class Checker {
 	    ExceptionHandlerGUI.handleException(mfue);
 	    return;
 	}
+	
 	 configobj = new HTTPConfig(description, urltocheck, this);
 	 ConnCheckerCollection.add(configobj);
+	 ConnChecker site = new HTTPChecker((HTTPConfig)configobj, this);
+	 Thread th = new Thread(site);
+	 th.start();     
+	 System.out.println("Added the http connection "+description+" to the list of connections to check");
 
     }
 
@@ -263,6 +266,11 @@ public class Checker {
 	ConnCheckerConfig configobj;
 	 configobj = new CORBAConfig(description, object, this);
 	 ConnCheckerCollection.add(configobj);
+
+	 ConnChecker site = new CorbaChecker((CORBAConfig)configobj, this);
+	 Thread th = new Thread(site);
+	 th.start();
+	 System.out.println("Added the corba connection "+description+" to the list of connections to check");
 
     }
     
