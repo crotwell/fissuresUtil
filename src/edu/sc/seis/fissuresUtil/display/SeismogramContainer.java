@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
@@ -10,7 +9,6 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Category;
 import org.apache.log4j.Logger;
 
 /**<code>SeismogramContainer</code> Takes a DataSetSeismogram and requests its
