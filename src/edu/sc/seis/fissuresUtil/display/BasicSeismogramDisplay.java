@@ -227,6 +227,10 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	repaint();
     }
 
+    public void print(){
+	parent.print();
+    }
+
     public Dimension getDisplaySize(){ return displaySize; }
 
     public static Set getGlobalFilters(){ return globalFilters; }
@@ -273,9 +277,13 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public void remove(){
        logger.debug(name + " being removed");
        parent.removeDisplay(this);
-       clearSelections();
-       registrar.removeListener(this);
-       registrar.remove((DataSetSeismogram[])seismograms.toArray(new DataSetSeismogram[seismograms.size()]));
+       destroy();
+    }
+
+    public void destroy(){
+	clearSelections();
+	registrar.removeListener(this);
+	registrar.remove(getSeismograms());
     }
 
     public void setUnfilteredDisplay(boolean visible){
