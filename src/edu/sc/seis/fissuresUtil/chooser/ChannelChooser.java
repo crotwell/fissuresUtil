@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 1893 2002-06-17 17:35:42Z crotwell $
+ * @version $Id: ChannelChooser.java 1899 2002-06-17 20:25:03Z crotwell $
  *
  */
 
@@ -68,12 +68,18 @@ public class ChannelChooser extends JPanel{
                         netdc.a_finder().retrieve_all();
                     logger.debug("Got networks");
                     for (int i=0; i<nets.length; i++) {
-                        //  cache = new CacheNetworkAccess(nets[i]);
-                        cache = new DNDNetworkAccess(nets[i]);
-                        NetworkAttr attr = cache.get_attributes();
-                        logger.debug("Got attributes "+attr.get_code());
-                        // preload attributes
-                        networks.addElement(cache);
+                        // skip null networks...probably a bug on the server
+                        if (nets[i] != null) {
+                            //  cache = new CacheNetworkAccess(nets[i]);
+                            cache = new DNDNetworkAccess(nets[i]);
+                            NetworkAttr attr = cache.get_attributes();
+                            logger.debug("Got attributes "+attr.get_code());
+                            // preload attributes
+                            networks.addElement(cache);
+                        } else {
+                            logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
+                        } // end of else
+                        
                     }
                     if (nets.length == 1) {
                         networkList.getSelectionModel().setSelectionInterval(0,0);

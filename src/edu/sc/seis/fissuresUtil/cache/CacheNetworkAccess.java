@@ -9,6 +9,10 @@ import java.util.*;
 public class CacheNetworkAccess implements NetworkAccess {
 
     public CacheNetworkAccess(NetworkAccess net) {
+        if (net == null) {
+            throw new NullPointerException("network is null");
+        } // end of if (net == null)
+        
         this.net = net;
     }
 
