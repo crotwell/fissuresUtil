@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -168,7 +169,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 					while (it.hasNext()){
 						try{
 							final EventAccessOperations current = (EventAccessOperations)it.next();
-							JMenuItem menuItem = new JMenuItem(getEventInfo(current));
+							final JMenuItem menuItem = new JMenuItem(getEventInfo(current));
 							menuItem.addActionListener(new ActionListener(){
 										public void actionPerformed(ActionEvent e) {
 											int rowToSelect = tableModel.getRowForEvent(current);
@@ -177,6 +178,17 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 											}
 											popup.setVisible(false);
 										}
+									});
+							menuItem.addMouseListener(new MouseAdapter(){
+
+										public void mouseEntered(MouseEvent e) {
+											menuItem.setArmed(true);
+										}
+
+										public void mouseExited(MouseEvent e) {
+											menuItem.setArmed(false);
+										}
+
 									});
 							popup.add(menuItem);
 						}

@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -203,12 +204,24 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 				it = stationsUnderMouse.iterator();
 				while (it.hasNext()){
 					final Station current = (Station)it.next();
-					JMenuItem menuItem = new JMenuItem(getStationInfo(current));
+					final JMenuItem menuItem = new JMenuItem(getStationInfo(current));
 					menuItem.addActionListener(new ActionListener(){
 								public void actionPerformed(ActionEvent e) {
 									chooser.toggleStationSelected(current);
 									popup.setVisible(false);
 								}
+							});
+
+					menuItem.addMouseListener(new MouseAdapter(){
+
+								public void mouseEntered(MouseEvent e) {
+									menuItem.setArmed(true);
+								}
+
+								public void mouseExited(MouseEvent e) {
+									menuItem.setArmed(false);
+								}
+
 							});
 					popup.add(menuItem);
 				}
