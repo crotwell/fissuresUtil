@@ -64,13 +64,12 @@ public abstract class Border extends JComponent {
         fixSize();
     }
 
-    public void clipTicks(boolean clipTicks,
-                          double minTickVal,
-                          double maxTickVal) {
-        this.clipTicks = clipTicks;
+    public void setClipTicks(double minTickVal, double maxTickVal) {
         this.minTickValue = minTickVal;
         this.maxTickValue = maxTickVal;
     }
+
+    public abstract String getMaxLengthFormattedString();
 
     public void paint(Graphics g) {
         Graphics2D g2d = (Graphics2D)g;
@@ -116,7 +115,8 @@ public abstract class Border extends JComponent {
             setMinimumSize(new Dimension(0, height));
             setPreferredSize(new Dimension(100, height));
         } else {
-            int width = 50 + labelTickLength + tpHeight;
+            int width = 6 * getMaxLengthFormattedString().length()
+                    + labelTickLength + tpHeight;
             if(labelTickLength == 0) {
                 width = tpHeight + 10;
             }
@@ -136,11 +136,9 @@ public abstract class Border extends JComponent {
     protected int side, direction, order, labelTickHeight, labelTickWidth,
             tickHeight, tickWidth, type;
 
-    protected boolean clipTicks = false;
+    protected double minTickValue = Double.NEGATIVE_INFINITY;
 
-    protected double minTickValue;
-
-    protected double maxTickValue;
+    protected double maxTickValue = Double.POSITIVE_INFINITY;
 
     protected abstract class BorderFormat {
 
@@ -223,10 +221,6 @@ public abstract class Border extends JComponent {
                 GeneralPath minorTickShape = new GeneralPath();
                 float[] nextLabelPoint = getFirstPoint();
                 double labelValue = getFirstLabelValue(range);
-                if(!clipTicks) {
-                    minTickValue = 0;
-                    maxTickValue = Double.MAX_VALUE;
-                }
                 for(int i = 0; i < numLabelTicks; i++) {
                     if((labelValue >= minTickValue && labelValue <= maxTickValue)) {
                         labelTickShape.moveTo(nextLabelPoint[0],
