@@ -29,7 +29,6 @@ def buildAllScripts(proj):
     scripts.extend(buildNSCopyScripts(proj))
     scripts.extend(buildSACDirScripts(proj))
     scripts.extend(buildOpenMapScripts(proj))
-    scripts.extend(buildPlottableServerScript(proj))
     return scripts
 
 def buildNetScripts(proj):
@@ -57,9 +56,6 @@ def buildNSCopyScripts(proj):
 def buildOpenMapScripts(proj):
     return __buildScript(proj, 'edu.sc.seis.fissuresUtil.map.OpenMap', 'OpenMap', 'simpleClient.prop')
     
-def buildPlottableServerScript(proj):
-    return __buildScript(proj, 'edu.sc.seis.fissuresUtil.plottable.server.Start', 'plottableServer', 'plottable.prop')    
-
 def __buildScripts(proj, mainclasses, propFile='simpleClient.prop'):
     filenames = []
     for mainclass, name in mainclasses:
@@ -96,11 +92,6 @@ def buildNetDist(proj):
              ('src', 'src')]
     __buildDist(proj, buildNetScripts(proj), 'netClients', extras)
     
-def buildPlotDist(proj):
-    extras = [('scripts/plottable.prop', 'plottable.prop'),
-              ('scripts/logs', 'logs')]
-    __buildDist(proj, buildPlottableServerScript(proj), 'plottableServer', extras)
-
 def __buildDist(proj, scripts, name='simpleClients', extras=[]):
     extras.extend([(script, script) for script in  scripts])   
     buildJars(proj)
@@ -112,10 +103,6 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-n", "--net", dest="net",
                       help="build dist with only simple net client stuff",
-                      default=False,
-                      action="store_true")
-    parser.add_option("-p", "--plottable", dest="plot",
-                      help="build dist with only plottable server stuff",
                       default=False,
                       action="store_true")
     parser.add_option("-d", "--dist", dest="dist",
@@ -136,7 +123,6 @@ if __name__ == "__main__":
                       action="store_true")
     options = parser.parse_args()[0]
     if options.net : buildNetDist(proj)
-    elif options.plot: buildPlotDist(proj)
     elif options.dist: buildDist(proj)
     else :
         buildJars(proj)
