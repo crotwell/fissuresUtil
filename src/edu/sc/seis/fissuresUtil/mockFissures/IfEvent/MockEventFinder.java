@@ -21,7 +21,6 @@ import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventFactory;
 import edu.iris.Fissures.IfEvent.EventFinder;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 /**
  * @author groves Created on Nov 9, 2004
