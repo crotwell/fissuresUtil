@@ -60,7 +60,7 @@ public class TableSetup {
                                       Object tableObj,
                                       SQLLoader statements) throws SQLException {
         try {
-        Field field = tableObj.getClass().getField(tableName+"Seq");
+        Field field = tableObj.getClass().getDeclaredField(tableName+"Seq");
         String key = tableName + "Seq.create";
         if(field != null ) {
             if (statements.has(key)) {
@@ -72,6 +72,11 @@ public class TableSetup {
             }
         }
         } catch(NoSuchFieldException e) {
+            logger.info("No Sequence field named: "+tableName+"Seq found.");
+            Field[] fields = tableObj.getClass().getDeclaredFields();
+            for(int i = 0; i < fields.length; i++) {
+                logger.info("Field in "+tableName+" "+fields[i].getName());
+            }
             // no field following the naming convention, so skip
         } catch(IllegalArgumentException e) {
             GlobalExceptionHandler.handle("Thought this couldn't happen since I checked the object type.",
