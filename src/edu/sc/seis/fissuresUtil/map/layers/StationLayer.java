@@ -262,57 +262,53 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
             currentPopup = null;
         }
 
+        List stationsUnderMouse = new ArrayList();
         synchronized(omgraphics){
             Iterator it = omgraphics.iterator();
-            List stationsUnderMouse = new ArrayList();
             while(it.hasNext()){
                 OMStation current = (OMStation)it.next();
                 if(current.contains(e.getX(), e.getY())){
                     stationsUnderMouse.add(current.getStation());
                 }
             }
-            if (stationsUnderMouse.size() > 0){
-                if (stationsUnderMouse.size() == 1){
-                    synchronized(chooser){
-                        chooser.toggleStationSelected((Station)stationsUnderMouse.get(0));
-                    }
+        }
+        if (stationsUnderMouse.size() > 0){
+            if (stationsUnderMouse.size() > 1){
+                final JPopupMenu popup = new JPopupMenu();
+                Iterator it = stationsUnderMouse.iterator();
+                while (it.hasNext()){
+                    final Station current = (Station)it.next();
+                    final JMenuItem menuItem = new JMenuItem(getStationInfo(current, currentEvent));
+                    menuItem.addActionListener(new ActionListener(){
+                                public void actionPerformed(ActionEvent e) {
+                                    chooser.toggleStationSelected(current);
+                                    popup.setVisible(false);
+                                }
+                            });
+
+                    menuItem.addMouseListener(new MouseAdapter(){
+
+                                public void mouseEntered(MouseEvent e) {
+                                    menuItem.setArmed(true);
+                                }
+
+                                public void mouseExited(MouseEvent e) {
+                                    menuItem.setArmed(false);
+                                }
+
+                            });
+                    popup.add(menuItem);
                 }
-                else{
-                    final JPopupMenu popup = new JPopupMenu();
-                    it = stationsUnderMouse.iterator();
-                    while (it.hasNext()){
-                        final Station current = (Station)it.next();
-                        final JMenuItem menuItem = new JMenuItem(getStationInfo(current, currentEvent));
-                        menuItem.addActionListener(new ActionListener(){
-                                    public void actionPerformed(ActionEvent e) {
-                                        synchronized(chooser){
-                                            chooser.toggleStationSelected(current);
-                                        }
-                                        popup.setVisible(false);
-                                    }
-                                });
-
-                        menuItem.addMouseListener(new MouseAdapter(){
-
-                                    public void mouseEntered(MouseEvent e) {
-                                        menuItem.setArmed(true);
-                                    }
-
-                                    public void mouseExited(MouseEvent e) {
-                                        menuItem.setArmed(false);
-                                    }
-
-                                });
-                        popup.add(menuItem);
-                    }
-                    Point compLocation = e.getComponent().getLocationOnScreen();
-                    double[] popupLoc = {compLocation.getX(), compLocation.getY()};
-                    popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
-                    popup.setVisible(true);
-                    currentPopup = popup;
-                }
-                return true;
+                Point compLocation = e.getComponent().getLocationOnScreen();
+                double[] popupLoc = {compLocation.getX(), compLocation.getY()};
+                popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
+                popup.setVisible(true);
+                currentPopup = popup;
             }
+            else{
+                chooser.toggleStationSelected((Station)stationsUnderMouse.get(0));
+            }
+            return true;
         }
 
         return false;
