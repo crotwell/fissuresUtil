@@ -189,7 +189,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 				catch(Exception ex){}
 			}
 		}
-		fireRequestInfoLine("");
+		fireRequestInfoLine(" ");
 		return false;
 	}
 
