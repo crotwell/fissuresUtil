@@ -295,7 +295,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void createParticleDisplay(BasicSeismogramDisplay creator){
 	if(particleDisplay == null){
 	    logger.debug("creating particle display");
-	    particleWindow = new JFrame();
+	    particleWindow = new JFrame("Particle Motion");
 	    LocalSeismogramImpl seis = (((LocalSeismogramImpl)((DataSetSeismogram)creator.getSeismograms().getFirst()).getSeismogram()));
 	    particleDisplay = new ParticleMotionDisplay(seis, creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
 							creator.getAmpRegistrar(), 
