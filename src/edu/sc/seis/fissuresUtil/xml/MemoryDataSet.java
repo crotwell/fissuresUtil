@@ -18,13 +18,13 @@ import java.util.LinkedList;
 
 
 public class MemoryDataSet implements DataSet {
-
+    
     public MemoryDataSet( String id, String name, String owner, AuditInfo[] audit) {
         this.id = id;
         setName(name);
         setOwner(owner);
     }
-
+    
     /**
      * Describe <code>getName</code> method here.
      *
@@ -33,7 +33,7 @@ public class MemoryDataSet implements DataSet {
     public String getName() {
         return name;
     }
-
+    
     /**
      * Describe <code>setName</code> method here.
      *
@@ -42,7 +42,7 @@ public class MemoryDataSet implements DataSet {
     public void setName(String name) {
         this.name = name;
     }
-
+    
     /**
      * Sets the owner of the dataset.
      *
@@ -51,14 +51,14 @@ public class MemoryDataSet implements DataSet {
     public void setOwner(String owner) {
         this.owner = owner;
     }
-
+    
     /**
      *  Gets the owner of the dataset.
      */
     public String getOwner() {
         return owner;
     }
-
+    
     /**
      * Describe <code>getId</code> method here.
      *
@@ -67,7 +67,7 @@ public class MemoryDataSet implements DataSet {
     public String getId() {
         return id;
     }
-
+    
     /**
      * Describe <code>getDataSetNames</code> method here.
      *
@@ -76,7 +76,7 @@ public class MemoryDataSet implements DataSet {
     public String[] getDataSetNames() {
         return (String[])datasetNames.toArray(new String[0]);
     }
-
+    
     /**
      * Describe <code>getDataSet</code> method here.
      *
@@ -86,7 +86,7 @@ public class MemoryDataSet implements DataSet {
     public DataSet getDataSet(String name) {
         return (DataSet)datasets.get(name);
     }
-
+    
     /**
      * Describe <code>createChildDataSet</code> method here.
      *
@@ -101,7 +101,7 @@ public class MemoryDataSet implements DataSet {
         addDataSet(child, audit);
         return child;
     }
-
+    
     /**
      * Describe <code>addDataSet</code> method here.
      *
@@ -111,7 +111,7 @@ public class MemoryDataSet implements DataSet {
     public void addDataSet(DataSet dataset, AuditInfo[] audit) {
         datasets.put(dataset.getName(), dataset);
     }
-
+    
     /**
      * Describe <code>getSeismogramNames</code> method here.
      *
@@ -120,7 +120,7 @@ public class MemoryDataSet implements DataSet {
     public String[] getSeismogramNames() {
         return (String[])datasetSeismogramNames.toArray(new String[0]);
     }
-
+    
     /**
      * Method getDataSetSeismogramNames
      *
@@ -130,7 +130,7 @@ public class MemoryDataSet implements DataSet {
     public String[] getDataSetSeismogramNames() {
         return (String[])datasetSeismogramNames.toArray(new String[0]);
     }
-
+    
     /**
      * Method addDataSetSeismogram
      *
@@ -142,7 +142,7 @@ public class MemoryDataSet implements DataSet {
         datasetSeismograms.put(dss.getName(), dss);
         datasetSeismogramNames.add(dss.getName());
     }
-
+    
     /**
      * Method getDataSetSeismogram
      *
@@ -154,7 +154,7 @@ public class MemoryDataSet implements DataSet {
     public DataSetSeismogram getDataSetSeismogram(String name) {
         return (DataSetSeismogram)datasetSeismograms.get(name);
     }
-   
+    
     /**
      * removes the given dataset seismogram from the dataset.
      *
@@ -162,8 +162,10 @@ public class MemoryDataSet implements DataSet {
      *
      */
     public void remove(DataSetSeismogram dss) {
-        datasetSeismograms.remove(dss.getName());
-        datasetSeismogramNames.remove(dss.getName());
+        if (dss != null) {
+            datasetSeismograms.remove(dss.getName());
+            datasetSeismogramNames.remove(dss.getName());
+        }
     }
     
     /**
@@ -176,7 +178,7 @@ public class MemoryDataSet implements DataSet {
         seismograms.put(seis.getName(), seis);
         seismogramNames.add(seis.getName());
     }
-
+    
     /**
      * Describe <code>getSeismogram</code> method here.
      *
@@ -186,7 +188,7 @@ public class MemoryDataSet implements DataSet {
     public LocalSeismogramImpl getSeismogram(String name) {
         return (LocalSeismogramImpl)seismograms.get(name);
     }
-
+    
     /**
      * Describe <code>getParameterNames</code> method here.
      *
@@ -195,7 +197,7 @@ public class MemoryDataSet implements DataSet {
     public String[] getParameterNames() {
         return (String[])parameterNames.toArray(new String[0]);
     }
-
+    
     /**
      * Describe <code>getParameter</code> method here.
      *
@@ -205,7 +207,7 @@ public class MemoryDataSet implements DataSet {
     public Object getParameter(String name) {
         return parameters.get(name);
     }
-
+    
     /**
      * Describe <code>addParameter</code> method here.
      *
@@ -216,13 +218,13 @@ public class MemoryDataSet implements DataSet {
         parameters.put(name, param);
         parameterNames.add(name);
     }
-
+    
     /** Optional method to get channel id of all Channel parameters.
      *  @see StdDataSetParamNames for the prefix for these parameters. */
     public ChannelId[] getChannelIds() {
         String[] paramNames = getParameterNames();
         LinkedList out = new LinkedList();
-
+        
         for(int counter = 0; counter < paramNames.length; counter++) {
             if(paramNames[counter].startsWith(StdDataSetParamNames.CHANNEL)) {
                 Channel channel = (Channel)getParameter(paramNames[counter]);
@@ -233,7 +235,7 @@ public class MemoryDataSet implements DataSet {
         channelIds = (ChannelId[])out.toArray(channelIds);
         return channelIds;
     }
-
+    
     /** Optional method to get the channel from the parameters, if it exists.
      *  Should return null otherwise.
      *  @see StdDataSetParamNames for the prefix for these parameters.*/
@@ -241,7 +243,7 @@ public class MemoryDataSet implements DataSet {
         Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
         return (Channel)obj;
     }
-
+    
     /** Optional method to get the event associated with this dataset. Not all
      *  datasets will have an event, return null in this case.
      *  @see StdDataSetParamNames for the prefix for these parameters.
@@ -249,20 +251,20 @@ public class MemoryDataSet implements DataSet {
     public EventAccessOperations getEvent() {
         return (EventAccessOperations)getParameter(StdDataSetParamNames.EVENT);
     }
-
+    
     protected String name;
     protected String owner;
     protected String id;
-
+    
     protected LinkedList seismogramNames = new LinkedList();
     protected LinkedList datasetSeismogramNames = new LinkedList();
     protected LinkedList parameterNames = new LinkedList();
     protected LinkedList datasetNames = new LinkedList();
-
+    
     protected HashMap seismograms = new HashMap();
     protected HashMap datasetSeismograms = new HashMap();
     protected HashMap parameters = new HashMap();
     protected HashMap datasets = new HashMap();
-
+    
 }
 
