@@ -1,34 +1,41 @@
 <?xml version="1.0"?>
 <displayConfig>
     <type>recordSection</type>
+    <swapAxes/>
     <dontDrawNamedDrawableNames/>
     <traceColors>
-        <color>
+        <color id="dark blue">
             <red>63</red>
             <green>44</green>
             <blue>127</blue>
             <alpha>255</alpha>
         </color>
-        <color id="bluish">
-            <red>200</red>
-            <green>218</green>
+        <color id="lightest">
+            <red>197</red>
+            <green>215</green>
             <blue>221</blue>
             <alpha>255</alpha>
         </color>
     </traceColors>
-    <borderBackground base="bluish"/>
-    <borderColor>
-        <red>204</red>
-        <green>204</green>
-        <blue>204</blue>
+    <borderBackground id="REV Border Background">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+        <alpha>255</alpha>
+    </borderBackground>
+    <borderColor id="REV Border Color">
+        <red>75</red>
+        <green>131</green>
+        <blue>181</blue>
         <alpha>255</alpha>
     </borderColor>
     <border>
         <type>time</type>
         <position>left</position>
-        <titleFont id="Title">
+        <titleFont id="REV Title Font">
             <size>18</size>
             <name>MS-Trebuchet</name>
+            <style>bold</style>
         </titleFont>
     </border>
     <border>
@@ -36,20 +43,16 @@
         <position>right</position>
         <title>
             <text>Vertical</text>
-            <font base="Title"/>
+            <font base="REV Title Font"/>
         </title>
     </border>
     <border>
         <type>dist</type>
         <position>bottom</position>
-        <titleFont base="Title"/>
-    </border>
-    <border>
-        <type>title</type>
-        <position>top</position>
-        <title>
-            <text>Seismograms by distance</text>
-            <font base="Title"/>
-        </title>
+        <clipTicks>
+            <min>0</min>
+            <max>180</max>
+        </clipTicks>
+        <titleFont base="REV Title Font"/>
     </border>
 </displayConfig>
