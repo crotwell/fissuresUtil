@@ -241,7 +241,7 @@ public class BasicLayoutConfig implements LayoutConfig{
         EventAccessOperations event = seis.getDataSet().getEvent();
         ChannelId chanId = seis.getRequestFilter().channel_id;
         Channel seismoChannel = seis.getDataSet().getChannel(chanId);
-        if(seismoChannel != null){
+        if(seismoChannel != null && event != null){
             Site seisSite = seismoChannel.my_site;
             Location seisLoc =  seisSite.my_location;
             Location eventLoc = null;
