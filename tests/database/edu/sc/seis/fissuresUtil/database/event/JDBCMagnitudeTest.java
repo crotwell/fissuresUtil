@@ -36,6 +36,10 @@ public class JDBCMagnitudeTest extends TestCase {
             assertEquals(1, jdbcMagnitude.get(i).length);
         }
     }
+    
+    public void tearDown() throws SQLException {
+        jdbcMagnitude.clean();
+    }
 
     public static boolean areEqual(Magnitude first, Magnitude second){
         if(first.contributor.equals(second.contributor) &&
