@@ -57,6 +57,14 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer {
         // return color
         return slopeColors[elIdx][slopeIdx];
     }
+    
+    /* returns the color lookup index based on elevation */
+    protected int getElevIndex(short el) {
+        for (int i=0;i<elevationLimit.length-1;i++)
+            if (el<elevationLimit[i+1])
+                return i;
+        return elevationLimit.length-1;
+    }
 
     private void readInColorTable(String filename) throws IOException,
             FileNotFoundException {
