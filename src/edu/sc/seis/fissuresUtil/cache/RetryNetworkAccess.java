@@ -132,9 +132,8 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.get_attributes();
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logger.warn("Caught exception, retrying "+ ++count +" of "+retry, t);
             }
-            count++;
         }
         throw lastException;
     }
