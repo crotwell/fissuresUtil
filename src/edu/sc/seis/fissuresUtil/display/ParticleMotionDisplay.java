@@ -41,17 +41,15 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				  AmpConfigRegistrar hAmpConfigRegistrar,
 				  AmpConfigRegistrar vAmpConfigRegistrar, Color color){
 
-	hRegistrar = new AmpConfigRegistrar(hAmpConfigRegistrar);
-	vRegistrar = new AmpConfigRegistrar(vAmpConfigRegistrar);
-	hRegistrar.addSeismogram(hSeis);
-	vRegistrar.addSeismogram(vSeis);
-	hRegistrar.addAmpSyncListener(this);
-	vRegistrar.addAmpSyncListener(this);
+	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+
+
 	showScale(hSeis, 
 		  vSeis,
 		  timeConfigRegistrar,
-		  hRegistrar,
-		  vRegistrar,
+		  hAmpConfigRegistrar,
+		  vAmpConfigRegistrar,
 		  color);
 	this.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -134,7 +132,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				 LocalSeismogramImpl vseis, 
 				 TimeConfigRegistrar timeConfigRegistrar) {
 
-	this(hseis, vseis, timeConfigRegistrar, new AmpConfigRegistrar(new RMeanAmpConfig()));
+	//	AmpConfigRegistrar ampConfig = new RMeanAmpConfig();
+	this(hseis, vseis, timeConfigRegistrar, new AmpConfigRegistrar());
     }
 
 
@@ -142,6 +141,88 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				 TimeConfigRegistrar timeConfigRegistrar,
 				 AmpConfigRegistrar hAmpConfigRegistrar,
 				 AmpConfigRegistrar vAmpConfigRegistrar,
+				 org.omg.CORBA_2_3.ORB orb,
+				 ChannelId[] channelIds) {
+	
+	ChannelProxy channelProxy = new ChannelProxy();
+	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, ((LocalSeismogram)hseis).channel_id);
+	System.out.println("THe length of the channel group is "+channelGroup.length);
+	FissuresNamingServiceImpl fissuresNamingServiceImpl = null;
+	edu.iris.Fissures.Time startTime;
+	edu.iris.Fissures.Time endTime;
+	LocalSeismogram[] seismograms = new LocalSeismogram[3];
+	if(timeConfigRegistrar != null) {
+	    startTime = timeConfigRegistrar.getTimeRange().getBeginTime().getFissuresTime();
+	    endTime = timeConfigRegistrar.getTimeRange().getEndTime().getFissuresTime();
+	} else {
+	    startTime = hseis.getBeginTime().getFissuresTime();
+	    endTime = hseis.getEndTime().getFissuresTime();
+	}
+	System.out.println("Start Time is "+new MicroSecondDate(startTime));
+	System.out.println("end Time is "+new MicroSecondDate(endTime));
+	try {
+	    fissuresNamingServiceImpl = new FissuresNamingServiceImpl(orb);
+	    DataCenter dataCenter = fissuresNamingServiceImpl.getSeismogramDC("edu/sc/seis", "SCEPPSeismogramDC");
+	    for(int counter = 0; counter < channelGroup.length; counter++) {
+		System.out.println("The channel that is considered is "+ChannelIdUtil.toString(channelGroup[counter]));
+		LocalSeismogram[] localSeismograms = retreiveSeismograms(startTime,
+									 endTime,
+									 channelGroup[counter],
+									 dataCenter);
+		System.out.println(" channelid is "+ channelGroup[counter].channel_code);
+		System.out.println(" the length of seismogram is "+localSeismograms.length);
+		if(localSeismograms[0] == null) System.out.println("The seismogram is null");
+		else System.out.println("The seismogram is not null");
+		seismograms[counter] = localSeismograms[0];
+	    }
+								     
+	 } catch(Exception e) {
+	    
+	     e.printStackTrace();
+	}
+	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	showScale((LocalSeismogramImpl)seismograms[0], 
+	     (LocalSeismogramImpl)seismograms[1], 
+	     timeConfigRegistrar, 
+	     hAmpConfigRegistrar, 
+	     vAmpConfigRegistrar, 
+	     null);
+	this.addComponentListener(new ComponentAdapter() {
+		public void componentResized(ComponentEvent e) {
+		    resolveParticleMotion();
+		    resize();
+		}
+		public void componentShown(ComponentEvent e) {
+		    resize();
+		}
+	    });
+	updateTimeRange();
+	System.out.println(" ADDED THe first seismograme ");
+		addParticleMotionDisplay((LocalSeismogramImpl)seismograms[1], 
+	     (LocalSeismogramImpl)seismograms[2], 
+	     timeConfigRegistrar, 
+	     hAmpConfigRegistrar, 
+	     vAmpConfigRegistrar, 
+	     null);
+	System.out.println(" ADDED he second SEismograme");
+	addParticleMotionDisplay((LocalSeismogramImpl)seismograms[0], 
+				 (LocalSeismogramImpl)seismograms[2], 
+				 timeConfigRegistrar, 
+				 hAmpConfigRegistrar, 
+				 vAmpConfigRegistrar, 
+				 null);
+	System.out.println("Added the third display ");
+
+    }
+				 
+
+
+    public ParticleMotionDisplay(LocalSeismogramImpl hseis,
+				 TimeConfigRegistrar timeConfigRegistrar,
+				 AmpConfigRegistrar hAmpConfigRegistrar,
+				 AmpConfigRegistrar vAmpConfigRegistrar,
+
 				 org.omg.CORBA_2_3.ORB orb) {
 
 	ChannelProxy channelProxy = new ChannelProxy();
@@ -180,8 +261,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	    
 	     e.printStackTrace();
 	}
-	this.hRegistrar = hAmpConfigRegistrar;
-	this.vRegistrar = vAmpConfigRegistrar;
+	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
 	showScale((LocalSeismogramImpl)seismograms[0], 
 	     (LocalSeismogramImpl)seismograms[1], 
 	     timeConfigRegistrar, 
@@ -242,11 +323,11 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     }
 
     public void updateAmpRange() {
-	this.hAmpScaleMap.setUnitRange(hRegistrar.getAmpRange());
+	this.hAmpScaleMap.setUnitRange(hAmpConfigRegistrar.getAmpRange());
     }
     
     public void updateVerticalAmpRange() {
-	this.vAmpScaleMap.setUnitRange(vRegistrar.getAmpRange());
+	this.vAmpScaleMap.setUnitRange(vAmpConfigRegistrar.getAmpRange());
     }
     public void updateHorizontalAmpScale(UnitRangeImpl r) {
 	//logger.debug("The amplitudeRange is being updated ");
@@ -336,8 +417,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
      */
     public void setAmplitudeRange(AmpConfigRegistrar amplitudeRange) {
 	
-	this.hRegistrar = amplitudeRange;
-	this.vRegistrar = amplitudeRange;
+	this.hAmpConfigRegistrar = amplitudeRange;
+	this.vAmpConfigRegistrar = amplitudeRange;
     }
 
     public void addAzimuthLine(double degrees) {
@@ -362,7 +443,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
     public void fireAmpRangeEvent(AmpSyncEvent event) {
 
-	this.hRegistrar.fireAmpRangeEvent(event);
+	this.hAmpConfigRegistrar.fireAmpRangeEvent(event);
     }
 
     public void updateTimeRange() {
@@ -383,7 +464,6 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	JPanel buttonPanel = new JPanel();
 	buttonPanel.setLayout(new FlowLayout());
 	buttonPanel.add(zoomIn);
-
 	buttonPanel.add(zoomOut);
         //        Seismogram hSeis = SeisPlotUtil.createTestData();
         //        Seismogram vSeis = SeisPlotUtil.createTestData();
@@ -397,7 +477,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
         LocalSeismogramImpl vSeisex = 
             (LocalSeismogramImpl)SeisPlotUtil.createSineWave(-265, .1, 100, 400);
 	
-	AmpConfigRegistrar vAmpConfigRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
+	AmpConfigRegistrar vAmpConfigRegistrar = new AmpConfigRegistrar();
        
         final ParticleMotionDisplay sv = new ParticleMotionDisplay(hSeis, hSeis,
 								   null,
@@ -467,8 +547,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
      */
     public static final Integer PARTICLE_MOTION_LAYER = new Integer(2);
 
-    protected AmpScaleMapper hAmpScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder
-    protected AmpScaleMapper vAmpScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder;
+    protected AmpScaleMapper hAmpScaleMap, vAmpScaleMap;
 
     protected ScaleBorder scaleBorder;
 
@@ -477,7 +556,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     protected ParticleMotionView view;
 
 
-    private AmpConfigRegistrar hRegistrar, vRegistrar;
+    private AmpConfigRegistrar hAmpConfigRegistrar, vAmpConfigRegistrar;
 
 
     static Category logger = 
