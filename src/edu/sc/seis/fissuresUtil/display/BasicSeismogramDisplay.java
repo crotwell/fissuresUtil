@@ -102,7 +102,10 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void add(Drawable drawable) {
-        drawables.add(drawable);
+        if(!drawables.contains(drawable)){
+            drawables.add(drawable);
+            repaint();
+        }
     }
 
     public DrawableIterator getDrawables(MouseEvent e) {
