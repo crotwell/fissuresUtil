@@ -251,13 +251,12 @@ public class DisplayUtils {
     }
 
     public static boolean allNull(Object[] array){
-        boolean allNull = true;
-        for (int i = 0; i < array.length && allNull; i++ ) {
+        for (int i = 0; i < array.length; i++ ) {
             if(array[i] != null){
-                allNull = false;
+                return false;
             }
         }
-        return allNull;
+        return true;
     }
 
     private static final double linearInterp(long xa, long xb, int y,
