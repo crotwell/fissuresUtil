@@ -17,8 +17,7 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
  *
  */
 public class BulletproofNetworkAccess extends ProxyNetworkAccess{
-    public BulletproofNetworkAccess(NetworkAccess na, NetworkDCOperations netDC, NetworkId id)
-        throws NetworkNotFound{
+    public BulletproofNetworkAccess(NetworkAccess na, NetworkDCOperations netDC, NetworkId id){
         super(new CacheNetworkAccess(new RetryNetworkAccess(new NSNetworkAccess(na, id, netDC), 3)));
     }
 }
