@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.namingService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -330,7 +331,7 @@ public class FissuresNamingService {
      */
     public void unbind(String dns, String interfacename, String objectname)
             throws NotFound, CannotProceed, InvalidName {
-        logger.info("unbind "+dns+"/"+interfacename+"/"+objectname);
+        logger.info("unbind " + dns + "/" + interfacename + "/" + objectname);
         unbind(dns, interfacename, objectname, getNameService());
         Iterator it = otherNS.iterator();
         while(it.hasNext()) {
@@ -661,44 +662,53 @@ public class FissuresNamingService {
         return rtnValue;
     }
 
-    /** This method works correctly with only the Fissures servers. Custom
-     * server types will cause a IllegalArgumentException
+    /**
+     * This method works correctly with only the Fissures servers. Custom server
+     * types will cause a IllegalArgumentException
      */
     public static String getInterfaceName(Servant obj) {
         return getInterfaceNamePrivate(obj);
     }
-    
 
-    /** This method works correctly with only the Fissures servers. Custom
-     * server types will cause a IllegalArgumentException
+    /**
+     * This method works correctly with only the Fissures servers. Custom server
+     * types will cause a IllegalArgumentException
      */
     public static String getInterfaceName(org.omg.CORBA.Object obj) {
         return getInterfaceNamePrivate(obj);
     }
 
-    /** This method works correctly with only the Fissures servers. Custom
-     * server types will cause a IllegalArgumentException
+    public static Class[] getAllInterfaces(Class c) {
+        List interfaces = new ArrayList();
+        while(!c.equals(Object.class)) {
+            interfaces.addAll(Arrays.asList(c.getInterfaces()));
+            c = c.getSuperclass();
+        }
+        return (Class[])interfaces.toArray(new Class[0]);
+    }
+
+    /**
+     * This method works correctly with only the Fissures servers. Custom server
+     * types will cause a IllegalArgumentException
      */
     private static String getInterfaceNamePrivate(Object obj) {
-        String temp = new String();
-        Class[] interfacenames = obj.getClass().getInterfaces();
-        for(int counter = 0; counter < interfacenames.length; counter++) {
-            if(interfacenames[counter].getName()
-                    .startsWith("edu.iris.Fissures")) {
-                temp = interfacenames[counter].getName();
-                break;
+        String fissuresInterfaceName = null;
+        Class[] interfaces = getAllInterfaces(obj.getClass());
+        for(int counter = 0; counter < interfaces.length; counter++) {
+            System.out.println(interfaces[counter].getName());
+            if(interfaces[counter].getName().startsWith("edu.iris.Fissures")) {
+                fissuresInterfaceName = interfaces[counter].getName();
+                StringTokenizer tokenizer = new StringTokenizer(fissuresInterfaceName,
+                                                                ".");
+                String rtnValue = null;
+                while(tokenizer.hasMoreElements()) {
+                    rtnValue = (String)tokenizer.nextElement();
+                }
+                return rtnValue;
             }
         }
-        StringTokenizer tokenizer = new StringTokenizer(temp, ".");
-        String rtnValue = null;
-        while(tokenizer.hasMoreElements()) {
-            rtnValue = (String)tokenizer.nextElement();
-        }
-        if (rtnValue != null) { 
-            return rtnValue;
-        } else {
-            throw new IllegalArgumentException(obj.getClass().getName()+" not recognized");
-        }
+        throw new IllegalArgumentException(obj.getClass().getName()
+                + " not recognized");
     }
 
     private String nameServiceCorbaLoc = null;
@@ -729,7 +739,7 @@ public class FissuresNamingService {
     public static final String INTERFACE = "interface";
 
     public static final String DNS = "dns";
-    
+
     public static final String CORBALOC_PROP = "edu.sc.seis.fissuresUtil.nameServiceCorbaLoc";
 
     public static final String OBJECT = "object_FVer"
