@@ -2,6 +2,7 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
 import edu.iris.Fissures.IfNetwork.*;
+import edu.sc.seis.fissuresUtil.cache.*;
 import java.util.*;
 import javax.swing.*;
 
@@ -10,11 +11,6 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
-import edu.sc.seis.fissuresUtil.cache.BulletproofNetworkAccessFactory;
-import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
-import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
-import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
-import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,7 +23,7 @@ import org.apache.log4j.Category;
 /**
  * ChannelChooser.java
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 9551 2004-07-09 19:13:00Z crotwell $
+ * @version $Id: ChannelChooser.java 9679 2004-07-20 19:40:08Z danala $
  *
  */
 
@@ -1134,7 +1130,7 @@ public class ChannelChooser extends JPanel {
                     // skip null networks...probably a bug on the server
                     if (nets[i] != null) {
                         //  cache = new CacheNetworkAccess(nets[i]);
-                        NetworkAccess net = BulletproofNetworkAccessFactory.vest(nets[i],
+                        NetworkAccess net = BulletproofVestFactory.networkAccessVest(nets[i],
                                                                                  netdc);
                         NetworkAttr attr = net.get_attributes();
                         logger.debug("Got attributes "+attr.get_code());
@@ -1172,7 +1168,7 @@ public class ChannelChooser extends JPanel {
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if (nets[subCounter] != null) {
                                 // preload attributes
-                                NetworkAccess net = BulletproofNetworkAccessFactory.vest(nets[subCounter],
+                                NetworkAccess net = BulletproofVestFactory.networkAccessVest(nets[subCounter],
                                                                                          netdc);
                                 NetworkAttr attr = net.get_attributes();
 
