@@ -87,10 +87,7 @@ public class JDBCMagnitude  extends EventTable {
         while(rs.next()){
             mags.add(extract(rs));
         }
-        if(mags.size() > 0) {
-            return (Magnitude[])mags.toArray(new Magnitude[mags.size()]);
-        }
-        throw new NotFound("NO Magnitude is found for the given id "+id);
+        return (Magnitude[])mags.toArray(new Magnitude[mags.size()]);
     }
 
     /**
