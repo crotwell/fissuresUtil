@@ -96,7 +96,10 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	seismos.add(newSeismogram);
 	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram.getSeismogram(), timeRegistrar, ampRegistrar);
 	Iterator e = filters.iterator();
-	seisPlotters.put(newPlotter, seisColors[seisPlotters.size()%seisColors.length]);
+	if(autoColor)
+	    seisPlotters.put(newPlotter, seisColors[seisPlotters.size()%seisColors.length]);
+	else
+	    seisPlotters.put(newPlotter, Color.blue);
 	while(e.hasNext()){
 	    filterPlotters.put(new FilteredSeismogramPlotter(((ButterworthFilter)e.next()), newSeismogram.getSeismogram(), 
 							     timeRegistrar, ampRegistrar), 
@@ -169,6 +172,10 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     public TimeInterval getDisplayInterval(){ return imagePainter.displayInterval; }
 
     public LinkedList getFilters(){ return filters; }
+
+    public void setAutoColor(boolean b){ autoColor = b; }
+
+    public boolean getAutoColor(){ return autoColor; }
 
     public void addBottomTimeBorder(){	
 	scaleBorder.setBottomScaleMapper(timeScaleMap); 
@@ -586,6 +593,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     protected ImagePainter imagePainter;
 
     protected boolean redo, newSelection;
+
+    protected boolean autoColor = true;
 
     protected Dimension overSize;
 

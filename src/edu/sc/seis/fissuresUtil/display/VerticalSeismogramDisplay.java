@@ -74,6 +74,41 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     public LinkedList getDisplays(){ return basicDisplays; }
     
+    public BasicSeismogramDisplay[] getComponentGroup(BasicSeismogramDisplay creator){
+	BasicSeismogramDisplay[] groupDisplays = new BasicSeismogramDisplay[2];
+	int i = 0;
+	Iterator e = creator.getSeismograms().iterator();
+	DataSetSeismogram first = ((DataSetSeismogram)creator.getSeismograms().getFirst());
+	XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
+	ChannelId[] channelIds = dataSet.getChannelIds();
+	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
+	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, 
+								  ((LocalSeismogramImpl)first.getSeismogram()).getChannelID());
+	LocalSeismogram[] seismograms = new LocalSeismogram[3];
+	try{
+	    for(int counter = 0; counter < channelGroup.length; counter++) {
+		seismograms[counter] = dataSet.getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter]));
+		if(seismograms[counter] != null && first.getSeismogram() != seismograms[counter]){
+		    int j = i;
+		    Iterator g = basicDisplays.iterator();
+		    while(g.hasNext() && j == i){
+			BasicSeismogramDisplay current = ((BasicSeismogramDisplay)g.next());
+			Iterator h = current.getSeismograms().iterator();
+			while(h.hasNext()&& j == i){
+			    if(((DataSetSeismogram)h.next()).getSeismogram() == seismograms[counter]){
+				groupDisplays[i] = current;
+				i++;
+			    }
+			}
+		    }
+		}
+	    }
+	}catch(Exception f){
+	    f.printStackTrace();
+	}
+	return groupDisplays;
+    }
+
     public LinkedList  getAllBasicDisplays(LinkedList target){ 
 	target.addAll(basicDisplays);
 	if(selectionDisplay != null){
@@ -283,12 +318,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    }
 	    selectionWindow.getContentPane().add(selectionDisplay);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
-	    if((selectionDisplays + 1) * 220 < tk.getScreenSize().height){
-		selectionWindow.setLocation(tk.getScreenSize().width - 400, tk.getScreenSize().height - (selectionDisplays + 1) * 220);
+	    if(selectionDisplays + 220 < tk.getScreenSize().height){
+		selectionWindow.setLocation(tk.getScreenSize().width - 400, tk.getScreenSize().height - (selectionDisplays + 220));
 	    }else{
 		selectionWindow.setLocation(tk.getScreenSize().width - 400, 0);
 	    }
-	    selectionDisplays++;
+	    selectionDisplays += 220;
 	    selectionWindow.setVisible(true);	
 	}else{
 	    logger.debug("adding another selection");
@@ -306,51 +341,30 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
 
     public void createThreeSelectionDisplay(Selection creator){
-	if(selectionDisplay == null){
-	    logger.debug("creating selection display");
+	if(threeSelectionDisplay == null){
+	    logger.debug("creating 3C selection display");
 	    threeSelectionWindow = new JFrame();
-	    //threeSelectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    threeSelectionWindow.setSize(400, 220);
-	    JToolBar infoBar = new JToolBar();
-	    infoBar.add(new FilterSelection(selectionDisplay));
-	    infoBar.setFloatable(false);
-	    threeSelectionWindow.getContentPane().add(infoBar, BorderLayout.SOUTH);
+	    threeSelectionWindow.setSize(400, 400);
+	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()), 
 										   tr.getTimeRange(first.getSeismogram())));
-	    ChannelId[] channelIds = dataSet.getChannelIds();
-	    ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	    ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, 
-								      ((LocalSeismogramImpl)first.getSeismogram()).getChannelID());
-	    LocalSeismogram[] seismograms = new LocalSeismogram[3];
-	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
-	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
-	    try{
-		for(int counter = 0; counter < channelGroup.length; counter++) {
-		    seismograms[counter] = dataSet.getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter]));
-		    if(seismograms[counter] != null){
-			selectionDisplay.addDisplay(new DataSetSeismogram((LocalSeismogramImpl)seismograms[counter], dataSet), tr,
-						    "." + creator.getColor());
-		    }
-		}
-	    }catch(Exception f){
-		f.printStackTrace();
-	    }
+	    creator.setDisplay(threeSelectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
 	    ar.visibleAmpCalc(tr);
 	    while(e.hasNext()){
-		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
+		threeSelectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
-	    threeSelectionWindow.getContentPane().add(selectionDisplay);
+	    threeSelectionWindow.getContentPane().add(threeSelectionDisplay);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
-	    if((selectionDisplays + 1) * 220 < tk.getScreenSize().height){
-		threeSelectionWindow.setLocation(tk.getScreenSize().width - 400, tk.getScreenSize().height - (selectionDisplays + 1) * 220);
+	    if((selectionDisplays + 400) < tk.getScreenSize().height){
+		threeSelectionWindow.setLocation(tk.getScreenSize().width - 400, tk.getScreenSize().height - (selectionDisplays + 400));
 	    }else{
 		threeSelectionWindow.setLocation(tk.getScreenSize().width - 400, 0);
 	    }
-	    selectionDisplays++;
+	    selectionDisplays+= 400;
 	    threeSelectionWindow.setVisible(true);	
 	}else{
 	    logger.debug("adding another selection");
@@ -360,9 +374,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()),
 										   tr.getTimeRange(first.getSeismogram())));
 	    ar.visibleAmpCalc(tr);
-	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
+	    creator.setDisplay(threeSelectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
 	    while(e.hasNext()){
-		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
+		threeSelectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
 	}
     }
@@ -406,7 +420,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    protected VerticalSeismogramDisplay selectionDisplay;
+    protected VerticalSeismogramDisplay selectionDisplay, threeSelectionDisplay;
 
     private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
 }// VerticalSeismogramDisplay
