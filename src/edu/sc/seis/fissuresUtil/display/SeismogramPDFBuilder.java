@@ -51,6 +51,10 @@ public class SeismogramPDFBuilder {
   // an extra amount to inset entire printed page
   int extraInset = 50;
 
+  // these numbers are wrt the scale layers.
+  int leftMargin = 50;
+
+
   public SeismogramPDFBuilder(SeismogramDisplay disp) {
     display = disp;
   }
@@ -116,6 +120,8 @@ public class SeismogramPDFBuilder {
 
       int totalPageHeight = 0;
       float zoomFactor = 4.0f;
+      int topMargin = 50;
+      int bottomMargin = 50;
 
       // this variable is used to scale the scales up and down.....
       // just a display resolution item.
@@ -156,10 +162,6 @@ public class SeismogramPDFBuilder {
         int availableH = h;
         int widthForTraces = w;
 
-        // these numbers are wrt the scale layers.
-        int leftMargin = 100;
-        int topMargin = 50;
-        int bottomMargin = 50;
         int heightForTraces = 0;
 
         PdfContentByte cb = writer.getDirectContent();
@@ -202,7 +204,7 @@ public class SeismogramPDFBuilder {
             // first time through setup some things
 
             // get true margins
-            leftMargin = bsd.getAmplitudeLabelWidth();
+//            leftMargin = bsd.getAmplitudeLabelWidth();
             topMargin = bsd.getAmplitudeLabelHeight();
 
             // mover over around insets
