@@ -125,10 +125,6 @@ public class UnitRangeMapper implements ScaleMapper{
         calculateTicks();
     }
 
-    public UnitRangeImpl getUnitRange() {
-        return range;
-    }
-
     private int firstMajorTick = 0;
 
     private int majorTickStep = 10;
