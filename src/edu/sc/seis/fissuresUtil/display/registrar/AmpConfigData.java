@@ -200,7 +200,7 @@ public class AmpConfigData implements SeismogramContainerListener{
 
     private SeismogramContainer container;
 
-    private UnitRangeImpl cleanRange = DisplayUtils.ZERO_RANGE;
+    private UnitRangeImpl cleanRange = DisplayUtils.ONE_RANGE;
 
     private UnitRangeImpl shaledRange;
 
