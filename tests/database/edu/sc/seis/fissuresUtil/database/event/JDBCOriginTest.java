@@ -17,13 +17,15 @@ public class JDBCOriginTest extends TestCase {
         super(testname);
         originTable = new JDBCOrigin(ConnMgr.createConnection());
     }
-
+    
     public void testPutGet() throws SQLException, NotFound {
         Origin[] origins = MockOrigin.createOrigins();
         for (int i = 0; i < origins.length; i++) {
             int dbid = originTable.put(origins[i]);
             Origin extracted = originTable.get(dbid);
             assertEquals(origins[i].get_id(), extracted.get_id());
+            assertEquals("Magnitude length", origins[i].magnitudes.length,
+                         extracted.magnitudes.length);
             for (int j = 0; j < origins[i].magnitudes.length; j++) {
                 assertTrue(JDBCMagnitudeTest.areEqual(origins[i].magnitudes[j],
                                                       extracted.magnitudes[j]));
