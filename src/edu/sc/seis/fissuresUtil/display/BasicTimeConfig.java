@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.text.ParseException;
 import java.util.ArrayList;
