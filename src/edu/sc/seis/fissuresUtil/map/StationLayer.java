@@ -6,35 +6,30 @@ package edu.sc.seis.fissuresUtil.map;
  * @author Created by Charlie Groves
  */
 
-import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.event.NavMouseMode;
+import edu.sc.seis.fissuresUtil.chooser.*;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
-import edu.sc.seis.fissuresUtil.chooser.StationDataEvent;
-import edu.sc.seis.fissuresUtil.chooser.StationDataListener;
-import edu.sc.seis.fissuresUtil.chooser.StationSelectionEvent;
-import edu.sc.seis.fissuresUtil.chooser.StationSelectionListener;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
 public class StationLayer extends MouseAdapterLayer implements StationDataListener,
-    StationSelectionListener{
+    StationSelectionListener, AvailableStationDataListener{
     /**
 	 * Adds this layer as a listener on station data arriving and station
 	 * selection occuring on the channel chooser being passed in.
 	 * If station data is passed, a blue triangle is drawn on the map.
 	 * If a station is selected, the triangle turns red.
 	 */
-    public StationLayer(ChannelChooser c) {
+	public StationLayer(ChannelChooser c) {
 		omgraphics = new OMGraphicList();
 		//add the necessary data listeners to the channel chooser, provided it exists
 		c.addStationDataListener(this);
 		c.addStationSelectionListener(this);
+		c.addAvailableStationDataListener(this);
 		chooser = c;
     }
 
@@ -85,6 +80,27 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     }
 
 
+	/**
+	 * Method stationAvailabiltyChanged
+	 *
+	 * @param    e                   an AvailableStationDataEvent
+	 *
+	 */
+	public void stationAvailabiltyChanged(AvailableStationDataEvent e) {
+		Station station = e.getStation();
+		boolean isUp = e.stationIsUp();
+
+		Iterator it = omgraphics.iterator();
+		boolean found = false;
+		while (it.hasNext() && !found){
+			OMStation current = (OMStation)it.next();
+			if (current.getStation() == station && !isUp){
+				current.setDefaultColor(DOWN_STATION);
+			}
+		}
+
+	}
+
 
     private class OMStation extends OMPoly{
 		public OMStation(Station stat){
@@ -92,7 +108,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 				  stat.my_location.longitude, xPoints, yPoints,
 				  OMPoly.COORDMODE_ORIGIN);
 			station = stat;
-			setFillPaint(STATION);
+			setDefaultColor(STATION);
 			setLinePaint(Color.BLACK);
 			generate(getProjection());
 		}
@@ -116,13 +132,20 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 		}
 
 		public void deselect(){
-			setFillPaint(STATION);
+			setFillPaint(defaultColor);
 			selected = false;
+		}
+
+		public void setDefaultColor(Color c){
+			defaultColor = c;
+			setFillPaint(defaultColor);
 		}
 
 		private boolean selected = false;
 
 		private Station station;
+
+		private Color defaultColor;
     }
     private static int[] xPoints = {-5, 0, 5};
 
@@ -138,6 +161,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     private ChannelChooser chooser;
 
 	public static final Color STATION = new Color(43, 33, 243);
+
+	public static final Color DOWN_STATION = new Color(183, 183, 183);
 
     public String[] getMouseModeServiceList() {
 		return modeList;
