@@ -81,7 +81,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
             add(painter);
             resize();
         }
-        repaint();
+        revalidate();
     }
 
     public void add(Drawable drawable){
