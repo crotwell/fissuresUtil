@@ -81,20 +81,11 @@ public class SacToFissures  {
     } // end of if (samp.getPeriod().getValue() != sac.delta)
 
     if (sac.b != -12345) {
-        ISOTime isoTime = new ISOTime(sac.nzyear,
-                      sac.nzjday,
-                      sac.nzhour,
-                      sac.nzmin,
-                      sac.nzsec+sac.nzmsec/1000f);
-        MicroSecondDate beginTime = isoTime.getDate();
-        TimeInterval sacBMarker = new TimeInterval(sac.b, UnitImpl.SECOND);
-        beginTime = beginTime.add(sacBMarker);
+        MicroSecondDate beginTime = getSeismogramBeginTime(sac);
         double error =
         seis.getBeginTime().subtract(beginTime).divideBy(period).getValue();
         if (Math.abs(error) > 0.01) {
-        seis.begin_time =
-            new edu.iris.Fissures.Time(ISOTime.getISOString(beginTime),
-                           -1);
+        seis.begin_time = beginTime.getFissuresTime();
         } // end of if (error > 0.01)
     } // end of if (sac.b != -12345)
     return seis;
@@ -107,13 +98,8 @@ public class SacToFissures  {
                                       sac.nzhour,
                                       sac.nzmin,
                                       sac.nzsec+sac.nzmsec/1000f);
-        MicroSecondDate beginTime = isoTime.getDate();
-        TimeInterval sacBMarker = new TimeInterval(sac.b, UnitImpl.SECOND);
-        beginTime = beginTime.add(sacBMarker);
-        edu.iris.Fissures.Time time =
-                 new edu.iris.Fissures.Time(
-                     ISOTime.getISOString(beginTime),
-                     -1);
+        MicroSecondDate beginTime = getSeismogramBeginTime(sac);
+        edu.iris.Fissures.Time time = beginTime.getFissuresTime();
         TimeSeriesDataSel data = new TimeSeriesDataSel();
         data.flt_values(sac.y);
 
@@ -158,11 +144,8 @@ public class SacToFissures  {
 
     public static ChannelId getChannelId(SacTimeSeries sac,
                                          String siteCode) {
-        String isoTime = ISOTime.getISOString(sac.nzyear,
-                                              sac.nzjday,
-                                              sac.nzhour,
-                                              sac.nzmin,
-                                              sac.nzsec+sac.nzmsec/1000f);
+        MicroSecondDate nzTime = getNZTime(sac);
+        Time fisTime = nzTime.getFissuresTime();
         String netCode = "XX";
         if ( ! sac.knetwk.trim().equals("-12345")) {
             netCode = sac.knetwk.trim();
@@ -180,15 +163,13 @@ public class SacToFissures  {
                 chanCode = chanCode.substring(2,5);
             }
         }
-        Time begin = new edu.iris.Fissures.Time(isoTime,
-                                                -1);
         NetworkId netId = new NetworkId(netCode,
-                                        begin);
+                                        fisTime);
         ChannelId id = new ChannelId(netId,
                                      staCode,
                                      siteCode,
                                      chanCode,
-                                     begin);
+                                     fisTime);
         return id;
     }
 
@@ -255,22 +236,47 @@ public class SacToFissures  {
         
     }
 
+    /** calculates the reference (NZ) time from the sac headers
+     * NZYEAR, NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
+     */
+    public static MicroSecondDate getNZTime(SacTimeSeries sac) {
+        ISOTime isoTime = new ISOTime(sac.nzyear,
+                                      sac.nzjday,
+                                      sac.nzhour,
+                                      sac.nzmin,
+                                      sac.nzsec+sac.nzmsec/1000f);
+        MicroSecondDate originTime = isoTime.getDate();
+        return originTime;
+    }
+    
+
+    /** calculates the event origin time from the sac headers
+     * O, NZYEAR, NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
+     */
+    public static MicroSecondDate getEventOriginTime(SacTimeSeries sac) {
+        MicroSecondDate originTime = getNZTime(sac);
+        TimeInterval sacOMarker = new TimeInterval(sac.o, UnitImpl.SECOND);
+        originTime = originTime.add(sacOMarker);
+        return originTime;
+    }
+    
+
+    /** calculates the seismogram begin time from the sac headers
+     * B, NZYEAR, NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
+     */
+    public static MicroSecondDate getSeismogramBeginTime(SacTimeSeries sac) {
+        MicroSecondDate bTime = getNZTime(sac);
+        TimeInterval sacBMarker = new TimeInterval(sac.b, UnitImpl.SECOND);
+        bTime = bTime.add(sacBMarker);
+        return bTime;
+    }
+    
     public static CacheEvent getEvent(SacTimeSeries sac) {
     if (sac.o != sac.FLOAT_UNDEF &&
             sac.evla != sac.FLOAT_UNDEF &&
             sac.evlo != sac.FLOAT_UNDEF &&
             sac.evdp != sac.FLOAT_UNDEF) {
-        
-        ISOTime isoTime = new ISOTime(sac.nzyear,
-                      sac.nzjday,
-                      sac.nzhour,
-                      sac.nzmin,
-                      sac.nzsec+sac.nzmsec/1000f);
-        MicroSecondDate beginTime = isoTime.getDate();
-            System.out.println("SacToFissures "+beginTime);
-        TimeInterval sacOMarker = new TimeInterval(sac.o, UnitImpl.SECOND);
-            beginTime = beginTime.add(sacOMarker);
-            System.out.println("SacToFissuresB "+beginTime+"  "+sacOMarker);
+            MicroSecondDate beginTime = getEventOriginTime(sac);
             EventAttr attr = new EventAttrImpl("SAC Event");
             Origin[] origins = new Origin[1];
             Location loc;
