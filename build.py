@@ -21,6 +21,10 @@ class simpleScriptParameters(scriptBuilder.jacorbParameters):
 def buildSACDirScripts(proj):
     return __buildScripts(proj,
                           [('edu.sc.seis.fissuresUtil.sac.SacDirToDataSet', 'sacDirToDSML')])
+def buildMockDCScripts(proj):
+    return __buildScripts(proj,
+                          [('edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.RegisterMockWithNS', 'mockDC')],
+                          'MockDC.prop')
 
 def buildAllScripts(proj):
     scripts = buildNetScripts(proj)
@@ -29,6 +33,7 @@ def buildAllScripts(proj):
     scripts.extend(buildNSCopyScripts(proj))
     scripts.extend(buildSACDirScripts(proj))
     scripts.extend(buildOpenMapScripts(proj))
+    scripts.extend(buildMockDCScripts(proj))
     return scripts
 
 def buildNetScripts(proj):
