@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.util.*;
 
+import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
@@ -79,7 +80,12 @@ public class SeismogramContainer implements SeisDataChangeListener{
      * ignore in the hopes someone else is handling this
      */
     public void error(SeisDataErrorEvent sdce) {
-        logger.warn("Error retrieving seismograms");
+        if (sdce.getCausalException() instanceof FissuresException) {
+            FissuresException fe = (FissuresException)sdce.getCausalException();
+            logger.warn("Error retrieving seismograms, "+fe.the_error.error_code+" "+fe.the_error.error_description, sdce.getCausalException());
+        } else {
+            logger.warn("Error retrieving seismograms", sdce.getCausalException());
+        }
     }
 
     public void pushData(SeisDataChangeEvent sdce) {
