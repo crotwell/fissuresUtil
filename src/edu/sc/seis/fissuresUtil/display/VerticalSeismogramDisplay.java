@@ -78,6 +78,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void removeViewMouseMotionListener(MouseMotionListener listen) {
 	motionForwarder.removeMouseMotionListener(listen);
     }
+
+    public void redraw(){
+	Iterator e = basicDisplays.iterator();
+	while(e.hasNext())
+	    ((SeismogramDisplay)e.next()).redraw();
+    }
     
     protected LinkedList basicDisplays = new LinkedList();
 

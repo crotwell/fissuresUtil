@@ -50,5 +50,6 @@ public interface SeismogramDisplay extends TimeSyncListener, AmpSyncListener {
 
     public void removeTopTimeBorder();
 
+    public void redraw();
    
 }// SeismogramDisplay
