@@ -47,7 +47,13 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
 
     public Object clone() {
-	return super.clone();
+	try {
+	    return super.clone();
+	} catch (CloneNotSupportedException e) {
+	    // can't happen
+	    logger.error("Caught clone not supported, but this cannot happen!");
+	} // end of try-catch
+	return null;	
     }
 
     public boolean equals(Object other) {
