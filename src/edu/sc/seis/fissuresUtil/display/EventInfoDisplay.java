@@ -31,20 +31,14 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: EventInfoDisplay.java 12416 2005-03-11 18:50:08Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay{
 
     public EventInfoDisplay (){
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        try {
-            taup = new TauPUtil("prem");
-        } catch (TauModelException e) {
-            // shouldn't happen unless there is a bad taup install
-            GlobalExceptionHandler.handle("Couldn't load the prem model for TauP", e);
-            return;
-        }
+        taup = TauPUtil.getTauPUtil();
     }
 
     public void displayEvent(EventAccessOperations event) {

@@ -150,13 +150,8 @@ public class Flag implements Drawable {
                                         EventAccessOperations event,
                                         String[] template) {
         Arrival[] arrivals = null;
-        try {
-            TauPUtil taup = new TauPUtil("iasp91");
-            arrivals = getArrivals(taup, dss, event);
-        } catch(TauModelException e) {
-            GlobalExceptionHandler.handle("There was a problem getting TauP model",
-                                          e);
-        }
+        TauPUtil taup = TauPUtil.getTauPUtil();
+        arrivals = getArrivals(taup, dss, event);
         String[] header = getFlagDataHeader(template);
         TextTable table = new TextTable(header.length, true);
         Iterator it = dss.getAuxillaryDataKeys().iterator();
