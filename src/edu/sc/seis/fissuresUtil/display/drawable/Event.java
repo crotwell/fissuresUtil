@@ -23,11 +23,12 @@ import java.util.List;
  */
 
 public class Event implements NamedDrawable{
-    public Event(Arrival[] arrivals, MicroSecondDate originTime, DataSetSeismogram seis){
+    public Event(Arrival[] arrivals, MicroSecondDate originTime, DrawableSeismogram seis){
         this(arrivals, originTime, seis, null);
     }
     
-    public Event(Arrival[] arrivals, MicroSecondDate originTime, DataSetSeismogram seis, String name){
+    public Event(Arrival[] arrivals, MicroSecondDate originTime,
+                 DrawableSeismogram seis, String name){
         flags = new ArrayList(arrivals.length);
         for (int i = 0; i < arrivals.length; i++){
             MicroSecondDate time = new MicroSecondDate((long)(arrivals[i].getTime() * 1000000) +
@@ -38,9 +39,7 @@ public class Event implements NamedDrawable{
         this.name = name;
     }
     
-    public void setVisibility(boolean b) {
-        visible = b;
-    }
+    public void setVisibility(boolean b) { visible = b; }
     
     public void setColor(Color color){
         Iterator it = flags.iterator();
