@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3225 2003-01-29 17:06:41Z crotwell $
+ * @version $Id: ChannelChooser.java 3226 2003-01-29 19:51:12Z crotwell $
  *
  */
 
@@ -170,7 +170,8 @@ public class ChannelChooser extends JPanel{
         //networkList = new JList(networks);
         networkList = new DNDJList(networks);
         networkList.setCellRenderer(renderer);
-        networkList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        networkList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	//        networkList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         networkList.addListSelectionListener(new ListSelectionListener() {
 
                 public void valueChanged(ListSelectionEvent e) {
@@ -340,6 +341,23 @@ public class ChannelChooser extends JPanel{
 	stationMap.clear();
     }
 
+    protected void clearStationsFromThread() {
+	try {
+	    SwingUtilities.invokeAndWait(new Runnable() {
+		    public void run() {
+			clearStations();
+		    }
+		});
+	     
+	} catch (InterruptedException e) {
+	    logger.warn("Caught exception while clearing stations, will continue. Hope all is well...", e);
+	    // oh well...	    
+	} catch (java.lang.reflect.InvocationTargetException e) {
+	    logger.warn("Caught exception while clearing stations, will continue. Hope all is well...", e);
+	    // oh well...	    
+	} // end of try-catch
+    }
+
     public Site[]  getSites(){
         Object[] objArray = sites.toArray();
         HashMap outSites = new HashMap();
@@ -420,9 +438,11 @@ public class ChannelChooser extends JPanel{
 
         // assume only one selected network
         NetworkAccess[] nets = getSelectedNetworks();
-        NetworkAccess net = nets[0];
+        NetworkAccess net;
         String[] siteCodeHeuristic = BestChannelUtil.getSiteCodeHeuristic();
         for (int staNum=0; staNum<selectedStations.length; staNum++) {
+	    net = (NetworkAccess)netIdToNetMap.get(NetworkIdUtil.toString(selectedStations[staNum].get_id().network_id));
+
 	    MicroSecondDate stationStart = new MicroSecondDate(selectedStations[staNum].effective_time.start_time);
 	    MicroSecondDate stationEnd = new MicroSecondDate(selectedStations[staNum].effective_time.end_time);
 	    if (when.before(stationStart) || when.after(stationEnd) ) {
@@ -648,6 +668,7 @@ public class ChannelChooser extends JPanel{
 
     private NetworkDCOperations[] netdc;
     protected HashMap netDCToNetMap = new HashMap();
+    protected HashMap netIdToNetMap = new HashMap();
 
     private StationLoader stationLoader = null;
     private ChannelLoader channelLoader = null;
@@ -805,6 +826,8 @@ public class ChannelChooser extends JPanel{
 			//  cache = new CacheNetworkAccess(nets[i]);
 			cache = new DNDNetworkAccess(nets[i]);
 			NetworkAttr attr = cache.get_attributes();
+			netIdToNetMap.put(NetworkIdUtil.toString(cache.get_attributes().get_id()),
+					  cache);
 			logger.debug("Got attributes "+attr.get_code());
 			// preload attributes
 			networks.addElement(cache);
@@ -826,25 +849,28 @@ public class ChannelChooser extends JPanel{
                         logger.debug("Getting network for "+configuredNetworks[counter]);
 			NetworkAccess[] nets = 
 			    netdc.a_finder().retrieve_by_code(configuredNetworks[counter]);
-			NetworkAccess[] storedNets = 
-			    (NetworkAccess[])netDCToNetMap.get(netdc);
-			if ( storedNets == null) {
-			    netDCToNetMap.put(netdc, nets);
-			} else {
-			    NetworkAccess[] tmp = 
-				new NetworkAccess[storedNets.length+nets.length];
-			    System.arraycopy(storedNets, 0, tmp, 0, storedNets.length);
-			    System.arraycopy(nets, 0, tmp, storedNets.length, nets.length);
-			    netDCToNetMap.put(netdc, tmp);
-			} // end of else
-			
-			
                         logger.debug("Got "+nets.length+" networks for "+configuredNetworks[counter]);
 			for(int subCounter = 0; subCounter < nets.length; subCounter++) {
 			    if (nets[subCounter] != null) {
 				//  cache = new CacheNetworkAccess(nets[subCounter]);
 				cache = new DNDNetworkAccess(nets[subCounter]);
 				NetworkAttr attr = cache.get_attributes();
+				NetworkAccess[] storedNets = 
+				    (NetworkAccess[])netDCToNetMap.get(netdc);
+				if ( storedNets == null) {
+				    storedNets = new NetworkAccess[1];
+				    storedNets[0] = cache;
+				    netDCToNetMap.put(netdc, storedNets);
+				} else {
+				    NetworkAccess[] tmp = 
+					new NetworkAccess[storedNets.length+1];
+				    System.arraycopy(storedNets, 0, tmp, 0, storedNets.length);
+				    tmp[storedNets.length] = cache;
+				    netDCToNetMap.put(netdc, tmp);
+				} // end of else
+
+				netIdToNetMap.put(NetworkIdUtil.toString(cache.get_attributes().get_id()),
+						  cache);
 				logger.debug("Got attributes "+attr.get_code());
 				// preload attributes
 				networks.addElement(cache);
@@ -872,19 +898,22 @@ public class ChannelChooser extends JPanel{
 	    setProgressOwner(this);
 	    setProgressMax(this, 100);
 	    NetworkAccess[] nets = getSelectedNetworks();
+	    logger.debug("There are "+nets.length+" selected networks.");
 	    try {
-		clearStations();
-		setProgressValue(this, 10);
+		synchronized (ChannelChooser.this) {
+		    if (this.equals(getStationLoader())) {
+			clearStationsFromThread();
+		    }
+		}
+		int netProgressInc = 50 / nets.length;
+		int progressValue = 10;
+		setProgressValue(this, progressValue);
 		for (int i=0; i<nets.length; i++) {
 		    logger.debug("Before get stations");
 		    Station[] newStations = nets[i].retrieve_stations();
 		    logger.debug("got "+newStations.length+" stations");
-		    setProgressValue(this, 60);
-		    synchronized (ChannelChooser.this) {
-			if (this.equals(getStationLoader())) {
-			    clearStations();
-			}
-		    }
+		    setProgressValue(this, progressValue+netProgressInc/2);
+
 		    for (int j=0; j<newStations.length; j++) {
 			synchronized (ChannelChooser.this) {
 			    if (this.equals(getStationLoader())) {
@@ -900,7 +929,8 @@ public class ChannelChooser extends JPanel{
 			    } // end of else
 			    
 			}
-			setProgressValue(this, 100-newStations.length+j);
+			setProgressValue(this, progressValue+netProgressInc/2-
+					 (newStations.length-j)/newStations.length);
 		    }
 		    setProgressValue(this, 100);
 		    logger.debug("finished adding stations");
@@ -933,8 +963,8 @@ public class ChannelChooser extends JPanel{
 	    ListSelectionModel selModel = stationList.getSelectionModel();
 	    // assume only one selected network at at time...
 	    NetworkAccess[] nets = getSelectedNetworks();
-	    NetworkAccess net = nets[0];
 	    setProgressMax(this, e.getLastIndex()-e.getFirstIndex()+1);
+
 	    for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
 		String staName =
 		    (String)stationNames.getElementAt(i);
@@ -942,8 +972,17 @@ public class ChannelChooser extends JPanel{
 		Iterator it = stations.iterator();
 		while ( it.hasNext()) {
 		    Station sta = (Station)it.next();
-		    Channel[] chans =
-			net.retrieve_for_station(sta.get_id());
+		    Channel[] chans = null;
+		    NetworkAccess net = (NetworkAccess)
+			netIdToNetMap.get(NetworkIdUtil.toString(sta.get_id().network_id));
+		    if ( net != null) {
+			chans =
+			    net.retrieve_for_station(sta.get_id());
+		    } else {
+			logger.warn("Unable to find network server for station "+sta.name+" "+StationIdUtil.toString(sta.get_id()));
+			continue;
+		    } // end of if ()
+		    
 		    
 		    synchronized (ChannelChooser.this) {
 			if (this.equals(getChannelLoader())) {
