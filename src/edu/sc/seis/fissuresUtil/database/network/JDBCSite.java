@@ -118,8 +118,8 @@ public class JDBCSite extends NetworkTable {
             }
             return intIds;
         }
-        throw new NotFound("No sites in the database of code " + site_code
-                + " for given station ids");
+        throw new NotFound("No sites in the database of code '" + site_code
+                + "' for given station ids");
     }
 
     public static Site extract(ResultSet rs,
