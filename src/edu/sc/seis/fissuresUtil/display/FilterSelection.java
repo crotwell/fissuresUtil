@@ -21,7 +21,12 @@ import java.util.LinkedList;
 public class FilterSelection extends JPanel{
     
     public FilterSelection(VerticalSeismogramDisplay listener){
-	original.setSize(new Dimension(45, 10));
+	original.setMargin(new Insets(0,0,0,0));
+	teleseismic.setMargin(new Insets(0,0,0,0));
+	smoothTeleseismic.setMargin(new Insets(0,0,0,0));
+	vSmoothTeleseismic.setMargin(new Insets(0,0,0,0));
+	regional.setMargin(new Insets(0,0,0,0));
+	local.setMargin(new Insets(0,0,0,0));
 	this.add(original);
 	this.add(teleseismic);
 	this.add(smoothTeleseismic);
