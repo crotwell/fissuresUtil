@@ -67,6 +67,7 @@ public class JDBCEventAccess extends EventTable {
         getByNameStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, eventattr WHERE "
                 + "eventattr.eventattr_name = ? AND "
                 + "eventaccess.eventattr_id = eventattr.eventattr_id");
+        getLast = conn.prepareStatement("SELECT TOP 1 event_id from eventaccess ORDER BY event_id DESC");
     }
 
     public CacheEvent getEvent(int dbid) throws SQLException, NotFound {
@@ -283,7 +284,7 @@ public class JDBCEventAccess extends EventTable {
     private static Map eventsToIds = Collections.synchronizedMap(new HashMap());
 
     private PreparedStatement put, getDBIdStmt, getCorbaStrings,
-            getAttrAndOrigin, getEventIds, queryStmt, getByNameStmt;
+            getAttrAndOrigin, getEventIds, queryStmt, getByNameStmt, getLast;
 
     public void updateFlinnEngdahlRegion(int eventid, FlinnEngdahlRegion region)
             throws NotFound, SQLException {
@@ -296,5 +297,11 @@ public class JDBCEventAccess extends EventTable {
 
     public JDBCOrigin getJDBCOrigin() {
         return jdbcOrigin;
+    }
+
+    public CacheEvent getLastEvent() throws SQLException, NotFound {
+        ResultSet rs = getLast.executeQuery();
+        if(rs.next()) { return getEvent(rs.getInt("event_id")); }
+        throw new NotFound("No events!");
     }
 }
