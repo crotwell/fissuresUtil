@@ -373,6 +373,7 @@ public class ChannelChooserGUI extends JPanel{
 
               
             }catch (Exception exception) {
+		exception.printStackTrace();
                System.out.println(exception);
             }
 
@@ -403,6 +404,7 @@ public class ChannelChooserGUI extends JPanel{
 
               
             }catch (Exception exception) {
+		exception.printStackTrace();
                System.out.println(exception);
             }
 
@@ -437,6 +439,7 @@ public class ChannelChooserGUI extends JPanel{
 
               
             }catch (Exception exception) {
+		exception.printStackTrace();
                System.out.println(exception);
             }
 
