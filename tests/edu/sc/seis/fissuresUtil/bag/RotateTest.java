@@ -1,5 +1,10 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import edu.iris.Fissures.Location;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
+import edu.sc.seis.mockFissures.Defaults;
 import junit.framework.TestCase;
 import junitx.framework.ArrayAssert;
 // JUnitDoclet end import
@@ -23,19 +28,19 @@ public class RotateTest
     float[] origx;
     float[] origy;
     // JUnitDoclet end class
-    
+
     public RotateTest(String name) {
         // JUnitDoclet begin method RotateTest
         super(name);
         // JUnitDoclet end method RotateTest
     }
-    
+
     public edu.sc.seis.fissuresUtil.bag.Rotate createInstance() throws Exception {
         // JUnitDoclet begin method testcase.createInstance
         return new edu.sc.seis.fissuresUtil.bag.Rotate();
         // JUnitDoclet end method testcase.createInstance
     }
-    
+
     protected void setUp() throws Exception {
         // JUnitDoclet begin method testcase.setUp
         super.setUp();
@@ -48,10 +53,10 @@ public class RotateTest
         origy[1] = 1;
         origx[2] = .5f;
         origy[2] = -.5f;
-        
+
         // JUnitDoclet end method testcase.setUp
     }
-    
+
     protected void tearDown() throws Exception {
         // JUnitDoclet begin method testcase.tearDown
         rotate = null;
@@ -60,12 +65,12 @@ public class RotateTest
         super.tearDown();
         // JUnitDoclet end method testcase.tearDown
     }
-    
+
     public void testApply() throws Exception {
         // JUnitDoclet begin method apply
         // JUnitDoclet end method apply
     }
-    
+
     public void testRotate() throws Exception {
         // JUnitDoclet begin method rotate
         float[] x = new float[origx.length];
@@ -73,29 +78,42 @@ public class RotateTest
         float[] y = new float[origy.length];
         System.arraycopy(origy, 0, y, 0, y.length);
         rotate.rotate(x, y, Math.PI/2); // 90 degrees
-        assertEquals(x[0], 0, 0.0001);
-        assertEquals(y[0], 0, 0.0001);
-        assertEquals(x[1], -1, 0.0001);
-        assertEquals(y[1], 1, 0.0001);
-        assertEquals(x[2], .5, 0.0001);
-        assertEquals(y[2], .5, 0.0001);
+        assertEquals(0, x[0], 0.0001);
+        assertEquals(0, y[0], 0.0001);
+        assertEquals(-1, x[1], 0.0001);
+        assertEquals(1, y[1], 0.0001);
+        assertEquals(.5, x[2], 0.0001);
+        assertEquals(.5, y[2], 0.0001);
         rotate.rotate(x, y, -Math.PI/2); // inverse transform
         ArrayAssert.assertEquals(origx, x, 0.0001f);
         // JUnitDoclet end method rotate
     }
-    
+
+    public void testRotateGCP() throws Exception {
+        // JUnitDoclet begin method rotate
+        MicroSecondDate now = new MicroSecondDate();
+        LocalSeismogramImpl xSeis = SimplePlotUtil.createSpike(now);
+        LocalSeismogramImpl ySeis = SimplePlotUtil.createSpike(now);
+        Location staLoc = new Location(0, 0, Defaults.ZERO_K, Defaults.ZERO_K, null);
+        Location evtLoc = new Location(1, 0, Defaults.ZERO_K, Defaults.ZERO_K, null);
+        float[][] ans = rotate.rotateGCP(xSeis, ySeis, staLoc, evtLoc);
+        assertEquals( -100, ans[0][0],0.001f);
+        assertEquals( -100, ans[1][0],0.001f);
+        // JUnitDoclet end method rotate
+    }
+
     public void testDtor() throws Exception {
         // JUnitDoclet begin method dtor
         // JUnitDoclet end method dtor
     }
-    
+
     public void testRtod() throws Exception {
         // JUnitDoclet begin method rtod
         // JUnitDoclet end method rtod
     }
-    
-    
-    
+
+
+
     /**
      * JUnitDoclet moves marker to this method, if there is not match
      * for them in the regenerated code and if the marker is not empty.
@@ -106,7 +124,7 @@ public class RotateTest
         // JUnitDoclet begin method testcase.testVault
         // JUnitDoclet end method testcase.testVault
     }
-    
+
     public static void main(String[] args) {
         // JUnitDoclet begin method testcase.main
         junit.textui.TestRunner.run(RotateTest.class);
