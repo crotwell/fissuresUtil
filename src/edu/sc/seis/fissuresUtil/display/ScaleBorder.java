@@ -1,8 +1,15 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.*;
-
+import java.awt.Component;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineMetrics;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import javax.swing.JComponent;
 /**
  * ScaleBorder.java
@@ -44,15 +51,11 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 
         Graphics2D copy = (Graphics2D)g.create();
         if (copy != null) {
+            copy.translate(x,y);
             try {
-                Font f = new Font("SansSerif", Font.PLAIN, 9);
-                copy.setFont(f);
+                copy.setFont(DisplayUtils.BORDER_FONT);
                 // in case there are borders inside of this one
                 Insets insets = ((JComponent)c).getInsets();
-                /*System.out.println("x:     " + x + " y:       " + y + " width: " + width + " height: " + height);
-                System.out.println("itop:   " + insets.top + " ibottom: " + insets.bottom + "ileft: " + insets.left +  " iright: " +
-                                   insets.right);
-                 System.out.println("top:   " + top + " bottom: " + bottom + " right:   " + right +  "left:  " + left);*/
                 FontMetrics fm = copy.getFontMetrics();
                 String label;
 
@@ -74,15 +77,14 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                                 copy.drawString(label,
                                                 pixelLoc - labelWidth/2,
                                                 top - majorTickLength-
-                                                fm.getLeading());
+                                                    fm.getLeading());
                             }
                         }
                     }
                     copy.drawString(topScaleMap.getAxisLabel(),
                                     width/2,
-                                    top - majorTickLength-
-                                    fm.getLeading());
-                                    
+                                    fontHeight);
+
                 }
 
                 // left
@@ -92,7 +94,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                         copy.drawString("No Data",
                                         0,
                                         top + (height - top - bottom)/2-
-                                        fm.getLeading());
+                                            fm.getLeading());
                     } // end of if ()
                     for (int i=0; i<numTicks; i++) {
                         pixelLoc = height - leftScaleMap.getPixelLocation(i) - bottom;
@@ -123,9 +125,16 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                                                 pixelLoc);
                         }
                     }
-                    copy.drawString(leftScaleMap.getAxisLabel(),
-                                    0,
-                                    height - fm.getLeading());
+                    if(leftAxisLabelBounds == null){
+                        leftAxisLabelBounds = copy.getFontMetrics().getStringBounds(leftScaleMap.getAxisLabel(), copy);
+                    }
+                    double yTranslate = (height - y - leftAxisLabelBounds.getWidth())/2;
+                    double xTranslate = x;
+                    copy.translate(xTranslate, yTranslate);
+                    copy.rotate(Math.PI/2);
+                    copy.drawString(leftScaleMap.getAxisLabel(), 0, 0);
+                    copy.rotate(-Math.PI/2);
+                    copy.translate(-xTranslate, -yTranslate);
                 }
 
                 // bottom
@@ -179,9 +188,18 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
         }
     }
 
+    private Rectangle2D leftAxisLabelBounds;
+
     public void setTopScaleMapper(ScaleMapper scaleMap) {
         this.topScaleMap = scaleMap;
-        top = 20;
+        if(scaleMap.getAxisLabel() != null && !scaleMap.getAxisLabel().equals("")){
+            LineMetrics lm = DisplayUtils.BORDER_FONT.getLineMetrics(scaleMap.getAxisLabel(),
+                                                                     new FontRenderContext(IDENTITY_AFFINE, false, false));
+            fontHeight = (int)lm.getAscent();
+            top = 20 + fontHeight;
+        }else{
+            top = 20;
+        }
     }
 
     public void clearTopScaleMapper() {
@@ -195,7 +213,14 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 
     public void setLeftScaleMapper(ScaleMapper scaleMap) {
         this.leftScaleMap = scaleMap;
-        left = 50;
+        if(scaleMap.getAxisLabel() != null && !scaleMap.getAxisLabel().equals("")){
+            LineMetrics lm = DisplayUtils.BORDER_FONT.getLineMetrics(scaleMap.getAxisLabel(),
+                                                                     new FontRenderContext(IDENTITY_AFFINE, false, false));
+            fontHeight = (int)lm.getAscent();
+            left = 50 + fontHeight;
+        }else{
+            left = 50;
+        }
     }
 
     public void clearLeftScaleMapper() {
@@ -264,6 +289,12 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
     protected int majorTickLength = 8;
 
     protected int minorTickLength = 4;
+
+
+
+    private int fontHeight;
+
+    private static final AffineTransform IDENTITY_AFFINE = new AffineTransform();
 
     protected ScaleMapper topScaleMap;
     protected ScaleMapper leftScaleMap;
