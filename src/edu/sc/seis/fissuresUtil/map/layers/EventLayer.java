@@ -24,8 +24,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import org.apache.log4j.Logger;
@@ -35,12 +37,11 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     public EventLayer(MapBean mapBean, EventColorizer colorizer){
         this.mapBean = mapBean;
         this.colorizer = colorizer;
+        circles.setTraverseMode(OMGraphicList.LAST_ADDED_ON_TOP);
     }
 
     public void paint(java.awt.Graphics g) {
-        synchronized(circles){
-            circles.render(g);
-        }
+        synchronized(circles){ circles.render(g); }
     }
 
     public void projectionChanged(ProjectionEvent e) {
@@ -65,24 +66,23 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 
     public void eventLoaded(CacheEvent event) {
         try{
-            OMEvent omEvent = new OMEvent(event, this, mapBean);
             synchronized(circles){
-                Iterator it = circles.iterator();
-                while(it.hasNext()){
-                    OMEvent cur = (OMEvent)it.next();
-                    if(cur.getEvent().equals(event)) return;
+                if(events.add(event)){
+                    circles.add(new OMEvent(event, this, mapBean));
+                    colorizer.colorize(circles);
+                    repaint();
                 }
-                circles.add(omEvent);
-                OMUtil.setEventColors(circles, colorizer);
             }
-            repaint();
         }catch(NoPreferredOrigin e){
             logger.debug("No origin for an event");
         }
     }
 
     public void eventDataCleared() {
-        synchronized(circles){ circles.clear(); }
+        synchronized(circles){
+            circles.clear();
+            events.clear();
+        }
         repaint();
     }
 
@@ -115,16 +115,10 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             Iterator it = circles.iterator();
             while (it.hasNext()){
                 OMEvent current = (OMEvent)it.next();
-                try{
-                    //if (current.getEvent().get_preferred_origin().equals(eqSelectionEvent.getEvents()[0].get_preferred_origin())){
-                    if (DisplayUtils.originIsEqual(current.getEvent(), eqSelectionEvent.getEvents()[0])){
-                        selected = current;
-                    }else{
-                        deselected.add(current);
-                    }
-                }
-                catch(NoPreferredOrigin e){
-                    e.printStackTrace();
+                if (current.getEvent().equals(eqSelectionEvent.getEvents()[0])){
+                    selected = current;
+                }else{
+                    deselected.add(current);
                 }
             }
         }
@@ -135,10 +129,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             }
         }
         Iterator it = deselected.iterator();
-        while(it.hasNext()){
-            ((OMEvent)it.next()).deselect();
-        }
-
+        while(it.hasNext()){ ((OMEvent)it.next()).deselect(); }
     }
 
     private static String[] modeList = { SelectMouseMode.modeID } ;
@@ -236,6 +227,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     }
 
     private OMGraphicList circles = new OMGraphicList();
+    private Set events = new HashSet();
 
     private static Logger logger = Logger.getLogger(EventLayer.class);
 
