@@ -226,7 +226,6 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     private static List knownTimes = Collections.synchronizedList(new ArrayList());
 
-    private NetworkAccess net;
     private NetworkAttr attr;
     private Station[] stations;
     private HashMap channelMap = new HashMap();
