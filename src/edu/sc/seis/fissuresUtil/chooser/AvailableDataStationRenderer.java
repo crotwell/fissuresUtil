@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
 import javax.swing.JList;
 import org.apache.log4j.Logger;
 
@@ -94,6 +95,16 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
 	protected void addAvailableStationDataListener(AvailableStationDataListener listener){
 		listenerList.add(AvailableStationDataListener.class, listener);
+		Set keySet = stationsUpNow.keySet();
+		Iterator it = keySet.iterator();
+		while (it.hasNext()){
+			Station station = (Station)it.next();
+			Object obj = stationsUpNow.get(station);
+			if (!(obj instanceof Station)){
+				boolean b = ((Boolean)obj).booleanValue();
+				listener.stationAvailabiltyChanged(new AvailableStationDataEvent(this, station, b));
+			}
+		}
 	}
 
 	protected synchronized void fireStationAvailabilityChanged(Station sta, boolean isUp){
