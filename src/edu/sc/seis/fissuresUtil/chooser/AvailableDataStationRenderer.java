@@ -114,9 +114,9 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 //            logger.debug("Station available found "+
 //                             StationIdUtil.toString(station.get_id())+ val);
             if (val.booleanValue()) {
-                c.setForeground(Color.GREEN);
+                c.setForeground(STATION_AVAILABLE);
             } else {
-                c.setForeground(Color.RED);
+                c.setForeground(STATION_UNAVAILABLE);
             }
         } else {
 //            logger.debug("Station available NOT found "+
@@ -386,6 +386,10 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         }
 
     }
+
+    private static Color STATION_AVAILABLE = Color.GREEN.darker().darker();
+
+    private static Color STATION_UNAVAILABLE = Color.RED;
 
     protected LinkedList stationsToCheck = new LinkedList();
 
