@@ -48,7 +48,7 @@ public class SeismogramPDFBuilder {
     }
 
     public static void createPDF(SeismogramDisplay disp, File f, int dispPerPage, boolean landscape) throws FileNotFoundException{
-        f.getParentFile().mkdirs();
+        if(f.getParentFile() != null){ f.getParentFile().mkdirs();}
         createPDF(disp, new FileOutputStream(f), dispPerPage, landscape);
     }
     public static void createPDF(SeismogramDisplay disp, FileOutputStream fos, int dispPerPage) {
@@ -98,7 +98,6 @@ public class SeismogramPDFBuilder {
             }
             g2Traces.translate(rightMargin, topMargin);
             int seisOnCurPage = 0;
-            BasicSeismogramDisplay.PRINTING = true;
             Iterator it = displays.iterator();
             while (it.hasNext()) {
                 // loop over all traces
@@ -134,7 +133,6 @@ public class SeismogramPDFBuilder {
         }
         // step 5: we close the document
         document.close();
-        BasicSeismogramDisplay.PRINTING = false;
         if(disp instanceof VerticalSeismogramDisplay){
             ((VerticalSeismogramDisplay)disp).setBorders();
         }
