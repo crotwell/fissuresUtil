@@ -37,16 +37,16 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     
     public void setTimeConfig(TimeRangeConfig newTimeConfig){ 
 	timeConfig.removeTimeSyncListener(this);
-	Iterator e = seismos.keySet().iterator();
 	timeFinder = newTimeConfig.getTimeFinder();
-	newTimeConfig.addTimeSyncListener(this);
+	/*Iterator e = seismos.keySet().iterator();
 	while(e.hasNext()){
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    newTimeConfig.addSeismogram(current);//, ((MicroSecondTimeRange)seismos.get(current)).getBeginTime());
 	    timeConfig.removeSeismogram(current);
-	    this.addSeismogram(current);
-	    newTimeConfig.addSeismogram(current, ((MicroSecondTimeRange)seismos.get(current)).getBeginTime());
 	    //seismos.put(current, newTimeConfig.getTimeRange(current));
-}
+	    }*/
+	newTimeConfig.setData(seismos);
+	newTimeConfig.addTimeSyncListener(this);
 	seismos = newTimeConfig.getData();
 	timeConfig = newTimeConfig;
 	updateTimeSyncListeners();
@@ -97,6 +97,7 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     
     public HashMap getData(){ return seismos; }
 
+    public void setData(HashMap newData){ timeConfig.setData(newData); }
     /**
      * Adds a time sync listener to the list to be informed when a time sync event occurs
      * 
@@ -137,7 +138,7 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 
     public void returnSnapshot(){
 	taken = false;
-	snapshot.update(seismos, timeConfig.getTimeRange());
+	//snapshot.update(seismos, timeConfig.getTimeRange());
     }
     
     public void unregister(){ timeConfig.removeTimeSyncListener(this); }

@@ -98,9 +98,9 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	Iterator e = newData.keySet().iterator();
 	while(e.hasNext()){
 	    DataSetSeismogram curr = ((DataSetSeismogram)e.next());
-	    this.addSeismogram(curr, ((MicroSecondDate)newData.get(curr)));
+	    this.addSeismogram(curr);
 	}
-	updateTimeSyncListeners();
+	//updateTimeSyncListeners();
     } 
     
     public synchronized void setRelativeTime(DataSetSeismogram seis, MicroSecondDate time){
