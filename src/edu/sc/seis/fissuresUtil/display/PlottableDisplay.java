@@ -43,7 +43,7 @@ public  class PlottableDisplay extends JComponent {
  
     public PlottableDisplay() 
     {
-	super();
+        super();
 	
         removeAll();
         final Color bg = Color.white;
@@ -55,12 +55,14 @@ public  class PlottableDisplay extends JComponent {
         setBorder(BorderFactory.createCompoundBorder(
 						     BorderFactory.createRaisedBevelBorder(),
 						     BorderFactory.createLoweredBevelBorder()));  
-	setLayout(new BorderLayout());
-	//	add(imagePanel, BorderLayout.CENTER);
-	PlottableMouseListener plottableMouseListener = new PlottableMouseListener(this);
-	this.addMouseListener(plottableMouseListener);
-	this.addMouseMotionListener(plottableMouseListener);
-	configChanged();
+        setLayout(new BorderLayout());
+        selectionList = new LinkedList();
+        //	add(imagePanel, BorderLayout.CENTER);
+        this.colorFactory = new ColorFactory();
+        PlottableMouseListener plottableMouseListener = new PlottableMouseListener(this);
+        this.addMouseListener(plottableMouseListener);
+        this.addMouseMotionListener(plottableMouseListener);
+        configChanged();
 	
     }
 
@@ -144,34 +146,30 @@ public  class PlottableDisplay extends JComponent {
 	g.drawImage(image, 0, 0, this);
 	//System.out.println("Repaiting high light region");
 	//drawHighlightRegion(g);
-    if(plottableSelection != null) {
-        plottableSelection.draw((Graphics2D)g, null, null, null);
-    }
+    drawSelections(g);
 	addEventInfo(this.eventAccess, g);
     }
 
     protected void drawComponent(Graphics g) {
-	drawTitle(g);
-	drawTimeTicks(g);
+        drawTitle(g);
+        drawTimeTicks(g);
 
-	if (arrayplottable== null ) {
+        if (arrayplottable== null ) {
             Logger.warning("Plottable is NULL.");        
-	    return;
-	}
+            return;
+        }
 
-	// for time label on left and title at top
-	g.translate(labelXShift, 
-		    titleYShift); 
-	//System.out.println("clipRect "+ plot_x/plotrows+"  "+ 
-	//plot_y +(plotoffset * (plotrows-1)));
-	g.clipRect(0, 0, 
-		      plot_x/plotrows, 
-		      plot_y +(plotoffset * (plotrows-1)));
-	drawPlottableNew(g, arrayplottable);
-	//drawHighlightRegion(g);
-    if(plottableSelection != null) {
-        plottableSelection.draw((Graphics2D)g, null, null, null);
-    }
+        // for time label on left and title at top
+        g.translate(labelXShift, 
+                    titleYShift); 
+        //System.out.println("clipRect "+ plot_x/plotrows+"  "+ 
+        //plot_y +(plotoffset * (plotrows-1)));
+        g.clipRect(0, 0, 
+                   plot_x/plotrows, 
+                   plot_y +(plotoffset * (plotrows-1)));
+        drawPlottableNew(g, arrayplottable);
+        //drawHighlightRegion(g);
+        drawSelections(g);
     }
 
 
@@ -497,7 +495,27 @@ public  class PlottableDisplay extends JComponent {
 
        return minandmax;
    }
+    
+    public void setSelectedSelection(int beginx, int beginy) {
+        this.plottableSelection = null;
+        Iterator iterator = selectionList.iterator();
+        while(iterator.hasNext()) {
 
+            PlottableSelection plottableSelection = (PlottableSelection) iterator.next();
+            if(plottableSelection.isSelectionSelected(beginx, beginy)) {
+                this.plottableSelection = plottableSelection;
+                return;
+            }
+        }
+        
+        PlottableSelection selection = new PlottableSelection(this,
+                                                              colorFactory.getNextColor());
+        selection.startXY(beginx, beginy);
+        selectionList.add(selection);
+        this.plottableSelection = selection;
+     }
+
+    
 
     public void setSelectedRectangle(int beginx, int beginy, int endx, int endy) {
        
@@ -505,16 +523,18 @@ public  class PlottableDisplay extends JComponent {
         this.beginy = beginy;
         this.endx = endx;
         this.endy = endy;
-        if(plottableSelection == null) {
-            plottableSelection = new PlottableSelection(this);
-            plottableSelection.setSelectedRectangle(beginx, beginy, endx, endy);
-            repaint();
-        }//else if(plottableSelection.isSelectionSelected(endx, endy)) 
-        {
-            plottableSelection.setSelectedRectangle(beginx, beginy, endx, endy);
+        if(this.plottableSelection != null) {
+            plottableSelection.setXY(endx, endy);
             repaint();
         }
-       
+    }
+
+    private void drawSelections(Graphics g) {
+        Iterator iterator = selectionList.iterator();
+        while(iterator.hasNext()) {
+            PlottableSelection plottableSelection = (PlottableSelection) iterator.next();
+            plottableSelection.draw((Graphics2D)g, null, null, null);
+        }
     }
     
     private int[] getSelectedRows(int beginy, int endy) {
@@ -780,6 +800,10 @@ public  class PlottableDisplay extends JComponent {
 	//getRequestFilter();
 	newG.dispose();
     }
+
+    
+    private ColorFactory colorFactory;
+    private LinkedList selectionList;
 
     private PlottableSelection plottableSelection = null;
 
