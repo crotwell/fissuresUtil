@@ -45,6 +45,8 @@ station.putAll = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id, st
                                       
 station.putId = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id) VALUES (?, ?, ?, ?)
 
+station.putChanIdBits = INSERT INTO station (sta_id, net_id, sta_code) VALUES (?, ?, ?)
+
 station.getIfNameExists = SELECT sta_id FROM station WHERE sta_id = ? AND sta_name IS NOT NULL
 
 station.getDBId = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ? AND sta_begin_id = ?
@@ -76,6 +78,9 @@ site.getDBIdsForStaAndCode = SELECT site_id FROM site WHERE sta_id = ? and site_
 
 site.putAll = INSERT INTO site (site_id, sta_id, site_code, site_begin_id, site_end_id, site_comment, loc_id) \
                                VALUES (?, ?, ?, ?, ?, ?, ?)
+                               
+
+site.putChanIdBits = INSERT INTO site (site_id, sta_id, site_code) VALUES (?, ?, ?)
                                
 site.getIfCommentExists = SELECT site_id FROM site WHERE site_id = ? AND site_comment IS NOT NULL
 
@@ -112,7 +117,7 @@ channel.putAll = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id
                  chan_sampling_interval_id, chan_sampling_numpoints) \
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                  
-channel.putId = INSERT INTO channel (chan_id, chan_code, chan_begin_id) VALUES (?, ?, ?)
+channel.putId = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id) VALUES (?, ?, ?, ?)
 
 channel.getByDBId = SELECT * FROM channel WHERE chan_id = ?
 
