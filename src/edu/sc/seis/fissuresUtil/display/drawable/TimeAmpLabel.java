@@ -23,13 +23,9 @@ public class TimeAmpLabel implements NamedDrawable{
         this.display = display;
     }
 
-    public void toggleVisibility() {
-        visible = !visible;
-    }
-
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
         if(visible){
-            canvas.setPaint(Color.black);
+            canvas.setPaint(Color.BLACK);
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(canvas.getFontMetrics().getStringBounds(ampText, canvas));
             canvas.drawString(timeText, xPosition + stringBounds.width, yPosition);
@@ -50,6 +46,8 @@ public class TimeAmpLabel implements NamedDrawable{
             display.repaint();
         }
     }
+
+    public Color getColor(){ return Color.BLACK; }
 
     public String getTimeText(){ return timeText; }
 

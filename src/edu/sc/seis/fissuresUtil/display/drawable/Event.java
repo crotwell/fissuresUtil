@@ -4,6 +4,7 @@ import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -35,13 +36,11 @@ public class Event implements NamedDrawable{
         this.name = name;
     }
 
-    public void toggleVisibility() {
-        visible = !visible;
-    }
-
     public void setVisibility(boolean b) {
         visible = b;
     }
+
+    public Color getColor(){ return Color.RED; }
 
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
         if(visible && name != null){

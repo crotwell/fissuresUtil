@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 
@@ -18,8 +19,7 @@ import java.awt.Graphics2D;
 public interface Drawable {
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp);
 
-    public void toggleVisibility();
-
     public void setVisibility(boolean b);
 
+    public Color getColor();
 }// Plotter

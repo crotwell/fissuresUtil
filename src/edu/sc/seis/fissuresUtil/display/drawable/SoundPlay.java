@@ -71,13 +71,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
         visible = b;
     }
 
-    /**
-     * Method toggleVisibility
-     *
-     */
-    public void toggleVisibility() {
-        visible = !visible;
-    }
+    public Color getColor(){ return drawColor; }
 
     /**
      * Invoked when the mouse cursor has been moved onto a component

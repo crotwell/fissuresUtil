@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.FilteredDataSetSeismogram;
 
@@ -15,13 +15,13 @@ import edu.sc.seis.fissuresUtil.xml.FilteredDataSetSeismogram;
  */
 
 public class FilteredSeismogramShape extends SeismogramShape {
-    public FilteredSeismogramShape(ColoredFilter filter,
+    public FilteredSeismogramShape(NamedFilter filter,
                                    DataSetSeismogram seismogram,
                                    SeismogramDisplay parent){
         super(parent, FilteredDataSetSeismogram.getFiltered(seismogram,filter));
     }
 
-    public ColoredFilter getFilter(){
+    public NamedFilter getFilter(){
         return ((FilteredDataSetSeismogram)getSeismogram()).getFilter();
     }
 

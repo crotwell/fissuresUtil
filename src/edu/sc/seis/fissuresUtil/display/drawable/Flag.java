@@ -55,7 +55,7 @@ public class Flag implements Drawable{
         }
     }
 
-    public void toggleVisibility(){ visible = !visible; }
+    public Color getColor(){ return Color.RED; }
 
     public void setVisibility(boolean b){ visible = b; }
 
