@@ -22,7 +22,7 @@ public class Log4jReporter implements ExceptionReporter{
         Iterator it = sections.iterator();
         while(it.hasNext()) {
             Section section = (Section)it.next();
-            logger.error(section.getName()+":"+section.getContents());
+            logger.debug(section.getName()+":"+section.getContents());
         }
     }
 
