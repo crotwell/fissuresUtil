@@ -126,6 +126,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	repaint();
     }
 
+    public VerticalSeismogramDisplay getParent(){ return parent; }
+    
     public String getName(){ return name; }
     
     public void setName(String name){ this.name = name; } 
