@@ -20,13 +20,20 @@ public class ConnMgr {
     public static void addPropsLocation(String loc) {
         synchronized(propLocs){
             if(!propLocs.contains(loc))propLocs.add(loc);
+            if(props != null){
+                try {
+                    load(loc, props);
+                } catch (IOException e) {
+                    throw new RuntimeException("Bad props location " + loc, e);
+                }
+            }
         }
     }
     
     /**
      * Sets the ConnMgr to use the default db, which as of now is an in-memory HSQLDb
      */
-    public static void setDB() throws IOException{ setDB(HSQL); }
+    public static void setDB() throws IOException{ setDB(DB_NAME); }
     
     /**
      *Sets the DB to be used based on the default values for the name.
@@ -35,19 +42,20 @@ public class ConnMgr {
      * @throws IOException if some of the props don't load
      */
     public static void setDB(String dbName) throws IOException{
+        DB_NAME = dbName;
         Properties props = new Properties();
         synchronized(propLocs){
             Iterator it = propLocs.iterator();
-            while(it.hasNext())load((String)it.next(), dbName, props);
+            while(it.hasNext())load((String)it.next(), props);
         }
         setDB(props);
     }
     
-    private static void load(String loc, String type, Properties existing) throws IOException{
+    private static void load(String loc, Properties existing) throws IOException{
         ClassLoader cl = ConnMgr.class.getClassLoader();
         load(cl, loc + DEFAULT_PROPS, existing);
-        if(type == HSQL)load(cl, loc + HSQL_PROPS, existing);
-        else if(type == MCKOI)load(cl, loc + MCKOI_PROPS, existing);
+        if(DB_NAME == HSQL)load(cl, loc + HSQL_PROPS, existing);
+        else if(DB_NAME == MCKOI)load(cl, loc + MCKOI_PROPS, existing);
     }
     
     private static void load(ClassLoader cl, String loc, Properties existing) throws IOException{
@@ -67,7 +75,12 @@ public class ConnMgr {
     
     private static String getDriver(){ return props.getProperty("driver"); }
     
-    private static String getURL(){ return  props.getProperty("URL"); }
+    public static void setURL(String url){ ConnMgr.url = url; }
+    
+    private static String getURL(){
+        if(url == null) url =  props.getProperty("URL");
+        return url;
+    }
     
     private static String getPass() { return props.getProperty("password"); }
     
@@ -110,11 +123,15 @@ public class ConnMgr {
     
     private static String MCKOI_PROPS = "MCKOI.props";
     
+    private static String DB_NAME = HSQL;
+    
     public static final String POSTGRES = "";//TODO
     
     private static Properties props;
     
     private static List propLocs = new ArrayList();
+    
+    private static String url;
     
     static{
         propLocs.add(DEFAULT_LOC);
