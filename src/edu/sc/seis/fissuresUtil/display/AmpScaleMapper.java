@@ -19,12 +19,13 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         this.hintPixels = hintPixels;
         this.reg = reg;
         reg.addListener(this);
-    } 
-  
-    public int getPixelLocation(int i) {
-        return SimplePlotUtil.getPixel(totalPixels, range, 
-                                       minTick + i * tickInc);
-        //earlier it was total
+    }
+
+    public int getPixelLocation(int i){
+
+        return (int)Math.round(SimplePlotUtil.linearInterp(minTick, 0,
+                                            calcRange, totalPixels,
+                                            minTick + i * tickInc));
     }
 
     public String getLabel(int i) {
@@ -63,9 +64,6 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
             return;
         }
 
-        // aim for about hintNumber ticks
-        double hintNumber = totalPixels/(double)hintPixels;
-
         double rangeWidth = range.getMaxValue()-range.getMinValue();
 
         if ( rangeWidth == 0) {
@@ -73,10 +71,10 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
             numTicks = 0;
             return;
         } // end of if ()
-        
 
-        // find power of ten just larger than the goalTickInc 
-        tickInc = Math.pow(10, 
+
+        // find power of ten just larger than the goalTickInc
+        tickInc = Math.pow(10,
                            Math.ceil(Math.log(rangeWidth) /
                                      Math.log(10.0)));
         double goalTickInc = (rangeWidth) / totalPixels * hintPixels;
@@ -99,8 +97,8 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         minTick = tickInc *
             Math.floor(range.getMinValue() / tickInc);
         double minMajorTick = majorTickStep * tickInc *
-            Math.floor(range.getMinValue() / 
-                       (majorTickStep * tickInc));
+            Math.floor(range.getMinValue() /
+                           (majorTickStep * tickInc));
         firstMajorTick = (int)Math.round((minTick-minMajorTick)/tickInc);
         if (firstMajorTick < 0) {
             firstMajorTick += majorTickStep;
@@ -108,16 +106,17 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
 
         numTicks = 1;
         while (minTick + numTicks * tickInc <= range.getMaxValue() ) {
-            numTicks++; 
+            numTicks++;
         }
-        //System.out.println("tickInc="+tickInc+" minTick="+minTick+" minMajorTick="+minMajorTick+" numTicks="+numTicks);
-
+        calcRange = tickInc * numTicks + minTick;
     }
-    
+
     public void setTotalPixels(int p) {
         totalPixels = p;
         calculateTicks();
     }
+
+    public int getTotalPixels(){ return totalPixels; }
 
     public void setUnitRange(UnitRangeImpl r) {
         range = r;
@@ -146,6 +145,8 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
     private double tickInc;
 
     private double minTick;
+
+    private double calcRange;
 
     private int numTicks = 0;
 
