@@ -37,32 +37,12 @@ public class ChannelChooserDisplay extends JPanel implements  ChannelChooserInte
     public void configure(NetworkDC netDC) {
 	
 	this.netDC = netDC;
-	final JButton closeButton = new JButton("CLOSE");
-	displayFrame = new JFrame("CHANNEL CHOOSER");
 	this.setLayout(new BorderLayout());
 	channelChooser  = new ChannelChooserGUI(netDC);
 	this.add(channelChooser, BorderLayout.CENTER);
-	this.add(closeButton, BorderLayout.SOUTH);
-	displayFrame.setContentPane(this);
-	
-	displayFrame.pack();
-	displayFrame.setResizable(false);
-		
-	
-	closeButton.addActionListener(new ActionListener() {
-
-		public void actionPerformed(ActionEvent e) {
-		
-		    displayFrame.hide();
-		    
-		}
-	    });
-
-    }
+  }
 
     public void displayChannelChooser() {
-
-	displayFrame.show();
 
     }
 
@@ -100,7 +80,5 @@ public class ChannelChooserDisplay extends JPanel implements  ChannelChooserInte
 
     NetworkDC netDC;
     
-    JFrame displayFrame;
-    
-
+  
 }// ChannelChooserDisplay
