@@ -16,10 +16,6 @@ public class FreshnessEventColorizer implements EventColorizer{
 	public static Color OLD_EVENT = Color.ORANGE;
 	public static Color REALLY_OLD_EVENT = Color.YELLOW;
 	
-	/*
-	 *	@param eventList can not be null
-	 *  @param event can be null
-	 */
 	public Paint[] colorize(EventAccessOperations[] events) {
 		Paint[] paints = new Color[events.length];
 		for (int i = 0; i < events.length; i++) {

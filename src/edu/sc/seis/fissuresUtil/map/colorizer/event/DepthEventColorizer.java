@@ -17,10 +17,6 @@ import java.awt.Paint;
 
 public class DepthEventColorizer implements EventColorizer{
 	
-	/*
-	 *	@param eventList can be null
-	 *  @param event cannot be null
-	 */
 	public Paint[] colorize(EventAccessOperations[] events) {
 		Paint[] paints = new Color[events.length];
 		for (int i = 0; i < events.length; i++) {
