@@ -18,6 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -53,8 +54,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 });
         add(scalingSlider, BorderLayout.EAST);
 
-        painter = new PlotPainter();
-        add(painter, BorderLayout.CENTER);
     }
 
 
@@ -91,11 +90,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         updating = false;
         if(displayRemove == null){
             displayRemove = new DisplayRemove(this);
-            setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
-                                                         BorderFactory.createCompoundBorder(border,
-                                                                                            BorderFactory.createLoweredBevelBorder())));
-
-
+            Border lowerScaleBorder = BorderFactory.createCompoundBorder(border,
+                                                                         loweredBevel);
+            setBorder(BorderFactory.createCompoundBorder(raisedBevel,
+                                                         lowerScaleBorder));
+            painter = new PlotPainter();
+            add(painter, BorderLayout.CENTER);
+            resize();
         }
         repaint();
     }
@@ -174,6 +175,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         dssPlotter.clear();
         displayRemove = null;
         setBorder(BorderFactory.createEmptyBorder());
+        remove(painter);
+        painter = null;
     }
 
     public void removeAll(){
@@ -267,7 +270,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         }
         Rectangle newPainterBounds = new Rectangle(insets.left, insets.right,
                                                    d.width, d.height);
-        painter.setBounds(newPainterBounds);
+        if(painter != null) painter.setBounds(newPainterBounds);
         if(timeScaleMap != null) timeScaleMap.setTotalPixels(d.width - scalingSlider.getSize().width);
         if(distanceScaler != null) distanceScaler.setTotalPixels(d.height);
     }
@@ -319,5 +322,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
     private double scaling = 1;
 
     private JSlider scalingSlider;
+
+    private Border raisedBevel  = BorderFactory.createRaisedBevelBorder();
+
+    private Border loweredBevel = BorderFactory.createLoweredBevelBorder();
 }
 
