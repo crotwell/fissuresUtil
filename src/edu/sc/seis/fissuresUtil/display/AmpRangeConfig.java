@@ -40,7 +40,7 @@ public interface AmpRangeConfig extends TimeSyncListener {
      * in the TimeRangeConfig object passed
      *
      */
-    public void visibleAmpCalc(TimeRangeConfig timeConfig);
+    public void visibleAmpCalc(TimeConfigRegistrar timeConfig);
 
     /**
      * Adds a seismogram to the current amplitude configurator
@@ -54,20 +54,7 @@ public interface AmpRangeConfig extends TimeSyncListener {
      * @param seis a <code>LocalSeismogram</code> value
      */
     public void removeSeismogram(LocalSeismogram seis);
-
-    /**
-     * Adds an amplitude sync listener to the current configurator
-     *
-     */
-    public void addAmpSyncListener(AmpSyncListener a);
-
-    /**
-     * Removes an amplitude sync listener from the current configurator
-     *
-     * 
-     */
-    public void removeAmpSyncListener(AmpSyncListener a);
-
+    
     /**
      * Sends a message to all AmpSyncListeners held by the configurator that the amplitude range has changed
      *
@@ -75,5 +62,9 @@ public interface AmpRangeConfig extends TimeSyncListener {
     public void updateAmpSyncListeners();
 
     public void fireAmpRangeEvent(AmpSyncEvent e);
+
+    public void setRegistrar(AmpConfigRegistrar registrar);
+
+    public AmpConfigRegistrar getRegistrar();
 
 }// AmpRangeConfig

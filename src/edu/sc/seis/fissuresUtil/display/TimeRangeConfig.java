@@ -47,19 +47,6 @@ public interface TimeRangeConfig {
      */
     public void removeSeismogram(LocalSeismogram seis);
     
-    /**
-     * Adds a time sync listener to the list to be informed when a time sync event occurs
-     * 
-     * @param t the time sync listener to be added
-     */
-    public void addTimeSyncListener(TimeSyncListener t);
-
-    /**
-     * Removes a TimeSyncListener from the update list
-     *
-     * @param t the time sync listener to be removed
-     */
-    public void removeTimeSyncListener(TimeSyncListener t);
     
     /**
      * Fire an event to all of the time sync listeners to update their time ranges

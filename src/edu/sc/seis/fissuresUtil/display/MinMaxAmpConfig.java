@@ -22,11 +22,11 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
     /** Returns the amp range for a particular seismogram over its complete time.
      */
     public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){
-	if(timeConfig == null)
+	if(timeRegistrar == null)
 	    return this.getAmpRange(aSeis,
 				    new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime()));
 	else
-	    return this.getAmpRange(aSeis, timeConfig.getTimeRange(aSeis));
+	    return this.getAmpRange(aSeis, timeRegistrar.getTimeRange(aSeis));
     }
 
     /** Returns the amp range for a particular seismogram over a particular time range.  If it is already in the config and a new time 
@@ -76,15 +76,15 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 
     /** Sets the config to get amplitude ranges based on a particular TimeRangeConfig
      */
-    public void visibleAmpCalc(TimeRangeConfig timeConfig){
+    public void visibleAmpCalc(TimeConfigRegistrar timeRegistrar){
 	UnitRangeImpl tempRange = ampRange;
 	ampRange = null;
-	this.timeConfig = timeConfig;
+	this.timeRegistrar = timeRegistrar;
 	intvCalc = true;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
 	    LocalSeismogram current = (LocalSeismogram)e.next();
-	    this.getAmpRange(current, timeConfig.getTimeRange(current));
+	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	intvCalc = false;
 	if(ampRange == null)
@@ -106,10 +106,10 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 	if(seismos.contains(aSeis)){
 	    LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
 	    MicroSecondTimeRange calcIntv;
-	    if(timeConfig == null)
+	    if(timeRegistrar == null)
 		calcIntv = new MicroSecondTimeRange(seis.getBeginTime(), seis.getEndTime());
 	    else
-		calcIntv = timeConfig.getTimeRange(aSeis);
+		calcIntv = timeRegistrar.getTimeRange(aSeis);
 	    int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
 						   seis.getBeginTime(),
 						   seis.getEndTime(),

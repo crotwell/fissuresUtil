@@ -17,8 +17,8 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
  * @version 0.1
  */
 
-public class SeismogramPlotter implements Plotter{
-    public SeismogramPlotter(LocalSeismogram seis, TimeRangeConfig trc, AmpRangeConfig arc){
+public class SeismogramPlotter extends AbstractSeismogramPlotter{
+    public SeismogramPlotter(LocalSeismogram seis, TimeConfigRegistrar trc, AmpConfigRegistrar arc){
 	this.seismogram = seis;
 	this.timeConfig = trc;
 	this.ampConfig = arc;
@@ -52,21 +52,5 @@ public class SeismogramPlotter implements Plotter{
 	return new GeneralPath();
     }
 
-    public LocalSeismogram getSeismogram(){ return seismogram; }
-
-    public TimeRangeConfig getTimeConfig(){ return timeConfig; }
-
-    public AmpRangeConfig getAmpConfig(){ return ampConfig; }
-    
-    public void toggleVisibility(){ visible = !visible; } 
-
-    protected LocalSeismogram seismogram;
-
-    protected TimeRangeConfig timeConfig;
-    
-    protected AmpRangeConfig ampConfig;
-
-    protected boolean visible = true;
-    
     static Category logger = Category.getInstance(SeismogramPlotter.class.getName());
 }// SeismogramPlotter

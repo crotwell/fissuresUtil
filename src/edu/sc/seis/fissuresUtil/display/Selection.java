@@ -21,12 +21,13 @@ import java.awt.Color;
  */
 
 public class Selection implements TimeSyncListener{
-    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeRangeConfig tr, HashMap plotters, BasicSeismogramDisplay parent, Color color){
+    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeConfigRegistrar tr, HashMap plotters, 
+		      BasicSeismogramDisplay parent, Color color){
 	this.externalTimeConfig = tr;
 	this.plotters = plotters;
 	this.parent = parent;
 	this.color = color;
-	internalTimeConfig = new BoundedTimeConfig();
+	internalTimeConfig = new TimeConfigRegistrar();
 	Iterator e = plotters.keySet().iterator();
 	while(e.hasNext()){
 	    Plotter current = ((Plotter)e.next());
@@ -51,21 +52,31 @@ public class Selection implements TimeSyncListener{
     public void adjustRange(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
 	MicroSecondTimeRange currentInternal = internalTimeConfig.getTimeRange();
 	double timeWidth = externalTimeConfig.getTimeRange().getInterval().getValue();
-	double beginDistance = Math.abs(currentInternal.getBeginTime().getMicroSecondTime() - 
-					selectionEnd.getMicroSecondTime())/timeWidth;
-	double endDistance = Math.abs(currentInternal.getEndTime().getMicroSecondTime() - 
-				      selectionBegin.getMicroSecondTime())/timeWidth;
-	if(beginDistance < endDistance){
+	if(released == true){
+	    double beginDistance = Math.abs(currentInternal.getBeginTime().getMicroSecondTime() - 
+					    selectionEnd.getMicroSecondTime())/timeWidth;
+	    double endDistance = Math.abs(currentInternal.getEndTime().getMicroSecondTime() - 
+					  selectionBegin.getMicroSecondTime())/timeWidth;
+	    if(beginDistance < endDistance)
+		selectedBegin = true;
+	    else
+		selectedBegin = false;
+	    released = false;
+	}else if(selectionBegin.getMicroSecondTime() > currentInternal.getEndTime().getMicroSecondTime() || 
+		 selectionEnd.getMicroSecondTime() < currentInternal.getBeginTime().getMicroSecondTime()){
+	    selectedBegin = !selectedBegin;
+	}
+	if(selectedBegin){
 	    internalTimeConfig.setDisplayInterval(new TimeInterval(selectionBegin, 
-								   currentInternal.getBeginTime().add(currentInternal.getInterval())));
-	    internalTimeConfig.setBeginTime(selectionBegin);
+								   currentInternal.getEndTime()));
+	    internalTimeConfig.setAllBeginTime(selectionBegin);
 	    parent.repaint();
 	}else{
 	    internalTimeConfig.setDisplayInterval(new TimeInterval(currentInternal.getBeginTime(), selectionEnd));
 	    parent.repaint();
 	}
     }
-
+    
     public boolean remove(){
 	if(internalTimeConfig.getTimeRange().getInterval().getValue()/externalTimeConfig.getTimeRange().getInterval().getValue() < .01)
 	    return true;
@@ -110,15 +121,19 @@ public class Selection implements TimeSyncListener{
 	return seismos;
     }
 
-    public TimeRangeConfig getInternalConfig(){ return internalTimeConfig; }
+    public void released(){ released = true; }
+
+    public TimeConfigRegistrar getInternalConfig(){ return internalTimeConfig; }
 
     public void updateTimeRange(){ parent.repaint(); }
 
     protected BasicSeismogramDisplay parent;
 
-    protected TimeRangeConfig externalTimeConfig, internalTimeConfig;
-
+    protected TimeConfigRegistrar externalTimeConfig, internalTimeConfig;
+    
     protected HashMap plotters;
 
     protected Color color;
+
+    protected boolean selectedBegin, released = true;
 }// Selection

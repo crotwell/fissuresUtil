@@ -41,17 +41,15 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     public void addDisplay(LocalSeismogramImpl seis, String name){
 	if(basicDisplays.size() > 0)
-	    this.addDisplay(seis,((SeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
-			((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig(), name);
+	    this.addDisplay(seis,((BasicSeismogramDisplay)basicDisplays.getFirst()).getTimeRegistrar(), 
+			new AmpConfigRegistrar(), name);
 	else{	    
-	    AmpRangeConfig ar = new RMeanAmpConfig();
-	    TimeRangeConfig tr = new BoundedTimeConfig();
 	    //ar.visibleAmpCalc(tr);
-	    this.addDisplay(seis, tr, ar, name);
-	}	    
+	    this.addDisplay(seis, new TimeConfigRegistrar(), new AmpConfigRegistrar(), name);
+	    }	    
     }
     
-    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeRangeConfig tr, AmpRangeConfig ar, String name){
+    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name){
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay((LocalSeismogram)seis, tr,
 								 ar, true, name, this);
 	seismograms.add(disp);
@@ -184,32 +182,4 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     protected SimpleDateFormat output = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.S");
 
     protected Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-
-    public static void main(String[] args){
-	try{
-	    JFrame jf = new JFrame("Test Seismogram View");
-	    LocalSeismogram test1 = SeisPlotUtil.createSineWave();
-	    LocalSeismogram test2 = SeisPlotUtil.createTestData();
-	    LocalSeismogram test3 = SeisPlotUtil.createSineWave();
-	    LocalSeismogram test4 = SeisPlotUtil.createTestData();
-	    VerticalSeismogramDisplay sv = new VerticalSeismogramDisplay(new MouseForwarder(), new MouseMotionForwarder());
-	    sv.addDisplay((LocalSeismogramImpl)test1, new BoundedTimeConfig(), new RMeanAmpConfig(), "");
-	    sv.addDisplay((LocalSeismogramImpl)test2, "");
-	    sv.addDisplay((LocalSeismogramImpl)test3, "");
-	    sv.addDisplay((LocalSeismogramImpl)test4, "");
-	    sv.addSeismogram((LocalSeismogramImpl)test2, 0);
-	    Dimension size = new Dimension(400, 400);
-	    sv.setPreferredSize(size);
-	    jf.getContentPane().add(sv);
-	    jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    jf.setSize(size);
-	    jf.setVisible(true);
-	    jf.addWindowListener(new WindowAdapter() {
-		    public void windowClosed(WindowEvent e) {
-			System.exit(0);
-		    }
-		});
-	}
-	catch(Exception e){ e.printStackTrace(); }
-    }
 }// VerticalSeismogramDisplay

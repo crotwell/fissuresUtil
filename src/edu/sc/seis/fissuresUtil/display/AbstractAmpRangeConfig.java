@@ -42,9 +42,9 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      * in the TimeRangeConfig object passed
      *
      */
-    public void visibleAmpCalc(TimeRangeConfig timeConfig){
-	this.timeConfig = timeConfig;
-	timeConfig.addTimeSyncListener(this);
+    public void visibleAmpCalc(TimeConfigRegistrar timeRegistrar){
+	this.timeRegistrar = timeRegistrar;
+	timeRegistrar.addTimeSyncListener(this);
 	this.updateTimeRange();
     }
 
@@ -62,26 +62,11 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
     public void removeSeismogram(LocalSeismogram seis){ seismos.remove(seis); }
 
     /**
-     * Adds an amplitude sync listener to the current configurator
-     *
-     */
-    public void addAmpSyncListener(AmpSyncListener a){ ampListeners.add(a); }
-
-    /**
-     * Removes an amplitude sync listener from the current configurator
-     *
-     * 
-     */
-    public void removeAmpSyncListener(AmpSyncListener a){ ampListeners.remove(a); }
-
-    /**
      * Sends a message to all AmpSyncListeners held by the configurator that the amplitude range has changed
      *
      */
     public void updateAmpSyncListeners(){
-	Iterator e = ampListeners.iterator();
-	while(e.hasNext())
-	    ((AmpSyncListener)e.next()).updateAmpRange();
+	ampRegistrar.updateAmpSyncListeners();
     }
 
     public void updateTimeRange(){
@@ -90,7 +75,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
 	    LocalSeismogram current = (LocalSeismogram)e.next();
-	    this.getAmpRange(current, timeConfig.getTimeRange(current));
+	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	if(ampRange == null){
 	    ampRange = tempRange;
@@ -100,7 +85,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
     }
 
     public void fireAmpRangeEvent(AmpSyncEvent event){
-		double begin = event.getBegin();
+	double begin = event.getBegin();
 	double end = event.getEnd();
 	if(this.ampRange == null) {
 
@@ -110,16 +95,20 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	}
 	this.updateAmpSyncListeners();
     }
+
+    public void setRegistrar(AmpConfigRegistrar registrar){ this.ampRegistrar = registrar; }
+
+    public AmpConfigRegistrar getRegistrar(){ return ampRegistrar; }
     
     protected boolean intvCalc = false;
     
     protected UnitRangeImpl ampRange;
 
-    protected TimeRangeConfig timeConfig = null;
+    protected TimeConfigRegistrar timeRegistrar = null;
 
     protected LinkedList seismos = new LinkedList();
     
-    protected LinkedList ampListeners = new LinkedList();
+    protected AmpConfigRegistrar ampRegistrar;
 
     protected Category logger = Category.getInstance(AbstractAmpRangeConfig.class.getName());
 }// AbstractAmpRangeConfig

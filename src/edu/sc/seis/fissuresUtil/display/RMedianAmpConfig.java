@@ -24,11 +24,11 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
     /** Returns the median centered amp range for a seismogram for its complete time range
      */
     public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){
-	if(timeConfig == null)
+	if(timeRegistrar == null)
 	    return this.getAmpRange(aSeis,new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), 
 								   ((LocalSeismogramImpl)aSeis).getEndTime()));
 	else
-	    return this.getAmpRange(aSeis, this.timeConfig.getTimeRange(aSeis));
+	    return this.getAmpRange(aSeis, this.timeRegistrar.getTimeRange(aSeis));
     }
 
     /** Returns the median centered amp range for a seismogram over a given time interval
@@ -84,14 +84,14 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
     
     /** Sets the amp range calculations to be configured over a new time config
      */
-    public void visibleAmpCalc(TimeRangeConfig timeConfig){
+    public void visibleAmpCalc(TimeConfigRegistrar timeRegistrar){
 	UnitRangeImpl tempRange = ampRange;
 	ampRange = null;
-	this.timeConfig = timeConfig;
+	this.timeRegistrar = timeRegistrar;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
 	    LocalSeismogram current = (LocalSeismogram)e.next();
-	    this.getAmpRange(current, timeConfig.getTimeRange(current));
+	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	if(ampRange == null){
 	    ampRange = tempRange;
@@ -109,10 +109,10 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
     public void removeSeismogram(LocalSeismogram aSeis){ 
 	if(seismos.contains(aSeis)){
 	    MicroSecondTimeRange calcIntv;
-	    if(this.timeConfig == null)
+	    if(this.timeRegistrar == null)
 		calcIntv = new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime());
 	    else
-		calcIntv = timeConfig.getTimeRange(aSeis);
+		calcIntv = timeRegistrar.getTimeRange(aSeis);
 	    LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
 	    int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
 						   seis.getBeginTime(),

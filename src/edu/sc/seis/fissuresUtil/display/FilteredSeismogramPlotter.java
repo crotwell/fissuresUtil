@@ -22,8 +22,8 @@ import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
  * @version
  */
 
-public class FilteredSeismogramPlotter implements Plotter{
-    public FilteredSeismogramPlotter(ButterworthFilter filter, LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar){
+public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
+    public FilteredSeismogramPlotter(ButterworthFilter filter, LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar){
 	this.seis = (LocalSeismogramImpl)seis;
 	this.timeConfig = tr;
 	this.ampConfig = ar;
@@ -85,21 +85,11 @@ public class FilteredSeismogramPlotter implements Plotter{
 
     public ButterworthFilter getFilter(){ return filter; }
 
-    public void toggleVisibility(){ visible = !visible; } 
-
-    public void setVisibility(boolean b){ visible = b; }
-
     public LocalSeismogramImpl getUnfilteredSeismogram(){ return seis; }
 
     protected LocalSeismogramImpl seis, filteredSeis;
-    
-    protected TimeRangeConfig timeConfig;
-    
-    protected AmpRangeConfig ampConfig;
-    
+
     protected ButterworthFilter filter;
-    
-    protected boolean visible = true;
     
     protected static SeisGramText localeText = new SeisGramText(null);
     

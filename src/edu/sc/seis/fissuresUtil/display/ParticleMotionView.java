@@ -26,9 +26,9 @@ import org.apache.log4j.*;
 public class ParticleMotionView extends JComponent{
     public ParticleMotionView (final LocalSeismogramImpl hseis, 
 			       LocalSeismogramImpl vseis,
-			       TimeRangeConfig timeRangeConfig,
-			       final AmpRangeConfig hAmpRangeConfig,
-			       AmpRangeConfig vAmpRangeConfig, 
+			       TimeConfigRegistrar timeRegistrar,
+			       final AmpConfigRegistrar hAmpConfigRegistrar,
+			       AmpConfigRegistrar vAmpConfigRegistrar, 
 			       ParticleMotionDisplay particleMotionDisplay,
 			       Color color){
 	
@@ -36,14 +36,14 @@ public class ParticleMotionView extends JComponent{
 	
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
-							   timeRangeConfig,
-							   hAmpRangeConfig,
-							   vAmpRangeConfig,
+							   timeRegistrar,
+							   hAmpConfigRegistrar,
+							   vAmpConfigRegistrar,
 							   color);
 	displays.add(particleMotion);
 	    
-	vunitRangeImpl = vAmpRangeConfig.getAmpRange(vseis);
-	hunitRangeImpl = hAmpRangeConfig.getAmpRange(vseis);
+	vunitRangeImpl = vAmpConfigRegistrar.getAmpRange(vseis);
+	hunitRangeImpl = hAmpConfigRegistrar.getAmpRange(vseis);
 	
 	this.addMouseListener(new MouseAdapter() {
 
@@ -178,7 +178,7 @@ public class ParticleMotionView extends JComponent{
 	      //	  for(int j = -4; j < 4; j++) {
 		      if(shape.contains(newx, newy)){  
 			  particleMotion.setSelected(true);rtn = true;
-			  // particleMotionDisplay.updateAmpScale(particleMotion.hAmpRangeConfig.getAmpRange(particleMotion.hseis));
+			  // particleMotionDisplay.updateAmpScale(particleMotion.hAmpConfigRegistrar.getAmpRange(particleMotion.hseis));
 		      }
 		      // }
 		      //}
@@ -246,8 +246,8 @@ public class ParticleMotionView extends JComponent{
 	Dimension dimension = super.getSize();
 	    LocalSeismogramImpl hseis = particleMotion.hseis;
 	    LocalSeismogramImpl vseis = particleMotion.vseis;
-	    AmpRangeConfig vAmpRangeConfig = particleMotion.vAmpRangeConfig;
-	    AmpRangeConfig hAmpRangeConfig = particleMotion.hAmpRangeConfig;
+	    AmpConfigRegistrar vAmpConfigRegistrar = particleMotion.vAmpConfigRegistrar;
+	    AmpConfigRegistrar hAmpConfigRegistrar = particleMotion.hAmpConfigRegistrar;
 	    
 	    Color color = particleMotion.getColor();
 	    if(color == null) {
@@ -271,7 +271,7 @@ public class ParticleMotionView extends JComponent{
 		System.out.println("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
 				   " vmin = "+vunitRangeImpl.getMinValue());
 		MicroSecondTimeRange microSecondTimeRange = null;		   
-		if(particleMotion.timeRangeConfig == null) {
+		if(particleMotion.timeRegistrar == null) {
 		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
 								    new MicroSecondDate(hseis.getEndTime()));
 		    //System.out.println("beginTime = "+hseis.getBeginTime());
@@ -357,11 +357,11 @@ public class ParticleMotionView extends JComponent{
 	//logger.debug("*******************************************************");
 	int size = azimuths.size();
 	ParticleMotion particleMotion = (ParticleMotion)displays.get(0);
-	AmpRangeConfig ampRangeConfig = particleMotion.vAmpRangeConfig;
+	AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
 	UnitRangeImpl unitRangeImpl = vunitRangeImpl;//ampRangeConfig.getAmpRange(particleMotion.vseis);
 	double vmin = unitRangeImpl.getMinValue();
 	double vmax = unitRangeImpl.getMaxValue();
-	unitRangeImpl =  hunitRangeImpl;//particleMotion.hAmpRangeConfig.getAmpRange(particleMotion.hseis);
+	unitRangeImpl =  hunitRangeImpl;//particleMotion.hAmpConfigRegistrar.getAmpRange(particleMotion.hseis);
 	double hmin = unitRangeImpl.getMinValue();
 	double hmax = unitRangeImpl.getMaxValue();
 	
@@ -402,11 +402,11 @@ public class ParticleMotionView extends JComponent{
     public Shape getSectorShape() {
 
 	ParticleMotion particleMotion = (ParticleMotion)displays.get(0);
-	AmpRangeConfig ampRangeConfig = particleMotion.vAmpRangeConfig;
+	AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
 	UnitRangeImpl unitRangeImpl = vunitRangeImpl;//ampRangeConfig.getAmpRange(particleMotion.vseis);
 	double vmin = unitRangeImpl.getMinValue();
 	double vmax = unitRangeImpl.getMaxValue();
-	unitRangeImpl =  hunitRangeImpl;//particleMotion.hAmpRangeConfig.getAmpRange(particleMotion.hseis);
+	unitRangeImpl =  hunitRangeImpl;//particleMotion.hAmpConfigRegistrar.getAmpRange(particleMotion.hseis);
 	double hmin = hunitRangeImpl.getMinValue();
 	double hmax = hunitRangeImpl.getMaxValue();
 	
@@ -448,15 +448,15 @@ public class ParticleMotionView extends JComponent{
     
     public void addParticleMotionDisplay(LocalSeismogramImpl hseis,
 					 LocalSeismogramImpl vseis,
-					 TimeRangeConfig timeRangeConfig,
-					 AmpRangeConfig hAmpRangeConfig,
-					 AmpRangeConfig vAmpRangeConfig, 
+					 TimeConfigRegistrar timeRegistrar,
+					 AmpConfigRegistrar hAmpConfigRegistrar,
+					 AmpConfigRegistrar vAmpConfigRegistrar, 
 					 Color color) {
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
-							   timeRangeConfig,
-							   hAmpRangeConfig,
-							   vAmpRangeConfig,
+							   timeRegistrar,
+							   hAmpConfigRegistrar,
+							   vAmpConfigRegistrar,
 							   color);
 	displays.add(particleMotion);
 
@@ -485,7 +485,7 @@ public class ParticleMotionView extends JComponent{
 	for(int counter = 0; counter < size; counter++) {
 
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
-	    AmpRangeConfig ampRangeConfig = particleMotion.hAmpRangeConfig;
+	    AmpConfigRegistrar ampRangeConfig = particleMotion.hAmpConfigRegistrar;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.hseis);
 	    if(min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
 	}
@@ -499,7 +499,7 @@ public class ParticleMotionView extends JComponent{
 	for(int counter = 0; counter < size; counter++) {
 
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
-	    AmpRangeConfig ampRangeConfig = particleMotion.hAmpRangeConfig;
+	    AmpConfigRegistrar ampRangeConfig = particleMotion.hAmpConfigRegistrar;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.hseis);
 	    if(max < unitRangeImpl.getMaxValue()) { max = unitRangeImpl.getMaxValue();}
 	}
@@ -513,7 +513,7 @@ public class ParticleMotionView extends JComponent{
 	for(int counter = 0; counter < size; counter++) {
 	    
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
-	    AmpRangeConfig ampRangeConfig = particleMotion.vAmpRangeConfig;
+	    AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.vseis);
 	    if( min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
 	}
@@ -527,7 +527,7 @@ public class ParticleMotionView extends JComponent{
 	for(int counter = 0; counter < size; counter++) {
 
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
-	    AmpRangeConfig ampRangeConfig = particleMotion.vAmpRangeConfig;
+	    AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.vseis);
 	    if(max < unitRangeImpl.getMaxValue()) { max = unitRangeImpl.getMaxValue();}
 	}
@@ -611,29 +611,29 @@ public class ParticleMotionView extends JComponent{
     class ParticleMotion implements TimeSyncListener{
 	public ParticleMotion(final LocalSeismogramImpl hseis, 
 			      LocalSeismogramImpl vseis,
-			      TimeRangeConfig timeRangeConfig,
-			      final AmpRangeConfig hAmpRangeConfig,
-			      AmpRangeConfig vAmpRangeConfig, 
+			      TimeConfigRegistrar timeRegistrar,
+			      final AmpConfigRegistrar hAmpConfigRegistrar,
+			      AmpConfigRegistrar vAmpConfigRegistrar, 
 			      Color color) {
 
 	    this.hseis = hseis;
 	    this.vseis = vseis;
-	    this.timeRangeConfig = timeRangeConfig;
-	    this.hAmpRangeConfig = hAmpRangeConfig;
-	    this.vAmpRangeConfig = vAmpRangeConfig;
+	    this.timeRegistrar = timeRegistrar;
+	    this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+	    this.vAmpConfigRegistrar = vAmpConfigRegistrar;
 	    setColor(color);
-	    if(this.timeRangeConfig != null) {
-		this.timeRangeConfig.addTimeSyncListener(this);
-		this.microSecondTimeRange = timeRangeConfig.getTimeRange();
-		this.hAmpRangeConfig.visibleAmpCalc(this.timeRangeConfig);
-		this.vAmpRangeConfig.visibleAmpCalc(this.timeRangeConfig);
-	    }
+	    if(this.timeRegistrar != null) {
+		this.timeRegistrar.addTimeSyncListener(this);
+		this.microSecondTimeRange = timeRegistrar.getTimeRange();
+		this.hAmpConfigRegistrar.visibleAmpCalc(this.timeRegistrar);
+		this.vAmpConfigRegistrar.visibleAmpCalc(this.timeRegistrar);
+		}
 	}
 
 	
 	public void updateTimeRange() {
-	    if(timeRangeConfig != null) {
-		this.microSecondTimeRange = timeRangeConfig.getTimeRange();
+	    if(timeRegistrar != null) {
+		this.microSecondTimeRange = timeRegistrar.getTimeRange();
 	    }
 	    setSelected(true);
 	}
@@ -669,9 +669,9 @@ public class ParticleMotionView extends JComponent{
 
 	public LocalSeismogramImpl hseis;
 	public LocalSeismogramImpl vseis;
-	public AmpRangeConfig hAmpRangeConfig;
-	public AmpRangeConfig vAmpRangeConfig;
-	public TimeRangeConfig timeRangeConfig;
+	public AmpConfigRegistrar hAmpConfigRegistrar;
+	public AmpConfigRegistrar vAmpConfigRegistrar;
+	public TimeConfigRegistrar timeRegistrar;
 	private MicroSecondTimeRange microSecondTimeRange;
 	private Shape shape;
 	private Color color = null;

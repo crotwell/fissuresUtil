@@ -20,9 +20,12 @@ import java.util.*;
 
 public class BoundedTimeConfig extends AbstractTimeRangeConfig{
     
-    /** Merely returns the time range that has been set
-     */
+    public BoundedTimeConfig(TimeConfigRegistrar registrar){
+	this.registrar = registrar;
+    }
+
     public MicroSecondTimeRange getTimeRange(LocalSeismogram seis){
+	System.out.println("getting time range for seismogram " + ((MicroSecondDate)seismos.get(seis)));
 	return new MicroSecondTimeRange(((MicroSecondDate)seismos.get(seis)), ((MicroSecondDate)seismos.get(seis)).add(displayInterval));
     }
 
