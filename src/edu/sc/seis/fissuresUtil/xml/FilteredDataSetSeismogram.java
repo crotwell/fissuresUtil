@@ -15,6 +15,7 @@ import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
+import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 public class FilteredDataSetSeismogram extends DataSetSeismogram implements SeismogramContainerListener{
 
@@ -31,12 +33,11 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
         super(dss.getDataSet(), filter.getName());
         this.filter = filter;
         wrappedDSS = dss;
-        container = new SeismogramContainer(wrappedDSS);
-        container.addListener(this);
+        container = new SeismogramContainer(this, wrappedDSS);
     }
 
     public void updateData(){
-       filterPool.invokeLater(new Filterer());
+        filterPool.invokeLater(new Filterer());
     }
 
     private static WorkerThreadPool filterPool = new WorkerThreadPool("FilterThread", 1, Thread.NORM_PRIORITY - 1);
@@ -176,4 +177,6 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
     private SeismogramContainer container;
 
     private Map dataMap = new HashMap();
+
+    private static final Logger logger = Logger.getLogger(FilteredDataSetSeismogram.class);
 }
