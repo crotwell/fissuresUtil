@@ -169,7 +169,7 @@ public class ExceptionHandlerGUI {
         rtnValue += "user.region : "+System.getProperty("user.region")+"\n";
 
         rtnValue += "\n\n\n Other Properties:\n";
-        StringWriter stringWriter = new StringWriter()
+        StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         java.util.Properties props = System.getProperties();
         props.list(printWriter);
