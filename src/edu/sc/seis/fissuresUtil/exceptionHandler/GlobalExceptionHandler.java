@@ -68,6 +68,14 @@ public class GlobalExceptionHandler {
         }
     }
 
+    public static void add(Extractor extractor) {
+        extractors.add(extractor);
+    }
+
+    static List getExtractors() {
+        return extractors;
+    }
+
     public static void add(ExceptionReporter reporter){
         reporters.add(reporter);
     }
@@ -146,6 +154,8 @@ public class GlobalExceptionHandler {
 
     private static List reporters = Collections.synchronizedList(new ArrayList());
 
+    private static List extractors = Collections.synchronizedList(new ArrayList());
+
     private static boolean showSysInfo = true;
 
     private static int numHandled = 0;
@@ -153,7 +163,7 @@ public class GlobalExceptionHandler {
     static {
         // always send error to log4j
         add(new Log4jReporter());
-
+        add(new DefaultExtractor());
     }
 }
 
