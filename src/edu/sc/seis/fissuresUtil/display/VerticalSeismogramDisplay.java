@@ -42,7 +42,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	this.getViewport().add(seismograms);
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
-	sorter = new AlphaSeisSorter();
+	sorter = new SeismogramSorter();
 	if(parent != null){
 	    this.originalVisible = parent.getOriginalVisibility();
 	    this.parent = parent;
@@ -403,7 +403,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    creator.addDisplay(reaper.addDisplay(first, tr, ar, 
 						 creator.getParent().getName() + "." + creator.getColor()));
 	    ar.visibleAmpCalc(tr);
-	    while(e.hasNext()){
+	     while(e.hasNext()){
 		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
     }
