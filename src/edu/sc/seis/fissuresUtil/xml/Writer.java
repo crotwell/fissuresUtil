@@ -62,16 +62,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * A sample DOM writer. This sample program illustrates how to
@@ -79,7 +74,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Andy Clark, IBM
  *
- * @version $Id: Writer.java 4393 2003-06-13 04:37:46Z crotwell $
+ * @version $Id: Writer.java 9344 2004-06-25 19:19:52Z oliverpa $
  */
 public class Writer {
 
@@ -136,17 +131,26 @@ public class Writer {
     /** Canonical output. */
     protected boolean fCanonical;
 
+    /** Print newlines after end elements **/
+    protected boolean printNewlines;
+
     //
     // Constructors
     //
 
     /** Default constructor. */
     public Writer() {
+        this(false);
     } // <init>()
 
     public Writer(boolean canonical) {
-        fCanonical = canonical;
+        this(canonical, false);
     } // <init>(boolean)
+
+    public Writer(boolean canonical, boolean printNewlines){
+        fCanonical = canonical;
+        this.printNewlines = printNewlines;
+    }
 
     //
     // Public methods
@@ -174,7 +178,7 @@ public class Writer {
     public void setOutput(java.io.Writer writer) {
 
         fOut = writer instanceof PrintWriter
-             ? (PrintWriter)writer : new PrintWriter(writer);
+            ? (PrintWriter)writer : new PrintWriter(writer);
 
     } // setOutput(java.io.Writer)
 
@@ -189,121 +193,133 @@ public class Writer {
         short type = node.getNodeType();
         switch (type) {
             case Node.DOCUMENT_NODE: {
-                Document document = (Document)node;
-                if (!fCanonical) {
-                    fOut.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-                    fOut.flush();
-                    write(document.getDoctype());
+                    Document document = (Document)node;
+                    if (!fCanonical) {
+                        fOut.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                        fOut.flush();
+                        write(document.getDoctype());
+                    }
+                    write(document.getDocumentElement());
+                    break;
                 }
-                write(document.getDocumentElement());
-                break;
-            }
 
             case Node.DOCUMENT_TYPE_NODE: {
-                DocumentType doctype = (DocumentType)node;
-                fOut.print("<!DOCTYPE ");
-                fOut.print(doctype.getName());
-                String publicId = doctype.getPublicId();
-                String systemId = doctype.getSystemId();
-                if (publicId != null) {
-                    fOut.print(" PUBLIC '");
-                    fOut.print(publicId);
-                    fOut.print("' '");
-                    fOut.print(systemId);
-                    fOut.print('\'');
+                    DocumentType doctype = (DocumentType)node;
+                    fOut.print("<!DOCTYPE ");
+                    fOut.print(doctype.getName());
+                    String publicId = doctype.getPublicId();
+                    String systemId = doctype.getSystemId();
+                    if (publicId != null) {
+                        fOut.print(" PUBLIC '");
+                        fOut.print(publicId);
+                        fOut.print("' '");
+                        fOut.print(systemId);
+                        fOut.print('\'');
+                    }
+                    else {
+                        fOut.print(" SYSTEM '");
+                        fOut.print(systemId);
+                        fOut.print('\'');
+                    }
+                    String internalSubset = doctype.getInternalSubset();
+                    if (internalSubset != null) {
+                        if (printNewlines){
+                            fOut.println(" [");
+                        } else{
+                            fOut.print(" [");
+                        }
+                        fOut.print(internalSubset);
+                        fOut.print(']');
+                    }
+                    fOut.println('>');
+                    break;
                 }
-                else {
-                    fOut.print(" SYSTEM '");
-                    fOut.print(systemId);
-                    fOut.print('\'');
-                }
-                String internalSubset = doctype.getInternalSubset();
-                if (internalSubset != null) {
-                    fOut.println(" [");
-                    fOut.print(internalSubset);
-                    fOut.print(']');
-                }
-                fOut.println('>');
-                break;
-            }
 
             case Node.ELEMENT_NODE: {
-                fOut.print('<');
-                fOut.print(node.getNodeName());
-                Attr attrs[] = sortAttributes(node.getAttributes());
-                for (int i = 0; i < attrs.length; i++) {
-                    Attr attr = attrs[i];
-                    fOut.print(' ');
-                    fOut.print(attr.getNodeName());
-                    fOut.print("=\"");
-                    normalizeAndPrint(attr.getNodeValue());
-                    fOut.print('"');
-                }
-                fOut.print('>');
-                fOut.flush();
+                    fOut.print('<');
+                    fOut.print(node.getNodeName());
+                    Attr attrs[] = sortAttributes(node.getAttributes());
+                    for (int i = 0; i < attrs.length; i++) {
+                        Attr attr = attrs[i];
+                        fOut.print(' ');
+                        fOut.print(attr.getNodeName());
+                        fOut.print("=\"");
+                        normalizeAndPrint(attr.getNodeValue());
+                        fOut.print('"');
+                    }
+                    fOut.print('>');
+                    fOut.flush();
 
-                Node child = node.getFirstChild();
-                while (child != null) {
-                    write(child);
-                    child = child.getNextSibling();
-                }
-                break;
-            }
-
-            case Node.ENTITY_REFERENCE_NODE: {
-                if (fCanonical) {
                     Node child = node.getFirstChild();
                     while (child != null) {
                         write(child);
                         child = child.getNextSibling();
                     }
+                    break;
                 }
-                else {
-                    fOut.print('&');
-                    fOut.print(node.getNodeName());
-                    fOut.print(';');
-                    fOut.flush();
+
+            case Node.ENTITY_REFERENCE_NODE: {
+                    if (fCanonical) {
+                        Node child = node.getFirstChild();
+                        while (child != null) {
+                            write(child);
+                            child = child.getNextSibling();
+                        }
+                    }
+                    else {
+                        fOut.print('&');
+                        fOut.print(node.getNodeName());
+                        fOut.print(';');
+                        fOut.flush();
+                    }
+                    break;
                 }
-                break;
-            }
 
             case Node.CDATA_SECTION_NODE: {
-                if (fCanonical) {
-                    normalizeAndPrint(node.getNodeValue());
+                    if (fCanonical) {
+                        normalizeAndPrint(node.getNodeValue());
+                    }
+                    else {
+                        fOut.print("<![CDATA[");
+                        fOut.print(node.getNodeValue());
+                        fOut.print("]]>");
+                    }
+                    fOut.flush();
+                    break;
                 }
-                else {
-                    fOut.print("<![CDATA[");
-                    fOut.print(node.getNodeValue());
-                    fOut.print("]]>");
-                }
-                fOut.flush();
-                break;
-            }
 
             case Node.TEXT_NODE: {
-                normalizeAndPrint(node.getNodeValue());
-                fOut.flush();
-                break;
-            }
+                    normalizeAndPrint(node.getNodeValue());
+                    fOut.flush();
+                    break;
+                }
 
             case Node.PROCESSING_INSTRUCTION_NODE: {
-                fOut.print("<?");
-                fOut.print(node.getNodeName());
-                String data = node.getNodeValue();
-                if (data != null && data.length() > 0) {
-                    fOut.print(' ');
-                    fOut.print(data);
+                    fOut.print("<?");
+                    fOut.print(node.getNodeName());
+                    String data = node.getNodeValue();
+                    if (data != null && data.length() > 0) {
+                        fOut.print(' ');
+                        fOut.print(data);
+                    }
+                    if (printNewlines){
+                        fOut.println("?>");
+                    } else {
+                        fOut.print("?>");
+                    }
+                    fOut.flush();
+                    break;
                 }
-                fOut.println("?>");
-                fOut.flush();
-                break;
-            }
         }
 
         if (type == Node.ELEMENT_NODE) {
             fOut.print("</");
             fOut.print(node.getNodeName());
-            fOut.println('>');
+            if (printNewlines){
+                fOut.println('>');
+            } else {
+                fOut.print('>');
+            }
             fOut.flush();
         }
 
@@ -358,34 +374,34 @@ public class Writer {
 
         switch (c) {
             case '<': {
-                fOut.print("&lt;");
-                break;
-            }
-            case '>': {
-                fOut.print("&gt;");
-                break;
-            }
-            case '&': {
-                fOut.print("&amp;");
-                break;
-            }
-            case '"': {
-                fOut.print("&quot;");
-                break;
-            }
-            case '\r':
-            case '\n': {
-                if (fCanonical) {
-                    fOut.print("&#");
-                    fOut.print(Integer.toString(c));
-                    fOut.print(';');
+                    fOut.print("&lt;");
                     break;
                 }
-                // else, default print char
-            }
+            case '>': {
+                    fOut.print("&gt;");
+                    break;
+                }
+            case '&': {
+                    fOut.print("&amp;");
+                    break;
+                }
+            case '"': {
+                    fOut.print("&quot;");
+                    break;
+                }
+            case '\r':
+            case '\n': {
+                    if (fCanonical) {
+                        fOut.print("&#");
+                        fOut.print(Integer.toString(c));
+                        fOut.print(';');
+                        break;
+                    }
+                    // else, default print char
+                }
             default: {
-                fOut.print(c);
-            }
+                    fOut.print(c);
+                }
         }
 
     } // normalizeAndPrint(char)
