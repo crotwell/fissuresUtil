@@ -20,7 +20,7 @@ import org.apache.log4j.Category;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 3601 2003-04-02 15:18:36Z groves $
+ * @version $Id: SimplePlotUtil.java 3887 2003-05-15 19:01:36Z groves $
  */
 
 public class SimplePlotUtil  {
@@ -592,9 +592,7 @@ public class SimplePlotUtil  {
             } // end of if (i % 20 = 0)
         } // end of for (int i=0; i<dataBits.length; i++)
 
-        //        dataBits[5*20] = 100;
         MicroSecondDate begin = spikeTime;
-        //            spikeTime.subtract(new TimeInterval(5, UnitImpl.SECOND));
         return createTestData(name, dataBits, begin.getFissuresTime());
     }
 
