@@ -1,14 +1,19 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
-import java.awt.event.*;
 
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
+import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
@@ -17,8 +22,6 @@ import java.util.LinkedList;
 import java.util.Vector;
 import javax.swing.JComponent;
 import org.apache.log4j.Category;
-import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
-import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 
 /**
  * ParticleMotionView.java
@@ -333,8 +336,13 @@ public class ParticleMotionView extends JComponent{
         for(int counter = 0; counter < size; counter++) {
             ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
             if(!displayKeys.contains(particleMotion.key)) continue;
-            Registrar ampRangeConfig = particleMotion.registrar;
-            UnitRangeImpl unitRangeImpl = ampRangeConfig.getLatestAmp().getAmp(particleMotion.hseis);
+            AmpEvent e = particleMotion.getLatestAmp();
+            UnitRangeImpl unitRangeImpl;
+            if(e.contains(particleMotion.hseis)){
+                unitRangeImpl = e.getAmp(particleMotion.hseis);
+            }else{
+                unitRangeImpl = DisplayUtils.ONE_RANGE;
+            }
             if(min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
         }
         return min;
@@ -346,8 +354,13 @@ public class ParticleMotionView extends JComponent{
         for(int counter = 0; counter < size; counter++) {
             ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
             if(!displayKeys.contains(particleMotion.key)) continue;
-            Registrar ampRangeConfig = particleMotion.registrar;
-            UnitRangeImpl unitRangeImpl = ampRangeConfig.getLatestAmp().getAmp(particleMotion.hseis);
+            AmpEvent e = particleMotion.getLatestAmp();
+            UnitRangeImpl unitRangeImpl;
+            if(e.contains(particleMotion.hseis)){
+                unitRangeImpl = e.getAmp(particleMotion.hseis);
+            }else{
+                unitRangeImpl = DisplayUtils.ONE_RANGE;
+            }
             if(max < unitRangeImpl.getMaxValue()) { max = unitRangeImpl.getMaxValue();}
         }
         return max;
@@ -364,8 +377,13 @@ public class ParticleMotionView extends JComponent{
         for(int counter = 0; counter < size; counter++) {
             ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
             if(!displayKeys.contains(particleMotion.key)) continue;
-            Registrar ampRangeConfig = particleMotion.registrar;
-            UnitRangeImpl unitRangeImpl = ampRangeConfig.getLatestAmp().getAmp(particleMotion.vseis);
+            AmpEvent e = particleMotion.getLatestAmp();
+            UnitRangeImpl unitRangeImpl;
+            if(e.contains(particleMotion.hseis)){
+                unitRangeImpl = e.getAmp(particleMotion.vseis);
+            }else{
+                unitRangeImpl = DisplayUtils.ONE_RANGE;
+            }
             if( min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
         }
         return min;
@@ -377,8 +395,13 @@ public class ParticleMotionView extends JComponent{
         for(int counter = 0; counter < size; counter++) {
             ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
             if(!displayKeys.contains(particleMotion.key)) continue;
-            Registrar ampRangeConfig = particleMotion.registrar;
-            UnitRangeImpl unitRangeImpl = ampRangeConfig.getLatestAmp().getAmp(particleMotion.vseis);
+            AmpEvent e = particleMotion.getLatestAmp();
+            UnitRangeImpl unitRangeImpl;
+            if(e.contains(particleMotion.hseis)){
+                unitRangeImpl = e.getAmp(particleMotion.vseis);
+            }else{
+                unitRangeImpl = DisplayUtils.ONE_RANGE;
+            }
             if(max < unitRangeImpl.getMaxValue()) { max = unitRangeImpl.getMaxValue();}
         }
         return max;
@@ -489,7 +512,7 @@ public class ParticleMotionView extends JComponent{
             Color.white,
             Color.black};
 
-    class ParticleMotion implements TimeListener, SeisDataChangeListener{
+    class ParticleMotion implements ConfigListener, TimeListener, AmpListener, SeisDataChangeListener{
         public ParticleMotion(final DataSetSeismogram hseis,
                               DataSetSeismogram vseis,
                               Registrar registrar,
@@ -509,6 +532,8 @@ public class ParticleMotionView extends JComponent{
             setColor(color);
             if(this.registrar != null) {
                 this.registrar.addListener(this);
+                DataSetSeismogram[] seis = { hseis, vseis};
+                registrar.add(seis);
             }
         }
 
@@ -531,9 +556,20 @@ public class ParticleMotionView extends JComponent{
                         sdce.getCausalException());
         }
 
-        public void updateTime(edu.sc.seis.fissuresUtil.display.registrar.TimeEvent timeEvent) {
+        public void update(ConfigEvent ce){
+            updateTime(ce.getTimeEvent());
+            updateAmp(ce.getAmpEvent());
+        }
+
+        public void updateTime(TimeEvent timeEvent) {
             this.microSecondTimeRange = timeEvent.getTime();
         }
+
+        public void updateAmp(AmpEvent ampEvent){
+            this.ampEvent = ampEvent;
+        }
+
+        public AmpEvent getLatestAmp(){ return ampEvent; }
 
         public MicroSecondTimeRange getTimeRange() {
             return this.microSecondTimeRange;
@@ -580,6 +616,7 @@ public class ParticleMotionView extends JComponent{
         private Color color = null;
         private boolean selected = false;
         private boolean horizPlane = false;
+        private AmpEvent ampEvent;
     }
 
     static Category logger =
