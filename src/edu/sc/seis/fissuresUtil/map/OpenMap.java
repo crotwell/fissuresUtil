@@ -152,10 +152,10 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             if(etopoLoc != null) {
                 try {
                     //create ETOPO Layer
-                    if(etopoColorMapFile != null) {
+                    if(etopoColorMapFile == null) {
                         etopoLayer = new ETOPOJarLayer();
                     } else {
-                        etopoLayer = new ColorMapEtopoLayer("/Users/oliverpa/Desktop/col.tbl2");
+                        etopoLayer = new ColorMapEtopoLayer(etopoColorMapFile);
                     }
                 } catch(FileNotFoundException e) {
                     // TODO Auto-generated catch block
@@ -369,9 +369,9 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
     public static void main(String[] args) {
         BasicConfigurator.configure();
         OpenMap om;
-        if(args.length > 0) {
+        if(args.length > 2) {
             om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
-                                     "edu/sc/seis/mapData", args[0]);
+                                     "edu/sc/seis/mapData", args[2]);
         } else {
             om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
                                      "edu/sc/seis/mapData");
