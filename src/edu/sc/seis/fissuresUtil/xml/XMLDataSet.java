@@ -19,28 +19,28 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1715 2002-05-28 18:28:22Z crotwell $
+ * @version $Id: XMLDataSet.java 1721 2002-05-28 21:12:38Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
-    protected XMLDataSet(DocumentBuilder docBuilder, URL base) {
-	this.base = base;       
+    public XMLDataSet(DocumentBuilder docBuilder, URL datasetURL) {
+	this.base = datasetURL; 
 	this.docBuilder = docBuilder;
     }
 
-    public static XMLDataSet load(URL base, InputStream inStream) {
+    public static XMLDataSet load(URL datasetURL) {
 	XMLDataSet dataset = null;
 	try {
 	    DocumentBuilderFactory factory
 		= DocumentBuilderFactory.newInstance();
 	    DocumentBuilder docBuilder = factory.newDocumentBuilder();
 	    
-	    Document doc = docBuilder.parse(inStream);
+	    Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
 	    Element docElement = doc.getDocumentElement();
 
 	    if (docElement.getTagName().equals("dataset")) {
 		System.out.println("dataset yes");
-		dataset = new XMLDataSet(docBuilder, base, docElement);
+		dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
 		System.out.println(docElement.getTagName()+" {"+docElement.getAttribute("datasetid")+"}");
 	    }
 	} catch (java.io.IOException e) {
@@ -477,9 +477,8 @@ public class XMLDataSet implements DataSet, Serializable {
 	    File file = new File(args[0]);
 	    URL base = file.toURL();
 
-	    XMLDataSet dataset = load(base,
-				      new BufferedInputStream(
-					  new FileInputStream(file)));
+	    XMLDataSet dataset = load(base);
+
 	    String[] names = dataset.getDataSetNames();
 	    for (int i=0; i<names.length; i++) {
 		FileOutputStream out = new FileOutputStream("test_"+names[i]);
