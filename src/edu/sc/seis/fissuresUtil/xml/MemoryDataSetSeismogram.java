@@ -20,6 +20,7 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
      public MemoryDataSetSeismogram(RequestFilter requestFilter,
                                     String name) {
          super(null, name, requestFilter);
+        seisCache = new LocalSeismogramImpl[0];
      }
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl seis,
