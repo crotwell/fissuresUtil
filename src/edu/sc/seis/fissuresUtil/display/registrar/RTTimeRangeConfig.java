@@ -4,10 +4,12 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.registrar.RTTimeRangeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.apache.log4j.Category;
+import javax.swing.Timer;
+import org.apache.log4j.Logger;
 /**
  * RTTimeRangeConfig.java
  *
@@ -41,7 +43,7 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
         if(time == null){
             MicroSecondDate startTime = new MicroSecondDate(seismos[0].getRequestFilter().start_time);
             MicroSecondDate endTime = new MicroSecondDate(seismos[0].getRequestFilter().end_time);
-            endTime = endTime.subtract(threeMinutes).add(serverTimeOffset);
+            endTime = endTime.subtract(THREE_MINUTES).add(serverTimeOffset);
             time = new MicroSecondTimeRange(startTime, endTime);
         }
         super.add(seismos);
@@ -50,7 +52,7 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
     public void startTimer() {
         if (timer == null) {
             timer =
-                new javax.swing.Timer((int)update.convertTo(UnitImpl.MILLISECOND).value,
+                new Timer((int)update.convertTo(UnitImpl.MILLISECOND).value,
                                       new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if (speed != 0 && lastDate != null) {
@@ -80,7 +82,6 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
         speed = 1;
         stopTimer();
         super.reset();
-        startTimer();
     }
 
     public void setSpeed(float speed) {
@@ -103,15 +104,12 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
     private float speed = 1;
 
     /** Timers are used for realTime update of the Seismograms **/
-    protected javax.swing.Timer timer;
-
-    protected javax.swing.Timer reloadTimer;
+    protected Timer timer;
 
     protected TimeInterval width;
 
-    private static Category logger = Category.getInstance(RTTimeRangeConfig.class.getName());
+    private static Logger logger = Logger.getLogger(RTTimeRangeConfig.class);
 
-    private static TimeInterval threeMinutes =
-        new TimeInterval(3, UnitImpl.MINUTE);
+    private static TimeInterval THREE_MINUTES = new TimeInterval(3, UnitImpl.MINUTE);
 
 }// RTTimeRangeConfig
