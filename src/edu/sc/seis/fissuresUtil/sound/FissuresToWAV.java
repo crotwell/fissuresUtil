@@ -3,6 +3,9 @@ package edu.sc.seis.fissuresUtil.sound;
 import java.io.*;
 import edu.sc.seis.fissuresUtil.mseed.Utility;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.UnitImpl;
 
 /**
  * FissuresToWAV.java
@@ -21,36 +24,41 @@ public class FissuresToWAV {
     
     public static void writeWAV(LocalSeismogramImpl seis,
 				int speedUp,
-				OutputStream out) {
-	/*
-	out.write("RIFF");
-	int size = 0;
+				DataOutput out) throws IOException {
+	
+	out.writeBytes("RIFF");
+	int size = 36 + 2*seis.getNumPoints();
 
 	writeLittleEndian(out, size);
-	out.write("WAVE");
+	out.writeBytes("WAVE");
 
 	// write fmt subchunk
-	out.write("fmt ");
+	out.writeBytes("fmt ");
 	writeLittleEndian(out, 16);
 	writeLittleEndian(out, (short)1); // linear quantization, PCM
 	writeLittleEndian(out, (short)1); // mono, 1 channel
+	SamplingImpl sampling = (SamplingImpl)seis.getSampling();
+	QuantityImpl freq = sampling.getFrequency();
+	freq = freq.convertTo(UnitImpl.HERTZ);
+	int samp = (int)freq.getValue();
+	samp *= speedUp;
 	writeLittleEndian(out, samp); // sample rate
 	writeLittleEndian(out, samp*2); // byte rate, 2 bytes per sample
 	writeLittleEndian(out, (short)2); // block align
 	writeLittleEndian(out, (short)16); // bits per sample
 
 	// write data subchunk
-	out.write("data");
-	writeLittleEndian(out, num_points*2); // subchunk2 size
+	out.writeBytes("data");
+	writeLittleEndian(out, seis.getNumPoints()*2); // subchunk2 size
 
 	int[] data = seis.get_as_longs();
 	for ( int i=0; i<seis.getNumPoints(); i++) {
 	    writeLittleEndian(out, (short)data[i]);	    
 	} // end of for ()
-	*/
+	
     }
 
-    protected static void writeLittleEndian(OutputStream out, int value) 
+    protected static void writeLittleEndian(DataOutput out, int value) 
 	throws IOException {
 	byte[] tmpBytes;
 	tmpBytes = Utility.intToByteArray(value);
@@ -60,10 +68,10 @@ public class FissuresToWAV {
 	out.write(tmpBytes[3]);
     }
 
-    protected static void writeLittleEndian(OutputStream out, short value) 
+    protected static void writeLittleEndian(DataOutput out, short value) 
 	throws IOException {
 	byte[] tmpBytes;
-	tmpBytes = Utility.intToByteArray(value);
+	tmpBytes = Utility.intToByteArray((int)value);
 	out.write(tmpBytes[0]);
 	out.write(tmpBytes[1]);
     }
