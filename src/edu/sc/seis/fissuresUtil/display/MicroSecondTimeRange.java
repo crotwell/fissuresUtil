@@ -96,14 +96,10 @@ public class MicroSecondTimeRange{
      */
     public TimeInterval getInterval(){ return interval; }
 
-    public boolean equals(Object otherTime){
-        if(this == otherTime){
-            return true;
-        }
-        if(!(otherTime instanceof MicroSecondTimeRange)){
-            return false;
-        }
-        MicroSecondTimeRange mstrTime = (MicroSecondTimeRange)otherTime;
+    public boolean equals(Object other){
+        if(this == other)return true;
+        if(getClass() != other.getClass()) return false;
+        MicroSecondTimeRange mstrTime = (MicroSecondTimeRange)other;
         if(beginTime.equals(mstrTime.getBeginTime()) &&
            endTime.equals(mstrTime.getEndTime())){
             return true;
@@ -120,8 +116,8 @@ public class MicroSecondTimeRange{
 
     public String toString(){ return beginTime + " to " + endTime; }
 
-    public static MicroSecondTimeRange ONE_MS = new MicroSecondTimeRange(
-                                                                         new MicroSecondDate(0), new MicroSecondDate(1));
+    public static MicroSecondTimeRange ONE_MS = new MicroSecondTimeRange(new MicroSecondDate(0),
+                                                                         new MicroSecondDate(1));
 
     private final MicroSecondDate beginTime;
 
