@@ -36,6 +36,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	if(displayInterval == null)
 	    this.displayInterval = new TimeInterval(((LocalSeismogramImpl)seis).getBeginTime(), ((LocalSeismogramImpl)seis).getEndTime());
 	seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime());
+	this.updateTimeSyncListeners();
     }	
     
     /**  When BoundedTimeConfig receives a TimeSyncEvent, it merely changes the time range by the percentages contained in the 

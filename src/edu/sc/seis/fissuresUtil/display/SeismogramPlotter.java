@@ -29,7 +29,6 @@ public class SeismogramPlotter implements Plotter{
     }
 
     public Shape draw(Dimension size){
-	logger.debug("drawing a seismogram");
 	GeneralPath currentShape = new GeneralPath();
 	int scale = 5;
 	int w = size.width, h = size.height;
@@ -56,6 +55,10 @@ public class SeismogramPlotter implements Plotter{
     }
 
     public LocalSeismogram getSeismogram(){ return seismogram; }
+
+    public TimeRangeConfig getTimeConfig(){ return timeConfig; }
+
+    public AmpRangeConfig getAmpConfig(){ return ampConfig; }
     
     protected LocalSeismogram seismogram;
 

@@ -9,9 +9,6 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.lang.ref.SoftReference;
-import java.lang.Thread;
-import java.lang.ThreadGroup;
-import java.lang.Runnable;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
@@ -33,11 +30,11 @@ import org.apache.log4j.*;
 public class BasicSeismogramDisplay extends JComponent implements SeismogramDisplay{
     
     public BasicSeismogramDisplay(LocalSeismogram seis, boolean timeBorder){
-	this(seis, new BoundedTimeConfig(), new MinMaxAmpConfig(), timeBorder);
+	this(seis, new BoundedTimeConfig(), new RMeanAmpConfig(), timeBorder);
     }
    
     public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, boolean timeBorder){
-	this(seis, tr, new MinMaxAmpConfig(), timeBorder);
+	this(seis, tr, new RMeanAmpConfig(), timeBorder);
     }
     
     public BasicSeismogramDisplay(LocalSeismogram seis, AmpRangeConfig ar, boolean timeBorder){
@@ -74,7 +71,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 						     BorderFactory.createCompoundBorder(
 											scaleBorder,
 											BorderFactory.createLoweredBevelBorder())));
-	this.add(new ImageMaker());
+	Dimension d = getSize();
+	int w = d.width * 5, h = d.height;
+	overSize = new Dimension(w, h);
+	this.add(new ImagePainter());
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
     }
@@ -167,85 +167,75 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     }
 
     protected void resize() {
-	Dimension dim = getSize();
         Insets insets = getInsets();
-	timeScaleMap.setTotalPixels(dim.width-insets.left-insets.right);
-        ampScaleMap.setTotalPixels(dim.height-insets.top-insets.bottom);
+	Dimension d = getSize();
+	int w = (d.width - insets.left - insets.right) * 5, h = d.height - insets.top - insets.bottom;
+	overSize = new Dimension(w, h);
+	timeScaleMap.setTotalPixels(d.width-insets.left-insets.right);
+        ampScaleMap.setTotalPixels(d.height-insets.top-insets.bottom);
 	overSizedImage = null;
 	repaint();
     }
 
-    class ImageMaker extends JComponent implements Runnable{
-		
+    protected class ImagePainter extends JComponent{
+	public ImagePainter(){
+	   displayInterval = timeConfig.getTimeRange().getInterval();
+	}
+
 	public void paint(Graphics g){
 	    if(overSizedImage == null || overSizedImage.get() == null){
 		logger.debug("the image is null and is being recreated");
-		this.createOversizedImage();
+		this.createImage();
+		return;
 	    }
 	    long endTime = timeConfig.getTimeRange().getEndTime().getMicroSecondTime();
 	    long beginTime = timeConfig.getTimeRange().getBeginTime().getMicroSecondTime();
 	    long overEndTime = overTimeRange.getEndTime().getMicroSecondTime();
 	    long overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
-	    if(endTime >= overEndTime || beginTime <= overBeginTime) 
-		this.createOversizedImage();
+	    if(endTime >= overEndTime || beginTime <= overBeginTime){
+		logger.debug("the image has been dragged past its edge and is being recreated");
+		this.createImage();
+		return;
+	    }
 	    Graphics2D g2 = (Graphics2D)g;
-	    if(displayInterval.getValue() == timeConfig.getTimeRange().getInterval().getValue()){
+	    if(displayTime == timeConfig.getTimeRange().getInterval().getValue()){
 		double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * overSize.getWidth();
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		g2.drawImage(((Image)overSizedImage.get()), tx, null);
 	    } else{
-		double scale = displayInterval.getValue()/timeConfig.getTimeRange().getInterval().getValue();
+		double scale = displayTime/timeConfig.getTimeRange().getInterval().getValue(); 
 		double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * (overSize.getWidth() * scale);
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		tx.scale(scale, 1);
 		g2.drawImage(((Image)overSizedImage.get()), tx, null);
-		start();
-		
+		synchronized(this){ displayInterval = timeConfig.getTimeRange().getInterval();}
+		this.createImage();
 	    }
-	   
 	} 
-
-	public void start(){
-	    bgImageCalc = null;
-	    bgImageCalc = new Thread(imageGroup, this);
-	    bgImageCalc.setPriority(2);
-	    bgImageCalc.start();
-	}
-
-	public void stop(){
-	    bgImageCalc = null;
-	}
 	
-	public void createOversizedImage(){
-	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(2);
-	    Dimension d = getSize();
-	    int sizeScale = 5;
-	    int w = d.width * sizeScale, h = d.height;
-	    overSize = new Dimension(w, h);
-	    overSizedImage = new SoftReference(createImage(w, h));
-	    displayInterval = timeConfig.getTimeRange().getInterval();
-	    Graphics2D overSizedGraphic = (Graphics2D)((Image)overSizedImage.get()).getGraphics();
-	    Iterator e = plotters.keySet().iterator();
-	    while(e.hasNext()){
-		Plotter current = ((Plotter)e.next());
-		overSizedGraphic.setColor((Color)plotters.get(current));
-		overSizedGraphic.draw(current.draw(overSize));
-	    }
+	public synchronized void createImage(){
+	    imageMaker.createImage(this, new PlotInfo(overSize, plotters, displayInterval));
 	}
 
-	public void run(){
-	    this.createOversizedImage();
-		repaint();
-	}
+	public synchronized void setImage(Image newImage){
+	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(2);
+	    displayTime = displayInterval.getValue();
+	    overSizedImage = new SoftReference(newImage); 
+	    repaint();	
+ 	}
+
+	public TimeRangeConfig getTimeConfig(){ return timeConfig; }
+	
+	double displayTime;
 	
 	protected MicroSecondTimeRange overTimeRange;
 	
 	protected TimeInterval displayInterval;
-	
-	protected Dimension overSize;
-
-	protected Thread bgImageCalc;
     }
+
+    protected static ImageMaker imageMaker = new ImageMaker();
+
+    protected Dimension overSize;
 
     protected HashMap plotters = new HashMap();
     
@@ -266,7 +256,5 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     protected SoftReference overSizedImage;
 
     static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
-
-    protected static ThreadGroup imageGroup = new ThreadGroup("imageGroup");
 
 }// BasicSeismogramDisplay
