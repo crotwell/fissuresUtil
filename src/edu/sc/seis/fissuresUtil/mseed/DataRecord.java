@@ -54,12 +54,20 @@ public class DataRecord extends SeedRecord
     }
 
     public void write(DataOutputStream dos) throws IOException {
-	getHeader().write(dos);
-	Blockette[] blockettes = getBlockettes();
-	for ( int i=0; i<blockettes.length; i++) {
-	    dos.write(blockettes[i].toBytes());
-	} // end of for ()
-	dos.write(data);
+        getHeader().write(dos);
+        Blockette[] blockettes = getBlockettes();
+        int blockettesSize = 0;
+        for ( int i=0; i<blockettes.length; i++) {
+            dos.write(blockettes[i].toBytes());
+            blockettesSize += blockettes[i].getSize();
+        } // end of for ()
+        dos.write(data);
+        int remainBytes = RECORD_SIZE - header.getSize()
+            - blockettesSize - data.length;
+        for ( int i=0; i<remainBytes;i++) {
+            dos.write(ZERO_BYTE);
+        } // end of for ()
+    
     }
 
     public static DataRecord read(DataInputStream inStream)
@@ -167,5 +175,9 @@ public class DataRecord extends SeedRecord
     }
 
     protected byte[] data;
+
+    byte ZERO_BYTE = 0;
+
+    int RECORD_SIZE = 4096;
 
 } // DataRecord
