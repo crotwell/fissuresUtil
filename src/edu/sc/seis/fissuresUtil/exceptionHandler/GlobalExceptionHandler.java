@@ -25,18 +25,28 @@ public class GlobalExceptionHandler {
             System.err.println(message);
             thrown.printStackTrace(System.err);
         }else{
-            Map parsedContents = new HashMap();
+            List parsedContents = new ArrayList(sectionToContents.size());
             Iterator it = sectionToContents.keySet().iterator();
             while(it.hasNext()){
                 String name = (String)it.next();
-                parsedContents.put(name, parse(sectionToContents.get(name)));
+                parsedContents.add(new Section(name, parse(sectionToContents.get(name))));
             }
             if(showSysInfo){
-                parsedContents.put("System Information", ExceptionReporterUtils.getSysInfo());
+                parsedContents.add(new Section("System Information", ExceptionReporterUtils.getSysInfo()));
             }
             it = reporters.iterator();
+            List reporterExceptions = new ArrayList();
             while(it.hasNext()){
-                ((ExceptionReporter)it.next()).report(message, thrown, parsedContents);
+                try {
+                    ((ExceptionReporter)it.next()).report(message, thrown, parsedContents);
+                } catch (Exception e) {
+                    it.remove();
+                    reporterExceptions.add(e);
+                }
+            }
+            it = reporterExceptions.iterator();
+            while(it.hasNext()){
+                handle("An exception reporter caused this exception.  It has been removed from the GlobalExceptionHandler", (Exception)it.next());
             }
         }
     }
