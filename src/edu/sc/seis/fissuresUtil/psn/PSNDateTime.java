@@ -30,6 +30,17 @@ public class PSNDateTime {
         nanosec = SacTimeSeries.swapBytes(dis.readInt());
     }
 
+    //a constructor for testing purposes
+    public PSNDateTime(short year, byte month, byte day, byte hour, byte minute, byte second, int nanosec){
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.hour = hour;
+        this.minute = minute;
+        this.second = second;
+        this.nanosec = nanosec;
+    }
+
     public short getYear() {
         return year;
     }
