@@ -14,6 +14,7 @@ import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.chooser.DataSetChannelGrouper;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
