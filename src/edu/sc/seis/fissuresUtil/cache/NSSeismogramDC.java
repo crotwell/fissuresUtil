@@ -86,7 +86,7 @@ public class NSSeismogramDC implements ProxySeismogramDC {
             // retry in case regetting from name service helps
             String msg = "Exception in available_data(), regetting from nameservice to try again. ";
             if (e instanceof FissuresException) {
-                msg += ((FissuresException)e).the_error;
+                msg += ((FissuresException)e).the_error.error_description;
             }
             logger.warn(msg, e);
             reset();
@@ -101,7 +101,7 @@ public class NSSeismogramDC implements ProxySeismogramDC {
             // retry in case regetting from name service helps
             String msg = "Exception in cancel_request(), regetting from nameservice to try again. ";
             if (e instanceof FissuresException) {
-                msg += ((FissuresException)e).the_error;
+                msg += ((FissuresException)e).the_error.error_description;
             }
             logger.warn(msg, e);
             reset();
@@ -144,7 +144,7 @@ public class NSSeismogramDC implements ProxySeismogramDC {
             // retry in case regetting from name service helps
             String msg = "Exception in retrieve_seismograms(), regetting from nameservice to try again. ";
             if (e instanceof FissuresException) {
-                msg += ((FissuresException)e).the_error;
+                msg += ((FissuresException)e).the_error.error_description;
             }
             logger.warn(msg, e);
             reset();
