@@ -38,16 +38,7 @@ public class Recompress {
         if (preserveBlocking && seis.is_encoded()) {
             // preserve existing edata blocking
             EncodedData[] data = seis.get_as_encoded();
-            Codec codec = new Codec();
-            for (int i = 0; i < data.length; i++) {
-                DecompressedData decomp = codec.decompress(data[i].compression,
-                                                           data[i].values,
-                                                           data[i].num_points,
-                                                           data[i].byte_order);
-
-                LinkedList list = steim1(decomp.getAsInt(), maxFrames);
-                allBlocks.addAll(list);
-            }
+            allBlocks.addAll(steim1(data, preserveBlocking, maxFrames));
         } else {
             int[] data = seis.get_as_longs();
             allBlocks.addAll(steim1(data, maxFrames));
@@ -64,6 +55,21 @@ public class Recompress {
         dataSel.encoded_values(edata);
         LocalSeismogramImpl out = new LocalSeismogramImpl(seis, dataSel);
         return out;
+    }
+
+    public static LinkedList steim1(EncodedData[] data, boolean preserveBlocking, int maxFrames) throws CodecException {
+        Codec codec = new Codec();
+        LinkedList allBlocks = new LinkedList();
+        for (int i = 0; i < data.length; i++) {
+            DecompressedData decomp = codec.decompress(data[i].compression,
+                                                       data[i].values,
+                                                       data[i].num_points,
+                                                       data[i].byte_order);
+
+            LinkedList list = steim1(decomp.getAsInt(), maxFrames);
+            allBlocks.addAll(list);
+        }
+        return allBlocks;
     }
 
     public static LinkedList steim1(int[] data) throws SteimException {
