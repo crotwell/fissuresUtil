@@ -119,7 +119,7 @@ public class ReduceTool {
                                                                       chunk2.getTimeRange());
             logger.debug("Merging " + chunk + " and " + chunk2 + " into "
                     + fullRange);
-            int samples = (int)Math.floor(chunk.getSamplesPerDay()
+            int samples = (int)Math.floor(chunk.getPixelsPerDay() * 2
                     * fullRange.getInterval().convertTo(UnitImpl.DAY).value);
             int[] y = new int[samples];
             JDBCPlottable.fill(fullRange, y, chunk);
@@ -130,10 +130,10 @@ public class ReduceTool {
                 earlier = chunk2;
             }
             return new PlottableChunk(mergedData,
-                                      earlier.getBeginSample(),
+                                      earlier.getBeginPixel(),
                                       earlier.getJDay(),
                                       earlier.getYear(),
-                                      chunk.getSamplesPerDay(),
+                                      chunk.getPixelsPerDay(),
                                       chunk.getChannel());
         }
 
