@@ -66,7 +66,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         layout.add(seismos);
         for (int i = 0; i < seismos.length; i++){
             if(!contains(seismos[i])){
-                drawables.add(new DrawableSeismogram(this, seismos[i]));
+                drawables.add(new DrawableSeismogram(this, seismos[i], (Color)null));
             }
         }
         if(displayRemover == null){
