@@ -170,13 +170,26 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
         LocalSeismogramImpl[] sorted = DisplayUtils.sortByDate(seismograms);
         MicroSecondTimeRange timeRange = new MicroSecondTimeRange(sorted[0].getBeginTime(),
                                                                   sorted[sorted.length -1].getEndTime());
+        MicroSecondDate timeBegin = timeRange.getBeginTime();
+        MicroSecondDate timeEnd = timeRange.getEndTime();
         List unsatisfied = new ArrayList();
         for (int i = 0; i < filters.length; i++){
             MicroSecondDate filterBegin = new MicroSecondDate(filters[i].start_time);
             MicroSecondDate filterEnd = new MicroSecondDate(filters[i].end_time);
-            if(filterEnd.after(timeRange.getEndTime()) ||
-               filterBegin.before(timeRange.getBeginTime())){
+            if(filterBegin.after(timeEnd) ||
+               filterEnd.before(timeBegin)){
                 unsatisfied.add(filters[i]);
+            }else{
+                if(filterEnd.after(timeEnd)){
+                    unsatisfied.add(new RequestFilter(filters[i].channel_id,
+                                                      timeEnd.getFissuresTime(),
+                                                      filterEnd.getFissuresTime()));
+                }
+                if(filterBegin.before(timeBegin)){
+                    unsatisfied.add(new RequestFilter(filters[i].channel_id,
+                                                      filterBegin.getFissuresTime(),
+                                                      timeBegin.getFissuresTime()));
+                }
             }
         }
         return (RequestFilter[])unsatisfied.toArray(new RequestFilter[unsatisfied.size()]);
