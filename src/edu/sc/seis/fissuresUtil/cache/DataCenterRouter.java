@@ -31,25 +31,25 @@ import org.apache.log4j.Category;
  * @version 1.0
  */
 public class DataCenterRouter implements DataCenterOperations {
-    public void addDataCenter(DataCenterOperations dc) {
+    public void addDataCenter(ProxySeismogramDC dc) {
         unmatchedDCList.add(dc);
     }
 
-    public void addDataCenter(NetworkAccess[] net, DataCenterOperations dc) {
+    public void addDataCenter(NetworkAccess[] net, ProxySeismogramDC dc) {
         for ( int i=0; i<net.length; i++) {
             addDataCenter(net[i].get_attributes().get_id(), dc);
         } // end of for ()
     }
 
-    public void addDataCenter(NetworkAccess net, DataCenterOperations dc) {
+    public void addDataCenter(NetworkAccess net, ProxySeismogramDC dc) {
         addDataCenter(net.get_attributes().get_id(), dc);
     }
 
-    public void addDataCenter(NetworkId networkId,  DataCenterOperations dc) {
+    public void addDataCenter(NetworkId networkId,  ProxySeismogramDC dc) {
         addDataCenter(networkId.network_code, dc);
     }
 
-    public void addDataCenter(String network_code,  DataCenterOperations dc) {
+    public void addDataCenter(String network_code,  ProxySeismogramDC dc) {
         logger.debug("adding "+network_code);
         List dcList = (List)netToDCMap.get(network_code);
         if ( dcList == null) {
@@ -105,7 +105,7 @@ public class DataCenterRouter implements DataCenterOperations {
             List dcFilters =
                 (List)datacenterMap.get(dcList);
             while ( dcIt.hasNext()) {
-                DataCenterOperations dc = (DataCenterOperations)dcIt.next();
+                ProxySeismogramDC dc = (ProxySeismogramDC)dcIt.next();
                 RequestFilter[] tempRF =
                     dc.available_data((RequestFilter[])dcFilters.toArray(new RequestFilter[0]));
                 for ( int i=0; i<tempRF.length; i++) {
@@ -136,7 +136,7 @@ public class DataCenterRouter implements DataCenterOperations {
             List dcFilters =
                 (List)datacenterMap.get(dcList);
             while ( dcIt.hasNext()) {
-                DataCenterOperations dc = (DataCenterOperations)dcIt.next();
+                ProxySeismogramDC dc = (ProxySeismogramDC)dcIt.next();
                 LocalSeismogram[] tempSeis =
                     dc.retrieve_seismograms((RequestFilter[])dcFilters.toArray(new RequestFilter[0]));
                 for ( int i=0; i<tempSeis.length; i++) {
