@@ -143,6 +143,60 @@ public class XMLUtil {
         }
     }
 
+    public static String readEvent(XMLStreamReader reader) throws XMLStreamException{
+        StringBuffer buf = new StringBuffer();
+
+        int type = reader.getEventType();
+        switch (type) {
+
+            case XMLStreamConstants.START_DOCUMENT:
+                break;
+
+            case XMLStreamConstants.END_DOCUMENT:
+                break;
+
+            case XMLStreamConstants.START_ELEMENT:
+                buf.append('<');
+                if (reader.getPrefix() != null){
+                    buf.append(reader.getPrefix() + ':');
+                }
+                buf.append(reader.getLocalName());
+                for (int i = 0; i < reader.getNamespaceCount(); i++) {
+                    buf.append(" xmlns:" + reader.getNamespacePrefix(i) + "=\"" + reader.getNamespaceURI(i) + '\"');
+                }
+                for (int i = 0; i < reader.getAttributeCount(); i++) {
+                    buf.append(' ');
+                    if (reader.getAttributePrefix(i) != null){
+                        buf.append(reader.getAttributePrefix(i) + ':');
+                    }
+                    buf.append(reader.getAttributeLocalName(i) + "=\"" + reader.getAttributeValue(i) + '\"');
+                }
+                buf.append('>');
+                break;
+
+            case XMLStreamConstants.END_ELEMENT:
+                    buf.append("</");
+                    if (reader.getPrefix() != null){
+                        buf.append(reader.getPrefix() + ':');
+                    }
+                    buf.append(reader.getLocalName() + '>');
+                break;
+
+            case XMLStreamConstants.PROCESSING_INSTRUCTION:
+                //System.out.println("Processing instruction target: " + reader.getPITarget() + ", data:" + reader.getPIData());
+                break;
+
+            case XMLStreamConstants.CHARACTERS:
+                buf.append(reader.getText());
+                break;
+
+            case XMLStreamConstants.COMMENT:
+                break;
+        }
+
+        return buf.toString();
+    }
+
     //TODO make this method work again.  I think newlines broke it.
     public static void mergeDocs(File intoFile, File fromFile, QName compareTag, QName rootTag)
         throws FileNotFoundException, XMLStreamException, IOException{
