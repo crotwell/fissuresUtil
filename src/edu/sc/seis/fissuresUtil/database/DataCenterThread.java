@@ -120,7 +120,7 @@ public class DataCenterThread implements Runnable{
         return rtnValues;
     }
 
-    private SoftReference seisRef;
+    private SoftReference seisRef = new SoftReference(null);
 
     private RequestFilter[] requestFilters;
 
