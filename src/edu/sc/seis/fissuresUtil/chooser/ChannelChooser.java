@@ -1,18 +1,26 @@
 
 package edu.sc.seis.fissuresUtil.chooser;
 
-import edu.sc.seis.fissuresUtil.cache.*;
-import java.awt.*;
-import java.awt.event.*;
 import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.utility.*;
-import java.io.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import org.apache.log4j.*;
+
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.network.NetworkIdUtil;
+import edu.iris.Fissures.network.StationIdUtil;
+import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.ResourceBundle;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import org.apache.log4j.Category;
 
 
 /**
@@ -21,7 +29,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3379 2003-03-04 21:34:45Z groves $
+ * @version $Id: ChannelChooser.java 3380 2003-03-04 21:35:24Z groves $
  *
  */
 
@@ -1056,6 +1064,7 @@ public class ChannelChooser extends JPanel{
 		Category.getInstance(ChannelChooser.class.getName());
 	
 } // ChannelChooser
+
 
 
 
