@@ -96,14 +96,6 @@ public abstract class Selection implements TimeListener, Plotter{
             child.remove(getSeismograms());
         }
     }
-    //used only by basic seismogram display so that the removal types of both selection and bsd
-    //don't clash
-    public void removeParent(BasicSeismogramDisplay disowner){
-        //TODO
-        //if(parents.contains(disowner)){
-        //  parents.remove(disowner);
-        //}
-    }
 
     private void removeFromAllChildren(){
         child.remove(getSeismograms());
