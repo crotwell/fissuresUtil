@@ -48,12 +48,14 @@ public class BorderedDisplay extends JPanel {
         temp.renameTo(loc);
     }
 
-    public void outputToPNG(OutputStream loc, Dimension size) throws IOException {
+    public void outputToPNG(OutputStream loc, Dimension size)
+            throws IOException {
         BufferedImage bImg = new BufferedImage(size.width,
                                                size.height,
                                                BufferedImage.TYPE_INT_RGB);
         renderToGraphics(bImg.createGraphics(), size);
         ImageIO.write(bImg, "png", loc);
+        loc.close();
     }
 
     public void renderToGraphics(Graphics2D g) {
