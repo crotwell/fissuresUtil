@@ -160,7 +160,7 @@ public class UpdateCheckerJob  extends AbstractJob {
 
     protected boolean forceCheck;
 
-    protected boolean showNoUpdate = true;
+    protected boolean showNoUpdate = false;
 
     protected boolean isGui;
 
