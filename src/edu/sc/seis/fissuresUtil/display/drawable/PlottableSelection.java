@@ -37,6 +37,12 @@ public class PlottableSelection implements Plotter{
         this.color = color;
     }
 
+    public PlottableSelection(PlottableDisplay display, Color color, int x, int y){
+        this(display, color);
+        beginx = x;
+        beginy = y;
+    }
+
 
     public void draw(Graphics2D canvas, java.awt.Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         //in this draw of PlottableSelection the following are not used
@@ -44,7 +50,6 @@ public class PlottableSelection implements Plotter{
         //actually this extends the interface Plotter just to be consistent
         // with others plotters in the display package.
         drawHighlightRegion(canvas);
-
     }
 
     public void toggleVisibility() {
@@ -241,43 +246,6 @@ public class PlottableSelection implements Plotter{
         System.out.println("return false");
         return false;
     }
-
-
-    //     private class DialogBox extends JFrame{
-    //         public DialogBox (String[] choices){
-    //             this.choices = choices;
-    //         }
-
-
-    //         public void init() {
-    //             JPanel panel = new JPanel();
-    //             ButtonGroup buttonGroup = new ButtonGroup();
-    //             panel.setLayout(new FlowLayout(choices.length+2, 1));
-    //             JButton[] buttons = new JButton[choices.length];
-    //             for(int counter = 0; counter < choices.length; counter++) {
-    //                 buttons[counter] = new JRadioButton(choices[counter]);
-    //                 buttonGroup.add(buttons[counter]);
-    //                 panel.add(button);
-    //             }
-    //             JButton okButton = new JButton("OK");
-    //             okButton.addActionListener(new ActionListener() {
-    //                     public void actionPerformed(ActionEvent ae) {
-    //                         for(int counter = 0; counter < choice.length; counter++) {
-    //                             if(buttons[counter].isSelected()) {
-
-    //                             }
-    //                         }
-    //                     }
-    //                 });
-    //     }
-
-
-
-    //         private String[] choices;
-
-
-    //     }// DialogBox
-
 
     private Color color;
 
