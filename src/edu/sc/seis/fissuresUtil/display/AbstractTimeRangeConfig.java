@@ -40,7 +40,14 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      *
      * @param seis the seismogram to be added
      */
-    public void addSeismogram(LocalSeismogram seis){ seismos.add(seis); }
+    public void addSeismogram(LocalSeismogram seis){ seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime()); }
+
+    /** Adds a seismogram that has a reference set by the user
+     */
+    public void addSeismogram(LocalSeismogram seis, MicroSecondDate time){ 
+	seismos.put(seis, time);
+	this.updateTimeSyncListeners();
+    }
 
     /**
      * Remove the values from this seismogram from the configuration
@@ -75,14 +82,20 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     }
     
     /**
-     * Takes the information from the TimeSyncEvent, adjusts the MicroSecondTimeRange, and updates according to the information in the event
+     * Takes the information from the TimeSyncEvent, adjusts the MicroSecondTimeRange, and updates according to the information in the 
+     * event
      *
      */
     public abstract void fireTimeRangeEvent(TimeSyncEvent e);
 
+    public HashMap getData(){ return this.seismos; }
+
+    public void setData(HashMap newData){ this.seismos = newData; } 
+	
+
     protected MicroSecondDate beginTime, endTime;
 
-    protected LinkedList seismos = new LinkedList();
+    protected HashMap seismos = new HashMap();
     
     protected LinkedList timeListeners = new LinkedList();
 
