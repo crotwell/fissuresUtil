@@ -65,15 +65,15 @@ public class DrawableSeismogram implements NamedPlotter{
     public boolean drawName(Graphics2D canvas, int xPosition, int yPosition){
         if(visible){
             canvas.setPaint(color);
-            canvas.drawString(name, xPosition, yPosition);
+            canvas.drawString(getName(), xPosition, yPosition);
             return true;
         }
         return false;
     }
 
-    public String getName(){ return name; }
+    public String getName(){ return getSeismogram().getName(); }
 
-    public String toString(){ return name; }
+    public String toString(){ return getName(); }
 
     public DataSetSeismogram getSeismogram(){ return shape.getSeismogram(); }
 
