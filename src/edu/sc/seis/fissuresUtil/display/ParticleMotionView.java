@@ -429,6 +429,7 @@ public class ParticleMotionView extends JComponent{
             DataSetSeismogram[] seis = { hseis, vseis};
             this.tc = tc;
             ac = new RMeanAmpConfig(seis);
+            tc.addListener(ac);
             tc.add(seis);
             tc.addListener(this);
             ac.addListener(this);
