@@ -43,7 +43,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         majTickRatio = 10;
         daysInBorder = false;
         if(majTickTime <= SECOND){
-            borderFormat = new SimpleDateFormat("mm:ss.S");
+            setTimeFormat("mm:ss.S");
             if(majTickTime <= 1000){
                 majTickTime = 1000;
             }else if(majTickTime <= 10000){
@@ -57,7 +57,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
             
         }else if(majTickTime <= 45 * SECOND){
             majTickRatio = 10;
-            borderFormat = new SimpleDateFormat("mm:ss");
+            setTimeFormat("mm:ss");
             if(majTickTime <= 1.2*SECOND){
                 majTickTime = SECOND;
             }else if(majTickTime <= 3*SECOND){
@@ -77,7 +77,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 3*MINUTE){
             majTickRatio = 6;
-            borderFormat = new SimpleDateFormat("HH:mm:ss");
+            setTimeFormat("HH:mm:ss");
             if(majTickTime <= MINUTE+10*SECOND){
                 majTickTime = MINUTE;
             }else if(majTickTime <= 2*MINUTE+30*SECOND){
@@ -88,7 +88,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 30*MINUTE){
             majTickRatio = 10;
-            borderFormat = new SimpleDateFormat("HH:mm:ss");
+            setTimeFormat("HH:mm:ss");
             if(majTickTime <= 6*MINUTE){
                 majTickTime = 5*MINUTE;
                 majTickRatio = 5;
@@ -103,12 +103,12 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         else if(majTickTime <= 4*HOUR){
             majTickRatio = 6;
             daysInBorder = true;
-            borderFormat = new SimpleDateFormat("MM/dd HH:mm");
+            setTimeFormat("MM/dd HH:mm");
             if(majTickTime <= HOUR){
                 majTickTime = HOUR;
             }else if(majTickTime <= 2*HOUR){
                 majTickTime = 2*HOUR;
-                    majTickRatio = 4;
+                majTickRatio = 4;
             }else if(majTickTime <= 3*HOUR){
                 majTickTime = 3*HOUR;
                 majTickRatio = 6;
@@ -120,12 +120,12 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         else if(majTickTime <= 4*DAY){
             majTickRatio = 6;
             daysInBorder = true;
-            borderFormat = new SimpleDateFormat("MM/dd");
+            setTimeFormat("MM/dd");
             majTickTime = DAY;
         }else{
             majTickRatio = 7;
             daysInBorder = true;
-            borderFormat = new SimpleDateFormat("MM/dd");
+            setTimeFormat("MM/dd");
             majTickTime = WEEK;
         }
         borderFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -144,6 +144,12 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     public void  setTotalPixels(int totalPixels) {
         this.totalPixels = totalPixels;
         calculateTicks();
+    }
+    
+    private void setTimeFormat(String newFormat){
+        if(!borderFormat.toPattern().equals(newFormat)){
+            borderFormat = new SimpleDateFormat(newFormat);
+        }
     }
     
     /**
@@ -226,7 +232,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         setTimes(event.getTime().getBeginTime(), event.getTime().getEndTime());
     }
     
-    private SimpleDateFormat borderFormat;
+    private SimpleDateFormat borderFormat = new SimpleDateFormat("MM/dd/yyy");
     
     private boolean daysInBorder = false;
     
@@ -235,7 +241,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     private SimpleDateFormat axisFormat = new SimpleDateFormat("MM/dd/yyyy");
     //Five days before the epoch to 10 after
     public static MicroSecondTimeRange roundTheEpoch = new MicroSecondTimeRange(new MicroSecondDate(0),
-                                                                                 new TimeInterval(20, UnitImpl.DAY));
+                                                                                new TimeInterval(20, UnitImpl.DAY));
     
     private boolean relative = false;
     
