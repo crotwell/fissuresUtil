@@ -11,7 +11,7 @@ import java.net.*;
  * protocol is known, ie  URLConnection can be gotten from Java.
  *
  * @author Philip Crotwell
- * @version $Id: SimpleXLink.java 1716 2002-05-28 18:30:30Z crotwell $
+ * @version $Id: SimpleXLink.java 1750 2002-05-30 21:17:40Z crotwell $
 */
 public class SimpleXLink {
 
@@ -50,7 +50,7 @@ public class SimpleXLink {
 	// check for escaped quotes, ASCII 22 (hex) is quote
 	while ((index = fragment.indexOf("%22")) != -1) {
 	    fragment = fragment.substring(0,index)+'"'+ fragment.substring(index+3);
-	    System.out.println(fragment);
+	    //System.out.println(fragment);
 	} // end of while (fragment.indexOf("%22") != -1)
 	
 	if (xlink.startsWith("http") || xlink.startsWith("ftp")) {
