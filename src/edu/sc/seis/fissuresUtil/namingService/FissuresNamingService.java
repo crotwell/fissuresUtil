@@ -77,6 +77,10 @@ public class FissuresNamingService {
         rootNamingContext = null;
     }
 
+    public String getNameServiceCorbaLoc() {
+        return nameServiceCorbaLoc;
+    }
+    
     /**
      * Adds another name service to which all registrations should be sent. This
      * other name service is not used for queries, only when addind new servers.
