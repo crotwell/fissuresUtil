@@ -32,8 +32,6 @@ public class OpenMap extends OpenMapComponent{
      */
     public OpenMap(ChannelChooser chooser, EventTableModel etm, ListSelectionModel lsm){
         try{
-            Debug.init();
-            //Environment.set(Environment.BackgroundColor,"36B3DD");
             MapHandler mapHandler = new MapHandler();
             mapHandler.add(this);
             // Create a MapBean
