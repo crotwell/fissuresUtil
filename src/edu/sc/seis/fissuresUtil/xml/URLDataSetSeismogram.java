@@ -42,14 +42,24 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
         this.fileType = fileType;
     }
 
-    public URLDataSetSeismogram (URL url, SeismogramFileTypes fileType, DataSet dataSet){
-        this(url, fileType, dataSet, "");
-        String tmpName = url.getFile();
-        int index = tmpName.lastIndexOf(File.separatorChar);
-        setName(tmpName.substring(index)+2);
+    public URLDataSetSeismogram (URL url, SeismogramFileTypes fileType, DataSet dataset){
+        this(new URL[] { url }, fileType, dataset);
+    }
+
+    public URLDataSetSeismogram (URL[] url, SeismogramFileTypes fileType, DataSet dataset){
+        this(url, fileType, dataset, "");
+        if (url.length > 0) {
+            String tmpName = url[0].getFile();
+            int index = tmpName.lastIndexOf(File.separatorChar);
+            setName(tmpName.substring(index)+2);
+        }
     }
 
     public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType) {
+        this(new URL[] { url }, fileType);
+    }
+
+    public URLDataSetSeismogram(URL[] url, SeismogramFileTypes fileType) {
         this(url, fileType, null);
     }
 
