@@ -39,17 +39,16 @@ import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockDC;
-import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.TimeoutDC;
 
 /**
- * Description: FissuresNamingService is a wrapper around CORBA Naming service.
- * This class makes the registration and resolve of CORBA objects easy. The user
- * has to pass a dns, objectname and CORBA object to register itself with the
- * root Naming service. Resolve takes the parameters dns, objectName and
- * interfaceName. Created: Wed Jan 9 11:30:48 2002
+ * FissuresNamingService is a wrapper around CORBA Naming service. This class
+ * makes the registration and resolve of CORBA objects easy. The user has to
+ * pass a dns, objectname and CORBA object to register itself with the root
+ * Naming service. Resolve takes the parameters dns, objectName and
+ * interfaceName.
  * 
+ * @created: Wed Jan 9 11:30:48 2002
  * @author <a href="mailto:">Srinivasa Telukutla </a>
- * @version
  */
 public class FissuresNamingService {
 
@@ -80,8 +79,8 @@ public class FissuresNamingService {
      * Adds another name service to which all registrations should be sent. This
      * other name service is not used for queries, only when addind new servers.
      */
-    public void addOtherNameServiceCorbaLoc(String nameServiceCorbaLoc) {
-        otherNS.add(nameServiceCorbaLoc);
+    public void addOtherNameServiceCorbaLoc(String otherNSCorbaLoc) {
+        otherNS.add(otherNSCorbaLoc);
     }
 
     public String[] getOtherNameServices() {
@@ -90,21 +89,18 @@ public class FissuresNamingService {
 
     /**
      * returns the reference to the root Naming Service.
-     * 
-     * @return an <code>org.omg.CORBA.Object</code> value
      */
     public org.omg.CORBA.Object getRoot() {
         org.omg.CORBA.Object rootObj = null;
         if(nameServiceCorbaLoc != null) {
             logger.debug("corbaloc not null");
-            logger.info("Using name service corba loc="+nameServiceCorbaLoc);
+            logger.info("Using name service corba loc=" + nameServiceCorbaLoc);
             rootObj = orb.string_to_object(nameServiceCorbaLoc);
             logger.debug("got root object");
         } else {
-            logger.debug(nameServiceCorbaLoc);
             logger.debug("corbaloc is  null, resolve initial references");
-            // get a reference to the Naming Service root_context
             try {
+                // get a reference to the Naming Service root_context
                 rootObj = orb.resolve_initial_references("NameService");
             } catch(org.omg.CORBA.ORBPackage.InvalidName e) {
                 // do nothing, return null in this case
@@ -120,7 +116,6 @@ public class FissuresNamingService {
         if(rootNamingContext == null) {
             org.omg.CORBA.Object rootObj = getRoot();
             if(rootObj == null) {
-                //logger.error
                 logger.info("Name service object is null!");
                 return null;
             }
@@ -135,12 +130,10 @@ public class FissuresNamingService {
     }
 
     public org.omg.CORBA.Object resolveBySteps(NameComponent[] names)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
-        NameComponent[] subNames;
+            throws NotFound, CannotProceed, InvalidName {
         org.omg.CORBA.Object out = null;
         for(int i = 0; i < names.length; i++) {
-            subNames = new NameComponent[i + 1];
+            NameComponent[] subNames = new NameComponent[i + 1];
             System.arraycopy(names, 0, subNames, 0, i + 1);
             logger.debug("trying to resolve step id='" + names[i].id
                     + "' kind='" + names[i].kind + "'");
@@ -151,25 +144,11 @@ public class FissuresNamingService {
 
     /**
      * resolves a CORBA object with the name objectname.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param interfacename
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @return an <code>org.omg.CORBA.Object</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
      */
     public org.omg.CORBA.Object resolve(String dns,
                                         String interfacename,
                                         String objectname) throws NotFound,
-            CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+            CannotProceed, InvalidName {
         dns = appendKindNames(dns);
         if(interfacename != null && interfacename.length() != 0) {
             dns = dns + "/" + interfacename + ".interface";
@@ -192,8 +171,8 @@ public class FissuresNamingService {
                 logger.info("retry="
                         + i
                         + "NOT FOUND Exception caught while resolving name context and the name not found is "
-                        + nfe.rest_of_name[0].id+
-                        " from "+nameServiceCorbaLoc);
+                        + nfe.rest_of_name[0].id + " from "
+                        + nameServiceCorbaLoc);
                 if(i == maxTry) { throw nfe; }
             } catch(InvalidName ine) {
                 logger.info("retry="
@@ -214,48 +193,21 @@ public class FissuresNamingService {
     /**
      * rebinds the CORBA object. If any of the naming context specified in the
      * dns doesnot exist it creates a corresponding namingcontext and continues.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @param obj
-     *            an <code>org.omg.CORBA.Object</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
      */
     public void rebind(String dns, String objectname, org.omg.CORBA.Object obj)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
+            throws NotFound, CannotProceed, InvalidName {
         rebind(dns, objectname, obj, getInterfaceName(obj));
     }
 
     /**
      * rebinds the CORBA object. If any of the naming context specified in the
      * dns doesnot exist it creates a corresponding namingcontext and continues.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @param obj
-     *            an <code>org.omg.CORBA.Object</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
      */
     public void rebind(String dns,
                        String objectname,
                        org.omg.CORBA.Object obj,
                        String interfacename) throws NotFound, CannotProceed,
-            InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+            InvalidName {
         rebind(dns, objectname, obj, getNameService(), interfacename);
         Iterator it = otherNS.iterator();
         while(it.hasNext()) {
@@ -280,8 +232,8 @@ public class FissuresNamingService {
                        String objectname,
                        org.omg.CORBA.Object obj,
                        NamingContextExt topLevelNameContext) throws NotFound,
-            CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
-        logger.info("The CLASS Name is " + obj.getClass().getName());
+            CannotProceed, InvalidName {
+        logger.info("Rebind a class with name " + obj.getClass().getName());
         String interfacename = getInterfaceName(obj);
         rebind(dns, objectname, obj, topLevelNameContext, interfacename);
     }
@@ -296,7 +248,7 @@ public class FissuresNamingService {
                        org.omg.CORBA.Object obj,
                        NamingContextExt topLevelNameContext,
                        String interfacename) throws NotFound, CannotProceed,
-            InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+            InvalidName {
         logger.info("rebind dns=" + dns + " interface=" + interfacename
                 + " object=" + objectname);
         if(topLevelNameContext == null) {
@@ -304,32 +256,30 @@ public class FissuresNamingService {
             return;
         }
         String nameString = appendKindNames(dns);
-        if(interfacename != null && interfacename.length() != 0) nameString = nameString
-                + "/" + interfacename + ".interface";
+        if(interfacename != null && interfacename.length() != 0) {
+            nameString = nameString + "/" + interfacename + ".interface";
+        }
         if(objectname != null && objectname.length() != 0) {
             nameString = nameString + "/" + objectname + ".object"
                     + getVersion();
         }
         logger.info("the dns to be rebind is " + nameString);
-        NameComponent[] ncName;
-        ncName = topLevelNameContext.to_name(nameString);
-        NameComponent[] ncName1 = new NameComponent[1];
+        NameComponent[] ncName = topLevelNameContext.to_name(nameString);
         NamingContextExt namingContextTemp = topLevelNameContext;
-        int counter;
-        for(counter = 0; counter < ncName.length; counter++) {
-            int subcounter;
+        for(int counter = 0; counter < ncName.length; counter++) {
             try {
                 topLevelNameContext.rebind(topLevelNameContext.to_name(nameString),
                                            obj);
             } catch(NotFound nfe) {
                 switch(nfe.why.value()){
                     case NotFoundReason._missing_node:
-                        ncName1[0] = nfe.rest_of_name[0];
+                        NameComponent[] ncName1 = {nfe.rest_of_name[0]};
                         logger.info("The id of the context is " + ncName1[0].id);
-                        subcounter = 0;
-                        for(int i = 0; i < ncName.length
-                                && !ncName[i].id.equals(ncName1[0].id); i++) {
-                            subcounter++;
+                        int subcounter;
+                        for(subcounter = 0; subcounter < ncName.length; subcounter++) {
+                            if(ncName[subcounter].id.equals(ncName1[0].id)) {
+                                break;
+                            }
                         }
                         NameComponent temp[] = new NameComponent[subcounter];
                         for(int i = 0; i < ncName.length
@@ -341,11 +291,11 @@ public class FissuresNamingService {
                             namingContextTemp = NamingContextExtHelper.narrow(topLevelNameContext.resolve(temp));
                         }
                         if(ncName1[0].id.equals(interfacename)) {
-                            ncName1[0].kind = "interface";
+                            ncName1[0].kind = INTERFACE;
                         } else if(ncName1[0].id.equals(objectname)) {
                             ncName1[0].kind = "object" + getVersion();
                         } else {
-                            ncName1[0].kind = "dns";
+                            ncName1[0].kind = DNS;
                         }
                         try {
                             namingContextTemp.bind_new_context(ncName1);
@@ -371,24 +321,12 @@ public class FissuresNamingService {
     }
 
     /**
-     * unbinds the CORBA object.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param interfacename
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
+     * unbinds the CORBA object specified by dns, objectname and interface name
+     * from the default naming service and all other naming services this
+     * instance has
      */
     public void unbind(String dns, String interfacename, String objectname)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
+            throws NotFound, CannotProceed, InvalidName {
         unbind(dns, interfacename, objectname, getNameService());
         Iterator it = otherNS.iterator();
         while(it.hasNext()) {
@@ -401,14 +339,19 @@ public class FissuresNamingService {
         }
     }
 
+    /**
+     * unbinds the CORBA object specified by dns, objectname and interface name
+     * from the given NamingContextExt
+     */
     public void unbind(String dns,
                        String interfacename,
                        String objectname,
                        NamingContextExt topLevelNameContext) throws NotFound,
-            CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+            CannotProceed, InvalidName {
         dns = appendKindNames(dns);
-        if(interfacename != null && interfacename.length() != 0) dns = dns
-                + "/" + interfacename + ".interface";
+        if(interfacename != null && interfacename.length() != 0) {
+            dns = dns + "/" + interfacename + ".interface";
+        }
         if(objectname != null && objectname.length() != 0) {
             dns = dns + "/" + objectname + ".object" + getVersion();
         }
@@ -416,59 +359,39 @@ public class FissuresNamingService {
     }
 
     /**
-     * unbinds the CORBA object.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @param obj
-     *            an <code>org.omg.CORBA.Object</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
+     * unbinds the CORBA object from all naming services known by this
+     * FissuresNamingService
      */
     public void unbind(String dns, String objectname, org.omg.CORBA.Object obj)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
+            throws NotFound, CannotProceed, InvalidName {
         String interfacename = getInterfaceName(obj);
         unbind(dns, interfacename, objectname);
     }
 
     /**
-     * returns the NeworkDC object reference in the namingService.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @return a <code>NetworkDC</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
+     * returns the NeworkDC object reference in the default namingService.
      */
     public NetworkDC getNetworkDC(String dns, String objectname)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
+            throws NotFound, CannotProceed, InvalidName {
         if(isMock(dns, objectname)) { return new MockNetworkDC(); }
         return NetworkDCHelper.narrow(getNetworkDCObject(dns, objectname));
+    }
+
+    /**
+     * returns the reference to NetworkDC in the namingService as a CORBA
+     * object. The returned CORBA object must be narrowed to NetworkDC.
+     */
+    public org.omg.CORBA.Object getNetworkDCObject(String dns, String objectname)
+            throws NotFound, CannotProceed, InvalidName {
+        return resolve(dns, NETWORKDC, objectname);
     }
 
     /**
      * returns the reference to the SeismogramDC inthe naming service.
      */
     public DataCenter getSeismogramDC(String dns, String objectname)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
-        if(isMock(dns, objectname)) {
-            return new MockDC();
-        }
+            throws NotFound, CannotProceed, InvalidName {
+        if(isMock(dns, objectname)) { return new MockDC(); }
         logger.debug("before get SeismogramDC Object");
         org.omg.CORBA.Object obj = getSeismogramDCObject(dns, objectname);
         logger.debug("before narrow");
@@ -478,113 +401,51 @@ public class FissuresNamingService {
     }
 
     /**
+     * returns the reference to SeismogramDC in the namingService as a CORBA
+     * object. The returned CORBA object must be narrowed to SeismogramDC.
+     */
+    public org.omg.CORBA.Object getSeismogramDCObject(String dns,
+                                                      String objectname)
+            throws NotFound, CannotProceed, InvalidName {
+        org.omg.CORBA.Object obj = resolve(dns, SEISDC, objectname);
+        return obj;
+    }
+
+    /**
      * returns the reference to the PlottableDC in the namingService.
      */
     public PlottableDC getPlottableDC(String dns, String objectname)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
+            throws NotFound, CannotProceed, InvalidName {
         return PlottableDCHelper.narrow(getPlottableDCObject(dns, objectname));
+    }
+
+    /**
+     * returns the reference to PlottableDC in the namingService as a CORBA
+     * object. The returned CORBA object must be narrowed to PlottableDC.
+     */
+    public org.omg.CORBA.Object getPlottableDCObject(String dns,
+                                                     String objectname)
+            throws NotFound, CannotProceed, InvalidName {
+        org.omg.CORBA.Object obj = resolve(dns, PLOTTABLEDC, objectname);
+        return obj;
     }
 
     /**
      * returns the reference to the EventDC in the namingService.
      */
     public EventDC getEventDC(String dns, String objectname) throws NotFound,
-            CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+            CannotProceed, InvalidName {
         if(isMock(dns, objectname)) { return new MockEventDC(); }
         return EventDCHelper.narrow(getEventDCObject(dns, objectname));
     }
 
     /**
-     * returns the reference to NetworkDC in the namingService as a CORBA
-     * object. The returned CORBA object must be narrowed to NetworkDC.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @return an <code>org.omg.CORBA.Object</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
-     */
-    public org.omg.CORBA.Object getNetworkDCObject(String dns, String objectname)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
-        return resolve(dns, "NetworkDC", objectname);
-    }
-
-    /**
-     * returns the reference to SeismogramDC in the namingService as a CORBA
-     * object. The returned CORBA object must be narrowed to SeismogramDC.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @return an <code>org.omg.CORBA.Object</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
-     */
-    public org.omg.CORBA.Object getSeismogramDCObject(String dns,
-                                                      String objectname)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
-        org.omg.CORBA.Object obj = resolve(dns, "DataCenter", objectname);
-        return obj;
-    }
-
-    /**
-     * returns the reference to PlottableDC in the namingService as a CORBA
-     * object. The returned CORBA object must be narrowed to PlottableDC.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @return an <code>org.omg.CORBA.Object</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
-     */
-    public org.omg.CORBA.Object getPlottableDCObject(String dns,
-                                                     String objectname)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
-        org.omg.CORBA.Object obj = resolve(dns, "PlottableDC", objectname);
-        return obj;
-    }
-
-    /**
      * returns the reference to EventDC in the namingService as a CORBA object.
      * The returned CORBA object must be narrowed to EventDC.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param objectname
-     *            a <code>String</code> value
-     * @return an <code>org.omg.CORBA.Object</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
      */
     public org.omg.CORBA.Object getEventDCObject(String dns, String objectname)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
-        org.omg.CORBA.Object obj = resolve(dns, "EventDC", objectname);
+            throws NotFound, CannotProceed, InvalidName {
+        org.omg.CORBA.Object obj = resolve(dns, EVENTDC, objectname);
         return obj;
     }
 
@@ -656,58 +517,33 @@ public class FissuresNamingService {
         return leaves;
     }
 
-    public static final String FISSURES = "Fissures";
-
-    public static final String NETWORKDC = "NetworkDC";
-
-    public static final String EVENTDC = "EventDC";
-
-    public static final String PLOTTABLEDC = "PlottableDC";
-
-    public static final String SEISDC = "DataCenter";
-
-    public static final String INTERFACE = "interface";
-
-    public static final String DNS = "dns";
-
-    public static final String OBJECT = "object_FVer"
-            + edu.iris.Fissures.VERSION.value;
-
     /**
-     * returns an array of all the NetworkDC objects registered with the naming
-     * Service.
-     * 
-     * @return a <code>NetworkDC[]</code> value
+     * returns an array of all the NetworkDC objects registered with the default
+     * naming Service.
      */
     public NSNetworkDC[] getAllNetworkDC() {
         return (NSNetworkDC[])getAllObjects(NETWORKDC).toArray(new NSNetworkDC[0]);
     }
 
     /**
-     * returns an array of all the EventDC objects registered with the naming
-     * service.
-     * 
-     * @return an <code>EventDC[]</code> value
+     * returns an array of all the EventDC objects registered with the default
+     * naming service.
      */
     public NSEventDC[] getAllEventDC() {
         return (NSEventDC[])getAllObjects(EVENTDC).toArray(new NSEventDC[0]);
     }
 
     /**
-     * returns an array of all the EventDC objects registered with the naming
-     * service.
-     * 
-     * @return an <code>EventDC[]</code> value
+     * returns an array of all the PlottableDC objects registered with the
+     * default naming service.
      */
     public NSPlottableDC[] getAllPlottableDC() {
         return (NSPlottableDC[])getAllObjects(PLOTTABLEDC).toArray(new NSPlottableDC[0]);
     }
 
     /**
-     * returns an array of all the DataCenter objects registered with the naming
-     * service.
-     * 
-     * @return a <code>DataCenter[]</code> value
+     * returns an array of all the DataCenter objects registered with the
+     * default naming service.
      */
     public NSSeismogramDC[] getAllSeismogramDC() {
         return (NSSeismogramDC[])getAllObjects(SEISDC).toArray(new NSSeismogramDC[0]);
@@ -716,87 +552,59 @@ public class FissuresNamingService {
     /**
      * returns all the interfaceNames(these are namingContexts) registered with
      * the naming Service
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @return a <code>String[]</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
      */
     public String[] getInterfaceNames(String dns) throws NotFound,
-            CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+            CannotProceed, InvalidName {
         dns = appendKindNames(dns);
-        return getNames(dns, "interface");
+        return getNames(dns, INTERFACE);
     }
 
     /**
      * returns the object names registered under the interface name given by
      * interfacename.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @param interfacename
-     *            a <code>String</code> value
-     * @return a <code>String[]</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
      */
     public String[] getInstanceNames(String dns, String interfacename)
-            throws NotFound, CannotProceed, InvalidName,
-            org.omg.CORBA.ORBPackage.InvalidName {
+            throws NotFound, CannotProceed, InvalidName {
         dns = appendKindNames(dns);
-        if(interfacename != null && interfacename.length() != 0) dns = dns
-                + "/" + interfacename + ".interface";
+        if(interfacename != null && interfacename.length() != 0) {
+            dns = dns + "/" + interfacename + ".interface";
+        }
         return getNames(dns, "object" + getVersion());
     }
 
     /**
-     * Describe <code>getDNSNames</code> method here.
-     * 
-     * @param dns
-     *            a <code>String</code> value
-     * @return a <code>String[]</code> value
-     * @exception NotFound
-     *                if an error occurs
-     * @exception CannotProceed
-     *                if an error occurs
-     * @exception InvalidName
-     *                if an error occurs
+     * returns the DNS names bound at dns
      */
     public String[] getDNSNames(String dns) throws NotFound, CannotProceed,
-            InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+            InvalidName {
         String tempdns = new String(dns);
         dns = appendKindNames(dns);
-        String[] rtnValues = getNames(dns, "dns");
-        for(int counter = 0; counter < rtnValues.length; counter++)
+        String[] rtnValues = getNames(dns, DNS);
+        for(int counter = 0; counter < rtnValues.length; counter++) {
             rtnValues[counter] = tempdns + "/" + rtnValues[counter];
+        }
         return rtnValues;
     }
 
-    private String[] getNames(String dns, String key) throws NotFound,
-            CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
-        ArrayList arrayList = new ArrayList();
-        NamingContextExt namingContextTemp = NamingContextExtHelper.narrow(getNameService().resolve(getNameService().to_name(dns)));
+    private String[] getNames(String dns, String kind) throws NotFound,
+            CannotProceed, InvalidName {
+        List bindings = new ArrayList();
+        NamingContextExt myNS = getNameService();
+        NameComponent[] nameComponents = myNS.to_name(dns);
+        org.omg.CORBA.Object dnsNamingContextObj = myNS.resolve(nameComponents);
+        NamingContextExt dnsNamingContext = NamingContextExtHelper.narrow(dnsNamingContextObj);
         BindingListHolder bindingList = new BindingListHolder();
         BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
-        namingContextTemp.list(0, bindingList, bindingIteratorHolder);
+        dnsNamingContext.list(0, bindingList, bindingIteratorHolder);
         BindingIterator bindingIterator = bindingIteratorHolder.value;
         BindingHolder bindingHolder = new BindingHolder();
         while(bindingIterator.next_one(bindingHolder)) {
             Binding binding = bindingHolder.value;
-            if(binding.binding_name[0].kind.equals(key)) arrayList.add(binding.binding_name[0].id);
+            if(binding.binding_name[0].kind.equals(kind)) {
+                bindings.add(binding.binding_name[0].id);
+            }
         }
-        String[] rtnValues = new String[arrayList.size()];
-        rtnValues = (String[])arrayList.toArray(rtnValues);
-        return rtnValues;
+        return (String[])bindings.toArray(new String[bindings.size()]);
     }
 
     private String appendKindNames(String dns) {
@@ -882,4 +690,21 @@ public class FissuresNamingService {
         return dns.equals("edu/sc/seis")
                 && (name.equals("Mock") || name.equals("Timeout"));
     }
+
+    public static final String FISSURES = "Fissures";
+
+    public static final String NETWORKDC = "NetworkDC";
+
+    public static final String EVENTDC = "EventDC";
+
+    public static final String PLOTTABLEDC = "PlottableDC";
+
+    public static final String SEISDC = "DataCenter";
+
+    public static final String INTERFACE = "interface";
+
+    public static final String DNS = "dns";
+
+    public static final String OBJECT = "object_FVer"
+            + edu.iris.Fissures.VERSION.value;
 }// FissuresNamingService
