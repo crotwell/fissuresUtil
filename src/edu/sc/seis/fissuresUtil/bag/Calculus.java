@@ -19,7 +19,7 @@ public class Calculus {
 	
     }
     
-    public int[] diff(int[] data) {
+    public static int[] diff(int[] data) {
 	int[] out = new int[data.length-1];
 	for (int i=0; i<out.length; i++) {
 	    out[i] = data[i+1] - data[i];
@@ -27,7 +27,7 @@ public class Calculus {
 	return out;
     }
 
-    public LocalSeismogramImpl diff(LocalSeismogramImpl seis) {
+    public static LocalSeismogramImpl diff(LocalSeismogramImpl seis) {
 	int[] seisData = seis.get_as_longs();
 	int[] out = diff(seisData);
 	TimeSeriesDataSel outData = new TimeSeriesDataSel();
@@ -35,7 +35,7 @@ public class Calculus {
 	return new LocalSeismogramImpl(seis, outData);
     }
 
-    public LocalSeismogramImpl integrate(LocalSeismogramImpl seis) {
+    public static LocalSeismogramImpl integrate(LocalSeismogramImpl seis) {
 	int[] seisData = seis.get_as_longs();
 	TimeInterval sampPeriod = seis.getSampling().getPeriod();
 	UnitImpl outUnit = UnitImpl.multiply(seis.getUnit(), 
