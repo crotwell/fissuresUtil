@@ -338,8 +338,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
 
     public void print() {
         JOptionPane.showMessageDialog(this,
-                                      "Record section printing will be available in a version in the not too distant future",
-                                      "Some day my friends, some day",
+                                      "Record section output to PDF will be available in a later version of the program",
+                                      "Not available in this version",
                                       JOptionPane.INFORMATION_MESSAGE);
             // TODO
     }
