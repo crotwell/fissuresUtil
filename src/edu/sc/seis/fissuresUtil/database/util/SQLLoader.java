@@ -1,25 +1,30 @@
 package edu.sc.seis.fissuresUtil.database.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
+import edu.sc.seis.fissuresUtil.database.WrappedSQLException;
 
 /**
  * @author groves Created on Nov 23, 2004
  */
 public class SQLLoader {
 
-    public SQLLoader(String template) throws Exception{
+    public SQLLoader(String template) throws SQLException{
         this(template, new VelocityContext());
     }
     
-    public SQLLoader(String template, Context ctx) throws Exception {
+    public SQLLoader(String template, Context ctx) throws SQLException {
+        try {
+        this.context = ctx;
         VelocityEngine ve = new VelocityEngine();
         Properties props = new Properties();
         ClassLoader cl = getClass().getClassLoader();
@@ -30,6 +35,11 @@ public class SQLLoader {
         String velOutput = velWriter.toString();
         InputStream sqlInput = new ByteArrayInputStream(velOutput.getBytes());
         sqlProps.load(sqlInput);
+        } catch(IOException e) {
+            throw new WrappedSQLException("unable to load sql properties from "+template, e);
+        } catch (Exception e) {
+            throw new WrappedSQLException("unable to merge template from "+template, e);
+        }
     }
     
     public boolean has(String propName){
@@ -55,4 +65,10 @@ public class SQLLoader {
     private Properties sqlProps = new Properties();
 
     private static final String propsLoc = "edu/sc/seis/fissuresUtil/database/util/SQLLoader.prop";
+
+    private Context context;
+
+    public Context getContext() {
+        return context;
+    }
 }
