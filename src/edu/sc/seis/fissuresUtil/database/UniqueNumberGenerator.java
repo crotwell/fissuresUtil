@@ -26,21 +26,21 @@ public class UniqueNumberGenerator extends AbstractDb{
         create();
         insert(-1);
     }
-    
+
     public static UniqueNumberGenerator getUNG(String directoryName, String databaseName) {
         if (ung == null) {
             ung = new UniqueNumberGenerator( directoryName, databaseName);
         }
         return ung;
     }
-    
+
     public void create() {
         try {
             connection = getConnection();
             if(connection==null){
                 Object[] options = { "Exit GEE" };
                 JOptionPane.showOptionDialog(null,
-                                             "It appears that another copy of GEE is running right now.\nPlease use it instead of starting another copy.",
+                                             "It appears that another copy of GEE is running right now.\nPlease use it instead of starting another copy.\nIf you feel you are getting this message in error, please remove the cache directory\n"+directoryName,
                                              "Multiple instances of GEE running",
                                              JOptionPane.OK_OPTION,
                                              JOptionPane.ERROR_MESSAGE,
@@ -53,22 +53,22 @@ public class UniqueNumberGenerator extends AbstractDb{
         } catch(SQLException sqle) {
             //  logger.debug("error while creating the table uniqueIdentifier");
         }
-        
+
         try {
             insertStmt = connection.prepareStatement("INSERT INTO uniqueIdentifier "+
                                                          "VALUES(?)");
             getStmt = connection.prepareStatement(" SELECT number FROM uniqueIdentifier");
-            
+
             updateStmt = connection.prepareStatement(" UPDATE uniqueIdentifier SET number = ? ");
-            
+
         } catch(SQLException sqle) {
             //logger.debug("error while creating prepared Statements");
         }
-        
+
     }
-    
+
     private void insert(int num) {
-        
+
         try {
             insertStmt.setInt(1, num);
             insertStmt.executeUpdate();
@@ -76,8 +76,8 @@ public class UniqueNumberGenerator extends AbstractDb{
             // logger.debug("ERROR while inserting ", sqle);
         }
     }
-    
-    
+
+
     public int getUniqueIdentifier() {
         try {
             int num = getId();
@@ -89,7 +89,7 @@ public class UniqueNumberGenerator extends AbstractDb{
         }
         return -1;
     }
-    
+
     private int getId() {
         try {
             ResultSet rs = ung.getStmt.executeQuery();
@@ -101,20 +101,20 @@ public class UniqueNumberGenerator extends AbstractDb{
         }
         return -1;
     }
-    
+
     public static void main(String[] args) {
         //  for(int counter = 0; counter < 10; counter++)
         // System.out.println("The number is "+UniqueNumberGenerator.getUniqueIdentifier());
     }
-    
+
     private static UniqueNumberGenerator ung = null;
-    
+
     private PreparedStatement insertStmt;
-    
+
     private  PreparedStatement getStmt;
-    
+
     private  PreparedStatement updateStmt;
-    
+
     static Category logger = Category.getInstance(UniqueNumberGenerator.class.getName());
-    
+
 }// UniqueNumberGenerator
