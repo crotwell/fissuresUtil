@@ -72,6 +72,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
                                   BOTTOM_CENTER);
                 }
             }
+            validate();
         }
 
         private SeismogramDisplay get(int pos){
