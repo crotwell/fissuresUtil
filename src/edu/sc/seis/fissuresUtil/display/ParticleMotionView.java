@@ -348,7 +348,7 @@ public class ParticleMotionView extends JComponent{
 		RGBCOLOR++;
 		if(RGBCOLOR == COLORS.length) RGBCOLOR = 0;
 	    }
-	    drawLabels(particleMotion, graphics2D);
+	    //drawLabels(particleMotion, graphics2D);
 	    graphics2D.setColor(color);
 	    
 	    Insets insets = getInsets();
