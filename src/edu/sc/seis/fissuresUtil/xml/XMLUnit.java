@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.xml;
 
+import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.*;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
@@ -48,6 +49,46 @@ public class XMLUnit {
 						      "exponent",
 						      ""+unit.exponent));
 	
+    }
+
+    public static Unit getUnit(Element base) {
+
+	//Get the UnitBase
+	UnitBase the_unit_base = null;
+	NodeList the_unit_base_node = XMLUtil.evalNodeList(base, "the_unit_base");
+	if(the_unit_base_node != null && the_unit_base_node.getLength() != 0) {
+	    the_unit_base = XMLUnitBase.getUnitBase((Element)the_unit_base_node.item(0));
+	}
+
+	//Get the subUnit Elements.
+	Unit[] elements = new Unit[0];
+	NodeList elements_list = XMLUtil.evalNodeList(base, "elements");
+	if(elements_list != null && elements_list.getLength() != 0) {
+	    for(int counter = 0; counter < elements_list.getLength(); counter++) {
+		elements[counter] = XMLUnit.getUnit((Element)elements_list.item(0));
+	    }
+	}
+
+	//Get the power
+	int power = Integer.parseInt(XMLUtil.evalString(base, "power"));
+	
+	//Get the name
+	String name = XMLUtil.evalString(base, "name");
+	
+	//Get the multi_factor
+	double multi_factor = (double)Float.parseFloat(XMLUtil.evalString(base, "multi_factor"));
+	
+	//Get the exponent
+	int exponent = Integer.parseInt(XMLUtil.evalString(base, "exponent"));
+	
+	/*return new UnitImpl(
+			    power,
+			    name,
+			    multi_factor,
+			    exponent);*/
+	return new UnitImpl(the_unit_base,
+			    exponent,
+			    power);
     }
     
 }// XMLUnit
