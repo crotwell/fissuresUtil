@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import edu.sc.seis.fissuresUtil.bag.StreamPump;
 
@@ -12,15 +13,22 @@ import edu.sc.seis.fissuresUtil.bag.StreamPump;
  */
 public class GenericCommandExecute {
 
-    public static void execute(String command) throws InterruptedException,
+    public static int execute(String command) throws InterruptedException,
+            IOException {
+        return execute(command, System.out, System.err);
+    }
+
+    public static int execute(String command,
+                              OutputStream sysout,
+                              OutputStream syserr) throws InterruptedException,
             IOException {
         Runtime rt = Runtime.getRuntime();
         System.out.println("executing command: " + command);
         Process proc = rt.exec(command);
         BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sysout));
         BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-        BufferedWriter errWriter = new BufferedWriter(new OutputStreamWriter(System.err));
+        BufferedWriter errWriter = new BufferedWriter(new OutputStreamWriter(syserr));
         StreamPump pump = new StreamPump(reader, writer);
         StreamPump errPump = new StreamPump(errReader, errWriter);
         pump.start();
@@ -30,6 +38,7 @@ public class GenericCommandExecute {
         synchronized(pump) {}
         synchronized(errPump) {}
         System.out.println("command returned exit value " + exitVal);
+        return exitVal;
     }
 
     public static void main(String[] args) {
