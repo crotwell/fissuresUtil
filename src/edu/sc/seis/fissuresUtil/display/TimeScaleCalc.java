@@ -67,9 +67,9 @@ public class TimeScaleCalc extends TimeScaleMapper {
 	else if(timeIntv <= 30000)
 	    this.divCalculateTicks(3000);
 	else if(timeIntv <= 60000)
-	    this.divCalculateTicks(10000);
+	    this.divCalculateTicks(6000);
 	else if(timeIntv <= 120000)
-	    this.divCalculateTicks(20000);
+	    this.divCalculateTicks(12000);
 	else if(timeIntv <= 300000)
 	    this.divCalculateTicks(30000);
 	else if(timeIntv <= 600000)
@@ -77,11 +77,11 @@ public class TimeScaleCalc extends TimeScaleMapper {
 	else if(timeIntv <= 1200000)
 	    this.divCalculateTicks(120000);
 	else if(timeIntv <= 3600000)
-	    this.divCalculateTicks(360000);
-	else if(timeIntv <= 7300000)
-	    this.divCalculateTicks(720000);
+	    this.divCalculateTicks(300000);
+	else if(timeIntv <= 7200000)
+	    this.divCalculateTicks(600000);
 	else
-	    this.divCalculateTicks(1440000);
+	    this.divCalculateTicks(1200000);
 	
     }
     
@@ -97,13 +97,13 @@ public class TimeScaleCalc extends TimeScaleMapper {
 	    divIntv *= 2;
 	majTickNum = (int)(timeIntv/divIntv);
 	divInc = divIntv;
-	majTickIntv = (totalPixels + totalPixels * ((majTickNum * divIntv - timeIntv)/(double)timeIntv))/((double)majTickNum++);
+	majTickIntv = totalPixels/(double)majTickNum;
 	if(majTickIntv/10 > 10)
-	    numTicks = totalPixels/(int)majTickIntv * 12;
+	    numTicks = majTickNum * 10;
 	else if(majTickIntv/5 > 10)
-	    numTicks = totalPixels/(int)majTickIntv * 6;
+	    numTicks = majTickNum * 5;
 	else if(majTickIntv/2 > 10)
-	    numTicks = totalPixels/(int)majTickIntv * 2;
+	    numTicks = majTickNum * 2;
 	else
 	    numTicks = majTickNum;
 	tickInc = majTickIntv/(numTicks/majTickNum);//get the tick increment in pixels
