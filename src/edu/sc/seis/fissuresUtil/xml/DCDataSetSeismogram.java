@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Category;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 
 /**
  * DataSetSeismogram.java
@@ -72,7 +73,7 @@ public class DCDataSetSeismogram
                                                                            (LocalDataCenterCallBack)this,
                                                                        dataListener,
                                                                        false,
-                                                                       new MicroSecondDate().getFissuresTime());
+                                                                       ClockUtil.now().getFissuresTime());
 
             } else {
                 /*

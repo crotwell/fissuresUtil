@@ -5,9 +5,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.lang.*;
 import java.io.*;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 
 /**
- * Description: This class can be used to display the GUI showing the exception along with useful information. 
+ * Description: This class can be used to display the GUI showing the exception along with useful information.
  * It also shows the stackTrace. It also gives the option of saving the exception stack trace along with other
  * useful information added by the user.
  *
@@ -42,7 +43,7 @@ public class ExceptionHandlerGUI {
         ExceptionHandlerGUI exceptionHandlerGUI = new ExceptionHandlerGUI(message, e);
         return exceptionHandlerGUI;
     }
-    
+
     public void addToButtonPanel(JButton button) {
         buttonPanel.add(button);
     }
@@ -60,7 +61,7 @@ public class ExceptionHandlerGUI {
     }
 
     private void createGUI() {
-	
+
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("information", getMessagePanel());
         tabbedPane.addTab("stack Trace", getStackTracePanel());
@@ -72,10 +73,10 @@ public class ExceptionHandlerGUI {
         mainPanel.setMinimumSize(dimension);
         mainPanel.add(tabbedPane);
     }
-   
+
 
     private JPanel getMessagePanel() {
-        JPanel messagePanel = new JPanel();	
+        JPanel messagePanel = new JPanel();
         JTextArea exceptionMessageLabel = new JTextArea();
         exceptionMessageLabel.setLineWrap(true);
         exceptionMessageLabel.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
@@ -86,15 +87,15 @@ public class ExceptionHandlerGUI {
         messagePanel.add(exceptionMessageLabel);
         return messagePanel;
     }
-    
-    
+
+
     private JScrollPane getSystemInfoPanel() {
         JTextArea messageArea = new JTextArea();
         messageArea.setLineWrap(true);
         messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
         messageArea.setWrapStyleWord(true);
         messageArea.setEditable(false);
-	
+
         JPanel stackTracePanel = new JPanel();
         JScrollPane scrollPane = new JScrollPane(stackTracePanel);
         String traceString = "";
@@ -106,21 +107,21 @@ public class ExceptionHandlerGUI {
         stackTracePanel.add(messageArea);
         return scrollPane;
     }
-    
+
     private JScrollPane getStackTracePanel() {
         JTextArea messageArea = new JTextArea();
         messageArea.setLineWrap(true);
         messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
         messageArea.setWrapStyleWord(true);
         messageArea.setEditable(false);
-	
+
         JPanel stackTracePanel = new JPanel();
         JScrollPane scrollPane = new JScrollPane(stackTracePanel);
         String traceString = "";
         if (exception instanceof WrappedException) {
             WrappedException we = (WrappedException)exception;
             if (we.getCausalException() != null) {
-                traceString += 
+                traceString +=
                     getStackTrace(we.getCausalException());
             } // end of if (we.getCausalException() != null)
         }
@@ -137,6 +138,11 @@ public class ExceptionHandlerGUI {
 
         String rtnValue = "";
         rtnValue += "Date : "+new java.util.Date().toString()+"\n";
+        try {
+            rtnValue += "Server offset : "+ClockUtil.getServerTimeOffset()+"\n";
+        } catch (IOException e) {
+            rtnValue += "Server offset : "+e.toString()+"\n";
+        }
         rtnValue += "os.name : "+System.getProperty("os.name")+"\n";
         rtnValue += "os.version : "+System.getProperty("os.version")+"\n";
         rtnValue += "os.arch : "+System.getProperty("os.arch")+"\n";
@@ -152,13 +158,13 @@ public class ExceptionHandlerGUI {
         StringWriter stringWriter = new StringWriter();
         java.util.Properties props = System.getProperties();
         props.list(new PrintWriter(stringWriter));
-        rtnValue += stringWriter.toString(); 
-       
+        rtnValue += stringWriter.toString();
+
         return rtnValue;
     }
 
     public void createFrame() {
-	
+
 
         JPanel displayPanel = new JPanel();
 
@@ -167,16 +173,16 @@ public class ExceptionHandlerGUI {
         JButton saveToFile = new JButton("save");
         buttonPanel.add(closeButton);
         buttonPanel.add(saveToFile);
-	
+
         displayPanel.setLayout(new BorderLayout());
-        displayPanel.add(mainPanel, 
+        displayPanel.add(mainPanel,
                          BorderLayout.CENTER);
         displayPanel.add(buttonPanel, BorderLayout.SOUTH);
-	
+
         java.awt.Dimension dimension = new java.awt.Dimension(800, 400);
         displayPanel.setPreferredSize(dimension);
         displayPanel.setMinimumSize(dimension);
-	
+
         closeButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
 
@@ -187,13 +193,13 @@ public class ExceptionHandlerGUI {
 
         saveToFile.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ex) {
-		    
+
                     JFileChooser fileChooser = new JFileChooser();
                     int rtnVal = fileChooser.showSaveDialog(null);
                     if(rtnVal == JFileChooser.APPROVE_OPTION) {
                         try {
                             FileWriter fw = new FileWriter(fileChooser.getSelectedFile().getAbsolutePath());
-			  
+
                             BufferedWriter bw = new BufferedWriter(fw);
                             String str = message+"\n";
                             bw.write(str, 0, str.length());
@@ -201,7 +207,7 @@ public class ExceptionHandlerGUI {
                             bw.write(str, 0, str.length());
                             str = getSystemInformation();
                             bw.write(str, 0, str.length());
-			    
+
                             // fw.close();
                             bw.close();
                             fw.close();
@@ -209,7 +215,7 @@ public class ExceptionHandlerGUI {
                     }
                 }
             });
-		
+
         displayFrame.getContentPane().add(displayPanel);
         displayFrame.setSize(dimension);
         displayFrame.pack();
@@ -229,7 +235,7 @@ public class ExceptionHandlerGUI {
         StringWriter  stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         e.printStackTrace(printWriter);
-	
+
         return  stringWriter.toString();
 
     }
