@@ -61,7 +61,9 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
     }
 
     public void addListener(AmpListener listener) {
-        listeners.add(listener);
+        if(listener != null){
+            listeners.add(listener);
+        }
     }
 
     public void shaleAmp(double shift, double scale, DataSetSeismogram[] seismos) {
