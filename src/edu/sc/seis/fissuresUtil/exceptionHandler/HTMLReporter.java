@@ -44,7 +44,7 @@ public class HTMLReporter implements ExceptionReporter {
         if(index.exists()) {
             BufferedWriter out = new BufferedWriter(new FileWriter(index, true));
             writeln(out, "<hr>");
-            writeln(out, "SOD was restarted at " + ClockUtil.now() + ".<br>");
+            writeln(out, "Restarted at " + ClockUtil.now() + ".<br>");
             writeln(out, "There have been " + numErrors + " errors so far.");
             writeln(out, "<hr>");
             out.close();
