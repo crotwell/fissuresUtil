@@ -1,11 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.*;
-
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import org.apache.log4j.Logger;
 
 /**
  * AmpConfigData encapsulates the data for a particular seismogram in a particular
@@ -18,86 +16,42 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  * @version
  */
 
-public class AmpConfigData {
+public class AmpConfigData implements SeismogramContainerListener{
 
-    /**
-     * Creates a new <code>AmpConfigData</code> object
-     *
-     * @param seismo the seismogram being held by this AmpCOnfigData
-     * @param cleanRange the unshaled range for this AmpConfigData
-     * @param timeRange the time range that AmpRange represents
-     * @param shift the amount to shift this amp range to reach its shaled range
-     * @param scale the amount to scale this amp range to reach its shaled range
-     */
-    public AmpConfigData (DataSetSeismogram seismo, UnitRangeImpl cleanRange, MicroSecondTimeRange timeRange,
-                          double shift, double scale){
-        if ( cleanRange == null) {
-            // not sure if this is right or not, but I think that a
-            // null cleanRange should not be allowed.
-            throw new IllegalArgumentException("CleanRange cannot be null");
-        } // end of if ()
-
-        this.seismo = seismo;
-        this.cleanRange = cleanRange;
-        this.timeRange = timeRange;
-        this.shift = shift;
-        this.scale = scale;
-        shaledRange = null;
-
-
+    public AmpConfigData (DataSetSeismogram seismo,  AmpConfig parent) {
+        this.parent = parent;
+        this.container = new SeismogramContainer(seismo);
+        container.addListener(this);
     }
 
-    public LocalSeismogramImpl[] getSeismograms() {
-        return (LocalSeismogramImpl[])seismograms.toArray(new LocalSeismogramImpl[0]);
+    public void updateData() {
+        newData = true;
+        parent.fireAmpEvent();
     }
 
-    public boolean addSeismograms(LocalSeismogramImpl[] seismos){
-        for(int i = 0; i < seismos.length; i++){
-            if(!contains(seismos[i])){
-                seismograms.add(seismos[i]);
-                newData = true;
-            }
-        }
-        return newData;
+    public SeismogramIterator getIterator(){
+        return container.getIterator(timeRange);
     }
 
-    public boolean contains(LocalSeismogramImpl seis){
-        Iterator it = seismograms.iterator();
-        boolean found = false;
-        while(it.hasNext() && !found){
-            if(seis.get_id().equals(((LocalSeismogramImpl)it.next()).get_id())){
-                found = true;
-            }
-        }
-        return found;
-    }
     public boolean hasNewData(){ return newData; }
 
-    public void setNewData(boolean dataStatus){ newData = dataStatus; }
-
-    public DataSetSeismogram getDSS(){ return seismo; }
+    public DataSetSeismogram getDSS(){ return container.getDataSetSeismogram();}
 
     /**
-     * <code>getCleanRange</code> returns the range before shaling
-     *
-     * @return a range unmodified by shaling
-     */
-    public UnitRangeImpl getCleanRange(){ return cleanRange; }
-
-    /**
-     * <code>setCleanRange</code> updates the data with a new clean range
+     * <code>setRange</code> updates the data with a new clean range
      * and invalidates the old shaled range if the new range is different
      * than the old range
      * @param newRange the new clean range
      * @return true if the new clean range is different than the old clean
      * range
      */
-    public boolean setCleanRange(UnitRangeImpl newRange){
+    public boolean setRange(UnitRangeImpl newRange){
         if(cleanRange != null && cleanRange.equals(newRange)){
             return false;
         }
         cleanRange = newRange;
         shaledRange = null;
+        newData = false;
         return true;
     }
 
@@ -109,7 +63,9 @@ public class AmpConfigData {
      * @param scale additional shale for this range
      * @return the newly shaled range.
      */
-    public UnitRangeImpl shale(double shift, double scale){ return shale(shift, scale, cleanRange); }
+    public UnitRangeImpl shale(double shift, double scale){
+        return shale(shift, scale, cleanRange);
+    }
 
     /**
      * Sets the clean range to be the passed range, and then shales it by
@@ -129,36 +85,16 @@ public class AmpConfigData {
     }
 
     /**
-     * <code>getShaledRange</code> returns the current range shaled by the
+     * <code>getRange</code> returns the current range shaled by the
      * current scale and shift
      * @return the shaled range
      */
-    public UnitRangeImpl getShaledRange(){
-        // use tmpRange in case another thread sets shaledRange to null
-        UnitRangeImpl tmpRange = shaledRange;
-        if(tmpRange == null){
-            tmpRange = DisplayUtils.getShaledRange(cleanRange, this.shift, this.scale);
-            shaledRange = tmpRange;
+    public UnitRangeImpl getRange(){
+        if(shaledRange == null){
+            shaledRange = DisplayUtils.getShaledRange(cleanRange, this.shift, this.scale);
         }
-        return tmpRange;
+        return shaledRange;
     }
-
-    /**
-     * <code>getShaledOverRange</code> returns this data's shaled range
-     * stretched or shrunk to equal the size of the range passed while
-     * keeping the center at the same spot.
-     * @param fullRange the size of the range to cover
-     * @return the shaled range over the fullRange
-     */
-    public UnitRangeImpl getShaledOverRange(double fullRange){
-        UnitRangeImpl range = getShaledRange();
-        double middle = range.getMaxValue() - (range.getMaxValue() - range.getMinValue())/2;
-        range.max_value = middle+fullRange/2;
-        range.min_value = middle-fullRange/2;
-        return range;
-    }
-
-
 
     /**
      * <code>getTime</code> is an accessor method for the time
@@ -242,35 +178,24 @@ public class AmpConfigData {
     public void reset(){
         shift = 0;
         scale = 1;
-        indexSet = false;
         shaledRange = cleanRange;
     }
 
-    public Statistics getStatistics(LocalSeismogramImpl lseis) {
-        Statistics stat;
-        if ( (stat = (Statistics)statCache.get(lseis)) != null) {
-            return stat;
-        }
-        stat = new Statistics(lseis);
-        statCache.put(lseis, stat);
-        return stat;
-    }
+    private SeismogramContainer container;
 
-    private DataSetSeismogram seismo;
+    private UnitRangeImpl cleanRange = DisplayUtils.ZERO_RANGE;
 
-    private UnitRangeImpl cleanRange, shaledRange;
+    private UnitRangeImpl shaledRange;
 
-    private MicroSecondTimeRange timeRange;
+    private MicroSecondTimeRange timeRange = DisplayUtils.ZERO_TIME;
 
-    private double shift;
+    private double shift = 0;
 
-    private double scale;
+    private double scale = 1;
 
-    private boolean newData;
+    private AmpConfig parent;
 
-    private boolean indexSet = false;
+    private boolean newData = false;
 
-    private List seismograms = new ArrayList();
-
-    private Map statCache = new WeakHashMap();
+    private static Logger logger = Logger.getLogger(AmpConfigData.class);
 }// AmpConfigData

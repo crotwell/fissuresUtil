@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.bag.Statistics;
+import edu.sc.seis.fissuresUtil.display.SeismogramShape;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -11,6 +11,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JComponent;
 import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * SeismogramShape.java
@@ -19,18 +20,14 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3889 2003-05-15 20:38:44Z groves $
+ * @version $Id: SeismogramShape.java 3922 2003-05-19 17:22:30Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
 
     public SeismogramShape(JComponent parent, DataSetSeismogram seis){
-        this(parent, new SeismogramContainer(seis));
-    }
-
-    public SeismogramShape(JComponent parent, SeismogramContainer container){
         this.parent = parent;
-        this.container = container;
+        this.container = new SeismogramContainer(seis);
         container.addListener(this);
 
     }
@@ -46,9 +43,6 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
             parent.repaint();
         }
     }
-
-    private boolean updatingData = false;
-
     /**
      * Method update changes the current plot for the seismogram held by this
      * object to be over the passed in variables
@@ -77,6 +71,10 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         }
     }
 
+    public String getDataStatus(){
+        return container.getDataStatus();
+    }
+
     /**
      * <code>plot</code> sets up the iterator passed in to draw the seismogram
      * held by this seismogram shape
@@ -86,7 +84,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
      * to be drawn and the range over which they will be drawn.
      *
      */
-    public void plot(SeismogramShapeIterator iterator){
+    private void plot(SeismogramShapeIterator iterator){
         iterator.setSeisPoints(DisplayUtils.getPoints(container.getIterator(),
                                                       iterator.getTime()));
         iterator.setBaseSeisPoint();
@@ -135,39 +133,32 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         iterator.setSeisPoints(seisPoints);
         int[][] points = currentIterator.getPoints();
         int length = points[0].length - Math.abs(dragAmount);
-        System.arraycopy(points[0], dragFrom, points[0], dragFrom + dragAmount, length);
-        System.arraycopy(points[1], dragFrom, points[1], dragFrom + dragAmount, length);
-        int[] drawnPixels = getPixels(iterator);
-        if(drawnPixels[0] < 0|| drawnPixels[1] < 0){
-            return;
-        }
+        System.arraycopy(points[0], dragFrom, points[0],
+                         dragFrom + dragAmount, length);
+        System.arraycopy(points[1], dragFrom, points[1],
+                         dragFrom + dragAmount, length);
         int drawStart, drawEnd;
+        int[] drawnPixels = setPixels(iterator);
         if(pointsPerPixel <= 2){ //if there are less than 2 points per pixel,
-            drawStart = drawnPixels[0];//just replot the whole thing
-            drawEnd = drawnPixels[1];
+            plotPixels(drawnPixels[0], drawnPixels[1], iterator);
+            return;
         }else if(dragAmount < 0){
             drawStart = drawnPixels[1] + dragAmount;
             drawEnd = drawnPixels[1];
         }else{
             drawStart = drawnPixels[0];
-            drawEnd = dragAmount--;
-            ++dragAmount;
+            drawEnd = dragAmount - 1;
         }
         plotPixels(drawStart, drawEnd, iterator);
     }
 
-    public void plotPixels(SeismogramShapeIterator iterator){
-        int[] drawnPixels = getPixels(iterator);
+    private void plotPixels(SeismogramShapeIterator iterator){
+        int[] drawnPixels = setPixels(iterator);
         plotPixels(drawnPixels[0], drawnPixels[1], iterator);
     }
 
-
-    public String getDataStatus(){
-        return container.getDataStatus();
-    }
-
     private void plotPixels(int start, int end, SeismogramShapeIterator iterator){
-        if(start >= end || start < 0){
+        if(start >= end || start < 0 || start == end){
             return;
         }
         int[][] points = iterator.getPoints();
@@ -223,8 +214,8 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         points[1][point] = (int)((minMax[1] - minAmp)/range * height);
     }
 
-    public static double getShiftPercentage(MicroSecondTimeRange from,
-                                            MicroSecondTimeRange to){
+    private static double getShiftPercentage(MicroSecondTimeRange from,
+                                             MicroSecondTimeRange to){
         long fromBeginTime = from.getBeginTime().getMicroSecondTime();
         long toBeginTime = to.getBeginTime().getMicroSecondTime();
         double toInterval = to.getInterval().getValue();
@@ -246,7 +237,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
      * screen or both equal to -1 otherwise.
      *
      */
-    public int[] getPixels(SeismogramShapeIterator iterator){
+    private int[] setPixels(SeismogramShapeIterator iterator){
         int[] displayPixels = new int[2];
         int[] seisPoints = iterator.getSeisPoints();
         double pointsPerPixel = iterator.getPointsPerPixel();
@@ -321,14 +312,17 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
 
     public Rectangle2D getBounds2D(){ return null; }
 
-    public DataSetSeismogram getSeismogram() { return container.getDataSetSeismogram(); }
+    public DataSetSeismogram getSeismogram() {
+        return container.getDataSetSeismogram();
+    }
+
+    private boolean updatingData = false;
 
     private JComponent parent;
 
     private SeismogramShapeIterator currentIterator;
 
-    protected SeismogramContainer container;
+    private SeismogramContainer container;
 
-    private static Category logger =
-        Category.getInstance(SeismogramShape.class.getName());
+    private static Logger logger = Logger.getLogger(SeismogramShape.class);
 }// SeismogramShape
