@@ -7,6 +7,7 @@ import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.mockFissures.Defaults;
 import junit.framework.TestCase;
 import junitx.framework.ArrayAssert;
+import edu.sc.seis.fissuresUtil.bag.DistAz;
 // JUnitDoclet end import
 
 /**
@@ -94,11 +95,13 @@ public class RotateTest
         MicroSecondDate now = new MicroSecondDate();
         LocalSeismogramImpl xSeis = SimplePlotUtil.createSpike(now);
         LocalSeismogramImpl ySeis = SimplePlotUtil.createSpike(now);
-        Location staLoc = new Location(0, 0, Defaults.ZERO_K, Defaults.ZERO_K, null);
-        Location evtLoc = new Location(1, 0, Defaults.ZERO_K, Defaults.ZERO_K, null);
+        Location staLoc = new Location(55.3f, -3.2f, Defaults.ZERO_K, Defaults.ZERO_K, null);
+        Location evtLoc = new Location(36.52f, 71.23f, Defaults.ZERO_K, Defaults.ZERO_K, null);
         float[][] ans = rotate.rotateGCP(xSeis, ySeis, staLoc, evtLoc);
-        assertEquals( -100, ans[0][0],0.001f);
-        assertEquals( -100, ans[1][0],0.001f);
+        DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
+                                   evtLoc.latitude, evtLoc.longitude);
+        assertEquals( -100*Math.sqrt(2)*Math.cos((distAz.baz-45)*Math.PI/180.0), ans[0][0],0.001f);
+        assertEquals( 100*Math.sqrt(2)*Math.sin((distAz.baz-45)*Math.PI/180.0), ans[1][0],0.001f);
         // JUnitDoclet end method rotate
     }
 
