@@ -18,58 +18,12 @@ import java.util.Iterator;
  */
 
 public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay {
-
-    /**
-     * finds all three components of the passed seismograms and adds them to their respective component displays
-     * with an individual RMeanAmpConfig and the global time registrar for each component display
-     *
-     * @param dss the seismograms for the new BSD
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-        return addDisplay(dss, tc, new RMeanAmpConfig(dss));
-    }
-
-    /**
-     *  finds all three components of the passed seismograms and adds them to their respective component displays with an
-     * individual RMeanAmpConfig and the passed in TImeConfig
-     *
-     * @param dss the seismograms for the new BSD
-     * @param tc the time config for the new BSD
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc){
-        return addDisplay(dss, tc, new RMeanAmpConfig(dss));
-    }
-
-    /**
-     *  finds all three components of the passed seismograms and adds them to their respective component displays
-     * with the passed in amp config and the global TImeConfig
-     *
-     * @param dss the seismograms for the new BSD
-     * @param ac the amp config for the new BSD
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
-        return addDisplay(dss, tc, ac);
-    }
-
-    /**
-     * finds all three components of the passed seismograms and adds them to their respective component display
-     *  with the passed in amp and time configs
-     *
-     * @param dss the seismograms for the new BSD
-     * @param tc the time config for the new BSD
-     * @param ac the amp config for the new BSD
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
+    public void add(DataSetSeismogram[] dss) {
         DataSetSeismogram[][] componentSorted = DisplayUtils.sortByComponents(dss);
         addNorth(componentSorted[0], tc);
         addEast(componentSorted[1], tc);
         addZ(componentSorted[2], tc);
         setBorders();
-        return north;
     }
 
     private void addNorth(DataSetSeismogram[] newNorth, TimeConfig tc){
@@ -88,7 +42,8 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
                                                 TimeConfig tc, String orientation){
         if(seismos.length > 0){
             if(display == null){
-                display = new BasicSeismogramDisplay(tc, this);
+                display = new BasicSeismogramDisplay(tc);
+                display.setParentDisplay(this);
                 initializeBSD(display, 0, orientation);
             }
             display.add(seismos);
@@ -97,7 +52,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
     }
 
     private void initializeBSD(BasicSeismogramDisplay disp, int position, String orientation){
-        createCenter().add(disp, position);
+        getCenter().add(disp, position);
     }
 
     public void setIndividualizedAmpConfig(AmpConfig ac){
@@ -115,13 +70,9 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
     }
 
     public boolean removeDisplay(BasicSeismogramDisplay display){
-        if(display == north){
-            north = null;
-        }else if(display == east){
-            east = null;
-        }else{
-            z = null;
-        }
+        if(display == north) north = null;
+        else if(display == east) east = null;
+        else z = null;
         return super.removeDisplay(display);
     }
 

@@ -11,20 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class StationWindowDisplay extends VerticalSeismogramDisplay{
-
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss) {
-        return addDisplay(dss, tc, ac);
-    }
-
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac) {
-        return addDisplay(dss, tc, ac);
-    }
-
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc) {
-        return addDisplay(dss, tc, ac);
-    }
-
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac) {
+    public void add(DataSetSeismogram[] dss) {
         Map stationDss = new HashMap();
         for (int i = 0; i < dss.length; i++){
             String stationCode = dss[i].getRequestFilter().channel_id.station_code;
@@ -44,15 +31,14 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
             if(stationDisplay.containsKey(stationCode)){
                 current = (BasicSeismogramDisplay)stationDisplay.get(stationCode);
             }else{
-                current = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(),
-                                                     this);
-                createCenter().add(current);
+                current = new BasicSeismogramDisplay(tc, new RMeanAmpConfig());
+                current.setParentDisplay(this);
+                getCenter().add(current);
                 stationDisplay.put(stationCode, current);
             }
             current.add(curSeis);
         }
         setBorders();
-        return current;
     }
 
     public void clear(){

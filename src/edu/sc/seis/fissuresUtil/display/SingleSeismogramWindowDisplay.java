@@ -18,46 +18,7 @@ import java.util.List;
  */
 
 public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
-
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-        return addDisplay(dss, tc, ac);
-    }
-
-    /**
-     *  adds the seismograms to the main display with an individual RMeanAmpConfig and the passed in TImeConfig
-     * and adds it to the display
-     *
-     * @param dss the seismograms for the new BSD
-     * @param tc the time config for the new BSD
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc){
-        return addDisplay(dss, tc, ac);
-    }
-
-    /**
-     *  adds the seismogram to the main display with the passed in amp config and the global TImeConfig
-     * and adds it to the display
-     *
-     * @param dss the seismograms for the new BSD
-     * @param ac the amp config for the new BSD
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
-        return addDisplay(dss, tc, ac);
-    }
-
-    /**
-     * adds the seismograms to the main display with the passed in amp and time configs and adds it to
-     * the display
-     *
-     * @param dss the seismograms for the new BSD
-     * @param tc the time config for the new BSD
-     * @param ac the amp config for the new BSD
-     * @return the created BSD
-     * @return a <code>BasicSeismogramDisplay</code> value
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
+    public void add(DataSetSeismogram[] dss) {
         List toAdd = new ArrayList();
         for (int i = 0; i < dss.length; i++){
             if(!contains(dss[i])){
@@ -68,16 +29,16 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
         DataSetSeismogram[] newSeis = new DataSetSeismogram[toAdd.size()];
         toAdd.toArray(newSeis);
         if(cp.getComponentCount() == 0){
-            disp = new BasicSeismogramDisplay(tc, ac, this);
+            disp = new BasicSeismogramDisplay(tc, ac);
+            disp.setParentDisplay(this);
             disp.add(newSeis);
-            createCenter().add(disp);
+            getCenter().add(disp);
         }
         else{
             disp = (BasicSeismogramDisplay)cp.getComponent(0);
             disp.add(newSeis);
         }
         setBorders();
-        return disp;
     }
 
     public void setIndividualizedAmpConfig(AmpConfig ac){
