@@ -1,7 +1,9 @@
 package edu.sc.seis.fissuresUtil.mockFissures.IfNetwork;
 
 import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.network.SiteImpl;
+import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.MockLocation;
 
 public class MockSite{
@@ -15,5 +17,11 @@ public class MockSite{
         return new SiteImpl(MockSiteId.createOtherSiteId(), MockLocation.BERLIN,
                             MockStation.createOtherStation(),
                             "?dnarg ti t'nsI  .etis a is siht");
+    }
+
+    public static Site createSite(Station station) {
+        return new SiteImpl(MockSiteId.createSiteId(station), station.my_location,
+                            station,
+                            "Mock Site for station " + StationIdUtil.toStringNoDates(station.get_id()));
     }
 }

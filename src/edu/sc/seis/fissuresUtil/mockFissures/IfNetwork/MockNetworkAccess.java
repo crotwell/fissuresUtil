@@ -3,7 +3,6 @@
  * 
  * @author Created by Omnicore CodeGuide
  */
-
 package edu.sc.seis.fissuresUtil.mockFissures.IfNetwork;
 
 import edu.iris.Fissures.Area;
@@ -28,33 +27,55 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 
 public class MockNetworkAccess implements NetworkAccess {
+
     public static NetworkAccess createNetworkAccess() {
-        Channel[] channels = new Channel[] {
-                MockChannel.createChannel(),
-                MockChannel.createNorthChannel(),
-                MockChannel.createEastChannel()
-        };
+        Channel[] channels = new Channel[] {MockChannel.createChannel(),
+                                            MockChannel.createNorthChannel(),
+                                            MockChannel.createEastChannel()};
         return new MockNetworkAccess(MockNetworkAttr.createNetworkAttr(),
-                MockStation.createStation(),
-                channels);
+                                     MockStation.createStation(),
+                                     channels);
     }
-    
+
     public static NetworkAccess createOtherNetworkAccess() {
         return new MockNetworkAccess(MockNetworkAttr.createOtherNetworkAttr(),
-                MockStation.createOtherStation(),
-                new Channel[] {MockChannel.createOtherNetChan()});
+                                     MockStation.createOtherStation(),
+                                     new Channel[] {MockChannel.createOtherNetChan()});
+    }
+
+    public static NetworkAccess createManySplendoredNetworkAccess() {
+        Station[] stations = MockStation.createMultiSplendoredStations();
+        Channel[][] channels = new Channel[stations.length][];
+        for(int i = 0; i < stations.length; i++) {
+            channels[i] = MockChannel.createMotionVector(stations[i]);
+        }
+        return new MockNetworkAccess(MockNetworkAttr.createMultiSplendoredAttr(),
+                                     stations,
+                                     channels);
     }
 
     private NetworkAttr attributes;
 
-    private MockNetworkAccess(NetworkAttr attributes, Station station, Channel[] channels) {
+    private MockNetworkAccess(NetworkAttr attributes, Station station,
+            Channel[] channels) {
+        this(attributes, new Station[] {station}, make2DArray(channels));
+    }
+
+    private static Channel[][] make2DArray(Channel[] channels) {
+        Channel[][] channels2d = new Channel[1][];
+        channels2d[0] = channels;
+        return channels2d;
+    }
+
+    private MockNetworkAccess(NetworkAttr attributes, Station station[],
+            Channel[][] channels) {
         this.attributes = attributes;
-        this.station = station;
+        this.stations = station;
         this.channels = channels;
     }
 
     public Station[] retrieve_stations() {
-        return new Station[] { station };
+        return stations;
     }
 
     public Instrumentation retrieve_instrumentation(ChannelId p1, Time p2)
@@ -68,16 +89,18 @@ public class MockNetworkAccess implements NetworkAccess {
     }
 
     public Channel retrieve_channel(ChannelId p1) throws ChannelNotFound {
-        for (int i = 0; i < channels.length; i++) {
-            if(ChannelIdUtil.areEqual(channels[i].get_id(), p1)) {
-                return channels[i];
+        for(int j = 0; j < channels.length; j++) {
+            for(int i = 0; i < channels[j].length; i++) {
+                if(ChannelIdUtil.areEqual(channels[j][i].get_id(), p1)) { return channels[j][i]; }
             }
         }
         throw new ChannelNotFound();
     }
 
     public Channel[] retrieve_for_station(StationId p1) {
-        if(StationIdUtil.areEqual(p1, station.get_id())) { return channels; }
+        for(int i = 0; i < stations.length; i++) {
+            if(StationIdUtil.areEqual(p1, stations[i].get_id())) { return channels[i]; }
+        }
         return new Channel[] {};
     }
 
@@ -108,8 +131,9 @@ public class MockNetworkAccess implements NetworkAccess {
         return null;
     }
 
-    public Channel[] locate_channels(Area p1, SamplingRange p2,
-            OrientationRange p3) {
+    public Channel[] locate_channels(Area p1,
+                                     SamplingRange p2,
+                                     OrientationRange p3) {
         return null;
     }
 
@@ -121,8 +145,7 @@ public class MockNetworkAccess implements NetworkAccess {
         return attributes;
     }
 
-    private Station station;
+    private Station[] stations;
 
-    private Channel[] channels;
+    private Channel[][] channels;
 }
-
