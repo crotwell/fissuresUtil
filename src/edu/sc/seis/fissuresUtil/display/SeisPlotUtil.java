@@ -400,8 +400,52 @@ public class SeisPlotUtil  {
 				    bits);
         return seis;
     }
+   public static LocalSeismogram createTestData(String name, int[] dataBits, edu.iris.Fissures.Time time) {
+        String id = "Nowhere: "+name;
+	TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
+        SamplingImpl sampling = 
+            new SamplingImpl(20,
+                         timeInterval);
+        ChannelId channelID = new ChannelId(new NetworkId("XX",
+							  time), 
+					    "FAKE",
+					    "00", 
+					    "BHZ",
+                                            time);
 
+        TimeSeriesDataSel bits = new TimeSeriesDataSel();
+        bits.int_values(dataBits);
 
+        Property[] props = new Property[1];
+        props[0] = new Property("Name", name);
+	TimeInterval[] time_corr = new TimeInterval[1];
+	time_corr[0] = new TimeInterval(.123, UnitImpl.SECOND);
+        LocalSeismogramImpl seis = 
+	    new LocalSeismogramImpl(id,
+				    props,
+				    time,
+				    dataBits.length,
+				    sampling,
+				    UnitImpl.COUNT,
+				    channelID,
+				    new ParameterRef[0],
+				    time_corr,
+				    new SamplingImpl[0],
+				    bits);
+        return seis;
+    }
+
+    public static LocalSeismogram createCustomSineWave(){
+	int[] dataBits = new int[1200];
+        double tmpDouble;
+        for (int i=0; i<dataBits.length; i++) {
+             dataBits[i] = 
+                 (int)Math.round(Math.sin(0 + 
+                                          i*Math.PI*1/20.0)*1000);
+	}
+	return createTestData("Sine Wave", dataBits, new edu.iris.Fissures.Time("19911015T163000.000Z", -1));
+    }
+    
     public static LocalSeismogram createSineWave() {
         return createSineWave(0);
     }
