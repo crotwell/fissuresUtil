@@ -1,9 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
@@ -13,12 +14,10 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.chooser.DataSetChannelGrouper;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
-import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 /**
  * DisplayUtils.java
  *
@@ -36,12 +35,13 @@ public class DisplayUtils {
         MicroSecondDate endDate = new MicroSecondDate(timeRange.end_time);
         ArrayList arrayList = new ArrayList();
         for(int counter = 0; counter < attrs.length; counter++) {
-            if(ChannelIdUtil.toString(channelId).equals(ChannelIdUtil.toString(((SeismogramAttrImpl)attrs[counter]).getChannelID()))){
-                if(((((SeismogramAttrImpl)attrs[counter]).getBeginTime().equals(startDate) ||
-                         ((SeismogramAttrImpl)attrs[counter]).getBeginTime().before(startDate))) &&
-                       (((SeismogramAttrImpl)attrs[counter]).getEndTime().equals(endDate) ||
-                            ((SeismogramAttrImpl)attrs[counter]).getEndTime().after(endDate))){
-                    arrayList.add(((SeismogramAttrImpl)attrs[counter]).getName());
+            SeismogramAttrImpl atrib = (SeismogramAttrImpl)attrs[counter];
+            if(ChannelIdUtil.areEqual(channelId,atrib.getChannelID())){
+                if((atrib.getBeginTime().equals(startDate) ||
+                    atrib.getBeginTime().before(startDate)) &&
+                       (atrib.getEndTime().equals(endDate) ||
+                        atrib.getEndTime().after(endDate))){
+                    arrayList.add(atrib.getName());
 
                 }
             }
@@ -61,6 +61,41 @@ public class DisplayUtils {
             localSeismograms[counter] = ((XMLDataSet)dataset).getSeismogram(seisNames[counter]);
         }
         return localSeismograms;
+    }
+
+    public static DataSetSeismogram[] getComponents(DataSetSeismogram seismogram){
+        List componentSeismograms = new ArrayList();
+        RequestFilter rf = seismogram.getRequestFilter();
+        MicroSecondDate startDate = new MicroSecondDate(rf.start_time);
+        MicroSecondDate endDate = new MicroSecondDate(rf.end_time);
+        ChannelId chanId = rf.channel_id;
+        DataSet dataSet = seismogram.getDataSet();
+        String[] names = dataSet.getDataSetSeismogramNames();
+        for (int i = 0; i < names.length; i++ ) {
+            System.out.println("Attempting to match on " + names[i]);
+            DataSetSeismogram currentSeis = dataSet.getDataSetSeismogram(names[i]);
+            RequestFilter currentRF = currentSeis.getRequestFilter();
+            MicroSecondDate currentBegin = new MicroSecondDate(currentRF.start_time);
+            MicroSecondDate currentEnd = new MicroSecondDate(currentRF.end_time);
+            System.out.println("ID: " + ChannelIdUtil.toString(currentRF.channel_id) +
+                              "\nSITE CODE: " + currentRF.channel_id.site_code + " NETWORK ID: " +
+                              currentRF.channel_id.network_id + " CHANNEL CODE: " + currentRF.channel_id.channel_code +
+                              " STATION CODE: " + currentRF.channel_id.station_code);
+            if(ChannelIdUtil.areEqual(chanId,currentRF.channel_id)){
+                System.out.println("the channel ids are equal");
+                if((currentBegin.equals(startDate) ||
+                    currentBegin.before(startDate)) &&
+                       (currentEnd.equals(endDate) ||
+                        currentBegin.after(endDate))){
+                    System.out.println("Found matching component");
+                    componentSeismograms.add(currentSeis);
+
+                }
+            }
+        }
+        DataSetSeismogram[] components = new DataSetSeismogram[componentSeismograms.size()];
+        componentSeismograms.toArray(components);
+        return components;
     }
 
     public static String getSeismogramName(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
@@ -91,10 +126,10 @@ public class DisplayUtils {
     }
 
     /** Calculates the indexes within the seismogram data points,
-    correspoding to the begin and end time of the given range.
-    The amplitude of the
-    seismogram is not important for this calculation.
-    */
+     correspoding to the begin and end time of the given range.
+     The amplitude of the
+     seismogram is not important for this calculation.
+     */
     public static final int[] getSeisPoints(LocalSeismogramImpl seis,
                                             MicroSecondTimeRange time){
         long seisBegin = seis.getBeginTime().getMicroSecondTime();
@@ -122,6 +157,10 @@ public class DisplayUtils {
         return names;
     }
 
+    public static String getOrientationName(DataSetSeismogram dss){
+        return getOrientationName(dss.getRequestFilter().channel_id.channel_code);
+    }
+
     public static String getOrientationName(String orientation) {
 
         char ch = orientation.charAt(2);
@@ -137,44 +176,27 @@ public class DisplayUtils {
      @return an array sorted by component orientation.  [0][] contains north, [1][] contains east and [2][] contains z
      */
     public static DataSetSeismogram[][] getComponents(DataSetSeismogram[] dss){
-        return getComponents(dss, "");
-    }
-
-    /**
-     * <code>getComponents</code> performs the same operation as getComponents, but also adds a suffix to each created
-     * datasetseismogram
-     * @param suffix the string to be appended
-     */
-    public static DataSetSeismogram[][] getComponents(DataSetSeismogram[] dss, String suffix){
         List names = new ArrayList();
         List north = new ArrayList();
         List east = new ArrayList();
         List z = new ArrayList();
         for(int i = 0; i < dss.length; i++){
             if(!names.contains(dss[i].getName())){
-                LocalSeismogramImpl seis = null;//dss[i].retrieveData();
-                XMLDataSet dataSet = (XMLDataSet)dss[i].getDataSet();
-                ChannelId[] channelGroup = DataSetChannelGrouper.retrieveGrouping(dataSet, seis.getChannelID());
-                for(int counter = 0; counter < channelGroup.length; counter++) {
-                    LocalSeismogram[] newSeismograms  = DisplayUtils.getSeismogram(channelGroup[counter], dataSet,
-                                                                                   new TimeRange(seis.getBeginTime().getFissuresTime(),
-                                                                                                 seis.getEndTime().getFissuresTime()));
-                    for(int j = 0; j < newSeismograms.length; j++){
-                        DataSetSeismogram current = null;/*new DataSetSeismogram((LocalSeismogramImpl)newSeismograms[j],
-                                                                          dataSet,
-                                      ((LocalSeismogramImpl)newSeismograms[i]).getName()+ suffix);*/
-                        if(DisplayUtils.getOrientationName(channelGroup[counter].channel_code).equals("North")){
-                            north.add(current);
-                        }else if(DisplayUtils.getOrientationName(channelGroup[counter].channel_code).equals("East")){
-                            east.add(current);
-                        }else{
-                            z.add(current);
-                        }
-                        names.add(current.getName());
+                DataSetSeismogram[] newSeismograms = DisplayUtils.getComponents(dss[i]);
+                for(int j = 0; j < newSeismograms.length; j++){
+                    DataSetSeismogram current = newSeismograms[i];
+                    if(DisplayUtils.getOrientationName(current).equals("North")){
+                        north.add(current);
+                    }else if(DisplayUtils.getOrientationName(current).equals("East")){
+                        east.add(current);
+                    }else{
+                        z.add(current);
                     }
+                    names.add(current.getName());
                 }
             }
         }
+
         DataSetSeismogram[][] sortedSeismos = new DataSetSeismogram[3][];
         sortedSeismos[0] = ((DataSetSeismogram[])north.toArray(new DataSetSeismogram[north.size()]));
         sortedSeismos[1] = ((DataSetSeismogram[])east.toArray(new DataSetSeismogram[east.size()]));
@@ -182,12 +204,14 @@ public class DisplayUtils {
         return sortedSeismos;
     }
 
-    public static DataSetSeismogram[] addSuffix(DataSetSeismogram[] dss, String suffix){
-        DataSetSeismogram[] suffixedDss = new DataSetSeismogram[dss.length];
-        for(int i = 0; i < dss.length; i++){
-            dss[i].setName(dss[i].getName() + suffix);
+    public static boolean allNull(Object[] array){
+        boolean nonNull = false;
+        for (int i = 0; i < array.length && !nonNull; i++ ) {
+            if(array[i] != null){
+                nonNull = true;
+            }
         }
-        return dss;
+        return nonNull;
     }
 
     private static final double linearInterp(long xa, long xb, int y,
