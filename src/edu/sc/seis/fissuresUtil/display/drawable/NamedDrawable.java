@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 /**
  * NamedPlotter.java
  *
@@ -13,6 +14,9 @@ import java.awt.Graphics2D;
 
 public interface NamedDrawable extends Drawable{
 
-    public boolean drawName(Graphics2D canvas, int xPosition, int yPosition);
+    /**
+     *@returns a rectangle around the string drawn
+     */
+    public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition);
 
 }// NamedPlotter
