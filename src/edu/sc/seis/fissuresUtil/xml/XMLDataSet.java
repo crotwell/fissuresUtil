@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2119 2002-07-10 20:38:49Z telukutl $
+ * @version $Id: XMLDataSet.java 2124 2002-07-11 13:27:20Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -873,7 +873,8 @@ public class XMLDataSet implements DataSet, Serializable {
     
     public edu.iris.Fissures.IfNetwork.Channel getChannel(ChannelId channelId) {
 	System.out.println("-------- "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
-	
+	channelId.station_code = channelId.station_code.toLowerCase();
+	System.out.println("******* after "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
 	Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
 	
 	return (edu.iris.Fissures.IfNetwork.Channel)obj;
@@ -1072,3 +1073,4 @@ public class XMLDataSet implements DataSet, Serializable {
     } // end of main ()
     
 }
+
