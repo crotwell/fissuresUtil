@@ -82,7 +82,7 @@ public class DisplayUtilsTest extends TestCase{
     }
 
     public static LocalSeismogramImpl[] createOtherSeisArray(){
-        LocalSeismogramImpl[] seis = {fourthSeis, fifthSeis, thirdSeis};
+        LocalSeismogramImpl[] seis = {fourthSeis, fifthSeis, sixthSeis};
         return seis;
     }
 
