@@ -201,6 +201,4 @@ public class DisplayUtils {
     
     public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
     
-    
-    public static final Map statCache = new HashMap();
 }// DisplayUtils

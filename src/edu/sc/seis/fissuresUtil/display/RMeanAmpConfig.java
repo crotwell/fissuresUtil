@@ -64,6 +64,11 @@ public class RMeanAmpConfig extends BasicAmpConfig {
 
     private boolean setAmpRange(DataSetSeismogram seismo){
         AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+
+	if ( data.getSeismograms().length == 0) {
+	    return data.setCleanRange(DisplayUtils.ZERO_RANGE);
+	} // end of if ()
+	
         LocalSeismogramImpl seis = (LocalSeismogramImpl)data.getSeismograms()[0];
         int[] seisIndex = DisplayUtils.getSeisPoints(seis, data.getTime());
         if(seisIndex[1] < 0 || seisIndex[0] >= seis.getNumPoints()) {
@@ -79,7 +84,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
             seisIndex[1] = seis.getNumPoints() -1;
         }
         double[] minMaxMean =
-            ((Statistics)DisplayUtils.statCache.get(seismo)).minMaxMean(seisIndex[0], seisIndex[1]);
+            data.getStatistics(seis).minMaxMean(seisIndex[0], seisIndex[1]);
         double meanDiff;
         double maxToMeanDiff = Math.abs(minMaxMean[2] - minMaxMean[1]);
         double minToMeanDiff = Math.abs(minMaxMean[2] - minMaxMean[0]);
