@@ -25,11 +25,17 @@ import org.apache.log4j.Category;
  */
 
 public class BasicAmpConfig implements AmpConfig{
-    public BasicAmpConfig(){}
+    public BasicAmpConfig(){    }
+
+    private static int j = 0;
+
+    private int i = j++;
 
     public BasicAmpConfig(DataSetSeismogram[] seismos){
         add(seismos);
     }
+
+    public String toString(){ return "Amp Config " + i; }
 
     /**
      * <code>add</code> is the method used to add a seismogram to this object
@@ -220,7 +226,8 @@ public class BasicAmpConfig implements AmpConfig{
 
     public void updateTime(TimeEvent timeEvent){
         currentTimeEvent = timeEvent;
-        fireAmpEvent(new LazyAmpEvent(this));
+        ampEvent = new LazyAmpEvent(this);
+        fireAmpEvent(ampEvent);
     }
 
     public AmpEvent calculateAmp(){
@@ -228,8 +235,8 @@ public class BasicAmpConfig implements AmpConfig{
         AmpConfigData[] ad = getAmpData();
         for (int i = 0; i < ad.length; i++){
             if(ad[i]!=null && //checks for the seismogram being removed between getSeismograms and here
-               ad[i].setTime(getTime(ad[i].getDSS()))){ //checks for the time update equaling the old time
-                if(setAmpRange(ad[i])){ //checks if the new time changes the amp range
+               ad[i].setTime(getTime(ad[i].getDSS()))){//checks for the time update equaling the old time
+                if(setAmpRange(ad[i])){ //checks  if the new time changes the amp range
                     changed = true;// only generates a new amp event if the amp ranges have changed
                 }
             }else if(ad[i] != null && ad[i].hasNewData()){
