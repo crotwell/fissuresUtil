@@ -42,7 +42,12 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      * Returns the amplitude range for the whole area being displayed.
      *
      */
-    public UnitRangeImpl getAmpRange(){ return ampRange; }
+    public UnitRangeImpl getAmpRange(){ 
+	if(ampRange == null){
+	    return prevRange;
+	}
+	return ampRange; 
+    }
     
     /**
      * Calculates the amplitudes for all seismograms currently held by the configurator based on the time range rules for them held 
@@ -135,7 +140,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 
     protected boolean intvCalc = false;
     
-    protected UnitRangeImpl ampRange;
+    protected UnitRangeImpl ampRange, prevRange;
 
     protected TimeConfigRegistrar timeRegistrar = null;
 
