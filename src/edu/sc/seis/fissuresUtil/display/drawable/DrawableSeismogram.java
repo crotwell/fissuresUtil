@@ -5,6 +5,7 @@ import edu.sc.seis.fissuresUtil.display.SeismogramDisplayListener;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
@@ -46,7 +47,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         this.name = name;
         this.shape = shape;
         setRemover(new SeismogramRemover(shape.getSeismogram(), parent));
-        setVisibility(true);
+        setVisibility(defaultVisibility);
         parent.add((SeismogramDisplayListener)this);
     }
 
@@ -107,7 +108,16 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
 
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition){
         remover.draw(canvas, xPosition, yPosition - 7);
-        canvas.setPaint(color);
+        xPosition += 10;
+        String name = getName() + " " + shape.getDataStatus();
+        FontMetrics fm = canvas.getFontMetrics();
+        Rectangle2D stringBounds = fm.getStringBounds(name, canvas);
+        stringBounds.setRect(stringBounds.getX() + xPosition,
+                             stringBounds.getY() + yPosition,
+                             stringBounds.getWidth(),
+                             stringBounds.getHeight());
+        canvas.setColor(color);
+        canvas.setFont(DisplayUtils.DEFAULT_FONT);
         if(!visible){
             canvas.setPaint(Color.GRAY);
         }
@@ -115,15 +125,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
             canvas.setFont(DisplayUtils.BOLD_FONT);
             canvas.setColor(Color.RED);
         }
-        xPosition += 10;
-        String name = getName() + " " + shape.getDataStatus();
         canvas.drawString(name, xPosition, yPosition);
-        FontMetrics fm = canvas.getFontMetrics();
-        Rectangle2D stringBounds = fm.getStringBounds(name, canvas);
-        stringBounds.setRect(stringBounds.getX() + xPosition,
-                             stringBounds.getY() + yPosition,
-                             stringBounds.getWidth(),
-                             stringBounds.getHeight());
         canvas.setFont(DisplayUtils.DEFAULT_FONT);
         Iterator it = children.iterator();
         while(it.hasNext()){
@@ -182,6 +184,10 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
 
     public DataSetSeismogram getSeismogram(){ return shape.getSeismogram(); }
 
+    public static void setDefaultVisibility(boolean visible){
+        defaultVisibility = visible;
+    }
+
     private SeismogramDisplay parent;
 
     private List children = new ArrayList();
@@ -192,7 +198,9 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
 
     protected SeismogramShape shape;
 
-    private boolean visible = true;
+    private static boolean defaultVisibility = true;
+
+    private boolean visible;
 
     private SeismogramRemover remover;
 }
