@@ -29,6 +29,7 @@ public abstract class TextInfoDisplay
     setLayout(new BorderLayout());
     //Create a text pane.
         textPane = new JTextPane();
+        textPane.setEditable(false);
         paneScrollPane = new JScrollPane(textPane);
         paneScrollPane.setVerticalScrollBarPolicy(
                         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
