@@ -163,11 +163,16 @@ public class JDBCChannel extends NetworkTable {
         for(int i = 0; i < possibleSiteIds.length - 1; i++) {
             query += possibleSiteIds[i] + ", ";
         }
+        try{
         query += possibleSiteIds[possibleSiteIds.length - 1] + ")";
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query);
         if(rs.next()) { return rs.getInt("chan_id"); }
         throw new NotFound("No such channel id in the db");
+        }catch(NotFound ne){
+            logger.info("SQL statement causing the exception -" + query);
+            throw ne;
+        }
     }
 
     public JDBCSite getSiteTable() {
