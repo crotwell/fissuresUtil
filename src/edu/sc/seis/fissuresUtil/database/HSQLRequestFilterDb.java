@@ -21,29 +21,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Category;
 
-/**
- * HSQLRequestFilterDb.java
- *
- *
- * Created: Tue Feb  4 11:30:30 2003
- *
- * @author <a href="mailto:">Srinivasa Telukutla</a>
- * @version
- */
-
 public class HSQLRequestFilterDb extends AbstractDb{
+    public HSQLRequestFilterDb(String directoryName, String databaseName) throws SQLException {
+        this(directoryName, databaseName, null);
+    }
+    
     public HSQLRequestFilterDb (String directoryName, String databaseName, DataCenterOperations router) throws SQLException {
         super(directoryName, databaseName);
         this.dataCenterRouter = router;
-        create();
-    }
-    
-    public HSQLRequestFilterDb(String directoryName, String databaseName) throws SQLException {
-        super(directoryName, databaseName);
         create();
     }
     
@@ -52,9 +40,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
      as the system will trash reloading data remotely, causing it to run very slow.
      The recommended value is somewhere in the tens of megabytes. The default is
      50 megabytes. The size checking is only done when new data is added.*/
-    public void setMaxDataSize(long size) {
-        this.maxDataSize = size;
-    }
+    public void setMaxDataSize(long size) { maxDataSize = size; }
     
     public void create() throws SQLException {
         connection = getConnection();
@@ -209,14 +195,12 @@ public class HSQLRequestFilterDb extends AbstractDb{
                 directory.mkdirs();
             }
             int id = ung.getUniqueIdentifier();
-            File sacDirectory = new File(directory,
-                                         PREFIX+id);
+            File sacDirectory = new File(directory, PREFIX+id);
             sac.write(sacDirectory);
             long fileLength = sacDirectory.length();
             int fileid = getMaxFileID();
             fiInsertStmt.setInt(1, fileid);
-            fiInsertStmt.setString(2,
-                                   dataDirectoryName+PREFIX+id );
+            fiInsertStmt.setString(2, dataDirectoryName+PREFIX+id );
             fiInsertStmt.setLong(3, fileLength);
             fiInsertStmt.executeUpdate();
             insertRequestFilterInfo(ChannelIdUtil.toString(seis.getChannelID()),
@@ -446,8 +430,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
     
     private final static String PREFIX = "edu.sc.seis.fissuresUtil.database.seismogram";
     
-    static Category logger =
-        Category.getInstance(HSQLRequestFilterDb.class.getName());
+    static Category logger = Category.getInstance(HSQLRequestFilterDb.class.getName());
     
     
 }// HSQLRequestFilterDb

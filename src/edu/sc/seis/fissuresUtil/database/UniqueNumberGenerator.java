@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.database;
 
+import edu.iris.Fissures.model.MicroSecondDate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -100,11 +101,6 @@ public class UniqueNumberGenerator extends AbstractDb{
             logger.debug("ERROR while retrieveing ", sqle);
         }
         return -1;
-    }
-
-    public static void main(String[] args) {
-        //  for(int counter = 0; counter < 10; counter++)
-        // System.out.println("The number is "+UniqueNumberGenerator.getUniqueIdentifier());
     }
 
     private static UniqueNumberGenerator ung = null;
