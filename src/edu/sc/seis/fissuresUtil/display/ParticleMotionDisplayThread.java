@@ -237,10 +237,10 @@ public class ParticleMotionDisplayThread{
 
     private ChannelId[] channelGroup;
 
-    private static Color[] selectionColors = { new NamedColor(255, 0, 0, 64, "red"),  
-					       new NamedColor(255, 255, 0, 64, "yellow"), 
-					       new NamedColor(0, 255, 0, 64, "green"),  
-					       new NamedColor(0, 0, 255, 64, "blue")};
+    private static Color[] selectionColors = { new Color(255, 0, 0),  
+					       new Color(255, 255, 0), 
+					       new Color(0, 255, 0),  
+					       new Color(0, 0, 255)};
 
 
     static Category logger = 
