@@ -93,6 +93,7 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
         synchronized(distCircles){
             distCircles.clear();
         }
+        events = null;
     }
 
     private void makeDistCircle(LatLonPoint llp, double radiusDegrees, Paint p){
