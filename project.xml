@@ -4,6 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>fissuresUtil</name>
   <id>fissuresUtil</id>
+  <groupId>fissuresUtil</groupId>
   <organization>
     <name>Seismology at the University of South Carolina</name>
     <url>http://www.seis.sc.edu</url>
