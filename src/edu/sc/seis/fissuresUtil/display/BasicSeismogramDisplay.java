@@ -504,8 +504,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    if(displayTime == timeConfig.getTimeRange().getInterval().getValue()){
 		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * overSize.getWidth();
 		if(imageCache.contains(overSizedImage.get())){
-		    imageCache.addFirst(overSizedImage.get());
 		    imageCache.remove(overSizedImage.get());
+		    imageCache.addFirst(overSizedImage.get());
 		}
 		if(ImageMaker.bufferedImage)
 		    g2.drawImage(((BufferedImage)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
@@ -522,8 +522,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		tx.scale(scale, 1);
 		if(imageCache.contains(overSizedImage.get())){
-		    imageCache.addFirst(overSizedImage.get());
 		    imageCache.remove(overSizedImage.get());
+		    imageCache.addFirst(overSizedImage.get());
 		}
 		if(ImageMaker.bufferedImage)
 		    g2.drawImage(((BufferedImage)overSizedImage.get()), tx, null);
