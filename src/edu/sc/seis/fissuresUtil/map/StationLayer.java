@@ -7,14 +7,22 @@ package edu.sc.seis.fissuresUtil.map;
  */
 
 import edu.sc.seis.fissuresUtil.chooser.*;
+
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
 import edu.iris.Fissures.IfNetwork.Station;
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 public class StationLayer extends MouseAdapterLayer implements StationDataListener,
     StationSelectionListener, AvailableStationDataListener{
@@ -170,13 +178,39 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
     public boolean mouseClicked(MouseEvent e){
 		Iterator it = omgraphics.iterator();
+		List stationsUnderMouse = new ArrayList();
 		while(it.hasNext()){
 			OMStation current = (OMStation)it.next();
 			if(current.contains(e.getX(), e.getY())){
-				chooser.toggleStationSelected(current.getStation());
-				return true;
+				stationsUnderMouse.add(current.getStation());
 			}
 		}
+		if (stationsUnderMouse.size() > 0){
+			if (stationsUnderMouse.size() == 1){
+				chooser.toggleStationSelected((Station)stationsUnderMouse.get(0));
+			}
+			else{
+				final JPopupMenu popup = new JPopupMenu();
+				it = stationsUnderMouse.iterator();
+				while (it.hasNext()){
+					final Station current = (Station)it.next();
+					JMenuItem menuItem = new JMenuItem(getStationInfo(current));
+					menuItem.addActionListener(new ActionListener(){
+								public void actionPerformed(ActionEvent e) {
+									chooser.toggleStationSelected(current);
+									popup.setVisible(false);
+								}
+							});
+					popup.add(menuItem);
+				}
+				Point compLocation = e.getComponent().getLocationOnScreen();
+				double[] popupLoc = {compLocation.getX(), compLocation.getY()};
+				popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
+				popup.setVisible(true);
+			}
+			return true;
+		}
+
 		return false;
     }
 
@@ -187,16 +221,20 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 				OMStation current = (OMStation)it.next();
 				if(current.contains(e.getX(), e.getY())){
 					Station station = current.getStation();
-					StringBuffer buf = new StringBuffer();
-					buf.append("Station: ");
-					buf.append(station.get_code() + "-");
-					buf.append(station.name);
-					fireRequestInfoLine(buf.toString());
+					fireRequestInfoLine(getStationInfo(station));
 					return true;
 				}
 			}
 			fireRequestInfoLine(" ");
 			return false;
 		}
+	}
+
+	public static String getStationInfo(Station station){
+		StringBuffer buf = new StringBuffer();
+		buf.append("Station: ");
+		buf.append(station.get_code() + "-");
+		buf.append(station.name);
+		return buf.toString();
 	}
 }
