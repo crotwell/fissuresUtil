@@ -18,7 +18,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 2268 2002-07-17 17:50:20Z crotwell $
+ * @version $Id: SacDirToDataSet.java 2560 2002-09-03 17:48:50Z telukutl $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -40,8 +40,9 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 	DocumentBuilder docBuilder = factory.newDocumentBuilder();
 	dirURL = base;
 	System.out.println(" dirURL is "+dirURL.toString());
+	System.out.println(" directory name is "+directory.getName());
 	try {
-	    dirURL = new URL(dirURL, directory.getName()+"/");
+	    dirURL = new URL(dirURL.toString()+"/"+directory.getName()+"/");
 	    System.out.println("updated dirURL is "+dirURL.toString());
 	} catch (MalformedURLException e) {
 	    e.printStackTrace();
@@ -58,7 +59,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 	Iterator it = paramRefs.keySet().iterator();
 	while (it.hasNext()) {
 	    String key = (String)it.next();
-        loadParameterRef(key, (String)paramRefs.get(key));
+	    //loadParameterRef(key, (String)paramRefs.get(key));
 	    
 	} // end of while (it.hasNext())
 	
@@ -77,7 +78,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
                 filename.endsWith(".jpg") ||
                 filename.endsWith(".JPG") ) {
                 String name = filename.substring(0, filename.lastIndexOf('.'));
-                loadParameterRef(name, filename);
+                loadParameterRef(filename, filename);
             } else {
                 // try as a sac file
                 loadSacFile(files[i]);
@@ -97,9 +98,14 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 	    audit[0] = new AuditInfo(userName,
 				     "Added parameter "+paramName+" for "+paramFile);
 	    try {
-		dataset.addParameter(paramName,new URL(dirURL,
-                                         paramFile).toString(),
-                             audit);
+		if(dataset.getParameter(paramName) != null) return;
+		dataset.addParameterRef(new URL("file:"+paramName),
+					paramName,
+					dataset.getParameter(paramName),
+					audit);
+				// 	new URL(dirURL,
+// 						paramFile).toString(),
+// 					audit);
 		
 	    } catch (MalformedURLException e) {
 		//can't happen?
@@ -128,34 +134,62 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         //		SacTimeSeries sac = new SacTimeSeries();
 		//sac.read(dis);
 		edu.iris.Fissures.seismogramDC.LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
-
-        edu.sc.seis.fissuresUtil.cache.CacheEvent event = 
-            SacToFissures.getEvent(sac);
-        if (event != null && dataset.getParameter(EVENT) == null) {
-            // add event
-            AuditInfo[] eventAudit = new AuditInfo[1];
-            eventAudit[0] = new AuditInfo(System.getProperty("user.name"),
-                                          "event loaded from sac file.");
-            dataset.addParameter( EVENT, event, eventAudit);
-        } // end of if (event != null)
+		
+		
+		System.out.println("The PATH is "+sacFile.getParent());
+		edu.sc.seis.fissuresUtil.cache.CacheEvent event = 
+		    SacToFissures.getEvent(sac);
+		String eventName = event.get_attributes().name;
+		
+		String eName = eventName.replace(' ', '_');
+		if (event != null && dataset.getParameter(EVENT) == null) {
+		    // add event
+		    File outFile = new File(sacFile.getParent(), eName);
+		    OutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
+		    
+		    AuditInfo[] eventAudit = new AuditInfo[1];
+		    eventAudit[0] = new AuditInfo(System.getProperty("user.name"),
+						  "event loaded from sac file.");
+		    XMLParameter.write(fos, event);
+		    fos.close();
+		    dataset.addParameterRef( new URL("file:"+eName), EVENT, event,eventAudit);
+		    edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent = (edu.sc.seis.fissuresUtil.cache.CacheEvent)((XMLDataSet)dataset).getParameter(EVENT);
+		    if(cacheEvent == null){
+			System.out.println("CACHE EVENT IS NULL");
+			System.exit(0);
+		    }
+		    else System.out.println("CACHE EVENT IS NOT NULL");
+		} // end of if (event != null)
         
         Channel channel = 
             SacToFissures.getChannel(sac);
         String channelParamName = 
             CHANNEL+ChannelIdUtil.toString(seis.channel_id);
+	
+
+
         if (channel != null && 
             dataset.getParameter(channelParamName) == null) {
+	    File outFile = new File(sacFile.getParent(), ChannelIdUtil.toString(seis.channel_id));
+	    BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
+
             // add event
             AuditInfo[] chanAudit = new AuditInfo[1];
             chanAudit[0] = new AuditInfo(System.getProperty("user.name"),
                                           "channel loaded from sac file.");
-            dataset.addParameter(channelParamName, channel, chanAudit);
-        }
+	    XMLParameter.write(fos, channel);
+	    fos.close();
+            dataset.addParameterRef(new URL("file:"+ChannelIdUtil.toString(seis.channel_id)), 
+				    channelParamName, 
+				    channel,
+				    chanAudit);
+
+	}
         
 
         String seisName = sacFile.getName();
         if (seisName.endsWith(".SAC")) {
-            seisName = seisName.substring(0,seisName.length()-4);
+	    seisName = seisName.substring(0,seisName.length()-4);
         } // end of if (seisName.endsWith(".SAC"))
         seis.setName(seisName);
         
@@ -169,6 +203,8 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 
     void save() {
 	try {
+	 
+	  
 	    File outFile = new File(directory, dsName+".dsml");
 	    OutputStream fos = new BufferedOutputStream(
 			       new FileOutputStream(outFile));
@@ -246,7 +282,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 		sdir.process();
 		sdir.save();
 	    } else {
-		System.err.println("Not a directory: "+args[0]);
+		System.err.println("Not a directory: "+args[1]);
 	    } // end of else
 	} catch (Exception e) {
 	    e.printStackTrace();
