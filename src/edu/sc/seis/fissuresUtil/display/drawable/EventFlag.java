@@ -9,10 +9,10 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.Calendar;
@@ -204,7 +204,7 @@ public class EventFlag{
     
     public String getTitle(){
         if(eventTitle == null){
-            eventTitle = DisplayUtils.getEventInfo(eventAccess, DisplayUtils.LOC + " | " + DisplayUtils.MAG + " | "  + DisplayUtils.DEPTH + " | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
+            eventTitle = CacheEvent.getEventInfo(eventAccess, CacheEvent.LOC + " | " + CacheEvent.MAG + " | "  + CacheEvent.DEPTH + " | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
         }
         return eventTitle;
     }
