@@ -226,6 +226,13 @@ public class DateChooser extends JPanel {
 
     public void setNumberOfYears(int totalyears){   
 	numberofyears = totalyears;
+	int addedyear = todaycalendar.get(Calendar.YEAR);
+	String[] yearst = new String[numberofyears];
+        for(int i=0; i<numberofyears ; i++) {
+	    yearst[i]= ""+addedyear;
+	    addedyear--;
+	}
+	yearbox.setModel(new DefaultComboBoxModel(yearst));
     }
 
     private void yearOption(){
@@ -256,6 +263,10 @@ public class DateChooser extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 String newSelection = (String)cb.getSelectedItem();
+		if (newSelection == null || newSelection.length() == 0) {
+		    return;
+		}
+		
                 year= Integer.parseInt(newSelection);
 		calendar.set(Calendar.YEAR, year);
                 dateChanged();
