@@ -1,7 +1,11 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
+import java.text.DateFormat;
+import java.text.ParseException;
+import org.apache.log4j.Category;
 /**
  * MicroSecondTimeRanges are objects to set the time range for a seismogram and assorted widgets that go with them.  It implements TimeSyncListener
  * so that it may be notified of time sync events.
@@ -14,93 +18,111 @@ import edu.iris.Fissures.model.TimeInterval;
 
 public class MicroSecondTimeRange{
     
-    /**
-     * Creates a new MicroSecondTimeRange.  The order of the times passed in
-     * doesn't matter
-     *
-     */
-    public MicroSecondTimeRange(MicroSecondDate time, MicroSecondDate anotherTime){
-	if(time.before(anotherTime)){
-	    this.beginTime = time;
-	    this.endTime = anotherTime;
-	}else{
-	    this.beginTime = anotherTime;
-	    this.endTime = time;
+	private MicroSecondTimeRange(RequestFilter rf) throws ParseException{
+		this(new MicroSecondDate(DateFormat.parse(rf.start_time.date_time)),
+			 new MicroSecondDate(DateFormat.parse(rf.end_time.date_time)));
 	}
-	this.interval = new TimeInterval(beginTime, endTime);
-     }
-
-    public MicroSecondTimeRange(MicroSecondDate beginTime, TimeInterval interval){
-	this.beginTime = beginTime;
-	this.endTime = beginTime.add(interval);
-	this.interval = interval;
-    }
-    
-    public MicroSecondTimeRange shale(double shift, double scale){
-	if(shift == 0 && scale == 1){
-	    return this;
+	
+	/**
+	 * Creates a new MicroSecondTimeRange.  The order of the times passed in
+	 * doesn't matter
+	 *
+	 */
+	public MicroSecondTimeRange(MicroSecondDate time, MicroSecondDate anotherTime){
+		if(time.before(anotherTime)){
+			this.beginTime = time;
+			this.endTime = anotherTime;
+		}else{
+			this.beginTime = anotherTime;
+			this.endTime = time;
+		}
+		this.interval = new TimeInterval(beginTime, endTime);
 	}
-	TimeInterval timeShift = (TimeInterval)interval.multiplyBy(Math.abs(shift));
-	MicroSecondDate newBeginTime;
-	if(shift < 0){
-	    newBeginTime = beginTime.subtract(timeShift);
-	}else{
-	    newBeginTime = beginTime.add(timeShift);
+	
+	public MicroSecondTimeRange(MicroSecondDate beginTime, TimeInterval interval){
+		this.beginTime = beginTime;
+		this.endTime = beginTime.add(interval);
+		this.interval = interval;
 	}
-	return new MicroSecondTimeRange(newBeginTime, (TimeInterval)interval.multiplyBy(scale));
-    }
-    
-    public MicroSecondTimeRange shift(TimeInterval shift){
-	return new MicroSecondTimeRange(beginTime.add(shift),
-					endTime.add(shift));
-    }
-
-    public MicroSecondTimeRange shift(double percentage){
-	if(percentage == 0){
-	    return this;
+	
+	public static MicroSecondTimeRange createTimeRangeFromFilter(RequestFilter rf){
+		try{
+			return new MicroSecondTimeRange(rf);
+		}catch(ParseException e){
+			logger.debug("caught parse exception turning RequestFilter into MicroSecondTimeRange.  Using one MS interval");
+			return MicroSecondTimeRange.ONE_MS;
+		}
 	}
-	TimeInterval shift = (TimeInterval)interval.multiplyBy(Math.abs(percentage));
-	if(percentage < 0){
-	    return new MicroSecondTimeRange(beginTime.subtract(shift), endTime.subtract(shift));
-	}else{
-	    return new MicroSecondTimeRange(beginTime.add(shift), endTime.add(shift));
+			
+	public MicroSecondTimeRange shale(double shift, double scale){
+		if(shift == 0 && scale == 1){
+			return this;
+		}
+		TimeInterval timeShift = (TimeInterval)interval.multiplyBy(Math.abs(shift));
+		MicroSecondDate newBeginTime;
+		if(shift < 0){
+			newBeginTime = beginTime.subtract(timeShift);
+		}else{
+			newBeginTime = beginTime.add(timeShift);
+		}
+		return new MicroSecondTimeRange(newBeginTime, (TimeInterval)interval.multiplyBy(scale));
 	}
-    }
-
-    /**
-     * Returns the beginning time for this range
-     *
-     *
-     */
-    public MicroSecondDate getBeginTime(){ return beginTime;}
-        
-    /**
-     * Returns the ending time for this range
-     *
-     *
-     */
-    public MicroSecondDate getEndTime(){ return endTime; }
-    
-    /**
-     * Returns the interval that this range comprises
-     *
-     *
-     */
-    public TimeInterval getInterval(){ return interval; }
-
-    public boolean equals(MicroSecondTimeRange otherTime){
-	if(this == otherTime){
-	    return true;
+	
+	public MicroSecondTimeRange shift(TimeInterval shift){
+		return new MicroSecondTimeRange(beginTime.add(shift),
+										endTime.add(shift));
 	}
-	return false;
-    }
+	
+	public MicroSecondTimeRange shift(double percentage){
+		if(percentage == 0){
+			return this;
+		}
+		TimeInterval shift = (TimeInterval)interval.multiplyBy(Math.abs(percentage));
+		if(percentage < 0){
+			return new MicroSecondTimeRange(beginTime.subtract(shift), endTime.subtract(shift));
+		}else{
+			return new MicroSecondTimeRange(beginTime.add(shift), endTime.add(shift));
+		}
+	}
+	
+	/**
+	 * Returns the beginning time for this range
+	 *
+	 *
+	 */
+	public MicroSecondDate getBeginTime(){ return beginTime;}
+	
+	/**
+	 * Returns the ending time for this range
+	 *
+	 *
+	 */
+	public MicroSecondDate getEndTime(){ return endTime; }
+	
+	/**
+	 * Returns the interval that this range comprises
+	 *
+	 *
+	 */
+	public TimeInterval getInterval(){ return interval; }
+	
+	public boolean equals(MicroSecondTimeRange otherTime){
+		if(this == otherTime){
+			return true;
+		}
+		return false;
+	}
+	
+	public String toString(){ return beginTime + " to " + endTime; }
+	
+	public static MicroSecondTimeRange ONE_MS = new MicroSecondTimeRange(
+		new MicroSecondDate(0), new MicroSecondDate(1));
+	
+	private final MicroSecondDate beginTime;
+	
+	private final MicroSecondDate endTime;
+	
+	private final TimeInterval interval;
 
-    public String toString(){ return beginTime + " to " + endTime; }
-
-    private final MicroSecondDate beginTime;
-    
-    private final MicroSecondDate endTime;
-
-    private final TimeInterval interval;
-
+	private static Category logger = Category.getInstance(MicroSecondTimeRange.class.getName());
 }// MicroSecondTimeRange

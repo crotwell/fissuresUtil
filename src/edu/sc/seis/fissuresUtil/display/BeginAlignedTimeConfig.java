@@ -17,58 +17,51 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class BeginAlignedTimeConfig extends BasicTimeConfig{
     /**
-     * Creates a new <code>BeginAlignedTimeConfig</code> instance.  The display interval is initialized to be the same as the seismogram
-     * being passed
-     * @param seismo the initial seismogram
-     */
+	 * Creates a new <code>BeginAlignedTimeConfig</code> instance.  The display interval is initialized to be the same as the seismogram
+	 * being passed
+	 * @param seismo the initial seismogram
+	 */
     public BeginAlignedTimeConfig(DataSetSeismogram[] seismos){
-	add(seismos);
+		add(seismos);
     }
     
     /**
-     * <code>add</code> adds a seismogram to the config
-     *
-     * @param seismo the seismogram to be added
-     */
+	 * <code>add</code> adds a seismogram to the config
+	 *
+	 * @param seismo the seismogram to be added
+	 */
     public void add(DataSetSeismogram[] seismos){
-	super.add(seismos);
-	if(interval == null){
-	    interval = getInterval(seismos[0]);
+		super.add(seismos);
+		if(interval == null){
+			interval = getInterval(seismos[0]);
+		}
+		for(int i = 0; i < seismos.length; i++){
+			if(!contains(seismos[i])){
+				MicroSecondTimeRange current = MicroSecondTimeRange.createTimeRangeFromFilter(seismos[i].getRequestFilter());
+			}
+		}
+		fireTimeEvent();
 	}
-	for(int i = 0; i < seismos.length; i++){
-	    if(!contains(seismos[i])){
-		MicroSecondTimeRange current = new MicroSecondTimeRange(seismos[i].getSeismogram().getBeginTime(),
-									getInterval(seismos[i]));
-		seismoTimes.put(seismos[i], current.shale(shift, scale));
-	    }
+	
+	public void shaleTime(double shift, double scale, DataSetSeismogram[] seismos){
+		this.shift += shift * this.scale;
+		this.scale *= scale;
+		interval = (TimeInterval)interval.multiplyBy(scale);
+		for(int i = 0; i < seismos.length; i++){
+			seismoTimes.put(seismos[i], ((MicroSecondTimeRange)seismoTimes.get(seismos[i])).shale(shift, scale));
+		}
+		fireTimeEvent();
 	}
-	fireTimeEvent();
-    }
-
-    public void shaleTime(double shift, double scale, DataSetSeismogram[] seismos){
-	this.shift += shift * this.scale;
-	this.scale *= scale;
-	interval = (TimeInterval)interval.multiplyBy(scale);
-	for(int i = 0; i < seismos.length; i++){
-	    seismoTimes.put(seismos[i], ((MicroSecondTimeRange)seismoTimes.get(seismos[i])).shale(shift, scale));
+	
+	public TimeEvent fireTimeEvent(){
+		DataSetSeismogram[] seismos = getSeismograms();
+		MicroSecondTimeRange[] times = new MicroSecondTimeRange[seismos.length];
+		for(int i = 0; i < seismos.length; i++){
+			times[i] = (MicroSecondTimeRange)seismoTimes.get(seismos[i]);
+		}
+		return super.fireTimeEvent(new TimeEvent(seismos, times));
 	}
-	fireTimeEvent();
-    }
-    
-    public TimeEvent fireTimeEvent(){
-	DataSetSeismogram[] seismos = getSeismograms();
-	MicroSecondTimeRange[] times = new MicroSecondTimeRange[seismos.length];
-	for(int i = 0; i < seismos.length; i++){
-	    times[i] = (MicroSecondTimeRange)seismoTimes.get(seismos[i]);
-	}
-	return super.fireTimeEvent(new TimeEvent(seismos, times));
-    }
-    
-    private TimeInterval getInterval(DataSetSeismogram seismo){  
-	return new TimeInterval(((LocalSeismogramImpl)seismo.getSeismogram()).getBeginTime(), 
-				((LocalSeismogramImpl)seismo.getSeismogram()).getEndTime());
-    }
-
-    private TimeInterval interval;
-
+	
+	private TimeInterval interval;
+	
 }// BeginAlignedTimeConfig
