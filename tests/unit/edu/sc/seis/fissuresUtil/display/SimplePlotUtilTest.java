@@ -44,9 +44,7 @@ public class SimplePlotUtilTest extends TestCase {
     }
 
     public void testMakePlottableInMiddleOfDay() throws CodecException {
-        MicroSecondDate middleOfDay = START_DATE.add(new TimeInterval(6,
-                                                                      UnitImpl.HOUR));
-        LocalSeismogramImpl seis = makeSeis(middleOfDay, ONE_HOUR);
+        LocalSeismogramImpl seis = makeMiddleOfDaySeis();
         TimeInterval seven = new TimeInterval(7, UnitImpl.HOUR);
         MicroSecondTimeRange tr = new MicroSecondTimeRange(START_DATE, seven);
         Plottable results = makeFakePlottAndTest(seis,
@@ -54,6 +52,20 @@ public class SimplePlotUtilTest extends TestCase {
                                                  HALF_SECONDS_IN_HOUR,
                                                  tr);
         assertEquals(HALF_SECONDS_SPD / 8, results.x_coor[0]);
+    }
+
+    public void testMakePlottableOnMisalignedSeismogram() throws CodecException {
+        Plottable result = SimplePlotUtil.makePlottable(makeMiddleOfDaySeis(),
+                                                        START_FOR_HOUR,
+                                                        HALF_SECONDS_IN_HOUR/2);
+        assertEquals(0, result.x_coor.length);
+        assertEquals(0, result.y_coor.length);
+    }
+
+    private static LocalSeismogramImpl makeMiddleOfDaySeis() {
+        MicroSecondDate middleOfDay = START_DATE.add(new TimeInterval(6,
+                                                                      UnitImpl.HOUR));
+        return makeSeis(middleOfDay, ONE_HOUR);
     }
 
     private static LocalSeismogramImpl makeSeis(MicroSecondDate startDate,
@@ -94,7 +106,7 @@ public class SimplePlotUtilTest extends TestCase {
         }
         Plottable results = SimplePlotUtil.makePlottable(seis,
                                                          tr,
-                                                         HALF_SECONDS_SPD);
+                                                         HALF_SECONDS_SPD/2);
         ArrayAssert.assertEquals(yValues, results.y_coor);
         return results;
     }
@@ -104,6 +116,9 @@ public class SimplePlotUtilTest extends TestCase {
     private static MicroSecondDate START_DATE = new MicroSecondDate(START_TIME);
 
     private static TimeInterval ONE_HOUR = new TimeInterval(1, UnitImpl.HOUR);
+
+    private static MicroSecondTimeRange START_FOR_HOUR = new MicroSecondTimeRange(START_DATE,
+                                                                                  ONE_HOUR);
 
     private static final int HALF_SECONDS_IN_HOUR = 60 * 60 / 2;
 
