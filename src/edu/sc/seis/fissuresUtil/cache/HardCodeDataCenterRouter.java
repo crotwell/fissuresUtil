@@ -28,18 +28,24 @@ import org.apache.log4j.Logger;
  NOTE this is BAD code, but configures GEE to go to the SCEPP datacenter
  for SP requests and to the DMC BUD for all other requests within the
  last 2 months and to the DMC POND for all others.
- 
+
  This does not use anything from the configuration file, and so is the wrong
  way to do it, but allows us to limp through the dlese workshop.
  */
 public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCenterOperations {
-    
+
     public HardCodeDataCenterRouter(FissuresNamingService fissuresNamingService) {
         this.fissuresNamingService = fissuresNamingService;
+        DCResolver sceppResolve = new DCResolver("SCEPP");
+        sceppResolve.start();
+        DCResolver budResolve = new DCResolver("BUD");
+        budResolve.start();
+        DCResolver pondResolve = new DCResolver("POND");
+        pondResolve.start();
     }
-    
-    
-    
+
+
+
     /**
      * Method queue_seismograms
      *
@@ -54,7 +60,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         // TODO
         return null;
     }
-    
+
     /**
      * Method retrieve_queue
      *
@@ -69,7 +75,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         // TODO
         return null;
     }
-    
+
     /**
      * Method available_data
      *
@@ -83,12 +89,24 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         LinkedList allSeis = new LinkedList();
         for (int i = 0; i < route.length; i++) {
             RequestFilter[] rf = route[i].getRequestFilters();
-            if (rf.length != 0) {
+            if (rf.length != 0 && route[i].getDataCenter() != null) {
                 try {
                     logger.debug("Asking from "+i+" for "+
-                                     ChannelIdUtil.toString(rf[0].channel_id));
+                                     ChannelIdUtil.toString(rf[0].channel_id)+
+                                " from "+rf[0].start_time.date_time+" to "+rf[0].end_time.date_time);
                     RequestFilter[] ls =
                         route[i].getDataCenter().available_data(rf);
+                    String mesg =
+                        "Got "+ls.length+" req filter from "+i;
+                    if (ls.length != 0) {
+                        mesg += " for "+
+                                     ChannelIdUtil.toString(ls[0].channel_id)+
+                                " from "+ls[0].start_time.date_time+" to "+ls[0].end_time.date_time;
+                    } else {
+                        mesg += " for "+
+                                     ChannelIdUtil.toString(rf[0].channel_id);
+                    }
+                    logger.debug(mesg);
                     for (int j = 0; j < ls.length; j++) {
                         allSeis.add(ls[j]);
                     }
@@ -101,7 +119,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         }
         return (RequestFilter[])allSeis.toArray(new RequestFilter[0]);
     }
-    
+
     /**
      * Method cancel_request
      *
@@ -113,7 +131,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
     public void cancel_request(String p0) throws FissuresException {
         // TODO
     }
-    
+
     /**
      * Method retrieve_seismograms
      *
@@ -129,17 +147,29 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         LinkedList allSeis = new LinkedList();
         for (int i = 0; i < route.length; i++) {
             RequestFilter[] rf = route[i].getRequestFilters();
-            if (rf.length != 0) {
-                LocalSeismogram[] ls =
-                    route[i].getDataCenter().retrieve_seismograms(rf);
-                for (int j = 0; j < ls.length; j++) {
-                    allSeis.add(ls[j]);
+            if (rf.length != 0 && route[i].getDataCenter() != null) {
+                try {
+                    LocalSeismogram[] ls =
+                        route[i].getDataCenter().retrieve_seismograms(rf);
+                    logger.debug("Got "+ls.length+" lseis from "+i+" for "+
+                                     ChannelIdUtil.toString(rf[0].channel_id)+
+                                " from "+rf[0].start_time.date_time+" to "+rf[0].end_time.date_time);
+                    for (int j = 0; j < ls.length; j++) {
+                        allSeis.add(ls[j]);
+                    }
+
+                } catch (org.omg.CORBA.SystemException e) {
+                    logger.error("Problem getting available data, first= "+
+                                     ChannelIdUtil.toString(rf[0].channel_id), e);
+                    throw e;
                 }
+            } else {
+                logger.warn("No filters for route "+i);
             }
         }
         return (LocalSeismogram[])allSeis.toArray(new LocalSeismogramImpl[0]);
     }
-    
+
     /**
      * Method request_status
      *
@@ -154,7 +184,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         // TODO
         return null;
     }
-    
+
     /**
      * Method request_seismograms
      *
@@ -172,13 +202,13 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         // TODO
         return null;
     }
-    
+
     protected DataCenterRoute[] makeRoutes(RequestFilter[] filters) {
         DataCenterRoute[] out = new DataCenterRoute[3];
         out[0] = new DataCenterRoute(getSceppDC());
         out[1] = new DataCenterRoute(getBudDC());
         out[2] = new DataCenterRoute(getPondDC());
-        
+
         TimeInterval BUD_OFFSET = new TimeInterval(60, UnitImpl.DAY);
         MicroSecondDate BUD_CUTOFF = ClockUtil.now().subtract(BUD_OFFSET);
         for (int i = 0; i < filters.length; i++) {
@@ -198,7 +228,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         }
         return out;
     }
-    
+
     public List getDataCenter(String networkCode) {
         LinkedList out = new LinkedList();
         if (networkCode.equals("SP")) {
@@ -209,8 +239,26 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         }
         return out;
     }
-    
+
     protected DataCenterOperations getSceppDC() {
+            logger.debug("Resolving Scepp DataCenter");
+        while (sceppDC == null) {
+            TimeInterval delay = sceppDCLoadTime.difference(new MicroSecondDate());
+            delay.convertTo(UnitImpl.SECOND);
+            logger.debug("Resolving Scepp DataCenter "+delay);
+            if (delay.getValue() > 10) {
+                // max sleep is 10 seconds
+                break;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
+        }
+        return sceppDC;
+    }
+
+    protected DataCenterOperations loadSceppDC() {
         String dsname = "SCEPP";
         if (sceppDC == null) {
             try {
@@ -228,8 +276,26 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         }
         return sceppDC;
     }
-    
+
     protected DataCenterOperations getBudDC() {
+        while (budDC == null) {
+            logger.debug("Resolving Bud DataCenter");
+            TimeInterval delay = budDCLoadTime.difference(new MicroSecondDate());
+            delay.convertTo(UnitImpl.SECOND);
+            logger.debug("Resolving Bud DataCenter "+delay);
+            if (delay.getValue() > 10) {
+                // max sleep is 10 seconds
+                break;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
+        }
+        return budDC;
+    }
+
+    protected DataCenterOperations loadBudDC() {
         String dsname = "BUD";
         if (budDC == null) {
             try {
@@ -247,8 +313,26 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         }
         return budDC;
     }
-    
+
     protected DataCenterOperations getPondDC() {
+        while (pondDC == null) {
+            logger.debug("Resolving Pond DataCenter");
+            TimeInterval delay = pondDCLoadTime.difference(new MicroSecondDate());
+            delay.convertTo(UnitImpl.SECOND);
+            logger.debug("Resolving Pond DataCenter "+delay);
+            if (delay.getValue() > 10) {
+                // max sleep is 10 seconds
+                break;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
+        }
+        return pondDC;
+    }
+
+    protected DataCenterOperations loadPondDC() {
         String dsname = "Pond";
         if (pondDC == null) {
             try {
@@ -266,36 +350,67 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
         }
         return pondDC;
     }
-    
+
     protected DataCenterOperations sceppDC = null;
-    
+    protected MicroSecondDate sceppDCLoadTime = null;
+
     protected DataCenterOperations budDC = null;
-    
+    protected MicroSecondDate budDCLoadTime = null;
+
     protected DataCenterOperations pondDC = null;
-    
+    protected MicroSecondDate pondDCLoadTime = null;
+
     FissuresNamingService fissuresNamingService;
-    
+
     protected class DataCenterRoute {
         DataCenterRoute(DataCenterOperations dc) {
             this.dc = dc;
         }
-        
+
         void add(RequestFilter filter) {
             filterList.add(filter);
         }
-        
+
         RequestFilter[] getRequestFilters() {
             return (RequestFilter[])filterList.toArray(new RequestFilter[0]);
         }
-        
+
         DataCenterOperations getDataCenter() {
             return dc;
         }
-        
+
         DataCenterOperations dc;
         LinkedList filterList = new LinkedList();
     }
-    
+
+    protected class DCResolver extends Thread {
+        DCResolver(String serverName) {
+            super("DCResolver"+serverName);
+            this.serverName = serverName;
+            if (serverName.equals("SCEPP")) {
+                sceppDCLoadTime = new MicroSecondDate();
+            } else if (serverName.equals("BUD")) {
+                budDCLoadTime = new MicroSecondDate();
+            } else if (serverName.equals("POND")) {
+                pondDCLoadTime = new MicroSecondDate();
+            }
+        }
+
+        String serverName;
+
+        public void run() {
+            if (serverName.equals("SCEPP")) {
+                loadSceppDC();
+            } else if (serverName.equals("BUD")) {
+                loadBudDC();
+            } else if (serverName.equals("POND")) {
+                loadPondDC();
+            }
+        }
+
+    }
+
+
     static Logger logger = Logger.getLogger(HardCodeDataCenterRouter.class);
 }
 
