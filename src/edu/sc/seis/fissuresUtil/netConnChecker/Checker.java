@@ -11,11 +11,11 @@ import org.apache.log4j.Category;
 
 public class Checker {
     public Checker() {}
-    
+
     public Checker(Collection connCheckerCollectionReceived) {
         connCheckers.addAll(connCheckerCollectionReceived);
     }
-    
+
     public void runChecks(){
         synchronized(connCheckers){
             Iterator it = connCheckers.iterator();
@@ -24,12 +24,30 @@ public class Checker {
             }
         }
     } // close runChecks
-    
+
     public void add(ConnChecker connChecker) {
         connCheckers.add(connChecker);
         pool.invokeLater(connChecker);
     }
-    
+
+    public ConnStatus getStatus(Class checkerClass) {
+        boolean trying = false;
+        boolean foundOne = false;
+        synchronized(connCheckers){
+            Iterator it = connCheckers.iterator();
+            while(it.hasNext()){
+                ConnChecker connChecker = (ConnChecker)it.next();
+                if (checkerClass.isAssignableFrom(connChecker.getClass())) {
+                    ConnStatus curStatus = connChecker.getStatus();
+                    if(curStatus == ConnStatus.SUCCESSFUL) return ConnStatus.SUCCESSFUL;
+                    else if(curStatus == ConnStatus.TRYING) trying = true;
+                }
+            }
+        }
+        if(trying == true && foundOne) return ConnStatus.TRYING;
+        return ConnStatus.FAILED;
+    }
+
     /**Returns the ability to get to the net .  i.e. if any are successful ,
      * ConnStatus.SUCCESSFUL is returned.  if any are still trying and none are
      * successful, it returns ConnStatus.TRYING.  if none are trying and none
@@ -48,17 +66,17 @@ public class Checker {
         if(trying == true) return ConnStatus.TRYING;
         return ConnStatus.FAILED;
     }
-    
+
     public ConnChecker[] getCheckers(){
         ConnChecker[] checkers = new ConnChecker[connCheckers.size()];
         return (ConnChecker[])connCheckers.toArray(checkers);
     }
-    
+
     private List connCheckers = Collections.synchronizedList(new ArrayList());
-    
+
     static Category logger = Category.getInstance(Checker.class);
-    
+
     private WorkerThreadPool pool = new ExpandingThreadPool("Connection Checker Pool", 20);
-    
+
     private ThreadGroup checkerThreadGroup = new ThreadGroup("Connection Checker");
 }// Checker class
