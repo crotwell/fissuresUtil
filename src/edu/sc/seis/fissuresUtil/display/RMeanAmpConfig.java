@@ -23,7 +23,6 @@ public class RMeanAmpConfig extends BasicAmpConfig {
     }
 
     protected AmpEvent recalculateAmp(){
-        //System.out.println("RMean recalculation");
         Iterator e = ampData.keySet().iterator();
         double range = Double.NEGATIVE_INFINITY;
         while(e.hasNext()){
@@ -44,7 +43,6 @@ public class RMeanAmpConfig extends BasicAmpConfig {
     }
 
     protected boolean setAmpRange(DataSetSeismogram seismo){
-        //System.out.println("RMean SetAmpRange");
         AmpConfigData data = (AmpConfigData)ampData.get(seismo);
 
         if ( data.getSeismograms().length == 0) {
