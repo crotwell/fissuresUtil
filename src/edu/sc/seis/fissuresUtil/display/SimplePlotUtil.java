@@ -1,18 +1,17 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.utility.*;
 import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfTimeSeries.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.dmc.seedcodec.CodecException;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.IfParameterMgr.*;
+
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.Property;
+import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.CodecException;
 import java.awt.Dimension;
-import java.util.Date;
-import org.apache.log4j.*;
+import org.apache.log4j.Category;
 
 /**
  * SimplePlotUtil.java
@@ -21,7 +20,7 @@ import org.apache.log4j.*;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 3273 2003-02-18 18:32:59Z groves $
+ * @version $Id: SimplePlotUtil.java 3361 2003-03-03 20:18:06Z groves $
  */
 
 public class SimplePlotUtil  {

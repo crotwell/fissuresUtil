@@ -1,8 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.model.*;
-import java.text.*;
-import java.util.*;
+import edu.iris.Fissures.model.MicroSecondDate;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * TimeScaleCalc takes the total pixels of a given seismogram along with its 

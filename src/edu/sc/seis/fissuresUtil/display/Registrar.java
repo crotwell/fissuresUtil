@@ -1,11 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import java.util.List;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import java.util.Iterator;
-import edu.iris.Fissures.model.TimeInterval;
-import java.util.Date;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.List;
 
 /**
  * Registrar.java

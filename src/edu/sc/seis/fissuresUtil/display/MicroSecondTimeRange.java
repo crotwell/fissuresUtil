@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 /**
  * MicroSecondTimeRanges are objects to set the time range for a seismogram and assorted widgets that go with them.  It implements TimeSyncListener
  * so that it may be notified of time sync events.

@@ -1,12 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
-
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Dimension;
 import javax.swing.JComponent;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.Rectangle;
 
 /**
  * DrawableSeismogram.java

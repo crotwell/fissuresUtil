@@ -2,19 +2,19 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.model.*;
 
-import javax.swing.*;
-import javax.swing.text.*;
-
-//drag and drop
-import java.awt.dnd.*;
-import java.awt.datatransfer.*;
-
-import java.awt.*;              //for layout managers
-import java.awt.event.*;        //for action and window events
-import java.util.*;
+import edu.iris.Fissures.network.ResponsePrint;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTargetContext;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.util.Iterator;
+import java.util.LinkedList;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 /**
  * NetInfoDisplay.java

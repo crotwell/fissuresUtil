@@ -1,5 +1,4 @@
 package edu.sc.seis.fissuresUtil.display;
-
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import java.awt.Dimension;
@@ -18,7 +17,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3329 2003-02-21 21:58:01Z groves $
+ * @version $Id: SeismogramShape.java 3361 2003-03-03 20:18:06Z groves $
  */
 
 public class SeismogramShape implements Shape{

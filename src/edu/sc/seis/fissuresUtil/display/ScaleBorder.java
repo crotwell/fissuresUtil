@@ -1,12 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
-import java.awt.geom.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+
+import java.awt.geom.Line2D;
+import javax.swing.JComponent;
 /**
  * ScaleBorder.java
  *

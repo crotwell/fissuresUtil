@@ -1,13 +1,11 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding;
+import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.Iterator;
-import org.apache.log4j.*;
+import org.apache.log4j.Category;
 
 /**
  * RMeanAmpConfig.java

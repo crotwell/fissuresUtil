@@ -1,25 +1,15 @@
 package edu.sc.seis.fissuresUtil.display;
-
-
-import edu.sc.seis.TauP.*;
-import edu.sc.seis.fissuresUtil.chooser.*;
-import edu.sc.seis.fissuresUtil.namingService.*;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.chooser.ChannelGrouperImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.IfEvent.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.network.*;
-
-import java.util.*;
-import java.util.ArrayList;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
-
-import org.apache.log4j.*;
+import java.awt.Color;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedList;
+import org.apache.log4j.Category;
 
 /**
  * ParticleMotionDisplayThread.java

@@ -1,24 +1,24 @@
 package edu.sc.seis.fissuresUtil.display;
+import java.awt.*;
 
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
-import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.TauP.Arrival;
-import java.util.*;
-import java.lang.ref.SoftReference;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import org.apache.log4j.*;
-import java.awt.print.*;
+import edu.sc.seis.fissuresUtil.display.NamedColor;
+import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.OverlayLayout;
+import org.apache.log4j.Category;
 
 /**
  * BasicSeismogramDisplay.java

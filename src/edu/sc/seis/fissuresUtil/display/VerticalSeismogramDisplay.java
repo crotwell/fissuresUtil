@@ -1,23 +1,22 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.*;
-import java.io.IOException;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.TimeRange;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
-import edu.sc.seis.fissuresUtil.chooser.DataSetChannelGrouper;
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import java.text.SimpleDateFormat;
-import edu.sc.seis.fissuresUtil.xml.*;
-import org.apache.log4j.*;
+
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.awt.BorderLayout;
+import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.TimeZone;
+import org.apache.log4j.Category;
 
 /**
  * VerticalSeismogramDisplay(VSD) is a JComponent that can contain multiple 

@@ -1,17 +1,22 @@
 
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.cache.*;
-import edu.iris.Fissures.*;
-import edu.iris.Fissures.IfEvent.*;
-import edu.iris.Fissures.event.*;
-import edu.iris.Fissures.model.*;
-import java.text.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
-
-import org.apache.log4j.*;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.cache.EventBackgroundLoaderPool;
+import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.TimeZone;
+import java.util.WeakHashMap;
+import javax.swing.table.AbstractTableModel;
+import org.apache.log4j.Category;
 
 /**
  * EventTableModel.java
@@ -20,7 +25,7 @@ import org.apache.log4j.*;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 2030 2002-07-05 18:53:08Z crotwell $
+ * @version $Id: EventTableModel.java 3361 2003-03-03 20:18:06Z groves $
  */
 
 public class EventTableModel 

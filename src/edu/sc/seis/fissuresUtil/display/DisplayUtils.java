@@ -1,15 +1,23 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.xml.*;
-import edu.iris.Fissures.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
+import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.chooser.DataSetChannelGrouper;
-
-import java.util.*;
+import edu.sc.seis.fissuresUtil.xml.DataSet;
+import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 /**
  * DisplayUtils.java
  *

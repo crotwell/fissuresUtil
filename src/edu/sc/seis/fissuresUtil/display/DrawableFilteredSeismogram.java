@@ -1,12 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-
-/**
- * DrawableFilteredSeismogram.java
- *
- */
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class DrawableFilteredSeismogram extends DrawableSeismogram{
     public DrawableFilteredSeismogram(DataSetSeismogram seismo,

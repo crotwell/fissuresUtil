@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
 
 /**
  * Plotters are objects to be put in the main display of a SeismogramDisplay.  

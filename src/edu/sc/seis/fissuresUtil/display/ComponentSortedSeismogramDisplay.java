@@ -1,16 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.TimeRange;
-import edu.sc.seis.fissuresUtil.xml.*;
 import edu.sc.seis.TauP.Arrival;
+import java.util.List;
 
 /**
  * ComponentSortedSeismogramDisplay.java

@@ -1,16 +1,16 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import org.apache.log4j.*;
-import java.awt.print.*;
-import java.util.*;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.freq.*;
-import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import edu.sc.seis.fissuresUtil.freq.SeisGramText;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.TimerTask;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  * TestBSD.java
