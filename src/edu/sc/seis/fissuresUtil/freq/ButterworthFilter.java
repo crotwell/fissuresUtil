@@ -48,6 +48,7 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 	private static final double TWOPI = 2.0 * Math.PI;
 
         public static final int CAUSAL = 0;
+        public static final int NONCAUSAL = 1;
         public static final int TWOPASS = 1;
 
 	/** constructor */
