@@ -7,27 +7,28 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
 import edu.iris.Fissures.model.ISOTime;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.mseed.DataHeader;
+import edu.sc.seis.fissuresUtil.mseed.Utility;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import junit.framework.TestCase;
-import edu.sc.seis.fissuresUtil.mseed.DataHeader;
-import edu.sc.seis.fissuresUtil.mseed.Utility;
 
 public class DataHeaderTest extends TestCase {
-    
+
     public DataHeaderTest(String name) {
         super(name);
     }
-    
-    
+
+
     protected void setUp() throws Exception {
         super.setUp();
     }
-    
+
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     public void testWrite() throws Exception {
         DataHeader header = new DataHeader(1,
                                            'D',
@@ -59,7 +60,7 @@ public class DataHeaderTest extends TestCase {
         header.setStationIdentifier("ACFLR");
         ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         header.write(new DataOutputStream(bos));
-        
+
         byte[] out = bos.toByteArray();
 //        for (int i = 0; i < 20; i++) {
 //            System.out.print(out[i]);
@@ -86,9 +87,28 @@ public class DataHeaderTest extends TestCase {
         assertEquals("ac=", zero, out[43]);
         assertEquals("beginData=",dataOffset,Utility.bytesToShort(out[44], out[45], false));
         assertEquals("firstBlockette=", blockOffset,Utility.bytesToShort(out[46], out[47], false));
-        
+
     }
-    
-    
+
+    public void testSetStartTime() {
+        DataHeader header = new DataHeader(1,
+                                           'D',
+                                           false);
+
+        int year = 2001;
+        int jday = 251;
+        int hour = 13;
+        int min = 23;
+        int sec = 56;
+        int tsec = 9870; // ISO time doesn't use tenthmillis, last is 0
+        System.out.println(""+year+jday+"J"+hour+min+sec+"."+tsec+"Z");
+        ISOTime iso = new ISOTime(""+year+jday+"J"+hour+min+sec+"."+tsec+"Z");
+        header.setStartTime(iso.getDate());
+        MicroSecondDate orig = iso.getDate();
+        MicroSecondDate setVal = header.getMicroSecondStartTime();
+        assertEquals(orig, setVal);
+    }
+
+
 }
 
