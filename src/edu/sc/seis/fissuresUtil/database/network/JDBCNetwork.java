@@ -88,6 +88,13 @@ public class JDBCNetwork extends NetworkTable{
         while (rs.next()) aList.add(extractId(rs, time));
         return  (NetworkId[])aList.toArray(new NetworkId[aList.size()]);
     }
+    
+    public NetworkAttr[] getAllNetworkAttrs() throws SQLException, NotFound {
+        ResultSet rs = getAll.executeQuery();
+        List aList = new ArrayList();
+        while (rs.next()) aList.add(extract(rs, time));
+        return  (NetworkAttr[])aList.toArray(new NetworkAttr[aList.size()]);
+    }
 
     public int put(NetworkAttr network)  throws SQLException {
         int dbid;
