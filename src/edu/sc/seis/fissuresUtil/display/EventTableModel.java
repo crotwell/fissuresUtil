@@ -11,6 +11,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import org.apache.log4j.*;
+
 /**
  * EventTableModel.java
  *
@@ -121,7 +123,11 @@ public class EventTableModel
 	    }
 	} catch (NoPreferredOrigin e) {
 	    return "No Pref Origin";
-	}
+	} catch (Exception e) {
+	    logger.warn("Got exception in Table model: getValueAt("+row+", "+ col+")", e);
+	    return "error";
+	} // end of catch
+	
     }
      
     public CacheEvent getEventForRow(int row) {
@@ -194,5 +200,7 @@ public class EventTableModel
     protected static final int FEREGION = 9;
 
     protected String[] columnNames;
+
+    static Category logger = Category.getInstance(EventTableModel.class.getName());
 
 } // EventTableModel
