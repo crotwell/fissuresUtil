@@ -353,6 +353,8 @@ public class DisplayUtils {
 
     public static Font BOLD_FONT = new Font("Serif", Font.BOLD, 12);
 
+    public static Font BIG_BOLD_FONT = new Font("Serif", Font.BOLD, 16);
+
     public static final Stroke ONE_PIXEL_STROKE = new BasicStroke(1);
 
     public static final Stroke TWO_PIXEL_STROKE = new BasicStroke(2);
