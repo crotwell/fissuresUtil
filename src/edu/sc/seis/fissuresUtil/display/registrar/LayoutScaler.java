@@ -16,7 +16,7 @@ import javax.swing.event.ChangeListener;
 public class LayoutScaler extends JSlider implements ChangeListener{
     public LayoutScaler(RecordSectionDisplay recSec){
         super(JSlider.VERTICAL);
-        setMinPoint();
+        setMinPoint(MIN_SCALE, INITIAL_SCALE);
         setValue(INITIAL_SCALE);
         setPaintLabels(true);
         setPaintTicks(true);
@@ -26,24 +26,20 @@ public class LayoutScaler extends JSlider implements ChangeListener{
     }
     
     public void stateChanged(ChangeEvent ce){
-        if(!changingValues){
-            recSec.scalingChanged(getValue());
-        }
+        recSec.scalingChanged(getValue());
     }
     
-    public void setMinPoint(){
-        setMinPoint(MIN_SCALE, INITIAL_SCALE);
+    public void increaseScale(double factor){
+        int curMin = getMinimum();
+        int newMin = (int)Math.ceil(curMin * factor);
+        setMinPoint(newMin, (int)(getValue() * (curMin/(double)newMin)));
     }
     
-    private boolean changingValues = false;
-    
-    public void setMinPoint(int minpoint, int curValue){
-        changingValues = true;
+    private void setMinPoint(int minpoint, int curValue){
         setMinimum(minpoint);
         int maxpoint = minpoint + minpoint*10;
         setMaximum(maxpoint);
         setValue(curValue);
-        changingValues = false;
         setMajorTickSpacing((maxpoint - minpoint)/10);
         //Create the label table
         Hashtable labelTable = new Hashtable();

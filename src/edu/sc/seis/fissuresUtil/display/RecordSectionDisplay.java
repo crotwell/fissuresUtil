@@ -263,15 +263,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
             while(it.hasNext()){
                 LayoutData current = (LayoutData)it.next();
                 double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
-                int drawHeight = (int)((current.getEnd() - current.getStart())*height);
+                double drawHeight = (current.getEnd() - current.getStart())*height;
                 //If the draw height is less than 20, change the scale so that
                 //it is
                 if(drawHeight < 40 && checkDrawHeight){
-                    double percentIncreaseNeeded = 20/(double)drawHeight;
-                    scalingChanged(scaling * percentIncreaseNeeded *4.5);
+                    if(drawHeight == 0) drawHeight = 1;
+                    double percentIncreaseNeeded = 20/drawHeight;
                     if(scaler != null){
-                        scaler.setMinPoint((int)((scaling * percentIncreaseNeeded)/10),
-                                               (int)(scaling * percentIncreaseNeeded *4.5)/10);
+                        scaler.increaseScale(percentIncreaseNeeded);
                     }
                     checkDrawHeight = false;
                     return;
@@ -281,7 +280,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                     neededYPos = 0;
                 }
                 g2.translate(0, neededYPos);
-                Dimension drawSize = new Dimension(width, drawHeight);
+                Dimension drawSize = new Dimension(width, (int)drawHeight);
                 DrawableSeismogram cur = toDrawable(current.getSeis());
                 cur.draw(g2, drawSize, timeEvent, ampEvent);
                 g2.translate(0, -neededYPos);
