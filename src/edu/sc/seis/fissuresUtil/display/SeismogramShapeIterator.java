@@ -65,7 +65,9 @@ public class SeismogramShapeIterator implements PathIterator {
 	min = !min;
 	coordinates[0] = currentIndex;
 	coordinates[1] = plot[i][currentIndex];
-	at.transform(coordinates, 0, coordinates, 0, 1);
+	if(at != null){
+        at.transform(coordinates, 0, coordinates, 0, 1);
+    }
 	if(currentIndex == startIndex){
 	    return SEG_MOVETO;
 	}else{
