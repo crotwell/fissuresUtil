@@ -97,7 +97,7 @@ public class LongShortStoN {
         float dat;
         float ratio;
         boolean hold = false;
-        System.out.println("nsta="+nsta+" csta="+csta+" nlta="+nlta+" clta="+clta);
+
         for(int i=0 ; i < 2*nsta ; i++) {
             mean = mean + ( seisData[i]-mean)*cmean ;
             dat = seisData[i] - mean ;
@@ -137,7 +137,6 @@ public class LongShortStoN {
                 LongShortTrigger trigger = new LongShortTrigger(seis,
                                                                 i,
                                                                 ratio,
-                                                                new MicroSecondDate((long)(seisStart + sampling * i)),
                                                                 sta,
                                                                 lta);
                 out.add(trigger);
@@ -222,7 +221,7 @@ public class LongShortStoN {
             float ratio;
             if (ylta != 0) {
                 ratio=ysta/ylta;
-                if (ratio > 10) System.out.println("ylta = "+ylta+" ysta="+ysta+" ratio="+ratio);
+
             } else {
                 // in this case, declare a trigger if ysta != 0, otherwise not
                 if (ysta != 0) {
