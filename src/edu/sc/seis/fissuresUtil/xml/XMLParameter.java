@@ -109,7 +109,7 @@ public class XMLParameter {
 	}
 	String className = XMLUtil.evalString(type, "name");
 	//Class objectClass = Class.forName(className);
-
+	//System.out.println("The class name is "+className);
 	if(className.equals("edu.sc.seis.fissuresUtil.cache.CacheEvent") ) {
 	/*	Class[] constructorArgTypes = new Class[3];
 		NodeList eventNode = XMLUtil.evalNodeList(base, "value/event");
@@ -134,7 +134,9 @@ public class XMLParameter {
 		return new CacheEvent(eventAttr,
 				      new Origin[0],
 				      preferred_origin);
-	} else if(className.equals("edu.iris.fissures.network.ChannelImpl")) {
+
+	} else if(className.equalsIgnoreCase("edu.iris.fissures.network.ChannelImpl")) {
+	    //System.out.println(" HERE WE GOT THE CHANNEL");
 	    NodeList channelNode = XMLUtil.evalNodeList(base, "value/channel");
 	    if(channelNode != null && channelNode.getLength() != 0) {
 		Channel channel = XMLChannel.getChannel((Element)channelNode.item(0));
@@ -145,7 +147,7 @@ public class XMLParameter {
 	else {
 
 		String value = XMLUtil.evalString(base, "value");
-		return value;	
+		return new ParameterRef(name, value);	
 	}
     }
 

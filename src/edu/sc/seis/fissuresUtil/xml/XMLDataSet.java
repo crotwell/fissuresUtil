@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2124 2002-07-11 13:27:20Z telukutl $
+ * @version $Id: XMLDataSet.java 2125 2002-07-11 13:50:45Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -193,7 +193,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	
         NodeList nList = evalNodeList(config, 
                                       "parameter[name/text()="+
-                                      dquote+name+dquote+"]/../");
+                                      dquote+name+dquote+"]");
         if (nList != null && nList.getLength() != 0) {
 	    System.out.println("getting the parameter");
             Node n = nList.item(0); 
@@ -872,9 +872,13 @@ public class XMLDataSet implements DataSet, Serializable {
 
     
     public edu.iris.Fissures.IfNetwork.Channel getChannel(ChannelId channelId) {
-	System.out.println("-------- "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
+	//System.out.println("-------- "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
+	//the conversion lower case must be investigated.. why does difference occur at
+	//all the station_code when it is inserted as part of parameter name gets inserted as lower case
+	//but here when I used channelIdUtil.toString the station_code is returned as capitals
+	//must be careful becoz .. XPATH is case sensitive.
 	channelId.station_code = channelId.station_code.toLowerCase();
-	System.out.println("******* after "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
+	//	System.out.println("******* after "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
 	Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
 	
 	return (edu.iris.Fissures.IfNetwork.Channel)obj;
