@@ -14,15 +14,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-/**
- * DrawableSeismogram.java
- *
- */
-
-
 
 public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListener {
     public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis, Color color) {
@@ -116,10 +110,12 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
                 }
             }
         }
-        Iterator it = children.iterator();
-        while(it.hasNext()) {
-            Drawable cur = (Drawable)it.next();
-            cur.draw(canvas, size, currentTime, currentAmp);
+        synchronized(children){
+            Iterator it = children.iterator();
+            while(it.hasNext()) {
+                Drawable cur = (Drawable)it.next();
+                cur.draw(canvas, size, currentTime, currentAmp);
+            }
         }
     }
     
@@ -148,11 +144,13 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         }
         canvas.drawString(name, xPosition, yPosition);
         canvas.setFont(DisplayUtils.DEFAULT_FONT);
-        Iterator it = children.iterator();
-        while(it.hasNext()) {
-            Drawable cur = (Drawable)it.next();
-            if(cur instanceof NamedDrawable) {
-                stringBounds.add(((NamedDrawable)cur).drawName(canvas, (int)(xPosition + stringBounds.getWidth()), yPosition));
+        synchronized(children){
+            Iterator it = children.iterator();
+            while(it.hasNext()) {
+                Drawable cur = (Drawable)it.next();
+                if(cur instanceof NamedDrawable) {
+                    stringBounds.add(((NamedDrawable)cur).drawName(canvas, (int)(xPosition + stringBounds.getWidth()), yPosition));
+                }
             }
         }
         return stringBounds;
@@ -180,10 +178,12 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
     
     public void clear(Class drawableClass) {
-        Iterator it = children.iterator();
-        while(it.hasNext()) {
-            if(drawableClass.isInstance(it.next())) {
-                it.remove();
+        synchronized(children){
+            Iterator it = children.iterator();
+            while(it.hasNext()) {
+                if(drawableClass.isInstance(it.next())) {
+                    it.remove();
+                }
             }
         }
         parent.repaint();
@@ -234,7 +234,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     
     private SeismogramDisplay parent;
     
-    private List children = new ArrayList();
+    private List children = Collections.synchronizedList(new ArrayList());
     
     private Color color;
     
