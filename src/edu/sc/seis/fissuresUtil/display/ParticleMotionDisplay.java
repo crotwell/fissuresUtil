@@ -16,6 +16,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.TauP.SphericalCoords;
 import edu.sc.seis.fissuresUtil.chooser.SeisTimeFilterSelector;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.BorderLayout;
@@ -40,7 +41,7 @@ import org.apache.log4j.Logger;
  */
 
 public class ParticleMotionDisplay extends JPanel{
-
+    
     public ParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
                                  TimeConfig tc, Color color) {
         particleDisplayPanel = new JLayeredPane();
@@ -49,14 +50,14 @@ public class ParticleMotionDisplay extends JPanel{
         this.setLayout(new BorderLayout());
         particleDisplayPanel.setLayout(overlayLayout);
         radioPanel.setLayout(new GridLayout(1, 0));
-
+        
         view = new ParticleMotionView(this);
         view.setSize(new java.awt.Dimension(300, 300));
         particleDisplayPanel.add(view, PARTICLE_MOTION_LAYER);
-
+        
         hAmpScaleMap = new AmpScaleMapper(50, 4);
         vAmpScaleMap = new AmpScaleMapper(50, 4);
-
+        
         ScaleBorder scaleBorder = new ScaleBorder();
         scaleBorder.setBottomScaleMapper(hAmpScaleMap);
         scaleBorder.setLeftScaleMapper(vAmpScaleMap);
@@ -93,7 +94,7 @@ public class ParticleMotionDisplay extends JPanel{
             setInitialButton();
         }
     }
-
+    
     /**
      * returns an array of seismograms for the given ChannelId, startTime, endTime and dataCenter
      * @param startTime an <code>edu.iris.Fissures.Time</code> value
@@ -111,11 +112,11 @@ public class ParticleMotionDisplay extends JPanel{
                                                      startTime,
                                                      endTime
                                                     )};
-
+        
         SeisTimeFilterSelector selector = new SeisTimeFilterSelector();
         return selector.getFromGivenFilters(dataCenter, filters);
     }
-
+    
     /**
      * udpates the amplitude of the verticalScale.
      * @param r an <code>UnitRangeImpl</code> value
@@ -124,7 +125,7 @@ public class ParticleMotionDisplay extends JPanel{
         hAmpScaleMap.setUnitRange(r);
         resize();
     }
-
+    
     /**
      * sets the amplitude of he verticalScale to the given value.
      * @param r an <code>UnitRangeImpl</code> value
@@ -133,7 +134,7 @@ public class ParticleMotionDisplay extends JPanel{
         vAmpScaleMap.setUnitRange(r);
         resize();
     }
-
+    
     /**
      * the method resize() is overridden so that the view of the
      * particleMotionDisplay is always a square.
@@ -141,7 +142,7 @@ public class ParticleMotionDisplay extends JPanel{
     public synchronized void resize() {
         if(getSize().width == 0 || getSize().height == 0) return;
         Dimension dim = view.getSize();
-
+        
         Insets insets = view.getInsets();
         int width = particleDisplayPanel.getSize().width;
         int height = particleDisplayPanel.getSize().height;
@@ -161,7 +162,7 @@ public class ParticleMotionDisplay extends JPanel{
         }
         repaint();
     }
-
+    
     public synchronized void addParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
                                                       TimeConfig tc, Color color) {
         ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
@@ -169,7 +170,7 @@ public class ParticleMotionDisplay extends JPanel{
                                                                         this, color);
         t.execute();
     }
-
+    
     /**
      * calculates the backAzimuthAngle and displays the azimuth angle and a sector surrouding
      * the azimuth angle.
@@ -196,7 +197,7 @@ public class ParticleMotionDisplay extends JPanel{
             }
         }
     }
-
+    
     /**
      * returns the ParticleMotionView corresponding to this ParticleMotionDisplay
      * @return a <code>ParticleMotionView</code> value
@@ -204,7 +205,7 @@ public class ParticleMotionDisplay extends JPanel{
     public synchronized ParticleMotionView getView() {
         return view;
     }
-
+    
     /**
      * builds a radioButtonPanel. using the radioButton Panel only one of the
      * particleMotions among all the three planes can be viewed at a time.
@@ -225,15 +226,15 @@ public class ParticleMotionDisplay extends JPanel{
         }
         radioPanel.setVisible(true);
     }
-
+    
     /**
      * sets the initialRadioButton or checkBox checked.
      */
     public void setInitialButton() {
         initialButton.setSelected(true);
     }
-
-
+    
+    
     /**
      * sets the title of the Horizontal Border
      * @param name a <code>String</code> value
@@ -241,7 +242,7 @@ public class ParticleMotionDisplay extends JPanel{
     public void setHorizontalTitle(String name) {
         hTitleBorder.setTitle(name);
     }
-
+    
     /**
      * sets the title of the vertical Border
      * @param name a <code>String</code> value
@@ -249,36 +250,48 @@ public class ParticleMotionDisplay extends JPanel{
     public void setVerticalTitle(String name) {
         vTitleBorder.setTitle(name);
     }
-
+    
     /**
      *@returns true if the ParticleMotionThread has correctly initialized the display
      */
     public boolean initialized(){ return initialized; }
-
+    
+    public void add(NamedFilter filter){
+        view.add(filter);
+    }
+    
+    public void remove(NamedFilter filter){
+        view.remove(filter);
+    }
+    
+    public void setOriginal(boolean visible){
+        view.setOriginal(visible);
+    }
+    
     private boolean initialized = false;
-
+    
     public static final Integer PARTICLE_MOTION_LAYER = new Integer(2);
-
+    
     protected AmpScaleMapper hAmpScaleMap, vAmpScaleMap;
-
+    
     protected LeftTitleBorder vTitleBorder;
-
+    
     protected BottomTitleBorder hTitleBorder;
-
+    
     protected ParticleMotionView view;
-
+    
     private JLayeredPane particleDisplayPanel;
-
+    
     private JPanel radioPanel;
-
+    
     private AbstractButton initialButton;
-
+    
     static Logger logger = Logger.getLogger(ParticleMotionDisplay.class);
-
+    
     private static final String[] labelStrings = { DisplayUtils.NORTHEAST,
             DisplayUtils.UPNORTH,
             DisplayUtils.UPEAST};
-
+    
     private class RadioButtonListener implements ItemListener {
         public void itemStateChanged(ItemEvent ae) {
             if(ae.getStateChange() == ItemEvent.SELECTED) {
