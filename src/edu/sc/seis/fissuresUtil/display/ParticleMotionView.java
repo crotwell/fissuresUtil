@@ -609,7 +609,9 @@ public class ParticleMotionView extends JComponent{
 	this.displayKey = key;
     }
     public void addDisplayKey(String key) {
-	this.displayKeys.add(key);
+	if(!this.displayKeys.contains(key)) {
+	    this.displayKeys.add(key);
+	}
     }
 
     public void removeDisplaykey(String key) {
