@@ -337,7 +337,7 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         if(alArray == null){
             synchronized(ampListeners){
                 alArray = new AmpListener[ampListeners.size()];
-                ampListeners.toArray(alArray);
+                return (AmpListener[])ampListeners.toArray(alArray);
             }
         }
         return alArray;
