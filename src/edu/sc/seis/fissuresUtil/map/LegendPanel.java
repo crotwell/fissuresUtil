@@ -22,7 +22,7 @@ public class LegendPanel extends JPanel{
 
     private void initComponents(){
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createTitledBorder("Legend"));
+        setBorder(BorderFactory.createTitledBorder("Map Key"));
         String imgPath = "edu/sc/seis/fissuresUtil/data/maps/";
 
         //Deep Events
