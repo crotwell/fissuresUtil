@@ -47,6 +47,8 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
         time = config.fireTimeEvent();
         config.addListener(this);
     }
+    
+    public TimeConfig getInternalConfig(){ return internalTimeConfig; }
 
     public void add(DataSetSeismogram[] seismos){
         internalTimeConfig.add(seismos);
