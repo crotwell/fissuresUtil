@@ -5,22 +5,21 @@
  */
 
 package edu.sc.seis.fissuresUtil.chooser;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import javax.swing.SwingUtilities;
-import org.apache.log4j.Logger;
 
 public class StationLoader extends Thread {
 
     public StationLoader(ChannelChooser chooser, NetworkAccess[] n) {
         this.chooser = chooser;
         this.nets = n;
-        logger.debug("StationLoader constructor");
     }
 
     public void addStationAcceptor(StationAcceptor acceptor) {
@@ -38,16 +37,12 @@ public class StationLoader extends Thread {
 
         chooser.setProgressOwner(this);
         chooser.setProgressMax(this, 100);
-        logger.debug("Begin StationLoader.run, there are "+nets.length+" selected networks.");
         try {
             int netProgressInc = 50 / nets.length;
             int progressValue = 10;
             chooser.setProgressValue(this, progressValue);
             for (int i=0; i<nets.length; i++) {
-                logger.debug("Before get stations "+i);
-                logger.debug("Network code = "+nets[i].get_attributes().get_code());
                 Station[] newStations = nets[i].retrieve_stations();
-                logger.debug("After retrieve_stations for "+nets[i].get_attributes().get_code());
                 for (int j = 0; j < newStations.length; j++) {
                     stations.add(newStations[j]);
                 }
@@ -66,15 +61,12 @@ public class StationLoader extends Thread {
                 }
                 chooser.setProgressValue(this, 100);
 
-                logger.debug("finished adding stations for "+nets[i].get_attributes().get_code());
             } // end of for ((int i=0; i<nets.length; i++)
-            logger.debug("There are "+chooser.stationNames.getSize()+" items in the station list model");
         }
         catch (Throwable e) {
             GlobalExceptionHandler.handle("Unable to get stations.", e);
         } // end of try-catch   }
         stationAdd((Station[])stations.toArray(new Station[stations.size()]));
-        logger.debug("There are "+chooser.stationNames.getSize()+" items in the station list model");
     }
 
     /** allows subclasses to veto a station. */
