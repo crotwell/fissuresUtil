@@ -24,7 +24,7 @@ public class SeisDataChangeEvent {
  
  private LocalSeismogramImpl[] seismos;
  
- public LocalSeismogramImpl[] getSeismos() {
+ public LocalSeismogramImpl[] getSeismograms() {
   return seismos;
  }
  
