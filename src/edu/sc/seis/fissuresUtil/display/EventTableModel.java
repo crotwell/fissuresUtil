@@ -96,32 +96,32 @@ public class EventTableModel
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
 		return sdf.format(msd);
 		//return msd.toString();
-	    case MAGTYPE:
+	    case MAGVALUE:
 		String type =  cache.get_preferred_origin().magnitudes[0].type;
 		if (type.equals(edu.iris.Fissures.MB_MAG_TYPE.value)) {
-		    return "mb";
+		    type = "mb";
 		}
 		if (type.equals(edu.iris.Fissures.ML_MAG_TYPE.value)) {
-		    return "ml";
+		    type = "ml";
 		}
 		if (type.equals(edu.iris.Fissures.MBMLE_MAG_TYPE.value)) {
-		    return "mbmle";
+		    type = "mbmle";
 		}
 		if (type.equals(edu.iris.Fissures.MO_MAG_TYPE.value)) {
-		    return "MO";
+		    type = "MO";
 		}
 		if (type.equals(edu.iris.Fissures.MS_MAG_TYPE.value)) {
-		    return "Ms";
+		    type = "Ms";
 		}
 		if (type.equals(edu.iris.Fissures.MSMLE_MAG_TYPE.value)) {
-		    return "msmle";
+		    type = "msmle";
 		}
 		if (type.equals(edu.iris.Fissures.MW_MAG_TYPE.value)) {
-		    return "MW";
+		    type = "MW";
 		}
-		return type;
-	    case MAGVALUE:
-		return new Float(cache.get_preferred_origin().magnitudes[0].value);
+		//return type;
+		//case MAGVALUE:
+		return new Float(cache.get_preferred_origin().magnitudes[0].value).toString() + type;
 	    default:
 		return "XXXX";
 	    }
