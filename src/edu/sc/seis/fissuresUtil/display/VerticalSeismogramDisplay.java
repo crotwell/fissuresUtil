@@ -229,6 +229,19 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         return false;
     }
 
+    protected void addTimeBorders(){
+        if(topDisplay != null){
+            topDisplay.removeTopTimeBorder();
+        }
+        topDisplay = (BasicSeismogramDisplay)super.getComponent(0);
+        topDisplay.addTopTimeBorder();
+        if(bottomDisplay != null){
+            bottomDisplay.removeBottomTimeBorder();
+        }
+        bottomDisplay = (BasicSeismogramDisplay)super.getComponent(super.getComponentCount() - 1);
+        bottomDisplay.addBottomTimeBorder();
+    }
+
 
     /**
      * <code>setLabels</code> sets the time and amp labels for all VSDs
@@ -438,6 +451,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         while(e.hasNext())
                 ((BasicSeismogramDisplay)e.next()).getRegistrar().setAmpConfig((AmpConfig)registrar);
     }
+
+    private BasicSeismogramDisplay topDisplay, bottomDisplay;
 
     public static JLabel getTimeLabel(){ return timeLabel; }
 

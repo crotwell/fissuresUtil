@@ -73,14 +73,12 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
                 current.addLeftTitleBorder(new LeftTitleBorder(stationCode));
                 super.add(current);
                 basicDisplays.add(current);
-                current.addBottomTimeBorder();
-                current.addTopTimeBorder();
                 stationDisplay.put(stationCode, current);
+                addTimeBorders();
             }
         }
         return current;
     }
-
 
     private Map stationDisplay = new HashMap();
 }
