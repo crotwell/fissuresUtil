@@ -3,7 +3,6 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
-import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -38,15 +37,13 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     public abstract DataSetSeismogram[] getSeismograms();
 
-    public abstract void setRegistrar(Registrar registrar);
-
-    public abstract Registrar getRegistrar();
-
     public abstract void applyFilter(ColoredFilter filter);
 
     public abstract void removeFilter(ColoredFilter filter);
 
     public abstract void setOriginalVisibility(boolean visible);
+
+    public abstract boolean getOriginalVisibility();
 
     public abstract void print();
 

@@ -1,9 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
 import edu.sc.seis.fissuresUtil.display.registrar.LazyAmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import sun.security.krb5.internal.ac;
 
 /**
  * AmpScaleMapper.java
@@ -17,13 +18,32 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
 
+    /**
+     * this constructor assumes that some outside entity is going to set the
+     * range on this scalemapper
+     *
+     * @param    totalPixels         an int
+     * @param    hintPixels          an int
+     *
+     */
+    public AmpScaleMapper(int totalPixels, int hintPixels){
+        this(totalPixels, hintPixels, null);
+    }
+
+
+    /**
+     * this constructor uses the passed in amp config to determine the value
+     * for the scale mapper
+     *
+     */
     public AmpScaleMapper(int totalPixels,
                           int hintPixels,
-                          Registrar reg){
+                          AmpConfig ac){
         super(totalPixels, hintPixels, true);
-        this.reg = reg;
         setUnitRange(DisplayUtils.ONE_RANGE);
-        reg.addListener(this);
+        if(ac != null){
+            ac.addListener(this);
+        }
     }
 
     public void updateAmp(AmpEvent event){
@@ -39,18 +59,10 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
         }
     }
 
-    public void setRegistrar(Registrar reg){
-        this.reg.removeListener(this);
-        this.reg = reg;
-        reg.addListener(this);
-    }
-
     public String getAxisLabel(){
         return "Amplitude (" + unitDisplayUtil.getNameForUnit(getUnit()) + ")";
     }
 
     private UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
-
-    private Registrar reg;
 } // AmpScaleMapper
 

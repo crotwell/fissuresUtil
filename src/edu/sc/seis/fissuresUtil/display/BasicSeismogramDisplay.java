@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.drawable.*;
 import edu.sc.seis.fissuresUtil.display.registrar.*;
-import java.awt.*;
 import java.util.*;
 
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
@@ -9,10 +8,14 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
-import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.OverlayLayout;
@@ -29,40 +32,29 @@ import org.apache.log4j.Category;
  *
  */
 
-public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigListener{
+public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeListener,
+    AmpListener{
 
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-        this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), parent);
+    public BasicSeismogramDisplay(SeismogramDisplay parent)throws IllegalArgumentException{
+        this(new BasicTimeConfig(), new RMeanAmpConfig(), parent);
     }
 
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
-                                  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-        this(seismos, tc, new RMeanAmpConfig(seismos), parent);
+    public BasicSeismogramDisplay(TimeConfig tc,
+                                  SeismogramDisplay parent)
+        throws IllegalArgumentException{
+        this(tc, new RMeanAmpConfig(), parent);
     }
 
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, AmpConfig ac,
-                                  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-        this(seismos, new BasicTimeConfig(seismos), ac, parent);
+    public BasicSeismogramDisplay(AmpConfig ac, SeismogramDisplay parent)
+        throws IllegalArgumentException{
+        this(new BasicTimeConfig(), ac, parent);
     }
 
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, AmpConfig ac,
-                                  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-        if(seismos.length == 0){
-            throw new IllegalArgumentException("The array of seismograms given to a basic seismogram display must not be of length 0.");
-        }
-        boolean allNull = true;
-        for(int i = 0; i < seismos.length; i++){
-            if(seismos[i] != null){
-                allNull = false;
-            }
-        }
-        if(allNull){
-            throw new IllegalArgumentException("A BasicSeismogramDisplay requires at least one non-null seismogram to initialize");
-        }
-        registrar = new Registrar(seismos, tc, ac);
+    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac,
+                                  SeismogramDisplay parent)throws IllegalArgumentException{
         this.parent = parent;
-        registrar.addListener(this);
-        add(seismos);
+        setTimeConfig(tc);
+        setAmpConfig(ac);
         setLayout(new OverlayLayout(this));
         addComponentListener(new ComponentAdapter() {
                     public void componentResized(ComponentEvent e) {
@@ -74,12 +66,17 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
                         repaint();
                     }
                 });
-        timeScaleMap = new TimeScaleCalc(PREFERRED_WIDTH, registrar);
-        ampScaleMap = new AmpScaleMapper(PREFERRED_HEIGHT, 4, registrar);
-        scaleBorder = new ScaleBorder();
-        scaleBorder.setLeftScaleMapper(ampScaleMap);
-        setBorder(createDefaultBorder());
-        setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
+        timeScaleMap = new TimeScaleCalc(PREFERRED_WIDTH, tc);
+        ampScaleMap = new AmpScaleMapper(PREFERRED_HEIGHT, 4, ac);
+        scale = new ScaleBorder();
+        scale.setLeftScaleMapper(ampScaleMap);
+        Border etch = BorderFactory.createEtchedBorder();
+        Border removal = new SeismogramDisplayRemovalBorder(this);
+        Border etchRemoval = BorderFactory.createCompoundBorder(etch, removal);
+        Border bevel = BorderFactory.createLoweredBevelBorder();
+        Border scaleBevel = BorderFactory.createCompoundBorder(scale, bevel);
+        setBorder(BorderFactory.createCompoundBorder(etchRemoval, scaleBevel));
+        setSize();
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
         plotters.add(new TimeAmpPlotter(this));
@@ -87,7 +84,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     }
 
     public void add(DataSetSeismogram[] seismos){
-        registrar.add(seismos);
+        tc.add(seismos);
+        ac.add(seismos);
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
@@ -113,7 +111,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         return seismogramArray;
     }
 
-    public java.util.List getSeismogramList(){ return seismograms; }
+    public List getSeismogramList(){ return seismograms; }
 
     public void addFlags(Arrival[] arrivals) {
         try{
@@ -134,11 +132,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     }
 
     public void reset(){
-        registrar.reset();
+        tc.reset();
+        ac.reset();
     }
 
     public void reset(DataSetSeismogram[] seismograms){
-        registrar.reset(seismograms);
+        tc.reset(seismograms);
+        ac.reset(seismograms);
     }
 
     public void setCurrentTimeFlag(boolean visible){
@@ -156,24 +156,24 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         repaint();
     }
 
-    public VerticalSeismogramDisplay getParentDisplay(){ return parent; }
-
-    public void setRegistrar(Registrar registrar){
-        registrar.add(getSeismograms());
-        this.registrar.removeListener(this);
-        this.registrar.remove(getSeismograms());
-        this.registrar = registrar;
-        registrar.addListener(this);
-    }
-
-    public Registrar getRegistrar(){ return registrar; }
+    public SeismogramDisplay getParentDisplay(){ return parent; }
 
     public void updateAmp(AmpEvent event){
         currentAmpEvent = event;
         repaint();
     }
 
-    public void setAmpConfig(AmpConfig ac){ registrar.setAmpConfig(ac); }
+    public void setAmpConfig(AmpConfig ac){
+        if(this.ac != null){
+            this.ac.removeListener(this);
+            tc.removeListener(this.ac);
+            this.ac.remove(getSeismograms());
+        }
+        this.ac = ac;
+        ac.addListener(this);
+        tc.addListener(ac);
+        ac.add(getSeismograms());
+    }
 
     public void setGlobalizedAmpConfig(AmpConfig ac){ setAmpConfig(ac); }
 
@@ -181,16 +181,25 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         setAmpConfig(new IndividualizedAmpConfig(ac));
     }
 
-    public AmpConfig getAmpConfig(){ return registrar.getAmpConfig(); }
+    public AmpConfig getAmpConfig(){ return ac; }
 
     public void updateTime(TimeEvent event){
         currentTimeEvent = event;
         repaint();
     }
 
-    public void setTimeConfig(TimeConfig tc){ registrar.setTimeConfig(tc); }
-
-    public TimeConfig getTimeConfig(){ return registrar.getTimeConfig(); }
+    public void setTimeConfig(TimeConfig tc){
+        if(this.tc != null){
+            this.tc.removeListener(this);
+            this.tc.removeListener(ac);
+            this.tc.add(getSeismograms());
+        }
+        this.tc = tc;
+        tc.addListener(this);
+        tc.addListener(ac);
+        tc.add(getSeismograms());
+    }
+    public TimeConfig getTimeConfig(){ return tc; }
 
     public MicroSecondTimeRange getTime(){
         return currentTimeEvent.getTime();
@@ -216,13 +225,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
                                        date);
     }
 
-    public void update(ConfigEvent event){
-        currentTimeEvent = event.getTimeEvent();
-        currentAmpEvent = event.getAmpEvent();
-        repaint();
-    }
-
-    public VerticalSeismogramDisplay getVerticalParent(){ return parent; }
+    public SeismogramDisplay getDisplayParent(){ return parent; }
 
     public java.util.List getPlotters(Class plotterClass) {
         java.util.LinkedList out = new java.util.LinkedList();
@@ -266,65 +269,56 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     public static Set getGlobalFilters(){ return globalFilters; }
 
     public boolean hasBottomTimeBorder(){
-        if(scaleBorder.getBottomScaleMapper() != null){
+        if(scale.getBottomScaleMapper() != null){
             return true;
         }
         return false;
     }
 
     public void addBottomTimeBorder(){
-        scaleBorder.setBottomScaleMapper(timeScaleMap);
-        Insets current = this.getInsets();
-        setPreferredSize(new Dimension(PREFERRED_WIDTH + current.left + current.right,
-                                       PREFERRED_HEIGHT + current.top + current.bottom));
-        this.revalidate();
+        scale.setBottomScaleMapper(timeScaleMap);
+        setSize();
     }
 
     public void removeBottomTimeBorder(){
-        scaleBorder.clearBottomScaleMapper();
-        Insets current = this.getInsets();
-        setPreferredSize(new Dimension(PREFERRED_WIDTH + current.left + current.right,
-                                       PREFERRED_HEIGHT + current.top + current.bottom));
+        scale.clearBottomScaleMapper();
+        setSize();
     }
 
     public boolean hasTopTimeBorder(){
-        if(scaleBorder.getTopScaleMapper() != null){
+        if(scale.getTopScaleMapper() != null){
             return true;
         }
         return false;
     }
 
     public void addTopTimeBorder(){
-        scaleBorder.setTopScaleMapper(timeScaleMap);
-        Insets current = this.getInsets();
-        setPreferredSize(new Dimension(PREFERRED_WIDTH + current.left + current.right,
-                                       PREFERRED_HEIGHT + current.top + current.bottom));
-        this.revalidate();
+        scale.setTopScaleMapper(timeScaleMap);
+        setSize();
     }
 
     public void removeTopTimeBorder(){
-        scaleBorder.clearTopScaleMapper();
-        Insets current = this.getInsets();
-        setPreferredSize(new Dimension(PREFERRED_WIDTH + current.left + current.right,
-                                       PREFERRED_HEIGHT + current.top + current.bottom));
+        scale.clearTopScaleMapper();
+        setSize();
     }
 
-    private Border createDefaultBorder(){
-        return BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(),
-                                                                                     new SeismogramDisplayRemovalBorder(this)),
-                                                  BorderFactory.createCompoundBorder(scaleBorder,
-                                                                                     BorderFactory.createLoweredBevelBorder()));
+    private void setSize(){
+        Insets in = getInsets();
+        setPreferredSize(new Dimension(PREFERRED_WIDTH,
+                                       PREFERRED_HEIGHT + in.top + in.bottom));
+        revalidate();
     }
 
     public void addLeftTitleBorder(LeftTitleBorder ltb){
-        Border bevelTitle = BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
-                                                               ltb);
-        Border bevelTitleRemoval = BorderFactory.createCompoundBorder(bevelTitle,
-                                                                      new SeismogramDisplayRemovalBorder(this));
-        Border scaleBevel = BorderFactory.createCompoundBorder(scaleBorder,
+        Border etch = BorderFactory.createEtchedBorder();
+        Border removal = new SeismogramDisplayRemovalBorder(this);
+        Border removalTitle = BorderFactory.createCompoundBorder(removal,
+                                                                 ltb);
+        Border etchRemovalTitle = BorderFactory.createCompoundBorder(etch,
+                                                                     removalTitle);
+        Border scaleBevel = BorderFactory.createCompoundBorder(scale,
                                                                BorderFactory.createLoweredBevelBorder());
-        setBorder(BorderFactory.createCompoundBorder(bevelTitleRemoval, scaleBevel));
-        resize();
+        setBorder(BorderFactory.createCompoundBorder(etchRemovalTitle, scaleBevel));
     }
 
     protected void resize() {
@@ -367,21 +361,25 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         if(seismograms.size() == 0){
             clear();
         }
-        registrar.remove(seismos);
+        tc.remove(seismos);
+        ac.remove(seismos);
     }
 
     /** removes this Basic SeismogramDisplay from the parent. */
     public void remove(){
-        parent.removeDisplay(this);
+        //TODO make remove display a seismogram display method
+        ((VerticalSeismogramDisplay)parent).removeDisplay(this);
         destroy();
     }
 
     void destroy(){
         clearSelections();
-        registrar.removeListener(this);
-        registrar.remove(getSeismograms());
-        registrar.removeListener(ampScaleMap);
-        registrar.removeListener(timeScaleMap);
+        tc.removeListener(this);
+        ac.removeListener(this);
+        tc.remove(getSeismograms());
+        ac.remove(getSeismograms());
+        ac.removeListener(ampScaleMap);
+        tc.removeListener(timeScaleMap);
     }
 
     public void setOriginalVisibility(boolean visible){
@@ -398,9 +396,11 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         DataSetSeismogram[] seismos = new DataSetSeismogram[seismoList.size()];
         seismos = (DataSetSeismogram[])seismoList.toArray(seismos);
         if (visible) {
-            registrar.add(seismos);
+            tc.add(seismos);
+            ac.add(seismos);
         }else {
-            registrar.remove(seismos);
+            tc.remove(seismos);
+            ac.remove(seismos);
         } // end of else
         e = drawableList.iterator();
         while(e.hasNext()){
@@ -408,6 +408,15 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
             current.setVisibility(visible);
         }
         repaint();
+    }
+
+    public boolean getOriginalVisibility(){
+        if(getDisplayParent() != null){
+            return getDisplayParent().getOriginalVisibility();
+        }
+        else{
+            return true;
+        }
     }
 
     public void applyFilter(ColoredFilter filter){
@@ -438,9 +447,11 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
             }
         }
         if (filter.getVisibility()) {
-            registrar.add(seismos);
+            tc.add(seismos);
+            ac.add(seismos);
         }else {
-            registrar.remove(seismos);
+            tc.remove(seismos);
+            ac.remove(seismos);
         }
         plotters.addAll(filterShapes);
         repaint();
@@ -460,7 +471,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
                 }
             }
             filters.remove(filter);
-            registrar.remove(seismos);
+            tc.remove(seismos);
+            ac.remove(seismos);
         }
     }
 
@@ -572,19 +584,21 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     private ArrayList filters = new ArrayList();
 
-    private VerticalSeismogramDisplay parent;
+    private SeismogramDisplay parent;
 
     private LinkedList seismograms = new LinkedList();
 
     private LinkedList plotters =new LinkedList();
 
-    private Registrar registrar;
+    private TimeConfig tc;
+
+    private AmpConfig ac;
 
     private TimeEvent currentTimeEvent;
 
     private AmpEvent currentAmpEvent;
 
-    private ScaleBorder scaleBorder;
+    private ScaleBorder scale;
 
     private TimeScaleCalc timeScaleMap;
 

@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 
+import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
@@ -11,7 +12,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  * @version
  */
 
-public interface AmpConfig extends DataSetSeismogramReceptacle{
+public interface AmpConfig extends DataSetSeismogramReceptacle, TimeListener{
     /**
      * <code>shaleAmp</code> shifts then scales all the seismograms in the config.
      *
@@ -59,18 +60,12 @@ public interface AmpConfig extends DataSetSeismogramReceptacle{
      */
     public AmpEvent fireAmpEvent();
 
-    /**
-     * <code>updateTime</code> causes this ampconfig to update its ranges over the
-     * specified config event, and if the times cause amp changes, to fill in the
-     * amplitude values on the time event
-     *
-     * @param event the new <code>TimeEvent</code>for this amp config
-     * @return true if the amp has changed, false if not
-     */
-    public AmpEvent updateAmpTime(TimeEvent event);
-
     public AmpConfigData getAmpData(DataSetSeismogram seis);
 
     public AmpConfigData[] getAmpData();
+
+    public UnitRangeImpl getAmp();
+
+    public UnitRangeImpl getAmp(DataSetSeismogram seis);
 }// AmpConfig
 

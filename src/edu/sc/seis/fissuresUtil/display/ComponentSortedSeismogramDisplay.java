@@ -3,7 +3,6 @@ import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -45,7 +44,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-        return addDisplay(dss, registrar, new RMeanAmpConfig(dss));
+        return addDisplay(dss, tc, new RMeanAmpConfig(dss));
     }
 
     /**
@@ -69,7 +68,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
-        return addDisplay(dss, registrar, ac);
+        return addDisplay(dss, tc, ac);
     }
 
     /**
@@ -82,10 +81,6 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
-        if(tc == registrar && registrar == null){
-            registrar = new Registrar(dss);
-            tc = registrar;
-        }
         DataSetSeismogram[][] componentSorted = DisplayUtils.getComponents(dss);
         addNorth(componentSorted[0], tc, new RMeanAmpConfig(componentSorted[0]));
         addEast(componentSorted[1], tc , new RMeanAmpConfig(componentSorted[1]));
@@ -121,12 +116,11 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
                                                 TimeConfig tc, AmpConfig ac, String orientation){
         if(seismos.length > 0){
             if(display == null){
-                display = new BasicSeismogramDisplay(seismos, tc, ac, this);
+                display = new BasicSeismogramDisplay(tc, ac, this);
                 initializeBSD(display, 0, orientation);
                 addTimeBorders();
-            }else{
-                display.add(seismos);
             }
+            display.add(seismos);
         }
         return display;
     }

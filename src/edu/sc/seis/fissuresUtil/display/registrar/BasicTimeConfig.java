@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 import edu.iris.Fissures.model.TimeInterval;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
@@ -166,9 +165,31 @@ public class BasicTimeConfig implements TimeConfig{
         return event;
     }
 
+    /**
+     * @return   a MicroSecondTimeRange that covers the current generic time
+     * range of this TimeConfig
+     *
+     */
+    public MicroSecondTimeRange getTime() {
+        return time;
+    }
+
+    /**
+     * @param    seis                a  DataSetSeismogram a time is desired for
+     *
+     * @return   a MicroSecondTimeRange describing the current time of the given
+     * seismogram in the time config
+     *
+     */
+    public MicroSecondTimeRange getTime(DataSetSeismogram seis) {
+        return getTime();
+    }
+
     public void addListener(TimeListener listener){
-        listeners.add(listener);
-        fireTimeEvent();
+        if(listener != null){
+            listeners.add(listener);
+            fireTimeEvent();
+        }
     }
 
     public void removeListener(TimeListener listener){

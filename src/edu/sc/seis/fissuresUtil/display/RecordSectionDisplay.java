@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class RecordSectionDisplay extends SeismogramDisplay implements ConfigListener, LayoutListener{
+public class RecordSectionDisplay extends SeismogramDisplay implements TimeListener, AmpListener, LayoutListener{
 
     public RecordSectionDisplay(){
         setLayout(new BorderLayout());
@@ -35,6 +35,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         int min = 10;
         int max = 100;
         scalingSlider = new JSlider(JSlider.VERTICAL, min, max, (max - min)/2);
+        scaling = (max - min)/2;
         scalingSlider.setMajorTickSpacing(10);
         scalingSlider.setPaintTicks(true);
         scalingSlider.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -52,36 +53,35 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 });
     }
 
+    public RecordSectionDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
+                                AmpConfig ac){
+        this();
+        setTimeConfig(tc);
+        setAmpConfig(ac);
+        add(seismos);
+    }
 
-    private void scalingChanged(int newScaling){
+    private void scalingChanged(double newScaling){
         scaling = newScaling;
         if(layout != null){
             layout.setScale(newScaling/10);
         }
     }
 
-
-    public RecordSectionDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
-                                AmpConfig ac){
-        this();
-        setRegistrar(new Registrar(seismos, tc, ac));
-        add(seismos);
-    }
-
     public synchronized void add(DataSetSeismogram[] seismos){
         updating = true;
-        if(registrar == null){
-            setRegistrar(new Registrar(seismos,
-                                       new BasicTimeConfig(),
-                                       new IndividualizedAmpConfig(new RMeanAmpConfig())));
-        }else{
-            registrar.add(seismos);
+        if(tc == null){
+            setTimeConfig(new BasicTimeConfig());
         }
+        tc.add(seismos);
+        if(ac == null){
+            setAmpConfig(new RMeanAmpConfig());
+        }
+        ac.add(seismos);
         if(layout == null){
-            setLayout(new BasicLayoutConfig(seismos));
-        }else{
-            layout.add(seismos);
+            setLayout(new BasicLayoutConfig());
         }
+        layout.add(seismos);
         for (int i = 0; i < seismos.length; i++){
             dssPlotter.put(seismos[i], new DrawableSeismogram(this, seismos[i]));
         }
@@ -102,38 +102,32 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         repaint();
     }
 
-    public void setRegistrar(Registrar registrar) {
-        if(this.registrar != null){
-            this.registrar.removeListener(this);
-            this.registrar.remove(getSeismograms());
+    public void setTimeConfig(TimeConfig tc) {
+        if(this.tc != null){
+            this.tc.removeListener(this);
+            this.tc.removeListener(ac);
+            this.tc.remove(getSeismograms());
         }
-        timeScaleMap = new TimeScaleCalc(getSize().width, registrar);
+        timeScaleMap = new TimeScaleCalc(getSize().width, tc);
         border.setBottomScaleMapper(timeScaleMap);
-        registrar.add(getSeismograms());
-        registrar.addListener(this);
-        this.registrar = registrar;
+        tc.add(getSeismograms());
+        tc.addListener(this);
+        tc.addListener(ac);
+        this.tc = tc;
     }
 
-    public Registrar getRegistrar() {
-        return registrar;
-    }
-
-    public void setTimeConfig(TimeConfig tc){
-        if(registrar != null){
-            registrar.setTimeConfig(tc);
-        }else{
-            setRegistrar(new Registrar(getSeismograms(), tc, new RMeanAmpConfig()));
-        }
-    }
-
-    public TimeConfig getTimeConfig(){ return registrar.getTimeConfig(); }
+    public TimeConfig getTimeConfig(){ return tc; }
 
     public void setAmpConfig(AmpConfig ac){
-        if(registrar != null){
-            registrar.setAmpConfig(ac);
-        }else{
-            setRegistrar(new Registrar(getSeismograms(), new BasicTimeConfig(), ac));
+        if(this.ac != null){
+            this.ac.removeListener(this);
+            this.tc.removeListener(ac);
+            this.ac.remove(getSeismograms());
         }
+        this.ac = ac;
+        tc.addListener(ac);
+        ac.addListener(this);
+        ac.add(getSeismograms());
     }
 
     public void setGlobalizedAmpConfig(AmpConfig ac){
@@ -144,17 +138,19 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         setAmpConfig(new IndividualizedAmpConfig(ac));
     }
 
-    public AmpConfig getAmpConfig(){ return registrar.getAmpConfig(); }
+    public AmpConfig getAmpConfig(){ return ac; }
 
     public void setLayout(LayoutConfig layout){
         if(this.layout != null){
             this.layout.removeListener(this);
             this.layout.remove(getSeismograms());
         }
-        layout.add(getSeismograms());
+        if(getSeismograms().length > 0){
+            layout.add(getSeismograms());
+        }
         distanceScaler= new DistanceScaleMapper(getSize().height, 4, layout);
         border.setLeftScaleMapper(distanceScaler);
-        scalingChanged(scaling);
+        layout.setScale(scaling/10);
         layout.addListener(this);
         this.layout = layout;
     }
@@ -164,11 +160,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
     }
 
     public void reset() {
-        registrar.reset();
+        tc.reset();
+        ac.reset();
     }
 
     public void reset(DataSetSeismogram[] seismos) {
-        registrar.reset(seismos);
+        tc.reset(seismos);
+        ac.reset(seismos);
     }
 
     public synchronized void clear() {
@@ -177,7 +175,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
 
     public synchronized void removeAll(){
         layout = null;
-        registrar = null;
+        tc = null;
+        ac = null;
         dssPlotter.clear();
         displayRemover = null;
         setBorder(BorderFactory.createEmptyBorder());
@@ -192,7 +191,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
             while(it.hasNext()){
                 DataSetSeismogram current = (DataSetSeismogram)it.next();
                 if(current.equals(seismos[i])){
-                    System.out.println("removing " + current);
                     removed.add(current);
                 }
             }
@@ -203,7 +201,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         }
         DataSetSeismogram[] removedSeis = new DataSetSeismogram[removed.size()];
         removed.toArray(removedSeis);
-        registrar.remove(removedSeis);
+        tc.remove(removedSeis);
+        ac.remove(removedSeis);
         layout.remove(removedSeis);
     }
 
@@ -217,19 +216,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         return false;
     }
 
-    public void update(ConfigEvent event) {
-        curTimeEvent = event.getTimeEvent();
-        curAmpEvent = event.getAmpEvent();
-        repaint();
-    }
-
     public void updateTime(TimeEvent event) {
-        curTimeEvent = event;
+        timeEvent = event;
         repaint();
     }
 
     public void updateAmp(AmpEvent event) {
-        curAmpEvent = event;
+        ampEvent = event;
         repaint();
     }
 
@@ -260,7 +253,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                     g2.translate(0, neededYPos);
                     Dimension drawSize = new Dimension(width, drawHeight);
                     DrawableSeismogram cur = (DrawableSeismogram)dssPlotter.get(current.getSeis());
-                    cur.draw(g2, drawSize, curTimeEvent, curAmpEvent);
+                    cur.draw(g2, drawSize, timeEvent, ampEvent);
                     g2.translate(0, -neededYPos);
                     cur.drawName(g2, 5, (int)(neededYPos + drawHeight/2));
                 }
@@ -291,6 +284,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         // TODO
     }
 
+    public boolean getOriginalVisibility() {
+        return true;
+    }
+
     public void applyFilter(ColoredFilter filter) {
         // TODO
     }
@@ -311,13 +308,15 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
 
     private Map dssPlotter = new HashMap();
 
-    private Registrar registrar;
+    private TimeConfig tc;
+
+    private AmpConfig ac;
 
     private LayoutConfig layout;
 
-    private AmpEvent curAmpEvent;
+    private AmpEvent ampEvent;
 
-    private TimeEvent curTimeEvent;
+    private TimeEvent timeEvent;
 
     private LayoutEvent curLayoutEvent = LayoutEvent.EMPTY_EVENT;
 
@@ -333,7 +332,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
 
     private JSlider scalingSlider;
 
-    private int scaling;
+    private double scaling;
 
     private Border etched  = BorderFactory.createEtchedBorder();
 

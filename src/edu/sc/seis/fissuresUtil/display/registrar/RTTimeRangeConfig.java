@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.Timer;
 import org.apache.log4j.Logger;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 /**
  * RTTimeRangeConfig.java
  *
@@ -102,7 +103,9 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
     }
 
     public void addListener(TimeListener listener) {
-        listeners.add(listener);
+        if(listener != null){
+            listeners.add(listener);
+        }
     }
 
     public void removeListener(TimeListener listener) {
@@ -131,6 +134,27 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
 
     public TimeEvent fireTimeEvent() {
         return internalTimeConfig.fireTimeEvent();
+    }
+
+
+    /**
+     * @return   a MicroSecondTimeRange that covers the current generic time
+     * range of this TimeConfig
+     *
+     */
+    public MicroSecondTimeRange getTime() {
+        return internalTimeConfig.getTime();
+    }
+
+    /**
+     * @param    seis                a  DataSetSeismogram a time is desired for
+     *
+     * @return   a MicroSecondTimeRange describing the current time of the given
+     * seismogram in the time config
+     *
+     */
+    public MicroSecondTimeRange getTime(DataSetSeismogram seis) {
+        return internalTimeConfig.getTime();
     }
 
     public DataSetSeismogram[] getSeismograms() {

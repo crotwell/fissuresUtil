@@ -133,7 +133,7 @@ public class ParticleMotionView extends JComponent{
         graphics2D.setColor(color);
         try {
             MicroSecondTimeRange microSecondTimeRange = null;
-            if(particleMotion.registrar == null) {
+            if(particleMotion.tc == null) {
                 microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
                                                                 new MicroSecondDate(hseis.getEndTime()));
             } else {
@@ -221,13 +221,13 @@ public class ParticleMotionView extends JComponent{
 
     public synchronized void addParticleMotionDisplay(DataSetSeismogram hseis,
                                                       DataSetSeismogram vseis,
-                                                      Registrar registrar,
+                                                      TimeConfig tc,
                                                       Color color,
                                                       String key,
                                                       boolean horizPlane) {
         ParticleMotion particleMotion = new ParticleMotion(hseis,
                                                            vseis,
-                                                           registrar,
+                                                           tc,
                                                            color, key,
                                                            horizPlane);
         displays.add(particleMotion);
@@ -419,17 +419,19 @@ public class ParticleMotionView extends JComponent{
             Color.white,
             Color.black};
 
-    class ParticleMotion implements ConfigListener, SeisDataChangeListener{
+    class ParticleMotion implements TimeListener, AmpListener, SeisDataChangeListener{
         public ParticleMotion(final DataSetSeismogram hseis,
                               DataSetSeismogram vseis,
-                              Registrar registrar,
+                              TimeConfig tc,
                               Color color,
                               String key,
                               boolean horizPlane) {
             DataSetSeismogram[] seis = { hseis, vseis};
-            this.registrar = new Registrar(seis, registrar.getTimeConfig(),
-                                           new RMeanAmpConfig());
-            this.registrar.addListener(this);
+            this.tc = tc;
+            ac = new RMeanAmpConfig(seis);
+            tc.add(seis);
+            tc.addListener(this);
+            ac.addListener(this);
             this.hseis = hseis;
             hseis.addSeisDataChangeListener(this);
             hseis.retrieveData(this);
@@ -439,7 +441,7 @@ public class ParticleMotionView extends JComponent{
             this.key = key;
             this.horizPlane = horizPlane;
             setColor(color);
-            this.registrar.shaleTime(0, 1);
+            tc.shaleTime(0, 1);
         }
 
         public void pushData(SeisDataChangeEvent sdce) {
@@ -460,11 +462,6 @@ public class ParticleMotionView extends JComponent{
             //do nothing as someone else should handle error notification to user
             logger.warn("Error with data retrieval.",
                         sdce.getCausalException());
-        }
-
-        public void update(ConfigEvent ce){
-            updateTime(ce.getTimeEvent());
-            updateAmp(ce.getAmpEvent());
         }
 
         public void updateTime(TimeEvent timeEvent) {
@@ -518,7 +515,8 @@ public class ParticleMotionView extends JComponent{
         public DataSetSeismogram vseis;
         private LocalSeismogramImpl hSeisLocal;
         private LocalSeismogramImpl vSeisLocal;
-        public Registrar registrar;
+        public TimeConfig tc;
+        public AmpConfig ac;
         public String key = new String();
         private MicroSecondTimeRange microSecondTimeRange;
         private Shape shape;

@@ -1,7 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.registrar.*;
-
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -23,9 +24,9 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
      @param totalPixels the width of the axis being used in pixels
 
      */
-    TimeScaleCalc (int totalPixels, Registrar reg){
+    TimeScaleCalc (int totalPixels, TimeConfig tc){
         this.totalPixels = totalPixels;
-        reg.addListener(this);
+        tc.addListener(this);
     }
 
     public void calculateTicks(){
@@ -37,7 +38,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         majTickTime = timeIntv/majTickNum;
         majTickRatio = 10;
         if(majTickTime <= SECOND){
-            //System.out.println("TimeScaleCalc SECOND"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("mm:ss.S");
             if(majTickTime <= 1000){
                 majTickTime = 1000;
@@ -52,7 +52,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
 
         }else if(majTickTime <= 45 * SECOND){
             majTickRatio = 10;
-            //System.out.println("TimeScaleCalc 45SECOND"+totalPixels+" "+majTickTime);
             timeFormat = new SimpleDateFormat("mm:ss");
             if(majTickTime <= 1.2*SECOND){
                 majTickTime = SECOND;
@@ -73,7 +72,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 3*MINUTE){
             majTickRatio = 6;
-            //System.out.println("TimeScaleCalc 3MINUTE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("HH:mm:ss");
             if(majTickTime <= MINUTE+10*SECOND){
                 majTickTime = MINUTE;
@@ -85,7 +83,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 30*MINUTE){
             majTickRatio = 10;
-            //System.out.println("TimeScaleCalc 30MINUTE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("HH:mm:ss");
             if(majTickTime <= 6*MINUTE){
                 majTickTime = 5*MINUTE;
@@ -100,7 +97,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 4*HOUR){
             majTickRatio = 6;
-            //System.out.println("TimeScaleCalc 4HOUR"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("MM/dd HH:mm");
             if(majTickTime <= HOUR){
                 majTickTime = HOUR;
@@ -117,7 +113,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 4*DAY){
             majTickRatio = 6;
-            //System.out.println("TimeScaleCalc ELSE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("MM/dd");
             majTickTime = DAY;
         }else{

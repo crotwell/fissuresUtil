@@ -6,7 +6,6 @@ import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
@@ -19,7 +18,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TimeZone;
 import javax.swing.BoxLayout;
-import javax.swing.JLabel;
 import org.apache.log4j.Category;
 
 /**
@@ -185,7 +183,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         logger.debug("removing all displays");
         super.removeAll();
         basicDisplays.clear();
-        registrar = null;
+        tc = new BasicTimeConfig();
+        ac = new RMeanAmpConfig();
         time = "   Time: ";
         amp = "   Amplitude: ";
         repaint();
@@ -339,25 +338,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         }
     }
 
-    public Registrar getRegistrar(){ return registrar; }
-
-    public void setRegistrar(Registrar newGlobal){
-        if(registrar != null){
-            setTimeConfig(newGlobal.getTimeConfig());
-            setAmpConfig(newGlobal.getAmpConfig());
-        }   else{
-            registrar = newGlobal;
-        }
-    }
-
     public void setAmpConfig(AmpConfig ac){
-        if(registrar != null){
-            registrar.setAmpConfig(ac);
-        }else{
-            registrar = new Registrar(getSeismograms(),
-                                      new BasicTimeConfig(),
-                                      ac);
-        }
+        this.ac = ac;
     }
 
     public void setGlobalizedAmpConfig(AmpConfig ac){
@@ -366,6 +348,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         while(it.hasNext()){
             ((BasicSeismogramDisplay)it.next()).setAmpConfig(ac);
         }
+        globalizedAmp = true;
+        tc.addListener(ac);
     }
 
     public void setIndividualizedAmpConfig(AmpConfig ac){
@@ -380,33 +364,34 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
                 ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
             }
         }
+        tc.removeListener(ac);
+        globalizedAmp = false;
     }
 
     public AmpConfig getAmpConfig(){
-        if(registrar != null){
-            return registrar.getAmpConfig();
-        }else{
-            return null;
-        }
+        return ac;
     }
-    public void setTimeConfig(TimeConfig tc){
-        if(registrar != null){
-            registrar.setTimeConfig(tc);
-        }else{
-            registrar = new Registrar(getSeismograms(),
-                                      tc,
-                                      new RMeanAmpConfig());
+    public void setTimeConfig(TimeConfig config){
+        Iterator it = basicDisplays.iterator();
+        while(it.hasNext()){
+            BasicSeismogramDisplay current = (BasicSeismogramDisplay)it.next();
+            if(current.getTimeConfig().equals(tc)){
+                current.setTimeConfig(config);
+            }
         }
+        if(globalizedAmp){
+            config.addListener(ac);
+        }
+        tc = config;
     }
 
     public TimeConfig getTimeConfig(){
-        if(registrar != null){
-            return registrar.getTimeConfig();
-        }else{
-            return null;
-        }
+        return tc;
     }
+
     public void reset(){
+        tc.reset();
+        ac.reset();
         Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).reset();
@@ -420,18 +405,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         }
     }
 
-    /**
-     * <code>globalizeAmpRange</code> sets the amp configs of every
-     * BSD held directly by this VSD to be the global amp config
-     * for this VSD
-     *
-     */
-    public void globalizeAmpRange(){
-        Iterator e = basicDisplays.iterator();
-        while(e.hasNext())
-                ((BasicSeismogramDisplay)e.next()).getRegistrar().setAmpConfig((AmpConfig)registrar);
-    }
-
     private BasicSeismogramDisplay topDisplay, bottomDisplay;
 
     public static String getTime(){ return time; }
@@ -440,9 +413,11 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
 
     protected String suffix = "";
 
-    protected boolean originalVisible, currentTimeFlag = false;
+    protected boolean originalVisible, globalizedAmp = false, currentTimeFlag = false;
 
-    protected Registrar registrar;
+    protected TimeConfig tc = new BasicTimeConfig();
+
+    protected AmpConfig ac = new RMeanAmpConfig();
 
     protected LinkedList basicDisplays = new LinkedList();
 

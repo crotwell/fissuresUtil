@@ -55,7 +55,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
         }
         if(iteratorReference != null){
             SeismogramIterator it = (SeismogramIterator)iteratorReference.get();
-            if(it != null){
+            if(it != null && it.hasNext()){
                 if(it.getTimeRange().equals(timeRange)){
                     return it;
                 }else if(timeRange != null){
