@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2241 2002-07-16 17:36:12Z telukutl $
+ * @version $Id: XMLDataSet.java 2266 2002-07-17 17:45:36Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -332,7 +332,8 @@ public class XMLDataSet implements DataSet, Serializable {
         String[] ids = getDataSetIds();
         for (int i=0; i<ids.length; i++) {
             DataSet ds = getDataSetById(ids[i]);
-            if (name == ds.getName()) {
+	    logger.debug("++++++++ name is "+name +" the datasetID name is "+ds.getName());
+            if (name.equals(ds.getName())) {
                 return ds;
             }
         } // end of for (int i=0; i<ids.length; i++)
@@ -349,7 +350,7 @@ public class XMLDataSet implements DataSet, Serializable {
                            AuditInfo[] audit) {
 	dataSetIdCache = null;
 	if (dataset instanceof XMLDataSet) {
-            XMLDataSet xds = (XMLDataSet)dataset;
+	    XMLDataSet xds = (XMLDataSet)dataset;
             Element element = xds.getElement();
             if (element.getOwnerDocument().equals(config.getOwnerDocument())) {
                 config.appendChild(element);
@@ -384,8 +385,9 @@ public class XMLDataSet implements DataSet, Serializable {
     public DataSet createChildDataSet(String id, String name, String owner,
                                       AuditInfo[] audit) {
 	dataSetIdCache = null;
+	name = getUniqueName(getDataSetNames(), name);
         XMLDataSet dataset = new XMLDataSet(docBuilder, base, id, name, owner);
-        addDataSet(dataset, audit);
+        //addDataSet(dataset, audit);
         return dataset;
     }
 
@@ -582,9 +584,12 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public LocalSeismogramImpl getSeismogram(String name) {
         if (seismogramCache.containsKey(name)) {
+	    logger.debug("getting the seismogram fromt the cache");
             return (LocalSeismogramImpl)seismogramCache.get(name);
         } // end of if (seismogramCache.containsKey(name))
 	
+	logger.debug("The name of the data set is "+getName());
+	logger.debug("The name of the seismogram is "+name);
         String urlString = "NONE";
         NodeList nList = 
             evalNodeList(config, "localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
@@ -772,7 +777,7 @@ public class XMLDataSet implements DataSet, Serializable {
         //edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
 	
 	}
-	name = getUniqueName(name);
+	name = getUniqueName(getSeismogramNames(), name);
 	seis.setName(name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
@@ -792,7 +797,8 @@ public class XMLDataSet implements DataSet, Serializable {
 	//System.out.println("the length of the Properties of the seismogram are "+props.length);
         Element propE, propNameE, propValueE;
         for (int i=0; i<props.length; i++) {
-            if (props[i].name != seisNameKey) {
+
+            if (props[i] != null && props[i].name != seisNameKey) {
                 propE = doc.createElement("property");
                 propNameE = doc.createElement("name");
                 propNameE.setNodeValue(props[i].name);
@@ -807,7 +813,7 @@ public class XMLDataSet implements DataSet, Serializable {
         seismogramCache.put(name, seis);
 
 	logger.debug("added seis now "+getSeismogramNames().length+" seisnogram names.");
-	seismogramNameCache = null;
+       	seismogramNameCache = null;
     //xpath = new XPathAPI();
 	//xpath = new CachedXPathAPI(xpath);
 	logger.debug("2 added seis now "+getSeismogramNames().length+" seisnogram names.");
@@ -847,7 +853,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	    name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
 	
 	}
-	name = getUniqueName(name);
+	name = getUniqueName(getSeismogramNames(), name);
 	seis.setName(name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
@@ -939,14 +945,13 @@ public class XMLDataSet implements DataSet, Serializable {
 	return (edu.iris.Fissures.IfNetwork.Channel)obj;
     }
 
-    public String getUniqueName(String name) {
-	String[] nameList = getSeismogramNames();
+    public String getUniqueName(String[] nameList, String name) {
 	int counter = 0;
 	for(int i = 0; i < nameList.length; i++) {
-		if(nameList[i].equals(name)) counter++;
+		if(nameList[i].indexOf(name) != -1) counter++;
 	}
 	if(counter == 0) return name;
-	return name+"_"+counter;
+	return name+"_"+(counter+1);
     }
 
     /**
