@@ -97,8 +97,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
 
     public DrawableIterator getDrawables(MouseEvent e) {
         Insets insets = getInsets();
-        return painter.getDrawables(e.getX() - insets.left,
-                                    e.getY() - insets.top);
+        return getDrawables(e.getX() - insets.left,
+                            e.getY() - insets.top);
     }
 
     public void setTimeConfig(TimeConfig tc) {
@@ -245,77 +245,81 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         curLayoutEvent = event;
         repaint();
     }
+
+    public void drawSeismograms(Graphics2D g2, Dimension size){
+        synchronized(this){
+            int width = size.width;
+            int height = size.height;
+            if(displayRemover != null){
+                g2.setColor(Color.WHITE);
+                g2.fill(new Rectangle2D.Float(0,0, width, height));
+            }
+            Iterator it = curLayoutEvent.iterator();
+            while(it.hasNext()){
+                LayoutData current = (LayoutData)it.next();
+                double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
+                int drawHeight = (int)((current.getEnd() - current.getStart())*height);
+                if(drawHeight < 20){
+                    drawHeight = 20;
+                }
+                double neededYPos = midPoint - drawHeight/2;
+                if(neededYPos < 0){
+                    neededYPos = 0;
+                }
+                g2.translate(0, neededYPos);
+                Dimension drawSize = new Dimension(width, drawHeight);
+                DrawableSeismogram cur = toDrawable(current.getSeis());
+                cur.draw(g2, drawSize, timeEvent, ampEvent);
+                g2.translate(0, -neededYPos);
+                cur.drawName(g2, 5, (int)(neededYPos + drawHeight/2));
+                int[] yPos = {(int)neededYPos, (int)(neededYPos + drawHeight)};
+                drawablePositions.put(cur, yPos);
+            }
+            it = drawables.iterator();
+            while(it.hasNext()){
+                Drawable current = (Drawable)it.next();
+                if(!(current instanceof DrawableSeismogram)){
+                    current.draw(g2, size, timeEvent, ampEvent);
+                }
+            }
+            if(getCurrentTimeFlag()){
+                currentTimeFlag.draw(g2, size, timeEvent, ampEvent);
+            }
+        }
+    }
+
+    public DrawableIterator getDrawables(int x, int y){
+        Iterator it = drawablePositions.keySet().iterator();
+        List drawablesIntersected = new ArrayList();
+        while(it.hasNext()){
+            Object cur = it.next();
+            int[] yPositions = (int[])drawablePositions.get(cur);
+            if(yPositions[0] <= y && yPositions[1] >= y){
+                drawablesIntersected.add(cur);
+            }
+        }
+        return new DrawableIterator(Drawable.class, drawablesIntersected);
+    }
+
+    private Map drawablePositions = new HashMap();
+
+    public DrawableSeismogram toDrawable(DataSetSeismogram seis){
+        Iterator it = new DrawableIterator(DrawableSeismogram.class,
+                                           drawables);
+        DrawableSeismogram current = null;
+        while(it.hasNext()){
+            current = (DrawableSeismogram)it.next();
+            if(current.getSeismogram().equals(seis)){
+                return current;
+            }
+        }
+        return current;
+    }
+
+
     private class DrawablePainter extends JComponent{
         public void paintComponent(Graphics g){
-            Graphics2D g2 = (Graphics2D)g;
-            synchronized(this){
-                Dimension size = getSize();
-                int width = size.width;
-                int height = size.height;
-                if(displayRemover != null){
-                    g2.setColor(Color.WHITE);
-                    g2.fill(new Rectangle2D.Float(0,0, width, height));
-                }
-                Iterator it = curLayoutEvent.iterator();
-                while(it.hasNext()){
-                    LayoutData current = (LayoutData)it.next();
-                    double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
-                    int drawHeight = (int)((current.getEnd() - current.getStart())*height);
-                    if(drawHeight < 20){
-                        drawHeight = 20;
-                    }
-                    double neededYPos = midPoint - drawHeight/2;
-                    if(neededYPos < 0){
-                        neededYPos = 0;
-                    }
-                    g2.translate(0, neededYPos);
-                    Dimension drawSize = new Dimension(width, drawHeight);
-                    DrawableSeismogram cur = toDrawable(current.getSeis());
-                    cur.draw(g2, drawSize, timeEvent, ampEvent);
-                    g2.translate(0, -neededYPos);
-                    cur.drawName(g2, 5, (int)(neededYPos + drawHeight/2));
-                    int[] yPos = {(int)neededYPos, (int)(neededYPos + drawHeight)};
-                    drawablePositions.put(cur, yPos);
-                }
-                it = drawables.iterator();
-                while(it.hasNext()){
-                    Drawable current = (Drawable)it.next();
-                    if(!(current instanceof DrawableSeismogram)){
-                        current.draw(g2, size, timeEvent, ampEvent);
-                    }
-                }
-                if(getCurrentTimeFlag()){
-                    currentTimeFlag.draw(g2, size, timeEvent, ampEvent);
-                }
-            }
-        }
-
-        public DrawableIterator getDrawables(int x, int y){
-            Iterator it = drawablePositions.keySet().iterator();
-            List drawablesIntersected = new ArrayList();
-            while(it.hasNext()){
-                Object cur = it.next();
-                int[] yPositions = (int[])drawablePositions.get(cur);
-                if(yPositions[0] <= y && yPositions[1] >= y){
-                    drawablesIntersected.add(cur);
-                }
-            }
-            return new DrawableIterator(Drawable.class, drawablesIntersected);
-        }
-
-        private Map drawablePositions = new HashMap();
-
-        public DrawableSeismogram toDrawable(DataSetSeismogram seis){
-            Iterator it = new DrawableIterator(DrawableSeismogram.class,
-                                               drawables);
-            DrawableSeismogram current = null;
-            while(it.hasNext()){
-                current = (DrawableSeismogram)it.next();
-                if(current.getSeismogram().equals(seis)){
-                    return current;
-                }
-            }
-            return current;
+            drawSeismograms((Graphics2D)g,getSize());
         }
 
     }
