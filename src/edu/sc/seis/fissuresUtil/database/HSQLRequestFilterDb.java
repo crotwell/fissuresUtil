@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import javax.swing.JOptionPane;
 import org.apache.log4j.Category;
 
 /**
@@ -58,7 +59,13 @@ public class HSQLRequestFilterDb extends AbstractDb{
 
     public void create() throws SQLException {
         connection = getConnection();
-
+        if(connection == null){
+            if(JOptionPane.showConfirmDialog(null, "It appears that another instance of the program is running.\nSome features may not work in this instance. Quit program?",
+                                          "Program already running", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION){
+                System.exit(0);
+            }
+            return;
+        }
         try {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(" CREATE TABLE requestFilterDB ( "+
