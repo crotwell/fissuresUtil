@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<project name="The Global Earthquake Explorer"
+	 href="http://www.seis.sc.edu/software/gee/">
+
+  <title>The Global Earthquake Explorer</title>
+<logo href="/images/fissures_header.gif">The FISSURES Project</logo>
+    
+  <body>
+    <menu name="Essentials">
+      <item name="Front Page"            href="/index.html"/>
+      <item name="News &amp; Status"     href="/news.html"/>
+      <item name="Bugs and Problems"          href="/bugs.html"/>
+    </menu>
+
+    <menu name="Download">
+        <item name="Binaries"              href="/software/mavenRepository/fissuresUtil/jars"/>
+        <item name="Source Code"           href="/software/mavenRepository/fissuresUtil/distributions"/>
+    </menu>
+
+    <menu name="Related Projects">
+        <item name="Seed Codec"               href="/../SeedCodec"/>
+        <item name="Core IDL"               href="/../fissuresIDL"/>
+        <item name="Fissures Impl"          href="/../fissuresImpl"/>
+        <item name="Fissures Util"          href="/../fissuresUtil"/>
+        <item name="SEED"                   href="/seed.html"/>
+        <item name="SOD"          href="/../sod"/>
+        <item name="GEE"          href="/../gee"/>
+        <item name="JEvalResp"     href="http://www.isti.com/JEvalResp/"/>
+        <item name="VASE"          href="http://www.iris.washington.edu/DHI/clients.html"/>
+    </menu>
+
+  </body>
+</project>
