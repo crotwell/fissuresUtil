@@ -38,11 +38,18 @@ public class FilterTest  {
 
 	    //	    LocalSeismogramImpl seis = 
 	    //(LocalSeismogramImpl)SeisPlotUtil.createTestData();
-	    int[] idata = seis.get_as_longs();
-	    float[] fdata = new float[idata.length];
-	    for (int i=0; i<idata.length; i++) {
-		fdata[i] = idata[i];
-	    }
+	    float[] fdata;
+	    if (seis.can_convert_to_long()) {
+		int[] idata = seis.get_as_longs();
+		fdata = new float[idata.length];
+		for (int i=0; i<idata.length; i++) {
+		    fdata[i] = idata[i];
+		}
+	    } else {
+		fdata = seis.get_as_floats();
+	    } // end of else
+	    
+
 	    Cmplx[] fftdata = Cmplx.fft(fdata);
 	    SeisGramText localeText = new SeisGramText(null);
 	    ButterworthFilter filter = new ButterworthFilter(localeText,
