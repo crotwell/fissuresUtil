@@ -83,7 +83,7 @@ public class Shaker3D {
 
          } else {
 
-           System.out.println("Bad Wave Flag: " + waveFlag );
+	     System.out.println("Bad Wave Flag: " + waveFlag );
 
          }
 
