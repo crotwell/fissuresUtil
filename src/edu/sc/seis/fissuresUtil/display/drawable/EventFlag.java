@@ -204,7 +204,7 @@ public class EventFlag{
     
     public String getTitle(){
         if(eventTitle == null){
-            eventTitle = CacheEvent.getEventInfo(eventAccess, CacheEvent.LOC + " | " + CacheEvent.MAG + " | "  + CacheEvent.DEPTH + " | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
+            eventTitle = CacheEvent.getEventInfo(eventAccess, CacheEvent.LOC + " | Mag: " + CacheEvent.MAG + " | Depth: "  + CacheEvent.DEPTH + " " + CacheEvent.DEPTH_UNIT + " | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
         }
         return eventTitle;
     }
