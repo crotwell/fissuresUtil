@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3633 2003-04-03 21:45:15Z crotwell $
+ * @version $Id: XMLDataSet.java 3640 2003-04-07 17:59:14Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -77,21 +77,7 @@ public class XMLDataSet implements DataSet, Serializable{
         } catch (javax.xml.parsers.ParserConfigurationException e) {
             logger.error("Error loading XMLDataSet",e);
         } // end of try-catch
-        //this supports loading of classic seismogram datasets that were created
-        //before dataset seismograms
-        if(dataset.getDataSetSeismogramNames().length == 0) {
-            String[] names = dataset.getSeismogramNames();
-            for (int i = 0 ;i < names.length ;i++ ) {
-                URL sacURL = dataset.getSeismogramURL(names[i]);
-                if(sacURL != null) {
-                    DataSetSeismogram dsstemp =  new URLDataSetSeismogram(sacURL,
-                                                                          SeismogramFileTypes.SAC,
-                                                                          dataset);
-                    dataset.addDataSetSeismogram(dsstemp, new AuditInfo[0]);
-                }
 
-            }
-        }
         return dataset;
 
     }
@@ -135,8 +121,28 @@ public class XMLDataSet implements DataSet, Serializable{
     public XMLDataSet(DocumentBuilder docBuilder, URL base, Element config) {
         this(docBuilder, base);
         this.config = config;
+        checkForLegacySeismograms();
     }
 
+    protected void checkForLegacySeismograms() {
+        //this supports loading of classic seismogram datasets that were 
+        //created before dataset seismograms
+        if(getDataSetSeismogramNames().length == 0) {
+            String[] names = getSeismogramNames();
+            logger.info("No DataSetSeismograms in dataset "+getName()+", using legacy dataset option: creating DataSetSeismogram per LocalSeismogram. LS length="+names.length);
+            for (int i = 0 ;i < names.length ;i++ ) {
+                URL sacURL = getSeismogramURL(names[i]);
+                if(sacURL != null) {
+                    DataSetSeismogram dsstemp =  
+                        new URLDataSetSeismogram(sacURL,
+                                                 SeismogramFileTypes.SAC,
+                                                 this);
+                    addDataSetSeismogram(dsstemp, new AuditInfo[0]);
+                    logger.info("Created DSS for LS, name="+dsstemp.getName());
+                }
+            }
+        }
+    }
 
     /**
      * Gets the dataset Id. This should be unique.
