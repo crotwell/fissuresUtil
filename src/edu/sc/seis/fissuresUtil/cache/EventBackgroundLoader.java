@@ -49,6 +49,7 @@ public class EventBackgroundLoader {
             origin = q.getCache().get_preferred_origin();
         } catch (NoPreferredOrigin ee) {
         }
+        q.listener.eventLoaded(q.getCache());
         if (pool == null) System.out.println("pool is null!");
         pool.fireEventLoaded(q.getCache());
         } catch (InterruptedException e) {
