@@ -102,6 +102,9 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
                 canvas.setPaint(color);
                 canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
                 canvas.draw(shape);
+                //by repainting after the first paint the borders always get drawn
+                //with amp information.  sometimes, they receive info after the
+                //trace first requests it
                 if(firstPaint){
                     parent.repaint();
                     firstPaint = false;
@@ -114,6 +117,8 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
             cur.draw(canvas, size, currentTime, currentAmp);
         }
     }
+
+    //TODO remove this firstPaint crap and get borders to draw themselves correctly
 
     private boolean firstPaint = true;
 
