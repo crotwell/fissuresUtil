@@ -315,7 +315,7 @@ public class DisplayUtils {
                     }else{
                         z.add(current);
                     }
-                    names.add(current);
+                    names.add(current.getName());
                 }
             }
         }
