@@ -63,7 +63,8 @@ public class ExceptionHandlerGUI {
 	
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("information", getMessagePanel());
-        tabbedPane.addTab("stackTrace", getStackTracePanel());
+        tabbedPane.addTab("stack Trace", getStackTracePanel());
+        tabbedPane.addTab("system info", getSystemInfoPanel());
         java.awt.Dimension dimension = new java.awt.Dimension(800, 300);
         tabbedPane.setPreferredSize(dimension);
         tabbedPane.setMinimumSize(dimension);
@@ -87,6 +88,25 @@ public class ExceptionHandlerGUI {
     }
     
     
+    private JScrollPane getSystemInfoPanel() {
+        JTextArea messageArea = new JTextArea();
+        messageArea.setLineWrap(true);
+        messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
+        messageArea.setWrapStyleWord(true);
+        messageArea.setEditable(false);
+	
+        JPanel stackTracePanel = new JPanel();
+        JScrollPane scrollPane = new JScrollPane(stackTracePanel);
+        String traceString = "";
+
+        traceString += getSystemInformation();
+
+        messageArea.setText(traceString);
+        stackTracePanel.setLayout(new BorderLayout());
+        stackTracePanel.add(messageArea);
+        return scrollPane;
+    }
+    
     private JScrollPane getStackTracePanel() {
         JTextArea messageArea = new JTextArea();
         messageArea.setLineWrap(true);
@@ -105,7 +125,6 @@ public class ExceptionHandlerGUI {
             } // end of if (we.getCausalException() != null)
         }
 
-        traceString += getSystemInformation();
         traceString += getStackTrace(exception);
 
         messageArea.setText(traceString);
@@ -113,12 +132,11 @@ public class ExceptionHandlerGUI {
         stackTracePanel.add(messageArea);
         return scrollPane;
     }
-    
-
 
     public static String getSystemInformation() {
 
-        String rtnValue = new String();
+        String rtnValue = "";
+        rtnValue += "Date : "+new java.util.Date().toString()+"\n";
         rtnValue += "os.name : "+System.getProperty("os.name")+"\n";
         rtnValue += "os.version : "+System.getProperty("os.version")+"\n";
         rtnValue += "os.arch : "+System.getProperty("os.arch")+"\n";
@@ -128,6 +146,13 @@ public class ExceptionHandlerGUI {
         rtnValue += "user.name : "+System.getProperty("user.name")+"\n";
         rtnValue += "user.timeZone : "+System.getProperty("user.timeZone")+"\n";
         rtnValue += "user.region : "+System.getProperty("user.region")+"\n";
+
+        rtnValue += "\n\n\n Other Properties:\n";
+        StringWriter stringWriter = new StringWriter();
+        java.util.Properties props = System.getProperties();
+        props.list(new PrintWriter(stringWriter));
+        rtnValue += stringWriter.toString(); 
+       
         return rtnValue;
     }
 
