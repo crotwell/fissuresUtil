@@ -1,17 +1,13 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Iterator;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.*;
 import java.io.IOException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.sc.seis.fissuresUtil.freq.ButterworthFilter;
+import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.chooser.ChannelGrouperImpl;
 import java.awt.*;
 import java.awt.event.*;
@@ -46,8 +42,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	sorter = new AlphaSeisSorter();
-	if(parent != null)
+	if(parent != null){
+	    this.originalVisible = parent.getOriginalVisibility();
 	    this.parent = parent;
+	}else{
+	    this.originalVisible = true;
+	}
     }
     
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram dss, String name){
@@ -240,20 +240,29 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		this.amp.setText("   Amplitude: " + Math.round(amp));
     }
 
+    public void setOriginalDisplay(boolean visible){
+	if(selectionDisplay != null){
+	    selectionDisplay.setOriginalDisplay(visible);
+	}
+	if(threeSelectionDisplay != null){
+	    threeSelectionDisplay.setOriginalDisplay(visible);
+	}
+	Iterator e = basicDisplays.iterator();
+	while(e.hasNext()){
+	    ((BasicSeismogramDisplay)e.next()).setUnfilteredDisplay(visible);
+	}
+	originalVisible = visible;
+    }
+
+    public boolean getOriginalVisibility(){ return originalVisible; }
+
     public void setUnfilteredDisplay(boolean visible){
 	Iterator e = basicDisplays.iterator();
 	while(e.hasNext())
 	    ((BasicSeismogramDisplay)e.next()).setUnfilteredDisplay(visible);
     }
 
-    public void applyFilter(ButterworthFilter filter, boolean visible, LinkedList currentFilters){
-	this.currentFilters = currentFilters;
-	Iterator e = basicDisplays.iterator();
-	while(e.hasNext())
-	    ((BasicSeismogramDisplay)e.next()).setFilter(filter, visible);
-    }
-
-    public void applyFilter(ButterworthFilter filter){
+    public void applyFilter(ColoredFilter filter){
 	Iterator e = basicDisplays.iterator();
 	while(e.hasNext()){
 	    System.out.println("applying filter");
@@ -265,10 +274,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(threeSelectionDisplay != null){
 	    threeSelectionDisplay.applyFilter(filter);
 	}
-	((BasicSeismogramDisplay)basicDisplays.getFirst()).getFilters().add(filter);
     }
 
-    public LinkedList getCurrentFilters(){ return currentFilters; }
+    public Set getCurrentFilters(){ return currentFilters; }
 
     public void globalizeAmpRange(){
 	Iterator e = basicDisplays.iterator();
@@ -333,11 +341,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    logger.debug("creating selection display");
 	    selectionWindow = new JFrame();
 	    //selectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    selectionWindow.setSize(400, 220);
-	    JToolBar infoBar = new JToolBar();
-	    infoBar.add(new FilterSelection(selectionDisplay));
-	    infoBar.setFloatable(false);
-	    selectionWindow.getContentPane().add(infoBar, BorderLayout.SOUTH);
+	    selectionWindow.setSize(400, 200);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
@@ -419,6 +423,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     protected static int particleDisplays = 0, selectionDisplays = 0;
     
+    protected boolean originalVisible;
+
     protected JFrame selectionWindow, particleWindow, threeSelectionWindow;
 
     protected SeismogramSorter sorter;
@@ -433,7 +439,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected ParticleMotionDisplay particleDisplay;
     
-    protected LinkedList currentFilters = new LinkedList();
+    protected Set currentFilters = new HashSet();
 
     protected LinkedList basicDisplays = new LinkedList();
 
