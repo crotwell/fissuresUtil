@@ -19,23 +19,18 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
     /**
      * Creates a <code>ComponentSortedSeismogramDisplay</code> without a parent
      *
-     * @param mouseForwarder the object every contained BSD forwards its mouse events to
-     * @param motionForwarder the object every contained BSD forwards its mouse motion events to
      */
-    public ComponentSortedSeismogramDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder){
-        this(mouseForwarder, motionForwarder, null);
+    public ComponentSortedSeismogramDisplay(){
+        this(null);
     }
 
     /**
      * Creates a <code>ComponentSortedSeismogramDisplay</code> with the passed in parent controlling it
      *
-     * @param mouseForwarder the object every contained BSD forwards its mouse events to
-     * @param motionForwarder the object every contained BSD forwards its mouse motion events to
      * @param parent the VSD that controls this VSD
      */
-    public ComponentSortedSeismogramDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder,
-                                            VerticalSeismogramDisplay parent){
-        super(mouseForwarder, motionForwarder, parent);
+    public ComponentSortedSeismogramDisplay(VerticalSeismogramDisplay parent){
+        super(parent);
     }
 
     /**
@@ -133,8 +128,6 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
 
     private void initializeBSD(BasicSeismogramDisplay disp, int position){
         super.add(disp, position);
-        disp.addMouseMotionListener(motionForwarder);
-        disp.addMouseListener(mouseForwarder);
         disp.addBottomTimeBorder();
         disp.addTopTimeBorder();
         basicDisplays.add(disp);

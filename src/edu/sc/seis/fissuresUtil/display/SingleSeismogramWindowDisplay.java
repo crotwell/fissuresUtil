@@ -19,23 +19,18 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     /**
      * Creates a <code>SingleSeismogramWindowDisplay</code> without a parent
      *
-     * @param mouseForwarder the object every contained BSD forwards its mouse events to
-     * @param motionForwarder the object every contained BSD forwards its mouse motion events to
      */
-    public SingleSeismogramWindowDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder){
-        this(mouseForwarder, motionForwarder, null);
+    public SingleSeismogramWindowDisplay(){
+        this(null);
     }
 
     /**
      * Creates a <code>SingleSeismogramWindowDisplay</code> with the passed in parent controlling it
      *
-     * @param mouseForwarder the object every contained BSD forwards its mouse events to
-     * @param motionForwarder the object every contained BSD forwards its mouse motion events to
      * @param parent the VSD that controls this VSD
      */
-    public SingleSeismogramWindowDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder,
-                                         VerticalSeismogramDisplay parent){
-        super(mouseForwarder, motionForwarder, parent);
+    public SingleSeismogramWindowDisplay(VerticalSeismogramDisplay parent){
+        super(parent);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
@@ -95,8 +90,6 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
         if(basicDisplays.size() == 0){
             disp = new BasicSeismogramDisplay(dss, tc, ac, this);
             super.add(disp);
-            disp.addMouseMotionListener(motionForwarder);
-            disp.addMouseListener(mouseForwarder);
             disp.addBottomTimeBorder();
             disp.addTopTimeBorder();
             basicDisplays.add(disp);

@@ -6,6 +6,8 @@ import edu.iris.Fissures.model.QuantityImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
@@ -35,29 +37,22 @@ import org.apache.log4j.Category;
  * @version 0.1
  */
 
-public abstract class VerticalSeismogramDisplay extends JComponent{
+public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     /**
      * Creates a <code>VerticalSeismogramDisplay</code> without a parent
      *
-     * @param mouseForwarder the object every contained BSD forwards its mouse events to
-     * @param motionForwarder the object every contained BSD forwards its mouse motion events to
      */
-    public VerticalSeismogramDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder){
-        this(mouseForwarder, motionForwarder, null);
+    public VerticalSeismogramDisplay(){
+        this(null);
     }
 
     /**
      * Creates a <code>VerticalSeismogramDisplay</code>
      *
-     * @param mouseForwarder the object every contained BSD forwards its mouse events to
-     * @param motionForwarder the object every contained BSD forwards its mouse motion events to
      * @param parent the VSD that controls this VSD
      */
-    public VerticalSeismogramDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder,
-                                     VerticalSeismogramDisplay parent){
+    public VerticalSeismogramDisplay(VerticalSeismogramDisplay parent){
         output.setTimeZone(TimeZone.getTimeZone("GMT"));
-        this.mouseForwarder = mouseForwarder;
-        this.motionForwarder = motionForwarder;
         super.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         sorter = new SeismogramSorter();
         if(parent != null){
@@ -66,6 +61,25 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         }else{
             this.originalVisible = true;
         }
+    }
+
+    public void add(DataSetSeismogram[] dss){ addDisplay(dss); }
+
+    public void remove(DataSetSeismogram[] dss){
+        Iterator it = basicDisplays.iterator();
+        while(it.hasNext()){
+            ((BasicSeismogramDisplay)it.next()).remove(dss);
+        }
+    }
+
+    public boolean contains(DataSetSeismogram seismo){
+        Iterator it = basicDisplays.iterator();
+        while(it.hasNext()){
+            if(((BasicSeismogramDisplay)it.next()).contains(seismo)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -254,6 +268,10 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         }
     }
 
+    public void clear(){
+        removeAll();
+    }
+
     /**
      * <code>removeAll</code> clears this display and all of its children,
      * and if it has a parent, removes it from the parent as well
@@ -359,10 +377,10 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
      *
      * @param visible the new visibility of the unfiltered seismogram
      */
-    public void setOriginalDisplay(boolean visible){
+    public void setOriginalVisibility(boolean visible){
         Iterator e = getAllBasicDisplays().iterator();
         while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).setUnfilteredDisplay(visible);
+            ((BasicSeismogramDisplay)e.next()).setOriginalVisibility(visible);
         }
         originalVisible = visible;
     }
@@ -373,17 +391,15 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
      */
     public boolean getOriginalVisibility(){ return originalVisible; }
 
-    /**
-     * <code>setUnfilteredDisplay</code> sets the display of the filtered
-     * seismograms in all the BSDs held by this VSD and its children
-     *
-     * @param visible the new visibility of the filtered seismogram
-     */
-    public void setUnfilteredDisplay(boolean visible){
+    public void setCurrentTimeFlag(boolean visible){
         Iterator e = getAllBasicDisplays().iterator();
-        while(e.hasNext())
-                ((BasicSeismogramDisplay)e.next()).setUnfilteredDisplay(visible);
+        while(e.hasNext()){
+            ((BasicSeismogramDisplay)e.next()).setCurrentTimeFlag(visible);
+        }
+        currentTimeFlag = visible;
     }
+
+    public boolean getCurrentTimeFlagStatus(){ return currentTimeFlag; }
 
     /**
      * <code>applyFilter</code> applies a new filter to all the BSDs held
@@ -398,16 +414,52 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         }
     }
 
-    public Registrar getGlobalRegistrar(){ return globalRegistrar; }
+    public Registrar getRegistrar(){ return globalRegistrar; }
 
-    public void setGlobalRegistrar(Registrar newGlobal){
-        globalRegistrar = newGlobal;
+    public void setRegistrar(Registrar newGlobal){
+        if(globalRegistrar != null){
+            setTimeConfig(newGlobal.getTimeConfig());
+            setAmpConfig(newGlobal.getAmpConfig());
+        }   else{
+            globalRegistrar = newGlobal;
+        }
     }
+
+    public void setAmpConfig(AmpConfig ac){
+        if(globalRegistrar != null){
+            globalRegistrar.setAmpConfig(ac);
+        }else{
+            globalRegistrar = new Registrar(getSeismograms(),
+                                            new BasicTimeConfig(),
+                                            ac);
+        }
+    }
+
+    public AmpConfig getAmpConfig(){ return globalRegistrar.getAmpConfig(); }
+
+    public void setTimeConfig(TimeConfig tc){
+        if(globalRegistrar != null){
+            globalRegistrar.setTimeConfig(tc);
+        }else{
+            globalRegistrar = new Registrar(getSeismograms(),
+                                            tc,
+                                            new RMeanAmpConfig());
+        }
+    }
+
+    public TimeConfig getTimeConfig(){ return globalRegistrar.getTimeConfig(); }
 
     public void reset(){
         Iterator e = getAllBasicDisplays().iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).reset();
+        }
+    }
+
+    public void reset(DataSetSeismogram[] seismos){
+        Iterator e = getAllBasicDisplays().iterator();
+        while(e.hasNext()){
+            ((BasicSeismogramDisplay)e.next()).reset(seismos);
         }
     }
 
@@ -533,7 +585,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     public void createSelectionDisplay(Selection creator){
         if(selectionDisplay == null){
             logger.debug("creating selection display");
-            selectionDisplay = new MultiSeismogramWindowDisplay(mouseForwarder, motionForwarder, this);
+            selectionDisplay = new MultiSeismogramWindowDisplay(this);
             addSelection(creator, selectionDisplay);
             selectionWindow = new JFrame(tagWindowName);
             selectionWindow.addWindowListener(new WindowAdapter() {
@@ -583,7 +635,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     public void createThreeSelectionDisplay(Selection creator){
         if(threeSelectionDisplay == null){
             logger.debug("creating 3C selection display");
-            threeSelectionDisplay = new MultiSeismogramWindowDisplay(mouseForwarder, motionForwarder, this);
+            threeSelectionDisplay = new MultiSeismogramWindowDisplay(this);
             addGroupedSelection(creator, threeSelectionDisplay);
             if(threeSelectionDisplay.getDisplays().size() > 0){
                 threeSelectionWindow = new JFrame(particleTagWindowName);
@@ -687,7 +739,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 
     protected static int particleDisplays = 0, selectionDisplays = 0;
 
-    protected boolean originalVisible;
+    protected boolean originalVisible, currentTimeFlag = false;
 
     protected JFrame selectionWindow, particleWindow, threeSelectionWindow;
 
@@ -698,10 +750,6 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     protected ParticleMotionDisplay particleDisplay;
 
     protected LinkedList basicDisplays = new LinkedList();
-
-    protected MouseForwarder mouseForwarder;
-
-    protected MouseMotionForwarder motionForwarder;
 
     protected boolean particleAllowed = true;
 
