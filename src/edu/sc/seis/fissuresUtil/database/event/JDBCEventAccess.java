@@ -259,6 +259,10 @@ public class JDBCEventAccess extends EventTable {
         return littleInt;
     }
 
+    public JDBCEventAttr getAttributeTable() {
+        return attrs;
+    }
+
     private JDBCOrigin origins;
 
     private JDBCEventAttr attrs;
