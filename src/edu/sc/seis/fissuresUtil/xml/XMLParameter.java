@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.xml;
 
 import edu.iris.Fissures.*;
 import edu.iris.Fissures.IfEvent.*;
+import edu.iris.Fissures.IfNetwork.*;
 import  edu.sc.seis.fissuresUtil.cache.*;
 import edu.iris.Fissures.IfParameterMgr.*;
 import org.w3c.dom.*;
@@ -72,7 +73,20 @@ public class XMLParameter {
 	    valueElement.appendChild(event);
 	    element.appendChild(valueElement);
 
-	} else {
+	} else if(value instanceof Channel) {
+	    typeName.appendChild(XMLUtil.createTextElement(doc,
+							   "definition",
+							   "http://www.seis.sc.edu/xschema/fissures.xsd"));
+	    typeName.appendChild(XMLUtil.createTextElement(doc,
+							   "name",
+							   value.getClass().getName()));
+	    element.appendChild(typeName);
+	    Element channel = doc.createElement("channel");
+	    XMLChannel.insert(channel, (Channel)value);
+	    valueElement.appendChild(channel);
+	    element.appendChild(valueElement);
+	}
+	else {
 	    typeName.appendChild(XMLUtil.createTextElement(doc,
 							   "definition",
 							   "http://www.w3.org/2002/XMLSchema/"));
@@ -120,7 +134,15 @@ public class XMLParameter {
 		return new CacheEvent(eventAttr,
 				      new Origin[0],
 				      preferred_origin);
-	} else {
+	} else if(className.equals("edu.iris.fissures.network.ChannelImpl")) {
+	    NodeList channelNode = XMLUtil.evalNodeList(base, "value/channel");
+	    if(channelNode != null && channelNode.getLength() != 0) {
+		Channel channel = XMLChannel.getChannel((Element)channelNode.item(0));
+		return channel;
+	    }
+	    return null;
+	}
+	else {
 
 		String value = XMLUtil.evalString(base, "value");
 		return new ParameterRef(name, value);	
