@@ -15,12 +15,12 @@
   <package>edu.sc.seis.fissuresUtil</package>
   <shortDescription>Utility functionality for fissures clients and servers.</shortDescription>
   <gumpRepositoryId>fissuresUtil</gumpRepositoryId>
-  <description> The Fissures utility implementation has java code that 
-implements some utility functionality related to the Fissures framework. 
-It does not actually provide an implemenation for any services, but 
-those wishing to implement new clients or new services will find many 
+  <description> The Fissures utility implementation has java code that
+implements some utility functionality related to the Fissures framework.
+It does not actually provide an implemenation for any services, but
+those wishing to implement new clients or new services will find many
 useful things already done.</description>
-  
+
   <url>http://www.seis.sc.edu/software/${pom.artifactId}</url>
   <siteAddress>www.seis.sc.edu</siteAddress>
   <siteDirectory>/seis/raid1/Apache/htdocs/software/${pom.artifactId}</siteDirectory>
@@ -72,6 +72,10 @@ oot:${pom.artifactId}</connection>
 
   <dependencies>
 <!-- hopefully temporary JAI support -->
+    <dependency>
+      <id>junit-addons</id>
+      <version>1.3</version>
+    </dependency>
     <dependency>
       <id>jai_core</id>
       <version>1.0</version>
