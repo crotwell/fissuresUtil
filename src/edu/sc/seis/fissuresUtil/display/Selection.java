@@ -82,7 +82,10 @@ public class Selection implements TimeSyncListener{
 	return false; 
     }
 
-    public void remove(){ display.remove(); }
+    public void remove(){ 
+	if(display != null)
+	    display.remove(); 
+    }
 	
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
 	double timeWidth = externalTimeConfig.getTimeRange().getInterval().getValue();
