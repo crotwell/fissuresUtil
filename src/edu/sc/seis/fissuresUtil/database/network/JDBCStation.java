@@ -13,7 +13,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
@@ -119,6 +122,7 @@ public class JDBCStation extends NetworkTable{
             dbid = seq.next();
             putAll.setInt(1, dbid);
             insertAll(sta, putAll, 2, netTable, locTable, time);
+            dbIdsToStations.put(new Integer(dbid), sta);
             putAll.executeUpdate();
         }
         return dbid;
@@ -138,6 +142,8 @@ public class JDBCStation extends NetworkTable{
     }
 
     public Station get(int dbid)  throws SQLException, NotFound {
+        Station sta = (Station)dbIdsToStations.get(new Integer(dbid));
+        if(sta != null){ return sta; }
         getByDBId.setInt(1, dbid);
         ResultSet rs = getByDBId.executeQuery();
         if (rs.next()){ return extract(rs, locTable, netTable, time);}
@@ -162,24 +168,34 @@ public class JDBCStation extends NetworkTable{
     }
 
     public int getDBId(StationId id)  throws SQLException, NotFound {
+        Integer dbId = (Integer)stationIdsToDbIds.get(id);
+        if(dbId != null){ return dbId.intValue(); }
         insertId(id, getDBId, 1, netTable, time);
         ResultSet rs = getDBId.executeQuery();
-        if(rs.next()){ return rs.getInt("sta_id"); }
+        if(rs.next()){
+            int dbid = rs.getInt("sta_id");
+            stationIdsToDbIds.put(id, new Integer(dbid));
+            return dbid;
+        }
         throw new NotFound("No such station id in the db");
     }
 
     public static Station extract(ResultSet rs, JDBCLocation locTable,
                                   JDBCNetwork netTable, JDBCTime time) throws SQLException, NotFound {
+        Station sta = (Station)dbIdsToStations.get(new Integer(rs.getInt("sta_id")));
+        if(sta != null){ return sta; }
         StationId id = extractId(rs,netTable, time);
         edu.iris.Fissures.Time endTime =  time.get(rs.getInt("sta_end_id"));
-        return new StationImpl(id,
-                               rs.getString("sta_name"),
-                               locTable.get(rs.getInt("loc_id")),
-                               new TimeRange(id.begin_time, endTime),
-                               rs.getString("sta_operator"),
-                               rs.getString("sta_description"),
-                               rs.getString("sta_comment"),
-                               netTable.get(rs.getInt("net_id")));
+        sta = new StationImpl(id,
+                              rs.getString("sta_name"),
+                              locTable.get(rs.getInt("loc_id")),
+                              new TimeRange(id.begin_time, endTime),
+                              rs.getString("sta_operator"),
+                              rs.getString("sta_description"),
+                              rs.getString("sta_comment"),
+                              netTable.get(rs.getInt("net_id")));
+        dbIdsToStations.put(new Integer(rs.getInt("sta_id")), sta);
+        return sta;
     }
 
     public static StationId extractId(ResultSet rs, JDBCNetwork netTable,
@@ -187,7 +203,9 @@ public class JDBCStation extends NetworkTable{
         edu.iris.Fissures.Time begin_time = time.get(rs.getInt("sta_begin_id"));
         try {
             NetworkId netId = netTable.get(rs.getInt("net_id")).get_id();
-            return new StationId(netId, rs.getString("sta_code"),  begin_time);
+            StationId id = new StationId(netId, rs.getString("sta_code"),  begin_time);
+            stationIdsToDbIds.put(id, new Integer(rs.getInt("sta_id")));
+            return id;
         }catch (NotFound e) {
             throw new RuntimeException("There is a foreign key constraint requiring that a net_id be in the network table, but it just returned a not found for one such key.  This probably indicates a db problem!",
                                        e);
@@ -232,6 +250,8 @@ public class JDBCStation extends NetworkTable{
 
     protected JDBCNetwork getNetTable(){ return netTable; }
 
+    private static Map stationIdsToDbIds = Collections.synchronizedMap(new HashMap());
+    private static Map dbIdsToStations = Collections.synchronizedMap(new HashMap());
     private JDBCLocation locTable;
     private JDBCNetwork netTable;
     private JDBCSequence seq;
@@ -241,4 +261,5 @@ public class JDBCStation extends NetworkTable{
 
     private static final Logger logger = Logger.getLogger(JDBCStation.class);
 }// JDBCStation
+
 
