@@ -28,70 +28,96 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
     }
 
     public void calculateTicks(){
-        int majTickNum = totalPixels/50;
+        int majTickNum = totalPixels/60;
         majTickTime = timeIntv/majTickNum;
         majTickRatio = 10;
-        if(majTickTime <= 100000){
-            timeFormat = new SimpleDateFormat("ss.S");
+        if(majTickTime <= SECOND){
+            System.out.println("TimeScaleCalc SECOND"+" "+majTickTime);
+            timeFormat = new SimpleDateFormat("mm:ss.S");
             if(majTickTime <= 1000){
                 majTickTime = 1000;
             }else if(majTickTime <= 10000){
                 majTickTime = 10000;
             }else if(majTickTime <= 100000){
                 majTickTime = 100000;	
-            }
-        }else if(majTickTime <= 30 * 1000000){
+            }else {
+                majTickTime = 500000;
+                majTickRatio = 5;
+            } // end of else
+            
+        }else if(majTickTime <= 45 * SECOND){
             majTickRatio = 10;
+            System.out.println("TimeScaleCalc 45SECOND"+totalPixels+" "+majTickTime);
             timeFormat = new SimpleDateFormat("HH:mm:ss");
-            if(majTickTime <= 1000000){
-                majTickTime = 1000000;
-            }else if(majTickTime <= 5000000){
-                majTickTime = 5000000;
-            }else if(majTickTime <= 1000000){
-                majTickTime = 10000000;
-            }else
-                majTickTime = 30000000;
+            if(majTickTime <= 1.2*SECOND){
+                majTickTime = SECOND;
+            }else if(majTickTime <= 3*SECOND){
+                majTickTime = 2*SECOND;
+                majTickRatio = 4;
+            }else if(majTickTime <= 6*SECOND){
+                majTickTime = 5*SECOND;
+                majTickRatio = 5;
+            }else if(majTickTime <= 12*SECOND){
+                majTickTime = 10*SECOND;
+            }else if(majTickTime <= 22*SECOND){
+                majTickTime = 20*SECOND;
+                majTickRatio = 4;
+            }else {
+                majTickTime = 30*SECOND;
+            } // end of else
         }
-        else if(majTickTime <= 180000000){
+        else if(majTickTime <= 3*MINUTE){
             majTickRatio = 6;
+            System.out.println("TimeScaleCalc 3MINUTE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("HH:mm:ss");
-            if(majTickTime <= 60000000){
-                majTickTime = 60000000;
-            }else if(majTickTime <= 120000000){
-                majTickTime = 120000000;
+            if(majTickTime <= MINUTE+10*SECOND){
+                majTickTime = MINUTE;
+            }else if(majTickTime <= 2*MINUTE+30*SECOND){
+                majTickTime = 2*MINUTE;
+                majTickRatio = 12;
             }else
-                majTickTime = 180000000;
+                majTickTime = 2*MINUTE+30*SECOND;
         }
-        else if(majTickTime <= 1800000000){
+        else if(majTickTime <= 30*MINUTE){
             majTickRatio = 10;
+            System.out.println("TimeScaleCalc 30MINUTE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("HH:mm:ss");
-            if(majTickTime <= 300000000)
-                majTickTime = 300000000;
-            else if(majTickTime <= 600000000)
-                majTickTime = 600000000;
-            else if(majTickTime <= 1200000000){
-                majTickTime = 1200000000;
-            }else             
-                majTickTime = 1800000000;
+            if(majTickTime <= 6*MINUTE){
+                majTickTime = 5*MINUTE;
+                majTickRatio = 5;
+            } else if(majTickTime <= 10*MINUTE){
+                majTickTime = 10*MINUTE;
+            } else if(majTickTime <= 20*MINUTE){
+                majTickTime = 20*MINUTE;
+            } else {
+                majTickTime = 30*MINUTE;
+            } // end of else
         }
-        else if(majTickTime <= 43200000000l){
+        else if(majTickTime <= 4*HOUR){
             majTickRatio = 6;
+            System.out.println("TimeScaleCalc 4HOUR"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("MM/dd HH:mm");
-            if(majTickTime <= 3600000000l){
-                majTickTime = 3600000000l;
-            }else if(majTickTime <= 7200000000l){
-                majTickTime = 7200000000l;
-            }else if(majTickTime <= 10800000000l){
-                majTickTime = 10800000000l;
-            }else if(majTickTime <= 21600000000l){
-                majTickTime = 21600000000l;
-            }else
-                majTickTime = 43200000000l;
+            if(majTickTime <= HOUR){
+                majTickTime = HOUR;
+            }else if(majTickTime <= 2*HOUR){
+                majTickTime = HOUR;
+                majTickRatio = 4;
+            }else if(majTickTime <= 3*HOUR){
+                majTickTime = 3*HOUR;
+                majTickRatio = 6;
+            }else if(majTickTime <= 4*HOUR){
+                majTickTime = 4*HOUR;
+                majTickRatio = 4;
+            }else {
+                majTickTime = 4*HOUR;
+                majTickRatio = 4;
+            }
         }
         else{
             majTickRatio = 6;
+            System.out.println("TimeScaleCalc ELSE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("MM/dd");
-            majTickTime = 86400000000l;
+            majTickTime = DAY;
         }
         timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         double numTicksDbl = ((timeIntv/(double)majTickTime) * majTickRatio);
@@ -189,4 +215,10 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
     protected double tickSpacing, tickOffset;
 
     protected TimeConfigRegistrar timeRegistrar;
+
+    private static final long SECOND = 1000000;
+    private static final long MINUTE = 60*SECOND;
+    private static final long HOUR = 60*MINUTE;
+    private static final long DAY = 24*HOUR;
+
 }// TimeScaleCalc
