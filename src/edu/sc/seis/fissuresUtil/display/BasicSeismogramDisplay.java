@@ -63,6 +63,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	timeRegistrar.addTimeSyncListener(this);
 	ampRegistrar.addAmpSyncListener(this);
 	addSeismogram(seis);
+	ampRegistrar.visibleAmpCalc(timeRegistrar);
 	setLayout(new OverlayLayout(this));
 	addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -169,7 +170,10 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    selections.add(newSelection);
     }
     
-    public void removeSelection(Selection oldSelection){ selections.remove(oldSelection); }
+    public void removeSelection(Selection oldSelection){ 
+	selections.remove(oldSelection); 
+	repaint();
+    }
 
     public Dimension getDisplaySize(){ return displaySize; }
 
