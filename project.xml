@@ -65,11 +65,15 @@ useful things already done.</description>
   <dependencies>
     <dependency>
       <id>FissuresImpl</id>
-      <version>1.0</version>
+      <version>1.1</version>
     </dependency>
     <dependency>
       <id>FissuresIDL</id>
       <version>1.0</version>
+    </dependency>
+    <dependency>
+      <id>Codec</id>
+      <version>1.0BetaNov22</version>
     </dependency>
     <dependency>
       <id>TauP</id>
@@ -82,9 +86,16 @@ useful things already done.</description>
       <url>http://junit.org/</url>
     </dependency>
     <dependency>
+      <id>xerces</id>
+      <version>2.0.2</version>
+    </dependency>
+    <dependency>
       <id>xml-apis</id>
-      <version>2.0</version>
-      <jar>xml-apis-2.0.2.jar</jar>
+      <version>2.0.2</version>
+    </dependency>
+    <dependency>
+      <id>xalan</id>
+      <version>2.3.1</version>
     </dependency>
     <dependency>
       <id>log4j</id>
