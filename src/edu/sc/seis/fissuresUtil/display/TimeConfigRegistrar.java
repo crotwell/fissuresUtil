@@ -74,7 +74,14 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     }
 
     public boolean contains(DataSetSeismogram seis){
-	return seismos.containsKey(seis);
+	if(seismos.containsKey(seis)){
+	    return true;
+	}
+	if(timeConfig.contains(seis)){
+	    seismos.put(seis, timeConfig.getTimeRange(seis));
+	    return true;
+	}
+	return false;
     }
 
     public MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){
