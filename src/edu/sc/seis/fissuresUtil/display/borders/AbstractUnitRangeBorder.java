@@ -9,7 +9,7 @@ public abstract class AbstractUnitRangeBorder extends Border implements TitlePro
     public AbstractUnitRangeBorder(int side, int order){
         super(side, order);
         add((TitleProvider)this);
-        setPreferredSize(new Dimension(80, 50));
+        setPreferredSize(new Dimension(width, 50));
     }
 
     protected List createFormats() {
@@ -20,8 +20,13 @@ public abstract class AbstractUnitRangeBorder extends Border implements TitlePro
         }
         return formats;
     }
+    public int getWidth(){
+        return width;
+    }
 
     public abstract String getTitle();
+    
+    private int width=80;
 
     private class UnitRangeFormatter extends BorderFormat{
 
