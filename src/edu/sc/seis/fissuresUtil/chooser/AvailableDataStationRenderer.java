@@ -390,49 +390,6 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         }
     }
 
-    class StationChecker implements Runnable {
-        boolean quitThread = false;
-
-        public void run() {
-            Station station;
-            while ( ! quitThread) {
-                station = null;
-                try {
-                    station = getToCheck();
-                    Channel[] chans = null;
-                    NetworkAccess net =
-                        channelChooser.getNetworkAccess(station.get_id().network_id);
-                    if ( net != null) {
-                        chans =
-                            net.retrieve_for_station(station.get_id());
-                    }
-
-                    RequestFilter[] request = createFakeRequest(chans);
-
-                    if (request.length == 0) {
-                        logger.warn("No channels active now for "+
-                                        StationIdUtil.toString(station.get_id()));
-                        finishedCheck(station, false);
-                    }
-                    if (dc.getDataCenter(net) != null) {
-                        if (dc.available_data(request).length != 0) {
-                            finishedCheck(station, true);
-                        } else {
-                            finishedCheck(station, false);
-                        }
-                    } else {
-                        finishedError(station);
-                    }
-                } catch (Throwable e) {
-                    logger.warn("Trouble checkng on the available data for "+
-                                    StationIdUtil.toString(station.get_id()), e);
-                    finishedError(station, e);
-                }
-            }
-        }
-
-    }
-
     private static Color STATION_AVAILABLE = Color.BLUE;
 
     private static Color STATION_UNAVAILABLE = Color.GRAY;
