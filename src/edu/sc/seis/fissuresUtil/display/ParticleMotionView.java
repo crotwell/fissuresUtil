@@ -41,20 +41,17 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.FilteredDataSetSeismogram;
 
 /**
- * ParticleMotionView.java
- * 
- * 
- * Created: Tue Jun 11 15:14:17 2002
+ * ParticleMotionView.java Created: Tue Jun 11 15:14:17 2002
  * 
  * @author <a href="mailto:">Srinivasa Telukutla </a>
  * @version
  */
-
 public class ParticleMotionView extends JComponent {
 
     public ParticleMotionView(ParticleMotionDisplay particleMotionDisplay) {
         this.pmd = particleMotionDisplay;
         this.addComponentListener(new ComponentAdapter() {
+
             public void componentResized(ComponentEvent e) {
                 resize();
             }
@@ -72,8 +69,8 @@ public class ParticleMotionView extends JComponent {
 
     public void add(NamedFilter filter) {
         Iterator it = parMos.iterator();
-        while (it.hasNext()) {
-            ParticleMotion cur = (ParticleMotion) it.next();
+        while(it.hasNext()) {
+            ParticleMotion cur = (ParticleMotion)it.next();
             cur.add(filter, getColor(cur.getTimeConfig(), filter));
         }
         repaint();
@@ -81,40 +78,40 @@ public class ParticleMotionView extends JComponent {
 
     public void remove(NamedFilter filter) {
         Iterator it = parMos.iterator();
-        while (it.hasNext()) {
-            ((ParticleMotion) it.next()).remove(filter);
+        while(it.hasNext()) {
+            ((ParticleMotion)it.next()).remove(filter);
         }
         repaint();
     }
 
     public void setOriginal(boolean visible) {
         Iterator it = parMos.iterator();
-        while (it.hasNext()) {
-            ((ParticleMotion) it.next()).setVisible(visible);
+        while(it.hasNext()) {
+            ((ParticleMotion)it.next()).setVisible(visible);
         }
     }
 
     public synchronized void paintComponent(Graphics g) {
-        if (displayKey == null) return;
-        Graphics2D graphics2D = (Graphics2D) g;
+        if(displayKey == null) return;
+        Graphics2D graphics2D = (Graphics2D)g;
         //first draw the azimuth if one of the display is horizontal plane
-        for (int counter = 0; counter < parMos.size(); counter++) {
-            ParticleMotion particleMotion = (ParticleMotion) parMos.get(counter);
-            if (!displayKey.equals(particleMotion.key)) continue;
-            if (particleMotion.isHorizontalPlane()) {
+        for(int counter = 0; counter < parMos.size(); counter++) {
+            ParticleMotion particleMotion = (ParticleMotion)parMos.get(counter);
+            if(!displayKey.equals(particleMotion.key)) continue;
+            if(particleMotion.isHorizontalPlane()) {
                 drawAzimuth(particleMotion, graphics2D);
                 break;
             }
         }
-        for (int counter = 0; counter < parMos.size(); counter++) {
-            ParticleMotion particleMotion = (ParticleMotion) parMos.get(counter);
-            if (!displayKey.equals(particleMotion.key)) continue;
+        for(int counter = 0; counter < parMos.size(); counter++) {
+            ParticleMotion particleMotion = (ParticleMotion)parMos.get(counter);
+            if(!displayKey.equals(particleMotion.key)) continue;
             particleMotion.draw(g, getSize());
         }
     }
 
     public void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
-        if (!particleMotion.isHorizontalPlane()) return;
+        if(!particleMotion.isHorizontalPlane()) return;
         Shape sector = getSectorShape();
         graphics2D.setPaint(Color.LIGHT_GRAY);
         graphics2D.fill(sector);
@@ -132,22 +129,24 @@ public class ParticleMotionView extends JComponent {
         Insets insets = getInsets();
         double fmin = super.getSize().getWidth() - insets.left - insets.right;
         double fmax = super.getSize().getHeight() - insets.top - insets.bottom;
-        int originx = (int) (fmin / 2);
-        int originy = (int) (fmax / 2);
+        int originx = (int)(fmin / 2);
+        int originy = (int)(fmax / 2);
         int newx = originx;
         int newy = originy;
         Iterator it = azimuths.keySet().iterator();
         g2D.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
-        while (it.hasNext()) {
-            Double key = (Double) it.next();
-            Color parMoCo = (Color) azimuths.get(key);
-            if (parMoCo != null) {
-                g2D.setColor(new Color(parMoCo.getRed(), parMoCo.getGreen(),
-                        parMoCo.getBlue(), 96));
+        while(it.hasNext()) {
+            Double key = (Double)it.next();
+            Color parMoCo = (Color)azimuths.get(key);
+            if(parMoCo != null) {
+                g2D.setColor(new Color(parMoCo.getRed(),
+                                       parMoCo.getGreen(),
+                                       parMoCo.getBlue(),
+                                       96));
                 GeneralPath generalPath = new GeneralPath();
                 double degrees = key.doubleValue();
-                int x = (int) (fmin * Math.cos(Math.toRadians(degrees)));
-                int y = (int) (fmax * Math.sin(Math.toRadians(degrees)));
+                int x = (int)(fmin * Math.cos(Math.toRadians(degrees)));
+                int y = (int)(fmax * Math.sin(Math.toRadians(degrees)));
                 generalPath.moveTo(newx + x, newy - y);
                 generalPath.lineTo(newx - x, newy + y);
                 g2D.draw(generalPath);
@@ -159,56 +158,62 @@ public class ParticleMotionView extends JComponent {
         Insets insets = getInsets();
         double fmin = super.getSize().getWidth() - insets.left - insets.right;
         double fmax = super.getSize().getHeight() - insets.top - insets.bottom;
-        int originx = (int) (fmin / 2);
-        int originy = (int) (fmax / 2);
+        int originx = (int)(fmin / 2);
+        int originy = (int)(fmax / 2);
         int newx = originx;
         int newy = originy;
         GeneralPath generalPath = new GeneralPath();
         int size = sectors.size();
-        for (int counter = 0; counter < size; counter++) {
-            Point2D.Double point = (Point2D.Double) sectors.get(counter);
+        for(int counter = 0; counter < size; counter++) {
+            Point2D.Double point = (Point2D.Double)sectors.get(counter);
             double degreeone = point.getX();
             double degreetwo = point.getY();
-            int xone = (int) (fmin * Math.cos(Math.toRadians(degreeone)));
-            int yone = (int) (fmax * Math.sin(Math.toRadians(degreeone)));
+            int xone = (int)(fmin * Math.cos(Math.toRadians(degreeone)));
+            int yone = (int)(fmax * Math.sin(Math.toRadians(degreeone)));
             generalPath.moveTo(newx + xone, newy - yone);
             generalPath.lineTo(newx - xone, newy + yone);
-            int xtwo = (int) (fmin * Math.cos(Math.toRadians(degreetwo)));
-            int ytwo = (int) (fmax * Math.sin(Math.toRadians(degreetwo)));
+            int xtwo = (int)(fmin * Math.cos(Math.toRadians(degreetwo)));
+            int ytwo = (int)(fmax * Math.sin(Math.toRadians(degreetwo)));
             generalPath.lineTo(newx - xtwo, newy + ytwo);
             generalPath.lineTo(newx + xtwo, newy - ytwo);
             generalPath.lineTo(newx + xone, newy - yone);
         }
-        return (Shape) generalPath;
+        return (Shape)generalPath;
     }
 
     public synchronized void add(DataSetSeismogram hseis,
-            DataSetSeismogram vseis, TimeConfig tc, Color color, String key,
-            boolean horizPlane) {
-        ParticleMotion newParMo = new ParticleMotion(hseis, vseis, tc, color,
-                key, horizPlane);
+                                 DataSetSeismogram vseis,
+                                 TimeConfig tc,
+                                 Color color,
+                                 String key,
+                                 boolean horizPlane) {
+        ParticleMotion newParMo = new ParticleMotion(hseis,
+                                                     vseis,
+                                                     tc,
+                                                     color,
+                                                     key,
+                                                     horizPlane);
         parMos.add(newParMo);
         Iterator it = SeismogramDisplay.activeFilters.iterator();
-        while (it.hasNext()) {
-            NamedFilter cur = (NamedFilter) it.next();
+        while(it.hasNext()) {
+            NamedFilter cur = (NamedFilter)it.next();
             color = getColor(tc, cur);
             newParMo.add(cur, color);
         }
-        if (statusTable != null) statusTable.add(newParMo);
+        if(statusTable != null) statusTable.add(newParMo);
         pmd.resize();
     }
 
     private Color getColor(TimeConfig tc, NamedFilter filter) {
-        Map filterToColor = (Map) timeConfigToFilterColor.get(tc);
-        if (filterToColor == null) {
+        Map filterToColor = (Map)timeConfigToFilterColor.get(tc);
+        if(filterToColor == null) {
             filterToColor = new HashMap();
             timeConfigToFilterColor.put(tc, filterToColor);
         }
-        if (!filterToColor.containsKey(filter))
-                filterToColor.put(filter,
-                        SeismogramDisplay.COLORS[filterCount++
-                                % SeismogramDisplay.COLORS.length]);
-        return (Color) filterToColor.get(filter);
+        if(!filterToColor.containsKey(filter)) filterToColor.put(filter,
+                                                                 SeismogramDisplay.COLORS[filterCount++
+                                                                         % SeismogramDisplay.COLORS.length]);
+        return (Color)filterToColor.get(filter);
     }
 
     private Map timeConfigToFilterColor = new HashMap();
@@ -228,7 +233,7 @@ public class ParticleMotionView extends JComponent {
      *            a <code>Dimension</code> value
      */
     public void setSize(Dimension d) {
-        if (d.width < d.height) {
+        if(d.width < d.height) {
             super.setSize(new Dimension(d.width, d.width));
         } else {
             super.setSize(new Dimension(d.height, d.height));
@@ -237,12 +242,11 @@ public class ParticleMotionView extends JComponent {
 
     public void setDisplayKey(String key) {
         displayKey = key;
-        pmd.setActiveAmpConfig((AmpConfig) keysToAmpConfigs.get(displayKey));
+        pmd.setActiveAmpConfig((AmpConfig)keysToAmpConfigs.get(displayKey));
     }
 
     public JTable getStatusTable() {
-        if (statusTable == null)
-                statusTable = new ParticleMotionStatusTable(parMos);
+        if(statusTable == null) statusTable = new ParticleMotionStatusTable(parMos);
         return statusTable;
     }
 
@@ -272,28 +276,29 @@ public class ParticleMotionView extends JComponent {
 
     private class ParticleMotion implements TimeListener, AmpListener,
             SeismogramContainerListener {
+
         public ParticleMotion(DataSetSeismogram hSeis, DataSetSeismogram vSeis,
                 TimeConfig tc, Color color, String key, boolean horizPlane) {
-
-            if (hSeis instanceof FilteredDataSetSeismogram) {
+            if(hSeis instanceof FilteredDataSetSeismogram) {
                 name = hSeis.getName();
             } else {
                 name = hSeis.getRequestFilter().channel_id.station_code;
             }
             this.color = color;
-            hSeis = (DataSetSeismogram) hSeis.clone();
+            hSeis = (DataSetSeismogram)hSeis.clone();
             hSeis.setName(hSeis.getName() + i++);
-            vSeis = (DataSetSeismogram) vSeis.clone();
+            vSeis = (DataSetSeismogram)vSeis.clone();
             vSeis.setName(vSeis.getName() + i++);
-            horiz = new SeismogramContainer(this, hSeis);
-            vert = new SeismogramContainer(this, vSeis);
+            horiz = SeismogramContainerFactory.create(this, hSeis);
+            vert = SeismogramContainerFactory.create(this, vSeis);
             this.tc = tc;
             this.key = key;
             setUpConfigs();
             this.horizPlane = horizPlane;
-            if (horizPlane) {
+            if(horizPlane) {
                 pmd.displayBackAzimuth(hSeis.getDataSet(),
-                        hSeis.getRequestFilter().channel_id, color);
+                                       hSeis.getRequestFilter().channel_id,
+                                       color);
             }
             //forces a time event through the amp config to make everything
             // look
@@ -303,14 +308,14 @@ public class ParticleMotionView extends JComponent {
         }
 
         private void setUpConfigs() {
-            DataSetSeismogram[] seis = { horiz.getDataSetSeismogram(),
-                    vert.getDataSetSeismogram() };
-            AmpConfig ac = (AmpConfig) keysToAmpConfigs.get(key);
-            if (ac == null) {
+            DataSetSeismogram[] seis = {horiz.getDataSetSeismogram(),
+                                        vert.getDataSetSeismogram()};
+            AmpConfig ac = (AmpConfig)keysToAmpConfigs.get(key);
+            if(ac == null) {
                 ac = new RMeanAmpConfig();
                 keysToAmpConfigs.put(key, ac);
             }
-            if (!tc.contains(seis[0])) {
+            if(!tc.contains(seis[0])) {
                 tc.add(seis);
             }
             tc.addListener(ac);
@@ -320,70 +325,74 @@ public class ParticleMotionView extends JComponent {
         }
 
         private void tearDownConfigs() {
-            DataSetSeismogram[] seis = { horiz.getDataSetSeismogram(),
-                    vert.getDataSetSeismogram() };
-            AmpConfig ac = (AmpConfig) keysToAmpConfigs.get(key);
+            DataSetSeismogram[] seis = {horiz.getDataSetSeismogram(),
+                                        vert.getDataSetSeismogram()};
+            AmpConfig ac = (AmpConfig)keysToAmpConfigs.get(key);
             tc.removeListener(this);
-            if (ac != null) {
+            if(ac != null) {
                 ac.remove(seis);
                 ac.removeListener(this);
             }
         }
 
         public void draw(Graphics g, Dimension size) {
-            if (visible) {
-                Graphics2D g2D = (Graphics2D) g;
-                if (horiz.getIterator(tr).numPointsLeft() <= 0
+            if(visible) {
+                Graphics2D g2D = (Graphics2D)g;
+                if(horiz.getIterator(tr).numPointsLeft() <= 0
                         || vert.getIterator(tr).numPointsLeft() <= 0) { return; }
                 g2D.setColor(color);
                 g2D.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
-                GeneralPath generalPath = new GeneralPath(
-                        GeneralPath.WIND_EVEN_ODD);
+                GeneralPath generalPath = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
                 boolean prevPointBad = true;//first point needs to be a move to
                 SeismogramIterator hIt = horiz.getIterator(tr);
                 UnitImpl horizUnit = hIt.getUnit();
-                UnitRangeImpl horizRange = ae.getAmp(
-                        horiz.getDataSetSeismogram()).convertTo(horizUnit);
+                UnitRangeImpl horizRange = ae.getAmp(horiz.getDataSetSeismogram())
+                        .convertTo(horizUnit);
                 double hMin = horizRange.getMinValue();
                 double hMax = horizRange.getMaxValue();
                 SeismogramIterator vIt = vert.getIterator(tr);
                 UnitImpl vertUnit = vIt.getUnit();
-                UnitRangeImpl vertRange = ae.getAmp(vert.getDataSetSeismogram()).convertTo(
-                        vertUnit);
+                UnitRangeImpl vertRange = ae.getAmp(vert.getDataSetSeismogram())
+                        .convertTo(vertUnit);
                 double vMin = vertRange.getMinValue();
                 double vMax = vertRange.getMaxValue();
-                while (hIt.hasNext() && vIt.hasNext()) {
+                while(hIt.hasNext() && vIt.hasNext()) {
                     double hVal = getVal(hIt, hMin, hMax, size.height);
                     double vVal = getVal(vIt, vMin, vMax, size.height);
-                    if (hVal == Integer.MAX_VALUE || vVal == Integer.MAX_VALUE) {
+                    if(hVal == Integer.MAX_VALUE || vVal == Integer.MAX_VALUE) {
                         prevPointBad = true;
                     } else {
                         vVal *= -1;
                         vVal += size.height;
-                        if (prevPointBad) {
-                            generalPath.moveTo((int) hVal, (int) vVal);
+                        if(prevPointBad) {
+                            generalPath.moveTo((int)hVal, (int)vVal);
                             prevPointBad = false;
                         } else {
-                            generalPath.lineTo((int) hVal, (int) vVal);
+                            generalPath.lineTo((int)hVal, (int)vVal);
                         }
                     }
                 }
                 g2D.draw(generalPath);
             }
             Iterator it = filterToParMo.keySet().iterator();
-            while (it.hasNext()) {
-                ((ParticleMotion) filterToParMo.get(it.next())).draw(g, size);
+            while(it.hasNext()) {
+                ((ParticleMotion)filterToParMo.get(it.next())).draw(g, size);
             }
         }
 
-        private double getVal(SeismogramIterator it, double minAmp,
-                double maxAmp, int size) {
-            double itVal = ((QuantityImpl) it.next()).getValue();
-            if (Double.isNaN(itVal)) {//Gap in trace
+        private double getVal(SeismogramIterator it,
+                              double minAmp,
+                              double maxAmp,
+                              int size) {
+            double itVal = ((QuantityImpl)it.next()).getValue();
+            if(Double.isNaN(itVal)) {//Gap in trace
                 itVal = Integer.MAX_VALUE;
             } else {
-                itVal = Math.round(SimplePlotUtil.linearInterp(minAmp, 0,
-                        maxAmp, size, itVal));
+                itVal = Math.round(SimplePlotUtil.linearInterp(minAmp,
+                                                               0,
+                                                               maxAmp,
+                                                               size,
+                                                               itVal));
             }
             return itVal;
         }
@@ -407,41 +416,45 @@ public class ParticleMotionView extends JComponent {
         }
 
         public void add(NamedFilter filter, Color color) {
-            if (!filterToParMo.containsKey(filter)) {
-                filterToParMo.put(filter, new ParticleMotion(
-                        FilteredDataSetSeismogram.getFiltered(
-                                horiz.getDataSetSeismogram(), filter),
-                        FilteredDataSetSeismogram.getFiltered(
-                                vert.getDataSetSeismogram(), filter), tc,
-                        color, key, horizPlane));
-                if (statusTable != null)
-                        statusTable.setComponent(this, generateLabel());
+            if(!filterToParMo.containsKey(filter)) {
+                filterToParMo.put(filter,
+                                  new ParticleMotion(FilteredDataSetSeismogram.getFiltered(horiz.getDataSetSeismogram(),
+                                                                                           filter),
+                                                     FilteredDataSetSeismogram.getFiltered(vert.getDataSetSeismogram(),
+                                                                                           filter),
+                                                     tc,
+                                                     color,
+                                                     key,
+                                                     horizPlane));
+                if(statusTable != null) statusTable.setComponent(this,
+                                                                 generateLabel());
             }
         }
 
         private JComponent generateLabel() {
-            JPanel labelPanel = new JPanel(new GridLayout(
-                    filterToParMo.keySet().size() + 1, 1));
+            JPanel labelPanel = new JPanel(new GridLayout(filterToParMo.keySet()
+                                                                  .size() + 1,
+                                                          1));
             labelPanel.add(ParticleMotionView.generateLabel(this));
             Iterator it = filterToParMo.keySet().iterator();
-            while (it.hasNext()) {
-                labelPanel.add(ParticleMotionView.generateLabel((ParticleMotion) filterToParMo.get(it.next())));
+            while(it.hasNext()) {
+                labelPanel.add(ParticleMotionView.generateLabel((ParticleMotion)filterToParMo.get(it.next())));
             }
             return labelPanel;
         }
 
         public void remove(NamedFilter filter) {
-            if (filterToParMo.containsKey(filter)) {
-                ((ParticleMotion) filterToParMo.get(filter)).tearDownConfigs();
+            if(filterToParMo.containsKey(filter)) {
+                ((ParticleMotion)filterToParMo.get(filter)).tearDownConfigs();
                 filterToParMo.remove(filter);
-                if (statusTable != null)
-                        statusTable.setComponent(this, generateLabel());
+                if(statusTable != null) statusTable.setComponent(this,
+                                                                 generateLabel());
             }
         }
 
         public void setVisible(boolean visible) {
             this.visible = visible;
-            if (visible) {
+            if(visible) {
                 setUpConfigs();
             } else {
                 tearDownConfigs();
@@ -492,25 +505,29 @@ public class ParticleMotionView extends JComponent {
         public ParticleMotionStatusTable(List parMos) {
             setModel(new ViewTableModel());
             setDefaultRenderer(String.class, new TableCellRenderer() {
+
                 public Component getTableCellRendererComponent(JTable table,
-                        Object value, boolean isSelected, boolean hasFocus,
-                        int row, int column) {
-                    return ((CellStruct) cellStructs.get(row)).comp;
+                                                               Object value,
+                                                               boolean isSelected,
+                                                               boolean hasFocus,
+                                                               int row,
+                                                               int column) {
+                    return ((CellStruct)cellStructs.get(row)).comp;
                 }
             });
             setColumnWidths();
             Iterator it = parMos.iterator();
-            while (it.hasNext())
-                add((ParticleMotion) it.next());
+            while(it.hasNext())
+                add((ParticleMotion)it.next());
         }
 
         public void setComponent(ParticleMotion parMo, JComponent comp) {
-            synchronized (cellStructs) {
+            synchronized(cellStructs) {
                 TimeConfig tc = parMo.getTimeConfig();
                 Iterator it = cellStructs.iterator();
-                while (it.hasNext()) {
-                    CellStruct cur = (CellStruct) it.next();
-                    if (cur.tc.equals(tc)) {
+                while(it.hasNext()) {
+                    CellStruct cur = (CellStruct)it.next();
+                    if(cur.tc.equals(tc)) {
                         cur.comp = comp;
                         rowHeight = comp.getPreferredSize().height;
                         revalidate();
@@ -521,12 +538,12 @@ public class ParticleMotionView extends JComponent {
         }
 
         public void add(ParticleMotion parMo) {
-            synchronized (cellStructs) {
+            synchronized(cellStructs) {
                 TimeConfig tc = parMo.getTimeConfig();
                 Iterator it = cellStructs.iterator();
-                while (it.hasNext()) {
-                    CellStruct cur = (CellStruct) it.next();
-                    if (cur.tc.equals(tc)) {
+                while(it.hasNext()) {
+                    CellStruct cur = (CellStruct)it.next();
+                    if(cur.tc.equals(tc)) {
                         setOrientation(parMo.key, cur);
                         return;
                     }
@@ -541,29 +558,25 @@ public class ParticleMotionView extends JComponent {
         }
 
         private void setOrientation(String key, CellStruct cell) {
-            if (key.equals(DisplayUtils.NORTHEAST))
-                cell.orientations[0] = Boolean.TRUE;
-            else if (key.equals(DisplayUtils.UPNORTH))
-                cell.orientations[1] = Boolean.TRUE;
-            else
-                cell.orientations[2] = Boolean.TRUE;
+            if(key.equals(DisplayUtils.NORTHEAST)) cell.orientations[0] = Boolean.TRUE;
+            else if(key.equals(DisplayUtils.UPNORTH)) cell.orientations[1] = Boolean.TRUE;
+            else cell.orientations[2] = Boolean.TRUE;
         }
 
         private void setColumnWidths() {
             int columnCount = getColumnCount();
-            for (int counter = 0; counter < columnCount; counter++) {
+            for(int counter = 0; counter < columnCount; counter++) {
                 String columnName = getColumnName(counter);
                 int width = 50;
-                if (columnName.equals("Trace"))
-                    width = 100;
-                else
-                    width = 20;
+                if(columnName.equals("Trace")) width = 100;
+                else width = 20;
                 getColumnModel().getColumn(counter).setPreferredWidth(width);
                 getColumnModel().getColumn(counter).setMinWidth(width);
             }
         }
 
         private class ViewTableModel extends AbstractTableModel {
+
             public int getColumnCount() {
                 return keys.length + 1;
             }
@@ -573,44 +586,39 @@ public class ParticleMotionView extends JComponent {
             }
 
             public String getColumnName(int columnIndex) {
-                if (columnIndex > 0)
-                    return keys[columnIndex - 1];
-                else
-                    return "Trace";
+                if(columnIndex > 0) return keys[columnIndex - 1];
+                else return "Trace";
             }
 
             public Class getColumnClass(int columnIndex) {
-                if (columnIndex == 0)
-                    return String.class;
-                else
-                    return Boolean.class;
+                if(columnIndex == 0) return String.class;
+                else return Boolean.class;
             }
 
             public Object getValueAt(int rowIndex, int columnIndex) {
-                synchronized (cellStructs) {
-                    if (cellStructs.size() > rowIndex)
-                            if (columnIndex == 0)
-                                return ((CellStruct) cellStructs.get(rowIndex)).name;
-                            else
-                                return ((CellStruct) cellStructs.get(rowIndex)).orientations[columnIndex - 1];
+                synchronized(cellStructs) {
+                    if(cellStructs.size() > rowIndex) if(columnIndex == 0) return ((CellStruct)cellStructs.get(rowIndex)).name;
+                    else return ((CellStruct)cellStructs.get(rowIndex)).orientations[columnIndex - 1];
                 }
                 return null;
             }
 
-            private String[] keys = { DisplayUtils.NORTHEAST,
-                    DisplayUtils.UPNORTH, DisplayUtils.UPEAST };
-
+            private String[] keys = {DisplayUtils.NORTHEAST,
+                                     DisplayUtils.UPNORTH,
+                                     DisplayUtils.UPEAST};
         }
 
         private class CellStruct {
+
             public CellStruct(TimeConfig tc) {
                 this.tc = tc;
             }
 
             public TimeConfig tc;
 
-            public Boolean[] orientations = { Boolean.FALSE, Boolean.FALSE,
-                    Boolean.FALSE };
+            public Boolean[] orientations = {Boolean.FALSE,
+                                             Boolean.FALSE,
+                                             Boolean.FALSE};
 
             public JComponent comp;
 
