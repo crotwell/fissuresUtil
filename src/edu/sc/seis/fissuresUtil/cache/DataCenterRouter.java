@@ -30,6 +30,16 @@ public class DataCenterRouter implements DataCenterOperations {
 	
     } // DataCenterRouter constructor
 
+    public void addDataCenter(DataCenterOperations dc) {
+	unmatchedDCList.add(dc);
+    }
+
+    public void addDataCenter(NetworkAccess[] net, DataCenterOperations dc) {
+	for ( int i=0; i<net.length; i++) {
+	    addDataCenter(net[i].get_attributes().get_id(), dc);
+	} // end of for ()
+    }
+
     public void addDataCenter(NetworkAccess net, DataCenterOperations dc) {
 	addDataCenter(net.get_attributes().get_id(), dc);
     }
@@ -103,7 +113,15 @@ public class DataCenterRouter implements DataCenterOperations {
 		for ( int i=0; i<tempSeis.length; i++) {
 		    out.add(tempSeis[i]);
 		} // end of for ()
+
+		if ( tempSeis.length != 0) {
+		    // got some data, so finish, don't make same request to 
+		    // another datacenter
+		    break;
+		} // end of if ()
+		
 	    } // end of while ()
+
 	} // end of while ()
 
 	return (LocalSeismogramImpl[])out.toArray(new LocalSeismogramImpl[0]);
@@ -144,6 +162,8 @@ public class DataCenterRouter implements DataCenterOperations {
 		// unknow network
 		logger.debug("Unknown network, no datacenter configured for "+
 			     ChannelIdUtil.toString(filters[i].channel_id));
+		datacenters = new LinkedList();
+		datacenters.addAll(unmatchedDCList);
 		continue;
 	    } // end of if ()
 	    
@@ -160,6 +180,8 @@ public class DataCenterRouter implements DataCenterOperations {
     }
 
     protected HashMap netToDCMap = new HashMap();
+
+    protected List unmatchedDCList = new LinkedList();
 
     static Category logger = Category.getInstance(DataCenterRouter.class.getName());
 } // DataCenterRouter
