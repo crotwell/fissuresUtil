@@ -78,8 +78,8 @@ public  class PlottableDisplay extends JComponent {
     }
 
     public void setOffset(int offset) {
-	plotoffset = offset;
-	configChanged();
+        plotoffset = offset;
+        configChanged();
     }
 
     public void setEvents(EventAccess[] eventAccess) {
@@ -143,7 +143,10 @@ public  class PlottableDisplay extends JComponent {
 	//	g.fillRect(beginx, beginy, (endx - beginx), (endy - beginy));
 	g.drawImage(image, 0, 0, this);
 	//System.out.println("Repaiting high light region");
-	drawHighlightRegion(g);
+	//drawHighlightRegion(g);
+    if(plottableSelection != null) {
+        plottableSelection.draw((Graphics2D)g, null, null, null);
+    }
 	addEventInfo(this.eventAccess, g);
     }
 
@@ -165,7 +168,10 @@ public  class PlottableDisplay extends JComponent {
 		      plot_x/plotrows, 
 		      plot_y +(plotoffset * (plotrows-1)));
 	drawPlottableNew(g, arrayplottable);
-	drawHighlightRegion(g);
+	//drawHighlightRegion(g);
+    if(plottableSelection != null) {
+        plottableSelection.draw((Graphics2D)g, null, null, null);
+    }
     }
 
 
@@ -405,9 +411,7 @@ public  class PlottableDisplay extends JComponent {
         return offImg;
     }
 
-    /** Solely for use to d3etermine if drawing thread is still current. */
-   private Graphics2D currentImageGraphics = null;
-
+  
     public void showImage( Image image){
 
 	// Display the image.
@@ -497,21 +501,27 @@ public  class PlottableDisplay extends JComponent {
 
     public void setSelectedRectangle(int beginx, int beginy, int endx, int endy) {
        
-	this.beginx = beginx;
-	this.beginy = beginy;
-	this.endx = endx;
-	this.endy = endy;
-	
-	//System.out.println("beginx = "+beginx+" endx = "+endx);
-	//System.out.println("beginy = "+beginy+" endy = "+endy);
-	//System.out.println("NOW call repaint");
-	//	configChanged();
-	
-	repaint();
+        this.beginx = beginx;
+        this.beginy = beginy;
+        this.endx = endx;
+        this.endy = endy;
+        if(plottableSelection == null) {
+            plottableSelection = new PlottableSelection(this);
+            plottableSelection.setSelectedRectangle(beginx, beginy, endx, endy);
+            repaint();
+        }//else if(plottableSelection.isSelectionSelected(endx, endy)) 
+        {
+            plottableSelection.setSelectedRectangle(beginx, beginy, endx, endy);
+            repaint();
+        }
+       
     }
     
     private int[] getSelectedRows(int beginy, int endy) {
+        
         if(beginy == -1 || endy == -1) return new int[0];
+        // beginy = (int)(beginy * this.ampScalePercent);
+        //endy = (int)(endy * this.ampScalePercent);
         ArrayList arrayList = new ArrayList();
         int selectionOffset = plotoffset / 2;
         for(int counter = 0; counter < plotrows; counter++) {
@@ -771,7 +781,10 @@ public  class PlottableDisplay extends JComponent {
 	newG.dispose();
     }
 
+    private PlottableSelection plottableSelection = null;
 
+    /** Solely for use to d3etermine if drawing thread is still current. */
+    protected Graphics2D currentImageGraphics = null;
     
     private EventAccess[] eventAccess = new EventAccess[0];
 
@@ -783,7 +796,7 @@ public  class PlottableDisplay extends JComponent {
     Shape plottableShape = null;
 
     /* Defaults for plottable */
-    public int plotrows=12;
+    public  int plotrows=12;
     public int sizerow;
     public int plotoffset=60; 
     public String plottitle="true";  
@@ -807,7 +820,7 @@ public  class PlottableDisplay extends JComponent {
 
     int endx = -1;
     int endy  = -1;
-    private Date date;
+    protected Date date;
 
     }/*close class*/
 
