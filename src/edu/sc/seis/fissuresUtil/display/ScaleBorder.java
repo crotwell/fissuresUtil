@@ -95,38 +95,39 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                                         fontHeight + 2,
                                         top + (height - top - bottom)/2-
                                             fm.getLeading());
-                    } // end of if ()
-                    for (int i=0; i<numTicks; i++) {
-                        pixelLoc = height - leftScaleMap.getPixelLocation(i) - bottom;
-                        if (leftScaleMap.isMajorTick(i)) {
-                            copy.draw(new Line2D.Float(left,
-                                                       pixelLoc,
-                                                       left - majorTickLength,
-                                                       pixelLoc));
-                            String label = leftScaleMap.getLabel(i);
-                            if (label != null && label.length() != 0) {
-                                Rectangle2D stringBounds = fm.getStringBounds(label, copy);
-                                copy.drawString(label,
-                                                    (int)(left - majorTickLength - stringBounds.getWidth()) - 5,
-                                                pixelLoc + (int)(stringBounds.getHeight()/2));
+                    }else{ // end of if ()
+                        for (int i=0; i<numTicks; i++) {
+                            pixelLoc = height - leftScaleMap.getPixelLocation(i) - bottom;
+                            if (leftScaleMap.isMajorTick(i)) {
+                                copy.draw(new Line2D.Float(left,
+                                                           pixelLoc,
+                                                           left - majorTickLength,
+                                                           pixelLoc));
+                                String label = leftScaleMap.getLabel(i);
+                                if (label != null && label.length() != 0) {
+                                    Rectangle2D stringBounds = fm.getStringBounds(label, copy);
+                                    copy.drawString(label,
+                                                        (int)(left - majorTickLength - stringBounds.getWidth()) - 5,
+                                                    pixelLoc + (int)(stringBounds.getHeight()/2));
+                                }
+                            } else {
+                                copy.draw(new Line2D.Float(left - minorTickLength,
+                                                           pixelLoc,
+                                                           left,
+                                                           pixelLoc));
                             }
-                        } else {
-                            copy.draw(new Line2D.Float(left - minorTickLength,
-                                                       pixelLoc,
-                                                       left,
-                                                       pixelLoc));
                         }
+                        if(leftAxisLabelBounds == null){
+                            leftAxisLabelBounds = copy.getFontMetrics().getStringBounds(leftScaleMap.getAxisLabel(), copy);
+                        }
+                        double yTranslate = insets.top + (height - insets.top - insets.bottom + leftAxisLabelBounds.getWidth())/2;
+                        double xTranslate = leftAxisLabelBounds.getHeight();
+                        copy.translate(xTranslate, yTranslate);
+                        copy.rotate(-Math.PI/2);
+                        copy.drawString(leftScaleMap.getAxisLabel(), 0, 0);
+                        copy.rotate(Math.PI/2);
+                        copy.translate(-xTranslate, -yTranslate);
                     }
-                    if(leftAxisLabelBounds == null){
-                        leftAxisLabelBounds = copy.getFontMetrics().getStringBounds(leftScaleMap.getAxisLabel(), copy);
-                    }
-                    double yTranslate = insets.top + (height - insets.top - insets.bottom + leftAxisLabelBounds.getWidth())/2;
-                    double xTranslate = leftAxisLabelBounds.getHeight();
-                    copy.translate(xTranslate, yTranslate);
-                    copy.rotate(-Math.PI/2);
-                    copy.drawString(leftScaleMap.getAxisLabel(), 0, 0);
-                    copy.rotate(Math.PI/2);
-                    copy.translate(-xTranslate, -yTranslate);
                 }
 
                 // bottom
