@@ -54,6 +54,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
         Iterator seisIt = iterator(DrawableSeismogram.class);
         while(seisIt.hasNext()){
             DrawableSeismogram cur = (DrawableSeismogram)seisIt.next();
+            cur.addToTimeAndAmp();
             if(cur.getDataStatus() == SeismogramContainer.GETTING_DATA){
                 cur.getData();
                 allHere = false;
