@@ -23,8 +23,11 @@ import org.apache.log4j.*;
 
 public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     
-    public DataSetSeismogram() {
+   
 
+    public DataSetSeismogram() {
+        this.dssDataListeners = new LinkedList();
+        this.rfChangeListeners = new LinkedList();
     }
 
     public DataSetSeismogram(RequestFilter rf, 
@@ -174,12 +177,12 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
 
     public void addSeisDataChangeListener(SeisDataChangeListener dataListener) {
-	dssDataListeners.add(dataListener);
+        dssDataListeners.add(dataListener);
 
     }
 
     public void removeSeisDataChangeListener(SeisDataChangeListener dataListener) {
-	dssDataListeners.remove(dataListener);
+        dssDataListeners.remove(dataListener);
     }
 
     protected void fireNewDataEvent(SeisDataChangeEvent event) {
