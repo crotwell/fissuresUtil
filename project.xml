@@ -186,6 +186,15 @@ oot:${pom.artifactId}</connection>
       <includes>
         <include>**/*Test.java</include>
       </includes>
+      <resources>
+	<resource>
+  	  <directory>tests/edu/sc/seis/fissuresUtil/database/event</directory>
+          <targetPath>edu/sc/seis/fissuresUtil/database/event/</targetPath>
+          <includes>
+	    <include>*.props</include>
+          </includes>
+        </resource>
+      </resources>
     </unitTest>
     <sourceDirectory>src</sourceDirectory>
     <resources>
