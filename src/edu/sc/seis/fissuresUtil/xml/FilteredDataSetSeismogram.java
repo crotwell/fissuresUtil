@@ -12,6 +12,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
+import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
@@ -34,22 +35,15 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
         container.addListener(this);
     }
 
-    public synchronized void updateData(){
-        Thread updateThread =  new Thread(new UpdateDataThread(), this.toString());
-        int priority = Thread.currentThread().getPriority() - (1 + activeFilterThreads);
-        if(priority < Thread.MIN_PRIORITY){
-            priority = Thread.MIN_PRIORITY;
-        }
-        updateThread.setPriority(priority);
-        updateThread.start();
+    public void updateData(){
+       filterPool.invokeLater(new Filterer());
     }
 
-    private static int activeFilterThreads = 0;
+    private static WorkerThreadPool filterPool = new WorkerThreadPool("FilterThread", 1, Thread.NORM_PRIORITY - 1);
 
-    private class UpdateDataThread implements Runnable{
 
+    private class Filterer implements Runnable{
         public void run(){
-            ++activeFilterThreads;
             LocalSeismogramImpl[] containedSeis = container.getSeismograms();
             List alreadyFiltered = new ArrayList();
             Iterator it = dataMap.keySet().iterator();
@@ -84,7 +78,6 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
             if((containedSeis.length - alreadyFiltered.size()) > 0){
                 pushData(getFilteredSeismograms(), null);
             }
-            --activeFilterThreads;
         }
     }
 
