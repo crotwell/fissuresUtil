@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
@@ -171,7 +172,11 @@ public class BasicTimeConfig implements TimeConfig{
      *
      */
     public MicroSecondTimeRange getTime() {
+        if(time != null){
         return time;
+        }else{
+            return DisplayUtils.ZERO_TIME;
+        }
     }
 
     /**
