@@ -25,6 +25,7 @@ public class IntervalChooser extends JPanel{
      */
     public IntervalChooser (){
 	initFrame();
+	setEditable(true);
     }
 
     /**
@@ -36,6 +37,7 @@ public class IntervalChooser extends JPanel{
 
 	initFrame();
 	populateUnits(options);
+	setEditable(true);
     }
 
     private void initFrame() {
@@ -62,7 +64,7 @@ public class IntervalChooser extends JPanel{
     }
 
     private void populateValues(IntervalChooserOptions option) {
-	int tempValue = valueBox.getSelectedIndex();
+	/*int tempValue = valueBox.getSelectedIndex();
 	valueBox.removeAllItems();
 	int minValue = option.getMinimumValue();
 	int maxValue = option.getMaximumValue();
@@ -73,8 +75,15 @@ public class IntervalChooser extends JPanel{
 	}
 	if(tempValue > maxValue) tempValue = maxValue;
 	valueBox.setSelectedIndex(tempValue);
-	
+	*/
+	for(int counter = 1; counter <= 10; counter++) {
 
+	    valueBox.addItem(new String(Integer.toString(counter)));
+	}
+	for(int counter = 20; counter <= 100; counter = counter + 10) {
+
+	    valueBox.addItem(new String(Integer.toString(counter)));
+	}
     }
 
     private void populateUnits(IntervalChooserOptions[] options) {
@@ -92,7 +101,7 @@ public class IntervalChooser extends JPanel{
 		    JComboBox cb = (JComboBox)e.getSource();
 		    IntervalChooserOptions newSelection = (IntervalChooserOptions)cb.getSelectedItem();
 		    System.out.println("The new value selected is "+newSelection.getIntervalChooserValue());
-		    populateValues(newSelection);
+		    // populateValues(newSelection);
               
 		}
 
