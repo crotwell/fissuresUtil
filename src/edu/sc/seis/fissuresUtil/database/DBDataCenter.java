@@ -22,7 +22,7 @@ import java.util.*;
  */
 
 public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
-    private DBDataCenter (DataCenterRouter dataCenterRouter){
+    private DBDataCenter (DataCenterOperations dataCenterRouter){
 	this.dataCenterRouter = dataCenterRouter;
 	hsqlRequestFilterDb = new HSQLRequestFilterDb(dataCenterRouter);
     }
@@ -32,7 +32,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 	hsqlRequestFilterDb = new HSQLRequestFilterDb();
     }
 
-    public static DBDataCenter getDataCenter(DataCenterRouter dataCenterRouter) {
+    public static DBDataCenter getDataCenter(DataCenterOperations dataCenterRouter) {
 	if(dbDataCenter == null) {
 	    dbDataCenter = new DBDataCenter(dataCenterRouter);
  	}
@@ -216,7 +216,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 	return hsqlRequestFilterDb.getSeismogram(fileIds);
     }
 
-    private DataCenterRouter dataCenterRouter;
+    private DataCenterOperations dataCenterRouter;
 
     private HSQLRequestFilterDb hsqlRequestFilterDb;
 
