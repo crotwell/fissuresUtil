@@ -51,8 +51,8 @@ extends TestCase
   
   public void testCorrelate() throws Exception {
     // JUnitDoclet begin method apply
-      float[] inA = new float[32];
-      float[] inB = new float[32];
+      float[] inA = new float[30];
+      float[] inB = new float[30];
       inA[5] = 1;
       inB[3] = 1;
       float[] out = Cmplx.correlate(inA, inB);
@@ -61,6 +61,61 @@ extends TestCase
       } // end of for ()
       
       assertEquals("float", 1.0f, out[2], 0.0000001);
+    // JUnitDoclet end method apply
+  }
+  
+  public void testCorrelateTriangle() throws Exception {
+    // JUnitDoclet begin method apply
+      float[] inA = new float[30];
+      float[] inB = new float[30];
+      inA[5] = .5f;
+      inA[6] = 1;
+      inA[7] = .5f;
+      inB[2] = .05f;
+      inB[3] = .1f;
+      inB[4] = .05f;
+      float[] out = Cmplx.correlate(inA, inB);
+      for ( int i=0; i<inA.length; i++) {
+	  System.out.println(inA[i]+"  "+inB[i]+"  "+out[i]);
+      } // end of for ()
+      
+      assertEquals("float", .15f, out[3], 0.0000001);
+    // JUnitDoclet end method apply
+  }
+  
+  public void testConvolve() throws Exception {
+    // JUnitDoclet begin method apply
+      float[] inA = new float[30];
+      float[] inB = new float[30];
+      inA[6] = 1;
+      inB[3] = .1f;
+      float[] out = Cmplx.convolve(inA, inB);
+      System.out.println("begin convolve");
+      for ( int i=0; i<inA.length; i++) {
+	  System.out.println(inA[i]+"  "+inB[i]+"  "+out[i]);
+      } // end of for ()
+      
+      assertEquals("float", .1f, out[9], 0.0000001);
+    // JUnitDoclet end method apply
+  }
+  
+  public void testConvolveSpike() throws Exception {
+    // JUnitDoclet begin method apply
+      float[] inA = new float[30];
+      float[] inB = new float[30];
+      for ( int i=0; i<inA.length; i++) {
+          inA[i] = 2;
+      }
+      inB[3] = .1f;
+      float[] out = Cmplx.convolve(inA, inB);
+      System.out.println("begin convolve");
+      for ( int i=0; i<inA.length; i++) {
+	  System.out.println(inA[i]+"  "+inB[i]+"  "+out[i]);
+      } // end of for ()
+      
+      assertEquals("float", .2f, out[9], 0.0000001);
+      assertEquals("float", .2f, out[8], 0.0000001);
+      assertEquals("float", .2f, out[10], 0.0000001);
     // JUnitDoclet end method apply
   }
   
