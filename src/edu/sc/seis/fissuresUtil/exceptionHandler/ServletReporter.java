@@ -5,7 +5,6 @@
  */
 
 package edu.sc.seis.fissuresUtil.exceptionHandler;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GUIReporter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,14 +12,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 
 
 public class ServletReporter implements ExceptionReporter{
     
-    public void report(String message, Throwable e, Map parsedContents) {
+    public void report(String message, Throwable e, List sections) {
         try {
             URL url = new URL(System.getProperty("errorHandlerServlet"));
             HttpURLConnection http = (HttpURLConnection)url.openConnection();
