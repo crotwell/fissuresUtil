@@ -19,7 +19,7 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
  */
 public class BulletproofNetworkAccessFactory{
 
-    public static NetworkAccess vest(NetworkAccess na, ProxyNetworkDC netDC) {
+    public static ProxyNetworkAccess vest(NetworkAccess na, ProxyNetworkDC netDC) {
 
         // side effect, make sure we have an NSNetworkDC inside the ProxyNetworkDC
         NSNetworkDC nsNetDC = (NSNetworkDC)netDC.getWrappedDC(NSNetworkDC.class);
