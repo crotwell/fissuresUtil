@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 
 public class LongShortStoNTest extends TestCase {
 
-    public void tXestSimple() throws FissuresException {
+    public void teXstSimple() throws FissuresException {
         LongShortStoN ston = new LongShortStoN(new TimeInterval(4, UnitImpl.SECOND),
                                                new TimeInterval(1, UnitImpl.SECOND),
                                                2);
@@ -38,7 +38,7 @@ public class LongShortStoNTest extends TestCase {
         //  }
     }
 
-    public void txestConstant() throws Exception {
+    public void tesXtConstant() throws Exception {
         LongShortStoN ston = new LongShortStoN(new TimeInterval(100, UnitImpl.SECOND),
                                                new TimeInterval(6, UnitImpl.SECOND),
                                                .2f);
