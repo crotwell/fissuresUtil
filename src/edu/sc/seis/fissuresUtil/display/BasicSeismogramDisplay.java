@@ -199,15 +199,16 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		tx.scale(scale, 1);
 		g2.drawImage(((Image)overSizedImage.get()), tx, null);
-		this.stop();
-		bgImageCalc = new Thread(imageGroup, this);
-		bgImageCalc.setPriority(2);
-		bgImageCalc.start();
+		start();
+		
 	    }
 	   
 	} 
 
 	public void start(){
+	    bgImageCalc = null;
+	    bgImageCalc = new Thread(imageGroup, this);
+	    bgImageCalc.setPriority(2);
 	    bgImageCalc.start();
 	}
 
