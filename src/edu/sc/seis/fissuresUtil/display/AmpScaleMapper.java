@@ -31,7 +31,6 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
     }
 
     public void updateAmp(AmpEvent event){
-        lastAmpEvent = event;
         if (event.getSeismograms().length != 0) {
             setUnitRange(unitDisplayUtil.getRealWorldUnitRange(event.getAmp(),
                                                                event.getSeismograms()[0]));
@@ -51,8 +50,6 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
     }
 
     private UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
-
-    private AmpEvent lastAmpEvent = null;
 
     private Registrar reg;
 } // AmpScaleMapper
