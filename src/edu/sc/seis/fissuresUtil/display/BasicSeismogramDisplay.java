@@ -48,22 +48,19 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac,
                                   VerticalSeismogramDisplay parent, Color borderColor)throws IllegalArgumentException{
         this.parent = parent;
-        plotPainter.addMouseMotionListener(getMouseMotionForwarder());
-        plotPainter.addMouseListener(getMouseForwarder());
-        addBorder(new AmpBorder(this), CENTER_LEFT);
-        addBorder(new TimeBorder(this), TOP_CENTER);
+        add(new AmpBorder(this), CENTER_LEFT);
+        add(new TimeBorder(this), TOP_CENTER);
         add(new DisplayRemover(this));
         setTimeConfig(tc);
         setAmpConfig(ac);
     }
 
     public SeismogramDisplayProvider createCenter() {
-        if(plotPainter == null){
-            plotPainter = new PlotPainter();
-            plotPainter.setPreferredSize(new Dimension(PREFERRED_WIDTH,
-                                                       PREFERRED_HEIGHT));
-        }
-        return plotPainter;
+        PlotPainter pp = new PlotPainter();
+        pp.addMouseListener(getMouseForwarder());
+        pp.addMouseMotionListener(getMouseMotionForwarder());
+        pp.setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
+        return pp;
     }
 
     public void add(DataSetSeismogram seis, Color color) {
@@ -381,8 +378,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     private TimeConfig tc;
 
     private AmpConfig ac;
-
-    private PlotPainter plotPainter;
 
     private TimeEvent currentTimeEvent;
 

@@ -46,13 +46,12 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
             }else{
                 current = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(),
                                                      this);
-                current.addTitle(stationCode, CENTER_LEFT);
-                getCenterPanel().add(current);
-                basicDisplays.add(current);
+                createCenter().add(current);
                 stationDisplay.put(stationCode, current);
             }
             current.add(curSeis);
         }
+        setBorders();
         return current;
     }
 

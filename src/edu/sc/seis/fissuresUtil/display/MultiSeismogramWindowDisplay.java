@@ -69,7 +69,6 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
         BasicSeismogramDisplay disp = null;
-
         for(int i = 0; i < dss.length; i++){
             if(contains(dss[i])){
                 continue;
@@ -81,12 +80,12 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             addBSD(disp, j);
             disp.addSoundPlay();
         }
+        setBorders();
         return disp;
     }
 
     protected void addBSD(BasicSeismogramDisplay disp, int pos){
-        getCenterPanel().add(disp, pos);
-        basicDisplays.add(pos, disp);
+        cp.add(disp, pos);
     }
 
     public void remove(DataSetSeismogram[] dss){

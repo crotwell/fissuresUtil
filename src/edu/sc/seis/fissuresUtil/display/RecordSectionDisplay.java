@@ -25,10 +25,8 @@ import javax.swing.JOptionPane;
 
 public class RecordSectionDisplay extends SeismogramDisplay implements TimeListener, AmpListener, LayoutListener{
     public RecordSectionDisplay(){
-        getCenterPanel().addMouseMotionListener(getMouseMotionForwarder());
-        getCenterPanel().addMouseListener(getMouseForwarder());
-        addBorder(new TimeBorder(this, TimeBorder.BOTTOM), BOTTOM_CENTER);
-        addBorder(new DistanceBorder(this), CENTER_LEFT);
+        add(new TimeBorder(this, TimeBorder.BOTTOM), BOTTOM_CENTER);
+        add(new DistanceBorder(this), CENTER_LEFT);
         setLayout(getNewLayoutConfig());
         setTimeConfig(new RelativeTimeConfig());
         setAmpConfig(new RMeanAmpConfig());
@@ -42,8 +40,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         add(seismos);
     }
 
-    public SeismogramDisplayProvider getCenterPanel() {
-        if(painter == null) painter = new DrawablePainter();
+    public SeismogramDisplayProvider createCenter() {
+        DrawablePainter painter = new DrawablePainter();
+        painter.addMouseMotionListener(getMouseMotionForwarder());
+        painter.addMouseListener(getMouseForwarder());
         return painter;
     }
 
@@ -333,8 +333,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     private TimeEvent timeEvent;
 
     private LayoutEvent curLayoutEvent = LayoutEvent.EMPTY_EVENT;
-
-    private DrawablePainter painter;
 
     private double scaling = LayoutScaler.INITIAL_SCALE;
 

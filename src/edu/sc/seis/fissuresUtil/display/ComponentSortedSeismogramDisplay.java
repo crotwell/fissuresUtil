@@ -68,6 +68,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
         addNorth(componentSorted[0], tc);
         addEast(componentSorted[1], tc);
         addZ(componentSorted[2], tc);
+        setBorders();
         return north;
     }
 
@@ -96,17 +97,15 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
     }
 
     private void initializeBSD(BasicSeismogramDisplay disp, int position, String orientation){
-        getCenterPanel().add(disp, position);
-        disp.addTitle(orientation, CENTER_LEFT);
-        basicDisplays.add(disp);
+        createCenter().add(disp, position);
     }
 
     public void setIndividualizedAmpConfig(AmpConfig ac){
-        Iterator it = basicDisplays.iterator();
         Class configClass = ac.getClass();
-        while(it.hasNext()){
+        for (int i = 0; i < cp.getComponentCount(); i++) {
             try{
-                ((BasicSeismogramDisplay)it.next()).setAmpConfig(new IndividualizedAmpConfig((AmpConfig)configClass.newInstance()));
+                AmpConfig newAmp = new IndividualizedAmpConfig((AmpConfig)configClass.newInstance());
+                ((SeismogramDisplay)cp.getComponent(i)).setAmpConfig(newAmp);
             }catch(IllegalAccessException e){
                 GlobalExceptionHandler.handle("Problem creating ampConfig from class", e);
             }catch(InstantiationException e){
