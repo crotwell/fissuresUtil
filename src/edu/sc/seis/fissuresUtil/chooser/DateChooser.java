@@ -466,7 +466,7 @@ public class DateChooser extends JPanel {
         //Initialize drawing colors, border, opacity.
         subPane.setLayout(new GridBagLayout());
         gbc = new GridBagConstraints();
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.gridx = upperLeftX=0;
@@ -499,7 +499,8 @@ public class DateChooser extends JPanel {
         int calYear = calendar.get(Calendar.YEAR);
         otherButton.setSelected(true);
         if(calYear == todaysYear){
-            yearBox.setSelectedIndex(0);
+            if(yearBox != null)
+                yearBox.setSelectedIndex(0);
             if(todaysJulianDay == calJulianDay){
                 todayButton.setSelected(true);
             }
