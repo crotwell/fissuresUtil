@@ -23,7 +23,7 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListener {
+public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListener, TimeSyncListener {
     /**
      * Creates a new <code>ParticleMotionDisplay</code> instance.
      *
@@ -38,6 +38,10 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				  AmpRangeConfig hAmpRangeConfig,
 				  AmpRangeConfig vAmpRangeConfig){
 	
+	this.timeRangeConfig = timeRangeConfig;
+	if(timeRangeConfig != null) {
+	    this.timeRangeConfig.addTimeSyncListener(this);
+	}
 	this.hAmpRangeConfig = hAmpRangeConfig;
 	this.vAmpRangeConfig = vAmpRangeConfig;
 	
@@ -49,7 +53,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				      vAmpRangeConfig, 
 				      this);
 	add(view, PARTICLE_MOTION_LAYER);
-        hAmpScaleMap = new AmpScaleMapper(50,
+    hAmpScaleMap = new AmpScaleMapper(50,
                                           4,
 					  hAmpRangeConfig.getAmpRange(hSeis));
         vAmpScaleMap = new AmpScaleMapper(50,
@@ -82,9 +86,20 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 		    resize();
 		}
 	    });
+	updateTimeRange();
+	
    
     }
 
+
+    public void updateTimeRange() {
+	if(this.timeRangeConfig == null) {
+	    view.updateTimeRange(null);
+	} else {
+	    view.updateTimeRange(this.timeRangeConfig.getTimeRange());
+	}
+    }
+    
     public ParticleMotionDisplay(LocalSeismogramImpl hseis,
 				 LocalSeismogramImpl vseis,
 				 TimeRangeConfig timeRangeConfig,
@@ -275,6 +290,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
      *
      */
     public static final Integer PARTICLE_MOTION_LAYER = new Integer(2);
+
+    private TimeRangeConfig timeRangeConfig = null;
 
     protected AmpScaleMapper hAmpScaleMap, vAmpScaleMap;
 

@@ -31,8 +31,10 @@ public class ParticleMotionView extends JComponent{
 			       AmpRangeConfig vAmpRangeConfig, ParticleMotionDisplay particleMotionDisplay){
 	
 	this.particleMotionDisplay = particleMotionDisplay;
-	this.timeRangeConfig = timeRangeConfig;
+	if(timeRangeConfig != null) {
 
+	    this.microSecondTimeRange = timeRangeConfig.getTimeRange();
+	}
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
 							   hAmpRangeConfig,
@@ -252,13 +254,10 @@ public class ParticleMotionView extends JComponent{
 		logger.debug("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
 				   " vmin = "+vunitRangeImpl.getMinValue());
 				   
-		MicroSecondTimeRange microSecondTimeRange = null;
-		if(timeRangeConfig == null) {
+		if(microSecondTimeRange == null) {
 		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
 								    new MicroSecondDate(hseis.getEndTime()));
-		} else {
-		    microSecondTimeRange = timeRangeConfig.getTimeRange();
-		}
+		} 
 
 		
 		int[][] hPixels = SimplePlotUtil.compressYvalues(hseis, 
@@ -273,12 +272,7 @@ public class ParticleMotionView extends JComponent{
 					    microSecondTimeRange,
 					    hunitRangeImpl,							
 					    flipDimension);
-		if(timeRangeConfig == null) {
-		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(vseis.getBeginTime()),
-								    new MicroSecondDate(vseis.getEndTime()));
-		} else {
-		    microSecondTimeRange = timeRangeConfig.getTimeRange();
-		}
+	
 
 		int[][] vPixels = SimplePlotUtil.compressYvalues(vseis, 
 								 microSecondTimeRange,
@@ -549,6 +543,19 @@ public class ParticleMotionView extends JComponent{
     
     }
 
+    
+    public void updateTimeRange(MicroSecondTimeRange microSecondTimeRange) {
+	this.microSecondTimeRange = microSecondTimeRange;
+	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
+					   getMaxHorizontalAmplitude(),
+					   UnitImpl.COUNT);
+	vunitRangeImpl = new UnitRangeImpl(getMinVerticalAmplitude(),
+					   getMaxVerticalAmplitude(),
+					   UnitImpl.COUNT);
+	particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
+	particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
+    }
+
     private boolean zoomIn = false;
     private boolean zoomOut = false;
     
@@ -559,7 +566,7 @@ public class ParticleMotionView extends JComponent{
     UnitRangeImpl vunitRangeImpl = null;
     java.awt.geom.Point2D.Float startPoint;
     java.awt.geom.Point2D.Float endPoint;
-    TimeRangeConfig timeRangeConfig = null;
+    MicroSecondTimeRange microSecondTimeRange = null;
 
     private static int RGBCOLOR = 0;
     private ParticleMotionDisplay particleMotionDisplay; 
