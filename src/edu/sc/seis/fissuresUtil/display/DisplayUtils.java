@@ -329,6 +329,8 @@ public class DisplayUtils {
 
     public static final Font BORDER_FONT = new Font("Arial", Font.PLAIN, 10);
 
+    public static Font BOLD_FONT = new Font("Arial", Font.BOLD, 12);
+
     public static final Stroke ONE_PIXEL_STROKE = new BasicStroke(1);
 
     public static final Stroke TWO_PIXEL_STROKE = new BasicStroke(2);
