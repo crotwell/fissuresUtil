@@ -93,6 +93,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         }
     }
     protected void recheckNetworks() {
+        stationsUpNow.clear();
         NetworkAccess[] nets = channelChooser.getNetworks();
         for (int i = 0; i < nets.length; i++) {
             NetworkChecker netCheck = new NetworkChecker(nets[i]);
