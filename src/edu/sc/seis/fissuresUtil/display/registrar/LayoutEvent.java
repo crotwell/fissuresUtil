@@ -43,7 +43,7 @@ public class LayoutEvent{
 
     public String toString(){ return name; }
 
-    public String name = "EMPTY EvENT";
+    public String name = "EMPTY EVENT";
 
     public static final UnitRangeImpl ONE_DEGREE = new UnitRangeImpl(0,1,UnitImpl.DEGREE);
 
@@ -52,6 +52,6 @@ public class LayoutEvent{
 
     private LayoutData[] data;
 
-    private UnitRangeImpl distance;
+    private UnitRangeImpl distance = ONE_DEGREE;
 }
 

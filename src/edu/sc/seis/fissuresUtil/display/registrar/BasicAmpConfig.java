@@ -103,9 +103,7 @@ public class BasicAmpConfig implements AmpConfig{
         return seisArray;
     }
 
-    public UnitRangeImpl getAmp() {
-        return ampEvent.getAmp();
-    }
+    public UnitRangeImpl getAmp() { return ampEvent.getAmp(); }
 
     public UnitRangeImpl getAmp(DataSetSeismogram seis) {
         return ampEvent.getAmp(seis);
