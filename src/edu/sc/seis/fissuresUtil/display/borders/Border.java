@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display.borders;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -61,7 +62,15 @@ public abstract class Border extends JComponent{
     /**Adds a title to this border.  If you just want to title a border with an
      * unchanging string, pass a UnchangingTitleProvider to this method
      */
-    public void add(TitleProvider tp){ titles.add(tp); }
+    public void add(TitleProvider tp){
+        titles.add(0, tp);
+        Dimension curSize = getPreferredSize();
+        if(direction == HORIZONTAL){
+            setPreferredSize(new Dimension(curSize.width, curSize.height + 10));
+        }else{
+            setPreferredSize(new Dimension(curSize.width + 10, curSize.height));
+        }
+    }
 
     private List titles = new ArrayList();
 
@@ -143,25 +152,31 @@ public abstract class Border extends JComponent{
                                               nextLabelPoint);
             }
 
-            TitleProvider tp = (TitleProvider)titles.get(0);
             FontMetrics fm = g2d.getFontMetrics();
-            Rectangle2D titleBounds = fm.getStringBounds(tp.getTitle(), g2d);
-            if(direction == VERTICAL){
-                double y = (int)(getSize().height/2 + titleBounds.getWidth()/2);
-                double x;
-                if(side == LEFT)x = titleBounds.getHeight();
-                else x = getWidth() - titleBounds.getHeight();
-                g2d.translate(x, y);
-                g2d.rotate(-Math.PI/2);
-                g2d.drawString(tp.getTitle(), 0, 0);
-                g2d.rotate(Math.PI/2);
-                g2d.translate(-x, -y);
-            }else{
-                int x = (int)(getWidth()/2 - titleBounds.getWidth()/2);
-                int y;
-                if(side == TOP) y = (int)titleBounds.getHeight();
-                else y = (int)(getHeight() - titleBounds.getHeight());
-                g2d.drawString(tp.getTitle(), x, y);
+            Iterator it = titles.iterator();
+            int cumulativeTitleHeight = 0;
+            while(it.hasNext()){
+                TitleProvider tp = (TitleProvider)it.next();
+                Rectangle2D titleBounds = fm.getStringBounds(tp.getTitle(), g2d);
+                cumulativeTitleHeight += titleBounds.getHeight();
+                if(direction == VERTICAL){
+                    double y = (int)(getSize().height/2 + titleBounds.getWidth()/2);
+                    double x;
+
+                    if(side == LEFT)x = cumulativeTitleHeight;
+                    else x = getWidth() - cumulativeTitleHeight;
+                    g2d.translate(x, y);
+                    g2d.rotate(-Math.PI/2);
+                    g2d.drawString(tp.getTitle(), 0, 0);
+                    g2d.rotate(Math.PI/2);
+                    g2d.translate(-x, -y);
+                }else{
+                    int x = (int)(getWidth()/2 - titleBounds.getWidth()/2);
+                    int y;
+                    if(side == TOP) y = cumulativeTitleHeight;
+                    else y = getHeight() - cumulativeTitleHeight;
+                    g2d.drawString(tp.getTitle(), x, y);
+                }
             }
 
             //Figure out how much to translate this generic tick shape to match
