@@ -28,6 +28,18 @@ public class JDBCChannelTest extends TestCase{
                                           chanTable.get(dbidA).get_id()));
     }
 
+
+    public void testGetByChannelId() throws SQLException, NotFound{
+        JDBCChannel chanTable = new JDBCChannel();
+        Channel chan = MockChannel.createChannel();
+        int dbidA = chanTable.put(chan);
+        int dbidB = chanTable.getDBId(chan.get_id());
+        int gottenId = chanTable.getDBId(chan.get_id(), chan.my_site);
+        assertEquals(dbidA, dbidB);
+        assertEquals(dbidB, gottenId);
+    }
+
+    
     public void testGetAll() throws SQLException, NotFound{
         JDBCChannel chanTable = new JDBCChannel();
         Channel chan = MockChannel.createChannel();
