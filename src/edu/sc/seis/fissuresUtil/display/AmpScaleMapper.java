@@ -39,7 +39,7 @@ public class AmpScaleMapper implements ScaleMapper {
             double absValue = Math.abs(value);
             // use regular notation
             DecimalFormat df;
-            if (absValue > 1000 || absValue < .001) {
+            if (absValue < 10 && absValue != 0 ) {
                 // exponential notation
                 df = new DecimalFormat("0.00###");
             } else {
