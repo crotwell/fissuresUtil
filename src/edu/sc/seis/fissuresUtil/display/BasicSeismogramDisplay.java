@@ -129,6 +129,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public void removeAllFlags(){
 	flagPlotters = new HashMap();
+	redo = true;
+	repaint();
     }
     public LinkedList getSeismograms(){ return seismos; }
   
