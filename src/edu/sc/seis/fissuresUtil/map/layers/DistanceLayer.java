@@ -140,6 +140,7 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
             }
             catch(NoPreferredOrigin npo){}
         }
+        else fireRequestInfoLine(" ");
         return false;
     }
 
