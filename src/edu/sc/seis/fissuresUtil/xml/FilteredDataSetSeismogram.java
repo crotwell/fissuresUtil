@@ -23,6 +23,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainerFactory;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
@@ -36,7 +37,7 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
         super(dss.getDataSet(), filter.getName());
         this.filter = filter;
         wrappedDSS = dss;
-        container = new SeismogramContainer(this, wrappedDSS);
+        container = SeismogramContainerFactory.create(this, wrappedDSS);
         container.getSeismograms();
     }
 
