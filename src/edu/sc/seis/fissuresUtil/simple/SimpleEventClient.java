@@ -98,7 +98,7 @@ public class SimpleEventClient implements TestingClient{
         MicroSecondDate yesterday = now.subtract(ONE_DAY);
         TimeRange oneDay = new TimeRange(yesterday.getFissuresTime(),
                                          now.getFissuresTime());
-        String[] magTypes = {"%"};
+        String[] magTypes = {"M"};
         String[] catalogs = {"FINGER"};
         String[] contributors = {"NEIC"};
         EventAccess[] events = finder.query_events(new GlobalAreaImpl(),
@@ -123,10 +123,16 @@ public class SimpleEventClient implements TestingClient{
     public Origin get_preferred_origin(EventAccess ev, boolean verbose)
         throws NoPreferredOrigin{
         Origin o = ev.get_preferred_origin();
-        if(verbose)logger.info("Event occurred at "+o.origin_time.date_time+
+        if (o.magnitudes.length == 0) {
+            logger.error("Origin has zero magnitudes: "+o.origin_time.date_time+
+                        " at ("+o.my_location.latitude+", "+o.my_location.longitude+") "+
+                        "with depth of "+o.my_location.depth.value+" "+o.my_location.depth.the_units);
+        } else {
+            if(verbose)logger.info("Event occurred at "+o.origin_time.date_time+
                                    " mag="+o.magnitudes[0].type+" "+o.magnitudes[0].value+
                                    " at ("+o.my_location.latitude+", "+o.my_location.longitude+") "+
                                    "with depth of "+o.my_location.depth.value+" "+o.my_location.depth.the_units);
+        }
         return o;
     }
 
