@@ -48,7 +48,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
         if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
 
 	if (endIndex == beginIndex) {
-            // no data points in window, leave config alone
+            // no data points in window, leave range alone
 	    return ampRange;
         }
         try {
@@ -56,39 +56,19 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
 	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
-	    if(this.ampRange == null)
-		this.ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
-	    else if(meanDiff > this.ampRange.getMaxValue())
-		this.ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
-	    double bottom = this.ampRange.getMinValue() + mean;
-	    double top = this.ampRange.getMaxValue() + mean;
-	    return new UnitRangeImpl(bottom,
-				     top,
-				     seis.getAmplitudeRange().getUnit());
-
-	    
+	    if(ampRange == null)
+		ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
+	    else if(meanDiff > ampRange.getMaxValue())
+		ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
+	    double bottom = ampRange.getMinValue() + mean;
+	    double top = ampRange.getMaxValue() + mean;
+	    return new UnitRangeImpl(bottom, top, seis.getAmplitudeRange().getUnit());
 	} catch (Exception e) {
 	    e.printStackTrace();
         }
 	return ampRange;
     }
 
-    public void visibleAmpCalc(TimeRangeConfig timeConfig){
-	UnitRangeImpl tempRange = ampRange;
-	ampRange = null;
-	this.timeConfig = timeConfig;
-	Iterator e = seismos.iterator();
-	while(e.hasNext()){
-	    LocalSeismogram current = (LocalSeismogram)e.next();
-	    this.getAmpRange(current, timeConfig.getTimeRange(current));
-	}
-	if(ampRange == null){
-	    ampRange = tempRange;
-	    return;
-	}
-	this.updateAmpSyncListeners();
-    }
-    
     public void addSeismogram(LocalSeismogram seis){
 	this.getAmpRange(seis);
 	seismos.add(seis);
