@@ -1,0 +1,8 @@
+#Only load from the class loader
+resource.loader = class
+
+#setup the class loader to load items in the classpath
+class.resource.loader.description = Velocity Classpath Resource Loader
+class.resource.loader.class = org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+
+#
