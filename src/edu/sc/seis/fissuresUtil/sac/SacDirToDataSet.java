@@ -18,7 +18,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 2260 2002-07-17 17:35:42Z crotwell $
+ * @version $Id: SacDirToDataSet.java 2268 2002-07-17 17:50:20Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -209,7 +209,17 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 		dirName = args[i+1];
 		i+=2;
 	    } else  if (args[i].equals("-name")) {
-		dsName = args[i+1];
+		String tmp = args[i+1];
+        if (tmp.endsWith("/") || 
+            tmp.endsWith("\\") || 
+            tmp.endsWith(":") || 
+            tmp.endsWith(".") ) {
+            tmp = tmp.substring(0, tmp.length()-1);
+        } // end of if (dsName.endsWith('/'))
+        tmp = tmp.replace(' ','_');
+        if (tmp.length() > 0) {
+            dsName = tmp;
+        } // end of if (tmp.length() > 0)
 		i+=2;
 	    } else  if (args[i].equals("-base")) {
 		baseStr = args[i+1];
