@@ -27,7 +27,7 @@ public class MockStation{
     
     public static Station[] createMultiSplendoredStations(){
         Station[] stations = new Station[20];
-        Location[] locations = MockLocation.create(10, 10);
+        Location[] locations = MockLocation.create(4, 5);
         for(int i = 0; i < stations.length; i++) {
             stations[i] = new StationImpl(MockStationId.createMultiSplendoredId("MS" + i), "Multi"+i,
                                           locations[i], "Charlie", "Grid of Stations",
