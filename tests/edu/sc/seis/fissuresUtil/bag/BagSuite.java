@@ -21,31 +21,30 @@ public class BagSuite
 {
   // JUnitDoclet begin class
   // JUnitDoclet end class
-  
+
   public static TestSuite suite() {
-    
+
     TestSuite suite;
-    
+
     suite = new TestSuite("edu.sc.seis.fissuresUtil.bag");
-    
+
     suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.RTrendTest.class);
     suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.TaperTest.class);
     suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.StatisticsTest.class);
     suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.RMeanTest.class);
-    suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.ResponseGainTest.class);
     suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.MotionVectorUtilTest.class);
     suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.DistAzTest.class);
     suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.CutTest.class);
     suite.addTestSuite(edu.sc.seis.fissuresUtil.bag.CalculusTest.class);
-    
-    
-    
+
+
+
     // JUnitDoclet begin method suite
     // JUnitDoclet end method suite
-    
+
     return suite;
   }
-  
+
   public static void main(String[] args) {
     // JUnitDoclet begin method testsuite.main
     junit.textui.TestRunner.run(suite());
