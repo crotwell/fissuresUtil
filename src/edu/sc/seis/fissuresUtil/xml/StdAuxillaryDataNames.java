@@ -12,5 +12,8 @@ public interface StdAuxillaryDataNames
 
     public static final String RESPONSE = prefix+"/RESPONSE";
 
+    public static final String NETWORK_BEGIN = prefix+"/NETWORK_BEGIN";
+    
+    public static final String CHANNEL_BEGIN = prefix+"/CHANNEL_BEGIN";
 }
 
