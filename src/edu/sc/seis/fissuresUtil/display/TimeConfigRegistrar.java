@@ -1,8 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.LinkedList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import org.apache.log4j.*;
@@ -107,22 +105,28 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	this.updateTimeSyncListeners(); 
     }
 
+    public synchronized TimeSnapshot takeSnapshot(){
+	HashMap seismoDisplayTime = new HashMap();
+	Iterator e = seismos.keySet().iterator();
+	while(e.hasNext()){
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    seismoDisplayTime.put(current, this.getTimeRange(current));
+	}
+	return new TimeSnapshot(seismoDisplayTime, this.getTimeRange());
+    }
+    
     public void unregister(){ timeConfig.removeTimeSyncListener(this); }
 
-    public TimeSnapshot takeSnapshot(){
-	return timeConfig.takeSnapshot();
-    }
+    public synchronized void setDisplayInterval(TimeInterval t){ timeConfig.setDisplayInterval(t); }
 
-    public void setDisplayInterval(TimeInterval t){ timeConfig.setDisplayInterval(t); }
-
-    public void setBeginTime(MicroSecondDate b){ timeConfig.setBeginTime(b); }
+    public synchronized void setBeginTime(MicroSecondDate b){ timeConfig.setBeginTime(b); }
     
-    public void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
+    public synchronized void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
 	timeConfig.setBeginTime(seismo, b);
 	seismos.put(seismo, b);
     }
     
-    public void setAllBeginTime(MicroSecondDate b){ 
+    public synchronized void setAllBeginTime(MicroSecondDate b){ 
 	Iterator e = seismos.keySet().iterator();
 	while(e.hasNext()){
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
@@ -144,7 +148,7 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 
     protected TimeRangeConfig timeConfig;
 
-    protected LinkedList timeListeners = new LinkedList();
+    protected Set timeListeners = new HashSet();
 
     protected TimeFinder timeFinder;
 

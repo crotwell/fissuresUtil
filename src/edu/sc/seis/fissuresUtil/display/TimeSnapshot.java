@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.util.HashMap;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 
 /**
  * TimeSnapshot.java
