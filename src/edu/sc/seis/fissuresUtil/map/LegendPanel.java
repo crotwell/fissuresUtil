@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.map;
 
 import java.awt.GridLayout;
 import java.net.URL;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ public class LegendPanel extends JPanel{
 
     private void initComponents(){
         setLayout(new GridLayout(1,2));
+        setBorder(BorderFactory.createTitledBorder("Legend"));
         String imgPath = "edu/sc/seis/fissuresUtil/data/maps/";
 
         //Deep Events
