@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
@@ -72,6 +73,19 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         }
         return COLORS[i++%COLORS.length];
     }
+	
+	public MicroSecondDate getTime(MouseEvent e){
+		return SimplePlotUtil.getValue(getWidth() - getInsets().left - getInsets().right,
+									   getTimeConfig().getTime().getBeginTime(),
+									   getTimeConfig().getTime().getEndTime(),
+									   e.getX() - getInsets().left);
+	}
+	
+	//this may become abstract later
+	//this reaks of HACK!
+	public int countDrawables(){
+		return 0;
+	}
 
     private int i = 0;
 
