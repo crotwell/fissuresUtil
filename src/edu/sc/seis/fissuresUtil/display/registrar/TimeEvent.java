@@ -19,6 +19,13 @@ public class TimeEvent {
         this.times = times;
     }
 
+    public boolean contains(DataSetSeismogram seismo){
+        if(indexOf(seismo) != -1){
+            return true;
+        }
+        return false;
+    }
+
     public MicroSecondTimeRange getTime(DataSetSeismogram seismo){
         int index = indexOf(seismo);
         if(index == -1){
