@@ -114,7 +114,9 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
      */
     public synchronized void add(DataSetSeismogram[] newSeismos){
         for(int i = 0; i < newSeismos.length; i++){
-            seismos.add(newSeismos[i]);
+            if(!seismos.contains(newSeismos[i])){
+                seismos.add(newSeismos[i]);
+            }
         }
         addToTimeConfig(newSeismos);
         addToAmpConfig(newSeismos);
@@ -308,7 +310,7 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
     //Implementation of TimeEventListener
 
     public synchronized void updateTime(TimeEvent tEvent){
-        if(ampConfig != null && ampListeners.size() > 0){
+        if(ampConfig != null && (ampListeners.size() > 0 || globalListeners.size() > 0)){
             AmpEvent aEvent = ampConfig.updateAmpTime(tEvent);
             if(aEvent != null){
                 fireGlobalEvent(new ConfigEvent(getSeismograms(), tEvent, aEvent));
