@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
 import java.text.*;
+import java.lang.*;
 
 /** JPanel Utility that creates year, month, days, etc to be placed on a JFrame.
  *  It return only a Date object, from which you may obtain all the necessary information.
@@ -84,6 +85,7 @@ public class DateChooser extends JPanel {
 	  case 8:  todayOption(); break;    
 	  case 9:  radioButtonOption(); break;
 	  case 10: weekagoOption();break;
+	  case 11:intervalOption();break;
           }
       }
 
@@ -104,17 +106,18 @@ public class DateChooser extends JPanel {
           option = dateformat[arrayi].getDateFormatValue();
 
 	  switch (option) {
-	      case 0:  yearOption(); break;
-              case 1:  monthOption(); break;
-              case 2:  dayOption(); break;
-              case 3:  hourOption(); break;
-              case 4:  minuteOption(); break;
-              case 5:  secondOption(); break;
-              case 6:  millisOption(); break;
-              case 7:  julianOption(); break;
-              case 8:  todayOption(); break;   
-	      case 9:  radioButtonOption(); break;         
+	  case 0:  yearOption(); break;
+	  case 1:  monthOption(); break;
+	  case 2:  dayOption(); break;
+	  case 3:  hourOption(); break;
+	  case 4:  minuteOption(); break;
+	  case 5:  secondOption(); break;
+	  case 6:  millisOption(); break;
+	  case 7:  julianOption(); break;
+	  case 8:  todayOption(); break;   
+	  case 9:  radioButtonOption(); break;         
 	  case 10: weekagoOption(); break;
+	  case 11: intervalOption(); break;
           }
       } 
 
@@ -537,6 +540,118 @@ public class DateChooser extends JPanel {
         
     } 
 
+    
+    private void intervalOption() {
+
+	ButtonGroup buttonGroup = new ButtonGroup();
+	final JRadioButton weekButton = new JRadioButton("weekAgo");
+	final JRadioButton monthButton = new JRadioButton("monthAgo");
+	final JRadioButton yearButton = new JRadioButton("yearAgo");
+	final JComboBox valueBox = new JComboBox();
+
+	 
+	weekButton.setSelected(true);
+	buttonGroup.add(weekButton);
+	buttonGroup.add(monthButton);
+	buttonGroup.add(yearButton);
+
+	gbc.gridx = x_leftcorner;
+	gbc.gridy = y_leftcorner;
+
+	gbc.gridx++;
+
+	subPane.add(weekButton);
+	gbc.gridx++;
+	subPane.add(monthButton);
+	gbc.gridx++;
+	subPane.add(yearButton);
+	gbc.gridx++;gbc.gridx++;
+	subPane.add(new JLabel("Number"));
+	gbc.gridx++;
+	populateComboBox(valueBox, 1, 3);
+	subPane.add(valueBox);
+
+	weekButton.addActionListener(new ActionListener() {
+		
+		public void actionPerformed(ActionEvent e) {
+		
+		    populateComboBox(valueBox, 1, 3);
+		}
+	    });
+	monthButton.addActionListener(new ActionListener() {
+		
+		public void actionPerformed(ActionEvent e) {
+		    populateComboBox(valueBox, 1, 11);
+
+		}
+	    });
+	yearButton.addActionListener(new ActionListener() {
+		
+		public void actionPerformed(ActionEvent e) {
+		    populateComboBox(valueBox, 1, 4);
+		}
+	    });
+
+	valueBox.addActionListener(new ActionListener() {
+	
+		public void actionPerformed(ActionEvent e) {
+		    
+		     JComboBox cb = (JComboBox)e.getSource();
+		     String newSelection = (String)cb.getSelectedItem();
+		     int value;
+		     try {
+			  value = Integer.parseInt(newSelection);
+		     } catch(NumberFormatException nfe) {
+
+
+			 value = -1;
+			 
+		     }
+		     if(value == -1) return;
+		    int totalDays = 0;
+		     
+		    if( weekButton.isSelected()) {
+			
+			totalDays = value * 7;
+		   }
+		    else if( monthButton.isSelected()) {
+
+
+			totalDays = value * (7 * 5 - 5);
+		  }
+		    else if( yearButton.isSelected()) {
+
+			totalDays = value * ( 7 * 5 - 5) * 12;
+		   }
+		   
+		    Calendar tempCalendar = Calendar.getInstance();
+		    tempCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		    java.util.Date tempDate = new java.util.Date();
+		    System.out.println("THe total days are "+totalDays);
+		    //tempDate = tempCalendar.getTime();
+		    tempDate.setTime( tempCalendar.getTime().getTime() - totalDays * 24 * 60 * 60 * 1000);
+		    System.out.println("THe resultant date is "+tempDate.toString());
+		    calendar.setTime( tempDate);
+		}
+
+	    });
+	
+	
+
+    }
+
+    private void populateComboBox(JComboBox comboBox, int start , int end) {
+
+	comboBox.removeAllItems();
+	for(int counter = start; counter <= end; counter++) {
+	 
+	    comboBox.addItem(new String(new Integer(counter).toString()));
+
+	}
+	comboBox.setSelectedIndex(0);
+
+    }
+
     private void weekagoOption() {
 
 
@@ -823,6 +938,7 @@ public class DateChooser extends JPanel {
     JRadioButton yesButton = new JRadioButton("Yesterday"); 
     JRadioButton otherButton = new JRadioButton("Other"); 
 
+   
     JComboBox yearbox;
     JComboBox monthbox;
     JComboBox daybox;
