@@ -8,7 +8,7 @@ public class DrawableFilteredSeismogram extends DrawableSeismogram{
 									  DataSetSeismogram seismo,
                                       ColoredFilter filter){
         super(parent,
-			  new FilteredSeismogramShape(filter, seismo),
+			  new FilteredSeismogramShape(filter, seismo, parent),
               filter.getColor(),
               seismo.toString());
         setVisibility(filter.getVisibility());
