@@ -37,7 +37,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-        return addDisplay(dss, globalRegistrar, new RMeanAmpConfig(dss));
+        return addDisplay(dss, registrar, new RMeanAmpConfig(dss));
     }
 
     /**
@@ -63,7 +63,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
-        return addDisplay(dss, globalRegistrar, ac);
+        return addDisplay(dss, registrar, ac);
     }
 
     /**
@@ -78,9 +78,9 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return a <code>BasicSeismogramDisplay</code> value
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
-        if(tc == globalRegistrar && globalRegistrar == null){
-            globalRegistrar = new Registrar(dss);
-            tc = globalRegistrar;
+        if(tc == registrar && registrar == null){
+            registrar = new Registrar(dss);
+            tc = registrar;
         }
         BasicSeismogramDisplay disp = null;
         for(int i = 0; i < dss.length; i++){

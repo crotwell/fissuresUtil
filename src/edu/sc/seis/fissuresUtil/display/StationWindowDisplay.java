@@ -26,28 +26,28 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss) {
-        return addDisplay(dss, globalRegistrar, globalRegistrar);
+        return addDisplay(dss, registrar, registrar);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac) {
-        return addDisplay(dss, globalRegistrar, ac);
+        return addDisplay(dss, registrar, ac);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc) {
-        return addDisplay(dss, tc, globalRegistrar);
+        return addDisplay(dss, tc, registrar);
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac) {
-        if(tc == globalRegistrar && globalRegistrar == null){
+        if(tc == registrar && registrar == null){
             boolean setAC = false;
-            if(ac == globalRegistrar){
+            if(ac == registrar){
                 setAC = true;
             }
-            globalRegistrar = new Registrar(dss);
+            registrar = new Registrar(dss);
             if(setAC){
-                ac = globalRegistrar;
+                ac = registrar;
             }
-            tc = globalRegistrar;
+            tc = registrar;
         }
         Map stationDss = new HashMap();
         for (int i = 0; i < dss.length; i++){
