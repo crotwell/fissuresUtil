@@ -486,6 +486,11 @@ public class DateChooser extends JPanel {
         }
     }
 
+    public boolean isToday() {
+        dateChanged();
+        return todayButton.isSelected();
+    }
+
     private void dateChanged(){
         updateToday();
         int  todaysYear = todayCalendar.get(Calendar.YEAR);
