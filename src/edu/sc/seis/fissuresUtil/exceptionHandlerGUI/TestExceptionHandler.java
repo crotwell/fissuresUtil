@@ -24,7 +24,7 @@ public class TestExceptionHandler {
 	    int no = Integer.parseInt(num);
 	} catch(Exception e) {
 
-	    ExceptionHandlerGUI.handleException(e);
+	    ExceptionHandlerGUI.handleException("Number Format Exception", e);
 	    System.out.println("Number Format Exception");
 	}
     }
