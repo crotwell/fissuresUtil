@@ -37,9 +37,9 @@ public class SynchronizedNetworkAccess extends ProxyNetworkAccess {
         }
     }
 
-    public NetworkAccess getNetworkAccess(){
+    public NetworkAccess getCorbaObject(){
         synchronized(SynchronizedNetworkAccess.class){
-            return super.getNetworkAccess();
+            return super.getCorbaObject();
         }
     }
 
