@@ -17,7 +17,9 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 public class SeismogramSorter {
     public int sort(DataSetSeismogram seismo, String name){
 	names.add(name);
-	return seismos.size();
+	int rtnValue = seismos.size();
+	seismos.put(name, seismo);
+	return rtnValue;
     }
 
     public boolean contains(String name){
