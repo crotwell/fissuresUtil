@@ -50,11 +50,11 @@ public class TextTable{
 	}
 	
 	public void addRow(String[] data, boolean isHeader){
-		printTableStats();
+		//printTableStats();
 		if (data.length > numColumns){
 			String[] tmp = new String[numColumns];
 			System.arraycopy(data, 0, tmp, 0, numColumns);
-			System.out.println("truncating data (length " + data.length + ") to number of table columns (" + numColumns + ")");
+			logger.debug("truncating data (length " + data.length + ") to number of table columns (" + numColumns + ")");
 			data = tmp;
 		}
 		else if (data.length < numColumns){
@@ -71,7 +71,7 @@ public class TextTable{
 		
 		updateWidths(data);
 		
-		printTableStats();
+		//printTableStats();
 	}
 	
 	private void updateWidths(String[] data){
@@ -92,7 +92,7 @@ public class TextTable{
 	}
 	
 	public String toString(){
-		printTableStats();
+		//printTableStats();
 		StringBuffer buf = new StringBuffer();
 		if (hasHeader){
 			String headerString = getRow(header);
@@ -148,8 +148,8 @@ public class TextTable{
 		StringBuffer buf = new StringBuffer();
 		buf.append(cellValue);
 		int width = widths[column];
-		System.out.println("width of cell value is " + cellValue.length());
-		System.out.println("width for column " + column + " is " + width);
+		logger.debug("width of cell value is " + cellValue.length());
+		logger.debug("width for column " + column + " is " + width);
 		int numSpaces = width - cellValue.length() + 3;
 		for (int i = 0; i < numSpaces; i++) {
 			buf.append(' ');
