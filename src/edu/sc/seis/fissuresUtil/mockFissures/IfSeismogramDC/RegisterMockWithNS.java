@@ -22,7 +22,7 @@ public class RegisterMockWithNS {
         FissuresNamingService fisName;
         String name = "Timeout";
         String dns = "edu/sc/seis";
-        String corbaLoc = props.getProperty("edu.sc.seis.fissuresUtil.nameServiceCorbaLoc");
+        String corbaLoc = props.getProperty(FissuresNamingService.CORBALOC_PROP);
         if(name == null || dns == null || corbaLoc == null) {
             System.out.println("Unable to load name, dns or corbaloc!");
             System.exit(1);

@@ -705,6 +705,8 @@ public class FissuresNamingService {
     public static final String INTERFACE = "interface";
 
     public static final String DNS = "dns";
+    
+    public static final String CORBALOC_PROP = "edu.sc.seis.fissuresUtil.nameServiceCorbaLoc";
 
     public static final String OBJECT = "object_FVer"
             + edu.iris.Fissures.VERSION.value;
