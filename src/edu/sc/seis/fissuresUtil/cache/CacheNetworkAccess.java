@@ -47,7 +47,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     public Station[] retrieve_stations() {
         if (stations == null) {
             stations = net.retrieve_stations();
-           // clean(stations);
+            clean(stations);
         }
         return stations;
     }
@@ -60,7 +60,7 @@ public class CacheNetworkAccess implements NetworkAccess {
         String idStr = StationIdUtil.toString(id);
         if ( ! channelMap.containsKey(idStr)) {
             Channel[] chans = net.retrieve_for_station(id);
-          //  clean(chans);
+            clean(chans);
             channelMap.put(idStr, chans);
         }
         return (Channel[])channelMap.get(idStr);
