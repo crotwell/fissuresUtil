@@ -31,25 +31,11 @@ import java.awt.event.ActionEvent;
  * @version
  */
 
-public class EventFlag implements Drawable{
+public class EventFlag{
     public EventFlag (final PlottableDisplay plottableDisplay,
                       EventAccessOperations eventAccess){
         this.plottableDisplay = plottableDisplay;
-        selectButton.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent e) {
-                        plottableDisplay.setSelection(getX(), getY(), 50);
-                    }
-
-                });
-        plottableDisplay.add(selectButton);
         this.eventAccess = eventAccess;
-    }
-
-    public void draw(Graphics2D canvas, java.awt.Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
-        drawEvents(canvas);
-    }
-
-    public void setVisibility(boolean b) {
     }
 
     private int getX(){
@@ -62,21 +48,10 @@ public class EventFlag implements Drawable{
         return row * plottableDisplay.getRowOffset() + plottableDisplay.titleHeight;
     }
 
-    private void drawEvents(Graphics g) {
+    public void drawEvents(Graphics g) {
         // get new graphics to avoid messing up original
         Graphics2D g2 = (Graphics2D)g.create();
         g2.translate(0, getY());
-
-        /*g2.setPaint(Color.black);
-         g2.drawString(eventName, xLoc,  -3);
-
-         g2.setPaint(currentColor);
-         Rectangle2D bounds = g2.getFontMetrics().getStringBounds(eventName,g2);
-         bounds.setFrame(xLoc ,-bounds.getHeight(), bounds.getWidth(), bounds.getHeight());
-         g2.draw(bounds);
-         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-         .4f));
-         g2.fill(bounds);*/
         g2.setStroke(new BasicStroke(3));
         g2.setPaint(color);
         int halfOffset =  plottableDisplay.getRowOffset()/2;
@@ -148,13 +123,7 @@ public class EventFlag implements Drawable{
         return eventName;
     }
 
-    public JButton getButton(){
-        return selectButton;
-    }
-
     public Color getColor(){ return color; }
-
-    private JButton selectButton = new JButton("Select");
 
     private int curreventrow;
 
