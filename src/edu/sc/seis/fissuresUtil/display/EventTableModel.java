@@ -20,7 +20,7 @@ import org.apache.log4j.*;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 1788 2002-06-04 20:23:16Z crotwell $
+ * @version $Id: EventTableModel.java 2030 2002-07-05 18:53:08Z crotwell $
  */
 
 public class EventTableModel 
@@ -36,12 +36,11 @@ public class EventTableModel
     public EventTableModel(EventAccessOperations[] events) {
 	loader = new EventBackgroundLoaderPool(5, this);
 	updateEvents(events);
-        columnNames = new String[10];
+        columnNames = new String[9];
         columnNames[LATITUDE] = "Latitude";
         columnNames[LONGITUDE] = "Longitude";
 	columnNames[DEPTH] = "Depth";
         columnNames[ORIGINTIME] = "Origin Time";
-	//columnNames[MAGTYPE] = "MagType";
         columnNames[MAGVALUE] = "Magnitude";
 	columnNames[CATALOG] = "Catalog";
 	columnNames[CONTRIBUTOR] = "Contributor";
@@ -124,8 +123,6 @@ public class EventTableModel
 		if (type.equals(edu.iris.Fissures.MW_MAG_TYPE.value)) {
 		    type = "MW";
 		}
-		//return type;
-		//case MAGVALUE:
 		return new Float(cache.get_preferred_origin().magnitudes[0].value).toString() + " "+type;
 	    default:
           return "XXXX";
@@ -198,12 +195,11 @@ public class EventTableModel
 
     protected EventBackgroundLoaderPool loader;
 
-    protected static final int LATITUDE = 2;
-    protected static final int LONGITUDE = 3;
-    protected static final int DEPTH = 4;
-    protected static final int ORIGINTIME = 1;
-    protected static final int MAGTYPE = 9;
-    protected static final int MAGVALUE = 5;
+    protected static final int LATITUDE = 4;
+    protected static final int LONGITUDE = 5;
+    protected static final int DEPTH = 3;
+    protected static final int ORIGINTIME = 2;
+    protected static final int MAGVALUE = 1;
     protected static final int CATALOG = 6;
     protected static final int CONTRIBUTOR = 7;
     protected static final int NAME = 8;
@@ -214,7 +210,6 @@ public class EventTableModel
     protected static final int LONGITUDESIZE = 50;
     protected static final int DEPTHSIZE = 50;
     protected static final int ORIGINTIMESIZE = 150;
-    protected static final int MAGTYPESIZE = 9;
     protected static final int MAGVALUESIZE = 100;
     protected static final int CATALOGSIZE = 100;
     protected static final int CONTRIBUTORSIZE = 100;
