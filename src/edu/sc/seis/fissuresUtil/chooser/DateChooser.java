@@ -729,6 +729,7 @@ public class DateChooser extends JPanel {
     }
 
     private void dateChanged(){
+        todaycalendar.setTime(new Date());
         int  todayyear = todaycalendar.get(Calendar.YEAR);
         int  todaysday = todaycalendar.get(Calendar.DAY_OF_YEAR);
         year = calendar.get(Calendar.YEAR);
@@ -818,6 +819,13 @@ public class DateChooser extends JPanel {
     }
 
     public Date getDate(){
+        today = new Date();
+        yesterday = new Date(today.getTime() - ONE_DAY);
+        if(todayButton.isSelected()){
+        }else if(yesButton.isSelected()){
+            calendar.setTime(yesterday);
+            dateChanged();
+        }
         return calendar.getTime();
     }
 
