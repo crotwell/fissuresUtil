@@ -401,6 +401,13 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         globalRegistrar = newGlobal;
     }
 
+    public void reset(){
+        Iterator e = getAllBasicDisplays().iterator();
+        while(e.hasNext()){
+            ((BasicSeismogramDisplay)e.next()).reset();
+        }
+    }
+
     /**
      * this merely calls reset on the globalRegistrar
      */
@@ -484,7 +491,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
                     Toolkit tk = Toolkit.getDefaultToolkit();
                     if(particleWindow.getSize().width*particleDisplays < tk.getScreenSize().width){
                         particleWindow.setLocation(particleWindow.getSize().width * particleDisplays, tk.getScreenSize().height -
-                                                   particleWindow.getSize().width);
+                                                       particleWindow.getSize().width);
                     }else{
                         particleWindow.setLocation(tk.getScreenSize().width - particleWindow.getSize().width,
                                                    tk.getScreenSize().height - particleWindow.getSize().height);
@@ -610,9 +617,9 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         for(int i = 0; i < componentSorted.length; i++){
             if(componentSorted[i].length > 0){
                 /*DataSetSeismogram[] newSeismos = new DataSetSeismogram[componentSorted[i].length];
-                for(int j = 0; j < newSeismos.length; j++){
-                    newSeismos[j] = (DataSetSeismogram)componentSorted[i][j].clone();
-                    newSeismos[j].setName(newSeismos[j].getName()+"."+creator.getColor());
+                 for(int j = 0; j < newSeismos.length; j++){
+                 newSeismos[j] = (DataSetSeismogram)componentSorted[i][j].clone();
+                 newSeismos[j].setName(newSeismos[j].getName()+"."+creator.getColor());
                  }*/
                 ((TimeConfig)creator.getInternalRegistrar()).add(componentSorted[i]);
                 BasicSeismogramDisplay newDisplay = threeSelectionDisplay.addDisplay(componentSorted[i], (TimeConfig)creator.getInternalRegistrar());
@@ -704,7 +711,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     public static DecimalFormat ampFormatExp = new DecimalFormat(" 0.###E0;-0.###E0");
 
     UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
-    
+
     protected SimpleDateFormat output = new SimpleDateFormat("HH:mm:ss.SSS");
 
     protected static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
