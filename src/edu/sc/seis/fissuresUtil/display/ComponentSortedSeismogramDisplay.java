@@ -88,7 +88,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
         return north;
     }
 
-    public void addFlags(Arrival[] arrivals){
+    /*public void addFlags(Arrival[] arrivals){
         if(north != null){
             north.addFlags(arrivals);
         }
@@ -98,7 +98,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
         if(z != null){
             z.addFlags(arrivals);
         }
-    }
+     }*/
 
     private void addNorth(DataSetSeismogram[] newNorth, TimeConfig tc, AmpConfig ac){
         north = addToDisplay(north, newNorth, tc, ac, DisplayUtils.NORTH);
