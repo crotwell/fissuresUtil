@@ -35,9 +35,8 @@ public class SeismogramIterator implements Iterator{
             MicroSecondDate startTime = seis[0].getBeginTime();
             MicroSecondDate endTime = seis[seis.length - 1].getEndTime();
             TimeInterval samplingInterval = seis[0].getSampling().getPeriod();
-			sampling = seis[0].getSampling();
-            seisTimeRange = new MicroSecondTimeRange(startTime,
-                                                     endTime);
+            sampling = seis[0].getSampling();
+            seisTimeRange = new MicroSecondTimeRange(startTime, endTime);
             addToIterateList(seis[0], 0, seis[0].getNumPoints());
             for(int i = 1; i < seis.length; i++){
                 LocalSeismogramImpl current = seis[i];
@@ -70,6 +69,7 @@ public class SeismogramIterator implements Iterator{
 
     public QuantityImpl getValueAt(int position){
         try{
+            System.out.println(this + " getting value at");
             Object[] seisAndPoint = getSeisAtWithInternal(position);
             LocalSeismogramImpl seis = (LocalSeismogramImpl)seisAndPoint[0];
             Integer point = (Integer)seisAndPoint[1];
@@ -179,6 +179,8 @@ public class SeismogramIterator implements Iterator{
                     meanStore += curMinMaxMean[2]*curNumCalculated;
                     totalNumCalculated += curNumCalculated;
                     currentPoint += curNumCalculated + shift;
+                }else if (curSeis instanceof Gap){
+                    currentPoint += ((Gap)curSeis).getNumPoints();
                 }
                 minMaxMean[2] = meanStore/totalNumCalculated;
             }
@@ -216,6 +218,7 @@ public class SeismogramIterator implements Iterator{
     public String toString(){ return name + " iterator"; }
 
     private Object[] getSeisAtWithInternal(int position){
+        logger.info("getting seis with internal");
         Iterator it = iterateList.iterator();
         int curPosition = 0;
         while(it.hasNext()){
@@ -245,9 +248,9 @@ public class SeismogramIterator implements Iterator{
         numPoints += lastPoint - firstPoint;
     }
 
-	public SamplingImpl getSampling(){
-		return sampling;
-	}
+    public SamplingImpl getSampling(){
+        return sampling;
+    }
 
     private Statistics getStatistics(LocalSeismogramImpl seis){
         Statistics stat = (Statistics)statisticsMap.get(seis);
@@ -280,7 +283,7 @@ public class SeismogramIterator implements Iterator{
 
     private String name;
 
-	private SamplingImpl sampling;
+    private SamplingImpl sampling;
 
     //TODO Make SeismogramShape understand drawing NOT_A_NUMBER
     public static final QuantityImpl NOT_A_NUMBER = new QuantityImpl(Double.NaN,
@@ -298,3 +301,4 @@ public class SeismogramIterator implements Iterator{
         private int length;
     }
 }
+
