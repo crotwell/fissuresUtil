@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
  * @version
  */
 
-public class ParticleMotionView extends JComponent implements TimeListener{
+public class ParticleMotionView extends JComponent{
     
     public ParticleMotionView(ParticleMotionDisplay particleMotionDisplay) {
         this.pmd = particleMotionDisplay;
@@ -75,19 +75,6 @@ public class ParticleMotionView extends JComponent implements TimeListener{
         }
     }
     
-    public void updateAmps(){
-        AmpConfig activeAC = (AmpConfig)keysToAmpConfigs.get(displayKey);
-        if(activeAC != null){
-            vertRange = activeAC.getAmp();
-            horizRange = activeAC.getAmp();
-        }else{
-            vertRange = DisplayUtils.ONE_RANGE;
-            horizRange = DisplayUtils.ONE_RANGE;
-        }
-        pmd.updateHorizontalAmpScale(horizRange);
-        pmd.updateVerticalAmpScale(vertRange);
-    }
-    
     public synchronized void paintComponent(Graphics g) {
         if(displayKey == null) return;
         Graphics2D graphics2D = (Graphics2D)g;
@@ -106,7 +93,6 @@ public class ParticleMotionView extends JComponent implements TimeListener{
             particleMotion.draw(g, getSize());
         }
     }
-    
     
     public void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
         if(!particleMotion.isHorizontalPlane()) return;
@@ -191,9 +177,9 @@ public class ParticleMotionView extends JComponent implements TimeListener{
             color = getColor(tc, cur);
             newParMo.add(cur, color);
         }
-        updateAmps();
         if(statusTable != null)
             statusTable.add(newParMo);
+        pmd.resize();
     }
     
     private Color getColor(TimeConfig tc, NamedFilter filter){
@@ -232,26 +218,9 @@ public class ParticleMotionView extends JComponent implements TimeListener{
         }
     }
     
-    public synchronized void updateTime(TimeEvent e) {
-        updateAmps();
-        repaint();
-    }
-    
     public void setDisplayKey(String key) {
         displayKey = key;
-    }
-    
-    public ParticleMotion[] getSelectedParticleMotion() {
-        ArrayList arrayList = new ArrayList();
-        for(int counter = 0; counter < parMos.size(); counter++) {
-            ParticleMotion particleMotion = (ParticleMotion)parMos.get(counter);
-            if(displayKey.equals(particleMotion.key)) {
-                arrayList.add(particleMotion);
-            }
-        }//end of for
-        ParticleMotion[] rtnValues = new ParticleMotion[arrayList.size()];
-        rtnValues = (ParticleMotion[])arrayList.toArray(rtnValues);
-        return rtnValues;
+        pmd.setActiveAmpConfig((AmpConfig)keysToAmpConfigs.get(displayKey));
     }
     
     public JTable getStatusTable(){
@@ -327,7 +296,6 @@ public class ParticleMotionView extends JComponent implements TimeListener{
             }
             tc.addListener(ac);
             tc.addListener(this);
-            tc.addListener(ParticleMotionView.this);
             ac.add(seis);
             ac.addListener(this);
         }
@@ -361,18 +329,18 @@ public class ParticleMotionView extends JComponent implements TimeListener{
                 double vMin = ae.getAmp(vert.getDataSetSeismogram()).getMinValue();
                 double vMax = ae.getAmp(vert.getDataSetSeismogram()).getMaxValue();
                 while(hIt.hasNext() && vIt.hasNext()){
-                    float hVal = getVal(hIt, hMin, hMax, size.height);
-                    float vVal = getVal(vIt, vMin, vMax, size.height);
+                    double hVal = getVal(hIt, hMin, hMax, size.height);
+                    double vVal = getVal(vIt, vMin, vMax, size.height);
                     if(hVal == Integer.MAX_VALUE || vVal == Integer.MAX_VALUE){
                         prevPointBad = true;
                     }else{
-                        hVal *= -1;
-                        hVal += size.height;
+                        vVal *= -1;
+                        vVal += size.height;
                         if(prevPointBad){
-                            generalPath.moveTo(hVal, vVal);
+                            generalPath.moveTo((int)hVal, (int)vVal);
                             prevPointBad = false;
                         }else{
-                            generalPath.lineTo(hVal, vVal);
+                            generalPath.lineTo((int)hVal, (int)vVal);
                         }
                     }
                 }
@@ -384,8 +352,8 @@ public class ParticleMotionView extends JComponent implements TimeListener{
             }
         }
         
-        private int getVal(SeismogramIterator it, double minAmp, double maxAmp,
-                           int size){
+        private double getVal(SeismogramIterator it, double minAmp, double maxAmp,
+                              int size){
             double itVal = ((QuantityImpl)it.next()).getValue();
             if(Double.isNaN(itVal)){//Gap in trace
                 itVal = Integer.MAX_VALUE;
@@ -393,7 +361,7 @@ public class ParticleMotionView extends JComponent implements TimeListener{
                 itVal= Math.round(SimplePlotUtil.linearInterp(minAmp, 0, maxAmp,
                                                               size, itVal));
             }
-            return (int)itVal;
+            return itVal;
         }
         
         public void updateData() {
@@ -406,6 +374,7 @@ public class ParticleMotionView extends JComponent implements TimeListener{
         
         public void updateTime(TimeEvent timeEvent) {
             this.tr = timeEvent.getTime();
+            repaint();
         }
         
         public boolean isHorizontalPlane() {
@@ -490,7 +459,7 @@ public class ParticleMotionView extends JComponent implements TimeListener{
             setColumnWidths();
             Iterator it = parMos.iterator();
             while(it.hasNext())
-                  add((ParticleMotion)it.next());
+                add((ParticleMotion)it.next());
         }
         
         public void setComponent(ParticleMotion parMo, JComponent comp){

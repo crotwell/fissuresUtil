@@ -79,7 +79,6 @@ public class ParticleMotionDisplayThread{
             }
         }
         completion = true;
-        
     }
     
     public boolean isHorizontalPlane(ChannelId channelIdone,
