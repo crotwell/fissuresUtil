@@ -134,7 +134,7 @@ public class OpenMap extends OpenMapComponent{
     }
 
     /**
-     * Depricated
+     * Deprecated
      */
     public void addStationsFromChannelChooser(ChannelChooser chooser){
         if(chooser != null){
