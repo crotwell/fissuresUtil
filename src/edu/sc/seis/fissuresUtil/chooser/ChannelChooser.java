@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4616 2003-07-02 17:44:56Z crotwell $
+ * @version $Id: ChannelChooser.java 4622 2003-07-02 21:01:50Z groves $
  *
  */
 
@@ -690,6 +690,26 @@ public class ChannelChooser extends JPanel {
         return (Station[])out.toArray(new Station[0]);
     }
 
+    public void toggleStationSelected(Station stat){
+        int[] selectedIndices = stationList.getSelectedIndices();
+        stationList.setSelectedValue(stat, true);
+        int stationIndex = stationList.getSelectedIndex();
+        for (int i = 0; i < selectedIndices.length; i++){
+            if(selectedIndices[i] == stationIndex){
+                if(selectedIndices.length > 1){
+                    int[] newSelection = new int[selectedIndices.length -1];
+                    System.arraycopy(selectedIndices, 0, newSelection, 0, i);
+                    System.arraycopy(selectedIndices, i + 1, newSelection, i, selectedIndices.length - (i + 1));
+                    stationList.setSelectedIndices(newSelection);
+                }
+                return;
+            }
+        }
+        int[] newSelection = new int[selectedIndices.length +1];
+        System.arraycopy(selectedIndices, 0, newSelection, 0, selectedIndices.length);
+        newSelection[selectedIndices.length] = stationIndex;
+        stationList.setSelectedIndices(newSelection);
+    }
     public Site[]  getSelectedSites() {
         return castSiteArray(siteList.getSelectedValues());
     }
