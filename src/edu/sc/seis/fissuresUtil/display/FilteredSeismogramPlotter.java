@@ -4,6 +4,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.Shape;
 import java.awt.Dimension;
 import java.lang.ref.SoftReference;
+import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.freq.ButterworthFilter;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.fissuresUtil.freq.SeisGramText;
@@ -70,11 +71,8 @@ public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
 	    idata = null;
 	}	    
 	// remove the mean before filtering
-	double mean = 0;
-	for (int i=0; i<fdata.length; i++) {
-	    mean += fdata[i];
-	} // end of for (int i=0; i<fdata.length; i++)
-	mean /= fdata.length;
+	Statistics stats = new Statistics(fdata);
+	double mean = stats.mean();
 	float fmean = (float)mean;
 	for (int i=0; i<fdata.length; i++) {
 	    fdata[i] -= fmean;
@@ -87,6 +85,9 @@ public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
 	// save memory
 	fftdata = null;
 	float[] outData = Cmplx.fftInverse(filtered, seis.getNumPoints());
+	for (int i=0; i<outData.length; i++) {
+	    outData[i] += fmean;
+	} // end of for (int i=0; i<fdata.length; i++)
 	TimeSeriesDataSel sel = new TimeSeriesDataSel();
 	sel.flt_values(outData);
 	filteredSeis = new LocalSeismogramImpl(seis, sel);
