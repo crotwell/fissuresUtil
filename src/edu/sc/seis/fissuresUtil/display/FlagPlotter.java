@@ -20,15 +20,14 @@ import edu.iris.Fissures.model.MicroSecondDate;
 
 public class FlagPlotter implements Plotter{
     
-    public FlagPlotter(MicroSecondDate flagTime, TimeConfigRegistrar tcr, String name){
+    public FlagPlotter(MicroSecondDate flagTime, String name){
 	this.flagTime = flagTime;
-	this.timeRegistrar = tcr;
 	this.name = name;
     }
 
-    public Shape draw(Dimension size){
-	if(visible ){
-	    MicroSecondTimeRange overTimeRange = timeRegistrar.getTimeRange().
+    public Shape draw(Dimension size, TimeSnapshot imageState){
+	if(visible){
+	    MicroSecondTimeRange overTimeRange = imageState.getTimeRange().
 		getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
 	    if(flagTime.before(overTimeRange.getBeginTime()) || flagTime.after(overTimeRange.getEndTime()))
 		return new GeneralPath();

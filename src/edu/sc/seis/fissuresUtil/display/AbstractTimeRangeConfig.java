@@ -116,7 +116,17 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     }
 
     public TimeRangeConfig getTimeConfig(){ return this; } 
-    
+
+    public synchronized TimeSnapshot takeSnapshot(){
+	HashMap seismoDisplayTime = new HashMap();
+	Iterator e = seismos.keySet().iterator();
+	while(e.hasNext()){
+	    LocalSeismogram current = (LocalSeismogram)e.next();
+	    seismoDisplayTime.put(current, this.getTimeRange(current));
+	}
+	return new TimeSnapshot(seismoDisplayTime, this.getTimeRange());
+    }
+	
     protected MicroSecondDate beginTime;
     
     protected TimeInterval displayInterval;

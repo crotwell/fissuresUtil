@@ -51,6 +51,7 @@ public class ImageMaker implements Runnable  {
 	Image currentImage = null;
 	Dimension size; 
 	HashMap filterPlotters, seisPlotters, flagPlotters;
+	TimeSnapshot imageState;
 	numLeft = requests.size();
 	while(numLeft > 0){
 	    begin = new Date();
@@ -62,6 +63,7 @@ public class ImageMaker implements Runnable  {
 		seisPlotters = ((HashMap)currentRequirements.getSeisPlotters().clone());
 		filterPlotters = ((HashMap)currentRequirements.getFilterPlotters().clone());
 		flagPlotters = ((HashMap)currentRequirements.getFlagPlotters().clone());
+		imageState = currentRequirements.getSnapshot();
 	    	if(requests.contains(currentPatron) && size.width > 0){
 		    currentImage = currentPatron.createImage(size.width, size.height);
 		    graphic = (Graphics2D)currentImage.getGraphics();
@@ -78,19 +80,19 @@ public class ImageMaker implements Runnable  {
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
 		graphic.setColor((Color)seisPlotters.get(current));
-		graphic.draw(current.draw(size));
+		graphic.draw(current.draw(size, imageState));
 	    }
 	    e = filterPlotters.keySet().iterator();
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
 		graphic.setColor((Color)filterPlotters.get(current));
-		graphic.draw(current.draw(size));
+		graphic.draw(current.draw(size, imageState));
 	    }
 	    e = flagPlotters.keySet().iterator();
 	    while(e.hasNext()){
 		FlagPlotter current = ((FlagPlotter)e.next());
 		graphic.setColor((Color)flagPlotters.get(current));
-		graphic.fill(current.draw(size));
+		graphic.fill(current.draw(size, imageState));
 		graphic.setColor(Color.white);
 		graphic.drawString(current.getName(), current.getStringX(), 10);
 	    }
@@ -99,11 +101,11 @@ public class ImageMaker implements Runnable  {
 	    //logger.debug("plotting: " + interval + "ms");
 	    plottingTotals += interval;
 	    synchronized(this){
-		if(currentRequirements.getDisplayInterval().getValue() == 
+		if(imageState.getTimeRange().getInterval().getValue() == 
 		   currentPatron.getTimeConfig().getTimeRange().getInterval().getValue() &&
 		   requests.contains(currentPatron)){
 		    requests.removeFirst();
-		    currentPatron.setImage(currentImage);
+		    currentPatron.setImage(currentImage, imageState);
 		}
 		numLeft = requests.size();
 	    }

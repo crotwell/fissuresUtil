@@ -24,18 +24,17 @@ import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
  */
 
 public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
-    public FilteredSeismogramPlotter(ColoredFilter filter, LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar){
+    public FilteredSeismogramPlotter(ColoredFilter filter, LocalSeismogram seis, AmpConfigRegistrar ar){
 	this.seis = (LocalSeismogramImpl)seis;
-	this.timeConfig = tr;
 	this.ampConfig = ar;
 	this.filter = filter;
 	filterData();
     }
 
-    public Shape draw(Dimension size){
+    public Shape draw(Dimension size, TimeSnapshot imageState){
 	if(visible){
 	    try{
-		MicroSecondTimeRange overTimeRange = timeConfig.getTimeRange(seis).
+		MicroSecondTimeRange overTimeRange = imageState.getTimeRange(seis).
 		    getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
 		int[][] pixels = SimplePlotUtil.compressYvalues(filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size);
 		SimplePlotUtil.scaleYvalues(pixels, filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size); 

@@ -18,15 +18,14 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
  */
 
 public class SeismogramPlotter extends AbstractSeismogramPlotter{
-    public SeismogramPlotter(LocalSeismogram seis, TimeConfigRegistrar trc, AmpConfigRegistrar arc){
+    public SeismogramPlotter(LocalSeismogram seis,  AmpConfigRegistrar arc){
 	this.seismogram = seis;
-	this.timeConfig = trc;
 	this.ampConfig = arc;
     }
 
-    public Shape draw(Dimension size){
+    public Shape draw(Dimension size, TimeSnapshot imageState){
 	if(visible){
-	    MicroSecondTimeRange overTimeRange = timeConfig.getTimeRange(seismogram).
+	    MicroSecondTimeRange overTimeRange = imageState.getTimeRange(seismogram).
 		getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
 	    try{
 		int[][] pixels = SimplePlotUtil.compressYvalues(seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size);
