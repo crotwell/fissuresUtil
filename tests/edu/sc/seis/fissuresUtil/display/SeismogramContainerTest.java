@@ -39,13 +39,7 @@ public class SeismogramContainerTest extends TestCase{
         LocalSeismogramImpl[] otherSeis = DisplayUtilsTest.createOtherSeisArray();
         container.pushData(new SeisDataChangeEvent(otherSeis, null, container));
         LocalSeismogramImpl[] nowContains = container.getSeismograms();
-        while(nowContains.length < 6){
-            try {
-                Thread.sleep(5);
-                nowContains = container.getSeismograms();
-            }
-            catch (InterruptedException e) {}
-        }
+        assertEquals("must be exactly 6 seismograms", 6, nowContains.length);
         for (int i = 0; i < nowContains.length; i++){
             boolean found = false;
             for (int j = 0; j < alreadyContained.length && !found; j++) {
