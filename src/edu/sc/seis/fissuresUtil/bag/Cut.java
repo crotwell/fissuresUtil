@@ -11,14 +11,18 @@ import edu.iris.Fissures.IfTimeSeries.*;
  * Created: Tue Oct  1 21:23:44 2002
  *
  * @author Philip Crotwell
- * @version $Id: Cut.java 2675 2002-10-04 17:22:16Z crotwell $
+ * @version $Id: Cut.java 2883 2002-11-07 02:54:56Z crotwell $
  */
 
-public class Cut {
+public class Cut implements LocalSeismogramFunction {
 
-    public static LocalSeismogramImpl cut(LocalSeismogramImpl seis,
-					  MicroSecondDate begin,
-					  MicroSecondDate end) {
+    public Cut(MicroSecondDate begin,
+	       MicroSecondDate end) {
+	this.begin = begin;
+	this.end = end;
+    }
+
+    public LocalSeismogramImpl apply(LocalSeismogramImpl seis) {
 	TimeInterval sampPeriod = seis.getSampling().getPeriod();
 	QuantityImpl beginShift = begin.subtract(seis.getBeginTime());
 	beginShift = beginShift.divideBy(sampPeriod);
@@ -40,42 +44,33 @@ public class Cut {
 	    endIndex = seis.getNumPoints();
 	}
 
-	TimeSeriesType dataType = seis.getDataType();
 	TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
-	switch (dataType.value()) {
-	case TimeSeriesType._TYPE_LONG:
-	    int[] outI = new int[endIndex-beginIndex];
-	    int[] inI = seis.get_as_longs();
-	    System.arraycopy(inI, beginIndex, outI, 0, endIndex-beginIndex);
-	    dataSel.int_values(outI);
-	    break;
-	case TimeSeriesType._TYPE_SHORT:
+	if (seis.can_convert_to_short()) {
 	    short[] outS = new short[endIndex-beginIndex];
 	    short[] inS = seis.get_as_shorts();
 	    System.arraycopy(inS, beginIndex, outS, 0, endIndex-beginIndex);
 	    dataSel.sht_values(outS);
-	    break;
-	case TimeSeriesType._TYPE_FLOAT:
+	} else if (seis.can_convert_to_long()) {
+	    int[] outI = new int[endIndex-beginIndex];
+	    int[] inI = seis.get_as_longs();
+	    System.arraycopy(inI, beginIndex, outI, 0, endIndex-beginIndex);
+	    dataSel.int_values(outI);
+	} else if (seis.can_convert_to_float()) {
 	    float[] outF = new float[endIndex-beginIndex];
 	    float[] inF = seis.get_as_floats();
 	    System.arraycopy(inF, beginIndex, outF, 0, endIndex-beginIndex);
 	    dataSel.flt_values(outF);
-	    break;
-	case TimeSeriesType._TYPE_DOUBLE:
+	} else {
 	    double[] outD = new double[endIndex-beginIndex];
 	    double[] inD = seis.get_as_doubles();
 	    System.arraycopy(inD, beginIndex, outD, 0, endIndex-beginIndex);
 	    dataSel.dbl_values(outD);
-	    break;
-	    
-	default:
-	    // must be encoded?
+	} // end of else	TimeSeriesType dataType = seis.getDataType();
 
-	    break;
-	} // end of switch (dataType.value())
-	
 	return new LocalSeismogramImpl(seis, dataSel);
     }
 
-    
+    protected MicroSecondDate begin;
+    protected MicroSecondDate end;
+
 }// Cut
