@@ -22,7 +22,7 @@ import java.awt.datatransfer.*;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 3249 2003-02-06 19:29:39Z crotwell $
+ * @version $Id: EventInfoDisplay.java 3348 2003-02-27 15:10:00Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay 
@@ -74,12 +74,17 @@ public class EventInfoDisplay extends TextInfoDisplay
     protected void appendEvent(EventAccessOperations event, Document doc)
 	throws BadLocationException 
     {
+	if ( event != null) {
 	    appendEventAttr(event.get_attributes(), doc);
 	    try {
 		appendOrigin(event.get_preferred_origin(), doc);
 	    } catch (NoPreferredOrigin e) {
 		
 	    } // end of try-catch
+	} else {
+	    appendLine(doc, "No earthquake to display.");
+	} // end of else
+	
 	    
     }
 
@@ -94,29 +99,39 @@ public class EventInfoDisplay extends TextInfoDisplay
 	appendHeader(doc, "Event to Station");
 	double dist = -1;
 	double baz = -1;
-    appendLabelValue(doc, "    ", "Lat   Lon   Dist      Dist    Azimuth to Event");
-    appendLabelValue(doc, "    ", "deg   deg   deg        km      deg");
+	appendLabelValue(doc, "    ", "Lat   Lon   Dist      Dist    Azimuth to Event");
+	appendLabelValue(doc, "    ", "deg   deg   deg        km      deg");
 	for (int i=0; i<station.length; i++) {
 	    try {
-	    dist = sph.distance(event.get_preferred_origin().my_location.latitude,
-				event.get_preferred_origin().my_location.longitude,
-				station[i].my_location.latitude,
-				station[i].my_location.longitude);
-	    baz = sph.azimuth(station[i].my_location.latitude,
-                          station[i].my_location.longitude,
-                          event.get_preferred_origin().my_location.latitude,
-                          event.get_preferred_origin().my_location.longitude);
-	    appendLabelValue(doc, station[i].get_code(), 
-                   twoDecimal.format(station[i].my_location.latitude)+" "+
-                   twoDecimal.format(station[i].my_location.longitude)+ " "+
-                   twoDecimal.format(dist)+ "   "+
-                   twoDecimal.format(dist*111.19)+ "   "+ 
-                   twoDecimal.format(baz)+"   "+
-			     station[i].name);
+		if ( event != null) {
+		    dist = sph.distance(event.get_preferred_origin().my_location.latitude,
+					event.get_preferred_origin().my_location.longitude,
+					station[i].my_location.latitude,
+					station[i].my_location.longitude);
+		    baz = sph.azimuth(station[i].my_location.latitude,
+				      station[i].my_location.longitude,
+				      event.get_preferred_origin().my_location.latitude,
+				      event.get_preferred_origin().my_location.longitude);
+		    appendLabelValue(doc, station[i].get_code(), 
+				     twoDecimal.format(station[i].my_location.latitude)+" "+
+				     twoDecimal.format(station[i].my_location.longitude)+ " "+
+				     twoDecimal.format(dist)+ "   "+
+				     twoDecimal.format(dist*111.19)+ "   "+ 
+				     twoDecimal.format(baz)+"   "+
+				     station[i].name);
+		} else {
+		    appendLabelValue(doc, station[i].get_code(),
+				     twoDecimal.format(station[i].my_location.latitude)+
+				     " "+twoDecimal.format(station[i].my_location.longitude)+ 
+				     "--- ,  ---");
+		    
+		} // end of else
+		
 	    } catch (NoPreferredOrigin e) {
-	    appendLabelValue(doc, station[i].get_code(),
-                         twoDecimal.format(station[i].my_location.latitude)+
-                   " "+twoDecimal.format(station[i].my_location.longitude)+ "--- ,  ---");
+		appendLabelValue(doc, station[i].get_code(),
+				 twoDecimal.format(station[i].my_location.latitude)+
+				 " "+twoDecimal.format(station[i].my_location.longitude)+ 
+				 "--- ,  ---");
 	    } // end of try-catch
 
 	} // end of for (int i=0; i<station.length; i++)
@@ -134,11 +149,11 @@ public class EventInfoDisplay extends TextInfoDisplay
     {
 	appendHeader(doc, "Event");
 	appendLabelValue(doc, "Name", attr.name);
-    if (attr.region.number > 0) {
-	appendLabelValue(doc, "Region", feRegions.getRegionName(attr.region)+" ("+attr.region.number+")");
-    } else {
-	appendLabelValue(doc, "Region", "Unknown ("+attr.region.number+")");
-    } // end of else
+	if (attr.region.number > 0) {
+	    appendLabelValue(doc, "Region", feRegions.getRegionName(attr.region)+" ("+attr.region.number+")");
+	} else {
+	    appendLabelValue(doc, "Region", "Unknown ("+attr.region.number+")");
+	} // end of else
     
     
 	appendLine(doc, "");
@@ -155,17 +170,17 @@ public class EventInfoDisplay extends TextInfoDisplay
     {
 	appendHeader(doc, "Origin");
 	appendLabelValue(doc, "Location", "  latitude="+
-                     twoDecimal.format(origin.my_location.latitude)+
-                     ",  longitude="+
-                     twoDecimal.format(origin.my_location.longitude));
-    MicroSecondDate oTime = new ISOTime(origin.origin_time.date_time).getDate();
+			 twoDecimal.format(origin.my_location.latitude)+
+			 ",  longitude="+
+			 twoDecimal.format(origin.my_location.longitude));
+	MicroSecondDate oTime = new ISOTime(origin.origin_time.date_time).getDate();
 	appendLabelValue(doc, "Time", dateFormat.format(oTime));
-    QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
-    depth = depth.convertTo(UnitImpl.KILOMETER);
+	QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
+	depth = depth.convertTo(UnitImpl.KILOMETER);
 	appendLabelValue(doc, "Depth", 
-                     twoDecimal.format(depth.value)+" kilometers");
-                     //  ((UnitImpl)depth.the_units).toString());
-    //	appendLabelValue(doc, "ID", origin.get_id());
+			 twoDecimal.format(depth.value)+" kilometers");
+	//  ((UnitImpl)depth.the_units).toString());
+	//	appendLabelValue(doc, "ID", origin.get_id());
 	//appendLabelValue(doc, "Catalog", origin.catalog);
 	//appendLabelValue(doc, "Contributor", origin.contributor);
 
@@ -199,14 +214,14 @@ public class EventInfoDisplay extends TextInfoDisplay
 
         boolean outcome = false;
 
-//         if ((e.getSourceActions() & DnDConstants.ACTION_COPY) != 0) {
-// 	    System.out.println("Action.COPY & was ok");
-//             e.acceptDrop(DnDConstants.ACTION_COPY);
-//         } else {
-// 	    System.out.println("Action.COPY & didn't");
-//             e.rejectDrop();
-//             return;
-//         }
+	//         if ((e.getSourceActions() & DnDConstants.ACTION_COPY) != 0) {
+	// 	    System.out.println("Action.COPY & was ok");
+	//             e.acceptDrop(DnDConstants.ACTION_COPY);
+	//         } else {
+	// 	    System.out.println("Action.COPY & didn't");
+	//             e.rejectDrop();
+	//             return;
+	//         }
 
 	e.acceptDrop(DnDConstants.ACTION_COPY);
 
