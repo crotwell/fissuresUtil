@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 
 public class TextTable{
 	
-	protected int numColumns;
+	protected int columns;
 	private boolean hasHeader;
 	private String[] header = null;
 	protected List rows = new ArrayList();
@@ -27,7 +27,7 @@ public class TextTable{
 	}
 	
 	public TextTable(int columns, boolean hasHeader){
-		numColumns = columns;
+		this.columns = columns;
 		this.hasHeader = hasHeader;
 		initColWidthArray();
 	}
@@ -51,13 +51,13 @@ public class TextTable{
 	
 	public void addRow(String[] data, boolean isHeader){
 		//printTableStats();
-		if (data.length > numColumns){
-			String[] tmp = new String[numColumns];
-			System.arraycopy(data, 0, tmp, 0, numColumns);
-			logger.debug("truncating data (length " + data.length + ") to number of table columns (" + numColumns + ")");
+		if (data.length > columns){
+			String[] tmp = new String[columns];
+			System.arraycopy(data, 0, tmp, 0, columns);
+			logger.debug("truncating data (length " + data.length + ") to number of table columns (" + columns + ")");
 			data = tmp;
 		}
-		else if (data.length < numColumns){
+		else if (data.length < columns){
 			logger.debug("data.length: " + data.length);
 			return;
 		}
@@ -75,7 +75,7 @@ public class TextTable{
 	}
 	
 	private void updateWidths(String[] data){
-		for (int i = 0; i < numColumns; i++) {
+		for (int i = 0; i < columns; i++) {
 			if (data[i].length() > widths[i]){
 				logger.debug("changing width of column " + i + " to " + data.length);
 				widths[i] = data[i].length();
@@ -126,8 +126,8 @@ public class TextTable{
 	}
 	
 	private void initColWidthArray(){
-		widths = new int[numColumns];
-		for (int i = 0; i < numColumns; i++) {
+		widths = new int[columns];
+		for (int i = 0; i < columns; i++) {
 			widths[i] = 0;
 		}
 	}
@@ -158,14 +158,14 @@ public class TextTable{
 	}
 	
 	public TextTable join(TextTable table){
-		if (table.numColumns != numColumns){
+		if (table.columns != columns){
 			return table;
 			//I'll throw an exception eventually.  I'm just not sure what yet.
 		}
 		
 		rows.addAll(table.rows);
 		
-		for (int i = 0; i < numColumns; i++) {
+		for (int i = 0; i < columns; i++) {
 			if (table.widths[i] > widths[i]){
 				logger.debug("changing width of column " + i + " to " + table.widths.length);
 				widths[i] = table.widths[i];
@@ -180,6 +180,14 @@ public class TextTable{
 		for (int i = 0; i < widths.length; i++) {
 			System.out.println(i + ": " + widths[i]);
 		}
+	}
+	
+	public int numRows(){
+		return rows.size();
+	}
+	
+	public int numColumns(){
+		return columns;
 	}
 }
 
