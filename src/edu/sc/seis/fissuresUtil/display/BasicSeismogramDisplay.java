@@ -76,9 +76,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		    repaint();
 		}
 		});
-	setMinimumSize(new Dimension(100, 50));
-	timeScaleMap = new TimeScaleCalc(200, registrar);
-	ampScaleMap = new AmpScaleMapper(50, 4, registrar);
+	timeScaleMap = new TimeScaleCalc(preferredBSDWidth, registrar);
+	ampScaleMap = new AmpScaleMapper(preferredBSDHeight, 4, registrar);
 	scaleBorder = new ScaleBorder();
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
 	setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
@@ -87,7 +86,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 											BorderFactory.createLoweredBevelBorder())));
 	Dimension d = getSize();
 	Insets insets = getInsets();
-	setPreferredSize(new Dimension(200 + insets.left + insets.right, 100 + insets.top + insets.bottom));
+	setPreferredSize(new Dimension(preferredBSDWidth + insets.left + insets.right, preferredBSDHeight + insets.top + insets.bottom));
 	resize();
 	repaint();
 	plotPainter = new PlotPainter();
@@ -278,14 +277,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public void addBottomTimeBorder(){	
 	scaleBorder.setBottomScaleMapper(timeScaleMap); 
 	Insets current = this.getInsets();
-	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+	setPreferredSize(new Dimension(preferredBSDWidth + current.left + current.right, 
+				       preferredBSDHeight + current.top + current.bottom));
 	this.revalidate();
     }
 
     public void removeBottomTimeBorder(){ 
 	scaleBorder.clearBottomScaleMapper(); 
 	Insets current = this.getInsets();
-	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+	setPreferredSize(new Dimension(preferredBSDWidth + current.left + current.right, 
+				       preferredBSDHeight + current.top + current.bottom));
     }
 
     public boolean hasTopTimeBorder(){
@@ -298,14 +299,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public void addTopTimeBorder(){ 
 	scaleBorder.setTopScaleMapper(timeScaleMap);
 	Insets current = this.getInsets();
-	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+	setPreferredSize(new Dimension(preferredBSDWidth + current.left + current.right, 
+				       preferredBSDHeight + current.top + current.bottom));
 	this.revalidate();
     }
 
     public void removeTopTimeBorder(){ 
 	scaleBorder.clearTopScaleMapper();
 	Insets current = this.getInsets();
-	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+	setPreferredSize(new Dimension(preferredBSDWidth + current.left + current.right, 
+				       preferredBSDHeight + current.top + current.bottom));
     }
     
     protected void resize() {
@@ -421,6 +424,10 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
    
     
     private static Set globalFilters = new HashSet();
+
+    public final static int preferredBSDHeight = 100;
+
+    public final static int preferredBSDWidth = 200;
 
     public ArrayList filters = new ArrayList();
 
