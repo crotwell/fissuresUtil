@@ -391,8 +391,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     private Color color = Color.BLACK;
 
-    public static boolean PRINTING = false;
-
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay
 
