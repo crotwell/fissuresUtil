@@ -16,15 +16,14 @@ import java.util.*;
  * @version 0.2
  */
 
-public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
+public class TimeScaleCalc implements ScaleMapper, TimeListener {
     /**
        @param totalPixels the width of the axis being used in pixels
 
     */
-    TimeScaleCalc (int totalPixels, TimeConfigRegistrar tr){
+    TimeScaleCalc (int totalPixels, Registrar reg){
         this.totalPixels = totalPixels;
-        this.timeRegistrar = new TimeConfigRegistrar(tr, this);
-        setTimes();
+        reg.addListener(this);
     }
 
     public void calculateTicks(){
@@ -140,11 +139,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
         timeIntv = (this.endTime - this.beginTime);
         calculateTicks();
     }
-
-    public void setTimes(){
-        setTimes(timeRegistrar.getTimeRange().getBeginTime(),
-                 timeRegistrar.getTimeRange().getEndTime());
-    }
     
     /**
        @returns the long time if  75 pixels are between the major ticks, else it returns a shortened version of the time 
@@ -186,35 +180,33 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
         return false;
     }
 
-    public void updateTimeRange(){
-        setTimes();
+    public void updateTime(TimeEvent event){
+	setTimes(event.getTime().getBeginTime(), event.getTime().getEndTime());
     }
 
-    protected SimpleDateFormat timeFormat;
+    private SimpleDateFormat timeFormat;
     
-    protected Calendar calendar  = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    private Calendar calendar  = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    protected int totalPixels;
+    private int totalPixels;
     
-    protected long beginTime;
+    private long beginTime;
 
-    protected long endTime;
+    private long endTime;
 
-    protected long firstLabelTime;
+    private long firstLabelTime;
 
-    protected long timeIntv;
+    private long timeIntv;
 
-    protected long majTickTime;
+    private long majTickTime;
 
-    protected int numTicks;
+    private int numTicks;
 
-    protected int majTickRatio;
+    private int majTickRatio;
 
-    protected int majTickOffset;
+    private int majTickOffset;
     
-    protected double tickSpacing, tickOffset;
-
-    protected TimeConfigRegistrar timeRegistrar;
+    private double tickSpacing, tickOffset;
 
     private static final long SECOND = 1000000;
     private static final long MINUTE = 60*SECOND;

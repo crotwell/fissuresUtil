@@ -11,9 +11,9 @@ package edu.sc.seis.fissuresUtil.display;
  */
 
 public class DistanceSeisSorter extends SeismogramSorter {
-    public int sort(DataSetSeismogram seismo, String name){
+    public int sort(DataSetSeismogram[] seismo, String name){
 	int i = 0;
-	while(i < seismos.size() && seismo.isFurtherThan((DataSetSeismogram)seismos.get(names.get(i)))){
+	while(i < seismos.size() && seismo[0].isFurtherThan((DataSetSeismogram)seismos.get(names.get(i)))){
 	    i++;
 	}
 	seismos.put(name, seismo);

@@ -7,6 +7,7 @@ import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding;
+import edu.sc.seis.fissuresUtil.bag.Statistics;
 import java.awt.Dimension;
 import org.apache.log4j.*;
 import java.util.Date;
@@ -26,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2613 2002-09-25 21:08:34Z groves $
+ * @version $Id: SeismogramShape.java 2683 2002-10-07 14:53:19Z groves $
  */
 
 public class SeismogramShape implements Shape, Plotter {
@@ -38,17 +39,17 @@ public class SeismogramShape implements Shape, Plotter {
 	this.dss = seis;
 	this.seis = seis.getSeismogram();
 	this.color = color;
+	this.stat = new Statistics(this.seis);
     }
     
     /**
-     * Draws this <code>SeismogramShape</code>on the supplied graphics after updating it based on the TimeSnapshot and AmpSnapshot
+     * Draws this <code>SeismogramShape</code>on the supplied graphics after updating it based on the TimeEvent and AmpEvent
      *
      */
-    public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState){
+
+    public void draw(Graphics2D canvas, Dimension size, TimeEvent tEvent, AmpEvent aEvent){
 	if(visible){
-	    setPlot(timeState.getTimeRange(dss), ampState.getAmpRange(dss), size);
-	    canvas.setColor(color);
-	    canvas.draw(this);
+	    setPlot(canvas, tEvent.getTime(dss), aEvent.getAmp(dss), size);
 	}
     }
 
@@ -60,14 +61,12 @@ public class SeismogramShape implements Shape, Plotter {
      * @param size size of the drawing surface
      * @return this <code>SeismogramShape</code>
      */
-    private Shape setPlot(MicroSecondTimeRange time, UnitRangeImpl amp, Dimension size){
+    private Shape setPlot(Graphics2D canvas, MicroSecondTimeRange time, UnitRangeImpl amp, Dimension size){
 	try{
-	    Date plotBegin = new Date();
-	    if(plotSize == null || size.width != plotSize.width || 
-	       size.height != plotSize.height || time.getInterval().getValue() != plotInterval ||
-												    amp.getMaxValue() != maxAmp || amp.getMinValue() != minAmp){
+	    //Date plotBegin = new Date();
+	    if(!size.equals(plotSize) || !time.getInterval().equals(plotInterval) || amp.getMaxValue() != maxAmp ||
+	       amp.getMinValue() != minAmp){
 		getEdgeValues(time, size);
-		samplesPerPixel = (seisEnd - seisStart)/(double)(endPixel - startPixel);
 		maxAmp = amp.getMaxValue();
 		minAmp = amp.getMinValue();
 		range = maxAmp - minAmp;
@@ -78,11 +77,13 @@ public class SeismogramShape implements Shape, Plotter {
 	    }else{
 		dragPlot(time, size);
 	    }
-	    Date plotEnd = new Date();
+	    //Date plotEnd = new Date();
 	    plotTime = time.getBeginTime().getMicroSecondTime();
-	    plotInterval = time.getInterval().getValue();
+	    plotInterval = time.getInterval();
 	    plotAmp = amp;
 	    plotSize = size;
+	    canvas.setColor(color);
+	    canvas.draw(this);
 	    //System.out.println("plot time: " + (plotEnd.getTime() - plotBegin.getTime()));
 	}catch(UnsupportedDataEncoding e){ e.printStackTrace(); }
 	return this;
@@ -160,14 +161,9 @@ public class SeismogramShape implements Shape, Plotter {
 	    endPixel = 0;
 	    return;
 	}
-	seisStart = getPixel(seis.getNumPoints(), seis.getBeginTime(), seis.getEndTime(), time.getBeginTime());
-	if(seisStart < 0){
-	    seisStart = 0;
-	}
-	seisEnd = getPixel(seis.getNumPoints(), seis.getBeginTime(), seis.getEndTime(), time.getEndTime());
-	if(seisEnd >= seis.getNumPoints()){
-	    seisEnd = seis.getNumPoints() - 1;
-	}
+	int[] points = DisplayUtils.getSeisPoints(seis, time);
+	seisStart = points[0];
+	seisEnd = points[1];
 	MicroSecondDate temp = getValue(seis.getNumPoints(), seis.getBeginTime(), seis.getEndTime(), seisStart);
 	if(temp.getMicroSecondTime() < time.getBeginTime().getMicroSecondTime()){
 	    temp = time.getBeginTime();
@@ -178,30 +174,21 @@ public class SeismogramShape implements Shape, Plotter {
 	    temp = time.getEndTime();
 	}
 	endPixel = getPixel(size.width, time.getBeginTime(), time.getEndTime(), temp);
+	samplesPerPixel = (seisEnd - seisStart)/(double)(endPixel - startPixel);
     }
     
     private void calculatePixel(int pixel, int height)throws UnsupportedDataEncoding{
 	int start = (int)Math.floor(seisStart + samplesPerPixel * (pixel - startPixel));
-	int end = (int)Math.ceil(start + samplesPerPixel);
 	if(start < 0){
 	    start = 0;
 	}
+	int end = (int)Math.ceil(start + samplesPerPixel);
 	if(end >= seis.getNumPoints()){
 	    end = seis.getNumPoints() - 1;
 	}
-	double minValue = seis.getValueAt(start).getValue();
-	double maxValue = minValue;
-	for(int j = start + 1; j < end; j++) {
-	    double curValue = seis.getValueAt(j).getValue();
-	    if(curValue < minValue){ 
-		minValue = curValue;
-	    }
-	    if(curValue > maxValue){
-		maxValue = curValue;
-	    }
-	}
-	points[0][pixel] = (int)((minValue  - minAmp)/range * height);
-	points[1][pixel] = (int)((maxValue - minAmp)/range * height);
+	double[] minMax = stat.minMaxMean(start, end);
+	points[0][pixel] = (int)((minMax[0]  - minAmp)/range * height);
+	points[1][pixel] = (int)((minMax[1] - minAmp)/range * height);
     }
 
     /** solves the equation <pre>(yb-ya)/(xb-xa) = (y-ya)/(x-xa)</pre>
@@ -301,7 +288,7 @@ public class SeismogramShape implements Shape, Plotter {
     
     protected int[][] points;
 
-    protected double plotInterval;
+    protected TimeInterval plotInterval;
        
     /** holds the fractional offset leftover from the previous drag calculation
      */
@@ -314,6 +301,8 @@ public class SeismogramShape implements Shape, Plotter {
     protected Dimension plotSize;
    
     protected LocalSeismogramImpl seis;
+
+    protected Statistics stat;
 
     protected DataSetSeismogram dss;
     

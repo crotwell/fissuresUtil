@@ -21,26 +21,21 @@ import java.awt.event.*;
  * @version
  */
 
-public class RTTimeRangeConfig extends BoundedTimeConfig{
-   
-    public RTTimeRangeConfig(){
-	this(new TimeConfigRegistrar());
-    }
+public class RTTimeRangeConfig extends BasicTimeConfig{
     
-    public RTTimeRangeConfig (TimeConfigRegistrar reg){
-	this(reg, new TimeInterval(1, UnitImpl.SECOND));
+    public RTTimeRangeConfig(DataSetSeismogram[] seismos){
+	this(seismos, new TimeInterval(1, UnitImpl.SECOND));
     }
 
-    public RTTimeRangeConfig (TimeConfigRegistrar reg, 
+    public RTTimeRangeConfig (DataSetSeismogram[] seismos, 
 			      TimeInterval update){
-	this(reg, update, 1);
+	this(seismos, update, 1);
     }
 
-    public RTTimeRangeConfig (TimeConfigRegistrar reg,
-			      TimeInterval update, 
-			      float speed){
-	super();
-	reg.setTimeConfig(this);
+    public RTTimeRangeConfig(DataSetSeismogram[] seismos, 
+			TimeInterval update, 
+			float speed){
+	super(seismos);
 	this.update = update;
 	this.speed = speed;
 	this.lastDate = new MicroSecondDate();
@@ -54,8 +49,7 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 	    while((str = bufferedReader.readLine()) != null) {
 		timeStr = str;
 	    }
-        this.lastDate = new MicroSecondDate();
-	    //	    System.out.println("*** serverTime is "+ timeStr);
+	    this.lastDate = new MicroSecondDate();
 	    edu.iris.Fissures.Time serverTime = new edu.iris.Fissures.Time();
 	    if(timeStr != null) {
 		serverTime = new edu.iris.Fissures.Time(timeStr, -1);
@@ -70,20 +64,17 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
     }
 
     public void startTimer() {
-	 
 	if (timer == null) {
 	    timer = 
 		new javax.swing.Timer((int)update.convertTo(UnitImpl.MILLISECOND).value,
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
-			     if (beginTime != null && speed != 0) {
+			     if (speed != 0) {
 				 MicroSecondDate now = new MicroSecondDate().add(offset);
 				 TimeInterval timeInterval = new TimeInterval(lastDate, now);
-				 width = 
-				     (TimeInterval)timeInterval.multiplyBy(speed);
+				 width = (TimeInterval)timeInterval.multiplyBy(speed);
 				 lastDate = now;
-				 setAllBeginTime(beginTime.add(width));
-				 updateTimeSyncListeners();
+				 shaleTime(timeInterval.getValue()/interval.getValue() * 10, 1);
 				 System.out.println("Timer: updateTimeSyncListeners()  speed="+speed);
 			     } // end of if (beginTime != null)
 			 }
@@ -91,6 +82,11 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 	    timer.setCoalesce(true); 
 	    timer.start();
 	}
+    }
+
+    public void reset(){
+	speed = 2;
+	super.reset();
     }
     
     public void setSpeed(float speed) {

@@ -15,8 +15,6 @@ import java.awt.event.MouseEvent;
 public interface GlobalToolbarActions {
     public void drag(MouseEvent meOne, MouseEvent meTwo);
 
-    public void print();
-
     public void mouseMoved(MouseEvent me);
 
     public void mouseReleased(MouseEvent me);
@@ -31,9 +29,10 @@ public interface GlobalToolbarActions {
 
     public void zoomOut(MouseEvent me);
 
-    public void createParticleDisplay(MouseEvent me, boolean advancedOption);
-
+    
     // public void selectionReleased(MouseEvent me);
 
     public void clearSelections();
+
+    
 }// GlobalToolbarActions

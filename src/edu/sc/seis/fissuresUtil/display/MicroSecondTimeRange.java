@@ -23,31 +23,53 @@ public class MicroSecondTimeRange{
     public MicroSecondTimeRange(MicroSecondDate beginTime, MicroSecondDate endTime){
 	this.beginTime = beginTime;
 	this.endTime = endTime;
+	this.interval = new TimeInterval(beginTime, endTime);
      }
-    
-    /**
-     * Changes this time range
-     *
-     */
-    public void setTimeRange(MicroSecondDate newBeginTime, MicroSecondDate newEndTime){
-	this.beginTime = newBeginTime;
-	this.endTime = newEndTime;
+
+    public MicroSecondTimeRange(MicroSecondDate beginTime, TimeInterval interval){
+	this.beginTime = beginTime;
+	this.endTime = beginTime.add(interval);
+	this.interval = interval;
     }
     
+    public MicroSecondTimeRange shale(double shift, double scale){
+	if(shift == 0 && scale == 1){
+	    return this;
+	}
+	TimeInterval timeShift = (TimeInterval)interval.multiplyBy(Math.abs(shift));
+	MicroSecondDate newBeginTime;
+	if(shift < 0){
+	    newBeginTime = beginTime.subtract(timeShift);
+	}else{
+	    newBeginTime = beginTime.add(timeShift);
+	}
+	return new MicroSecondTimeRange(newBeginTime, (TimeInterval)interval.multiplyBy(scale));
+    }
+    
+    public MicroSecondTimeRange shift(TimeInterval shift){
+	return new MicroSecondTimeRange(beginTime.add(shift),
+					endTime.add(shift));
+    }
+
+    public MicroSecondTimeRange shift(double percentage){
+	if(percentage == 0){
+	    return this;
+	}
+	TimeInterval shift = (TimeInterval)interval.multiplyBy(Math.abs(percentage));
+	if(percentage < 0){
+	    return new MicroSecondTimeRange(beginTime.subtract(shift), endTime.subtract(shift));
+	}else{
+	    return new MicroSecondTimeRange(beginTime.add(shift), endTime.add(shift));
+	}
+    }
+
     /**
      * Returns the beginning time for this range
      *
      * 
      */
     public MicroSecondDate getBeginTime(){ return beginTime;}
-    
-    /**
-     * Sets the beginning time for this range
-     *
-     * 
-     */
-    public void setBeginTime(MicroSecondDate newBeginTime ){ this.beginTime = newBeginTime; }
-    
+        
     /**
      * Returns the ending time for this range
      *
@@ -56,36 +78,25 @@ public class MicroSecondTimeRange{
     public MicroSecondDate getEndTime(){ return endTime; }
     
     /**
-     * Sets the ending time for this range
-     *
-     * 
-     */
-    public void setEndTime(MicroSecondDate newEndTime){ this.endTime = newEndTime; }
-    
-    /**
      * Returns the interval that this range comprises
      *
      * 
      */
-    public TimeInterval getInterval(){ return new TimeInterval(beginTime, endTime); }
-
-    public MicroSecondTimeRange getOversizedTimeRange(int scale){
-	long interval = endTime.getMicroSecondTime() - beginTime.getMicroSecondTime();
-	long totalTime = scale*interval;
-	return new MicroSecondTimeRange(new MicroSecondDate((long)(beginTime.getMicroSecondTime() - 
-							    ((totalTime/(double)interval) - 1) * interval)),
-					new MicroSecondDate(beginTime.getMicroSecondTime() + totalTime));
-    }
+    public TimeInterval getInterval(){ return interval; }
 
     public boolean equals(MicroSecondTimeRange otherTime){
-	if(beginTime.equals(otherTime.getBeginTime()) && endTime.equals(otherTime.getEndTime())){
+	if(this == otherTime){
 	    return true;
 	}
 	return false;
     }
 
-    private MicroSecondDate beginTime;
+    public String toString(){ return beginTime + " " + endTime; }
+
+    private final MicroSecondDate beginTime;
     
-    private MicroSecondDate endTime;
+    private final MicroSecondDate endTime;
+
+    private final TimeInterval interval;
 
 }// MicroSecondTimeRange
