@@ -60,8 +60,6 @@ public class SimpleEventClient implements TestingClient{
              */
             finder = eventDC.a_finder();
             logger.info("got EventFinder");
-        }catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-            logger.error("Problem with name service: ", e);
         }catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
             logger.error("Problem with name service: ", e);
         }catch (NotFound e) {

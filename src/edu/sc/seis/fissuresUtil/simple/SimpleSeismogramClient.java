@@ -56,8 +56,6 @@ public class SimpleSeismogramClient implements TestingClient {
                                                              serverName,
                                                              Initializer.getNS());
             logger.info("got SeisDC");
-        } catch(org.omg.CORBA.ORBPackage.InvalidName e) {
-            logger.error("Problem with name service: ", e);
         } catch(org.omg.CosNaming.NamingContextPackage.InvalidName e) {
             logger.error("Problem with name service: ", e);
         } catch(NotFound e) {
@@ -71,7 +69,6 @@ public class SimpleSeismogramClient implements TestingClient {
         //If testing the archive, switch to this available_data and retrieve
         //available_data(createOldRF(), true);
         //queuedRetrieve("Wily Test");
-        
         available_data(true);
         retrieve_seismograms(true);
     }
