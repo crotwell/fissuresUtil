@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
+import edu.sc.seis.fissuresUtil.display.borders.UnchangingTitleProvider;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +32,8 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
                 current = (BasicSeismogramDisplay)stationDisplay.get(stationCode);
             }else{
                 current = new BasicSeismogramDisplay(tc, new RMeanAmpConfig());
+                AmpBorder ab = (AmpBorder)current.get(BorderedDisplay.CENTER_LEFT);
+                ab.add(new UnchangingTitleProvider(stationCode));
                 current.setParentDisplay(this);
                 getCenter().add(current);
                 stationDisplay.put(stationCode, current);
