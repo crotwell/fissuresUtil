@@ -81,7 +81,7 @@ public class BestChannelUtil {
         return getChannel(inChan, bandCode, "Z");
     }
 
-    /** finds the best vertical channel for the band code. All channels are
+    /** finds the best horizontal channels for the band code. All channels are
      * assumed to come from the same station. Makes sure that the 2 channels
      * have the same gain and site.
      * @returns best vertical channel, or null if no vertical can be found
