@@ -9,10 +9,35 @@ package edu.sc.seis.fissuresUtil.xml;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.Time;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class XMLRequestFilter {
+
+    /**
+     * StAX insert
+     */
+    public static void insert(XMLStreamWriter writer, RequestFilter filter)
+        throws XMLStreamException{
+
+        writer.writeStartElement("channelId");
+        XMLChannelId.insert(writer, filter.channel_id);
+        writer.writeEndElement();
+
+        writer.writeStartElement("start_time");
+        XMLTime.insert(writer, filter.start_time);
+        writer.writeEndElement();
+
+        writer.writeStartElement("end_time");
+        XMLTime.insert(writer, filter.end_time);
+        writer.writeEndElement();
+    }
+
+    /**
+     * DOM insert
+     */
     public static void insert(Element element, RequestFilter filter) {
 
         Document doc = element.getOwnerDocument();

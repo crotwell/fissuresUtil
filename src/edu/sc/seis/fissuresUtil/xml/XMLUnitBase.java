@@ -1,9 +1,10 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.*;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.apache.log4j.*;
+import edu.iris.Fissures.UnitBase;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 
 /**
@@ -17,19 +18,32 @@ import org.apache.log4j.*;
  */
 
 public class XMLUnitBase {
+
+    /**
+     * StAX insert
+     */
+    public static void insert(XMLStreamWriter writer, UnitBase unitBase)
+        throws XMLStreamException{
+
+        XMLUtil.writeTextElement(writer, "value", ""+unitBase.value());
+    }
+
+    /**
+     * DOM insert
+     */
     public static void insert(Element element, UnitBase unitBase) {
 
-	Document doc = element.getOwnerDocument();
-	element.appendChild(XMLUtil.createTextElement(doc, 
-						      "value",
-						      ""+unitBase.value()));
+        Document doc = element.getOwnerDocument();
+        element.appendChild(XMLUtil.createTextElement(doc,
+                                                      "value",
+                                                      ""+unitBase.value()));
     }
 
     public static UnitBase getUnitBase(Element base) {
-	
-	int value = Integer.parseInt(XMLUtil.getText(XMLUtil.getElement(base,"value")));
-	//Integer.parseInt(XMLUtil.evalString(base, "value"));
-	return UnitBase.from_int(value);
+
+        int value = Integer.parseInt(XMLUtil.getText(XMLUtil.getElement(base,"value")));
+        //Integer.parseInt(XMLUtil.evalString(base, "value"));
+        return UnitBase.from_int(value);
     }
 
 }// XMLUnitBase

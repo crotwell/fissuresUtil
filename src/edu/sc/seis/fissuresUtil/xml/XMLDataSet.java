@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 7304 2004-02-25 21:57:22Z groves $
+ * @version $Id: XMLDataSet.java 8916 2004-05-26 19:10:40Z oliverpa $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -83,15 +83,6 @@ public class XMLDataSet implements DataSet, Serializable{
     }
 
 
-    /**
-     * Creates a new <code>XMLDataSet</code> instance.
-     *
-     * @param docBuilder a <code>DocumentBuilder</code> value
-     * @param base an <code>URL</code> value
-     * @param id a <code>String</code> value
-     * @param name a <code>String</code> value
-     * @param owner a <code>String</code> value
-     */
     public XMLDataSet(DocumentBuilder docBuilder,
                       URL base,
                       String id,
@@ -343,21 +334,7 @@ public class XMLDataSet implements DataSet, Serializable{
         updateParameterNameCache(name);
     }
 
-    /**
-     * Adds a reference to a remote parameter.
-     *
-     * @param paramURL an <code>URL</code> value
-     * @param name a <code>String</code> value
-     * @param audit an <code>AuditInfo[]</code> value
-     */
-    /**
-     * Describe <code>addParameterRef</code> method here.
-     *
-     * @param paramURL an <code>URL</code> value
-     * @param name a <code>String</code> value
-     * @param object an <code>Object</code> value
-     * @param audit an <code>AuditInfo[]</code> value
-     */
+
     public void addParameterRef(URL paramURL,
                                 String name,
                                 Object object,
