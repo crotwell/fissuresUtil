@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 4546 2003-06-26 13:49:55Z groves $
+ * @version $Id: SeismogramShape.java 4838 2003-07-21 17:28:28Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -29,18 +29,20 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         this.parent = parent;
         this.container = new SeismogramContainer(seis);
         container.addListener(this);
-
     }
 
     public synchronized void updateData() {
-        if(currentIterator != null){
+        newData = true;
+        parent.repaint();
+        /*      if(currentIterator != null){
             SeismogramShapeIterator newIt = new SeismogramShapeIterator(currentIterator.getTime(),
                                                                         currentIterator.getAmp(),
                                                                         currentIterator.getSize());
             plot(newIt);
-            parent.repaint();
-        }
+         }*/
     }
+
+    private boolean newData = false;
     /**
      * Method update changes the current plot for the seismogram held by this
      * object to be over the passed in variables
@@ -60,7 +62,8 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
                                                                               amp,
                                                                               size);
             if(newIterator.isDraggedFrom(currentIterator) &&
-               newIterator.hasSimilarAmp(currentIterator)){
+               newIterator.hasSimilarAmp(currentIterator) &&
+              !newData){
                 dragPlot(newIterator);
             }else{
                 plot(newIterator);
@@ -85,6 +88,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
     private void plot(SeismogramShapeIterator iterator){
         iterator.setSeisPoints(DisplayUtils.getPoints(container.getIterator(),
                                                       iterator.getTime()));
+        newData = false;
         iterator.setBaseSeisPoint();
         iterator.setPointsPerPixel();
         iterator.setPoints(new int[2][iterator.getSize().width]);
@@ -189,11 +193,11 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         if(endPoint >= container.getIterator().getNumPoints()){
             endPoint = container.getIterator().getNumPoints() - 1;
             startPoint = endPoint - 1;
-         }
-         if(startPoint < 0){
-             startPoint = 0;
-             endPoint =1;
-         }
+        }
+        if(startPoint < 0){
+            startPoint = 0;
+            endPoint =1;
+        }
         double firstPoint = height/2;
         double lastPoint = firstPoint;
         firstPoint = container.getIterator().getValueAt(startPoint).getValue();
