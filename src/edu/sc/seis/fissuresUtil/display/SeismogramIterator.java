@@ -148,8 +148,8 @@ public class SeismogramIterator implements Iterator{
             for(int i = startPoint; i < endPoint; i++){
                 Object[] array = getSeisAtWithInternal(startPoint);
                 LocalSeismogramImpl current = (LocalSeismogramImpl)array[0];
-                int internalStartPoint = ((Integer)array[1]).intValue();
                 if(current != null && !(current instanceof Gap)){
+                    int internalStartPoint = ((Integer)array[1]).intValue();
                     int shift = 0;
                     if(internalStartPoint < 0){
                         shift = Math.abs(internalStartPoint);
@@ -219,7 +219,7 @@ public class SeismogramIterator implements Iterator{
             }
             curPosition += curPoints[1] - curPoints[0];
         }
-        return null;
+        return new Object[2];
 
     }
 
