@@ -14,68 +14,99 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  */
 public class TableSetup {
 
-    public static void setup(String tableName, Connection conn, Object tableObj, String propFile) throws Exception {
+    public static void setup(String tableName,
+                             Connection conn,
+                             Object tableObj,
+                             String propFile) throws Exception {
         setup(tableName, conn, tableObj, propFile, new VelocityContext());
     }
-    
-    public static void setup(String tableName, Connection conn, Object tableObj, String propFile, Context ctx) throws Exception {
+
+    public static void setup(String tableName,
+                             Connection conn,
+                             Object tableObj,
+                             String propFile,
+                             Context ctx) throws Exception {
         ctx.put("tablename", tableName);
         SQLLoader sql = new SQLLoader(propFile, ctx);
         TableSetup.customSetup(tableName, conn, tableObj, sql);
     }
-    
+
     public static void customSetup(String tablename,
-                      Connection conn,
-                      Object tableObj,
-                      SQLLoader statements) throws SQLException {
+                                   Connection conn,
+                                   Object tableObj,
+                                   SQLLoader statements) throws SQLException {
         // create seq before table in case of table dependency
         createSequence(tablename, conn, tableObj, statements);
-        createTable(tablename, conn, statements.get(tablename + ".create"));
+        createTable(tablename, conn, statements);
         prepareStatements(tablename, conn, tableObj, statements);
     }
 
     private static void createTable(String tablename,
-                             Connection conn,
-                             String creationStmt) throws SQLException {
-        if( ! DBUtil.tableExists(tablename, conn)) {
-            if (creationStmt == null ) {
-                throw new IllegalArgumentException("creation Statement, cannot be null.");
-            }
+                                    Connection conn,
+                                    SQLLoader statements) throws SQLException {
+        if(!DBUtil.tableExists(tablename, conn)) {
+            String creationStmt = statements.get(tablename + ".create");
+            if(creationStmt == null) { throw new IllegalArgumentException("creation Statement, cannot be null."); }
             try {
                 conn.createStatement().executeUpdate(creationStmt);
-            } catch (SQLException e) {
-                logger.error("problem statement: "+creationStmt);
-                SQLException sqle = new SQLException(e.getMessage()+" "+creationStmt);
+            } catch(SQLException e) {
+                logger.error("problem statement: " + creationStmt);
+                SQLException sqle = new SQLException(e.getMessage() + " "
+                        + creationStmt);
                 sqle.setStackTrace(e.getStackTrace());
                 throw sqle;
             }
+            createIndices(tablename, conn, statements);
         }
     }
-    
-    /** creates JDBCSequences for fields named tableName+"Seq" using the
-     * property tableName+"Seq.create" and tableName+"Seq.nextVal"
+
+    private static void createIndices(String tablename,
+                                      Connection conn,
+                                      SQLLoader statements) throws SQLException {
+        String stmt = "";
+        try {
+            String[] propNames = statements.getNamesForPrefix(tablename
+                    + ".index");
+            for(int i = 0; i < propNames.length; i++) {
+                stmt = statements.get(propNames[i]);
+                conn.createStatement().executeUpdate(stmt);
+            }
+        } catch(SQLException e) {
+            logger.error("problem statement: " + stmt);
+            SQLException sqle = new SQLException(e.getMessage() + " " + stmt);
+            sqle.setStackTrace(e.getStackTrace());
+            throw sqle;
+        }
+    }
+
+    /**
+     * creates JDBCSequences for fields named tableName+"Seq" using the property
+     * tableName+"Seq.create" and tableName+"Seq.nextVal"
      */
     public static void createSequence(String tableName,
                                       Connection conn,
                                       Object tableObj,
                                       SQLLoader statements) throws SQLException {
         try {
-        Field field = tableObj.getClass().getDeclaredField(tableName+"Seq");
-        String key = tableName + "Seq.create";
-        if(field != null ) {
-            if (statements.has(key)) {
-                String sql = statements.get(key);
-                field.setAccessible(true);
-                field.set(tableObj, new JDBCSequence(conn, tableName+"Seq"));
-            } else {
-                throw new IllegalArgumentException(tableName+"Seq.create is not defined, unable to create sequence");
+            Field field = tableObj.getClass().getDeclaredField(tableName
+                    + "Seq");
+            String key = tableName + "Seq.create";
+            if(field != null) {
+                if(statements.has(key)) {
+                    String sql = statements.get(key);
+                    field.setAccessible(true);
+                    field.set(tableObj, new JDBCSequence(conn, tableName
+                            + "Seq"));
+                } else {
+                    throw new IllegalArgumentException(tableName
+                            + "Seq.create is not defined, unable to create sequence");
+                }
             }
-        }
         } catch(NoSuchFieldException e) {
-            logger.info("No Sequence field named: "+tableName+"Seq found.");
+            logger.info("No Sequence field named: " + tableName + "Seq found.");
             Field[] fields = tableObj.getClass().getDeclaredFields();
             for(int i = 0; i < fields.length; i++) {
-                logger.info("Field in "+tableName+" "+fields[i].getName());
+                logger.info("Field in " + tableName + " " + fields[i].getName());
             }
             // no field following the naming convention, so skip
         } catch(IllegalArgumentException e) {
@@ -116,6 +147,6 @@ public class TableSetup {
             }
         }
     }
-    
+
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TableSetup.class);
 }

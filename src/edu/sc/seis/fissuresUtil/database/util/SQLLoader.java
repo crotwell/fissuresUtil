@@ -3,6 +3,8 @@ package edu.sc.seis.fissuresUtil.database.util;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -36,6 +38,18 @@ public class SQLLoader {
     
     public String get(String propName){
         return sqlProps.getProperty(propName);
+    }
+
+    public String[] getNamesForPrefix(String prefix){
+        ArrayList list = new ArrayList();
+        Iterator it = sqlProps.keySet().iterator();
+        while(it.hasNext()) {
+            String key = (String)it.next();
+            if (key.startsWith(prefix)) {
+                list.add(key);
+            }
+        }
+        return (String[])list.toArray(new String[0]);
     }
     
     private Properties sqlProps = new Properties();
