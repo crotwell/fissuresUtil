@@ -29,6 +29,7 @@ import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.time.RangeTool;
+import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
 public class JDBCPlottable extends PlottableTable {
 
@@ -45,19 +46,20 @@ public class JDBCPlottable extends PlottableTable {
         }
         prepareStatements();
     }
-    
+
     public void put(PlottableChunk[] chunks) throws SQLException, IOException {
         MicroSecondTimeRange stuffInDB = RangeTool.getFullTime(chunks);
-        //TODO get everything for start and end day as well, in case the db has more
+        //TODO get everything for start and end day as well, in case the db has
+        // more
         PlottableChunk[] dbChunks = get(stuffInDB,
                                         chunks[0].getChannel(),
-                                        chunks[0].getSamplesPerSecond());
+                                        chunks[0].getSamplesPerDay());
         PlottableChunk[] everything = new PlottableChunk[chunks.length
                 + dbChunks.length];
         System.arraycopy(dbChunks, 0, everything, 0, dbChunks.length);
         System.arraycopy(chunks, 0, everything, dbChunks.length, chunks.length);
         logger.debug("Merging " + everything.length + " chunks");
-        everything = merge(everything);
+        everything = ReduceTool.merge(everything);
         logger.debug("Breaking "
                 + everything.length
                 + " remaining chunks after merge into seperate chunks based on day");
@@ -65,7 +67,7 @@ public class JDBCPlottable extends PlottableTable {
         logger.debug("Adding " + everything.length + " chunks split on days");
         int rowsDropped = drop(stuffInDB,
                                chunks[0].getChannel(),
-                               chunks[0].getSamplesPerSecond());
+                               chunks[0].getSamplesPerDay());
         logger.debug("Dropped " + rowsDropped
                 + " rows of stuff that new data covered");
         for(int i = 0; i < everything.length; i++) {
@@ -73,7 +75,7 @@ public class JDBCPlottable extends PlottableTable {
             int stmtIndex = 1;
             PlottableChunk chunk = everything[i];
             put.setInt(stmtIndex++, chanTable.put(chunk.getChannel()));
-            put.setDouble(stmtIndex++, chunk.getSamplesPerSecond());
+            put.setInt(stmtIndex++, chunk.getSamplesPerDay());
             put.setTimestamp(stmtIndex++, chunk.getBeginTime().getTimestamp());
             put.setTimestamp(stmtIndex++, chunk.getEndTime().getTimestamp());
             int[] y = chunk.getData().y_coor;
@@ -88,111 +90,31 @@ public class JDBCPlottable extends PlottableTable {
         }
     }
 
-    private PlottableChunk[] breakIntoDays(PlottableChunk[] chunks) {
+    private PlottableChunk[] breakIntoDays(PlottableChunk[] everything) {
         List results = new ArrayList();
-        Calendar curCal = makeCal();
-        Calendar endCal = makeCal();
-        for(int i = 0; i < chunks.length; i++) {
-            int numBefore = results.size();
-            PlottableChunk chunk = chunks[i];
-            curCal.setTime(chunk.getBeginTime());
-            endCal.setTime(chunk.getEndTime());
-            while(!curCal.equals(endCal)) {
-                PlottableChunk trimmed = trimToDay(curCal, chunk);
-                results.add(trimmed);
-                curCal.setTime(trimmed.getEndTime());
+        for(int i = 0; i < everything.length; i++) {
+            PlottableChunk[] days = everything[i].breakIntoDays();
+            for(int j = 0; j < days.length; j++) {
+                results.add(days[j]);
             }
-            logger.debug("Broke " + chunk + " into "
-                    + (results.size() - numBefore) + " pieces");
         }
         return (PlottableChunk[])results.toArray(new PlottableChunk[0]);
     }
 
-    private PlottableChunk trimToDay(Calendar dayCal, PlottableChunk chunk) {
-        MicroSecondDate beginTime = new MicroSecondDate(dayCal.getTime());
-        Calendar chunkCal = makeCal();
-        chunkCal.setTime(chunk.getBeginTime());
-        if(chunkCal.get(Calendar.DAY_OF_YEAR) == dayCal.get(Calendar.DAY_OF_YEAR)) {
-            beginTime = chunk.getBeginTime();
-        }
-        MicroSecondDate endTime = chunk.getEndTime();
-        chunkCal.setTime(chunk.getEndTime());
-        if(chunkCal.get(Calendar.DAY_OF_YEAR) != dayCal.get(Calendar.DAY_OF_YEAR)) {
-            dayCal.add(Calendar.DAY_OF_YEAR, 1);
-            endTime = new MicroSecondDate(dayCal.getTime());
-        }
-        MicroSecondTimeRange tr = new MicroSecondTimeRange(beginTime, endTime);
-        return new PlottableChunk(new Plottable(null, fill(tr, chunk)),
-                                  beginTime,
-                                  chunk);
-    }
-
-    private static Calendar makeCal() {
+    public static Calendar makeCal() {
         return Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
     }
 
-    /**
-     * Combines adjacent and overlapping chunks. Assumes that the given chunks
-     * all belong to the same channel and have the same number of samples per
-     * second
-     */
-    private PlottableChunk[] merge(PlottableChunk[] chunks) {
-        chunks = (PlottableChunk[])chunks.clone();
-        for(int i = 0; i < chunks.length; i++) {
-            PlottableChunk chunk = chunks[i];
-            for(int j = i + 1; j < chunks.length; j++) {
-                PlottableChunk chunk2 = chunks[j];
-                if(RangeTool.areContiguous(chunk, chunk2)
-                        || RangeTool.areOverlapping(chunk, chunk2)) {
-                    chunks[j] = merge(chunk, chunk2);
-                    chunks[i] = null;
-                    break;
-                }
-            }
-        }
-        List results = new ArrayList();
-        for(int i = 0; i < chunks.length; i++) {
-            if(chunks[i] != null) {
-                results.add(chunks[i]);
-            }
-        }
-        return (PlottableChunk[])results.toArray(new PlottableChunk[0]);
-    }
-
-    private PlottableChunk merge(PlottableChunk chunk, PlottableChunk chunk2) {
-        MicroSecondTimeRange fullRange = new MicroSecondTimeRange(chunk.getTimeRange(),
-                                                                  chunk2.getTimeRange());
-        logger.debug("Merging " + chunk + " and " + chunk2 + " into "
-                + fullRange);
-        int samples = (int)Math.floor(chunk.getSamplesPerSecond()
-                * fullRange.getInterval().convertTo(UnitImpl.SECOND).value);
-        int[] y = new int[samples];
-        fill(fullRange, y, chunk);
-        fill(fullRange, y, chunk2);
-        Plottable mergedData = new Plottable(null, y);
-        return new PlottableChunk(mergedData,
-                                  fullRange.getBeginTime(),
-                                  chunk.getSamplesPerSecond(),
-                                  chunk.getChannel());
-    }
-
-    private static int getSamples(double samplesPerSecond,
-                                  MicroSecondTimeRange tr) {
+    private static int getSamples(int samplesPerDay, MicroSecondTimeRange tr) {
         TimeInterval inter = tr.getInterval();
-        inter = (TimeInterval)inter.convertTo(UnitImpl.SECOND);
-        double samples = samplesPerSecond * inter.getValue();
+        inter = (TimeInterval)inter.convertTo(UnitImpl.DAY);
+        double samples = samplesPerDay * inter.getValue();
         return (int)Math.floor(samples);
     }
 
-    private static int[] fill(MicroSecondTimeRange tr, PlottableChunk chunk) {
-        return fill(tr,
-                    new int[getSamples(chunk.getSamplesPerSecond(), tr)],
-                    chunk);
-    }
-
-    private static int[] fill(MicroSecondTimeRange fullRange,
-                              int[] y,
-                              PlottableChunk chunk) {
+    public static int[] fill(MicroSecondTimeRange fullRange,
+                             int[] y,
+                             PlottableChunk chunk) {
         MicroSecondDate rowBeginTime = chunk.getBeginTime();
         int offsetIntoRequestSamples = SimplePlotUtil.getPixel(y.length,
                                                                fullRange,
@@ -215,7 +137,7 @@ public class JDBCPlottable extends PlottableTable {
 
     public int drop(MicroSecondTimeRange requestRange,
                     ChannelId id,
-                    double samplesPerSecond) throws SQLException {
+                    int samplesPerDay) throws SQLException {
         int chanDbId;
         try {
             chanDbId = chanTable.getDBId(id);
@@ -227,13 +149,13 @@ public class JDBCPlottable extends PlottableTable {
         drop.setTimestamp(1, requestRange.getEndTime().getTimestamp());
         drop.setTimestamp(2, requestRange.getBeginTime().getTimestamp());
         drop.setInt(3, chanDbId);
-        drop.setDouble(4, samplesPerSecond);
+        drop.setDouble(4, samplesPerDay);
         return drop.executeUpdate();
     }
 
     public PlottableChunk[] get(MicroSecondTimeRange requestRange,
                                 ChannelId id,
-                                double samplesPerSecond) throws SQLException,
+                                int samplesPerDay) throws SQLException,
             IOException {
         int chanDbId;
         try {
@@ -243,15 +165,16 @@ public class JDBCPlottable extends PlottableTable {
                     + " not found");
             return new PlottableChunk[0];
         }
-        get.setTimestamp(1, requestRange.getEndTime().getTimestamp());
-        get.setTimestamp(2, requestRange.getBeginTime().getTimestamp());
-        get.setInt(3, chanDbId);
-        get.setDouble(4, samplesPerSecond);
+        int index = 1;
+        get.setTimestamp(index++, requestRange.getEndTime().getTimestamp());
+        get.setTimestamp(index++, requestRange.getBeginTime().getTimestamp());
+        get.setInt(index++, chanDbId);
+        get.setInt(index++, samplesPerDay);
         ResultSet rs = get.executeQuery();
         List chunks = new ArrayList();
-        int requestSamples = getSamples(samplesPerSecond, requestRange);
+        int requestSamples = getSamples(samplesPerDay, requestRange);
         logger.debug("Request made for " + requestSamples + " from "
-                + requestRange + " at " + samplesPerSecond);
+                + requestRange + " at " + samplesPerDay);
         while(rs.next()) {
             Timestamp ts = rs.getTimestamp("start_time");
             MicroSecondDate rowBeginTime = new MicroSecondDate(ts);
@@ -286,10 +209,12 @@ public class JDBCPlottable extends PlottableTable {
             }
             Plottable p = new Plottable(x, y);
             PlottableChunk pc = new PlottableChunk(p,
-                                                   rowBeginTime.add(new TimeInterval(firstSampleForRequest
-                                                                                             / samplesPerSecond,
-                                                                                     UnitImpl.SECOND)),
-                                                   samplesPerSecond,
+                                                   PlottableChunk.getSample(rowBeginTime,
+                                                                            samplesPerDay)
+                                                           + firstSampleForRequest,
+                                                   PlottableChunk.getJDay(rowBeginTime),
+                                                   PlottableChunk.getYear(rowBeginTime),
+                                                   samplesPerDay,
                                                    id);
             chunks.add(pc);
             logger.debug("Returning " + pc + " from chunk starting at "
