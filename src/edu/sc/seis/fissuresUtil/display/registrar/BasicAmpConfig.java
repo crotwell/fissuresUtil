@@ -266,7 +266,11 @@ public class BasicAmpConfig implements AmpConfig{
         for(int i = 0; i < ad.length; i++){
             amps[i] = fullRange;
         }
-        return new BasicAmpEvent(getSeismograms(ad), amps);
+        UnitRangeImpl genericRange = DisplayUtils.ONE_RANGE;
+        if(ad.length == 1) {
+            genericRange = UnitDisplayUtil.getRealWorldUnitRange(fullRange, ad[0].getDSS());
+        }
+        return new BasicAmpEvent(getSeismograms(ad), amps, genericRange);
     }
 
     protected boolean setAmpRange(AmpConfigData data){
