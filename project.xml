@@ -176,7 +176,7 @@ useful things already done.</description>
 <!-- Unit test cases -->
     <unitTest>
       <includes>
-        <include>**/*Test.java</include>
+        <include>edu/**/*Test.java</include>
       </includes>
       <resources>
 	<resource>
