@@ -204,6 +204,37 @@ public class Checker {
        return collectionofUnfinished;
     }
 
+    public java.util.HashMap getStatus() {
+
+	ConnCheckerConfig objfromcollection;
+       Iterator collectionExe = ConnCheckerCollection.iterator();
+       boolean conn = false;
+       //Collection collectionofFailed=new LinkedList(); 
+       java.util.HashMap hashMap = new java.util.HashMap();
+       
+       logger.debug("\nThe failed connections are: ");
+       while(collectionExe.hasNext()){
+          objfromcollection = (ConnCheckerConfig) collectionExe.next();
+	  conn = objfromcollection.getSuccessful();
+	  if(conn == true){
+	      hashMap.put(objfromcollection.getName(), "successful");
+	      
+	      //              collectionofFailed.add(objfromcollection);
+	      logger.debug("Failed: " + objfromcollection.getName());
+	      
+          } else if(objfromcollection.getFinished() == true) {
+	      
+	       hashMap.put(objfromcollection.getName(), "failed");
+	  } else {
+
+	       hashMap.put(objfromcollection.getName(), "unfinished");
+	  }
+       }//close while
+       // return collectionofFailed;
+       return hashMap;
+
+    }
+
     private Collection ConnCheckerCollection;/*LinkedList collection*/
     static Category logger = Category.getInstance(Checker.class);
   
