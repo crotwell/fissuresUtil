@@ -63,6 +63,7 @@ public class JDBCStationTest extends JDBCTearDown {
         stationTable.emptyCache();
         Station outSta = stationTable.get(dbid);
         assertEquals("name", sta.name, outSta.name);
+        assertEquals("comment", sta.comment, outSta.comment);
         assertEquals("net name", sta.my_network.name, outSta.my_network.name);
     }
 
