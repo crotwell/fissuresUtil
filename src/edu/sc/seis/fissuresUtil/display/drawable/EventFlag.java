@@ -13,6 +13,7 @@ import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import java.awt.geom.Rectangle2D;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -34,35 +35,35 @@ public class EventFlag{
         this.eventAccess = eventAccess;
         this.arrivals = arrivals;
     }
-
+    
     public int getOriginX(){
         return getX(getOriginXPercent());
     }
-
+    
     public int getOriginY(){
         return getY(getOriginRow());
     }
-
+    
     private int getY(int row){
         return row * display.getRowOffset() + display.titleHeight;
     }
-
+    
     public int getX(Arrival arrival){
-       return getX(getXPercent(arrival));
+        return getX(getXPercent(arrival));
     }
-
+    
     private int getX(MicroSecondDate time){
         return getX(getXPercent(time));
     }
-
+    
     private int getX(double xPercentage){
         return (int)(xPercentage * display.getRowWidth()) + PlottableDisplay.LABEL_X_SHIFT;
     }
-
+    
     public int getY(Arrival arrival){
         return getY(getRow(arrival));
     }
-
+    
     public void draw(Graphics g) {
         top = true;
         // get new graphics to avoid messing up original
@@ -79,9 +80,9 @@ public class EventFlag{
             drawStick(arrivals[i].getName(), x, y, halfOffset, g2);
         }
     }
-
+    
     private boolean top = true;
-
+    
     private void drawStick(String title, int x, int y, int halfOffset, Graphics2D g2){
         FontMetrics fm = g2.getFontMetrics();
         Rectangle2D stringBounds = fm.getStringBounds(title, g2);
@@ -95,7 +96,7 @@ public class EventFlag{
         g2.setColor(Color.WHITE);
         g2.drawString(title, x, (int)(textY + stringBounds.getHeight() - 3));
     }
-
+    
     public boolean isSelected(int[][] rowAndX) {
         int row = getOriginRow();
         int x = getOriginX();
@@ -111,7 +112,7 @@ public class EventFlag{
         }
         return false;
     }
-
+    
     private static boolean intersects(int[][] rowAndX, int x, int row){
         for (int i = 0; i < rowAndX.length; i++) {
             int[] cur = rowAndX[i];
@@ -123,7 +124,7 @@ public class EventFlag{
         }
         return false;
     }
-
+    
     private MicroSecondDate getOriginTime(){
         if(eventOrigin == null) {
             try {
@@ -134,20 +135,20 @@ public class EventFlag{
         }
         return new MicroSecondDate(eventOrigin.origin_time);
     }
-
+    
     private int getOriginRow() {
         return getRow(getOriginTime());
     }
-
+    
     private int getRow(Arrival arrival){
         return getRow(getTime(arrival));
     }
-
+    
     private MicroSecondDate getTime(Arrival arrival){
         MicroSecondDate eventTime = getOriginTime();
         return new MicroSecondDate((long)arrival.getTime() * 1000000 + eventTime.getMicroSecondTime());
     }
-
+    
     private int getRow(MicroSecondDate time){
         long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
         Calendar calendar = Calendar.getInstance();
@@ -157,15 +158,15 @@ public class EventFlag{
         int hours = calendar.get(Calendar.HOUR_OF_DAY);
         return hours/2;
     }
-
+    
     private double getOriginXPercent(){
         return getXPercent(getOriginTime());
     }
-
+    
     private double getXPercent(Arrival arrival){
         return getXPercent(getTime(arrival));
     }
-
+    
     private double getXPercent(MicroSecondDate time){
         long microSeconds =  time.getMicroSecondTime();
         Calendar calendar = Calendar.getInstance();
@@ -181,26 +182,26 @@ public class EventFlag{
         leftoverHours += seconds/60.0/60.0;
         return leftoverHours/hoursPerRow;
     }
-
+    
     public void setTitleLoc(int x, int y, int width, int height){
         titleX = x;
         titleY = y;
         titleWidth = width;
         titleHeight = height;
     }
-
+    
     public Rectangle getTitleLoc(){
         return new Rectangle(titleX, titleY, titleWidth, titleHeight);
     }
-
+    
     public String getTitle(){
         if(eventTitle == null){
-            boolean[] include =  {false, true, false, true, true };
-            eventTitle = EventLayer.getEventInfo(eventAccess,include);
+            eventTitle = EventLayer.getEventInfo(eventAccess, "loc | mag | depth | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
         }
         return eventTitle;
     }
-
+    private static DecimalFormat FORMATTER =  new DecimalFormat("0.00");
+    
     public int[][] getEventCoverage(){
         MicroSecondDate earliestTime = null;
         MicroSecondDate latestTime = null;
@@ -219,28 +220,28 @@ public class EventFlag{
             {getRow(tenLater), getX(tenLater)}};
         return coverage;
     }
-
+    
     private static final TimeInterval TWO_MINUTES= new TimeInterval(2, UnitImpl.MINUTE);
-
+    
     private static final TimeInterval TEN_MINUTES = new TimeInterval(10, UnitImpl.MINUTE);
-
+    
     public EventAccessOperations getEvent(){ return eventAccess; }
-
+    
     public Color getColor(){ return color; }
-
+    
     private int titleX, titleY, titleWidth, titleHeight;
-
+    
     private String eventTitle;
-
+    
     private PlottableDisplay display;
-
+    
     private EventAccessOperations eventAccess;
-
+    
     private Origin eventOrigin;
-
+    
     private Color color = SeismogramDisplay.colors[++colorCount%SeismogramDisplay.colors.length];
-
+    
     private Arrival[] arrivals;
-
+    
     private static int colorCount = 0;
 }// EventFlagPlotter
