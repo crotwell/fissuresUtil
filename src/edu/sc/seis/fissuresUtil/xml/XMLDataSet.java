@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2195 2002-07-15 02:41:16Z telukutl $
+ * @version $Id: XMLDataSet.java 2198 2002-07-15 12:46:05Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -762,18 +762,21 @@ public class XMLDataSet implements DataSet, Serializable {
         String name =seis.getProperty(seisNameKey);
         if (name == null || name.length() == 0) {
 	    name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
-	    name = getUniqueName(name);
+	
 	}
+	name = getUniqueName(name);
+	seis.setProperty(seisNameKey, name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
-	localSeismogram.appendChild(seismogramAttr);
+	//localSeismogram.appendChild(seismogramAttr);
 
 	Element propertyElement = doc.createElement("property");
 	propertyElement.appendChild(XMLUtil.createTextElement(doc, "name",
 							      "Name"));
 	propertyElement.appendChild(XMLUtil.createTextElement(doc, "value",
 							      name));
-	localSeismogram.appendChild(propertyElement);
+	///seismogramAttr.appendChild(propertyElement);
+	localSeismogram.appendChild(seismogramAttr);
 	
 
 	
@@ -827,17 +830,19 @@ public class XMLDataSet implements DataSet, Serializable {
 	
         Document doc = config.getOwnerDocument();
 	Element localSeismogram = doc.createElement("localSeismogram");
+	if(name == null || name.length() == 0) {
+	    name =seis.getProperty(seisNameKey);
+	}
+        if (name == null || name.length() == 0) {
+	    name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
+	
+	}
+	name = getUniqueName(name);
+	seis.setProperty(seisNameKey, name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
-	localSeismogram.appendChild(seismogramAttr);
-
-
-	Element data = doc.createElement("data");
-        data.setAttributeNS(xlinkNS, "xlink:type", "simple");
-        data.setAttributeNS(xlinkNS, "xlink:href", seisStr);
-	data.setAttribute("seisType", "sac");
-	name = getUniqueName(name);
-
+	//localSeismogram.appendChild(seismogramAttr);
+	
 	Element propertyElement = doc.createElement("property");
 	propertyElement.appendChild(XMLUtil.createTextElement(doc,
 							      "name",
@@ -845,7 +850,17 @@ public class XMLDataSet implements DataSet, Serializable {
 	propertyElement.appendChild(XMLUtil.createTextElement(doc,
 							      "value",
 							      name));
-	localSeismogram.appendChild(propertyElement);	
+	//seismogramAttr.appendChild(propertyElement);
+	localSeismogram.appendChild(seismogramAttr);	
+
+	Element data = doc.createElement("data");
+        data.setAttributeNS(xlinkNS, "xlink:type", "simple");
+        data.setAttributeNS(xlinkNS, "xlink:href", seisStr);
+	data.setAttribute("seisType", "sac");
+
+
+
+	
 	//Element nameE = doc.createElement("name");
 	// Text text = doc.createTextNode(name);
         //nameE.appendChild(text);
@@ -920,6 +935,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	for(int i = 0; i < nameList.length; i++) {
 		if(nameList[i].equals(name)) counter++;
 	}
+	if(counter == 0) return name;
 	return name+"_"+counter;
     }
 
