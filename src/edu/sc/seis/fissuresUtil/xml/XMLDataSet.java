@@ -18,7 +18,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1690 2002-05-24 15:23:13Z crotwell $
+ * @version $Id: XMLDataSet.java 1694 2002-05-24 17:11:31Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -157,8 +157,10 @@ public class XMLDataSet implements DataSet, Serializable {
 	} // end of if (dataset instanceof XMLDataSet)
     }
 
-    public void createDataSet(String id, String name, String owner) {
-	addDataSet(new XMLDataSet(docBuilder, id, name, owner));
+    public DataSet createChildDataSet(String id, String name, String owner) {
+	XMLDataSet dataset = new XMLDataSet(docBuilder, id, name, owner);
+	addDataSet(dataset);
+	return dataset;
     }
 
     public DataSet getDataSetById(String id) {

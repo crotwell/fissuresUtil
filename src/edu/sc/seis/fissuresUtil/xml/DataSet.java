@@ -30,6 +30,8 @@ public interface DataSet {
 
     public void addDataSet(DataSet dataset);
 
+    public DataSet createChildDataSet(String id, String name, String owner);
+
     public String[] getSeismogramNames();
 
     public LocalSeismogramImpl getSeismogram(String name);
