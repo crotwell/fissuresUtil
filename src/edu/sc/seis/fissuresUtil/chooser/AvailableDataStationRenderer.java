@@ -270,27 +270,33 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         int consecutiveFailures = 0;
 
         public void run() {
+            int maxFail = 5;
             setFinished(false);
             consecutiveFailures = 0;
             quitThread = false;
             while (!quitThread) {
-                checkNet();
-                if(!quitThread){
+                try {
+                    checkNet();
+                } catch (RuntimeException e) {
+                    if(consecutiveFailures > maxFail) {
+                        throw e;
+                    }
                     try {
                         setStatus("Waiting 2 seconds before making another attempt");
+                        consecutiveFailures++;
                         Thread.sleep(2000 * consecutiveFailures);
-                        if(consecutiveFailures > 5) quitThread = true;
+                        if(consecutiveFailures > maxFail) quitThread = true;
                     }catch(InterruptedException e) {
                     }
+
                 }
             }
             logger.debug("network checker thread quitting");
             setFinished();
-            if(consecutiveFailures > 5) setStatus("Failed");
+            if(consecutiveFailures > maxFail) setStatus("Failed");
         }
 
         void checkNet() {
-            quitThread = true;
             logger.debug("checking "+net.get_attributes().get_code());
             TimeRange range;
             setStatus("Creating available data status request");
@@ -322,7 +328,6 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             if (dc.getDataCenter(net) != null) {
                 setStatus("Requesting available data status");
                 request = dc.available_data(request);
-                if (request.length != 0) {
                     Station[] stations = net.retrieve_stations();
                     LinkedList allStations = new LinkedList();
                     for (int i = 0; i < stations.length; i++) {
@@ -354,11 +359,8 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                         Station station = (Station)it.next();
                         finishedCheck(station, false);
                     }
+                    quitThread = true;
 
-                } else {
-                    quitThread = false;
-                    logger.debug("got nothing from available_data for "+net.get_attributes().get_code());
-                }
             } else {
                 logger.debug("no datacenter for network");
                 quitThread = false;
