@@ -4,6 +4,9 @@ import junit.framework.TestCase;
 // JUnitDoclet begin import
 import edu.sc.seis.fissuresUtil.bag.Cut;
 import edu.iris.Fissures.model.*;
+import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.IfSeismogramDC.*;
+import edu.sc.seis.fissuresUtil.display.*;
 // JUnitDoclet end import
 
 /**
@@ -22,6 +25,7 @@ extends TestCase
 {
   // JUnitDoclet begin class
   edu.sc.seis.fissuresUtil.bag.Cut cut = null;
+  LocalSeismogram seis;
   // JUnitDoclet end class
   
   public CutTest(String name) {
@@ -40,6 +44,7 @@ extends TestCase
   protected void setUp() throws Exception {
     // JUnitDoclet begin method testcase.setUp
     super.setUp();
+    seis = SeisPlotUtil.createTestData("est");
     cut = createInstance();
     // JUnitDoclet end method testcase.setUp
   }
