@@ -32,7 +32,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
         majTickTime = timeIntv/majTickNum;
         majTickRatio = 10;
         if(majTickTime <= SECOND){
-            System.out.println("TimeScaleCalc SECOND"+" "+majTickTime);
+            //System.out.println("TimeScaleCalc SECOND"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("mm:ss.S");
             if(majTickTime <= 1000){
                 majTickTime = 1000;
@@ -47,7 +47,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
             
         }else if(majTickTime <= 45 * SECOND){
             majTickRatio = 10;
-            System.out.println("TimeScaleCalc 45SECOND"+totalPixels+" "+majTickTime);
+            //System.out.println("TimeScaleCalc 45SECOND"+totalPixels+" "+majTickTime);
             timeFormat = new SimpleDateFormat("HH:mm:ss");
             if(majTickTime <= 1.2*SECOND){
                 majTickTime = SECOND;
@@ -68,7 +68,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
         }
         else if(majTickTime <= 3*MINUTE){
             majTickRatio = 6;
-            System.out.println("TimeScaleCalc 3MINUTE"+" "+majTickTime);
+            //System.out.println("TimeScaleCalc 3MINUTE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("HH:mm:ss");
             if(majTickTime <= MINUTE+10*SECOND){
                 majTickTime = MINUTE;
@@ -80,7 +80,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
         }
         else if(majTickTime <= 30*MINUTE){
             majTickRatio = 10;
-            System.out.println("TimeScaleCalc 30MINUTE"+" "+majTickTime);
+            //System.out.println("TimeScaleCalc 30MINUTE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("HH:mm:ss");
             if(majTickTime <= 6*MINUTE){
                 majTickTime = 5*MINUTE;
@@ -95,7 +95,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
         }
         else if(majTickTime <= 4*HOUR){
             majTickRatio = 6;
-            System.out.println("TimeScaleCalc 4HOUR"+" "+majTickTime);
+            //System.out.println("TimeScaleCalc 4HOUR"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("MM/dd HH:mm");
             if(majTickTime <= HOUR){
                 majTickTime = HOUR;
@@ -115,7 +115,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
         }
         else{
             majTickRatio = 6;
-            System.out.println("TimeScaleCalc ELSE"+" "+majTickTime);
+            //System.out.println("TimeScaleCalc ELSE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("MM/dd");
             majTickTime = DAY;
         }
