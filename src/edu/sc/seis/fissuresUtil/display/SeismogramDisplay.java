@@ -26,7 +26,9 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         mouseForwarder = mf;
         motionForwarder = mmf;
         if(mouseForwarder == null || motionForwarder == null){
-            throw new IllegalStateException("The mouse forwarders on SeismogramDisplay must be set before any seismogram displays are invoked");
+            mouseForwarder = new MouseForwarder();
+            motionForwarder = new MouseMotionForwarder();
+            //throw new IllegalStateException("The mouse forwarders on SeismogramDisplay must be set before any seismogram displays are invoked");
         }
     }
 
