@@ -150,6 +150,16 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	view.addSector(degreeone, degreetwo);
     }
 
+    public void setZoomIn(boolean value) {
+
+	view.setZoomIn(value);
+    }
+
+    public void setZoomOut(boolean value) {
+
+	view.setZoomOut(value);
+    }
+
     /**
      * Describe <code>main</code> method here.
      *
@@ -158,12 +168,18 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     public static void main(String[] args) {
         JFrame jf = new JFrame("Test Particle Motion View");
 	JPanel displayPanel = new JPanel();
+	JButton zoomIn = new JButton("zoomIn");
+	JButton zoomOut = new JButton("zoomOut");
+	JPanel buttonPanel = new JPanel();
+	buttonPanel.setLayout(new FlowLayout());
+	buttonPanel.add(zoomIn);
+	buttonPanel.add(zoomOut);
         //        Seismogram hSeis = SeisPlotUtil.createTestData();
         //        Seismogram vSeis = SeisPlotUtil.createTestData();
         LocalSeismogramImpl hSeis = 
-            (LocalSeismogramImpl)SeisPlotUtil.createSineWave(0, .4, 200, -1000);
+            (LocalSeismogramImpl)SeisPlotUtil.createSineWave(Math.PI/2, .4, 200, -1000);
         LocalSeismogramImpl vSeis = 
-            (LocalSeismogramImpl)SeisPlotUtil.createSineWave(Math.PI/2, .8, 200, 1000);	
+            (LocalSeismogramImpl)SeisPlotUtil.createSineWave(Math.PI, .8, 200, 1000);	
 	LocalSeismogramImpl hSeisex = 
             (LocalSeismogramImpl)SeisPlotUtil.createSineWave(30, .6, 100, -400);
         LocalSeismogramImpl vSeisex = 
@@ -171,7 +187,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	
 	RMeanAmpConfig vAmpRangeConfig = new RMeanAmpConfig();
        
-        ParticleMotionDisplay sv = new ParticleMotionDisplay(hSeis, vSeis,
+        final ParticleMotionDisplay sv = new ParticleMotionDisplay(hSeis, vSeis,
 							  vAmpRangeConfig, 
 							  vAmpRangeConfig);
         java.awt.Dimension size = new java.awt.Dimension(400, 400);
@@ -198,7 +214,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	//	sv.addAzimuthLine(80);
 	displayPanel.setLayout(new BorderLayout());
         displayPanel.add(sv, java.awt.BorderLayout.CENTER);
-
+	displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
 	displayPanel.setSize(size);
 	jf.getContentPane().add(displayPanel);
         jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -210,6 +226,22 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
                 }
             });
 
+	zoomIn.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent ae) {
+
+		    sv.setZoomIn(true);
+		    // sv.setZoomOut(false);
+		}
+	    });
+	zoomOut.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent ae) {
+
+		    sv.setZoomOut(true);
+		    // sv.setZoomIn(false);
+		}
+	    });
+
+	
     }
     
 
