@@ -48,7 +48,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
     more for suuport file. Care should be taken to not set this value too small,
     as the system will trash reloading data remotely, causing it to run very slow.
     The recommended value is somewhere in the tens of megabytes. The default is
-     50 megabytes. */
+     50 megabytes. The size checking is only done when new data is added.*/
     public void setMaxDataSize(long size) {
         this.maxDataSize = size;
     }
