@@ -74,7 +74,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    });
 	
 	timeScaleMap = new TimeScaleCalc(200, timeRegistrar);
-	ampScaleMap = new AmpScaleMapper(50, 4, (AmpRangeConfig)ampRegistrar);
+	ampScaleMap = new AmpScaleMapper(50, 4, ampRegistrar);
 	setMinimumSize(new Dimension(100, 50));
 	scaleBorder = new ScaleBorder();
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
