@@ -16,7 +16,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 1726 2002-05-29 14:04:34Z crotwell $
+ * @version $Id: SacDirToDataSet.java 1870 2002-06-12 21:10:26Z crotwell $
  */
 
 public class SacDirToDataSet {
@@ -88,7 +88,7 @@ public class SacDirToDataSet {
 		//sac.read(sacFiles[i].getCanonicalPath());
 		AuditInfo[] audit = new AuditInfo[1];
 		audit[0] = new AuditInfo(userName+" via SacDirToDataSet",
-					 "seismogram loaded from sacFiles[i].getCanonicalPath()");
+					 "seismogram loaded from "+sacFiles[i].getCanonicalPath());
 		URL seisURL = new URL(dirURL, sacFiles[i].getName());
 		dataset.addSeismogramRef(seisURL, 
 					 sacFiles[i].getName(), 
