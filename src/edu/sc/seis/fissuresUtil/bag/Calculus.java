@@ -19,7 +19,7 @@ public class Calculus {
 	
     }
     
-    public static int[] diff(int[] data) {
+    public static int[] difference(int[] data) {
 	int[] out = new int[data.length-1];
 	for (int i=0; i<out.length; i++) {
 	    out[i] = data[i+1] - data[i];
@@ -27,41 +27,110 @@ public class Calculus {
 	return out;
     }
 
-    public static LocalSeismogramImpl diff(LocalSeismogramImpl seis) {
+    public static LocalSeismogramImpl difference(LocalSeismogramImpl seis) {
 	int[] seisData = seis.get_as_longs();
-	int[] out = diff(seisData);
-	TimeSeriesDataSel outData = new TimeSeriesDataSel();
-	outData.int_values(out);
-	return new LocalSeismogramImpl(seis, outData);
+	int[] out = difference(seisData);
+	return new LocalSeismogramImpl(seis, out);
+    }
+
+    public static LocalSeismogramImpl differentiate(LocalSeismogramImpl seis) {
+	SamplingImpl samp = seis.getSampling();
+	double sampPeriod = 
+	    samp.getPeriod().convertTo(UnitImpl.SECOND).getValue();
+	LocalSeismogramImpl outSeis;
+	TimeSeriesType dataType = seis.getDataType();
+	TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
+
+	if (seis.can_convert_to_short()) {
+	    short[] data = seis.get_as_shorts();
+	    short[] out = new short[data.length-1];
+	    for (int i=0; i<out.length; i++) {
+		out[i] = (short)Math.round((data[i+1] - data[i])/sampPeriod);
+	    } // end of for (int i=0; i<out.length; i++)
+	    outSeis = new LocalSeismogramImpl(seis, out);
+	} else if (seis.can_convert_to_long()) {
+	    int[] data = seis.get_as_longs();
+	    int[] out = new int[data.length-1];
+	    for (int i=0; i<out.length; i++) {
+		out[i] = (int)Math.round((data[i+1] - data[i])/sampPeriod);
+	    } // end of for (int i=0; i<out.length; i++)
+	    outSeis = new LocalSeismogramImpl(seis, out);
+	} else if (seis.can_convert_to_float()) {
+	    float[] data = seis.get_as_floats();
+	    float[] out = new float[data.length-1];
+	    for (int i=0; i<out.length; i++) {
+		out[i] = (float)((data[i+1] - data[i])/sampPeriod);
+	    } // end of for (int i=0; i<out.length; i++)
+	    outSeis = new LocalSeismogramImpl(seis, out);
+	} else {
+	    // must be doubles
+	    double[] data = seis.get_as_doubles();
+	    double[] out = new double[data.length-1];
+	    for (int i=0; i<out.length; i++) {
+		out[i] = (data[i+1] - data[i])/sampPeriod;
+	    }
+	    outSeis = new LocalSeismogramImpl(seis, out);
+	} // end of else
+	outSeis.y_unit = 
+	    UnitImpl.divide(UnitImpl.createUnitImpl(outSeis.y_unit),
+			    UnitImpl.SECOND);
+	outSeis.num_points -= 1;
+	MicroSecondDate begin = outSeis.getBeginTime();
+	begin.add(new TimeInterval(samp.getPeriod().divideBy(2)));
+	outSeis.begin_time = begin.getFissuresTime();
+	return outSeis;
     }
 
     public static LocalSeismogramImpl integrate(LocalSeismogramImpl seis) {
-	int[] seisData = seis.get_as_longs();
-	TimeInterval sampPeriod = seis.getSampling().getPeriod();
-	UnitImpl outUnit = UnitImpl.multiply(seis.getUnit(), 
-					     sampPeriod.getUnit());
-	MicroSecondDate outBeginTime = 
-	    new MicroSecondDate(seis.getBeginTime());
-	outBeginTime = outBeginTime.add((TimeInterval)sampPeriod.divideBy(2));
-	float[] out = new float[seisData.length-1];
-	for (int i=0; i<out.length; i++) {
-	    out[i] = 
-		(float)((seisData[i]+seisData[i+1])/2.0 * sampPeriod.value);
-	} // end of for (int i=0; i<out.length; i++)
-	
-	TimeSeriesDataSel outData = new TimeSeriesDataSel();
-	outData.flt_values(out);
-	return new LocalSeismogramImpl(seis.get_id(),
-				       seis.properties,
-				       outBeginTime.getFissuresTime(),
-				       out.length,
-				       seis.getSampling(),
-				       outUnit,
-				       seis.channel_id,
-				       seis.parm_ids,
-				       seis.time_corrections,
-				       seis.sample_rate_history, 
-				       outData);
+	SamplingImpl samp = seis.getSampling();
+	double sampPeriod = 
+	    samp.getPeriod().convertTo(UnitImpl.SECOND).getValue();
+	LocalSeismogramImpl outSeis;
+	TimeSeriesType dataType = seis.getDataType();
+	TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
+
+	if (seis.can_convert_to_short()) {
+	    short[] data = seis.get_as_shorts();
+	    short[] out = new short[data.length];
+	    out[0] = 0;
+	    for (int i=1; i<out.length; i++) {
+		out[i] = 
+		    (short)Math.round((data[i]+data[i-1])/2.0 * sampPeriod);
+	    }
+	    outSeis = new LocalSeismogramImpl(seis, out);
+	} else if (seis.can_convert_to_long()) {
+	    int[] data = seis.get_as_longs();
+	    int[] out = new int[data.length];
+	    out[0] = 0;
+	    for (int i=1; i<out.length; i++) {
+		out[i] = 
+		    (int)Math.round((data[i]+data[i-1])/2.0 * sampPeriod);
+	    }
+	    outSeis = new LocalSeismogramImpl(seis, out);
+	} else if (seis.can_convert_to_float()) {
+	    float[] data = seis.get_as_floats();
+	    float[] out = new float[data.length];
+	    out[0] = 0;
+	    for (int i=1; i<out.length; i++) {
+		out[i] = 
+		    (float)((data[i]+data[i-1])/2.0 * sampPeriod);
+	    }
+	    outSeis = new LocalSeismogramImpl(seis, out);
+	} else {
+	    // must be doubles
+	    double[] data = seis.get_as_doubles();
+	    double[] out = new double[data.length];
+	    out[0] = 0;
+	    for (int i=1; i<out.length; i++) {
+		out[i] = 
+		    (data[i]+data[i-1])/2.0 * sampPeriod;
+	    }
+	    outSeis = new LocalSeismogramImpl(seis, out);
+	} // end of else
+	outSeis.y_unit = 
+	    UnitImpl.multiply(UnitImpl.createUnitImpl(outSeis.y_unit),
+			      UnitImpl.SECOND);
+	return outSeis;
     }
 
 }// Calculus
