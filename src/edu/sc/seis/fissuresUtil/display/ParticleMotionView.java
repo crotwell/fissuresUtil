@@ -28,6 +28,7 @@ public class ParticleMotionView extends JComponent{
     public ParticleMotionView(ParticleMotionDisplay particleMotionDisplay) {
 	this.particleMotionDisplay = particleMotionDisplay;
 	addListeners();
+
     }
     public ParticleMotionView (final DataSetSeismogram hseis, 
 			       DataSetSeismogram vseis,
