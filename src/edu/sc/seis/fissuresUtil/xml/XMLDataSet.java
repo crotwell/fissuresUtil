@@ -19,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1764 2002-05-31 20:36:45Z crotwell $
+ * @version $Id: XMLDataSet.java 1776 2002-06-03 20:28:35Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -294,7 +294,7 @@ public class XMLDataSet implements DataSet, Serializable {
 			throw new MalformedURLException(name+" does not have an xlink:href attribute");			 
 		    } // end of if (urlString == null || urlString == "")
 		    URL sacURL = 
-			new URL(urlString);
+			new URL(base, urlString);
 		    DataInputStream dis = new DataInputStream(new BufferedInputStream(sacURL.openStream())); 
 		    SacTimeSeries sac = new SacTimeSeries();
 		    sac.read(dis);
@@ -316,7 +316,11 @@ public class XMLDataSet implements DataSet, Serializable {
 								   name);
 			seis.setProperties(newProps);
 		    }
-		    seismogramCache.put(name, seis);
+
+		    if (seis != null) {
+			seismogramCache.put(name, seis);
+		    } // end of if (seis != null)
+		    
 		    return seis;
 		}
 		
