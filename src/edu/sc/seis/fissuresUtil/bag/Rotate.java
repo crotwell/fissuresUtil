@@ -16,7 +16,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Sun Dec 15 13:43:21 2002
  *
  * @author Philip Crotwell
- * @version $Id: Rotate.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: Rotate.java 10618 2004-09-18 14:59:53Z crotwell $
  */
 public class Rotate implements LocalMotionVectorFunction {
 
@@ -41,16 +41,21 @@ public class Rotate implements LocalMotionVectorFunction {
                                           data);
     }
 
-    /** rotates the two seismograms to the great circle path radial and transverse.
-     It is assumed that
-     the two seismograms orientation are perpendicular to each other and
-     are oriented in the east, x and north, y, directions.
-     @returns the rotated data from the two seismograms, index 0 is
-     the tangential and index 1 is the radial.*/
+    /**
+     * rotates the two seismograms to the great circle path radial and
+     * transverse. It is assumed that the two seismograms orientation are
+     * perpendicular to each other and are oriented in the east, x and north, y,
+     * directions. They must also have the same number of data points.
+     * 
+     * @throws FissuresException
+     * @throws IncompatibleSeismograms
+     * @returns the rotated data from the two seismograms, index 0 is the
+     *          tangential and index 1 is the radial.
+     */
     public static float[][] rotateGCP(LocalSeismogramImpl x,
                                       LocalSeismogramImpl y,
                                       Location staLoc,
-                                      Location evtLoc) throws FissuresException  {
+                                      Location evtLoc) throws FissuresException, IncompatibleSeismograms  {
         DistAz distAz = new DistAz(staLoc, evtLoc);
         return Rotate.rotate(x, y, dtor(180+distAz.getBaz()));
     }
@@ -58,11 +63,12 @@ public class Rotate implements LocalMotionVectorFunction {
     /** rotates the two seismograms by the given angle. It is assumed that
      the two seismograms orientation are perpendicular to each other and
      that the sense of the rotation is from x towards y.
+     * @throws IncompatibleSeismograms
      @returns the rotated data from the two seismograms, index 0 is
      the new x and index 1 is the new y.*/
     public static float[][] rotate(LocalSeismogramImpl x,
                                    LocalSeismogramImpl y,
-                                   double radians) throws FissuresException  {
+                                   double radians) throws FissuresException, IncompatibleSeismograms  {
         float[][] data = new float[2][];
         float[] temp = x.get_as_floats();
         data[0] = new float[temp.length];
@@ -79,18 +85,19 @@ public class Rotate implements LocalMotionVectorFunction {
      * assumed to be perpendicular. Theta, in radians, is positive from
      * x towards y, and so a rotation of PI/2 puts x into y and
      * -y into x.
+     * @throws IncompatibleSeismograms
      */
-    public static void rotate(float[] x, float[] y, double radians) {
-
+    public static void rotate(float[] x, float[] y, double radians) throws IncompatibleSeismograms {
         rotate(x, y, AffineTransform.getRotateInstance(radians));
     }
 
     /** Performs the rotation from the given matrix. It is assumed to be
      a pure rotation matrix (no translation) and the translation components
-     of the affine transform are ignored if present. */
-    public static void rotate(float[] x, float[] y, AffineTransform affine) {
+     of the affine transform are ignored if present. 
+     * @throws IncompatibleSeismograms*/
+    public static void rotate(float[] x, float[] y, AffineTransform affine) throws IncompatibleSeismograms {
         if (x.length != y.length) {
-            throw new IllegalArgumentException("x and y must have the same length. "+x.length+" "+y.length);
+            throw new IncompatibleSeismograms("x and y must have the same length. "+x.length+" "+y.length);
         }
         float tempx, tempy;
         // matrix is m00 m10 m01 m11 where the matrix is
@@ -112,7 +119,7 @@ public class Rotate implements LocalMotionVectorFunction {
                               float[] z,
                               double theta,
                               double phi) {
-
+        throw new RuntimeException("Not implemented yet");
     }
 
     public static double dtor(double degree) {
