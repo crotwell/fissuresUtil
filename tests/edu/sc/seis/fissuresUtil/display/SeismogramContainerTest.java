@@ -23,7 +23,7 @@ public class SeismogramContainerTest extends TestCase{
         LocalSeismogramImpl[] alreadyContained = container.getSeismograms();
         while(alreadyContained.length < 3){
             try {
-                Thread.sleep(50);
+                Thread.sleep(5);
             }
             catch (InterruptedException e) {}
             alreadyContained = container.getSeismograms();
@@ -57,7 +57,15 @@ public class SeismogramContainerTest extends TestCase{
     }
 
     public void testGetSeismograms(){
-        ArrayAssert.assertEquivalenceArrays(seismograms, container.getSeismograms());
+        LocalSeismogramImpl[] contained = container.getSeismograms();
+        while(contained.length < 3){
+            try {
+                Thread.sleep(5);
+            }
+            catch (InterruptedException e) {}
+            contained = container.getSeismograms();
+        }
+        ArrayAssert.assertEquivalenceArrays(seismograms, contained);
     }
 
     private LocalSeismogramImpl[] seismograms;
