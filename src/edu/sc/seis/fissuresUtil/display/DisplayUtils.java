@@ -323,13 +323,13 @@ public class DisplayUtils {
 
     public static final String UPNORTH = UP + "-" + NORTH;
 
-    public static Font DEFAULT_FONT = new Font("Arial", Font.PLAIN, 12);
+    public static Font DEFAULT_FONT = new Font("Serif", Font.PLAIN, 12);
 
     public static Font MONOSPACED_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
-    public static final Font BORDER_FONT = new Font("Arial", Font.PLAIN, 10);
+    public static final Font BORDER_FONT = new Font("Serif", Font.PLAIN, 10);
 
-    public static Font BOLD_FONT = new Font("Arial", Font.BOLD, 12);
+    public static Font BOLD_FONT = new Font("Serif", Font.BOLD, 12);
 
     public static final Stroke ONE_PIXEL_STROKE = new BasicStroke(1);
 
