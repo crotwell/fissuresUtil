@@ -15,62 +15,64 @@ public class WorkerThreadPool{
     public WorkerThreadPool(String name, int numThreads){
         this(name, numThreads, Thread.NORM_PRIORITY);
     }
-
-
+    
+    
     public WorkerThreadPool(String name, int numThreads, int priority) {
         this.name = name;
         this.priority = priority;
         for (int i = 0; i < numThreads; i++) { createWorker(); }
     }
-
+    
     protected synchronized void createWorker(){
         BackgroundWorker t = new BackgroundWorker(name + workers.size(),
                                                   priority);
         t.start();
         workers.add(t);
     }
-
+    
     public synchronized void invokeLater(Runnable runnable) {
         if(!queue.contains(runnable)){
             queue.addFirst(runnable);
         }
         notifyAll();
     }
-
+    
     public static WorkerThreadPool getDefaultPool() {
         if (defaultPool == null) {
             defaultPool = new WorkerThreadPool("default workers", 2);
         }
         return defaultPool;
     }
-
+    
     private static WorkerThreadPool defaultPool;
-
-
+    
+    
     private synchronized Runnable getFromQueue() throws InterruptedException {
         while (queue.isEmpty()) {
             wait();
         }
         return (Runnable)queue.removeLast();
     }
-
+    
+    public synchronized int getNumWaiting(){ return queue.size(); }
+    
     protected LinkedList workers = new LinkedList();
-
+    
     protected List active = new ArrayList();
-
+    
     protected LinkedList queue = new LinkedList();
-
+    
     private String name;
-
+    
     private int priority;
-
+    
     private class BackgroundWorker extends Thread {
         protected BackgroundWorker(String name, int priority) {
             super(name);
             setPriority(priority);
             setDaemon(true);
         }
-
+        
         public void run() {
             active.add(this);
             while (noQuit) {
@@ -83,7 +85,7 @@ public class WorkerThreadPool{
             }
             active.remove(this);
         }
-
+        
         boolean noQuit = true;
     }
 }
