@@ -225,6 +225,10 @@ public abstract class DataSetSeismogram
                                                             this,
                                                             initiator);
         addToCache(seismograms);
+        // if the initiator is not already registered send event to it as well
+        if ( ! dssDataListeners.contains(initiator)) {
+            initiator.pushData(event);
+        }
         fireNewDataEvent(event);
     }
 
@@ -256,6 +260,10 @@ public abstract class DataSetSeismogram
     public void finished(SeisDataChangeListener initiator) {
         SeisDataChangeEvent event = new SeisDataChangeEvent(this,
                                                             initiator);
+        // if the initiator is not already registered send event to it as well
+        if ( ! dssDataListeners.contains(initiator)) {
+            initiator.finished(event);
+        }
         fireDataFinishedEvent(event);
     }
 
@@ -263,6 +271,10 @@ public abstract class DataSetSeismogram
         SeisDataErrorEvent event = new SeisDataErrorEvent(e,
                                                           this,
                                                           initiator);
+        // if the initiator is not already registered send event to it as well
+        if ( ! dssDataListeners.contains(initiator)) {
+            initiator.error(event);
+        }
         fireDataErrorEvent(event);
     }
 
