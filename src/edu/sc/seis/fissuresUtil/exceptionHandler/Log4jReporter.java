@@ -17,6 +17,9 @@ import org.apache.log4j.Logger;
 public class Log4jReporter implements ExceptionReporter{
 
     public void report(String message, Throwable e, List sections) throws IOException{
+        if (e.getCause() != null) {
+            logger.error(message, e.getCause());
+        }
         logger.error(message, e);
         Iterator it = sections.iterator();
         while(it.hasNext()) {
