@@ -63,13 +63,6 @@ public class JDBCChannel extends NetworkTable {
             conn.createStatement()
                     .executeUpdate(ConnMgr.getSQL("channel.create"));
         }
-        putAll = conn.prepareStatement("INSERT INTO channel (chan_id, site_id, chan_code, "
-                + "chan_begin_id, chan_end_id, "
-                + "chan_name, chan_orientation_az, "
-                + "chan_orientation_dip, chan_sampling_interval_id, chan_sampling_numpoints) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        putId = conn.prepareStatement("INSERT INTO channel (chan_id, chan_code, "
-                + "chan_begin_id) VALUES (?, ?, ?)");
         String getAllIdsQuery = "SELECT " + getNeededForChanId()
                 + " FROM channel";
         getAllIds = conn.prepareStatement(getAllIdsQuery);
@@ -88,7 +81,7 @@ public class JDBCChannel extends NetworkTable {
                 + ", site, station "
                 + "WHERE channel.site_id = site.site_id AND "
                 + "site.sta_id = station.sta_id AND " + "station.net_id = ?");
-        getByDBId = conn.prepareStatement("SELECT * FROM channel WHERE chan_id = ?");
+        prepareStatements();
     }
 
     public int put(Channel chan) throws SQLException {
