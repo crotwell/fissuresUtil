@@ -584,7 +584,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     private static Set globalFilters = new HashSet();
 
-    public final static int PREFERRED_HEIGHT = 100;
+    public final static int PREFERRED_HEIGHT = 125;
 
     public final static int PREFERRED_WIDTH = 200;
 
