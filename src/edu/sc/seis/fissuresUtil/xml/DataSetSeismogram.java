@@ -288,6 +288,10 @@ public abstract class DataSetSeismogram
         return auxillaryData.get(key);
     }
 
+    public Collection getAuxillaryDataKeys() {
+        return auxillaryData.keySet();
+    }
+
     private List dssDataListeners;
 
     private List rfChangeListeners;
