@@ -246,6 +246,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    displaySize = new Dimension(d.width - insets.left - insets.right, d.height - insets.top - insets.bottom);
 	    timeScaleMap.setTotalPixels(d.width-insets.left-insets.right);
 	    ampScaleMap.setTotalPixels(d.height-insets.top-insets.bottom);
+	    image = null;
 	}
 	redo = true;
 	repaint();
@@ -548,8 +549,9 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 			
 	protected TimeInterval displayInterval;
     
-	protected SoftReference image;
     }
+    
+    protected SoftReference image;
     
     protected static LinkedList imageCache = new LinkedList();
     
