@@ -222,7 +222,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
     public ParticleMotionDisplay(DataSetSeismogram hseis,
 				 TimeConfigRegistrar timeConfigRegistrar,
 				 AmpConfigRegistrar hAmpConfigRegistrar,
-				 AmpConfigRegistrar vAmpConfigRegistrar) {
+				 AmpConfigRegistrar vAmpConfigRegistrar,
+				 boolean advancedOption) {
 	LocalSeismogramImpl seis = hseis.getSeismogram();
 	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)hseis.getDataSet()).getChannelIds();
 	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
@@ -277,7 +278,11 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 		  channelGroup[0].channel_code+"-"+channelGroup[1].channel_code,
 		  horizPlane
 		  );
-	formRadioSetPanel(channelGroup);
+	if(!advancedOption) {
+	    formRadioSetPanel(channelGroup);
+	} else {
+	    formCheckBoxPanel(channelGroup);
+	}
 	displayBackAzimuth(hseis.getDataSet(), channelGroup[0]);
 
 	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
@@ -588,7 +593,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	view.updateTimeRange();
     }
 
-    public void formRadioSetPanel(ChannelId[] channelGroup) {
+    public void formCheckBoxPanel(ChannelId[] channelGroup) {
 	ArrayList arrayList = new ArrayList();
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    for(int subcounter = counter+1; subcounter < channelGroup.length; subcounter++) {
@@ -607,8 +612,31 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    radioPanel.add(checkBoxes[counter]);
 	}
+    }
 
+    public void formRadioSetPanel(ChannelId[] channelGroup) {
+	ArrayList arrayList = new ArrayList();
+	for(int counter = 0; counter < channelGroup.length; counter++) {
+	    for(int subcounter = counter + 1; subcounter < channelGroup.length; subcounter++) {
+		String labelStr = channelGroup[counter].channel_code+"-"+channelGroup[subcounter].channel_code;
+		JRadioButton radioButton = new JRadioButton(labelStr);
+		radioButton.setActionCommand(labelStr);
+		radioButton.addItemListener(new RadioButtonListener());
+		arrayList.add(radioButton);
+	    }
+	}
+
+	JRadioButton[] radioButtons = new JRadioButton[arrayList.size()];
+	radioButtons = (JRadioButton[])arrayList.toArray(radioButtons);
+	radioButtons[0].setSelected(true);
 	
+	ButtonGroup buttonGroup = new ButtonGroup();
+	
+	view.setDisplayKey(radioButtons[0].getText());
+	for(int counter = 0; counter < channelGroup.length; counter++) {
+	    buttonGroup.add(radioButtons[counter]);
+	    radioPanel.add(radioButtons[counter]);
+	}
     }
 
     /**
@@ -729,13 +757,13 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 	public void itemStateChanged(ItemEvent ae) {
 	    if(ae.getStateChange() == ItemEvent.SELECTED) {
-		view.addDisplayKey(((JCheckBox)ae.getItem()).getText());
+		view.addDisplayKey(((AbstractButton)ae.getItem()).getText());
 	    } else if(ae.getStateChange() == ItemEvent.DESELECTED){
-		view.removeDisplaykey(((JCheckBox)ae.getItem()).getText());
+		view.removeDisplaykey(((AbstractButton)ae.getItem()).getText());
 	    }
 	    // view.setDisplayKey(ae.getActionCommand());
 	    repaint();
-	    System.out.println("The radiobutton selected is "+ ((JCheckBox)ae.getItem()).getText());
+	    System.out.println("The radiobutton selected is "+ ((AbstractButton)ae.getItem()).getText());
 	}
     }
 
