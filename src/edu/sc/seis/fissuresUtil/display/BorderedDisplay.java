@@ -50,7 +50,6 @@ public class BorderedDisplay extends JPanel{
         gbc.fill = GridBagConstraints.BOTH;//Fill all panels in both directions
         gbc.gridx = position%3;
         gbc.gridy = position/3;
-        System.out.println("adding " + comp.getClass().getName() + " to " + position + " x: " + gbc.gridx + " y: " + gbc.gridy);
         if(gbc.gridx == 1) gbc.weightx = 1;//All row 1 components have a x
         else gbc.weightx = 0;//weight of 1
         if(gbc.gridy == 1) gbc.weighty = 1;// All column 1 components have y
