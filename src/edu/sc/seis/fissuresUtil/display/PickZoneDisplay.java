@@ -36,7 +36,7 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
         for (int i = 0; i < dss.length; i++) {
             add(dss[i]);
         }
-        return (BasicSeismogramDisplay)basicDisplays.getFirst();
+        return (BasicSeismogramDisplay)cp.getComponent(0);
     }
 
     /**
@@ -71,24 +71,24 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
                                              color.toString());
         BasicSeismogramDisplay newDisplay = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(), this, untransparent);
         newDisplay.add(seis, untransparent);
-        getCenterPanel().add(newDisplay);
-        basicDisplays.add(newDisplay);
+        createCenter().add(newDisplay);
         revalidate();
+        setBorders();
         return newDisplay;
     }
 
     public BasicSeismogramDisplay add(DataSetSeismogram seis){
-        BasicSeismogramDisplay[] displays = getDisplayArray();
-        for (int i = 0; i < displays.length; i++) {
-            if(displays[i].contains(seis)) {
+        for (int i = 0; i < cp.getComponentCount(); i++) {
+            BasicSeismogramDisplay cur = (BasicSeismogramDisplay)cp.getComponent(i);
+            if(cur.contains(seis)) {
                 continue;
             }else{
-                DataSetSeismogram[] contained = displays[i].getSeismograms();
+                DataSetSeismogram[] contained = cur.getSeismograms();
                 for (int j = 0; j < contained.length; j++) {
                     if(DisplayUtils.areFriends(contained[j], seis)){
                         DataSetSeismogram[] newSeis = { seis};
-                        displays[i].add(newSeis);
-                        return displays[i];
+                        cur.add(newSeis);
+                        return cur;
                     }
                 }
             }

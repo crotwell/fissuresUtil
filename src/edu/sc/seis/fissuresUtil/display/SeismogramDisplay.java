@@ -28,7 +28,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
             mouseForwarder = new SDMouseForwarder();
             motionForwarder = new SDMouseMotionForwarder();
         }
-        setCenter(createCenter());
+        add(createCenter(), CENTER);
     }
 
     public void add(SeismogramDisplayListener listener){

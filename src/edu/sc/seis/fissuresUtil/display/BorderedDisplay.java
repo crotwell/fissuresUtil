@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.display.borders.Border;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -18,17 +17,15 @@ public class BorderedDisplay extends JPanel{
 
     public BorderedDisplay(JComponent centerPanel){
         this();
-        this.center = centerPanel;
+        add(centerPanel, CENTER);
     }
 
-    public JComponent getCenter(){ return center; }
-
-    public void setCenter(JComponent center){ add(center, CENTER); }
+    public JComponent get(int position){ return comps[position]; }
 
     public void outputToPNG(String filename) throws IOException{
-        if(getRootPane() == null){
-            JFrame frame = new JFrame();
-            frame.getContentPane().add(this);
+        if(getRootPane() == null){//This won't display if it's not in a root pane
+            JFrame frame = new JFrame();//so this plan that is so crazy it might
+            frame.getContentPane().add(this);//actually work will actually work
             frame.pack();
         }
         Dimension size = getSize();
@@ -45,7 +42,8 @@ public class BorderedDisplay extends JPanel{
     }
 
     protected void add(JComponent comp, int position){
-        if(position == CENTER)center = comp;
+        clear(position);
+        comps[position] = comp;
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;//Fill all panels in both directions
         gbc.gridx = position%3;
@@ -57,44 +55,26 @@ public class BorderedDisplay extends JPanel{
         super.add(comp, gbc);
     }
 
-    public void addBorder(Border border, int position) {
-        add(border, position);
-        borders[position] = border;
-    }
-
-    public void addTitle(String title, int position){
-
-    }
-
     public void clear(int position){
-        if(position == CENTER){
-            remove(center);
-            center = null;
-        }else if(isFilled(position)){
-            remove(borders[position]);
-            borders[position] = null;
+        if(isFilled(position)){
+            remove(comps[position]);
+            comps[position] = null;
         }
     }
 
     public void removeAll(){
-        for (int i = 0; i < borders.length; i++) { clear(i); }
+        for (int i = 0; i < comps.length; i++) { clear(i); }
         super.removeAll();
     }
 
-    public boolean isFilled(int position){ return borders[position] != null; }
-
+    public boolean isFilled(int position){ return comps[position] != null; }
 
     /**
      * The positions are of the form ROW_COLUMN
      */
     public static final int TOP_LEFT = 0, TOP_CENTER = 1, TOP_RIGHT = 2,
-        CENTER_LEFT = 3, CENTER_RIGHT = 5, BOTTOM_LEFT = 6, BOTTOM_CENTER = 7,
-        BOTTOM_RIGHT = 8;
+        CENTER_LEFT = 3, CENTER = 4, CENTER_RIGHT = 5, BOTTOM_LEFT = 6,
+        BOTTOM_CENTER = 7, BOTTOM_RIGHT = 8;
 
-    protected static final int CENTER = 4;
-
-    private JComponent center;
-
-    private Border[] borders = new Border[9];
+    private JComponent[] comps = new JComponent[9];
 }
-
