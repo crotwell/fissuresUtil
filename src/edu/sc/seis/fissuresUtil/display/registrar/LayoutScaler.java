@@ -19,12 +19,11 @@ public class LayoutScaler extends JSlider implements ChangeListener{
         super(JSlider.VERTICAL, MIN_SCALE, MAX_SCALE, INITIAL_SCALE);
         setMajorTickSpacing(10);
         setPaintTicks(true);
-        setBorder(BorderFactory.createLoweredBevelBorder());
 
         //Create the label table
         Hashtable labelTable = new Hashtable();
-        labelTable.put(new Integer(MIN_SCALE), new JLabel("Normal"));
-        labelTable.put(new Integer(MAX_SCALE), new JLabel("Huge"));
+        labelTable.put(new Integer(MIN_SCALE), new JLabel("Min"));
+        labelTable.put(new Integer(MAX_SCALE), new JLabel("Max"));
         setLabelTable(labelTable);
         setPaintLabels(true);
         this.recSec = recSec;
