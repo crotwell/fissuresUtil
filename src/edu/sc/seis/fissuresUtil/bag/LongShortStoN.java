@@ -14,7 +14,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.LinkedList;
 
-/** Adapted from reftrg.f from Tom Owens.
+/** Adapted from reftrg.f from Tom Owens and reftrig.c from Passcal.
  * c
  c     routine to apply the reftek trigger algorithm
  c     to a designated SAC file
@@ -44,6 +44,10 @@ public class LongShortStoN {
      * @param threshold ration of short to long termaverages above which a trigger is declared
      **/
     public LongShortStoN(TimeInterval longTime, TimeInterval shortTime, float threshold, TimeInterval delay) {
+        this(longTime, shortTime, threshold, delay, new TimeInterval(100, UnitImpl.SECOND));
+    }
+
+    public LongShortStoN(TimeInterval longTime, TimeInterval shortTime, float threshold, TimeInterval delay, TimeInterval meanTime) {
         if (longTime.lessThanEqual(shortTime)) {
             throw new IllegalArgumentException("longTime must be longer than shortTime, longTime="+longTime+
                                                    "  shortTime="+shortTime);
@@ -56,9 +60,83 @@ public class LongShortStoN {
         this.shortTime = shortTime;
         this.threshold = threshold;
         this.delay = delay;
+        this.meanTime = meanTime;
     }
 
+
     public LongShortTrigger[] calcTriggers(LocalSeismogramImpl seis) throws FissuresException {
+        LinkedList out = new LinkedList();
+        float[] seisData = seis.get_as_floats();
+
+        //   establish number of points in LTA and STA windows
+        //    as well as in trgdly
+
+        float dt = (float)seis.getSampling().getPeriod().convertTo(UnitImpl.SECOND).get_value();
+        int nlta=(int)(longTime.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
+        int nsta=(int)(shortTime.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
+        int ntdly=(int)(delay.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
+        int nmean=(int)(meanTime.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
+
+        if (seis.getEndTime().subtract(seis.getBeginTime()).lessThan(delay) || nsta > ntdly || ntdly > seis.getNumPoints()) {
+            // seis is too short, so no trigger possible
+            return new LongShortTrigger[0];
+        }
+        /*  get weighting factor  */
+        float csta = 1.0f / nsta ;
+        float clta = 1.0f / nlta ;
+        float cmean = 1.0f / nmean ;
+
+        float mean = 0 ;
+        float mean1 = mean ;
+
+        /* now start calculations for first two windows sta=lta */
+        float sta = 0 ;
+        float lta = 0 ;
+        float trg = 0 ;   /* previous value of trigger */
+        float dat;
+        float ratio;
+        boolean hold = false;
+        for(int i=0 ; i < 2*nsta ; i++) {
+            mean = mean + ( seisData[i]-mean)*cmean ;
+            dat = seisData[i] - mean ;
+            mean1 = mean1 + (dat - mean1)*cmean ;
+            dat = dat - mean1 ;
+
+            sta = sta + (Math.abs(dat) - sta)*csta ;
+            lta = lta + (Math.abs(dat) - lta)*csta ;
+            ratio = sta/lta ;
+
+        }
+
+        /*  now get rest of trace */
+        for(int i=2*nsta ; i < seisData.length ; i++) {
+            /* up date mean */
+            mean = mean + ( seisData[i]-mean)*cmean ;
+            dat = seisData[i] - mean ;
+            mean1 = mean1 + (dat - mean1)*cmean ;
+            dat = dat - mean1 ;
+
+            sta = sta + ( Math.abs(dat) - sta)*csta ;
+            if( (trg==1) && (hold==true)) {
+                /* do not change lta */
+            } else {
+                lta = lta + (Math.abs(dat) - lta)*clta ;
+            }
+            ratio = sta/lta ;
+
+                if (ratio > 2.8) System.out.println("lta = "+lta+" sta="+sta+" ratio="+ratio);
+            if (ratio >= threshold) {
+                LongShortTrigger trigger = new LongShortTrigger(seis,
+                                                                i,
+                                                                ratio);
+                out.add(trigger);
+            }
+        }
+        LongShortTrigger[] trigger = (LongShortTrigger[])out.toArray(new LongShortTrigger[0]);
+        return trigger;
+    }
+
+    public LongShortTrigger[] calcTriggersTJO(LocalSeismogramImpl seis) throws FissuresException {
         LinkedList out = new LinkedList();
         float[] seisData = seis.get_as_floats();
 
@@ -117,18 +195,23 @@ public class LongShortStoN {
 
             //    LTA value calculated as per REFTEK algorithm
             prevylta = ylta;
-            ylta = clta*Math.abs(seisData[i] - xmean/nmean)
-                + (1-clta)*prevylta;
+            float nextData = Math.abs(seisData[i] - xmean/nmean);
+            ylta = clta*nextData
+                + (1-clta)*prevylta
+                - (i<nlta?0:clta*Math.abs(seisData[i-nlta] - xmean/nmean));
+            // don't get index of of bounds
 
             //    STA value calculated as per REFTEK algorithm
             prevysta = ysta;
-            ysta = csta*Math.abs(seisData[i] - xmean/nmean)
-                + (1-csta)*prevysta;
+            ysta = csta*nextData
+                + (1-csta)*prevysta
+                - (i<nsta?0:csta*Math.abs(seisData[i-nsta] - xmean/nmean));
 
             //   rat is STA/LTA at each time point
             float ratio;
             if (ylta != 0) {
                 ratio=ysta/ylta;
+                if (ratio > 10) System.out.println("ylta = "+ylta+" ysta="+ysta+" ratio="+ratio);
             } else {
                 // in this case, declare a trigger if ysta != 0, otherwise not
                 if (ysta != 0) {
@@ -152,5 +235,6 @@ public class LongShortStoN {
     protected TimeInterval shortTime;
     protected TimeInterval delay;
     protected float threshold;
+    protected TimeInterval meanTime;
 }
 
