@@ -26,7 +26,7 @@ import java.text.*;
  * ChannelChooser.java
  *
  *
- * @author <a href="mailto:georginamc@prodigy.net">Georgina Coleman</a>
+ * @author Georgina Coleman, SrinivasaReddy Telukutla, Philip Crotwell
  * @version
  * 12/04/2001
  */
@@ -181,7 +181,9 @@ System.out.println("8 netSet.add ");
 
 
 	edu.iris.Fissures.IfNetwork.NetworkAccess netAccess = (edu.iris.Fissures.IfNetwork.NetworkAccess) netMap.get(netcode);
+	MicroSecondDate before = new MicroSecondDate();
 	edu.iris.Fissures.IfNetwork.Station[] allstations = netAccess.retrieve_stations();
+	MicroSecondDate after = new MicroSecondDate();
 	System.out.println("got "+allstations.length+" stations.");
 	Set staSet = new HashSet();
 	staMap.clear();
@@ -321,7 +323,21 @@ System.out.println("8 netSet.add ");
 
     }
  
+    public Map getNetworkMap() {
+	return netMap;
+    }
+
+    public Map getStationMap() {
+	return staMap;
+    }
  
+    public Map getSiteMap() {
+	return sitMap;
+    }
+
+    public Map getChannelMap() {
+	return chanMap;
+    }
 
     /*================Class Variables===============*/
 
