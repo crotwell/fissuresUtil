@@ -21,7 +21,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
     public RMeanAmpConfig(DataSetSeismogram[] seismos){
         super(seismos);
     }
-    
+
     protected AmpEvent calculateAmp(){
         Iterator e = ampData.keySet().iterator();
         boolean changed = false;
@@ -41,7 +41,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         }
         return currentAmpEvent;
     }
-    
+
     protected AmpEvent recalculateAmp(){
         Iterator e = ampData.keySet().iterator();
         double range = Double.NEGATIVE_INFINITY;
@@ -61,17 +61,17 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         currentAmpEvent = new AmpEvent(seismos, amps);
         return currentAmpEvent;
     }
-    
+
     private boolean setAmpRange(DataSetSeismogram seismo){
         AmpConfigData data = (AmpConfigData)ampData.get(seismo);
-        LocalSeismogramImpl seis = (LocalSeismogramImpl)data.getSeismograms().get(0);
+        LocalSeismogramImpl seis = (LocalSeismogramImpl)data.getSeismograms()[0];
         int[] seisIndex = DisplayUtils.getSeisPoints(seis, data.getTime());
         if(seisIndex[1] < 0 || seisIndex[0] >= seis.getNumPoints()) {
             //no data points in window, set range to 0
             data.setCalcIndex(seisIndex);
             return data.setCleanRange(DisplayUtils.ZERO_RANGE);
         }
-        
+
         if(seisIndex[0] < 0){
             seisIndex[0] = 0;
         }
@@ -93,12 +93,12 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         double max = minMaxMean[2] + meanDiff;
         return data.setCleanRange(new UnitRangeImpl(min, max, UnitImpl.COUNT));
     }
-    
+
     private UnitRangeImpl setRange(UnitRangeImpl currRange, double range){
         double middle = currRange.getMaxValue() - (currRange.getMaxValue() - currRange.getMinValue())/2;
         return new UnitRangeImpl(middle - range/2, middle + range/2, UnitImpl.COUNT);
     }
-    
+
     private static Category logger = Category.getInstance(RMeanAmpConfig.class.getName());
-    
+
 }// RMeanAmpConfig
