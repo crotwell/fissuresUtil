@@ -20,9 +20,9 @@ public interface DataSet {
 
     public String[] getParameterNames();
 
-    public Element getParamter(String name);
+    public Object getParamter(String name);
 
-    public void addParameter(Element param);
+    public void addParameter(String name, Object param);
 
     public String[] getDataSetNames();
 

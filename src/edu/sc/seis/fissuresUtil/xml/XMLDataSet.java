@@ -18,7 +18,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1694 2002-05-24 17:11:31Z crotwell $
+ * @version $Id: XMLDataSet.java 1701 2002-05-24 21:08:55Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -92,13 +92,18 @@ public class XMLDataSet implements DataSet, Serializable {
 	return all;
     }
 
-    public Element getParamter(String name) {
+    public Object getParamter(String name) {
+	if (parameterCache.containsKey(name)) {
+	    return parameterCache.get(name);
+	} // end of if (parameterCache.containsKey(name))
+	
 	NodeList nList = evalNodeList(config, 
 				      "dataset/parameter[name/text()="+
 				      dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
+		parameterCache.put(name, n);
 		return (Element)n;
 	    }
 	}
@@ -107,11 +112,13 @@ public class XMLDataSet implements DataSet, Serializable {
 	nList = evalNodeList(config, 
 			     "dataset/parameterRef[text()="+dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
-	    Node n = nList.item(0); 
+	    Node n = nList.item(0);
 	    if (n instanceof Element) {
 		SimpleXLink sl = new SimpleXLink(docBuilder, (Element)n);
 		try {
-		    return sl.retrieve();
+		    Element e = sl.retrieve();
+		    parameterCache.put(name, e);
+		    return e; 
 		} catch (Exception e) {
 		    logger.error("can't get paramterRef", e);
 		} // end of try-catch
@@ -122,8 +129,14 @@ public class XMLDataSet implements DataSet, Serializable {
 	return null;
     }
 
-    public void addParameter(Element param) {
-	config.appendChild(param);
+    public void addParameter(String name, Object param) {
+	parameterCache.put(name, param);
+	if (param instanceof Element) {
+	    config.appendChild((Element)param);
+	} else {
+	    logger.warn("Parameter is only stored in memory.");
+	} // end of else
+	
     }
 
     public String[] getDataSetIds() {
@@ -326,6 +339,8 @@ public class XMLDataSet implements DataSet, Serializable {
     protected HashMap dataSetCache = new HashMap();
 
     protected HashMap seismogramCache = new HashMap();
+
+    protected HashMap parameterCache = new HashMap();
 
     private static final String dquote = ""+'"';
 
