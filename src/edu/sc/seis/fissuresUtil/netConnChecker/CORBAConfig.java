@@ -30,8 +30,8 @@ public class CORBAConfig extends ConnCheckerConfig{
      *  It passes the name to the super class.
      *  @param rootObjgiven a non null Corba object.
      */     
-    public CORBAConfig (String namegiven, org.omg.CORBA.Object rootObjgiven) {
-	super(namegiven);
+    public CORBAConfig (String namegiven, org.omg.CORBA.Object rootObjgiven, Checker checker) {
+	super(namegiven, checker);
         ConnCheckerConfigrootObj = rootObjgiven;	   
 
     }// constructor

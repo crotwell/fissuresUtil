@@ -29,8 +29,8 @@ public class HTTPConfig extends ConnCheckerConfig {
      * @param nameofconn a reference name for the connection
      * @param destination an URL for the connection
      */
-    public HTTPConfig(String nameofconn,URL destination )    {
-	super(nameofconn);
+    public HTTPConfig(String nameofconn,URL destination, Checker checker )    {
+	super(nameofconn, checker);
         dest_url=destination ;           
         
     }
