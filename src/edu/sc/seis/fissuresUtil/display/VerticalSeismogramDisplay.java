@@ -88,44 +88,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
 
     public LinkedList getDisplays(){ return basicDisplays; }
-    
-    public BasicSeismogramDisplay[] getComponentGroup(BasicSeismogramDisplay creator){
-	BasicSeismogramDisplay[] groupDisplays = new BasicSeismogramDisplay[2];
-	int i = 0;
-	Iterator e = creator.getSeismograms().iterator();
-	DataSetSeismogram first = ((DataSetSeismogram)creator.getSeismograms().getFirst());
-	LocalSeismogramImpl seis = first.getSeismogram();
-	XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
-	ChannelId[] channelIds = dataSet.getChannelIds();
-	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
-	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
-	try{
-	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		String name = DisplayUtils.getSeismogramName(channelGroup[counter], dataSet, 
-						   new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), 
-										   seis.getEndTime().getFissuresTime()));
-		seismograms[counter] = new DataSetSeismogram(dataSet.getSeismogram(name), dataSet);
-		if(seismograms[counter] != null && seis != seismograms[counter].getSeismogram()){
-		    int j = i;
-		    Iterator g = basicDisplays.iterator();
-		    while(g.hasNext() && j == i){
-			BasicSeismogramDisplay current = ((BasicSeismogramDisplay)g.next());
-			Iterator h = current.getSeismograms().iterator();
-			while(h.hasNext()&& j == i){
-			    if(((DataSetSeismogram)h.next()).getSeismogram() == seismograms[counter].getSeismogram()){
-				groupDisplays[i] = current;
-				i++;
-			    }
-			}
-		    }
-		}
-	    }
-	}catch(Exception f){
-	    f.printStackTrace();
-	}
-	return groupDisplays;
-    }
 
     public LinkedList  getAllBasicDisplays(LinkedList target){ 
 	target.addAll(basicDisplays);
@@ -137,6 +99,19 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
 	return target;
     }
+
+    public void setSort(SeismogramSorter sorter){
+	/*LinkedList newOrder = new LinkedList();
+	BasicSeismogramDisplay[] disps = basicDisplays.toArray();
+	for (int i = 0; i < disps.length; i++;) {
+	    int j = sorter.sort((DataSetSeismogram)disps[i].getSeismograms().getFirst(), disps[i].getName()); 
+	    seismograms.add(disp[i], j)
+	} // end of for (int i = 0; i < disps.length; i++;)
+	
+	seismograms.add(disp, i);	
+	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();*/
+    } 
 
     public void redraw(){
 	Iterator e = basicDisplays.iterator();
@@ -318,7 +293,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void createParticleDisplay(BasicSeismogramDisplay creator, boolean advancedOption){
 	if(particleDisplay == null){
 	    logger.debug("creating particle display");
-	    particleWindow = new JFrame("Particle Motion");
+	    particleWindow = new JFrame(particleWindowName);
 	    particleDisplay = new ParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
 							(TimeConfigRegistrar)creator.getTimeConfig(), 
 							creator.getAmpRegistrar(), 
@@ -378,7 +353,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    logger.debug("creating selection display");
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    addSelection(creator, selectionDisplay);
-	    selectionWindow = new JFrame();
+	    selectionWindow = new JFrame(tagWindowName);
 	    selectionWindow.addWindowListener(new WindowAdapter() {
 		    public void windowClosing(WindowEvent e) {
 			selectionDisplay.removeAll();
@@ -420,7 +395,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void createThreeSelectionDisplay(Selection creator){
 	if(threeSelectionDisplay == null){
 	    logger.debug("creating 3C selection display");
-	    threeSelectionWindow = new JFrame();
+	    threeSelectionWindow = new JFrame(particleTagWindowName);
 	    threeSelectionWindow.addWindowListener(new WindowAdapter() {
 		    public void windowClosing(WindowEvent e) {
 			threeSelectionDisplay.removeAll();
@@ -528,4 +503,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     protected VerticalSeismogramDisplay selectionDisplay, threeSelectionDisplay, parent;
 
     private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
+
+    protected String tagWindowName = "Pick Zone";
+
+    protected String particleTagWindowName = "Particle Motion Zone";
+
+    protected String particleWindowName = "Particle Motion";
 }// VerticalSeismogramDisplay
