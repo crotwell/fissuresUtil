@@ -353,9 +353,10 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void outputToPNG(String filename) throws IOException{
-        BufferedImage bImg = new BufferedImage(PREFERRED_WIDTH, PREFERRED_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        Dimension size = getSize();
+        BufferedImage bImg = new BufferedImage(size.width, size.height,
+                                               BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = bImg.createGraphics();
-
         boolean notAllHere = true;
         int wait = 0;
         while(notAllHere && wait < 10000){
@@ -374,8 +375,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
             }
             notAllHere = false;
         }
-
-        drawSeismograms(g2d, new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
+        paint(g2d);
 
         File loc = new File(filename);
         loc.getCanonicalFile().getParentFile().mkdirs();
