@@ -96,10 +96,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(selectionDisplay != null){
 	    selectionDisplay.removeAll();
 	    selectionWindow.dispose();
+	    selectionDisplays--;
 	    selectionDisplay = null;
 	}
 	if(particleDisplay != null){
 	    particleWindow.dispose();
+	    particleDisplays--;
 	    particleDisplay = null;
 	}
 	repaint();
@@ -121,8 +123,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
 	seismograms.remove(display);
 	basicDisplays.remove(display);
-	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
-	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	if(basicDisplays.size() > 1){
+	    ((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
+	    ((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	}else if(basicDisplays.size() == 1){
+	    ((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	}
 	seismograms.revalidate();
 	repaint();
     }
