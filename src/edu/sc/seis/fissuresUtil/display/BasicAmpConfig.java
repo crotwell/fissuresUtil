@@ -25,6 +25,9 @@ import org.apache.log4j.Category;
 
 public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     public BasicAmpConfig(DataSetSeismogram[] seismos){
+        if(seismos == null || DisplayUtils.allNull(seismos)){
+            throw new IllegalArgumentException("Some non null seismograms must be given to an amp config on instantiation");
+        }
         add(seismos);
     }
 
