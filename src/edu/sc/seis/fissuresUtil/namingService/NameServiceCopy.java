@@ -30,8 +30,11 @@ public class NameServiceCopy {
             throws NotFound, CannotProceed, InvalidName {
         for(int i = 0; i < from.length; i++) {
             String dns = from[i].getServerDNS();
+            if(!dns.equals(dnsToCopy)) {
+                continue;
+            }
             String name = from[i].getServerName();
-            logger.info("Checking on" + name);
+            logger.info("Checking on " + name);
             org.omg.CORBA.Object fromObj;
             try {
                 fromObj = from[i].getCorbaObject();
@@ -49,7 +52,8 @@ public class NameServiceCopy {
             }
             boolean rebind = true;
             for(int j = 0; j < to.length; j++) {
-                if(to[j].getServerName().equals(name)) {
+                if(to[j].getServerDNS().equals(dnsToCopy)
+                        && to[j].getServerName().equals(name)) {
                     logger.info("Copy to name service contains " + name
                             + " as well");
                     try {
@@ -73,34 +77,33 @@ public class NameServiceCopy {
         }
     }
 
-    private static void copyEventDC(NamingContextWithPath context)
-            throws NotFound, CannotProceed, InvalidName {
-        NSEventDC[] copyFromPlotDC = copyFromNS.getAllEventDC(context);
-        NSEventDC[] copyToPlotDC = copyToNS.getAllEventDC(context);
+    private static void copyEventDC() throws NotFound, CannotProceed,
+            InvalidName {
+        NSEventDC[] copyFromPlotDC = copyFromNS.getAllEventDC();
+        NSEventDC[] copyToPlotDC = copyToNS.getAllEventDC();
         logger.info("Got " + copyFromPlotDC.length + " event datacenters");
         copy(copyFromPlotDC, copyToPlotDC);
     }
 
-    private static void copyPlotDC(NamingContextWithPath context)
-            throws NotFound, CannotProceed, InvalidName {
-        NSPlottableDC[] copyFromPlotDC = copyFromNS.getAllPlottableDC(context);
-        NSPlottableDC[] copyToPlotDC = copyToNS.getAllPlottableDC(context);
+    private static void copyPlotDC() throws NotFound, CannotProceed,
+            InvalidName {
+        NSPlottableDC[] copyFromPlotDC = copyFromNS.getAllPlottableDC();
+        NSPlottableDC[] copyToPlotDC = copyToNS.getAllPlottableDC();
         logger.info("Got " + copyFromPlotDC.length + " plot datacenters");
         copy(copyFromPlotDC, copyToPlotDC);
     }
 
-    private static void copyNetDC(NamingContextWithPath context)
-            throws NotFound, CannotProceed, InvalidName {
-        NSNetworkDC[] copyFromNetDC = copyFromNS.getAllNetworkDC(context);
-        NSNetworkDC[] copyToNetDC = copyToNS.getAllNetworkDC(context);
+    private static void copyNetDC() throws NotFound, CannotProceed, InvalidName {
+        NSNetworkDC[] copyFromNetDC = copyFromNS.getAllNetworkDC();
+        NSNetworkDC[] copyToNetDC = copyToNS.getAllNetworkDC();
         logger.info("Got " + copyToNetDC.length + " net datacenters");
         copy(copyFromNetDC, copyToNetDC);
     }
 
-    private static void copySeisDC(NamingContextWithPath context)
-            throws NotFound, CannotProceed, InvalidName {
-        NSSeismogramDC[] copyFromSeisDC = copyFromNS.getAllSeismogramDC(context);
-        NSSeismogramDC[] copyToSeisDC = copyToNS.getAllSeismogramDC(context);
+    private static void copySeisDC() throws NotFound, CannotProceed,
+            InvalidName {
+        NSSeismogramDC[] copyFromSeisDC = copyFromNS.getAllSeismogramDC();
+        NSSeismogramDC[] copyToSeisDC = copyToNS.getAllSeismogramDC();
         logger.info("Got " + copyFromSeisDC.length + " seis datacenters");
         copy(copyFromSeisDC, copyToSeisDC);
     }
@@ -108,6 +111,8 @@ public class NameServiceCopy {
     private static FissuresNamingService copyFromNS, copyToNS;
 
     private static NamingContextExt copyToNameContext;
+
+    private static String dnsToCopy;
 
     public static void main(String[] args) throws CannotProceed, InvalidName,
             NotFound {
@@ -120,7 +125,7 @@ public class NameServiceCopy {
                 System.exit(0);
             }
         }
-        String dnsToCopy = System.getProperty("nameServiceCopy.dns");
+        dnsToCopy = System.getProperty("nameServiceCopy.dns");
         if(dnsToCopy == null) {
             logErrExit("System property nameServiceCopy.dns must be set");
         }
@@ -139,12 +144,10 @@ public class NameServiceCopy {
         copyToNS.setNameServiceCorbaLoc(copyToNSLoc);
         org.omg.CORBA.Object ncObj = orb.string_to_object(copyToNSLoc);
         copyToNameContext = NamingContextExtHelper.narrow(ncObj);
-        NamingContextWithPath copyToContextWithPath = new NamingContextWithPath(copyToNameContext,
-                                                                                copyToNSLoc);
-        copySeisDC(copyToContextWithPath);
-        copyNetDC(copyToContextWithPath);
-        copyEventDC(copyToContextWithPath);
-        copyPlotDC(copyToContextWithPath);
+        copySeisDC();
+        copyNetDC();
+        copyEventDC();
+        copyPlotDC();
         logger.info("Done");
     }
 
