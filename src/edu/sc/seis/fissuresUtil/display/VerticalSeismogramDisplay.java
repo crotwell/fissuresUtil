@@ -289,71 +289,77 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
     
     public void createParticleDisplay(BasicSeismogramDisplay creator, boolean advancedOption){
-	if(particleDisplay == null){
-	    logger.debug("creating particle display");
-	    particleWindow = new JFrame(particleWindowName);
-	    particleWindow.addWindowListener(new WindowAdapter() {
-		    public void windowClosing(WindowEvent e) {
-			particleDisplay.removeAll();
-			particleDisplays--;
-		    }
-		});
-	    particleDisplay = new ParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
-							new TimeConfigRegistrar((TimeConfigRegistrar)creator.getTimeConfig()), 
-							creator.getAmpRegistrar(), 
-							creator.getAmpRegistrar(),
-							advancedOption);
-	    JPanel displayPanel = new JPanel();
-	    JButton zoomIn = new JButton("zoomIn");
-	    JButton zoomOut = new JButton("zoomOut");
-	    JPanel buttonPanel = new JPanel();
-	    buttonPanel.setLayout(new FlowLayout());
-	    buttonPanel.add(zoomIn);
-	    buttonPanel.add(zoomOut);
-	    displayPanel.setLayout(new BorderLayout());
-	    displayPanel.add(particleDisplay, java.awt.BorderLayout.CENTER);
-	    displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
-	    java.awt.Dimension size = new java.awt.Dimension(400, 400);
-	    displayPanel.setSize(size);
-	    particleWindow.getContentPane().add(displayPanel);
-	    particleWindow.addWindowListener(new WindowAdapter() {
-		    public void windowClosing(WindowEvent e) {
-			particleWindow.dispose();
-			particleDisplay = null;
-		    }
-		});
-	    particleWindow.setSize(size);
-	    zoomIn.addActionListener(new ActionListener() {
-		    public void actionPerformed(ActionEvent ae) {
+	if(particleAllowed){
+	    if(particleDisplay == null){
+		logger.debug("creating particle display");
+		particleWindow = new JFrame(particleWindowName);
+		particleWindow.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+			    particleDisplay.removeAll();
+			    particleDisplays--;
+			}
+		    });
+		particleDisplay = new ParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
+							    new TimeConfigRegistrar((TimeConfigRegistrar)creator.getTimeConfig()), 
+							    creator.getAmpRegistrar(), 
+							    creator.getAmpRegistrar(),
+							    advancedOption);
+		JPanel displayPanel = new JPanel();
+		JButton zoomIn = new JButton("zoomIn");
+		JButton zoomOut = new JButton("zoomOut");
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout());
+		buttonPanel.add(zoomIn);
+		buttonPanel.add(zoomOut);
+		displayPanel.setLayout(new BorderLayout());
+		displayPanel.add(particleDisplay, java.awt.BorderLayout.CENTER);
+		displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+		java.awt.Dimension size = new java.awt.Dimension(400, 400);
+		displayPanel.setSize(size);
+		particleWindow.getContentPane().add(displayPanel);
+		particleWindow.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+			    particleWindow.dispose();
+			    particleDisplay = null;
+			}
+		    });
+		particleWindow.setSize(size);
+		zoomIn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
 			
-			particleDisplay.setZoomIn(true);
-		    // particleDisplay.setZoomOut(false);
-		    }
-		});
-	    zoomOut.addActionListener(new ActionListener() {
-		    public void actionPerformed(ActionEvent ae) {
+			    particleDisplay.setZoomIn(true);
+			    // particleDisplay.setZoomOut(false);
+			}
+		    });
+		zoomOut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
 			
-			particleDisplay.setZoomOut(true);
-			// particleDisplay.setZoomIn(false);
-		    }
-	    });
-	Toolkit tk = Toolkit.getDefaultToolkit();
-	if(particleWindow.getSize().width*particleDisplays < tk.getScreenSize().width){
-	    particleWindow.setLocation(particleWindow.getSize().width * particleDisplays, tk.getScreenSize().height - 
-				       particleWindow.getSize().width);
+			    particleDisplay.setZoomOut(true);
+			    // particleDisplay.setZoomIn(false);
+			}
+		    });
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		if(particleWindow.getSize().width*particleDisplays < tk.getScreenSize().width){
+		    particleWindow.setLocation(particleWindow.getSize().width * particleDisplays, tk.getScreenSize().height - 
+					       particleWindow.getSize().width);
+		}else{
+		    particleWindow.setLocation(tk.getScreenSize().width - particleWindow.getSize().width, 
+					       tk.getScreenSize().height - particleWindow.getSize().height);
+		}
+		particleDisplays++;
+		particleWindow.setVisible(true);
+	    }else {
+		particleDisplay.addParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
+							 (TimeConfigRegistrar)creator.getTimeConfig(), 
+							 creator.getAmpRegistrar(), 
+							 creator.getAmpRegistrar());
+	    } // end of else
 	}else{
-	    particleWindow.setLocation(tk.getScreenSize().width - particleWindow.getSize().width, 
-				       tk.getScreenSize().height - particleWindow.getSize().height);
-				       }
-	particleDisplays++;
-	particleWindow.setVisible(true);
-	}else {
-	    particleDisplay.addParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
-					       (TimeConfigRegistrar)creator.getTimeConfig(), 
-					       creator.getAmpRegistrar(), 
-					       creator.getAmpRegistrar());
-	} // end of else
-	
+	    JOptionPane.showMessageDialog(null,
+					  "Particle motion isn't allowed from this display!",
+					  "Particle Motion Display Creation",
+					  JOptionPane.ERROR_MESSAGE);
+	}
     }
     
     
@@ -495,6 +501,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     protected MouseMotionForwarder motionForwarder;
 
     protected JComponent seismograms;
+
+    protected boolean particleAllowed = true;
 
     public static JLabel time = new JLabel("   Time:                        ");
     
