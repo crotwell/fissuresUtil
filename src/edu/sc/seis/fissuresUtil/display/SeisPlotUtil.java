@@ -507,8 +507,13 @@ public class SeisPlotUtil  {
     public static LocalSeismogram createSpike(MicroSecondDate spikeTime) {
         String name = "spike at "+spikeTime.toString();
         int[] dataBits = new int[1000];
-        dataBits[0] = 100;
-        // assume 20 sps
+        for (int i=0; i<dataBits.length; i++) {
+            // assume 20 sps
+            if (i % 20 == 0) {
+                dataBits[i] = 100;                 
+            } // end of if (i % 20 = 0)
+        } // end of for (int i=0; i<dataBits.length; i++)
+        
         //        dataBits[5*20] = 100;
         MicroSecondDate begin = spikeTime;
         //            spikeTime.subtract(new TimeInterval(5, UnitImpl.SECOND));
