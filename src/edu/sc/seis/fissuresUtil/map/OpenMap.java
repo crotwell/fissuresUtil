@@ -3,8 +3,8 @@ package edu.sc.seis.fissuresUtil.map;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -27,6 +28,7 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.MultipleSoloMapComponentException;
+import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.LayerStatusEvent;
 import com.bbn.openmap.event.LayerStatusListener;
 import com.bbn.openmap.event.MapMouseMode;
@@ -253,6 +255,10 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         return dl;
     }
 
+    public ETOPOLayer getETOPOLayer() {
+        return etopoLayer;
+    }
+
     public Layer[] getLayers() {
         return lh.getLayers();
     }
@@ -336,13 +342,6 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     SoftReference imgRef = new SoftReference(null);
 
-    private static final class Closer extends WindowAdapter {
-
-        public void windowClosed(WindowEvent e) {
-            System.exit(0);
-        }
-    }
-
     private class InformativeShapeLayer extends ShapeLayer {
 
         public void renderDataForProjection(Projection p, Graphics g) {
@@ -366,15 +365,16 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         return null;
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         BasicConfigurator.configure();
-        OpenMap om;
+        final OpenMap om;
         if(args.length > 2) {
             om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
-                                     "edu/sc/seis/mapData", args[2]);
+                             "edu/sc/seis/mapData",
+                             args[2]);
         } else {
             om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
-                                     "edu/sc/seis/mapData");
+                             "edu/sc/seis/mapData");
         }
         EventLayer evLayer = new EventLayer(om.getMapBean(),
                                             new DepthEventColorizer());
@@ -390,10 +390,27 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         staLayer.stationDataChanged(new StationDataEvent(new Station[] {other}));
         staLayer.stationAvailabiltyChanged(new AvailableStationDataEvent(other,
                                                                          AvailableStationDataEvent.DOWN));
-        JFrame frame = new JFrame("OpenMap Test");
-        frame.addWindowListener(new Closer());
+        JButton reloadColorTable = new JButton("Reload Table");
+        final JFrame frame = new JFrame("OpenMap Test");
+        reloadColorTable.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ETOPOLayer etopo = om.getETOPOLayer();
+                if(etopo instanceof ColorMapEtopoLayer) {
+                    try {
+                        ((ColorMapEtopoLayer)etopo).setColorTable(args[2]);
+                        om.getMapBean().center(new CenterEvent(this, (float)Math.random(), (float)Math.random()));
+                    } catch(FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    } catch(IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(om);
+        frame.getContentPane().add(reloadColorTable, BorderLayout.SOUTH);
         frame.setSize(640, 480);
         frame.show();
     }
