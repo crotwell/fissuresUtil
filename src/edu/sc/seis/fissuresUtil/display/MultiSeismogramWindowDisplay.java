@@ -21,8 +21,8 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * Creates a <code>MultiSeismogramWindowDisplay</code> without a parent
      *
      */
-    public MultiSeismogramWindowDisplay(){
-        this(null);
+    public MultiSeismogramWindowDisplay(SeismogramSorter sorter){
+        this(null, sorter);
     }
 
     /**
@@ -30,8 +30,10 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      *
      * @param parent the VSD that controls this VSD
      */
-    public MultiSeismogramWindowDisplay(VerticalSeismogramDisplay parent){
+    public MultiSeismogramWindowDisplay(VerticalSeismogramDisplay parent,
+                                        SeismogramSorter sorter){
         super(parent);
+        this.sorter = sorter;
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
@@ -80,14 +82,14 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             globalRegistrar = new Registrar(dss);
             tc = globalRegistrar;
         }
-        if(sorter.contains(dss)){
-            return null;
-        }
         BasicSeismogramDisplay disp = null;
         for(int i = 0; i < dss.length; i++){
+            if(contains(dss[i])){
+                continue;
+            }
             DataSetSeismogram[] seismos = { dss[i] };
             disp = new BasicSeismogramDisplay(seismos, tc, ac, this);
-            int j = sorter.sort(seismos);
+            int j = sorter.sort(dss[i]);
             super.add(disp, j);
             if(basicDisplays.size() > 0){
                 ((BasicSeismogramDisplay)basicDisplays.getLast()).removeBottomTimeBorder();
@@ -99,5 +101,19 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
         }
         return disp;
     }
+
+    public void remove(DataSetSeismogram[] dss){
+        for (int i = 0; i < dss.length; i++){
+            sorter.remove(dss[i]);
+        }
+        super.remove(dss);
+    }
+
+    public void removeAll(){
+        sorter.clear();
+        super.removeAll();
+    }
+
+    private SeismogramSorter sorter;
 
 }// MultiSeismogramWindowDisplay
