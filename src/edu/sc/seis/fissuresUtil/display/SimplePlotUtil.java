@@ -153,7 +153,7 @@ public class SimplePlotUtil  {
 	/*double pointsPerPixel = tr.getInterval().divideBy(seis.getSampling().getPeriod()).getValue() / 
 	    size.width;
 	if(pointsPerPixel  < 3 ){
-	return getPlottableSimple(seis, ampRange, tr, size);
+	return getPlottableSimpl(seis, ampRange, tr, size);
 	}else{*/
 	    int[][] uncomp = scaleXvalues(seismogram, tr, ampRange, size);
 	    // enough points to take the extra time to compress the line
@@ -212,7 +212,6 @@ public class SimplePlotUtil  {
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 
         int[][] out = new int[2][];
-        //System.out.println("SeisPlotUtil Time window: "+seis.getBeginTime()+" "+config.getBeginTime()+"\n"+seis.getEndTime()+" "+config.getEndTime());
 
 	if ( seis.getEndTime().before(t.getBeginTime()) ||
 	     seis.getBeginTime().after(t.getEndTime())){
@@ -281,33 +280,36 @@ public class SimplePlotUtil  {
                                              Dimension size) 
     throws UnsupportedDataEncoding {
         int[][] out = new int[2][];
+	int previousy = 0;
 	int seisIndex = 0;
 	int pixelIndex = 0;
 	int numAdded = 0;
-        //System.out.println("SeisplotUtil start="+seisStartIndex+
-        //                   "  end="+seisEndIndex+" numPts="+seis.getNumPoints());
 
-
-	//	    Logger.log(5,"few points");
 	out[0] = new int[seisEndIndex-seisStartIndex+1];
 	out[1] = new int[out[0].length];
+	previousy = (int)seis.getValueAt(seisIndex).value;
 	seisIndex = seisStartIndex;
+
 	numAdded = 0;
-	while (seisIndex <= seisEndIndex) {
-	    out[0][numAdded] = 
-		Math.round((float)(linearInterp(seisStartIndex,
-						pixelStartIndex,
-						seisEndIndex,
-						pixelEndIndex,
-						seisIndex)));
-	    out[1][numAdded] = 
-		Math.round((float)(linearInterp(yMin, 0,
-                                                yMax, size.height,
-			 seis.getValueAt(seisIndex).getValue())));
-	    seisIndex++;
-	    numAdded++;
-	}
+	while (seisIndex < seisEndIndex) {
+	 
+
+	   out[0][numAdded] =  
+	       Math.round((float)(linearInterp(seisStartIndex,
+					       pixelStartIndex,
+					       seisEndIndex,
+					       pixelEndIndex,
+					       seisIndex)));
+
+	   out[1][numAdded] =  
+	       Math.round((float)(linearInterp( yMin, 0,
+						yMax, size.height,
+						seis.getValueAt(seisIndex).getValue())));	
 	
+	   numAdded++;  
+	   seisIndex = seisIndex + 1;
+	}
+
 	int temp[][] = new int[2][];
 	temp[0] = new int[numAdded];
 	temp[1] = new int[numAdded];
