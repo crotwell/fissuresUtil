@@ -50,13 +50,17 @@ public class HSQLRequestFilterDb extends AbstractDb{
 			       " fileid int ) ");
 	    stmt.executeUpdate(" CREATE TABLE fileInfoDB( "+
 			       " fileid INTEGER, "+
-			       " filename VARCHAR_IGNORECASE) " );
+			       " filename VARCHAR_IGNORECASE, "+
+			       " filesize BIGINT) " );
 	    
 	} catch(SQLException sqle) {
 	    // sqle.printStackTrace();
 	}
 	
 	try {
+	    getTotalSizeStmt = connection.prepareStatement(" SELECT sum(filesize) from fileInfoDB ");
+							   
+
 	    rfInsertStmt = connection.prepareStatement(" INSERT INTO requestFilterDB "+
 						       " ( channel_id, begin_time, "+
 						       " end_time, access_time, "+
@@ -64,7 +68,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
 						       " VALUES(?,?,?,?,?) ");
 
 	    fiInsertStmt = connection.prepareStatement(" INSERT INTO fileInfoDB "+
-						      " VALUES(?,?) ");
+						      " VALUES(?,?, ?) ");
 	    rfGetStmt = connection.prepareStatement(" SELECT fileid FROM requestFilterDB "+
 						    " WHERE channel_id = ? AND "+
 						    " NOT ((begin_time >= ? AND begin_time >= ? ) "+
@@ -186,10 +190,12 @@ public class HSQLRequestFilterDb extends AbstractDb{
 		File sacDirectory = new File(directory,
 					     PREFIX+id);
 		sac.write(sacDirectory);
+		long fileLength = sacDirectory.length();
 		int fileid = getMaxFileID();
 		fiInsertStmt.setInt(1, fileid);
 		fiInsertStmt.setString(2,
-				       "_temp_test_GEE_/"+PREFIX+id);
+				       "_temp_test_GEE_/"+PREFIX+id );
+		fiInsertStmt.setLong(3, fileLength);
 		fiInsertStmt.executeUpdate();
 		insertRequestFilterInfo(ChannelIdUtil.toString(seis.getChannelID()),
 					seis.getBeginTime(),
@@ -203,6 +209,18 @@ public class HSQLRequestFilterDb extends AbstractDb{
 	    //now build the sac file.
 	}//end of for loop
 	
+    }
+
+    public long getTotalSize() {
+	try {
+	    ResultSet rs = getTotalSizeStmt.executeQuery();
+	    if(rs.next()) {
+		return rs.getLong(1);
+	    }
+	} catch(SQLException sqle) {
+	    sqle.printStackTrace();
+	}
+	return -1;
     }
 
     private int getMaxFileID() {
@@ -383,7 +401,9 @@ public class HSQLRequestFilterDb extends AbstractDb{
 	}
 	return null;
     }
-    
+
+    private PreparedStatement getTotalSizeStmt;
+
     private PreparedStatement rfInsertStmt;
 
     private PreparedStatement fiInsertStmt;
