@@ -19,7 +19,7 @@ public class UnitDisplayUtil {
 
     public static final String mu = "\u03BC";
 
-    public QuantityImpl getBestForDisplay(QuantityImpl quantity) {
+    public static QuantityImpl getBestForDisplay(QuantityImpl quantity) {
         UnitRangeImpl inRange = new UnitRangeImpl(quantity.getValue(),
                                                   quantity.getValue(),
                                                   quantity.getUnit());
@@ -27,7 +27,7 @@ public class UnitDisplayUtil {
         return new QuantityImpl(inRange.getMinValue(), inRange.getUnit());
     }
 
-    public UnitRangeImpl getBestForDisplay(UnitRangeImpl inRange) {
+    public static UnitRangeImpl getBestForDisplay(UnitRangeImpl inRange) {
         // just in case we don't have a case for this unit
         UnitRangeImpl outRange = inRange;
 
@@ -72,8 +72,7 @@ public class UnitDisplayUtil {
         return outRange;
     }
 
-    public UnitRangeImpl getRealWorldUnitRange(UnitRangeImpl ur, DataSetSeismogram seismo) {
-        UnitImpl lastUnit = null;
+    public static UnitRangeImpl getRealWorldUnitRange(UnitRangeImpl ur, DataSetSeismogram seismo) {
         UnitImpl realWorldUnit = UnitImpl.COUNT;
         // this is the constant to divide by to get real worl units (not counts)
         float sensitivity = 1.0f;
@@ -94,7 +93,7 @@ public class UnitDisplayUtil {
 
     /** tries to come up with better names for some standard units than the
      auto-generated versions. */
-    public String getNameForUnit(UnitImpl unit) {
+    public static String getNameForUnit(UnitImpl unit) {
         // most common
         if (unit.equals(UnitImpl.METER_PER_SECOND)) {
             return "m/s";
@@ -105,9 +104,9 @@ public class UnitDisplayUtil {
         if (unit.equals(UnitImpl.MILLIMETER_PER_SECOND)) {
             return "mm/s";
         }
-		if (unit.equals(UnitImpl.KILOMETER)){
-			return "km";
-		}
+        if (unit.equals(UnitImpl.KILOMETER)){
+            return "km";
+        }
         if (unit.equals(UnitImpl.METER)) {
             return "m";
         }
