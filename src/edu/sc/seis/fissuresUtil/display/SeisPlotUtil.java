@@ -656,8 +656,8 @@ public class SeisPlotUtil  {
 	    if(tempValue != xvalue) {
 		out[0][numAdded] = xvalue;
 		out[0][numAdded+1] = xvalue;
-		out[1][numAdded] = getMinValue(tempYvalues, 0, j-1);
-		out[1][numAdded+1] = (int)getMaxValue(tempYvalues, 0, j-1);
+		out[1][numAdded] = tempYvalues[j-1];//getMinValue(tempYvalues, 0, j-1);
+		out[1][numAdded+1] = tempYvalues[j-1];//(int)getMaxValue(tempYvalues, 0, j-1);
 		j = 0;
 		xvalue = tempValue;
 		numAdded = numAdded+2;
@@ -665,6 +665,12 @@ public class SeisPlotUtil  {
 	    }
 	    seisIndex++;
 	}
+
+	out[0][numAdded] = xvalue;
+	out[0][numAdded+1] = xvalue;
+	out[1][numAdded] = tempYvalues[j-1];
+	out[1][numAdded+1] = tempYvalues[j-1];
+	
 	
 	int temp[][] = new int[2][];
 	temp[0] = new int[numAdded];
@@ -694,9 +700,10 @@ public class SeisPlotUtil  {
 	
 	
         int j=0, i, startIndex, endIndex;
-	int xvalue;
+	int xvalue = 0;
 	startIndex = 0; 
-	if(uncomp[0].length != 0) xvalue = umcomp[0][0];;
+	endIndex = 0;
+	if(uncomp[0].length != 0) xvalue = uncomp[0][0];;
 	for(i = 1, j = 0; i < uncomp[0].length; i++) {
 	  
 	    if(uncomp[0][i] != xvalue) {
@@ -712,7 +719,12 @@ public class SeisPlotUtil  {
 	    }  
 	   
 	}
+
 	
+	comp[1][j] = getMinValue(uncomp[1], startIndex, endIndex);
+	comp[1][j+1] = (int)getMaxValue(uncomp[1], startIndex, endIndex);
+	comp[0][j] = uncomp[0][endIndex];
+	comp[0][j+1] = uncomp[0][endIndex];
 	
 
       
