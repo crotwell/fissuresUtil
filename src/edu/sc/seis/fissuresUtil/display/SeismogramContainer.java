@@ -28,19 +28,12 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
 
     public SeismogramContainer(SeismogramContainerListener initialListener,
                                DataSetSeismogram seismogram){
-        this(initialListener, seismogram, false);
-    }
-
-    public SeismogramContainer(SeismogramContainerListener initialListener,
-                               DataSetSeismogram seismogram,
-                               boolean debug){
         if(initialListener != null){
             listeners.add(initialListener);
         }
         this.seismogram = seismogram;
         seismogram.addSeisDataChangeListener(this);
         seismogram.addRequestFilterChangeListener(this);
-        this.debug = debug;
     }
 
     public void finished(SeisDataChangeEvent sdce) {
@@ -176,6 +169,9 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
     }
 
     private LocalSeismogramImpl[] getSeismograms(boolean retrieveOnEmpty){
+        if(seismogram instanceof MemoryDataSetSeismogram){
+            return ((MemoryDataSetSeismogram)seismogram).getCache();
+        }
         boolean callRetrieve = false;
         List existant = new ArrayList();
         LocalSeismogramImpl[] seis = EMPTY_ARRAY;
@@ -260,41 +256,4 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
     public static final String ERROR = "Error encountered getting data";
 
     private MicroSecondTimeRange time;
-
-    private boolean debug;
-
-    // private static LoaderJob loadStatus = new LoaderJob();
-
-    private static class LoaderJob extends AbstractJob{
-
-        public LoaderJob(){
-            super("Seismic Data Loader");
-            setFinished();
-            //JobTracker.getTracker().add(this);
-        }
-
-        public synchronized void incrementDataRetrievers(){
-            outRetrieving++;
-            updateStatus();
-        }
-
-        public synchronized void decrementDataRetrievers(){
-            if(--outRetrieving <= 0){
-                outRetrieving = 0;
-                setFinished();
-            }else{
-                updateStatus();
-            }
-        }
-
-        private void updateStatus(){
-            setStatus(outRetrieving + " seismograms are attempting to get data");
-        }
-
-        public void run() {}
-
-        private int outRetrieving = 0;
-    }
 }
-
-
