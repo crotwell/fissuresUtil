@@ -196,7 +196,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         removeAll();
     }
     
-    public synchronized void removeAll(){
+    public void removeAll(){
         layout = null;
         tc = null;
         ac = null;
