@@ -21,7 +21,7 @@ public class PSBasemapExecute {
         if (isPortrait) {
             orient = " -P";
         }
-        String command = "psbasemap -V -J" + projection + " -R" + region
+        String command = "psbasemap -J" + projection + " -R" + region
                 + " --PAPER_MEDIA=" + paperType + " -G" + fill + orient + " -X" + xOffset + "p -Y" + yOffset + "p -K";
         FileOutputStream fos = new FileOutputStream(psFilename, true);
         try {
