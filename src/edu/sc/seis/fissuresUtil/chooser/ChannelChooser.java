@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 2142 2002-07-11 19:00:12Z crotwell $
+ * @version $Id: ChannelChooser.java 2409 2002-07-28 15:30:40Z crotwell $
  *
  */
 
@@ -38,7 +38,18 @@ public class ChannelChooser extends JPanel{
              defaultAutoSelectBand, 
 	     new String[0]);
     }
-    
+  
+    public ChannelChooser(NetworkDC[] netdcgiven,
+			  boolean showSites) {
+        this(netdcgiven,
+             showSites,
+             defaultSelectableOrientations,
+             defaultAutoSelectedOrientation,
+             defaultSelectableBand,
+             defaultAutoSelectBand, 
+	     new String[0]);
+    }
+   
     public ChannelChooser(NetworkDC[] netdcgiven, 
 			  String[] configuredNetworks) {
         this(netdcgiven,
@@ -51,6 +62,18 @@ public class ChannelChooser extends JPanel{
     }
     
 
+    public ChannelChooser(NetworkDC[] netdcgiven, 
+                          boolean showSites,
+			  String[] configuredNetworks) {
+        this(netdcgiven,
+	     showSites,
+             defaultSelectableOrientations,
+             defaultAutoSelectedOrientation,
+             defaultSelectableBand,
+             defaultAutoSelectBand, 
+	     configuredNetworks);
+    }
+    
 
     public ChannelChooser(NetworkDC[] netdcgiven, 
                           boolean showSites,
@@ -67,7 +90,6 @@ public class ChannelChooser extends JPanel{
         bundle = ResourceBundle.getBundle(ChannelChooser.class.getName());
         initFrame();
 	setConfiguredNetworks(configuredNetworks);
-	System.out.println("The length of the configured Networks is "+this.configuredNetworks.length);
         setNetworkDC(netdcgiven);
     }
     
