@@ -98,6 +98,10 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
      *  it does not belong to a dataset. */
     public DataSet getDataSet(){ return dataSet; }
 
+    public void setDataSet(DataSet dataSet) {
+        this.dataSet = dataSet;
+    }
+
     public String getName(){ return name; }
 
     public void setName(String name) { 

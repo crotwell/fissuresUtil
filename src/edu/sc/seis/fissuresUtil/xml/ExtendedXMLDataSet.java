@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml	;
 
 import edu.iris.Fissures.network.*;
+import edu.iris.Fissures.AuditInfo;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
@@ -43,7 +44,7 @@ public class ExtendedXMLDataSet extends XMLDataSet{
 		return (String[])dssNames.toArray(new String[0]);
     }
 	
-    public void addDataSetSeismogram(DataSetSeismogram dss) {
+    public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit) {
 		String name;
 		name = dss.getName();
 		if ( name == null || name.length() == 0) {
