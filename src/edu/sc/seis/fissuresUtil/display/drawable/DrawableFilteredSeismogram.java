@@ -26,4 +26,3 @@ public class DrawableFilteredSeismogram extends DrawableSeismogram{
         return ((FilteredSeismogramShape)shape).getFilteredSeismogram();
     }
 }
-

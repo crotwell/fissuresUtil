@@ -47,7 +47,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         this.shape = shape;
         setRemover(new SeismogramRemover(shape.getSeismogram(), parent));
         setVisibility(true);
-        parent.add(this);
+        parent.add((SeismogramDisplayListener)this);
     }
 
     protected void setRemover(SeismogramRemover remover){
@@ -84,14 +84,14 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
                      TimeEvent currentTime,
                      AmpEvent currentAmp){
         if(visible && size.width > 0 && size.height > 0){
-            if(!currentTime.contains(shape.getSeismogram())){
-                DataSetSeismogram[] seis = { shape.getSeismogram() };
+            if(!currentTime.contains(getSeismogram())){
+                DataSetSeismogram[] seis = { getSeismogram() };
                 parent.getTimeConfig().add(seis);
-            } else if(!currentAmp.contains(shape.getSeismogram())){
-                DataSetSeismogram[] seis = { shape.getSeismogram() };
+            } else if(!currentAmp.contains(getSeismogram())){
+                DataSetSeismogram[] seis = { getSeismogram() };
                 parent.getAmpConfig().add(seis);
-            }else if(shape.update(currentTime.getTime(shape.getSeismogram()),
-                                  currentAmp.getAmp(shape.getSeismogram()),
+            }else if(shape.update(currentTime.getTime(getSeismogram()),
+                                  currentAmp.getAmp(getSeismogram()),
                                   size)){
                 canvas.setPaint(color);
                 canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
@@ -141,8 +141,9 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
 
     public void remove(Drawable child){
-        children.remove(child);
-        parent.repaint();
+        if(children.remove(child)){
+            parent.repaint();
+        }
     }
 
     public void clear(Class drawableClass){
