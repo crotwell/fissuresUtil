@@ -11,6 +11,8 @@ network.create=CREATE TABLE network (net_id int NOT NULL, \
                                        FOREIGN KEY(net_end_id) \
                                        REFERENCES time (time_id))
 
+network.getByCode=SELECT * FROM network WHERE net_code = ?
+
 station.create = CREATE TABLE station ( sta_id int NOT NULL, \
                                         net_id int NOT NULL, \
                                         sta_code varchar(5), \
