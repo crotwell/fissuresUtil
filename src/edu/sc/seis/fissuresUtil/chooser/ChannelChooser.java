@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 2435 2002-08-01 16:30:58Z crotwell $
+ * @version $Id: ChannelChooser.java 2437 2002-08-01 17:37:23Z crotwell $
  *
  */
 
@@ -783,12 +783,13 @@ public class ChannelChooser extends JPanel{
 		    }catch(NetworkNotFound nnfe) {
 			logger.warn("Network "+configuredNetworks[counter]+" not found while getting network access uding NetworkFinder.retrieve_by_code");
 		    }
-		    setProgressValue(this, counter);
+		    setProgressValue(this, counter+1);
 		}//end of outer for counter = 0;
 		if (doSelect && totalNetworks == 1) {
 		    networkList.getSelectionModel().setSelectionInterval(0,0);
 		} // end of if (totalNetworks == 1)
 	    }//end of if else checking for configuredNetworks == null 
+	    setProgressValue(this, progressBar.getMaximum());
 	}
     }
 
@@ -822,6 +823,7 @@ public class ChannelChooser extends JPanel{
 			    } // end of else
 			    
 			}
+			setProgressValue(this, 100-newStations.length+j);
 		    }
 		    setProgressValue(this, 100);
 		    logger.debug("finished adding stations");
@@ -855,7 +857,7 @@ public class ChannelChooser extends JPanel{
 	    // assume only one selected network at at time...
 	    NetworkAccess[] nets = getSelectedNetworks();
 	    NetworkAccess net = nets[0];
-	    setProgressMax(this, e.getLastIndex());
+	    setProgressMax(this, e.getLastIndex()-e.getFirstIndex()+1);
 	    for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
 		if (stationList.isSelectedIndex(i)) {
 		    Station selectedStation = 
@@ -887,7 +889,7 @@ public class ChannelChooser extends JPanel{
 			
 		    }
 		}
-		setProgressValue(this, i);
+		setProgressValue(this, i-e.getFirstIndex());
 	    } // end of for (int i=e.getFirstIndex(); i<e.getLastIndex(); i++)
 	    progressBar.setValue(progressBar.getMaximum());
 	}
