@@ -316,7 +316,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             bigCircle.setFillPaint(new Color(0, 0, 0, 64));
             try{
                 mapBean.center(new CenterEvent(this,
-                                               event.get_preferred_origin().my_location.latitude,
+                                               0.0f,
                                                event.get_preferred_origin().my_location.longitude));
             }catch(NoPreferredOrigin e){}
         }
