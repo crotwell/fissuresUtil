@@ -362,7 +362,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
     
 	String version = edu.iris.Fissures.VERSION.value;
 	String rtnValue = new String();
-	String prefix = new String("FVer");
+	String prefix = new String("_FVer");
 
 	StringTokenizer tokenizer = new StringTokenizer(version, ".");
 	
