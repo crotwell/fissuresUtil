@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.*;
@@ -146,11 +145,9 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     public void setTimeFinder(TimeFinder tf){ timeFinder = tf; }
 
     public synchronized TimeSnapshot takeSnapshot(){
-	return new TimeSnapshot((HashMap)seismoDisplayTime.clone(), this.getTimeRange());
+	return new TimeSnapshot((HashMap)seismos.clone(), this.getTimeRange());
     }
 	
-    protected HashMap seismoDisplayTime = new HashMap();
-
     protected TimeFinder timeFinder;
 
     protected MicroSecondDate beginTime;
