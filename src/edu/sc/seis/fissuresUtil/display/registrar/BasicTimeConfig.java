@@ -40,7 +40,11 @@ public class BasicTimeConfig implements TimeConfig{
      */
     public void add(DataSetSeismogram[] seismos){
         if(time == null){
-            time = new MicroSecondTimeRange(seismos[0].getRequestFilter());
+            if(seismos != null && seismos.length > 0){
+                time = new MicroSecondTimeRange(seismos[0].getRequestFilter());
+            }else{
+                return;
+            }
         }
         for(int i = 0; i < seismos.length; i++){
             if(!contains(seismos[i])){
@@ -65,6 +69,10 @@ public class BasicTimeConfig implements TimeConfig{
         }
         if(someRemoved){
             seismograms = null;
+            if(seismoTimes.size() == 0){
+                time = null;
+                return;
+            }
             fireTimeEvent();
         }
     }
