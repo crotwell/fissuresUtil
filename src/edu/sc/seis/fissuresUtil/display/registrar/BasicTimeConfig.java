@@ -48,11 +48,19 @@ public class BasicTimeConfig implements TimeConfig{
         }
         for(int i = 0; i < seismos.length; i++){
             if(!contains(seismos[i])){
-                seismoTimes.put(seismos[i], time);
+                seismoTimes.put(seismos[i], getInitialTime(seismos[i]));
             }
         }
         seismograms = null;
         fireTimeEvent();
+    }
+
+    /*this method is used in the addition of seismograms to determine the initial
+     *time
+     */
+
+    protected MicroSecondTimeRange getInitialTime(DataSetSeismogram seis){
+        return time;
     }
 
     /**
@@ -180,7 +188,7 @@ public class BasicTimeConfig implements TimeConfig{
      */
     protected Map seismoTimes = new HashMap();
 
-    private DataSetSeismogram[] seismograms;
+    protected DataSetSeismogram[] seismograms;
 
     protected double shift;
 
