@@ -146,7 +146,6 @@ public class ParticleMotionView extends JComponent{
                 drawParticleMotion(particleMotion, g);
             }
         }
-        //graphics2D.setStroke(new BasicStroke(1.0f));//TODO figure out what this was for
     }
 
     public synchronized void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
@@ -155,11 +154,11 @@ public class ParticleMotionView extends JComponent{
         graphics2D.setColor(new Color(100, 160, 140));
         graphics2D.fill(sector);
         graphics2D.draw(sector);
-        graphics2D.setStroke(new BasicStroke(2.0f));
+        graphics2D.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
         graphics2D.setColor(Color.green);
         Shape azimuth = getAzimuthPath();
         graphics2D.draw(azimuth);
-        graphics2D.setStroke(new BasicStroke(1.0f));
+        graphics2D.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
     }
 
     public synchronized void drawLabels(ParticleMotion particleMotion, Graphics2D graphics2D) {
