@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3271 2003-02-17 20:19:24Z crotwell $
+ * @version $Id: ChannelChooser.java 3346 2003-02-26 19:56:01Z crotwell $
  *
  */
 
@@ -136,6 +136,10 @@ public class ChannelChooser extends JPanel{
         setNetworkDCs(netdcgiven);
     }
 
+    public void setStationListCellRenderer(ListCellRenderer stationRenderer) {
+	stationList.setCellRenderer(stationRenderer);
+    }
+
     public Map getNetDCToNetMap() {
 	return netDCToNetMap;
     }
@@ -211,7 +215,6 @@ public class ChannelChooser extends JPanel{
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.weighty = 1.0;
-        final ListCellRenderer renderer = new NameListCellRenderer(true);
 
         //networkList = new JList(networks);
         networkList = new DNDJList(networks);
@@ -749,79 +752,8 @@ public class ChannelChooser extends JPanel{
     int mywidth = 400;
     int myheight = 200;
 
-    class NameListCellRenderer extends DefaultListCellRenderer {
-        NameListCellRenderer(boolean useNames){
-            this.useNames = useNames;
-        }
+    final ListCellRenderer renderer = new NameListCellRenderer(true);
 
-        public Component getListCellRendererComponent(JList list,
-                                                      Object value,
-                                                      int index,
-                                                      boolean isSelected,
-                                                      boolean cellHasFocus) {
-            String name = "XXXX";
-            if (value instanceof NetworkAccess) {
-                if (useNames) {
-                    name = ((NetworkAccess)value).get_attributes().name;
-                    if (name == null || name.length() == 0) {
-                        name = ((NetworkAccess)value).get_attributes().get_code();
-                        if (name.startsWith("X") || name.startsWith("Y") || name.startsWith("Z")) {
-                            edu.iris.Fissures.Time start = 
-                                ((NetworkAccess)value).get_attributes().get_id().begin_time;
-                            name += start.date_time.substring(2,4);
-                        } // end of if (name.startsWith("X"))
-			
-                    }
-                } else {
-                    name = ((NetworkAccess)value).get_attributes().get_code();
-                }
-            }
-            if (value instanceof Station) {
-                if (useNames) {
-                    name = ((Station)value).name;
-                    // assume name of length 1 isn't a name
-                    if (name == null || name.length() <= 1) {
-                        name = ((Station)value).get_code();
-                    }
-                } else {
-                    name = ((Station)value).get_code();
-                }
-            }
-            if (value instanceof Site) {
-                if (useNames) {
-                    name = ((Site)value).get_code();
-                    if (name == null || name.length() == 0) {
-                        name = ((Site)value).get_code();
-                    }
-                } else {
-                    name = ((Site)value).get_code();
-                }
-            }
-	    
-            if (value instanceof Channel) {
-                if (useNames) {
-                    name = ((Channel)value).name;
-                    if (name == null || name.length() == 0) {
-                        name = ((Channel)value).get_code();
-                    }
-                } else {
-                    name = ((Channel)value).get_code();
-                }
-            }
-
-            if (value instanceof String) {
-                name = (String)value;
-            } // end of if (value instanceof String)
-	    
-	    
-            return super.getListCellRendererComponent(list, 
-                                                      name, 
-                                                      index, 
-                                                      isSelected, 
-                                                      cellHasFocus);
-        }
-        boolean useNames;
-    }
 
 
     class BundleListCellRenderer extends DefaultListCellRenderer {
