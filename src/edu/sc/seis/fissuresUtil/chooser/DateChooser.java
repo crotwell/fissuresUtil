@@ -41,10 +41,14 @@ public class DateChooser extends JPanel {
     
       currentDate = "dd MMMMM yyyy 'at' hh:mm:ss z";      
       int option=0;
-    
-      calendar.setTime(today);
+      calendar = Calendar.getInstance();
       calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-      todaycalendar.setTime(today);
+      // calendar.set(Calendar.HOUR_OF_DAY, 0);
+      
+      //  calendar.setTime(today);
+      //       todaycalendar.setTime(today);
+      todaycalendar = Calendar.getInstance();
+      todaycalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
       createComponents();
 
       for ( int arrayi=0; arrayi<dateformat.length; arrayi++) {
@@ -60,15 +64,20 @@ public class DateChooser extends JPanel {
       }
  
    } // constructor
+
+    
       
   public DateChooser(DateChooserOptions[] dateformat ) {
       initFrame();    
       currentDate = "dd MMMMM yyyy 'at' hh:mm:ss z";      
       int option=0;
      
-      calendar.setTime(today);
+      //      calendar.setTime(today);
+      calendar = Calendar.getInstance();
       calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-      todaycalendar.setTime(today);
+      //todaycalendar.setTime(today);
+      todaycalendar = Calendar.getInstance();
+      todaycalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
       createComponents();
 
       for ( int arrayi=0; arrayi<dateformat.length; arrayi++) {
@@ -143,6 +152,18 @@ public class DateChooser extends JPanel {
          /**subPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createRaisedBevelBorder(),
                 BorderFactory.createLoweredBevelBorder()));**/ 
+    }
+
+
+    public void setHour(int value) {
+
+	calendar.set(Calendar.HOUR_OF_DAY, value);
+
+    }
+
+    public void setMinute(int value) {
+
+	calendar.set(Calendar.MINUTE, value);
     }
 
     private void radioButtonOption(){
@@ -334,7 +355,7 @@ public class DateChooser extends JPanel {
                 String newSelection = (String)cb.getSelectedItem();
                 hour= Integer.parseInt(newSelection);
 		calendar.set(Calendar.HOUR_OF_DAY, hour);
-                //dateChanged();
+                dateChanged();
             }
         });
 
@@ -371,7 +392,7 @@ public class DateChooser extends JPanel {
                 String newSelection = (String)cb.getSelectedItem();
                 min= Integer.parseInt(newSelection);
 		calendar.set(Calendar.MINUTE, min);
-                //dateChanged();
+                dateChanged();
             }
         });
 
@@ -409,7 +430,7 @@ public class DateChooser extends JPanel {
                 String newSelection = (String)cb.getSelectedItem();
                 sec= Integer.parseInt(newSelection);
 		calendar.set(Calendar.SECOND, sec);
-                //dateChanged();
+		dateChanged();
             }
         });
 
