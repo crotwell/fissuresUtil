@@ -193,12 +193,14 @@ public class BasicAmpConfig implements AmpConfig{
 			data.setCalcIndex(seisIndex);
 			return data.setCleanRange(DisplayUtils.ZERO_RANGE);
 		}
-		if(seisIndex[0] < 0){
-			seisIndex[0] = 0;
-		}
-		if(seisIndex[1] >= seis.getNumPoints()){
-			seisIndex[1] = seis.getNumPoints() -1;
-		}
+		/*commented out in anticipation of new DataSetSeismogram point detection
+		 rendering this useless
+		 if(seisIndex[0] < 0){
+		 seisIndex[0] = 0;
+		 }
+		 if(seisIndex[1] >= seis.getNumPoints()){
+		 seisIndex[1] = seis.getNumPoints() -1;
+		 }*/
 		double[] minMax = ((Statistics)DisplayUtils.statCache.get(seismo)).minMaxMean(seisIndex[0], seisIndex[1]);
 		data.setCalcIndex(seisIndex);
 		return data.setCleanRange(new UnitRangeImpl(minMax[0], minMax[1], UnitImpl.COUNT));
@@ -208,12 +210,7 @@ public class BasicAmpConfig implements AmpConfig{
 		if(currentTimeEvent != null){
 			return currentTimeEvent.getTime(seismo);
 		}
-		try{
-			return new MicroSecondTimeRange(seismo.getRequestFilter());
-		}catch(ParseException e){
-			logger.debug("Caught parse exception when turning RequestFilter into MicroSecond. Using ONE_MS time");
-			return MicroSecondTimeRange.ONE_MS;
-		}
+		return new MicroSecondTimeRange(seismo.getRequestFilter());
 	}
     
     protected Map ampData = new HashMap();
