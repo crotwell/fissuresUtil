@@ -49,11 +49,11 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      *
      * @param seis the seismogram to be added
      */
-    public void addSeismogram(LocalSeismogram seis){ seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime()); }
+    public synchronized void addSeismogram(LocalSeismogram seis){ seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime()); }
 
     /** Adds a seismogram that has a reference set by the user
      */
-    public void addSeismogram(LocalSeismogram seis, MicroSecondDate time){ 
+    public synchronized void addSeismogram(LocalSeismogram seis, MicroSecondDate time){ 
 	seismos.put(seis, time);
 	registrar.updateTimeSyncListeners();
     }
@@ -70,7 +70,7 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      * Fire an event to all of the time sync listeners to update their time ranges
      *
      */
-    public void updateTimeSyncListeners(){
+    public synchronized void updateTimeSyncListeners(){
 	registrar.updateTimeSyncListeners();
     }
 
@@ -92,22 +92,22 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	registrar.updateTimeSyncListeners();
     } 
     
-    public void setRelativeTime(LocalSeismogram seis, MicroSecondDate time){
+    public synchronized void setRelativeTime(LocalSeismogram seis, MicroSecondDate time){
 	seismos.put(seis, time);
 	registrar.updateTimeSyncListeners();
     }
 
-    public void setDisplayInterval(TimeInterval t){
+    public synchronized  void setDisplayInterval(TimeInterval t){
 	displayInterval = t;
 	registrar.updateTimeSyncListeners();
     }
 
-    public void setBeginTime(MicroSecondDate b){ 
+    public synchronized void setBeginTime(MicroSecondDate b){ 
 	beginTime = b;
 	registrar.updateTimeSyncListeners();
     }
 
-    public void setAllBeginTime(MicroSecondDate b){
+    public synchronized void setAllBeginTime(MicroSecondDate b){
 	beginTime = b;
 	Iterator e = seismos.keySet().iterator();
 	while(e.hasNext())
