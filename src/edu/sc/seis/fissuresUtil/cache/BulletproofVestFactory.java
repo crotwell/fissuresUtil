@@ -25,13 +25,16 @@ public class BulletproofVestFactory{
             return (ProxyNetworkAccess) na;
         }else {
             // side effect, make sure we have an NSNetworkDC inside the ProxyNetworkDC
+            // throws an IllegalArgumentException if there is not a NSNetworkDC inside somewhere
             NSNetworkDC nsNetDC = (NSNetworkDC)netDC.getWrappedDC(NSNetworkDC.class);
             // side effect  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
-            NetworkId id = synch.get_attributes().get_id();
-            NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, netDC);
-            RetryNetworkAccess retry = new RetryNetworkAccess(nsNetworkAccess, 3);
+            RetryNetworkAccess retry = new RetryNetworkAccess(synch, 3);
             CacheNetworkAccess cache = new CacheNetworkAccess(retry);
+            NetworkId id = cache.get_attributes().get_id();
+            NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, netDC);
+            retry.setNetworkAccess(nsNetworkAccess);
+
             return cache;
         }
 
