@@ -78,6 +78,8 @@ public class XMLUtil {
             }
             i = xmlReader.next();
         }
+        xmlReader.close();
+        fileReader.close();
 
         return staxWriter;
     }
