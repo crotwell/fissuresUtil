@@ -172,7 +172,7 @@ useful things already done.</description>
   </dependencies>
   <build>
     <nagEmailAddress>crotwell@seis.sc.edu</nagEmailAddress>
-    <unitTestSourceDirectory>tests</unitTestSourceDirectory>
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
 <!-- Unit test cases -->
     <unitTest>
       <includes>
