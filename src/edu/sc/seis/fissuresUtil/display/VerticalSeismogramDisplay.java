@@ -43,7 +43,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}	    
     }
     
-    public void addDisplay(LocalSeismogramImpl seis, TimeRangeConfig tr, AmpRangeConfig ar, String name){
+    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeRangeConfig tr, AmpRangeConfig ar, String name){
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay((LocalSeismogram)seis, tr,
 								 ar, true, name);
 	seismograms.add(disp);
@@ -55,6 +55,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
 	basicDisplays.add(disp);
 	disp.revalidate();
+	return disp;
     }
 
     public void addSeismogram(LocalSeismogramImpl seis, int index){
@@ -106,10 +107,14 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
 	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
     }
-    
-    public void releaseCurrentSelection(MouseEvent me){
-	BasicSeismogramDisplay released = ((BasicSeismogramDisplay)me.getComponent());
-	released.releaseCurrentSelection();
+
+    public void removeDisplay(BasicSeismogramDisplay display){
+	System.out.println("attempting removal of display");
+	if(basicDisplays.remove(display))
+	    System.out.println("removed from displays");
+	display.removeAllSeismograms();
+	seismograms.remove(display);
+	seismograms.revalidate();
     }
     
     protected LinkedList basicDisplays = new LinkedList();
