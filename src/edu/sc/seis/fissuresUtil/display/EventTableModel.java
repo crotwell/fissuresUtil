@@ -9,6 +9,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.cache.EventBackgroundLoaderPool;
 import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -17,7 +18,6 @@ import java.util.TimeZone;
 import java.util.WeakHashMap;
 import javax.swing.table.AbstractTableModel;
 import org.apache.log4j.Category;
-import edu.iris.Fissures.IfEvent.EventAccess;
 
 /**
  * EventTableModel.java
@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 6837 2004-01-20 19:13:26Z crotwell $
+ * @version $Id: EventTableModel.java 6861 2004-01-21 21:52:30Z crotwell $
  */
 
 public class EventTableModel
@@ -138,8 +138,7 @@ public class EventTableModel
         } catch (NoPreferredOrigin e) {
             return "No Pref Origin";
         } catch (Exception e) {
-            logger.warn("Got exception in Table model: getValueAt("+row+", "+ col+")", e);
-            e.printStackTrace();
+            GlobalExceptionHandler.handle("Got exception in Table model: getValueAt("+row+", "+ col+")", e);
             return "error";
         } // end of catch
 

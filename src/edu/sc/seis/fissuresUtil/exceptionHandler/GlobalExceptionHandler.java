@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     public static void handle(Throwable thrown) {
         handle("An uncaught exception has occured. Please report this to geebugs@seis.sc.edu", thrown);
     }
-    
+
     public static void handle(String message, Throwable thrown) {
         if(reporters.size() == 0){
             System.err.println(message);
@@ -39,26 +39,26 @@ public class GlobalExceptionHandler {
             while(it.hasNext()){
                 try {
                     ((ExceptionReporter)it.next()).report(message, thrown, parsedContents);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     it.remove();
                     reporterExceptions.add(e);
                 }
             }
             it = reporterExceptions.iterator();
             while(it.hasNext()){
-                handle("An exception reporter caused this exception.  It has been removed from the GlobalExceptionHandler", (Exception)it.next());
+                handle("An exception reporter caused this exception.  It has been removed from the GlobalExceptionHandler", (Throwable)it.next());
             }
         }
     }
-    
+
     public static void add(ExceptionReporter reporter){
         reporters.add(reporter);
     }
-    
+
     public static void add(String sectionName, File file){
         sectionToContents.put(sectionName, file);
     }
-    
+
     public static void append(String sectionName, String contents){
         List contentsList = null;
         if(sectionToContents.containsKey(sectionName)){
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
         }
         contentsList.add(contents);
     }
-    
+
     private static String parse(Object item) {
         if(item instanceof List)
             return createString((List)item);
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
         else
             throw new IllegalArgumentException();
     }
-    
+
     private static String createString(File file){
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -101,7 +101,7 @@ public class GlobalExceptionHandler {
         }
         return "";
     }
-    
+
     private static String createString(List stringList) {
         StringBuffer message = new StringBuffer();
         Iterator it = stringList.iterator();
@@ -111,11 +111,11 @@ public class GlobalExceptionHandler {
         return message.toString();
     }
     private static Map sectionToContents = new HashMap();
-    
+
     private static Logger logger = Logger.getLogger(GlobalExceptionHandler.class);
-    
+
     private static List reporters = new ArrayList();
-    
+
     private static boolean showSysInfo = true;
 }
 

@@ -104,7 +104,7 @@ public class StationLoader extends Thread
             // stationList.validate();
             //stationList.repaint();
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             GlobalExceptionHandler.handle("Unable to get stations.", e);
         } // end of try-catch   }
@@ -131,7 +131,7 @@ public class StationLoader extends Thread
                 });
     }
 
-    static Logger logger =
+    private static Logger logger =
         Logger.getLogger(StationLoader.class);
 
 }

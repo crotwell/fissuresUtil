@@ -1,10 +1,10 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import java.util.*;
-import javax.swing.table.*;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * SeismogramBackgroundLoader.java
@@ -17,50 +17,50 @@ import javax.swing.table.*;
  */
 
 public class SeismogramBackgroundLoader {
-    
-    public SeismogramBackgroundLoader(SeismogramBackgroundLoaderPool pool) {
-	this.pool = pool;
 
-	Runnable r = new Runnable() {
-		public void run() {
-		    try {
-			runWork();
-		    } catch (Exception e) {
-			e.printStackTrace();
-		    }
-		}
-	    };
-	privateThread = new Thread(seisLoaderThreadGroup,
-                               r,
-                               "Seismogram Loader"+getThreadNum());
-	privateThread.start();
+    public SeismogramBackgroundLoader(SeismogramBackgroundLoaderPool pool) {
+        this.pool = pool;
+
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    runWork();
+                } catch (Throwable e) {
+                    GlobalExceptionHandler.handle(e);
+                }
+            }
+        };
+        privateThread = new Thread(seisLoaderThreadGroup,
+                                   r,
+                                   "Seismogram Loader"+getThreadNum());
+        privateThread.start();
     }
 
     public void runWork() {
-	
-	SeismogramQueueElement q;
-	SeismogramAttr attr;
-	LocalSeismogram[] seis;
-	while (noStopThread) {
-	    try {
-		q = pool.getFromQueue();
+
+        SeismogramQueueElement q;
+        SeismogramAttr attr;
+        LocalSeismogram[] seis;
+        while (noStopThread) {
+            try {
+                q = pool.getFromQueue();
                 RequestFilter[] rf = new RequestFilter[1];
                 rf[0] = q.getRequest();
-		try {
-		    seis = q.getDataCenter().retrieve_seismograms(rf);
-		    q.getListener().seismogramLoaded(rf[0], seis);
-		    pool.fireSeismogramLoaded(rf[0], seis);
-		} catch (edu.iris.Fissures.FissuresException e) {
-		    q.getListener().seismogramError(rf[0], e);
-		    pool.fireSeismogramError(rf[0], e);
-		}
-	    } catch (InterruptedException e) {
-	    }
-	}
+                try {
+                    seis = q.getDataCenter().retrieve_seismograms(rf);
+                    q.getListener().seismogramLoaded(rf[0], seis);
+                    pool.fireSeismogramLoaded(rf[0], seis);
+                } catch (edu.iris.Fissures.FissuresException e) {
+                    q.getListener().seismogramError(rf[0], e);
+                    pool.fireSeismogramError(rf[0], e);
+                }
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     public void stopThread() {
-	noStopThread = false;
+        noStopThread = false;
     }
 
     private Thread privateThread;
@@ -75,7 +75,7 @@ public class SeismogramBackgroundLoader {
         return threadNum++;
     }
 
-    private ThreadGroup seisLoaderThreadGroup = 
+    private ThreadGroup seisLoaderThreadGroup =
         new ThreadGroup("Seismogram Loader");
 
 } // SeismogramBackgroundLoader
