@@ -9,7 +9,10 @@ package edu.sc.seis.fissuresUtil.mseed;
 
 import java.io.*;
 
+import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -508,6 +511,23 @@ public class DataHeader extends ControlHeader {
     }
 
     /**
+     get the value of start time in MicroSecondDate format
+
+     @return the value of start time in MicroSecondDate format
+     */
+    public MicroSecondDate getMicroSecondStartTime() {
+        // get time structure
+        Btime startStruct = getStartBtime();
+        ISOTime iso =  new edu.iris.Fissures.model.ISOTime(startStruct.year,
+                                                            startStruct.jday,
+                                                            startStruct.hour,
+                                                            startStruct.min,
+                                                            startStruct.sec);
+        MicroSecondDate d = iso.getDate().add(new TimeInterval(startStruct.tenthMilli, UnitImpl.TENTHMILLISECOND));
+        return d;
+    }
+
+    /**
      get the value of start time in ISO format.
      Note this is not the time of the last sample, but rather the predicted
      begin time of the next record.
@@ -564,7 +584,7 @@ public class DataHeader extends ControlHeader {
         cal.setTime(date);
 
         Btime btime = new Btime();
-        btime.tenthMilli = (int)Math.round(((date.getTime()*1000+date.getMicroSeconds()) % 1000000) / 100.0);
+        btime.tenthMilli = (int)(cal.get(cal.MILLISECOND)*10+(Math.round(date.getMicroSeconds()/100.0)));
         btime.year = cal.get(cal.YEAR);
         btime.jday = cal.get(cal.DAY_OF_YEAR);
         btime.hour = cal.get(cal.HOUR_OF_DAY);
