@@ -30,7 +30,7 @@ import javax.swing.Timer;
 
 public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionListener,
     PlayEventListener{
-    
+
     private Color drawColor = Color.BLACK;
     private int x2, x3, x1, x0, yMaxA = 9, yMaxB = 11, yMinA = 6, yMinB = 4, playCursor = 0;
     private SeismogramDisplay display;
@@ -39,14 +39,14 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
     private TimeEvent timeEvent;
     private FissuresToWAV seisWAV;
     private PlayEvent playEvent;
-    
+
     private TimeInterval timeInterval;
     private Timer timer;
     private double totalCount;
     private int currentCount;
     private double positionMultiplier;
     private MicroSecondDate clickTime;
-    
+
     public SoundPlay(SeismogramDisplay display, SeismogramContainer container){
         this.display = display;
         this.container = container;
@@ -55,20 +55,14 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
         display.addMouseListener(this);
         display.addMouseMotionListener(this);
     }
-    
-    
-    /**
-     * Method setVisibility
-     *
-     * @param    b                   a  boolean
-     *
-     */
+
+
     public void setVisibility(boolean b) {
         visible = b;
     }
-    
+
     public Color getColor(){ return drawColor; }
-    
+
     /**
      * Invoked when the mouse cursor has been moved onto a component
      * but no buttons have been pushed.
@@ -80,13 +74,13 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
             setDrawColor(Color.BLACK);
         }
     }
-    
+
     public void mouseClicked(MouseEvent e){
         if(intersects(e)){
             seisWAV.play(timeEvent.getTime(container.getDataSetSeismogram()));
         }
     }
-    
+
     private boolean intersects(MouseEvent e){
         if(e.getSource() == display){
             int clickX = e.getX() - display.getInsets().left;
@@ -98,7 +92,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
         }
         return false;
     }
-    
+
     private void setDrawColor(Color newColor){
         Color prevColor = drawColor;
         drawColor = newColor;
@@ -106,16 +100,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
             display.repaint();
         }
     }
-    
-    /**
-     * Method draw
-     *
-     * @param    canvas              a  Graphics2D
-     * @param    size                a  Dimension
-     * @param    currentTime         a  TimeEvent
-     * @param    currentAmp          an AmpEvent
-     *
-     */
+
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         if(visible && !BasicSeismogramDisplay.PRINTING){
             double sizeOfDisplay = size.getWidth();
@@ -123,7 +108,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
             x1 = (int)sizeOfDisplay - 15;
             x2 = (int)sizeOfDisplay - 11;
             x3 = (int)sizeOfDisplay - 7;
-            
+
             timeEvent = currentTime;
             canvas.setColor(drawColor);
             canvas.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
@@ -136,7 +121,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
             canvas.drawLine(x2 + 1, yMid, x2, yMaxB);
             canvas.drawLine(x3, yMinB, x3 + 1, yMid);
             canvas.drawLine(x3 + 1, yMid, x3, yMaxB);
-            
+
             if (playEvent != null && playEvent.getClip().isRunning()){
                 long elapsedTime = playEvent.getClip().getMicrosecondPosition();
                 long clipLength = playEvent.getClip().getMicrosecondLength();
@@ -148,27 +133,16 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
             }
         }
     }
-    
-    /**
-     * Invoked when a mouse button is pressed on a component and then
-     * dragged.  <code>MOUSE_DRAGGED</code> events will continue to be
-     * delivered to the component where the drag originated until the
-     * mouse button is released (regardless of whether the mouse position
-     * is within the bounds of the component).
-     * <p>
-     * Due to platform-dependent Drag&Drop implementations,
-     * <code>MOUSE_DRAGGED</code> events may not be delivered during a native
-     * Drag&Drop operation.
-     */
+
     public void mouseDragged(MouseEvent e) {
         if(intersects(e)){
             setDrawColor(Color.RED);
         }else if(e.getSource() == display){
             setDrawColor(Color.BLACK);
         }
-        
+
     }
-    
+
     private void sendToWAV(){
         DataOutputStream dos = null;
         try{
@@ -185,7 +159,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
             GlobalExceptionHandler.handle(e);
         }
     }
-    
+
     public void eventPlayed(PlayEvent e){
         playEvent = e;
         timeInterval = e.getTimeInterval();
