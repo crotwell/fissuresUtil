@@ -41,11 +41,140 @@ Use as the follwoing:
 public class ChannelChooserGUI extends JPanel{
 
 
+    public ChannelChooserGUI() {
+
+	initializeComponents();
+
+    }
+
+    
+
     public ChannelChooserGUI(NetworkDC netdcgiven){
 
         mychannelchooser = new ChannelChooser(netdcgiven);	
-        initFrame(); 
+        initFrame();
 	addChannelListListener();
+    }
+
+    public void setNetworkDC(NetworkDC netdcgiven) {
+
+	mychannelchooser = new ChannelChooser(netdcgiven);	
+      
+	addChannelListListener();
+
+	
+    }
+
+
+    public void initializeComponents() {
+
+	 this.setForeground(fg);
+	
+         //subPane.setBackground(bg);
+         subPane.setForeground(fg);	
+         /*subPane.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createRaisedBevelBorder(),
+                BorderFactory.createLoweredBevelBorder())); */        
+         subPane.setSize(new java.awt.Dimension (mywidth, myheight));
+	 subPane.setPreferredSize(new java.awt.Dimension (mywidth, myheight));
+   
+	 subPane.setLayout(new GridBagLayout());
+	 gbc = new GridBagConstraints();
+	 gbc.fill = gbc.BOTH;
+	 gbc.weightx = 1.0;
+	 gbc.weighty = 1.0;
+	 gbc.gridx = 0;
+	 gbc.gridy = 0;
+
+	 JLabel netLabel = new JLabel("NETWORK   ");
+	 JLabel staLabel = new JLabel("STATIONS   ");
+	 JLabel siLabel = new JLabel("SITES   ");
+	 JLabel chLabel = new JLabel("CHANNELS");
+	 netLabel.setToolTipText(lnettip);
+	 staLabel.setToolTipText(lstatip);
+	 siLabel.setToolTipText(lsittip);
+	 chLabel.setToolTipText(lchatip);
+
+	 subPane.add(netLabel, gbc);
+	 gbc.gridx++;
+	 subPane.add(staLabel, gbc);
+	 gbc.gridx++;
+	 subPane.add(siLabel, gbc);
+	 gbc.gridx++;
+	 subPane.add(chLabel, gbc);
+	 gbc.gridx++;
+	 gbc.gridy++;
+
+	 gbc.gridx = 0;
+	 
+         
+
+         netlist = new JList();
+	 netlist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+         JScrollPane scroller1 = new JScrollPane(netlist);
+         subPane.add(scroller1, gbc);
+	 gbc.gridx++;
+
+         stalist = new JList();
+	 stalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+         JScrollPane scroller2 = new JScrollPane(stalist);
+         subPane.add(scroller2, gbc);
+	 gbc.gridx++;
+ 
+         sitlist = new JList();
+	 sitlist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+         JScrollPane scroller3 = new JScrollPane(sitlist);
+         subPane.add(scroller3, gbc);
+	 gbc.gridx++;
+
+         chalist = new JList();
+	 chalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+         JScrollPane scroller4 = new JScrollPane(chalist);
+         subPane.add(scroller4, gbc);
+	 gbc.gridx++;
+
+	 add(subPane);
+
+	 
+
+    }
+
+
+    public void populateComponents() {
+
+	
+	mychannelchooser.setNetworks();
+	networks = mychannelchooser.getNetworks();
+
+	netlist = new JList(networks);
+	netlist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	JScrollPane scroller1 = new JScrollPane(netlist);
+	subPane.add(scroller1, gbc);
+	 gbc.gridx++;
+	 
+         stalist = new JList(stations);
+	 stalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+         JScrollPane scroller2 = new JScrollPane(stalist);
+         subPane.add(scroller2, gbc);
+	 gbc.gridx++;
+ 
+         sitlist = new JList(sites);
+	 sitlist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+         JScrollPane scroller3 = new JScrollPane(sitlist);
+         subPane.add(scroller3, gbc);
+	 gbc.gridx++;
+
+         chalist = new JList(channels);
+	 chalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+         JScrollPane scroller4 = new JScrollPane(chalist);
+         subPane.add(scroller4, gbc);
+	 gbc.gridx++;
+
+	 add(subPane);
+	  
+
+
+
     }
 
     public void initFrame(){

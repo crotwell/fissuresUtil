@@ -34,6 +34,10 @@ import java.text.*;
 
 public class ChannelChooser{
 
+    public ChannelChooser() {
+
+
+    }
 
     public ChannelChooser(NetworkDCOperations netdcgiven){
 	netdc = (NetworkDC)netdcgiven;
@@ -46,6 +50,19 @@ public class ChannelChooser{
 
  
     }
+
+    public void setNetworkDC(NetworkDCOperations netdc) {
+
+	this.netdc = (NetworkDC) netdc;
+	
+    }
+
+    public void setNetworkFinder(NetworkFinder netgiven) {
+
+	netfound = netgiven;
+
+    }
+
 
      protected void findChannels() {
 
