@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.map.layers;
 import edu.sc.seis.fissuresUtil.chooser.*;
+import java.util.*;
 
-import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -23,9 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -60,7 +57,16 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     public void stationDataChanged(StationDataEvent s) {
         Station[] stations = s.getStations();
         for (int i = 0; i < stations.length; i++){
-            omgraphics.add(new OMStation(stations[i]));
+            if (!stationMap.containsKey(stations[i].name)){
+                stationNames.add(stations[i].name);
+                omgraphics.add(new OMStation(stations[i]));
+            }
+            List stationList = (List)stationMap.get(stations[i].name);
+            if (stationList == null){
+                stationList = new LinkedList();
+                stationMap.put(stations[i].name, stationList);
+            }
+            stationList.add(stations[i]);
         }
         repaint();
     }
@@ -227,6 +233,10 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
     private EventAccessOperations currentEvent;
 
+    private Map stationMap = new HashMap();
+
+    private List stationNames = new ArrayList();
+
     public static final Color STATION = new Color(43, 33, 243);
 
     public static final Color DOWN_STATION = new Color(183, 183, 183);
@@ -341,3 +351,4 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         return dist;
     }
 }
+
