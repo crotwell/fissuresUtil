@@ -4,7 +4,6 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.display.registrar.RTTimeRangeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
