@@ -101,18 +101,8 @@ public class JDBCStation extends NetworkTable {
     }
 
     public Station[] getAllStations() throws SQLException {
-        StationId[] ids = getAllStationIds();
-        Station[] stations = new Station[ids.length];
-        for(int i = 0; i < stations.length; i++) {
-            try {
-                stations[i] = get(ids[i]);
-            } catch(NotFound e) {
-                GlobalExceptionHandler.handle("Unable to extract a station right after getting its id from the db",
-                                              e);
-                return new Station[0];
-            }
-        }
-        return stations;
+        ResultSet rs = getAllStations.executeQuery();
+        return extractAll(rs);
     }
     
     public StationId[] getAllStationIds(int netDbId) throws SQLException {
@@ -256,7 +246,7 @@ public class JDBCStation extends NetworkTable {
 
     private PreparedStatement getAll, getAllForNet, getIfNameExists, getByDBId,
             getStationIdByDBId, getDBId, updateSta, putAll, putId,
-            putChanIdBits, getDBIdsForNetAndCode, deleteStation;
+            putChanIdBits, getDBIdsForNetAndCode, deleteStation, getAllStations;
 
     private JDBCLocation locTable;
 
