@@ -84,15 +84,11 @@ public class DisplayUtilsTest extends TestCase{
         return seis;
     }
 
-    private LocalSeismogramImpl[] createUnsortedThreeSeisArray(){
-        return createUnsortedThreeSeisArray(createThreeSeisArray());
-    }
-
     private LocalSeismogramImpl[] createUnsortedThreeSeisArray(LocalSeismogramImpl[] seis){
         LocalSeismogramImpl[] unsorted = { seis[2], seis[1], seis[0] };
         return unsorted;
     }
-
+    
     private static LocalSeismogramImpl firstSeis = SimplePlotUtil.createSpike(new MicroSecondDate(0));
     private static LocalSeismogramImpl secondSeis = SimplePlotUtil.createSpike(new MicroSecondDate(5000));
     private static LocalSeismogramImpl thirdSeis = SimplePlotUtil.createSpike(new MicroSecondDate(100000));
