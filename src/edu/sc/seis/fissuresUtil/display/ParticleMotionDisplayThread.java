@@ -1,14 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.registrar.*;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.sc.seis.fissuresUtil.chooser.ChannelGrouperImpl;
+import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
+import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
 import org.apache.log4j.Category;
 
 /**
@@ -72,7 +68,7 @@ public class ParticleMotionDisplayThread{
                                                                          registrar,
                                                                          displayColor,
                                                                          DisplayUtils.getOrientationName(channelGroup[counter].channel_code)+"-"+
-                                                                         DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code),
+                                                                             DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code),
                                                                          horizPlane);
                 //particleMotionDisplay.updateTimeRange();
 
@@ -87,12 +83,10 @@ public class ParticleMotionDisplayThread{
 
     public boolean isHorizontalPlane(ChannelId channelIdone,
                                      ChannelId channelIdtwo,
-                                     edu.sc.seis.fissuresUtil.xml.DataSet dataset) {
+                                     DataSet dataset) {
 
-        Channel channelOne = dataset.getChannel(channelIdone);
-        Channel channelTwo = dataset.getChannel(channelIdtwo);
-        if((Math.abs(channelOne.an_orientation.dip) == 0 &&
-            channelTwo.an_orientation.dip == 0))  {
+        if(dataset.getChannel(channelIdone).an_orientation.dip == 0 &&
+           dataset.getChannel(channelIdtwo).an_orientation.dip == 0)  {
             return true;
         }
         return false;
