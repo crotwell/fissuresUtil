@@ -55,13 +55,20 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
             double min = seis.getMinValue(beginIndex, endIndex).getValue();
 	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
+	    //System.out.println("The mean is "+mean);
 	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
+	    //if(ampRange == null) 
+		//System.out.println("-------->The ampRange is null");
+	    //else //System.out.println("-------->The ampRange is not null");
 	    if(ampRange == null)
 		ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
 	    else if(meanDiff > ampRange.getMaxValue())
 		ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
+
+	   
 	    double bottom = ampRange.getMinValue() + mean;
 	    double top = ampRange.getMaxValue() + mean;
+	    //System.out.println("******* bottom = "+bottom+"   top = "+top);
 	    return new UnitRangeImpl(bottom, top, seis.getAmplitudeRange().getUnit());
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -120,6 +127,18 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 		this.updateAmpSyncListeners();
 	    }
 	}
+    }
+
+    public void fireAmpRangeEvent(AmpSyncEvent event) {
+	double begin = event.getBegin();
+	double end = event.getEnd();
+	if(this.ampRange == null) {
+
+	    this.ampRange = new UnitRangeImpl(begin, end, UnitImpl.COUNT);
+	} else {
+	    this.ampRange = new UnitRangeImpl(begin, end, UnitImpl.COUNT);
+	}
+	this.updateAmpSyncListeners();
     }
 
 }// RMeanAmpConfig

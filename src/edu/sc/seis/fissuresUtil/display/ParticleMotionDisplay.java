@@ -199,6 +199,11 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	view.setZoomOut(value);
     }
 
+    public void fireAmpRangeEvent(AmpSyncEvent event) {
+
+	this.hAmpRangeConfig.fireAmpRangeEvent(event);
+    }
+
     /**
      * Describe <code>main</code> method here.
      *

@@ -96,6 +96,8 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	ampRange = new UnitRangeImpl(-offset, offset, UnitImpl.COUNT);
     }
 
+    public void fireAmpRangeEvent(AmpSyncEvent event) {};
+
     protected int offset;
     
 }// OffsetMeanAmpConfig
