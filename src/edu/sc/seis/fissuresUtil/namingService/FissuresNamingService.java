@@ -213,14 +213,30 @@ public class FissuresNamingService {
      * @exception InvalidName if an error occurs
      */
     public void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
-        rebind(dns, objectname, obj, getNameService());
+        rebind(dns, objectname, obj, getInterfaceName(obj));
+    }
+    
+    /**
+     * rebinds the CORBA object. If any of the naming context specified in the dns doesnot exist
+     * it creates a corresponding namingcontext and continues.
+     *
+     * @param dns a <code>String</code> value
+     * @param objectname a <code>String</code> value
+     * @param obj an <code>org.omg.CORBA.Object</code> value
+     * @exception NotFound if an error occurs
+     * @exception CannotProceed if an error occurs
+     * @exception InvalidName if an error occurs
+     */
+    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj, String interfacename) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+
+        rebind(dns, objectname, obj, getNameService(), interfacename);
         Iterator it = otherNS.iterator();
         while (it.hasNext()) {
             String corbaloc = (String)it.next();
             org.omg.CORBA.Object ncObj = orb.string_to_object(corbaloc);
             if (ncObj != null) {
                 NamingContextExt nc = NamingContextExtHelper.narrow(ncObj);
-                rebind(dns, objectname, obj, nc);
+                rebind(dns, objectname, obj, nc, interfacename);
             } else {
                 throw new InvalidName("Can't narrow NameContext for "+corbaloc);
             }
@@ -237,6 +253,16 @@ public class FissuresNamingService {
         logger.info("The CLASS Name is "+obj.getClass().getName());
 
         String interfacename = getInterfaceName(obj);
+
+        rebind(dns, objectname, obj, topLevelNameContext, interfacename);
+    }
+
+    /**
+     * rebinds the CORBA object on the given name service. If any of the naming
+     * context specified in the dns doesnot exist
+     * it creates a corresponding namingcontext and continues.
+     */
+    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj, NamingContextExt topLevelNameContext, String interfacename) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
         logger.info("rebind dns="+dns+" interface="+interfacename+" object="+objectname);
         String nameString = appendKindNames(dns);
