@@ -39,8 +39,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	sorter = new SeismogramSorter();
     }
     
-    public void addDisplay(LocalSeismogramImpl seis, String name){
-	this.addDisplay(seis, globalTimeRegistrar, name);
+    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, String name){
+	return addDisplay(seis, globalTimeRegistrar, name);
     }
     
     public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, String name){
