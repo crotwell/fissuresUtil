@@ -17,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Vector;
@@ -130,7 +131,10 @@ public class ParticleMotionView extends JComponent{
         for(int counter = 0; counter < displays.size(); counter++) {
             ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
             if(!displayKeys.contains(particleMotion.key)) continue;
-            drawAzimuth(particleMotion, graphics2D);
+            if(particleMotion.isHorizontalPlane()){
+                drawAzimuth(particleMotion, graphics2D);
+                break;
+            }
         }
         for(int counter = 0; counter < displays.size(); counter++) {
             ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
@@ -159,33 +163,6 @@ public class ParticleMotionView extends JComponent{
         Shape azimuth = getAzimuthPath();
         graphics2D.draw(azimuth);
         graphics2D.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
-    }
-
-    public synchronized void drawLabels(ParticleMotion particleMotion, Graphics2D graphics2D) {
-        Color color = new Color(0, 0, 0, 128);
-        graphics2D.setColor(color);
-        java.awt.Dimension dimension = getSize();
-        float fontSize = dimension.width / 20;
-        if(fontSize < 4) fontSize = 4;
-        else if(fontSize > 32) fontSize = 32;
-        Font font = new Font("serif", Font.BOLD, (int)fontSize);
-        graphics2D.setFont(font);
-        String labelStr = new String();
-        labelStr = particleMotion.hseis.toString();
-        int x = (dimension.width - (int)(labelStr.length()*fontSize)) / 2  - getInsets().left - getInsets().right;
-        int y = dimension.height  - 4;
-        graphics2D.drawString(labelStr, x, y);
-        labelStr = particleMotion.vseis.toString();
-        x = font.getSize();
-        y = (dimension.height - (int)(labelStr.length()*fontSize)) / 2  -  getInsets().top - getInsets().bottom;
-        //get the original AffineTransform
-        AffineTransform oldTransform = graphics2D.getTransform();
-        AffineTransform ct =  AffineTransform.getTranslateInstance(x, y);
-        graphics2D.transform(ct);
-        graphics2D.transform(AffineTransform.getRotateInstance(Math.PI/2));
-        graphics2D.drawString(labelStr, 0, 0);
-        //restore the original AffineTransform
-        graphics2D.setTransform(oldTransform);
     }
 
     public void drawTitles(LocalSeismogramImpl hseis, LocalSeismogramImpl vseis) {
