@@ -151,7 +151,8 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     }
 
     public static URLDataSetSeismogram localize(DataSetSeismogram dss,
-                                                File directory) throws MalformedURLException {
+                                                File directory,
+                                                SeismogramFileTypes fileType) throws MalformedURLException {
         URLDataSetSeismogram urlDSS;
         URL fileURL = directory.toURL();
         if (dss instanceof URLDataSetSeismogram) {
@@ -178,7 +179,8 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         }
         // either isLocal is false, or not a URLDataSetSeismogram, so must localize
         URLDataSetSeismogramSaver saver = new URLDataSetSeismogramSaver(dss,
-                                                                        directory);
+                                                                        directory,
+                                                                        fileType);
         URLDataSetSeismogram out = saver.getURLDataSetSeismogram();
 
         while ( ! saver.isFinished()) {
@@ -423,7 +425,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     }
 
     public void addToCache(URL seisurl,
-                                  SeismogramFileTypes seisFileType, LocalSeismogramImpl seis) {
+                           SeismogramFileTypes seisFileType, LocalSeismogramImpl seis) {
         setRequestFilter(seis);
         addToCache(seis);
         urlToLSMap.put(seisurl, new SoftReference(seis));

@@ -19,9 +19,11 @@ import org.apache.log4j.Logger;
 public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
 
     URLDataSetSeismogramSaver(DataSetSeismogram dss,
-                              File directory) {
+                              File directory,
+                              SeismogramFileTypes fileType) {
         this.inDSS = dss;
         this.directory = directory;
+        this.fileType = fileType;
         urlDSS = new URLDataSetSeismogram(new URL[0],
                                           new SeismogramFileTypes[0],
                                           inDSS.getDataSet(),
@@ -85,13 +87,14 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
 
         for (int i = 0; i < seis.length; i++) {
             try {
-                File seisFile = URLDataSetSeismogram.saveAs(seis[i],
-                                    directory,
-                                    inDSS.getDataSet().getChannel(inDSS.getRequestFilter().channel_id),
-                                    inDSS.getDataSet().getEvent(),
-                                                           SeismogramFileTypes.MSEED);
+                File seisFile =
+                    URLDataSetSeismogram.saveAs(seis[i],
+                                                directory,
+                                                inDSS.getDataSet().getChannel(inDSS.getRequestFilter().channel_id),
+                                                inDSS.getDataSet().getEvent(),
+                                                fileType);
                 urlDSS.addToCache(seisFile.toURI().toURL(),
-                                  SeismogramFileTypes.MSEED,
+                                  fileType,
                                   seis[i]);
             } catch (Exception e) {
                 setError(e);
@@ -111,6 +114,8 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
     boolean finished = false;
 
     File directory;
+
+    SeismogramFileTypes fileType;
 
     DataSetSeismogram inDSS;
 

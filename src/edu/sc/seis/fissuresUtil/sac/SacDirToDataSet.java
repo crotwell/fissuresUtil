@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 7121 2004-02-13 19:02:46Z crotwell $
+ * @version $Id: SacDirToDataSet.java 8092 2004-04-09 20:42:51Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -65,7 +65,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
                                 dsName,
                                 userName,
                                 audit);
-        Element dsElement = dataSetToXML.createDocument(dataset, directory);
+        Element dsElement = dataSetToXML.createDocument(dataset, directory, SeismogramFileTypes.SAC);
 
         Iterator it = paramRefs.keySet().iterator();
         while (it.hasNext()) {
