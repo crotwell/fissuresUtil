@@ -77,6 +77,9 @@ public class ChannelChooserDisplay extends JPanel implements  ChannelChooserInte
     }
 
     public ChannelChooser getChannelChooser() {
+	if (channelChooser == null) {
+	    return null;
+	} // end of if (channelChooser == null)
 	return channelChooser.getChannelChooser();
     }
 
