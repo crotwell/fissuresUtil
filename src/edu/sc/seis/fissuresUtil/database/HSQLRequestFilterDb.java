@@ -44,7 +44,6 @@ public class HSQLRequestFilterDb extends AbstractDb{
 
     public HSQLRequestFilterDb(String directoryName, String databaseName) throws SQLException {
         super(directoryName, databaseName);
-        ung = UniqueNumberGenerator.getUNG(directoryName, databaseName);
         create();
     }
 
@@ -201,8 +200,6 @@ public class HSQLRequestFilterDb extends AbstractDb{
                java.io.IOException,
                SQLException
 {
-        HashMap hashMap = new HashMap();
-
 
         for(int counter = 0; counter < seismograms.length; counter++) {
 
@@ -420,7 +417,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
 
     private String dataDirectoryName = directoryName+"/data/";
 
-    private UniqueNumberGenerator ung;
+    private UniqueNumberGenerator ung = UniqueNumberGenerator.getUNG(directoryName, databaseName);
 
     private PreparedStatement getTotalSizeStmt;
 
