@@ -37,61 +37,55 @@ import java.awt.Graphics2D;
 
 public class FilteredSeismogramShape extends SeismogramShape {
     public FilteredSeismogramShape(ColoredFilter filter, DataSetSeismogram seismogram){
-	this(filter, seismogram, filter.getName());
+        super(seismogram);
+        this.seismogram = seismogram;
+        this.filter = filter;
+        filterData();
+        super.dss = filteredSeis;
+        super.stat = new Statistics(filteredSeis.getSeismogram());
     }
-
-	public FilteredSeismogramShape(ColoredFilter filter, DataSetSeismogram seismogram, String name){
-	super(seismogram, filter.getColor(), name);
-	this.seismogram = seismogram;
-	this.filter = filter;
-	filterData();
-	super.dss = filteredSeis;
-	super.seis = filteredSeis.getSeismogram();
-	super.stat = new Statistics(seis);
-	setVisibility(filter.getVisibility());
-    }
-
-
+    
+    
     public void filterData(){
-	float[] fdata;
-	if(seismogram.getSeismogram().can_convert_to_float())
-	    fdata = seismogram.getSeismogram().get_as_floats();
-	else{
-	    int[] idata = seismogram.getSeismogram().get_as_longs();
-	    fdata = new float[idata.length];
-	    for(int i = 0; i < idata.length; i++)
-		fdata[i] = idata[i];
-	    idata = null;
-	}	    
-	// remove the mean before filtering
-	Statistics stats = new Statistics(fdata);
-	double mean = stats.mean();
-	float fmean = (float)mean;
-	for (int i=0; i<fdata.length; i++) {
-	    fdata[i] -= fmean;
-	} // end of for (int i=0; i<fdata.length; i++)
-	Cmplx[] fftdata = Cmplx.fft(fdata);
-	//save memory
-	fdata = null;
-	double dt = seismogram.getSeismogram().getSampling().getPeriod().convertTo(UnitImpl.SECOND).getValue();
-	Cmplx[] filtered = filter.apply(dt, fftdata);
-	// save memory
-	fftdata = null;
-	float[] outData = Cmplx.fftInverse(filtered, seismogram.getSeismogram().getNumPoints());
-	for (int i=0; i<outData.length; i++) {
-	    outData[i] += fmean;
-	} // end of for (int i=0; i<fdata.length; i++)
-	TimeSeriesDataSel sel = new TimeSeriesDataSel();
-	sel.flt_values(outData);
-	filteredSeis = new DataSetSeismogram(new LocalSeismogramImpl(seismogram.getSeismogram(), sel), seismogram.getDataSet());;
+        float[] fdata;
+        if(seismogram.getSeismogram().can_convert_to_float())
+            fdata = seismogram.getSeismogram().get_as_floats();
+        else{
+            int[] idata = seismogram.getSeismogram().get_as_longs();
+            fdata = new float[idata.length];
+            for(int i = 0; i < idata.length; i++)
+                fdata[i] = idata[i];
+            idata = null;
+        }
+        // remove the mean before filtering
+        Statistics stats = new Statistics(fdata);
+        double mean = stats.mean();
+        float fmean = (float)mean;
+        for (int i=0; i<fdata.length; i++) {
+            fdata[i] -= fmean;
+        } // end of for (int i=0; i<fdata.length; i++)
+        Cmplx[] fftdata = Cmplx.fft(fdata);
+        //save memory
+        fdata = null;
+        double dt = seismogram.getSeismogram().getSampling().getPeriod().convertTo(UnitImpl.SECOND).getValue();
+        Cmplx[] filtered = filter.apply(dt, fftdata);
+        // save memory
+        fftdata = null;
+        float[] outData = Cmplx.fftInverse(filtered, seismogram.getSeismogram().getNumPoints());
+        for (int i=0; i<outData.length; i++) {
+            outData[i] += fmean;
+        } // end of for (int i=0; i<fdata.length; i++)
+        TimeSeriesDataSel sel = new TimeSeriesDataSel();
+        sel.flt_values(outData);
+        filteredSeis = new DataSetSeismogram(new LocalSeismogramImpl(seismogram.getSeismogram(), sel), seismogram.getDataSet());;
     }
-
+    
     public ColoredFilter getFilter(){ return filter; }
-
+    
     public DataSetSeismogram getFilteredSeismogram(){ return filteredSeis; }
     
     protected DataSetSeismogram filteredSeis, seismogram;
-
+    
     protected ColoredFilter filter;
     
     protected static SeisGramText localeText = new SeisGramText(null);

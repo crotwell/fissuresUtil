@@ -96,12 +96,12 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
-                SeismogramShape newPlotter;
+                DrawableSeismogram newPlotter;
                 if (autoColor) {
-                    newPlotter = new SeismogramShape(seismos[i],
+                    newPlotter = new DrawableSeismogram(seismos[i],
                                                      seisColors[(seismograms.size() -1) % seisColors.length]);
                 }else {
-                    newPlotter = new SeismogramShape(seismos[i], Color.blue);
+                    newPlotter = new DrawableSeismogram(seismos[i]);
                 } // end of else
                 if(parent != null){
                     newPlotter.setVisibility(parent.getOriginalVisibility());
@@ -174,9 +174,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
             getSeismograms();
             seismogramNames = new String[seismogramArray.length];
             for(int i = 0; i < seismogramArray.length; i++){
-                Iterator e = new PlotterIterator(SeismogramShape.class);
+                Iterator e = new PlotterIterator(DrawableSeismogram.class);
                 while(e.hasNext()){
-                    SeismogramShape current = (SeismogramShape)e.next();
+                    DrawableSeismogram current = (DrawableSeismogram)e.next();
                     if(current.getSeismogram() == seismogramArray[i]){
                         seismogramNames[i] = current.getName();
                     }
@@ -386,9 +386,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         for(int i = 0; i < seismos.length; i++){
             if(seismograms.contains(seismos[i])){
                 seismograms.remove(seismos[i]);
-                PlotterIterator it = new PlotterIterator(SeismogramShape.class);
+                PlotterIterator it = new PlotterIterator(DrawableSeismogram.class);
                 while(it.hasNext()){
-                    SeismogramShape current = (SeismogramShape)it.next();
+                    DrawableSeismogram current = (DrawableSeismogram)it.next();
                     if(current.getSeismogram() == seismos[i]){
                         it.remove();
                     }
@@ -412,11 +412,11 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     }
     
     public void setUnfilteredDisplay(boolean visible){
-        Iterator e = new PlotterIterator(SeismogramShape.class);
+        Iterator e = new PlotterIterator(DrawableSeismogram.class);
         java.util.LinkedList seismoList = new java.util.LinkedList();
         while(e.hasNext()){
-            SeismogramShape current = (SeismogramShape)e.next();
-            if ( current.getClass().equals(SeismogramShape.class)) {
+            DrawableSeismogram current = (DrawableSeismogram)e.next();
+            if ( current.getClass().equals(DrawableSeismogram.class)) {
                 current.setVisibility(visible);
                 seismoList.addLast(current.getSeismogram());
             } // end of if ()
@@ -437,10 +437,10 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         int i = 0;
         if(filters.contains(filter)){
             LinkedList filterShapes = new LinkedList();
-            Iterator e = new PlotterIterator(FilteredSeismogramShape.class);
+            Iterator e = new PlotterIterator(DrawableFilteredSeismogram.class);
             while(e.hasNext()){
                 logger.debug("contains filter");
-                FilteredSeismogramShape current = ((FilteredSeismogramShape)e.next());
+                DrawableFilteredSeismogram current = ((DrawableFilteredSeismogram)e.next());
                 if(current.getFilter() == filter){
                     current.setVisibility(filter.getVisibility());
                     e.remove();
@@ -455,7 +455,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
             Iterator e = seismograms.iterator();
             while(e.hasNext()){
                 DataSetSeismogram current = (DataSetSeismogram)e.next();
-                FilteredSeismogramShape filteredShape = new FilteredSeismogramShape(filter, current);
+                DrawableFilteredSeismogram filteredShape = new DrawableFilteredSeismogram(current, filter);
                 seismos[i] = filteredShape.getFilteredSeismogram();
                 plotters.add(filteredShape);
                 i++;
