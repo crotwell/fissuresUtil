@@ -6,6 +6,7 @@ import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.layer.GraticuleLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
+import com.bbn.openmap.proj.Projection;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
@@ -16,9 +17,15 @@ import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
 import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 import javax.swing.ListSelectionModel;
 
 public class OpenMap extends OpenMapComponent{
@@ -176,7 +183,7 @@ public class OpenMap extends OpenMapComponent{
 
     public MapBean getMapBean(){
         if (mapBean == null){
-            mapBean = new MapBean();
+            mapBean = new BufferedMapBean();
         }
         return mapBean;
     }
@@ -194,6 +201,39 @@ public class OpenMap extends OpenMapComponent{
 
     public void setActiveMouseMode(MapMouseMode mode){
         mouseDelegator.setActiveMouseMode(mode);
+    }
+
+
+    public void writeMapImage(String filename){
+        mapBean.setDoubleBuffered(false);
+        Projection proj = mapBean.getProjection();
+        System.out.println("Projection width = " + proj.getWidth() + ", Projection height = " + proj.getHeight());
+        BufferedImage bi = new BufferedImage(proj.getWidth(), proj.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics g = bi.getGraphics();
+        mapBean.paintAll(g);
+
+        try{
+            ImageIO.write(bi, "png", new File(filename));
+        }
+        catch(IOException e){
+            System.out.println("there was a problem writing the file");
+        }
+        mapBean.setDoubleBuffered(true);
+    }
+
+    public static void main(String[] args){
+        OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
+      JFrame frame = new JFrame("Map of Death");
+      frame.setSize(800, 600);
+      frame.getContentPane().add(om);
+        frame.show();
+
+        System.out.println(om.isDisplayable());
+
+
+        om.writeMapImage("map.png");
+        System.out.println("done");
+        System.exit(0);
     }
 }
 
