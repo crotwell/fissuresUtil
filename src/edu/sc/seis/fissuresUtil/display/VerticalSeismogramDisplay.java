@@ -429,7 +429,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     public void globalizeAmpRange(){
         Iterator e = basicDisplays.iterator();
         while(e.hasNext())
-                ((BasicSeismogramDisplay)e.next()).getRegistrar().setAmpConfig(globalRegistrar);
+                ((BasicSeismogramDisplay)e.next()).getRegistrar().setAmpConfig((AmpConfig)globalRegistrar);
     }
 
     /**

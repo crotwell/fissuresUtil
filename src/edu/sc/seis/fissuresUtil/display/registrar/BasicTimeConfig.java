@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import edu.sc.seis.fissuresUtil.display.*;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;

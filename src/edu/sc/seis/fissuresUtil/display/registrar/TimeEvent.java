@@ -1,5 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import edu.sc.seis.fissuresUtil.display.*;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
@@ -17,28 +17,28 @@ public class TimeEvent {
        this.seismos = seismos;
        this.times = times;
    }
-    
+
     public MicroSecondTimeRange getTime(DataSetSeismogram seismo){
-	return times[indexOf(seismo)];
+    return times[indexOf(seismo)];
     }
 
     public MicroSecondTimeRange getTime(){
-	if(genericTime == null){
-	    genericTime = times[0];
-	}
-	return genericTime;
+    if(genericTime == null){
+        genericTime = times[0];
+    }
+    return genericTime;
     }
 
     private int indexOf(DataSetSeismogram seismo){
-	for(int i = 0; i < seismos.length; i++){
-	    if(seismos[i] == seismo){
-		return i;
-	    }
-	}
-	return -1;
+    for(int i = 0; i < seismos.length; i++){
+        if(seismos[i] == seismo){
+        return i;
+        }
+    }
+    return -1;
     }
 
     private DataSetSeismogram[] seismos;
     private MicroSecondTimeRange[] times;
-    private MicroSecondTimeRange genericTime;    
+    private MicroSecondTimeRange genericTime;
 }// TimeEvent
