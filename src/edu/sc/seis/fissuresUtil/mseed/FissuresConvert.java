@@ -9,6 +9,7 @@ import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.IfTimeSeries.TimeSeriesType;
 
 /**
  * FissuresConvert.java
@@ -26,73 +27,74 @@ public class FissuresConvert  {
         
     }
 
-    // fix this as seismogram is now an interface
-    
-    //     public static DataSet toFissures(MiniSeedRead seed, String name)
-    //         throws SeedFormatException {
-    //         Seismogram seis;
-    //         String chanID;
-    //         SeedRecord sr;
-    //         ArrayList channel;
-    //         HashMap allChannels = new HashMap();
-    //         //loop until we catch an EOF
-    //         while (true) {
-    //             try {
-    //                 sr = seed.getNextRecord();
-    //                 System.out.println("DATA RECORD:"+(DataRecord)sr);
-    //                 seis = FissuresConvert.toFissures((DataRecord)sr);
-    //                 chanID = seis.getChannelID().local_name;
-    //                 if (allChannels.containsKey(chanID)) {
-    //                     channel = (ArrayList)allChannels.get(chanID);
-    //                     channel.add(seis);
-    //                 } else {
-    //                     channel = new ArrayList();
-    //                     channel.add(seis);
-    //                     allChannels.put(chanID, channel);
-    //                 }
-    //                 System.out.println(seis.getBeginTime()+" "+seis.getMinValue()+"  "+seis.getMaxValue());
-    //             } catch (IOException e) {
-    //                 // IOException means we are at the end of the file/stream
-    //                 // so break out of the accululation while loop
-    //                 break;
-    //             }
-    //         }
-
-    //         Set keys = allChannels.keySet();
-    //         Iterator it = keys.iterator();
- 
-    //         ArrayList allSeismograms = new ArrayList();
-
-    //         // iterate to join seismogram segments
-    //         while (it.hasNext()) {
-    //             channel = (ArrayList)allChannels.get(it.next());
-    //             DataGrouper.combineSeismograms(channel);
-    //             allSeismograms.addAll(channel);
-    //         }
-    //         Seismogram[] temp = new Seismogram[0]; // gives type for toArray
-    //         return DataGrouper.createDataSet((Seismogram[])allSeismograms.toArray(temp),
-    //                                          name);
-    //     }
-
-    public DataRecord[] toMSeed(LocalSeismogram seis) {
+    public DataRecord[] toMSeed(LocalSeismogram seis) 
+        throws SeedFormatException
+    {
         return toMSeed(seis, 1);
     }
 
-    public DataRecord[] toMSeed(LocalSeismogram seis, int seqStart) {
-        int samples = seis.num_points;
+    public DataRecord[] toMSeed(LocalSeismogram seis, int seqStart) 
+        throws SeedFormatException {
+        LinkedList outRecords = new LinkedList();
         MicroSecondDate start = new MicroSecondDate(seis.begin_time);
-        if ( true ) {
+        if ( seis.data.discriminator().equals(TimeSeriesType.TYPE_ENCODED) ) {
             // encoded data
+            DataHeader header;
+            Blockette1000 b1000;
+            EncodedData[] eData = seis.data.encoded_values();
+            for ( int i=0; i< eData.length; i++) {
+                header = new DataHeader(seqStart++, 'D', false);
+                b1000 = new Blockette1000();
+                if ( eData[i].values.length + header.getSize() + b1000.getSize() < RECORD_SIZE ) {
+                    // can fit into one record
+                    ChannelId chan = seis.channel_id;
+                    header.setStationIdentifier(chan.station_code);
+                    header.setLocationIdentifier(chan.site_code);
+                    header.setChannelIdentifier(chan.channel_code);
+                    header.setNetworkCode(chan.network_id.network_code);
+                    TimeInterval sampPeriod = 
+                        ((SamplingImpl)seis.sampling_info).getPeriod(); 
+                    header.setStartTime(start);
+                    header.setNumSamples((short)eData[i].num_points);
+
+                    // >0 so samples/second
+                    // mul by 500 to preserve more digits, 20 sps => 10000
+                    // 100
+                    // this may not be the best in all cases, but is a
+                    // reasonable guess 
+                    header.setSampleRateFactor((short)(1/sampPeriod.convertTo(UnitImpl.SECOND).getValue()*100));
+                    header.setSampleRateMultiplier((short) -100);
+
+                    b1000.setEncodingFormat((byte)eData[i].compression);
+                    if ( eData[i].byte_order ) {
+                        // seed uses oposite convention
+                        b1000.setWordOrder( (byte)0 );
+                    } else {
+                        b1000.setWordOrder( (byte)1 );
+                    } // end of else
+                    
+                    b1000.setDataRecordLength( RECORD_SIZE_POWER);
+                    DataRecord dr = new DataRecord(header);
+                    dr.addBlockette(b1000);
+                    dr.setData(eData[i].values);
+                    outRecords.add(dr);
+                } else {
+                    throw new SeedFormatException("Can't fit data into record");
+                } // end of else
+                
+            } // end of for ()
+            
         } else {
             // not encoded
+            int samples = seis.num_points;
             while ( samples > 0 ) {
-                DataHeader header = new DataHeader(seqStart, 'D', false);
+                DataHeader header = new DataHeader(seqStart++, 'D', false);
                 ChannelId chan = seis.channel_id;
                 header.setStationIdentifier(chan.station_code);
                 header.setLocationIdentifier(chan.site_code);
                 header.setChannelIdentifier(chan.channel_code);
                 header.setNetworkCode(chan.network_id.network_code);
-                header.setStartTime(getSeedTime(start));
+                header.setStartTime(start);
                 
                 Blockette1000 b1000 = new Blockette1000();
                 
@@ -203,13 +205,8 @@ public class FissuresConvert  {
         return (SeismogramAttrImpl)toFissures(seed);
     }
 
-    public static String getSeedTime(MicroSecondDate date) {
-        String t = seedDate.format(date);
-        int millis =(int) (date.getMicroSeconds() % 1000000) / 100;
-        return t+millis;
-    }
+    byte RECORD_SIZE_POWER = 12;
 
-    static java.text.SimpleDateFormat seedDate = 
-        new java.text.SimpleDateFormat("yyyy,DDD,HH,mm,ss.");
+    int RECORD_SIZE = (int)Math.pow(2, RECORD_SIZE_POWER);
 
 } // FissuresConvert
