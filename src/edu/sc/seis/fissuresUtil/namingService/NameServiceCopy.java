@@ -16,8 +16,7 @@ import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 import edu.sc.seis.fissuresUtil.cache.NSEventDC;
 import edu.sc.seis.fissuresUtil.cache.NSPlottableDC;
 
-public class NameServiceCopy
-{
+public class NameServiceCopy {
 
     /**
      *
@@ -53,8 +52,12 @@ public class NameServiceCopy
         System.out.println("Got "+seisDC.length+" seis datacenters");
         for (int i = 0; i < seisDC.length; i++) {
             if (seisDC[i].getServerDNS().equals(dnsToCopy)) {
-                System.out.println("Rebind "+seisDC[i].getServerDNS()+", "+seisDC[i].getServerName());
-                fisNS.rebind(seisDC[i].getServerDNS(), seisDC[i].getServerName(), seisDC[i].getCorbaObject());
+                if ( ! seisDC[i].getCorbaObject()._non_existent()) {
+                    System.out.println("Rebind "+seisDC[i].getServerDNS()+", "+seisDC[i].getServerName());
+                    fisNS.rebind(seisDC[i].getServerDNS(), seisDC[i].getServerName(), seisDC[i].getCorbaObject());
+                } else {
+                    System.out.println("Couldn't ping "+seisDC[i].getServerDNS()+" "+seisDC[i].getServerName()+", skipping");
+                }
             } else {
                 System.out.println("Doesn't match "+seisDC[i].getServerDNS()+", "+seisDC[i].getServerName());
             }
@@ -64,8 +67,12 @@ public class NameServiceCopy
         System.out.println("Got "+networkDC.length+" network datacenters");
         for (int i = 0; i < networkDC.length; i++) {
             if (networkDC[i].getServerDNS().equals(dnsToCopy)) {
-                System.out.println("Rebind "+networkDC[i].getServerDNS()+", "+networkDC[i].getServerName());
-                fisNS.rebind(networkDC[i].getServerDNS(), networkDC[i].getServerName(), networkDC[i].getNetworkDC());
+                if ( ! networkDC[i].getCorbaObject()._non_existent()) {
+                    System.out.println("Rebind "+networkDC[i].getServerDNS()+", "+networkDC[i].getServerName());
+                    fisNS.rebind(networkDC[i].getServerDNS(), networkDC[i].getServerName(), networkDC[i].getNetworkDC());
+                } else {
+                    System.out.println("Couldn't ping "+networkDC[i].getServerDNS()+" "+networkDC[i].getServerName()+", skipping");
+                }
             } else {
                 System.out.println("Doesn't match "+networkDC[i].getServerDNS()+", "+networkDC[i].getServerName());
             }
@@ -75,8 +82,13 @@ public class NameServiceCopy
         System.out.println("Got "+eventDC.length+" event datacenters");
         for (int i = 0; i < eventDC.length; i++) {
             if (eventDC[i].getServerDNS().equals(dnsToCopy)) {
-                System.out.println("Rebind "+eventDC[i].getServerDNS()+", "+eventDC[i].getServerName());
-                fisNS.rebind(eventDC[i].getServerDNS(), eventDC[i].getServerName(), eventDC[i].getCorbaObject());
+                // only copy if can ping orginal
+                if (! eventDC[i].getCorbaObject()._non_existent()) {
+                    System.out.println("Rebind "+eventDC[i].getServerDNS()+", "+eventDC[i].getServerName());
+                    fisNS.rebind(eventDC[i].getServerDNS(), eventDC[i].getServerName(), eventDC[i].getCorbaObject());
+                } else {
+                    System.out.println("Couldn't ping "+eventDC[i].getServerDNS()+" "+eventDC[i].getServerName()+", skipping");
+                }
             } else {
                 System.out.println("Doesn't match "+eventDC[i].getServerDNS()+", "+eventDC[i].getServerName());
             }
@@ -86,8 +98,13 @@ public class NameServiceCopy
         System.out.println("Got "+plotDC.length+" seis datacenters");
         for (int i = 0; i < plotDC.length; i++) {
             if (plotDC[i].getServerDNS().equals(dnsToCopy)) {
-                System.out.println("Rebind "+plotDC[i].getServerDNS()+", "+plotDC[i].getServerName());
-                fisNS.rebind(plotDC[i].getServerDNS(), plotDC[i].getServerName(), plotDC[i].getPlottableDC());
+                // only copy if can ping orginal
+                if (! plotDC[i].getCorbaObject()._non_existent()) {
+                    System.out.println("Rebind "+plotDC[i].getServerDNS()+", "+plotDC[i].getServerName());
+                    fisNS.rebind(plotDC[i].getServerDNS(), plotDC[i].getServerName(), plotDC[i].getPlottableDC());
+                } else {
+                    System.out.println("Couldn't ping "+plotDC[i].getServerDNS()+" "+plotDC[i].getServerName()+", skipping");
+                }
             } else {
                 System.out.println("Doesn't match "+plotDC[i].getServerDNS()+", "+plotDC[i].getServerName());
             }
@@ -96,4 +113,5 @@ public class NameServiceCopy
         System.out.println("Done");
     }
 }
+
 
