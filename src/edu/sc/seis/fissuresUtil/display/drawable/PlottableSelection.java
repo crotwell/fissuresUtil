@@ -189,6 +189,7 @@ public class PlottableSelection{
     public void setXY(int x, int y) {
         if(x < PlottableDisplay.LABEL_X_SHIFT ||
            x > plottableDisplay.getRowWidth() + PlottableDisplay.LABEL_X_SHIFT){
+            if(!placed) visible = false;
             return;
         }
         if(placed){
@@ -201,6 +202,7 @@ public class PlottableSelection{
         }
         int row = getRow(y);
         if(row < 0){
+            if(!placed) visible = false;
             return;
         }
         visible = true;
