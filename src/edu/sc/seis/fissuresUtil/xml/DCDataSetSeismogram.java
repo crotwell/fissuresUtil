@@ -76,6 +76,8 @@ public class DCDataSetSeismogram
                                                                        false,
                                                                        ClockUtil.now().getFissuresTime());
 
+            } else {
+                finished(dataListener);
             }
         } catch(FissuresException fe) {}
     }
