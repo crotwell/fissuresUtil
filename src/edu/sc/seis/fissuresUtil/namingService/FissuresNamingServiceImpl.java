@@ -224,7 +224,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     public NetworkDC getNetworkDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
-	org.omg.CORBA.Object obj = resolve(dns, "IfNetworkDC", objectname);
+	org.omg.CORBA.Object obj = resolve(dns, "NetworkDC", objectname);
 	
 	NetworkDC netdc = NetworkDCHelper.narrow(obj);
 	return netdc;
@@ -234,7 +234,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     public DataCenter getSeismogramDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
-	org.omg.CORBA.Object obj = resolve(dns, "IfSeismogramDC", objectname);
+	org.omg.CORBA.Object obj = resolve(dns, "DataCenter", objectname);
 	
 	DataCenter datacenter = DataCenterHelper.narrow(obj);
 	return datacenter;
@@ -244,7 +244,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     public PlottableDC getPlottableDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
-	org.omg.CORBA.Object obj = resolve(dns, "IfPlottableDC", objectname);
+	org.omg.CORBA.Object obj = resolve(dns, "PlottableDC", objectname);
 	
 	PlottableDC plottabledc = PlottableDCHelper.narrow(obj);
 	return plottabledc;
@@ -254,7 +254,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     public EventDC getEventDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
-	org.omg.CORBA.Object obj = resolve(dns, "IfEventDC", objectname);
+	org.omg.CORBA.Object obj = resolve(dns, "EventDC", objectname);
 	
 	EventDC eventdc = EventDCHelper.narrow(obj);
 	return eventdc;
