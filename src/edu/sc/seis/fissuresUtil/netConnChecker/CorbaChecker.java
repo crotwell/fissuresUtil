@@ -23,7 +23,7 @@ import org.omg.CosNaming.NamingContextPackage.*;
  * CorbaChecker.java
  *
  * @author <a href="mailto:">Srinivasa Telukutla</a>
- * $Id: CorbaChecker.java 6255 2003-10-28 20:46:07Z groves $
+ * $Id: CorbaChecker.java 7394 2004-03-03 22:14:06Z crotwell $
  * @version 1.0
  */
 public class CorbaChecker extends ConcreteConnChecker  {
@@ -37,13 +37,14 @@ public class CorbaChecker extends ConcreteConnChecker  {
         super(description);
         this.obj = obj;
     }
-    
+
     /** Pre: A Runnable thread calls run()
      *  Post: Attempt to make a Corba connection
      */
     public void run()  {
         try {
             if(obj._non_existent() == true){
+                reason = "got non existent";
                 setFinished(true);
                 setTrying(false);
                 setSuccessful(false);
@@ -56,15 +57,16 @@ public class CorbaChecker extends ConcreteConnChecker  {
             }
             return;
         } catch(COMM_FAILURE cf){
+            cause = cf;
             setFinished(true);
             setTrying(false);
             setSuccessful(false);
             fireStatusChanged(getDescription(), ConnStatus.FAILED);
         }// close run
     }
-    
+
     private org.omg.CORBA.Object obj;
     static Category logger = Category.getInstance(CorbaChecker.class);
-    
-    
+
+
 }// CorbaChecker class

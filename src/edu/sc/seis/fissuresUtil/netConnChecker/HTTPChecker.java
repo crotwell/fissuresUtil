@@ -19,9 +19,9 @@ import org.apache.log4j.*;
  * @version 1.0
  */
 public class HTTPChecker extends ConcreteConnChecker  {
-    
-    
-    
+
+
+
     /**
      * Creates a new <code>HTTPChecker</code> instance.
      *
@@ -32,18 +32,18 @@ public class HTTPChecker extends ConcreteConnChecker  {
         super(description);
         this.url = url;
     }// constructor
-    
-    
+
+
     /**
      * starts the execution of HTTPChecker Thread.
      *
      */
     public void run ()  {
-        
+
         long begintime;
         long endtime;
-        
-        
+
+
         try{
             begintime = System.currentTimeMillis();
             URL seis = new URL(this.url);
@@ -57,22 +57,28 @@ public class HTTPChecker extends ConcreteConnChecker  {
             setSuccessful(true);
             fireStatusChanged(getDescription(), ConnStatus.SUCCESSFUL);
         } catch (MalformedURLException urle) {
+            cause = urle;
             setTrying(false);
             setFinished(true);
             setSuccessful(false);
             setUnknown(true);
             fireStatusChanged(getDescription(), ConnStatus.UNKNOWN);
         } catch (IOException ioe) {
+            cause=ioe;
             setTrying(false);
             setFinished(true);
             setSuccessful(false);
             fireStatusChanged(getDescription(), ConnStatus.FAILED);
         } catch(Exception e) {
-            e.printStackTrace();
+            cause=e;
+            setTrying(false);
+            setFinished(true);
+            setSuccessful(false);
+            fireStatusChanged(getDescription(), ConnStatus.FAILED);
         }
     } // run
-    
+
     private String url;
     static Category logger = Category.getInstance(HTTPChecker.class);
-    
+
 } // HTTPChecker class

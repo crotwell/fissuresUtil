@@ -37,9 +37,9 @@ public class Checker {
             while(it.hasNext()){
                 ConnChecker connChecker = (ConnChecker)it.next();
                 if (checkerClass.isAssignableFrom(connChecker.getClass())) {
-                    ConnStatus curStatus = connChecker.getStatus();
-                    if(curStatus == ConnStatus.SUCCESSFUL) return ConnStatus.SUCCESSFUL;
-                    else if(curStatus == ConnStatus.TRYING) trying = true;
+                    ConnStatusResult curStatus = connChecker.getStatus();
+                    if(curStatus.getStatus() == ConnStatus.SUCCESSFUL) return ConnStatus.SUCCESSFUL;
+                    else if(curStatus.getStatus() == ConnStatus.TRYING) trying = true;
                 } else {
                     logger.warn("Skipping "+checkerClass.getName()+"  "+connChecker.getClass().getName());
                 }
@@ -59,9 +59,9 @@ public class Checker {
         synchronized(connCheckers){
             Iterator it = connCheckers.iterator();
             while(it.hasNext()){
-                ConnStatus curStatus = ((ConnChecker)it.next()).getStatus();
-                if(curStatus == ConnStatus.SUCCESSFUL) return ConnStatus.SUCCESSFUL;
-                else if(curStatus == ConnStatus.TRYING) trying = true;
+                ConnStatusResult curStatus = ((ConnChecker)it.next()).getStatus();
+                if(curStatus.getStatus() == ConnStatus.SUCCESSFUL) return ConnStatus.SUCCESSFUL;
+                else if(curStatus.getStatus() == ConnStatus.TRYING) trying = true;
             }
         }
         if(trying == true) return ConnStatus.TRYING;
