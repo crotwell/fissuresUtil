@@ -21,6 +21,10 @@ import org.apache.log4j.Logger;
 public class InstrumentationLoader extends Thread
 {
 
+    InstrumentationLoader() {
+        super("InstrumentationLoader");
+    }
+
     public void run() {
         while (noStopThread) {
             WorkUnit nextWork = null;
