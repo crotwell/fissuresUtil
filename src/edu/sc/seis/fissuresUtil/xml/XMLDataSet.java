@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2125 2002-07-11 13:50:45Z telukutl $
+ * @version $Id: XMLDataSet.java 2129 2002-07-11 15:29:29Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -166,6 +166,14 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return an array of names.
      */
     public String[] getParameterNames() {
+	if (parameterNameCache == null) {
+	    parameterNameCache = cacheParameterNames(); 
+	} // end of if (parameterNameCache == null) 
+	return parameterNameCache; 
+    } 
+ 
+    public String[] cacheParameterNames() { 
+
         String[] params = getAllAsStrings("parameter/name/text()");
         String[] paramRefs = getAllAsStrings("parameterRef/text()");
         String[] all = new String[params.length+paramRefs.length];
@@ -240,6 +248,7 @@ public class XMLDataSet implements DataSet, Serializable {
     public void addParameter(String name, 
                              Object value,
                              AuditInfo[] audit) {
+	parameterNameCache = null;
         parameterCache.put(name, value);
         //if (value instanceof Element) {
 	    Element parameter = 
@@ -268,6 +277,7 @@ public class XMLDataSet implements DataSet, Serializable {
     public void addParameterRef(URL paramURL, 
                                 String name, 
                                 AuditInfo[] audit) {
+	parameterNameCache = null;
         String baseStr = base.toString();
         String paramStr = paramURL.toString();
         if (paramStr.startsWith(baseStr)) {
@@ -291,7 +301,10 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return a <code>String[]</code> id
      */
     public String[] getDataSetIds() {
-        return getAllAsStrings("*/@datasetid");
+	if (dataSetIdCache == null) {
+	    dataSetIdCache = getAllAsStrings("*/@datasetid"); 
+	} // end of if (dataSetIdCache == null) 
+	return dataSetIdCache;  
     }
 
     /**
@@ -334,7 +347,8 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public void addDataSet(edu.sc.seis.fissuresUtil.xml.DataSet dataset,
                            AuditInfo[] audit) {
-        if (dataset instanceof XMLDataSet) {
+	dataSetIdCache = null;
+	if (dataset instanceof XMLDataSet) {
             XMLDataSet xds = (XMLDataSet)dataset;
             Element element = xds.getElement();
             if (element.getOwnerDocument().equals(config.getOwnerDocument())) {
@@ -369,6 +383,7 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public DataSet createChildDataSet(String id, String name, String owner,
                                       AuditInfo[] audit) {
+	dataSetIdCache = null;
         XMLDataSet dataset = new XMLDataSet(docBuilder, base, id, name, owner);
         addDataSet(dataset, audit);
         return dataset;
@@ -424,6 +439,14 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return the names.
      */
     public String[] getSeismogramNames() {
+	if (seismogramNameCache == null) {
+	    seismogramNameCache = cacheSeismogramNames();
+	} // end of if (seismogramNameCache == null)
+         
+	return seismogramNameCache;
+    }
+ 
+    protected String[] cacheSeismogramNames() {
 	String[] names = getAllAsStrings("localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
 					 "]"+"/value/text()");
         //String[] names = getAllAsStrings("SacSeismogram/name/text()");
@@ -733,6 +756,7 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public void addSeismogram(LocalSeismogramImpl seis,
                               AuditInfo[] audit) {
+	seismogramNameCache = null;
 
         // Note this does not set the xlink, as the seis has not been saved anywhere yet.
 
@@ -793,6 +817,7 @@ public class XMLDataSet implements DataSet, Serializable {
                                  Property[] props, 
                                  ParameterRef[] parm_ids,
                                  AuditInfo[] audit) {
+	seismogramNameCache = null;
         String baseStr = base.toString();
         String seisStr = seisURL.toString();
         if (seisStr.startsWith(baseStr)) {
@@ -1007,17 +1032,23 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     protected HashMap dataSetCache = new HashMap();
 
+    protected String[] dataSetIdCache = null;
+
     /**
      * Describe variable <code>seismogramCache</code> here.
      *
      */
     protected HashMap seismogramCache = new HashMap();
 
+    protected String[] seismogramNameCache = null;
+
     /**
      * Describe variable <code>parameterCache</code> here.
      *
      */
     protected HashMap parameterCache = new HashMap();
+
+    protected String[] parameterNameCache = null;
 
     private static final String dquote = ""+'"';
     private static final String xlinkNS = "http://www.w3.org/1999/xlink";
