@@ -39,4 +39,6 @@ public interface ScaleMapper  {
      */
     public boolean isMajorTick(int i);
 
+    public String getAxisLabel();
+
 } // ScaleMapper

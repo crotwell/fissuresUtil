@@ -67,6 +67,10 @@ public abstract class TimeScaleMapper implements ScaleMapper {
         return ((i % (2 * majorTickStep)) == firstMajorTick);
     }
 
+    public String getAxisLabel() {
+        return "Time";
+    }
+
     protected abstract void calculateTicks();
  
     protected int totalPixels;

@@ -78,6 +78,11 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                             }
                         }
                     }
+                    copy.drawString(topScaleMap.getAxisLabel(),
+                                    width/2,
+                                    top - majorTickLength-
+                                    fm.getLeading());
+                                    
                 }
 
                 // left
@@ -118,6 +123,9 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                                                 pixelLoc);
                         }
                     }
+                    copy.drawString(leftScaleMap.getAxisLabel(),
+                                    0,
+                                    height - fm.getLeading());
                 }
 
                 // bottom

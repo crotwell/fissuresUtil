@@ -158,6 +158,10 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         return "";
     }
 
+    public String getAxisLabel() {
+        return "Time";
+    }
+
     /**
        @returns the location of the tick i in pixels
        @param i the current tick
