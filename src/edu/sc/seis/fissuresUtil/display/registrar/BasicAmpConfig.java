@@ -249,6 +249,7 @@ public class BasicAmpConfig implements AmpConfig{
         AmpConfigData[] ad = getAmpData();
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
+
         for (int i = 0; i < ad.length; i++){
             UnitRangeImpl current = ad[i].getRange();
             if(current != null){
@@ -277,7 +278,7 @@ public class BasicAmpConfig implements AmpConfig{
         double[] minMaxMean = it.minMaxMean();
         return data.setRange(UnitDisplayUtil.getBestForDisplay(new UnitRangeImpl(minMaxMean[0],
                                                                                  minMaxMean[1],
-                                                                                 it.getSeismograms()[0].getUnit())));
+                                                                                 it.getUnit())));
 
     }
 
@@ -322,5 +323,6 @@ public class BasicAmpConfig implements AmpConfig{
 
     private static Category logger = Category.getInstance(BasicAmpConfig.class.getName());
 }//BasicAmpConfig
+
 
 

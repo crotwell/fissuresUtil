@@ -51,7 +51,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         else{ meanDiff = minToMeanDiff; }
         double min = minMaxMean[2] - meanDiff;
         double max = minMaxMean[2] + meanDiff;
-        return data.setRange(UnitDisplayUtil.getBestForDisplay(new UnitRangeImpl(min, max, data.getUnit())));
+        return data.setRange(UnitDisplayUtil.getBestForDisplay(new UnitRangeImpl(min, max, it.getUnit())));
     }
 
     private UnitRangeImpl setRange(UnitRangeImpl currRange, double range){
