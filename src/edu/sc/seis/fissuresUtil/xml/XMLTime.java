@@ -48,7 +48,6 @@ public class XMLTime {
 	    //int leap_seconds_version = Integer.parseInt(XMLUtil.evalString(element,"leap_seconds_version"));
 	}
 	    Date endTime = Calendar.getInstance().getTime();
-	    System.out.println("THEEE  TIME TAKEN FOR getFISSURESTIME is *&&&&&&&&&&&&&&&&&&&********"+(endTime.getTime() - startTime.getTime()));
 	return new edu.iris.Fissures.Time(date_time, leap_seconds_version);
     }
 
