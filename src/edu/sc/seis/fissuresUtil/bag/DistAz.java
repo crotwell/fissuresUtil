@@ -138,18 +138,17 @@ c
 
    public static void main(String[] args) {
       if (args.length != 4) {
-       System.out.println("Usage: java DistAz sta_lat sta_lon evt_lat evt_lon");
-         System.out.println("       Returns:  Delta Baz Az");
-         System.exit(1);
-      }
+      System.out.println("Usage: java DistAz sta_lat sta_lon evt_lat evt_lon");
+      System.out.println("       Returns:  Delta Baz Az");
+      } else {
+	  double stalat = Double.valueOf(args[0]).doubleValue();
+	  double stalon = Double.valueOf(args[1]).doubleValue();
+	  double evtlat = Double.valueOf(args[2]).doubleValue();
+	  double evtlon = Double.valueOf(args[3]).doubleValue();
 
-      double stalat = Double.valueOf(args[0]).doubleValue();
-      double stalon = Double.valueOf(args[1]).doubleValue();
-      double evtlat = Double.valueOf(args[2]).doubleValue();
-      double evtlon = Double.valueOf(args[3]).doubleValue();
-
-      DistAz distaz = new DistAz(stalat, stalon, evtlat, evtlon);
-      System.out.println("   dist="+distaz.delta+"   baz="+distaz.baz+
-         "   az="+distaz.az);
+	  DistAz distaz = new DistAz(stalat, stalon, evtlat, evtlon);
+	  System.out.println("   dist="+distaz.delta+"   baz="+distaz.baz+
+			     "   az="+distaz.az);
+      } // end of else
    }
 }
