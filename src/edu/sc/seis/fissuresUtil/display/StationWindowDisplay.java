@@ -70,6 +70,7 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
                 current.add(curSeis);
             }else{
                 current = new BasicSeismogramDisplay(curSeis, tc, ac, this);
+                current.addLeftTitleBorder(new LeftTitleBorder(stationCode));
                 super.add(current);
                 basicDisplays.add(current);
                 current.addBottomTimeBorder();
