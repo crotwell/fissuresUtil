@@ -94,23 +94,30 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
     }
 
     private void makeDistCircle(LatLonPoint llp, double radiusDegrees){
-        Projection proj = getProjection();
-
-        OMCircle circle = new DistCircle(llp, radiusDegrees);
-        LatLonPoint labelPointUp = makeTextLabelLatLon(llp, radiusDegrees, proj, true);
-        if (proj.isPlotable(labelPointUp)){
-            synchronized(distCircles){
-                distCircles.add(new TextLabel(labelPointUp, Integer.toString((int)radiusDegrees)));
-            }
-        }
-        LatLonPoint labelPointDown = makeTextLabelLatLon(llp, radiusDegrees, proj, false);
-        if (proj.isPlotable(labelPointDown)){
-            synchronized(distCircles){
-                distCircles.add(new TextLabel(labelPointDown, Integer.toString((int)radiusDegrees)));
-            }
-        }
         synchronized(distCircles){
+            //System.out.println("making distance circles: radius " + radiusDegrees);
+            OMCircle circle = new DistCircle(llp, radiusDegrees);
             distCircles.add(circle);
+            if (radiusDegrees != 90.0){
+                OMCircle oppCircle = new DistCircle(llp, 180.0 - radiusDegrees);
+                distCircles.add(oppCircle);
+            }
+
+            LatLonPoint[] labelPoints = new LatLonPoint[4];
+            labelPoints[0] = makeTextLabelLatLon(llp, radiusDegrees, 0);
+            labelPoints[1] = makeTextLabelLatLon(llp, -radiusDegrees, 0);
+            labelPoints[2] = new LatLonPoint(-labelPoints[0].getLatitude(), labelPoints[0].getLongitude() + 180);
+            labelPoints[3] = new LatLonPoint(-labelPoints[1].getLatitude(), labelPoints[1].getLongitude() + 180);
+
+            int labelInt = (int)radiusDegrees;
+            for (int i = 0; i < labelPoints.length; i++) {
+                if (i > 1){
+                    labelInt = 180 - (int)radiusDegrees;
+                }
+                //System.out.println("adding label: " + labelInt);
+                distCircles.add(new TextLabel(adjustLatLonByPixels(labelPoints[i], 0, 6),
+                                              Integer.toString(labelInt)));
+            }
         }
     }
 
@@ -144,23 +151,20 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
         return false;
     }
 
-    private static LatLonPoint makeTextLabelLatLon(LatLonPoint center, double radiusDegrees, Projection prj, boolean isUpper){
+    private LatLonPoint makeTextLabelLatLon(LatLonPoint center, double degreesNorth, double degreesEast){
         LatLonPoint textLLP;
-
-        if(isUpper){
-            textLLP = new LatLonPoint(center.getLatitude() + radiusDegrees,
-                                      center.getLongitude());
-        }
-        else{
-            textLLP = new LatLonPoint(center.getLatitude() - radiusDegrees,
-                                      center.getLongitude());
-        }
-
-        Point textXYPoint = prj.forward(textLLP);
-        textXYPoint.setLocation(textXYPoint.getX(), textXYPoint.getY() - 5);
-        textLLP = prj.inverse(textXYPoint);
-
+        textLLP = new LatLonPoint(center.getLatitude() + degreesNorth, center.getLongitude() + degreesEast);
         return textLLP;
+    }
+
+    private LatLonPoint adjustLatLonByPixels(LatLonPoint latLon, int pixelsLeft, int pixelsUp){
+        Projection proj = getProjection();
+
+        Point XYPoint = proj.forward(latLon);
+        XYPoint.setLocation(XYPoint.getX() + pixelsLeft, XYPoint.getY() - pixelsUp);
+        LatLonPoint llp = proj.inverse(XYPoint);
+
+        return llp;
     }
 
     private class DistCircle extends OMCircle{
@@ -168,7 +172,8 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
         public DistCircle(LatLonPoint llp, double radiusDegrees){
             super(llp.getLatitude(), llp.getLongitude(), (float)radiusDegrees, Length.DECIMAL_DEGREE);
             this.setLinePaint(Color.magenta);
-            this.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
+            //this.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
+            this.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
             generate(getProjection());
         }
 
@@ -177,6 +182,7 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
     private class TextLabel extends OMText{
         public TextLabel(LatLonPoint position, String text){
             super(position.getLatitude(), position.getLongitude(), text, OMText.JUSTIFY_CENTER);
+            setLinePaint(Color.WHITE);
         }
     }
 
