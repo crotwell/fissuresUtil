@@ -5,6 +5,7 @@
  */
 package edu.sc.seis.fissuresUtil.display;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,6 +35,8 @@ public class BasicSeismogramDisplayTest extends TestCase {
     }
 
     public void setUp() {
+        System.setProperty("java.awt.headless", "true");
+        System.setProperty("swing.volatileImageBufferEnabled", "false");
         LocalSeismogramImpl lsi = SimplePlotUtil.createTestData();
         MemoryDataSetSeismogram memDSS = new MemoryDataSetSeismogram(lsi);
         sd = new BasicSeismogramDisplay();
