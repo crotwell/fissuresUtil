@@ -111,8 +111,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         boolean found = false;
         while (it.hasNext() && !found){
             OMStation current = (OMStation)it.next();
-            if (current.getStation() == station && !isUp){
-                current.setDefaultColor(DOWN_STATION);
+            if (current.getStation() == station){
+                current.setIsUp(isUp);
             }
         }
         repaint();
@@ -175,6 +175,20 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
             return selected;
         }
 
+        public void setIsUp(boolean up){
+            isUp = up;
+            if(up){
+                setDefaultColor(STATION);
+            }
+            else{
+                setDefaultColor(DOWN_STATION);
+            }
+        }
+
+        public boolean isUp(){
+            return isUp;
+        }
+
         public void deselect(){
             setFillPaint(defaultColor);
             selected = false;
@@ -186,6 +200,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         }
 
         private boolean selected = false;
+
+        private boolean isUp = true;
 
         private Station station;
 
