@@ -7,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.map.colorizer.event.DepthEventColorizer;
+import edu.sc.seis.fissuresUtil.map.layers.ColorMapEtopoLayer;
 import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
@@ -87,11 +89,15 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         this(shapefile, null);
     }
 
+    public OpenMap(String shapefile, String etopoLoc) {
+        this(shapefile, etopoLoc, null);
+    }
+
     /**
      * Creates a new openmap. Both the channel chooser and the event table model
      * can be null. If so, channels and events just won't get drawn
      */
-    public OpenMap(String shapefile, String etopoLoc) {
+    public OpenMap(String shapefile, String etopoLoc, String etopoColorMapFile) {
         try {
             setLayout(new BorderLayout());
             mapHandler = new MapHandler();
@@ -144,8 +150,20 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             mapHandler.add(shapeLayer);
             lh.addLayer(shapeLayer);
             if(etopoLoc != null) {
-                //create ETOPO Layer
-                etopoLayer = new ETOPOJarLayer();
+                try {
+                    //create ETOPO Layer
+                    if(etopoColorMapFile != null) {
+                        etopoLayer = new ETOPOJarLayer();
+                    } else {
+                        etopoLayer = new ColorMapEtopoLayer("/Users/oliverpa/Desktop/col.tbl2");
+                    }
+                } catch(FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch(IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 etopoLayer.addLayerStatusListener(this);
                 //create ETOPO layer properties
                 Properties etopoProps = new Properties();
@@ -161,6 +179,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
                 etopoLayer.setVisible(true);
                 mapHandler.add(etopoLayer);
                 lh.addLayer(etopoLayer);
+                etopoLayer.addLayerStatusListener(this);
             }
             // Create the directional and zoom control tool
             //OMToolSet omts = new OMToolSet();
@@ -213,6 +232,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         mapHandler.add(el);
         lh.addLayer(el, 0);
         dl = new DistanceLayer(mapBean);
+        dl.addLayerStatusListener(this);
         el.addEQSelectionListener(dl);
         mapHandler.add(dl);
         lh.addLayer(dl, 1);
@@ -227,7 +247,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public ShapeLayer getShapeLayer() {
         return shapeLayer;
-    };
+    }
 
     public DistanceLayer getDistanceLayer() {
         return dl;
@@ -261,8 +281,8 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public void updateLayerStatus(LayerStatusEvent event) {
         layerStatusMap.put(event.getLayer(), new Integer(event.getStatus()));
-        //System.out.println("Layer " + event.getLayer().getName() + " status:
-        // " + translateLayerStatus(event.getStatus()));
+        System.out.println("Layer " + event.getLayer().getName() + " status: "
+                + translateLayerStatus(event.getStatus()));
     }
 
     //look at LayerStatusEvent in openmap for status translation
@@ -348,8 +368,14 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public static void main(String[] args) {
         BasicConfigurator.configure();
-        OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
-                                 "edu/sc/seis/mapData");
+        OpenMap om;
+        if(args.length > 0) {
+            om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
+                                     "edu/sc/seis/mapData", args[0]);
+        } else {
+            om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
+                                     "edu/sc/seis/mapData");
+        }
         EventLayer evLayer = new EventLayer(om.getMapBean(),
                                             new DepthEventColorizer());
         om.setEventLayer(evLayer);
