@@ -49,6 +49,10 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 
     public String getName(){ return name; }
 
+    public void setName(String name) { 
+	this.name = name;
+    }
+
     public String toString(){ return name; }
 
     public void setBeginTime(edu.iris.Fissures.Time time) {
