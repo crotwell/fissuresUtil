@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import org.w3c.dom.*;
+import java.util.ArrayList;
 import javax.xml.parsers.*;
 import org.apache.xpath.*;
 import org.apache.xpath.objects.*;
@@ -62,6 +63,59 @@ public class XMLUtil {
         return null;
     }
 
+
+    /** returns the first text child within the node.
+     */
+    public static String getText(Element config) {
+	if(config == null) return null;
+        NodeList children = config.getChildNodes();
+        Node node;
+        for (int i=0; i<children.getLength(); i++) {
+            node = children.item(i);
+            if (node instanceof Text) {
+                return node.getNodeValue();
+            }
+        }
+        //nothing found, return null
+        return null;
+    }
+
+    /** returns the element with the given name
+     */
+
+    public static Element getElement(Element config, String elementName) {
+	
+	NodeList children = config.getChildNodes();
+	Node node;
+	for(int counter = 0; counter < children.getLength(); counter++ ) {
+	    node = children.item(counter);
+	    if(node instanceof Element ) {
+		if(((Element)node).getTagName().equals(elementName)) {
+		    return ((Element)node);
+		}
+	    }
+	    
+	}
+	return null;
+    }
+
+    public static Element[] getElementArray(Element config, String elementName) {
+	NodeList children = config.getChildNodes();
+	Node node;
+	ArrayList arrayList = new ArrayList();
+	for(int counter = 0; counter < children.getLength(); counter++) {
+
+	    node = children.item(counter);
+	    if(node instanceof Element) {
+		if(((Element)node).getTagName().equals(elementName)) {
+		    arrayList.add((Element)node);
+		}
+	    }
+	}
+	Element[] elementArray = new Element[arrayList.size()];
+	elementArray = (Element[]) arrayList.toArray(elementArray);
+	return elementArray;
+    }
 
 
     private static CachedXPathAPI xpath = new CachedXPathAPI();

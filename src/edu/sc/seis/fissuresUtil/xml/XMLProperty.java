@@ -44,9 +44,15 @@ public class XMLProperty {
     }
 
     public static Property getProperty(Element base) {
-	String name = XMLUtil.evalString(base,"name");
-	String value = XMLUtil.evalString(base, "value");
+	String name = XMLUtil.getText(XMLUtil.getElement(base,"name"));
+	String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
 	return new Property(name, value);
     }
+
+//  public static Property getProperty(Element base) {
+// 	String name = XMLUtil.evalString(base,"name");
+// 	String value = XMLUtil.evalString(base, "value");
+// 	return new Property(name, value);
+//     }
     private static CachedXPathAPI xpath = new CachedXPathAPI();
 }

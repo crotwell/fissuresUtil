@@ -31,14 +31,13 @@ public class XMLSampling {
     public static Sampling getSampling(Element base) {
 	
 	//get numPoints
-	int numPoints = Integer.parseInt(XMLUtil.evalString(base, "numPoints"));
+	int numPoints = Integer.parseInt(XMLUtil.getText(XMLUtil.getElement(base, "numPoints")));
 	
 	//get interval
 	Quantity interval = null;
-	NodeList interval_node = XMLUtil.evalNodeList(base, "interval");
-	if(interval_node != null && interval_node.getLength() != 0) {
-
-	    interval = XMLQuantity.getQuantity((Element)interval_node.item(0));
+	Element interval_node = XMLUtil.getElement(base, "interval");
+	if(interval_node != null) {
+	    interval = XMLQuantity.getQuantity(interval_node);
 	}
 	
 	return new SamplingImpl(numPoints, new TimeInterval(interval));

@@ -56,16 +56,31 @@ public class XMLQuantity {
     public static Quantity getQuantity(Element base) {
 
 	//get the value
-	double value = Double.parseDouble(XMLUtil.evalString(base, "value"));
+	double value = Double.parseDouble(XMLUtil.getText(XMLUtil.getElement(base, "value")));
 	
 	//get the_units
 	Unit the_units = null;
-	NodeList the_units_node = XMLUtil.evalNodeList(base, "the_units");
-	if(the_units_node != null && the_units_node.getLength() != 0) {
+	Element the_units_node = XMLUtil.getElement(base, "the_units");
+	if(the_units_node != null) {
 
-	    the_units = XMLUnit.getUnit((Element)the_units_node.item(0));
+	    the_units = XMLUnit.getUnit(the_units_node);
 	}
 	return new QuantityImpl(value, the_units);
     }
+
+//  public static Quantity getQuantity(Element base) {
+
+// 	//get the value
+// 	double value = Double.parseDouble(XMLUtil.evalString(base, "value"));
+	
+// 	//get the_units
+// 	Unit the_units = null;
+// 	NodeList the_units_node = XMLUtil.evalNodeList(base, "the_units");
+// 	if(the_units_node != null && the_units_node.getLength() != 0) {
+
+// 	    the_units = XMLUnit.getUnit((Element)the_units_node.item(0));
+// 	}
+// 	return new QuantityImpl(value, the_units);
+//     }
 
 }// XMLQuantity

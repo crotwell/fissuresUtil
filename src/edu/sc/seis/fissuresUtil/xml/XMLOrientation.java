@@ -31,7 +31,7 @@ public class XMLOrientation {
 	//get the azimuth
 	float azimuth;
 	try {
-	    azimuth = Float.parseFloat(XMLUtil.evalString(base, "azimuth"));
+	    azimuth = Float.parseFloat(XMLUtil.getText(XMLUtil.getElement(base, "azimuth")));
 	} catch(NumberFormatException nfe) {
 	    azimuth = 0.0f;
 	}
@@ -39,7 +39,7 @@ public class XMLOrientation {
 	//get the dip
 	float dip;
 	try {
-	    dip = Float.parseFloat(XMLUtil.evalString(base, "dip"));
+	    dip = Float.parseFloat(XMLUtil.getText(XMLUtil.getElement(base, "dip")));
 	} catch(NumberFormatException nfe) {
 	    dip = 0.0f;
 	}
@@ -47,4 +47,25 @@ public class XMLOrientation {
 			       dip);
 	
     }
+
+//     public static Orientation getOrientation(Element base) {
+// 	//get the azimuth
+// 	float azimuth;
+// 	try {
+// 	    azimuth = Float.parseFloat(XMLUtil.evalString(base, "azimuth"));
+// 	} catch(NumberFormatException nfe) {
+// 	    azimuth = 0.0f;
+// 	}
+	
+// 	//get the dip
+// 	float dip;
+// 	try {
+// 	    dip = Float.parseFloat(XMLUtil.evalString(base, "dip"));
+// 	} catch(NumberFormatException nfe) {
+// 	    dip = 0.0f;
+// 	}
+// 	return new Orientation(azimuth,
+// 			       dip);
+	
+//     }
 }// XMLOrientation

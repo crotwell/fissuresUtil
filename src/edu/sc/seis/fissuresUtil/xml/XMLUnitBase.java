@@ -26,8 +26,9 @@ public class XMLUnitBase {
     }
 
     public static UnitBase getUnitBase(Element base) {
-
-	int value = Integer.parseInt(XMLUtil.evalString(base, "value"));
+	
+	int value = Integer.parseInt(XMLUtil.getText(XMLUtil.getElement(base,"value")));
+	//Integer.parseInt(XMLUtil.evalString(base, "value"));
 	return UnitBase.from_int(value);
     }
 

@@ -5,6 +5,7 @@ import edu.iris.Fissures.IfEvent.*;
 import edu.iris.Fissures.IfNetwork.*;
 import  edu.sc.seis.fissuresUtil.cache.*;
 import edu.iris.Fissures.IfParameterMgr.*;
+import java.util.*;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import org.apache.log4j.*;
@@ -113,13 +114,13 @@ public class XMLParameter {
     }
 
     public static Object getParameter(Element base) {
-	String name = XMLUtil.evalString(base, "name");
-	NodeList typeNode = XMLUtil.evalNodeList(base, "type");
+	String name = XMLUtil.getText(XMLUtil.getElement(base, "name"));
+	Element typeNode = XMLUtil.getElement(base, "type");
 	Element type = null;
-	if(typeNode != null && typeNode.getLength() != 0) {
-		type = (Element) typeNode.item(0);
+	if(typeNode != null) {
+		type = typeNode;
 	}
-	String className = XMLUtil.evalString(type, "name");
+	String className = XMLUtil.getText(XMLUtil.getElement(type, "name"));
 	//Class objectClass = Class.forName(className);
 	//System.out.println("The class name is "+className);
 	if(className.equals("edu.sc.seis.fissuresUtil.cache.CacheEvent") ) {
@@ -136,10 +137,10 @@ public class XMLParameter {
 		constructorArgs[2] = XMLEvent.getPreferredOrigin(event);
 		Object obj = Constructor.newInstance(constructorArgs);
 		return obj;*/
-	        NodeList eventNode = XMLUtil.evalNodeList(base, "value/event");
+	        Element eventNode = XMLUtil.getElement(XMLUtil.getElement(base, "value"), "event");
 		Element event = null;
-		if(eventNode != null && eventNode.getLength() != 0) {
-			event = (Element)eventNode.item(0);
+		if(eventNode != null) {
+			event = eventNode;
 		}
 		EventAttr eventAttr = XMLEvent.getEvent(event);
 		Origin preferred_origin = XMLEvent.getPreferredOrigin(event);	
@@ -149,18 +150,75 @@ public class XMLParameter {
 
 	} else if(className.equalsIgnoreCase("edu.iris.fissures.network.ChannelImpl")) {
 	    //System.out.println(" HERE WE GOT THE CHANNEL");
-	    NodeList channelNode = XMLUtil.evalNodeList(base, "value/channel");
-	    if(channelNode != null && channelNode.getLength() != 0) {
-		Channel channel = XMLChannel.getChannel((Element)channelNode.item(0));
+	    Element channelNode = XMLUtil.getElement(XMLUtil.getElement(base, "value"), "channel");
+	    if(channelNode != null) {
+		Date channelStartTime = Calendar.getInstance().getTime();
+		Channel channel = XMLChannel.getChannel(channelNode);
+		Date channelEndTime = Calendar.getInstance().getTime();
+		System.out.println("TIME FOR GETTING CHANNEL IS "+ (channelEndTime.getTime() - channelStartTime.getTime()));
 		return channel;
 	    }
 	    return null;
 	}
 	else {
 
-		String value = XMLUtil.evalString(base, "value");
+		String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
 		return new ParameterRef(name, value);	
 	}
     }
+
+//  public static Object getParameter(Element base) {
+// 	String name = XMLUtil.evalString(base, "name");
+// 	NodeList typeNode = XMLUtil.evalNodeList(base, "type");
+// 	Element type = null;
+// 	if(typeNode != null && typeNode.getLength() != 0) {
+// 		type = (Element) typeNode.item(0);
+// 	}
+// 	String className = XMLUtil.evalString(type, "name");
+// 	//Class objectClass = Class.forName(className);
+// 	//System.out.println("The class name is "+className);
+// 	if(className.equals("edu.sc.seis.fissuresUtil.cache.CacheEvent") ) {
+// 	/*	Class[] constructorArgTypes = new Class[3];
+// 		NodeList eventNode = XMLUtil.evalNodeList(base, "value/event");
+// 		Element event = (Element)eventNode.item(0);
+// 		constuctorArgTypes[0] = XMLEvent.getEvent(event).class;
+// 		constructorArgTypes[1] = new Origin[0].class;
+// 		constructorArgTypes[2] = XMLEvent.getPreferredOrigin(event).class;
+// 		Constructor constructor = objectClass.getConstructor(constructorArgTypes);
+// 		Object[] constructorArgs = new Object[3];
+// 		constructorArgs[0] = XMLEvent.getEvent(event);
+// 		constructorArgs[1] = new Origin[0];
+// 		constructorArgs[2] = XMLEvent.getPreferredOrigin(event);
+// 		Object obj = Constructor.newInstance(constructorArgs);
+// 		return obj;*/
+// 	        NodeList eventNode = XMLUtil.evalNodeList(base, "value/event");
+// 		Element event = null;
+// 		if(eventNode != null && eventNode.getLength() != 0) {
+// 			event = (Element)eventNode.item(0);
+// 		}
+// 		EventAttr eventAttr = XMLEvent.getEvent(event);
+// 		Origin preferred_origin = XMLEvent.getPreferredOrigin(event);	
+// 		return new CacheEvent(eventAttr,
+// 				      new Origin[0],
+// 				      preferred_origin);
+
+// 	} else if(className.equalsIgnoreCase("edu.iris.fissures.network.ChannelImpl")) {
+// 	    //System.out.println(" HERE WE GOT THE CHANNEL");
+// 	    NodeList channelNode = XMLUtil.evalNodeList(base, "value/channel");
+// 	    if(channelNode != null && channelNode.getLength() != 0) {
+// 		Date channelStartTime = Calendar.getInstance().getTime();
+// 		Channel channel = XMLChannel.getChannel((Element)channelNode.item(0));
+// 		Date channelEndTime = Calendar.getInstance().getTime();
+// 		System.out.println("TIME FOR GETTING CHANNEL IS "+ (channelEndTime.getTime() - channelStartTime.getTime()));
+// 		return channel;
+// 	    }
+// 	    return null;
+// 	}
+// 	else {
+
+// 		String value = XMLUtil.evalString(base, "value");
+// 		return new ParameterRef(name, value);	
+// 	}
+//     }
 
 }// XMLParameter

@@ -50,41 +50,41 @@ public class XMLChannel {
     public static Channel getChannel(Element base) {
 	
 	//get the channel id
-	NodeList id_node = XMLUtil.evalNodeList(base, "id");
+	Element id_node = XMLUtil.getElement(base, "id");
 	ChannelId id = null;
-	if(id_node != null && id_node.getLength() != 0) {
-	    id = XMLChannelId.getChannelId((Element)id_node.item(0));
+	if(id_node != null) {
+	    id = XMLChannelId.getChannelId(id_node);
 	}
 	
 	//get the name
-	String name = XMLUtil.evalString(base, "name");
+	String name = XMLUtil.getText(XMLUtil.getElement(base, "name"));
 	
 	//get the an_orientation
-	NodeList an_orientation_node = XMLUtil.evalNodeList(base, "an_orientation");
-	Orientation an_orientation = new Orientation();
-	if(an_orientation_node != null && an_orientation_node.getLength() != 0) {
-	    an_orientation = XMLOrientation.getOrientation((Element)an_orientation_node.item(0));
-	}
+       Element an_orientation_node = XMLUtil.getElement(base, "an_orientation");
+       Orientation an_orientation = new Orientation();
+       if(an_orientation_node != null) {
+	   an_orientation = XMLOrientation.getOrientation(an_orientation_node);
+       }
 	
 	//get the sampling_info
-	NodeList sampling_info_node = XMLUtil.evalNodeList(base, "sampling_info");
+       Element sampling_info_node = XMLUtil.getElement(base, "sampling_info");
 	Sampling sampling_info = null;
-	if(sampling_info_node != null && sampling_info_node.getLength() != 0) {
-	    sampling_info = XMLSampling.getSampling((Element)sampling_info_node.item(0));
+	if(sampling_info_node != null) {
+	    sampling_info = XMLSampling.getSampling(sampling_info_node);
 	}
 	
 	//get effective_time range
-	NodeList effective_time_node = XMLUtil.evalNodeList(base, "effective_time");
+	Element effective_time_node = XMLUtil.getElement(base, "effective_time");
 	TimeRange effective_time = new TimeRange();
-	if(effective_time_node != null && effective_time_node.getLength() != 0) {
-	    effective_time = XMLTimeRange.getTimeRange((Element)effective_time_node.item(0));
+	if(effective_time_node != null) {
+	    effective_time = XMLTimeRange.getTimeRange(effective_time_node);
 	}
 
 	//get the my_site
-	NodeList my_site_node = XMLUtil.evalNodeList(base, "my_site");
+	Element my_site_node = XMLUtil.getElement(base, "my_site");
 	Site my_site = null;
-	if(my_site_node != null && my_site_node.getLength() != 0) {
-	    my_site = XMLSite.getSite((Element)my_site_node.item(0));
+	if(my_site_node != null) {
+	    my_site = XMLSite.getSite(my_site_node);
 	}
 	
 	return new ChannelImpl(id,
@@ -95,4 +95,53 @@ public class XMLChannel {
 			       my_site);
 	
     }
+
+//  public static Channel getChannel(Element base) {
+	
+// 	//get the channel id
+// 	NodeList id_node = XMLUtil.evalNodeList(base, "id");
+// 	ChannelId id = null;
+// 	if(id_node != null && id_node.getLength() != 0) {
+// 	    id = XMLChannelId.getChannelId((Element)id_node.item(0));
+// 	}
+	
+// 	//get the name
+// 	String name = XMLUtil.evalString(base, "name");
+	
+// 	//get the an_orientation
+// 	NodeList an_orientation_node = XMLUtil.evalNodeList(base, "an_orientation");
+// 	Orientation an_orientation = new Orientation();
+// 	if(an_orientation_node != null && an_orientation_node.getLength() != 0) {
+// 	    an_orientation = XMLOrientation.getOrientation((Element)an_orientation_node.item(0));
+// 	}
+	
+// 	//get the sampling_info
+// 	NodeList sampling_info_node = XMLUtil.evalNodeList(base, "sampling_info");
+// 	Sampling sampling_info = null;
+// 	if(sampling_info_node != null && sampling_info_node.getLength() != 0) {
+// 	    sampling_info = XMLSampling.getSampling((Element)sampling_info_node.item(0));
+// 	}
+	
+// 	//get effective_time range
+// 	NodeList effective_time_node = XMLUtil.evalNodeList(base, "effective_time");
+// 	TimeRange effective_time = new TimeRange();
+// 	if(effective_time_node != null && effective_time_node.getLength() != 0) {
+// 	    effective_time = XMLTimeRange.getTimeRange((Element)effective_time_node.item(0));
+// 	}
+
+// 	//get the my_site
+// 	NodeList my_site_node = XMLUtil.evalNodeList(base, "my_site");
+// 	Site my_site = null;
+// 	if(my_site_node != null && my_site_node.getLength() != 0) {
+// 	    my_site = XMLSite.getSite((Element)my_site_node.item(0));
+// 	}
+	
+// 	return new ChannelImpl(id,
+// 			       name,
+// 			       an_orientation,
+// 			       sampling_info,
+// 			       effective_time,
+// 			       my_site);
+	
+//     }
 }// XMLChannel

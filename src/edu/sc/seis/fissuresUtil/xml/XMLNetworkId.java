@@ -30,16 +30,30 @@ public class XMLNetworkId {
     
     public static NetworkId getNetworkId(Element base) {
 	//get NetworkCode
-	String network_code = XMLUtil.evalString(base, "network_code");
+	String network_code = XMLUtil.getText(XMLUtil.getElement(base, "network_code"));
 	//System.out.println("The network_code is "+network_code);
 
 	//get begin_time
 	edu.iris.Fissures.Time begin_time = new edu.iris.Fissures.Time();
-	NodeList begin_time_node = XMLUtil.evalNodeList(base, "begin_time");
-	if(begin_time_node != null && begin_time_node.getLength() != 0) {
-	    begin_time = XMLTime.getFissuresTime((Element)begin_time_node.item(0));
+	Element begin_time_node = XMLUtil.getElement(base, "begin_time");
+	if(begin_time_node != null) {
+	    begin_time = XMLTime.getFissuresTime(begin_time_node);
 	}
 	return new NetworkId(network_code, begin_time);
 	
     }
+
+//  public static NetworkId getNetworkId(Element base) {
+// 	//get NetworkCode
+// 	String network_code = XMLUtil.evalString(base, "network_code");
+// 	//System.out.println("The network_code is "+network_code);
+
+// 	//get begin_time
+// 	edu.iris.Fissures.Time begin_time = new edu.iris.Fissures.Time();
+// 	NodeList begin_time_node = XMLUtil.evalNodeList(base, "begin_time");
+// 	if(begin_time_node != null && begin_time_node.getLength() != 0) {
+// 	    begin_time = XMLTime.getFissuresTime((Element)begin_time_node.item(0));
+// 	}
+// 	return new NetworkId(network_code, begin_time);
+//     }
 }// XMLNetworkId

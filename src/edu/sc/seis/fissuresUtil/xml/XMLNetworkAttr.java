@@ -21,6 +21,7 @@ public class XMLNetworkAttr {
     public static void insert(Element element, NetworkAttr networkAttr) {
 	
 	Document doc = element.getOwnerDocument();
+
 	element.appendChild(XMLUtil.createTextElement(doc,
 						      "name",
 						      networkAttr.name));
@@ -41,21 +42,21 @@ public class XMLNetworkAttr {
 
     public static NetworkAttr getNetworkAttr(Element base) {
 	
-	String name = XMLUtil.evalString(base, "name");
-	String description = XMLUtil.evalString(base, "description");
-	String owner = XMLUtil.evalString(base, "owner");
+	String name = XMLUtil.getText(XMLUtil.getElement(base, "name"));
+	String description = XMLUtil.getText(XMLUtil.getElement(base, "description"));
+	String owner = XMLUtil.getText(XMLUtil.getElement(base, "owner"));
 	//get the networkId
 	NetworkId id = null;
-	NodeList network_id_node = XMLUtil.evalNodeList(base, "id");
-	if(network_id_node != null && network_id_node.getLength() != 0) {
-	    id = XMLNetworkId.getNetworkId((Element)network_id_node.item(0));
+	Element network_id_node = XMLUtil.getElement(base, "id");
+	if(network_id_node != null) {
+	    id = XMLNetworkId.getNetworkId(network_id_node);
 	}
 	
 	//get the effective time Range
-	NodeList effective_time_node = XMLUtil.evalNodeList(base, "effective_time");
+	Element effective_time_node = XMLUtil.getElement(base, "effective_time");
 	TimeRange effective_time = new TimeRange();
-	if(effective_time_node != null && effective_time_node.getLength() != 0) {
-	    effective_time = XMLTimeRange.getTimeRange((Element)effective_time_node.item(0));
+	if(effective_time_node != null) {
+	    effective_time = XMLTimeRange.getTimeRange(effective_time_node);
 	}
 	return new NetworkAttrImpl(id,
 				   name,
@@ -64,4 +65,29 @@ public class XMLNetworkAttr {
 				   effective_time);
 
     }
+//    public static NetworkAttr getNetworkAttr(Element base) {
+	
+// 	String name = XMLUtil.evalString(base, "name");
+// 	String description = XMLUtil.evalString(base, "description");
+// 	String owner = XMLUtil.evalString(base, "owner");
+// 	//get the networkId
+// 	NetworkId id = null;
+// 	NodeList network_id_node = XMLUtil.evalNodeList(base, "id");
+// 	if(network_id_node != null && network_id_node.getLength() != 0) {
+// 	    id = XMLNetworkId.getNetworkId((Element)network_id_node.item(0));
+// 	}
+	
+// 	//get the effective time Range
+// 	NodeList effective_time_node = XMLUtil.evalNodeList(base, "effective_time");
+// 	TimeRange effective_time = new TimeRange();
+// 	if(effective_time_node != null && effective_time_node.getLength() != 0) {
+// 	    effective_time = XMLTimeRange.getTimeRange((Element)effective_time_node.item(0));
+// 	}
+// 	return new NetworkAttrImpl(id,
+// 				   name,
+// 				   description,
+// 				   owner,
+// 				   effective_time);
+
+//     }
 }// XMLNetworkAttr
