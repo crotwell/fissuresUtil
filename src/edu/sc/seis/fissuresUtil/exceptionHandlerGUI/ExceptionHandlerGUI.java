@@ -52,6 +52,13 @@ public class ExceptionHandlerGUI {
 	return displayFrame;
     }
 
+    public static JFrame handleException(String message, Throwable e) {
+
+	ExceptionHandlerGUI gui = getExceptionHandlerGUI(message, e);
+	return gui.display();
+
+    }
+
     private void createGUI() {
 	
 	JTabbedPane tabbedPane = new JTabbedPane();
