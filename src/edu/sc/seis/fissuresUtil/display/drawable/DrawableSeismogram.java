@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
@@ -18,14 +19,16 @@ import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
-public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListener {
-    public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis, Color color) {
+public class DrawableSeismogram implements NamedDrawable,
+        SeismogramDisplayListener {
+
+    public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis,
+            Color color) {
         this(parent, new SeismogramShape(parent, seis), seis.getName(), color);
     }
 
-    public DrawableSeismogram(SeismogramDisplay parent,
-                              DataSetSeismogram seis,
-                              String name) {
+    public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis,
+            String name) {
         this(parent, new SeismogramShape(parent, seis), name, null);
     }
 
@@ -34,13 +37,11 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
 
     protected DrawableSeismogram(SeismogramDisplay parent,
-                                 SeismogramShape shape,
-                                 String name, Color color) {
+            SeismogramShape shape, String name, Color color) {
         this.parent = parent;
         if(color != null) {
             this.color = color;
-        }
-        else {
+        } else {
             this.color = parent.getNextColor(DrawableSeismogram.class);
         }
         this.name = name;
@@ -63,12 +64,11 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
 
     public void setVisibility(boolean vis) {
-        DataSetSeismogram[] seis = { getSeismogram() };
+        DataSetSeismogram[] seis = {getSeismogram()};
         if(vis) {
             parent.getTimeConfig().add(seis);
             parent.getAmpConfig().add(seis);
-        }
-        else {
+        } else {
             parent.getTimeConfig().remove(seis);
             parent.getAmpConfig().remove(seis);
         }
@@ -78,9 +78,19 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         visible = vis;
     }
 
-    public boolean getVisiblity(){ return visible; }
+    public boolean getVisiblity() {
+        return visible;
+    }
 
-    public Color getColor(){ return color; }
+    public Color getColor() {
+        return color;
+    }
+
+    public void addToTimeAndAmp() {
+        DataSetSeismogram[] seis = {getSeismogram()};
+        parent.getTimeConfig().add(seis);
+        parent.getAmpConfig().add(seis);
+    }
 
     public void draw(Graphics2D canvas,
                      Dimension size,
@@ -88,21 +98,20 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
                      AmpEvent currentAmp) {
         if(visible && size.width > 0 && size.height > 0) {
             if(!currentTime.contains(getSeismogram())) {
-                DataSetSeismogram[] seis = { getSeismogram() };
+                DataSetSeismogram[] seis = {getSeismogram()};
                 parent.getTimeConfig().add(seis);
-            }
-            else if(!currentAmp.contains(getSeismogram())) {
-                DataSetSeismogram[] seis = { getSeismogram() };
+            } else if(!currentAmp.contains(getSeismogram())) {
+                DataSetSeismogram[] seis = {getSeismogram()};
                 parent.getAmpConfig().add(seis);
-            }
-            else if(shape.update(currentTime.getTime(getSeismogram()),
-                                 currentAmp.getAmp(getSeismogram()),
-                                 size) || SeismogramDisplay.PRINTING) {
+            } else if(shape.update(currentTime.getTime(getSeismogram()),
+                                   currentAmp.getAmp(getSeismogram()),
+                                   size)) {
                 canvas.setPaint(color);
                 canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
                 canvas.draw(shape);
-                //by repainting after the first paint the borders always get drawn
-                //with amp information.  sometimes, they receive info after the
+                //by repainting after the first paint the borders always get
+                // drawn
+                //with amp information. sometimes, they receive info after the
                 //trace first requests it
                 if(firstPaint) {
                     parent.repaint();
@@ -110,7 +119,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
                 }
             }
         }
-        synchronized(children){
+        synchronized(children) {
             Iterator it = children.iterator();
             while(it.hasNext()) {
                 Drawable cur = (Drawable)it.next();
@@ -119,8 +128,8 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         }
     }
 
-    //TODO remove this firstPaint crap and get borders to draw themselves correctly
-
+    //TODO remove this firstPaint crap and get borders to draw themselves
+    // correctly
     private boolean firstPaint = true;
 
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
@@ -144,12 +153,14 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         }
         canvas.drawString(name, xPosition, yPosition);
         canvas.setFont(DisplayUtils.DEFAULT_FONT);
-        synchronized(children){
+        synchronized(children) {
             Iterator it = children.iterator();
             while(it.hasNext()) {
                 Drawable cur = (Drawable)it.next();
                 if(cur instanceof NamedDrawable) {
-                    stringBounds.add(((NamedDrawable)cur).drawName(canvas, (int)(xPosition + stringBounds.getWidth()), yPosition));
+                    stringBounds.add(((NamedDrawable)cur).drawName(canvas,
+                                                                   (int)(xPosition + stringBounds.getWidth()),
+                                                                   yPosition));
                 }
             }
         }
@@ -178,7 +189,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
 
     public void clear(Class drawableClass) {
-        synchronized(children){
+        synchronized(children) {
             Iterator it = children.iterator();
             while(it.hasNext()) {
                 if(drawableClass.isInstance(it.next())) {
@@ -194,15 +205,16 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
 
     public void added(SeismogramDisplay recipient, Drawable drawable) {
-        // TODO
+    // TODO
     }
 
     public void removed(SeismogramDisplay bereaved, Drawable drawable) {
-        // TODO
+    // TODO
     }
 
     /**
-     *called when the display <code>from</code> is being replaced by <code>to</code>
+     * called when the display <code>from</code> is being replaced by
+     * <code>to</code>
      */
     public void switching(SeismogramDisplay from, SeismogramDisplay to) {
         this.parent = to;
@@ -210,23 +222,32 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
 
     public void switching(AmpConfig from, AmpConfig to) {
-        // TODO
+    // TODO
     }
 
     public void switching(TimeConfig from, TimeConfig to) {
-        // TODO
+    // TODO
     }
 
+    public String getName() {
+        return name;
+    }
 
-    public String getName(){ return name; }
+    public String toString() {
+        return getName();
+    }
 
-    public String toString(){ return getName();}
+    public DataSetSeismogram getSeismogram() {
+        return shape.getSeismogram();
+    }
 
-    public DataSetSeismogram getSeismogram(){ return shape.getSeismogram(); }
+    public String getDataStatus() {
+        return shape.getDataStatus();
+    }
 
-    public String getDataStatus(){ return shape.getDataStatus();}
-
-    public void getData(){ shape.getData(); }
+    public void getData() {
+        shape.getData();
+    }
 
     public static void setDefaultVisibility(boolean visible) {
         defaultVisibility = visible;
