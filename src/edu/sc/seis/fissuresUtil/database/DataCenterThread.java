@@ -9,15 +9,9 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
 import edu.sc.seis.fissuresUtil.cache.JobTracker;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.ContainerListener;
 import java.lang.ref.SoftReference;
-import javax.swing.JComponent;
 import org.apache.log4j.Category;
-import java.awt.event.ContainerEvent;
 
 /**
  * DataCenterThread.java
@@ -82,13 +76,14 @@ public class DataCenterThread implements Runnable{
                     continue;
                 }
             }
-            LocalSeismogramImpl[] seisArray = new LocalSeismogramImpl[seismograms.size()];
-            seisRef = new SoftReference(seismograms.toArray(seisArray));
         }
         synchronized(initiators){
+            LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])seismograms.toArray(new LocalSeismogramImpl[seismograms.size()]);
             Iterator it = initiators.iterator();
             while(it.hasNext()){
-                a_client.finished(((SeisDataChangeListener)it.next()));
+                SeisDataChangeListener cur = ((SeisDataChangeListener)it.next());
+                a_client.pushData(seis, cur);
+                a_client.finished(cur);
             }
             finished = true;
         }
@@ -146,17 +141,18 @@ public class DataCenterThread implements Runnable{
         synchronized(initiators){
             if(!finished){
                 initiators.add(listener);
+                return true;
             }
         }
-        if(!failed){
+        if(finished){
             LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])seisRef.get();
             if(seis != null){
                 a_client.pushData(seis, listener);
+                a_client.finished(listener);
+                return true;
             }
-            return true;
-        }else{
-            return false;
         }
+        return false;
     }
     
     private LocalSeismogramImpl[] castToLocalSeismogramImplArray(LocalSeismogram[] seismos) {
@@ -167,7 +163,7 @@ public class DataCenterThread implements Runnable{
         return rtnValues;
     }
     
-    private SoftReference seisRef = new SoftReference(null);
+    private SoftReference seisRef  = new SoftReference(null);
     
     private RequestFilter[] requestFilters;
     
