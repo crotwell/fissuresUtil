@@ -152,7 +152,7 @@ useful things already done.</description>
     </dependency>
     <dependency>
       <id>fissuresImpl</id>
-      <version>1.1.5</version>
+      <version>1.1.6beta</version>
     </dependency>
     <dependency>
       <id>fissuresIDL</id>
