@@ -15,13 +15,15 @@ import org.apache.xpath.objects.*;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.*;
 import org.apache.log4j.*;
 
 /**
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2404 2002-07-26 15:04:30Z telukutl $
+ * @version $Id: XMLDataSet.java 2432 2002-07-31 19:42:15Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -662,14 +664,28 @@ public class XMLDataSet implements DataSet, Serializable {
     }
 
     public ChannelId[] getChannelIds() {
+	Date startTime = Calendar.getInstance().getTime();
+	String[] paramNames = getParameterNames();
+	ArrayList arrayList = new ArrayList();
+	
+	for(int counter = 0; counter < paramNames.length; counter++) {
+	    if(paramNames[counter].startsWith(StdDataSetParamNames.CHANNEL)) {
+		Channel channel = (Channel)getParameter(paramNames[counter]);
+		arrayList.add(channel.get_id());	    
+	    }
+	}
+	ChannelId[] channelIds = new ChannelId[arrayList.size()];
+	channelIds = (ChannelId[]) arrayList.toArray(channelIds);
+	Date endTime = Calendar.getInstance().getTime();
+	logger.debug("The time Taken for getting the channelIDs is ------------------------------------------------------->>>>"+(endTime.getTime() - startTime.getTime()));
+	return channelIds;
+	
+	/*SeismogramAttr[] seismogramAttrs = getSeismogramAttrs();
 
-	SeismogramAttr[] seismogramAttrs = getSeismogramAttrs();
-	ChannelId[] channelIds = new ChannelId[seismogramAttrs.length];
 	for(int counter = 0; counter < seismogramAttrs.length; counter++) {
 	    channelIds[counter] = ((SeismogramAttrImpl)seismogramAttrs[counter]).getChannelID();
-	}
-	return channelIds;
-    }
+	    }*/
+		}
 
     public String getAsString(Element base, String path) {
 	
