@@ -14,7 +14,7 @@ import java.util.Date;
 
 public class RelativeTimeConfig extends BasicTimeConfig{
     public void add(DataSetSeismogram[] seis){
-        if(time == null){
+        if(time == null && seis.length > 0){
             if(initialTime == null){
                 initialTime = getInitialTime(seis[0]);
             }
