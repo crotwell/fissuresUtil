@@ -39,6 +39,8 @@ import com.bbn.openmap.image.SunJPEGFormatter;
 import com.bbn.openmap.layer.GraticuleLayer;
 import com.bbn.openmap.layer.etopo.ETOPOLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
+import com.bbn.openmap.proj.Length;
+import com.bbn.openmap.proj.ProjMath;
 import com.bbn.openmap.proj.Projection;
 import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
@@ -97,7 +99,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public OpenMap(boolean graticule) {
         this("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse", graticule);
-        setEventLayer(new EventLayer(getMapBean(), new DepthEventColorizer()));
+        setEventLayer(new EventLayer(this, new DepthEventColorizer()));
         setStationLayer(new StationLayer());
     }
 
@@ -403,6 +405,13 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
                 getShapeLayer().setOverrideProjectionChanged(false);
             }
         }
+    }
+    
+    public float getWidthDegrees(){
+        Projection proj = getMapBean().getProjection();
+        float distL2C = ProjMath.lonDistance(proj.getUpperLeft().radlon_, proj.getCenter().radlon_);
+        float distC2R = ProjMath.lonDistance(proj.getCenter().radlon_, proj.getLowerRight().radlon_);
+        return Length.DECIMAL_DEGREE.fromRadians(Math.abs(distL2C + distC2R));
     }
 
     public static String translateLayerStatus(int status) {

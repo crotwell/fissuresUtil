@@ -10,7 +10,6 @@ import java.awt.Color;
 import java.awt.Paint;
 import org.apache.log4j.Logger;
 import com.bbn.openmap.Layer;
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -19,15 +18,14 @@ import edu.iris.Fissures.IfEvent.Origin;
 import edu.sc.seis.fissuresUtil.cache.ProxyEventAccessOperations;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.map.OpenMap;
 import edu.sc.seis.fissuresUtil.map.colorizer.event.DefaultEventColorizer;
 
 public class OMEvent extends OMGraphicList implements FissuresGraphic{
 
-    public OMEvent(ProxyEventAccessOperations eao, Layer eventLayer, MapBean mapBean) throws NoPreferredOrigin{
+    public OMEvent(ProxyEventAccessOperations eao, Layer eventLayer, OpenMap map) throws NoPreferredOrigin{
         super(2);
-        this.mapBean = mapBean;
-
-        originalScale = mapBean.getScale();
+        this.map = map;
 
         Origin prefOrigin = eao.get_preferred_origin();
         float lat = prefOrigin.my_location.latitude;
@@ -61,10 +59,9 @@ public class OMEvent extends OMGraphicList implements FissuresGraphic{
     public void select() {
         super.select();
         bigCircle.setFillPaint(new Color(0, 0, 0, 64));
-        if (mapBean.getScale() == originalScale){
-            logger.debug("mapBean.getScale() == originalScale");
+        if (map.getWidthDegrees() > 300f){
             try{
-                mapBean.center(new CenterEvent(this,
+                map.getMapBean().center(new CenterEvent(this,
                                                0.0f,
                                                event.get_preferred_origin().my_location.longitude));
             }catch(NoPreferredOrigin e){
@@ -88,7 +85,7 @@ public class OMEvent extends OMGraphicList implements FissuresGraphic{
 
     private float originalScale;
     private ProxyEventAccessOperations event;
-    private MapBean mapBean;
+    private OpenMap map;
     private OMCircle lilCircle;
     private OMCircle bigCircle;
     private static Logger logger = Logger.getLogger(OMEvent.class);

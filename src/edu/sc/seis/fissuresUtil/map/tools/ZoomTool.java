@@ -74,17 +74,19 @@ public class ZoomTool extends OpenMapTool {
 
     public void reset() {
         LatLonPoint center = map.getOriginalCenter(); //center on mapBean's
-                                                      // original
-        // center point
-        //however, if there is an event (or events) selected, center on the
+        // original center point.
+        //however, if there is an event (or events) selected and the total
+        // width in degrees of the map view is greater than 300, center on the
         // first selected event
         if(map.getEventLayer() != null
                 && map.getEventLayer().getSelectedEvents().length > 0) {
-            EventAccessOperations event = map.getEventLayer()
-                    .getSelectedEvents()[0];
-            Origin orig = EventUtil.extractOrigin(event);
-            center.setLatitude(0f);
-            center.setLongitude((float)orig.my_location.longitude);
+            if(map.getWidthDegrees() > 300f) {
+                EventAccessOperations event = map.getEventLayer()
+                        .getSelectedEvents()[0];
+                Origin orig = EventUtil.extractOrigin(event);
+                center.setLatitude(0f);
+                center.setLongitude((float)orig.my_location.longitude);
+            }
         }
         map.getMapBean().setCenter(center);
         fireZoomChanged(new ZoomEvent(this,

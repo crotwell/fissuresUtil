@@ -11,11 +11,11 @@ import java.util.List;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import com.bbn.openmap.MapBean;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
+import edu.sc.seis.fissuresUtil.map.OpenMap;
 import edu.sc.seis.fissuresUtil.map.colorizer.event.EventColorizer;
 
 public class EventTableLayer extends EventLayer{
@@ -25,9 +25,9 @@ public class EventTableLayer extends EventLayer{
 
     public EventTableLayer(EventTableModel tableModel,
                            ListSelectionModel lsm,
-                           MapBean mapBean,
+                           OpenMap map,
                            EventColorizer colorizer){
-        super(mapBean, colorizer);
+        super(map, colorizer);
         setName("Event Table Layer");
         this.tableModel = tableModel;
         selectionModel = lsm;
