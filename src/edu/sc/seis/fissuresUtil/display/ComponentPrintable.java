@@ -19,8 +19,7 @@ public class ComponentPrintable implements Printable{
     public ComponentPrintable (Component c){
 	mComponent = c;
 	System.out.println("set waiting");
-	((BasicSeismogramDisplay)mComponent).waitingForCreation = true;
-	 mComponent.setSize(new Dimension(648, 468));
+	mComponent.setSize(new Dimension(648, 468));
     }
     
     public int print(Graphics g, PageFormat pageFormat, int pageIndex){
