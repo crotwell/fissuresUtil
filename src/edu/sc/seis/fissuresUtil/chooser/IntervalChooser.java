@@ -140,6 +140,11 @@ public class IntervalChooser extends JPanel{
 
     }
 
+    public void setSelectedValue(int value) {
+
+	valueBox.setSelectedItem(String.valueOf(value));
+    }
+
     /**
      * This method returns TimeInterval. This method considers  1 MONTH = 30 DAYS and
      * 1 YEAR = 365 DAYS. For accurate values use the addTo(Date date).
