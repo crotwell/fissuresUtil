@@ -13,13 +13,15 @@ import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.proj.Length;
+import com.bbn.openmap.proj.Projection;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
-import java.awt.Color;
 import edu.sc.seis.fissuresUtil.display.EventDataListener;
-import edu.sc.seis.fissuresUtil.display.EQDataEvent;
+import java.awt.Color;
+import java.awt.Point;
 
 public class DistanceLayer extends Layer implements EQSelectionListener, EventDataListener{
 
@@ -76,26 +78,55 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
         distCircles.clear();
     }
 
+    private void makeDistCircle(LatLonPoint llp, double radiusDegrees){
+        Projection proj = getProjection();
+
+        OMCircle circle = new DistCircle(llp, radiusDegrees);
+        LatLonPoint labelPointUp = makeTextLabelLatLon(llp, radiusDegrees, proj, true);
+        if (proj.isPlotable(labelPointUp)){
+            distCircles.add(new TextLabel(labelPointUp, Integer.toString((int)radiusDegrees)));
+        }
+        LatLonPoint labelPointDown = makeTextLabelLatLon(llp, radiusDegrees, proj, false);
+        if (proj.isPlotable(labelPointDown)){
+            distCircles.add(new TextLabel(labelPointDown, Integer.toString((int)radiusDegrees)));
+        }
+        distCircles.add(circle);
+    }
+
     private void makeDistCircles(LatLonPoint llp){
-        OMCircle lilCircle = new DistCircle(llp, (float)Math.PI*(float)(1.0/6.0));
-        distCircles.add(lilCircle);
-
-        OMCircle biggerCircle = new DistCircle(llp, (float)Math.PI*(float)(1.0/3.0));
-        distCircles.add(biggerCircle);
-
-        OMCircle biggestCircle = new DistCircle(llp, (float)Math.PI*(float)(1.0/2.0));
-        distCircles.add(biggestCircle);
+        makeDistCircle(llp, 30.0);
+        makeDistCircle(llp, 60.0);
+        makeDistCircle(llp, 90.0);
     }
 
     public void paint(java.awt.Graphics g){
         distCircles.render(g);
     }
 
+    private static LatLonPoint makeTextLabelLatLon(LatLonPoint center, double radiusDegrees, Projection prj, boolean isUpper){
+        LatLonPoint textLLP;
+
+        if(isUpper){
+            textLLP = new LatLonPoint(center.getLatitude() + radiusDegrees,
+                                      center.getLongitude());
+        }
+        else{
+            textLLP = new LatLonPoint(center.getLatitude() - radiusDegrees,
+                                      center.getLongitude());
+        }
+
+        Point textXYPoint = prj.forward(textLLP);
+        textXYPoint.setLocation(textXYPoint.getX(), textXYPoint.getY() - 5);
+        textLLP = prj.inverse(textXYPoint);
+
+        return textLLP;
+    }
+
     private class DistCircle extends OMCircle{
 
-        public DistCircle(LatLonPoint llp, float radiusRadians){
-            super(llp.getLatitude(), llp.getLongitude(), radiusRadians, Length.RADIAN);
-            this.setLineColor(Color.magenta);
+        public DistCircle(LatLonPoint llp, double radiusDegrees){
+            super(llp.getLatitude(), llp.getLongitude(), (float)radiusDegrees, Length.DECIMAL_DEGREE);
+            this.setLinePaint(Color.magenta);
             this.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             generate(getProjection());
         }
@@ -103,8 +134,8 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
     }
 
     private class TextLabel extends OMText{
-        public TextLabel(LatLonPoint llp, float radiusRadians){
-
+        public TextLabel(LatLonPoint position, String text){
+            super(position.getLatitude(), position.getLongitude(), text, OMText.JUSTIFY_CENTER);
         }
     }
 }
