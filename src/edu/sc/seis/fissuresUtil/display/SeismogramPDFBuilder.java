@@ -218,10 +218,13 @@ public class SeismogramPDFBuilder {
                         }
                         notAllHere = false;
                     }
-                    Font prevValue = DisplayUtils.DEFAULT_FONT;
+                    Font prevDefValue = DisplayUtils.DEFAULT_FONT;
                     DisplayUtils.DEFAULT_FONT = new Font("Serif", Font.PLAIN, 24);
+                    Font prevBoldValue = DisplayUtils.BOLD_FONT;
+                    DisplayUtils.BOLD_FONT = new Font("Serif", Font.BOLD, 24);
                     bsd.drawSeismograms(g2Traces,new Dimension(widthForTraces,heightForTraces));
-                    DisplayUtils.DEFAULT_FONT = prevValue;
+                    DisplayUtils.DEFAULT_FONT = prevDefValue;
+                    DisplayUtils.BOLD_FONT = prevBoldValue;
                     
                     drawBox(g2Traces, widthForTraces, heightForTraces);
                     
