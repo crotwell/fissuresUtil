@@ -134,6 +134,7 @@ public class SeismogramIterator implements Iterator{
                                                           numPoints, timeBegin);
             lastPoint = (int)DisplayUtils.linearInterp(seisBegin, seisEnd,
                                                        numPoints, timeEnd);
+            //System.out.println("currentPoint: " + currentPoint + " lastPoint " + lastPoint + " seisTR " + seisTimeRange + " timeRange " + timeRange);
         }
     }
 
@@ -142,38 +143,43 @@ public class SeismogramIterator implements Iterator{
     public double[] minMaxMean(){ return minMaxMean(currentPoint, lastPoint); }
 
     public double[] minMaxMean(int startPoint, int endPoint){
+        int currentPoint = startPoint;
         double[] minMaxMean ={Double.POSITIVE_INFINITY,Double.NEGATIVE_INFINITY,0};
-        int coveredPoints = 0;
-        if(startPoint < numPoints && endPoint > 0){
-            for(int i = startPoint; i < endPoint; i++){
-                Object[] array = getSeisAtWithInternal(startPoint);
-                LocalSeismogramImpl current = (LocalSeismogramImpl)array[0];
-                if(current != null && !(current instanceof Gap)){
+        int totalNumCalculated = 0;//number of points over which values have been taken
+        if(currentPoint < numPoints && endPoint > 0){
+            double meanStore = 0;
+            while(currentPoint < endPoint){
+                Object[] array = getSeisAtWithInternal(currentPoint);
+                LocalSeismogramImpl curSeis = (LocalSeismogramImpl)array[0];
+                if(curSeis == null){
+                    break;
+                }
+                if(curSeis != null && !(curSeis instanceof Gap)){
                     int internalStartPoint = ((Integer)array[1]).intValue();
                     int shift = 0;
                     if(internalStartPoint < 0){
                         shift = Math.abs(internalStartPoint);
                         internalStartPoint = 0;
                     }
-                    int lastPoint = ((int[])points.get(current))[1];
-                    if((lastPoint - internalStartPoint) + i + shift >= endPoint){
-                        lastPoint = internalStartPoint + (endPoint - (i + shift));
+                    int lastPoint = ((int[])points.get(curSeis))[1];
+                    if((lastPoint - internalStartPoint) + currentPoint + shift >= endPoint){
+                        lastPoint = internalStartPoint + (endPoint - (currentPoint + shift));
                     }
-                    Statistics curStat = getStatistics(current);
-                    double[] curMinMaxMean = curStat.minMaxMean(internalStartPoint,
-                                                                lastPoint);
+                    double[] curMinMaxMean = getStatistics(curSeis).minMaxMean(internalStartPoint,
+                                                                               lastPoint);
                     if(curMinMaxMean[0] < minMaxMean[0]){
                         minMaxMean[0] = curMinMaxMean[0];
                     }
                     if(curMinMaxMean[1] > minMaxMean[1]){
                         minMaxMean[1] = curMinMaxMean[1];
                     }
-                    minMaxMean[2] += curMinMaxMean[2]*(lastPoint-internalStartPoint);
-                    coveredPoints += lastPoint - internalStartPoint;
-                    i +=lastPoint - internalStartPoint + shift;
+                    int curNumCalculated = lastPoint - internalStartPoint;
+                    meanStore += curMinMaxMean[2]*curNumCalculated;
+                    totalNumCalculated += curNumCalculated;
+                    currentPoint += curNumCalculated + shift;
                 }
+                minMaxMean[2] = meanStore/totalNumCalculated;
             }
-            minMaxMean[2] = minMaxMean[2]/coveredPoints;
         }
         return minMaxMean;
     }
