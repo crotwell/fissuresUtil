@@ -29,7 +29,7 @@ public class HTMLReporter implements ExceptionReporter{
         str += message;
         str += "\n<br/>\n<br/>\n";
         String stackTrace = "<h2>Stack Trace</h2><br/>";
-        str +=   stackTrace + "<pre>"+makeDivider(stackTrace.length()) + ExceptionReporterUtils.getTrace(e)+"</pre>";
+        str +=   stackTrace +makeDivider(stackTrace.length()) + "<pre>"+ ExceptionReporterUtils.getTrace(e)+"</pre>";
         bw.write(constructString(str, sections));
         bw.close();
         lastFileNum++;
@@ -54,6 +54,7 @@ public class HTMLReporter implements ExceptionReporter{
         File index = new File(directory, "index.html");
         BufferedWriter out = new BufferedWriter(new FileWriter(index, true));
         writeln(out, new MicroSecondDate()+" <a href="+'"'+errorFile.getName()+'"'+">"+t.getClass().getName()+"</a><br/>");
+        out.close();
     }
     protected void writeln(BufferedWriter out, String s) throws IOException {
         out.write(s); out.newLine();
@@ -62,18 +63,18 @@ public class HTMLReporter implements ExceptionReporter{
     private String constructString(String initialBit, List sections){
         Iterator it = sections.iterator();
         while(it.hasNext()){
-            initialBit += "<br/>\n" + constructString((Section)it.next());
+            initialBit += "<hr/><br/>\n" + constructString((Section)it.next());
         }
         return initialBit;
     }
 
     private String constructString(Section sec) {
-        String result = sec.getName() + makeDivider(sec.getName().length());
-        return result += sec.getContents();
+        String result = sec.getName()+"br/>" + makeDivider(sec.getName().length());
+        return result += "<pre>"+sec.getContents()+"</pre>";
     }
 
     private String makeDivider(int len){
-        return "<hline/>";
+        return "<hr/>";
     }
 
     protected String getHeader(Throwable t, int i) {
