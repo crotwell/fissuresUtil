@@ -14,6 +14,10 @@
        <property name="log4j" value="../log4j/log4j.jar" />
        <property name="objar" value="../OrbacusSignedJars/dist/OB.jar" />
        <property name="obnamingjar" value="../OrbacusSignedJars/dist/OBNaming.jar" />
+       <property name="xalan" value="../xalan-j_2_3_1/bin/xalan.jar" />
+       <property name="xerces" value="../xalan-j_2_3_1/bin/xercesImpl.jar" />
+       <property name="xmlAPI" value="../xalan-j_2_3_1/bin/xml-apis.jar" />
+
 
               <path id="myclasspath" >
                 <pathelement location="${junit_jar}"/>
@@ -23,6 +27,11 @@
                 <pathelement location="${fissuresImpljar}" />
                 <pathelement location="${objar}" />
                 <pathelement location="${obnamingjar}" />
+                <pathelement location="${xerces}" />
+                <pathelement location="${xmlAPI}" />
+                <pathelement location="${xalan}" />
+                <pathelement location="../jars/jai_core.jar" />
+                <pathelement location="../jars/jai_codec.jar" />
               </path>
 
        <target name="prepare">
