@@ -18,6 +18,8 @@ import org.apache.log4j.Logger;
  */
 
 public class RMeanAmpConfig extends BasicAmpConfig {
+    public RMeanAmpConfig(){}
+
     public RMeanAmpConfig(DataSetSeismogram[] seismos){
         super(seismos);
     }
