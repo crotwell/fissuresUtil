@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.LinkedList;
-import java.util.Iterator;
+import java.util.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import org.apache.log4j.*;
@@ -19,22 +18,16 @@ import org.apache.log4j.*;
 public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
     public AmpConfigRegistrar(){
 	ampConfig = new RMeanAmpConfig();
-	ampConfig.setRegistrar(this);
+	ampConfig.addAmpSyncListener(this);
     }
 
     public AmpConfigRegistrar (AmpRangeConfig ampConfig){
 	this.ampConfig = ampConfig;
-	ampConfig.setRegistrar(this);
-    }
-
-    public AmpConfigRegistrar(AmpConfigRegistrar ampRegistrar){
-	setRegistrar(ampRegistrar);
-    }
-	
+	ampConfig.addAmpSyncListener(this);
+    }	
      
     public void setRegistrar(AmpConfigRegistrar ampRegistrar){ 
-	if(ampConfig instanceof AmpConfigRegistrar)
-	    ((AmpConfigRegistrar)ampConfig).removeAmpSyncListener(this);
+	ampConfig.removeAmpSyncListener(this);
 	Iterator e = seismograms.iterator();
 	while(e.hasNext())
 	    ampRegistrar.addSeismogram(((DataSetSeismogram)e.next()));
@@ -121,8 +114,6 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 
     public void updateTimeRange(){ ampConfig.updateTimeRange(); } 
 
-    public AmpRangeConfig getAmpConfig(){ return ampConfig.getAmpConfig(); }
-
     public void individualizeAmpConfig(TimeConfigRegistrar timeRegistrar){
 	AmpRangeConfig newConfig = new RMeanAmpConfig(this);
 	Iterator e = seismograms.iterator();
@@ -138,11 +129,22 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 	this.ampConfig.visibleAmpCalc(timeRegistrar);
     }
 
+    public synchronized AmpSnapshot takeSnapshot(){
+	HashMap seismoAmpRange = new HashMap();
+	Iterator e = seismograms.iterator();
+	while(e.hasNext()){
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    seismoAmpRange.put(current, this.getAmpRange(current));
+	}
+	return new AmpSnapshot(seismoAmpRange, this.getAmpRange());
+    }
+
+
     protected AmpRangeConfig ampConfig;
 
     protected LinkedList seismograms = new LinkedList();
     
-    protected LinkedList ampListeners = new LinkedList();
+    protected Set ampListeners = new HashSet();
 
     protected Category logger = Category.getInstance(AmpConfigRegistrar.class.getName());
 }// AmpConfigRegistrar
