@@ -16,6 +16,7 @@ import com.bbn.openmap.proj.CADRG;
 import com.bbn.openmap.proj.Proj;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
+import edu.sc.seis.fissuresUtil.map.tools.PanTool;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -84,9 +85,9 @@ public class OpenMap extends OpenMapComponent{
 			mapHandler.add(shapeLayer);
 
 			// Create the directional and zoom control tool
-			OMToolSet omts = new OMToolSet();
+			//OMToolSet omts = new OMToolSet();
 			// Create an OpenMap toolbar
-			ToolPanel toolBar = new ToolPanel();
+			//ToolPanel toolBar = new ToolPanel();
 			//Create an OpenMap Info Line
 			InformationDelegator infoDel = new InformationDelegator();
 			infoDel.setShowLights(false);
@@ -97,8 +98,8 @@ public class OpenMap extends OpenMapComponent{
 			// OpenMapFrame will find the ToolPanel and attach it to the
 			// top part of its content pane, and the ToolPanel will find
 			// the OMToolSet and add it to itself.
-			mapHandler.add(omts);
-			mapHandler.add(toolBar);
+			//mapHandler.add(omts);
+			//mapHandler.add(toolBar);
 
 			mapHandler.add(mouseDelegator);
 			mapHandler.add(infoDel);
@@ -133,12 +134,7 @@ public class OpenMap extends OpenMapComponent{
 	public void addMouseMode(MapMouseMode mode){
 		mouseDelegator.addMouseMode(mode);
 		if (mode instanceof ZoomTool){
-			try{
-				((ZoomTool)mode).addZoomListener(getMapBean());
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
+			((ZoomTool)mode).addZoomListener(getMapBean());
 		}
 	}
 
