@@ -56,19 +56,19 @@ public class JDBCEventAccess extends EventTable{
         getAttrAndOrigin = conn.prepareStatement(" SELECT eventattr_id, origin_id FROM eventaccess " +
                                                      " WHERE event_id = ?");
         getEventIds = conn.prepareStatement(" SELECT eventattr_id, event_id, origin_id FROM eventaccess");
-        queryStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, origin, location WHERE "+
-                                          "eventaccess.event_id = origin.origin_event_id AND "+
-                                          "origin_location_id = location.loc_id AND "+
-                                          "origin.origin_id = magnitude.originid AND "+
-                                          "origin.origin_time_id = time.time_id AND "+
-                                          "location.loc_lat >= ? AND location.loc_lat <= ? AND "+
-                                          "location.loc_lon >= ? AND location.loc_lon <= ? AND "+
-                                          "magnitude.magnitudevalue >= ? AND magnitude.magnitudevalue <= ? AND "+
-                                          "time.time_stamp >= ? AND time.time_stamp <= ? AND "+
-                                          "");
-        getByNameStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, eventattr WHERE "+
-                                              "eventattr.name = ? AND "+
-                                              "eventaccess.eventattr_id = eventattr.eventattr_id");
+//        queryStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, origin, location WHERE "+
+//                                          "eventaccess.event_id = origin.origin_event_id AND "+
+//                                          "origin_location_id = location.loc_id AND "+
+//                                          "origin.origin_id = magnitude.originid AND "+
+//                                          "origin.origin_time_id = time.time_id AND "+
+//                                          "location.loc_lat >= ? AND location.loc_lat <= ? AND "+
+//                                          "location.loc_lon >= ? AND location.loc_lon <= ? AND "+
+//                                          "magnitude.magnitudevalue >= ? AND magnitude.magnitudevalue <= ? AND "+
+//                                          "time.time_stamp >= ? AND time.time_stamp <= ? AND "+
+//                                          "");
+//        getByNameStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, eventattr WHERE "+
+//                                              "eventattr.name = ? AND "+
+//                                              "eventaccess.eventattr_id = eventattr.eventattr_id");
     }
 
     public CacheEvent getEvent(int dbid) throws SQLException, NotFound{
