@@ -18,15 +18,15 @@ public class AmpEvent {
         if ( seismos.length != amps.length) {
             throw new IllegalArgumentException("seismogram and amp arrays must have equal length "+seismos.length+" != "+amps.length);
         } // end of if ()
-        
+
         this.seismos = seismos;
         this.amps = amps;
     }
-    
+
     public UnitRangeImpl getAmp(DataSetSeismogram seismo){
         return amps[indexOf(seismo)];
     }
-    
+
     public UnitRangeImpl getAmp(){
         if(genericAmp == null){
             if(amps.length == 0){
@@ -50,6 +50,10 @@ public class AmpEvent {
             }
         }
         return genericAmp;
+    }
+
+    public DataSetSeismogram[] getSeismograms() {
+        return seismos;
     }
 
     private int indexOf(DataSetSeismogram seismo){
