@@ -7,6 +7,7 @@ import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.*;
 import java.util.*;
 import java.lang.ref.*;
+import org.apache.log4j.*;
 
 /**
  * PlottableCache.java
@@ -17,7 +18,6 @@ import java.lang.ref.*;
  * @author <a href="mailto:">Srinivasa Telukutla</a>
  * @version
  */
-
 public class PlottableCache implements PlottableDCOperations{
     public PlottableCache (PlottableDC plottableDC){
 	this.plottableDC = plottableDC;
@@ -47,7 +47,6 @@ public class PlottableCache implements PlottableDCOperations{
 	UnsupportedDimension,
 	edu.iris.Fissures.NotImplemented
     {
-
 	return null;
     }
     //
@@ -86,7 +85,7 @@ public class PlottableCache implements PlottableDCOperations{
 	    if(plottableArray != null) {
 		return plottableArray;
 	    } else {
-		dayCache.remove(ChannelIdUtil.toString(channel_id));
+		dayCache.remove(key);
 	    }
 	}
 	plottableArray = plottableDC.get_for_day(channel_id, year, jday, pixel_size);
@@ -127,5 +126,7 @@ public class PlottableCache implements PlottableDCOperations{
 
     private HashMap dayCache = new HashMap();
     private PlottableDC plottableDC;
+    static Category logger = 
+	Category.getInstance(PlottableCache.class.getName());
     
 }// PlottableCache
