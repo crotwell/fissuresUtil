@@ -317,7 +317,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     public static String getStationInfo(Station station, EventAccessOperations event){
         StringBuffer buf = new StringBuffer();
         buf.append("Station: ");
-        buf.append(station.get_code() + "-");
+        buf.append(station.my_network.get_code() + "." + station.get_code() + "-");
         buf.append(station.name);
         if (event != null){
             try{
