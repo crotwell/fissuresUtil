@@ -46,24 +46,25 @@ public class NSEventDC implements EventDCOperations {
                     eventDC = namingService.getEventDC(serverDNS,serverName);
                 }
             } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                                                  0,
-                                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+                repackageException(e);
             } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                                                  0,
-                                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+                repackageException(e);
             } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                                                  0,
-                                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+                repackageException(e);
             } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                                                  0,
-                                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+                repackageException(e);
             } // end of try-catch
         } // end of if ()
         return eventDC;
+    }
+
+    protected void repackageException(org.omg.CORBA.UserException e) {
+        org.omg.CORBA.TRANSIENT t =
+            new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
+                                        0,
+                                        org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+        t.initCause(e);
+        throw t;
     }
 
     public EventChannelFinder a_channel_finder() {
