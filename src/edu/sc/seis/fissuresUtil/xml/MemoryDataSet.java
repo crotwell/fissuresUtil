@@ -154,7 +154,18 @@ public class MemoryDataSet implements DataSet {
     public DataSetSeismogram getDataSetSeismogram(String name) {
         return (DataSetSeismogram)datasetSeismograms.get(name);
     }
-
+   
+    /**
+     * removes the given dataset seismogram from the dataset.
+     *
+     * @param    dss                 a  DataSetSeismogram
+     *
+     */
+    public void remove(DataSetSeismogram dss) {
+        datasetSeismograms.remove(dss.getName());
+        datasetSeismogramNames.remove(dss.getName());
+    }
+    
     /**
      * Describe <code>addSeismogram</code> method here.
      *
