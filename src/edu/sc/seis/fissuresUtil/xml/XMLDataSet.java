@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3523 2003-03-21 17:30:29Z telukutl $
+ * @version $Id: XMLDataSet.java 3524 2003-03-21 17:32:50Z telukutl $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -910,10 +910,7 @@ public class XMLDataSet implements DataSet, Serializable{
     
     public String[] getDataSetSeismogramNames() {
         if(dssNames.size() == 0) {
-           //  for(int counter = 0; counter < seismogramNameCache.length; counter++) {
-//                 dssNames.add(seismogramNameCache[counter]);
-//             }
-        
+            return seismogramNameCache;
         }
        return ((String[])dssNames.toArray(new String[0]));
     }
