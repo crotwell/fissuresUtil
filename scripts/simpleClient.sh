@@ -11,12 +11,12 @@ LOG4J=$MAVEN/log4j/jars/log4j-1.2.8.jar
 
 JARS=${SEEDCODEC}:${FISSURESIDL}:${FISSURESIMPL}:${FISSURESUTIL}:${LOG4J}
 
-java -cp ${JARS}:${CLASSPATH} edu.sc.seis.fissuresUtil.simple.SimpleNetworkClient -props ./alpha.prop
+java -cp ${JARS}:${CLASSPATH} edu.sc.seis.fissuresUtil.simple.SimpleNetworkClient -props ./simpleClient.prop
 
-java -cp ${JARS}:${CLASSPATH} edu.sc.seis.fissuresUtil.simple.SimpleEventClient -props ./alpha.prop
+java -cp ${JARS}:${CLASSPATH} edu.sc.seis.fissuresUtil.simple.SimpleEventClient -props ./simpleClient.prop
 
 
-java -cp ${JARS}:${CLASSPATH} edu.sc.seis.fissuresUtil.simple.SimpleSeismogramClient -props ./alpha.prop
+java -cp ${JARS}:${CLASSPATH} edu.sc.seis.fissuresUtil.simple.SimpleSeismogramClient -props ./simpleClient.prop
 
 echo done.
 
