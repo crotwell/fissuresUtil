@@ -24,7 +24,7 @@ import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 11087 2004-11-04 20:10:14Z groves $
+ * @version $Id: SimplePlotUtil.java 11103 2004-11-08 16:21:23Z groves $
  */
 public class SimplePlotUtil {
 
@@ -69,8 +69,6 @@ public class SimplePlotUtil {
                 .getPeriod()
                 .convertTo(UnitImpl.SECOND))
                 .getValue();
-        System.out.println(new MicroSecondTimeRange(startTime, stopTime) + " "
-                + xOffset + " " + seisSamplesPerSample);
         for(int i = 0; i < numSamples; i += 2) {
             out[0][i] = xOffset + i / 2;
             out[0][i + 1] = xOffset + i / 2;
