@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.database.plottable;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -17,31 +18,44 @@ import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
  */
 public class PlottableChunk {
 
-    public PlottableChunk(Plottable data, int startSample,
+    /**
+     * Creates a plottable chunk consisting of the plottable in data, starting
+     * start pixels into the jday and year of otherstuff at
+     * otherstuff.getPixelsPerDay ppd.
+     */
+    public PlottableChunk(Plottable data, int startPixel,
             PlottableChunk otherStuff) {
         this(data,
-             startSample,
+             startPixel,
              otherStuff.getJDay(),
              otherStuff.getYear(),
-             otherStuff.getSamplesPerDay(),
+             otherStuff.getPixelsPerDay(),
              otherStuff.getChannel());
     }
 
-    public PlottableChunk(Plottable data, int startSample,
-            MicroSecondDate startDate, int samplesPerDay, ChannelId channel) {
+    /**
+     * Creates a plottable chunk based on the plottable in data, starting
+     * startPixel pixels into the jday and year of start data at pixelsPerDay
+     */
+    public PlottableChunk(Plottable data, int startPixel,
+            MicroSecondDate startDate, int pixelsPerDay, ChannelId channel) {
         this(data,
-             startSample,
+             startPixel,
              getJDay(startDate),
              getYear(startDate),
-             samplesPerDay,
+             pixelsPerDay,
              channel);
     }
 
-    public PlottableChunk(Plottable data, int startSample, int jday, int year,
-            int samplesPerDay, ChannelId channel) {
+    /**
+     * Creates a plottable chunk based on the plottable in data, starting
+     * startPixel pixels into the jday and year at pixelsPerDay
+     */
+    public PlottableChunk(Plottable data, int startPixel, int jday, int year,
+            int pixelsPerDay, ChannelId channel) {
         this.data = data;
-        this.beginSample = startSample;
-        this.samplesPerDay = samplesPerDay;
+        this.beginPixel = startPixel;
+        this.pixelsPerDay = pixelsPerDay;
         this.jday = jday;
         this.year = year;
         this.channel = channel;
@@ -53,7 +67,7 @@ public class PlottableChunk {
         } else if(o instanceof PlottableChunk) {
             PlottableChunk oChunk = (PlottableChunk)o;
             if(ChannelIdUtil.areEqual(channel, oChunk.channel)) {
-                if(samplesPerDay == oChunk.samplesPerDay) {
+                if(pixelsPerDay == oChunk.pixelsPerDay) {
                     if(jday == oChunk.jday) {
                         if(year == oChunk.year) {
                             if(data.x_coor.length == oChunk.data.x_coor.length) {
@@ -70,10 +84,10 @@ public class PlottableChunk {
         return false;
     }
 
-    public static MicroSecondDate getTime(int sample,
+    public static MicroSecondDate getTime(int pixel,
                                           int jday,
                                           int year,
-                                          int samplesPerDay) {
+                                          int pixelsPerDay) {
         Calendar cal = JDBCPlottable.makeCal();
         cal.set(Calendar.DAY_OF_YEAR, jday);
         cal.set(Calendar.YEAR, year);
@@ -83,9 +97,9 @@ public class PlottableChunk {
         cal.set(Calendar.MILLISECOND, 0);
         double sampleMillis = SimplePlotUtil.linearInterp(0,
                                                           0,
-                                                          samplesPerDay,
+                                                          pixelsPerDay,
                                                           MILLIS_IN_DAY,
-                                                          sample);
+                                                          pixel);
         sampleMillis = Math.floor(sampleMillis);
         return new MicroSecondDate((cal.getTimeInMillis() + (long)sampleMillis) * 1000);
     }
@@ -102,22 +116,26 @@ public class PlottableChunk {
         return cal.get(Calendar.YEAR);
     }
 
-    public static int getSample(MicroSecondDate time, int samplesPerDay) {
+    public static int getPixel(MicroSecondDate time, int pixelsPerDay) {
+        MicroSecondDate day = new MicroSecondDate(stripToDay(time));
+        MicroSecondTimeRange tr = new MicroSecondTimeRange(day, ONE_DAY);
+        double pixel = SimplePlotUtil.getPixel(pixelsPerDay, tr, time);
+        return (int)Math.floor(pixel);
+    }
+    
+    public static MicroSecondDate stripToDay(Date d){
         Calendar cal = JDBCPlottable.makeCal();
-        cal.setTime(time);
+        cal.setTime(d);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        MicroSecondDate day = new MicroSecondDate(cal.getTime());
-        MicroSecondTimeRange tr = new MicroSecondTimeRange(day, ONE_DAY);
-        double pixel = SimplePlotUtil.getPixel(samplesPerDay, tr, time);
-        return (int)Math.floor(pixel);
+        return new MicroSecondDate(cal.getTime());
     }
 
     private static final int MILLIS_IN_DAY = 24 * 60 * 60 * 1000;
 
-    private static final TimeInterval ONE_DAY = new TimeInterval(1,
+    public static final TimeInterval ONE_DAY = new TimeInterval(1,
                                                                  UnitImpl.DAY);
 
     public ChannelId getChannel() {
@@ -128,28 +146,28 @@ public class PlottableChunk {
         return data;
     }
 
-    public int getSamplesPerDay() {
-        return samplesPerDay;
+    public int getPixelsPerDay() {
+        return pixelsPerDay;
     }
 
-    public int getBeginSample() {
-        return beginSample;
+    public int getBeginPixel() {
+        return beginPixel;
     }
 
-    public int getEndSample() {
-        return beginSample + data.y_coor.length;
+    public int getNumPixels() {
+        return data.y_coor.length / 2;
     }
 
-    public MicroSecondDate getTime(int sample) {
-        return getTime(sample, getJDay(), getYear(), getSamplesPerDay());
+    public MicroSecondDate getTime(int pixel) {
+        return getTime(pixel, getJDay(), getYear(), getPixelsPerDay());
     }
 
     public MicroSecondDate getBeginTime() {
-        return getTime(beginSample);
+        return getTime(beginPixel);
     }
 
     public MicroSecondDate getEndTime() {
-        return getTime(getEndSample());
+        return getTime(getBeginPixel() + getNumPixels());
     }
 
     public MicroSecondTimeRange getTimeRange() {
@@ -166,7 +184,7 @@ public class PlottableChunk {
 
     public int hashCode() {
         int hashCode = 81 + ChannelIdUtil.hashCode(getChannel());
-        hashCode = 37 * hashCode + samplesPerDay;
+        hashCode = 37 * hashCode + pixelsPerDay;
         hashCode = 37 * hashCode + jday;
         hashCode = 37 * hashCode + year;
         return 37 * hashCode + data.y_coor.length;
@@ -175,40 +193,37 @@ public class PlottableChunk {
     public String toString() {
         return data.y_coor.length + " point chunk from "
                 + ChannelIdUtil.toStringNoDates(channel) + " at "
-                + samplesPerDay + " spd from " + getTimeRange();
+                + pixelsPerDay + " ppd from " + getTimeRange();
     }
 
     public PlottableChunk[] breakIntoDays() {
-        int numDays = (int)Math.ceil(getData().y_coor.length
-                / getSamplesPerDay());
-        if(getData().y_coor.length % getSamplesPerDay() == 0
-                && beginSample != 0) {
+        int numDays = (int)Math.ceil(getNumPixels() / (double)getPixelsPerDay());
+        if(getNumPixels() % getPixelsPerDay() == 0 && beginPixel != 0) {
             numDays++;
         }
         List dayChunks = new ArrayList();
         MicroSecondDate time = getBeginTime();
         for(int i = 0; i < numDays; i++) {
-            int copyStartPoint = i * getSamplesPerDay();
-            int newChunkStartPoint = 0;
+            int firstDayPixels = pixelsPerDay - getBeginPixel();
+            int startPixel = (i - 1) * pixelsPerDay + firstDayPixels;
+            int stopPixel = i * pixelsPerDay + firstDayPixels;
+            int pixelIntoNewDay = 0;
             if(i == 0) {
-                newChunkStartPoint = getBeginSample();
+                startPixel = 0;
+                stopPixel = firstDayPixels;
+                pixelIntoNewDay = getBeginPixel();
             }
-            if(i != 0){
-                copyStartPoint -= getBeginSample();
+            if(i == numDays - 1) {
+                stopPixel = getNumPixels();
             }
-            int endOfDaySample = (i + 1) * getSamplesPerDay() - getBeginSample();
-            int copyEndPoint = endOfDaySample;
-            if(endOfDaySample > getEndSample() - getBeginSample()) {
-                copyEndPoint = getEndSample() - getBeginSample();
-            }
-            int[] y = new int[copyEndPoint - copyStartPoint];
-            System.arraycopy(getData().y_coor, copyStartPoint, y, 0, y.length);
+            int[] y = new int[(stopPixel - startPixel) * 2];
+            System.arraycopy(data.y_coor, startPixel * 2, y, 0, y.length);
             Plottable p = new Plottable(null, y);
             dayChunks.add(new PlottableChunk(p,
-                                             newChunkStartPoint,
+                                             pixelIntoNewDay,
                                              getJDay(time),
                                              getYear(time),
-                                             getSamplesPerDay(),
+                                             getPixelsPerDay(),
                                              getChannel()));
             time = time.add(ONE_DAY);
         }
@@ -219,7 +234,7 @@ public class PlottableChunk {
 
     private Plottable data;
 
-    private int samplesPerDay, beginSample;
+    private int pixelsPerDay, beginPixel;
 
     private int jday, year;
 }

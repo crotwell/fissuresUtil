@@ -82,7 +82,7 @@ public class ConnMgr {
 
     public static void setURL(String url){ ConnMgr.url = url; }
 
-    private static String getURL(){
+    public static String getURL(){
         if(url == null) url =  props.getProperty("URL");
         return url;
     }
