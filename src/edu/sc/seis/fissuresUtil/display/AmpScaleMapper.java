@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
+
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
 import edu.sc.seis.fissuresUtil.display.registrar.LazyAmpEvent;
+import org.apache.log4j.Logger;
 
 /**
  * AmpScaleMapper.java
@@ -52,4 +54,7 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
     }
 
     private UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
+
+    static Logger logger = Logger.getLogger(AmpScaleMapper.class);
+
 } // AmpScaleMapper
