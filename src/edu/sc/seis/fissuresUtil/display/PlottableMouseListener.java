@@ -20,18 +20,17 @@ public class PlottableMouseListener extends MouseAdapter implements MouseMotionL
     }
 
     public void mousePressed(MouseEvent me) {
-	System.out.println("the x co ordinate is "+me.getX()+ " the y co ordinate is "+me.getY());
-	prevx = me.getX();
-	prevy = me.getY();
-	//me.getX(), me.getY());
+        prevx = me.getX();
+        prevy = me.getY();
+        plottableDisplay.setSelectedSelection(prevx, prevy);
     } 
 
     public void mouseReleased(MouseEvent me) {
-
+        
     }
     
     public void mouseDragged(MouseEvent me) {
-	plottableDisplay.setSelectedRectangle(prevx, prevy, me.getX(), me.getY());
+        plottableDisplay.setSelectedRectangle(prevx, prevy, me.getX(), me.getY());
     }
     
     public void mouseMoved(MouseEvent me) {
