@@ -40,14 +40,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	sorter = new AlphaSeisSorter();
     }
     
-    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, String name, DataSet ds){
-	return addDisplay(new DataSetSeismogram(seis, ds), globalTimeRegistrar, name);
+    public BasicSeismogramDisplay addDisplay(DataSetSeismogram dss, String name){
+	return addDisplay(dss, globalTimeRegistrar, name);
     }
 
-    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, String name, DataSet ds){
-	return addDisplay(new DataSetSeismogram(seis, ds), tr, name);
-    }
-    
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram dss, TimeConfigRegistrar tr, String name){
 	if(sorter.contains(name)){
 	    return null;
