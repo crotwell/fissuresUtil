@@ -139,13 +139,12 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     }
     
     public void setAllBeginTime(MicroSecondDate b){ 
-	Iterator e = seismos.keySet().iterator();
-	while(e.hasNext()){
-	    timeConfig.setBeginTime((DataSetSeismogram)e.next(), b);
-	}
+	timeConfig.setAllBeginTime(b);
     }
 
-    public void set(MicroSecondDate begin, TimeInterval displayInterval){ timeConfig.set(begin, displayInterval); }
+    public void set(MicroSecondDate begin, TimeInterval displayInterval){ 
+	timeConfig.set(begin, displayInterval); 
+    }
     
 
     public void fireTimeRangeEvent(TimeSyncEvent event){ timeConfig.fireTimeRangeEvent(event);  }
