@@ -72,6 +72,10 @@ public class DataSetToXML {
         }
     }
 
+    public static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
+        return XMLDataSet.getDocumentBuilder();
+    }
+    
     public Element createDocument(DataSet dataset, File dataDirectory)
         throws IOException, ParserConfigurationException, MalformedURLException {
 
@@ -79,7 +83,7 @@ public class DataSetToXML {
             dataDirectory.mkdirs();
         }
 
-        DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
+        DocumentBuilder docBuilder = getDocumentBuilder();
         Document doc = docBuilder.newDocument();
         Element element = insert(doc, dataset, dataDirectory);
         return element;
