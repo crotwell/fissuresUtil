@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.map.layers;
+
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,270 +36,283 @@ import edu.sc.seis.fissuresUtil.display.EventDataListener;
 import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
 import edu.sc.seis.fissuresUtil.map.graphics.OMStation;
 
-public class StationLayer extends MouseAdapterLayer implements StationDataListener,
-    StationSelectionListener, AvailableStationDataListener, EQSelectionListener, EventDataListener{
+public class StationLayer extends MouseAdapterLayer implements
+		StationDataListener, StationSelectionListener,
+		AvailableStationDataListener, EQSelectionListener, EventDataListener {
 
+	/**
+	 * Adds this layer as a listener on station data arriving and station
+	 * selection occuring on the channel chooser being passed in. If station
+	 * data is passed, a blue triangle is drawn on the map. If a station is
+	 * selected, the triangle turns red.
+	 */
+	public StationLayer() {
+		setName("Seismogram Station Layer");
+	}
 
-    /**
-     * Adds this layer as a listener on station data arriving and station
-     * selection occuring on the channel chooser being passed in.
-     * If station data is passed, a blue triangle is drawn on the map.
-     * If a station is selected, the triangle turns red.
-     */
-    public StationLayer() {
-        setName("Seismogram Station Layer");
-    }
+	public void paint(java.awt.Graphics g) {
+		synchronized (omgraphics) {
+			omgraphics.render(g);
+		}
+	}
 
-    public void paint(java.awt.Graphics g) {
-        synchronized(omgraphics){
-            omgraphics.render(g);
-        }
-    }
+	public void projectionChanged(ProjectionEvent e) {
+		LayerProjectionUpdater.update(e, omgraphics, this);
+	}
 
-    public void projectionChanged(ProjectionEvent e) {
-        LayerProjectionUpdater.update(e, omgraphics, this);
-    }
+	public void honorRepaint(boolean honor) {
+		honorRepaint = honor;
+	}
 
-    public void honorRepaint(boolean honor){ honorRepaint = honor; }
+	public void repaint() {
+		if (honorRepaint)
+			super.repaint();
+	}
 
-    public void repaint(){ if(honorRepaint) super.repaint(); }
+	private boolean honorRepaint = true;
 
-    private boolean honorRepaint = true;
-    
-    public void printStationLocs() {
-        Iterator it = omgraphics.iterator();
-        int i = 0;
-        while (it.hasNext()) {
-            OMStation cur = (OMStation) it.next();
-            Projection proj = getProjection();
-            Point curXY = proj.forward(cur.getLat(), cur.getLon());
-            int[] x = cur.getXs();
-            int[] y = cur.getYs();
-            StringBuffer buf = new StringBuffer();
-            for(int j = 0; j < x.length; j++) {
-                int curX = (int)curXY.getX() + x[j];
-                int curY = (int)curXY.getY() + y[j];
-                System.out.println(curX);
-                System.out.println(curY);
-                buf.append(curX + "," + curY);
-                if (j != x.length - 1){
-                    buf.append(',');
-                }
-            }
-            System.out.println("<area href=\""+ i++ +"\" shape=\"poly\" coords=\"" + buf.toString() + "\"/>");
-        }
-    } 
+	public void printStationLocs() {
+		StationLoc[] stationLocs = getStationLocs();
+		for (int i = 0; i < stationLocs.length; i++) {
+			System.out.println("<area href=\"javascript:flipImage(" + i
+					+ ")\" shape=\"poly\" coords=\"" + stationLocs[i].getImageMapStylePoly() + "\"/>");
+		}
+	}
 
-    /*This adds each of these stations to the layer
-     *
-     */
-    public void stationDataChanged(StationDataEvent s) {
-        Station[] stations = s.getStations();
-        for (int i = 0; i < stations.length; i++){
-            if (!stationMap.containsKey(stations[i].name)){
-                stationNames.add(stations[i].name);
-                synchronized(omgraphics){
-                    omgraphics.add(new OMStation(stations[i], this));
-                }
-            }
-            List stationList = (List)stationMap.get(stations[i].name);
-            if (stationList == null){
-                stationList = new LinkedList();
-                stationMap.put(stations[i].name, stationList);
-            }
-            stationList.add(stations[i]);
-        }
-        repaint();
-    }
+	public StationLoc[] getStationLocs() {
+        StationLoc[] stationLocs = new StationLoc[omgraphics.size()];
+		Iterator it = omgraphics.iterator();
+		int i = 0;
+		while (it.hasNext()) {
+			OMStation cur = (OMStation) it.next();
+			Projection proj = getProjection();
+			Point curXY = proj.forward(cur.getLat(), cur.getLon());
+			int[] x = cur.getXs();
+			int[] y = cur.getYs();
+            int curX = (int)curXY.getX();
+            int curY = (int)curXY.getY();
+			int[] transX = new int[x.length];
+			int[] transY = new int[y.length];
+			for (int j = 0; j < x.length; j++) {
+				transX[j] = curX + x[j];
+				transY[j] = curY + y[j];
+			}
+            stationLocs[i] = new StationLoc(cur.getStation(), transX, transY);
+			i++;
+		}
+		return stationLocs;
+	}
 
-    public void stationDataCleared() {
-        synchronized(omgraphics){
-            stationMap.clear();
-            omgraphics.clear();
-            repaint();
-        }
-    }
+	/*
+	 * This adds each of these stations to the layer
+	 */
+	public void stationDataChanged(StationDataEvent s) {
+		Station[] stations = s.getStations();
+		for (int i = 0; i < stations.length; i++) {
+			if (!stationMap.containsKey(stations[i].name)) {
+				stationNames.add(stations[i].name);
+				synchronized (omgraphics) {
+					omgraphics.add(new OMStation(stations[i], this));
+				}
+			}
+			List stationList = (List) stationMap.get(stations[i].name);
+			if (stationList == null) {
+				stationList = new LinkedList();
+				stationMap.put(stations[i].name, stationList);
+			}
+			stationList.add(stations[i]);
+		}
+		repaint();
+	}
 
-    /*takes all of the selected stations in this list, and if they're in the
-     *StationLayer changes their line color to RED.
-     */
-    public void stationSelectionChanged(StationSelectionEvent s) {
-        synchronized(omgraphics){
-            Station[] stations = s.getSelectedStations();
-            Iterator it = omgraphics.iterator();
-            while(it.hasNext()){
-                OMStation current = (OMStation)it.next();
-                boolean selected = false;
-                for (int i = 0; i < stations.length && !selected; i++){
-                    if(current.getStation().equals(stations[i])){
-                        current.select();
-                        selected = true;
-                    }
-                }
-                if(!selected){
-                    current.deselect();
-                }
-            }
-            repaint();
-        }
-    }
+	public void stationDataCleared() {
+		synchronized (omgraphics) {
+			stationMap.clear();
+			omgraphics.clear();
+			repaint();
+		}
+	}
 
+	/*
+	 * takes all of the selected stations in this list, and if they're in the
+	 * StationLayer changes their line color to RED.
+	 */
+	public void stationSelectionChanged(StationSelectionEvent s) {
+		synchronized (omgraphics) {
+			Station[] stations = s.getSelectedStations();
+			Iterator it = omgraphics.iterator();
+			while (it.hasNext()) {
+				OMStation current = (OMStation) it.next();
+				boolean selected = false;
+				for (int i = 0; i < stations.length && !selected; i++) {
+					if (current.getStation().equals(stations[i])) {
+						current.select();
+						selected = true;
+					}
+				}
+				if (!selected) {
+					current.deselect();
+				}
+			}
+			repaint();
+		}
+	}
 
-    /**
-     * Method stationAvailabiltyChanged
-     *
-     * @param    e                   an AvailableStationDataEvent
-     *
-     */
-    public void stationAvailabiltyChanged(AvailableStationDataEvent e) {
-        Station station = e.getStation();
-        boolean isUp = e.stationIsUp();
+	/**
+	 * Method stationAvailabiltyChanged
+	 * 
+	 * @param e
+	 *            an AvailableStationDataEvent
+	 */
+	public void stationAvailabiltyChanged(AvailableStationDataEvent e) {
+		Station station = e.getStation();
+		boolean isUp = e.stationIsUp();
 
-        synchronized(omgraphics){
-            Iterator it = omgraphics.iterator();
-            boolean found = false;
-            while (it.hasNext() && !found){
-                OMStation current = (OMStation)it.next();
-                if (current.getStation().name.equals(station.name)) {
-                    // if (StationIdUtil.areEqual(current.getStation().get_id(), station.get_id())){
-                    current.setIsUp(isUp);
-                    if(isUp){
-                        omgraphics.moveIndexedToTop(omgraphics.indexOf(current));
-                    }
-                    else{
-                        omgraphics.moveIndexedToBottom(omgraphics.indexOf(current));
-                    }
-                    found = true;
-                }
-            }
-            if ( ! found ) {
-                logger.debug("no match for available data update, "+station.get_code()+" "+isUp);
-            }
-            repaint();
-        }
-    }
+		synchronized (omgraphics) {
+			Iterator it = omgraphics.iterator();
+			boolean found = false;
+			while (it.hasNext() && !found) {
+				OMStation current = (OMStation) it.next();
+				if (current.getStation().name.equals(station.name)) {
+					// if (StationIdUtil.areEqual(current.getStation().get_id(),
+					// station.get_id())){
+					current.setIsUp(isUp);
+					if (isUp) {
+						omgraphics
+								.moveIndexedToTop(omgraphics.indexOf(current));
+					} else {
+						omgraphics.moveIndexedToBottom(omgraphics
+								.indexOf(current));
+					}
+					found = true;
+				}
+			}
+			if (!found) {
+				logger.debug("no match for available data update, "
+						+ station.get_code() + " " + isUp);
+			}
+			repaint();
+		}
+	}
 
+	/**
+	 * Method eqSelectionChanged
+	 * 
+	 * @param eqSelectionEvent
+	 *            an EQSelectionEvent
+	 */
+	public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
+		Iterator it = omgraphics.iterator();
+		while (it.hasNext()) {
+			OMStation current = (OMStation) it.next();
+			current.resetIsUp();
+		}
+		repaint();
+		currentEvent = eqSelectionEvent.getEvents()[0];
+	}
 
-    /**
-     * Method eqSelectionChanged
-     *
-     * @param    eqSelectionEvent    an EQSelectionEvent
-     *
-     */
-    public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
-        Iterator it = omgraphics.iterator();
-        while (it.hasNext()){
-            OMStation current = (OMStation)it.next();
-            current.resetIsUp();
-        }
-        repaint();
-        currentEvent = eqSelectionEvent.getEvents()[0];
-    }
+	/** No impl here, only the eventDataCleared() method is needed */
+	public void eventDataAppended(EQDataEvent eqDataEvent) {
+	}
 
-    /** No impl here, only the eventDataCleared() method is needed*/
-    public void eventDataAppended(EQDataEvent eqDataEvent) {
-    }
+	/** No impl here, only the eventDataCleared() method is needed */
+	public void eventDataChanged(EQDataEvent eqDataEvent) {
+	}
 
+	/**
+	 * Method eventDataCleared
+	 */
+	public void eventDataCleared() {
+		currentEvent = null;
+	}
 
+	private static int[] xPoints = { -5, 0, 5 };
 
-    /** No impl here, only the eventDataCleared() method is needed*/
-    public void eventDataChanged(EQDataEvent eqDataEvent) {}
+	private static int[] yPoints = { 5, -5, 5 };
 
-    /**
-     * Method eventDataCleared
-     *
-     */
-    public void eventDataCleared() {
-        currentEvent = null;
-    }
+	/**
+	 * A list of graphics to be painted on the map.
+	 */
+	private OMGraphicList omgraphics = new OMGraphicList();
 
-    private static int[] xPoints = {-5, 0, 5};
+	private static String[] modeList = { SelectMouseMode.modeID };
 
-    private static int[] yPoints = {5, -5, 5};
+	private EventAccessOperations currentEvent;
 
-    /**
-     *  A list of graphics to be painted on the map.
-     */
-    private OMGraphicList omgraphics = new OMGraphicList();
+	private Map stationMap = new HashMap();
 
-    private static String[] modeList = { SelectMouseMode.modeID } ;
+	private List stationNames = new ArrayList();
 
-    private EventAccessOperations currentEvent;
+	public String[] getMouseModeServiceList() {
+		return modeList;
+	}
 
-    private Map stationMap = new HashMap();
-
-    private List stationNames = new ArrayList();
-
-    public String[] getMouseModeServiceList() {
-        return modeList;
-    }
-
-    public boolean mouseClicked(MouseEvent e){
+	public boolean mouseClicked(MouseEvent e) {
 		maybeKillCurrentPopup();
 
-        List stationsUnderMouse = new ArrayList();
-        synchronized(omgraphics){
-            Iterator it = omgraphics.iterator();
-            while(it.hasNext()){
-                OMStation current = (OMStation)it.next();
-                if(current.contains(e.getX(), e.getY())){
-                    stationsUnderMouse.add(current.getStation());
-                }
-            }
-        }
-        if (stationsUnderMouse.size() > 0){
-            if (stationsUnderMouse.size() > 1){
-                final JPopupMenu popup = new JPopupMenu();
+		List stationsUnderMouse = new ArrayList();
+		synchronized (omgraphics) {
+			Iterator it = omgraphics.iterator();
+			while (it.hasNext()) {
+				OMStation current = (OMStation) it.next();
+				if (current.contains(e.getX(), e.getY())) {
+					stationsUnderMouse.add(current.getStation());
+				}
+			}
+		}
+		if (stationsUnderMouse.size() > 0) {
+			if (stationsUnderMouse.size() > 1) {
+				final JPopupMenu popup = new JPopupMenu();
 				popup.setInvoker(this);
-                Iterator it = stationsUnderMouse.iterator();
-                while (it.hasNext()){
-                    final Station current = (Station)it.next();
-                    final JMenuItem menuItem = new JMenuItem(getStationInfo(current, currentEvent));
-                    menuItem.addActionListener(new ActionListener(){
-                                public void actionPerformed(ActionEvent e) {
-                                    toggleStationSelection(current);
-                                    popup.setVisible(false);
-                                }
-                            });
+				Iterator it = stationsUnderMouse.iterator();
+				while (it.hasNext()) {
+					final Station current = (Station) it.next();
+					final JMenuItem menuItem = new JMenuItem(getStationInfo(
+							current, currentEvent));
+					menuItem.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							toggleStationSelection(current);
+							popup.setVisible(false);
+						}
+					});
 
-                    menuItem.addMouseListener(new MouseAdapter(){
+					menuItem.addMouseListener(new MouseAdapter() {
 
-                                public void mouseEntered(MouseEvent e) {
-                                    menuItem.setArmed(true);
-                                }
+						public void mouseEntered(MouseEvent e) {
+							menuItem.setArmed(true);
+						}
 
-                                public void mouseExited(MouseEvent e) {
-                                    menuItem.setArmed(false);
-                                }
+						public void mouseExited(MouseEvent e) {
+							menuItem.setArmed(false);
+						}
 
-                            });
-                    popup.add(menuItem);
-                }
-                Point compLocation = e.getComponent().getLocationOnScreen();
-                double[] popupLoc = {compLocation.getX(), compLocation.getY()};
-                popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
-                popup.setVisible(true);
-                currentPopup = popup;
-            }
-            else{
-                toggleStationSelection((Station)stationsUnderMouse.get(0));
-            }
-            return true;
-        }
+					});
+					popup.add(menuItem);
+				}
+				Point compLocation = e.getComponent().getLocationOnScreen();
+				double[] popupLoc = { compLocation.getX(), compLocation.getY() };
+				popup.setLocation((int) popupLoc[0] + e.getX(),
+						(int) popupLoc[1] + e.getY());
+				popup.setVisible(true);
+				currentPopup = popup;
+			} else {
+				toggleStationSelection((Station) stationsUnderMouse.get(0));
+			}
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-
-    //extend this method if you want this method to do something
-    //other than change the selection color of the station
-    public void toggleStationSelection(Station station){
-        //noImpl
-    }
+	//extend this method if you want this method to do something
+	//other than change the selection color of the station
+	public void toggleStationSelection(Station station) {
+		//noImpl
+	}
 
     public boolean mouseMoved(MouseEvent e){
-		maybeKillCurrentPopup();
-		
+        maybeKillCurrentPopup();
+        
         synchronized(omgraphics){
             Iterator it = omgraphics.iterator();
             while(it.hasNext()){
@@ -350,5 +364,4 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
     private static Logger logger = Logger.getLogger(StationLayer.class);
 }
-
 
