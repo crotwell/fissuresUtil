@@ -85,7 +85,19 @@ public class XMLParameter {
 	    XMLChannel.insert(channel, (Channel)value);
 	    valueElement.appendChild(channel);
 	    element.appendChild(valueElement);
-	}
+	} else if(value instanceof ParameterRef) {
+
+	    typeName.appendChild(XMLUtil.createTextElement(doc,
+							   "definition",
+							   "http://www.w3.org/2002/XMLSchema/"));
+	    typeName.appendChild(XMLUtil.createTextElement(doc,
+							   "name",
+							   "xsd:string"));
+	    element.appendChild(typeName);
+	    element.appendChild(XMLUtil.createTextElement(doc, "value",
+							 ((ParameterRef)value).creator));
+								
+        }
 	else {
 	    typeName.appendChild(XMLUtil.createTextElement(doc,
 							   "definition",
