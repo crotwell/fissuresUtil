@@ -13,7 +13,7 @@ import edu.iris.Fissures.FissuresException;
  * Created: Tue Oct  1 21:23:44 2002
  *
  * @author Philip Crotwell
- * @version $Id: Cut.java 7451 2004-03-05 21:32:18Z crotwell $
+ * @version $Id: Cut.java 9204 2004-06-17 14:11:44Z groves $
  */
 
 public class Cut implements LocalSeismogramFunction {
@@ -55,7 +55,7 @@ public class Cut implements LocalSeismogramFunction {
         if (endIndex >  seis.getNumPoints()) {
             endIndex = seis.getNumPoints();
         }
-        logger.debug("cut is "+beginIndex+" to "+endIndex+" "+seis.getEndTime()+" "+endShift);
+        //logger.debug("cut is "+beginIndex+" to "+endIndex+" "+seis.getEndTime()+" "+endShift);
 
         LocalSeismogramImpl outSeis;
         if (seis.can_convert_to_short()) {
