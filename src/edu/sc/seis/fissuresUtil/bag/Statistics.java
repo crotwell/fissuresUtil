@@ -1,6 +1,8 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+
 /**
  * Statistics.java
  *
@@ -8,53 +10,153 @@ package edu.sc.seis.fissuresUtil.bag;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 2663 2002-10-02 21:52:15Z crotwell $
+ * @version $Id: Statistics.java 2682 2002-10-07 14:51:59Z groves $
  */
 
 public class Statistics  {
     
     public Statistics(int[] iSeries) {
 	this.iSeries = iSeries;
+	beginIndex = 0;
+	endIndex = iSeries.length;
     }
 
     public Statistics(float[] fSeries) {
 	this.fSeries = fSeries;
+	beginIndex = 0;
+	endIndex = fSeries.length;
+    }
+    
+    public Statistics(LocalSeismogramImpl seismo){
+	if(seismo.can_convert_to_float()){
+	    fSeries = seismo.get_as_floats();
+	    endIndex = fSeries.length;
+	}else{
+	    iSeries = seismo.get_as_longs();
+	    endIndex = iSeries.length;
+	}
+	beginIndex = 0;
     }
 
     public double min() {
-	double min=Double.MAX_VALUE;
-	if (iSeries != null) {
-	    for (int i=0; i<iSeries.length; i++) {
-		min = Math.min(min, iSeries[i]);
-	    } // end of for (int i=0; i<iSeries.length; i++)
-	} else if (fSeries != null) {
-	    for (int i=0; i<fSeries.length; i++) {
-		min = Math.min(min, fSeries[i]);
-	    } // end of for (int i=0; i<iSeries.length; i++)
-	}
-	return min;
+	return minMaxMean()[0];
     }
 
-    public double max() {
-	double max=-1*Double.MAX_VALUE;
-	if (iSeries != null) {
-	    for (int i=0; i<iSeries.length; i++) {
-		max = Math.max(max, iSeries[i]);
-	    } // end of for (int i=0; i<iSeries.length; i++)
-	} else if (fSeries != null) {
-	    for (int i=0; i<fSeries.length; i++) {
-		max = Math.max(max, fSeries[i]);
-	    } // end of for (int i=0; i<iSeries.length; i++)
-	}
-	return max;
+    public double min(int beginIndex, int endIndex){
+	return minMaxMean(beginIndex, endIndex)[0];
     }
 
-    public double mean() {
-	if ( ! meanCalculated) {
-	    meanVal = binarySum(0, getLength())/getLength();
-	    meanCalculated = true;
+    public double max(){
+	return minMaxMean()[1];
+    }
+
+    public double max(int beginIndex, int endIndex){
+	return minMaxMean(beginIndex, endIndex)[1];
+    }
+
+    public double mean(){
+	return minMaxMean()[2];
+    }
+
+    public double mean(int beginIndex, int endIndex){
+	return minMaxMean(beginIndex, endIndex)[2];
+    }
+
+    public double[] minMaxMean(){
+	return minMaxMean(0, getLength());
+    }
+
+    public double[] minMaxMean(int beginIndex, int endIndex){
+	if(minMaxMeanCalculated){
+	    if(beginIndex == this.beginIndex && endIndex == this.endIndex){
+		return minMaxMean;
+	    }
+	    if(this.beginIndex > beginIndex && this.endIndex < endIndex || 
+	       this.beginIndex < beginIndex && this.endIndex > endIndex){
+		return calculateMinMaxMean(beginIndex, endIndex);
+	    }
+	    int removalStart, removalEnd, newDataStart, newDataEnd;
+	    if(this.beginIndex < beginIndex || this.endIndex < endIndex){
+		removalStart = this.beginIndex;
+		removalEnd = beginIndex - 1;
+		newDataStart = this.endIndex;
+		newDataEnd = endIndex - 1;
+	    }else{
+		removalStart = endIndex;
+		removalEnd = this.endIndex - 1;
+		newDataStart = beginIndex;
+		newDataEnd = this.beginIndex;
+	    }
+	    minMaxMean[2] *= this.endIndex - this.beginIndex;
+	    if(iSeries != null){
+		for(int j = removalStart; j <= removalEnd; j++) {
+		    if(iSeries[j] <= minMaxMean[0]){ 
+			return calculateMinMaxMean(beginIndex, endIndex);
+		    }
+		    if(iSeries[j] >= minMaxMean[1]){
+			return calculateMinMaxMean(beginIndex, endIndex);
+		    }
+		    minMaxMean[2] -= iSeries[j];
+		}
+		for(int j = newDataStart; j <= newDataEnd; j++) {
+		    if(iSeries[j] < minMaxMean[0]){ 
+			minMaxMean[0] = iSeries[j];
+		    }
+		    if(iSeries[j] > minMaxMean[1]){
+			minMaxMean[1] = iSeries[j];
+		    }
+		    minMaxMean[2] += iSeries[j];
+		}
+	    }else if(fSeries != null){
+		for(int j = removalStart; j <= removalEnd; j++) {
+		    if(fSeries[j] <= minMaxMean[0]){ 
+			return calculateMinMaxMean(beginIndex, endIndex);
+		    }
+		    if(fSeries[j] >= minMaxMean[1]){
+			return calculateMinMaxMean(beginIndex, endIndex);
+		    }
+		    minMaxMean[2] -= fSeries[j];
+		}
+		for(int j = newDataStart; j <= newDataEnd; j++) {
+		    if(fSeries[j] < minMaxMean[0]){ 
+			minMaxMean[0] = fSeries[j];
+		    }
+		    if(fSeries[j] > minMaxMean[1]){
+			minMaxMean[1] = fSeries[j];
+		    }
+		    minMaxMean[2] += fSeries[j];
+		}
+	    }
+	    this.beginIndex = beginIndex;
+	    this.endIndex = endIndex;
+	    minMaxMean[2] /= endIndex - beginIndex;
+	    return minMaxMean;
 	}
-	return meanVal;
+	return calculateMinMaxMean(beginIndex, endIndex);
+    }
+    
+    private double[] calculateMinMaxMean(int beginIndex, int endIndex){
+	minMaxMean[0] = Double.POSITIVE_INFINITY;
+	minMaxMean[1] = Double.NEGATIVE_INFINITY;
+	minMaxMean[2] = 0;
+	if (iSeries != null) {
+	    for (int i = beginIndex; i < endIndex; i++) {
+		minMaxMean[0] = Math.min(minMaxMean[0], iSeries[i]);
+		minMaxMean[1] = Math.max(minMaxMean[1], iSeries[i]);
+		minMaxMean[2] += iSeries[i];
+	    } // end of for (int i=0; i<iSeries.length; i++)
+	} else if (fSeries != null) {
+	    for (int i = beginIndex; i < endIndex; i++) {
+		minMaxMean[0] = Math.min(minMaxMean[0], fSeries[i]);
+		minMaxMean[1] = Math.max(minMaxMean[1], fSeries[i]);
+		minMaxMean[2] += fSeries[i];
+	    } // end of for (int i=0; i<fSeries.length; i++)
+	}
+	minMaxMean[2] /= (endIndex - beginIndex);
+	this.beginIndex = beginIndex;
+	this.endIndex = endIndex;
+	minMaxMeanCalculated = true;
+	return minMaxMean;
     }
 
     public double var() {
@@ -344,13 +446,15 @@ public class Statistics  {
 
     protected float[] fSeries;
 
-    protected double meanVal;
-    protected boolean meanCalculated = false;
-
+    protected boolean minMaxMeanCalculated;
+    
     protected double variance;
     protected boolean varianceCalculated = false;
     
     protected double[] autocorrelation = new double[0];
     protected double[] partialautocorr = new double[0];
+    protected double[] minMaxMean = new double[3];
+    
+    protected int beginIndex, endIndex;
 
 } // Statistics
