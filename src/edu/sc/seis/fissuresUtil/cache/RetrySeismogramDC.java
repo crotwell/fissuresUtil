@@ -16,8 +16,8 @@ import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
 import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 
-public class RetryDataCenter implements  ProxySeismogramDC {
-    public RetryDataCenter(DataCenterOperations dc, int retry) {
+public class RetrySeismogramDC implements  ProxySeismogramDC {
+    public RetrySeismogramDC(DataCenterOperations dc, int retry) {
         this.dc = dc;
         this.retry = retry;
     }
@@ -195,7 +195,7 @@ public class RetryDataCenter implements  ProxySeismogramDC {
 
     int retry;
 
-    private static final Logger logger = Logger.getLogger(RetryDataCenter.class);
+    private static final Logger logger = Logger.getLogger(RetrySeismogramDC.class);
 
 }
 
