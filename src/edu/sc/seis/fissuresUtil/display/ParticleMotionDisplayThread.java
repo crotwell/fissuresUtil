@@ -29,7 +29,7 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class ParticleMotionDisplayThread implements Runnable{
+public class ParticleMotionDisplayThread{
     public ParticleMotionDisplayThread (DataSetSeismogram dataSetSeismogram,
 					TimeConfigRegistrar timeConfigRegistrar,
 					AmpConfigRegistrar hAmpConfigRegistrar,
@@ -71,7 +71,7 @@ public class ParticleMotionDisplayThread implements Runnable{
     }
 
 
-    public void run() {
+    public void execute() {
 
 
 	if(dataSetSeismogram.length == 1) {

@@ -55,12 +55,20 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	view = new ParticleMotionView(this);
 	view.setSize(new java.awt.Dimension(300, 300));
 	particleDisplayPanel.add(view, PARTICLE_MOTION_LAYER);
+
 	hAmpScaleMap = new AmpScaleMapper(50,
                                           4,
-					  hAmpConfigRegistrar.getAmpRange(hseis));
+					  new UnitRangeImpl(-100,
+							    100,
+							    UnitImpl.COUNT)
+					  );
         vAmpScaleMap = new AmpScaleMapper(50,
                                           4,
-					  vAmpConfigRegistrar.getAmpRange(hseis));
+					  new UnitRangeImpl(-100,
+							    100,
+							    UnitImpl.COUNT)
+					  );
+					  
 	scaleBorder = new ScaleBorder();
 	scaleBorder.setBottomScaleMapper(hAmpScaleMap);
 	scaleBorder.setLeftScaleMapper(vAmpScaleMap);        
@@ -107,15 +115,15 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 	
 	updateTimeRange();
-	Thread t = new Thread(new ParticleMotionDisplayThread(hseis,
+	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(hseis,
 							      timeConfigRegistrar,
 							      hAmpConfigRegistrar,
 							      vAmpConfigRegistrar,
 							      advancedOption, 
 							      true,
-							      this));
+							      this);
 	
-	t.start();
+	t.execute();
 					  
     }
 
@@ -345,16 +353,14 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
 	boolean buttonPanel = this.displayButtonPanel;
 	this.displayButtonPanel = false;
-	Thread t = new Thread(new ParticleMotionDisplayThread(hseis,
-							      timeConfigRegistrar,
-							      hAmpConfigRegistrar,
-							      vAmpConfigRegistrar,
-							      buttonPanel, 
-							      false,
-							      this));
-
-	logger.debug("############################### Starting the Thread");
-	t.start();
+	ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(hseis,
+									timeConfigRegistrar,
+									hAmpConfigRegistrar,
+									vAmpConfigRegistrar,
+									buttonPanel, 
+									false,
+									this);
+	t.execute();
 
     }
 
