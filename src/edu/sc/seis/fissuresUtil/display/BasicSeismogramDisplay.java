@@ -42,6 +42,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     }
 
     public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar, boolean timeBorder){
+	this(seis, tr, ar, timeBorder, "");
+    }
+
+    public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar, boolean timeBorder, String name){
 	super();
 	this.setLayout(new OverlayLayout(this));
 	this.addComponentListener(new ComponentAdapter() {
@@ -62,12 +66,9 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	if(timeBorder)
 	    scaleBorder.setBottomScaleMapper(timeScaleMap);
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
-	setBorder(BorderFactory.createCompoundBorder(
-		  BorderFactory.createCompoundBorder(
-		  BorderFactory.createRaisedBevelBorder(),
-		  new LeftTitleBorder("")),
-						     BorderFactory.createCompoundBorder(
-											scaleBorder,
+	setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
+											new LeftTitleBorder(name)),
+						     BorderFactory.createCompoundBorder(scaleBorder,
 											BorderFactory.createLoweredBevelBorder())));
 	Dimension d = getSize();
 	Insets insets = this.getInsets();
