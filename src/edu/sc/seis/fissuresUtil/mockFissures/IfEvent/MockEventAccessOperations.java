@@ -62,6 +62,7 @@ public class MockEventAccessOperations {
                 .divideBy(numEvents);
         CacheEvent[] events = new CacheEvent[numEvents];
         Location[] locs = MockLocation.create(rows, cols);
+        Magnitude[][] mags = MockMagnitude.getMagnitudes(4.0f, 10.0f, numEvents);
         for(int i = 0; i < numEvents; i++) {
             MicroSecondDate eventBegin = timeRange.getBeginTime()
                     .add((TimeInterval)timeBetweenEvents.multiplyBy(i));
@@ -70,7 +71,7 @@ public class MockEventAccessOperations {
                                       "Charlie Groves",
                                       eventBegin.getFissuresTime(),
                                       locs[i],
-                                      MockMagnitude.MAGS,
+                                      mags[i],
                                       MockParameterRef.params);
             EventAttr ea = MockEventAttr.create();
             events[i] = new CacheEvent(ea, o);
