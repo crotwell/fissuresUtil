@@ -4,6 +4,7 @@ package edu.sc.seis.fissuresUtil.map;
 import com.bbn.openmap.*;
 
 import com.bbn.openmap.event.MapMouseMode;
+import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.layer.GraticuleLayer;
@@ -11,6 +12,7 @@ import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Projection;
 import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.map.colorizer.event.DefaultEventColorizer;
 import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 import org.apache.log4j.Logger;
 
 public class OpenMap extends OMComponentPanel {
@@ -235,14 +238,18 @@ public class OpenMap extends OMComponentPanel {
 	
     public static void main(String[] args) {
 		OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
+		om.addMouseMode(new SelectMouseMode());
+		EventLayer evLayer = new EventLayer(om.getMapBean(), new DefaultEventColorizer());
+		om.setEventLayer(evLayer);
+		//evLayer.eventDataChanged(new EQDataEvent(om, MockEventAccessOperations.createEvents()));
+		StationLayer staLayer = new StationLayer();
+		om.setStationLayer(staLayer);
+		//staLayer.stationDataChanged(new StationDataEvent(om, new Station[]{MockStation.createStation()}));
+		JFrame frame = new JFrame("OpenMap Test");
+		frame.getContentPane().add(om);
+		frame.setSize(640, 480);
+		frame.show();
 		
-		try {
-			om.writeMapToPNG("map.png");
-		} catch (IOException e) {
-			logger.error("problem saving image to map.png", e);
-		}
-		System.out.println("done");
-		System.exit(0);
     }
 	
 	public void findAndInit(Object obj){
