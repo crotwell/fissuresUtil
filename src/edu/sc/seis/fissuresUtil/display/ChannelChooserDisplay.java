@@ -3,8 +3,7 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.chooser.*;
 import edu.sc.seis.fissuresUtil.namingService.*;
 import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.*;
-import edu.sc.seis.vsnexplorer.task.*;
-import edu.sc.seis.vsnexplorer.*;
+
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
 
@@ -24,7 +23,7 @@ import java.util.*;
  * @version
  */
 
-public class ChannelChooserDisplay extends JPanel implements Task, ChannelChooserInterface{
+public class ChannelChooserDisplay extends JPanel implements  ChannelChooserInterface{
     public ChannelChooserDisplay (){
 	
 	//this.netDC = netDC;
@@ -33,29 +32,11 @@ public class ChannelChooserDisplay extends JPanel implements Task, ChannelChoose
 
     
 
-    public void invoke() {
+  
 
-	displayChannelChooser();
-
-    }
-
-    public void configure(java.util.Map map) {
-
+    public void configure(NetworkDC netDC) {
 	
-
-	try {
-	    CommonAccess commonAccess = CommonAccess.getCommonAccess();
-	    FissuresNamingService fissuresNamingService = commonAccess.getFissuresNamingService();
-	 
-	    netDC = fissuresNamingService.getNetworkDC("edu/sc/seis","SCEPPNetworkDC");
-	    
-	} catch(Exception e) {
-
-	    ExceptionHandlerGUI.handleException(e);
-	    e.printStackTrace();
-	    
-	}
-	
+	this.netDC = netDC;
 	final JButton closeButton = new JButton("CLOSE");
 	displayFrame = new JFrame("CHANNEL CHOOSER");
 	this.setLayout(new BorderLayout());
@@ -65,6 +46,8 @@ public class ChannelChooserDisplay extends JPanel implements Task, ChannelChoose
 	displayFrame.setContentPane(this);
 	
 	displayFrame.pack();
+	displayFrame.setResizable(false);
+		
 	
 	closeButton.addActionListener(new ActionListener() {
 
