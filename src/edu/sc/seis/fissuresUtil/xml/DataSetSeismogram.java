@@ -4,6 +4,7 @@ import edu.sc.seis.fissuresUtil.database.*;
 
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.*;
 
@@ -20,7 +21,7 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class DataSetSeismogram implements LocalDataCenterCallBack {
+public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     
     public DataSetSeismogram(RequestFilter rf, 
 			     DataCenterOperations dco) {
@@ -45,6 +46,48 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 	this.rfChangeListeners = new LinkedList();
     }
 
+    public Object clone() {
+	return super.clone();
+    }
+
+    public boolean equals(Object other) {
+	if ( ! (other instanceof DataSetSeismogram)) {
+	    return false;
+	} // end of if ()
+	if (super.equals(other)) {
+	    return true;
+	} // end of if ()
+
+	// objects are not the same, but may be cloned check request filter
+	DataSetSeismogram otherDSS = (DataSetSeismogram)other;
+	if ( ! otherDSS.getName().equals(getName())) {
+	    return false;
+	} // end of if ()
+	
+
+	if ( ! ChannelIdUtil.areEqual(otherDSS.getRequestFilter().channel_id,
+				      getRequestFilter().channel_id)) {
+	    return false;
+	} // end of if ()
+	MicroSecondDate otherB = otherDSS.getBeginMicroSecondDate();
+	MicroSecondDate thisB = getBeginMicroSecondDate();
+	if ( ! otherB.equals(thisB)) {
+	    return false;
+	} // end of if ()
+	
+	MicroSecondDate otherE = otherDSS.getEndMicroSecondDate();
+	MicroSecondDate thisE = getEndMicroSecondDate();
+	if ( ! otherE.equals(thisE)) {
+	    return false;
+	} // end of if ()
+	
+	if ( otherDSS.getDataSet() != getDataSet()) {
+	    return false;
+	} // end of if ()
+	
+	return true;
+    }
+
     public DataSet getDataSet(){ return dataSet; }
 
     public String getName(){ return name; }
@@ -55,10 +98,25 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 
     public String toString(){ return name; }
 
-    public void setBeginTime(edu.iris.Fissures.Time time) {
+    public MicroSecondDate getBeginMicroSecondDate() {
+	return new MicroSecondDate(getBeginTime());
+    }
 
+    public edu.iris.Fissures.Time getBeginTime() {
+	return requestFilter.start_time;
+    }
+
+    public void setBeginTime(edu.iris.Fissures.Time time) {
 	this.requestFilter.start_time = time;
 	fireBeginTimeChangedEvent();
+    }
+
+    public MicroSecondDate getEndMicroSecondDate() {
+	return new MicroSecondDate(getEndTime());
+    }
+
+    public edu.iris.Fissures.Time getEndTime() {
+	return requestFilter.end_time;
     }
 
     public void setEndTime(edu.iris.Fissures.Time time) {
