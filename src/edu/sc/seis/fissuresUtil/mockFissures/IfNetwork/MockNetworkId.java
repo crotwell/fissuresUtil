@@ -17,4 +17,11 @@ public class MockNetworkId{
         mockId.begin_time = Defaults.WALL_FALL.getFissuresTime();
         return mockId;
     }
+
+    public static NetworkId createMutliSplendoredNetworkID(){
+        NetworkId mockId = new NetworkId();
+        mockId.network_code = "MS";
+        mockId.begin_time = Defaults.WALL_FALL.getFissuresTime();
+        return mockId;
+    }
 }

@@ -4,6 +4,7 @@ import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -34,6 +35,18 @@ public class MockChannel{
                                                 new TimeInterval(20.0,UnitImpl.SECOND)),
                                s.effective_time,
                                s);
+    }
+
+    public static Channel[] createMotionVector(Station station) {
+        Channel[] channels = new Channel[3];
+        Site s = MockSite.createSite(station);
+        String[] codes = {"BHZ", "BHN", "BHE"};
+        for(int i = 0; i < codes.length; i++) {
+            channels[i] = createChannel(MockChannelId.createChanId(codes[i], s),
+                                        "Motion Vector Channel " + codes[i],
+                                        s);
+        }
+        return channels;
     }
 
 }

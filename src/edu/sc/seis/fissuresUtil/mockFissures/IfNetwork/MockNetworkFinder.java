@@ -24,45 +24,49 @@ import edu.iris.Fissures.network.NetworkIdUtil;
  */
 public class MockNetworkFinder implements NetworkFinder {
 
+    private NetworkAccess[] nets = new NetworkAccess[] {MockNetworkAccess.createNetworkAccess(),
+                                                        MockNetworkAccess.createOtherNetworkAccess(),
+                                                        MockNetworkAccess.createManySplendoredNetworkAccess()};
+
     public NetworkAccess retrieve_by_id(NetworkId arg0) throws NetworkNotFound {
-        if (NetworkIdUtil.areEqual(arg0, net.get_attributes().get_id())) {
-            return net;
-        } else if (NetworkIdUtil.areEqual(arg0, other.get_attributes().get_id())) { return other; }
+        for(int i = 0; i < nets.length; i++) {
+            NetworkId curId = nets[i].get_attributes().get_id();
+            if(NetworkIdUtil.areEqual(arg0, curId)) { return nets[i]; }
+        }
         throw new NetworkNotFound(getExceptionString());
     }
 
     public NetworkAccess[] retrieve_by_code(String arg0) throws NetworkNotFound {
-        if (net.get_attributes().get_code().equals(arg0)) {
-            return new NetworkAccess[] { net };
-        } else if (other.get_attributes().get_code().equals(arg0)) { return new NetworkAccess[] { other }; }
+        for(int i = 0; i < nets.length; i++) {
+            String curCode = nets[i].get_attributes().get_code();
+            if(curCode.equals(arg0)) { return new NetworkAccess[] {nets[i]}; }
+        }
         throw new NetworkNotFound(getExceptionString());
     }
 
     public NetworkAccess[] retrieve_by_name(String arg0) throws NetworkNotFound {
-        if (net.get_attributes().name.equals(arg0)) {
-            return new NetworkAccess[] { net };
-        } else if (other.get_attributes().name.equals(arg0)) { return new NetworkAccess[] { other }; }
+        for(int i = 0; i < nets.length; i++) {
+            String curName = nets[i].get_attributes().name;
+            if(curName.equals(arg0)) { return new NetworkAccess[] {nets[i]}; }
+        }
         throw new NetworkNotFound(getExceptionString());
     }
 
     private String getExceptionString() {
-        return "I only have two networks, "
-                + NetworkIdUtil.toString(net.get_attributes().get_id())
-                + " and "
-                + NetworkIdUtil.toString(other.get_attributes().get_id());
+        String exceptionString = "I only have " + nets.length + " networks: ";
+        for(int i = 0; i < nets.length; i++) {
+            NetworkId curId = nets[i].get_attributes().get_id();
+            exceptionString += NetworkIdUtil.toString(curId) + " ";
+        }
+        return exceptionString;
     }
 
     public NetworkAccess[] retrieve_all() {
-        return new NetworkAccess[] { net, other };
+        return nets;
     }
-
-    private NetworkAccess net = MockNetworkAccess.createNetworkAccess();
-
-    private NetworkAccess other = MockNetworkAccess.createOtherNetworkAccess();
 
     public void _release() {
     // TODO Auto-generated method stub
-
     }
 
     public boolean _non_existent() {
@@ -111,20 +115,25 @@ public class MockNetworkFinder implements NetworkFinder {
     }
 
     public Object _set_policy_override(Policy[] policies,
-            SetOverrideType set_add) {
+                                       SetOverrideType set_add) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Request _create_request(Context ctx, String operation,
-            NVList arg_list, NamedValue result) {
+    public Request _create_request(Context ctx,
+                                   String operation,
+                                   NVList arg_list,
+                                   NamedValue result) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Request _create_request(Context ctx, String operation,
-            NVList arg_list, NamedValue result, ExceptionList exclist,
-            ContextList ctxlist) {
+    public Request _create_request(Context ctx,
+                                   String operation,
+                                   NVList arg_list,
+                                   NamedValue result,
+                                   ExceptionList exclist,
+                                   ContextList ctxlist) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -13,4 +13,9 @@ public class MockNetworkAttr{
         return new NetworkAttrImpl(MockNetworkId.createOtherNetworkID(),
                                    "krowten A", "krowten a ,sey", "osla knarF");
     }
+    
+    public static NetworkAttr createMultiSplendoredAttr(){
+        return new NetworkAttrImpl(MockNetworkId.createMutliSplendoredNetworkID(),
+                                   "A network with many stations", "Many station network", "Charlie Groves");
+    }
 }
