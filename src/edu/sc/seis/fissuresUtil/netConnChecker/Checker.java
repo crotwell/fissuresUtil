@@ -48,6 +48,12 @@ public class Checker {
 	}
     }
 
+    public Checker() {
+
+
+
+    }
+
      /**  An iterator returns the ConnCheckerConfig objects from the collection 
      * and calls the apropriate ConnChecker to try to connect to it. 
      * @param  
@@ -74,11 +80,11 @@ public class Checker {
           
            
             if(objfromcollection instanceof HTTPConfig){
-               site = new HTTPChecker((HTTPConfig)objfromcollection);
+               site = new HTTPChecker((HTTPConfig)objfromcollection, this);
             } else
 
             if(objfromcollection instanceof CORBAConfig){             
-               site = new CorbaChecker((CORBAConfig)objfromcollection);              
+               site = new CorbaChecker((CORBAConfig)objfromcollection, this);              
             }else {
 		logger.debug("skipping");
 	    }
@@ -217,17 +223,17 @@ public class Checker {
           objfromcollection = (ConnCheckerConfig) collectionExe.next();
 	  conn = objfromcollection.getSuccessful();
 	  if(conn == true){
-	      hashMap.put(objfromcollection.getName(), "successful");
+	      hashMap.put(objfromcollection.getName(), ConnStatus.SUCCESSFUL);
 	      
 	      //              collectionofFailed.add(objfromcollection);
 	      logger.debug("Failed: " + objfromcollection.getName());
 	      
           } else if(objfromcollection.getFinished() == true) {
 	      
-	       hashMap.put(objfromcollection.getName(), "failed");
+	       hashMap.put(objfromcollection.getName(), ConnStatus.FAILED);
 	  } else {
 
-	       hashMap.put(objfromcollection.getName(), "unfinished");
+	       hashMap.put(objfromcollection.getName(), ConnStatus.UNFINISHED);
 	  }
        }//close while
        // return collectionofFailed;
@@ -235,7 +241,36 @@ public class Checker {
 
     }
 
+    public synchronized void fireStatusChanged(String urlStr, ConnStatus connectionStatus) {
+
+	
+	for(int counter = 0; counter < statusChangeListeners.size(); counter++) {
+
+	    System.out.println("Function fireStatusChanged is invoked by "+urlStr+" ----> "+connectionStatus);
+
+	    ConnStatusChangedListener listener = (ConnStatusChangedListener) statusChangeListeners.elementAt(counter);
+	    listener.statusChanged(new StatusChangedEvent(this, urlStr, connectionStatus));
+
+	}
+
+    }
+
+    public void addConnStatusChangedListener(ConnStatusChangedListener listener) {
+
+	statusChangeListeners.add(listener);
+
+
+    }
+
+    public void removeConnStatusChangedListener(ConnStatusChangedListener listener) {
+
+	statusChangeListeners.remove(listener);
+    }
+
     private Collection ConnCheckerCollection;/*LinkedList collection*/
+
+    private Vector statusChangeListeners = new Vector();
+
     static Category logger = Category.getInstance(Checker.class);
   
 
