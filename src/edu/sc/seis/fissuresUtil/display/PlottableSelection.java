@@ -1,0 +1,187 @@
+package edu.sc.seis.fissuresUtil.display;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.util.*;
+import javax.swing.*;
+
+/**
+ * PlottableSelection.java
+ *
+ *
+ * Created: Fri Mar 28 09:10:59 2003
+ *
+ * @author <a href="mailto:">Srinivasa Telukutla</a>
+ * @version
+ */
+
+public class PlottableSelection implements Plotter{
+    public PlottableSelection (PlottableDisplay display){
+        this.plottableDisplay = display;
+        this.plottableDisplay.date = Calendar.getInstance().getTime();
+    }
+
+    public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
+        //in this draw of PlottableSelection the following are not used
+        //currentTime , currentAmp, size.
+        //actually this extends the interface Plotter just to be consistent
+        // with others plotters in the display package.
+        drawHighlightRegion(canvas);
+        
+    }
+
+    public void toggleVisibility() {
+
+    }
+
+    public void setVisibility(boolean b) {
+
+    }
+
+    private void drawHighlightRegion(Graphics g) {
+        // get new graphics to avoid messing up original
+        Graphics2D newG = (Graphics2D)g.create(); 
+      
+        if(g != plottableDisplay.currentImageGraphics) {
+            newG.translate(plottableDisplay.labelXShift,
+                           plottableDisplay.titleYShift);
+            newG.clipRect(0, 0, 
+                          plottableDisplay.plot_x/plottableDisplay.plotrows, 
+                          plottableDisplay.plot_y +(plottableDisplay.plotoffset * (plottableDisplay.plotrows-1)));
+        }
+
+        int xShift = plottableDisplay.plot_x/plottableDisplay.plotrows;
+        int mean = plottableDisplay.getMean();
+        int[] selectedRows = getSelectedRows(beginy, endy);
+        for (int currRow = 0; currRow < plottableDisplay.plotrows; currRow++) {
+
+            // shift for row (left so time is in window, 
+            //down to correct row on screen, plus
+            //	    newG.translate(xShift*currRow, plot_y/2 + plotoffset*currRow);
+            java.awt.geom.AffineTransform original = newG.getTransform();
+            java.awt.geom.AffineTransform affine = newG.getTransform();
+	  
+            affine.concatenate(affine.getTranslateInstance(-1*xShift*currRow,
+                                                           plottableDisplay.plot_y/2+plottableDisplay.plotoffset*currRow));
+            // account for graphics y positive down
+            affine.concatenate(affine.getScaleInstance(1, -1));
+
+            newG.setTransform(affine);
+            newG.setPaint(Color.red);
+
+            AlphaComposite originalComposite = (AlphaComposite)newG.getComposite();
+            AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
+                                                                     .4f);
+            Point2D.Float beginPoint = new Point2D.Float(beginx, endx);
+            newG.setPaint(Color.green);
+            newG.setComposite(newComposite);
+            if(isRowSelected(selectedRows, currRow)) {
+                int bx = 0;
+                int ex = 0;
+                int by =  -plottableDisplay.plotoffset/2 + 10;
+                int ey = plottableDisplay.plotoffset - 10;
+                if(currRow == selectedRows[0] ) {
+                    //System.out.println("Calculating values for start row");
+                    bx =  beginx + xShift*currRow - plottableDisplay.labelXShift;// + beginx;
+                    if(selectedRows.length  != 1) {
+                        ex = 6000;
+                    } else {
+                        ex = endx - beginx;
+                    }
+                } else if(currRow == selectedRows[selectedRows.length -1 ]) {
+                    //System.out.println("Caculating values for end row "+currRow);
+                    bx = xShift*currRow - plottableDisplay.labelXShift;;
+                    ex = (endx);
+                } else {
+                    bx = 0;
+                    ex = 6000;
+                }
+        
+                //System.out.println("NOW DRAW THE rectangle for row "+currRow);
+                newG.drawRect(bx, by, ex, ey);
+                newG.fillRect(bx, by, ex, ey);
+                newG.setComposite(originalComposite);
+                newG.setPaint(Color.green);
+                newG.setStroke(new BasicStroke(2.0f));
+                newG.drawLine(bx, by, bx, by+ey);
+                newG.drawLine((bx+ex), by, (bx+ex), by+ey);
+            }//end of if
+            newG.setTransform(original);
+        }//end of for
+        //getRequestFilter();
+	    newG.dispose();
+	   
+    }
+
+    private int[] getSelectedRows(int beginy, int endy) {
+        
+        if(beginy == -1 || endy == -1) return new int[0];
+        // beginy = (int)(beginy * this.ampScalePercent);
+        //endy = (int)(endy * this.ampScalePercent);
+        ArrayList arrayList = new ArrayList();
+        int selectionOffset = plottableDisplay.plotoffset / 2;
+        for(int counter = 0; counter < plottableDisplay.plotrows; counter++) {
+            int value =  (plottableDisplay.plot_y/2 + 
+                          plottableDisplay.titleYShift + 
+                          plottableDisplay.plotoffset*counter);
+   
+            //if(((value - selectionOffset) <= beginy) &&
+            if( (beginy <= (value + selectionOffset)) &&
+                // (endy >= beginy) && 
+                (endy > (value - selectionOffset))) {
+                //(endy <= (value + selectionOffset))) { 
+                arrayList.add(new Integer(counter));
+            }
+        }
+        int[] rtnValues = new int[arrayList.size()];
+        for(int counter = 0; counter < arrayList.size(); counter++) {
+            rtnValues[counter] = ((Integer)arrayList.get(counter)).intValue();
+            //System.out.println("The row selected is "+rtnValues[counter]);
+        }
+        return rtnValues;
+     }
+
+
+    public void setSelectedRectangle(int beginx, int beginy, int endx, int endy) {
+        if(getSelectedRows(beginy, endy).length == 1) {
+            this.beginx = Math.min(beginx, endx);
+            this.endx = Math.max(beginx, endx);
+        } else {
+            this.beginx = beginx;
+            this.endx = endx;
+        }
+        this.beginy = beginy;
+        this.endy = endy;
+    }
+
+    private boolean isRowSelected(int[] rows, int currrow) {
+        for(int counter = 0; counter < rows.length; counter++) {
+            if(rows[counter] == currrow) return true;
+        }
+        return false;
+    }
+
+    public boolean isSelectionSelected(int currx, int curry) {
+        if( (currx > (endx - 2) && currx < (endx + 2) &&
+            curry >= beginy && curry <= endy) || 
+            (currx > (beginx - 2) && currx < (beginx + 2) &&
+             curry >= beginy && curry <= endy) 
+            ) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private PlottableDisplay plottableDisplay;
+    
+    private int beginx;
+    
+    private int endx;
+    
+    private int beginy;
+
+    private int  endy;
+    
+}// PlottableSelection
