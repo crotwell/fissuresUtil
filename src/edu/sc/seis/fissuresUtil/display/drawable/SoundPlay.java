@@ -33,7 +33,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
     PlayEventListener{
 
     private Color drawColor = Color.BLACK;
-    private int xMax, xMin, yMaxA = 9, yMaxB = 11, yMinA = 6, yMinB = 4, playCursor = 0;
+    private int x2, x3, x1, x0, yMaxA = 9, yMaxB = 11, yMinA = 6, yMinB = 4, playCursor = 0;
     private SeismogramDisplay display;
     private boolean visible = true;
     private SeismogramContainer container;
@@ -95,7 +95,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
         if(e.getSource() == display){
             int clickX = e.getX() - display.getInsets().left;
             int clickY = e.getY() - display.getInsets().top;
-            if(clickX >= xMin && clickX <= xMax &&
+            if(clickX >= x0 && clickX <= x3+1 &&
                clickY >= yMinB && clickY <= yMaxB){
                 return true;
             }
@@ -123,16 +123,23 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         if(visible){
             double sizeOfDisplay = size.getWidth();
-            xMin = (int)sizeOfDisplay - 8;
-            xMax = (int)sizeOfDisplay - 3;
+            x0 = (int)sizeOfDisplay - 20;
+            x1 = (int)sizeOfDisplay - 15;
+            x2 = (int)sizeOfDisplay - 11;
+            x3 = (int)sizeOfDisplay - 7;
 
             timeEvent = currentTime;
             canvas.setColor(drawColor);
-            canvas.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
-            canvas.drawLine(xMin, yMinA, xMin, yMaxA);
-            canvas.drawLine(xMin, yMaxA, xMax, yMaxB);
-            canvas.drawLine(xMax, yMaxB, xMax, yMinB);
-            canvas.drawLine(xMax, yMinB, xMin, yMinA);
+            canvas.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
+            int yMid = (yMinA + yMaxA + yMinB + yMaxB)/4;
+            canvas.drawLine(x0, yMinA, x0, yMaxA);
+            canvas.drawLine(x0, yMaxA, x1, yMaxB);
+            canvas.drawLine(x1, yMaxB, x1, yMinB);
+            canvas.drawLine(x1, yMinB, x0, yMinA);
+            canvas.drawLine(x2, yMinB, x2 + 1, yMid);
+            canvas.drawLine(x2 + 1, yMid, x2, yMaxB);
+            canvas.drawLine(x3, yMinB, x3 + 1, yMid);
+            canvas.drawLine(x3 + 1, yMid, x3, yMaxB);
 
             if (isPlaying){
                 long elapsedTime = playEvent.getClip().getMicrosecondPosition();
