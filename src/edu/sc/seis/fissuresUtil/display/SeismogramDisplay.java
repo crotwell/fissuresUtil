@@ -7,6 +7,7 @@ import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,6 +46,8 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
     public abstract void add(Drawable drawable);
 
     public abstract void remove(Drawable drawable);
+
+    public abstract DrawableIterator getDrawables(MouseEvent e);
 
     public abstract DrawableIterator iterator(Class drawableClass);
 
