@@ -153,10 +153,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 
     public void removeAllFlags(){
         arrivals = null;
-        Iterator it = new PlotterIterator(FlagPlotter.class);
-        while ( it.hasNext()) {
-            it.remove();
-        } // end of while ()
+        PlotterIterator it = new PlotterIterator(FlagPlotter.class);
+        it.clear();
         repaint();
     }
 
@@ -537,6 +535,12 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
             it.remove();
         }
 
+        public void clear(){
+            while(hasNext()){
+                next();
+                remove();
+            }
+        }
         private Iterator it;
 
         private Class iteratorClass;
