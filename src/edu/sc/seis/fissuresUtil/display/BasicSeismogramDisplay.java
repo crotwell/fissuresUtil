@@ -218,12 +218,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	MicroSecondDate selectionEnd = new MicroSecondDate((long)(imagePainter.displayInterval.getValue() * x2percent + 
 								  current.getMicroSecondTime()));
 	if(currentSelection == null){
-	    System.out.println("redetermining current selection");
 	    Iterator e = selections.iterator();
 	    while(e.hasNext()){
 		Selection curr = ((Selection)e.next());
 		if(curr.borders(selectionBegin, selectionEnd)){
-		    System.out.println("selected an already existing range");
 		    currentSelection = curr;
 		    break;
 		}
