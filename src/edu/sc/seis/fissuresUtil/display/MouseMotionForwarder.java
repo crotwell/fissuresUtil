@@ -22,10 +22,14 @@ public class MouseMotionForwarder implements MouseMotionListener {
     }
 
     public void addMouseMotionListener(MouseMotionListener m) {
+	if(current != null)
+	    listenerList.remove(MouseMotionListener.class, current);
+	current = m;
 	listenerList.add(MouseMotionListener.class, m);
     }
 
     public void removeMouseMotionListener(MouseMotionListener m) {
+	current = null;
 	listenerList.remove(MouseMotionListener.class, m);
     }
 
@@ -52,5 +56,7 @@ public class MouseMotionForwarder implements MouseMotionListener {
      }
        
     protected EventListenerList listenerList = new EventListenerList();
+
+    protected MouseMotionListener current;
 
 } // MouseMotionForwarder

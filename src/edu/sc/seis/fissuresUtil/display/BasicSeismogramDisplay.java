@@ -6,6 +6,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.lang.ref.SoftReference;
@@ -196,6 +197,56 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.setToolTipText("");
     }
 
+    public void selectRegion(MouseEvent one, MouseEvent two){
+	Insets insets = this.getInsets();
+	Dimension dim = getSize();
+	double x1percent, x2percent;
+	if(one.getX() < two.getX()){
+	    x1percent = (one.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
+	    x2percent = (two.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
+	}else{
+	    x2percent = (one.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
+	    x1percent = (two.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
+	}
+	MicroSecondDate current = timeConfig.getTimeRange().getBeginTime();
+	MicroSecondDate selectionBegin = new MicroSecondDate((long)(imagePainter.displayInterval.getValue() * x1percent + 
+								    current.getMicroSecondTime()));
+	MicroSecondDate selectionEnd = new MicroSecondDate((long)(imagePainter.displayInterval.getValue() * x2percent + 
+								  current.getMicroSecondTime()));
+	if(currentSelection == null){
+	    System.out.println("redetermining current selection");
+	    Iterator e = selections.iterator();
+	    while(e.hasNext()){
+		Selection curr = ((Selection)e.next());
+		if(curr.borders(selectionBegin, selectionEnd)){
+		    System.out.println("selected an already existing range");
+		    currentSelection = curr;
+		    break;
+		}
+	    }
+	    if(currentSelection == null){
+		selections.add(new Selection(selectionBegin, selectionEnd, timeConfig));
+		currentSelection = ((Selection)selections.getFirst());
+		repaint();
+		return;
+	    }
+	}
+	currentSelection.adjustRange(selectionBegin, selectionEnd);		
+    	repaint();
+    }
+
+    public void releaseCurrentRangeSelection(){
+	if(currentSelection != null && currentSelection.remove()){
+	    selections.remove(currentSelection);
+	    repaint();
+	}
+	currentSelection = null;
+    }
+    
+    protected Selection currentSelection; 
+    
+    protected LinkedList selections = new LinkedList();
+    
     protected static ImageMaker imageMaker = new ImageMaker();
 
     protected Dimension overSize;
@@ -260,7 +311,21 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		}
 		this.createImage();
 	    }
-	} 
+	    if(selections.size() > 0){
+		Iterator e = selections.iterator();
+		while(e.hasNext()){
+		    Selection currentSelection = (Selection)(e.next());
+		    if(currentSelection.isVisible()){
+			Rectangle2D current = new Rectangle2D.Float(currentSelection.getX(getSize().width), 0, 
+								    (float)(currentSelection.getWidth() * getSize().width), 
+								    getSize().height);
+			g2.setPaint(new Color(255, 255, 0, 64));
+			g2.fill(current);
+			g2.draw(current);
+		    } 
+		}
+	    }	
+	}
 	
 	public synchronized void createImage(){
 	    imageMaker.createImage(this, new PlotInfo(overSize, plotters, displayInterval));
