@@ -263,8 +263,8 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         basicDisplays.clear();
         sorter = new SeismogramSorter();
         globalRegistrar = null;
-        this.time.setText("   Time: ");
-        this.amp.setText("   Amplitude: ");
+        time.setText("   Time: ");
+        amp.setText("   Amplitude: ");
         if(selectionDisplay != null){
             selectionDisplay.removeAll();
             if(selectionWindow != null){
@@ -320,32 +320,41 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
      * @param time the new label time
      * @param amp the new label amp
      */
-    public void setLabels(MicroSecondDate time, double amp){
-        calendar.setTime(time);
+    public void setLabels(MicroSecondDate newTime, double newAmp){
+        calendar.setTime(newTime);
         if(output.format(calendar.getTime()).length() == 21)
-            this.time.setText("   Time: " + output.format(calendar.getTime()) + "00");
+            time.setText("Time: " + output.format(calendar.getTime()) + "00");
         else if(output.format(calendar.getTime()).length() == 22)
-            this.time.setText("   Time: " + output.format(calendar.getTime()) + "0");
+            time.setText("Time: " + output.format(calendar.getTime()) + "0");
         else
-            this.time.setText("   Time: " + output.format(calendar.getTime()));
-        if(amp < 0)
-            if(Math.abs(amp) < 10)
-                this.amp.setText("   Amplitude:-000" + Math.abs(Math.round(amp)));
-            else if(Math.abs(amp) < 100)
-                this.amp.setText("   Amplitude:-00" + Math.abs(Math.round(amp)));
-            else if(Math.abs(amp) < 1000)
-                this.amp.setText("   Amplitude:-0" + Math.abs(Math.round(amp)));
+            time.setText("Time: " + output.format(calendar.getTime()));
+        if(newAmp < 0)
+            if(Math.abs(newAmp) < 10)
+                amp.setText(" Amplitude:-000" + Math.abs(Math.round(newAmp)));
+            else if(Math.abs(newAmp) < 100)
+                amp.setText(" Amplitude:-00" + Math.abs(Math.round(newAmp)));
+            else if(Math.abs(newAmp) < 1000)
+                amp.setText(" Amplitude:-0" + Math.abs(Math.round(newAmp)));
             else
-                this.amp.setText("   Amplitude:-" + Math.abs(Math.round(amp)));
+                amp.setText(" Amplitude:-" + Math.abs(Math.round(newAmp)));
         else
-            if(Math.abs(amp) < 10)
-                this.amp.setText("   Amplitude: 000" + Math.round(amp));
-            else if(Math.abs(amp) < 100)
-                this.amp.setText("   Amplitude: 00" + Math.round(amp));
-            else if(Math.abs(amp) < 1000)
-                this.amp.setText("   Amplitude: 0" + Math.round(amp));
+            if(Math.abs(newAmp) < 10)
+                amp.setText(" Amplitude: 000" + Math.round(newAmp));
+            else if(Math.abs(newAmp) < 100)
+                amp.setText(" Amplitude: 00" + Math.round(newAmp));
+            else if(Math.abs(newAmp) < 1000)
+                amp.setText(" Amplitude: 0" + Math.round(newAmp));
             else
-                this.amp.setText("   Amplitude: " + Math.round(amp));
+                amp.setText(" Amplitude: " + Math.round(newAmp));
+    }
+
+
+    /**
+     *<code>getLabelText</code> gets the text held by the time and amp labels
+     *of this vertical seismogram display concatenated together
+     */
+    public static String getLabelText(){
+        return time.getText() + amp.getText();
     }
 
     /**
@@ -693,9 +702,9 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 
     protected boolean particleAllowed = true;
 
-    public static JLabel time = new JLabel("   Time:                        ");
+    public static JLabel time = new JLabel("");
 
-    public static JLabel amp = new JLabel("   Amplitude:       ");
+    public static JLabel amp = new JLabel("");
 
     protected SimpleDateFormat output = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 
