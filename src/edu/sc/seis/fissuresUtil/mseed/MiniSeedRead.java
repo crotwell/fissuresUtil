@@ -11,7 +11,6 @@ package edu.sc.seis.fissuresUtil.mseed;
  * @version
  */
 
-import edu.iris.Fissures.utility.Assert;
 import edu.iris.dmc.seedcodec.Codec;
 import edu.iris.dmc.seedcodec.DecompressedData;
 import edu.iris.dmc.seedcodec.UnsupportedCompressionType;
@@ -61,8 +60,9 @@ public class MiniSeedRead  {
     protected DataRecord readDataRecord(DataHeader header)
         throws IOException, SeedFormatException {
         numRead++;
-        Assert.isTrue(header.getDataBlocketteOffset()>= header.getSize(),
-                      "Offset to first blockette must be larger than the header size");
+        if (header.getDataBlocketteOffset()< header.getSize()) {
+            throw new IllegalArgumentException("Offset to first blockette must be larger than the header size");
+        }
         byte[] garbage = new byte[header.getDataBlocketteOffset()-
             header.getSize()];
 
