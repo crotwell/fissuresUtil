@@ -59,8 +59,12 @@ public class SeismogramPDFBuilder {
         try {
             createPDF(new FileOutputStream(fileName));
         }catch (FileNotFoundException ex) {
-            System.err.println("problem opening " + fileName);
-            ex.printStackTrace();
+            int choice = JOptionPane.showConfirmDialog(null,
+                                                       "Unable to open file " + fileName + ".  Would you like to try another location?",
+                                                       "Unable to open file",
+                                                       JOptionPane.WARNING_MESSAGE);
+            if(choice == JOptionPane.YES_OPTION)
+                createPDF();
         }
     }
     
@@ -314,66 +318,68 @@ public class SeismogramPDFBuilder {
      * @return the number of seismograms per page
      */
     private void getImagesPerPage(int numSeis){
-        final int numOfSeis = numSeis;
-        final JDialog dialog = new JDialog();
-        dialog.getContentPane().setLayout(new BorderLayout());
-        dialog.setTitle("Printing Options");
-        dialog.setModal(true);
-        JLabel information = new JLabel("Seismograms per page:  ");
-        Integer[] numbers = new Integer[numOfSeis];//to initialize the combo box with correct values
-        for(int i = 0; i < numOfSeis; i++){
-            numbers[i] = new Integer(i + 1);
-        }
-        final JComboBox options = new JComboBox(numbers);
-        options.setEditable(true);
-        options.setMaximumSize(options.getMinimumSize());
-        options.setPreferredSize(options.getMinimumSize());
-        if(numOfSeis < imagesPerPage){
-            imagesPerPage = numOfSeis;
-        }
-        options.setSelectedIndex(imagesPerPage-1);
-        
-        JButton next = new JButton("Next");
-        next.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent e){
-                        int currentNumber = ((Integer)options.getSelectedItem()).intValue();
-                        if(currentNumber < 0){
-                            JOptionPane.showMessageDialog(null,
-                                                          "The number of seismograms selected must be greater than 0",
-                                                          "Selected Too Few",
-                                                          JOptionPane.WARNING_MESSAGE);
-                        }else if(currentNumber > numOfSeis){
-                            JOptionPane.showMessageDialog(null,
-                                                          "The number of seismograms selected can be at most " + numOfSeis,
-                                                          "Selected Too Many",
-                                                          JOptionPane.WARNING_MESSAGE);
-                        }else{
-                            setSeisPerPage(currentNumber);
+        if(!seisPerPageSet){
+            final int numOfSeis = numSeis;
+            final JDialog dialog = new JDialog();
+            dialog.getContentPane().setLayout(new BorderLayout());
+            dialog.setTitle("Printing Options");
+            dialog.setModal(true);
+            JLabel information = new JLabel("Seismograms per page:  ");
+            Integer[] numbers = new Integer[numOfSeis];//to initialize the combo box with correct values
+            for(int i = 0; i < numOfSeis; i++){
+                numbers[i] = new Integer(i + 1);
+            }
+            final JComboBox options = new JComboBox(numbers);
+            options.setEditable(true);
+            options.setMaximumSize(options.getMinimumSize());
+            options.setPreferredSize(options.getMinimumSize());
+            if(numOfSeis < imagesPerPage){
+                imagesPerPage = numOfSeis;
+            }
+            options.setSelectedIndex(imagesPerPage-1);
+            
+            JButton next = new JButton("Next");
+            next.addActionListener(new ActionListener(){
+                        public void actionPerformed(ActionEvent e){
+                            int currentNumber = ((Integer)options.getSelectedItem()).intValue();
+                            if(currentNumber < 0){
+                                JOptionPane.showMessageDialog(null,
+                                                              "The number of seismograms selected must be greater than 0",
+                                                              "Selected Too Few",
+                                                              JOptionPane.WARNING_MESSAGE);
+                            }else if(currentNumber > numOfSeis){
+                                JOptionPane.showMessageDialog(null,
+                                                              "The number of seismograms selected can be at most " + numOfSeis,
+                                                              "Selected Too Many",
+                                                              JOptionPane.WARNING_MESSAGE);
+                            }else{
+                                setSeisPerPage(currentNumber);
+                                dialog.dispose();
+                            }
+                        }
+                    });
+            JButton cancel = new JButton("Cancel");
+            cancel.addActionListener(new ActionListener(){
+                        public void actionPerformed(ActionEvent e){
                             dialog.dispose();
                         }
-                    }
-                });
-        JButton cancel = new JButton("Cancel");
-        cancel.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent e){
-                        dialog.dispose();
-                    }
-                });
-        JPanel north = new JPanel(new BorderLayout());
-        north.setBorder(EMPTY_BORDER);
-        north.add(information, BorderLayout.WEST);
-        north.add(options, BorderLayout.EAST);
-        JPanel south = new JPanel(new BorderLayout());
-        south.setBorder(EMPTY_BORDER);
-        south.add(cancel, BorderLayout.WEST);
-        south.add(next, BorderLayout.EAST);
-        dialog.getContentPane().add(north, BorderLayout.NORTH);
-        dialog.getContentPane().add(south, BorderLayout.SOUTH);
-        Toolkit tk = Toolkit.getDefaultToolkit();
-        dialog.setLocation(tk.getScreenSize().width/2,
-                           tk.getScreenSize().height/2);
-        dialog.pack();
-        dialog.show();
+                    });
+            JPanel north = new JPanel(new BorderLayout());
+            north.setBorder(EMPTY_BORDER);
+            north.add(information, BorderLayout.WEST);
+            north.add(options, BorderLayout.EAST);
+            JPanel south = new JPanel(new BorderLayout());
+            south.setBorder(EMPTY_BORDER);
+            south.add(cancel, BorderLayout.WEST);
+            south.add(next, BorderLayout.EAST);
+            dialog.getContentPane().add(north, BorderLayout.NORTH);
+            dialog.getContentPane().add(south, BorderLayout.SOUTH);
+            dialog.pack();
+            Toolkit tk = Toolkit.getDefaultToolkit();
+            dialog.setLocation((tk.getScreenSize().width - dialog.getWidth())/2,
+                                   (tk.getScreenSize().height - dialog.getHeight())/2);
+            dialog.show();
+        }
     }
     
     private void setSeisPerPage(int num) {
@@ -406,30 +412,23 @@ public class SeismogramPDFBuilder {
                 file = new File(file.getAbsolutePath()+"."+extension);
             }
             if (file.exists()) {
-                Object[] options = new String[3];
-                options[0] = "Replace";
-                options[1] = "Choose Again";
-                options[2] = "Cancel";
-                int n = JOptionPane.showOptionDialog(display,
+                String[] options = {"Yes", "No", "Choose again"};
+                int n = JOptionPane.showOptionDialog(null,
                                                      "File "+file.getName()+" exists, replace?",
                                                      "File Exists",
                                                      JOptionPane.YES_NO_CANCEL_OPTION,
                                                      JOptionPane.QUESTION_MESSAGE,
-                                                     null,     //don't use a custom Icon
-                                                     options,  //the titles of buttons
-                                                     options[0]); //default button title);
-                if (n == JOptionPane.CANCEL_OPTION) {
+                                                     null,
+                                                     options,
+                                                     options[0]);
+                if (n == JOptionPane.NO_OPTION) {
                     return null;
                 } else if (n == JOptionPane.CANCEL_OPTION) {
                     return chooseOutputFile(extension);
                 }
                 // ok to replace...
             }
-            String fileName = file.getAbsolutePath();
-            
             return file.getAbsolutePath();
-        } else {
-            //log.append("Open command cancelled by user.");
         }
         return null;
     }
