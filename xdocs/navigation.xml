@@ -9,6 +9,7 @@
     <menu name="Essentials">
       <item name="Front Page"            href="/index.html"/>
       <item name="News and Status"     href="/news.html"/>
+      <item name="Simple Clients"     href="/simple.html"/>
       <item name="Bugs and Problems"          href="/bugs.html"/>
     </menu>
 
