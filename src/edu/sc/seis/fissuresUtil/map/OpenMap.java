@@ -38,7 +38,7 @@ public class OpenMap extends OpenMapComponent{
     /**Creates a new openmap.  Both the channel chooser and the event table
 	 * model can be null.  If so, channels and events just won't get drawn
 	 */
-    public OpenMap(EventTableModel etm, ListSelectionModel lsm){
+    public OpenMap(EventTableModel etm, ListSelectionModel lsm, String shapefile){
 		try{
 			mapHandler = new MapHandler();
 			mapHandler.add(this);
@@ -78,8 +78,8 @@ public class OpenMap extends OpenMapComponent{
 			shapeLayerProps.put("prettyName", "Political Solid");
 			shapeLayerProps.put("lineColor", "000000");
 			shapeLayerProps.put("fillColor", "39DA87");
-			shapeLayerProps.put("shapeFile", "edu/sc/seis/vsnexplorer/data/maps/dcwpo-browse.shp");
-			shapeLayerProps.put("spatialIndex", "edu/sc/seis/vsnexplorer/data/maps/dcwpo-browse.ssx");
+			shapeLayerProps.put("shapeFile", shapefile + ".shp");
+			shapeLayerProps.put("spatialIndex", shapefile + ".ssx");
 			shapeLayer.setProperties(shapeLayerProps);
 			shapeLayer.setVisible(true);
 			mapHandler.add(shapeLayer);
