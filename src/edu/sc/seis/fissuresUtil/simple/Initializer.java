@@ -118,7 +118,7 @@ public abstract class Initializer{
         //IRIS
         fakeNet = new NetworkId("II", new Time("19861024000000.0000GMT", 0));
         fakeStation = new StationId(fakeNet, "AAK", new Time("19901012000000.0000GMT", 0));
-        fakeChan = new ChannelId(fakeNet, "AAK", "  ", "BHE", new Time("19901012000000.0000GMT", 0));
+        fakeChan = new ChannelId(fakeNet, "AAK", "00", "BHE", new Time("19901012000000.0000GMT", 0));
 
         //SCEPP
         //fakeNet = new NetworkId("SP", new Time("20001209T01:00:00.000Z", 0));
