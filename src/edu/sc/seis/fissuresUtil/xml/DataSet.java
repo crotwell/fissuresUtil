@@ -20,7 +20,7 @@ public interface DataSet {
 
     public String[] getParameterNames();
 
-    public Object getParamter(String name);
+    public Object getParameter(String name);
 
     public void addParameter(String name, Object param, AuditInfo[] audit);
 
