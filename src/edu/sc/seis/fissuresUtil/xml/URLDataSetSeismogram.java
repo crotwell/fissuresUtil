@@ -27,6 +27,8 @@ import java.util.WeakHashMap;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
 
 /**
  * URLDataSetSeismogram.java
@@ -351,6 +353,23 @@ logger.debug("In run for URLDSS,retrieveData");
                                        " but only know how to save strings.");
             }
         }
+    }
+
+    public static URLDataSetSeismogram getURLDataSetSeismogram(Element element) {
+        String name = XMLUtil.getText(XMLUtil.getElement(element, "name"));
+        NodeList children = element.getElementsByTagName("url");
+        LinkedList urlList = new LinkedList();
+        for (int i = 0; i < children.getLength(); i++) {
+            NamedNodeMap attrList = children.item(i).getAttributes();
+            String urlString = attrList.getNamedItem("xlink:href").getNodeValue();
+            try {
+                urlList.add(new URL(urlString));
+            } catch (MalformedURLException e) {
+                // should never happen
+            }
+        }
+        URL[] urls = new URL[children.getLength()];
+        return new URLDataSetSeismogram(urls, SeismogramFileTypes.SAC);
     }
 
     private URL[] url;
