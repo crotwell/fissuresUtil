@@ -39,16 +39,16 @@ public class BasicTimeConfig implements TimeConfig{
      * @param seismo the seismogram to be added
      */
     public void add(DataSetSeismogram[] seismos){
-        if(time == null){
-            if(seismos != null && seismos.length > 0){
-                time = new MicroSecondTimeRange(seismos[0].getRequestFilter());
-            }else{
-                return;
-            }
-        }
         for(int i = 0; i < seismos.length; i++){
             if(!contains(seismos[i])){
-                seismoTimes.put(seismos[i], getInitialTime(seismos[i]));
+                MicroSecondTimeRange seisTime = getInitialTime(seismos[i]);
+                if(seisTime != null){
+                    if(time == null){
+                        time = seisTime;
+                        initialTime = time;
+                    }
+                    seismoTimes.put(seismos[i], getInitialTime(seismos[i]));
+                }
             }
         }
         seismograms = null;
@@ -58,8 +58,13 @@ public class BasicTimeConfig implements TimeConfig{
     /*this method is used in the addition of seismograms to determine the initial
      *time
      */
-
     protected MicroSecondTimeRange getInitialTime(DataSetSeismogram seis){
+        if(time == null){
+            if(seis != null){
+                time = new MicroSecondTimeRange(seis.getRequestFilter());
+                initialTime = time;
+            }
+        }
         return time;
     }
 
@@ -140,11 +145,21 @@ public class BasicTimeConfig implements TimeConfig{
         if(time != null){
             time = time.shale(shift, scale);
             for(int i = 0; i < seismos.length; i++){
-                seismoTimes.put(seismos[i], time);
+                MicroSecondTimeRange seisTime = (MicroSecondTimeRange)seismoTimes.get(seismos[i]);
+                seismoTimes.put(seismos[i], seisTime.shale(shift, scale));
             }
             fireTimeEvent();
         }
     }
+
+    public double getShift() {
+        return shift;
+    }
+
+    public double getScale() {
+        return scale;
+    }
+
 
     public TimeEvent fireTimeEvent(){
         if(seismoTimes.size() == 0 && time != null){
@@ -153,9 +168,9 @@ public class BasicTimeConfig implements TimeConfig{
         DataSetSeismogram[] seismos = getSeismograms();
         MicroSecondTimeRange[] times = new MicroSecondTimeRange[seismos.length];
         for(int i = 0; i < seismos.length; i++){
-            times[i] = time;
+            times[i] = (MicroSecondTimeRange)seismoTimes.get(seismos[i]);
         }
-        return fireTimeEvent(new TimeEvent(seismos, times));
+        return fireTimeEvent(new TimeEvent(seismos, times, time));
     }
 
     protected TimeEvent fireTimeEvent(TimeEvent event){
@@ -173,7 +188,7 @@ public class BasicTimeConfig implements TimeConfig{
      */
     public MicroSecondTimeRange getTime() {
         if(time != null){
-        return time;
+            return time;
         }else{
             return DisplayUtils.ZERO_TIME;
         }
@@ -187,7 +202,7 @@ public class BasicTimeConfig implements TimeConfig{
      *
      */
     public MicroSecondTimeRange getTime(DataSetSeismogram seis) {
-        return getTime();
+        return (MicroSecondTimeRange)seismoTimes.get(seis);
     }
 
     public void addListener(TimeListener listener){
@@ -222,7 +237,7 @@ public class BasicTimeConfig implements TimeConfig{
 
     protected double scale = 1;
 
-    protected MicroSecondTimeRange time;
+    protected MicroSecondTimeRange time, initialTime;
 
     private static Category logger = Category.getInstance(BasicTimeConfig.class.getName());
 }// BasicTimeConfig
