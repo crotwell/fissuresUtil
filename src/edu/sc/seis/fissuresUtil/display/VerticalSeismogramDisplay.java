@@ -15,6 +15,7 @@ import javax.swing.*;
 import java.text.SimpleDateFormat;
 import edu.sc.seis.fissuresUtil.xml.*;
 import org.apache.log4j.*;
+import edu.sc.seis.TauP.Arrival;
 
 /**
  * VerticalSeismogramDisplay.java
@@ -188,7 +189,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	this.stopImageCreation();
 	seismograms.removeAll();
 	remove(seismograms);
-	basicDisplays = new LinkedList();
+	basicDisplays.clear();
 	sorter = new AlphaSeisSorter();
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
@@ -375,6 +376,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void createSelectionDisplay(Selection creator){
 	if(selectionDisplay == null){
 	    logger.debug("creating selection display");
+	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
+	    addSelection(creator, selectionDisplay);
 	    selectionWindow = new JFrame();
 	    selectionWindow.addWindowListener(new WindowAdapter() {
 		    public void windowClosing(WindowEvent e) {
@@ -382,21 +385,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		    }
 		});
 	    selectionWindow.setSize(400, 200);
-	    Iterator e = creator.getSeismograms().iterator();
-	    TimeConfigRegistrar tr = creator.getInternalConfig();
-	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
-	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
-	    creator.addDisplay(selectionDisplay.addDisplay(first, tr, ar, 
-							   creator.getParent().getName() + "." + creator.getColor()));
-	    ar.visibleAmpCalc(tr);
-	    while(e.hasNext()){
-		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
-	    }
 	    selectionWindow.getContentPane().add(selectionDisplay);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
 	    selectionWindow.setLocation((tk.getScreenSize().width - selectionWindow.getSize().width)/2,
 					 (tk.getScreenSize().height - selectionWindow.getSize().height)/2);
+	    addSelection(creator, selectionDisplay);
+	    selectionWindow.setVisible(true);
 	    /*if(selectionDisplays + selectionWindow.getSize().height < tk.getScreenSize().height){
 		selectionWindow.setLocation(tk.getScreenSize().width - selectionWindow.getSize().width, tk.getScreenSize().height - 
 					    (selectionDisplays + selectionWindow.getSize().height));
@@ -404,20 +398,23 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		selectionWindow.setLocation(tk.getScreenSize().width - selectionWindow.getSize().width, 0);
 	    }
 	    selectionDisplays += selectionWindow.getSize().height;*/
-	    selectionWindow.setVisible(true);	
-	}else{
+	 	}else{
 	    logger.debug("adding another selection");
-	    Iterator e = creator.getSeismograms().iterator();
+	    addSelection(creator,selectionDisplay);
+	}
+    }
+
+    public void addSelection(Selection creator, VerticalSeismogramDisplay reaper){
+	Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
+	    creator.addDisplay(reaper.addDisplay(first, tr, ar, 
+						 creator.getParent().getName() + "." + creator.getColor()));
 	    ar.visibleAmpCalc(tr);
-	    creator.addDisplay(selectionDisplay.addDisplay(first, tr, ar, 
-							   creator.getParent().getName() + "." + creator.getColor()));
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
-	}
     }
 
     public void createThreeSelectionDisplay(Selection creator){
@@ -429,49 +426,14 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 			threeSelectionDisplay.removeAll();
 		    }
 		});
-	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
-	    Iterator e = creator.getSeismograms().iterator();
-	    TimeConfigRegistrar tr = creator.getInternalConfig();
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
-	    DataSetSeismogram first = ((DataSetSeismogram)creator.getSeismograms().getFirst());
-	    LocalSeismogramImpl seis = first.getSeismogram();
-	    XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
-	    ChannelId[] channelIds = dataSet.getChannelIds();
-	    ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	    ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
-	    DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
-	    try{
-		for(int counter = 0; counter < channelGroup.length; counter++) {
-		    String name = DisplayUtils.getSeismogramName(channelGroup[counter], dataSet, 
-						       new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), 
-										       seis.getEndTime().getFissuresTime()));
-		    seismograms[counter] = new DataSetSeismogram(dataSet.getSeismogram(name), dataSet);
-		    if(seismograms[counter].getSeismogram() != null){
-			Iterator g = basicDisplays.iterator();
-			while(g.hasNext()){
-			    BasicSeismogramDisplay current = ((BasicSeismogramDisplay)g.next());
-			    Iterator h = current.getSeismograms().iterator();
-			    while(h.hasNext()){
-				if(((DataSetSeismogram)h.next()).getSeismogram() == seismograms[counter].getSeismogram()){
-				    current.add3CSelection(creator);
-				    creator.addParent(current);
-				}
-			    }
-			}
-			creator.addDisplay(threeSelectionDisplay.addDisplay(seismograms[counter], tr, ar, 
-									    seismograms[counter].getSeismogram().getName() + "." 
-									    + creator.getColor()));
-		    }
-		}
-	    }catch(Exception f){ 
-		f.printStackTrace();
-	    }	
-	    ar.visibleAmpCalc(tr);
-	    threeSelectionWindow.getContentPane().add(threeSelectionDisplay);
+	    
 	    threeSelectionWindow.setSize(400, 400);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
 	    threeSelectionWindow.setLocation((tk.getScreenSize().width - threeSelectionWindow.getSize().width)/2,
 					     (tk.getScreenSize().height - threeSelectionWindow.getSize().height)/2);
+	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
+	    groupSelection(creator, threeSelectionDisplay);
+	    threeSelectionWindow.getContentPane().add(threeSelectionDisplay);
 	    threeSelectionWindow.setVisible(true);	
 	    /*if((selectionDisplays + threeSelectionWindow.getSize().height) < tk.getScreenSize().height){
 	      threeSelectionWindow.setLocation(tk.getScreenSize().width - threeSelectionWindow.getSize().width, 
@@ -481,25 +443,52 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	      threeSelectionWindow.setLocation(tk.getScreenSize().width - threeSelectionWindow.getSize().width, 0);
 	      }
 	      selectionDisplays+= threeSelectionWindow.getSize().height;*/
-			    
-			    }else{
-	    logger.debug("adding another selection");
-	    Iterator e = creator.getSeismograms().iterator();
-	    TimeConfigRegistrar tr = creator.getInternalConfig();
-	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
-	    ar.visibleAmpCalc(tr);
-	    creator.addDisplay(threeSelectionDisplay.addDisplay(first, tr, ar, 
-								creator.getParent().getName() + "." + creator.getColor()));
-	    while(e.hasNext()){
-		threeSelectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
-	    }
+	}else{
+	    logger.debug("adding another 3Cselection");
+	    groupSelection(creator, threeSelectionDisplay);
 	}
     }
 
-    
-	
-    
+    public void groupSelection(Selection creator, VerticalSeismogramDisplay reaper){
+	Iterator e = creator.getSeismograms().iterator();
+	TimeConfigRegistrar tr = creator.getInternalConfig();
+	AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
+	DataSetSeismogram first = ((DataSetSeismogram)creator.getSeismograms().getFirst());
+	LocalSeismogramImpl seis = first.getSeismogram();
+	XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
+	ChannelId[] channelIds = dataSet.getChannelIds();
+	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
+	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
+	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
+	try{
+	    for(int counter = 0; counter < channelGroup.length; counter++) {
+		String name = DisplayUtils.getSeismogramName(channelGroup[counter], dataSet, 
+							     new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), 
+											     seis.getEndTime().getFissuresTime()));
+		seismograms[counter] = new DataSetSeismogram(dataSet.getSeismogram(name), dataSet);
+		if(seismograms[counter].getSeismogram() != null){
+		    Iterator g = basicDisplays.iterator();
+		    while(g.hasNext()){
+			BasicSeismogramDisplay current = ((BasicSeismogramDisplay)g.next());
+			Iterator h = current.getSeismograms().iterator();
+			while(h.hasNext()){
+			    if(((DataSetSeismogram)h.next()).getSeismogram() == seismograms[counter].getSeismogram()){
+				current.add3CSelection(creator);
+				creator.addParent(current);
+			    }
+			}
+		    }
+		    creator.addDisplay(reaper.addDisplay(seismograms[counter], tr, ar, 
+							 seismograms[counter].getSeismogram().getName() + "." 
+							 + creator.getColor()));
+		}
+	    }
+	}catch(Exception f){ 
+	    f.printStackTrace();
+	}	
+	ar.visibleAmpCalc(tr);
+    }
+
     protected static int particleDisplays = 0, selectionDisplays = 0;
     
     protected boolean originalVisible;
@@ -510,11 +499,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected TimeConfigRegistrar globalTimeRegistrar;
 
-protected AmpConfigRegistrar globalAmpRegistrar;
+    protected AmpConfigRegistrar globalAmpRegistrar;
     
-protected HashMap selectionDisplayMap = new HashMap();
+    protected HashMap selectionDisplayMap = new HashMap();
 
-protected ParticleMotionDisplay particleDisplay;
+    protected ParticleMotionDisplay particleDisplay;
     
     protected Set currentFilters = new HashSet();
 
