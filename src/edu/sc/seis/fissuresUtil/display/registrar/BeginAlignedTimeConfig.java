@@ -1,10 +1,13 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
- * BeginAlignedTimeConfig synchronizes all the seismograms it holds around their initial times. It gets the first added
+ * BasicTimeConfig synchronizes all the seismograms it holds around their initial times. It gets the first added
  * seismogram's time interval and uses it to initialize the display interval of subsequently added seismograms.  Any time shifts or
  * interval adjustments that occur are recorded so that added seismograms will be the same distance from their begin times and displayed
  *  over the same amount of time.
@@ -21,27 +24,21 @@ public class BeginAlignedTimeConfig extends BasicTimeConfig{
      * being passed
      * @param seismo the initial seismogram
      */
+    public BeginAlignedTimeConfig(){
+    }
+
     public BeginAlignedTimeConfig(DataSetSeismogram[] seismos){
         super(seismos);
     }
 
-    /**
-     * <code>add</code> adds a seismogram to the config
-     *
-     * @param seismo the seismogram to be added
-     */
-    public void add(DataSetSeismogram[] seismos){
-        super.add(seismos);
+    protected MicroSecondTimeRange getInitialTime(DataSetSeismogram seis){
         if(interval == null){
-            interval = getInterval(seismos[0]);
+            interval = getInterval(seis);
         }
-        for(int i = 0; i < seismos.length; i++){
-            if(!contains(seismos[i])){
-                MicroSecondTimeRange current = new MicroSecondTimeRange(seismos[i].getRequestFilter());
-                seismoTimes.put(seismos[i], current.shale(shift, scale));
-            }
-        }
-        fireTimeEvent();
+        MicroSecondTimeRange current = new MicroSecondTimeRange(seis.getRequestFilter());
+        QuantityImpl intervalPercentage = current.getInterval().convertTo(UnitImpl.MICROSECOND).divideBy(interval.convertTo(UnitImpl.MICROSECOND));
+        current = current.shale(0, intervalPercentage.getValue());
+        return current.shale(shift, scale);
     }
 
     public void shaleTime(double shift, double scale, DataSetSeismogram[] seismos){
@@ -60,9 +57,12 @@ public class BeginAlignedTimeConfig extends BasicTimeConfig{
         for(int i = 0; i < seismos.length; i++){
             times[i] = (MicroSecondTimeRange)seismoTimes.get(seismos[i]);
         }
-        return super.fireTimeEvent(new TimeEvent(seismos, times));
+        MicroSecondTimeRange epoch = new MicroSecondTimeRange(new MicroSecondDate(ONE_WEEK),
+                                                              interval);
+        return super.fireTimeEvent(new RelativeTimeEvent(seismos, times, epoch.shift(shift)));
     }
 
-    private TimeInterval interval;
+    private long ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 
+    private TimeInterval interval;
 }// BeginAlignedTimeConfig
