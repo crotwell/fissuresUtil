@@ -6,16 +6,16 @@
 package edu.sc.seis.fissuresUtil.database.network;
 
 import java.sql.SQLException;
-import junit.framework.TestCase;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.network.StationIdUtil;
+import edu.sc.seis.fissuresUtil.database.JDBCTest;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStation;
 
-public class JDBCStationTest extends TestCase {
+public class JDBCStationTest extends JDBCTest {
 
-    public JDBCStationTest() throws SQLException {
+    public void setUp() throws SQLException {
         stationTable = new JDBCStation();
     }
 
