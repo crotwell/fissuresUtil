@@ -150,7 +150,7 @@ public class MiniSeedRead  {
             System.arraycopy(Utility.intToByteArray(type), 2, fullBytes, 0, 2);
             System.arraycopy(blocketteBytes, 0, fullBytes, 4, blocketteBytes.length);
             Blockette b = Blockette.parseBlockette(type,
-                                                   blocketteBytes);
+                                                   fullBytes);
             dataRec.addBlockette(b);
             
             if (nextOffset == 0) {
