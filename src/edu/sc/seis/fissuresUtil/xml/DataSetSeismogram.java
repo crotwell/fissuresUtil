@@ -23,6 +23,10 @@ import org.apache.log4j.*;
 
 public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     
+    public DataSetSeismogram() {
+
+    }
+
     public DataSetSeismogram(RequestFilter rf, 
 			     DataCenterOperations dco) {
 	this(rf, dco, null);
