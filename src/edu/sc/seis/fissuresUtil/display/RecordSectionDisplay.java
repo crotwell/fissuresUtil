@@ -34,7 +34,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 });
         int min = 10;
         int max = 100;
-        scalingSlider = new JSlider(JSlider.VERTICAL, min, max, min);
+        scalingSlider = new JSlider(JSlider.VERTICAL, min, max, (max - min)/2);
         scalingSlider.setMajorTickSpacing(10);
         scalingSlider.setPaintTicks(true);
         scalingSlider.setBorder(BorderFactory.createRaisedBevelBorder());
