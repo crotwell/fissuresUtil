@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.borders.DistanceBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
 import edu.sc.seis.fissuresUtil.display.drawable.CurrentTimeFlag;
@@ -68,6 +69,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
         if(layout != null) {
             layout.setScale(newScaling / 10);
         }
+    }
+
+    public UnitRangeImpl getDistance() {
+        return getLayoutConfig().getLayout().getDistance();
     }
 
     public synchronized void add(DataSetSeismogram[] seismos) {
@@ -328,7 +333,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
                 } else {
                     g2.translate(0, -neededYPos);
                 }
-                cur.drawName(g2, 5, (int)(neededYPos + drawHeight / 2));
+                if(drawNamesForNamedDrawables) {
+                    cur.drawName(g2, 5, (int)(neededYPos + drawHeight / 2));
+                }
                 int[] yPos = {(int)neededYPos, (int)(neededYPos + drawHeight)};
                 drawablePositions.put(cur, yPos);
             }
