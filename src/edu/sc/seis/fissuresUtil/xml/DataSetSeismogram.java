@@ -207,11 +207,19 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
 	temp[0] = requestFilter;
 	try {
 	    //System.out.println("Calling the request_seismograms method of the datacenter");
-	    DBDataCenter.getDataCenter(this.dataCenterOps).request_seismograms(temp,
-							     (LocalDataCenterCallBack)this,
-							     dataListener,
-							     false,
-							     new MicroSecondDate().getFissuresTime());
+	    if(this.dataCenterOps instanceof DBDataCenter) {
+		this.dataCenterOps.request_seismograms(temp,
+						       (LocalDataCenterCallBack)this,
+						       dataListener,
+						       false,
+						       new MicroSecondDate().getFissuresTime());
+	    } else {
+		DBDataCenter.getDataCenter(this.dataCenterOps).request_seismograms(temp,
+										   (LocalDataCenterCallBack)this,
+										   dataListener,
+										   false,
+										   new MicroSecondDate().getFissuresTime());
+	    }
 	} catch(FissuresException fe) {
 	    logger.debug("Exception occurred while using DataCenter to get Data",fe); 
 	}
