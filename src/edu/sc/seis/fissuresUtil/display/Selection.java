@@ -60,9 +60,8 @@ public class Selection implements TimeSyncListener{
 	    selectedBegin = !selectedBegin;
 	}
 	if(selectedBegin){
-	    internalTimeConfig.setDisplayInterval(new TimeInterval(selectionBegin, 
-								   currentInternal.getEndTime()));
-	    internalTimeConfig.setAllBeginTime(selectionBegin);
+	    System.out.println(selectionBegin + " " + currentInternal.getEndTime());
+	    internalTimeConfig.set(selectionBegin, new TimeInterval(selectionBegin, currentInternal.getEndTime()));
 	    repaintParents();
 	}else{
 	    internalTimeConfig.setDisplayInterval(new TimeInterval(currentInternal.getBeginTime(), selectionEnd));
@@ -95,6 +94,8 @@ public class Selection implements TimeSyncListener{
 	return false;
     }
     
+    public void addParent(BasicSeismogramDisplay newParent){ parents.add(newParent); }
+
     public BasicSeismogramDisplay getParent(){ return (BasicSeismogramDisplay)parents.getFirst(); }
 
     public LinkedList getParents(){ return parents; }

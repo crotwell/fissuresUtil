@@ -130,6 +130,9 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     public synchronized void set(MicroSecondDate b, TimeInterval t){
 	displayInterval = t;
 	beginTime = b;
+	Iterator e = seismos.keySet().iterator();
+	while(e.hasNext())
+	    seismos.put(e.next(), b);
 	updateTimeSyncListeners();
     }
 
