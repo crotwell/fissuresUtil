@@ -560,6 +560,17 @@ public class DateChooser extends JPanel {
 	gbc.gridx = x_leftcorner;
 	gbc.gridy = y_leftcorner;
 
+	gbc.gridx++;gbc.gridx++;
+	subPane.add(new JLabel("Number"));
+	gbc.gridx++;
+	populateComboBox(valueBox, 1, 3);
+	Calendar tempCalendar = Calendar.getInstance();
+	tempCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+	tempCalendar.add(Calendar.WEEK_OF_YEAR, -1);
+	calendar = tempCalendar;
+
+	subPane.add(valueBox);
+
 	gbc.gridx++;
 
 	subPane.add(weekButton);
@@ -567,11 +578,7 @@ public class DateChooser extends JPanel {
 	subPane.add(monthButton);
 	gbc.gridx++;
 	subPane.add(yearButton);
-	gbc.gridx++;gbc.gridx++;
-	subPane.add(new JLabel("Number"));
-	gbc.gridx++;
-	populateComboBox(valueBox, 1, 3);
-	subPane.add(valueBox);
+
 
 	weekButton.addActionListener(new ActionListener() {
 		
