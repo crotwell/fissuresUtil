@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.Fissures.model.TimeInterval;
 
 /**
  * EdgeTimeFinder.java
@@ -27,8 +28,9 @@ public class EdgeTimeFinder implements TimeFinder{
 	    return beginTime;
     }
    
-    public MicroSecondDate getEndTime(DataSetSeismogram seismo){
-	return ((LocalSeismogramImpl)seismo.getSeismogram()).getEndTime();
+    public TimeInterval getDisplayInterval(DataSetSeismogram seismo){
+	return new TimeInterval(((LocalSeismogramImpl)seismo.getSeismogram()).getBeginTime(), 
+				((LocalSeismogramImpl)seismo.getSeismogram()).getEndTime());
     }
 
     public void updateTimeRange(){

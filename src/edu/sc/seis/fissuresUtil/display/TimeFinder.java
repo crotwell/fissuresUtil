@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 
 /**
  * TimeFinder.java
@@ -16,6 +17,6 @@ public interface TimeFinder extends TimeSyncListener{
     
     public MicroSecondDate getBeginTime(DataSetSeismogram seismo);
 
-    public MicroSecondDate getEndTime(DataSetSeismogram seismo);
+    public TimeInterval getDisplayInterval(DataSetSeismogram seismo);
 
 }// TimeFinder
