@@ -147,7 +147,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public void updateAmpRange(){
 	ampScaleMap.setUnitRange(ampRegistrar.getAmpRange());
-	redo = true;
+	//redo = true;
 	repaint();
     }
 
