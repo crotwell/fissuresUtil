@@ -325,6 +325,9 @@ public abstract class DataSetSeismogram
     public Object getAuxillaryData(Object key) {
         return auxillaryData.get(key);
     }
+    public Object removeAuxillaryData(Object key) {
+        return auxillaryData.remove(key);
+    }
 
     public Collection getAuxillaryDataKeys() {
         return auxillaryData.keySet();
