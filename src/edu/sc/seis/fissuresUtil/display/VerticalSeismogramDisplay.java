@@ -421,13 +421,13 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		
 		if(seismograms.length > 0){
 		    DataSetSeismogram[] dataSetSeismograms = new DataSetSeismogram[seismograms.length];
-		    for(int j = 0; i < seismograms.length; i++){
-			dataSetSeismograms[i] = new DataSetSeismogram((LocalSeismogramImpl)seismograms[i], dataSet);
+		    for(int j = 0; j < seismograms.length; j++){
+			dataSetSeismograms[i] = new DataSetSeismogram((LocalSeismogramImpl)seismograms[j], dataSet);
 			allMatchingDSS.add(dataSetSeismograms[i]);
 		    }
 		    creator.addDisplay(reaper.addDisplay(dataSetSeismograms, (TimeConfig)creator.getInternalRegistrar(), 
-						     channelGroup[i]+ "." 
-						     + creator.getColor()));
+							 dataSetSeismograms[0].getSeismogram().getName() + "." 
+							 + creator.getColor()));
 		}
 	    }
 	}
