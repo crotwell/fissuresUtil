@@ -226,7 +226,7 @@ public abstract class DataSetSeismogram
                                                             initiator);
         addToCache(seismograms);
         // if the initiator is not already registered send event to it as well
-        if ( ! dssDataListeners.contains(initiator)) {
+        if ( initiator != null && ! dssDataListeners.contains(initiator)) {
             initiator.pushData(event);
         }
         fireNewDataEvent(event);
