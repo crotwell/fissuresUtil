@@ -396,8 +396,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	ampRegistrar.individualizeAmpConfig(timeRegistrar);
     }
 
-    public void createParticleDisplay(MouseEvent me){
-	parent.createParticleDisplay(this);
+    public void createParticleDisplay(MouseEvent me, boolean advancedOption){
+	parent.createParticleDisplay(this, advancedOption);
     }
 
     protected class ImagePainter extends JComponent{

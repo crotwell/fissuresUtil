@@ -295,14 +295,15 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    ((BasicSeismogramDisplay)e.next()).getAmpRegistrar().setRegistrar(globalAmpRegistrar);
     }
     
-    public void createParticleDisplay(BasicSeismogramDisplay creator){
+    public void createParticleDisplay(BasicSeismogramDisplay creator, boolean advancedOption){
 	if(particleDisplay == null){
 	    logger.debug("creating particle display");
 	    particleWindow = new JFrame("Particle Motion");
 	    particleDisplay = new ParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
 							(TimeConfigRegistrar)creator.getTimeConfig(), 
 							creator.getAmpRegistrar(), 
-							creator.getAmpRegistrar());
+							creator.getAmpRegistrar(),
+							advancedOption);
 	    JPanel displayPanel = new JPanel();
 	    JButton zoomIn = new JButton("zoomIn");
 	    JButton zoomOut = new JButton("zoomOut");
