@@ -7,7 +7,7 @@ package edu.sc.seis.fissuresUtil.bag;
  * Created: Sat Oct 19 21:53:21 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: Taper.java 2783 2002-10-21 00:00:16Z crotwell $
+ * @version $Id: Taper.java 2787 2002-10-21 01:10:16Z crotwell $
  */
 
 public class Taper {
@@ -24,9 +24,24 @@ public class Taper {
 	this.width = width;
     }
 
+    public LocalSeismogram apply(LocalSeismogram seis){
+	if(seismo.can_convert_to_float()){
+	    float[] fSeries = seis.get_as_floats();
+	    return new LocalSeismogramImpl(seis, apply(fSeries));
+	}else{
+	    int[] iSeries = seismo.get_as_longs();
+	    return new LocalSeismogramImpl(seis, apply(iSeries));
+	}
+    }
 
+    public float[] apply(float[] data) {
+	float[] out = new float[data.length];
+	System.arraycopy(data, 0, out, 0, data.length);
+	applyInPlace(out);
+	return out;
+    }
 
-    public void apply(float[] data) {
+    public void applyInPlace(float[] data) {
 	int w = Math.round(data.length*width);
 
 	double[] coeff = getCoefficients(w);
@@ -40,7 +55,14 @@ public class Taper {
 	} // end of for (int i=0; i<data.length; i++)
     }
 
-    public void apply(int[] data) {
+    public int[] apply(int[] data) {
+	int[] out = new int[data.length];
+	System.arraycopy(data, 0, out, 0, data.length);
+	applyInPlace(out);
+	return out;
+    }
+
+    public void applyInPlace(int[] data) {
 	int w = Math.round(data.length*width);
 
 	double[] coeff = getCoefficients(w);
