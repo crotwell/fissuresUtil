@@ -71,6 +71,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	Dimension d = getSize();
 	Insets insets = getInsets();
 	setPreferredSize(new Dimension(200 + insets.left + insets.right, 100 + insets.top + insets.bottom));
+	resize();
 	plotPainter = new PlotPainter();
 	add(plotPainter);
     }
@@ -271,7 +272,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	displaySize = new Dimension(d.width - insets.left - insets.right, d.height - insets.top - insets.bottom);
 	timeScaleMap.setTotalPixels(displaySize.width);
 	ampScaleMap.setTotalPixels(displaySize.height);
-    	repaint();
+	repaint();
     }
 
     public void remove(){
@@ -356,21 +357,27 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	}
     }
 
+    public void paint(Graphics g){
+	if(displaySize.height < 0 || displaySize.width < 0){
+	    return; 
+	}
+	super.paint(g);
+    }
+    
     private class PlotPainter extends JComponent{
 	public void paint(Graphics g){
 	    //Date begin = new Date();
 	    Graphics2D g2 = (Graphics2D)g;
-	    Dimension size = getSize();
 	    Iterator e = plotters.iterator();
 	    //Date plotBegin = new Date();
 	    while(e.hasNext()){
-		((Plotter)e.next()).draw(g2, size, currentTimeEvent, currentAmpEvent);
+		((Plotter)e.next()).draw(g2, displaySize, currentTimeEvent, currentAmpEvent);
 	    }
 	    //Date plotEnd = new Date();
 	    if(name != null){
-		g2.setPaint(new Color(0, 0, 0, 128));
-		g2.drawString(name, 5, getSize().height - 3);
-		}
+		g2.setPaint(Color.black);
+		g2.drawString(name, 5, displaySize.height - 3);
+	    }
 	    /*Date end = new Date();
 	    count++;
 	    nameTime = end.getTime() - plotEnd.getTime();
