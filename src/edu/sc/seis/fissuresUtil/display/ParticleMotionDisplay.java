@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-
+import edu.sc.seis.fissuresUtil.chooser.*;
+import edu.sc.seis.fissuresUtil.namingService.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.model.*;
 
 import javax.swing.*;
@@ -42,6 +44,29 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	this.vAmpRangeConfig = vAmpRangeConfig;
 
 	this.setLayout(new OverlayLayout(this));
+	showScale(hSeis, 
+		  vSeis,
+		  timeRangeConfig,
+		  hAmpRangeConfig,
+		  vAmpRangeConfig,
+		  color);
+	this.addComponentListener(new ComponentAdapter() {
+		public void componentResized(ComponentEvent e) {
+		    resolveParticleMotion();
+		    resize();
+		}
+		public void componentShown(ComponentEvent e) {
+		    resize();
+		}
+	    });
+	updateTimeRange();
+    }
+
+    public void showScale(LocalSeismogramImpl hSeis,
+			  LocalSeismogramImpl vSeis,
+			  TimeRangeConfig timeRangeConfig,
+			  AmpRangeConfig hAmpRangeConfig,
+			  AmpRangeConfig vAmpRangeConfig, Color color) {
 	view = new ParticleMotionView(hSeis, 
 				      vSeis, 
 				      timeRangeConfig,
@@ -54,7 +79,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	}
 	view.setSize(new java.awt.Dimension(300, 300));
 	add(view, PARTICLE_MOTION_LAYER);
-    hAmpScaleMap = new AmpScaleMapper(50,
+	hAmpScaleMap = new AmpScaleMapper(50,
                                           4,
 					  hAmpRangeConfig.getAmpRange(hSeis));
         vAmpScaleMap = new AmpScaleMapper(50,
@@ -78,18 +103,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 								BorderFactory.createLoweredBevelBorder()))
 	  );
 
-	this.addComponentListener(new ComponentAdapter() {
-		public void componentResized(ComponentEvent e) {
-		    resolveParticleMotion();
-		    resize();
-		}
-		public void componentShown(ComponentEvent e) {
-		    resize();
-		}
-	    });
-	updateTimeRange();
 	
-   
+	
+	
     }
 
     public ParticleMotionDisplay (LocalSeismogramImpl hSeis,
@@ -117,6 +133,82 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	//	AmpRangeConfig ampConfig = new RMeanAmpConfig();
 	this(hseis, vseis, timeRangeConfig, new RMeanAmpConfig());
     }
+
+
+    public ParticleMotionDisplay(LocalSeismogramImpl hseis,
+				 TimeRangeConfig timeRangeConfig,
+				 org.omg.CORBA_2_3.ORB orb) {
+
+	ChannelProxy channelProxy = new ChannelProxy();
+	Channel[] channelGroup = channelProxy.retrieve_grouping(orb, hseis.getChannelID());
+	FissuresNamingServiceImpl fissuresNamingServiceImpl = null;
+	edu.iris.Fissures.Time startTime;
+	edu.iris.Fissures.Time endTime;
+	LocalSeismogram[] seismograms = new LocalSeismogram[3];
+	if(timeRangeConfig != null) {
+	    startTime = timeRangeConfig.getTimeRange().getBeginTime().getFissuresTime();
+	    endTime = timeRangeConfig.getTimeRange().getEndTime().getFissuresTime();
+	} else {
+	    startTime = hseis.getBeginTime().getFissuresTime();
+	    endTime = hseis.getEndTime().getFissuresTime();
+	}
+	try {
+	    fissuresNamingServiceImpl = new FissuresNamingServiceImpl(orb);
+	    DataCenter dataCenter = fissuresNamingServiceImpl.getSeismogramDC("edu/sc/seis", "SCEPPSeismogramDC");
+	    for(int counter = 0; counter < channelGroup.length; counter++) {
+		LocalSeismogram[] localSeismograms = retreiveSeismograms(startTime,
+									 endTime,
+									 channelGroup[counter].get_id(),
+									 dataCenter);
+		seismograms[counter] = localSeismograms[0];
+	    }
+								     
+	 } catch(Exception e) {
+	    
+	     e.printStackTrace();
+	}
+	AmpRangeConfig ampRangeConfig = new RMeanAmpConfig();
+	this.hAmpRangeConfig = ampRangeConfig;
+	this.vAmpRangeConfig = ampRangeConfig;
+	showScale((LocalSeismogramImpl)seismograms[0], 
+	     (LocalSeismogramImpl)seismograms[1], 
+	     timeRangeConfig, 
+	     ampRangeConfig, 
+	     ampRangeConfig, 
+	     null);
+	this.addComponentListener(new ComponentAdapter() {
+		public void componentResized(ComponentEvent e) {
+		    resolveParticleMotion();
+		    resize();
+		}
+		public void componentShown(ComponentEvent e) {
+		    resize();
+		}
+	    });
+	updateTimeRange();
+	     
+	
+    }
+
+    public LocalSeismogram[] retreiveSeismograms(edu.iris.Fissures.Time startTime, 
+						 edu.iris.Fissures.Time endTime, 
+						 ChannelId channelId,
+						 DataCenter dataCenter) throws edu.iris.Fissures.FissuresException
+    {
+	RequestFilter[] filters;
+	filters = new RequestFilter[1];
+	filters[0] = 
+	    new RequestFilter(channelId,
+			      startTime,
+			      endTime
+			      );
+	
+	SeisTimeFilterSelector selector = new SeisTimeFilterSelector();
+	LocalSeismogram[] localSeismograms;
+	localSeismograms = selector.getFromGivenFilters(dataCenter, filters);
+	return localSeismograms;
+    }
+
 
 
     public void resolveParticleMotion() {
