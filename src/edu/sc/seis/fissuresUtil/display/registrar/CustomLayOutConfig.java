@@ -10,9 +10,11 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  */
 public class CustomLayOutConfig extends BasicLayoutConfig {
 
-    public CustomLayOutConfig(double minDistance, double maxDistance) {
+    public CustomLayOutConfig(double minDistance, double maxDistance,
+            double percentSeisHeight) {
         super();
-        double axisCorrection = (maxDistance - minDistance) * PERCENT_OFFSET;
+        this.percent_offset = percentSeisHeight / 100.0;
+        double axisCorrection = (maxDistance - minDistance) * percent_offset;
         this.minDistance = minDistance - axisCorrection;
         this.maxDistance = maxDistance + axisCorrection;
     }
@@ -43,8 +45,8 @@ public class CustomLayOutConfig extends BasicLayoutConfig {
                     centerPercentage = cpVal;
                 }
                 data[i] = new LayoutData(cur,
-                                         centerPercentage - PERCENT_OFFSET,
-                                         centerPercentage + PERCENT_OFFSET);
+                                         centerPercentage - percent_offset,
+                                         centerPercentage + percent_offset);
             }
             UnitRangeImpl range = new UnitRangeImpl(startDist,
                                                     endDist,
@@ -58,7 +60,7 @@ public class CustomLayOutConfig extends BasicLayoutConfig {
 
     private LayoutEvent lastEvent = LayoutEvent.EMPTY_EVENT;
 
-    public static double PERCENT_OFFSET = 0.1;
+    private double percent_offset;
 
     private double minDistance;
 
