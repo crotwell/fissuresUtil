@@ -106,14 +106,32 @@ public class IntervalChooser extends JPanel{
 
 	java.util.Date returnDate = new java.util.Date();
 	
-	if( unit.equals("sec") ) { returnDate.setTime(calendar.getTime().getTime() - rollBackValue * 1000);}
-	else if(unit.equals("min")) { returnDate.setTime(calendar.getTime().getTime() - rollBackValue * 1000 *60); }
-	else if(unit.equals("hr")) {  returnDate.setTime(calendar.getTime().getTime() - rollBackValue * 1000 * 60 * 60);}
-	else if(unit.equals("day")) {  returnDate.setTime(calendar.getTime().getTime() - rollBackValue * 1000 * 60 * 60 * 24);}
-	else if(unit.equals("month")) {  returnDate.setTime(calendar.getTime().getTime() - rollBackValue * 1000 * 60 * 24 * 31 );}
-	else if(unit.equals("year")) {  returnDate.setTime(calendar.getTime().getTime() - rollBackValue * 1000 * 60 * 60 * 24 * 31 * 12  );}
+	if( unit.equals("sec") ) { 
+	    calendar.add(Calendar.SECOND, rollBackValue);
+	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000);
+	}
+	else if(unit.equals("min")) { 
+	    calendar.add(Calendar.MINUTE, rollBackValue);
+	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 *60); 
+	}
+	else if(unit.equals("hr")) {  
+	    calendar.add(Calendar.HOUR, rollBackValue);
+	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 * 60 * 60);
+	}
+	else if(unit.equals("day")) {  
+	    calendar.add(Calendar.DAY_OF_YEAR, rollBackValue);
+	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 * 60 * 60 * 24);
+	}
+	else if(unit.equals("month")) {  
+	    calendar.add(Calendar.MONTH, rollBackValue);
+	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 * 60 * 24 * 31 );
+	}
+	else if(unit.equals("year")) {  
+	    calendar.add(Calendar.YEAR, rollBackValue);
+	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 * 60 * 60 * 24 * 31 * 12  );
+	}
 	
-	return returnDate;
+	return calendar.getTime();
 
     }
     private GridBagConstraints constraints;
