@@ -6,9 +6,11 @@ package edu.sc.seis.fissuresUtil.display.registrar;
  * @author Created by Charlie Groves
  */
 
+import edu.iris.Fissures.IfNetwork.Response;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 
 public class BasicAmpEvent implements AmpEvent{
     public BasicAmpEvent(DataSetSeismogram[] seismos, UnitRangeImpl[] amps){
@@ -38,10 +40,12 @@ public class BasicAmpEvent implements AmpEvent{
     }
 
     private void generateGenericAmp(){
+        // Currently, we only do "real world units" in the case of one seismogram
+        // eventually, the overlays should
         if(amps.length == 0){
             genericAmp = DisplayUtils.ONE_RANGE;
         } else if(amps.length == 1){
-            genericAmp = amps[0];
+            genericAmp = calcGenericAmp(amps[0], seismos[0]);
         }else{
             boolean equal = true;
             for(int i = 1; i < amps.length; i++){
@@ -56,6 +60,20 @@ public class BasicAmpEvent implements AmpEvent{
                 double halfRange = (amps[0].getMaxValue() - amps[0].getMinValue())/2;
                 genericAmp = new UnitRangeImpl(-halfRange, halfRange, amps[0].getUnit());
             }
+        }
+    }
+
+    /** calculates a new generic amp using the response of the given seismogram.
+     If seis does not have a response, then the initial amp is used. */
+    protected static UnitRangeImpl calcGenericAmp(UnitRangeImpl inAmp, DataSetSeismogram seis) {
+        Object obj = seis.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
+        Response resp = (Response)obj;
+        if (obj != null) {
+            return new UnitRangeImpl(inAmp.min_value/resp.the_sensitivity.sensitivity_factor,
+                                     inAmp.max_value/resp.the_sensitivity.sensitivity_factor,
+                                     resp.stages[0].input_units);
+        } else {
+            return inAmp;
         }
     }
 
