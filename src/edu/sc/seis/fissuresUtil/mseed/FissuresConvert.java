@@ -122,19 +122,36 @@ public class FissuresConvert  {
     }
 
     /** assume all records from same channel and in time order with no gaps/overlaps.*/
-    public static LocalSeismogram toFissures(DataRecord[] seed)
+    public static LocalSeismogramImpl toFissures(DataRecord[] seed)
         throws SeedFormatException, FissuresException {
         LocalSeismogramImpl seis = toFissures(seed[0]);
         for (int i = 1; i < seed.length; i++) {
-            TimeSeriesDataSel bits = convertData(seed[i]);
-            EncodedData[] edata = bits.encoded_values();
-            for (int j = 0; j < edata.length; j++) {
-                if (edata[j] == null ) {
-                    System.err.println("encoded data is null "+j);
-                    System.exit(1);
-                }
-                seis.append_encoded(edata[j]);
+            append(seis, seed[i]);
+        }
+        return seis;
+    }
+
+    /** assume all records from same channel and in time order with no gaps/overlaps.*/
+    public static LocalSeismogramImpl append(LocalSeismogramImpl seis, DataRecord[] seed)
+        throws SeedFormatException, FissuresException {
+        for (int i = 0; i < seed.length; i++) {
+            append(seis, seed[i]);
+        }
+        return seis;
+    }
+
+
+    /** assume all records from same channel and in time order with no gaps/overlaps.*/
+    public static LocalSeismogramImpl append(LocalSeismogramImpl seis, DataRecord seed)
+        throws SeedFormatException, FissuresException {
+        TimeSeriesDataSel bits = convertData(seed);
+        EncodedData[] edata = bits.encoded_values();
+        for (int j = 0; j < edata.length; j++) {
+            if (edata[j] == null ) {
+                System.err.println("encoded data is null "+j);
+                System.exit(1);
             }
+            seis.append_encoded(edata[j]);
         }
         return seis;
     }
@@ -165,29 +182,38 @@ public class FissuresConvert  {
         Property[] props = new Property[1];
         props[0] = new Property("Name", seisId);
 
+        Blockette[] blocketts = seed.getBlockettes(100);
+
         int numPerSampling;
         TimeInterval timeInterval;
-        if (header.getSampleRateFactor() > 0) {
-            numPerSampling = header.getSampleRateFactor();
-            timeInterval = new TimeInterval(1, UnitImpl.SECOND);
-            if (header.getSampleRateMultiplier() > 0) {
-                numPerSampling *= header.getSampleRateMultiplier();
-            } else {
-                timeInterval =
-                    (TimeInterval)timeInterval.multiplyBy(-1 *
-                                                              header.getSampleRateMultiplier());
-            }
-        } else {
+        if (blocketts.length != 0) {
+            Blockette100 b100 = (Blockette100)blocketts[0];
+            float f = b100.getActualSampleRate();
             numPerSampling = 1;
-            timeInterval =
-                new TimeInterval(-1 * header.getSampleRateFactor(),
-                                 UnitImpl.SECOND);
-            if (header.getSampleRateMultiplier() > 0) {
-                numPerSampling *= header.getSampleRateMultiplier();
+            timeInterval = new TimeInterval(1/f, UnitImpl.SECOND);
+        } else {
+            if (header.getSampleRateFactor() > 0) {
+                numPerSampling = header.getSampleRateFactor();
+                timeInterval = new TimeInterval(1, UnitImpl.SECOND);
+                if (header.getSampleRateMultiplier() > 0) {
+                    numPerSampling *= header.getSampleRateMultiplier();
+                } else {
+                    timeInterval =
+                        (TimeInterval)timeInterval.multiplyBy(-1 *
+                                                                  header.getSampleRateMultiplier());
+                }
             } else {
+                numPerSampling = 1;
                 timeInterval =
-                    (TimeInterval)timeInterval.multiplyBy(-1 *
-                                                              header.getSampleRateMultiplier());
+                    new TimeInterval(-1 * header.getSampleRateFactor(),
+                                     UnitImpl.SECOND);
+                if (header.getSampleRateMultiplier() > 0) {
+                    numPerSampling *= header.getSampleRateMultiplier();
+                } else {
+                    timeInterval =
+                        (TimeInterval)timeInterval.multiplyBy(-1 *
+                                                                  header.getSampleRateMultiplier());
+                }
             }
         }
 
