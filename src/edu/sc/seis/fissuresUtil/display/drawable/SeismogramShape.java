@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 4006 2003-05-22 18:47:38Z groves $
+ * @version $Id: SeismogramShape.java 4455 2003-06-18 17:17:05Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -55,8 +55,8 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
      *
      */
     public synchronized boolean update(MicroSecondTimeRange time,
-                          UnitRangeImpl amp,
-                          Dimension size){
+                                       UnitRangeImpl amp,
+                                       Dimension size){
         if(container.getSeismograms().length <= 0){
             return false;
         }else{
@@ -189,8 +189,17 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
             startPoint = 0;//if the base point is off a bit, fudge a little
         }
         int endPoint = startPoint + 1;
-        double firstPoint = 0;
-        double lastPoint = 0;
+        //TODO fix point calculation such that these aren't over the number of points
+        if(endPoint >= container.getIterator().getNumPoints()){
+            endPoint = container.getIterator().getNumPoints() - 1;
+            startPoint = endPoint - 1;
+         }
+         if(startPoint < 0){
+             startPoint = 0;
+             endPoint =1;
+         }
+        double firstPoint = height/2;
+        double lastPoint = firstPoint;
         firstPoint = container.getIterator().getValueAt(startPoint).getValue();
         lastPoint = container.getIterator().getValueAt(endPoint).getValue();
         double difference = unroundStartPoint - startPoint;
