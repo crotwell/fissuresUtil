@@ -5,7 +5,7 @@ import java.awt.Shape;
 import java.awt.Dimension;
 import java.lang.ref.SoftReference;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.freq.ButterworthFilter;
+import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.fissuresUtil.freq.SeisGramText;
 import org.apache.log4j.*;
@@ -24,7 +24,7 @@ import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
  */
 
 public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
-    public FilteredSeismogramPlotter(ButterworthFilter filter, LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar){
+    public FilteredSeismogramPlotter(ColoredFilter filter, LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar){
 	this.seis = (LocalSeismogramImpl)seis;
 	this.timeConfig = tr;
 	this.ampConfig = ar;
@@ -93,13 +93,13 @@ public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
 	filteredSeis = new LocalSeismogramImpl(seis, sel);
     }
 
-    public ButterworthFilter getFilter(){ return filter; }
+    public ColoredFilter getFilter(){ return filter; }
 
     public LocalSeismogramImpl getUnfilteredSeismogram(){ return seis; }
 
     protected LocalSeismogramImpl seis, filteredSeis;
 
-    protected ButterworthFilter filter;
+    protected ColoredFilter filter;
     
     protected static SeisGramText localeText = new SeisGramText(null);
     

@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.freq.ButterworthFilter;
+import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.freq.SeisGramText;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -58,37 +58,44 @@ public class FilterSelection extends JPanel{
 
     protected static SeisGramText localeText = new SeisGramText(null);
 
-    protected static int TWOPASS = ButterworthFilter.TWOPASS;
+    protected static int TWOPASS = ColoredFilter.TWOPASS;
     
-    protected static ButterworthFilter lp_p1Hz = new ButterworthFilter(localeText,
-				    0.0,
-				    0.05,
-				    2,
-				    TWOPASS);
+    private static Color[] filterColors = { Color.yellow, Color.green, Color.black, Color.darkGray, Color.orange };
+
+    protected static ColoredFilter lp_p1Hz = new ColoredFilter(localeText,
+							       0.0,
+							       0.05,
+							       2,
+							       TWOPASS,
+							       filterColors[0]);
     
-    protected static ButterworthFilter lp_p5Hz = new ButterworthFilter(localeText,
-				    0.0,
-				    0.5,
-				    2,
-				    TWOPASS);
+    protected static ColoredFilter lp_p5Hz = new ColoredFilter(localeText,
+							       0.0,
+							       0.5,
+							       2,
+							       TWOPASS,
+							       filterColors[1]);
     
-    protected static ButterworthFilter lp1Hz = new ButterworthFilter(localeText,
-				  0.0,
-				  1.0,
-				  2,
-				  TWOPASS);
+    protected static ColoredFilter lp1Hz = new ColoredFilter(localeText,
+							     0.0,
+							     1.0,
+							     2,
+							     TWOPASS,
+							     filterColors[2]);
     
-    protected static ButterworthFilter bp_1_10Hz = new ButterworthFilter(localeText,
-				      0.1,
-				      10.0,
-				      2,
-				      TWOPASS);
+    protected static ColoredFilter bp_1_10Hz = new ColoredFilter(localeText,
+								 0.1,
+								 10.0,
+								 2,
+								 TWOPASS,
+								 filterColors[3]);
     
-    protected static ButterworthFilter bp1_10Hz = new ButterworthFilter(localeText,
-				     1.0,
-				     10.0,
-				     2,
-				     TWOPASS);
+    protected static ColoredFilter bp1_10Hz = new ColoredFilter(localeText,
+								1.0,
+								10.0,
+								2,
+								TWOPASS,
+								filterColors[4]);
 
     protected VerticalSeismogramDisplay listener;
     
@@ -112,36 +119,36 @@ public class FilterSelection extends JPanel{
 	    }else if(visibility == true){
 		if(source == teleseismic){
 		    currentFilters.add(lp_p1Hz);
-		    listener.applyFilter(lp_p1Hz, visibility, currentFilters);
+		    listener.applyFilter(lp_p1Hz);
 		}else if(source == smoothTeleseismic){
 		    currentFilters.add(lp_p5Hz);
-		    listener.applyFilter(lp_p5Hz, visibility, currentFilters);
+		    listener.applyFilter(lp_p5Hz);
 		}else if(source == vSmoothTeleseismic){
 		    currentFilters.add(lp1Hz);
-		    listener.applyFilter(lp1Hz, visibility, currentFilters);
+		    listener.applyFilter(lp1Hz);
 		}else if(source == regional){
 		    currentFilters.add(bp_1_10Hz);
-		    listener.applyFilter(bp_1_10Hz, visibility, currentFilters);
+		    listener.applyFilter(bp_1_10Hz);
 		}else{
 		    currentFilters.add(bp1_10Hz);
-		    listener.applyFilter(bp1_10Hz, visibility, currentFilters);
+		    listener.applyFilter(bp1_10Hz);
 		}
 	    }else{
 		if(source == teleseismic){
 		    currentFilters.remove(lp_p1Hz);
-		    listener.applyFilter(lp_p1Hz, visibility, currentFilters);
+		    listener.applyFilter(lp_p1Hz);
 		}else if(source == smoothTeleseismic){
 		    currentFilters.remove(lp_p5Hz);
-		    listener.applyFilter(lp_p5Hz, visibility, currentFilters);
+		    listener.applyFilter(lp_p5Hz);
 		}else if(source == vSmoothTeleseismic){
 		    currentFilters.remove(lp1Hz);
-		    listener.applyFilter(lp1Hz, visibility, currentFilters);
+		    listener.applyFilter(lp1Hz);
 		}else if(source == regional){
 		    currentFilters.remove(bp_1_10Hz);
-		    listener.applyFilter(bp_1_10Hz, visibility, currentFilters);
+		    listener.applyFilter(bp_1_10Hz);
 		}else{
 		    currentFilters.remove(bp1_10Hz);
-		    listener.applyFilter(bp1_10Hz, visibility, currentFilters);
+		    listener.applyFilter(bp1_10Hz);
 		}
 	    }
 	}

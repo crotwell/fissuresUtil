@@ -6,13 +6,10 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.sc.seis.fissuresUtil.freq.ButterworthFilter;
+import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import edu.sc.seis.TauP.Arrival;
-import java.util.LinkedList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Date;
+import java.util.*;
 import java.lang.ref.SoftReference;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -95,15 +92,19 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     public void addSeismogram(DataSetSeismogram newSeismogram){
 	seismos.add(newSeismogram);
 	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram.getSeismogram(), timeRegistrar, ampRegistrar);
-	Iterator e = filters.iterator();
+	if(parent != null)
+	    newPlotter.setVisibility(parent.getOriginalVisibility());
 	if(autoColor)
 	    seisPlotters.put(newPlotter, seisColors[seisPlotters.size()%seisColors.length]);
 	else
 	    seisPlotters.put(newPlotter, Color.blue);
+	Iterator e = filters.keySet().iterator();
 	while(e.hasNext()){
-	    filterPlotters.put(new FilteredSeismogramPlotter(((ButterworthFilter)e.next()), newSeismogram.getSeismogram(), 
-							     timeRegistrar, ampRegistrar), 
-			       filterColors[filterPlotters.size()%filterColors.length]);
+	    ColoredFilter current =((ColoredFilter)e.next());
+	    FilteredSeismogramPlotter currentPlotter = new FilteredSeismogramPlotter(current, newSeismogram.getSeismogram(), 
+										     timeRegistrar, ampRegistrar);
+	    currentPlotter.setVisibility(((Boolean)filters.get(current)).booleanValue());
+	    filterPlotters.put(currentPlotter, current.getColor());
 	}
 	timeRegistrar.addSeismogram(newSeismogram.getSeismogram());
 	ampRegistrar.addSeismogram(newSeismogram.getSeismogram());
@@ -171,7 +172,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public TimeInterval getDisplayInterval(){ return imagePainter.displayInterval; }
 
-    public LinkedList getFilters(){ return filters; }
+    public static HashMap getFilters(){ return filters; }
 
     public void setAutoColor(boolean b){ autoColor = b; }
 
@@ -225,57 +226,6 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     public void stopImageCreation(){
 	synchronized(imageMaker){ imageMaker.remove(imagePainter); }
     }
-    
-    /*public void selectRegion(MouseEvent one, MouseEvent two){
-	Insets insets = this.getInsets();
-	Dimension dim = getSize();
-	double x1percent, x2percent;
-	if(one.getX() < two.getX()){
-	    x1percent = (one.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
-	    x2percent = (two.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
-	}else{
-	    x2percent = (one.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
-	    x1percent = (two.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
-	}
-	MicroSecondDate current = timeRegistrar.getTimeRange().getBeginTime();
-	MicroSecondDate selectionBegin = new MicroSecondDate((long)(imagePainter.displayInterval.getValue() * x1percent + 
-								    current.getMicroSecondTime()));
-	MicroSecondDate selectionEnd = new MicroSecondDate((long)(imagePainter.displayInterval.getValue() * x2percent + 
-								  current.getMicroSecondTime()));
-	if(currentSelection == null){
-	    Iterator e = selections.iterator();
-	    while(e.hasNext()){
-		Selection curr = ((Selection)e.next());
-		if(curr.borders(selectionBegin, selectionEnd)){
-		    currentSelection = curr;
-		    currentSelection.adjustRange(selectionBegin, selectionEnd);		
-		    return;
-		}
-	    }
-	    currentSelection = new Selection(selectionBegin, selectionEnd, timeRegistrar, seismos, this, 
-					     selectionColors[selections.size()%selectionColors.length]);
-	    selections.add(currentSelection);
-	    newSelection = true;
-	    return;
-	}
-	currentSelection.adjustRange(selectionBegin, selectionEnd);		
-    }
-
-    public Selection getCurrentSelection(){ return currentSelection; }
-    
-    public void selectionReleased(MouseEvent me){
-	if(currentSelection.isRemoveable()){
-	    currentSelection.remove();
-	    selections.remove(currentSelection);
-	    repaint();
-	}else if(newSelection == true){
-	    parent.createSelectionDisplay(this);
-	    newSelection = false;
-	}
-	currentSelection.release();
-	currentSelection = null;
-    }*/
-
 
     public void clearSelections(){
 	Iterator e = selections.iterator();
@@ -285,13 +235,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	selections.clear();
 	repaint();
     }
-    	
 
-    /**
-     * Describe <code>remove</code> method here.
-     *
-     * @param me a <code>MouseEvent</code> value
-     */
     public void remove(){
        logger.debug(name + " being removed");
        this.stopImageCreation();
@@ -396,9 +340,9 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	repaint();
     }
 
-    public void applyFilter(ButterworthFilter filter){
+    public void applyFilter(ColoredFilter filter){
 	synchronized(imageMaker){
-	    if(filters.contains(filter)){
+	    if(filters.containsKey(filter)){
 		Iterator e = filterPlotters.keySet().iterator();
 		while(e.hasNext()){
 		FilteredSeismogramPlotter current = ((FilteredSeismogramPlotter)e.next());
@@ -413,7 +357,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, current,
 											      timeRegistrar, ampRegistrar);
 		    filteredPlotter.setVisibility(true);
-		    filterPlotters.put(filteredPlotter, filterColors[filterPlotters.size()%filterColors.length]);
+		    filterPlotters.put(filteredPlotter, filter.getColor());
 		}
 	    }
 	}
@@ -421,9 +365,9 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	repaint();
     }
 
-    public void setFilter(ButterworthFilter filter, boolean visible){
+    public void setFilter(ColoredFilter filter, boolean visible){
 	synchronized(imageMaker){
-	    if(filters.contains(filter)){
+	    if(filters.containsKey(filter)){
 		Iterator e = filterPlotters.keySet().iterator();
 		while(e.hasNext()){
 		FilteredSeismogramPlotter current = ((FilteredSeismogramPlotter)e.next());
@@ -431,7 +375,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		    current.setVisibility(visible);
 		}
 	    }else{
-		filters.add(filter);
+		filters.put(filter, new Boolean(true));
 		Iterator e = seismos.iterator();
 		while(e.hasNext()){
 		    LocalSeismogram current = ((DataSetSeismogram)e.next()).getSeismogram();
@@ -439,7 +383,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, current,
 											      timeRegistrar, ampRegistrar);
 		    filteredPlotter.setVisibility(visible);
-		    filterPlotters.put(filteredPlotter, filterColors[filterPlotters.size()%filterColors.length]);
+		    filterPlotters.put(filteredPlotter, filter.getColor());
 		}
 	    }
 	}
@@ -570,7 +514,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     
     protected LinkedList selections = new LinkedList();
     
-    protected static LinkedList filters = new LinkedList();
+    protected static HashMap filters = new HashMap();
 
     protected HashMap seisPlotters = new HashMap();
     
@@ -603,8 +547,6 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     protected static ImageMaker imageMaker = new ImageMaker();
 
     private Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
-
-    private Color[] filterColors = { Color.yellow, Color.green, Color.black, Color.darkGray, Color.orange };
 
     private Color[] selectionColors = { new NamedColor(255, 0, 0, 64, "red"),  
 					new NamedColor(255, 255, 0, 64, "yellow"), 
