@@ -305,14 +305,20 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 range = new TimeRange(oTime.getFissuresTime(),
                                       oTime.add(TEN_MINUTES).getFissuresTime());
             }
-            RequestFilter[] request = new RequestFilter[1];
-            request[0] = new RequestFilter(new ChannelId(net.get_attributes().get_id(),
-                                                         "*",
-                                                         "*",
-                                                         "*",
-                                                         range.start_time),
-                                           range.start_time,
-                                           range.end_time);
+            String[] chanCodes = channelChooser.getSelectedChanCodes();
+            RequestFilter[] request = new RequestFilter[chanCodes.length];
+            for (int i = 0; i < request.length; i++) {
+                if (chanCodes[i].length() < 3) {
+                    chanCodes[i] += "*";
+                }
+                request[i] = new RequestFilter(new ChannelId(net.get_attributes().get_id(),
+                                                             "*",
+                                                             "*",
+                                                             chanCodes[i],
+                                                             range.start_time),
+                                               range.start_time,
+                                               range.end_time);
+            }
             if (dc.getDataCenter(net) != null) {
                 setStatus("Requesting available data status");
                 request = dc.available_data(request);
