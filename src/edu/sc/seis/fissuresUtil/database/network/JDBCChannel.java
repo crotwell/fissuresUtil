@@ -377,4 +377,13 @@ public class JDBCChannel extends NetworkTable {
 
     private static final Logger logger = Logger.getLogger(JDBCChannel.class);
 
+    public JDBCQuantity getQuantityTable() {
+        return quantityTable;
+    }
+
+    public JDBCTime getTimeTable() {
+        return time;
+    }
+
+    
 } // JDBCChannel
