@@ -10,46 +10,39 @@ import java.sql.SQLException;
 import junit.framework.TestCase;
 public class JDBCMagnitudeTest extends TestCase {
     public JDBCMagnitudeTest(String testname) { super(testname); }
-    
+
     protected void setUp() throws SQLException {
         Connection conn = ConnMgr.getConnection();
         JDBCContributor jdbcContributor = new JDBCContributor(conn);
         jdbcMagnitude = new JDBCMagnitude(conn, jdbcContributor);
     }
-    
+
     public void testPutAndGet() throws NotFound, SQLException {
         Magnitude[] mags = MockMagnitude.MAGS;
         for (int i = 0; i < mags.length; i++) {
-            int dbid = jdbcMagnitude.put(mags[i]);
-            Magnitude outMag = jdbcMagnitude.get(dbid);
-            assertTrue(areEqual(mags[i], outMag));
+            jdbcMagnitude.put(mags[i], 0);
+        }
+        Magnitude[] outMag = jdbcMagnitude.get(0);
+        for (int i = 0; i < outMag.length; i++) {
+            assertTrue(areEqual(mags[i], outMag[i]));
         }
     }
-    
-    public void testDoubleInsert() throws SQLException {
+
+    public void testDoubleInsert() throws SQLException, NotFound {
         Magnitude[] mags = MockMagnitude.MAGS;
-        for (int i = 0; i < mags.length; i++) {
-            int dbidA = jdbcMagnitude.put(mags[i]);
-            int dbidB = jdbcMagnitude.put(mags[i]);
-            assertEquals(dbidA, dbidB);
+        for (int i = 1; i < mags.length; i++) {
+            jdbcMagnitude.put(mags[i], i);
+            jdbcMagnitude.put(mags[i], i);
+            assertEquals(1, jdbcMagnitude.get(i).length);
         }
     }
-    
-    public void testGetDBID() throws SQLException, NotFound{
-        Magnitude[] mags = MockMagnitude.MAGS;
-        for (int i = 0; i < mags.length; i++) {
-            int dbid = jdbcMagnitude.put(mags[i]);
-            int gottenID = jdbcMagnitude.getDBId(mags[i]);
-            assertEquals(dbid, gottenID);
-        }
-    }
-    
+
     public static boolean areEqual(Magnitude first, Magnitude second){
         if(first.contributor.equals(second.contributor) &&
            first.type.equals(second.type) &&
            first.value == second.value) return true;
         return false;
     }
-    
+
     protected JDBCMagnitude jdbcMagnitude;
 }
