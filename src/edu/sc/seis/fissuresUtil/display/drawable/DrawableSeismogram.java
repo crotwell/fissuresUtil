@@ -147,6 +147,13 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         parent.repaint();
     }
 
+    public void add(Drawable child, Color color){
+        add(child);
+        if(child instanceof Event){
+            ((Event)child).setColor(color);
+        }
+    }
+
     public void remove(Drawable child){
         if(children.remove(child)){
             parent.repaint();
