@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3663 2003-04-10 21:06:52Z groves $
+ * @version $Id: XMLDataSet.java 3736 2003-04-23 18:30:55Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -195,6 +195,28 @@ public class XMLDataSet implements DataSet, Serializable{
     public void setName(String name) {
         Element nameElement = XMLUtil.evalElement(config, "name");
         Text text = config.getOwnerDocument().createTextNode(name);
+        nameElement.appendChild(text);
+        config.appendChild(nameElement);
+    }
+
+
+    /**
+     * Gets the displayable name.
+     *
+     * @return a <code>String</code> name
+     */
+    public String getOwner() {
+        return XMLUtil.evalString(config, "owner/text()");
+    }
+
+    /**
+     * Sets the displayable name.
+     *
+     * @param name a <code>String</code> name
+     */
+    public void setOwner(String owner) {
+        Element nameElement = XMLUtil.evalElement(config, "owner");
+        Text text = config.getOwnerDocument().createTextNode(owner);
         nameElement.appendChild(text);
         config.appendChild(nameElement);
     }
