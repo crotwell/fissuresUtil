@@ -6,7 +6,7 @@ import org.hsqldb.*;
 import org.apache.log4j.*;
 
 /**
- * This class acts an abstract class for database Operations. 
+ * This class acts an abstract class for database Operations.
  * AbstractDb.java
  *
  *
@@ -18,7 +18,7 @@ import org.apache.log4j.*;
 
 public abstract class AbstractDb {
     public AbstractDb (){
-	
+
     }
 
     public Connection getConnection() {
@@ -27,21 +27,24 @@ public abstract class AbstractDb {
                 String driverName = new String("org.hsqldb.jdbcDriver");
                 Class.forName(driverName).newInstance();
                 connection = DriverManager.getConnection("jdbc:hsqldb:"+directoryName+"/"+databaseName, "sa", "");
-            } 
+            }
             return connection;
         } catch(Exception sqle) {
             sqle.printStackTrace();
             return null;
         }
-	
+
     }
 
     public abstract void create() throws SQLException;
-    
+
     protected Connection connection;
 
     protected String databaseName = "GEE_database";
 
-    protected String directoryName = "GEE_cache";
+    protected String directoryName =
+        System.getProperty("java.io.tmpdir")+"/"+
+        "GEE_cache_"+
+        System.getProperty("user.name").replaceAll("\\W","_");
 
 }// AbstractDb
