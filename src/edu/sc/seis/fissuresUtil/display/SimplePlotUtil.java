@@ -10,6 +10,7 @@ import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import java.awt.Dimension;
 import org.apache.log4j.Category;
 
@@ -20,7 +21,7 @@ import org.apache.log4j.Category;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 5149 2003-08-17 22:20:11Z crotwell $
+ * @version $Id: SimplePlotUtil.java 5151 2003-08-18 14:55:38Z crotwell $
  */
 
 public class SimplePlotUtil  {
