@@ -5,6 +5,7 @@ import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
@@ -53,7 +54,15 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                  SeismogramFileTypes fileType,
                                  DataSet dataset,
                                  String name){
-        super(dataset, name);
+        this(url, fileType, dataset, name, null);
+    }
+
+    public URLDataSetSeismogram (URL[] url,
+                                 SeismogramFileTypes fileType,
+                                 DataSet dataset,
+                                 String name,
+                                RequestFilter requestFilter){
+        super(dataset, name, requestFilter);
         this.url = url;
         this.fileType = fileType;
     }
@@ -80,6 +89,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
 
     public URLDataSetSeismogram(URL[] url, SeismogramFileTypes fileType, String name) {
         this(url, fileType, null, name);
+    }
+
+    public URLDataSetSeismogram(URL[] url, SeismogramFileTypes fileType, String name, RequestFilter requestFilter) {
+        this(url, fileType, null, name, requestFilter);
     }
 
     public void retrieveData(final SeisDataChangeListener dataListener) {
@@ -117,7 +130,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
 
 
     public RequestFilter getRequestFilter() {
-        if(super.getRequestFilter() == null) {
+        if(requestFilter == null) {
             for (int i = 0; i < url.length; i++) {
                 try {
                     // this updates the request filter internally as a side effect
@@ -276,13 +289,17 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     private void setRequestFilter(LocalSeismogramImpl seis){
         MicroSecondDate begin = seis.getBeginTime();
         MicroSecondDate end = seis.getEndTime();
+        ChannelId chanId = seis.getChannelID();
+
         if (requestFilter != null) {
             MicroSecondDate tmp = new MicroSecondDate(requestFilter.start_time);
             if (tmp.before(begin)) begin = tmp;
             tmp = new MicroSecondDate(requestFilter.end_time);
             if (tmp.after(end)) end = tmp;
+            chanId = requestFilter.channel_id;
+            seis.channel_id = chanId;
         }
-        requestFilter = new RequestFilter(seis.getChannelID(),
+        requestFilter = new RequestFilter(chanId,
                                           begin.getFissuresTime(),
                                           end.getFissuresTime());
     }
@@ -362,6 +379,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     public static URLDataSetSeismogram getURLDataSetSeismogram(URL base,
                                                                Element element) {
         String name = XMLUtil.getText(XMLUtil.getElement(element, "name"));
+        RequestFilter request = XMLRequestFilter.getRequestFilter(XMLUtil.getElement(element, "requestFilter"));
         NodeList children = element.getElementsByTagName("url");
         LinkedList urlList = new LinkedList();
         for (int i = 0; i < children.getLength(); i++) {
@@ -372,12 +390,13 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     urlList.add(new URL(base, urlNode.getNodeValue()));
                 } catch (MalformedURLException e) {
                     // should never happen in a valid dataset xml doc
+                    logger.error("MalformedURLException should never happen", e);
                 }
             }
         }
         URL[] urls = new URL[children.getLength()];
         urls = (URL[])urlList.toArray(urls);
-        return new URLDataSetSeismogram(urls, SeismogramFileTypes.SAC, name);
+        return new URLDataSetSeismogram(urls, SeismogramFileTypes.SAC, name, request);
     }
 
     private URL[] url;

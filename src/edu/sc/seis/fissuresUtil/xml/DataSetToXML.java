@@ -7,6 +7,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import edu.iris.Fissures.AuditInfo;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -159,40 +160,42 @@ public class DataSetToXML {
             DataSetToXML dataSetToXML = new DataSetToXML();
             dataset = dataSetToXML.extract(datasetURL, docElement);
         } else {
+            logger.debug("Not a 2.0 dsml. "+docElement.getTagName()+"  "+docElement.getAttribute("xsi:schemaLocation"));
             dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
         }
-
         return dataset;
 
     }
-    public static final String DSML_SCHEMA2_0 = "http://www.seis.sc.edu/xschema/dataset/2.0";
+    public static final String DSML_SCHEMA2_0 = "http://www.seis.sc.edu/xschema/dataset/2.0 http://www.seis.sc.edu/xschema/dataset/2.0/dataset.xsd";
 
     /** Extracts the dataset from the element, which is assumed to be a
      &lt;dataset&gt; element. */
     public DataSet extract(URL base, Element element) throws MalformedURLException{
         String name = "";
         String owner = "";
-        String id = "";
+        String id = element.getAttribute("datasetid");
         Node temp;
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
-            Node child = children.item(i);
-            if (child.getNodeName().equals("name")) {
-                name = child.getNodeValue();
-            } else if (child.getNodeName().equals("id")) {
-                name = child.getNodeValue();
-            } else if (child.getNodeName().equals("owner")) {
-                name = child.getNodeValue();
+            if (children.item(i) instanceof Element) {
+                Element child = (Element)children.item(i);
+                if (child.getNodeName().equals("name")) {
+                    name = XMLUtil.getText(child);
+                } else if (child.getNodeName().equals("owner")) {
+                    owner = XMLUtil.getText(child);
+                }
             }
         }
         // all 3 should be populated now
         AuditInfo[] audit = new AuditInfo[1];
         audit[0] = new AuditInfo("loaded from "+base.toString(),
                                  System.getProperty("user.name"));
+        if (id == null || id.length() == 0) {
+            id = "autogen_id-"+Math.random();
+        }
         MemoryDataSet dataset = new MemoryDataSet(id, name, owner, audit);
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
-logger.debug("loading element "+child.getNodeName());
             if (child.getNodeName().equals("dataset")) {
                 dataset.addDataSet(extract(base, (Element)child), audit);
             } else if (child.getNodeName().equals("datasetRef")) {
