@@ -202,6 +202,34 @@ public class DataSetToXML {
         return element;
     }
 
+    /** inserts the parameter into the given element.
+     */
+    public Element insertParameter(Element parent, String name, String typeDef, String typeName, String value) {
+        Element element =
+            parent.getOwnerDocument().createElement("parameter");
+        parent.appendChild(element);
+        XMLParameter.insert(element,
+                            name,
+                            typeDef,
+                            typeName,
+                            value);
+        return element;
+    }
+
+    /** inserts the parameter into the given element.
+     */
+    public Element insertParameter(Element parent, String name, String typeDef, String typeName, Element value) {
+        Element element =
+            parent.getOwnerDocument().createElement("parameter");
+        parent.appendChild(element);
+        XMLParameter.insert(element,
+                            name,
+                            typeDef,
+                            typeName,
+                            value);
+        return element;
+    }
+
     /**
      * Load a xml dataset from a URL.
      *
@@ -291,4 +319,5 @@ public class DataSetToXML {
 
     static Logger logger = Logger.getLogger(DataSetToXML.class);
 }
+
 
