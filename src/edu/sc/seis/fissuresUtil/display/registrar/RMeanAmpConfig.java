@@ -23,7 +23,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         super(seismos);
     }
 
-    protected AmpEvent recalculateAmp(){
+    public AmpEvent recalculate(){
         AmpConfigData[] ad = getAmpData();
         double range = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < ad.length; i++){
@@ -42,18 +42,13 @@ public class RMeanAmpConfig extends BasicAmpConfig {
 
     protected boolean setAmpRange(AmpConfigData data){
         SeismogramIterator it = data.getIterator();
-        if ( !it.hasNext()) {
-            return data.setRange(DisplayUtils.ZERO_RANGE);
-        }
+        if ( !it.hasNext()) { return data.setRange(DisplayUtils.ONE_RANGE); }
         double[] minMaxMean = it.minMaxMean();
         double meanDiff;
         double maxToMeanDiff = Math.abs(minMaxMean[2] - minMaxMean[1]);
         double minToMeanDiff = Math.abs(minMaxMean[2] - minMaxMean[0]);
-        if(maxToMeanDiff > minToMeanDiff){
-            meanDiff = maxToMeanDiff;
-        }else{
-            meanDiff = minToMeanDiff;
-        }
+        if(maxToMeanDiff > minToMeanDiff){ meanDiff = maxToMeanDiff; }
+        else{ meanDiff = minToMeanDiff; }
         double min = minMaxMean[2] - meanDiff;
         double max = minMaxMean[2] + meanDiff;
         return data.setRange(UnitDisplayUtil.getBestForDisplay(new UnitRangeImpl(min, max, data.getUnit())));
