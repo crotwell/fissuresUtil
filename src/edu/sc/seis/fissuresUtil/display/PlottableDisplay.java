@@ -368,13 +368,17 @@ public class PlottableDisplay extends JComponent {
     }
 
     public void renderToGraphics(Graphics2D g, Dimension size) {
+        renderToGraphics(g, size, Color.WHITE);
+    }
+    
+    public void renderToGraphics(Graphics2D g, Dimension size, Color backgroundColor) {
         Graphics curGraphics = currentImageGraphics;
         currentImageGraphics = g;
         Dimension curSize = getSize();
         setSize(size);
         validate();
         setDoubleBuffered(false);
-        g.setBackground(Color.WHITE);
+        g.setBackground(backgroundColor);
         g.clearRect(0, 0, size.width, size.height);
         drawComponent(g);
         repaint();
@@ -397,12 +401,16 @@ public class PlottableDisplay extends JComponent {
         file.delete();
         temp.renameTo(file);
     }
-
+    
     public void outputToPNG(OutputStream out) throws IOException{
+        outputToPNG(out, Color.WHITE);
+    }
+
+    public void outputToPNG(OutputStream out, Color backgroundColor) throws IOException{
         BufferedImage img = new BufferedImage(getSize().width,
                                               getSize().height,
                                               BufferedImage.TYPE_INT_RGB);
-        renderToGraphics((Graphics2D)img.getGraphics(), getSize());
+        renderToGraphics((Graphics2D)img.getGraphics(), getSize(), backgroundColor);
         ImageIO.write(img, "png", out);
     }
 
