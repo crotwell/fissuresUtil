@@ -52,6 +52,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				      hAmpRangeConfig, 
 				      vAmpRangeConfig, 
 				      this);
+	view.setSize(new java.awt.Dimension(300, 300));
 	add(view, PARTICLE_MOTION_LAYER);
     hAmpScaleMap = new AmpScaleMapper(50,
                                           4,
@@ -149,9 +150,11 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     public void resize() {
 	Dimension dim = view.getSize();
 	Insets insets =	view.getInsets();
-	hAmpScaleMap.setTotalPixels(dim.width  - insets.left - insets.right);
-        vAmpScaleMap.setTotalPixels(dim.height  - insets.top - insets.bottom);
-        repaint();
+	if(hAmpScaleMap != null) {
+	    hAmpScaleMap.setTotalPixels(dim.width  - insets.left - insets.right);
+	    vAmpScaleMap.setTotalPixels(dim.height  - insets.top - insets.bottom);
+	}
+	repaint();
     }
     
 
@@ -220,8 +223,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	buttonPanel.add(zoomOut);
         //        Seismogram hSeis = SeisPlotUtil.createTestData();
         //        Seismogram vSeis = SeisPlotUtil.createTestData();
-        LocalSeismogramImpl hSeis = 
-            (LocalSeismogramImpl)SeisPlotUtil.createSineWave(Math.PI/2, .4, 200, -1000);
+        LocalSeismogramImpl hSeis =  (LocalSeismogramImpl)SeisPlotUtil.createCustomSineWave();
+            //(LocalSeismogramImpl)SeisPlotUtil.createSineWave(Math.PI/2, .4, 200, -1000);
+	
         LocalSeismogramImpl vSeis = 
             (LocalSeismogramImpl)SeisPlotUtil.createSineWave(Math.PI, .8, 200, 1000);	
 	LocalSeismogramImpl hSeisex = 
@@ -231,7 +235,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	
 	RMeanAmpConfig vAmpRangeConfig = new RMeanAmpConfig();
        
-        final ParticleMotionDisplay sv = new ParticleMotionDisplay(hSeis, vSeis,
+        final ParticleMotionDisplay sv = new ParticleMotionDisplay(hSeis, hSeis,
 								   null,
 								   vAmpRangeConfig, 
 								   vAmpRangeConfig);
@@ -241,9 +245,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	/*ParticleMotionDisplay svex = new ParticleMotionDisplay(hSeisex, vSeisex,
 							  vAmpRangeConfig, 
 							  vAmpRangeConfig);*/
-	sv.addParticleMotionDisplay(hSeisex, vSeisex,
+	/*sv.addParticleMotionDisplay(hSeisex, vSeisex,
 				    vAmpRangeConfig,
-				    vAmpRangeConfig);
+				    vAmpRangeConfig);*/
 	//logger.debug("The min amp of second before "+
 	//	vAmpRangeConfig.getAmpRange(vSeisex).getMinValue());
 	//logger.debug("The max amp of second before "
@@ -258,8 +262,11 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	//sv.addAzimuthLine(-40);
 	//	sv.addAzimuthLine(80);
 	displayPanel.setLayout(new BorderLayout());
+	sv.setSize(size);
+
         displayPanel.add(sv, java.awt.BorderLayout.CENTER);
 	displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+	displayPanel.add(new JPanel(), java.awt.BorderLayout.EAST);
 	displayPanel.setSize(size);
 	jf.getContentPane().add(displayPanel);
         jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

@@ -52,7 +52,7 @@ public class ParticleMotionView extends JComponent{
 		    //double max = unitRangeImpl.getMaxValue();
 		    ///Insets insets = getInsets();
 		    //double  fmin = getSize().getWidth() - insets.left - insets.right;
-		    //double fmax = getSize().getHeight() - insets.top - insets.bottom;
+		    //double fmax = super.getSize().getHeight() - insets.top - insets.bottom;
 		    //int newx = (int)(((max - min) / fmin * me.getX()) - max);
 		    //(int)(max - (((max - min) * (fmin - me.getX()) )/ (fmax - me.getY())));
 		    //int newy =  (int)(((min - max) / fmax * me.getY()) + max);
@@ -88,6 +88,16 @@ public class ParticleMotionView extends JComponent{
 	    });
 	
 
+
+	this.addComponentListener(new ComponentAdapter() {
+		public void componentResized(ComponentEvent e) {
+		    resize();
+		}
+		public void componentShown(ComponentEvent e) {
+		    resize();
+		}
+	    });
+
 	this.addMouseMotionListener(new MouseMotionAdapter() {
 		
 		public void mouseDragged(MouseEvent me) {
@@ -99,6 +109,12 @@ public class ParticleMotionView extends JComponent{
 				    
     }
 
+    public void resize() {
+	setSize(super.getSize());
+	particleMotionDisplay.resize();
+	repaint();
+    }
+
     public void zoomInParticleMotionDisplay(int clickCount, int mx, int my) {
 	
 	double hmin = hunitRangeImpl.getMinValue();
@@ -108,8 +124,8 @@ public class ParticleMotionView extends JComponent{
 	if(hmin > hmax) { double temp = hmax; hmax = hmin; hmin = temp;}
 	if(vmin > vmax) { double temp = vmax; vmax = vmin; vmin = temp;}
 	Insets insets = getInsets();
-	double width = getSize().getWidth() - insets.left - insets.right;
-	double height = getSize().getHeight() - insets.top - insets.bottom;
+	double width = super.getSize().getWidth() - insets.left - insets.right;
+	double height = super.getSize().getHeight() - insets.top - insets.bottom;
 	
 	int centerx, centery;
 	if(clickCount == 1) {
@@ -218,7 +234,7 @@ public class ParticleMotionView extends JComponent{
 	    graphics2D.fill(rect);
 	    graphics2D.draw(rect);
 	}
-	Dimension dimension = getSize();
+	Dimension dimension = super.getSize();
 	int size = displays.size();
 	Shape sector = getSectorShape();
 	graphics2D.setColor(Color.blue);
@@ -246,31 +262,33 @@ public class ParticleMotionView extends JComponent{
 	    }
 	    graphics2D.setColor(color);
 	    Insets insets = getInsets();
-	   dimension = new java.awt.Dimension(dimension.width - insets.left - insets.right,
-					       dimension.height - insets.top - insets.bottom);
-					       
+	    //  dimension = new java.awt.Dimension(dimension.width - insets.left - insets.right,
+	    //			       dimension.height - insets.top - insets.bottom);
 	    Dimension flipDimension = new Dimension(dimension.height,
 						    dimension.width);
-	    logger.debug("The width is "+dimension.width+" height is "+dimension.height);
+	    System.out.println("The width is "+dimension.width+" height is "+dimension.height);
+	    System.out.println("______________________________________________________________");
 	    
 	    try {
 
 		
-		logger.debug("In PaintSeismogram hmax = "+hunitRangeImpl.getMaxValue()+
+		System.out.println("In PaintSeismogram hmax = "+hunitRangeImpl.getMaxValue()+
 				   " hmin = "+hunitRangeImpl.getMinValue());
-		logger.debug("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
+		System.out.println("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
 				   " vmin = "+vunitRangeImpl.getMinValue());
 				   
 		if(microSecondTimeRange == null) {
 		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
 								    new MicroSecondDate(hseis.getEndTime()));
+		    System.out.println("beginTime = "+hseis.getBeginTime());
+		    System.out.println("endTime = "+hseis.getEndTime());
 		} 
 
 		
 		int[][] hPixels = SimplePlotUtil.compressYvalues(hseis, 
 								 microSecondTimeRange,
 								 hunitRangeImpl,					
-								 flipDimension);
+								 dimension);
 
 
 
@@ -278,7 +296,7 @@ public class ParticleMotionView extends JComponent{
 					    hseis, 
 					    microSecondTimeRange,
 					    hunitRangeImpl,							
-					    flipDimension);
+					    dimension);
 	
 
 		int[][] vPixels = SimplePlotUtil.compressYvalues(vseis, 
@@ -309,7 +327,6 @@ public class ParticleMotionView extends JComponent{
 		    // logger.debug("x = "+hPixels[1][c]+" y = "+vPixels[1][c]);
 		  
 		}
-		g.drawPolyline(hPixels[1], vPixels[1], len);
 		Shape shape = getParticleMotionPath(hPixels[1], vPixels[1]);
 		particleMotion.setShape(shape);
 		graphics2D.draw(shape);
@@ -330,10 +347,10 @@ public class ParticleMotionView extends JComponent{
 	if(y.length < len) { len = y.length;}
 	GeneralPath generalPath = new GeneralPath(GeneralPath.WIND_EVEN_ODD); 
 	if(len != 0) {
-		generalPath.moveTo(x[0], y[0]);
+	    generalPath.moveTo(x[0], y[0]);
 	}
 	for(int counter = 1; counter < len; counter++) {
-	    generalPath.lineTo(x[counter], y[counter]);
+	      generalPath.lineTo(x[counter], y[counter]);
 	    
 	}
 	for(int counter = 0; counter < len; counter++) {
@@ -358,8 +375,8 @@ public class ParticleMotionView extends JComponent{
 	
 	Insets insets = getInsets();
        
-	double  fmin = getSize().getWidth() - insets.left - insets.right;
-	double fmax = getSize().getHeight() - insets.top - insets.bottom;
+	double  fmin = super.getSize().getWidth() - insets.left - insets.right;
+	double fmax = super.getSize().getHeight() - insets.top - insets.bottom;
 	int originx = (int)(fmin/2);//(int)((hmax - hmin) /4);
 	int originy = (int)(fmax/2);//((vmax - vmin) /4);
        	int newx = originx; 
@@ -402,8 +419,8 @@ public class ParticleMotionView extends JComponent{
 	double hmax = hunitRangeImpl.getMaxValue();
 	
 	Insets insets = getInsets();
-	double  fmin = getSize().getWidth() - insets.left - insets.right;
-	double fmax = getSize().getHeight() - insets.top - insets.bottom;
+	double  fmin = super.getSize().getWidth() - insets.left - insets.right;
+	double fmax = super.getSize().getHeight() - insets.top - insets.bottom;
 	int originx = (int)(fmin/2);//(int)((hmax - hmin) /4);
 	int originy = (int)(fmax/2);//((vmax - vmin) /4);
 
@@ -529,11 +546,17 @@ public class ParticleMotionView extends JComponent{
 
     /** must be square */
     public void setSize(Dimension d) {
+	System.out.println("Setting the size");
+
+	Insets insets = super.insets();
         if (d.width < d.height) {
-            super.setSize(new Dimension(d.width, d.width));
+            super.setSize(new Dimension(d.width - insets.left - insets.right, 
+					d.width - insets.left - insets.right));
         } else {
-            super.setSize(new Dimension(d.height, d.height));
+            super.setSize(new Dimension(d.height - insets.top - insets.bottom, 
+					d.height - insets.top - insets.bottom));
         }
+	System.out.println("dflsdkfj height "+super.getSize().height+" eidhth "+super.getSize().width);
     }
 
 
