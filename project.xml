@@ -4,9 +4,14 @@
   <pomVersion>3</pomVersion>
   <name>fissuresUtil</name>
   <id>fissuresUtil</id>
-  
+  <organization>
+    <name>Seismology at the University of South Carolina</name>
+    <url>http://www.seis.sc.edu</url>
+    <logo>http://www.seis.sc.edu/images/header.gif</logo>
+  </organization>
   <currentVersion>1.0</currentVersion>
-  
+  <inceptionYear>2002</inceptionYear>
+
   <package>edu.sc.seis.fissuresUtil</package>
   <shortDescription>Utility functionality for fissures clients and servers.</shortDescription>
   <gumpRepositoryId>fissuresUtil</gumpRepositoryId>
@@ -16,6 +21,16 @@ It does not actually provide an implemenation for any services, but
 those wishing to implement new clients or new services will find many 
 useful things already done.</description>
   
+  <url>http://www.seis.sc.edu/software/Fissures</url>
+  <siteAddress>http://www.seis.sc.edu</siteAddress>
+  <siteDirectory>/seis/raid1/Apache/htdocs/software/mavenTEST/fissuresUtil</siteDirectory>
+  <distributionDirectory>/seis/raid1/Apache/htdocs/software/mavenTEST/Dist</distributionDirectory>
+  <mailingList>
+    <name>fissures-dev</name>
+    <subscribe>majordomo@iris.washington.edu</subscribe>
+    <unsubscribe>majordomo@iris.washington.edu</unsubscribe>
+  </mailingList>
+
   <developers>
     <developer>
       <name>Philip Crotwell</name>
@@ -49,20 +64,39 @@ useful things already done.</description>
 
   <dependencies>
     <dependency>
-      <id>fissuresImpl</id>
+      <id>FissuresImpl</id>
       <version>1.0</version>
     </dependency>
-        <dependency>
-      <id>fissuresIDL</id>
+    <dependency>
+      <id>FissuresIDL</id>
       <version>1.0</version>
     </dependency>
-        <dependency>
+    <dependency>
+      <id>TauP</id>
+      <version>1.1.4</version>
+    </dependency>
+    <dependency>
       <id>junit</id>
       <version>3.8</version>
       <type>test</type>
       <url>http://junit.org/</url>
     </dependency>
-    </dependencies>
-   
+    <dependency>
+      <id>xml-apis</id>
+      <version>2.0</version>
+      <jar>xml-apis-2.0.2.jar</jar>
+    </dependency>
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.6</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <nagEmailAddress>crotwell@seis.sc.edu</nagEmailAddress>
+    <unitTestSourceDirectory>test</unitTestSourceDirectory>
+    <sourceDirectory>src</sourceDirectory>
+  </build>
+
 </project>
 
