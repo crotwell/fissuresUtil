@@ -64,7 +64,8 @@ public class SeismogramShape implements Shape, Plotter {
 	try{
 	    Date plotBegin = new Date();
 	    if(plotSize == null || size.width != plotSize.width || 
-	       size.height != plotSize.height || time.getInterval().getValue() != plotInterval){
+	       size.height != plotSize.height || time.getInterval().getValue() != plotInterval ||
+												    amp.getMaxValue() != maxAmp || amp.getMinValue() != minAmp){
 		getEdgeValues(time, size);
 		samplesPerPixel = (seisEnd - seisStart)/(double)(endPixel - startPixel);
 		maxAmp = amp.getMaxValue();
