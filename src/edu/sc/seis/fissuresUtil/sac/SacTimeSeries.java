@@ -980,7 +980,7 @@ public class SacTimeSeries {
        
 	if (args.length != 1) {
 	    System.out.println("Usage: java SacTimeSeries sacsourcefile ");
-	    System.exit(1);
+	    return;
 	}
        
 	try {

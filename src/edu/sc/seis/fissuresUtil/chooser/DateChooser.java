@@ -930,31 +930,6 @@ public class DateChooser extends JPanel {
 
     }
 
-    /*
-       public static void main(String s[]) {
-
-	DateChooserOptions[] dateformat = new DateChooserOptions[6];
-        dateformat[0] = DateChooserOptions.YEAR;
-        dateformat[1] = DateChooserOptions.MONTH;
-        dateformat[2] = DateChooserOptions.DAY;
-        dateformat[3] = DateChooserOptions.HOUR;
-        dateformat[4] = DateChooserOptions.MINUTES;
-        dateformat[5] = DateChooserOptions.SECONDS;
-
-         JFrame  dateframe = new JFrame("DateChooser");
-         dateframe.addWindowListener(new WindowAdapter() {
-             public void windowClosing(WindowEvent e) {
-                 System.exit(0);
-             }
-         });
- 
-         dateframe.setContentPane(new DateChooser(dateformat));
-         dateframe.pack();
-         dateframe.setVisible(true);
-    }
-    
-    */
-
     protected JPanel subPane = new JPanel();
     private GridBagConstraints gbc;
     int x_leftcorner=0;
