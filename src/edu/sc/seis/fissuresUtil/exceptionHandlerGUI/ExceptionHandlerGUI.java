@@ -122,7 +122,7 @@ public class ExceptionHandlerGUI {
             WrappedException we = (WrappedException)exception;
             if (we.getCausalException() != null) {
                 traceString +=
-                    getStackTrace(we.getCausalException());
+                    getStackTrace(we.getCausalException())+"\n";
             } // end of if (we.getCausalException() != null)
         }
 
