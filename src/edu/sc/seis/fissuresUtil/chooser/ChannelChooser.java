@@ -27,7 +27,7 @@ import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 6247 2003-10-28 19:00:12Z crotwell $
+ * @version $Id: ChannelChooser.java 6821 2004-01-16 22:29:22Z crotwell $
  *
  */
 
@@ -257,6 +257,11 @@ public class ChannelChooser extends JPanel {
     public void initFrame() {
         initWidgets();
         layoutWidgets();
+    }
+
+    public void appendNetwork(NetworkAccess net) {
+        networks.addElement(net);
+        fireNetworkDataChangedEvent(net);
     }
 
     private void layoutWidgets() {
