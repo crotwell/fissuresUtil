@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.Station;
@@ -56,41 +57,11 @@ public class JDBCSite extends NetworkTable {
         prepareStatements();
     }
 
-    public int put(Site site) throws SQLException {
-        int dbid;
-        try {
-            dbid = getDBId(site.get_id(), site.my_station);
-            // No NotFound exception, so already added the id
-            // now check if the attrs are added
-            getIfCommentExists.setInt(1, dbid);
-            ResultSet rs = getIfCommentExists.executeQuery();
-            if(!rs.next()) {//No name, so we need to add the attr part
-                int index = insertOnlySite(site, updateSite, 1, locTable, time);
-                updateSite.setInt(index, dbid);
-                updateSite.executeUpdate();
-            }
-        } catch(NotFound notFound) {
-            // no id found so ok to add the whole thing
-            dbid = seq.next();
-            putAll.setInt(1, dbid);
-            insertAll(site, putAll, 2, stationTable, locTable, time);
-            putAll.executeUpdate();
-        }
-        return dbid;
-    }
-
     public Site get(int dbid) throws SQLException, NotFound {
         getByDBId.setInt(1, dbid);
         ResultSet rs = getByDBId.executeQuery();
         if(rs.next()) { return extract(rs, locTable, stationTable, time); }
         throw new NotFound("No Site found for database id = " + dbid);
-    }
-
-    public SiteId getSiteId(int dbid) throws SQLException, NotFound {
-        getSiteIdByDBId.setInt(1, dbid);
-        ResultSet rs = getSiteIdByDBId.executeQuery();
-        if(rs.next()) { return extractId(rs, stationTable, time); }
-        throw new NotFound("No SiteId found for database id = " + dbid);
     }
 
     public int getDBId(SiteId id, Station staId) throws SQLException, NotFound {
@@ -121,6 +92,62 @@ public class JDBCSite extends NetworkTable {
         throw new NotFound("No sites in the database of code '" + site_code
                 + "' for given station ids");
     }
+
+    public SiteId getSiteId(int dbid) throws SQLException, NotFound {
+        getSiteIdByDBId.setInt(1, dbid);
+        ResultSet rs = getSiteIdByDBId.executeQuery();
+        if(rs.next()) { return extractId(rs, stationTable, time); }
+        throw new NotFound("No SiteId found for database id = " + dbid);
+    }
+
+    public JDBCStation getStationTable() {
+        return stationTable;
+    }
+
+    public int put(ChannelId id) throws SQLException {
+        int sta_id = stationTable.put(id);
+        int dbid = seq.next();
+        putChanIdBits.setInt(1, dbid);
+        putChanIdBits.setInt(2, sta_id);
+        putChanIdBits.setString(3, id.site_code);
+        putChanIdBits.executeUpdate();
+        return dbid;
+        
+    }
+
+    public int put(Site site) throws SQLException {
+        int dbid;
+        try {
+            dbid = getDBId(site.get_id(), site.my_station);
+            // No NotFound exception, so already added the id
+            // now check if the attrs are added
+            getIfCommentExists.setInt(1, dbid);
+            ResultSet rs = getIfCommentExists.executeQuery();
+            if(!rs.next()) {//No name, so we need to add the attr part
+                int index = insertOnlySite(site, updateSite, 1, locTable, time);
+                updateSite.setInt(index, dbid);
+                updateSite.executeUpdate();
+            }
+        } catch(NotFound notFound) {
+            // no id found so ok to add the whole thing
+            dbid = seq.next();
+            putAll.setInt(1, dbid);
+            insertAll(site, putAll, 2, stationTable, locTable, time);
+            putAll.executeUpdate();
+        }
+        return dbid;
+    }
+
+    private PreparedStatement getIfCommentExists, getByDBId, getSiteIdByDBId,
+            getDBId, updateSite, putAll, getDBIdsForStaAndCode, putChanIdBits;
+
+    private JDBCLocation locTable;
+
+    private JDBCSequence seq;
+
+    private JDBCStation stationTable;
+
+    private JDBCTime time;
 
     public static Site extract(ResultSet rs,
                                JDBCLocation locTable,
@@ -166,6 +193,19 @@ public class JDBCSite extends NetworkTable {
         return index;
     }
 
+    public static int insertId(SiteId id,
+                               Station sta,
+                               PreparedStatement stmt,
+                               int index,
+                               JDBCStation stationTable,
+                               JDBCTime time) throws SQLException {
+        int sta_id =  stationTable.put(sta);
+        stmt.setInt(index++,sta_id);
+        stmt.setString(index++, id.site_code);
+        stmt.setInt(index++, time.put(id.begin_time));
+        return index;
+    }
+
     public static int insertOnlySite(Site site,
                                      PreparedStatement stmt,
                                      int index,
@@ -176,33 +216,6 @@ public class JDBCSite extends NetworkTable {
         stmt.setInt(index++, locTable.put(site.my_location));
         return index;
     }
-
-    public static int insertId(SiteId id,
-                               Station sta,
-                               PreparedStatement stmt,
-                               int index,
-                               JDBCStation stationTable,
-                               JDBCTime time) throws SQLException {
-        stmt.setInt(index++, stationTable.put(sta));
-        stmt.setString(index++, id.site_code);
-        stmt.setInt(index++, time.put(id.begin_time));
-        return index;
-    }
-
-    public JDBCStation getStationTable() {
-        return stationTable;
-    }
-
-    private PreparedStatement getIfCommentExists, getByDBId, getSiteIdByDBId,
-            getDBId, updateSite, putAll, getDBIdsForStaAndCode;
-
-    private JDBCSequence seq;
-
-    private JDBCLocation locTable;
-
-    private JDBCStation stationTable;
-
-    private JDBCTime time;
 
     private static final Logger logger = Logger.getLogger(JDBCSite.class);
 } // JDBCSite
