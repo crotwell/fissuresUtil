@@ -117,7 +117,7 @@ public interface DataSet extends StdDataSetParamNames {
      *
      * @return a <code>String[]</code> value
      */
-    public String[] getSeismogramNames();
+ //   public String[] getSeismogramNames();
 
     /**
      * Describe <code>getSeismogram</code> method here.
@@ -125,7 +125,7 @@ public interface DataSet extends StdDataSetParamNames {
      * @param name a <code>String</code> value
      * @return a <code>LocalSeismogramImpl</code> value
      */
-    public LocalSeismogramImpl getSeismogram(String name);
+//    public LocalSeismogramImpl getSeismogram(String name);
 
     /**
      * Describe <code>addSeismogram</code> method here.
@@ -133,7 +133,7 @@ public interface DataSet extends StdDataSetParamNames {
      * @param seis a <code>LocalSeismogramImpl</code> value
      * @param audit an <code>AuditInfo[]</code> value
      */
-    public void addSeismogram(LocalSeismogramImpl seis, AuditInfo[] audit);
+  //  public void addSeismogram(LocalSeismogramImpl seis, AuditInfo[] audit);
 
 
     public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit);
