@@ -6,9 +6,11 @@
 //  Modified 8/9/2000 by Robert Casey, IRIS DMC
 
 package edu.sc.seis.fissuresUtil.mseed;
+
 import java.io.*;
 import java.text.*;
 import edu.iris.Fissures.*;
+import edu.iris.Fissures.model.MicroSecondDate;
 
 /**
    Container class for SEED Fixed Section Data Header information.
@@ -431,13 +433,13 @@ public class DataHeader extends ControlHeader {
        @return the value of start time in ISO format
     */
     public String getISOStartTime() {
-	// get time structure
-	Btime startStruct = getStartBtime();
+        // get time structure
+        Btime startStruct = getStartBtime();
         float fSecond = startStruct.sec + startStruct.tenthMilli / 10000f;
-	return edu.iris.Fissures.model.ISOTime.getISOString(startStruct.year, 
-							    startStruct.jday,
+        return edu.iris.Fissures.model.ISOTime.getISOString(startStruct.year, 
+                                                            startStruct.jday,
                                                             startStruct.hour, 
-							    startStruct.min, 
+                                                            startStruct.min, 
                                                             fSecond);
     }
     
@@ -459,7 +461,18 @@ public class DataHeader extends ControlHeader {
 		}
 	    this.startTime = startTimeBytes;
 	}
+
+    public void setStartTime(MicroSecondDate date) {
+        String t = seedDate.format(date);
+        int millis =(int) (date.getMicroSeconds() % 1000000) / 100;
+        setStartTime( t + millis);
+        
+    }
     
+    static java.text.SimpleDateFormat seedDate = 
+        new java.text.SimpleDateFormat("yyyy,DDD,HH,mm,ss.");
+
+
     /**
        * Get the value of numSamples.
        * @return Value of numSamples.
