@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2909 2002-11-14 16:58:40Z crotwell $
+ * @version $Id: XMLDataSet.java 3077 2003-01-10 02:56:41Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -715,7 +715,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	    //logger.debug("ONLY SEIS ATTR EXISTS");
 	} else {
 	   nList  = evalNodeList(config, "localSeismogram/seismogramAttr/property[name!="+dquote+"Name"+dquote+
-					 "]"+"/../");
+					 "]"+"/..");
 	   //logger.debug("PROPERTY TAG EXISTS");
 	}
 
