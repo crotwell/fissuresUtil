@@ -65,7 +65,7 @@ public class PlottableSelection{
                     FontMetrics fm = newG.getFontMetrics();
                     Rectangle2D bounds = fm.getStringBounds("Extract", newG);
                     x -= 3;
-                    y += 3;
+                    y += 3 + height;
                     extractLocation = bounds;
                     extractLocation.setRect(x - 2, y - bounds.getHeight() + 5,
                                             bounds.getWidth() + 4,
