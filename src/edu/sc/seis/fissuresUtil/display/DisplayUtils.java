@@ -5,25 +5,25 @@ import java.util.*;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
-import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.Location;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
+import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableFilteredSeismogram;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
 import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Insets;
@@ -404,6 +404,32 @@ public class DisplayUtils {
         if (originA.my_location.depth.value != originB.my_location.depth.value) return false;
 
         return true;
+    }
+    
+    public static QuantityImpl calculateDistance(DataSetSeismogram seis){
+        EventAccessOperations event = seis.getDataSet().getEvent();
+        ChannelId chanId = seis.getRequestFilter().channel_id;
+        Channel seismoChannel = seis.getDataSet().getChannel(chanId);
+        return calculateDistance(seismoChannel, event);
+    }
+    public static QuantityImpl calculateDistance(Channel channel, EventAccessOperations event){
+        if(channel != null && event != null){
+            Site seisSite = channel.my_site;
+            Location seisLoc =  seisSite.my_location;
+            Location eventLoc = null;
+            try{
+                eventLoc = event.get_preferred_origin().my_location;
+            }catch(NoPreferredOrigin e){//if no preferred origin, just use the first
+                if (event.get_origins().length > 0) {
+                    eventLoc = event.get_origins()[0].my_location;
+                }
+            }
+            if (eventLoc == null) { return null; }
+            DistAz distAz = new DistAz(seisLoc.latitude, seisLoc.longitude,
+                                       eventLoc.latitude, eventLoc.longitude);
+            return new QuantityImpl(distAz.delta, UnitImpl.DEGREE);
+        }
+        return null;
     }
 
     public static final String UP = "Up";
