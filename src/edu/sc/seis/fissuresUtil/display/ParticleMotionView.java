@@ -92,7 +92,7 @@ public class ParticleMotionView extends JComponent implements TimeListener{
     public synchronized void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
         if(!particleMotion.isHorizontalPlane()) return;
         Shape sector = getSectorShape();
-        graphics2D.setPaint(Color.gray);
+        graphics2D.setPaint(Color.LIGHT_GRAY);
         graphics2D.fill(sector);
         graphics2D.draw(sector);
         drawAzimuths(graphics2D);
