@@ -5,6 +5,7 @@
  */
 
 package edu.sc.seis.fissuresUtil.display;
+
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
