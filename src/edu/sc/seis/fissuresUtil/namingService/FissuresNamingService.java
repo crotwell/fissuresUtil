@@ -14,8 +14,11 @@ import edu.iris.Fissures.IfSeismogramDC.DataCenterHelper;
 import edu.iris.Fissures.model.AllVTFactory;
 import edu.sc.seis.fissuresUtil.cache.NSEventDC;
 import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
+import edu.sc.seis.fissuresUtil.cache.NSPlottableDC;
 import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Category;
@@ -25,9 +28,6 @@ import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
-import java.util.LinkedList;
-import java.util.Iterator;
-import edu.sc.seis.fissuresUtil.cache.NSPlottableDC;
 
 /**
  * Description: FissuresNamingService is a wrapper around CORBA Naming service. This class
@@ -167,21 +167,29 @@ public class FissuresNamingService {
             dns = dns + "/" + objectname + ".object"+getVersion();
         }
         logger.info("the final dns resolved is "+dns);
-        try {
-            NameComponent[] names = getNameService().to_name(dns);
-            //return resolveBySteps(names); // for debugging
-            return getNameService().resolve(names);
-        } catch(NotFound nfe) {
-            logger.info("NOT FOUND Exception caught while resolving name context and the name not found is "+nfe.rest_of_name[0].id);
-            throw nfe;
-        } catch(InvalidName ine) {
-            logger.info("INVALID NAME Exception caught while resolving name context", ine);
-            throw ine;
-        } catch(CannotProceed cpe) {
-            logger.info("CANNOT PROCEED Exception caught while resolving dns name context");
-            throw cpe;
+        // retry 3 times in case of an exception
+        Throwable throwable = null;
+        int maxTry = 2;
+        for (int i = 0; i <= maxTry; i++) {
+            try {
+                NameComponent[] names = getNameService().to_name(dns);
+                //return resolveBySteps(names); // for debugging
+                return getNameService().resolve(names);
+            } catch (org.omg.CORBA.SystemException e) {
+                logger.info("retry="+i+" "+e);
+                if (i == maxTry) {throw e; }
+            } catch(NotFound nfe) {
+                logger.info("retry="+i+"NOT FOUND Exception caught while resolving name context and the name not found is "+nfe.rest_of_name[0].id);
+                if (i == maxTry) {throw nfe; }
+            } catch(InvalidName ine) {
+                logger.info("retry="+i+"INVALID NAME Exception caught while resolving name context", ine);
+                if (i == maxTry) {throw ine; }
+            } catch(CannotProceed cpe) {
+                logger.info("retry="+i+"CANNOT PROCEED Exception caught while resolving dns name context");
+                if (i == maxTry) {throw cpe;}
+            }
         }
-
+        throw new RuntimeException("This code should never happen");
     }
 
     /**
@@ -230,12 +238,7 @@ public class FissuresNamingService {
         logger.info("the dns to be rebind is "+nameString);
 
         NameComponent[] ncName;
-        try {
-            ncName = topLevelNameContext.to_name(nameString);
-        } catch(InvalidName ine) {
-            logger.info("INVALID NAME EXCEPTION IS CAUGHT, dns="+nameString+" interface="+interfacename+" object="+objectname, ine);
-            throw new InvalidName();
-        }
+        ncName = topLevelNameContext.to_name(nameString);
 
         NameComponent[] ncName1 = new NameComponent[1];
         NamingContextExt namingContextTemp = topLevelNameContext;
@@ -287,16 +290,13 @@ public class FissuresNamingService {
                     case NotFoundReason._not_context:
                         logger.info("Not a Context");
                         logger.info(nfe.rest_of_name[0].id+"  IS PASSED AS A CONTEXT. ACTUALLY IT IS ALREADY BOUND AS AN OBJECT");
-                        throw new NotFound(nfe.why, nfe.rest_of_name);
+                        throw nfe;
                         //break;
                     case NotFoundReason._not_object:
                         logger.info("Not an Object");
                         logger.info(nfe.rest_of_name[0].id+"  IS PASSED AS AN OBJECT. ACTUALLY IT IS ALREADY BOUND AS A CONTEXT");
-                        throw new NotFound(nfe.why, nfe.rest_of_name);
+                        throw nfe;
                 }
-            } catch(CannotProceed cpe) {
-                logger.info("Caught Exception cannot proceed");
-                throw new CannotProceed();
             }
         }
     }
@@ -333,18 +333,7 @@ public class FissuresNamingService {
         if(objectname != null && objectname.length() != 0) {
             dns = dns + "/" + objectname + ".object" + getVersion();
         }
-        try {
-            topLevelNameContext.unbind(topLevelNameContext.to_name(dns));
-        } catch(NotFound nfe) {
-            logger.info("NOT FOUND Exception caught while resolving dns name context");
-            throw new NotFound();
-        } catch(InvalidName ine) {
-            logger.info("INVALID NAME Exception caught while resolving dns name context");
-            throw new InvalidName();
-        } catch(CannotProceed cpe) {
-            logger.info("CANNOT PROCEED Exception caught while resolving dns name context");
-            throw new CannotProceed();
-        }
+        topLevelNameContext.unbind(topLevelNameContext.to_name(dns));
     }
 
     /**
@@ -680,36 +669,23 @@ public class FissuresNamingService {
     private String[] getNames(String dns, String key) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
         ArrayList arrayList = new ArrayList();
 
-        try {
-            NamingContextExt namingContextTemp = NamingContextExtHelper.narrow(getNameService().resolve(getNameService().to_name(dns)));
-            BindingListHolder bindingList = new BindingListHolder();
-            BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
+        NamingContextExt namingContextTemp = NamingContextExtHelper.narrow(getNameService().resolve(getNameService().to_name(dns)));
+        BindingListHolder bindingList = new BindingListHolder();
+        BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
 
-            namingContextTemp.list(0, bindingList, bindingIteratorHolder);
+        namingContextTemp.list(0, bindingList, bindingIteratorHolder);
 
-            BindingIterator bindingIterator = bindingIteratorHolder.value;
-            BindingHolder bindingHolder = new BindingHolder();
+        BindingIterator bindingIterator = bindingIteratorHolder.value;
+        BindingHolder bindingHolder = new BindingHolder();
 
-            while( bindingIterator.next_one(bindingHolder)) {
-                Binding binding = bindingHolder.value;
-                if(binding.binding_name[0].kind.equals(key)) arrayList.add(binding.binding_name[0].id);
-            }
-
-            String[] rtnValues = new String[arrayList.size()];
-            rtnValues = (String[]) arrayList.toArray(rtnValues);
-            return rtnValues;
-
-        } catch(NotFound nfe) {
-            logger.info("NOT FOUND Exception caught while resolving dns name context");
-            throw new NotFound();
-        } catch(InvalidName ine) {
-            logger.info("INVALID NAME Exception caught while resolving dns name context");
-            throw new InvalidName();
-        } catch(CannotProceed cpe) {
-            logger.info("CANNOT PROCEED Exception caught while resolving dns name context");
-            throw new CannotProceed();
+        while( bindingIterator.next_one(bindingHolder)) {
+            Binding binding = bindingHolder.value;
+            if(binding.binding_name[0].kind.equals(key)) arrayList.add(binding.binding_name[0].id);
         }
 
+        String[] rtnValues = new String[arrayList.size()];
+        rtnValues = (String[]) arrayList.toArray(rtnValues);
+        return rtnValues;
     }
 
     private String appendKindNames(String dns) {
