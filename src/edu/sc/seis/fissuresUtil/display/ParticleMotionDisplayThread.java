@@ -19,10 +19,12 @@ import org.apache.log4j.Category;
 public class ParticleMotionDisplayThread{
     public ParticleMotionDisplayThread(DataSetSeismogram dataSetSeismogram,
                                        TimeConfig tc,
-                                       ParticleMotionDisplay particleMotionDisplay) {
+                                       ParticleMotionDisplay particleMotionDisplay,
+                                       Color displayColor) {
         this.dataSetSeismogram = dataSetSeismogram;
         this.tc = tc;
         this.particleMotionDisplay = particleMotionDisplay;
+        this.displayColor = displayColor;
     }
 
 
@@ -37,7 +39,9 @@ public class ParticleMotionDisplayThread{
         for(int counter = 0; counter < dssArray.length; counter++) {
             channelGroup[counter] = dssArray[counter].getRequestFilter().channel_id;
         }
-        Color displayColor = selectionColors[particleMotionDisplay.getView().getSelectedParticleMotion().length % selectionColors.length];
+        if(displayColor == null){
+            displayColor = selectionColors[particleMotionDisplay.getView().getSelectedParticleMotion().length % selectionColors.length];
+        }
 
         for(int counter = 0; counter < dssArray.length; counter++) {
             String counterOrientation = DisplayUtils.getOrientationName(channelGroup[counter].channel_code);
@@ -112,6 +116,8 @@ public class ParticleMotionDisplayThread{
     private boolean advancedOption = false;
 
     private ParticleMotionDisplay  particleMotionDisplay;
+
+    private Color displayColor;
 
     private static Color[] selectionColors = { new Color(255, 0, 0),
             new Color(0, 0, 255),
