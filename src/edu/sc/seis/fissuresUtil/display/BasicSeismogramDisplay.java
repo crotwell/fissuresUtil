@@ -198,6 +198,26 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	return currentTimeEvent.getTime();
     }
 
+    /**
+     * @returns the time for the given pixel value.
+     */
+    public MicroSecondDate getTime(int pixel) {
+	return SimplePlotUtil.getValue(getWidth()-getInsets().left-getInsets().right, 
+				       getTime().getBeginTime(), 
+				       getTime().getEndTime(), 
+				       pixel-getInsets().left);
+    }
+
+    /**
+     * @returns the pixel for the given time.
+     */
+    public int getPixel(MicroSecondDate date) {
+	return SimplePlotUtil.getPixel(getWidth()-getInsets().left-getInsets().right,
+				       getTime().getBeginTime(), 
+				       getTime().getEndTime(), 
+				       date);
+    }
+
     public void update(ConfigEvent event){
 	currentTimeEvent = event.getTimeEvent();
 	currentAmpEvent = event.getAmpEvent();
