@@ -97,7 +97,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
             }
             else if(shape.update(currentTime.getTime(getSeismogram()),
                                  currentAmp.getAmp(getSeismogram()),
-                                 size)) {
+                                 size) || SeismogramDisplay.PRINTING) {
                 canvas.setPaint(color);
                 canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
                 canvas.draw(shape);
