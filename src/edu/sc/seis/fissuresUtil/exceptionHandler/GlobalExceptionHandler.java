@@ -21,33 +21,45 @@ public class GlobalExceptionHandler {
     }
 
     public static void handle(String message, Throwable thrown) {
-        if(reporters.size() == 0){
-            System.err.println(message);
-            thrown.printStackTrace(System.err);
-        }else{
-            List parsedContents = new ArrayList(sectionToContents.size());
-            Iterator it = sectionToContents.keySet().iterator();
-            while(it.hasNext()){
-                String name = (String)it.next();
-                parsedContents.add(new Section(name, parse(sectionToContents.get(name))));
-            }
-            if(showSysInfo){
-                parsedContents.add(new Section("System Information", ExceptionReporterUtils.getSysInfo()));
-            }
-            it = reporters.iterator();
-            List reporterExceptions = new ArrayList();
-            while(it.hasNext()){
-                try {
-                    ((ExceptionReporter)it.next()).report(message, thrown, parsedContents);
-                } catch (Throwable e) {
-                    it.remove();
-                    reporterExceptions.add(e);
+        try {
+            if(reporters.size() == 0){
+                System.err.println(message);
+                thrown.printStackTrace(System.err);
+                logger.error("handle exception, but there are no Reporters.", thrown);
+            }else{
+                List parsedContents = new ArrayList(sectionToContents.size());
+                Iterator it = sectionToContents.keySet().iterator();
+                while(it.hasNext()){
+                    String name = (String)it.next();
+                    parsedContents.add(new Section(name, parse(sectionToContents.get(name))));
+                }
+                if(showSysInfo){
+                    parsedContents.add(new Section("System Information", ExceptionReporterUtils.getSysInfo()));
+                }
+                it = reporters.iterator();
+                List reporterExceptions = new ArrayList();
+                while(it.hasNext()){
+                    try {
+                        ((ExceptionReporter)it.next()).report(message, thrown, parsedContents);
+                    } catch (Throwable e) {
+                        it.remove();
+                        reporterExceptions.add(e);
+                    }
+                }
+                it = reporterExceptions.iterator();
+                while(it.hasNext()){
+                    handle("An exception reporter caused this exception.  It has been removed from the GlobalExceptionHandler", (Throwable)it.next());
                 }
             }
-            it = reporterExceptions.iterator();
-            while(it.hasNext()){
-                handle("An exception reporter caused this exception.  It has been removed from the GlobalExceptionHandler", (Throwable)it.next());
-            }
+        } catch (Throwable e) {
+            // this is for paranoid coders
+            System.err.println("Caught an exception in the exception handler: "+e.toString());
+            e.printStackTrace(System.err);
+            System.err.println("Original exception was:" +thrown.toString());
+            thrown.printStackTrace(System.err);
+
+            logger.error("Caught an exception in the exception handler: ",e);
+            logger.error("Original exception was:" ,thrown);
         }
     }
 
@@ -117,5 +129,9 @@ public class GlobalExceptionHandler {
     private static List reporters = new ArrayList();
 
     private static boolean showSysInfo = true;
+
+    static {
+        add(new Log4jReporter());
+    }
 }
 
