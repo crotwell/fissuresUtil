@@ -259,8 +259,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                 LayoutData current = (LayoutData)it.next();
                 double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
                 int drawHeight = (int)((current.getEnd() - current.getStart())*height);
-                if(drawHeight < 20){
-                    drawHeight = 20;
+                if(drawHeight < 40){
+                    drawHeight = 40;
                 }
                 double neededYPos = midPoint - drawHeight/2;
                 if(neededYPos < 0){
