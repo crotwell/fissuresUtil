@@ -251,6 +251,15 @@ public class FissuresNamingService {
                        NamingContextExt topLevelNameContext,
                        String interfacename) throws NotFound, CannotProceed,
             InvalidName {
+         if(dns == null || dns.length() == 0) {
+             throw new NullPointerException("dns must have characters: "+dns);
+         }
+         if( objectname == null || objectname.length() == 0) {
+             throw new NullPointerException("objectname must have characters: "+objectname);
+         }
+         if( interfacename == null || interfacename.length() == 0) {
+             throw new NullPointerException("interfacename must have characters: "+interfacename);
+         }
         logger.info("rebind dns=" + dns + " interface=" + interfacename
                 + " object=" + objectname);
         if(topLevelNameContext == null) {
@@ -667,7 +676,7 @@ public class FissuresNamingService {
      * types will cause a IllegalArgumentException
      */
     public static String getInterfaceName(Servant obj) {
-        return getInterfaceNamePrivate(obj);
+        return getInterfaceNameForClass(obj.getClass());
     }
 
     /**
@@ -675,7 +684,7 @@ public class FissuresNamingService {
      * types will cause a IllegalArgumentException
      */
     public static String getInterfaceName(org.omg.CORBA.Object obj) {
-        return getInterfaceNamePrivate(obj);
+        return getInterfaceNameForClass(obj.getClass());
     }
 
     public static Class[] getAllInterfaces(Class c) {
@@ -691,9 +700,9 @@ public class FissuresNamingService {
      * This method works correctly with only the Fissures servers. Custom server
      * types will cause a IllegalArgumentException
      */
-    private static String getInterfaceNamePrivate(Object obj) {
+    public static String getInterfaceNameForClass(Class cl) {
         String fissuresInterfaceName = null;
-        Class[] interfaces = getAllInterfaces(obj.getClass());
+        Class[] interfaces = getAllInterfaces(cl);
         for(int counter = 0; counter < interfaces.length; counter++) {
             if(interfaces[counter].getName().startsWith("edu.iris.Fissures")) {
                 fissuresInterfaceName = interfaces[counter].getName();
@@ -703,10 +712,13 @@ public class FissuresNamingService {
                 while(tokenizer.hasMoreElements()) {
                     rtnValue = (String)tokenizer.nextElement();
                 }
+                if (rtnValue.endsWith("Operations")) {
+                    rtnValue = rtnValue.substring(0, rtnValue.lastIndexOf("Operations"));
+                }
                 return rtnValue;
             }
         }
-        throw new IllegalArgumentException(obj.getClass().getName()
+        throw new IllegalArgumentException(cl.getName()
                 + " not recognized");
     }
 
