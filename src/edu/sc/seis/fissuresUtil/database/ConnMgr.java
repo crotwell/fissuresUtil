@@ -11,19 +11,20 @@ import java.util.List;
 import java.util.Properties;
 
 public class ConnMgr {
+
     /**
      * Use this method to add loacations for sql property files to be stored
      * When setDB is loaded, if there is a default.props file at that location,
-     * it will be added to the existing properties, and if one of the
-     * <TYPE OF DB>.props exists, it will also be loaded.
+     * it will be added to the existing properties, and if one of the <TYPE OF
+     * DB>.props exists, it will also be loaded.
      */
     public static void addPropsLocation(String loc) {
-        synchronized(propLocs){
-            if(!propLocs.contains(loc))propLocs.add(loc);
-            if(props != null){
+        synchronized(propLocs) {
+            if(!propLocs.contains(loc)) propLocs.add(loc);
+            if(props != null) {
                 try {
                     load(loc, props);
-                } catch (IOException e) {
+                } catch(IOException e) {
                     throw new RuntimeException("Bad props location " + loc, e);
                 }
             }
@@ -31,84 +32,101 @@ public class ConnMgr {
     }
 
     /**
-     * Sets the ConnMgr to use the default db, which as of now is an in-memory HSQLDb
+     * Sets the ConnMgr to use the default db, which as of now is an in-memory
+     * HSQLDb
      */
-    public static void setDB() throws IOException{ setDB(DB_NAME); }
+    public static void setDB() throws IOException {
+        setDB(DB_NAME);
+    }
 
     /**
-     *Sets the DB to be used based on the default values for the name.
-     *Names fissuresUtil knows are ConnMgr.MCKOI, ConnMgr.HSQL, and
-     * ConnMgr.POSTGRES
-     * @throws IOException if some of the props don't load
+     * Sets the DB to be used based on the default values for the name. Names
+     * fissuresUtil knows are ConnMgr.MCKOI, ConnMgr.HSQL, and ConnMgr.POSTGRES
+     * 
+     * @throws IOException
+     *             if some of the props don't load
      */
-    public static void setDB(String dbName) throws IOException{
+    public static void setDB(String dbName) throws IOException {
         DB_NAME = dbName;
         Properties props = new Properties();
-        synchronized(propLocs){
+        synchronized(propLocs) {
             Iterator it = propLocs.iterator();
-            while(it.hasNext())load((String)it.next(), props);
+            while(it.hasNext())
+                load((String)it.next(), props);
         }
         setDB(props);
     }
 
-    private static void load(String loc, Properties existing) throws IOException{
+    private static void load(String loc, Properties existing)
+            throws IOException {
         ClassLoader cl = ConnMgr.class.getClassLoader();
         load(cl, loc + DEFAULT_PROPS, existing);
-        if(DB_NAME == HSQL)load(cl, loc + HSQL_PROPS, existing);
-        else if(DB_NAME == MCKOI)load(cl, loc + MCKOI_PROPS, existing);
-        else if(DB_NAME == POSTGRES)load(cl, loc + POSTGRES_PROPS, existing);
+        if(DB_NAME == HSQL) load(cl, loc + HSQL_PROPS, existing);
+        else if(DB_NAME == MCKOI) load(cl, loc + MCKOI_PROPS, existing);
+        else if(DB_NAME == POSTGRES) load(cl, loc + POSTGRES_PROPS, existing);
     }
 
-    private static void load(ClassLoader cl, String loc, Properties existing) throws IOException{
+    private static void load(ClassLoader cl, String loc, Properties existing)
+            throws IOException {
         InputStream in = cl.getResourceAsStream(loc);
-        if(in != null)existing.load(in);
+        if(in != null) existing.load(in);
     }
 
-    public static void setDB(Properties props){ ConnMgr.props = props; }
+    public static void setDB(Properties props) {
+        ConnMgr.props = props;
+    }
 
-    public static boolean hasSQL(String key){
+    public static boolean hasSQL(String key) {
         return props.containsKey(key);
     }
-    
-    public static String getSQL(String key){
+
+    public static String getSQL(String key) {
         String SQL = props.getProperty(key);
-        if(SQL == null){
-            throw new IllegalArgumentException("No such sql entry " + key + " Make sure the properties files are in the jars and are being loaded");
-        }
+        if(SQL == null) { throw new IllegalArgumentException("No such sql entry "
+                + key
+                + " Make sure the properties files are in the jars and are being loaded"); }
         return props.getProperty(key);
     }
 
-    private static String getDriver(){ return props.getProperty("driver"); }
+    private static String getDriver() {
+        return props.getProperty("driver");
+    }
 
-    public static void setURL(String url){ ConnMgr.url = url; }
+    public static void setURL(String url) {
+        ConnMgr.url = url;
+    }
 
-    public static String getURL(){
-        if(url == null) url =  props.getProperty("URL");
+    public static String getURL() {
+        if(url == null) url = props.getProperty("URL");
         return url;
     }
 
-    private static String getPass() { return props.getProperty("password"); }
+    private static String getPass() {
+        return props.getProperty("password");
+    }
 
-    private static String getUser() { return props.getProperty("user"); }
+    private static String getUser() {
+        return props.getProperty("user");
+    }
 
     public static Connection createConnection() throws SQLException {
-        synchronized(ConnMgr.class){
-            if(props == null){
+        synchronized(ConnMgr.class) {
+            if(props == null) {
                 try {
                     setDB();
-                } catch (IOException e) {}
+                } catch(IOException e) {}
             }
         }
         try {
             Class.forName(getDriver()).newInstance();
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
             throw new SQLException("Unable to instantiate DBDriver");
         }
         return DriverManager.getConnection(getURL(), getUser(), getPass());
     }
 
-    private static Connection createPSQLConn() throws SQLException{
+    private static Connection createPSQLConn() throws SQLException {
         return DriverManager.getConnection("jdbc:postgresql:anhingatest",
                                            "anhingatest",
                                            "");
@@ -131,7 +149,7 @@ public class ConnMgr {
     public static final String POSTGRES = "POSTGRES";
 
     public static final String POSTGRES_PROPS = "Postgres.props";
-    
+
     private static String DB_NAME = HSQL;
 
     private static Properties props;
@@ -139,10 +157,7 @@ public class ConnMgr {
     private static List propLocs = new ArrayList();
 
     private static String url;
-
-    static{
+    static {
         propLocs.add(DEFAULT_LOC);
     }
-
 }// ConnMgr
-
