@@ -73,12 +73,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
 	if(basicDisplays.size() > 0){
-	    ((SeismogramDisplay)basicDisplays.getLast()).removeBottomTimeBorder();
-	    ((SeismogramDisplay)basicDisplays.getFirst()).removeTopTimeBorder();
+	    ((BasicSeismogramDisplay)basicDisplays.getLast()).removeBottomTimeBorder();
+	    ((BasicSeismogramDisplay)basicDisplays.getFirst()).removeTopTimeBorder();
 	}
 	basicDisplays.add(i, disp);
-	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
+	((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
 	disp.revalidate();
 	return disp;
     }
@@ -109,14 +109,14 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	} // end of for (int i = 0; i < disps.length; i++;)
 	
 	seismograms.add(disp, i);	
-	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();*/
+	((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();*/
     } 
 
     public void redraw(){
 	Iterator e = basicDisplays.iterator();
 	while(e.hasNext())
-	    ((SeismogramDisplay)e.next()).redraw();
+	    ((BasicSeismogramDisplay)e.next()).redraw();
     }
 
     public void stopImageCreation(){
@@ -196,8 +196,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	clicked.remove();
 	seismograms.remove(clicked);
 	basicDisplays.remove(clicked);
-	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
-	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
+	((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
     }
 
     public void removeDisplay(BasicSeismogramDisplay display){
@@ -209,10 +209,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	basicDisplays.remove(display);
 	sorter.remove(display.getName());
 	if(basicDisplays.size() > 1){
-	    ((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
-	    ((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	    ((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
+	    ((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
 	}else if(basicDisplays.size() == 1){
-	    ((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	    ((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
 	}
 	seismograms.revalidate();
 	repaint();
@@ -272,7 +272,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void applyFilter(ColoredFilter filter){
 	Iterator e = basicDisplays.iterator();
 	while(e.hasNext()){
-	    System.out.println("applying filter");
 	    ((BasicSeismogramDisplay)e.next()).applyFilter(filter);
 	}
 	if(selectionDisplay != null){
@@ -282,8 +281,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    threeSelectionDisplay.applyFilter(filter);
 	}
     }
-
-    public Set getCurrentFilters(){ return currentFilters; }
 
     public void globalizeAmpRange(){
 	Iterator e = basicDisplays.iterator();
@@ -489,15 +486,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected AmpConfigRegistrar globalAmpRegistrar;
     
-    protected HashMap selectionDisplayMap = new HashMap();
-
     protected ParticleMotionDisplay particleDisplay;
     
-    protected Set currentFilters = new HashSet();
-
     protected LinkedList basicDisplays = new LinkedList();
-
-    protected LinkedList names = new LinkedList();
 
     protected MouseForwarder mouseForwarder;
 
@@ -517,9 +508,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
 
-    protected String tagWindowName = "Pick Zone";
+    protected static String tagWindowName = "Pick Zone";
 
-    protected String particleTagWindowName = "Particle Motion Zone";
+    protected static String particleTagWindowName = "Particle Motion Zone";
 
-    protected String particleWindowName = "Particle Motion";
+    protected static String particleWindowName = "Particle Motion";
 }// VerticalSeismogramDisplay

@@ -30,17 +30,17 @@ import java.awt.print.*;
  * @version 0.1
  */
 
-public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarActions, SeismogramDisplay{
+public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarActions, TimeSyncListener, AmpSyncListener{
  
     public BasicSeismogramDisplay(DataSetSeismogram seis, String name, VerticalSeismogramDisplay parent){
 	timeRegistrar = new TimeConfigRegistrar();
-	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(ampRegistrar));
+	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	initializeDisplay(seis, name, parent);
     }
     
     public BasicSeismogramDisplay(DataSetSeismogram seis, TimeRangeConfig tr, String name, VerticalSeismogramDisplay parent){
 	timeRegistrar = new TimeConfigRegistrar(tr);
-	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(ampRegistrar));
+	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	initializeDisplay(seis, name, parent);
     }
     
@@ -91,20 +91,20 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     }
 
     public void addSeismogram(DataSetSeismogram newSeismogram){
-	seismos.add(newSeismogram);
-	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram, ampRegistrar);
+	seismos.add(newSeismogram);	
+	SeismogramPlotter newPlotter;
+	if (autoColor) {
+	     newPlotter = new SeismogramPlotter(newSeismogram, seisColors[seisCount%seisColors.length]);
+	}else {
+	      newPlotter = new SeismogramPlotter(newSeismogram, Color.blue);
+	} // end of else
 	if(parent != null)
 	    newPlotter.setVisibility(parent.getOriginalVisibility());
-	if(autoColor)
-	    seisPlotters.put(newPlotter, seisColors[seisPlotters.size()%seisColors.length]);
-	else
-	    seisPlotters.put(newPlotter, Color.blue);
-	Iterator e = filters.keySet().iterator();
+	plotters.add(seisCount, newPlotter);
+	seisCount++;
+	Iterator e = globalFilters.iterator();
 	while(e.hasNext()){
-	    ColoredFilter current =((ColoredFilter)e.next());
-	    FilteredSeismogramPlotter currentPlotter = new FilteredSeismogramPlotter(current, newSeismogram, ampRegistrar);
-	    currentPlotter.setVisibility(((Boolean)filters.get(current)).booleanValue());
-	    filterPlotters.put(currentPlotter, current.getColor());
+	    applyFilter((ColoredFilter)e.next());
 	}
 	timeRegistrar.addSeismogram(newSeismogram);
 	ampRegistrar.addSeismogram(newSeismogram);
@@ -116,20 +116,21 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    MicroSecondDate originTime = new MicroSecondDate(((XMLDataSet)((DataSetSeismogram)seismos.getFirst()).getDataSet()).
 							     getEvent().get_preferred_origin().origin_time);
 	
-	System.out.println((long)arrivals[0].getTime() + ", "
-			   + arrivals[0].getPhase().getName() + " " + arrivals.length + " " + originTime);
-	for(int i = 0; i < arrivals.length; i++){
-	    flagPlotters.put(new FlagPlotter(new MicroSecondDate((long)(arrivals[i].getTime() * 1000000) + 
-								 originTime.getMicroSecondTime()), 
-					     arrivals[i].getPhase().getName()), Color.red);
-	}
+	    for(int i = 0; i < arrivals.length; i++){
+		FlagPlotter current = new FlagPlotter(new MicroSecondDate((long)(arrivals[i].getTime() * 1000000) + 
+									  originTime.getMicroSecondTime()), 
+						      arrivals[i].getPhase().getName());
+		plotters.addLast(current);
+		flagCount++;
+	    }
 	}catch(Exception e){}
 	redo = true;
 	repaint();
     }
 
     public void removeAllFlags(){
-	flagPlotters = new HashMap();
+	plotters.subList(filterCount + seisCount, plotters.size()).clear();
+	flagCount = 0;
 	redo = true;
 	repaint();
     }
@@ -141,8 +142,6 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     
     public void setName(String name){ this.name = name; } 
 
-    public AmpRangeConfig getAmpConfig(){ return ampRegistrar.getAmpConfig(); }
-    
     public AmpConfigRegistrar getAmpRegistrar(){ return ampRegistrar; } 
 
     public void updateAmpRange(){
@@ -201,7 +200,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public TimeInterval getDisplayInterval(){ return imagePainter.displayInterval; }
 
-    public static HashMap getFilters(){ return filters; }
+    public static Set getGlobalFilters(){ return globalFilters; }
 
     public void setAutoColor(boolean b){ autoColor = b; }
 
@@ -258,15 +257,6 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public void clearSelections(){
 	Iterator e = selections.iterator();
-	/*while(e.hasNext()){
-	    ((Selection)e.next()).removeParent(this);
-	}
-	e = selections3C.iterator();
-	while(e.hasNext()){
-	    ((Selection)e.next()).removeParent(this);
-	}
-	selections.clear();
-	selections3C.clear();*/
 	parent.removeSelectionDisplay();
 	parent.remove3CSelectionDisplay();
 	repaint();
@@ -374,10 +364,16 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public void setUnfilteredDisplay(boolean visible){
 	synchronized(imageMaker){
-	    Iterator e = seisPlotters.keySet().iterator();
+	    Iterator e = plotters.subList(0, seisCount).iterator();
 	    while(e.hasNext()){
-		((SeismogramPlotter)e.next()).setVisibility(visible);
-	    }
+		SeismogramPlotter current = (SeismogramPlotter)e.next();
+		current.setVisibility(visible);
+		if (visible) {
+		    ampRegistrar.addSeismogram(current.getSeismogram());
+		}else {
+		    ampRegistrar.removeSeismogram(current.getSeismogram());
+		} // end of else
+	    } // end of if (visible)
 	}
 	redo = true;
 	repaint();
@@ -385,55 +381,39 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public void applyFilter(ColoredFilter filter){
 	synchronized(imageMaker){
-	    if(filters.containsKey(filter)){
-		Iterator e = filterPlotters.keySet().iterator();
+	    if(filters.contains(filter)){
+		Iterator e = plotters.subList(seisCount, seisCount + filterCount).iterator();
 		while(e.hasNext()){
-		FilteredSeismogramPlotter current = ((FilteredSeismogramPlotter)e.next());
-		if(current.getFilter() == filter)
-		    current.toggleVisibility();
+		    FilteredSeismogramPlotter current = ((FilteredSeismogramPlotter)e.next());
+		    if(current.getFilter() == filter){
+			current.setVisibility(current.getFilter().getVisibility());
+			if (current.getVisibility()) {
+			    ampRegistrar.addSeismogram(current.getFilteredSeismogram());
+			} // end of if (current.getVisibility())
+			else {
+			    ampRegistrar.removeSeismogram(current.getFilteredSeismogram());
+			} // end of else
+			
+		    }
 		}
 	    }else{
+		filters.add(filter);
 		Iterator e = seismos.iterator();
 		while(e.hasNext()){
 		    DataSetSeismogram current = (DataSetSeismogram)e.next();
 		    logger.debug("creating a new filter for " + name);
-		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, current,
-											      ampRegistrar);
-		    filteredPlotter.setVisibility(true);
-		    filterPlotters.put(filteredPlotter, filter.getColor());
+		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, current);
+		    filteredPlotter.setVisibility(filter.getVisibility());
+		    plotters.add(filterCount + seisCount, filteredPlotter);
+		    filterCount++;
+		    ampRegistrar.addSeismogram(filteredPlotter.getFilteredSeismogram());
 		}
 	    }
 	}
 	redo = true;
 	repaint();
     }
-
-    public void setFilter(ColoredFilter filter, boolean visible){
-	synchronized(imageMaker){
-	    if(filters.containsKey(filter)){
-		Iterator e = filterPlotters.keySet().iterator();
-		while(e.hasNext()){
-		FilteredSeismogramPlotter current = ((FilteredSeismogramPlotter)e.next());
-		if(current.getFilter() == filter)
-		    current.setVisibility(visible);
-		}
-	    }else{
-		filters.put(filter, new Boolean(true));
-		Iterator e = seismos.iterator();
-		while(e.hasNext()){
-		    DataSetSeismogram current = (DataSetSeismogram)e.next();
-		    logger.debug("creating a new filter for " + name);
-		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, current,
-											      ampRegistrar);
-		    filteredPlotter.setVisibility(visible);
-		    filterPlotters.put(filteredPlotter, filter.getColor());
-		}
-	    }
-	}
-	redo = true;
-	repaint();
-    }
-
+    
     public void ampFillWindow(){
 	ampRegistrar.individualizeAmpConfig(timeRegistrar);
     }
@@ -444,15 +424,12 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     protected class ImagePainter extends JComponent{
 	public void paint(Graphics g){
-	    Date begin = new Date();
 	    if(image == null){
-		//logger.debug("the image is null and is being created");
 		synchronized(this){ displayInterval = timeRegistrar.getTimeRange().getInterval(); }
 		this.createImage();
 		return;
 		}
 	    if(image.get() == null){
-		//logger.debug("image was garbage collected, and is being recreated");
 		synchronized(this){ displayInterval = timeRegistrar.getTimeRange().getInterval(); }
 		this.createImage();
 		return;
@@ -461,37 +438,40 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    long beginTime = timeRegistrar.getTimeRange().getBeginTime().getMicroSecondTime();
 	    Graphics2D g2 = (Graphics2D)g;
 	    if(displayTime == timeRegistrar.getTimeRange().getInterval().getValue()){
-		double offset = (beginTime - imageBeginTime)/ (double)(imageTimeInterval) * imageSize.getWidth();
+		double offset = (beginTime - imageBeginTime)/ imageTimeInterval * imageSize.getWidth();
 		if(imageCache.contains(image.get())){
 		    imageCache.remove(image.get());
-		    imageCache.addFirst(image.get());
 		}
+		imageCache.addFirst(image.get());
+		if (imageCache.size() > 5) {
+		    imageCache.removeLast();
+		} // end of if (imageCache.size() > 5)
 		g2.drawImage(((Image)image.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
-		if(redo || endTime >= imageTimeRange.getEndTime().getMicroSecondTime() || 
-		   beginTime <= imageTimeRange.getBeginTime().getMicroSecondTime()){
-		    //logger.debug("the image is being redone");
+		if(redo || endTime >= imageEndTime || beginTime <= imageBeginTime){
 		    this.createImage();
 		}
 		redo = false;
 	    } else{
-		double scale = displayTime/timeRegistrar.getTimeRange().getInterval().getValue(); 
-		double offset = (beginTime - imageBeginTime)/ (double)(imageTimeInterval) * (imageSize.getWidth() * scale);
+		double scale = displayTime/timeRegistrar.getTimeRange().getInterval().getValue();
+		double offset = (beginTime - imageBeginTime)/ imageTimeInterval * (imageSize.getWidth() * scale);
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		tx.scale(scale, 1);
 		if(imageCache.contains(image.get())){
 		    imageCache.remove(image.get());
-		    imageCache.addFirst(image.get());
 		}
+		imageCache.addFirst(image.get());
+		if (imageCache.size() > 5) {
+		    imageCache.removeLast();
+		} // end of if (imageCache.size() > 5)
+		
 		g2.drawImage(((Image)image.get()), tx, null);
 		synchronized(this){ displayInterval = timeRegistrar.getTimeRange().getInterval();	}
 		this.createImage();
 	    }
 	    if(selections.size() > 0){
 		Iterator e = selections.iterator();
-		int i = 0;
 		while(e.hasNext()){
 		    Selection currentSelection = (Selection)(e.next());
-		    
 		    if(currentSelection.isVisible()){
 			Rectangle2D current = new Rectangle2D.Float(currentSelection.getX(getSize().width), 0, 
 								    (float)(currentSelection.getWidth() * getSize().width), 
@@ -501,15 +481,12 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 			g2.draw(current);
 			
 		    } 
-		    i++;
 		}
 	    }
 	    if(selections3C.size() > 0){
 		Iterator e = selections3C.iterator();
-		int i = 0;
 		while(e.hasNext()){
 		    Selection currentSelection = (Selection)(e.next());
-		    
 		    if(currentSelection.isVisible()){
 			Rectangle2D current = new Rectangle2D.Float(currentSelection.getX(getSize().width), 0, 
 								    (float)(currentSelection.getWidth() * getSize().width), 
@@ -519,27 +496,24 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 			g2.draw(current);
 			
 		    } 
-		    i++;
 		}
 	    }
 	    if(name != null){
 		g2.setPaint(new Color(0, 0, 0, 128));
 		g2.drawString(name, 5, getSize().height - 3);
 	    }
-	    Date end = new Date();
-	    //logger.debug("painting: " + (end.getTime() - begin.getTime()) + "ms");
 	}
 	
 	public synchronized void createImage(){
-	    imageMaker.createImage(this, new PlotInfo(imageSize, seisPlotters, filterPlotters, flagPlotters, 
-						      timeRegistrar.takeSnapshot()));
+	    imageMaker.createImage(this, new PlotInfo(imageSize, plotters, timeRegistrar.takeSnapshot(), ampRegistrar.takeSnapshot()));
 	}
 
 	public synchronized void setImage(Image newImage, TimeSnapshot imageState){
-	    imageTimeRange = imageState.getTimeRange().getOversizedTimeRange(OVERSIZED_SCALE);
+	    MicroSecondTimeRange imageTimeRange = imageState.getTimeRange().getOversizedTimeRange(OVERSIZED_SCALE);
 	    displayTime = imageState.getTimeRange().getInterval().getValue();
+	    imageEndTime = imageTimeRange.getEndTime().getMicroSecondTime();
 	    imageBeginTime = imageTimeRange.getBeginTime().getMicroSecondTime();
-	    imageTimeInterval = imageTimeRange.getEndTime().getMicroSecondTime() - imageBeginTime;
+	    imageTimeInterval = imageTimeRange.getInterval().getValue();
 	    if(image != null && imageCache.contains(image.get())){
 		imageCache.remove(image.get());
 	    }
@@ -554,23 +528,22 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	
 	protected long imageEndTime, imageBeginTime;
 
-	protected long imageTimeInterval;
-
-	protected double displayTime;
-	
-	protected MicroSecondTimeRange imageTimeRange;
-	
+	protected double displayTime, imageTimeInterval;
+			
 	protected TimeInterval displayInterval;
     
 	protected SoftReference image;
     }
+    
     protected static LinkedList imageCache = new LinkedList();
-           
+    
+    protected static Set globalFilters = new HashSet();
+
+    public ArrayList filters = new ArrayList();
+
     protected Dimension displaySize;
 
     protected VerticalSeismogramDisplay parent; 
-    
-    protected Selection currentSelection; 
     
     protected LinkedList seismos = new LinkedList();
     
@@ -578,13 +551,9 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     protected LinkedList selections3C = new LinkedList();
     
-    protected static HashMap filters = new HashMap();
-
-    protected HashMap seisPlotters = new HashMap();
+    protected LinkedList plotters = new LinkedList();
     
-    protected HashMap filterPlotters = new HashMap();
-
-    protected HashMap flagPlotters = new HashMap();
+    protected int seisCount = 0, filterCount = 0, flagCount = 0;
 
     protected String name;
 
@@ -600,7 +569,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
    
     protected ImagePainter imagePainter;
 
-    protected boolean redo, newSelection;
+    protected boolean redo;
 
     protected boolean autoColor = true;
 
@@ -610,12 +579,12 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     protected static ImageMaker imageMaker = new ImageMaker();
 
-    private Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
+    private static Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
 
-    private Color[] selectionColors = { new NamedColor(255, 0, 0, 64, "red"),  
-					new NamedColor(255, 255, 0, 64, "yellow"), 
-					new NamedColor(0, 255, 0, 64, "green"),  
-					new NamedColor(0, 0, 255, 64, "blue")};
+    private static Color[] selectionColors = { new NamedColor(255, 0, 0, 64, "red"),  
+					       new NamedColor(255, 255, 0, 64, "yellow"), 
+					       new NamedColor(0, 255, 0, 64, "green"),  
+					       new NamedColor(0, 0, 255, 64, "blue")};
 
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay
