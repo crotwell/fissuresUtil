@@ -31,19 +31,29 @@ public class DataSetToXML {
     public File save(DataSet dataset, File saveDirectory)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Element doc = createDocument(dataset, saveDirectory);
-        Writer xmlWriter = new Writer();
-        String filename =  dataset.getName()+".dsml";
-        filename = filename.replaceAll(" ","_");
+        String filename = createFileName(dataset);
         logger.debug("save to "+filename+" in "+saveDirectory.toString());
         saveDirectory.mkdirs();
         File outFile = new File(saveDirectory, filename);
-        BufferedWriter buf =
-            new BufferedWriter(new FileWriter(outFile));
-        xmlWriter.setOutput(buf);
-        xmlWriter.write(doc);
-        buf.close();
+        writeToFile(doc, outFile);
         logger.debug("Done with save to "+saveDirectory.toString());
         return outFile;
+    }
+
+    public String createFileName(DataSet dataset) {
+        String filename =  dataset.getName()+".dsml";
+        filename = filename.replaceAll(" ","_");
+        return filename;
+    }
+
+    public void writeToFile(Element datasetElement, File outFile)
+        throws IOException, ParserConfigurationException, MalformedURLException {
+                BufferedWriter buf =
+            new BufferedWriter(new FileWriter(outFile));
+        Writer xmlWriter = new Writer();
+        xmlWriter.setOutput(buf);
+        xmlWriter.write(datasetElement);
+        buf.close();
     }
 
     public Element createDocument(DataSet dataset, File dataDirectory)
@@ -136,10 +146,20 @@ public class DataSetToXML {
     public void insertRef(Element element, DataSet dataset, File directory)
         throws IOException, ParserConfigurationException, MalformedURLException {
         File dsFile = save(dataset, directory);
-        element.setAttribute("xlink:href", dsFile.getPath());
-        element.setAttribute("xlink:type", "simple");
-        element.setAttribute("xlink:title", dataset.getName());
+        insertRef(element, dsFile.toURI().toURL(), dataset.getName());
     }
+
+        /** inserts the child dataset as a datasetRef element. The URL is assumed
+     *  to be in a subdirectory relative to the current dataset.
+     */
+    public void insertRef(Element element, URL datasetURL, String linkTitle)
+        throws IOException, ParserConfigurationException, MalformedURLException {
+        element.setAttribute("xlink:href", datasetURL.toString());
+        element.setAttribute("xlink:type", "simple");
+        element.setAttribute("xlink:title", linkTitle);
+    }
+
+
     /**
      * Load a xml dataset from a URL.
      *
