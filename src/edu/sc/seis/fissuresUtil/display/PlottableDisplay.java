@@ -51,7 +51,7 @@ public  class PlottableDisplay extends JPanel {
     public PlottableDisplay() 
     {
 	super();
-
+	
         removeAll();
         final Color bg = Color.white;
         final Color fg = Color.yellow;
@@ -73,6 +73,9 @@ public  class PlottableDisplay extends JPanel {
 
     public void setAmpScale(float ampScalePercent) {
 	this.ampScalePercent = ampScalePercent;
+	int[] minmax = findMinMax(arrayplottable);
+	min = minmax[0];
+	max = minmax[1];
 	this.ampScale = ampScalePercent*plot_y/(max-min);
 	System.out.println("AmpScale "+ampScalePercent+" "+ampScale);
 	configChanged();
@@ -195,6 +198,8 @@ public  class PlottableDisplay extends JPanel {
 	int xShift = plot_x/plotrows;
 	mean = getMean();
 	for (int currRow = 0; currRow < plotrows; currRow++) {
+System.out.println("currRow  xShift  min   max  ampScale  ampScale*min  ampScale*max  plotofset  plot_y");
+System.out.println("  plot_x");
 	    System.out.println(currRow+" "+xShift+" "+min+" "+max+" "+ampScale+" "+(ampScale*min)+" "+(ampScale*max)+" "+plotoffset+" "+plot_y+" "+plot_x);
 	    // get new graphics to avoid messing up original
 	    Graphics2D newG = (Graphics2D)g.create(); 
