@@ -54,7 +54,7 @@ public class SoundPlay extends MouseAdapter implements Plotter, MouseMotionListe
         this.display = display;
         this.container = container;
         isPlaying = false;
-        seisWAV = new FissuresToWAV(container, 200);
+        seisWAV = new FissuresToWAV(container, 1200);
         seisWAV.addPlayEventListener(this);
         SeismogramDisplay.getMouseForwarder().addPermMouseListener(this);
         SeismogramDisplay.getMouseMotionForwarder().addMouseMotionListener(this);
