@@ -21,7 +21,9 @@ public class WorkerThreadPool{
     public WorkerThreadPool(String name, int numThreads, int priority) {
         this.numThreads = numThreads;
         for (int i = 0; i < numThreads; i++) {
-            new BackgroundWorker(name + i, priority).start();
+            BackgroundWorker bw = new BackgroundWorker(name + i, priority);
+            idle.add(bw);
+            bw.start();
         }
     }
 
