@@ -233,10 +233,6 @@
             <version>1.4</version>
         </dependency>
         <dependency>
-            <id>velocity</id>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
             <id>commons-collections</id>
             <version>3.0</version>
         </dependency>
