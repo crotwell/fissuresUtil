@@ -19,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1750 2002-05-30 21:17:40Z crotwell $
+ * @version $Id: XMLDataSet.java 1764 2002-05-31 20:36:45Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -113,7 +113,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	return all;
     }
 
-    public Object getParamter(String name) {
+    public Object getParameter(String name) {
 	if (parameterCache.containsKey(name)) {
 	    return parameterCache.get(name);
 	} // end of if (parameterCache.containsKey(name))
