@@ -57,7 +57,28 @@ extends TestCase
 
       assertEquals("float", 1.0f, out[2], 0.0000001);
     // JUnitDoclet end method apply
-  }
+  } 
+  
+  public void testSignalCorrelate() throws Exception {
+    // JUnitDoclet begin method apply
+  	int n = 2000;
+  	java.util.Random rand = new java.util.Random();
+  	float[] sinWave = new float[n];
+  	float[] cosWave = new float[n];
+	for (int i=0; i < n; i++) {
+ 		sinWave[i] = (float) ( Math.sin( 2.0*Math.PI*i/20 ) );
+ 		cosWave[i] = (float) ( Math.cos( 2.0*Math.PI*i/20 ) );
+	}     
+	float[] corr = Cmplx.correlate( sinWave, cosWave );
+	// Returns a negatively amplified sine wave
+	float ampFactor = corr[5]/sinWave[5];
+	for ( int i = 0; i < 20 ; i++) {
+		// require a larger delta due to processing noise
+		assertEquals( "unexpected value for correlation",
+					  sinWave[i], corr[i]/ampFactor, 0.01);  
+	}
+  // JUnitDoclet end method apply
+}
 
   public void testCorrelateTriangle() throws Exception {
     // JUnitDoclet begin method apply
@@ -101,6 +122,36 @@ extends TestCase
       assertEquals("float", .2f, out[8], 0.0000001);
       assertEquals("float", .2f, out[10], 0.0000001);
     // JUnitDoclet end method apply
+  }
+  
+  
+  public void testFftSignal() {
+    // JUnitDoclet begin method apply
+  	java.util.Random rand = new java.util.Random();
+  	int n = 1024;
+	float[] vals_lo = new float[n];
+	float[] vals_hi = new float[n];
+	float[] vals_comb = new float[n];
+	int loPeak = 76;
+	int hiPeak = 19;
+	for (int i=0; i < n; i++) {
+		float ri = rand.nextFloat();
+ 		vals_lo[i] = (float) ( 0.25*Math.sin( 2.0*Math.PI*(i/loPeak) ) ) + 0.5f*ri;
+ 		vals_hi[i] = (float) ( 0.25*Math.sin( 2.0*Math.PI*(i/hiPeak) ) ) + 0.5f*ri;
+ 		vals_comb[i] = vals_lo[i] + vals_hi[i];
+	}
+
+	Cmplx[] fft_lo = Cmplx.fft( vals_lo );
+	Cmplx[] fft_hi = Cmplx.fft( vals_hi );
+	Cmplx[] fft_comb = Cmplx.fft( vals_comb );
+
+	// test the transitivity of the resulting fft at least...
+	for ( int i = 0; i < n/2; i++ ) {
+		assertEquals( fft_comb[i].real(), fft_hi[i].real() + fft_lo[i].real(), 0.0001);
+		assertEquals( fft_comb[i].imag(), fft_hi[i].imag() + fft_lo[i].imag(), 0.0001);
+	}
+	
+	// JUnitDoclet end method apply
   }
 
   /**
