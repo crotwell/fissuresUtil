@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3077 2003-01-10 02:56:41Z crotwell $
+ * @version $Id: XMLDataSet.java 3099 2003-01-14 19:05:19Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -233,7 +233,6 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public Object getParameter(String name) {
 
-	System.out.println("IN THE METHOD GET PARAMETER ****************************************************");
 	if (parameterCache.containsKey(name)) {
 	   
 	    Object obj = parameterCache.get(name);
@@ -259,8 +258,6 @@ public class XMLDataSet implements DataSet, Serializable {
 	    logger.debug("THE NODE LIST IS NULL for parameter "+name);
 	}
 	
-	System.out.println("GO AND GET THE PARAMETER REF");
-
         // not a parameter, try parameterRef
         nList = evalNodeList(config, 
                              "parameterRef");//[text()="+dquote+name+dquote+"]");
@@ -1141,7 +1138,6 @@ public class XMLDataSet implements DataSet, Serializable {
 	name = getUniqueName(getSeismogramNames(), name);
 	seis.setName(name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");	
-	System.out.println("The length of the seismogramAttr Properties is "+seis.getProperties().length);
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
 	//localSeismogram.appendChild(seismogramAttr);
 	
