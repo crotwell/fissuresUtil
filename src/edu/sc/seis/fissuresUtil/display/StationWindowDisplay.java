@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -64,6 +63,16 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
             current.add(curSeis);
         }
         return current;
+    }
+
+    public void clear(){
+        stationDisplay = new HashMap();
+        super.clear();
+    }
+
+    public void removeAll(){
+        stationDisplay = new HashMap();
+        super.removeAll();
     }
 
     private Map stationDisplay = new HashMap();
