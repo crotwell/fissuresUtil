@@ -43,14 +43,10 @@ import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
 public class PlottableDisplay extends JComponent {
 
     public PlottableDisplay() {
-        this(Color.WHITE, Color.BLUE);
+        this(true);
     }
 
-    public PlottableDisplay(Color background, Color trace) {
-        this(background, trace, true);
-    }
-    
-    public PlottableDisplay(Color background, Color trace, boolean includeText) {
+    public PlottableDisplay(boolean includeText) {
         super();
         dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
         removeAll();
@@ -60,13 +56,18 @@ public class PlottableDisplay extends JComponent {
         tempSelection = new PlottableSelection(this);
         selection = new PlottableSelection(this);
         configChanged();
-        backgroundColor = background;
-        traceColor = trace;
         this.includeText = includeText;
         if (!includeText) {
             titleHeight = 30;
             configChanged();
         }
+    }
+    
+    public void setColors(Color even, Color odd, Color axis, Color background){
+        evenColor = even;
+        oddColor = odd;
+        axisColor = axis;
+        backgroundColor = background;
     }
 
     public void setOffset(int offset) {
@@ -163,7 +164,7 @@ public class PlottableDisplay extends JComponent {
     }
 
     int[] drawTitle(int y, String title, String text, Graphics2D g2) {
-        return drawTitle(y, title, text, g2, traceColor);
+        return drawTitle(y, title, text, g2, oddColor);
     }
 
     int[] drawTitle(int y, String title, String text, Graphics2D g2, Color color) {
@@ -224,7 +225,7 @@ public class PlottableDisplay extends JComponent {
             }
             String myt = "Time";
             String mygmt = "GMT";
-            g2.setPaint(Color.black);
+            g2.setPaint(evenColor);
             if(titleYPos < 30) titleYPos = 40;
             g2.drawString(myt, 10, titleYPos - 10);
             g2.drawString(myt, rowWidth + LABEL_X_SHIFT, titleYPos - 10);
@@ -248,9 +249,9 @@ public class PlottableDisplay extends JComponent {
         int xShift = totalWidth / rows + LABEL_X_SHIFT;
         for(int currRow = 0; currRow < rows; currRow++) {
             if(currRow % 2 == 0) {
-                g2.setPaint(Color.black);
+                g2.setPaint(evenColor);
             } else {
-                g2.setPaint(traceColor);
+                g2.setPaint(oddColor);
             }
             g2.drawString(hourmin, houroffset, titleHeight + rowOffset
                     * currRow);
@@ -274,7 +275,7 @@ public class PlottableDisplay extends JComponent {
         for(int row = 0; row < rows && currentImageGraphics == g; row++) {
             //use title and label transform to draw red center lines
             g2.setTransform(originalTransform);
-            g2.setPaint(Color.red);
+            g2.setPaint(axisColor);
             int yLoc = rowOffset * row;
             g2.drawLine(0, yLoc, rowWidth, yLoc);
             //Create new transform to draw plottable scaled correctly
@@ -291,9 +292,9 @@ public class PlottableDisplay extends JComponent {
             //center the mean
             g2.translate(0, -1 * mean);
             if(row % 2 == 0) {
-                g2.setPaint(Color.black);
+                g2.setPaint(evenColor);
             } else {
-                g2.setPaint(traceColor);
+                g2.setPaint(oddColor);
             }
             if(plottableShape != null) {
                 g2.draw(plottableShape);
@@ -580,9 +581,13 @@ public class PlottableDisplay extends JComponent {
         return totalHours;
     }
 
-    private Color backgroundColor;
+    private Color backgroundColor = Color.WHITE;
 
-    private Color traceColor;
+    private Color evenColor = Color.BLACK;
+    
+    private Color oddColor = Color.BLUE;
+    
+    private Color axisColor = Color.RED;
 
     private int totalHours = 24;
 
