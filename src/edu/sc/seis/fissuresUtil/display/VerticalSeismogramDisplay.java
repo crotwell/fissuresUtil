@@ -28,11 +28,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
     
     public void addDisplay(LocalSeismogram seis){
+
 	if(basicDisplays.size() > 0)
 	    this.addDisplay((LocalSeismogramImpl)seis,((SeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
 			    ((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
 	else	    
-	    this.addDisplay((LocalSeismogramImpl)seis, new BoundedTimeConfig(), new MinMaxAmpConfig());
+	    this.addDisplay((LocalSeismogramImpl)seis, new BoundedTimeConfig(), new RMeanAmpConfig());
     }
     
     public void addDisplay(LocalSeismogramImpl seis){
@@ -40,7 +41,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    this.addDisplay(seis,((SeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
 			((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
 	else	    
-	    this.addDisplay(seis, new BoundedTimeConfig(), new MinMaxAmpConfig());
+	    this.addDisplay(seis, new BoundedTimeConfig(), new RMeanAmpConfig());
     }
     
     public void addDisplay(LocalSeismogramImpl seis, TimeRangeConfig tr, AmpRangeConfig ar){
@@ -84,6 +85,25 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	while(e.hasNext())
 	    ((SeismogramDisplay)e.next()).redraw();
     }
+
+    public void removeAll(){
+	seismograms.removeAll();
+	remove(seismograms);
+	basicDisplays = new LinkedList();
+    }
+
+    public void removeSeismogram(MouseEvent me){
+	if(basicDisplays.size() == 1){
+	    this.removeAll();
+	    return;
+	}
+	BasicSeismogramDisplay clicked = ((BasicSeismogramDisplay)me.getComponent());
+	seismograms.remove(clicked);
+	basicDisplays.remove(clicked);
+	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
+	this.redraw();
+	seismograms.revalidate();
+    }
     
     protected LinkedList basicDisplays = new LinkedList();
 
@@ -101,7 +121,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    LocalSeismogram test3 = SeisPlotUtil.createSineWave();
 	    LocalSeismogram test4 = SeisPlotUtil.createTestData();
 	    VerticalSeismogramDisplay sv = new VerticalSeismogramDisplay();
-	    sv.addDisplay((LocalSeismogramImpl)test1, new BoundedTimeConfig(), new MinMaxAmpConfig());
+	    sv.addDisplay((LocalSeismogramImpl)test1, new BoundedTimeConfig(), new RMeanAmpConfig());
 	    sv.addDisplay((LocalSeismogramImpl)test2);
 	    sv.addDisplay((LocalSeismogramImpl)test3);
 	    sv.addDisplay((LocalSeismogramImpl)test4);
