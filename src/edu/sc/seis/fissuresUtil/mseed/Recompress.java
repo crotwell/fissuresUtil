@@ -38,26 +38,30 @@ public class Recompress {
         if (preserveBlocking && seis.is_encoded()) {
             // preserve existing edata blocking
             EncodedData[] data = seis.get_as_encoded();
-            allBlocks.addAll(steim1(data, preserveBlocking, maxFrames));
+            EncodedData[] recomp = steim1(data, preserveBlocking, maxFrames);
+            TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
+            dataSel.encoded_values(recomp);
+            LocalSeismogramImpl out = new LocalSeismogramImpl(seis, dataSel);
+            return out;
         } else {
             int[] data = seis.get_as_longs();
             allBlocks.addAll(steim1(data, maxFrames));
+            EncodedData[] edata = new EncodedData[allBlocks.size()];
+            for (int i = 0; i < edata.length; i++) {
+                SteimFrameBlock block = (SteimFrameBlock)allBlocks.get(i);
+                edata[i] = new EncodedData((short)B1000Types.STEIM1,
+                                           block.getEncodedData(),
+                                           block.getNumSamples(),
+                                           false);
+            }
+            TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
+            dataSel.encoded_values(edata);
+            LocalSeismogramImpl out = new LocalSeismogramImpl(seis, dataSel);
+            return out;
         }
-        EncodedData[] edata = new EncodedData[allBlocks.size()];
-        for (int i = 0; i < edata.length; i++) {
-            SteimFrameBlock block = (SteimFrameBlock)allBlocks.get(i);
-            edata[i] = new EncodedData((short)B1000Types.STEIM1,
-                                       block.getEncodedData(),
-                                       block.getNumSamples(),
-                                       false);
-        }
-        TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
-        dataSel.encoded_values(edata);
-        LocalSeismogramImpl out = new LocalSeismogramImpl(seis, dataSel);
-        return out;
     }
 
-    public static LinkedList steim1(EncodedData[] data, boolean preserveBlocking, int maxFrames) throws CodecException {
+    public static EncodedData[] steim1(EncodedData[] data, boolean preserveBlocking, int maxFrames) throws CodecException, IOException {
         Codec codec = new Codec();
         LinkedList allBlocks = new LinkedList();
         for (int i = 0; i < data.length; i++) {
@@ -69,7 +73,15 @@ public class Recompress {
             LinkedList list = steim1(decomp.getAsInt(), maxFrames);
             allBlocks.addAll(list);
         }
-        return allBlocks;
+        EncodedData[] edata = new EncodedData[allBlocks.size()];
+        for (int i = 0; i < edata.length; i++) {
+            SteimFrameBlock block = (SteimFrameBlock)allBlocks.get(i);
+            edata[i] = new EncodedData((short)B1000Types.STEIM1,
+                                       block.getEncodedData(),
+                                       block.getNumSamples(),
+                                       false);
+        }
+        return edata;
     }
 
     public static LinkedList steim1(int[] data) throws SteimException {
