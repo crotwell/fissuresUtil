@@ -4,6 +4,7 @@ import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.display.drawable.SoundPlay;
 
 /**
  * MultiSeismogramWindowDisplay displays every seismogram added to it
@@ -97,6 +98,13 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             basicDisplays.add(j, disp);
             addTimeBorders();
         }
+
+		if (numDisps == 0){
+			disp.addSoundPlay();
+			System.out.println("MultiSeis: adding SoundDisplay");
+		}
+		numDisps++;
+
         return disp;
     }
 
@@ -105,13 +113,16 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             sorter.remove(dss[i]);
         }
         super.remove(dss);
+		numDisps--;
     }
 
     public void removeAll(){
         sorter.clear();
         super.removeAll();
+		numDisps = 0;
     }
 
     private SeismogramSorter sorter;
-
+	private SoundPlay soundPlay;
+	private int numDisps = 0;
 }// MultiSeismogramWindowDisplay

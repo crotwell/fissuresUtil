@@ -17,6 +17,7 @@ import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.model.SamplingImpl;
 
 /** Takes an array of LocalSeismograms and iterates through them, point by point
  */
@@ -33,7 +34,8 @@ public class SeismogramIterator implements Iterator{
             LocalSeismogramImpl[] seis = this.seismograms = DisplayUtils.sortByDate(seismograms);
             MicroSecondDate startTime = seis[0].getBeginTime();
             MicroSecondDate endTime = seis[seis.length - 1].getEndTime();
-            TimeInterval sampling = seis[0].getSampling().getPeriod();
+            TimeInterval samplingInterval = seis[0].getSampling().getPeriod();
+			sampling = seis[0].getSampling();
             seisTimeRange = new MicroSecondTimeRange(startTime,
                                                      endTime);
             addToIterateList(seis[0], 0, seis[0].getNumPoints());
@@ -41,7 +43,7 @@ public class SeismogramIterator implements Iterator{
                 LocalSeismogramImpl current = seis[i];
                 LocalSeismogramImpl prev = seis[i-1];
                 if(DisplayUtils.areOverlapping(prev,current)){
-                    MicroSecondDate currentStartTime = prev.getEndTime().add(sampling);
+                    MicroSecondDate currentStartTime = prev.getEndTime().add(samplingInterval);
                     MicroSecondDate currentEndTime = current.getEndTime();
                     MicroSecondTimeRange currentTR = new MicroSecondTimeRange(currentStartTime,
                                                                               currentEndTime);
@@ -51,7 +53,7 @@ public class SeismogramIterator implements Iterator{
                     addToIterateList(current, 0, current.getNumPoints());
                 }else{//are seperated
                     TimeInterval difference = current.getBeginTime().difference(prev.getEndTime());
-                    TimeInterval convSampling = (TimeInterval)sampling.convertTo(UnitImpl.MICROSECOND);
+                    TimeInterval convSampling = (TimeInterval)samplingInterval.convertTo(UnitImpl.MICROSECOND);
                     double gapPoints = difference.divideBy(convSampling).getValue();
                     addToIterateList(new Gap((int)gapPoints), 0, (int)gapPoints);
                     addToIterateList(current, 0, current.getNumPoints());
@@ -243,7 +245,9 @@ public class SeismogramIterator implements Iterator{
         numPoints += lastPoint - firstPoint;
     }
 
-
+	public SamplingImpl getSampling(){
+		return sampling;
+	}
 
     private Statistics getStatistics(LocalSeismogramImpl seis){
         Statistics stat = (Statistics)statisticsMap.get(seis);
@@ -275,6 +279,8 @@ public class SeismogramIterator implements Iterator{
     private MicroSecondTimeRange seisTimeRange;
 
     private String name;
+
+	private SamplingImpl sampling;
 
     //TODO Make SeismogramShape understand drawing NOT_A_NUMBER
     public static final QuantityImpl NOT_A_NUMBER = new QuantityImpl(Double.NaN,
