@@ -222,6 +222,8 @@ public class JDBCChannel extends NetworkTable {
 
     }
 
+    public JDBCSite getSiteTable(){ return siteTable; }
+
     private PreparedStatement getAllIds, getAllIdsForStation, getAllIdsForNetwork;
 
     private PreparedStatement getAllChans, getAllChansForSite,
