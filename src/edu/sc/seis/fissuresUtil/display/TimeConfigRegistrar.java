@@ -17,24 +17,19 @@ import org.apache.log4j.*;
 
 public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     public TimeConfigRegistrar(){ 
-	this(new BoundedTimeConfig()); 
+	this(new BoundedTimeConfig(), null); 
     }
 
     public TimeConfigRegistrar(TimeSyncListener creator){ 
 	this(new BoundedTimeConfig(), creator); 
     }
-
-    public TimeConfigRegistrar(TimeRangeConfig timeConfig){
-	this.timeConfig = timeConfig;
-	timeConfig.addTimeSyncListener(this);
-	timeFinder = timeConfig.getTimeFinder();
-	snapshot = new TimeSnapshot(seismos, null);
-    }
     
     public TimeConfigRegistrar(TimeRangeConfig timeConfig, TimeSyncListener creator){
 	this.timeConfig = timeConfig;
 	timeConfig.addTimeSyncListener(this);
-	this.addTimeSyncListener(creator);
+	if(creator != null){
+	    this.addTimeSyncListener(creator);
+	}
 	timeFinder = timeConfig.getTimeFinder();
 	snapshot = new TimeSnapshot(seismos, null);
     }
