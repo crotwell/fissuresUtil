@@ -145,7 +145,7 @@ public class UnitRangeMapper implements ScaleMapper{
 
     private int hintPixels;
 
-    private UnitRangeImpl range;
+    private UnitRangeImpl range = DisplayUtils.ONE_RANGE;
 
     private final boolean ascending;
 
