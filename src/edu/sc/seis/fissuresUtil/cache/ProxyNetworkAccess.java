@@ -23,7 +23,7 @@ public abstract class ProxyNetworkAccess implements NetworkAccess{
     public ProxyNetworkAccess(NetworkAccess net){ this.net = net; }
 
     /**
-     * If this RetryNetworkAccess is holding onto a ProxyNetworkAccess, it calls
+     * If this ProxyNetworkAccess is holding onto a ProxyNetworkAccess, it calls
      * reset on that network access.  Otherwise it just falls through.
      */
     public void reset(){
