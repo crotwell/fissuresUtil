@@ -4,6 +4,7 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.MapMouseMode;
 import java.awt.Cursor;
+import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import javax.swing.Icon;
 
@@ -134,5 +135,90 @@ public abstract class OpenMapTool implements MapMouseMode{
         }
     }
 
-
+	
+	/**
+	 * Lets the MouseDelegator know if the MapMouseMode should be
+	 * visible in the GUI, in order to create certain mouse modes that
+	 * may be controlled by other tools.
+	 */
+	public boolean isVisible() {
+		// TODO
+		return false;
+	}
+	
+	/**
+	 * Request to have the MapMouseMode act as a proxy for a
+	 * MapMouseMode that wants to remain hidden.  Can be useful for
+	 * directing events to one object.  With this call, no events will
+	 * be forwared to the proxy's target.
+	 *
+	 * @param mmm the hidden MapMouseMode for this MapMouseMode to
+	 * send events to.
+	 * @return true if the proxy setup (essentially a lock) is
+	 * successful, false if the proxy is already set up for another
+	 * listener.
+	 */
+	public boolean actAsProxyFor(MapMouseMode mmm) {
+		// TODO
+		return false;
+	}
+	
+	/**
+	 * Request to have the MapMouseMode act as a proxy for a
+	 * MapMouseMode that wants to remain hidden.  Can be useful for
+	 * directing events to one object.
+	 *
+	 * @param mmm the hidden MapMouseMode for this MapMouseMode to
+	 * send events to.
+	 * @param pdm the proxy distribution mask to use, which lets this
+	 * proxy notify its targets of events.
+	 * @return true if the proxy setup (essentially a lock) is
+	 * successful, false if the proxy is already set up for another
+	 * listener.
+	 */
+	public boolean actAsProxyFor(MapMouseMode mmm, int pdm) {
+		// TODO
+		return false;
+	}
+	
+	/**
+	 * Can check if the MapMouseMode is acting as a proxy for a
+	 * MapMouseMode.
+	 */
+	public boolean isProxyFor(MapMouseMode mmm) {
+		// TODO
+		return false;
+	}
+	
+	/**
+	 * Release the proxy lock on the MapMouseMode.
+	 */
+	public void releaseProxy() {
+		// TODO
+	}
+	
+	/**
+	 * Set the mask that dictates which events get sent to this
+	 * support object's targets even if the parent mouse mode is
+	 * acting as a proxy.
+	 * @see MapMouseSupport for definitions of mask bits.
+	 */
+	public void setProxyDistributionMask(int mask) {
+		// TODO
+	}
+	
+	/**
+	 * Get the mask that dictates which events get sent to this
+	 * support object's targets even if the parent mouse mode is
+	 * acting as a proxy.
+	 * @see MapMouseSupport for definitions of mask bits.
+	 */
+	public int getProxyDistributionMask() {
+		// TODO
+		return 0;
+	}
+	
+	public void listenerPaint(Graphics graphics) {
+		// TODO
+	}
 }

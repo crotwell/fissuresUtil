@@ -98,5 +98,9 @@ public class ZoomTool extends OpenMapTool{
     public String getID() {
         return id;
     }
+	
+	public String getPrettyName(){
+		return id;
+	}
 
 }
