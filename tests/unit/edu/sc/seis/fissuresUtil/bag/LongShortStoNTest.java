@@ -26,10 +26,32 @@ public class LongShortStoNTest extends TestCase {
         LocalSeismogramImpl seis = SimplePlotUtil.createTestData("est", data);
         seis.sampling_info = new SamplingImpl(1, new TimeInterval(1, UnitImpl.SECOND));
         LongShortTrigger[] triggers = ston.calcTriggers(seis);
+      //  System.out.println("Found "+triggers.length+" triggers");
+      //  for (int i = 0; i < triggers.length; i++) {
+      //      System.out.println(triggers[i].getIndex()+"  "+triggers[i].getWhen()+"  "+triggers[i].getValue());
+      //  }
+    }
+
+    public void testConstant() throws Exception {
+        LongShortStoN ston = new LongShortStoN(new TimeInterval(100, UnitImpl.SECOND),
+                                               new TimeInterval(6, UnitImpl.SECOND),
+                                               .2f);
+        int[] data = new int[1200];
+        for (int i = 0; i < data.length; i++) {
+            if (i%2000 > 1000 && i%2000<1010) {
+                data[i] = 5*(i%2);
+            } else {
+                data[i] = i%2;
+            }
+        }
+        LocalSeismogramImpl seis = SimplePlotUtil.createTestData("est", data);
+        seis.sampling_info = new SamplingImpl(1, new TimeInterval(.1f, UnitImpl.SECOND));
+        LongShortTrigger[] triggers = ston.calcTriggers(seis);
         System.out.println("Found "+triggers.length+" triggers");
         for (int i = 0; i < triggers.length; i++) {
             System.out.println(triggers[i].getIndex()+"  "+triggers[i].getWhen()+"  "+triggers[i].getValue());
         }
     }
+
 }
 
