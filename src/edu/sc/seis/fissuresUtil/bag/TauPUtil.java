@@ -20,7 +20,7 @@ import edu.sc.seis.TauP.TauP_Time;
 
 public class TauPUtil {
 
-    public TauPUtil(String modelName) throws TauModelException {
+    private TauPUtil(String modelName) throws TauModelException {
         taup_time = new TauP_Time(modelName);
     }
 
@@ -44,6 +44,14 @@ public class TauPUtil {
 
     public TauModel getTauModel() {
         return taup_time.getTauModel();
+    }
+
+    public synchronized static TauPUtil getTauPUtil() {
+        try {
+            return getTauPUtil("prem");
+        } catch(TauModelException e) {
+            throw new RuntimeException("Should never happen as prem is bundled with TauP", e);
+        }
     }
 
     public synchronized static TauPUtil getTauPUtil(String modelName) throws TauModelException {
