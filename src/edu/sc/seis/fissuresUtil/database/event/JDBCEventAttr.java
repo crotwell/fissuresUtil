@@ -241,15 +241,6 @@ public class JDBCEventAttr extends EventTable {
         updateRegionStmt.executeUpdate();
     }
 
-    private boolean checkIfValid(String[] list, String value) {
-        if(list.length == 0 || list == null) return true;
-        if(value == null) return false;
-        for(int counter = 0; counter < list.length; counter++) {
-            if(list[counter].equalsIgnoreCase(value)) return true;
-        }
-        return false;
-    }
-
     private JDBCFlinnEngdahl flinnEngdahl;
 
     private JDBCParameterRef paramRef;
@@ -267,8 +258,6 @@ public class JDBCEventAttr extends EventTable {
     private PreparedStatement putEventParamRefStmt;
 
     private PreparedStatement getAllStmt;
-
-    private PreparedStatement getOnConstraintStmt;
 
     private PreparedStatement updateRegionStmt;
 
