@@ -1,7 +1,20 @@
 plottable.create=CREATE TABLE plottable (channel_id int, \
                                          samples_per_second double, \
                                          start_time timestamp, \
+                                         end_time timestamp, \
                                          sample_count int, \
                                          data binary, \
                                          PRIMARY KEY (channel_id, samples_per_second, start_time), \
                                          FOREIGN KEY (channel_id) REFERENCES channel (chan_id))
+
+plottable.put=INSERT INTO plottable (channel_id, \
+              samples_per_second, start_time, end_time, sample_count, data) \
+              VALUES (?, ?, ?, ?, ?, ?)
+
+plottable.get=SELECT * FROM plottable WHERE \
+			  start_time <= ? AND end_time >= ? and channel_id = ? and \
+              samples_per_second = ?
+              
+plottable.drop=DELETE FROM plottable WHERE \
+			  start_time <= ? AND end_time >= ? and channel_id = ? and \
+              samples_per_second = ?
