@@ -41,7 +41,7 @@ import org.apache.log4j.Logger;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 8162 2004-04-15 19:17:30Z crotwell $
+ * @version $Id: EventInfoDisplay.java 9357 2004-06-25 20:28:22Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay
@@ -273,6 +273,23 @@ public class EventInfoDisplay extends TextInfoDisplay
     protected void appendMagnitude(Magnitude mag, Document doc)
         throws BadLocationException {
         appendLabelValue(doc, "Magnitude\t", mag.value+" "+mag.type+"  "+mag.contributor);
+    }
+
+    public static Magnitude getBestForDisplay(Magnitude[] mags) {
+        if (mags == null || mags.length == 0) {
+            logger.warn("mag array must not be empty");
+            return null;
+        }
+
+        // prefer Mw magnitude over others, as this is what the dmc uses
+        // for pond inclusion/exclusion
+        for (int i = 0; i < mags.length; i++) {
+            if (mags[i].type.equalsIgnoreCase("mw")) {
+                return mags[i];
+            }
+        }
+        // no Mw, so return first item
+        return mags[0];
     }
 
     public static Station[] sortStationsByDistance(Station[] stations,
