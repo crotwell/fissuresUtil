@@ -82,9 +82,9 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
         DataSetSeismogram[][] componentSorted = DisplayUtils.getComponents(dss);
-        addNorth(componentSorted[0], tc, new RMeanAmpConfig(componentSorted[0]));
-        addEast(componentSorted[1], tc , new RMeanAmpConfig(componentSorted[1]));
-        addZ(componentSorted[2], tc, new RMeanAmpConfig(componentSorted[2]));
+        addNorth(componentSorted[0], tc);
+        addEast(componentSorted[1], tc);
+        addZ(componentSorted[2], tc);
         return north;
     }
 
@@ -100,23 +100,23 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
         }
      }*/
 
-    private void addNorth(DataSetSeismogram[] newNorth, TimeConfig tc, AmpConfig ac){
-        north = addToDisplay(north, newNorth, tc, ac, DisplayUtils.NORTH);
+    private void addNorth(DataSetSeismogram[] newNorth, TimeConfig tc){
+        north = addToDisplay(north, newNorth, tc,DisplayUtils.NORTH);
     }
 
-    private void addEast(DataSetSeismogram[] newEast, TimeConfig tc, AmpConfig ac){
-        east = addToDisplay(east, newEast, tc, ac, DisplayUtils.EAST);
+    private void addEast(DataSetSeismogram[] newEast, TimeConfig tc){
+        east = addToDisplay(east, newEast, tc, DisplayUtils.EAST);
     }
 
-    private void addZ(DataSetSeismogram[] newZ, TimeConfig tc, AmpConfig ac){
-        z = addToDisplay(z, newZ, tc, ac, DisplayUtils.UP);
+    private void addZ(DataSetSeismogram[] newZ, TimeConfig tc){
+        z = addToDisplay(z, newZ, tc, DisplayUtils.UP);
     }
 
     private BasicSeismogramDisplay addToDisplay(BasicSeismogramDisplay display, DataSetSeismogram[] seismos,
-                                                TimeConfig tc, AmpConfig ac, String orientation){
+                                                TimeConfig tc, String orientation){
         if(seismos.length > 0){
             if(display == null){
-                display = new BasicSeismogramDisplay(tc, ac, this);
+                display = new BasicSeismogramDisplay(tc, this);
                 initializeBSD(display, 0, orientation);
                 addTimeBorders();
             }
