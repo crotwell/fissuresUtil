@@ -21,7 +21,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3645 2003-04-07 19:04:20Z groves $
+ * @version $Id: SeismogramShape.java 3647 2003-04-07 20:59:03Z groves $
  */
 
 public class SeismogramShape implements Shape, SeisDataChangeListener{
@@ -184,36 +184,41 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
         if(start >= end || start < 0){
             return;
         }
-        /*  if(iterator.getPointsPerPixel() <= 1){
-         plotExpansion(start, end, iterator);
-         }else{*/
-        plotCompression(start, end, iterator);
-        //}
+        if(iterator.getPointsPerPixel() <= 2){
+            plotExpansion(start, end, iterator);
+        }else{
+            plotCompression(start, end, iterator);
+        }
     }
 
     private void plotExpansion(int start, int end, SeismogramShapeIterator iterator){
-        /*  int[][] points = iterator.getPoints();
-         double pointsPerPixel = iterator.getPointsPerPixel();
-         double minAmp = iterator.getAmp().getMinValue();
-         double maxAmp = iterator.getAmp().getMaxValue();
-         double range = maxAmp - minAmp;
-         int height = iterator.getSize().height;
-         int totalShift = iterator.getTotalShift();
-         for(int i = start; i < end; i++){
-         double shift = (i-totalShift)*pointsPerPixel;
-         double unroundStartPoint = iterator.getBaseSeisPoint() + shift;
-         int startPoint = (int)Math.floor(unroundStartPoint);
-         int endPoint = startPoint + 1;
-         double firstPoint, lastPoint;
-         try{
-         firstPoint = seis[0].getValueAt(startPoint).getValue();
-         lastPoint = seis[0].getValueAt(endPoint).getValue();
-         }catch(CodecException e){
-         logger.debug("Error getting a point from a local seismogram");
-         e.printStackTrace();
-         }
-         double
-         }*/
+        int[][] points = iterator.getPoints();
+        double pointsPerPixel = iterator.getPointsPerPixel();
+        double minAmp = iterator.getAmp().getMinValue();
+        double maxAmp = iterator.getAmp().getMaxValue();
+        double range = maxAmp - minAmp;
+        int height = iterator.getSize().height;
+        int totalShift = iterator.getTotalShift();
+        for(int i = start; i < end; i++){
+            double shift = (i-totalShift)*pointsPerPixel;
+            double unroundStartPoint = iterator.getBaseSeisPoint() + shift;
+            int startPoint = (int)Math.floor(unroundStartPoint);
+            int endPoint = startPoint + 1;
+            double firstPoint = 0;
+            double lastPoint = 0;
+            try{
+                firstPoint = seis[0].getValueAt(startPoint).getValue();
+                lastPoint = seis[0].getValueAt(endPoint).getValue();
+            }catch(CodecException e){
+                logger.debug("Error getting a point from a local seismogram");
+                e.printStackTrace();
+            }
+            double difference = unroundStartPoint - startPoint;
+            double value = firstPoint * (1 - difference) + (lastPoint * difference);
+            points[0][i] = (int)((value  - minAmp)/range * height);
+            points[1][i] = points[0][i];
+           // System.out.println("Difference" + difference + " X: " + i + " Point: " + (int)firstPoint + " Point++: " + (int)lastPoint + " Value: " + (int)value);
+        }
     }
 
     private void plotCompression(int start, int end, SeismogramShapeIterator iterator){
@@ -366,3 +371,4 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
     private static Category logger =
         Category.getInstance(SeismogramShape.class.getName());
 }// SeismogramShape
+
