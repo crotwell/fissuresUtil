@@ -546,7 +546,9 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 	DataSetSeismogram[] creatorSeismos = creator.getSeismograms();
 	DataSetSeismogram[] newSeismos = new DataSetSeismogram[creatorSeismos.length];
 	for(int i = 0; i < creatorSeismos.length; i++){
-	    newSeismos[i] = new DataSetSeismogram(creatorSeismos[i], creatorSeismos[i] + "." + creator.getColor());
+	    //	    newSeismos[i] = new DataSetSeismogram(creatorSeismos[i], creatorSeismos[i] + "." + creator.getColor());
+	    newSeismos[i] = (DataSetSeismogram)creatorSeismos[i].clone();
+	    newSeismos[i].setName(newSeismos[i].getName()+"."+creator.getColor());
 	}
 	BasicSeismogramDisplay selectionDisplay = reaper.addDisplay(newSeismos, (TimeConfig)creator.getInternalRegistrar());
 	creator.addDisplay(selectionDisplay);
@@ -621,7 +623,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 	    for(int  i = 0; i < componentSorted.length; i++){
 		for(int j = 0; j < basicDisplaySeismos.length; j++){
 		    for(int k = 0; k < componentSorted[i].length; k++){
-			if(componentSorted[i][k].getSeismogram() == basicDisplaySeismos[j].getSeismogram()){
+			if(componentSorted[i][k].equals(basicDisplaySeismos[j])) {
 			    current.addSelection(creator);
 			    creator.addParent(current);
 			}
