@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2117 2002-07-10 20:34:42Z telukutl $
+ * @version $Id: XMLDataSet.java 2118 2002-07-10 20:38:12Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -193,7 +193,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	
         NodeList nList = evalNodeList(config, 
                                       "parameter[name/text()="+
-                                      dquote+name+dquote+"]../");
+                                      dquote+name+dquote+"]/../");
         if (nList != null && nList.getLength() != 0) {
 	    System.out.println("getting the parameter");
             Node n = nList.item(0); 
