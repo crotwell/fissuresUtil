@@ -116,7 +116,6 @@ public class SeismogramShape implements Shape, Plotter {
 											      (long)(timePixelPercentage * 
 											      time.getInterval().getValue())));
 	
-	System.out.println(adjustedTimeRange.getBeginTime());
 	getEdgeValues(adjustedTimeRange, size);
     	if(shift < 0){
 	    for(int i = startPixel; i < endPixel + shift; i++){
@@ -133,8 +132,8 @@ public class SeismogramShape implements Shape, Plotter {
 	    start = startPixel;
 	    end = startPixel + shift;
 	}
-	System.out.println("shift: " + shift + " startPixel: " + startPixel + " endPixel: " + endPixel + " start: " + start + 
-			   " end: " + end + " seisStart: " + seisStart + " seisEnd: " + seisEnd); 
+	//System.out.println("shift: " + shift + " startPixel: " + startPixel + " endPixel: " + endPixel + " start: " + start + 
+	//		   " end: " + end + " seisStart: " + seisStart + " seisEnd: " + seisEnd); 
 	if(start < 0){
 	    start = 0;
 	}
