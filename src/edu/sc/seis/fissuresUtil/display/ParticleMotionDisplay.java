@@ -105,13 +105,13 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	scaleBorder.setBottomScaleMapper(hAmpScaleMap);
 	scaleBorder.setLeftScaleMapper(vAmpScaleMap);        
         hTitleBorder = 
-            new CenterTitleBorder(hSeis.getSeismogram().getName());
+            new BottomTitleBorder(hSeis.getSeismogram().getName());
         vTitleBorder = 
             new CenterTitleBorder(vSeis.getSeismogram().getName());
 	particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(
-						     //	     BorderFactory.createCompoundBorder(
-			 BorderFactory.createRaisedBevelBorder(),
-			 //hTitleBorder),
+									  //BorderFactory.createCompoundBorder(
+									  BorderFactory.createRaisedBevelBorder(),
+									  //			     hTitleBorder),
 			 //BorderFactory.createCompoundBorder(hTitleBorder,
 			 //				    vTitleBorder)),
 	    		     BorderFactory.createCompoundBorder(
@@ -185,7 +185,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	     timeConfigRegistrar, 
 	     hAmpConfigRegistrar, 
 	     vAmpConfigRegistrar, 
-	     null, channelGroup[0].channel_code+"-"+channelGroup[1].channel_code, false);
+	     null, getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[1].channel_code), 
+		  false);
 	formRadioSetPanel(channelGroup);
 	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -205,7 +206,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				     hAmpConfigRegistrar, 
 				     vAmpConfigRegistrar, 
 				     null,
-				     channelGroup[1].channel_code+"-"+channelGroup[2].channel_code,false);
+				     getOrientationName(channelGroup[1].channel_code)+"-"+
+				     getOrientationName(channelGroup[2].channel_code),false);
 	    System.out.println(" ADDED he second SEismograme");
 	    addParticleMotionDisplay(seismograms[0], 
 				     seismograms[2], 
@@ -213,7 +215,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				     hAmpConfigRegistrar, 
 				     vAmpConfigRegistrar, 
 				     null,
-				     channelGroup[0].channel_code+"-"+channelGroup[2].channel_code, false);
+				     getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code), 
+				     false);
 	    System.out.println("Added the third display ");
 	}
 	    
@@ -276,7 +279,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 		  hAmpConfigRegistrar, 
 		  vAmpConfigRegistrar, 
 		  null, 
-		  channelGroup[0].channel_code+"-"+channelGroup[1].channel_code,
+		  getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[1].channel_code),
 		  horizPlane
 		  );
 	if(!advancedOption) {
@@ -306,7 +309,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				 hAmpConfigRegistrar, 
 				 vAmpConfigRegistrar, 
 				 null,
-				 channelGroup[1].channel_code+"-"+channelGroup[2].channel_code,
+				 getOrientationName(channelGroup[1].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code),
 				 horizPlane);
 	System.out.println(" ADDED he second SEismograme");
 	horizPlane = isHorizontalPlane(seismograms[0].getSeismogram().getChannelID(),
@@ -318,7 +321,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				 hAmpConfigRegistrar, 
 				 vAmpConfigRegistrar, 
 				 null,
-				 channelGroup[0].channel_code+"-"+channelGroup[2].channel_code,
+				 getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code),
 				 horizPlane);
 	System.out.println("Added the third display ");
     }
@@ -454,7 +457,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				 hAmpConfigRegistrar, 
 				 vAmpConfigRegistrar, 
 				 null,
-				 channelGroup[0].channel_code+"-"+channelGroup[1].channel_code,
+				 getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[1].channel_code),
 				 horizPlane);
 	//updateTimeRange();
 	System.out.println(" ADDED THe first seismograme ");
@@ -467,7 +470,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				 hAmpConfigRegistrar, 
 				 vAmpConfigRegistrar, 
 				 null,
-				 channelGroup[1].channel_code+"-"+channelGroup[2].channel_code,
+				 getOrientationName(channelGroup[1].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code),
 				 horizPlane);
 	System.out.println(" ADDED he second SEismograme");
 	horizPlane = isHorizontalPlane(((LocalSeismogramImpl)seismograms[0].getSeismogram()).getChannelID(),
@@ -479,7 +482,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				 hAmpConfigRegistrar, 
 				 vAmpConfigRegistrar, 
 				 null,
-				 channelGroup[0].channel_code+"-"+channelGroup[2].channel_code,
+				 getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code),
 				 horizPlane);
 	System.out.println("Added the third display ");
 
@@ -540,6 +543,17 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	    }
 	}
     }
+
+    public String getOrientationName(String orientation) {
+
+	char ch = orientation.charAt(2);
+	if(ch == 'E' || ch == '1' || ch == 'U') return "East";
+	else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
+	else return "Up";
+    }
+
+  
+
     /**
      * sets the AmplitudeRange of the ParticleMotionDisplay.
      *
@@ -598,7 +612,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	ArrayList arrayList = new ArrayList();
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    for(int subcounter = counter+1; subcounter < channelGroup.length; subcounter++) {
-		String labelStr = channelGroup[counter].channel_code+"-"+channelGroup[subcounter].channel_code;
+		String labelStr = getOrientationName(channelGroup[counter].channel_code)+"-"+
+		    getOrientationName(channelGroup[subcounter].channel_code);
 		JCheckBox radioButton = new JCheckBox(labelStr);
 		radioButton.setActionCommand(labelStr);
 		radioButton.addItemListener(new RadioButtonListener());
@@ -619,7 +634,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	ArrayList arrayList = new ArrayList();
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    for(int subcounter = counter + 1; subcounter < channelGroup.length; subcounter++) {
-		String labelStr = channelGroup[counter].channel_code+"-"+channelGroup[subcounter].channel_code;
+		String labelStr = getOrientationName(channelGroup[counter].channel_code)+"-"+
+		    getOrientationName(channelGroup[subcounter].channel_code);
 		JRadioButton radioButton = new JRadioButton(labelStr);
 		radioButton.setActionCommand(labelStr);
 		radioButton.addItemListener(new RadioButtonListener());
@@ -640,95 +656,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	}
     }
 
-    /**
-     * Describe <code>main</code> method here.
-     *
-     * @param args a <code>String[]</code> value
-     */
-    public static void main(String[] args) {
-	/* JFrame jf = new JFrame("Test Particle Motion View");
-	JPanel displayPanel = new JPanel();
-	JButton zoomIn = new JButton("zoomIn");
-	JButton zoomOut = new JButton("zoomOut");
-	JPanel buttonPanel = new JPanel();
-	buttonPanel.setLayout(new FlowLayout());
-	buttonPanel.add(zoomIn);
-	buttonPanel.add(zoomOut);
-        //        Seismogram hSeis = SeisPlotUtil.createTestData();
-        //        Seismogram vSeis = SeisPlotUtil.createTestData();
-        LocalSeismogramImpl hSeis =  (LocalSeismogramImpl)SeisPlotUtil.createCustomSineWave();
-            //(LocalSeismogramImpl)SeisPlotUtil.createSineWave(Math.PI/2, .4, 200, -1000);
-	
-        LocalSeismogramImpl vSeis = 
-            (LocalSeismogramImpl)SeisPlotUtil.createSineWave(Math.PI, .8, 200, 1000);	
-	LocalSeismogramImpl hSeisex = 
-            (LocalSeismogramImpl)SeisPlotUtil.createSineWave(30, .6, 100, -400);
-        LocalSeismogramImpl vSeisex = 
-            (LocalSeismogramImpl)SeisPlotUtil.createSineWave(-265, .1, 100, 400);
-	
-	AmpConfigRegistrar vAmpConfigRegistrar = new AmpConfigRegistrar();
-       
-        final ParticleMotionDisplay sv = new ParticleMotionDisplay(hSeis, hSeis,
-								   null,
-								   vAmpConfigRegistrar, 
-								   vAmpConfigRegistrar);
-        java.awt.Dimension size = new java.awt.Dimension(400, 400);
-        sv.setPreferredSize(size);
-
-	ParticleMotionDisplay svex = new ParticleMotionDisplay(hSeisex, vSeisex,
-							  vAmpConfigRegistrar, 
-							  vAmpConfigRegistrar);
-	sv.addParticleMotionDisplay(hSeisex, vSeisex,null,
-				    vAmpConfigRegistrar,
-				    vAmpConfigRegistrar);
-	//logger.debug("The min amp of second before "+
-	//	vAmpConfigRegistrar.getAmpRange(vSeisex).getMinValue());
-	//logger.debug("The max amp of second before "
-	///+vAmpConfigRegistrar.getAmpRange(vSeisex).getMaxValue());
-	//sv.addAzimuthLine(30);
-	//sv.addAzimuthLine(60);
-	//sv.addAzimuthLine(90);
-	sv.addAzimuthLine(15);
-	//sv.addAzimuthLine(0);
-	sv.addSector(10, 20);
-	//	sv.addSector(-30, -60);
-	//sv.addAzimuthLine(-40);
-	//	sv.addAzimuthLine(80);
-	displayPanel.setLayout(new BorderLayout());
-	sv.setSize(size);
-
-        displayPanel.add(sv, java.awt.BorderLayout.CENTER);
-	displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
-	displayPanel.add(new JPanel(), java.awt.BorderLayout.EAST);
-	displayPanel.setSize(size);
-	jf.getContentPane().add(displayPanel);
-        jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        jf.setSize(size);
-        jf.setVisible(true);
-        jf.addWindowListener(new java.awt.event.WindowAdapter() {
-                public void windowClosed(java.awt.event.WindowEvent e) {
-                    System.exit(0);
-                }
-            });
-
-	zoomIn.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent ae) {
-
-		    sv.setZoomIn(true);
-		    // sv.setZoomOut(false);
-		}
-	    });
-	zoomOut.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent ae) {
-
-		    sv.setZoomOut(true);
-		    // sv.setZoomIn(false);
-		}
-	    });
-*/
-	
-    }
-    
+  
 
     /**
      * Describe constant <code>PARTICLE_MOTION_LAYER</code> here.
@@ -740,7 +668,9 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
     protected ScaleBorder scaleBorder;
 
-    protected CenterTitleBorder hTitleBorder, vTitleBorder;
+    protected CenterTitleBorder vTitleBorder;
+
+    protected BottomTitleBorder hTitleBorder;
     
     protected ParticleMotionView view;
 
@@ -776,37 +706,3 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 
 
-/*********************
- public void resize() {
-	    
-	Dimension dim = view.getSize();
-	logger.debug("view coordinates before width = "+view.getSize().width+" height = "+view.getSize().height);
-	Insets insets =	view.getInsets();
-	int width = super.getSize().width;
-	int height = super.getSize().height;
-	width = width - super.getInsets().left - super.getInsets().right;
-	height = height - super.getInsets().top - super.getInsets().bottom;
-	if(width < height) {
-	    
-	    particleDisplayPanel.setSize(new Dimension(super.getSize().width,
-				       width + super.getInsets().top + super.getInsets().bottom));
-	   
-	    
-	} else {
-	    particleDisplayPanel.setSize(new Dimension(height  + super.getInsets().left + super.getInsets().right,
-				       super.getSize().height));
-
-	}
-	view.resize();
-	logger.debug("view coordinates are  width = "+view.getSize().width+" height = "+view.getSize().height);
-	logger.debug("view insets left = "+insets.left+" right = "+insets.right);
-	logger.debug("view insets top = "+insets.top+" bottom = "+insets.bottom);
-	logger.debug("display after width = "+getSize().width+" height = "+getSize().height);
-	if(hAmpScaleMap != null) {
-	    hAmpScaleMap.setTotalPixels(dim.width  - insets.left - insets.right);
-	    vAmpScaleMap.setTotalPixels(dim.height  - insets.top - insets.bottom);
-	}
-	repaint();
-    }
-
-**********/
