@@ -7,7 +7,9 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class WorkerThreadPool{
     public WorkerThreadPool(String name, int numThreads){
@@ -42,25 +44,27 @@ public class WorkerThreadPool{
         return defaultPool;
     }
     
-    static WorkerThreadPool defaultPool;
+    private static WorkerThreadPool defaultPool;
     
     
-    protected synchronized Runnable getFromQueue() throws InterruptedException {
+    private synchronized Runnable getFromQueue() throws InterruptedException {
         while (queue.isEmpty()) {
             wait();
         }
         return (Runnable)queue.removeLast();
     }
     
-    protected LinkedList queue = new LinkedList();
-    
     protected LinkedList workers = new LinkedList();
     
-    protected String name;
+    protected List active = new ArrayList();
+    
+    protected LinkedList queue = new LinkedList();
+    
+    private String name;
     
     private int priority;
     
-    protected class BackgroundWorker extends Thread {
+    private class BackgroundWorker extends Thread {
         protected BackgroundWorker(String name, int priority) {
             super(name);
             setPriority(priority);
@@ -68,6 +72,7 @@ public class WorkerThreadPool{
         }
         
         public void run() {
+            active.add(this);
             while (noQuit) {
                 try {
                     Runnable r = getFromQueue();
@@ -76,6 +81,7 @@ public class WorkerThreadPool{
                     GlobalExceptionHandler.handle(e);
                 }
             }
+            active.remove(this);
         }
         
         boolean noQuit = true;
