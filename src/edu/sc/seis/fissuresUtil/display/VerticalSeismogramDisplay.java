@@ -9,7 +9,10 @@ import java.io.IOException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.freq.ButterworthFilter;
+import edu.sc.seis.fissuresUtil.chooser.ChannelGrouperImpl;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -185,6 +188,18 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    ((BasicSeismogramDisplay)e.next()).setFilter(filter, visible);
     }
 
+    public void applyFilter(ButterworthFilter filter){
+	Iterator e = basicDisplays.iterator();
+	while(e.hasNext()){
+	    System.out.println("applying filter");
+	    ((BasicSeismogramDisplay)e.next()).applyFilter(filter);
+	}
+	if(selectionDisplay != null){
+	    selectionDisplay.applyFilter(filter);
+	}
+	((BasicSeismogramDisplay)basicDisplays.getFirst()).getFilters().add(filter);
+    }
+
     public LinkedList getCurrentFilters(){ return currentFilters; }
 
     public void globalizeAmpRange(){
@@ -243,6 +258,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
     }
 
+    
+
     public void createSelectionDisplay(Selection creator){
 	if(selectionDisplay == null){
 	    logger.debug("creating selection display");
@@ -258,9 +275,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()), 
 										   tr.getTimeRange(first.getSeismogram())));
-	    ar.visibleAmpCalc(tr);
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
 	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
+	    ar.visibleAmpCalc(tr);
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
@@ -287,11 +304,75 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    }
 	}
     }
+
+    public void createThreeSelectionDisplay(Selection creator){
+	if(selectionDisplay == null){
+	    logger.debug("creating selection display");
+	    threeSelectionWindow = new JFrame();
+	    //threeSelectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    threeSelectionWindow.setSize(400, 220);
+	    JToolBar infoBar = new JToolBar();
+	    infoBar.add(new FilterSelection(selectionDisplay));
+	    infoBar.setFloatable(false);
+	    threeSelectionWindow.getContentPane().add(infoBar, BorderLayout.SOUTH);
+	    Iterator e = creator.getSeismograms().iterator();
+	    TimeConfigRegistrar tr = creator.getInternalConfig();
+	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
+	    XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()), 
+										   tr.getTimeRange(first.getSeismogram())));
+	    ChannelId[] channelIds = dataSet.getChannelIds();
+	    ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
+	    ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, 
+								      ((LocalSeismogramImpl)first.getSeismogram()).getChannelID());
+	    LocalSeismogram[] seismograms = new LocalSeismogram[3];
+	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
+	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
+	    try{
+		for(int counter = 0; counter < channelGroup.length; counter++) {
+		    seismograms[counter] = dataSet.getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter]));
+		    if(seismograms[counter] != null){
+			selectionDisplay.addDisplay(new DataSetSeismogram((LocalSeismogramImpl)seismograms[counter], dataSet), tr,
+						    "." + creator.getColor());
+		    }
+		}
+	    }catch(Exception f){
+		f.printStackTrace();
+	    }
+	    ar.visibleAmpCalc(tr);
+	    while(e.hasNext()){
+		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
+	    }
+	    threeSelectionWindow.getContentPane().add(selectionDisplay);
+	    Toolkit tk = Toolkit.getDefaultToolkit();
+	    if((selectionDisplays + 1) * 220 < tk.getScreenSize().height){
+		threeSelectionWindow.setLocation(tk.getScreenSize().width - 400, tk.getScreenSize().height - (selectionDisplays + 1) * 220);
+	    }else{
+		threeSelectionWindow.setLocation(tk.getScreenSize().width - 400, 0);
+	    }
+	    selectionDisplays++;
+	    threeSelectionWindow.setVisible(true);	
+	}else{
+	    logger.debug("adding another selection");
+	    Iterator e = creator.getSeismograms().iterator();
+	    TimeConfigRegistrar tr = creator.getInternalConfig();
+	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()),
+										   tr.getTimeRange(first.getSeismogram())));
+	    ar.visibleAmpCalc(tr);
+	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
+	    while(e.hasNext()){
+		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
+	    }
+	}
+    }
+
+    
 	
     
     protected static int particleDisplays = 0, selectionDisplays = 0;
     
-    protected JFrame selectionWindow, particleWindow;
+    protected JFrame selectionWindow, particleWindow, threeSelectionWindow;
 
     protected SeismogramSorter sorter;
 
