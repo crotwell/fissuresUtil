@@ -10,7 +10,7 @@ public class SimpleNetworkClient implements TestingClient {
     public SimpleNetworkClient(){
         // We will try to get data from the II network.
         String networkCode = "II";
-        
+
         try {
             /* This step is not required, but sometimes helps to determine if
              *  a server is down. if this call succedes but the next fails, then
@@ -20,7 +20,7 @@ public class SimpleNetworkClient implements TestingClient {
             Initializer.getNS().getNetworkDCObject("edu/iris/dmc",
                                                    "IRIS_NetworkDC");
             logger.info("Got network as corba object, the name service is ok");
-            
+
             /* This connectts to the actual server, as oposed to just getting
              *  the reference to it. The naming convention is that the first
              *  part is the reversed DNS of the organization and the second part
@@ -30,23 +30,47 @@ public class SimpleNetworkClient implements TestingClient {
             NetworkDC netDC = Initializer.getNS().getNetworkDC("edu/iris/dmc",
                                                                "IRIS_NetworkDC");
             logger.info("got NetworkDC");
-            
+
             /* The NetworkFinder is one of the choices at this point. It
              *  allows you to find individual networks, and then retrieve
              *  information about them.
              */
             NetworkFinder finder = netDC.a_finder();
             logger.info("got NetworkFinder");
-            
+
             /* Get the NetworkAccess for the II station. The NetworkAccess
              *  represents the II network, but is still a remote (corba) object.
              */
             NetworkAccess[] nets = finder.retrieve_by_code(networkCode);
             logger.info("got NetworkAccess for "+networkCode);
             net = nets[0];
-            
-            
-            
+
+            /** get all stations and print their codes. Note that their might
+                be several stations with the same code, but different effective
+                times*/
+            Station[] stations = net.retrieve_stations();
+            logger.info("Threre are "+stations.length+" stations in "+networkCode);
+            for (int i = 0; i < stations.length; i++) {
+                logger.info("got station "+stations[i].get_code());
+            }
+
+            /** Get all the channels for the first station and print their codes.
+             *  Note that there may be several channels with the same code but
+             *  different effective times.*/
+            Channel[] channels = net.retrieve_for_station(stations[0].get_id());
+            logger.info("There are "+channels.length+" channels for "+stations[0].get_code());
+            for (int i = 0; i < channels.length; i++) {
+                logger.info("got channel "+channels[i].my_site.get_code()+"."+channels[i].get_code());
+            }
+
+            /** get all the networks and print their code. */
+            nets = finder.retrieve_all();
+            logger.info("There are "+nets.length+" networks");
+            for (int i = 0; i < nets.length; i++) {
+                logger.info("net "+i+" "+nets[i].get_attributes().get_code());
+            }
+
+
         }catch (NetworkNotFound e) {
             logger.error("Network "+networkCode+" was not found", e);
         }catch (org.omg.CORBA.ORBPackage.InvalidName e) {
@@ -59,18 +83,18 @@ public class SimpleNetworkClient implements TestingClient {
             logger.error("Problem with name service: ", e);
         }
     }
-    
+
     public void exercise() {
         get_attributes(true);
         retrieve_stations(true);
     }
-    
+
     /** This retrieves the attributes for the network gotten in the constructor.
      * The attributes contain basic information about the network, like its
      * name, id, owner, etc.
      */
     public NetworkAttr get_attributes(){ return get_attributes(false); }
-    
+
     public NetworkAttr get_attributes(boolean verbose){
         NetworkAttr attr = net.get_attributes();
         if(verbose) logger.info("Network "+attr.get_code()+
@@ -78,12 +102,12 @@ public class SimpleNetworkClient implements TestingClient {
                                     " desc="+attr.description);
         return attr;
     }
-    
+
     /** We can also retrieve the actual stations for this network.
      *  The station array is composed of local objects, so there is
      *  no internet connections once they have been retrieved. */
     public Station[] retrieve_stations(){ return retrieve_stations(false); }
-    
+
     public Station[] retrieve_stations(boolean verbose){
         Station[] stations = net.retrieve_stations();
         if(verbose){
@@ -96,10 +120,10 @@ public class SimpleNetworkClient implements TestingClient {
         }
         return stations;
     }
-    
+
     protected NetworkAccess net;
     private static Logger logger = Logger.getLogger(SimpleNetworkClient.class);
-    
+
     /** A very simple client that shows how to connect to a DHI NetworkDC
      *  and retrieve some stations.  The constructor connects to a single
      * network.  Calling exercise on the constructed object runs a few methods
