@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
-import java.util.*;
 
 import edu.sc.seis.fissuresUtil.display.drawable.CurrentTimeFlag;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
@@ -13,14 +12,15 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
+import javax.swing.JOptionPane;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class RecordSectionDisplay extends SeismogramDisplay implements TimeListener, AmpListener, LayoutListener{
 
@@ -337,7 +337,11 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     }
 
     public void print() {
-        // TODO
+        JOptionPane.showMessageDialog(this,
+                                      "Record section printing will be available in a version in the not too distant future",
+                                      "Some day my friends, some day",
+                                      JOptionPane.INFORMATION_MESSAGE);
+            // TODO
     }
 
     public void setParticleAllowed(boolean allowed) {
