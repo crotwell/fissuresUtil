@@ -19,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1776 2002-06-03 20:28:35Z crotwell $
+ * @version $Id: XMLDataSet.java 1785 2002-06-04 20:20:59Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -165,11 +165,17 @@ public class XMLDataSet implements DataSet, Serializable {
     public void addParameterRef(URL paramURL, 
 				String name, 
 				AuditInfo[] audit) {
-
+	String baseStr = base.toString();
+	String paramStr = paramURL.toString();
+	if (paramStr.startsWith(baseStr)) {
+	    // use relative URL
+	    paramStr = paramStr.substring(baseStr.length());
+	} // end of if (paramStr.startsWith(baseStr))
+	
 	Document doc = config.getOwnerDocument();
 	Element param = doc.createElement("parameterRef");
 	param.setAttributeNS(xlinkNS, "xlink:type", "simple");
-	param.setAttributeNS(xlinkNS, "xlink:href", paramURL.toString());
+	param.setAttributeNS(xlinkNS, "xlink:href", paramStr);
 	Text text = doc.createTextNode(name);
 	param.appendChild(text);
 
@@ -375,11 +381,17 @@ public class XMLDataSet implements DataSet, Serializable {
 				 Property[] props, 
 				 ParameterRef[] parm_ids,
 				 AuditInfo[] audit) {
-
+	String baseStr = base.toString();
+	String seisStr = seisURL.toString();
+	if (seisStr.startsWith(baseStr)) {
+	    // use relative URL
+	    seisStr = seisStr.substring(baseStr.length());
+	} // end of if (seisStr.startsWith(baseStr))
+	
 	Document doc = config.getOwnerDocument();
 	Element sac = doc.createElement("SacSeismogram");
 	sac.setAttributeNS(xlinkNS, "xlink:type", "simple");
-	sac.setAttributeNS(xlinkNS, "xlink:href", seisURL.toString());
+	sac.setAttributeNS(xlinkNS, "xlink:href", seisStr);
 
 	Element nameE = doc.createElement("name");
 	Text text = doc.createTextNode(name);
