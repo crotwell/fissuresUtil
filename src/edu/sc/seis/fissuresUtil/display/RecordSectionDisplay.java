@@ -50,13 +50,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                         scalingChanged(((JSlider)ce.getSource()).getValue());
                     }
                 });
-
     }
 
 
     private void scalingChanged(int newScaling){
-        scaling = newScaling/(double)10;
-        repaint();
+        scaling = newScaling;
+        if(layout != null){
+            layout.setScale(newScaling/10);
+        }
     }
 
 
@@ -153,6 +154,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         layout.add(getSeismograms());
         distanceScaler= new DistanceScaleMapper(getSize().height, 4, layout);
         border.setLeftScaleMapper(distanceScaler);
+        scalingChanged(scaling);
         layout.addListener(this);
         this.layout = layout;
     }
@@ -253,7 +255,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 while(it.hasNext()){
                     LayoutData current = (LayoutData)it.next();
                     double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
-                    int drawHeight = (int)((current.getEnd() - current.getStart())*height * scaling);
+                    int drawHeight = (int)((current.getEnd() - current.getStart())*height);// * scaling);
                     double neededYPos = midPoint - drawHeight/2;
                     g2.translate(0, neededYPos);
                     Dimension drawSize = new Dimension(width, drawHeight);
@@ -329,9 +331,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
 
     private PlotPainter painter;
 
-    private double scaling = 1;
-
     private JSlider scalingSlider;
+
+    private int scaling;
 
     private Border etched  = BorderFactory.createEtchedBorder();
 
