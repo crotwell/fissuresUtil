@@ -149,7 +149,15 @@ public class FissuresToWAV {
 
         //calculate maximum amplification factor to avoid either
         //clipping or dead quiet
-        int amplification = (int)(24000.0/iterator.minMaxMean()[1]);
+		double[] minMaxMean = iterator.minMaxMean();
+		double absMax = Double.MAX_VALUE;
+		if (Math.abs(minMaxMean[0]) > Math.abs(minMaxMean[1])){
+			absMax = Math.abs(minMaxMean[0]);
+		}
+		else{
+			absMax = Math.abs(minMaxMean[1]);
+		}
+		double amplification = (32000.0/absMax);
 
         while (iterator.hasNext()){
             try{
