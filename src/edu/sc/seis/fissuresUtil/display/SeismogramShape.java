@@ -6,7 +6,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.codec.CodecException;
+import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import java.awt.Dimension;
 import org.apache.log4j.*;
@@ -27,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2963 2002-11-26 20:08:00Z groves $
+ * @version $Id: SeismogramShape.java 2974 2002-11-27 03:56:34Z crotwell $
  */
 
 public class SeismogramShape implements Shape, NamedPlotter {
