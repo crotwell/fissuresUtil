@@ -28,50 +28,41 @@ public class CoverageTool {
         return CoverageTool.notCovered(neededFilters, ranges);
     }
 
-    public static RequestFilter[] notCovered(RequestFilter[] existingFilters,
-                                             RequestFilter[] neededFilters) {
-        if(existingFilters.length == 0) { return neededFilters; }
-        RequestFilter[] sorted = SortTool.byBeginTimeAscending(existingFilters);
-        MicroSecondTimeRange[] ranges = new MicroSecondTimeRange[sorted.length];
-        for(int i = 0; i < sorted.length; i++) {
-            ranges[i] = new MicroSecondTimeRange(sorted[i]);
-        }
-        return CoverageTool.notCovered(neededFilters, ranges);
-    }
-
     public static RequestFilter[] notCovered(RequestFilter[] filters,
                                              MicroSecondTimeRange[] timeRanges) {
         List unsatisfied = new ArrayList();
+        timeRanges = ReduceTool.merge(timeRanges);
+        timeRanges = SortTool.byBeginTimeAscending(timeRanges);
         for(int i = 0; i < filters.length; i++) {
-            boolean beginCovered = false;
-            boolean endCovered = false;
-            MicroSecondDate filterBegin = new MicroSecondDate(filters[i].start_time);
-            MicroSecondDate filterEnd = new MicroSecondDate(filters[i].end_time);
-            for(int j = 0; j < timeRanges.length
-                    && !(beginCovered && endCovered); j++) {
-                MicroSecondDate timeBegin = timeRanges[j].getBeginTime();
-                MicroSecondDate timeEnd = timeRanges[j].getEndTime();
-                if((filterBegin.after(timeBegin) && filterBegin.before(timeEnd))
-                        || filterBegin.equals(timeBegin)) {
-                    beginCovered = true;
-                }
-                if((filterEnd.before(timeEnd) && timeBegin.before(filterEnd))
-                        || filterEnd.equals(timeEnd)) {
-                    endCovered = true;
+            MicroSecondDate rfStart = new MicroSecondDate(filters[i].start_time);
+            MicroSecondDate rfEnd = new MicroSecondDate(filters[i].end_time);
+            System.out.println("testing rf " + rfStart + " " + rfEnd);
+            for(int j = 0; j < timeRanges.length; j++) {
+                MicroSecondDate trStart = timeRanges[j].getBeginTime();
+                MicroSecondDate trEnd = timeRanges[j].getEndTime();
+                System.out.println("testing tr " + trStart + " " + trEnd);
+                if(trStart.before(rfEnd)) {
+                    if(trEnd.after(rfStart)) {
+                        System.out.println("RIGHT ON");
+                        if(ReduceTool.equalsOrBefore(trStart, rfStart)) {
+                            System.out.println("MOVING RFSTART UP");
+                            rfStart = trEnd;
+                        } else {
+                            unsatisfied.add(new RequestFilter(filters[i].channel_id,
+                                                              rfStart.getFissuresTime(),
+                                                              trStart.getFissuresTime()));
+                            rfStart = trEnd;
+                        }
+                        if(ReduceTool.equalsOrAfter(trEnd, rfEnd)) {
+                            break;
+                        }
+                    }
                 }
             }
-            if(!beginCovered && !endCovered) {
-                unsatisfied.add(filters[i]);
-            } else if(!beginCovered) {
+            if(rfEnd.after(rfStart)) {
                 unsatisfied.add(new RequestFilter(filters[i].channel_id,
-                                                  filters[i].start_time,
-                                                  timeRanges[0].getBeginTime()
-                                                          .getFissuresTime()));
-            } else if(!endCovered) {
-                unsatisfied.add(new RequestFilter(filters[i].channel_id,
-                                                  timeRanges[timeRanges.length - 1].getEndTime()
-                                                          .getFissuresTime(),
-                                                  filters[i].end_time));
+                                                  rfStart.getFissuresTime(),
+                                                  rfEnd.getFissuresTime()));
             }
         }
         return (RequestFilter[])unsatisfied.toArray(new RequestFilter[unsatisfied.size()]);
