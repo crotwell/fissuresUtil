@@ -60,7 +60,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
 	    rfInsertStmt = connection.prepareStatement(" INSERT INTO requestFilterDB "+
 						       " ( channel_id, begin_time, "+
 						       " end_time, access_time, "+
-						       " fileid ) "+ 
+						       " fileid ) "+
 						       " VALUES(?,?,?,?,?) ");
 
 	    fiInsertStmt = connection.prepareStatement(" INSERT INTO fileInfoDB "+
@@ -165,7 +165,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
     }
 
     /**
-     * for the name of the seismogram append begin time and 
+     * for the name of the seismogram append begin time and
      * end time along with the channel name.
      */
     public void insertFileInfo(LocalSeismogramImpl[] seismograms) {
@@ -183,12 +183,12 @@ public class HSQLRequestFilterDb extends AbstractDb{
 		    directory.mkdirs();
 		}
 		int id = UniqueNumberGenerator.getUniqueIdentifier();
-		File sacDirectory = new File(directory, 
+		File sacDirectory = new File(directory,
 					     PREFIX+id);
 		sac.write(sacDirectory);
 		int fileid = getMaxFileID();
 		fiInsertStmt.setInt(1, fileid);
-		fiInsertStmt.setString(2, 
+		fiInsertStmt.setString(2,
 				       "_temp_test_GEE_/"+PREFIX+id);
 		fiInsertStmt.executeUpdate();
 		insertRequestFilterInfo(ChannelIdUtil.toString(seis.getChannelID()),
@@ -230,7 +230,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
 				   beginDate,
 				   endDate);
 	    for(int subCounter = 0; subCounter < ids.length; subCounter++){
-		arrayList.add(new Integer(ids[subCounter])); 
+		arrayList.add(new Integer(ids[subCounter]));
 	    }
 	}
 	
@@ -301,14 +301,14 @@ public class HSQLRequestFilterDb extends AbstractDb{
 	return rtnValues;
     }
 
-    public LocalSeismogram[] getSeismograms(RequestFilter[] requestFilters) {
+    public LocalSeismogramImpl[] getSeismograms(RequestFilter[] requestFilters) {
 
 	ArrayList arrayList = new ArrayList();
 	try {
 	    int[] ids = getFileIds(requestFilters);
 	    String[] fileNames = getFilePaths(ids);
 	    
-	    //here use the SAC Processor 
+	    //here use the SAC Processor
 	    //to get the seismograms a
 	    for(int counter = 0; counter < fileNames.length; counter++) {
 		//System.out.println("ALREADY in the database file name is "+fileNames[counter]);
@@ -324,8 +324,8 @@ public class HSQLRequestFilterDb extends AbstractDb{
 	} catch(Exception sqle) {
 	    sqle.printStackTrace();
 	}
-	LocalSeismogram[] rtnValues = new LocalSeismogram[arrayList.size()];
-	rtnValues = (LocalSeismogram[]) arrayList.toArray(rtnValues);
+	LocalSeismogramImpl[] rtnValues = new LocalSeismogramImpl[arrayList.size()];
+	rtnValues = (LocalSeismogramImpl[]) arrayList.toArray(rtnValues);
 	return rtnValues;
     }
 
@@ -404,8 +404,9 @@ public class HSQLRequestFilterDb extends AbstractDb{
 
     private final static String PREFIX = "edu.sc.seis.fissuresUtil.database.seismogram";
 
-    static Category logger = 
+    static Category logger =
         Category.getInstance(HSQLRequestFilterDb.class.getName());
     
         
 }// HSQLRequestFilterDb
+
