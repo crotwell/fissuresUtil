@@ -17,15 +17,42 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSetAccess.java 1682 2002-05-24 01:48:06Z crotwell $
+ * @version $Id: XMLDataSetAccess.java 1683 2002-05-24 03:16:21Z crotwell $
  */
 public class XMLDataSetAccess implements DataSetAccess, Serializable {
+
+    public static XMLDataSetAccess load(InputStream inStream) {
+	XMLDataSetAccess dataset = null;
+	try {
+	    DocumentBuilderFactory factory
+		= DocumentBuilderFactory.newInstance();
+	    DocumentBuilder docBuilder = factory.newDocumentBuilder();
+	    
+	    Document doc = docBuilder.parse(inStream);
+	    Element docElement = doc.getDocumentElement();
+
+	    if (docElement.getTagName().equals("dataset")) {
+		System.out.println("dataset yes");
+		dataset = new XMLDataSet(docBuilder, docElement);
+		System.out.println(docElement.getTagName()+" {"+docElement.getAttribute("datasetid")+"}");
+	    }
+	} catch (java.io.IOException e) {
+	    logger.error("Error loading XMLDataSetAccess",e);
+	} catch (org.xml.sax.SAXException e) {
+	    logger.error("Error loading XMLDataSetAccess",e);
+	} catch (javax.xml.parsers.ParserConfigurationException e) {
+	    logger.error("Error loading XMLDataSetAccess",e);
+	} // end of try-catch
+	return dataset;
+	
+    }
 
     /** Creates an empty dataset. */
     public XMLDataSetAccess(DocumentBuilder docBuilder, 
 			    String id, 
 			    String name,
 			    String Owner) {
+	this.docBuilder = docBuilder;
 	Document doc = docBuilder.newDocument();
 	config = doc.createElement("dataset");
 	Element nameE = doc.createElement("name");
@@ -226,23 +253,9 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	    BasicConfigurator.configure();
 
 	    System.out.println("Starting..");
-	    DocumentBuilderFactory factory
-		= DocumentBuilderFactory.newInstance();
-	    DocumentBuilder docBuilder = factory.newDocumentBuilder();
+	    XMLDataSetAccess dataset = load(new BufferedInputStream(new FileInputStream(args[0])));
 
-
-	    // just for testing
-	    Document doc = docBuilder.parse(args[0]);
-	    Element docElement = doc.getDocumentElement();
-	    NodeList nList = docElement.getChildNodes();
-	    XMLDataSetAccess dataset = null;
-
-	    if (docElement.getTagName().equals("dataset")) {
-		System.out.println("dataset yes");
-		dataset = new XMLDataSet(docBuilder, docElement);
-		System.out.println(docElement.getTagName()+" {"+docElement.getAttribute("datasetid")+"}");
-		testDataSet(dataset, " ");
-	    }
+	    testDataSet(dataset, " ");
 
 
 	} catch (Exception e) {
