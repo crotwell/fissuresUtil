@@ -97,6 +97,9 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    if(!timeRegistrar.contains(current)){
+		timeRegistrar.addSeismogram(current);
+	    }
 	    getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	if(ampRange == null){

@@ -102,12 +102,12 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    newPlotter.setVisibility(parent.getOriginalVisibility());
 	plotters.add(seisCount, newPlotter);
 	seisCount++;
+	timeRegistrar.addSeismogram(newSeismogram);
+	ampRegistrar.addSeismogram(newSeismogram);
 	Iterator e = globalFilters.iterator();
 	while(e.hasNext()){
 	    applyFilter((ColoredFilter)e.next());
 	}
-	timeRegistrar.addSeismogram(newSeismogram);
-	ampRegistrar.addSeismogram(newSeismogram);
 	redo = true;
     }
 
