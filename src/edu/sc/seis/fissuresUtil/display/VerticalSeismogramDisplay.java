@@ -93,7 +93,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     public void removeSeismogram(MouseEvent me){
 	BasicSeismogramDisplay clicked = ((BasicSeismogramDisplay)me.getComponent());
-	clicked.removeAllSeismograms();
+	clicked.remove(me);
 	seismograms.remove(clicked);
 	basicDisplays.remove(clicked);
 	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
@@ -111,16 +111,21 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     public void setLabels(MicroSecondDate time, double amp){
 	calendar.setTime(time);
-	this.time.setText("   Time: " + output.format(calendar.getTime()));
+	if(output.format(calendar.getTime()).length() == 21)
+	    this.time.setText("   Time: " + output.format(calendar.getTime()) + "00");
+	else if(output.format(calendar.getTime()).length() == 22)
+	    this.time.setText("   Time: " + output.format(calendar.getTime()) + "0");
+	else
+	    this.time.setText("   Time: " + output.format(calendar.getTime()));
 	if(amp < 0)
 	    if(Math.abs(amp) < 10)
-		this.amp.setText("   Amplitude: -000" + Math.abs(Math.round(amp)));
+		this.amp.setText("   Amplitude:-000" + Math.abs(Math.round(amp)));
 	    else if(Math.abs(amp) < 100)
-		this.amp.setText("   Amplitude: -00" + Math.abs(Math.round(amp)));
+		this.amp.setText("   Amplitude:-00" + Math.abs(Math.round(amp)));
 	    else if(Math.abs(amp) < 1000)
-		this.amp.setText("   Amplitude: -0" + Math.abs(Math.round(amp)));
+		this.amp.setText("   Amplitude:-0" + Math.abs(Math.round(amp)));
 	    else
-		this.amp.setText("   Amplitude: -" + Math.abs(Math.round(amp)));
+		this.amp.setText("   Amplitude:-" + Math.abs(Math.round(amp)));
 	else
 	    if(Math.abs(amp) < 10)
 		this.amp.setText("   Amplitude:  000" + Math.round(amp));
@@ -160,8 +165,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected LocalSeismogramImpl waitingSeismo;
 
-    protected VerticalSeismogramDisplay selectionDisplay;
-    
     protected ParticleMotionDisplay particleDisplay;
     
     protected LinkedList currentFilters = new LinkedList();
@@ -174,7 +177,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected JComponent seismograms;
 
-    public JLabel time = new JLabel("   Time: ");
+    public JLabel time = new JLabel("   Time:                        ");
     
     public JLabel amp = new JLabel("   Amplitude:       ");
 

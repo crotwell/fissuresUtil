@@ -21,6 +21,7 @@ import java.util.LinkedList;
 public class FilterSelection extends JPanel{
     
     public FilterSelection(VerticalSeismogramDisplay listener){
+	original.setSize(new Dimension(45, 10));
 	this.add(original);
 	this.add(teleseismic);
 	this.add(smoothTeleseismic);
@@ -44,7 +45,7 @@ public class FilterSelection extends JPanel{
 
     protected JCheckBox smoothTeleseismic = new JCheckBox("Smooth Teleseismic");
 
-    protected JCheckBox vSmoothTeleseismic = new JCheckBox("Smoooooth Telelseismic");
+    protected JCheckBox vSmoothTeleseismic = new JCheckBox("Very Smooth Telelseismic");
 
     protected JCheckBox regional = new JCheckBox("Regional");
 

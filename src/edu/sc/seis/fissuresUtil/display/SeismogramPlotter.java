@@ -31,6 +31,7 @@ public class SeismogramPlotter implements Plotter{
 	    try{
 		int[][] pixels = SimplePlotUtil.compressYvalues(seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size);
 		SimplePlotUtil.scaleYvalues(pixels, seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size); 
+		SimplePlotUtil.flipArray(pixels[1], size.height);
 		int[] xPixels = pixels[0];
 		int[] yPixels = pixels[1];
 		if(xPixels.length >= 2){

@@ -52,9 +52,12 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                 copy.setFont(f);
                 // in case there are borders inside of this one
                 Insets insets = ((JComponent)c).getInsets();
-		insets.top -= y+top;
-		insets.bottom -= bottom + y;
-                FontMetrics fm = copy.getFontMetrics();
+		/*System.out.println();
+		System.out.println("x:     " + x +           " y:       " + y +             " itop:   " + insets.top);
+		System.out.println("ileft: " + insets.left + " ibottom: " + insets.bottom + " iright: " + insets.right);
+		System.out.println("top:   " + top +         " right:   " + right         + " bottom: " + bottom);
+		System.out.println("left:  " + left);*/
+		FontMetrics fm = copy.getFontMetrics();
 		String labelTemp;
 		// top
 		int numTicks;
@@ -192,7 +195,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 
     public void setBottomScaleMapper(ScaleMapper scaleMap) {
         this.bottomScaleMap = scaleMap;
-        bottom = majorTickLength+15; //guess as not sure of what font will be
+        bottom = 20;
     }
         
     public void clearBottomScaleMapper() {
@@ -206,7 +209,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 
     public void setRightScaleMapper(ScaleMapper scaleMap) {
         this.rightScaleMap = scaleMap;
-        right = 40;
+        right = 50;
     }
         
     public void clearRightScaleMapper() {
