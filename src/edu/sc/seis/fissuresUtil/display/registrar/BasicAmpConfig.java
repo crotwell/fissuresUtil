@@ -5,6 +5,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
+import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -190,11 +191,13 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public void addListener(AmpListener listener){
-        synchronized(listeners){
-            listeners.add(listener);
-            ampListeners = null;
+        if(listener != null){
+            synchronized(listeners){
+                listeners.add(listener);
+                ampListeners = null;
+            }
+            fireAmpEvent();
         }
-        fireAmpEvent();
     }
 
     public void removeListener(AmpListener listener){
@@ -271,9 +274,9 @@ public class BasicAmpConfig implements AmpConfig{
             return data.setRange(DisplayUtils.ZERO_RANGE);//point, there is
         } // no amp data here
         double[] minMaxMean = it.minMaxMean();
-        return data.setRange(new UnitRangeImpl(minMaxMean[0],
-                                               minMaxMean[1],
-                                               UnitImpl.COUNT));
+        return data.setRange(UnitDisplayUtil.getBestForDisplay(new UnitRangeImpl(minMaxMean[0],
+                                                                                 minMaxMean[1],
+                                                                                 it.getSeismograms()[0].getUnit())));
 
     }
 
