@@ -43,46 +43,34 @@ public class PhaseCut {
                                    Origin origin,
                                    LocalSeismogramImpl seis)
         throws TauModelException, PhaseNonExistent, FissuresException  {
-        Arrival[] arrivals = timeCalc.calcTravelTimes(stationLoc, origin, new String[] {beginPhase, endPhase});
+        Arrival[] beginArrivals = timeCalc.calcTravelTimes(stationLoc, origin, new String[] {beginPhase});
+        Arrival[] endArrivals = timeCalc.calcTravelTimes(stationLoc, origin, new String[] {endPhase});
 
         MicroSecondDate beginTime = null;
         MicroSecondDate endTime = null;
         MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
-        for (int i=0; i< arrivals.length; i++) {
-            if (arrivals[i].getName().equals(beginPhase)) {
-                beginTime = originTime.add(new TimeInterval(arrivals[i].getTime(),
-                                                            UnitImpl.SECOND));
-                break;
-            }
-        }
-        if (beginTime == null) {
-            DistAz distAz = new DistAz(stationLoc.latitude,
-                                       stationLoc.longitude,
-                                       origin.my_location.latitude,
-                                       origin.my_location.longitude);
+        if (beginArrivals.length != 0) {
+            beginTime = originTime.add(new TimeInterval(beginArrivals[0].getTime(),
+                                                        UnitImpl.SECOND));
+            beginTime = beginTime.add(beginOffset);
+        } else {
+            DistAz distAz = timeCalc.calcDistAz(stationLoc, origin);
             throw new PhaseNonExistent("Phase "+beginPhase+
                                            " does not exist at this distance, "+
                                            distAz.delta+" degrees");
         }
-        beginTime = beginTime.add(beginOffset);
 
-        for (int i=0; i< arrivals.length; i++) {
-            if (arrivals[i].getName().equals(endPhase)) {
-                endTime = originTime.add(new TimeInterval(arrivals[i].getTime(),
-                                                          UnitImpl.SECOND));
-                break;
-            }
-        }
-        if (endTime == null) {
-            DistAz distAz = new DistAz(stationLoc.latitude,
-                                       stationLoc.longitude,
-                                       origin.my_location.latitude,
-                                       origin.my_location.longitude);
+        if (endArrivals.length != 0) {
+            endTime = originTime.add(new TimeInterval(endArrivals[0].getTime(),
+                                                        UnitImpl.SECOND));
+            endTime = endTime.add(endOffset);
+        } else {
+            DistAz distAz = timeCalc.calcDistAz(stationLoc, origin);
             throw new PhaseNonExistent("Phase "+endPhase+
                                            " does not exist at this distance, "+
                                            distAz.delta+" degrees");
         }
-        endTime = endTime.add(endOffset);
+
         logger.debug("Phase cut from "+beginTime+" to "+endTime);
 
         Cut cut = new Cut(beginTime, endTime);
