@@ -16,25 +16,39 @@ import org.omg.CosNaming.NamingContextPackage.*;
 
 
 /**
- * Description: This implementation receives a ConnCheckerConfig object,
- * that contains 4 fields: name, Corba object, finished and succesful.
+ * Description: Checks for CORBA Connections. There are two constructors for this. The first constructor
+ * takes a CORBA Object and  description. The second constructor takes the dns, interfaceName, objectName,
+ * description and fissuresNamingService as parameters.
  *
  * CorbaChecker.java
  *
+ * @author <a href="mailto:">Srinivasa Telukutla</a>
+ * $Id: CorbaChecker.java 2375 2002-07-24 13:55:21Z telukutl $
+ * @version 1.0
  */
-
 public class CorbaChecker extends ConcreteConnChecker  {
 
-   /** The constructor receives a ConnCheckerConfig object
-    * 
-    * @param conncheckerobject a ConnCheckerConfig object
-    * @return 
-    */ 
+  
+    /**
+     * Creates a new <code>CorbaChecker</code> instance.
+     *
+     * @param obj an <code>org.omg.CORBA.Object</code> value
+     * @param description a <code>String</code> value
+     */
     public CorbaChecker(org.omg.CORBA.Object obj, String description){
 	super(description);
 	this.obj = obj;
     }
 
+    /**
+     * Creates a new <code>CorbaChecker</code> instance.
+     *
+     * @param dns a <code>String</code> value
+     * @param interfaceName a <code>Class</code> value
+     * @param objectName a <code>String</code> value
+     * @param description a <code>String</code> value
+     * @param fissuresNamingService a <code>FissuresNamingService</code> value
+     */
     public CorbaChecker(String dns, Class interfaceName, String objectName, String description, FissuresNamingService fissuresNamingService) {
 	super(description);
 	this.dns = dns;

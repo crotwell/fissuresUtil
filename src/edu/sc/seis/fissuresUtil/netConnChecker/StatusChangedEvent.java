@@ -1,7 +1,8 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
 /**
- * StatusChangedEvent.java
+ * Description: StatusChangedEvent is fired when ever the status of 
+ * ConnChecker is changed. 
  *
  *
  * Created: Wed Jan 30 11:07:29 2002
@@ -28,7 +29,7 @@ public class StatusChangedEvent {
     }
 
     /**
-     * Describe <code>setObject</code> method here.
+     * sets the source object whose status is changed.
      *
      * @param checker a <code>java.lang.Object</code> value
      */
@@ -39,7 +40,7 @@ public class StatusChangedEvent {
     }
 
     /**
-     * Describe <code>setConnStatus</code> method here.
+     * sets the Connection status for this Event.
      *
      * @param connectionStatus a <code>ConnStatus</code> value
      */
@@ -50,7 +51,7 @@ public class StatusChangedEvent {
     }
 
     /**
-     * Describe <code>setURLStr</code> method here.
+     * sets the URL that is checked for ConnectionStatus.
      *
      * @param urlStr a <code>String</code> value
      */
@@ -61,7 +62,7 @@ public class StatusChangedEvent {
     }
 
     /**
-     * Describe <code>getObject</code> method here.
+     * returns the Source Object whose status is changed.
      *
      * @return an <code>Object</code> value
      */
@@ -72,7 +73,7 @@ public class StatusChangedEvent {
     }
 
     /**
-     * Describe <code>getConnStatus</code> method here.
+     * returns the ConnStatus.
      *
      * @return a <code>ConnStatus</code> value
      */
@@ -84,7 +85,7 @@ public class StatusChangedEvent {
     }
 
     /**
-     * Describe <code>getURLStr</code> method here.
+     * returns the URLString.
      *
      * @return a <code>String</code> value
      */

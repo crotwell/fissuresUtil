@@ -1,7 +1,6 @@
 
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
-//import edu.sc.seis.sac.*;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
@@ -12,20 +11,36 @@ import org.apache.log4j.*;
 
 
 
+/**
+ * Description: This class checks for HTTP connections. An HTTPChecker can be instantiated by 
+ * passing the parameters description and url
+ *
+ * @author <a href="mailto:">Srinivasa Telukutla</a>
+ * @version 1.0
+ */
 public class HTTPChecker extends ConcreteConnChecker  {
  
    
-   public HTTPChecker(String description, String url){
+    /**
+     * Creates a new <code>HTTPChecker</code> instance.
+     *
+     * @param description a <code>String</code> value
+     * @param url a <code>String</code> value
+     */
+    public HTTPChecker(String description, String url){
        super(description);
         this.url = url;
    }// constructor
 
   
+    /**
+     * starts the execution of HTTPChecker Thread.
+     *
+     */
     public void run ()  {
  
-	System.out.println("running the HTTP Checker for "+getDescription());
-	  long begintime;
-       long endtime; 
+	long begintime;
+	long endtime; 
 
      
        try{
@@ -39,39 +54,22 @@ public class HTTPChecker extends ConcreteConnChecker  {
 	   setTrying(false);
 	   setFinished(true);
 	   setSuccessful(true);
-	   System.out.println("Successful");
 	   fireStatusChanged(getDescription(), ConnStatus.SUCCESSFUL);
        } catch (MalformedURLException urle) {
 	   setTrying(false);
 	   setFinished(true);
            setSuccessful(false);
 	   setUnknown(true);
-	   System.out.println("Unknown");
 	   fireStatusChanged(getDescription(), ConnStatus.UNKNOWN);
        } catch (IOException ioe) {
 	   setTrying(false);
 	   setFinished(true);
 	   setSuccessful(false);  
-	   System.out.println("failed");
-	   //System.out.println(conncheckerobject.getName() + " Not connected");
 	   fireStatusChanged(getDescription(), ConnStatus.FAILED);
        } catch(Exception e) {
 	   e.printStackTrace();
        }
-       /*
-       if(conncheckerobject.getSuccessful() != true){
-	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.FAILED);
-           //logger.debug
-	   System.out.println(conncheckerobject.getName() + " Not connected");
-       }else {
-	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.SUCCESSFUL);
-           //logger.debug
-	   System.out.println(conncheckerobject.getName()+" is connected." );
-       }
-
-       conncheckerobject.setFinished(true);
-       */
-   } // run
+    } // run
     
     private String url;
    static Category logger = Category.getInstance(HTTPChecker.class);
