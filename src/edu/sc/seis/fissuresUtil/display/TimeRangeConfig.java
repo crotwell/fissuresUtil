@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import java.util.HashMap;
 
 /**
  * TimeRangeConfig configures a seismogram and the various 
@@ -30,6 +31,8 @@ public interface TimeRangeConfig {
      * @return the time range being displayed
      */
     public MicroSecondTimeRange getTimeRange();
+
+    public HashMap getData();
 
     /**
      * Add the values in this seismogram to the configuration

@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import java.util.HashMap;
 
 /**
  * AmpRangeConfig configures an amplitude range for display based on an internal ruleset and seismogram data
@@ -54,6 +55,8 @@ public interface AmpRangeConfig extends TimeSyncListener {
      * @param seis a <code>DataSetSeismogram</code> value
      */
     public void removeSeismogram(DataSetSeismogram seis);
+    
+    public HashMap getSeismograms();
     
     public void addAmpSyncListener(AmpSyncListener a);
 

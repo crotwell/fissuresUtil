@@ -26,6 +26,7 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     
     public TimeConfigRegistrar(TimeRangeConfig timeConfig, TimeSyncListener creator){
 	this.timeConfig = timeConfig;
+	seismos = timeConfig.getData();
 	timeConfig.addTimeSyncListener(this);
 	if(creator != null){
 	    this.addTimeSyncListener(creator);
@@ -43,10 +44,12 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    timeConfig.removeSeismogram(current);
 	    this.addSeismogram(current);
-	    newTimeConfig.addSeismogram(current, (MicroSecondDate)seismos.get(current));
-	    seismos.put(current, newTimeConfig.getTimeRange(current));
-	}
+	    newTimeConfig.addSeismogram(current, ((MicroSecondTimeRange)seismos.get(current)).getBeginTime());
+	    //seismos.put(current, newTimeConfig.getTimeRange(current));
+}
+	seismos = newTimeConfig.getData();
 	timeConfig = newTimeConfig;
+	updateTimeSyncListeners();
     }
 
     /**
@@ -56,12 +59,12 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
      */
     public void addSeismogram(DataSetSeismogram seis){
 	timeConfig.addSeismogram(seis, timeFinder.getBeginTime(seis));
-	seismos.put(seis, timeConfig.getTimeRange(seis));	
+	//seismos.put(seis, timeConfig.getTimeRange(seis));	
     }
 
     public void addSeismogram(DataSetSeismogram seis, MicroSecondDate b){
 	timeConfig.addSeismogram(seis, b);
-	seismos.put(seis, timeConfig.getTimeRange(seis));
+	//seismos.put(seis, timeConfig.getTimeRange(seis));
     }
 
     /**
@@ -77,10 +80,10 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	if(seismos.containsKey(seis)){
 	    return true;
 	}
-	if(timeConfig.contains(seis)){
+	/*if(timeConfig.contains(seis)){
 	    seismos.put(seis, timeConfig.getTimeRange(seis));
 	    return true;
-	}
+	    }*/
 	return false;
     }
 
@@ -92,6 +95,8 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	return timeConfig.getTimeRange();
     }
     
+    public HashMap getData(){ return seismos; }
+
     /**
      * Adds a time sync listener to the list to be informed when a time sync event occurs
      * 
