@@ -53,12 +53,15 @@ public abstract class Border extends JComponent{
         g2d.fillRect(0, 0, getSize().width, getSize().height);
         g.setColor(Color.BLACK);
         Iterator it = borderFormats.iterator();
+        BorderFormat cur = null;
         while(it.hasNext()){
-            BorderFormat cur = (BorderFormat)it.next();
+            cur = (BorderFormat)it.next();
             if(cur.willFit(getRange(), g2d)){
-                cur.draw(getRange(), g2d);
                 break;
             }
+        }
+        if (cur != null) {
+            cur.draw(getRange(), g2d);
         }
     }
 
@@ -128,8 +131,8 @@ public abstract class Border extends JComponent{
 
         public abstract String getMaxString();
 
-        public void draw(UnitRangeImpl r, Graphics2D g2d){
-            double numDivisions = (r.max_value - r.min_value)/divSize;
+        public void draw(UnitRangeImpl range, Graphics2D g2d){
+            double numDivisions = (range.max_value - range.min_value)/divSize;
             double pixelsPerLabelTick = getLimitingSize()/numDivisions;
             double pixelsPerMinorTick = pixelsPerLabelTick/ticksPerDiv;
             int numLabelTicks = (int)Math.ceil(numDivisions) + 1;
@@ -142,6 +145,7 @@ public abstract class Border extends JComponent{
                 labelTickShape.moveTo(nextLabelPoint[0], nextLabelPoint[1]);
                 labelTickShape.lineTo(nextLabelPoint[0] + labelTickWidth,
                                       nextLabelPoint[1] + labelTickHeight);
+
                 float[] nextMinorPoint = getNextPoint((float)pixelsPerMinorTick,
                                                       nextLabelPoint);
                 for (int j = 0; j < ticksPerDiv - 1; j++) {
@@ -184,7 +188,8 @@ public abstract class Border extends JComponent{
 
             //Figure out how much to translate this generic tick shape to match
             //the actual time
-            double[] translation = getTranslation(r);
+            double[] translation = getTranslation(range);
+
             //Casing the translation to an int removes tick jitter in borders
             //where the values have changed, but the range hasn't.  Since they
             //move by an integral amount, they move in lockstep.  This introduces
@@ -196,7 +201,7 @@ public abstract class Border extends JComponent{
             g2d.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             g2d.draw(minorTickShape);
 
-            double value = getFirstLabelValue(r);
+            double value = getFirstLabelValue(range);
             nextLabelPoint = getFirstPoint();
             for (int i = 0; i < numLabelTicks; i++) {
                 if(displayNegatives || value >= 0){
@@ -271,7 +276,7 @@ public abstract class Border extends JComponent{
         //in in most cases.  Thats why the translation is used in the draw step.
         private double getFirstLabelValue(UnitRangeImpl r){
             double min = r.min_value;
-            int divisions = (int)Math.floor(min/divSize);
+            double divisions = Math.floor(min/divSize);
             return divisions * divSize;
         }
 
