@@ -10,6 +10,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
+import edu.sc.seis.fissuresUtil.cache.BulletproofNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
@@ -25,7 +26,7 @@ import org.apache.log4j.Category;
 /**
  * ChannelChooser.java
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 8312 2004-04-28 02:51:38Z groves $
+ * @version $Id: ChannelChooser.java 9193 2004-06-16 20:47:44Z groves $
  *
  */
 
@@ -1117,10 +1118,8 @@ public class ChannelChooser extends JPanel {
 
         public void run() {
             setProgressOwner(this);
-            CacheNetworkAccess cache;
             if(configuredNetworks == null || configuredNetworks.length == 0) {
-                NetworkAccess[] nets =
-                    netdc.a_finder().retrieve_all();
+                NetworkAccess[] nets = netdc.a_finder().retrieve_all();
 
                 // I don't think this should ever happen, but...
                 if (nets == null) { nets = new NetworkAccess[0]; }
@@ -1135,11 +1134,11 @@ public class ChannelChooser extends JPanel {
                     // skip null networks...probably a bug on the server
                     if (nets[i] != null) {
                         //  cache = new CacheNetworkAccess(nets[i]);
-                        cache = new DNDNetworkAccess(nets[i]);
-                        NetworkAttr attr = cache.get_attributes();
+                        NetworkAccess net = new BulletproofNetworkAccess(nets[i], netdc, nets[i].get_attributes().get_id());
+                        NetworkAttr attr = net.get_attributes();
                         logger.debug("Got attributes "+attr.get_code());
                         // preload attributes
-                        networkAdd(cache);
+                        networkAdd(net);
                     }
                     else {
                         logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
@@ -1171,8 +1170,8 @@ public class ChannelChooser extends JPanel {
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if (nets[subCounter] != null) {
                                 // preload attributes
-                                cache = new CacheNetworkAccess(nets[subCounter]);
-                                NetworkAttr attr = cache.get_attributes();
+                                NetworkAccess net = new BulletproofNetworkAccess(nets[subCounter], netdc, nets[subCounter].get_attributes().get_id());
+                                NetworkAttr attr = net.get_attributes();
 
                                 // this is BAD CODE, but prevents the scepp
                                 // network, SP, from being loaded from the DMC
@@ -1186,17 +1185,17 @@ public class ChannelChooser extends JPanel {
                                     (NetworkAccess[])netDCToNetMap.get(netdc);
                                 if ( storedNets == null) {
                                     storedNets = new NetworkAccess[1];
-                                    storedNets[0] = cache;
+                                    storedNets[0] = net;
                                     netDCToNetMap.put(netdc, storedNets);
                                 } else {
                                     NetworkAccess[] tmp =
                                         new NetworkAccess[storedNets.length+1];
                                     System.arraycopy(storedNets, 0, tmp, 0, storedNets.length);
-                                    tmp[storedNets.length] = cache;
+                                    tmp[storedNets.length] = net;
                                     netDCToNetMap.put(netdc, tmp);
                                 } // end of else
 
-                                networkAdd(cache);
+                                networkAdd(net);
                                 totalNetworks++;
                             }
                             else {

@@ -1,9 +1,8 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
-import edu.iris.Fissures.IfNetwork.Channel;
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.NetworkAccess;
-import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
+import edu.iris.Fissures.IfNetwork.*;
+
+import edu.sc.seis.fissuresUtil.cache.BulletproofNetworkAccess;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 /**
@@ -21,13 +20,17 @@ public class ChannelProxy implements ChannelGrouper{
         Channel[] group;
         try {
             FissuresNamingService fissuresNamingService = new FissuresNamingService(orb);
-            NetworkDCOperations[] networkReferences = fissuresNamingService.getAllNetworkDC();
+            NetworkDCOperations[] netRefs = fissuresNamingService.getAllNetworkDC();
             // ChannelId channelId = channel.get_id();
-            for(int counter = 0; counter < networkReferences.length; counter++) {
+            for(int i = 0; i < netRefs.length; i++) {
+                NetworkFinder finder = netRefs[i].a_finder();
                 try {
-                    NetworkAccess networkAccess = networkReferences[counter].a_finder().retrieve_by_id(channelId.network_id);
-                    Channel channel = networkAccess.retrieve_channel(channelId);
-                    Channel[] channels = networkAccess.retrieve_for_station(channel.my_site.my_station.get_id());
+                    NetworkId netId = channelId.network_id;
+                    NetworkAccess net = finder.retrieve_by_id(netId);
+                    net = new BulletproofNetworkAccess(net, netRefs[i], netId);
+                    Channel channel = net.retrieve_channel(channelId);
+                    StationId staId = channel.my_site.my_station.get_id();
+                    Channel[] channels = net.retrieve_for_station(staId);
                     ChannelGrouperImpl channelGrouperImpl = new ChannelGrouperImpl();
                     group = channelGrouperImpl.retrieve_grouping(channels, channel);
                     if(group.length == 3) return group;
