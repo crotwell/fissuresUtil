@@ -3,15 +3,16 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.Timer;
 import org.apache.log4j.Logger;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 /**
  * RTTimeRangeConfig.java
  *
@@ -53,9 +54,11 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
 
     public void updateTime(TimeEvent event) {
         time = event;
-        Iterator it = listeners.iterator();
-        while(it.hasNext()){
-            ((TimeListener)it.next()).updateTime(event);
+        synchronized(listeners){
+            Iterator it = listeners.iterator();
+            while(it.hasNext()){
+                ((TimeListener)it.next()).updateTime(event);
+            }
         }
     }
 
@@ -103,13 +106,17 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
     }
 
     public void addListener(TimeListener listener) {
-        if(listener != null){
-            listeners.add(listener);
+        synchronized(listeners){
+            if(listener != null){
+                listeners.add(listener);
+            }
         }
     }
 
     public void removeListener(TimeListener listener) {
-        listeners.remove(listener);
+        synchronized(listeners){
+            listeners.remove(listener);
+        }
     }
 
     public void shaleTime(double shift, double scale, DataSetSeismogram[] seismos) {
@@ -176,7 +183,7 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
         internalTimeConfig.addListener(this);
     }
 
-    private List listeners = new ArrayList();
+    private List listeners = Collections.synchronizedList(new ArrayList());
 
     private TimeConfig internalTimeConfig;
 
