@@ -46,8 +46,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
     
     public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name){
+	if(names.contains(name)){
+	    return null;
+	}
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay((LocalSeismogram)seis, tr,
 								 ar, true, name, this);
+	names.add(name);
 	seismograms.add(disp);
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
@@ -182,6 +186,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     protected LinkedList currentFilters = new LinkedList();
 
     protected LinkedList basicDisplays = new LinkedList();
+
+    protected LinkedList names = new LinkedList();
 
     protected MouseForwarder mouseForwarder;
 
