@@ -249,7 +249,7 @@ public class Cmplx {
 	    for (int i=0; i<fdata.length; i++) {
 		fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i]);
 	    } // end of for (int i=0; i<gdata.length; i++)
-	    return inverseFFT(fTrans, fdata.length);	    
+	    return fftInverse(fTrans, fdata.length);	    
     }
 	
 	public static final float[] correlate(float[] fdata, float[] gdata) {
@@ -258,7 +258,7 @@ public class Cmplx {
 	    for (int i=0; i<fdata.length; i++) {
 		fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i].conjg());
 	    } // end of for (int i=0; i<gdata.length; i++)
-	    return inverseFFT(fTrans, fdata.length);	    
+	    return fftInverse(fTrans, fdata.length);	    
 	}
 
 	/** Fast Fourier Transform  (adapted from Numerical Recipies in C)
