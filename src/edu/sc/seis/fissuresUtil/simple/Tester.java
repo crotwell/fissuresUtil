@@ -2,10 +2,11 @@ package edu.sc.seis.fissuresUtil.simple;
 
 
 import edu.sc.seis.fissuresUtil.simple.Initializer;
+import java.io.PrintWriter;
 import org.apache.log4j.Logger;
 
 public class Tester{
-    private  class Repeater implements Runnable{
+    private  class Repeater extends Thread{
         public Repeater(Runnable r, int repeats){
             this.r = r;
             this.repeats = repeats;
@@ -20,13 +21,19 @@ public class Tester{
                     logger.info("finished " + (i + 1) + " of " + repeats + " for " + r);
                 }
             } catch (Throwable e) {
+                t = e;
                 logger.warn("fail " + (i + 1) + " of " + repeats + " for " + r, e);
             }
             logger.info("leave thread for "+r);
         }
 
+        public Throwable getThrown(){ return t; }
+
         public String toString(){ return "" + r; }
 
+        public Runnable getRunnable(){ return r; }
+
+        private Throwable t;
         private Runnable r;
         private int repeats;
     }
@@ -34,38 +41,51 @@ public class Tester{
     /**Runs all the runnables 3 times against each other pair wise with one
      * thread per runnable
      */
-    public static void runAll(Runnable[] runnables){ runAll(runnables, 3, 1); }
+    public static void runAll(Runnable[] runnables)throws Throwable{
+        runAll(runnables, 3, null);
+    }
 
-    public static void runAll(Runnable[] runnables, int runsPerThread,
-                              int threadsPerRunnable){
-        runnables = wrapInRepeaters(runnables, runsPerThread);
+    public static void runAll(Runnable[] runnables, int runsPerThread, PrintWriter out)throws Throwable{
+        Tester t = new Tester();
         for (int i = 0; i < runnables.length; i++) {
             for (int j = i; j < runnables.length; j++) {
-                logger.info("Starting " + runnables[i] + " against " + runnables[j]);
-                Thread[] threads = new Thread[threadsPerRunnable * 2];
-                for (int k = 0; k < threads.length; k += 2){
-                    threads[k] = new Thread(runnables[i], runnables[i] + " thread" + k);
-                    threads[k + 1] = new Thread(runnables[j], runnables[j] + " thread" + (k+1));
+                Repeater iRepeater = t.new Repeater(runnables[i], runsPerThread);
+                Repeater jRepeater = t.new Repeater(runnables[j], runsPerThread);
+                logger.info("Starting " + iRepeater + " against " + jRepeater);
+                if(out != null){
+                    out.println("Starting <b>" + iRepeater + "</b> against <b>" + jRepeater+"</b><br/>");
                 }
-                for (int k = 0; k < threads.length; k++) threads[k].start();
+                iRepeater.start();
+                jRepeater.start();
                 boolean joined = false;
-                int k = 0;
                 while(!joined){
                     try{
-                        for(; k < threads.length; k++) threads[k].join();
+                        iRepeater.join();
+                        if(iRepeater.getThrown() != null){
+                            throw iRepeater.getThrown();
+                        }
+                        jRepeater.join();
+                        if(jRepeater.getThrown() != null){
+                            throw jRepeater.getThrown();
+                        }
                         joined = true;
                     }catch(InterruptedException e){}//start checking joins again
+                }
+                if(out != null){
+                    out.println("<b>" +iRepeater + "</b> against <b>" + jRepeater + "</b> is successful<br/>");
                 }
             }
         }
     }
 
-    private static Runnable[] wrapInRepeaters(Runnable[] runnables,int repeats){
+
+    private static Repeater[] wrapInRepeaters(Runnable[] runnables,int repeats){
         Tester t = new Tester();
+        Repeater[] threads = new Repeater[runnables.length];
         for (int i = 0; i < runnables.length; i++) {
-            runnables[i] = t.new Repeater(runnables[i], repeats);
+            threads[i] = t.new Repeater(runnables[i], repeats);
         }
-        return runnables;
+        return threads;
     }
 
     private static Logger logger = Logger.getLogger(Tester.class);
