@@ -16,8 +16,15 @@ import com.bbn.openmap.proj.Projection;
  * @author groves Created on Nov 25, 2004
  */
 public class ProjectionHandler {
-
+    
     public ProjectionHandler(String view) {
+        this(null, view);
+    }
+
+    public ProjectionHandler(Map customViews, String view) {
+        if (customViews != null){
+            addViews(customViews);
+        }
         LatLonPoint center = new LatLonPoint(MapBean.DEFAULT_CENTER_LAT,
                                              MapBean.DEFAULT_CENTER_LON);
         float scale = Float.MAX_VALUE;
@@ -55,6 +62,10 @@ public class ProjectionHandler {
         return new LatLonPoint(lat, lon);
     }
 
+    public static void addViews(Map newViews){
+        viewProps.putAll(newViews);
+    }
+    
     public Projection getProjeciton() {
         return proj;
     }
