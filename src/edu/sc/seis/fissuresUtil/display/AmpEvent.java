@@ -62,7 +62,7 @@ public class AmpEvent {
                 return i;
             }
         }
-        return 0;
+        throw new IllegalArgumentException("Seismogram is not in this AmpEvent");
     }
 
     private DataSetSeismogram[] seismos;
