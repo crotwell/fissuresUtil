@@ -3,8 +3,6 @@ import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
 import edu.sc.seis.fissuresUtil.display.registrar.LazyAmpEvent;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import sun.security.krb5.internal.ac;
 
 /**
  * AmpScaleMapper.java

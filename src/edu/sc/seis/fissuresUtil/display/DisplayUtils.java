@@ -95,20 +95,22 @@ public class DisplayUtils {
 
     public static void applyFilter(ColoredFilter filter, DrawableIterator it){
         while(it.hasNext()){
-            DrawableSeismogram cur =  (DrawableSeismogram)it.next();
-            Iterator filterIt = cur.iterator(DrawableFilteredSeismogram.class);
+            DrawableSeismogram seis =  (DrawableSeismogram)it.next();
+            Iterator filterIt = seis.iterator(DrawableFilteredSeismogram.class);
             boolean found = false;
+            DrawableFilteredSeismogram filterSeis = null;
             while(filterIt.hasNext() && !found){
-                DrawableFilteredSeismogram curSeis = (DrawableFilteredSeismogram)filterIt.next();
-                if(curSeis.getFilter().equals(filter)){
-                    curSeis.setVisibility(filter.getVisibility());
+                filterSeis = (DrawableFilteredSeismogram)filterIt.next();
+                if(filterSeis.getFilter().equals(filter)){
                     found = true;
                 }
             }
-            if(!found){
-                cur.add(new DrawableFilteredSeismogram(cur.getParent(),
-                                                       cur.getSeismogram(),
-                                                       filter));
+            if(!found && filter.getVisibility()){
+                seis.add(new DrawableFilteredSeismogram(seis.getParent(),
+                                                        seis.getSeismogram(),
+                                                        filter));
+            }else if(found && !filter.getVisibility()){
+                seis.remove(filterSeis);
             }
         }
     }
