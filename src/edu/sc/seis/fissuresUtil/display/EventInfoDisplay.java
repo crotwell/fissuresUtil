@@ -22,7 +22,7 @@ import java.awt.datatransfer.*;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 2257 2002-07-17 16:52:14Z crotwell $
+ * @version $Id: EventInfoDisplay.java 3249 2003-02-06 19:29:39Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay 
@@ -111,7 +111,8 @@ public class EventInfoDisplay extends TextInfoDisplay
                    twoDecimal.format(station[i].my_location.longitude)+ " "+
                    twoDecimal.format(dist)+ "   "+
                    twoDecimal.format(dist*111.19)+ "   "+ 
-                   twoDecimal.format(baz));
+                   twoDecimal.format(baz)+"   "+
+			     station[i].name);
 	    } catch (NoPreferredOrigin e) {
 	    appendLabelValue(doc, station[i].get_code(),
                          twoDecimal.format(station[i].my_location.latitude)+
