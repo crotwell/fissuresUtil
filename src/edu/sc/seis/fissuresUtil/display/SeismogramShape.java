@@ -26,7 +26,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2595 2002-09-19 14:24:55Z crotwell $
+ * @version $Id: SeismogramShape.java 2613 2002-09-25 21:08:34Z groves $
  */
 
 public class SeismogramShape implements Shape, Plotter {
@@ -282,7 +282,7 @@ public class SeismogramShape implements Shape, Plotter {
     public Rectangle2D getBounds2D(){ return null; }
 
     public PathIterator getPathIterator(AffineTransform at){ 
-	return new SeismogramShapeIterator(points, startPixel, endPixel); 
+	return new SeismogramShapeIterator(points, startPixel, endPixel, at); 
     }
 
     public PathIterator getPathIterator(AffineTransform at, double flatness){ 
