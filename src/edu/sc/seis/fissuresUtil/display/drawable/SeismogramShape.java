@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 5599 2003-09-11 06:26:30Z groves $
+ * @version $Id: SeismogramShape.java 5869 2003-09-30 15:56:31Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -30,7 +30,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         this.container = new SeismogramContainer(seis);
         container.addListener(this);
     }
-
+    
     public void updateData(){
         synchronized(this){
             newData = true;
@@ -210,7 +210,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         lastPoint = container.getIterator().getValueAt(endPoint).getValue();
         double difference = unroundStartPoint - startPoint;
         double value = firstPoint * (1 - difference) + (lastPoint * difference);
-        points[0][point] = (int)((value  - minAmp)/range * height);
+        points[0][point] = height - (int)((value  - minAmp)/range * height);
         points[1][point] = points[0][point];
     }
 
@@ -227,8 +227,8 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
             endPoint = it.getNumPoints();
         }
         double[] minMax = it.minMaxMean(startPoint,endPoint);
-        points[0][point] = (int)((minMax[0]  - minAmp)/range * height);
-        points[1][point] = (int)((minMax[1] - minAmp)/range * height);
+        points[0][point] = height - (int)((minMax[0]  - minAmp)/range * height);
+        points[1][point] = height - (int)((minMax[1] - minAmp)/range * height);
     }
 
     private static double getShiftPercentage(MicroSecondTimeRange from,
