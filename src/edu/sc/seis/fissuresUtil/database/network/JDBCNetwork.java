@@ -149,6 +149,14 @@ public class JDBCNetwork extends NetworkTable{
         return get(getDbId(id));
     }
 
+    public NetworkAttr[] getByCode(String netCode) throws SQLException, NotFound {
+        getByCode.setString(1, netCode);
+        ResultSet rs = getByCode.executeQuery();
+        List aList = new ArrayList();
+        while (rs.next()) aList.add(extract(rs, time));
+        return  (NetworkAttr[])aList.toArray(new NetworkAttr[aList.size()]);
+    }
+
     public int getDbId(NetworkId id)  throws SQLException, NotFound {
         insertId(id, getDBId, 1, time);
         ResultSet rs = getDBId.executeQuery();
@@ -195,12 +203,13 @@ public class JDBCNetwork extends NetworkTable{
         stmt.setInt(index++, time.put(id.begin_time));
         return index;
     }
-
+    
     private JDBCSequence seq;
     private JDBCTime time;
 
     protected PreparedStatement putAll, putId, getAll, getIfNameExists,
-        getByDBId, getDBId, updateAttr, getNetIdByDBId;
+        getByDBId, getDBId, updateAttr, getNetIdByDBId, getByCode;
 
     private static final Logger logger = Logger.getLogger(JDBCNetwork.class);
+
 }// JDBCNetwork
