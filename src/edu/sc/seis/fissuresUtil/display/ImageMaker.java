@@ -44,57 +44,46 @@ public class ImageMaker implements Runnable  {
     public void run(){
 	plottingTotals = 0;
 	imageTotals = 0;
-	PlotInfo currentRequirements;
-	BasicSeismogramDisplay.ImagePainter currentPatron;
+	PlotInfo info;
+	BasicSeismogramDisplay.ImagePainter patron;
 	int numLeft = requests.size();
-	Graphics2D graphic;
-	Image currentImage;
-	Dimension size; 
-	LinkedList plotters;
-	TimeSnapshot timeState;
-	AmpSnapshot ampState;
 	while(numLeft > 0){
 	    begin = new Date();
-	    //logger.debug("creating an image with " + numLeft + " in the queue");
 	    synchronized(this){ 
-		currentPatron = ((BasicSeismogramDisplay.ImagePainter)requests.getFirst()); 
-		currentRequirements = ((PlotInfo)patrons.get(currentPatron)); 
-		size = currentRequirements.getSize();
-		plotters = ((LinkedList)currentRequirements.getPlotters().clone());
-		timeState = currentRequirements.getTimeSnapshot();
-		ampState = currentRequirements.getAmpSnapshot();
-	    	if(requests.contains(currentPatron) && size.width > 0){
-		    currentImage = currentPatron.createImage(size.width, size.height);
-		    graphic = (Graphics2D)currentImage.getGraphics();
-		}
-		else{
-		    numLeft = requests.size();
-		    break;
-		}
+		patron = ((BasicSeismogramDisplay.ImagePainter)requests.getFirst()); 
+		info = ((PlotInfo)patrons.get(patron)); 
 	    }
-	    Iterator e = plotters.iterator();
+	    Dimension size = info.getSize();
+	    if(size.width < 0){
+		numLeft = requests.size();
+		break;
+	    }
+	    TimeSnapshot timeState = info.getTimeSnapshot();
+	    AmpSnapshot	ampState = info.getAmpSnapshot();
+	    LinkedList plotters = info.getPlotters();
+	    Image currentImage = info.getImage();
+	    Graphics2D graphic = (Graphics2D)currentImage.getGraphics();
+	    end = new Date();
+	    Date beginPlotting = new Date();
 	    graphic.setColor(Color.white);
 	    graphic.fill(new Rectangle(0, 0, size.width, size.height));
-	    Date beginPlotting = new Date();
+	    Iterator e = plotters.iterator();
 	    while(e.hasNext()){
 		((Plotter)e.next()).draw(graphic, size, timeState, ampState);
 	    }
 	    Date endPlotting = new Date();
 	    long interval = (endPlotting.getTime() - beginPlotting.getTime());
-	    //logger.debug("plotting: " + interval + "ms");
 	    plottingTotals += interval;
 	    synchronized(this){
 		if(timeState.getTimeRange().getInterval().getValue() == 
-		   currentPatron.getTimeConfig().getTimeRange().getInterval().getValue() &&
-		   requests.contains(currentPatron)){
+		   patron.getTimeConfig().getTimeRange().getInterval().getValue() &&
+		   requests.contains(patron)){
 		    requests.removeFirst();
-		    currentPatron.setImage(currentImage, timeState);
+		    patron.setImage(currentImage, timeState);
 		}
 		numLeft = requests.size();
 	    }
-	    end = new Date();
 	    interval = end.getTime() - begin.getTime();
-	    //logger.debug("image creation: " + interval + "ms");
 	    imageTotals += interval;
 	}
 	logger.debug("image creation thread is finished. image total " + imageTotals + " plot total " + plottingTotals);

@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.util.LinkedList;
 import java.awt.Dimension;
+import java.awt.Image;
 import edu.iris.Fissures.model.TimeInterval;
 
 /**
@@ -15,11 +16,12 @@ import edu.iris.Fissures.model.TimeInterval;
  */
 
 public class PlotInfo {
-    public PlotInfo(Dimension size, LinkedList plotters, TimeSnapshot timeState, AmpSnapshot ampState){
+    public PlotInfo(Dimension size, LinkedList plotters, TimeSnapshot timeState, AmpSnapshot ampState, Image image){
 	this.size = size;
 	this.plotters = plotters;
 	this.timeState = timeState;
 	this.ampState = ampState;
+	this.image = image;
     }
 
     public Dimension getSize(){ return size; }
@@ -29,6 +31,10 @@ public class PlotInfo {
     public TimeSnapshot getTimeSnapshot(){ return timeState; }
 
     public AmpSnapshot getAmpSnapshot(){ return ampState; }
+
+    public Image getImage(){ return image; }
+    
+    private Image image;
 
     private Dimension size;
     
