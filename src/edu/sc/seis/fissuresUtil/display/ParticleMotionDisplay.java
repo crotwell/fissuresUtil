@@ -51,7 +51,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 		  timeConfigRegistrar,
 		  hAmpConfigRegistrar,
 		  vAmpConfigRegistrar,
-		  color);
+		  color, "");
 	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
 		    resolveParticleMotion();
@@ -68,7 +68,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 			  LocalSeismogramImpl vSeis,
 			  TimeConfigRegistrar timeConfigRegistrar,
 			  AmpConfigRegistrar hAmpConfigRegistrar,
-			  AmpConfigRegistrar vAmpConfigRegistrar, Color color) {
+			  AmpConfigRegistrar vAmpConfigRegistrar, Color color,
+			  String  key) {
 	particleDisplayPanel = new JLayeredPane();
 	radioPanel = new JPanel();
 	this.setLayout(new BorderLayout());
@@ -82,7 +83,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				      hAmpConfigRegistrar, 
 				      vAmpConfigRegistrar, 
 				      this,
-				      color);
+				      color,
+				      key);
 	if(timeConfigRegistrar != null) {
 	    timeConfigRegistrar.addTimeSyncListener(this);
 	}
@@ -144,6 +146,74 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	this(hseis, vseis, timeConfigRegistrar, new AmpConfigRegistrar());
     }
 
+    public ParticleMotionDisplay(LocalSeismogramImpl[] seis,
+				 TimeConfigRegistrar timeConfigRegistrar,
+				 AmpConfigRegistrar hAmpConfigRegistrar,
+				 AmpConfigRegistrar vAmpConfigRegistrar) {
+	
+	
+	ChannelId[] channelGroup = new ChannelId[3];
+	
+      	edu.iris.Fissures.Time startTime;
+	edu.iris.Fissures.Time endTime;
+	if(seis.length < 2) return;
+	LocalSeismogram[] seismograms = new LocalSeismogram[3];
+	if(timeConfigRegistrar != null) {
+	    startTime = timeConfigRegistrar.getTimeRange().getBeginTime().getFissuresTime();
+	    endTime = timeConfigRegistrar.getTimeRange().getEndTime().getFissuresTime();
+	} else {
+	    startTime = seis[0].getBeginTime().getFissuresTime();
+	    endTime = seis[0].getEndTime().getFissuresTime();
+	}
+
+	for(int counter = 0; counter < seis.length; counter++) {
+	    
+	    seismograms[counter] = seis[counter];
+	    channelGroup[counter] = seis[counter].getChannelID();
+	}
+								     
+	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	
+	showScale((LocalSeismogramImpl)seismograms[0], 
+	     (LocalSeismogramImpl)seismograms[1], 
+	     timeConfigRegistrar, 
+	     hAmpConfigRegistrar, 
+	     vAmpConfigRegistrar, 
+	     null, channelGroup[0].channel_code+"-"+channelGroup[1].channel_code);
+	formRadioSetPanel(channelGroup);
+	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
+		public void componentResized(ComponentEvent e) {
+		    resolveParticleMotion();
+		    resize();
+		}
+		public void componentShown(ComponentEvent e) {
+		    resize();
+		}
+	    });
+	updateTimeRange();
+	if(seismograms.length == 3) {
+	    System.out.println(" ADDED THe first seismograme ");
+	    addParticleMotionDisplay((LocalSeismogramImpl)seismograms[1], 
+				     (LocalSeismogramImpl)seismograms[2], 
+				     timeConfigRegistrar, 
+				     hAmpConfigRegistrar, 
+				     vAmpConfigRegistrar, 
+				     null,
+				     channelGroup[1].channel_code+"-"+channelGroup[2].channel_code);
+	    System.out.println(" ADDED he second SEismograme");
+	    addParticleMotionDisplay((LocalSeismogramImpl)seismograms[0], 
+				     (LocalSeismogramImpl)seismograms[2], 
+				     timeConfigRegistrar, 
+				     hAmpConfigRegistrar, 
+				     vAmpConfigRegistrar, 
+				     null,
+				     channelGroup[0].channel_code+"-"+channelGroup[2].channel_code);
+	    System.out.println("Added the third display ");
+	}
+	    
+    }
+
 
     public ParticleMotionDisplay(LocalSeismogramImpl hseis,
 				 TimeConfigRegistrar timeConfigRegistrar,
@@ -173,6 +243,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
 		
 		seismograms[counter] = dataSet.getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter]));
+		timeConfigRegistrar.addSeismogram(seismograms[counter]);
+		//hAmpRangeConfigRegistrar.addSeismogram(seismograms
 		if(seismograms[counter] == null) 
 		    logger.debug(" seismograms["+counter+"] is NULL");
 		else 
@@ -191,7 +263,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	     timeConfigRegistrar, 
 	     hAmpConfigRegistrar, 
 	     vAmpConfigRegistrar, 
-	     null);
+	     null, channelGroup[0].channel_code+"-"+channelGroup[1].channel_code);
 	formRadioSetPanel(channelGroup);
 	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -204,19 +276,21 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	    });
 	updateTimeRange();
 	System.out.println(" ADDED THe first seismograme ");
-		addParticleMotionDisplay((LocalSeismogramImpl)seismograms[1], 
-	     (LocalSeismogramImpl)seismograms[2], 
-	     timeConfigRegistrar, 
-	     hAmpConfigRegistrar, 
-	     vAmpConfigRegistrar, 
-	     null);
+	addParticleMotionDisplay((LocalSeismogramImpl)seismograms[1], 
+				 (LocalSeismogramImpl)seismograms[2], 
+				 timeConfigRegistrar, 
+				 hAmpConfigRegistrar, 
+				 vAmpConfigRegistrar, 
+				 null,
+				 channelGroup[1].channel_code+"-"+channelGroup[2].channel_code);
 	System.out.println(" ADDED he second SEismograme");
 	addParticleMotionDisplay((LocalSeismogramImpl)seismograms[0], 
 				 (LocalSeismogramImpl)seismograms[2], 
 				 timeConfigRegistrar, 
 				 hAmpConfigRegistrar, 
 				 vAmpConfigRegistrar, 
-				 null);
+				 null,
+				 channelGroup[0].channel_code+"-"+channelGroup[2].channel_code);
 	System.out.println("Added the third display ");
 
     }
@@ -273,7 +347,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	     timeConfigRegistrar, 
 	     hAmpConfigRegistrar, 
 	     vAmpConfigRegistrar, 
-	     null);
+	     null, "");
 	this.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
 		    resolveParticleMotion();
@@ -290,14 +364,14 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	     timeConfigRegistrar, 
 	     hAmpConfigRegistrar, 
 	     vAmpConfigRegistrar, 
-	     null);
+	     null, "");
 	System.out.println(" ADDED he second SEismograme");
 	addParticleMotionDisplay((LocalSeismogramImpl)seismograms[0], 
 				 (LocalSeismogramImpl)seismograms[2], 
 				 timeConfigRegistrar, 
 				 hAmpConfigRegistrar, 
 				 vAmpConfigRegistrar, 
-				 null);
+				 null, "");
 	System.out.println("Added the third display ");
 	
     }
@@ -390,14 +464,14 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 					 LocalSeismogramImpl vseis,
 					 TimeConfigRegistrar timeConfigRegistrar,
 					 AmpConfigRegistrar hAmpConfigRegistrar,
-					 AmpConfigRegistrar vAmpConfigRegistrar, Color color) {
+					 AmpConfigRegistrar vAmpConfigRegistrar, Color color, String key) {
 
 	view.addParticleMotionDisplay(hseis,
 				      vseis,
 				      timeConfigRegistrar,
 				      hAmpConfigRegistrar,
 				      vAmpConfigRegistrar,
-				      color);
+				      color, key);
 	if(timeConfigRegistrar != null) {
 	    timeConfigRegistrar.addTimeSyncListener(this);
 	}
@@ -413,7 +487,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				 timeConfigRegistrar,
 				 hAmpConfigRegistrar,
 				 vAmpConfigRegistrar,
-				 null);
+				 null, "");
     }
     /**
      * sets the AmplitudeRange of the ParticleMotionDisplay.
@@ -463,16 +537,17 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 		String labelStr = channelGroup[counter].channel_code+"-"+channelGroup[subcounter].channel_code;
 		JRadioButton radioButton = new JRadioButton(labelStr);
 		radioButton.setActionCommand(labelStr);
+		radioButton.addItemListener(new RadioButtonListener());
 		arrayList.add(radioButton);
 	    }
 	}
-	JRadioButton[] radioButtons = new JRadioButton[arrayList.size()];
-	radioButtons = (JRadioButton[])arrayList.toArray(radioButtons);
-	radioButtons[0].setSelected(true);
-	ButtonGroup buttonGroup = new ButtonGroup();
+	JCheckBox[] checkBoxes = new JCheckBox[arrayList.size()];
+	checkBoxes = (JCheckBox[])arrayList.toArray(checkBoxes);
+	checkBoxes[0].setSelected(true);
+	
+	view.setDisplayKey(checkBoxes[0].getText());
 	for(int counter = 0; counter < channelGroup.length; counter++) {
-	    buttonGroup.add(radioButtons[counter]);
-	    radioPanel.add(radioButtons[counter]);
+	    radioPanel.add(checkBoxes[counter]);
 	}
 
 	
@@ -591,8 +666,26 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
     static Category logger = 
         Category.getInstance(ParticleMotionDisplay.class.getName());
     int count = 0;
+
+    private class RadioButtonListener implements ItemListener {
+
+	public void itemStateChanged(ItemEvent ae) {
+	    if(ae.getStateChange() == ItemEvent.SELECTED) {
+		view.addDisplayKey(ae.paramString());
+	    } else if(ae.getStateChange() == ItemEvent.DESELECTED){
+		view.removeDisplaykey(ae.paramString());
+	    }
+	    // view.setDisplayKey(ae.getActionCommand());
+	    repaint();
+	    System.out.println("The radiobutton selected is "+ ae.paramString());
+	}
+    }
+
     
 }// ParticleMotionDisplay
+
+
+
 
 /*********************
  public void resize() {
