@@ -41,12 +41,12 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
     public Color getColor(){ return null; }
 
     public Color getNextColor(Class colorGroupClass){
-        int[] usages = new int[colors.length];
-        for (int i = 0; i < colors.length; i++){
+        int[] usages = new int[COLORS.length];
+        for (int i = 0; i < COLORS.length; i++){
             Iterator it = iterator(colorGroupClass);
             while(it.hasNext()){
                 Drawable cur = (Drawable)it.next();
-                if(cur.getColor().equals(colors[i])){
+                if(cur.getColor().equals(COLORS[i])){
                     usages[i]++;
                 }
                 if(cur instanceof DrawableSeismogram){
@@ -54,7 +54,7 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
                     Iterator childIterator = curSeis.iterator(colorGroupClass);
                     while(childIterator.hasNext()){
                         Drawable curChild = (Drawable)childIterator.next();
-                        if(curChild.getColor().equals(colors[i])){
+                        if(curChild.getColor().equals(COLORS[i])){
                             usages[i]++;
                         }
                     }
@@ -64,11 +64,11 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         for(int minUsage = 0; minUsage >= 0; minUsage++){
             for (int i = 0; i < usages.length; i++){
                 if(usages[i] == minUsage){
-                    return colors[i];
+                    return COLORS[i];
                 }
             }
         }
-        return colors[i++%colors.length];
+        return COLORS[i++%COLORS.length];
     }
 
     private int i = 0;
@@ -131,6 +131,6 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     protected static Set activeFilters = new HashSet();
 
-    public static final Color[] colors = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
+    public static final Color[] COLORS = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
 }
 
