@@ -203,6 +203,7 @@ System.out.println("8 netSet.add ");
 	    
 	    setChannels(netCode, stationCode[i]);
 	    String[] channelsStr = getChannels();
+
 	    for(int counter = 0; counter < channelsStr.length; counter++) {
 
 		channelsMap.put(channelsStr[counter], "notused");
@@ -219,6 +220,7 @@ System.out.println("8 netSet.add ");
 	    arrayList.add(key);
 	}
 	channels = new String[arrayList.size()];
+	Collections.sort(arrayList);
 	channels = (String[]) arrayList.toArray(channels);
 	    
 

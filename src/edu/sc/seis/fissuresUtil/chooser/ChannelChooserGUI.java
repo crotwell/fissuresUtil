@@ -329,7 +329,7 @@ public class ChannelChooserGUI extends JPanel{
        System.out.println("The network chosen is "+networkchosen);
        mychannelchooser.setChannels(networkchosen, getStations());   
        populateList(mychannelchooser.getChannels(), chalist);
-       chalist.setSelectedValue("BHZ", true);//(chalist.getModel().getSize() - 1);
+       chalist.setSelectedIndex(chalist.getModel().getSize() - 1);
     }
 
 
