@@ -331,12 +331,12 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
 
         if (isPSN()){
             URL psnURL = getURLfromPSNURL(seisurl);
-            psnDataFile = new PSNDataFile(new DataInputStream(new BufferedInputStream(psnURL.openStream())));
+            PSNDataFile psnDataFile = new PSNDataFile(new DataInputStream(new BufferedInputStream(psnURL.openStream())));
             int evRecIndex = getIndexFromPSNURL(seisurl);
             seis = PSNToFissures.getSeismograms(psnDataFile)[evRecIndex];
         }
         else{
-            sacTime = new SacTimeSeries();
+            SacTimeSeries sacTime = new SacTimeSeries();
             sacTime.read(new DataInputStream(new BufferedInputStream(seisurl.openStream())));
             seis = SacToFissures.getSeismogram(sacTime);
         }
@@ -468,10 +468,6 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     private URL[] url;
 
     private SeismogramFileTypes fileType;
-
-    private SacTimeSeries sacTime;
-
-    private PSNDataFile psnDataFile;
 
     /** Uses SoftReferences, this allows a map from URL to LocalSeismogram, but
      does not prevent garbage collection. */
