@@ -5,6 +5,7 @@
  */
 package edu.sc.seis.fissuresUtil.display;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class BasicSeismogramDisplayTest extends TestCase {
     public void testOutputToPNG() throws IOException {
         File outPNG = new File("./testOutput.png");
         outPNG.deleteOnExit();
-        sd.outputToPNG(outPNG);
+        sd.outputToPNG(outPNG, new Dimension(600, 300));
     }
 
     public void testOutputToPDF() throws FileNotFoundException {
@@ -38,6 +39,10 @@ public class BasicSeismogramDisplayTest extends TestCase {
         System.setProperty("swing.volatileImageBufferEnabled", "false");
         LocalSeismogramImpl lsi = SimplePlotUtil.createTestData();
         MemoryDataSetSeismogram memDSS = new MemoryDataSetSeismogram(lsi);
+        //sd = SeismogramDisplayConfigurationTest.create("arrayMon")
+        //        .createDisplay();
+        //sd.add(new Flag(memDSS.getBeginMicroSecondDate()
+        //        .add(new TimeInterval(1, UnitImpl.SECOND)), "P-Wave"));
         sd = new BasicSeismogramDisplay();
         sd.add(new MemoryDataSetSeismogram[] {memDSS});
     }
