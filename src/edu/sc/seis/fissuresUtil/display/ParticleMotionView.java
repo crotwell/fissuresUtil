@@ -392,8 +392,6 @@ public class ParticleMotionView extends JComponent{
      * @param d a <code>Dimension</code> value
      */
     public void setSize(Dimension d) {
-        logger.debug("Setting the size");
-
         if (d.width < d.height) {
             super.setSize(new Dimension(d.width,
                                         d.width));
