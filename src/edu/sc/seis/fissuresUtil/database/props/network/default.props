@@ -54,6 +54,8 @@ station.getDBId = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ? A
 station.updateSta = UPDATE station SET sta_end_id = ?, sta_name = ?, sta_operator = ?, \
                     sta_description = ? , loc_id = ? WHERE sta_id = ?
 
+station.deleteStation = DELETE FROM station WHERE sta_id = ?
+
 site.create = CREATE TABLE site ( site_id int, \
                                   sta_id int, \
                                   site_code varchar(2), \
@@ -92,6 +94,8 @@ site.getDBId = SELECT site_id FROM site WHERE sta_id = ? AND site_code = ? AND s
 
 site.updateSite = UPDATE site SET site_end_id = ?, site_comment = ?, loc_id = ? WHERE site_id = ?
 
+site.deleteSite = DELETE FROM site WHERE site_id = ?
+
 channel.create = CREATE TABLE channel (chan_id int, \
                                        site_id int, \
                                        chan_code varchar(3), \
@@ -116,6 +120,10 @@ channel.putAll = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id
                  chan_end_id, chan_name, chan_orientation_az, chan_orientation_dip, \
                  chan_sampling_interval_id, chan_sampling_numpoints) \
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+channel.updateNonId = UPDATE channel set site_id = ? , chan_end_id = ?, chan_name= ?, \
+                      chan_orientation_az = ?, chan_orientation_dip = ?, \
+                      chan_sampling_interval_id = ?, chan_sampling_numpoints = ? \
+                      WHERE chan_id = ?
                  
 channel.putId = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id) VALUES (?, ?, ?, ?)
 
