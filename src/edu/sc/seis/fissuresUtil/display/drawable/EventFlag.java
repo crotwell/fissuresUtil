@@ -207,7 +207,11 @@ public class EventFlag{
     
     public String getTitle(){
         if(eventTitle == null){
+            if (arrivals.length != 0){
             eventTitle = EventUtil.getEventInfo(eventAccess, EventUtil.LOC + " | Mag: " + EventUtil.MAG + " | Depth: "  + EventUtil.DEPTH + " " + EventUtil.DEPTH_UNIT + " | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
+            } else {
+                eventTitle = EventUtil.getEventInfo(eventAccess, EventUtil.LOC + " | Mag: " + EventUtil.MAG + " | Depth: "  + EventUtil.DEPTH + " " + EventUtil.DEPTH_UNIT);
+            }
         }
         return eventTitle;
     }
@@ -230,6 +234,10 @@ public class EventFlag{
         int[][] coverage ={{ getRow(twoEarlier), getX(twoEarlier)},
             {getRow(tenLater), getX(tenLater)}};
         return coverage;
+    }
+    
+    public void setAlpha(int alpha){
+        color = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }
     
     private static final TimeInterval TWO_MINUTES= new TimeInterval(2, UnitImpl.MINUTE);
