@@ -138,9 +138,6 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
             }
         }
         if(newData){
-            synchronized(threadToIterator){
-                threadToIterator.clear();
-            }
             time = null;
             noData = false;
             
@@ -148,6 +145,12 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
             synchronized(listeners){
                 listArray = new SeismogramContainerListener[listeners.size()];
                 listeners.toArray(listArray);
+            }
+            for (int i = 0; i < listArray.length; i++){
+                listArray[i].updateData();
+            }
+            synchronized(threadToIterator){
+                threadToIterator.clear();
             }
             for (int i = 0; i < listArray.length; i++){
                 listArray[i].updateData();
