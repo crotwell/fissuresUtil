@@ -1,5 +1,8 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import edu.iris.Fissures.IfSeismogramDC.*;
+import edu.iris.Fissures.seismogramDC.*;
+
 /**
  * Taper.java
  *
@@ -7,7 +10,7 @@ package edu.sc.seis.fissuresUtil.bag;
  * Created: Sat Oct 19 21:53:21 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: Taper.java 2787 2002-10-21 01:10:16Z crotwell $
+ * @version $Id: Taper.java 2794 2002-10-22 01:39:52Z crotwell $
  */
 
 public class Taper {
@@ -24,12 +27,12 @@ public class Taper {
 	this.width = width;
     }
 
-    public LocalSeismogram apply(LocalSeismogram seis){
-	if(seismo.can_convert_to_float()){
+    public LocalSeismogramImpl apply(LocalSeismogramImpl seis){
+	if(seis.can_convert_to_float()){
 	    float[] fSeries = seis.get_as_floats();
 	    return new LocalSeismogramImpl(seis, apply(fSeries));
 	}else{
-	    int[] iSeries = seismo.get_as_longs();
+	    int[] iSeries = seis.get_as_longs();
 	    return new LocalSeismogramImpl(seis, apply(iSeries));
 	}
     }
