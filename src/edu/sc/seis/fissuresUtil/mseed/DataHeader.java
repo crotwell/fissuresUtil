@@ -168,9 +168,7 @@ public class DataHeader extends ControlHeader {
     dos.write(Utility.pad(getNetworkCode().getBytes("ASCII"),
                   2,
                   (byte)32));
-    dos.write(Utility.pad(getStartTime().getBytes("ASCII"),
-                  10,
-                  (byte)32));
+    dos.write(getStartBtime().getAsBytes());
     dos.write(getNumSamples());
     dos.write(getSampleRateFactor());
     dos.write(getSampleRateMultiplier());
