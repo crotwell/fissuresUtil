@@ -208,8 +208,8 @@ public class DateChooser extends JPanel {
         subPane.add(todayButton,gbc);
         gbc.gridx++;
         subPane.add(yesButton,gbc);
-        gbc.gridx++;
-        subPane.add(otherButton, gbc);
+        //gbc.gridx++;
+        //subPane.add(otherButton, gbc);
         y_leftcorner+=1;
     }
 
