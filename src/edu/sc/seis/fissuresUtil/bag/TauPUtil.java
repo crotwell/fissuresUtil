@@ -15,6 +15,9 @@ import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModel;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.TauP_Time;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TauPUtil {
 
@@ -43,6 +46,15 @@ public class TauPUtil {
     public TauModel getTauModel() {
         return taup_time.getTauModel();
     }
+
+    public synchronized static TauPUtil getTauPUtil(String modelName) throws TauModelException {
+        if ( ! taupUtilMap.containsKey(modelName)) {
+            taupUtilMap.put(modelName, new TauPUtil(modelName));
+        }
+        return (TauPUtil)taupUtilMap.get(modelName);
+    }
+
+    static Map taupUtilMap = new HashMap();
 
     TauP_Time taup_time;
 }
