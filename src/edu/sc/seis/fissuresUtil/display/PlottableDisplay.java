@@ -31,6 +31,8 @@ import com.sun.media.jai.codec.FileSeekableStream;
 import javax.media.jai.widget.ScrollingImagePanel;
 import javax.media.jai.PlanarImage;
 import com.sun.media.jai.codec.*;
+import java.awt.geom.GeneralPath;
+import java.awt.Shape;
 
 /**
  * PlottableDisplay.java
@@ -45,7 +47,7 @@ import com.sun.media.jai.codec.*;
 
   
 
-public  class PlottableDisplay extends JPanel {
+public  class PlottableDisplay extends JComponent {
 
  
     public PlottableDisplay() 
@@ -62,6 +64,8 @@ public  class PlottableDisplay extends JPanel {
         setBorder(BorderFactory.createCompoundBorder(
 						     BorderFactory.createRaisedBevelBorder(),
 						     BorderFactory.createLoweredBevelBorder()));  
+	setLayout(new BorderLayout());
+	//	add(imagePanel, BorderLayout.CENTER);
 
 	configChanged();
     }
@@ -82,7 +86,7 @@ public  class PlottableDisplay extends JPanel {
     }
 
     void configChanged() {
-	bufferedImage = null;
+	image = null;
 	System.out.println("psgramwidth size:"+getSize().toString());
 	
 	int newpsgramwidth = plot_x/plotrows +2*labelXShift;
@@ -114,10 +118,10 @@ public  class PlottableDisplay extends JPanel {
   
     public void paintComponent(Graphics g) {
         super.paintComponent(g);      //clears the background
-	if (bufferedImage == null) {
-	   bufferedImage = createBufferedImage();
-	} // end of if (bufferredImage == null)
-	g.drawImage(bufferedImage, 0, 0, this);
+	if (image == null) {
+	   image = createImage();
+	}
+	g.drawImage(image, 0, 0, this);
     }
 
     protected void drawComponent(Graphics g) {
@@ -197,6 +201,9 @@ public  class PlottableDisplay extends JPanel {
 
 	int xShift = plot_x/plotrows;
 	mean = getMean();
+	System.out.println("plottable.length"+plot.length);
+
+	Shape wholeShape = makeShape(plot);
 	for (int currRow = 0; currRow < plotrows; currRow++) {
 System.out.println("currRow  xShift  min   max  ampScale  ampScale*min  ampScale*max  plotofset  plot_y");
 System.out.println("  plot_x");
@@ -225,33 +232,48 @@ System.out.println("  plot_x");
 	    } else {
 		newG.setPaint(Color.blue);
 	    }
-		
-	    for (int i=0; i<arrayplottable.length; i++) {
-		int lastXValue = 
-		    arrayplottable[i].x_coor[arrayplottable[i].x_coor.length-1];
-	
-		// only draw plottable if it overlaps displayed part of row
-		if (( (xShift*currRow) <= arrayplottable[i].x_coor[0]
-		    && (xShift*(currRow+1)) <= arrayplottable[i].x_coor[0])
-		    || (xShift*(currRow) >= lastXValue
-			&& (xShift*(currRow+1)) >= lastXValue)) {
-		    // no overlap
-
-		} else {
-		    newG.drawPolyline(arrayplottable[i].x_coor, 
-				      arrayplottable[i].y_coor, 
-				      arrayplottable[i].x_coor.length);
-		} // end of else
-		
-	    }
-	    
+	    newG.draw(wholeShape);
 
 	    newG.dispose();
 	    //break; // only do first row
 	}
     }
 
+    private Shape makeShape( Plottable[] plot) {
+	GeneralPath wholeShape = 
+	    new GeneralPath(GeneralPath.WIND_EVEN_ODD);	
+	for (int a=0; a<plot.length; a++) {
+	    if(plot[a].x_coor.length >= 2){
+		GeneralPath currentShape = 
+		    new GeneralPath(GeneralPath.WIND_EVEN_ODD, 
+				    plot[a].x_coor.length);
+		currentShape.moveTo(plot[a].x_coor[0], 
+				    plot[a].y_coor[0]);
+		for(int i = 1; i < plot[a].x_coor.length; i++) {
+		    if (plot[a].x_coor[i-1] == plot[a].x_coor[i]-1) {
+			currentShape.moveTo(plot[a].x_coor[i], 
+					    plot[a].y_coor[i]);
+		    } else {
+			currentShape.lineTo(plot[a].x_coor[i], 
+					    plot[a].y_coor[i]);
+			
+		    } // end of else
+		}
+		wholeShape.append(currentShape, false);
+		
+	    } else if (plot[a].x_coor.length == 1){
+		GeneralPath currentShape = 
+		    new GeneralPath(GeneralPath.WIND_EVEN_ODD, 2);
+		currentShape.moveTo(plot[a].x_coor[0], 
+				    plot[a].y_coor[0]);
+		currentShape.lineTo(plot[a].x_coor[0], 
+				    plot[a].y_coor[0]);
+		wholeShape.append(currentShape, false);
+	    }
 
+	}
+	return wholeShape;
+    }
 
     public void psgramResize(int psgramwidth,int psgramheight ) {
 	setSize(new java.awt.Dimension (psgramwidth, psgramheight));
@@ -286,15 +308,19 @@ System.out.println("  plot_x");
 
     }
 
-    public java.awt.image.BufferedImage createBufferedImage() {
+    public Image createImage() {
         
    	int width = plot_x/plotrows +2*labelXShift;
 	int height = plot_y +(plotoffset * (plotrows-1))+titleYShift;
 
-	java.awt.image.BufferedImage offImg = new java.awt.image.BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	Image offImg = super.createImage(width, height);
+	//Image offImg = 
+	//   imagePanel.createImage(new MemoryImageSource(width, height, 
+	//					 new int[width*height],
+	//					 0, width));
 
-
-        Graphics2D g = offImg.createGraphics();
+	//  Graphics2D g = offImg.createGraphics();
+	Graphics2D g = (Graphics2D)offImg.getGraphics();
         g.setBackground(Color.white);
 
         // clear canvas
@@ -309,7 +335,7 @@ System.out.println("  plot_x");
 
 
 
-    public void showImage( BufferedImage image){
+    public void showImage( Image image){
 
 	// Display the image.
 	//System.out.println("Displaying image");
@@ -319,12 +345,14 @@ System.out.println("  plot_x");
 	int height = plot_y +(plotoffset * (plotrows-1))+titleYShift;
 
 	// Attach the image to a scrolling panel to be displayed.
-	ScrollingImagePanel panel = new ScrollingImagePanel(
-							    image, width, height);
+	//	ScrollingImagePanel panel = new ScrollingImagePanel(
+	//						    image, width, height);
+
+	JScrollPane scroll = new JScrollPane(imagePanel);
 
 	// Create a Frame to contain the panel.
 	Frame window = new Frame("created picture");
-	window.add(panel);
+	window.add(scroll);
 	window.pack();
 	window.show(); 
          
@@ -339,7 +367,7 @@ System.out.println("  plot_x");
     public void writePNG(File fileToWriteTo) {
 
         /* Receives an image from the Graphics that was drawn */
-	    java.awt.image.BufferedImage g_image = createBufferedImage();
+	    Image g_image = createImage();
      
 	    // Create the ParameterBlock.
 	    ParameterBlock pb = new ParameterBlock();
@@ -368,6 +396,13 @@ System.out.println("  plot_x");
 
     }//close writePNG
     public int[] findMinMax(Plottable[] arrayplottable) {
+	if (arrayplottable.length == 0) {
+	    int[] minandmax = new int[2];
+	    minandmax[0]= -1;
+	    minandmax[1]= 1;
+	    return minandmax;
+	} // end of if (arrayplottable.length == 0)
+	
        int min = arrayplottable[0].y_coor[0];
        int max = arrayplottable[0].y_coor[0];
        for(int arrayi=0; arrayi<arrayplottable.length ; arrayi++) {        
@@ -386,9 +421,11 @@ System.out.println("  plot_x");
        return minandmax;
    }
 
+    protected JLabel imagePanel = new JLabel("no image");
+
     private edu.iris.Fissures.Plottable[] arrayplottable = new edu.iris.Fissures.Plottable[0] ; 
     private String  plottablename="Please, click on DataSource.";
-    java.awt.image.BufferedImage bufferedImage = null;
+    Image image = null;
 
     /* Defaults for plottable */
     public int plotrows=12;
