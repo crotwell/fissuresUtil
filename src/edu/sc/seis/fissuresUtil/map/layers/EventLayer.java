@@ -1,21 +1,5 @@
 package edu.sc.seis.fissuresUtil.map.layers;
-import com.bbn.openmap.MapBean;
-import com.bbn.openmap.event.ProjectionEvent;
-import com.bbn.openmap.event.SelectMouseMode;
-import com.bbn.openmap.omGraphics.OMGraphicList;
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
-import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
-import edu.sc.seis.fissuresUtil.cache.EventLoader;
-import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
-import edu.sc.seis.fissuresUtil.display.EQDataEvent;
-import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
-import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
-import edu.sc.seis.fissuresUtil.display.EventDataListener;
-import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
-import edu.sc.seis.fissuresUtil.map.colorizer.event.EventColorizer;
-import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
+
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,215 +10,245 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+
 import org.apache.log4j.Logger;
 
-public class EventLayer extends MouseAdapterLayer implements EventDataListener, EventLoadedListener, EQSelectionListener{
+import com.bbn.openmap.MapBean;
+import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.event.SelectMouseMode;
+import com.bbn.openmap.omGraphics.OMGraphicList;
 
-    public EventLayer(MapBean mapBean, EventColorizer colorizer){
-        this.mapBean = mapBean;
-        this.colorizer = colorizer;
-        circles.setTraverseMode(OMGraphicList.LAST_ADDED_ON_TOP);
-    }
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
+import edu.sc.seis.fissuresUtil.cache.EventLoader;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
+import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
+import edu.sc.seis.fissuresUtil.display.EQDataEvent;
+import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
+import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
+import edu.sc.seis.fissuresUtil.display.EventDataListener;
+import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
+import edu.sc.seis.fissuresUtil.map.colorizer.event.EventColorizer;
+import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
 
-    public void paint(java.awt.Graphics g) {
-        synchronized(circles){ circles.render(g); }
-    }
+public class EventLayer extends MouseAdapterLayer implements EventDataListener,
+		EventLoadedListener, EQSelectionListener {
 
-    public void projectionChanged(ProjectionEvent e) {
-        LayerProjectionUpdater.update(e, circles, this);
-    }
+	public EventLayer(MapBean mapBean, EventColorizer colorizer) {
+		this.mapBean = mapBean;
+		this.colorizer = colorizer;
+		circles.setTraverseMode(OMGraphicList.LAST_ADDED_ON_TOP);
+	}
 
-    public void eventDataAppended(EQDataEvent eqDataEvent) {
-        loadEvents(eqDataEvent);
-    }
+	public void paint(java.awt.Graphics g) {
+		synchronized (circles) {
+			circles.render(g);
+		}
+	}
 
-    public void eventDataChanged(EQDataEvent eqDataEvent) {
-        loadEvents(eqDataEvent);
-    }
+	public void projectionChanged(ProjectionEvent e) {
+		LayerProjectionUpdater.update(e, circles, this);
+	}
 
-    protected void loadEvents(EQDataEvent eqDataEvent) {
-        EventAccessOperations[] events = eqDataEvent.getEvents();
-        for (int i = 0; i < events.length; i++) {
-            EventLoader loader = new EventLoader((CacheEvent)events[i], this);
-            WorkerThreadPool.getDefaultPool().invokeLater(loader);
-        }
-    }
+	public void eventDataAppended(EQDataEvent eqDataEvent) {
+		loadEvents(eqDataEvent);
+	}
 
-    public void eventLoaded(CacheEvent event) {
-        try{
-            synchronized(circles){
-                if(events.add(event)){
-                    circles.add(new OMEvent(event, this, mapBean));
-                    colorizer.colorize(circles);
-                    repaint();
-                }
-            }
-        }catch(NoPreferredOrigin e){
-            logger.debug("No origin for an event");
-        }
-    }
+	public void eventDataChanged(EQDataEvent eqDataEvent) {
+		loadEvents(eqDataEvent);
+	}
 
-    public void eventDataCleared() {
-        synchronized(circles){
-            circles.clear();
-            events.clear();
-        }
-        repaint();
-    }
+	protected void loadEvents(EQDataEvent eqDataEvent) {
+		EventAccessOperations[] events = eqDataEvent.getEvents();
+		for (int i = 0; i < events.length; i++) {
+			EventLoader loader = new EventLoader((CacheEvent) events[i], this);
+			WorkerThreadPool.getDefaultPool().invokeLater(loader);
+		}
+	}
 
-    public void addEQSelectionListener(EQSelectionListener listener){
-        listenerList.add(EQSelectionListener.class, listener);
-        EventAccessOperations[] selectedEvents = getSelectedEvents();
-        if (selectedEvents.length > 0){
-            listener.eqSelectionChanged(new EQSelectionEvent(this, getSelectedEvents()));
-        }
-    }
+	public void eventLoaded(CacheEvent event) {
+		try {
+			synchronized (circles) {
+				if (events.add(event)) {
+					circles.add(new OMEvent(event, this, mapBean));
+					colorizer.colorize(circles);
+					repaint();
+				}
+			}
+		} catch (NoPreferredOrigin e) {
+			logger.debug("No origin for an event");
+		}
+	}
 
-    public void fireEQSelectionChanged(EQSelectionEvent e){
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length-2; i>=0; i-=2) {
-            if (listeners[i]==EQSelectionListener.class) {
-                // Lazily create the event:
-                ((EQSelectionListener)listeners[i+1]).eqSelectionChanged(e);
-            }
-        }
-    }
+	public void eventDataCleared() {
+		synchronized (circles) {
+			circles.clear();
+			events.clear();
+		}
+		repaint();
+	}
 
-    //FIXME: make this work for more than one selected event at a time
-    public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
-        OMEvent selected = null;
-        List deselected = new ArrayList();
-        synchronized(circles){
-            Iterator it = circles.iterator();
-            while (it.hasNext()){
-                OMEvent current = (OMEvent)it.next();
-                if (current.getEvent().equals(eqSelectionEvent.getEvents()[0])){
-                    selected = current;
-                }else{
-                    deselected.add(current);
-                }
-            }
-        }
-        if(selected != null){
-            selected.select();
-            synchronized(circles){
-                circles.moveIndexedToTop(circles.indexOf(selected));
-            }
-        }
-        Iterator it = deselected.iterator();
-        while(it.hasNext()){ ((OMEvent)it.next()).deselect(); }
-    }
+	public void addEQSelectionListener(EQSelectionListener listener) {
+		System.out.println(listener);
+		listenerList.add(EQSelectionListener.class, listener);
+		EventAccessOperations[] selectedEvents = getSelectedEvents();
+		if (selectedEvents.length > 0) {
+			listener.eqSelectionChanged(new EQSelectionEvent(this,
+					getSelectedEvents()));
+		}
+	}
 
-    private static String[] modeList = { SelectMouseMode.modeID } ;
+	public void fireEQSelectionChanged(EQSelectionEvent e) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == EQSelectionListener.class) {
+				// Lazily create the event:
+				((EQSelectionListener) listeners[i + 1]).eqSelectionChanged(e);
+			}
+		}
+	}
 
-    public String[] getMouseModeServiceList() {
-        return modeList;
-    }
+	//FIXME: make this work for more than one selected event at a time
+	public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
+		OMEvent selected = null;
+		List deselected = new ArrayList();
+		synchronized (circles) {
+			System.out.println(eqSelectionEvent.getEvents());
+			Iterator it = circles.iterator();
+			while (it.hasNext()) {
+				OMEvent current = (OMEvent) it.next();
+				System.out.println(current.getEvent());
+				if (current.getEvent().equals(eqSelectionEvent.getEvents()[0])) {
+					selected = current;
+				} else {
+					deselected.add(current);
+				}
+			}
+		}
+		if (selected != null) {
+			selected.select();
+			synchronized (circles) {
+				circles.moveIndexedToTop(circles.indexOf(selected));
+			}
+			Iterator it = deselected.iterator();
+			while (it.hasNext()) {
+				((OMEvent) it.next()).deselect();
+			}
+		}
+	}
 
-    public boolean mouseClicked(MouseEvent e){
-        maybeKillCurrentPopup();
+	private static String[] modeList = { SelectMouseMode.modeID };
 
-        synchronized(circles){
-            Iterator it = circles.iterator();
-            List eventsUnderMouse = new ArrayList();
-            while(it.hasNext()){
-                OMEvent current = (OMEvent)it.next();
-                if(current.getBigCircle().contains(e.getX(), e.getY())){
-                    eventsUnderMouse.add(current.getEvent());
-                }
-            }
-            if (eventsUnderMouse.size() > 0){
-                if (eventsUnderMouse.size() == 1){
-                    selectEvent((EventAccessOperations)eventsUnderMouse.get(0));
-                }
-                else{
-                    final JPopupMenu popup = new JPopupMenu();
-                    popup.setInvoker(this);
-                    it = eventsUnderMouse.iterator();
-                    while (it.hasNext()){
-                        final EventAccessOperations current = (EventAccessOperations)it.next();
-                        final JMenuItem menuItem = new JMenuItem(CacheEvent.getEventInfo(current));
-                        menuItem.addActionListener(new ActionListener(){
-                                    public void actionPerformed(ActionEvent e) {
-                                        selectEvent(current);
-                                        popup.setVisible(false);
-                                    }
-                                });
-                        menuItem.addMouseListener(new MouseAdapter(){
+	public String[] getMouseModeServiceList() {
+		return modeList;
+	}
 
-                                    public void mouseEntered(MouseEvent e) {
-                                        menuItem.setArmed(true);
-                                    }
+	public boolean mouseClicked(MouseEvent e) {
+		maybeKillCurrentPopup();
 
-                                    public void mouseExited(MouseEvent e) {
-                                        menuItem.setArmed(false);
-                                    }
+		synchronized (circles) {
+			Iterator it = circles.iterator();
+			List eventsUnderMouse = new ArrayList();
+			while (it.hasNext()) {
+				OMEvent current = (OMEvent) it.next();
+				if (current.getBigCircle().contains(e.getX(), e.getY())) {
+					eventsUnderMouse.add(current.getEvent());
+				}
+			}
+			if (eventsUnderMouse.size() > 0) {
+				if (eventsUnderMouse.size() == 1) {
+					selectEvent((EventAccessOperations) eventsUnderMouse.get(0));
+				} else {
+					final JPopupMenu popup = new JPopupMenu();
+					popup.setInvoker(this);
+					it = eventsUnderMouse.iterator();
+					while (it.hasNext()) {
+						final EventAccessOperations current = (EventAccessOperations) it
+								.next();
+						final JMenuItem menuItem = new JMenuItem(EventUtil
+								.getEventInfo(current));
+						menuItem.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								selectEvent(current);
+								popup.setVisible(false);
+							}
+						});
+						menuItem.addMouseListener(new MouseAdapter() {
 
-                                });
-                        popup.add(menuItem);
-                    }
-                    Point compLocation = e.getComponent().getLocationOnScreen();
-                    double[] popupLoc = {compLocation.getX(), compLocation.getY()};
-                    popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
-                    popup.setVisible(true);
-                    currentPopup = popup;
-                }
-                return true;
-            }
-        }
+							public void mouseEntered(MouseEvent e) {
+								menuItem.setArmed(true);
+							}
 
-        return false;
-    }
+							public void mouseExited(MouseEvent e) {
+								menuItem.setArmed(false);
+							}
 
-    //extend this method if you want this selection to hook up
-    //with an external event browser (ie. an EventTableModel)
-    public void selectEvent(EventAccessOperations evo){
-        //noImpl
-    }
+						});
+						popup.add(menuItem);
+					}
+					Point compLocation = e.getComponent().getLocationOnScreen();
+					double[] popupLoc = { compLocation.getX(),
+							compLocation.getY() };
+					popup.setLocation((int) popupLoc[0] + e.getX(),
+							(int) popupLoc[1] + e.getY());
+					popup.setVisible(true);
+					currentPopup = popup;
+				}
+				return true;
+			}
+		}
 
+		return false;
+	}
 
-    public boolean mouseMoved(MouseEvent e){
-        maybeKillCurrentPopup();
+	//extend this method if you want this selection to hook up
+	//with an external event browser (ie. an EventTableModel)
+	public void selectEvent(EventAccessOperations evo) {
+		//noImpl
+	}
 
-        synchronized(circles){
-            Iterator it = circles.iterator();
-            while(it.hasNext()){
-                OMEvent current = (OMEvent)it.next();
-                try{
-                    if(current.getBigCircle().contains(e.getX(), e.getY())){
-                        EventAccessOperations event = current.getEvent();
-                        fireRequestInfoLine(CacheEvent.getEventInfo(event));
-                        return true;
-                    }
-                }
-                catch(Exception ex){}
-            }
-        }
-        return false;
-    }
+	public boolean mouseMoved(MouseEvent e) {
+		maybeKillCurrentPopup();
 
-    //implement this method to get the selected events from
-    //your source (ie. the EventTableModel)
-    public EventAccessOperations[] getSelectedEvents(){
-        return new EventAccessOperations[0];
-    }
+		synchronized (circles) {
+			Iterator it = circles.iterator();
+			while (it.hasNext()) {
+				OMEvent current = (OMEvent) it.next();
+				try {
+					if (current.getBigCircle().contains(e.getX(), e.getY())) {
+						EventAccessOperations event = current.getEvent();
+						fireRequestInfoLine(EventUtil.getEventInfo(event));
+						return true;
+					}
+				} catch (Exception ex) {
+				}
+			}
+		}
+		return false;
+	}
 
-    private OMGraphicList circles = new OMGraphicList();
-    private Set events = new HashSet();
+	//implement this method to get the selected events from
+	//your source (ie. the EventTableModel)
+	public EventAccessOperations[] getSelectedEvents() {
+		return new EventAccessOperations[0];
+	}
 
-    private static Logger logger = Logger.getLogger(EventLayer.class);
+	private OMGraphicList circles = new OMGraphicList();
 
-    private MapBean mapBean;
+	private Set events = new HashSet();
 
-    private EventColorizer colorizer;
+	private static Logger logger = Logger.getLogger(EventLayer.class);
+
+	private MapBean mapBean;
+
+	private EventColorizer colorizer;
 }
-
-
-
-
 

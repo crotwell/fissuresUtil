@@ -22,13 +22,13 @@ package edu.sc.seis.fissuresUtil.bag;
  * values use accessors so we can use this class as an immutable
 
  */
+import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.Location;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
 
 public class DistAz {
     /**
@@ -244,7 +244,7 @@ public class DistAz {
     }
 
     private static Location getLoc(EventAccessOperations ev){
-        return getLoc(CacheEvent.extractOrigin(ev));
+        return getLoc(EventUtil.extractOrigin(ev));
     }
 
     private static Location getLoc(Origin ev){
