@@ -7,6 +7,8 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.cache.RetryNetworkAccess;
+import edu.sc.seis.fissuresUtil.cache.SynchronizedNetworkAccess;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import java.util.HashMap;
@@ -26,21 +28,11 @@ import org.apache.log4j.Logger;
  * @version
  */
 
-public class ResponseGain implements LocalSeismogramFunction {
-
-    public ResponseGain (NetworkDC netdc){ this(netdc.a_finder()); }
-
-    public ResponseGain(NetworkFinder netFinder){
-        finder = netFinder;
-    }
-
+public class ResponseGain{
     /** Applys the overall sensitivity of the response to the seismogram. This
      * will promote short or int based seismograms to float to avoid rounding
      * and overflow problems. */
-    public LocalSeismogramImpl apply(LocalSeismogramImpl seis)
-        throws ChannelNotFound, NetworkNotFound,  FissuresException {
-
-        Instrumentation inst = getInstrumentation(seis.channel_id, seis.begin_time);
+    public static LocalSeismogramImpl apply(LocalSeismogramImpl seis, Instrumentation inst) throws FissuresException{
 
         /* Sensitivity is COUNTs per Groung Motion, so should divide in order
          * to convert COUNT seismogram into Ground Motion. */
@@ -67,56 +59,5 @@ public class ResponseGain implements LocalSeismogramFunction {
         logger.debug("NOAMP seis units are "+outSeis.y_unit);
         return outSeis;
     }
-
-    public Instrumentation getInstrumentation(ChannelId channel_id, Time begin_time) throws NetworkNotFound, ChannelNotFound {
-        Instrumentation inst = getFromCache(channel_id, begin_time);
-        if (inst == null) {
-            NetworkAccess net = finder.retrieve_by_id(channel_id.network_id);
-            inst = net.retrieve_instrumentation(channel_id, begin_time);
-            addToCache(channel_id, inst);
-        }
-        return inst;
-    }
-
-    private NetworkFinder finder;
-
-    public void addToCache(ChannelId chan, Instrumentation inst) {
-        List instList = (List)instCache.get(ChannelIdUtil.toString(chan));
-        if (instList == null) {
-            instList = new LinkedList();
-            instCache.put(ChannelIdUtil.toString(chan), instList);
-        }
-        instList.add(new InstrumentationDater(chan, inst));
-    }
-
-    public Instrumentation getFromCache(ChannelId chan, Time begin_time) {
-        List instList = (List)instCache.get(ChannelIdUtil.toString(chan));
-        if(instList == null) { return null; }
-        Iterator it = instList.iterator();
-        while (it.hasNext()) {
-            InstrumentationDater instD = (InstrumentationDater)it.next();
-            MicroSecondTimeRange timeRange = new MicroSecondTimeRange(instD.inst.effective_time);
-            if (instD != null && timeRange.intersects(new MicroSecondDate(begin_time))) {
-                return instD.inst;
-            }
-        }
-        return null;
-    }
-
-    private HashMap instCache = new HashMap();
-
-    class InstrumentationDater {
-        InstrumentationDater(ChannelId chan, Instrumentation inst) {
-            this.chan = chan;
-            this.inst = inst;
-            this.date = ClockUtil.now();
-        }
-        ChannelId chan;
-        Instrumentation inst;
-        MicroSecondDate date;
-    }
-
-
     private static final Logger logger = Logger.getLogger(ResponseGain.class);
-
 }// ResponseGain
