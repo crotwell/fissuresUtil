@@ -18,10 +18,18 @@ import javax.swing.*;
  */
 
 public class URLDataSetSeismogram extends DataSetSeismogram{
-    public URLDataSetSeismogram (URL url, SeismogramFileTypes fileType, DataSet dataSet){
+    public URLDataSetSeismogram (URL url, 
+                                 SeismogramFileTypes fileType,
+                                 DataSet dataSet,
+                                 String name){
+        this.name = name;
         this.url = url;
         this.fileType = fileType;
         this.dataSet = dataSet;
+    }
+
+    public URLDataSetSeismogram (URL url, SeismogramFileTypes fileType, DataSet dataSet){
+        this(url, fileType, dataSet, "");
     }
 
     public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType) {
@@ -55,7 +63,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
     }
 
     public String getName() {
-        if(super.getName() == null) {
+        if(super.getName() == null || super.getName().length()==0 ) {
             String name = url.getFile();
             int index = name.lastIndexOf(File.separatorChar);
             setName(name.substring(index)+2);
