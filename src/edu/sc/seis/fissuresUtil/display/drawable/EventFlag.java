@@ -35,12 +35,12 @@ public class EventFlag{
         this.arrivals = arrivals;
     }
 
-    public int getEventX(){
-        return getX(getEventXPercent());
+    public int getOriginX(){
+        return getX(getOriginXPercent());
     }
 
-    public int getEventY(){
-        return getY(getEventRow());
+    public int getOriginY(){
+        return getY(getOriginRow());
     }
 
     private int getY(int row){
@@ -56,7 +56,7 @@ public class EventFlag{
     }
 
     private int getX(double xPercentage){
-        return (int)(xPercentage * display.getRowWidth()) + PlottableDisplay.LABEL_X_SHIFT;
+        return (int)(xPercentage * display.getRowWidth());// + PlottableDisplay.LABEL_X_SHIFT;
     }
 
     public int getY(Arrival arrival){
@@ -70,9 +70,9 @@ public class EventFlag{
         g2.setStroke(new BasicStroke(3));
         g2.setPaint(color);
         int halfOffset =  display.getRowOffset()/2;
-        int x = getEventX();
-        int y = getEventY();
-        drawStick("Event", x, y, halfOffset, g2);
+        int x = getOriginX();
+        int y = getOriginY();
+        drawStick("Origin", x, y, halfOffset, g2);
         for (int i = 0; i < arrivals.length; i++) {
             x = getX(arrivals[i]);
             y = getY(arrivals[i]);
@@ -97,8 +97,8 @@ public class EventFlag{
     }
 
     public boolean isSelected(int[][] rowAndX) {
-        int row = getEventRow();
-        int x = getEventX();
+        int row = getOriginRow();
+        int x = getOriginX();
         if(intersects(rowAndX, x, row)){
             return true;
         }
@@ -124,7 +124,7 @@ public class EventFlag{
         return false;
     }
 
-    private MicroSecondDate getEventTime(){
+    private MicroSecondDate getOriginTime(){
         if(eventOrigin == null) {
             try {
                 eventOrigin = eventAccess.get_preferred_origin();
@@ -135,8 +135,8 @@ public class EventFlag{
         return new MicroSecondDate(eventOrigin.origin_time);
     }
 
-    private int getEventRow() {
-        return getRow(getEventTime());
+    private int getOriginRow() {
+        return getRow(getOriginTime());
     }
 
     private int getRow(Arrival arrival){
@@ -144,7 +144,7 @@ public class EventFlag{
     }
 
     private MicroSecondDate getTime(Arrival arrival){
-        MicroSecondDate eventTime = getEventTime();
+        MicroSecondDate eventTime = getOriginTime();
         return new MicroSecondDate((long)arrival.getTime() * 1000000 + eventTime.getMicroSecondTime());
     }
 
@@ -158,8 +158,8 @@ public class EventFlag{
         return hours/2;
     }
 
-    private double getEventXPercent(){
-        return getXPercent(getEventTime());
+    private double getOriginXPercent(){
+        return getXPercent(getOriginTime());
     }
 
     private double getXPercent(Arrival arrival){
