@@ -7,6 +7,7 @@ import edu.iris.Fissures.seismogramDC.LocalMotionVectorImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import java.awt.geom.AffineTransform;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.FissuresException;
 
 /**
  * Rotate.java
@@ -15,7 +16,7 @@ import edu.iris.Fissures.Location;
  * Created: Sun Dec 15 13:43:21 2002
  *
  * @author Philip Crotwell
- * @version $Id: Rotate.java 7023 2004-02-07 17:59:47Z crotwell $
+ * @version $Id: Rotate.java 7451 2004-03-05 21:32:18Z crotwell $
  */
 public class Rotate implements LocalMotionVectorFunction {
 
@@ -49,7 +50,7 @@ public class Rotate implements LocalMotionVectorFunction {
     public static float[][] rotateGCP(LocalSeismogramImpl x,
                                       LocalSeismogramImpl y,
                                       Location staLoc,
-                                      Location evtLoc) {
+                                      Location evtLoc) throws FissuresException  {
         DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
                                    evtLoc.latitude, evtLoc.longitude);
         return Rotate.rotate(x, y, dtor(180+distAz.baz));
@@ -62,7 +63,7 @@ public class Rotate implements LocalMotionVectorFunction {
      the new x and index 1 is the new y.*/
     public static float[][] rotate(LocalSeismogramImpl x,
                                    LocalSeismogramImpl y,
-                                   double radians) {
+                                   double radians) throws FissuresException  {
         float[][] data = new float[2][];
         float[] temp = x.get_as_floats();
         data[0] = new float[temp.length];

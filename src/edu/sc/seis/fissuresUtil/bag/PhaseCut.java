@@ -17,9 +17,10 @@ import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.TauP_Time;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.FissuresException;
 
 public class PhaseCut {
-    
+
     /** warning, this class assumes that no other thread will be accessing
      the TauP_Time class while it is being used here. If another thread
      accesses it, the results will be unpredictable. */
@@ -32,7 +33,7 @@ public class PhaseCut {
         this.endPhase = endPhase;
         this.endOffset = endOffset;
     }
-    
+
     /** Cuts the seismogram based on offsets from the given phases.
      *
      * @throws PhaseNonExistent if either of the phases does not exist
@@ -41,7 +42,7 @@ public class PhaseCut {
     public LocalSeismogramImpl cut(Location stationLoc,
                                    Origin origin,
                                    LocalSeismogramImpl seis)
-        throws TauModelException, PhaseNonExistent {
+        throws TauModelException, PhaseNonExistent, FissuresException  {
         QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
         depth = depth.convertTo(UnitImpl.KILOMETER);
         DistAz distAz = new DistAz(stationLoc.latitude,
@@ -52,7 +53,7 @@ public class PhaseCut {
         timeCalc.setPhaseNames(new String[] {beginPhase, endPhase} );
         timeCalc.calculate(distAz.delta);
         Arrival[] arrivals = timeCalc.getArrivals();
-        
+
         MicroSecondDate beginTime = null;
         MicroSecondDate endTime = null;
         MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
@@ -69,7 +70,7 @@ public class PhaseCut {
                                            distAz.delta+" degrees");
         }
         beginTime = beginTime.add(beginOffset);
-        
+
         for (int i=0; i< arrivals.length; i++) {
             if (arrivals[i].getName().equals(endPhase)) {
                 endTime = originTime.add(new TimeInterval(arrivals[i].getTime(),
@@ -84,21 +85,21 @@ public class PhaseCut {
         }
         endTime = endTime.add(endOffset);
         logger.debug("Phase cut from "+beginTime+" to "+endTime);
-        
+
         Cut cut = new Cut(beginTime, endTime);
         return cut.apply(seis);
     }
-    
+
     TauP_Time timeCalc;
-    
+
     String beginPhase;
-    
+
     TimeInterval beginOffset;
-    
+
     String endPhase;
-    
+
     TimeInterval endOffset;
-    
+
     Logger logger = Logger.getLogger(PhaseCut.class);
 }
 

@@ -4,6 +4,7 @@ import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfTimeSeries.*;
 import org.apache.log4j.*;
+import edu.iris.Fissures.FissuresException;
 
 /**
  * Cuts seismograms based on a begin and end time.
@@ -12,7 +13,7 @@ import org.apache.log4j.*;
  * Created: Tue Oct  1 21:23:44 2002
  *
  * @author Philip Crotwell
- * @version $Id: Cut.java 6978 2004-02-06 02:49:46Z crotwell $
+ * @version $Id: Cut.java 7451 2004-03-05 21:32:18Z crotwell $
  */
 
 public class Cut implements LocalSeismogramFunction {
@@ -27,7 +28,7 @@ public class Cut implements LocalSeismogramFunction {
     /** Applys the cut to the seismogram. Returns null if no data is within
      *  the cut window.
      */
-    public LocalSeismogramImpl apply(LocalSeismogramImpl seis) {
+    public LocalSeismogramImpl apply(LocalSeismogramImpl seis) throws FissuresException {
         if ( begin.after(seis.getEndTime()) || end.before(seis.getBeginTime())) {
             return null;
         } // end of if ()
@@ -67,7 +68,6 @@ public class Cut implements LocalSeismogramFunction {
             int[] inI = seis.get_as_longs();
             System.arraycopy(inI, beginIndex, outI, 0, endIndex-beginIndex);
             outSeis = new LocalSeismogramImpl(seis, outI);
-            logger.debug("out num_points="+seis.num_points+" out data length="+outI.length);
         } else if (seis.can_convert_to_float()) {
             float[] outF = new float[endIndex-beginIndex];
             float[] inF = seis.get_as_floats();

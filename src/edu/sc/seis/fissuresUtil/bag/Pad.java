@@ -10,6 +10,7 @@ import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.Fissures.FissuresException;
 
 public class Pad implements LocalSeismogramFunction  {
 
@@ -40,7 +41,7 @@ public class Pad implements LocalSeismogramFunction  {
     }
 
 
-    public LocalSeismogramImpl pad(LocalSeismogramImpl seis, TimeInterval padSize) {
+    public LocalSeismogramImpl pad(LocalSeismogramImpl seis, TimeInterval padSize) throws FissuresException  {
 
         SamplingImpl samp = SamplingImpl.createSamplingImpl(seis.sampling_info);
         double period = samp.getPeriod().convertTo(UnitImpl.SECOND).getValue();
@@ -50,7 +51,7 @@ public class Pad implements LocalSeismogramFunction  {
         return pad(seis, padPoints);
     }
 
-    public LocalSeismogramImpl pad(LocalSeismogramImpl seis, int padPoints) {
+    public LocalSeismogramImpl pad(LocalSeismogramImpl seis, int padPoints) throws FissuresException  {
         LocalSeismogramImpl outSeis;
         int newSize = seis.getNumPoints()+padPoints;
         if (seis.can_convert_to_short()) {

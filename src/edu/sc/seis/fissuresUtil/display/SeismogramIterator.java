@@ -18,6 +18,7 @@ import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.FissuresException;
 
 /** Takes an array of LocalSeismograms and iterates through them, point by point
  */
@@ -25,7 +26,7 @@ public class SeismogramIterator implements Iterator{
     public SeismogramIterator(String name, LocalSeismogramImpl[] seismograms){
         this(name, seismograms, DisplayUtils.getFullTime(seismograms));
     }
-    
+
     public SeismogramIterator(String name,
                               LocalSeismogramImpl[] seismograms,
                               MicroSecondTimeRange timeRange){
@@ -64,9 +65,9 @@ public class SeismogramIterator implements Iterator{
             this.timeRange = DisplayUtils.ZERO_TIME;
             this.seisTimeRange = DisplayUtils.ZERO_TIME;
         }
-        
+
     }
-    
+
     public QuantityImpl getValueAt(int position){
         try{
             Object[] seisAndPoint = getSeisAtWithInternal(position);
@@ -78,7 +79,7 @@ public class SeismogramIterator implements Iterator{
         }
         return null;
     }
-    
+
     /**
      * Returns the next element in the iteration.
      *
@@ -91,7 +92,7 @@ public class SeismogramIterator implements Iterator{
         }
         throw new NoSuchElementException();
     }
-    
+
     /**
      * Returns <tt>true</tt> if the iteration has more elements. (In other
      * words, returns <tt>true</tt> if <tt>next</tt> would return an element
@@ -105,23 +106,23 @@ public class SeismogramIterator implements Iterator{
         }
         return false;
     }
-    
+
     /**
      *  Optional part of the iterator interface that does not make sense for
      * iterating over seismograms.  This method does nothing.
      */
     public void remove() {}
-    
+
     public int getNumPoints(){ return numPoints; }
-    
+
     public int numPointsLeft(){ return endPoint - currentPoint; }
-    
+
     public int getStartPoint(){ return currentPoint; }
-    
+
     public MicroSecondTimeRange getTimeRange(){ return timeRange; }
-    
+
     public MicroSecondTimeRange getSeisTime() { return seisTimeRange; }
-    
+
     public void setTimeRange(MicroSecondTimeRange timeRange){
         this.timeRange = timeRange;
         if(timeRange == DisplayUtils.ZERO_TIME){
@@ -145,14 +146,14 @@ public class SeismogramIterator implements Iterator{
             }
         }
     }
-    
+
     public LocalSeismogramImpl[] getSeismograms(){ return seismograms; }
-    
-    public double[] minMaxMean(){
+
+    public double[] minMaxMean() {
         return minMaxMean(currentPoint, endPoint);
     }
-    
-    public double[] minMaxMean(int startPoint, int endPoint){
+
+    public double[] minMaxMean(int startPoint, int endPoint) {
         if(startPoint >= endPoint){
             double[] zeros = { Double.NaN,Double.NaN,Double.NaN};
             return zeros;
@@ -199,7 +200,7 @@ public class SeismogramIterator implements Iterator{
         }
         return minMaxMean;
     }
-    
+
     public boolean equals(Object other){
         if(this == other) return true;
         if (getClass() != other.getClass()) return false;
@@ -217,7 +218,7 @@ public class SeismogramIterator implements Iterator{
         }
         return false;
     }
-    
+
     public int hashCode(){
         int result = 52;
         result = 37*result + timeRange.hashCode();
@@ -226,9 +227,9 @@ public class SeismogramIterator implements Iterator{
         }
         return result;
     }
-    
+
     public String toString(){ return name + " iterator"; }
-    
+
     private Object[] getSeisAtWithInternal(int position){
         Iterator it = iterateList.iterator();
         int curPosition = 0;
@@ -242,9 +243,9 @@ public class SeismogramIterator implements Iterator{
             curPosition += curPoints[1] - curPoints[0];
         }
         return new Object[2];
-        
+
     }
-    
+
     private void addToIterateList(LocalSeismogramImpl toBeAdded, int firstPoint,
                                   int lastPoint){
         iterateList.add(toBeAdded);
@@ -258,52 +259,57 @@ public class SeismogramIterator implements Iterator{
         points.put(toBeAdded,addPoints);
         numPoints += lastPoint - firstPoint;
     }
-    
+
     public SamplingImpl getSampling(){
         return sampling;
     }
-    
-    private Statistics getStatistics(LocalSeismogramImpl seis){
+
+    private Statistics getStatistics(LocalSeismogramImpl seis) {
         Statistics stat = (Statistics)statisticsMap.get(seis);
         if(stat == null){
+            try {
             stat = new Statistics(seis);
             statisticsMap.put(seis, stat);
+            } catch (FissuresException e) {
+                // this should never happen
+                throw new RuntimeException("Should never happen becuase this only gets thrown for bad data and SeismogramCOntainer should check for that.", e);
+            }
         }
         return stat;
     }
-    
+
     private Map statisticsMap = new HashMap();
-    
+
     private static Logger logger = Logger.getLogger(SeismogramIterator.class);
-    
+
     private List iterateList = new ArrayList();
-    
+
     private Map points = new HashMap();
-    
+
     private int currentPoint, numPoints,endPoint;
-    
+
     private LocalSeismogramImpl[] seismograms;
-    
+
     private MicroSecondTimeRange timeRange;
-    
+
     private MicroSecondTimeRange seisTimeRange;
-    
+
     private String name;
-    
+
     private SamplingImpl sampling;
-    
+
     public static final QuantityImpl NOT_A_NUMBER = new QuantityImpl(Double.NaN,
                                                                      UnitImpl.COUNT);
-    
+
     private class Gap extends LocalSeismogramImpl{
         private Gap(int length){
             this.length = length;
         }
-        
+
         public QuantityImpl getValueAt(int position){ return NOT_A_NUMBER; }
-        
+
         public int getNumPoints(){ return length; }
-        
+
         private int length;
     }
 }

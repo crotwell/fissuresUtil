@@ -19,21 +19,22 @@ import edu.iris.dmc.seedcodec.DecompressedData;
 import edu.iris.dmc.seedcodec.Codec;
 import edu.iris.dmc.seedcodec.CodecException;
 import java.util.Iterator;
+import edu.iris.Fissures.FissuresException;
 
 public class Recompress {
 
     public static LocalSeismogramImpl steim1(LocalSeismogramImpl seis)
-        throws SteimException, IOException, CodecException, IOException {
+        throws SteimException, IOException, CodecException, IOException, FissuresException  {
         return steim1(seis, false);
     }
 
     public static LocalSeismogramImpl steim1(LocalSeismogramImpl seis, boolean preserveBlocking)
-        throws SteimException, IOException, CodecException {
+        throws SteimException, IOException, CodecException, FissuresException  {
         return steim1(seis, preserveBlocking, 63);
     }
 
     public static LocalSeismogramImpl steim1(LocalSeismogramImpl seis, boolean preserveBlocking, int maxFrames)
-        throws SteimException, IOException, CodecException {
+        throws SteimException, IOException, CodecException, FissuresException  {
         LinkedList allBlocks = new LinkedList();
         if (preserveBlocking && seis.is_encoded()) {
             // preserve existing edata blocking
