@@ -21,18 +21,16 @@ import java.awt.Color;
  */
 
 public class Selection implements TimeSyncListener{
-    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeConfigRegistrar tr, HashMap plotters, 
+    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeConfigRegistrar tr, LinkedList seismograms, 
 		      BasicSeismogramDisplay parent, Color color){
 	this.externalTimeConfig = tr;
-	this.plotters = plotters;
+	this.seismograms = seismograms;
 	this.parent = parent;
 	this.color = color;
 	internalTimeConfig = new TimeConfigRegistrar();
-	Iterator e = plotters.keySet().iterator();
+	Iterator e = seismograms.iterator();
 	while(e.hasNext()){
-	    Plotter current = ((Plotter)e.next());
-	    if(current instanceof SeismogramPlotter)
-		internalTimeConfig.addSeismogram(((SeismogramPlotter)current).getSeismogram(), begin);
+	    internalTimeConfig.addSeismogram(((DataSetSeismogram)e.next()).getSeismogram(), begin);
 	}
 	internalTimeConfig.setBeginTime(begin);
 	internalTimeConfig.setDisplayInterval(begin.difference(end));
@@ -95,6 +93,8 @@ public class Selection implements TimeSyncListener{
 	return false;
     }
     
+    public BasicSeismogramDisplay getParent(){ return parent; }
+
     public float getX(int width){
 	MicroSecondTimeRange currentExternal = externalTimeConfig.getTimeRange();
 	float offset = (internalTimeConfig.getTimeRange().getBeginTime().getMicroSecondTime() - 
@@ -112,17 +112,7 @@ public class Selection implements TimeSyncListener{
 
     public void setColor(Color color){ this.color = color; }
 
-    public LinkedList getSeismograms(){ 
-	LinkedList seismos = new LinkedList();
-	Iterator e = plotters.keySet().iterator();
-	while(e.hasNext()){
-	    Plotter current = ((Plotter)e.next());
-	    if(current instanceof SeismogramPlotter){
-		seismos.add(((SeismogramPlotter)current).getSeismogram());
-	    }
-	}
-	return seismos;
-    }
+    public LinkedList getSeismograms(){ return seismograms; }
 
     public void setDisplay(BasicSeismogramDisplay display){this.display = display; }
 
@@ -136,7 +126,7 @@ public class Selection implements TimeSyncListener{
 
     protected TimeConfigRegistrar externalTimeConfig, internalTimeConfig;
     
-    protected HashMap plotters;
+    protected LinkedList seismograms;
 
     protected Color color;
 

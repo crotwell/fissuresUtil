@@ -243,7 +243,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
     }
 
-    public void createSelectionDisplay(BasicSeismogramDisplay creator){
+    public void createSelectionDisplay(Selection creator){
 	if(selectionDisplay == null){
 	    logger.debug("creating selection display");
 	    selectionWindow = new JFrame();
@@ -254,14 +254,13 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    infoBar.setFloatable(false);
 	    selectionWindow.getContentPane().add(infoBar, BorderLayout.SOUTH);
 	    Iterator e = creator.getSeismograms().iterator();
-	    TimeConfigRegistrar tr = creator.getCurrentSelection().getInternalConfig();
+	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()), 
 										   tr.getTimeRange(first.getSeismogram())));
 	    ar.visibleAmpCalc(tr);
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
-	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, creator.getName() + "." +
-										 creator.getCurrentSelection().getColor()));
+	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
@@ -277,13 +276,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}else{
 	    logger.debug("adding another selection");
 	    Iterator e = creator.getSeismograms().iterator();
-	    TimeConfigRegistrar tr = creator.getCurrentSelection().getInternalConfig();
+	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()),
 										   tr.getTimeRange(first.getSeismogram())));
 	    ar.visibleAmpCalc(tr);
-	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, creator.getName() + "." +  
-										 creator.getCurrentSelection().getColor()));
+	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
