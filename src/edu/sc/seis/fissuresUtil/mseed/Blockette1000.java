@@ -24,11 +24,6 @@ public class Blockette1000 extends  DataBlockette {
     public Blockette1000(byte[] info) {
         super(info);
         trimToSize(B1000_SIZE);
-        System.out.println("b1000 bytes=");
-        for (int i = 0; i < this.info.length; i++) {
-            System.out.print(" "+info[i]);
-        }
-        System.out.println();
     }
 
     public int getSize() {
