@@ -32,6 +32,14 @@ public class BorderConfiguration implements Cloneable {
             this.titleFont = FontConfiguration.create(DOMHelper.getElement(element,
                                                                            "titleFont"));
         }
+        if(DOMHelper.hasElement(element, "clipTicks")) {
+            clipTicks = true;
+            Element tickConfig = DOMHelper.getElement(element, "clipTicks");
+            minTickValue = new Double(DOMHelper.extractText(tickConfig,
+                                                            "minTickValue")).doubleValue();
+            maxTickValue = new Double(DOMHelper.extractText(tickConfig,
+                                                            "maxTickValue")).doubleValue();
+        }
     }
 
     public static BorderConfiguration create(Element el,
@@ -80,6 +88,7 @@ public class BorderConfiguration implements Cloneable {
         }
         b.setSide(side);
         b.setOrder(getOrder(order));
+        b.clipTicks(clipTicks, minTickValue, maxTickValue);
         Iterator it = titles.iterator();
         while(it.hasNext()) {
             b.add(((BorderTitleConfiguration)it.next()).createTitle());
@@ -126,6 +135,9 @@ public class BorderConfiguration implements Cloneable {
         clone.type = type;
         clone.order = order;
         clone.position = position;
+        clone.clipTicks = clipTicks;
+        clone.minTickValue = minTickValue;
+        clone.maxTickValue = maxTickValue;
         clone.titles.addAll(titles);
         return this;
     }
@@ -135,6 +147,12 @@ public class BorderConfiguration implements Cloneable {
     private ColorConfiguration background, color;
 
     private FontConfiguration titleFont;
+
+    private boolean clipTicks = false;
+
+    private double minTickValue;
+
+    private double maxTickValue;
 
     private static ConfigDefinitions defs = new ConfigDefinitions();
 
