@@ -25,6 +25,11 @@ public class SeismogramSorter {
 	    return true;
 	return false;
     }
+
+    public boolean remove(String name){
+	return names.remove(name);
+    }
+	 
     
     protected HashMap seismos;
 
