@@ -119,7 +119,7 @@ public class SeismogramPDFBuilder {
 
       // this variable is used to scale the scales up and down.....
       // just a display resolution item.
-      float scaleZoomFactor = 1.0f;
+      float scaleZoomFactor = 2.0f;
 
       // step 1: creation of a document-object
       Rectangle rect = PageSize.LETTER;
@@ -328,7 +328,7 @@ public class SeismogramPDFBuilder {
           cb.addTemplate(tpScales,xs,0,0, ys,0,0);
 
           // on the last page, add the partial page template instead.
-          cb.addTemplate(lastPageScales,xs/scaleZoomFactor,0,0, ys/scaleZoomFactor,0,0);
+          cb.addTemplate(lastPageScales,xs,0,0, ys,0,0);
 
 
           // cb.addTemplate(tpScales,1.0f, 0, 0, 1.0f, 0, 0);
