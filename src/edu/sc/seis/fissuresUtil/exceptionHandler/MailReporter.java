@@ -126,7 +126,7 @@ public class MailReporter implements ExceptionReporter{
         Properties props = new Properties();
         System.out.println("ADDING PROPS");
         props.put(SUBJECT, "MailReporterTest");
-        props.put(SMTP, "norman.iris.washington.edu");
+        props.put(SMTP, "mail.seis.sc.edu");
         props.put(FROM, "exception@seis.sc.edu");
         props.put(TO, "crotwell@seis.sc.edu");
         System.out.println("CREATING MAIL REPORTER");
