@@ -4,6 +4,10 @@ import edu.iris.Fissures.FlinnEngdahlRegion;
 import edu.iris.Fissures.FlinnEngdahlType;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.Collator;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -17,14 +21,10 @@ import java.util.Properties;
  */
 
 public class ParseRegions {
-    private ParseRegions (){
-        load();
-    }
+    private ParseRegions (){ load(); }
 
     public static ParseRegions getInstance() {
-        if (singleton == null) {
-            singleton = new ParseRegions();
-        }
+        if (singleton == null) { singleton = new ParseRegions(); }
         return singleton;
     }
 
@@ -33,28 +33,37 @@ public class ParseRegions {
     /** Gets the Geographic region number for a name. Returns 0 if the
      name cannot be found. */
     public int getRegionValue(String region) {
-        String geoNum = feProps.getProperty(region.replace(' ','_'));
-        if (geoNum != null) {
-            geoNum = geoNum.substring("GeogRegion".length(), geoNum.length());
-            return Integer.parseInt(geoNum);
-        } // end of if (feProps.get(region.replace(' ','_')))
+        for (int i = 0; i < geogRegions.length; i++) {
+            if(geogRegions[i].getName().equals(region)){
+                return geogRegions[i].getNumber();
+            }
+        }
         return 0;
     }
 
-    public String getGeographicRegionName(int geoNum) {
-        String propValue =
-            feProps.getProperty("GeogRegion"+geoNum);
-        if (propValue != null && propValue.length() > 1) {
-            return propValue;
+    public int getSeismicRegionValue(String region) {
+        for (int i = 0; i < seisRegions.length; i++) {
+            if(seisRegions[i].getName().equals(region)){
+                return seisRegions[i].getNumber();
+            }
         }
-        return "GeoRegion"+geoNum;
+        return 0;
+    }
+
+    public GeographicRegion getGeographicRegion(int geoNum){
+        if(geoNum < NUM_GEOGRAPHIC_REGIONS && geoNum > 0){
+            return geogRegions[geoNum - 1];
+        }
+        throw new IllegalArgumentException("No geographic region for num " + geoNum);
+    }
+
+    public String getGeographicRegionName(int geoNum) {
+        return getGeographicRegion(geoNum).getName();
     }
 
     public String getSeismicRegionName(int seisNum) {
-        String propValue =
-            feProps.getProperty("SeismicRegion"+seisNum);
-        if (propValue != null && propValue.length() > 1) {
-            return propValue;
+        if(seisNum < NUM_SEISMIC_REGIONS && seisNum > 0){
+            return seisRegions[seisNum - 1].getName();
         }
         return "SeisRegion"+seisNum;
     }
@@ -71,19 +80,57 @@ public class ParseRegions {
         return "Unknown";
     }
 
+    public SeismicRegion[] getAllSeismicRegions(){ return seisRegions; }
+
+    public SeismicRegion[] getAlphabetizedSeismicRegions(){
+        SeismicRegion[] alphaRegions = new SeismicRegion[NUM_SEISMIC_REGIONS];
+        for (int i = 0; i < NUM_SEISMIC_REGIONS; i++) {
+            alphaRegions[i] = seisRegions[i];
+        }
+        Arrays.sort(alphaRegions, new RegionAlphabetizer());
+        return alphaRegions;
+    }
+
+    private class RegionAlphabetizer implements Comparator{
+        public int compare(Object o1, Object o2) {
+            if(o1 instanceof SeismicRegion && o2 instanceof SeismicRegion){
+                SeismicRegion seis1 = (SeismicRegion)o1;
+                SeismicRegion seis2 = (SeismicRegion)o2;
+                return alphaCol.compare(seis1.getName(), seis2.getName());
+            }
+            return 0;
+        }
+
+        private Collator alphaCol = Collator.getInstance(Locale.US);
+    }
+
     protected void load() {
         try {
             ClassLoader loader = getClass().getClassLoader();
             InputStream fstream =
                 loader.getResourceAsStream("edu/sc/seis/fissuresUtil/display/FERegions.prop");
-            feProps = new Properties();
+            Properties feProps = new Properties();
             feProps.load(fstream);
+            for (int i = 1; i < NUM_SEISMIC_REGIONS + 1; i++) {
+                String regionName = feProps.getProperty("SeismicRegion"+i);
+                seisRegions[i - 1] = new SeismicRegion(regionName, i);
+            }
+            for (int i = 1; i < NUM_GEOGRAPHIC_REGIONS + 1; i++) {
+                String geogName = feProps.getProperty("GeogRegion" + i);
+                int seisRegNum = Integer.parseInt(feProps.getProperty("GeoToSeisMap"+i));
+                SeismicRegion parent = seisRegions[seisRegNum - 1];
+                geogRegions[i - 1] = new GeographicRegion(parent, geogName, i);
+                parent.add(geogRegions[i - 1]);
+            }
         } catch (IOException e) {
             System.err.println("Cannot load FE regions");
             e.printStackTrace();
         } // end of catch
     }
 
-    protected Properties feProps;
+    public static final int NUM_SEISMIC_REGIONS = 50;
+    public static final int NUM_GEOGRAPHIC_REGIONS = 757;
 
+    private SeismicRegion[] seisRegions = new SeismicRegion[NUM_SEISMIC_REGIONS];
+    private GeographicRegion[] geogRegions = new GeographicRegion[NUM_GEOGRAPHIC_REGIONS];
 }// parseRegions
