@@ -106,6 +106,10 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	this.updateTimeSyncListeners(); 
     }
 
+    public TimeSnapshot takeSnapshot(){
+	return timeConfig.takeSnapshot();
+    }
+
     public void setDisplayInterval(TimeInterval t){ timeConfig.setDisplayInterval(t); }
 
     public void setBeginTime(MicroSecondDate b){ timeConfig.setBeginTime(b); }
