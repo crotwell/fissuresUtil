@@ -78,14 +78,14 @@ public class RotateTest
         System.arraycopy(origx, 0, x, 0, x.length);
         float[] y = new float[origy.length];
         System.arraycopy(origy, 0, y, 0, y.length);
-        rotate.rotate(x, y, Math.PI/2); // 90 degrees
+        rotate.rotate(x, y, -1*Math.PI/2); // 90 degrees
         assertEquals(0, x[0], 0.0001);
         assertEquals(0, y[0], 0.0001);
         assertEquals(1, x[1], 0.0001);
         assertEquals(-1, y[1], 0.0001);
         assertEquals(" x from (.5, -.5)", -.5, x[2], 0.0001);
         assertEquals(" y from (.5, -.5)", -.5, y[2], 0.0001);
-        rotate.rotate(x, y, -Math.PI/2); // inverse transform
+        rotate.rotate(x, y, Math.PI/2); // inverse transform
         ArrayAssert.assertEquals(origx, x, 0.0001f);
         // JUnitDoclet end method rotate
     }
@@ -101,11 +101,8 @@ public class RotateTest
         float[][] ans = rotate.rotateGCP(xSeis, ySeis, staLoc, evtLoc);
         DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
                                    evtLoc.latitude, evtLoc.longitude);
-        System.out.println("x y "+
-                          100*Math.sqrt(2)*Math.sin((distAz.baz-45)*Math.PI/180.0)+" "+
-                          -100*Math.sqrt(2)*Math.cos((distAz.baz-45)*Math.PI/180.0));
-        assertEquals( 100*Math.sqrt(2)*Math.sin(rotate.dtor(distAz.baz-45)), ans[0][0],0.001f);
-        assertEquals( -100*Math.sqrt(2)*Math.cos(rotate.dtor(distAz.baz-45)), ans[1][0],0.001f);
+        assertEquals(" transverse ", 100*Math.sqrt(2)*Math.sin(rotate.dtor(distAz.baz-45)), ans[0][0],0.001f);
+        assertEquals(" radial ", -100*Math.sqrt(2)*Math.cos(rotate.dtor(distAz.baz-45)), ans[1][0],0.001f);
 
         // JUnitDoclet end method rotate
     }
@@ -124,8 +121,8 @@ public class RotateTest
         System.out.println("x y "+
                           100*Math.sqrt(2)*Math.sin((distAz.baz-45)*Math.PI/180.0)+" "+
                           -100*Math.sqrt(2)*Math.cos((distAz.baz-45)*Math.PI/180.0));
-        assertEquals( 100, ans[0][0],0.001f);
-        assertEquals( -100, ans[1][0],0.001f);
+        assertEquals(" transverse ", 100, ans[0][0],0.001f);
+        assertEquals(" radial ",  -100, ans[1][0],0.001f);
 
         // JUnitDoclet end method rotate
     }
