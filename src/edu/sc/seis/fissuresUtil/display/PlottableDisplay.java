@@ -349,7 +349,7 @@ public  class PlottableDisplay extends JComponent {
 
         final Image offImg = super.createImage(width, height);
 
-        Thread t = new Thread() {
+        Thread t = new Thread("Plottable Image Creator") {
             public void run() {
                 Graphics2D g = (Graphics2D)offImg.getGraphics();
                 currentImageGraphics = g;
