@@ -128,10 +128,11 @@ public class BasicAmpConfig implements AmpConfig{
 
     public AmpConfigData getAmpData(DataSetSeismogram seis){
         synchronized(ampData){
-            ListIterator it = ampData.listIterator();
+            Iterator it = ampData.iterator();
             while(it.hasNext()){
-                if(((AmpConfigData)it.next()).equals(seis)){
-                    return (AmpConfigData)it.previous();
+                AmpConfigData current = (AmpConfigData)it.next();
+                if(current.getDSS().equals(seis)){
+                    return current;
                 }
             }
         }
