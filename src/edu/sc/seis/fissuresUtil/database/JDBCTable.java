@@ -42,10 +42,8 @@ public class JDBCTable {
             String key = tableName + "." + field.getName();
             if(ConnMgr.hasSQL(key)) {
                 String sql = ConnMgr.getSQL(key);
-                boolean setAccessible = false;
                 if(!field.isAccessible()) {
                     field.setAccessible(true);
-                    setAccessible = true;
                 }
                 try {
                     field.set(this, conn.prepareStatement(sql));
@@ -55,9 +53,6 @@ public class JDBCTable {
                 } catch(IllegalAccessException e) {
                     GlobalExceptionHandler.handle("Thought this couldn't happen since I called setAccessible.  Looks like I was wrong",
                                                   e);
-                }
-                if(setAccessible) {
-                    field.setAccessible(false);
                 }
             }
         }
