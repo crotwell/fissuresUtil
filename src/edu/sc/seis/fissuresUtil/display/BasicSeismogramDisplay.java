@@ -192,7 +192,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	public void paint(Graphics g){
 	    if(overSizedImage == null || overSizedImage.get() == null){
 		logger.debug("the image is null and is being recreated");
-		synchronized(this){ displayInterval = timeConfig.getTimeRange().getInterval();}
 		this.createImage();
 		return;
 	    }
@@ -200,18 +199,22 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    long beginTime = timeConfig.getTimeRange().getBeginTime().getMicroSecondTime();
 	    Graphics2D g2 = (Graphics2D)g;
 	    if(displayTime == timeConfig.getTimeRange().getInterval().getValue()){
-		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * overSize.getWidth();
-		g2.drawImage(((Image)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
+		synchronized(this){
+		    double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * overSize.getWidth();
+		    g2.drawImage(((Image)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
+		}
 		if(redo)
 		    this.createImage();
 		redo = false;
 	    } else{
-		double scale = displayTime/timeConfig.getTimeRange().getInterval().getValue(); 
-		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * (overSize.getWidth() * scale);
-		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
-		tx.scale(scale, 1);
-		g2.drawImage(((Image)overSizedImage.get()), tx, null);
-		synchronized(this){ displayInterval = timeConfig.getTimeRange().getInterval();}
+		synchronized(this){
+		    double scale = displayTime/timeConfig.getTimeRange().getInterval().getValue(); 
+		    double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * (overSize.getWidth() * scale);
+		    AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
+		    tx.scale(scale, 1);
+		    g2.drawImage(((Image)overSizedImage.get()), tx, null);
+		    displayInterval = timeConfig.getTimeRange().getInterval();
+		}
 		this.createImage();
 	    }
 	} 
@@ -221,11 +224,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	}
 
 	public synchronized void setImage(Image newImage){
-	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(2);
-	    overEndTime = overTimeRange.getEndTime().getMicroSecondTime();
-	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
-	    overTimeInterval = overEndTime - overBeginTime;
+	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(3);
 	    displayTime = displayInterval.getValue();
+	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
+	    overTimeInterval = overTimeRange.getEndTime().getMicroSecondTime() - overBeginTime;
 	    overSizedImage = new SoftReference(newImage); 
 	    repaint();	
  	}

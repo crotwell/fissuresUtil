@@ -58,7 +58,7 @@ public class TimeScaleCalc extends TimeScaleMapper {
 	    this.divCalculateTicks(10);
 	else if(timeIntv <= 500)
 	    this.divCalculateTicks(50);
-	else if(timeIntv <= 100)
+	else if(timeIntv <= 1000)
 	    this.divCalculateTicks(100);
 	else if(timeIntv <= 5000)
 	    this.divCalculateTicks(500);

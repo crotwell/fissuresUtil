@@ -70,9 +70,11 @@ public class MicroSecondTimeRange{
     public TimeInterval getInterval(){ return new TimeInterval(beginTime, endTime); }
 
     public MicroSecondTimeRange getOversizedTimeRange(int scale){
-	long extraTime = scale*(endTime.getMicroSecondTime() - beginTime.getMicroSecondTime());
-	return new MicroSecondTimeRange(new MicroSecondDate(beginTime.getMicroSecondTime() - extraTime),
-			     new MicroSecondDate(endTime.getMicroSecondTime() + extraTime));
+	long interval = endTime.getMicroSecondTime() - beginTime.getMicroSecondTime();
+	long totalTime = scale*interval;
+	return new MicroSecondTimeRange(new MicroSecondDate((long)(beginTime.getMicroSecondTime() - 
+							    ((totalTime/(double)interval) - 1) * interval)),
+					new MicroSecondDate(beginTime.getMicroSecondTime() + totalTime));
     }
 
     private MicroSecondDate beginTime;
