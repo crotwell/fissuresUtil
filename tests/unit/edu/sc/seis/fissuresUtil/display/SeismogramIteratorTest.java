@@ -5,7 +5,8 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.time.TimeSorterTest;
+import edu.sc.seis.fissuresUtil.TestUtils;
+import edu.sc.seis.fissuresUtil.time.RangeToolTest;
 
 public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
     public SeismogramIteratorTest(String name){
@@ -15,18 +16,18 @@ public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
     public void setUp() throws Exception{
         super.setUp();
         iterator = new SeismogramIterator(TEST_ITERATOR,
-                                          TimeSorterTest.createThreeSeisArray());
+                                          TestUtils.createThreeSeisArray());
     }
 
 
     protected Object createInstance() throws Exception {
         return new SeismogramIterator(TEST_ITERATOR,
-                                      TimeSorterTest.createThreeSeisArray());
+                                      TestUtils.createThreeSeisArray());
     }
 
     protected Object createNotEqualInstance() throws Exception {
         return new SeismogramIterator(TEST_ITERATOR,
-                                      TimeSorterTest.createOtherSeisArray());
+                                      TestUtils.createOtherSeisArray());
     }
 
     public void testHasNext(){
