@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
 
 
@@ -23,7 +24,7 @@ public class PhasePhilter {
             while (it.hasNext()) {
                 Arrival b = (Arrival)it.next();
                 if (b.getName().equals(a.getName()) &&
-                    Math.abs(b.getTime() - a.getTime()) < offset.value) {
+                    Math.abs(b.getTime() - a.getTime()) < offset.convertTo(UnitImpl.SECOND).value) {
                     it.remove();
                 }
             }
