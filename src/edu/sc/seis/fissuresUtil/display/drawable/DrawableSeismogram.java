@@ -77,7 +77,12 @@ public class DrawableSeismogram implements NamedPlotter{
         if(visible){
             remover.draw(canvas, xPosition, yPosition - 7);
             canvas.setPaint(color);
+            if(remover.getDrawColor() == Color.RED){
+                canvas.setFont(DisplayUtils.BOLD_FONT);
+                canvas.setColor(Color.RED);
+            }
             canvas.drawString(getName() + " " + shape.getDataStatus(), xPosition + 10, yPosition);
+            canvas.setFont(DisplayUtils.DEFAULT_FONT);
             return true;
         }
         return false;
