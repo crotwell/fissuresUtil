@@ -44,7 +44,7 @@ public class ChannelGrouperImpl {
 	Channel[] rtnchannels = new Channel[3];
 
 	for(int j = 0; j < channels.length; j++) {
-	    //System.out.println("THe channel Str is "+ ChannelIdUtil.toString(channels[j].get_id()));
+	    System.out.println("THe channel Str is "+ ChannelIdUtil.toString(channels[j].get_id()));
 	}
 	//System.out.println("The given Channel is "+givenChannelStr+" given Orientation is "+givenOrientation);
 	for(int i = 0; i < patterns.length; i++) {
@@ -93,6 +93,8 @@ public class ChannelGrouperImpl {
    
     public ChannelId[] retrieve_grouping( ChannelId[] channelIds, ChannelId channelId) {
 	String givenChannelStr = channelId.channel_code;
+	String givenPrefixMatchStr = ChannelIdUtil.toString(channelId).substring(0, 
+					ChannelIdUtil.toString(channelId).indexOf(givenChannelStr));
  	String givenPrefixStr = givenChannelStr.substring(0, givenChannelStr.length() - 1);
 	 char givenOrientation = givenChannelStr.charAt(givenChannelStr.length() - 1);
 	String searchString = "";
@@ -119,6 +121,8 @@ public class ChannelGrouperImpl {
 	    logger.debug("The length of the channels is "+channelIds.length);
  	    for(int counter = 0; counter < channelIds.length; counter++) {
 	 	String channelStr = channelIds[counter].channel_code;
+		String prefixMatchStr = ChannelIdUtil.toString(channelIds[counter]).substring(0,
+					ChannelIdUtil.toString(channelIds[counter]).indexOf(channelStr));
 		String prefixStr = channelStr.substring(0, channelStr.length() - 1);
 		char orientation = channelStr.charAt(channelStr.length() - 1);
 		
@@ -127,7 +131,9 @@ public class ChannelGrouperImpl {
 		logger.debug("orientation is "+orientation);
 		//the below if will not be need once the sac is fixed
 		//if(orientation == givenOrientation) rtnchannels[0] = channelIds[counter];
-		if(prefixStr.equals(givenPrefixStr) && searchString.indexOf(orientation) != -1) {
+		if(givenPrefixMatchStr.equals(prefixMatchStr) &&
+		   prefixStr.equals(givenPrefixStr) && 
+		   searchString.indexOf(orientation) != -1) {
 		//if(givenPrefixStr.indexOf(prefixStr) != -1 && searchString.indexOf(orientation) != -1) {
 		    logger.debug("The searchString is "+searchString);
 		    searchString = searchString.replace(orientation,'_');
@@ -144,12 +150,28 @@ public class ChannelGrouperImpl {
 		    //if(rtnchannels[counter] == null) //System.out.println(" IS NULL ");
 		    // else //System.out.println(" IS NOT NULL ");
 		}
-		return rtnchannels;
+		return sortChannelGroup(rtnchannels);
 	    }
 
 	}
 	return new ChannelId[0];
 	
+    }
+
+    public ChannelId[] sortChannelGroup(ChannelId[] channelIds) {
+	ChannelId[] rtnValues = new ChannelId[channelIds.length];
+	TreeMap treeMap = new TreeMap();
+	for(int counter = 0; counter < channelIds.length; counter++) {
+		treeMap.put(channelIds[counter].channel_code, channelIds[counter]);
+	}
+	Collection collection = treeMap.values();
+	Iterator iterator = collection.iterator();
+	int counter = 0;
+	while(iterator.hasNext()) {
+		rtnValues[counter] = (ChannelId)iterator.next();	
+		counter++;	
+	}
+	return rtnValues;
     }
 
     String[] patterns = new String[] {"NEZ",
