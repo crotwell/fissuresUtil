@@ -19,7 +19,7 @@ public interface Plotter {
      * it
      *
      */
-    public Shape draw(Dimension size);
+    public Shape draw(Dimension size, TimeSnapshot imageState);
 
     public void toggleVisibility();
     

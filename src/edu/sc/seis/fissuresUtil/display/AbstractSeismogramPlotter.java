@@ -16,11 +16,9 @@ import java.awt.Dimension;
 
 public abstract class AbstractSeismogramPlotter implements Plotter{
     
-    public abstract Shape draw(Dimension size);
+    public abstract Shape draw(Dimension size, TimeSnapshot imageState);
 
     public LocalSeismogram getSeismogram(){ return seismogram; }
-
-    public TimeConfigRegistrar getTimeConfig(){ return timeConfig; }
 
     public  AmpConfigRegistrar getAmpConfig(){ return ampConfig; }
     
@@ -30,8 +28,6 @@ public abstract class AbstractSeismogramPlotter implements Plotter{
 
     protected LocalSeismogram seismogram;
 
-    protected TimeConfigRegistrar timeConfig;
-    
     protected AmpConfigRegistrar ampConfig;
 
     protected boolean visible = true;
