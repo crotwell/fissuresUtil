@@ -38,13 +38,6 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         listeners.remove(listener);
     }
 
-    public void switchDisplay(SeismogramDisplay to){
-        Iterator it = listeners.iterator();
-        while(it.hasNext()){
-            ((SeismogramDisplayListener)it.next()).switching(this, to);
-        }
-    }
-
     public Color getNextColor(Class colorGroupClass){
         int[] usages = new int[colors.length];
         for (int i = 0; i < colors.length; i++){
@@ -136,5 +129,6 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     protected static Set activeFilters = new HashSet();
 
-    private static Color[] colors = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
+    public static final Color[] colors = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
 }
+
