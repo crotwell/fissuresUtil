@@ -3,7 +3,7 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
@@ -15,9 +15,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.ListIterator;
 import org.apache.log4j.Category;
 
 
@@ -76,8 +73,9 @@ public abstract class Selection implements TimeListener, Plotter{
                                       size.height+1);
             canvas.setPaint(color);
             canvas.fill(selection);
-            canvas.draw(selection);
+            //canvas.draw(selection);
             canvas.setPaint(color.darker());
+            canvas.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
             canvas.draw(selection);
         }
     }

@@ -2,12 +2,12 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.display.drawable.Plotter;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -60,6 +60,12 @@ public class PlottableSelection implements Plotter{
 
     }
 
+    /**
+     * Method drawHighlightRegion
+     *
+     * @param    g                   a  Graphics
+     *
+     */
     private void drawHighlightRegion(Graphics g) {
         // get new graphics to avoid messing up original
         Graphics2D newG = (Graphics2D)g.create();
@@ -124,7 +130,7 @@ public class PlottableSelection implements Plotter{
                 newG.fillRect(bx, by, ex, ey);
                 newG.setComposite(originalComposite);
                 newG.setPaint(this.color);
-                newG.setStroke(new BasicStroke(2.0f));
+                newG.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
                 newG.drawLine(bx, by, bx, by+ey);
                 newG.drawLine((bx+ex), by, (bx+ex), by+ey);
             }//end of if
