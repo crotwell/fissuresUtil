@@ -448,9 +448,9 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
     }
 
-    private static Color STATION_AVAILABLE = Color.GREEN.darker().darker();
+    private static Color STATION_AVAILABLE = Color.BLUE;
 
-    private static Color STATION_UNAVAILABLE = Color.RED;
+    private static Color STATION_UNAVAILABLE = Color.GRAY;
 
     protected LinkedList stationsToCheck = new LinkedList();
 
