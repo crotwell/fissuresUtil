@@ -38,8 +38,8 @@ import javax.swing.JComponent;
 
 
 public  class PlottableDisplay extends JComponent {
-
-
+    
+    
     public PlottableDisplay() {
         super();
         dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -49,24 +49,24 @@ public  class PlottableDisplay extends JComponent {
         setLayout(new BorderLayout());
         tempSelection = new PlottableSelection(this);
         selection = new PlottableSelection(this);
-
+        
         configChanged();
     }
-
+    
     public void setOffset(int offset) {
         if(rowOffset != offset){
             rowOffset = offset;
             configChanged();
         }
     }
-
+    
     public void setAmpScale(float ampScalePercent) {
         if (this.ampScalePercent != ampScalePercent) {
             this.ampScalePercent = ampScalePercent;
             configChanged();
         }
     }
-
+    
     void configChanged() {
         currentImageGraphics = null;
         synchronized(this){
@@ -81,7 +81,7 @@ public  class PlottableDisplay extends JComponent {
             revalidate();
         }
     }
-
+    
     public void setPlottable(Plottable[] clientPlott,
                              String nameofstation,
                              String orientationName,
@@ -106,19 +106,19 @@ public  class PlottableDisplay extends JComponent {
         plottableShape = makeShape(clientPlott);
         configChanged();
     }
-
+    
     public void setPlottable(Plottable[] clientPlott,
                              String nameofstation,
                              String orientationName,
                              Date date,
                              ChannelId channelId,
                              EventAccessOperations[] events,
-                            Arrival[][] arrivals) {
+                             Arrival[][] arrivals) {
         eventPlotterList = new LinkedList();
         addEventPlotterInfo(events, arrivals);
         setPlottable(clientPlott, nameofstation, orientationName, date, channelId);
     }
-
+    
     public void paintComponent(Graphics g) {
         synchronized(this){
             if (image == null) {
@@ -130,7 +130,7 @@ public  class PlottableDisplay extends JComponent {
         drawEventFlags(g);
         drawSelection(g);
     }
-
+    
     protected void drawComponent(Graphics g) {
         drawTitle(g);
         drawTimeTicks(g);
@@ -140,16 +140,16 @@ public  class PlottableDisplay extends JComponent {
         }
         drawPlottableNew(g);
     }
-
-
+    
+    
     int[] drawTitle(int y, String title, String text, Graphics2D g2){
         return drawTitle(y, title, text, g2, Color.BLUE);
     }
-
+    
     int[] drawTitle(int y, String title, String text, Graphics2D g2, Color color){
         return drawTitle(y, LABEL_X_SHIFT, title, text, g2, color);
     }
-
+    
     int[] drawTitle(int y, int x, String title, String text, Graphics2D g2,
                     Color color){
         g2.setPaint(color);
@@ -165,7 +165,7 @@ public  class PlottableDisplay extends JComponent {
         int[] heightWidth = { titleHeight, titleWidth + (int)stringBounds.getWidth()};
         return heightWidth;
     }
-
+    
     void drawTitle(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
         int titleYPos = 20;
@@ -199,19 +199,19 @@ public  class PlottableDisplay extends JComponent {
         }
         return;
     }
-
+    
     void drawTimeTicks(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
-
+        
         int hour=0;
         String minutes = ":00 ";
         int hourinterval=totalHours/rows;
         String hourmin = hour+minutes;
-
+        
         int houroffset=10;
         int xShift = totalWidth/rows+LABEL_X_SHIFT;
         for (int currRow = 0; currRow < rows; currRow++) {
-
+            
             if (currRow % 2 == 0) {
                 g2.setPaint(Color.black);
             } else {
@@ -220,7 +220,7 @@ public  class PlottableDisplay extends JComponent {
             g2.drawString(hourmin,
                           houroffset,
                           titleHeight+ rowOffset*currRow);
-
+            
             hour+=hourinterval;
             hourmin = hour+minutes;
             if(hour>=10) {  houroffset = 5; }
@@ -228,9 +228,9 @@ public  class PlottableDisplay extends JComponent {
                           xShift+houroffset,
                           titleHeight+ rowOffset*currRow);
         }
-
+        
     }
-
+    
     void drawPlottableNew(Graphics g) {
         int mean = getMean();
         // get new graphics to avoid messing up original
@@ -238,18 +238,18 @@ public  class PlottableDisplay extends JComponent {
         g2.setClip(LABEL_X_SHIFT, 0, rowWidth, Integer.MAX_VALUE);
         AffineTransform originalTransform = AffineTransform.getTranslateInstance(LABEL_X_SHIFT, titleHeight);
         for (int row = 0; row < rows && currentImageGraphics == g; row++) {
-
+            
             //use title and label transform to draw red center lines
             g2.setTransform(originalTransform);
             g2.setPaint(Color.red);
             int yLoc = rowOffset*row;
             g2.drawLine(0, yLoc, rowWidth, yLoc);
-
+            
             //Create new transform to draw plottable scaled correctly
             g2.setTransform(new AffineTransform());
             //shift the shape left to get to the correct point for this row
             //and down to get to the correct draw height
-            g2.translate(-1* rowWidth * row, yLoc + titleHeight);
+            g2.translate(-1* rowWidth * row + LABEL_X_SHIFT, yLoc + titleHeight);
             //flip the y axis to make going lower positive
             g2.scale(1,-1);
             //scale for the amplitude slider
@@ -268,7 +268,7 @@ public  class PlottableDisplay extends JComponent {
         }
         repaint();
     }
-
+    
     private Shape makeShape( Plottable[] plot) {
         final int SHAPESIZE = 100;
         GeneralPath wholeShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
@@ -277,8 +277,7 @@ public  class PlottableDisplay extends JComponent {
                 GeneralPath currentShape =
                     new GeneralPath(GeneralPath.WIND_EVEN_ODD,
                                     SHAPESIZE+1);
-                currentShape.moveTo(plot[a].x_coor[0],
-                                    plot[a].y_coor[0]);
+                currentShape.moveTo(plot[a].x_coor[0], plot[a].y_coor[0]);
                 for(int i = 1; i < plot[a].x_coor.length; i++) {
                     //split into smaller shapes
                     if (i % SHAPESIZE == 0) {
@@ -289,25 +288,22 @@ public  class PlottableDisplay extends JComponent {
                         } else {
                             currentShape.lineTo(plot[a].x_coor[i],
                                                 plot[a].y_coor[i]);
-
                         } // end of else
                         wholeShape.append(currentShape, false);
                         currentShape =
                             new GeneralPath(GeneralPath.WIND_EVEN_ODD,
                                             SHAPESIZE+1);
-                    } // end of if (i % 100 == 0)
-
+                    }
                     if (plot[a].x_coor[i-1] == plot[a].x_coor[i]-1) {
                         currentShape.moveTo(plot[a].x_coor[i],
                                             plot[a].y_coor[i]);
                     } else {
                         currentShape.lineTo(plot[a].x_coor[i],
                                             plot[a].y_coor[i]);
-
+                        
                     } // end of else
                 }
                 wholeShape.append(currentShape, false);
-
             } else if (plot[a].x_coor.length == 1){
                 GeneralPath currentShape =
                     new GeneralPath(GeneralPath.WIND_EVEN_ODD, 2);
@@ -320,17 +316,17 @@ public  class PlottableDisplay extends JComponent {
         }
         return wholeShape;
     }
-
+    
     public int getMean() {
         if (arrayplottable == null
             || arrayplottable.length == 0
             || arrayplottable[0].y_coor.length == 0) {
             return 0;
         }
-
+        
         long mean=arrayplottable[0].y_coor[0];
         int numPoints=0;
-
+        
         for (int i=0; i< arrayplottable.length; i++) {
             for (int j=0; j<arrayplottable[i].y_coor.length; j++) {
                 mean += arrayplottable[i].y_coor[j];
@@ -340,21 +336,21 @@ public  class PlottableDisplay extends JComponent {
         mean = mean / numPoints;
         return (int)mean;
     }
-
+    
     public Image createImage() {
         final int width = getSize().width;
         final int height = getSize().height;
         final Image offImg = super.createImage(width, height);
-
+        
         Thread t = new Thread("Plottable Image Creator") {
             public void run() {
                 Graphics2D g = (Graphics2D)offImg.getGraphics();
                 currentImageGraphics = g;
                 g.setBackground(Color.white);
-
+                
                 // clear canvas
                 g.clearRect(0, 0, width, height);
-
+                
                 drawComponent(g);
                 g.dispose();
                 repaint();
@@ -363,7 +359,7 @@ public  class PlottableDisplay extends JComponent {
         t.start();
         return offImg;
     }
-
+    
     public int[] findMinMax(Plottable[] arrayplottable) {
         if (arrayplottable.length == 0) {
             int[] minandmax = new int[2];
@@ -382,38 +378,38 @@ public  class PlottableDisplay extends JComponent {
         int[] minandmax ={ min, max};
         return minandmax;
     }
-
+    
     public void addToSelection(int x, int y) {
         selection.addXY(x, y);
         repaint();
     }
-
+    
     public void setSelection(int x, int y) {
         setSelection(x, y, 10);
     }
-
+    
     public void setSelection(int x, int y, int width) {
         selection.setXY(x, y, width);
         repaint();
     }
-
+    
     public boolean bordersSelection(int x, int y) {
         if(selection.borders(x, y)){
             return true;
         }
         return false;
     }
-
+    
     private void drawSelection(Graphics g) {
         selection.draw(g);
         tempSelection.draw(g);
     }
-
+    
     public void removeSelection(){
         selection = new PlottableSelection(this);
         repaint();
     }
-
+    
     private void drawEventFlags(Graphics g) {
         Iterator iterator = eventPlotterList.iterator();
         while(iterator.hasNext()) {
@@ -421,23 +417,23 @@ public  class PlottableDisplay extends JComponent {
             plotter.draw(g);
         }
     }
-
+    
     public PlottableSelection getTempSelection(){ return tempSelection; }
-
+    
     public void placeTempSelection(){
         selection = tempSelection;
         tempSelection = new PlottableSelection(this);
         selection.setPlaced(true);
         repaint();
     }
-
+    
     public LinkedList getEvents(){ return eventPlotterList; }
-
+    
     public RequestFilter getRequestFilter(int x, int y) {
         if(selection.intersectsExtract(x,y))return selection.getRequestFilter();
         return null;
     }
-
+    
     public EventAccessOperations[] getSelectedEvents(){
         int[][] selectedArea = selection.getSelectedArea();
         Iterator it = eventPlotterList.iterator();
@@ -451,78 +447,78 @@ public  class PlottableDisplay extends JComponent {
         EventAccessOperations[] eventArray = new EventAccessOperations[selectedEvents.size()];
         return (EventAccessOperations[])selectedEvents.toArray(eventArray);
     }
-
+    
     public void addEventPlotterInfo(EventAccessOperations[] eventAccessArray, Arrival[][] arrivals) {
         for(int i = 0; i < eventAccessArray.length; i++) {
             eventPlotterList.add(new EventFlag(this, eventAccessArray[i], arrivals[i]));
         }
     }
-
+    
     public Date getDate(){ return date; }
-
+    
     public ChannelId getChannelId(){ return channelId; }
-
+    
     /* Defaults for plottable */
     public static final int ROWS = 12;
-
+    
     public static final int TOTAL_WIDTH = 6000;
-
+    
     public static final int OFFSET = 30;
-
+    
     public int titleHeight = 140;
-
+    
     public static final int LABEL_X_SHIFT = 50;
-
+    
     //Plottable instance values
     public int getRows(){ return rows; }
-
+    
     private int rows = ROWS;
-
+    
     private int totalWidth = TOTAL_WIDTH;
-
+    
     public int getRowWidth(){ return rowWidth; }
-
+    
     private int rowWidth = totalWidth/rows;
-
+    
     public int getRowOffset(){ return rowOffset; }
-
+    
     private int rowOffset= OFFSET;
-
+    
     public int getPlotWidth(){
         return totalWidth;
     }
-
+    
     public int getTotalHours(){ return totalHours; }
-
+    
     private int totalHours = 24;
-
+    
     private ChannelId channelId;
-
+    
     private float ampScale = 1.0f;
-
+    
     private float ampScalePercent = 1.0f;
-
+    
     private Date date;
-
+    
     private static ColorFactory colorFactory = new ColorFactory();
-
+    
     private PlottableSelection selection, tempSelection;
-
+    
     private LinkedList eventPlotterList = new LinkedList();
-
+    
     private Plottable[] arrayplottable = new Plottable[0];
-
+    
     private String stationName = "";
-
+    
     private String orientationName = "";
-
+    
     private String dateName = "";
-
+    
     private Image image = null;
-
+    
     private Shape plottableShape = null;
-
+    
     private Graphics currentImageGraphics = null;
-
+    
     private static SimpleDateFormat dateFormater = new SimpleDateFormat("EEEE, d MMMM yyyy");
 }
