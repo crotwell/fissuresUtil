@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import junit.framework.TestCase;
-import edu.sc.seis.fissuresUtil.bag.RTrend;
 
 
 public class RTrendTest extends TestCase  {

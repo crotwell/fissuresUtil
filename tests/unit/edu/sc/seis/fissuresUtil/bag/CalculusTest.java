@@ -1,8 +1,6 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import junit.framework.TestCase;
-// JUnitDoclet begin import
-import edu.sc.seis.fissuresUtil.bag.Calculus;
 // JUnitDoclet end import
 
 /**

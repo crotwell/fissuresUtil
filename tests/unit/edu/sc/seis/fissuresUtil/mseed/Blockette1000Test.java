@@ -14,12 +14,9 @@ package edu.sc.seis.fissuresUtil.mseed;
  * @author Created by Omnicore CodeGuide
  */
 
-import edu.iris.Fissures.model.ISOTime;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import junit.framework.TestCase;
-import edu.sc.seis.fissuresUtil.mseed.DataHeader;
-import edu.sc.seis.fissuresUtil.mseed.Utility;
 
 
 public class Blockette1000Test extends TestCase {

@@ -1,13 +1,11 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import junit.framework.TestCase;
-// JUnitDoclet begin import
-import edu.sc.seis.fissuresUtil.bag.Cut;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.sc.seis.fissuresUtil.display.*;
 import org.apache.log4j.BasicConfigurator;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 // JUnitDoclet end import
 
 /**

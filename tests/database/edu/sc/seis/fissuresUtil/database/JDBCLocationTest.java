@@ -1,11 +1,10 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.Location;
-import edu.sc.seis.fissuresUtil.database.JDBCLocation;
-import edu.sc.seis.mockFissures.MockLocation;
 import java.sql.Connection;
 import java.sql.SQLException;
 import junit.framework.TestCase;
+import edu.iris.Fissures.Location;
+import edu.sc.seis.mockFissures.MockLocation;
 
 public class JDBCLocationTest extends TestCase {
     public JDBCLocationTest(String testname) { super(testname); }

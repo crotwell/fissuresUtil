@@ -6,6 +6,10 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.util.LinkedList;
+import junit.framework.TestCase;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -15,10 +19,6 @@ import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.mseed.DataRecord;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
 import edu.sc.seis.fissuresUtil.mseed.MiniSeedRead;
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.util.LinkedList;
-import junit.framework.TestCase;
 
 public class LongShortStoNTest extends TestCase {
 

@@ -1,14 +1,14 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
 
+import java.sql.SQLException;
+import junit.framework.TestCase;
+import org.apache.log4j.BasicConfigurator;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.mockFissures.IfEvent.MockEventAccessOperations;
-import java.sql.SQLException;
-import junit.framework.TestCase;
-import org.apache.log4j.BasicConfigurator;
 
 public class JDBCEventAccessTest extends TestCase{
     public JDBCEventAccessTest(String name) throws SQLException{

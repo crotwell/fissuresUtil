@@ -6,13 +6,11 @@
 
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.Quantity;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import junit.framework.TestCase;
 import junitx.framework.ArrayAssert;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class DisplayUtilsTest extends TestCase{
     public DisplayUtilsTest(String name){
