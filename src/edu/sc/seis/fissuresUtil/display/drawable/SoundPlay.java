@@ -22,20 +22,27 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import java.io.BufferedOutputStream;
 
 
 
 public class SoundPlay extends MouseAdapter implements Plotter, MouseMotionListener{
 	private Color drawColor = Color.BLACK;
-    private int xMax = 25, xMin = 20, yMaxA = 9, yMaxB = 11, yMinA = 6, yMinB = 4;
+    private int xMax, xMin, yMaxA = 9, yMaxB = 11, yMinA = 6, yMinB = 4;
     private SeismogramDisplay display;
     private boolean visible = true;
 	private SeismogramContainer container;
 	private TimeEvent timeEvent;
+	private FissuresToWAV seisWAV;
+	private SeismogramIterator seisIterator;
 
 	public SoundPlay(SeismogramDisplay display, SeismogramContainer container){
 		this.display = display;
 		this.container = container;
+		seisIterator = container.getIterator();
+		seisWAV = new FissuresToWAV(seisIterator, 200);
 		SeismogramDisplay.getMouseForwarder().addPermMouseListener(this);
 		SeismogramDisplay.getMouseMotionForwarder().addMouseMotionListener(this);
 	}
@@ -74,7 +81,9 @@ public class SoundPlay extends MouseAdapter implements Plotter, MouseMotionListe
 	public void mouseClicked(MouseEvent e){
 		if(intersects(e)){
 			System.out.println("This should be playing something...");
-			play();
+			sendToWAV();
+			seisIterator.setTimeRange(timeEvent.getTime(container.getDataSetSeismogram()));
+			seisWAV.play();
 		}
     }
 
@@ -109,6 +118,10 @@ public class SoundPlay extends MouseAdapter implements Plotter, MouseMotionListe
 	 */
 	public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
 		if(visible){
+			int sizeOfDisplay = (int)(size.getWidth() - (double)display.getInsets().right);
+			xMin = sizeOfDisplay - 6;
+			xMax = sizeOfDisplay - 1;
+
 			timeEvent = currentTime;
 			canvas.setColor(drawColor);
 			canvas.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
@@ -139,38 +152,17 @@ public class SoundPlay extends MouseAdapter implements Plotter, MouseMotionListe
 
 	}
 
-	private void play(){
-		SeismogramIterator iterator = container.getIterator();
-		iterator.setTimeRange(timeEvent.getTime(container.getDataSetSeismogram()));
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(baos);
-		int speedUp = 10;
+	private void sendToWAV(){
+		DataOutputStream dos = null;
 		try{
-			FissuresToWAV.writeWAV(iterator, speedUp, dos);
+			dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("seis.wav")));
+		}
+		catch (FileNotFoundException e){
+			System.out.println("file not found");
+		}
+		try{
+			seisWAV.writeWAV(dos);
 			dos.close();
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-
-		Clip clip = null;
-		float sampleRate = FissuresToWAV.calculateSampleRate(iterator.getSampling(), speedUp);
-		AudioFormat audioFormat = new AudioFormat(sampleRate, 8, 1, false, false);
-		DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
-		if (!AudioSystem.isLineSupported(info)) {
-			System.out.println("Line not supported, apparently...");
-		}
-		// Obtain and open the line.
-		try {
-			clip = (Clip) AudioSystem.getLine(info);
-			byte[] data = baos.toByteArray();
-			clip.open(audioFormat, data, 0, 100);
-			clip.start();
-		} catch (LineUnavailableException ex) {
-			ex.printStackTrace();
-		}
-		try{
-			baos.close();
 		}
 		catch(IOException e){
 			e.printStackTrace();
