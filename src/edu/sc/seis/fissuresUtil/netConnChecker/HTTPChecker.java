@@ -1,15 +1,13 @@
-
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
-import java.awt.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
-import org.apache.log4j.*;
-
-
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import org.apache.log4j.Category;
 
 /**
  * Description: This class checks for HTTP connections. An HTTPChecker can be instantiated by
@@ -19,39 +17,17 @@ import org.apache.log4j.*;
  * @version 1.0
  */
 public class HTTPChecker extends ConcreteConnChecker  {
-
-
-
-    /**
-     * Creates a new <code>HTTPChecker</code> instance.
-     *
-     * @param description a <code>String</code> value
-     * @param url a <code>String</code> value
-     */
     public HTTPChecker(String description, String url){
         super(description);
         this.url = url;
     }// constructor
 
-
-    /**
-     * starts the execution of HTTPChecker Thread.
-     *
-     */
     public void run ()  {
-
-        long begintime;
-        long endtime;
-
-
         try{
-            begintime = System.currentTimeMillis();
             URL seis = new URL(this.url);
             URLConnection seisConnection = seis.openConnection();
             InputStreamReader buffer = new InputStreamReader(seisConnection.getInputStream());
             BufferedReader bufferread = new BufferedReader(buffer);
-            endtime = System.currentTimeMillis();
-            long duration = endtime-begintime;
             setTrying(false);
             setFinished(true);
             setSuccessful(true);
@@ -77,6 +53,8 @@ public class HTTPChecker extends ConcreteConnChecker  {
             fireStatusChanged(getDescription(), ConnStatus.FAILED);
         }
     } // run
+
+    public String getURL(){ return url; }
 
     private String url;
     static Category logger = Category.getInstance(HTTPChecker.class);
