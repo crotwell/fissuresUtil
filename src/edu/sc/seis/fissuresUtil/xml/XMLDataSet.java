@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import edu.sc.seis.fissuresUtil.chooser.ChannelProxy; //needed only for testing
+import edu.sc.seis.fissuresUtil.database.DataSetCache;
 import edu.sc.seis.fissuresUtil.sac.*;
 import edu.iris.Fissures.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
@@ -24,7 +25,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3148 2003-01-21 22:01:34Z crotwell $
+ * @version $Id: XMLDataSet.java 3313 2003-02-21 15:10:01Z telukutl $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -833,26 +834,29 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return a <code>LocalSeismogramImpl</code>
      */
     public LocalSeismogramImpl getSeismogram(String name) {
-        if (seismogramCache.containsKey(name)) {
-	    logger.debug("getting the seismogram from the cache");
-	    Object obj = seismogramCache.get(name);
-	    if(obj instanceof SoftReference) {
-		SoftReference softReference = (SoftReference)obj;
-		LocalSeismogramImpl seis = (LocalSeismogramImpl)softReference.get();
-		if(seis != null) {
-		    logger.debug("**********NO NULL WHILE GETTING FROM RHT CACHE");
-		    return seis;
-		}
-		else {
-		    logger.debug("********** GARBAGE COLLECTED SO SEISMOGRAM NOT IN MEWMOERY");
-		    seismogramCache.remove(name);
-		}
+       //  if (seismogramCache.containsKey(name)) {
+// 	    logger.debug("getting the seismogram from the cache");
+// 	    Object obj = seismogramCache.get(name);
+// 	    if(obj instanceof SoftReference) {
+// 		SoftReference softReference = (SoftReference)obj;
+// 		LocalSeismogramImpl seis = (LocalSeismogramImpl)softReference.get();
+// 		if(seis != null) {
+// 		    logger.debug("**********NO NULL WHILE GETTING FROM RHT CACHE");
+// 		    return seis;
+// 		}
+// 		else {
+// 		    logger.debug("********** GARBAGE COLLECTED SO SEISMOGRAM NOT IN MEWMOERY");
+// 		    seismogramCache.remove(name);
+// 		}
 		
-	    } else return (LocalSeismogramImpl)obj;
-        } // end of if (seismogramCache.containsKey(name))
+// 	    } else return (LocalSeismogramImpl)obj;
+//         } // end of if (seismogramCache.containsKey(name))
 	
 	//logger.debug("The name of the data set is "+getName());
 	//logger.debug("The name of the seismogram is "+name);
+	LocalSeismogramImpl seisd = datasetCache.getSeismogram(name);
+	if(seisd != null) return seisd;
+	
         String urlString = "NONE";
         NodeList nList = 
             evalNodeList(config, "localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
@@ -918,7 +922,8 @@ public class XMLDataSet implements DataSet, Serializable {
 		    } // end of else
 		    
                     if (seis != null) {
-			seismogramCache.put(name, new SoftReference(seis));
+			//seismogramCache.put(name, new SoftReference(seis));
+			datasetCache.addSeismogram(seis, name, new AuditInfo[0]);
                     } // end of if (seis != null)
 		    
                     return seis;
@@ -1042,6 +1047,7 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public void addSeismogram(LocalSeismogramImpl seis,
                               AuditInfo[] audit) {
+	
 	seismogramNameCache = null;
 
         // Note this does not set the xlink, as the seis has not been saved anywhere yet.
@@ -1090,7 +1096,8 @@ public class XMLDataSet implements DataSet, Serializable {
             }
 	    }*/
         config.appendChild(localSeismogram);
-	seismogramCache.put(name, seis);
+	//	seismogramCache.put(name, seis);
+	datasetCache.addSeismogram(seis, name, audit);
 
 	//logger.debug("added seis now "+getSeismogramNames().length+" seisnogram names.");
        	seismogramNameCache = null;
@@ -1365,6 +1372,19 @@ public class XMLDataSet implements DataSet, Serializable {
         } // end of try-catch
         return null;
     }
+
+     public void addDataSetSeismogram(DataSetSeismogram dss) {
+
+    }
+    
+    public DataSetSeismogram getDataSetSeismogram(String name) {
+	return null;
+    }
+    
+
+
+
+    private DataSetCache datasetCache = new DataSetCache();
 
     private XPathAPI xpath = new XPathAPI();
 
