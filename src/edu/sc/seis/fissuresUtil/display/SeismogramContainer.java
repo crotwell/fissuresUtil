@@ -169,6 +169,7 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
 
     private LocalSeismogramImpl[] getSeismograms(boolean retrieveOnEmpty){
         if(seismogram instanceof MemoryDataSetSeismogram){
+            noData = false;
             return ((MemoryDataSetSeismogram)seismogram).getCache();
         }
         boolean callRetrieve = false;
