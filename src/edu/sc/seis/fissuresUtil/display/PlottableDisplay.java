@@ -156,7 +156,7 @@ public  class PlottableDisplay extends JComponent {
             g2.setFont(DisplayUtils.DEFAULT_FONT);
             g2.drawString(stationName, (int)(x + stringBounds.getWidth()), 20);
         }else{
-            g2.drawString("On the menu above, choose a SCEPP station from the SC icon and then click 'load data'.", 50, 20);
+            g2.drawString("Choose a station from the pulldown menu and click 'Load Data' to use the day viewer.", 50, 20);
         }
         if(dateName.length() > 0){
             g2.setFont(DisplayUtils.BOLD_FONT);
