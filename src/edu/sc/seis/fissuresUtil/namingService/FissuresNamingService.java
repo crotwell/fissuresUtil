@@ -178,8 +178,8 @@ public class FissuresNamingService {
         }
         logger.info("the final dns resolved is " + dns);
         // try 2 times in case of an exception
-        int maxTry = 2;
-        for(int i = 0; i < 2; i++) {
+        int maxTry = 1;
+        for(int i = 0; i <= maxTry; i++) {
             try {
                 NameComponent[] names = getNameService().to_name(dns);
                 //return resolveBySteps(names); // for debugging
