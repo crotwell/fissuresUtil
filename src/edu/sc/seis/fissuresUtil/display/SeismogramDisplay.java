@@ -1,31 +1,25 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.mouse.*;
-
-import edu.sc.seis.fissuresUtil.display.borders.Border;
-import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
+import edu.sc.seis.fissuresUtil.display.mouse.SDMouseForwarder;
+import edu.sc.seis.fissuresUtil.display.mouse.SDMouseMotionForwarder;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.swing.JComponent;
 
-public abstract class SeismogramDisplay extends JComponent implements DataSetSeismogramReceptacle{
-    public SeismogramDisplay(){
-        this(mouseForwarder, motionForwarder);
-    }
+public abstract class SeismogramDisplay extends BorderedDisplay implements DataSetSeismogramReceptacle{
+    public SeismogramDisplay(){ this(mouseForwarder, motionForwarder); }
 
     public SeismogramDisplay(SDMouseForwarder mf, SDMouseMotionForwarder mmf){
         mouseForwarder = mf;
@@ -34,8 +28,7 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
             mouseForwarder = new SDMouseForwarder();
             motionForwarder = new SDMouseMotionForwarder();
         }
-        setLayout(new GridBagLayout());
-        add(getCenterPanel(), CENTER);
+        setCenter(createCenter());
     }
 
     public void add(SeismogramDisplayListener listener){
@@ -46,11 +39,26 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         listeners.remove(listener);
     }
 
-    public abstract SeismogramDisplayProvider getCenterPanel();
+    public abstract SeismogramDisplayProvider createCenter();
 
-    public void removeAll(){
-        for (int i = 0; i < borders.length; i++) { clear(i); }
-        super.removeAll();
+    public void outputToPNG(String filename) throws IOException{
+        boolean notAllHere = true;
+        while(notAllHere){
+            Iterator seisIt = iterator(DrawableSeismogram.class);
+            while(seisIt.hasNext()){
+                DrawableSeismogram cur = (DrawableSeismogram)seisIt.next();
+                String status = cur.getDataStatus();
+                if(status == SeismogramContainer.GETTING_DATA){
+                    cur.getData();
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {}
+                    break;
+                }
+            }
+            notAllHere = false;
+        }
+        super.outputToPNG(filename);
     }
 
     public Color getColor(){ return null; }
@@ -118,41 +126,6 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         motionForwarder = mf;
     }
 
-    protected void add(JComponent comp, int position){
-        if(position == CENTER){
-            center = comp;
-        }
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;//Fill all panels in both directions
-        gbc.gridx = position%3;
-        gbc.gridy = position/3;
-        if(gbc.gridx == 1) gbc.weightx = 1;//All row 1 components have a x
-        else gbc.weightx = 0;//weight of 1
-        if(gbc.gridy == 1) gbc.weighty = 1;// All column 1 components have y
-        else gbc.weighty = 0;//weight of 1
-        super.add(comp, gbc);
-    }
-
-    public void addBorder(Border border, int position) {
-        add(border, position);
-    }
-
-    public void addTitle(String title, int position){
-
-    }
-
-    public void clear(int position){
-        if(position == CENTER){
-            remove(center);
-            center = null;
-        }else if(isFilled(position)){
-            remove(borders[position]);
-            borders[position] = null;
-        }
-    }
-
-    public boolean isFilled(int position){ return borders[position] != null; }
-
     public static SDMouseMotionForwarder getMouseMotionForwarder(){
         return motionForwarder;
     }
@@ -180,16 +153,6 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
     private static boolean currentTimeFlag = false;
 
     protected static Set activeFilters = new HashSet();
-
-    public static final int TOP_LEFT = 0, TOP_CENTER = 1, TOP_RIGHT = 2,
-        CENTER_LEFT = 3, CENTER_RIGHT = 5, BOTTOM_LEFT = 6, BOTTOM_CENTER = 7,
-        BOTTOM_RIGHT = 8;
-
-    protected static final int CENTER = 4;
-
-    private JComponent center;
-
-    private Border[] borders = new Border[9];
 
     public static final Color[] COLORS = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
 }
