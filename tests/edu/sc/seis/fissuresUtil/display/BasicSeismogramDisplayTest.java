@@ -1,11 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
 import junit.framework.TestCase;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import org.apache.log4j.Logger;
- import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.PatternLayout;
 
 /**
  * BasicSeismogramDisplayTest.java
@@ -13,27 +14,28 @@ import org.apache.log4j.Logger;
  */
 
 
-public class BasicSeismogramDisplayTest extends TestCase
-{
+public class BasicSeismogramDisplayTest extends TestCase {
     public BasicSeismogramDisplayTest(String name){
         super(name);
-    // Set up a simple configuration that logs on the console.
-    BasicConfigurator.configure();
+        // Set up a simple configuration that logs on the console.
+        PatternLayout layout = new PatternLayout("%t %C{1} %r %m%n");
+        BasicConfigurator.configure(new ConsoleAppender(layout,
+                                                        ConsoleAppender.SYSTEM_OUT));
     }
 
     public void setUp(){
-    SingleSeismogramWindowDisplay vsd =
-        new SingleSeismogramWindowDisplay(null, null, null);
+        SingleSeismogramWindowDisplay vsd =
+            new SingleSeismogramWindowDisplay(null, null, null);
         twoSineSeismos[0] = new MemoryDataSetSeismogram(simpleSineWave,
-                            "Simple");
+                                                        "Simple");
         twoSineSeismos[1] = new MemoryDataSetSeismogram(customSineWave,
-                            "Custom");
+                                                        "Custom");
         twoSineDisplay = new BasicSeismogramDisplay(twoSineSeismos, vsd);
 
         complexSeismos[0] = twoSineSeismos[0];
         complexSeismos[1] = twoSineSeismos[1];
         complexSeismos[2] = new MemoryDataSetSeismogram(spike,
-                            "spike");
+                                                        "spike");
         complexDisplay = new BasicSeismogramDisplay(complexSeismos, vsd);
 
         spikeSeismos[0] = complexSeismos[2];
@@ -50,7 +52,7 @@ public class BasicSeismogramDisplayTest extends TestCase
     }
 
     public void testComplexRemove(){
-    assertEquals(complexDisplay.getSeismogramList().size(), 3);
+        assertEquals(complexDisplay.getSeismogramList().size(), 3);
         complexDisplay.remove(spikeSeismos);
         assertEquals(complexDisplay.getSeismogramList().size(), 2);
         assertFalse(complexDisplay.contains(spikeSeismos[0]));
@@ -87,8 +89,5 @@ public class BasicSeismogramDisplayTest extends TestCase
 
     private BasicSeismogramDisplay spikeDisplay;
 
-    public static void main(String[] args) {
-        //junit.textui.TestRunner.run(BasicSeismogramDisplayTest.class);
-    }
 }
 
