@@ -3,7 +3,6 @@
 // change package
 package edu.sc.seis.fissuresUtil.freq;
 
-import edu.iris.Fissures.display.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.model.*;
 import edu.sc.seis.fissuresUtil.sac.*;

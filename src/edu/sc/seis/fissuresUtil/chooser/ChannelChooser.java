@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.display.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.utility.*;
 import java.io.*;
@@ -22,7 +21,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 2698 2002-10-09 20:02:40Z crotwell $
+ * @version $Id: ChannelChooser.java 2964 2002-11-26 20:11:54Z groves $
  *
  */
 
