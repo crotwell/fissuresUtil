@@ -91,7 +91,6 @@ public abstract class Selection implements TimeListener, Plotter{
     }
 
     public void remove(){
-        System.out.println("Calling parent remove");
         parent.remove(this);
         if(child != null){
             child.remove(getSeismograms());
