@@ -303,6 +303,97 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	
     }
 
+    public org.omg.CORBA.Object[] getAllObjects(String interfaceName, String path) {
+
+	org.omg.CORBA.Object obj;
+
+	ArrayList arrayList = new ArrayList();
+	try {
+	    if(path == null) {
+		obj = getRoot();
+	    } else {
+		obj =  namingContext.resolve(namingContext.to_name(path));
+	    }
+	    NamingContextExt namingContextTemp = NamingContextExtHelper.narrow(obj);
+	    BindingListHolder bindingList = new BindingListHolder();
+	    BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
+
+	    namingContextTemp.list(0, bindingList, bindingIteratorHolder);
+	    
+	    BindingIterator bindingIterator = bindingIteratorHolder.value;
+	    BindingHolder bindingHolder = new BindingHolder();
+	    
+	    while( bindingIterator.next_one(bindingHolder)) {
+		Binding binding = bindingHolder.value;
+		String tempPath = new String();
+	
+		if(binding.binding_type == BindingType.ncontext) {
+		    
+			if(path == null) tempPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
+			else tempPath = path + "/"+binding.binding_name[0].id+"."+binding.binding_name[0].kind;
+			org.omg.CORBA.Object[] str;
+			if(binding.binding_name[0].kind.equals("interface") && 
+			   binding.binding_name[0].id.equals(interfaceName)) {
+			    str = getAllObjects("__END__RECURSION__", tempPath);
+			} else {
+			    str = getAllObjects(interfaceName, tempPath);
+			}
+			if(str != null) {
+			    for(int i = 0; i < str.length; i++) 
+				arrayList.add(str[i]);
+			}
+		} else {
+		    if(interfaceName.equals("__END__RECURSION__")) {
+			String objectPath = new String();
+			if(path == null) objectPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
+			else objectPath = path + "/"+binding.binding_name[0].id+"."+"object"+getVersion();
+			org.omg.CORBA.Object object =  namingContext.resolve(namingContext.to_name(objectPath));
+			arrayList.add(object);
+			
+		    }//end of inner if
+		}//end of if else
+	    }//end of while
+	    
+	    org.omg.CORBA.Object[] rtnValues = new org.omg.CORBA.Object[arrayList.size()];
+	  
+	    rtnValues = (org.omg.CORBA.Object[])arrayList.toArray(rtnValues);
+	    return rtnValues;
+
+	} catch(Exception e) {
+
+	    logger.debug("caught Exception "+e);
+	}
+	return null;
+       
+    }
+
+    public NetworkDC[] getNetworkDCObjects() {
+	org.omg.CORBA.Object[] objects = getAllObjects("NetworkDC", null);
+	NetworkDC[] networkDCObjects = new NetworkDC[objects.length];
+	for(int counter = 0; counter < objects.length; counter++) {
+	    networkDCObjects[counter] = NetworkDCHelper.narrow(objects[counter]);
+	}
+	return networkDCObjects;
+    }
+    
+    public EventDC[] getEventDCObjects() {
+	org.omg.CORBA.Object[] objects = getAllObjects("EventDC", null);
+	EventDC[] eventDCObjects = new EventDC[objects.length];
+	for(int counter = 0; counter < objects.length; counter++) {
+	    eventDCObjects[counter] = EventDCHelper.narrow(objects[counter]);
+	}
+	return eventDCObjects;
+    }
+
+    public DataCenter[] getDataCenterObjects() {
+	org.omg.CORBA.Object[] objects = getAllObjects("DataCenter", null);
+	DataCenter[] dataCenterObjects = new DataCenter[objects.length];
+	for(int counter = 0; counter < objects.length; counter++) {
+	    dataCenterObjects[counter] = DataCenterHelper.narrow(objects[counter]);
+	}
+	return dataCenterObjects;
+    }
+
     public org.omg.CORBA.Object getRoot() {
 
 	return namingContext;
@@ -354,12 +445,9 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	    BindingHolder bindingHolder = new BindingHolder();
 
 	    while( bindingIterator.next_one(bindingHolder)) {
-		
 		Binding binding = bindingHolder.value;
-		if(binding.binding_name[0].kind.equals(key))
-		    arrayList.add(binding.binding_name[0].id);
+		if(binding.binding_name[0].kind.equals(key)) arrayList.add(binding.binding_name[0].id);
 	    }
-
 	    
 	    String[] rtnValues = new String[arrayList.size()];
 	    rtnValues = (String[]) arrayList.toArray(rtnValues);
@@ -442,7 +530,9 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	}
 	return rtnValue.substring(0, rtnValue.length());
   }
-	
+
+
+
     private java.util.Properties props;
     private org.omg.CORBA_2_3.ORB orb;
     private NamingContextExt namingContext; 
