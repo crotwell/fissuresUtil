@@ -169,15 +169,13 @@ public class DateChooser extends JPanel {
 
     private void radioButtonOption(){
         // Create the radio buttons.
-        JLabel introLabel = new JLabel("Date: ");
-
-        //todayButton.setMnemonic(KeyEvent.VK_B);
         todayButton.setActionCommand("Today");
         todayButton.setSelected(true);
 
         yesButton.setActionCommand("Yesterday");
+
         otherButton.setActionCommand("Other");
-        // Group the radio buttons.
+
         ButtonGroup group = new ButtonGroup();
         group.add(todayButton);
         group.add(yesButton);
@@ -187,49 +185,39 @@ public class DateChooser extends JPanel {
         todayButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         calendar.setTime(today);
-                        day = calendar.get(Calendar.DAY_OF_MONTH);
-                        daybox.setSelectedIndex(--day);
                         dateChanged();
                     }
                 });
 
         yesButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        calendar.setTime(today);
-                        calendar.roll(Calendar.DAY_OF_YEAR, false);
+                        calendar.setTime(yesterday);
+                        dateChanged();
+                    }
+                });
 
-                        //int julianday = calendar.get(Calendar.DAY_OF_YEAR);
-                        //yesButton.setSelected(false);
-                        //int yesterday = julianday-1;
-                        //calendar.set(Calendar.DAY_OF_YEAR, yesterday);
+        otherButton.addActionListener(new ActionListener(){
+                    public void actionPerformed(ActionEvent e) {
+                        calendar.setTime(new Date(calendar.getTime().getTime() - ONE_DAY *2));
                         dateChanged();
                     }
                 });
 
         gbc.gridx = x_leftcorner;
         gbc.gridy = y_leftcorner;
-
-        gbc.gridx++;
-        subPane.add(introLabel,gbc);
-
-        //  gbc.gridx++;
-        gbc.gridy++;
         subPane.add(todayButton,gbc);
-        gbc.gridy++;
+        gbc.gridx++;
         subPane.add(yesButton,gbc);
-
-        x_leftcorner+=2;
-
-        return;
-
-
+        gbc.gridx++;
+        subPane.add(otherButton, gbc);
+        y_leftcorner+=1;
     }
 
     public void setNumberOfYears(int totalyears){
-        numberofyears = totalyears;
+        numberOfYears = totalyears;
         int addedyear = todaycalendar.get(Calendar.YEAR);
-        String[] yearst = new String[numberofyears];
-        for(int i=0; i<numberofyears ; i++) {
+        String[] yearst = new String[numberOfYears];
+        for(int i=0; i<numberOfYears ; i++) {
             yearst[i]= ""+addedyear;
             addedyear--;
         }
@@ -247,8 +235,8 @@ public class DateChooser extends JPanel {
             addedyear=todayyear;
         }
 
-        String[] yearst = new String[numberofyears];
-        for(int i=0; i<numberofyears ; i++) {
+        String[] yearst = new String[numberOfYears];
+        for(int i=0; i<numberOfYears ; i++) {
             if(pastyears == true) {
                 yearst[i]= String.valueOf(addedyear);
                 addedyear-=1;
@@ -274,13 +262,12 @@ public class DateChooser extends JPanel {
                     }
                 });
 
-        gbc.gridx = ++x_leftcorner;
+        gbc.gridx = x_leftcorner++;
         gbc.gridy = y_leftcorner;
 
 
         subPane.add(new JLabel("Year"), gbc);
         gbc.gridheight = 2;
-        //gbc.gridx++;
         gbc.gridy++;
         subPane.add(yearbox, gbc);
 
@@ -307,7 +294,7 @@ public class DateChooser extends JPanel {
                     }
                 });
 
-        gbc.gridx = ++x_leftcorner;
+        gbc.gridx = x_leftcorner++;
         gbc.gridy = y_leftcorner;
 
         subPane.add(new JLabel("Month"), gbc);
@@ -337,7 +324,7 @@ public class DateChooser extends JPanel {
                     }
                 });
 
-        gbc.gridx = ++x_leftcorner;
+        gbc.gridx =x_leftcorner++;
         gbc.gridy = y_leftcorner;
 
         subPane.add(new JLabel("Day"), gbc);
@@ -372,7 +359,7 @@ public class DateChooser extends JPanel {
                     }
                 });
 
-        gbc.gridx = ++x_leftcorner;
+        gbc.gridx = x_leftcorner++;
         gbc.gridy = y_leftcorner;
 
 
@@ -724,66 +711,9 @@ public class DateChooser extends JPanel {
 
         return;
     }
-    /*
-     private void minuteOption() {
-
-     int numberofmins = 60;
-     int addedmin=0;
-     String[] minst = new String[numberofmins];
-
-     for(int i=0; i<numberofmins ; i++) {
-     minst[i]= String.valueOf(addedmin);
-     addedmin++;
-     }
-
-     minbox= new JComboBox(minst);
-     minbox.setSelectedIndex(calendar.MINUTE);
-     minbox.setAlignmentX(Component.LEFT_ALIGNMENT);
-     minbox.addActionListener(new ActionListener() {
-     public void actionPerformed(ActionEvent e) {
-     JComboBox cb = (JComboBox)e.getSource();
-     String newSelection = (String)cb.getSelectedItem();
-     min= Integer.parseInt(newSelection);
-     calendar.set(Calendar.MINUTE, min);
-     //dateChanged();
-     }
-     });
-
-     gbc.gridx = ++x_leftcorner;
-     gbc.gridy = y_leftcorner;
-
-
-     subPane.add(new JLabel("Minute"), gbc);
-     //gbc.gridx++;
-     gbc.gridy++;
-     subPane.add(minbox, gbc);
-
-     return;
-
-     }
-     */
-
-    private void monthagoOption() {
-
-
-
-
-
-    }
 
     protected void createComponents() {
-
-        final Color bg = Color.darkGray;
-        final Color fg = Color.black;
-
-
         //Initialize drawing colors, border, opacity.
-        //subPane.setBackground(bg);
-        //subPane.setForeground(fg);
-        /*subPane.setBorder(BorderFactory.createCompoundBorder(
-         BorderFactory.createRaisedBevelBorder(),
-         BorderFactory.createLoweredBevelBorder()));
-         */
         subPane.setLayout(new GridBagLayout());
         gbc = new GridBagConstraints();
         gbc.fill = gbc.HORIZONTAL;
@@ -796,19 +726,13 @@ public class DateChooser extends JPanel {
         add(Box.createRigidArea(new Dimension(0, 10)));
 
         setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-
     }
 
     private void dateChanged(){
-
         int  todayyear = todaycalendar.get(Calendar.YEAR);
         int  todaysday = todaycalendar.get(Calendar.DAY_OF_YEAR);
         year = calendar.get(Calendar.YEAR);
         julianday = calendar.get(Calendar.DAY_OF_YEAR);
-
-
-        //todayButton.updateUI();
-        //yesButton.updateUI();
         otherButton.setSelected(true);
 
         if(year == todayyear){
@@ -893,23 +817,8 @@ public class DateChooser extends JPanel {
 
     }
 
-    private void setToday(){
-
-        newDate = new Date(year, month, day);
-        calendar.setTime(newDate);
-        //calendar.set(year, month, day);
-
-        int julianyear = calendar.get(Calendar.YEAR);
-        int julianday = calendar.get(Calendar.DAY_OF_YEAR);
-        System.out.println("TODAY Julian Day is: " + julianday+"/"+julianyear);
-
-
-    }
-
     public Date getDate(){
-
         return calendar.getTime();
-
     }
 
     private int setMonth(String monthst){
@@ -937,8 +846,11 @@ public class DateChooser extends JPanel {
     int x_leftcorner=0;
     int y_leftcorner=0;
 
-    java.util.Date today = new  java.util.Date();
-    Date newDate = new Date();
+    long ONE_DAY = 24*60*60*1000;
+
+    Date today = new  Date();
+    Date yesterday = new Date(today.getTime() - ONE_DAY);
+
 
     Calendar calendar = new GregorianCalendar();
     Calendar todaycalendar = new GregorianCalendar();
@@ -968,11 +880,6 @@ public class DateChooser extends JPanel {
     String monthst;
     int juliandayint;
 
-    int numberofyears=5;
+    int numberOfYears=5;
     boolean pastyears=true;
-
-
-    final Color bg = Color.darkGray;
-    final Color fg = Color.blue;
-
 } /* close class */
