@@ -8,6 +8,9 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class LazyAmpEvent implements AmpEvent{
     public LazyAmpEvent(BasicAmpConfig config){
@@ -38,9 +41,24 @@ public class LazyAmpEvent implements AmpEvent{
         if(!calculated){
             event = config.calculateAmp();
             calculated = true;
+            Iterator it = calculateListeners.iterator();
+            while(it.hasNext()){
+                ((AmpListener)it.next()).updateAmp(event);
+            }
         }
     }
 
+    /**lets an amp listener know when this lazy amp event's information is
+     * actually calculated by firing updateAmp on the listener with the
+     *info
+     */
+    public synchronized void addCalculateListener(AmpListener listener){
+        if(!calculated){
+            calculateListeners.add(listener);
+        }else{
+            listener.updateAmp(event);
+        }
+    }
     public DataSetSeismogram[] getSeismograms() {
         calculate();
         return event.getSeismograms();
@@ -51,5 +69,8 @@ public class LazyAmpEvent implements AmpEvent{
     private BasicAmpConfig config;
 
     private AmpEvent event;
+
+    private List calculateListeners = new ArrayList();
 }
+
 
