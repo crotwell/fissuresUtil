@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 4669 2003-07-07 18:45:39Z oliverpa $
+ * @version $Id: EventTableModel.java 4764 2003-07-17 06:20:27Z oliverpa $
  */
 
 public class EventTableModel
@@ -245,7 +245,8 @@ public class EventTableModel
 		for (int i = 0; i < getRowCount(); i++) {
 			EventAccessOperations eao = getEventForRow(i);
 			try{
-				if (eao.get_preferred_origin().equals(event.get_preferred_origin())){
+				//if (eao.get_preferred_origin().equals(event.get_preferred_origin())){
+				if (DisplayUtils.originIsEqual(eao, event)){
 					return i;
 				}
 			}
