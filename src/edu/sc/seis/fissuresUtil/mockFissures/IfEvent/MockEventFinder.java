@@ -21,20 +21,30 @@ import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventFactory;
 import edu.iris.Fissures.IfEvent.EventFinder;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 /**
  * @author groves Created on Nov 9, 2004
  */
 public class MockEventFinder implements EventFinder {
-    public MockEventFinder(){
+
+    public MockEventFinder() {
         this(MockEventAccessOperations.createEventTimeRange());
     }
-    
-    public MockEventFinder(EventAccessOperations[] servedEvents){
+
+    public MockEventFinder(EventAccessOperations[] servedEvents) {
         events = new MockEventAccess[servedEvents.length];
         for(int i = 0; i < servedEvents.length; i++) {
             events[i] = new MockEventAccess(servedEvents[i]);
         }
+    }
+
+    public static EventAccess[] wrap(EventAccessOperations[] evs) {
+        MockEventAccess[] events = new MockEventAccess[evs.length];
+        for(int i = 0; i < evs.length; i++) {
+            events[i] = new MockEventAccess(evs[i]);
+        }
+        return events;
     }
 
     private MockEventAccess[] events;
@@ -50,7 +60,8 @@ public class MockEventFinder implements EventFinder {
                                       String[] contributors,
                                       int seq_max,
                                       EventSeqIterHolder iter) {
-        return events;
+        MicroSecondTimeRange tr = new MicroSecondTimeRange(time_range);
+        return wrap(MockEventAccessOperations.createEvents(tr, 3, 6));
     }
 
     public EventAccess[] get_by_name(String name) {
