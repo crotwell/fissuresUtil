@@ -14,9 +14,11 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  */
 
 public class TimeEvent {
-    public TimeEvent(DataSetSeismogram[] seismos, MicroSecondTimeRange[] times){
+    public TimeEvent(DataSetSeismogram[] seismos, MicroSecondTimeRange[] times,
+                     MicroSecondTimeRange genericTime){
         this.seismos = seismos;
         this.times = times;
+        this.genericTime = genericTime;
     }
 
     public boolean contains(DataSetSeismogram seismo){
