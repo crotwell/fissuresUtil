@@ -1,13 +1,13 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
@@ -25,12 +25,12 @@ import org.apache.log4j.Category;
  */
 
 public class Flag implements Drawable{
-
+    
     public Flag(MicroSecondDate flagTime, String name){
         this.flagTime = flagTime;
         this.name = name;
     }
-
+    
     public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
         if(visible){
             canvas.setFont(DisplayUtils.BOLD_FONT);
@@ -48,36 +48,38 @@ public class Flag implements Drawable{
             flag.add(pole);
             canvas.setColor(color);
             canvas.fill(flag);
-            canvas.setColor(Color.BLACK);
+                canvas.setColor(Color.BLACK);
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             canvas.draw(flag);
+            if(BasicSeismogramDisplay.PRINTING)
+                canvas.setColor(Color.WHITE);
             canvas.drawString(name, location + PADDING/2, stringBounds.height - PADDING/2);
         }
     }
-
+    
     public Color getColor(){ return color; }
-
+    
     public void setColor(Color color){ this.color = color; }
-
+    
     public void setVisibility(boolean b){ visible = b; }
-
+    
     public MicroSecondDate getFlagTime(){ return flagTime; }
-
+    
     public void setFlagTime(MicroSecondDate flagTime){
         this.flagTime = flagTime;
     }
-
+    
     private Color color = Color.RED;
-
+    
     private boolean visible = true;
-
+    
     private MicroSecondDate flagTime;
-
+    
     private String name;
-
+    
     //pixels of space of flag around the font
     private static final int PADDING = 4;
-
+    
     private static Category logger = Category.getInstance(Flag.class.getName());
-
+    
 }// FlagPlotter
