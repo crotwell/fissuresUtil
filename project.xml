@@ -91,7 +91,7 @@ oot:${pom.id}</connection>
 
     <dependency>
       <id>FissuresImpl</id>
-      <version>1.1</version>
+      <version>1.1Beta</version>
     </dependency>
     <dependency>
       <id>FissuresIDL</id>
