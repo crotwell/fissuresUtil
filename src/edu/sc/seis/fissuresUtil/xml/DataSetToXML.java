@@ -40,7 +40,7 @@ public class DataSetToXML {
         return outFile;
     }
 
-    public String createFileName(DataSet dataset) {
+    public static String createFileName(DataSet dataset) {
         String filename =  dataset.getName()+".dsml";
         filename = filename.replaceAll(" ","_");
         filename = filename.replaceAll(",","_");
@@ -124,7 +124,7 @@ public class DataSetToXML {
                                                       dataset.getOwner()));
         String[] childDataSets = dataset.getDataSetNames();
         for (int i = 0; i < childDataSets.length; i++) {
-            String childDirName = childDataSets[i].replace(' ','_');
+            String childDirName = createFileName(dataset.getDataSet(childDataSets[i]));
             File childDirectory = new File(directory, childDirName);
             if ( ! childDirectory.exists()) {
                 childDirectory.mkdirs();
@@ -174,7 +174,7 @@ public class DataSetToXML {
     public Element insertRef(Element element, DataSet dataset, File directory)
         throws IOException, ParserConfigurationException, MalformedURLException {
         File dsFile = save(dataset, directory);
-        return insertRef(element, dsFile.toURI().toURL().toString(), dataset.getName());
+        return insertRef(element, directory.getName()+"/"+dsFile.getName(), dataset.getName());
     }
 
     /** inserts the child dataset as a datasetRef element. The URL is assumed
