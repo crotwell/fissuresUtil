@@ -94,6 +94,8 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
 	return true;
     }
 
+    /** gets the dataset to which this seismogram belongs. May be null if 
+     *  it does not belong to a dataset. */
     public DataSet getDataSet(){ return dataSet; }
 
     public String getName(){ return name; }
@@ -135,8 +137,6 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
 	return this.requestFilter;
     }
 
-
-    
     public void addRequestFilterChangeListener(RequestFilterChangeListener listener) {
 	rfChangeListeners.add(listener);
     }
@@ -146,7 +146,9 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
 
     protected void fireEndTimeChangedEvent() {
-	Iterator iterator = rfChangeListeners.iterator();
+	// use temp array to avoid concurrentModificationException
+	Collection tmp = new LinkedList(rfChangeListeners);
+	Iterator iterator = tmp.iterator();
 	while(iterator.hasNext()) {
 	    RequestFilterChangeListener listener = (RequestFilterChangeListener) iterator.next();
 	    listener.endTimeChanged();
@@ -154,7 +156,9 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
     
     protected void fireBeginTimeChangedEvent() {
-	Iterator iterator = rfChangeListeners.iterator();
+	// use temp array to avoid concurrentModificationException
+	Collection tmp = new LinkedList(rfChangeListeners);
+	Iterator iterator = tmp.iterator();
 	while(iterator.hasNext()) {
 	    RequestFilterChangeListener listener = (RequestFilterChangeListener) iterator.next();
 	    listener.beginTimeChanged();
@@ -171,7 +175,9 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
 
     protected void fireNewDataEvent(SeisDataChangeEvent event) {
-	Iterator iterator = dssDataListeners.iterator();
+	// use temp array to avoid concurrentModificationException
+	LinkedList tmp = new LinkedList(dssDataListeners);
+	Iterator iterator = tmp.iterator();
 	while(iterator.hasNext()) {
 	    SeisDataChangeListener dssDataListener = (SeisDataChangeListener) iterator.next();
 	    dssDataListener.pushData(event);
@@ -179,8 +185,9 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
 
     protected void fireDataFinishedEvent(SeisDataChangeEvent event) {
-
-	Iterator iterator = dssDataListeners.iterator();
+	// use temp array to avoid concurrentModificationException
+	LinkedList tmp = new LinkedList(dssDataListeners);
+	Iterator iterator = tmp.iterator();
 	while(iterator.hasNext()) {
 	    SeisDataChangeListener dssDataListener = (SeisDataChangeListener) iterator.next();
 	    dssDataListener.finished(event);
