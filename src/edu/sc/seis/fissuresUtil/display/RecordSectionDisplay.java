@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.display.registrar.*;
 
+import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemove;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -12,10 +13,8 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 
@@ -25,17 +24,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
         border = new ScaleBorder();
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
-                                                                                        new LeftTitleBorder("")),
-                                                     BorderFactory.createCompoundBorder(border,
-                                                                                        BorderFactory.createLoweredBevelBorder())));
-
         addComponentListener(new ComponentAdapter() {
                     public void componentResized(ComponentEvent e) {
                         resize();
                     }
                 });
     }
+
 
 
     public RecordSectionDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
@@ -63,6 +58,15 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
             dssPlotter.put(seismos[i], new DrawableSeismogram(this, seismos[i]));
         }
         updating = false;
+        if(displayRemove == null){
+            displayRemove = new DisplayRemove(this);
+            setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
+                                                                                            new LeftTitleBorder("")),
+                                                         BorderFactory.createCompoundBorder(border,
+                                                                                            BorderFactory.createLoweredBevelBorder())));
+
+
+        }
         repaint();
     }
 
@@ -136,12 +140,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
 
     public synchronized void clear() {
         if(layout != null){
-            layout.remove(getSeismograms());
+            layout.clear();
         }
         if(registrar != null){
-            registrar.remove(getSeismograms());
+            registrar.clear();
         }
         dssPlotter.clear();
+        displayRemove = null;
+        setBorder(BorderFactory.createEmptyBorder());
     }
 
     public void removeAll(){
@@ -216,8 +222,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 cur.draw(g2, drawSize, curTimeEvent, curAmpEvent);
                 cur.drawName(g2, 0, drawHeight);
             }
-            g2.translate(-insets.left, -curYPos);
+            g2.translate(0, -curYPos + insets.top);
+            if(displayRemove != null){
+                displayRemove.draw(g2, size, curTimeEvent, curAmpEvent);
+            }
+            g2.translate(-insets.left, -insets.top);
             g2.setColor(Color.BLACK);
+            g2.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
         }
     }
 
@@ -253,6 +264,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
     public void setParticleAllowed(boolean allowed) {
         // TODO
     }
+
+    private DisplayRemove displayRemove;
 
     private Map dssPlotter = new HashMap();
 
