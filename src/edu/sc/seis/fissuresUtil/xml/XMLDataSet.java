@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 4237 2003-06-05 20:22:48Z crotwell $
+ * @version $Id: XMLDataSet.java 5154 2003-08-18 16:33:38Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -334,7 +334,7 @@ public class XMLDataSet implements DataSet, Serializable{
     public void addParameter(String name,
                              Object value,
                              AuditInfo[] audit) {
-
+        String[] oldNames = getParameterNames(); // make sure name cache is populated
         parameterCache.put(name, value);
         Element parameter =
             config.getOwnerDocument().createElement("parameter");
