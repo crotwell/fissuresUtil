@@ -6,13 +6,17 @@
 
 package edu.sc.seis.fissuresUtil.database.network;
 
+import java.sql.SQLException;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.BasicConfigurator;
+
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.mockFissures.IfNetwork.MockChannel;
 import edu.sc.seis.mockFissures.IfNetwork.MockStationId;
-import java.sql.SQLException;
-import junit.framework.TestCase;
 
 public class JDBCChannelTest extends TestCase{
     public void testDoublePut() throws SQLException, NotFound{
@@ -31,7 +35,7 @@ public class JDBCChannelTest extends TestCase{
     public void testGetAll() throws SQLException, NotFound{
         JDBCChannel chanTable = new JDBCChannel();
         Channel chan = MockChannel.createChannel();
-        Channel other = MockChannel.createOtherChan();
+        Channel other = MockChannel.createNorthChannel();
         Channel otherNet = MockChannel.createOtherNetChan();
         chanTable.put(chan);
         chanTable.put(other);
