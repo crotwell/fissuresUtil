@@ -7,8 +7,8 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
- * TimeScaleCalc takes the total pixels of a given seismogram along with its 
- * beginning and ending times to make divisions that are decently human 
+ * TimeScaleCalc takes the total pixels of a given seismogram along with its
+ * beginning and ending times to make divisions that are decently human
  * friendly for the time axis.
  *
  *
@@ -20,15 +20,19 @@ import java.util.TimeZone;
 
 public class TimeScaleCalc implements ScaleMapper, TimeListener {
     /**
-       @param totalPixels the width of the axis being used in pixels
+     @param totalPixels the width of the axis being used in pixels
 
-    */
+     */
     TimeScaleCalc (int totalPixels, Registrar reg){
         this.totalPixels = totalPixels;
         reg.addListener(this);
     }
 
     public void calculateTicks(){
+        if(totalPixels == 0){
+            numTicks = 0;
+            return;
+        }
         int majTickNum = totalPixels/60;
         majTickTime = timeIntv/majTickNum;
         majTickRatio = 10;
@@ -40,12 +44,12 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
             }else if(majTickTime <= 10000){
                 majTickTime = 10000;
             }else if(majTickTime <= 100000){
-                majTickTime = 100000;	
+                majTickTime = 100000;
             }else {
                 majTickTime = 500000;
                 majTickRatio = 5;
             } // end of else
-            
+
         }else if(majTickTime <= 45 * SECOND){
             majTickRatio = 10;
             //System.out.println("TimeScaleCalc 45SECOND"+totalPixels+" "+majTickTime);
@@ -106,10 +110,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
             }else if(majTickTime <= 3*HOUR){
                 majTickTime = 3*HOUR;
                 majTickRatio = 6;
-            }else if(majTickTime <= 4*HOUR){
-                majTickTime = 4*HOUR;
-                majTickRatio = 4;
-            }else {
+            }else{
                 majTickTime = 4*HOUR;
                 majTickRatio = 4;
             }
@@ -120,10 +121,10 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
             timeFormat = new SimpleDateFormat("MM/dd");
             majTickTime = DAY;
         }else{
-	    majTickRatio = 7;
-	    timeFormat = new SimpleDateFormat("MM/dd");
-	    majTickTime = WEEK;
-	}
+            majTickRatio = 7;
+            timeFormat = new SimpleDateFormat("MM/dd");
+            majTickTime = WEEK;
+        }
         timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         double numTicksDbl = ((timeIntv/(double)majTickTime) * majTickRatio);
         numTicks = (int)numTicksDbl;
@@ -137,7 +138,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         this.totalPixels = totalPixels;
         calculateTicks();
     }
-    
+
     public void setTimes(MicroSecondDate beginTime,
                          MicroSecondDate endTime) {
         this.beginTime = beginTime.getMicroSecondTime();
@@ -145,17 +146,17 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         timeIntv = (this.endTime - this.beginTime);
         calculateTicks();
     }
-    
+
     /**
-       @returns the long time if  75 pixels are between the major ticks, else it returns a shortened version of the time 
-       @param i the current tick
-    */
+     @returns the long time if  75 pixels are between the major ticks, else it returns a shortened version of the time
+     @param i the current tick
+     */
     public  String getLabel(int i){
         if (isLabelTick(i)) {
-            MicroSecondDate date = new MicroSecondDate((long)(firstLabelTime + i/majTickRatio * majTickTime));
+            MicroSecondDate date = new MicroSecondDate(firstLabelTime + i/majTickRatio * majTickTime);
             calendar.setTime(date);
             return timeFormat.format(calendar.getTime());
-	    }
+        }
         return "";
     }
 
@@ -164,26 +165,26 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     }
 
     /**
-       @returns the location of the tick i in pixels
-       @param i the current tick
-    */
+     @returns the location of the tick i in pixels
+     @param i the current tick
+     */
     public  int getPixelLocation(int i){ return (int)(i*tickSpacing + tickOffset); }
 
     /**
-       @returns the number of ticks
-    */
+     @returns the number of ticks
+     */
     public  int getNumTicks(){ return numTicks; }
 
     /**
-       @returns if tick i is labeled
-       @param i the current tick
-    */
+     @returns if tick i is labeled
+     @param i the current tick
+     */
     public  boolean isLabelTick(int i){ return isMajorTick(i); }
 
     /**
-       @returns if the tick i is major
-       @param i the current tick
-    */
+     @returns if the tick i is major
+     @param i the current tick
+     */
     public  boolean isMajorTick(int i){
         if(i%majTickRatio - majTickOffset == 0)
             return true;
@@ -191,15 +192,15 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     }
 
     public void updateTime(TimeEvent event){
-	setTimes(event.getTime().getBeginTime(), event.getTime().getEndTime());
+        setTimes(event.getTime().getBeginTime(), event.getTime().getEndTime());
     }
 
     private SimpleDateFormat timeFormat;
-    
+
     private Calendar calendar  = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
     private int totalPixels;
-    
+
     private long beginTime;
 
     private long endTime;
@@ -215,7 +216,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     private int majTickRatio;
 
     private int majTickOffset;
-    
+
     private double tickSpacing, tickOffset;
 
     private static final long SECOND = 1000000;
