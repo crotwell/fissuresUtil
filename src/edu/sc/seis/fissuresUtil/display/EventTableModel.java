@@ -72,7 +72,7 @@ public class EventTableModel
 		if (cache.get_attributes() == null) {
 		    return "";
 		}
-		return new Integer(cache.get_attributes().region.number);
+		return FERegions.getGeographicRegionName(cache.get_attributes().region.number);
 	    case CATALOG:
 		return cache.get_preferred_origin().catalog;
 	    case CONTRIBUTOR:
@@ -167,6 +167,8 @@ public class EventTableModel
 	fireTableRowsUpdated(rowNum.intValue(), rowNum.intValue());
 	System.out.println("loaded event "+cache.get_attributes().name);
     }
+
+    protected ParseRegions FERegions = new ParseRegions();
 
     protected EventAccessOperations[] events;
 
