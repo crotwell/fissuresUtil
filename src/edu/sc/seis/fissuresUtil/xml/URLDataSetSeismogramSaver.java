@@ -1,0 +1,98 @@
+/**
+ * URLDataSetSeismogramSaver.java
+ *
+ * @author Created by Omnicore CodeGuide
+ */
+
+package edu.sc.seis.fissuresUtil.xml;
+
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.CodecException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Iterator;
+
+public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
+    URLDataSetSeismogramSaver(DataSetSeismogram dss,
+                              File directory) {
+        this.inDSS = dss;
+        this.directory = directory;
+        urlDSS = new URLDataSetSeismogram(new URL[0],
+                                          SeismogramFileTypes.SAC,
+                                          inDSS.getDataSet(),
+                                          inDSS.getName());
+        dss.retrieveData(this);
+        Iterator it = inDSS.getAuxillaryDataKeys().iterator();
+        while(it.hasNext()) {
+            Object next = it.next();
+            urlDSS.addAuxillaryData(next, inDSS.getAuxillaryData(next));
+        }
+    }
+
+    /** gets the url dataset seismogram that is being populated. This may
+     not yet be completely populated due to download delays. */
+    public URLDataSetSeismogram getURLDataSetSeismogram() {
+        return urlDSS;
+    }
+
+    public boolean isError() {
+        return (error == null);
+    }
+
+    public Throwable getError() {
+        return error;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void error(SeisDataErrorEvent sdce) {
+        setError(sdce.getCausalException());
+    }
+
+    public void finished(SeisDataChangeEvent sdce) {
+        finished = true;
+    }
+
+    public void pushData(SeisDataChangeEvent sdce) {
+        LocalSeismogramImpl[] seis = sdce.getSeismograms();
+
+        for (int i = 0; i < seis.length; i++) {
+            try {
+                URL url = URLDataSetSeismogram.saveAsSac(seis[i],
+                                    directory,
+                                    inDSS.getDataSet().getChannel(inDSS.getRequestFilter().channel_id),
+                                    inDSS.getDataSet().getEvent());
+                urlDSS.addToCache(url,
+                                  seis[i]);
+            } catch (NoPreferredOrigin e) {
+                setError(e);
+            } catch (CodecException e) {
+                setError(e);
+            } catch (IOException e) {
+                setError(e);
+            }
+        }
+    }
+
+    private void setError(Throwable problem) {
+        // only save the first error
+        if (error == null) {
+            error = problem;
+        }
+    }
+
+    Throwable error;
+
+    boolean finished = false;
+
+    File directory;
+
+    DataSetSeismogram inDSS;
+
+    URLDataSetSeismogram urlDSS;
+}
+
