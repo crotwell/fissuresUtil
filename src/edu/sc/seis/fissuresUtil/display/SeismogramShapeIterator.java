@@ -47,7 +47,7 @@ public class SeismogramShapeIterator implements PathIterator {
             double pixelHeightPercentage = 1/(double)size.height;
             double otherMax = otherIterator.getAmp().getMaxValue();
             double otherMin = otherIterator.getAmp().getMinValue();
-            if(Math.abs(otherMax - thisMax)/thisRange <= pixelHeightPercentage ||
+            if(Math.abs(otherMax - thisMax)/thisRange <= pixelHeightPercentage &&
                Math.abs(otherMin - thisMin)/thisRange <= pixelHeightPercentage){
                 return true;
             }
@@ -58,6 +58,7 @@ public class SeismogramShapeIterator implements PathIterator {
     public void copyBasicInfo(SeismogramShapeIterator iterator){
         setPointsPerPixel(iterator.getPointsPerPixel());
         setBaseSeisPoint(iterator.getBaseSeisPoint());
+        setAmp(iterator.getAmp());
         setPoints(iterator.getPoints());
     }
 
@@ -230,4 +231,5 @@ public class SeismogramShapeIterator implements PathIterator {
     private static Category logger =
         Category.getInstance(SeismogramShapeIterator.class.getName());
 }// SeismogramShapeIterator
+
 

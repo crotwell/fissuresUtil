@@ -143,7 +143,7 @@ public class SeismogramIterator implements Iterator{
             if(!(current instanceof Gap)){
                 int lastPoint = ((int[])points.get(current))[1];
                 if((lastPoint - internalStartPoint) + i >= endPoint){
-                    lastPoint = endPoint;
+                    lastPoint = internalStartPoint + (endPoint - i);
                 }
                 Statistics curStat = getStatistics(current);
                 double[] curMinMaxMean = curStat.minMaxMean(internalStartPoint,
@@ -155,7 +155,7 @@ public class SeismogramIterator implements Iterator{
                     max = curMinMaxMean[1];
                 }
                 meanStore += curMinMaxMean[2]*(lastPoint-i);
-                i=lastPoint;
+                i +=lastPoint - internalStartPoint;
             }
         }
         double[] minMaxMean = {min, max, meanStore/(endPoint - startPoint)};
