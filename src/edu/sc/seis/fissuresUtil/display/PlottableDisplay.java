@@ -12,7 +12,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
