@@ -18,6 +18,9 @@ import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfEvent.OriginNotFound;
 import edu.iris.Fissures.IfParameterMgr.ParameterComponent;
+import edu.iris.Fissures.event.OriginImpl;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.UnitImpl;
 
 /**
  * @author oliverpa
@@ -144,20 +147,34 @@ public abstract class ProxyEventAccessOperations implements
     public boolean equals(Object o) {
         if(o == this) {
             return true;
-        } else if(getEventAccess() != null && o instanceof CacheEvent
-                && ((CacheEvent)o).getEventAccess() != null
-                && getEventAccess().equals(((CacheEvent)o).getEventAccess())) {
+        } else if(getEventAccess() != null
+                && o instanceof ProxyEventAccessOperations
+                && ((ProxyEventAccessOperations)o).getEventAccess() != null
+                && getEventAccess().equals(((ProxyEventAccessOperations)o).getEventAccess())) {
             return true;
         } else if(o instanceof EventAccessOperations) {
             EventAccessOperations oEvent = (EventAccessOperations)o;
             if(get_attributes().equals(oEvent.get_attributes())) {
                 Origin thisOrigin = getOrigin();
-                if(thisOrigin == null
-                        && thisOrigin == EventUtil.extractOrigin(oEvent)) {
+                Origin otherOrigin = EventUtil.extractOrigin(oEvent);
+                if(thisOrigin == otherOrigin) {
                     return true;
-                } else if(thisOrigin.equals(EventUtil.extractOrigin(oEvent))) { return true; }
+                } else if(thisOrigin != null
+                        && thisOrigin.equals(EventUtil.extractOrigin(oEvent))) { return true; }
             }
         }
+        return false;
+    }
+
+    /**
+     * does an equals, except origin times within 1 millisecond are judged to be
+     * the same.
+     */
+    public boolean close(EventAccessOperations event) {
+        if(get_attributes().equals(event.get_attributes())
+                && getOrigin() instanceof OriginImpl
+                && EventUtil.extractOrigin(event) instanceof OriginImpl
+                && ((OriginImpl)getOrigin()).close(((OriginImpl)EventUtil.extractOrigin(event)))) { return true; }
         return false;
     }
 
