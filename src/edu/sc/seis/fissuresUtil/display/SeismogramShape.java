@@ -27,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2683 2002-10-07 14:53:19Z groves $
+ * @version $Id: SeismogramShape.java 2721 2002-10-11 20:06:05Z groves $
  */
 
 public class SeismogramShape implements Shape, Plotter {
@@ -41,6 +41,14 @@ public class SeismogramShape implements Shape, Plotter {
 	this.color = color;
 	this.stat = new Statistics(this.seis);
     }
+    
+    public void setVisibility(boolean b){visible = b; }
+
+    public void toggleVisibility(){ visible = !visible; }
+
+    public boolean getVisibility(){ return visible; }
+
+    public DataSetSeismogram getSeismogram() { return dss; }
     
     /**
      * Draws this <code>SeismogramShape</code>on the supplied graphics after updating it based on the TimeEvent and AmpEvent
@@ -63,7 +71,6 @@ public class SeismogramShape implements Shape, Plotter {
      */
     private Shape setPlot(Graphics2D canvas, MicroSecondTimeRange time, UnitRangeImpl amp, Dimension size){
 	try{
-	    //Date plotBegin = new Date();
 	    if(!size.equals(plotSize) || !time.getInterval().equals(plotInterval) || amp.getMaxValue() != maxAmp ||
 	       amp.getMinValue() != minAmp){
 		getEdgeValues(time, size);
@@ -72,30 +79,52 @@ public class SeismogramShape implements Shape, Plotter {
 		range = maxAmp - minAmp;
 		offset = 0;
 		seisOffset = 0;
-		points = new int[2][size.width];
-		plotCompress(size.height);
+		if(samplesPerPixel < 1){
+		    points = new int[seisEnd - seisStart][2];
+		    plotAll(size.height);
+		    plotAll = true;
+		}else{
+		    points = new int[2][size.width];
+		    plotCompress(size.height);
+		    plotAll = false;
+		}
+	    }else if(samplesPerPixel < 1){
+		getEdgeValues(time, size);
+		plotAll(size.height);
 	    }else{
 		dragPlot(time, size);
 	    }
-	    //Date plotEnd = new Date();
 	    plotTime = time.getBeginTime().getMicroSecondTime();
 	    plotInterval = time.getInterval();
 	    plotAmp = amp;
 	    plotSize = size;
 	    canvas.setColor(color);
 	    canvas.draw(this);
-	    //System.out.println("plot time: " + (plotEnd.getTime() - plotBegin.getTime()));
 	}catch(UnsupportedDataEncoding e){ e.printStackTrace(); }
 	return this;
-    }     
+    } 
+
+    private void plotAll(int height) throws UnsupportedDataEncoding{
+	for(int i = 0; i < seisEnd - seisStart; i++){
+	    points[i][0] = (int)(i/samplesPerPixel);
+	    points[i][1] = (int)((seis.getValueAt(i + seisStart).getValue()  - minAmp)/range * height);
+	}
+	if(points.length < 2){
+	    points = new int[2][2];
+	    points[0][1] = (int)((seis.getValueAt(seisStart).getValue()  - minAmp)/range * height);
+	    points[1][1] = (int)((seis.getValueAt(seisEnd).getValue()  - minAmp)/range * height);
+	}
+	points[0][0] = 0;
+	if(seisStart != seisEnd){
+	    points[seisEnd - seisStart - 1][0] = plotSize.width;
+	}
+    }
     
-    public void setVisibility(boolean b){visible = b; }
-
-    public void toggleVisibility(){ visible = !visible; }
-
-    public boolean getVisibility(){ return visible; }
-
-    public DataSetSeismogram getSeismogram() { return dss; }
+    private void plotCompress(int height) throws UnsupportedDataEncoding{
+	for(int i = startPixel; i < endPixel; i++){
+	    calculatePixel(i, height);
+	}
+    }    
 
     /**
      * <code>dragPlot</code> shifts the array values over by the percentage change of time in the seismogram, and calculates the values
@@ -146,12 +175,6 @@ public class SeismogramShape implements Shape, Plotter {
 	}
 	for(int i = start; i < end; i++){
 	    calculatePixel(i, size.height);
-	}
-    }
-
-    private void plotCompress(int height) throws UnsupportedDataEncoding{
-	for(int i = startPixel; i < endPixel; i++){
-	    calculatePixel(i, height);
 	}
     }
     
@@ -269,7 +292,10 @@ public class SeismogramShape implements Shape, Plotter {
     public Rectangle2D getBounds2D(){ return null; }
 
     public PathIterator getPathIterator(AffineTransform at){ 
-	return new SeismogramShapeIterator(points, startPixel, endPixel, at); 
+	if(plotAll){
+	    return new PlotAllIterator(points, at);
+	}
+	return new PlotCompressIterator(points, startPixel, endPixel, at); 
     }
 
     public PathIterator getPathIterator(AffineTransform at, double flatness){ 
@@ -306,5 +332,5 @@ public class SeismogramShape implements Shape, Plotter {
 
     protected DataSetSeismogram dss;
     
-    protected boolean visible = true;
+    protected boolean visible = true, plotAll;
 }// SeismogramShape
