@@ -1,8 +1,5 @@
 package edu.sc.seis.fissuresUtil.database;
 
-
-
-
 import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.UnitBase;
 import edu.iris.Fissures.model.UnitImpl;
@@ -38,28 +35,28 @@ public class JDBCUnit extends JDBCTable {
             stmt.executeUpdate(ConnMgr.getSQL("unit.create"));
         }
         putStmt = conn.prepareStatement("INSERT INTO unit" +
-                                            " ( dbid, name, base, subunit_dbid, "+
-                                            " exponent, multFactor, power )"+
+                                            " ( unit_id, unit_name, unit_base, unit_subunit_id, "+
+                                            " unit_exponent, unit_multFactor, unit_power )"+
                                             " VALUES ( ?, ?, ?, ?, ?, ?, ? )");
-        getDBIdStmt = conn.prepareStatement("SELECT dbid FROM unit WHERE "+
-                                                " name = ? ");
-        
-        getStmt = conn.prepareStatement("SELECT * FROM unit WHERE dbid = ?");
+        getDBIdStmt = conn.prepareStatement("SELECT unit_id FROM unit WHERE "+
+                                                " unit_name = ? ");
+
+        getStmt = conn.prepareStatement("SELECT * FROM unit WHERE unit_id = ?");
         // cache common units
         createCache();
     }
-    
+
     public Unit get(int dbid) throws SQLException, NotFound {
         getStmt.setInt(1, dbid);
         ResultSet results =  getStmt.executeQuery();
         if (results.next()) {
-            String name  =  results.getString("name");
-            int exponent =  results.getInt("exponent");
-            double multFactor = results.getDouble("multFactor");
-            int power =  results.getInt("power");
-            String base = results.getString("base");
+            String name  =  results.getString("unit_name");
+            int exponent =  results.getInt("unit_exponent");
+            double multFactor = results.getDouble("unit_multFactor");
+            int power =  results.getInt("unit_power");
+            String base = results.getString("unit_base");
             if (base == null || base.equals("COMPOSITE")) {
-                String strSequence =  results.getString("subunit_dbid");
+                String strSequence =  results.getString("unit_subunit_id");
                 ArrayList intList = new ArrayList();
                 int start = strSequence.indexOf('{')+1;
                 int end = strSequence.indexOf(',',start);
@@ -88,7 +85,7 @@ public class JDBCUnit extends JDBCTable {
         }
         throw new NotFound("dbid="+dbid);
     }
-    
+
     /** adds the unit to database */
     public int put(UnitImpl aUnit) throws SQLException {
         // unit already in table???
@@ -101,7 +98,7 @@ public class JDBCUnit extends JDBCTable {
         int[] subunit_dbid;
         String base;
         String subunitString;
-        
+
         if (aUnit.isBaseUnit()) {
             subunits = new UnitImpl[0];
             subunit_dbid = new int[0];
@@ -132,7 +129,7 @@ public class JDBCUnit extends JDBCTable {
         putStmt.executeUpdate();
         return nextDBId;
     }
-    
+
     public int getDBId(Unit aUnit) throws SQLException, NotFound {
         // check cache first
         Integer dbid = (Integer)cache.get(aUnit.toString());
@@ -140,10 +137,10 @@ public class JDBCUnit extends JDBCTable {
         // not in cache so check db
         getDBIdStmt.setString(1, aUnit.toString());
         ResultSet rs = getDBIdStmt.executeQuery();
-        if (rs.next())  return rs.getInt("dbid");
+        if (rs.next())  return rs.getInt("unit_id");
         throw new NotFound(aUnit.toString());
     }
-    
+
     public static final UnitBase stringToBase(String inString) {
         if(inString.equals("METER")) return UnitBase.from_int(UnitBase._METER);
         if(inString.equals("GRAM"))return UnitBase.from_int(UnitBase._GRAM);
@@ -156,7 +153,7 @@ public class JDBCUnit extends JDBCTable {
         if(inString.equals("COMPOSITE")) return UnitBase.from_int(UnitBase._COMPOSITE);
         return null;
     }
-    
+
     protected void createCache() throws SQLException {
         ArrayList common = new ArrayList();
         common.add(UnitImpl.SECOND);
@@ -180,7 +177,7 @@ public class JDBCUnit extends JDBCTable {
         common.add(UnitImpl.JOULE);
         common.add(UnitImpl.COULOMB);
         common.add(UnitImpl.VOLT);
-        
+
         int dbid;
         Iterator iter = common.iterator();
         UnitImpl unit;
@@ -190,14 +187,14 @@ public class JDBCUnit extends JDBCTable {
             cache.put(new Integer(dbid), unit);
         }
     }
-    
+
     private JDBCSequence seq;
-    
+
     protected PreparedStatement putStmt;
-    
+
     protected PreparedStatement getDBIdStmt;
-    
+
     protected PreparedStatement getStmt;
-    
+
     protected HashMap cache = new HashMap();
 }
