@@ -743,7 +743,7 @@ public class SacTimeSeries {
     }
 
     /** write the float to the stream, swapping bytes if needed. */
-    private final void writeFloat(DataOutputStream dos, float val) {
+    private final void writeFloat(DataOutputStream dos, float val) throws IOException {
 	if ( byteOrder == IntelByteOrder) {
 	    dos.writeFloat(swapBytes(val));
 	} else {
@@ -753,7 +753,7 @@ public class SacTimeSeries {
 
 
     /** write the float to the stream, swapping bytes if needed. */
-    private final void writeInt(DataOutputStream dos, int val) {
+    private final void writeInt(DataOutputStream dos, int val) throws IOException {
 	if ( byteOrder == IntelByteOrder) {
 	    dos.writeInt(swapBytes(val));
 	} else {
