@@ -4,6 +4,7 @@ import org.w3c.dom.Element;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.TauP_Time;
+import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.OriginAlignedTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.PhaseAlignedTimeConfig;
@@ -88,10 +89,7 @@ public class TimeConfigConfiguration implements Cloneable {
         } else if(type.equals("originAligned")) {
             tc = new OriginAlignedTimeConfig();
         } else if(type.equals("phaseAligned")) {
-            tc = new PhaseAlignedTimeConfig();
-            TauP_Time tauP = new TauP_Time();
-            tauP.setPhaseNames(new String[] {phaseName});
-            ((PhaseAlignedTimeConfig)tc).setTauP(tauP);
+            tc = new PhaseAlignedTimeConfig(phaseName);
         } else if(type.equals("autoAdvance")) {
             tc = new RTTimeRangeConfig(timeConfig, advanceInterval, advPerSec);
         }
