@@ -18,7 +18,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3273 2003-02-18 18:32:59Z groves $
+ * @version $Id: SeismogramShape.java 3274 2003-02-18 18:48:52Z groves $
  */
 
 public class SeismogramShape implements Shape{
@@ -42,7 +42,6 @@ public class SeismogramShape implements Shape{
     }
 
     public void plot(SeismogramShapeIterator iterator){
-        System.out.println("Plotting all points");
         iterator.setSeisPoints(DisplayUtils.getSeisPoints(dss.getSeismogram(),
                                                           iterator.getTime()));
         iterator.setBaseSeisPoint();
@@ -83,12 +82,10 @@ public class SeismogramShape implements Shape{
     }
 
     public void dragRight(int dragAmount, SeismogramShapeIterator iterator){
-        System.out.println("Draggin right");
-        drag(dragAmount, 0, iterator);
+       drag(dragAmount, 0, iterator);
     }
 
     public void dragLeft(int dragAmount, SeismogramShapeIterator iterator){
-        System.out.println("Draggin left");
         drag(dragAmount, -dragAmount, iterator);
     }
 
@@ -96,11 +93,8 @@ public class SeismogramShape implements Shape{
                       SeismogramShapeIterator iterator){
         double pointsPerPixel = iterator.getPointsPerPixel();
         int[] seisPoints = currentIterator.getSeisPoints();
-        System.out.println("SeisPoint[0] forehand: " + seisPoints[0] +
-                           "dragged points: " + (pointsPerPixel * dragAmount));
         seisPoints[0] =(int)-(iterator.getTotalShift() * pointsPerPixel) + iterator.getBaseSeisPoint();
         //Math.ceil(pointsPerPixel * dragAmount);
-        System.out.println("SeisPoint[0] afterhand: " + seisPoints[0]);
         seisPoints[1] = seisPoints[0] + (int)-(iterator.getSize().width * pointsPerPixel);
         //Math.ceil(pointsPerPixel * dragAmount);
         iterator.setSeisPoints(seisPoints);
@@ -228,3 +222,4 @@ public class SeismogramShape implements Shape{
     private static Category logger =
     Category.getInstance(SeismogramShape.class.getName());
 }// SeismogramShape
+
