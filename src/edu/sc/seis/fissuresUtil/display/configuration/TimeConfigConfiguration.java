@@ -3,8 +3,6 @@ package edu.sc.seis.fissuresUtil.display.configuration;
 import org.w3c.dom.Element;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.TauP.TauP_Time;
-import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.OriginAlignedTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.PhaseAlignedTimeConfig;
@@ -30,7 +28,7 @@ public class TimeConfigConfiguration implements Cloneable {
             throws NoSuchFieldException {
         if(DOMHelper.hasElement(element, "timeConfig")) {
             Element el = DOMHelper.getElement(element, "timeConfig");
-            timeConfig = getTimeConfig(el);
+            timeConfig = TimeConfigConfiguration.create(el).createTimeConfig();
         }
         if(DOMHelper.hasElement(element, "advanceInterval")) {
             Element intervalEl = DOMHelper.getElement(element,
@@ -49,21 +47,6 @@ public class TimeConfigConfiguration implements Cloneable {
         String unit = DOMHelper.extractText(el, "unit");
         UnitImpl units = UnitImpl.getUnitFromString(unit);
         return new TimeInterval(value, units);
-    }
-
-    public TimeConfig getTimeConfig(Element el) throws NoSuchFieldException {
-        TimeConfigConfiguration tConfig = new TimeConfigConfiguration();
-        tConfig.configure(el);
-        tConfig.setTimeConfig(tConfig.createTimeConfig());
-        return tConfig.getTimeConfig();
-    }
-
-    private void setTimeConfig(TimeConfig timeConfig) {
-        this.timeConfig = timeConfig;
-    }
-
-    private TimeConfig getTimeConfig() {
-        return timeConfig;
     }
 
     public static TimeConfigConfiguration create(Element el)
