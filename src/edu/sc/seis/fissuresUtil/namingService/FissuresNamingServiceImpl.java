@@ -187,9 +187,35 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     public void unbind(String dns, String interfacename, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 	
+	
+	dns = appendKindNames(dns);
+	if(interfacename != null && interfacename.length() != 0)
+	    dns = dns + "/" + interfacename + ".interface";
+	if(objectname != null && objectname.length() != 0) {
+	    objectname = objectname;// + getVersion();
+	    dns = dns + "/" + objectname + ".object" + getVersion();
+	}
+	try {
+	
+	    namingContext.unbind(namingContext.to_name(dns));
+	} catch(org.omg.CosNaming.NamingContextPackage.NotFound nfe) {
+	    logger.info("NOT FOUND Exception caught while resolving dns name context");
+	    throw new org.omg.CosNaming.NamingContextPackage.NotFound();
+	} catch(org.omg.CosNaming.NamingContextPackage.InvalidName ine) {
+	    logger.info("INVALID NAME Exception caught while resolving dns name context");
+	    throw new org.omg.CosNaming.NamingContextPackage.InvalidName();
+	} catch(org.omg.CosNaming.NamingContextPackage.CannotProceed cpe) {
+	    logger.info("CANNOT PROCEED Exception caught while resolving dns name context");
+	    throw new org.omg.CosNaming.NamingContextPackage.CannotProceed();
+	} 
+
+
+    }
+    public void unbind(String dns, String objectname, org.omg.CORBA.Object obj) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
+	
 
 	dns = appendKindNames(dns);
-	
+	String interfacename = getInterfaceName(obj);
 	if(interfacename != null && interfacename.length() != 0)
 	    dns = dns + "/" + interfacename + ".interface";
 	if(objectname != null && objectname.length() != 0) {
