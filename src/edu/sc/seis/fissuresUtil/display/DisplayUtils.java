@@ -7,7 +7,6 @@ import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -15,10 +14,10 @@ import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableFilteredSeismogram;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
@@ -431,20 +430,7 @@ public class DisplayUtils {
         ChannelId chanId = seis.getRequestFilter().channel_id;
         Channel channel = seis.getDataSet().getChannel(chanId);
         if(channel != null && event != null){
-            Site seisSite = channel.my_site;
-            Location seisLoc =  seisSite.my_location;
-            Location eventLoc = null;
-            try{
-                eventLoc = event.get_preferred_origin().my_location;
-            }catch(NoPreferredOrigin e){//if no preferred origin, just use the first
-                if (event.get_origins().length > 0) {
-                    eventLoc = event.get_origins()[0].my_location;
-                }
-            }
-            if (eventLoc == null) { return null; }
-            DistAz distAz = new DistAz(seisLoc.latitude, seisLoc.longitude,
-                                       eventLoc.latitude, eventLoc.longitude);
-            return distAz;
+            return new DistAz(channel, event);
         }
         return null;
     }
@@ -452,7 +438,7 @@ public class DisplayUtils {
     public static QuantityImpl calculateBackAzimuth(DataSetSeismogram seis) {
         DistAz distAz = calculateDistAz(seis);
         if (distAz != null) {
-            return new QuantityImpl(distAz.baz, UnitImpl.DEGREE);
+            return new QuantityImpl(distAz.getBaz(), UnitImpl.DEGREE);
         }
         return null;
     }
@@ -460,7 +446,7 @@ public class DisplayUtils {
     public static QuantityImpl calculateAzimuth(DataSetSeismogram seis) {
         DistAz distAz = calculateDistAz(seis);
         if (distAz != null) {
-            return new QuantityImpl(distAz.az, UnitImpl.DEGREE);
+            return new QuantityImpl(distAz.getAz(), UnitImpl.DEGREE);
         }
         return null;
     }
@@ -468,26 +454,7 @@ public class DisplayUtils {
     public static QuantityImpl calculateDistance(DataSetSeismogram seis){
         DistAz distAz = calculateDistAz(seis);
         if (distAz != null) {
-            return new QuantityImpl(distAz.delta, UnitImpl.DEGREE);
-        }
-        return null;
-    }
-    public static QuantityImpl calculateDistance(Channel channel, EventAccessOperations event){
-        if(channel != null && event != null){
-            Site seisSite = channel.my_site;
-            Location seisLoc =  seisSite.my_location;
-            Location eventLoc = null;
-            try{
-                eventLoc = event.get_preferred_origin().my_location;
-            }catch(NoPreferredOrigin e){//if no preferred origin, just use the first
-                if (event.get_origins().length > 0) {
-                    eventLoc = event.get_origins()[0].my_location;
-                }
-            }
-            if (eventLoc == null) { return null; }
-            DistAz distAz = new DistAz(seisLoc.latitude, seisLoc.longitude,
-                                       eventLoc.latitude, eventLoc.longitude);
-            return new QuantityImpl(distAz.delta, UnitImpl.DEGREE);
+            return new QuantityImpl(distAz.getDelta(), UnitImpl.DEGREE);
         }
         return null;
     }
