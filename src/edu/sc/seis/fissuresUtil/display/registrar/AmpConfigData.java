@@ -1,11 +1,11 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
+import edu.sc.seis.fissuresUtil.display.*;
+
+import edu.iris.Fissures.IfNetwork.Response;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
-import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import org.apache.log4j.Logger;
 
 /**
@@ -24,6 +24,12 @@ public class AmpConfigData implements SeismogramContainerListener{
     public AmpConfigData (DataSetSeismogram seismo,  AmpConfig parent) {
         this.parent = parent;
         this.container = new SeismogramContainer(this, seismo);
+        Object respObj;
+        if ((respObj = seismo.getAuxillaryData(StdAuxillaryDataNames.RESPONSE)) != null &&
+            respObj instanceof Response) {
+            Response resp = (Response)respObj;
+            seismoUnit = (UnitImpl)resp.stages[0].input_units;
+        }
     }
 
     public void updateData() {
@@ -195,6 +201,9 @@ public class AmpConfigData implements SeismogramContainerListener{
         return seisArray;
     }
 
+    public UnitImpl getUnit(){ return seismoUnit; }
+
+
     private SeismogramContainer container;
 
     private UnitRangeImpl cleanRange = DisplayUtils.ZERO_RANGE;
@@ -210,6 +219,8 @@ public class AmpConfigData implements SeismogramContainerListener{
     private AmpConfig parent;
 
     private boolean newData = false;
+
+    private UnitImpl seismoUnit = UnitImpl.COUNT;
 
     private static Logger logger = Logger.getLogger(AmpConfigData.class);
 }// AmpConfigData
