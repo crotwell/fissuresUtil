@@ -15,7 +15,7 @@ import edu.iris.Fissures.Location;
  * Created: Sun Dec 15 13:43:21 2002
  *
  * @author Philip Crotwell
- * @version $Id: Rotate.java 6977 2004-02-06 02:49:27Z crotwell $
+ * @version $Id: Rotate.java 7023 2004-02-07 17:59:47Z crotwell $
  */
 public class Rotate implements LocalMotionVectorFunction {
 
@@ -52,7 +52,7 @@ public class Rotate implements LocalMotionVectorFunction {
                                       Location evtLoc) {
         DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
                                    evtLoc.latitude, evtLoc.longitude);
-        return Rotate.rotate(x, y, -1*(180+distAz.baz)*Math.PI/180);
+        return Rotate.rotate(x, y, dtor(180+distAz.baz));
     }
 
     /** rotates the two seismograms by the given angle. It is assumed that
@@ -75,12 +75,13 @@ public class Rotate implements LocalMotionVectorFunction {
     }
 
     /**
-     * Rotates x and y by the given angle in radians. The x and y axis are
+     * Rotates the x and y arrays by the given angle in radians. The x and y axis are
      * assumed to be perpendicular. Theta, in radians, is positive from
      * x towards y, and so a rotation of PI/2 puts x into y and
      * -y into x.
      */
     public static void rotate(float[] x, float[] y, double radians) {
+
         rotate(x, y, AffineTransform.getRotateInstance(radians));
     }
 
@@ -95,6 +96,7 @@ public class Rotate implements LocalMotionVectorFunction {
         // matrix is m00 m10 m01 m11 where the matrix is
         //           m00 m01
         //           m10 m11
+
         double[] matrix = new double[4];
         affine.getMatrix(matrix);
         for (int i=0; i<x.length; i++) {
