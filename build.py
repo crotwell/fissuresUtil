@@ -24,6 +24,7 @@ def buildAllScripts(proj):
     scripts.extend(buildSeisScripts(proj))
     scripts.extend(buildNSCopyScripts(proj))
     scripts.extend(buildSACDirScripts(proj))
+    scripts.extend(buildOpenMapScripts(proj))
     return scripts
 
 def buildNetScripts(proj):
@@ -47,6 +48,9 @@ def buildNSCopyScripts(proj):
         files.extend(__buildScript(proj, 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy',
                                    prop, prop+'.prop'))
     return files
+
+def buildOpenMapScripts(proj):
+    return __buildScript(proj, 'edu.sc.seis.fissuresUtil.map.OpenMap', 'OpenMap', 'simpleClient.prop')
 
 def __buildScripts(proj, mainclasses, propFile='simpleClient.prop'):
     filenames = []
