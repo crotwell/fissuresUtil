@@ -29,16 +29,48 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionListener;
 import java.util.List;
 import org.apache.log4j.Logger;
+import javax.swing.event.ListSelectionEvent;
+import com.bbn.openmap.Layer;
 
-public class EventLayer extends MouseAdapterLayer implements EventDataListener, EventLoadedListener, EQSelectionListener{
-    public EventLayer(EventTableModel tableModel, MapBean mapBean){
-        this.tableModel = tableModel;
-        tableModel.addEQSelectionListener(this);
-        tableModel.addEventDataListener(this);
-        eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
-        this.mapBean = mapBean;
+public class EventLayer extends Layer implements EventDataListener, EventLoadedListener, EQSelectionListener{
+    public EventLayer(EventTableModel tableModel, ListSelectionModel lsm, MapBean mapBean){
+		this.tableModel = tableModel;
+		selectionModel = lsm;
+		tableModel.addEventDataListener(this);
+		eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
+
+		//this list selection stuff does not work yet.
+		selectionModel.addListSelectionListener(new ListSelectionListener(){
+					public void valueChanged(ListSelectionEvent e) {
+						EventAccessOperations[] events = new EventAccessOperations[0];
+						//EventAccessOperations[] events = tableModel.getSelectedEvents();
+						for (int i = 0; i < events.length; i++) {
+							Iterator it = circles.iterator();
+							while (it.hasNext()){
+								OMEvent current = (OMEvent)it.next();
+								try{
+
+									if (current.getEvent().get_preferred_origin().equals(events[i].get_preferred_origin())){
+										current.select();
+										return;
+									}
+								}
+								catch(NoPreferredOrigin ex){}
+							}
+						}
+					}
+
+				});
+
+		//temporary fix for selection for now...will be removed as soon
+		//as the stuff above starts working
+		tableModel.addEQSelectionListener(this);
+
+		this.mapBean = mapBean;
     }
 
     public void paint(java.awt.Graphics g) {
@@ -178,6 +210,9 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 
     private EventTableModel tableModel;
 
+	private ListSelectionModel selectionModel;
+
     private MapBean mapBean;
 }
+
 
