@@ -212,6 +212,8 @@ public class FissuresNamingService {
             if (ncObj != null) {
                 NamingContextExt nc = NamingContextExtHelper.narrow(ncObj);
                 rebind(dns, objectname, obj, nc);
+            } else {
+                throw new InvalidName("Can't narrow NameContext for "+corbaloc);
             }
         }
     }
