@@ -120,7 +120,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                     if(leftAxisLabelBounds == null){
                         leftAxisLabelBounds = copy.getFontMetrics().getStringBounds(leftScaleMap.getAxisLabel(), copy);
                     }
-                    double yTranslate = height - bottom + top - (height - bottom + top - leftAxisLabelBounds.getWidth())/2;
+                    double yTranslate = insets.top + (height - insets.top - insets.bottom + leftAxisLabelBounds.getWidth())/2;
                     double xTranslate = leftAxisLabelBounds.getHeight();
                     copy.translate(xTranslate, yTranslate);
                     copy.rotate(-Math.PI/2);
@@ -155,8 +155,10 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                                                        height-bottom+minorTickLength));
                         }
                     }
-                    copy.drawString(bottomScaleMap.getAxisLabel(),
-                                    left + (width - left)/2,
+                    String label = bottomScaleMap.getAxisLabel();
+                    Rectangle2D labelBounds = fm.getStringBounds(label, copy);
+                    copy.drawString(label,
+                                        (int)(insets.left + (width - insets.left - insets.right - labelBounds.getWidth())/2),
                                     height);
                 }
 
