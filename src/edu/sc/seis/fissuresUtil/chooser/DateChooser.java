@@ -131,11 +131,11 @@ public class DateChooser extends JPanel {
 
     public void initPanel(){
       //Initialize drawing colors, border, opacity.
-         subPane.setBackground(bg);
-         subPane.setForeground(fg);	
-         subPane.setBorder(BorderFactory.createCompoundBorder(
+         //subPane.setBackground(bg);
+         //subPane.setForeground(fg);	
+         /**subPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createRaisedBevelBorder(),
-                BorderFactory.createLoweredBevelBorder())); 
+                BorderFactory.createLoweredBevelBorder()));**/ 
     }
 
     private void radioButtonOption(){
@@ -537,17 +537,17 @@ public class DateChooser extends JPanel {
 
     protected void createComponents() {
 	 
-         final Color bg = Color.white;
+         final Color bg = Color.darkGray;
          final Color fg = Color.black;
         
 
          //Initialize drawing colors, border, opacity.
-         subPane.setBackground(bg);
-         subPane.setForeground(fg);	
-         subPane.setBorder(BorderFactory.createCompoundBorder(
+         //subPane.setBackground(bg);
+         //subPane.setForeground(fg);	
+         /*subPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createRaisedBevelBorder(),
                 BorderFactory.createLoweredBevelBorder()));         
-   
+  	*/ 
 	 subPane.setLayout(new GridBagLayout());
 	 gbc = new GridBagConstraints();
 	 gbc.fill = gbc.HORIZONTAL;
@@ -745,7 +745,7 @@ public class DateChooser extends JPanel {
     boolean pastyears=true;
 
 
-    final Color bg = Color.white;
+    final Color bg = Color.darkGray;
     final Color fg = Color.blue;
 
 } /* close class */
