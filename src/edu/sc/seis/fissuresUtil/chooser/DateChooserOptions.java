@@ -2,7 +2,7 @@ package edu.sc.seis.fissuresUtil.chooser;
 
 /** DateChooserOptions serves as an enumeration for DateChooser 
  * 
- * @author: Georgina Coleman
+ * @author <a href="mailto:georginamc@prodigy.net">Georgina Coleman</a>
  * @created: 12 Nov 2001
  *
  */

@@ -26,7 +26,7 @@ import java.text.*;
  * ChannelChooser.java
  *
  *
- * @author: Georgina Coleman 
+ * @author <a href="mailto:georginamc@prodigy.net">Georgina Coleman</a>
  * @version
  * 12/04/2001
  */
