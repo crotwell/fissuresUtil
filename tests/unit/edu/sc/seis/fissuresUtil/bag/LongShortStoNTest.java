@@ -53,5 +53,14 @@ public class LongShortStoNTest extends TestCase {
         }
     }
 
+
+    /*
+    pooh 4>reftrig -l 100 -s 6 -i 03.141.18.40.32.0551.6.m
+reftrig:  Version Number  97.329
+03.141.18.40.32.0551.6.m        2003:141:18:49:21.412   200     8854
+03.141.18.40.32.0551.6.m        2003:141:18:49:43.562   1478    10211
+
+     */
 }
+
 
