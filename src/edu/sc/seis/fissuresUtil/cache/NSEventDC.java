@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 
 
 
-public class NSEventDC implements EventDCOperations {
+public class NSEventDC implements ServerNameDNS, EventDCOperations {
 
     public NSEventDC(String serverDNS,
                      String serverName,

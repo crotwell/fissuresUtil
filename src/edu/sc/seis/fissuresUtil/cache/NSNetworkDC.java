@@ -16,7 +16,7 @@ import org.apache.log4j.Category;
  * @author <a href="mailto:crotwell@owl.seis.sc.edu">Philip Crotwell</a>
  * @version 1.0
  */
-public class NSNetworkDC implements NetworkDCOperations {
+public class NSNetworkDC implements ServerNameDNS, NetworkDCOperations {
 
     public NSNetworkDC(String serverDNS, String serverName,
                        FissuresNamingService fissuresNamingService) {
