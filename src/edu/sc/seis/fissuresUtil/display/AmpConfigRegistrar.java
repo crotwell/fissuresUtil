@@ -16,19 +16,33 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class AmpConfigRegistrar{
+public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
     public AmpConfigRegistrar(){
 	this.ampConfig = new RMeanAmpConfig(this);
     }
 
+    public AmpConfigRegistrar(TimeConfigRegistrar timeRegistrar){
+	this.ampConfig = new RMeanAmpConfig(this);
+	ampConfig.visibleAmpCalc(timeRegistrar);
+    }
+    
     public AmpConfigRegistrar (AmpRangeConfig ampConfig){
 	this.ampConfig = ampConfig;
 	ampConfig.setRegistrar(this);
     }
      
-    public void setAmpConfig(AmpRangeConfig ampConfig){ this.ampConfig = ampConfig; }
+    public void setRegistrar(AmpConfigRegistrar ampConfig){ 
+	if(ampConfig instanceof AmpConfigRegistrar)
+	    ampConfig.removeAmpSyncListener(this);
+	this.ampConfig = ampConfig;
+	Iterator e = seismograms.iterator();
+	while(e.hasNext())
+	    ampConfig.addSeismogram(((LocalSeismogram)e.next()));
+	ampConfig.addAmpSyncListener(this);
+	updateAmpSyncListeners();
+    }
 
-    public AmpRangeConfig getAmpConfig(){ return ampConfig; }
+    public AmpRangeConfig getRegistrar(){ return ampConfig; }
 
     /**
      * Add the values in this seismogram to the configuration
@@ -36,6 +50,7 @@ public class AmpConfigRegistrar{
      * @param seis the seismogram to be added
      */
     public void addSeismogram(LocalSeismogram seis){
+	seismograms.add(seis);
 	ampConfig.addSeismogram(seis);
     }
 
@@ -45,6 +60,7 @@ public class AmpConfigRegistrar{
      * @param seis the seismogram to be removed
      */
     public void removeSeismogram(LocalSeismogram seis){ 
+	seismograms.remove(seis);
 	ampConfig.removeSeismogram(seis);
     }
 
@@ -63,9 +79,7 @@ public class AmpConfigRegistrar{
      * Returns the amplitude range for the whole area being displayed.
      *
      */
-    public UnitRangeImpl getAmpRange(){ 
-	return ampConfig.getAmpRange(); 
-    }
+    public UnitRangeImpl getAmpRange(){ return ampConfig.getAmpRange(); }
     
     /**
      * Calculates the amplitudes for all seismograms currently held by the configurator based on the time range rules for them held 
@@ -93,8 +107,31 @@ public class AmpConfigRegistrar{
 	ampConfig.fireAmpRangeEvent(event);
     }
 
+    public void updateAmpRange(){ this.updateAmpSyncListeners(); }
+
+    public void updateTimeRange(){ ampConfig.updateTimeRange(); } 
+
+    public AmpRangeConfig getAmpConfig(){ return ampConfig.getAmpConfig(); }
+
+    public void individualizeAmpConfig(TimeConfigRegistrar timeRegistrar){
+	AmpRangeConfig newConfig = new RMeanAmpConfig(this);
+	Iterator e = seismograms.iterator();
+	while(e.hasNext())
+	    newConfig.addSeismogram(((LocalSeismogram)e.next()));
+	AmpRangeConfig oldConfig = ampConfig;
+	this.ampConfig = newConfig;
+	e = seismograms.iterator();
+	while(e.hasNext())
+	    oldConfig.removeSeismogram(((LocalSeismogram)e.next()));
+	if(oldConfig instanceof AmpConfigRegistrar)
+	    ((AmpConfigRegistrar)oldConfig).removeAmpSyncListener(this);
+	this.ampConfig.visibleAmpCalc(timeRegistrar);
+    }
+
     protected AmpRangeConfig ampConfig;
 
+    protected LinkedList seismograms = new LinkedList();
+    
     protected LinkedList ampListeners = new LinkedList();
 
     protected Category logger = Category.getInstance(AmpConfigRegistrar.class.getName());

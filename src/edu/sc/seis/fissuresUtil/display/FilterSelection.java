@@ -103,7 +103,7 @@ public class FilterSelection extends JPanel{
 		visibility = false;
 	    }
 	    if(source == original){
-		listener.toggleUnfilteredDisplay();
+		listener.setUnfilteredDisplay(visibility);
 	    }else if(visibility == true){
 		if(source == teleseismic){
 		    currentFilters.add(lp_p1Hz);

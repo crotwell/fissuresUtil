@@ -10,6 +10,7 @@ import edu.sc.seis.fissuresUtil.freq.ButterworthFilter;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Date;
 import java.lang.ref.SoftReference;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -180,13 +181,15 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      */
     public AmpRangeConfig getAmpConfig(){ return ampRegistrar.getAmpConfig(); }
     
+    public AmpConfigRegistrar getAmpRegistrar(){ return ampRegistrar; } 
+
     /**
      * Describe <code>updateAmpRange</code> method here.
      *
      */
     public void updateAmpRange(){
+	ampScaleMap.setUnitRange(ampRegistrar.getAmpRange());
 	redo = true;
-	this.ampScaleMap.setUnitRange(ampRegistrar.getAmpRange());
 	repaint();
     }
 
@@ -434,13 +437,13 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
     public Selection getCurrentSelection(){ return currentSelection; }
     
-    public void toggleUnfilteredDisplay(){
+    public void setUnfilteredDisplay(boolean visible){
 	synchronized(imageMaker){
 	    Iterator e = plotters.keySet().iterator();
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
 		if(current instanceof SeismogramPlotter)
-		    current.toggleVisibility();
+		    ((SeismogramPlotter)current).setVisibility(visible);
 	    }
 	}
 	redo = true;
@@ -486,9 +489,14 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	redo = true;
 	repaint();
     }
-    
+
+    public void ampFillWindow(){
+	ampRegistrar.individualizeAmpConfig(timeRegistrar);
+    }
+
     protected class ImagePainter extends JComponent{
 	public void paint(Graphics g){
+	    Date begin = new Date();
 	    if(overSizedImage == null){
 		logger.debug("the image is null and is being created");
 		synchronized(this){ displayInterval = timeRegistrar.getTimeRange().getInterval(); }
@@ -559,6 +567,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    }
 	    //logger.debug(imageCache.size() + " images in the cache");
 	    //logger.debug("the image size is: " + ImageMaker.getImageSize(((BufferedImage)overSizedImage.get())));
+	    Date end = new Date();
+	    //logger.debug("painting: " + (end.getTime() - begin.getTime()) + "ms");
 	}
 	
 	public synchronized void createImage(){

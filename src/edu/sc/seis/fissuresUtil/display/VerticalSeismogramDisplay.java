@@ -33,6 +33,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms = new JLayeredPane();
 	seismograms.setLayout(new BoxLayout(seismograms, BoxLayout.Y_AXIS));
 	this.getViewport().add(seismograms);
+	globalTimeRegistrar = new TimeConfigRegistrar();
+	globalAmpRegistrar = new AmpConfigRegistrar();
     }
     
     public void addDisplay(LocalSeismogram seis, String name){
@@ -40,13 +42,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
     
     public void addDisplay(LocalSeismogramImpl seis, String name){
-	if(basicDisplays.size() > 0)
-	    this.addDisplay(seis,((BasicSeismogramDisplay)basicDisplays.getFirst()).getTimeRegistrar(), 
-			new AmpConfigRegistrar(), name);
-	else{	    
-	    //ar.visibleAmpCalc(tr);
-	    this.addDisplay(seis, new TimeConfigRegistrar(), new AmpConfigRegistrar(), name);
-	    }	    
+	this.addDisplay(seis, new TimeConfigRegistrar(globalTimeRegistrar), new AmpConfigRegistrar(), name);
     }
     
     public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name){
@@ -86,6 +82,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.removeAll();
 	remove(seismograms);
 	basicDisplays = new LinkedList();
+	globalTimeRegistrar = new TimeConfigRegistrar();
+	globalAmpRegistrar = new AmpConfigRegistrar();
 	repaint();
     }
 
@@ -149,10 +147,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	repaint();
      }
 
-    public void toggleUnfilteredDisplay(){
+    public void setUnfilteredDisplay(boolean visible){
 	Iterator e = basicDisplays.iterator();
 	while(e.hasNext())
-	    ((BasicSeismogramDisplay)e.next()).toggleUnfilteredDisplay();
+	    ((BasicSeismogramDisplay)e.next()).setUnfilteredDisplay(visible);
     }
 
     public void applyFilter(ButterworthFilter filter, boolean visible, LinkedList currentFilters){
@@ -163,6 +161,17 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
 
     public LinkedList getCurrentFilters(){ return currentFilters; }
+
+    public void globalizeAmpRange(){
+	Iterator e = basicDisplays.iterator();
+	while(e.hasNext())
+	    ((BasicSeismogramDisplay)e.next()).getAmpRegistrar().setRegistrar(globalAmpRegistrar);
+    }
+	
+    
+    protected TimeConfigRegistrar globalTimeRegistrar;
+
+    protected AmpConfigRegistrar globalAmpRegistrar;
 
     protected HashMap selectionDisplayMap = new HashMap();
 

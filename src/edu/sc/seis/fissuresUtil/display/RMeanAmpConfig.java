@@ -21,11 +21,11 @@ import java.util.*;
 
 public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     
-    public RMeanAmpConfig(AmpConfigRegistrar registrar){
+    public RMeanAmpConfig(AmpRangeConfig registrar){
 	this.ampRegistrar = registrar;
     }
 
-    public RMeanAmpConfig(AmpConfigRegistrar registrar, TimeConfigRegistrar tr){
+    public RMeanAmpConfig(AmpRangeConfig registrar, TimeConfigRegistrar tr){
 	this.ampRegistrar = registrar;
 	timeRegistrar = tr;
     }
@@ -58,27 +58,19 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
         if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
 
 	if (endIndex == beginIndex) {
-            // no data points in window, leave range alone
+	    //no data points in window, leave range alone
 	    return ampRange;
         }
-        try {
+	try {
             double min = seis.getMinValue(beginIndex, endIndex).getValue();
 	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
-	    //System.out.println("The mean is "+mean);
 	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
-	    //if(ampRange == null) 
-		//System.out.println("-------->The ampRange is null");
-	    //else //System.out.println("-------->The ampRange is not null");
-	    if(ampRange == null)
+	    if(ampRange == null || meanDiff > ampRange.getMaxValue()){
 		ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
-	    else if(meanDiff > ampRange.getMaxValue())
-		ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
-
-	   
+	    }
 	    double bottom = ampRange.getMinValue() + mean;
 	    double top = ampRange.getMaxValue() + mean;
-	    //System.out.println("******* bottom = "+bottom+"   top = "+top);
 	    return new UnitRangeImpl(bottom, top, seis.getAmplitudeRange().getUnit());
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -93,6 +85,12 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     }
     
     public void removeSeismogram(LocalSeismogram aSeis){ 
+	if(seismos.size() <= 1){
+	    if(timeRegistrar != null){
+		timeRegistrar.removeTimeSyncListener(this);
+	    }
+	    return;
+	}
 	MicroSecondTimeRange calcIntv;
 	if(this.timeRegistrar == null)
 	    calcIntv = new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime());

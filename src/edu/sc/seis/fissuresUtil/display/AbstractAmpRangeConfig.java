@@ -17,6 +17,16 @@ import java.util.*;
 
 public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
          
+    public AbstractAmpRangeConfig(){}
+
+    public AbstractAmpRangeConfig(LinkedList seismos){
+	this.seismos = seismos;
+	Iterator e = seismos.iterator();
+	while(e.hasNext()){
+	    this.addSeismogram(((LocalSeismogram)e.next()));
+	}
+    }
+
     /**
      * Returns the amplitude range for a given seismogram
      *
@@ -59,7 +69,12 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      *
      * @param seis a <code>LocalSeismogram</code> value
      */
-    public void removeSeismogram(LocalSeismogram seis){ seismos.remove(seis); }
+    public void removeSeismogram(LocalSeismogram seis){ 
+	if(seismos.size() < 1)
+	    if(timeRegistrar != null)
+		timeRegistrar.removeTimeSyncListener(this);
+	seismos.remove(seis); 
+    }
 
     /**
      * Sends a message to all AmpSyncListeners held by the configurator that the amplitude range has changed
@@ -75,7 +90,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
 	    LocalSeismogram current = (LocalSeismogram)e.next();
-	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
+	    getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	if(ampRange == null){
 	    ampRange = tempRange;
@@ -98,8 +113,18 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 
     public void setRegistrar(AmpConfigRegistrar registrar){ this.ampRegistrar = registrar; }
 
-    public AmpConfigRegistrar getRegistrar(){ return ampRegistrar; }
+    public AmpRangeConfig getRegistrar(){ return ampRegistrar; }
     
+    public LinkedList getSeismograms(){ return seismos; }
+
+    public void addSeismograms(LinkedList newSeismos){
+	Iterator e = newSeismos.iterator();
+	while(e.hasNext())
+	    this.addSeismogram((LocalSeismogram)e.next());
+    }
+
+    public AmpRangeConfig getAmpConfig(){ return this; }
+
     protected boolean intvCalc = false;
     
     protected UnitRangeImpl ampRange;
@@ -108,7 +133,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 
     protected LinkedList seismos = new LinkedList();
     
-    protected AmpConfigRegistrar ampRegistrar;
+    protected AmpRangeConfig ampRegistrar;
 
     protected Category logger = Category.getInstance(AbstractAmpRangeConfig.class.getName());
 }// AbstractAmpRangeConfig
