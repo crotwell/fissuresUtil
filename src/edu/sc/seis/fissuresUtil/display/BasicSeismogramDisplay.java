@@ -505,7 +505,23 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	}
 	
 	public synchronized void createImage(){
-	    imageMaker.createImage(this, new PlotInfo(imageSize, plotters, timeRegistrar.takeSnapshot(), ampRegistrar.takeSnapshot()));
+	    Image drawImage;
+	    if(image != null && image.get() != null){
+		 drawImage= (Image)image.get();
+	    }else{
+		if(imageSize.width < 0)
+		    return;
+		drawImage = createImage(imageSize.width, imageSize.height);
+	    }
+	    Date begin = new Date();
+	    TimeSnapshot ts = timeRegistrar.takeSnapshot();
+	    AmpSnapshot as = ampRegistrar.takeSnapshot();
+	    Date snapshotEnd = new Date();
+	    imageMaker.createImage(this, new PlotInfo(imageSize, ((LinkedList)plotters.clone()), ts, 
+						      as, drawImage));
+	    Date end = new Date();
+	    System.out.println("Create Image time: " + (end.getTime() - begin.getTime()) + 
+			       " Snapshot Time: " + (snapshotEnd.getTime() - begin.getTime()));
 	}
 
 	public synchronized void setImage(Image newImage, TimeSnapshot imageState){
