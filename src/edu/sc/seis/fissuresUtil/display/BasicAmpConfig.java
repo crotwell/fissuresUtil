@@ -172,13 +172,13 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
         boolean changed = false;
         while(e.hasNext()){
             AmpConfigData current = (AmpConfigData)ampData.get(e.next());
-            if(current.hasNewData()){
-                setAmpRange(current.getDSS());
-                changed = true;
-            }else if(current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
+            if(current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
                 if(setAmpRange(current.getDSS())){ //checks if the new time changes the amp range
                     changed = true;// only generates a new amp event if the amp ranges have changed
                 }
+            }else if(current.hasNewData()){
+                setAmpRange(current.getDSS());
+                changed = true;
             }
         }
         if(changed || currentAmpEvent == null){
