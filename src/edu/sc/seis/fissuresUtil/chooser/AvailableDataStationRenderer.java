@@ -6,8 +6,7 @@
 
 package edu.sc.seis.fissuresUtil.chooser;
 
-import java.util.*;
-
+import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
@@ -22,6 +21,11 @@ import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import java.awt.Color;
 import java.awt.Component;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.JList;
 import org.apache.log4j.Logger;
 
@@ -57,6 +61,11 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         startThread(2);
     }
 
+    public void setOrigin(Origin origin) {
+        this.origin = origin;
+        recheckNetworks();
+    }
+
     protected void startThread(int numThreads) {
         logger.debug("start threads for network/station checks");
         // first start the network checker as it may be more efficient
@@ -75,18 +84,21 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
                 });
         // in case networks are already loaded
+        recheckNetworks();
+        for (int i = 0; i < numThreads; i++) {
+            StationChecker checker = new StationChecker();
+            Thread t = new Thread(checker, "StationUpChecker"+i);
+            t.setPriority(t.getPriority()-1);
+            t.start();
+        }
+    }
+    protected void recheckNetworks() {
         NetworkAccess[] nets = channelChooser.getNetworks();
         for (int i = 0; i < nets.length; i++) {
             NetworkChecker netCheck = new NetworkChecker(nets[i]);
             Thread t = new Thread(netCheck,
                                   "NetworkChecker"+
                                       nets[i].get_attributes().get_code());
-            t.start();
-        }
-        for (int i = 0; i < numThreads; i++) {
-            StationChecker checker = new StationChecker();
-            Thread t = new Thread(checker, "StationUpChecker"+i);
-            t.setPriority(t.getPriority()-1);
             t.start();
         }
     }
@@ -320,9 +332,18 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         void checkNet() {
             quitThread = true;
             logger.debug("checking "+net.get_attributes().get_code());
-            MicroSecondDate now = ClockUtil.now();
-            TimeRange range = new TimeRange(now.subtract(TEN_MINUTES).getFissuresTime(),
-                                            now.getFissuresTime());
+            TimeRange range;
+            if (origin == null) {
+                // use current time
+                MicroSecondDate now = ClockUtil.now();
+                range = new TimeRange(now.subtract(TEN_MINUTES).getFissuresTime(),
+                                      now.getFissuresTime());
+            } else {
+                // use origin time offset
+                MicroSecondDate oTime = new MicroSecondDate(origin.origin_time);
+                range = new TimeRange(oTime.getFissuresTime(),
+                                      oTime.add(TEN_MINUTES).getFissuresTime());
+            }
             RequestFilter[] request = new RequestFilter[1];
             request[0] = new RequestFilter(new ChannelId(net.get_attributes().get_id(),
                                                          "*",
@@ -425,11 +446,13 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
     protected DataCenterRouter dc;
 
-    protected TimeInterval TEN_MINUTES = new TimeInterval(60, UnitImpl.MINUTE);
+    protected TimeInterval TEN_MINUTES = new TimeInterval(20, UnitImpl.MINUTE);
 
     protected ChannelChooser channelChooser = null;
 
     protected JList jlist = null;
+
+    protected Origin origin = null;
 
     static Logger logger = Logger.getLogger(AvailableDataStationRenderer.class);
 }
