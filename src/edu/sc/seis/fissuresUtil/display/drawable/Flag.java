@@ -79,8 +79,7 @@ public class Flag implements Drawable{
             if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
                 return;
             canvas.setFont(DisplayUtils.BOLD_FONT);
-            double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
-            int location = (int)(offset * (double)size.width);
+            int location = getFlagLocation(size,timeEvent);
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(canvas.getFontMetrics().getStringBounds(name, canvas));
             if(flag == null){
@@ -108,7 +107,12 @@ public class Flag implements Drawable{
             canvas.drawString(name, location + PADDING/2, stringBounds.height - PADDING/2);
         }
     }
-
+	public int getFlagLocation(Dimension size, TimeEvent timeEvent) {
+		MicroSecondTimeRange timeRange = timeEvent.getTime();
+		double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
+		int loc = (int)(offset * (double)size.width);
+		return loc;
+	}
     public static Flag getFlagFromElement(Element el){
         String name = el.getAttribute("name");
         logger.debug("Flag name: " + name);
