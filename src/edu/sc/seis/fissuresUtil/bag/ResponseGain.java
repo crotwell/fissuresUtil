@@ -87,6 +87,7 @@ public class ResponseGain implements LocalSeismogramFunction {
 
     public Instrumentation getFromCache(ChannelId chan, Time begin_time) {
         List instList = (List)instCache.get(ChannelIdUtil.toString(chan));
+        if(instList == null) { return null; }
         Iterator it = instList.iterator();
         while (it.hasNext()) {
             InstrumentationDater instD = (InstrumentationDater)it.next();
