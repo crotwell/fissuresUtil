@@ -1,0 +1,35 @@
+
+#
+# the dns to copy
+nameServiceCopy.dns=edu/sc/seis
+#
+# the corbaloc of the name server to copy to
+#nameServiceCopy.copyTo=corbaloc:iiop:dmc.iris.washington.edu:6371/NameService
+nameServiceCopy.copyTo=corbaloc:iiop:roo.seis.sc.edu:6371/NameService
+
+# start of log4j configuration
+log4j.rootCategory=debug, C
+
+log4j.appender.C=org.apache.log4j.ConsoleAppender
+log4j.appender.C.layout=org.apache.log4j.PatternLayout
+log4j.appender.C.layout.ConversionPattern=%d{ISO8601} %p %t %c{2} - %m%n
+
+# end of log4j configuration.
+
+
+
+#
+# get the name serivce
+# The format for a corbaloc for a naming service is
+#    corbaloc:iiop:host.domain:port/NameService
+# You should put your own choices for host.domain and port
+#
+# JavcORB style initial name server reference
+#ORBInitRef.NameService=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+
+# fisName helper style (orb independent) - SCEPP
+edu.sc.seis.gee.nameServiceCorbaLoc=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+
+# fisName helper style (orb independent) - IRIS connection
+#edu.sc.seis.gee.nameServiceCorbaLoc=corbaloc:iiop:dmc.iris.washington.edu:6371/NameService
+

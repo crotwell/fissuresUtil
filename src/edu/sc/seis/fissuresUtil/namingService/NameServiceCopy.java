@@ -24,15 +24,30 @@ public class NameServiceCopy
      */
     public static void main(String[] args) throws CannotProceed, InvalidName, NotFound, org.omg.CORBA.ORBPackage.InvalidName {
 
-        String dnsToCopy = "edu/sc/seis";
+        // this parse the args, reads properties, and inits the orb
         Initializer.init(args);
+
+        String dnsToCopy = System.getProperty("nameServiceCopy.dns");
+        if (dnsToCopy == null) {
+            System.err.println("System property nameServiceCopy.dns must be set");
+            System.exit(1);
+        }
+        String copyToNS = System.getProperty("nameServiceCopy.copyTo");
+        if (copyToNS == null) {
+            System.err.println("System property nameServiceCopy.copyTo must be set");
+            System.exit(1);
+        }
+
+        System.out.println("Copying all from "+dnsToCopy+" to "+copyToNS);
+
         FissuresNamingService fisNS = Initializer.getNS();
         if (fisNS.getNameService()== null) {
             System.out.println("Problem, ns is null");
             System.exit(1);
         }
-        //fisNS.addOtherNameServiceCorbaLoc("corbaloc:iiop:dmc.iris.washington.edu:6371/NameService");
-        fisNS.addOtherNameServiceCorbaLoc("corbaloc:iiop:roo.seis.sc.edu:6371/NameService");
+        fisNS.addOtherNameServiceCorbaLoc(copyToNS);
+        //"corbaloc:iiop:dmc.iris.washington.edu:6371/NameService");
+        //fisNS.addOtherNameServiceCorbaLoc("corbaloc:iiop:roo.seis.sc.edu:6371/NameService");
 
         NSSeismogramDC[] seisDC = fisNS.getAllSeismogramDC();
         System.out.println("Got "+seisDC.length+" seis datacenters");
