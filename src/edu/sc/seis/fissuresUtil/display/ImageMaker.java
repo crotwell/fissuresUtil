@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.lang.Runnable;
 import java.lang.Thread;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import org.apache.log4j.*;
 
 /**
@@ -43,7 +45,7 @@ public class ImageMaker implements Runnable  {
 	BasicSeismogramDisplay.ImagePainter currentPatron;
 	int numLeft;
 	Graphics2D graphic;
-	Image currentImage; 
+	BufferedImage currentImage; 
 	Dimension size; 
 	HashMap plotters;
 	    numLeft = requests.size();
@@ -55,8 +57,9 @@ public class ImageMaker implements Runnable  {
 		size = currentRequirements.getSize();
 		plotters = ((HashMap)currentRequirements.getPlotters().clone());
 		if(requests.contains(currentPatron)){
-		    currentImage = currentPatron.createImage(size.width, size.height);
-		    graphic = (Graphics2D)currentImage.getGraphics();
+		    currentImage = new BufferedImage(size.width, size.height, BufferedImage.TYPE_BYTE_INDEXED);
+		    //currentPatron.createImage(size.width, size.height);
+		    graphic = currentImage.createGraphics();
 		}else{
 		    numLeft = requests.size();
 		    break;
@@ -64,6 +67,8 @@ public class ImageMaker implements Runnable  {
 	    }
 	    Iterator e = plotters.keySet().iterator();
 	    LinkedList afterSeismograms = new LinkedList();
+	    graphic.setColor(Color.white);
+	    graphic.fill(new Rectangle(0, 0, size.width, size.height));
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
 		if(current instanceof SeismogramPlotter){
@@ -78,7 +83,7 @@ public class ImageMaker implements Runnable  {
 		Plotter current = ((Plotter)e.next());
 		graphic.setColor((Color)plotters.get(current));
 		graphic.draw(current.draw(size));
-	    }
+		}
 	    synchronized(this){
 		if(currentRequirements.getDisplayInterval().getValue() == 
 		   currentPatron.getTimeConfig().getTimeRange().getInterval().getValue() &&
@@ -104,4 +109,13 @@ public class ImageMaker implements Runnable  {
     protected HashMap patrons = new HashMap();
 
     protected Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
+
+    public static long getImageSize(BufferedImage image){
+	if(image == null)
+	    return 7l;
+	DataBuffer db = image.getRaster().getDataBuffer();
+	int dataType = db.getDataType();
+	int elementSizeInBits = DataBuffer.getDataTypeSize(dataType);
+	return db.getNumBanks() * db.getSize() * elementSizeInBits / 8;
+    }
 }// ImageMaker
