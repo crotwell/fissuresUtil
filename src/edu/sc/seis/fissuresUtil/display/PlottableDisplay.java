@@ -52,7 +52,9 @@ public  class PlottableDisplay extends JComponent {
 						     BorderFactory.createLoweredBevelBorder()));  
 	setLayout(new BorderLayout());
 	//	add(imagePanel, BorderLayout.CENTER);
-	this.addMouseListener(new PlottableMouseListener(this));
+	PlottableMouseListener plottableMouseListener = new PlottableMouseListener(this);
+	this.addMouseListener(plottableMouseListener);
+	this.addMouseMotionListener(plottableMouseListener);
 	configChanged();
     }
 
@@ -509,7 +511,7 @@ public  class PlottableDisplay extends JComponent {
     private void drawHighlightRegion(Graphics g) {
 	// get new graphics to avoid messing up original
 	Graphics2D newG = (Graphics2D)g.create(); 
-	
+	int[] minmax = findMinMax(arrayplottable);
 	if(g != currentImageGraphics) {
 	    newG.translate(labelXShift,
 			   titleYShift);
@@ -519,9 +521,8 @@ public  class PlottableDisplay extends JComponent {
 	}
 
 	int xShift = plot_x/plotrows;
-
+	int mean = getMean();
 	int[] selectedRows = getSelectedRows(beginy, endy);
-
 	for (int currRow = 0; currRow < plotrows; currRow++) {
 
 	    // shift for row (left so time is in window, 
@@ -546,9 +547,9 @@ public  class PlottableDisplay extends JComponent {
 	    newG.setComposite(newComposite);
 	    if(isRowSelected(selectedRows, currRow)) {
 		int bx = 0;
-		int by = 0;
 		int ex = 0;
-		int ey = 0;
+		int by =  -plotoffset/2 + 10;
+		int ey = plotoffset - 10;
 		if(currRow == selectedRows[0] ) {
 		    System.out.println("Calculating values for start row");
 		    bx =  beginx + xShift*currRow ;//-labelXShift + beginx;
@@ -557,19 +558,15 @@ public  class PlottableDisplay extends JComponent {
 		    } else {
 			ex = endx - beginx;
 		    }
-		    by = -10;
-		    ey = 20;
+		
 		} else if(currRow == selectedRows[selectedRows.length -1 ]) {
 		    System.out.println("Caculating values for end row "+currRow);
 		    bx = xShift*currRow;
 		    ex = (endx);
-		    by = -10;
-		    ey = 20;
 		} else {
 		    bx = 0;
 		    ex = 6000;
-		    by = -10;
-		    ey = 20;
+		
 		}
 		System.out.println("NOW DRAW THE rectangle for row "+currRow);
 		newG.drawRect(bx, by, ex, ey);
