@@ -32,7 +32,7 @@ public class ExceptionHandlerGUI {
 	JLabel exceptionMessageLabel = new JLabel();
 	JTextArea messageArea = new JTextArea();
 	messageArea.setLineWrap(true);
-	messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 20));
+	messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
 	messageArea.setWrapStyleWord(true);
 	messageArea.setEditable(false);
 	
