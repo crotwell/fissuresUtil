@@ -398,7 +398,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		//logger.debug
 		System.out.println("creating a new filter for " + name);
 		FilteredSeismogramShape filteredShape = new FilteredSeismogramShape(filter, current);
-		filteredShape.setVisibility(true);
+		filteredShape.setVisibility(filteredShape.getFilter().getVisibility());
 		plotters.add(filterCount + seisCount, filteredShape);
 		filterCount++;
 		ampRegistrar.addSeismogram(filteredShape.getFilteredSeismogram());
