@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3244 2003-02-05 17:18:09Z crotwell $
+ * @version $Id: ChannelChooser.java 3245 2003-02-06 01:03:19Z crotwell $
  *
  */
 
@@ -433,7 +433,7 @@ public class ChannelChooser extends JPanel{
 	if ( ! showNetworks) {
 	    return getNetworks();
 	} // end of if ()
-	
+
         return castNetworkArray(networkList.getSelectedValues());
     }      
 
@@ -869,7 +869,7 @@ public class ChannelChooser extends JPanel{
 					  cache);
 			logger.debug("Got attributes "+attr.get_code());
 			// preload attributes
-			networks.addElement(cache);
+			networkAdd(cache);
 		    } else {
 			logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
 		    } // end of else
@@ -889,6 +889,7 @@ public class ChannelChooser extends JPanel{
 			for(int subCounter = 0; subCounter < nets.length; subCounter++) {
 			    if (nets[subCounter] != null) {
 				//  cache = new CacheNetworkAccess(nets[subCounter]);
+				// preload attributes
 				cache = new DNDNetworkAccess(nets[subCounter]);
 				NetworkAttr attr = cache.get_attributes();
 				NetworkAccess[] storedNets = 
@@ -908,8 +909,7 @@ public class ChannelChooser extends JPanel{
 				netIdToNetMap.put(NetworkIdUtil.toString(cache.get_attributes().get_id()),
 						  cache);
 				logger.debug("Got attributes "+attr.get_code());
-				// preload attributes
-				networks.addElement(cache);
+				networkAdd(cache);
 				totalNetworks++;
 			    } else {
 				logger.warn("a networkaccess returned from NetworkFinder.retrieve_by_code is null, skipping.");
@@ -932,6 +932,14 @@ public class ChannelChooser extends JPanel{
 		    });
 	    } // end of if ()
 	    setProgressValue(this, progressBar.getMaximum());
+	}
+
+	void networkAdd(final NetworkAccess n) {
+	    SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			networks.addElement(n);
+		    }
+		});
 	}
     }
 
@@ -964,7 +972,7 @@ public class ChannelChooser extends JPanel{
 		    for (int j=0; j<newStations.length; j++) {
 			synchronized (ChannelChooser.this) {
 			    if (this.equals(getStationLoader())) {
-				addStation(newStations[j]);
+				stationAdd(newStations[j]);
 				try {
 				    sleep((int)(.01*1000)); 
 				} catch (InterruptedException e) {
@@ -994,6 +1002,14 @@ public class ChannelChooser extends JPanel{
 	    } catch (Exception e) {
 		edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI.handleException(e);
 	    } // end of try-catch	}
+	}
+
+	void stationAdd(final Station s) {
+	    SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			addStation(s);
+		    }
+		});
 	}
     }
 
