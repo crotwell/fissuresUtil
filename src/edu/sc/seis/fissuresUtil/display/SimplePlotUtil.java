@@ -198,7 +198,7 @@ public class SimplePlotUtil  {
 	seisIndex = seisStartIndex;
 	numAdded = 0;
 	int xvalue = 0;
-	int tempValue;
+	int tempValue = 0;
 	xvalue =  Math.round((float)(linearInterp(seisStartIndex,
 						  pixelStartIndex,
 						  seisEndIndex,
@@ -218,8 +218,8 @@ public class SimplePlotUtil  {
 	    if(tempValue != xvalue) {
 		out[0][numAdded] = xvalue;
 		out[0][numAdded+1] = xvalue;
-		out[1][numAdded] = tempYvalues[j-1];
-		out[1][numAdded+1] = tempYvalues[j-1];
+		out[1][numAdded] = getMinValue(tempYvalues, 0, j-1);
+		out[1][numAdded+1] = (int)getMaxValue(tempYvalues, 0, j-1);
 		j = 0;
 		xvalue = tempValue;
 		numAdded = numAdded+2;
@@ -227,6 +227,7 @@ public class SimplePlotUtil  {
 	    }
 	    seisIndex++;
 	}
+	xvalue = tempValue;
 	out[0][numAdded] = xvalue;
 	out[0][numAdded+1] = xvalue;
 	out[1][numAdded] = tempYvalues[j-1];
@@ -256,14 +257,25 @@ public class SimplePlotUtil  {
 		j = j + 2;
 		startIndex = endIndex + 1;
 		xvalue = uncomp[0][i];
+		//System.out.println(xvalue);
 	    }  
 	}
-	comp[1][j] = getMinValue(uncomp[1], startIndex, endIndex);
-	comp[1][j+1] = (int)getMaxValue(uncomp[1], startIndex, endIndex);
-	comp[0][j] = uncomp[0][endIndex];
-	comp[0][j+1] = uncomp[0][endIndex];
-	return comp;
+
+	if(xvalue != 0) {
+	    startIndex = uncomp[0].length - 1;
+	    endIndex = uncomp[0].length - 1;
+	    comp[1][j] = getMinValue(uncomp[1], startIndex, endIndex);
+	    comp[1][j+1] = (int)getMaxValue(uncomp[1], startIndex, endIndex);
+	    comp[0][j] = uncomp[0][endIndex];
+	    comp[0][j+1] = uncomp[0][endIndex];
+	    j = j + 2;
 	}
+	int temp[][] = new int[2][j];
+	System.arraycopy(comp[0], 0, temp[0], 0, j);
+	System.arraycopy(comp[1], 0, temp[1], 0, j);
+	
+	return temp;
+    }
    
     protected static void  scaleYvalues(int[][] comp, LocalSeismogram seismogram, MicroSecondTimeRange tr, 
 					UnitRangeImpl ampRange,  Dimension size) {
