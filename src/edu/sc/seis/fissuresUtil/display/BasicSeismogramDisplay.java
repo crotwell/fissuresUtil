@@ -256,16 +256,20 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     public void clearSelections(){
 	parent.removeSelectionDisplay();
 	parent.remove3CSelectionDisplay();
+	selectionCount = 0;
+	selection3CCount = 0;
 	repaint();
     }
     
     public void clearRegSelections(){
 	getSelections().clear();
+	selectionCount = 0;
 	repaint();
     }
 
     public void clear3CSelections(){
 	get3CSelections().clear();
+	selection3CCount = 0;
 	repaint();
     }
 
