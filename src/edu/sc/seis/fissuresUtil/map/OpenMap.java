@@ -22,6 +22,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import com.bbn.openmap.BufferedMapBean;
 import com.bbn.openmap.InformationDelegator;
+import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapBean;
@@ -38,7 +39,9 @@ import com.bbn.openmap.layer.GraticuleLayer;
 import com.bbn.openmap.layer.etopo.ETOPOJarLayer;
 import com.bbn.openmap.layer.etopo.ETOPOLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
+import com.bbn.openmap.proj.Orthographic;
 import com.bbn.openmap.proj.Projection;
+import com.bbn.openmap.proj.ProjectionFactory;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.chooser.AvailableStationDataEvent;
 import edu.sc.seis.fissuresUtil.chooser.StationDataEvent;
@@ -51,6 +54,7 @@ import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
 import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
+import edu.sc.seis.fissuresUtil.map.tools.PanTool;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 import edu.sc.seis.mockFissures.IfEvent.MockEventAccessOperations;
 import edu.sc.seis.mockFissures.IfNetwork.MockStation;
@@ -71,6 +75,8 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     private DistanceLayer dl;
 
+    private ETOPOLayer topol;
+
     private MapBean mapBean;
 
     private MouseDelegator mouseDelegator;
@@ -83,23 +89,11 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     private ShapeLayer shapeLayer;
 
-    private String etopoDir;
-
-    private ETOPOLayer etopoLayer;
-
-    public OpenMap(String shapefile) {
-        this(shapefile, null);
-    }
-
-    public OpenMap(String shapefile, String etopoLoc) {
-        this(shapefile, etopoLoc, null);
-    }
-
     /**
      * Creates a new openmap. Both the channel chooser and the event table model
      * can be null. If so, channels and events just won't get drawn
      */
-    public OpenMap(String shapefile, String etopoLoc, String etopoColorMapFile) {
+    public OpenMap(String shapefile) {
         try {
             setLayout(new BorderLayout());
             mapHandler = new MapHandler();
@@ -107,15 +101,21 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             // Create a MapBean
             mapBean = getMapBean();
             //get the projection and set its background color and center point
-            /*
-             * Projection proj = new Orthographic(new
-             * LatLonPoint(mapBean.DEFAULT_CENTER_LAT,
-             * mapBean.DEFAULT_CENTER_LON), DEFAULT_SCALE,
-             * mapBean.DEFAULT_WIDTH, mapBean.DEFAULT_HEIGHT); //Projection proj =
-             * (Projection)mapBean.getProjection();
-             */
+            /*String projections[] = ProjectionFactory.getAvailableProjections();
+            System.out.println("projections:");
+            for(int i = 0; i < projections.length; i++) {
+                System.out.println(projections[i]);
+            }
+            Projection proj = (Projection)mapBean.getProjection();
+            proj = ProjectionFactory.makeProjection(ProjectionFactory.getProjType(projections[4]), proj);
+            mapBean.setProjection(proj);
+            Projection proj = new Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT,
+                                                               mapBean.DEFAULT_CENTER_LON),
+                                               DEFAULT_SCALE,
+                                               mapBean.DEFAULT_WIDTH,
+                                               mapBean.DEFAULT_HEIGHT);*/
+            //Projection proj = (Projection)mapBean.getProjection();
             mapBean.setBackgroundColor(WATER);
-            //mapBean.setProjection(proj);
             mapHandler.add(mapBean);
             // Create and add a LayerHandler to the MapHandler. The
             // LayerHandler manages Layers, whether they are part of the
@@ -142,47 +142,13 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             Properties shapeLayerProps = new Properties();
             shapeLayerProps.put("prettyName", "Political Solid");
             shapeLayerProps.put("lineColor", "FF000000");
-            if(etopoLoc == null) {
-                shapeLayerProps.put("fillColor", "FF39DA87");
-            }
+            shapeLayerProps.put("fillColor", "FF39DA87");
             shapeLayerProps.put("shapeFile", shapefile + ".shp");
             shapeLayerProps.put("spatialIndex", shapefile + ".ssx");
             shapeLayer.setProperties(shapeLayerProps);
             shapeLayer.setVisible(true);
             mapHandler.add(shapeLayer);
             lh.addLayer(shapeLayer);
-            if(etopoLoc != null) {
-                try {
-                    //create ETOPO Layer
-                    if(etopoColorMapFile == null) {
-                        etopoLayer = new ETOPOJarLayer();
-                    } else {
-                        etopoLayer = new ColorMapEtopoLayer(etopoColorMapFile);
-                    }
-                } catch(FileNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch(IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                etopoLayer.addLayerStatusListener(this);
-                //create ETOPO layer properties
-                Properties etopoProps = new Properties();
-                etopoProps.put("path", etopoLoc);
-                etopoProps.put("prettyName",
-                               "World Terrain Elevation / Ocean Depth");
-                etopoProps.put("number.colors", "216");
-                etopoProps.put("opaque", "255");
-                etopoProps.put("view.type", "1");
-                etopoProps.put("minute.spacing", "15");
-                etopoProps.put("contrast", "5");
-                etopoLayer.setProperties(etopoProps);
-                etopoLayer.setVisible(true);
-                mapHandler.add(etopoLayer);
-                lh.addLayer(etopoLayer);
-                etopoLayer.addLayerStatusListener(this);
-            }
             // Create the directional and zoom control tool
             //OMToolSet omts = new OMToolSet();
             // Create an OpenMap toolbar
@@ -247,16 +213,58 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         return el;
     }
 
+    public void setEtopoLayer(ETOPOLayer topoLayer) {
+        topol = topoLayer;
+        topol.addLayerStatusListener(this);
+        mapHandler.add(topol);
+        lh.addLayer(topol);
+        Properties props = shapeLayer.getProperties(null);
+        props.remove("fillColor");
+        shapeLayer.setProperties(props);
+    }
+
+    public void setEtopoLayer(String etopoDir) {
+        setEtopoLayer(etopoDir, null);
+    }
+
+    public void setEtopoLayer(String etopoDir, String colorMapFilename) {
+        ETOPOLayer topoLayer = null;
+        if(colorMapFilename != null) {
+            try {
+                topoLayer = new ColorMapEtopoLayer(colorMapFilename);
+            } catch(Exception e) {
+                logger.debug("problem loading custom color map. "
+                        + "falling back to default Etopo layer.");
+            }
+        }
+        if(topoLayer == null) {
+            topoLayer = new ETOPOJarLayer();
+        }
+        System.out.println("etopoDir: " + etopoDir);
+        System.out.println("color map: " + colorMapFilename);
+        Properties etopoProps = new Properties();
+        etopoProps.put("path", etopoDir);
+        etopoProps.put("prettyName", "World Terrain Elevation / Ocean Depth");
+        etopoProps.put("number.colors", "216");
+        etopoProps.put("opaque", "255");
+        etopoProps.put("view.type", "1");
+        etopoProps.put("minute.spacing", "15");
+        etopoProps.put("contrast", "5");
+        topoLayer.setProperties(etopoProps);
+        topoLayer.setVisible(true);
+        setEtopoLayer(topoLayer);
+    }
+
+    public ETOPOLayer getETOPOLayer() {
+        return topol;
+    }
+
     public ShapeLayer getShapeLayer() {
         return shapeLayer;
     }
 
     public DistanceLayer getDistanceLayer() {
         return dl;
-    }
-
-    public ETOPOLayer getETOPOLayer() {
-        return etopoLayer;
     }
 
     public Layer[] getLayers() {
@@ -287,7 +295,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public void updateLayerStatus(LayerStatusEvent event) {
         layerStatusMap.put(event.getLayer(), new Integer(event.getStatus()));
-        System.out.println("Layer " + event.getLayer().getName() + " status: "
+        logger.debug("Layer " + event.getLayer().getName() + " status: "
                 + translateLayerStatus(event.getStatus()));
     }
 
@@ -367,14 +375,12 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public static void main(final String[] args) {
         BasicConfigurator.configure();
-        final OpenMap om;
+        final OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
+        om.setActiveMouseMode(new PanTool(om));
         if(args.length > 2) {
-            om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
-                             "edu/sc/seis/mapData",
-                             args[2]);
+            om.setEtopoLayer("edu/sc/seis/mapData", args[2]);
         } else {
-            om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
-                             "edu/sc/seis/mapData");
+            om.setEtopoLayer("edu/sc/seis/mapData");
         }
         EventLayer evLayer = new EventLayer(om.getMapBean(),
                                             new DepthEventColorizer());
@@ -393,12 +399,16 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         JButton reloadColorTable = new JButton("Reload Table");
         final JFrame frame = new JFrame("OpenMap Test");
         reloadColorTable.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent e) {
                 ETOPOLayer etopo = om.getETOPOLayer();
                 if(etopo instanceof ColorMapEtopoLayer) {
                     try {
                         ((ColorMapEtopoLayer)etopo).setColorTable(args[2]);
-                        om.getMapBean().center(new CenterEvent(this, (float)Math.random(), (float)Math.random()));
+                        om.getMapBean()
+                                .center(new CenterEvent(this,
+                                                        (float)Math.random(),
+                                                        (float)Math.random()));
                     } catch(FileNotFoundException e1) {
                         e1.printStackTrace();
                     } catch(IOException e1) {
