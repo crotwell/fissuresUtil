@@ -4,12 +4,12 @@ package edu.sc.seis.fissuresUtil.chooser;
 import edu.iris.Fissures.IfNetwork.*;
 import javax.swing.*;
 
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -29,7 +29,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3854 2003-05-12 17:55:22Z crotwell $
+ * @version $Id: ChannelChooser.java 3862 2003-05-13 14:04:08Z crotwell $
  *
  */
 
@@ -573,6 +573,12 @@ public class ChannelChooser extends JPanel{
         return getSelectedChannels(inChannels, ClockUtil.now());
     }
 
+    public Instrumentation getInstrumentation(ChannelId channelId, Time time) throws ChannelNotFound {
+        NetworkAccess net = (NetworkAccess)
+            netIdToNetMap.get(NetworkIdUtil.toString(channelId.network_id));
+        return net.retrieve_instrumentation(channelId, time);
+    }
+
     /** Gets the best selected channels from the given list
      */
     protected  Channel[]  getSelectedChannels(Channel[] inChannels,
@@ -811,9 +817,9 @@ public class ChannelChooser extends JPanel{
     protected JList channelList;
     protected JProgressBar progressBar = new JProgressBar(0, 100);
 
-            protected LinkedList stationAcceptors = new LinkedList();
+    protected LinkedList stationAcceptors = new LinkedList();
 
-        protected DefaultListModel networks = new DefaultListModel();
+    protected DefaultListModel networks = new DefaultListModel();
     protected DefaultListModel stationNames = new DefaultListModel();
     protected HashMap stationMap = new HashMap();
     protected DefaultListModel sites = new DefaultListModel();
