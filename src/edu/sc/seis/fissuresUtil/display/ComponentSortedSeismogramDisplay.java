@@ -65,24 +65,12 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
-        DataSetSeismogram[][] componentSorted = DisplayUtils.getComponents(dss);
+        DataSetSeismogram[][] componentSorted = DisplayUtils.sortByComponents(dss);
         addNorth(componentSorted[0], tc);
         addEast(componentSorted[1], tc);
         addZ(componentSorted[2], tc);
         return north;
     }
-
-    /*public void addFlags(Arrival[] arrivals){
-        if(north != null){
-            north.addFlags(arrivals);
-        }
-        if(east != null){
-            east.addFlags(arrivals);
-        }
-        if(z != null){
-            z.addFlags(arrivals);
-        }
-     }*/
 
     private void addNorth(DataSetSeismogram[] newNorth, TimeConfig tc){
         north = addToDisplay(north, newNorth, tc,DisplayUtils.NORTH);
