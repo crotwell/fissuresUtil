@@ -23,45 +23,45 @@ import java.util.*;
 
 public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     private DBDataCenter (DataCenterOperations dataCenterRouter){
-	this.dataCenterRouter = dataCenterRouter;
-	hsqlRequestFilterDb = new HSQLRequestFilterDb(dataCenterRouter);
+    this.dataCenterRouter = dataCenterRouter;
+    hsqlRequestFilterDb = new HSQLRequestFilterDb(dataCenterRouter);
     }
-    
+
     private DBDataCenter () {
 
-	hsqlRequestFilterDb = new HSQLRequestFilterDb();
+    hsqlRequestFilterDb = new HSQLRequestFilterDb();
     }
 
     public static DBDataCenter getDataCenter(DataCenterOperations dataCenterRouter) {
-	if(dbDataCenter == null) {
-	    dbDataCenter = new DBDataCenter(dataCenterRouter);
- 	}
-	return dbDataCenter;
+    if(dbDataCenter == null) {
+        dbDataCenter = new DBDataCenter(dataCenterRouter);
+    }
+    return dbDataCenter;
     }
 
     public static DBDataCenter getDataCenter() {
-	if(dbDataCenter == null) {
-	    dbDataCenter = new DBDataCenter();
-	}
-	return dbDataCenter;
+    if(dbDataCenter == null) {
+        dbDataCenter = new DBDataCenter();
     }
-    
+    return dbDataCenter;
+    }
+
      //
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/available_data:1.0
     //
     /***/
 
     public RequestFilter[]
-	available_data(RequestFilter[] a_filterseq) {
-	return new RequestFilter[0];
+    available_data(RequestFilter[] a_filterseq) {
+    return new RequestFilter[0];
     }
      public String
-	request_seismograms(RequestFilter[] a_filterseq,
+    request_seismograms(RequestFilter[] a_filterseq,
                         DataCenterCallBack a_client,
                         boolean long_lived,
                         edu.iris.Fissures.Time expiration_time)
         throws edu.iris.Fissures.FissuresException {
-	 return new String();
+     return new String();
      }
 
     //
@@ -78,51 +78,43 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
      *is false.*/
 
     public String
-	request_seismograms(RequestFilter[] a_filterseq,
-			    LocalDataCenterCallBack a_client,
-			    SeisDataChangeListener initiator,
-			    boolean long_lived,
-			    edu.iris.Fissures.Time expiration_time)
+    request_seismograms(RequestFilter[] a_filterseq,
+                LocalDataCenterCallBack a_client,
+                SeisDataChangeListener initiator,
+                boolean long_lived,
+                edu.iris.Fissures.Time expiration_time)
         throws edu.iris.Fissures.FissuresException {
-	//first check the database to  see if there is any data for each
-	//of the request filters if data present return data and
-	//modify the requestFilters so that they just get only the
-	//data missing in the database.
-	//a separate thread must be spanned to get the missing data.
-	
-	//first see if there is data in the database for the requested request filters.
-	//and build the new RequestFilterSequence.
+    //first check the database to  see if there is any data for each
+    //of the request filters if data present return data and
+    //modify the requestFilters so that they just get only the
+    //data missing in the database.
+    //a separate thread must be spanned to get the missing data.
 
-	//RequestFilter param_sequence[] = new RequestFilter[1];
-	//	param_sequence[0] = a_filterseq[counter];
-	LocalSeismogramImpl[] seis = hsqlRequestFilterDb.getSeismograms(a_filterseq);
-	if(seis.length != 0) {
-	    a_client.pushData(seis, initiator);
-	}
+    //first see if there is data in the database for the requested request filters.
+    //and build the new RequestFilterSequence.
 
-	////System.out.println("Before finding available data");
-	RequestFilter[] available_seq = hsqlRequestFilterDb.available_data(a_filterseq);
-// 	if(available_seq.length != 0) {
-// 	    LocalSeismogram[] seist = hsqlRequestFilterDb.getSeismograms(available_seq);
-// 	    a_client.pushData(seist, initiator);
-// 	}
-	////System.out.println("After available data");
-	RequestFilter[] missing_seq = RequestFilterUtil.leftOuterJoin(a_filterseq, available_seq);
-	if(missing_seq.length == 0) {
-	    a_client.finished(initiator);
-	    return new String();
-	}
-	Thread t = new Thread(dbThreadGroup,
-                          new DataCenterThread(missing_seq,
+         /*LocalSeismogramImpl[] seis = hsqlRequestFilterDb.getSeismograms(a_filterseq);
+    if(seis.length != 0) {
+        a_client.pushData(seis, initiator);
+    }
+
+    RequestFilter[] available_seq = hsqlRequestFilterDb.available_data(a_filterseq);
+    RequestFilter[] missing_seq = RequestFilterUtil.leftOuterJoin(a_filterseq, available_seq);
+    if(missing_seq.length == 0) {
+        a_client.finished(initiator);
+        return new String();
+          }*/
+    Thread t = new Thread(dbThreadGroup,
+                          new DataCenterThread(a_filterseq,//missing_seq,
                                                a_client,
                                                initiator,
                                                this),
                           "DBDataCenter"+getThreadNum());
-	t.start();
-	
-	
-	return new String();
-	
+    t.start();
+
+
+    return new String();
+
     }
 
     //
@@ -133,31 +125,31 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     public synchronized LocalSeismogram[]
     retrieve_seismograms(RequestFilter[] a_filterseq)
         throws edu.iris.Fissures.FissuresException {
-	//here first check with the database to see if
-	//if the seismogram is already in the cache.
-	//if it is the case .. return it..
-	//else use the dataCenter Router to get the seismograms.
-	//LocalSeismogram[] localSeismograms = new LocalSeismogram[a_filterseq.length];
-	ArrayList arrayList = new ArrayList();
-	//	for(int counter = 0; counter < a_filterseq.length; counter++) {
-	LocalSeismogramImpl[] localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
-	if(localSeismograms.length == 0 && dataCenterRouter != null)  {
-	    localSeismograms = (LocalSeismogramImpl[])dataCenterRouter.retrieve_seismograms(a_filterseq);
-	    hsqlRequestFilterDb.addSeismogram(localSeismograms);
-	}
-	insertIntoArrayList(arrayList, localSeismograms);
-	    //}
-	LocalSeismogram[] rtnValues = new LocalSeismogram[arrayList.size()];
-	rtnValues = (LocalSeismogram[]) arrayList.toArray(rtnValues);
-	return rtnValues;
+    //here first check with the database to see if
+    //if the seismogram is already in the cache.
+    //if it is the case .. return it..
+    //else use the dataCenter Router to get the seismograms.
+    //LocalSeismogram[] localSeismograms = new LocalSeismogram[a_filterseq.length];
+    ArrayList arrayList = new ArrayList();
+    //  for(int counter = 0; counter < a_filterseq.length; counter++) {
+    LocalSeismogramImpl[] localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
+    if(localSeismograms.length == 0 && dataCenterRouter != null)  {
+        localSeismograms = (LocalSeismogramImpl[])dataCenterRouter.retrieve_seismograms(a_filterseq);
+        hsqlRequestFilterDb.addSeismogram(localSeismograms);
+    }
+    insertIntoArrayList(arrayList, localSeismograms);
+        //}
+    LocalSeismogram[] rtnValues = new LocalSeismogram[arrayList.size()];
+    rtnValues = (LocalSeismogram[]) arrayList.toArray(rtnValues);
+    return rtnValues;
     }
 
     private void insertIntoArrayList(ArrayList arrayList, LocalSeismogram[] localSeismograms) {
-	for(int counter = 0; counter < localSeismograms.length; counter++) {
-	    arrayList.add(localSeismograms[counter]);
-	}
+    for(int counter = 0; counter < localSeismograms.length; counter++) {
+        arrayList.add(localSeismograms[counter]);
     }
-   
+    }
+
 
     //
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/queue_seismograms:1.0
@@ -167,7 +159,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     public String
     queue_seismograms(RequestFilter[] a_filterseq)
         throws edu.iris.Fissures.FissuresException {
-	return new String();
+    return new String();
     }
 
     //
@@ -178,8 +170,8 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     public LocalSeismogram[]
     retrieve_queue(String a_request)
         throws edu.iris.Fissures.FissuresException {
-	
-	return new LocalSeismogram[0];
+
+    return new LocalSeismogram[0];
     }
 
     //
@@ -202,20 +194,20 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     public String
     request_status(String a_request)
         throws edu.iris.Fissures.FissuresException {
-	
-	return new String();
+
+    return new String();
     }
 
     public String getFileIds(ChannelId channelId,
-			     MicroSecondDate beginDate,
-			     MicroSecondDate endDate) {
-	return hsqlRequestFilterDb.getFileIds(channelId,
-				      beginDate,
-				      endDate);
+                 MicroSecondDate beginDate,
+                 MicroSecondDate endDate) {
+    return hsqlRequestFilterDb.getFileIds(channelId,
+                      beginDate,
+                      endDate);
     }
 
     public LocalSeismogram getSeismogram(String fileIds) {
-	return hsqlRequestFilterDb.getSeismogram(fileIds);
+    return hsqlRequestFilterDb.getSeismogram(fileIds);
     }
 
     private DataCenterOperations dataCenterRouter;
@@ -224,7 +216,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 
     private static DBDataCenter dbDataCenter;
 
-    
+
     private static int threadNum = 0;
 
     private synchronized static int getThreadNum() {
