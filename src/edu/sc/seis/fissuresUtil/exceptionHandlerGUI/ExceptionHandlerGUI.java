@@ -46,7 +46,7 @@ public class ExceptionHandlerGUI {
 	tabbedPane.setPreferredSize(dimension);
 	tabbedPane.setMinimumSize(dimension);
 
-	displayFrame.setContentPane(tabbedPane);
+	displayFrame.getContentPane().add(tabbedPane);
 	displayFrame.setSize(400,400);
 	displayFrame.pack();
 	displayFrame.show();
