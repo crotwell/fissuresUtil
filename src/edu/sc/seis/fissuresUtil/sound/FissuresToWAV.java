@@ -52,7 +52,7 @@ public class FissuresToWAV {
 
     public void play(MicroSecondTimeRange tr){
         Thread playThread = new PlayThread(tr);
-        playThread.run();
+        playThread.start();
     }
 
     private synchronized void playFromThread(MicroSecondTimeRange tr){
