@@ -554,11 +554,11 @@ public class DisplayUtils {
 
     public static final Rectangle2D EMPTY_RECTANGLE = new Rectangle2D.Float(0,0,0,0);
 
-    public static final Color SHALLOW_DEPTH_EVENT = new Color(243, 33, 78);
+    public static final Color EVENT_RED = new Color(243, 33, 78);
 
-    public static final Color MEDIUM_DEPTH_EVENT = new Color(246, 185, 42);
+    public static final Color EVENT_ORANGE = new Color(246, 185, 42);
 
-    public static final Color DEEP_DEPTH_EVENT = new Color(245, 249, 27);
+    public static final Color EVENT_YELLOW = new Color(245, 249, 27);
 
     public static final Color STATION = new Color(43, 33, 243);
 
