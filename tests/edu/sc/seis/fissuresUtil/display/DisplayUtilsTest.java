@@ -6,7 +6,10 @@
 
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import junit.framework.TestCase;
 import junitx.framework.ArrayAssert;
@@ -35,11 +38,51 @@ public class DisplayUtilsTest extends TestCase{
         assertEquals(fullTime,DisplayUtils.getFullTime(createUnsortedThreeSeisArray(seis)));
     }
 
+    public void testAreContiguous(){
+        LocalSeismogramImpl first = SimplePlotUtil.createSpike(new MicroSecondDate(0));
+        LocalSeismogramImpl second = SimplePlotUtil.createSpike(first.getEndTime());
+        assertTrue("Touching end times should be contiguous", DisplayUtils.areContiguous(first, second));
+        assertTrue("Touching end times should be contiguous", DisplayUtils.areContiguous(second, first));
+        TimeInterval sampleInterval = first.getSampling().getPeriod();
+        LocalSeismogramImpl third = SimplePlotUtil.createSpike(first.getEndTime().add(sampleInterval));
+        assertTrue(DisplayUtils.areContiguous(first, third));
+        assertTrue(DisplayUtils.areContiguous(third, first));
+    }
+
+    public void testAreNotContiguous(){
+        LocalSeismogramImpl first = SimplePlotUtil.createSpike(new MicroSecondDate(0));
+        LocalSeismogramImpl second = SimplePlotUtil.createSpike(new MicroSecondDate(5));
+        assertFalse(DisplayUtils.areContiguous(first, second));
+        assertFalse(DisplayUtils.areContiguous(second, first));
+        TimeInterval sampleInterval = first.getSampling().getPeriod();
+        TimeInterval tripleInterval = (TimeInterval)sampleInterval.multiplyBy(3.0);
+        LocalSeismogramImpl third = SimplePlotUtil.createSpike(first.getEndTime().add(tripleInterval));
+        assertFalse(DisplayUtils.areContiguous(first, third));
+        assertFalse(DisplayUtils.areContiguous(third, first));
+    }
+
+    public void testAreOverlapping(){
+        LocalSeismogramImpl first = SimplePlotUtil.createSpike(new MicroSecondDate(0));
+        LocalSeismogramImpl second = SimplePlotUtil.createSpike(new MicroSecondDate(5));
+        assertTrue(DisplayUtils.areOverlapping(first, second));
+        assertTrue(DisplayUtils.areOverlapping(second, first));
+    }
+
+    public void testAreNotOverlapping(){
+        LocalSeismogramImpl first = SimplePlotUtil.createSpike(new MicroSecondDate(0));
+        TimeInterval sampleInterval = first.getSampling().getPeriod();
+        LocalSeismogramImpl second = SimplePlotUtil.createSpike(first.getEndTime().add(sampleInterval));
+        assertFalse(DisplayUtils.areOverlapping(first, second));
+        assertFalse(DisplayUtils.areOverlapping(second, first));
+    }
+
     public static LocalSeismogramImpl[] createThreeSeisArray(){
-        LocalSeismogramImpl firstSeis = SimplePlotUtil.createSpike(new MicroSecondDate(0));
-        LocalSeismogramImpl secondSeis = SimplePlotUtil.createSpike(new MicroSecondDate(5000));
-        LocalSeismogramImpl thirdSeis = SimplePlotUtil.createSpike(new MicroSecondDate(100000));
         LocalSeismogramImpl[] seis = {firstSeis,secondSeis,thirdSeis};
+        return seis;
+    }
+
+    public static LocalSeismogramImpl[] createOtherSeisArray(){
+        LocalSeismogramImpl[] seis = {fourthSeis, fifthSeis, thirdSeis};
         return seis;
     }
 
@@ -51,4 +94,14 @@ public class DisplayUtilsTest extends TestCase{
         LocalSeismogramImpl[] unsorted = { seis[2], seis[1], seis[0] };
         return unsorted;
     }
+
+    private static LocalSeismogramImpl firstSeis = SimplePlotUtil.createSpike(new MicroSecondDate(0));
+    private static LocalSeismogramImpl secondSeis = SimplePlotUtil.createSpike(new MicroSecondDate(5000));
+    private static LocalSeismogramImpl thirdSeis = SimplePlotUtil.createSpike(new MicroSecondDate(100000));
+
+    private static LocalSeismogramImpl fourthSeis = SimplePlotUtil.createSpike(new MicroSecondDate(2500));
+    private static LocalSeismogramImpl fifthSeis = SimplePlotUtil.createSpike(new MicroSecondDate(1000000));
+    private static LocalSeismogramImpl sixthSeis = SimplePlotUtil.createSpike(new MicroSecondDate(9000));
+
+
 }
