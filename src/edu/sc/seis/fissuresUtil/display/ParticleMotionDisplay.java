@@ -58,15 +58,15 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
         scaleBorder.setLeftScaleMapper(vAmpScaleMap);
         hTitleBorder = new BottomTitleBorder("X - axis Title");
         vTitleBorder = new LeftTitleBorder("Y - axis Title");
-        Border hVTitleBorder = BorderFactory.createCompoundBorder(hTitleBorder,
+        Border titleBorder = BorderFactory.createCompoundBorder(hTitleBorder,
                                                                   vTitleBorder);
         Border bevelBorder = BorderFactory.createRaisedBevelBorder();
-        Border bevelHVBorder = BorderFactory.createCompoundBorder(bevelBorder,
-                                                                  hVTitleBorder);
+        Border bevelTitleBorder = BorderFactory.createCompoundBorder(bevelBorder,
+                                                                  titleBorder);
         Border lowBevelBorder = BorderFactory.createLoweredBevelBorder();
         Border scaleBevelBorder = BorderFactory.createCompoundBorder(scaleBorder,
                                                                      lowBevelBorder);
-        particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(bevelHVBorder,
+        particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(bevelTitleBorder,
                                                                           scaleBevelBorder));
         add(particleDisplayPanel, BorderLayout.CENTER);
         radioPanel.setVisible(false);
