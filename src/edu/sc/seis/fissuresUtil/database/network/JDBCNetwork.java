@@ -98,7 +98,7 @@ public class JDBCNetwork extends NetworkTable{
     public int put(NetworkAttr network)  throws SQLException {
         int dbid;
         try {
-            dbid = getDBId(network.get_id());
+            dbid = getDbId(network.get_id());
             // No NotFound exception, so already added the id
             // now check if the attrs are added
             getIfNameExists.setInt(1, dbid);
@@ -121,7 +121,7 @@ public class JDBCNetwork extends NetworkTable{
     public int put(NetworkId id) throws SQLException{
         int dbid;
         try {
-            dbid = getDBId(id);
+            dbid = getDbId(id);
         }catch(NotFound e){
             dbid = seq.next();
             putId.setInt(1, dbid);
@@ -146,10 +146,10 @@ public class JDBCNetwork extends NetworkTable{
     }
     
     public NetworkAttr get(NetworkId id)throws SQLException, NotFound {
-        return get(getDBId(id));
+        return get(getDbId(id));
     }
 
-    public int getDBId(NetworkId id)  throws SQLException, NotFound {
+    public int getDbId(NetworkId id)  throws SQLException, NotFound {
         insertId(id, getDBId, 1, time);
         ResultSet rs = getDBId.executeQuery();
         if(rs.next()){ return rs.getInt("net_id"); }
