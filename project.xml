@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <name>fissuresUtil</name>
+  <id>fissuresUtil</id>
+  
+  <currentVersion>1.0</currentVersion>
+  
+  <package>edu.sc.seis.fissuresUtil</package>
+  <shortDescription>Utility functionality for fissures clients and servers.</shortDescription>
+  <gumpRepositoryId>fissuresUtil</gumpRepositoryId>
+  <description> The Fissures utility implementation has java code that 
+implements some utility functionality related to the Fissures framework. 
+It does not actually provide an implemenation for any services, but 
+those wishing to implement new clients or new services will find many 
+useful things already done.</description>
+  
+  <developers>
+    <developer>
+      <name>Philip Crotwell</name>
+      <id>crotwell</id>
+      <email>crotwell@seis.sc.edu</email>
+      <organization>University of South Carolina</organization>
+      <roles>
+      <role>Module Maintainer</role>
+      <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Srinivasa Telukutla</name>
+      <id>telukutl</id>
+      <email>telukutl@seis.sc.edu</email>
+      <organization>University of South Carolina</organization>
+      <roles>
+      <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Charlie Groves</name>
+      <id>groves</id>
+      <email>groves@seis.sc.edu</email>
+      <organization>University of South Carolina</organization>
+      <roles>
+      <role>Java Developer</role>
+      </roles>
+    </developer>
+    </developers>
+
+  <dependencies>
+    <dependency>
+      <id>fissuresImpl</id>
+      <version>1.0</version>
+    </dependency>
+        <dependency>
+      <id>fissuresIDL</id>
+      <version>1.0</version>
+    </dependency>
+        <dependency>
+      <id>junit</id>
+      <version>3.8</version>
+      <type>test</type>
+      <url>http://junit.org/</url>
+    </dependency>
+    </dependencies>
+   
+</project>
+
