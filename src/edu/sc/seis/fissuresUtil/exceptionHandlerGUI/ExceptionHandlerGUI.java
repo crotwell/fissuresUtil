@@ -7,11 +7,8 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.net.*;
 import org.apache.log4j.Logger;
 
 /**
@@ -126,7 +123,15 @@ public class ExceptionHandlerGUI {
 
         JPanel stackTracePanel = new JPanel();
         JScrollPane scrollPane = new JScrollPane(stackTracePanel);
-        String traceString = "";
+
+        messageArea.setText(getStackTraceString());
+        stackTracePanel.setLayout(new BorderLayout());
+        stackTracePanel.add(messageArea);
+        return scrollPane;
+    }
+
+    public String getStackTraceString() {
+                String traceString = "";
         if (exception instanceof WrappedException) {
             WrappedException we = (WrappedException)exception;
             if (we.getCausalException() != null) {
@@ -136,11 +141,11 @@ public class ExceptionHandlerGUI {
         }
 
         traceString += getStackTrace(exception);
+        return traceString;
+    }
 
-        messageArea.setText(traceString);
-        stackTracePanel.setLayout(new BorderLayout());
-        stackTracePanel.add(messageArea);
-        return scrollPane;
+    public String getMessage() {
+        return message;
     }
 
     public static String getSystemInformation() {
@@ -164,9 +169,9 @@ public class ExceptionHandlerGUI {
         rtnValue += "user.region : "+System.getProperty("user.region")+"\n";
 
         rtnValue += "\n\n\n Other Properties:\n";
-        StringWriter stringWriter = new StringWriter();
+        PrintWriter stringWriter = new PrintWriter(new StringWriter());
         java.util.Properties props = System.getProperties();
-        props.list(new PrintWriter(stringWriter));
+        props.list(stringWriter);
         rtnValue += stringWriter.toString();
 
         return rtnValue;
@@ -179,10 +184,7 @@ public class ExceptionHandlerGUI {
 
         JButton closeButton = new JButton("Close");
 
-        JButton saveToFile = new JButton("save");
-        buttonPanel.add(closeButton);
-        buttonPanel.add(saveToFile);
-
+        JButton saveToFile = new JButton("Save");
         displayPanel.setLayout(new BorderLayout());
         displayPanel.add(mainPanel,
                          BorderLayout.CENTER);
@@ -224,6 +226,40 @@ public class ExceptionHandlerGUI {
                     }
                 }
             });
+
+
+        if (System.getProperty("errorHandlerServlet") != null) {
+            JButton submit = new JButton("Submit");
+            addToButtonPanel(submit);
+            submit.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                URL url = new URL(System.getProperty("errorHandlerServlet"));
+                                HttpURLConnection http = (HttpURLConnection)url.openConnection();
+                                http.setRequestMethod("POST");
+                                http.setDoOutput(true);
+                                BufferedWriter out = new BufferedWriter( new OutputStreamWriter(http.getOutputStream()));
+                                out.write("bugreport="+getMessage());
+                                out.write(getStackTraceString());
+                                out.write(getSystemInformation());
+                                out.write("\r\n");
+                                out.close();
+                                http.connect();
+                                BufferedReader read = new BufferedReader(new InputStreamReader(http.getInputStream()));
+                                String s;
+                                while ((s = read.readLine()) != null) {
+                                    logger.debug(s);
+                                }
+                                read.close();
+                            } catch (IOException ex) {
+                                logger.error("Problem sending error to server", ex);
+                            }
+                        }
+                    });
+        }
+        buttonPanel.add(closeButton);
+        buttonPanel.add(saveToFile);
+
 
         displayFrame.getContentPane().add(displayPanel);
         displayFrame.setSize(dimension);
