@@ -4,10 +4,11 @@ import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
 
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,7 +19,6 @@ import javax.swing.JComponent;
 import javax.swing.OverlayLayout;
 import javax.swing.border.Border;
 import org.apache.log4j.Category;
-import java.awt.event.MouseEvent;
 
 /**
  * BasicSeismogramDisplay.java
@@ -85,13 +85,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
-                drawables.add(new DrawableSeismogram(this, seismos[i],
-                                                     seisColors[(seismograms.size() -1) % seisColors.length]));
+                drawables.add(new DrawableSeismogram(this, seismos[i]));
             }
         }
         Iterator e = activeFilters.iterator();
         while(e.hasNext()){
-            DisplayUtils.applyFilter((ColoredFilter)e.next(), new DrawableIterator(DrawableSeismogram.class,
+            DisplayUtils.applyFilter((NamedFilter)e.next(), new DrawableIterator(DrawableSeismogram.class,
                                                                                    drawables));
         }
         seismogramArray = null;
@@ -444,8 +443,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     private DataSetSeismogram[] seismogramArray;
 
     private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
-
-    private static Color[] seisColors = { Color.BLUE, Color.RED,  Color.DARK_GRAY, Color.GREEN, Color.BLACK, Color.GRAY };
 
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay
