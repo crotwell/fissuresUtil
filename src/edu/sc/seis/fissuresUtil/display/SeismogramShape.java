@@ -178,11 +178,13 @@ public class SeismogramShape implements Shape, Plotter {
     }
     
     private void calculatePixel(int pixel, int height)throws UnsupportedDataEncoding{
-	int start = (int)(seisStart + samplesPerPixel * (pixel - startPixel));
-	int end = (int)(start + samplesPerPixel);
-	if(start < 0 || end >= seis.getNumPoints()){
-	   System.out.println("attempted to calculate outside of seismogram point boundaries");
-	   return;
+	int start = (int)Math.floor(seisStart + samplesPerPixel * (pixel - startPixel));
+	int end = (int)Math.ceil(start + samplesPerPixel);
+	if(start < 0){
+	    start = 0;
+	}
+	if(end >= seis.getNumPoints()){
+	    end = seis.getNumPoints() - 1;
 	}
 	double minValue = seis.getValueAt(start).getValue();
 	double maxValue = minValue;
