@@ -27,7 +27,9 @@ public class LayerProjectionUpdater implements Runnable{
 
     public void run(){
         layer.setProjection(event.getProjection());
-        graphics.regenerate(event.getProjection());
+        synchronized(graphics){
+            graphics.regenerate(event.getProjection());
+        }
         layer.repaint();
     }
 
