@@ -21,7 +21,7 @@ public interface GlobalToolbarActions {
 
     public void mouseReleased(MouseEvent me);
 
-    public void remove(MouseEvent me);
+    public void remove();
 
     public void removeAll(MouseEvent me);
 
@@ -32,4 +32,8 @@ public interface GlobalToolbarActions {
     public void zoomOut(MouseEvent me);
 
     public void createParticleDisplay(MouseEvent me);
+
+    public void selectionReleased(MouseEvent me);
+
+    public void clearSelections();
 }// GlobalToolbarActions

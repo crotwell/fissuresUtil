@@ -216,36 +216,53 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    currentSelection = new Selection(selectionBegin, selectionEnd, timeRegistrar, seisPlotters, this, 
 					     selectionColors[selections.size()%selectionColors.length]);
 	    selections.add(currentSelection);
+	    newSelection = true;
 	    return;
 	}
 	currentSelection.adjustRange(selectionBegin, selectionEnd);		
     }
 
-    public Selection releaseCurrentSelection(){
-	if(currentSelection != null && currentSelection.remove()){
+    public Selection getCurrentSelection(){ return currentSelection; }
+    
+    public void selectionReleased(MouseEvent me){
+	if(currentSelection.isRemoveable()){
+	    currentSelection.remove();
 	    selections.remove(currentSelection);
 	    repaint();
-	    Selection previousSelection = currentSelection;
-	    currentSelection = null;
-	    return previousSelection;
+	}else if(newSelection == true){
+	    parent.createSelectionDisplay(this);
+	    newSelection = false;
 	}
-	currentSelection.released();
+	currentSelection.release();
 	currentSelection = null;
-	return null;
     }
+
+    public void clearSelections(){
+	Iterator e = selections.iterator();
+	while(e.hasNext()){
+	    ((Selection)e.next()).remove();
+	}
+	selections.clear();
+	repaint();
+    }
+	
 
     /**
      * Describe <code>remove</code> method here.
      *
      * @param me a <code>MouseEvent</code> value
      */
-    public void remove(MouseEvent me){
+    public void remove(){
        logger.debug(name + " being removed");
        this.stopImageCreation();
        parent.removeDisplay(this);
+       Iterator e = selections.iterator();
+       while(e.hasNext()){
+	   ((Selection)e.next()).remove();
+       }
        timeRegistrar.removeTimeSyncListener(this);
        ampRegistrar.removeAmpSyncListener(this); 
-       Iterator e = seismos.iterator();
+       e = seismos.iterator();
        while(e.hasNext()){
 	   LocalSeismogram current = ((LocalSeismogram)e.next());
 	   timeRegistrar.removeSeismogram(current);
@@ -326,10 +343,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    amp = (current.getMaxValue() - current.getMinValue()) * yPercent + current.getMinValue();
 	}
 	parent.setLabels(time, amp);
-    }	
+    }
 
-    public Selection getCurrentSelection(){ return currentSelection; }
-    
     public void setUnfilteredDisplay(boolean visible){
 	synchronized(imageMaker){
 	    Iterator e = seisPlotters.keySet().iterator();
@@ -507,7 +522,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
    
     protected ImagePainter imagePainter;
 
-    protected boolean redo;
+    protected boolean redo, newSelection;
 
     protected Dimension overSize;
 
@@ -519,8 +534,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
     private Color[] filterColors = { Color.yellow, Color.green, Color.black, Color.darkGray, Color.orange };
 
-    private Color[] selectionColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64), 
-					  new Color(0, 0, 255, 64)};
+    private Color[] selectionColors = { new NamedColor(255, 0, 0, 64, "red"),  
+					new NamedColor(255, 255, 0, 64, "yellow"), 
+					new NamedColor(0, 255, 0, 64, "green"),  
+					new NamedColor(0, 0, 255, 64, "blue")};
 
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay

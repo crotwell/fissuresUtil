@@ -77,11 +77,14 @@ public class Selection implements TimeSyncListener{
 	}
     }
     
-    public boolean remove(){
-	if(internalTimeConfig.getTimeRange().getInterval().getValue()/externalTimeConfig.getTimeRange().getInterval().getValue() < .01)
+    public boolean isRemoveable(){
+	if(internalTimeConfig.getTimeRange().getInterval().getValue()/externalTimeConfig.getTimeRange().getInterval().getValue() < .01){
 	    return true;
+	}
 	return false; 
     }
+
+    public void remove(){ display.remove(); }
 	
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
 	double timeWidth = externalTimeConfig.getTimeRange().getInterval().getValue();
@@ -121,13 +124,15 @@ public class Selection implements TimeSyncListener{
 	return seismos;
     }
 
-    public void released(){ released = true; }
+    public void setDisplay(BasicSeismogramDisplay display){this.display = display; }
+
+    public void release(){ released = true; }
 
     public TimeConfigRegistrar getInternalConfig(){ return internalTimeConfig; }
 
     public void updateTimeRange(){ parent.repaint(); }
 
-    protected BasicSeismogramDisplay parent;
+    protected BasicSeismogramDisplay parent, display;
 
     protected TimeConfigRegistrar externalTimeConfig, internalTimeConfig;
     
