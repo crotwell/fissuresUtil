@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 
@@ -14,6 +16,12 @@ public class AmpBorder extends AbstractUnitRangeBorder{
 
     public UnitRangeImpl getRange() {
         last = disp.getAmpConfig().getAmp();
+        if(SeismogramDisplay.PRINTING && last.equals(DisplayUtils.ONE_RANGE)){
+            //Since ONE_RANGE may indicate that the amp config doesn't know, have
+            //it calculate just in case new data has come in since our intitial
+            //get amp
+            last=disp.getAmpConfig().calculate().getAmp();
+        }
         return last;
     }
 
