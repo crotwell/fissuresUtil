@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
@@ -27,10 +27,19 @@ public class AmpEvent {
         return amps[indexOf(seismo)];
     }
 
+    public boolean contains(DataSetSeismogram seismo){
+        try{
+            indexOf(seismo);
+            return true;
+        }catch(IllegalArgumentException e){
+            return false;
+        }
+    }
+
     public UnitRangeImpl getAmp(){
         if(genericAmp == null){
             if(amps.length == 0){
-                genericAmp = new UnitRangeImpl(-1, 1, UnitImpl.COUNT);
+                genericAmp = DisplayUtils.ONE_RANGE;
             } else if(amps.length == 1){
                 genericAmp = amps[0];
             }else{
