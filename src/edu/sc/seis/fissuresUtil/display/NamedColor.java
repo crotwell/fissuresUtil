@@ -13,9 +13,13 @@ import java.awt.Color;
  */
 
 public class NamedColor extends Color {
+    public NamedColor(Color color, String name){
+        this(color.getRed(), color.getBlue(), color.getGreen(), color.getAlpha(), name);
+    }
+
     public NamedColor(int r, int b, int g, int a, String name){
-	super(r, b, g, a);
-	this.name = name;
+        super(r, g, b, a);
+        this.name = name;
     }
 
     public String toString(){ return name; }
@@ -25,5 +29,5 @@ public class NamedColor extends Color {
     public String getName(){ return name; }
 
     private String name;
-    
+
 }// NamedColor
