@@ -24,10 +24,10 @@ public class ExtendedXMLDataSet extends XMLDataSet{
     }
 
     public ExtendedXMLDataSet(DocumentBuilder docBuilder, 
-		      URL base, 
-		      String id, 
-		      String name,
-		      String owner) {
+			      URL base, 
+			      String id, 
+			      String name,
+			      String owner) {
 	super(docBuilder,
 	      base,
 	      id,
@@ -40,21 +40,23 @@ public class ExtendedXMLDataSet extends XMLDataSet{
     }
 
     public String[] getDataSetSeismogramNames() {
-	//	System.out.println("IN the method get seismogram names");
-	Object[] names = dssNames.toArray();
-	String[] rtnValues = new String[names.length];
-	for(int counter = 0; counter < names.length; counter++) {
-	    rtnValues[counter] = (String) names[counter];
-	    //System.out.println("The name of the seismogram is "+rtnValues[counter]);
-	}
-	return rtnValues;
-      }
+	return (String[])dssNames.toArray(new String[0]);
+    }
 
     public void addDataSetSeismogram(DataSetSeismogram dss) {
-	//	System.out.println("In add dataset seismogram method");
-	dssNames.add(ChannelIdUtil.toStringNoDates(dss.getRequestFilter().channel_id));
-	String name = ChannelIdUtil.toStringNoDates(dss.getRequestFilter().channel_id);
+	String name;
+	name = dss.getName();
+	if ( name == null || name.length == 0) {
+	    name = ChannelIdUtil.toStringNoDates(dss.getRequestFilter().channel_id);
+	} // end of if ()
+
 	name = getUniqueName(getDataSetSeismogramNames(), name);
+
+	if ( ! name.equals(dss.getName()) ) {
+	    dss.setName(name);
+	} // end of if ()
+	
+	dssNames.add(name);
 	dataSetSeismograms.put(name,
 			       dss);
     }
