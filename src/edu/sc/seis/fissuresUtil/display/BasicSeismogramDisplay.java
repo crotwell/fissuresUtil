@@ -31,27 +31,64 @@ import org.apache.log4j.*;
 
 public class BasicSeismogramDisplay extends JComponent implements SeismogramDisplay, GlobalToolbarActions{
     
+    /**
+     * Creates a new <code>BasicSeismogramDisplay</code> instance.
+     *
+     * @param seis a <code>LocalSeismogram</code> value
+     * @param timeBorder a <code>boolean</code> value
+     */
     public BasicSeismogramDisplay(LocalSeismogram seis, boolean timeBorder){
 	this(seis, new BoundedTimeConfig(), new RMeanAmpConfig(), timeBorder);
     }
    
+    /**
+     * Creates a new <code>BasicSeismogramDisplay</code> instance.
+     *
+     * @param seis a <code>LocalSeismogram</code> value
+     * @param tr a <code>TimeRangeConfig</code> value
+     * @param timeBorder a <code>boolean</code> value
+     */
     public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, boolean timeBorder){
 	this(seis, tr, new RMeanAmpConfig(), timeBorder);
     }
     
+    /**
+     * Creates a new <code>BasicSeismogramDisplay</code> instance.
+     *
+     * @param seis a <code>LocalSeismogram</code> value
+     * @param ar an <code>AmpRangeConfig</code> value
+     * @param timeBorder a <code>boolean</code> value
+     */
     public BasicSeismogramDisplay(LocalSeismogram seis, AmpRangeConfig ar, boolean timeBorder){
 	this(seis, new BoundedTimeConfig(), ar, timeBorder);
     }
 
+    /**
+     * Creates a new <code>BasicSeismogramDisplay</code> instance.
+     *
+     * @param seis a <code>LocalSeismogram</code> value
+     * @param tr a <code>TimeRangeConfig</code> value
+     * @param ar an <code>AmpRangeConfig</code> value
+     * @param timeBorder a <code>boolean</code> value
+     */
     public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar, boolean timeBorder){
 	this(seis, tr, ar, timeBorder, "");
     }
 
+    /**
+     * Creates a new <code>BasicSeismogramDisplay</code> instance.
+     *
+     * @param seis a <code>LocalSeismogram</code> value
+     * @param tr a <code>TimeRangeConfig</code> value
+     * @param ar an <code>AmpRangeConfig</code> value
+     * @param timeBorder a <code>boolean</code> value
+     * @param name a <code>String</code> value
+     */
     public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar, boolean timeBorder, String name){
 	this(seis, tr, ar, timeBorder, name, null);
     }
 
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar, boolean timeBorder, String name, 
+   BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar, boolean timeBorder, String name, 
 				  VerticalSeismogramDisplay parent){
 	super();
 	this.setLayout(new OverlayLayout(this));
@@ -70,8 +107,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.name = name;
 	this.timeConfig = tr;
 	this.ampConfig = ar;
+	this.filters = parent.getCurrentFilters();
 	this.addSeismogram(seis);
-	this.parentFilters = parent.getCurrentFilters();
 	scaleBorder = new ScaleBorder();
 	if(timeBorder)
 	    scaleBorder.setBottomScaleMapper(timeScaleMap);
@@ -93,16 +130,16 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     /**
      * Adds a seismogram to the display
      *
+     * @param newSeismogram a <code>LocalSeismogram</code> value
      */
     public void addSeismogram(LocalSeismogram newSeismogram){
 	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram, timeConfig, ampConfig);
-	Iterator e = parentFilters.iterator();
+	Iterator e = filters.iterator();
 	plotters.put(newPlotter, colors[plotters.size()%colors.length]);
 	while(e.hasNext()){
 	    plotters.put(new FilteredSeismogramPlotter(((ButterworthFilter)e.next()), newSeismogram, timeConfig, ampConfig), 
 			 colors[plotters.size()%colors.length]);
 	}
-	
 	timeConfig.addSeismogram(newSeismogram);
 	ampConfig.addSeismogram(newSeismogram);
 	redo = true;
@@ -111,11 +148,17 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     /**
      * Removes a seismogram from the display
      *
-     * 
+     *
+     * @param oldSeis a <code>LocalSeismogram</code> value
      */
     public void removeSeismogram(LocalSeismogram oldSeis){}
 
-   public void remove(MouseEvent me){
+    /**
+     * Describe <code>remove</code> method here.
+     *
+     * @param me a <code>MouseEvent</code> value
+     */
+    public void remove(MouseEvent me){
        logger.debug(name + " being removed");
        Iterator e = plotters.keySet().iterator();
        while(e.hasNext()){
@@ -129,13 +172,18 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
        parent.removeDisplay(this);
    }
 
-       /**
+    /**
      * Returns the amp range configurator the display is using
      *
-     * 
+     *
+     * @return an <code>AmpRangeConfig</code> value
      */
     public AmpRangeConfig getAmpConfig(){ return ampConfig; }
     
+    /**
+     * Describe <code>updateAmpRange</code> method here.
+     *
+     */
     public void updateAmpRange(){
 	redo = true;
 	this.ampScaleMap.setUnitRange(ampConfig.getAmpRange());
@@ -145,10 +193,15 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     /**
      * Returns the time range configurator the display is using
      *
-     * 
+     *
+     * @return a <code>TimeRangeConfig</code> value
      */
     public TimeRangeConfig getTimeConfig(){ return timeConfig; }
     
+    /**
+     * Describe <code>updateTimeRange</code> method here.
+     *
+     */
     public void updateTimeRange(){
 	this.timeScaleMap.setTimes(timeConfig.getTimeRange().getBeginTime(), 
 				   timeConfig.getTimeRange().getEndTime());
@@ -156,6 +209,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	
     }
 
+    /**
+     * Describe <code>addBottomTimeBorder</code> method here.
+     *
+     */
     public void addBottomTimeBorder(){	
 	scaleBorder.setBottomScaleMapper(timeScaleMap); 
 	Insets current = this.getInsets();
@@ -163,6 +220,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.revalidate();
     }
 
+    /**
+     * Describe <code>removeBottomTimeBorder</code> method here.
+     *
+     */
     public void removeBottomTimeBorder(){ 
 	scaleBorder.clearBottomScaleMapper(); 
 	Insets current = this.getInsets();
@@ -170,6 +231,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     }
 
 
+    /**
+     * Describe <code>addTopTimeBorder</code> method here.
+     *
+     */
     public void addTopTimeBorder(){ 
 	scaleBorder.setTopScaleMapper(timeScaleMap);
 	Insets current = this.getInsets();
@@ -177,17 +242,29 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.revalidate();
     }
 
+    /**
+     * Describe <code>removeTopTimeBorder</code> method here.
+     *
+     */
     public void removeTopTimeBorder(){ 
 	scaleBorder.clearTopScaleMapper();
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
     }
 
+    /**
+     * Describe <code>redraw</code> method here.
+     *
+     */
     public void redraw(){
 	redo = true;
 	repaint();
     }
 
+    /**
+     * Describe <code>resize</code> method here.
+     *
+     */
     protected void resize() {
 	Insets insets = getInsets();
 	synchronized(imagePainter){
@@ -201,14 +278,26 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	repaint();
     }
 
+    /**
+     * Describe <code>stopImageCreation</code> method here.
+     *
+     */
     public void stopImageCreation(){
 	synchronized(imageMaker){ imageMaker.remove(imagePainter); }
     }
 
+    /**
+     * Describe <code>turnOnToolTip</code> method here.
+     *
+     */
     public void turnOnToolTip(){
 	this.setToolTipText(name);
     }
 
+    /**
+     * Describe <code>turnOffToolTip</code> method here.
+     *
+     */
     public void turnOffToolTip(){
 	this.setToolTipText("");
     }
@@ -414,7 +503,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    Graphics2D g2 = (Graphics2D)g;
 	    if(displayTime == timeConfig.getTimeRange().getInterval().getValue()){
 		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * overSize.getWidth();
-		g2.drawImage(((BufferedImage)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
+		if(ImageMaker.bufferedImage)
+		    g2.drawImage(((BufferedImage)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
+		else
+		    g2.drawImage(((Image)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
 		if(redo){
 		    logger.debug("the image is being redone");
 		    this.createImage();
@@ -425,7 +517,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * (overSize.getWidth() * scale);
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		tx.scale(scale, 1);
-		g2.drawImage(((BufferedImage)overSizedImage.get()), tx, null);
+		if(ImageMaker.bufferedImage)
+		    g2.drawImage(((BufferedImage)overSizedImage.get()), tx, null);
+		else
+		    g2.drawImage(((Image)overSizedImage.get()), tx, null);
 		synchronized(this){ displayInterval = timeConfig.getTimeRange().getInterval();	}
 		this.createImage();
 	    }
@@ -467,6 +562,15 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    repaint();	
  	}
 
+	public synchronized void setImage(Image newImage){
+	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(OVERSIZED_SCALE);
+	    displayTime = displayInterval.getValue();
+	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
+	    overTimeInterval = overTimeRange.getEndTime().getMicroSecondTime() - overBeginTime;
+	    overSizedImage = new SoftReference(newImage); 
+	    repaint();	
+ 	}
+
 	public TimeRangeConfig getTimeConfig(){ return timeConfig; }
 	
 	protected long overEndTime, overBeginTime;
@@ -491,14 +595,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     
     protected LinkedList filters = new LinkedList();
 
-    protected LinkedList parentFilters = new LinkedList();
-
-    protected static ImageMaker imageMaker = new ImageMaker();
-
-    protected Dimension overSize;
-
     protected HashMap plotters = new HashMap();
     
+    protected String name;
+
     protected AmpRangeConfig ampConfig;
     
     protected TimeRangeConfig timeConfig;
@@ -509,18 +609,20 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     
     protected AmpScaleMapper ampScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder
    
-    private Color[] colors = { Color.blue, Color.red, Color.yellow, Color.green, Color.black };
-
-    private Color[] transparentColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64), 
-					  new Color(0, 0, 255, 64)};
-    
-    static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
-
     protected ImagePainter imagePainter;
 
     protected boolean redo;
 
-    protected String name;
+    protected Dimension overSize;
 
     public static final int OVERSIZED_SCALE = 3;
+
+    protected static ImageMaker imageMaker = new ImageMaker();
+
+    private Color[] colors = { Color.blue, Color.red, Color.yellow, Color.green, Color.black };
+
+    private Color[] transparentColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64), 
+					  new Color(0, 0, 255, 64)};
+
+    static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay

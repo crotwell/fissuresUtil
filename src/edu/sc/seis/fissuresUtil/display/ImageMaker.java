@@ -45,7 +45,8 @@ public class ImageMaker implements Runnable  {
 	BasicSeismogramDisplay.ImagePainter currentPatron;
 	int numLeft;
 	Graphics2D graphic;
-	BufferedImage currentImage; 
+	Image currentImage = null;
+	BufferedImage buffCurrentImage = null;
 	Dimension size; 
 	HashMap plotters;
 	    numLeft = requests.size();
@@ -56,19 +57,26 @@ public class ImageMaker implements Runnable  {
 		currentRequirements = ((PlotInfo)patrons.get(currentPatron)); 
 		size = currentRequirements.getSize();
 		plotters = ((HashMap)currentRequirements.getPlotters().clone());
-		if(requests.contains(currentPatron)){
-		    currentImage = new BufferedImage(size.width, size.height, BufferedImage.TYPE_BYTE_INDEXED);
-		    //currentPatron.createImage(size.width, size.height);
-		    graphic = currentImage.createGraphics();
-		}else{
+	    	if(requests.contains(currentPatron) && size.width > 0){
+		    if(bufferedImage){
+			buffCurrentImage = new BufferedImage(size.width, size.height, BufferedImage.TYPE_BYTE_INDEXED);
+			graphic = buffCurrentImage.createGraphics();
+		    }else{
+			currentImage = currentPatron.createImage(size.width, size.height);
+			graphic = (Graphics2D)currentImage.getGraphics();
+		    }
+		}
+		else{
 		    numLeft = requests.size();
 		    break;
 		}
 	    }
 	    Iterator e = plotters.keySet().iterator();
 	    LinkedList afterSeismograms = new LinkedList();
-	    graphic.setColor(Color.white);
-	    graphic.fill(new Rectangle(0, 0, size.width, size.height));
+	    if(bufferedImage){
+		graphic.setColor(Color.white);
+		graphic.fill(new Rectangle(0, 0, size.width, size.height));
+	    }
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
 		if(current instanceof SeismogramPlotter){
@@ -89,7 +97,10 @@ public class ImageMaker implements Runnable  {
 		   currentPatron.getTimeConfig().getTimeRange().getInterval().getValue() &&
 		   requests.contains(currentPatron)){
 		    requests.removeFirst();
-		    currentPatron.setImage(currentImage);
+		    if(bufferedImage)
+			currentPatron.setImage(buffCurrentImage);
+		    else
+			currentPatron.setImage(currentImage);
 		}
 		numLeft = requests.size();
 	    }
@@ -118,4 +129,6 @@ public class ImageMaker implements Runnable  {
 	int elementSizeInBits = DataBuffer.getDataTypeSize(dataType);
 	return db.getNumBanks() * db.getSize() * elementSizeInBits / 8;
     }
+
+    protected static boolean bufferedImage = true;
 }// ImageMaker
