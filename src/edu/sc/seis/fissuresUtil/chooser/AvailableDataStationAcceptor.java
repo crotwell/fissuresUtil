@@ -21,15 +21,6 @@ public class AvailableDataStationAcceptor implements StationAcceptor {
         this.dc = dc;
         this.range = range;
     }
-
-    /**
-     * Method accept
-     *
-     * @param    station             a  Station
-     *
-     * @return   a boolean
-     *
-     */
     public boolean accept(Station station) {
         RequestFilter[] request = createFakeRequest(station.get_id());
         if (dc.available_data(request).length != 0) {
