@@ -10,7 +10,6 @@ import edu.sc.seis.fissuresUtil.database.DBDataCenter;
 import edu.sc.seis.fissuresUtil.database.LocalDataCenterCallBack;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Category;
@@ -58,7 +57,11 @@ public class DCDataSetSeismogram
         while(it.hasNext()){
             LocalSeismogramImpl current = (LocalSeismogramImpl)((SoftReference)it.next()).get();
             if(current != null){
-                existingSeismos.add(current);
+                if(intersects(requestFilter, current)){
+                    existingSeismos.add(current);
+                }else{
+                    it.remove();
+                }
             }
         }
         RequestFilter[] uncovered = {requestFilter};
@@ -81,6 +84,17 @@ public class DCDataSetSeismogram
             }
         } catch(FissuresException fe) {}
     }
+
+    private static boolean intersects(RequestFilter rf, LocalSeismogramImpl seis){
+        MicroSecondDate rfBegin = new MicroSecondDate(rf.start_time);
+        MicroSecondDate rfEnd = new MicroSecondDate(rf.end_time);
+        if((seis.getBeginTime().before(rfEnd) && seis.getEndTime().after(rfBegin)) ||
+               (seis.getEndTime().after(rfBegin) && seis.getBeginTime().before(rfEnd))){
+            return true;
+        }
+        return false;
+    }
+
 
     private DataCenterOperations dataCenterOps;
 
