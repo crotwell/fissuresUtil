@@ -92,7 +92,7 @@ public class PSNHeader {
 
         /**Timing Ref Type**/
         dis.readFully(threeBytes);
-        timeRefType = new String(threeBytes);
+        timeRefType = new String(PSNDataFile.chopToLength(threeBytes));
 
         /**Timing Ref Status**/
         timeRefStatus = dis.readByte();
@@ -126,15 +126,15 @@ public class PSNHeader {
 
         /**Sensor Name**/
         dis.readFully(sixBytes);
-        sensorName = new String(sixBytes);
+        sensorName = new String(PSNDataFile.chopToLength(sixBytes));
 
         /**ChannelID**/
         dis.readFully(fourBytes);
-        channelId = new String(fourBytes);
+        channelId = new String(PSNDataFile.chopToLength(fourBytes));
 
         /**Sensor Network**/
         dis.readFully(sixBytes);
-        sensorNetwork = new String(sixBytes);
+        sensorNetwork = new String(PSNDataFile.chopToLength(sixBytes));
 
         /**Sensitivity**/
         sensitivity = SacTimeSeries.swapBytes(dis.readDouble());

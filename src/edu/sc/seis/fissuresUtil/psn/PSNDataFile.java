@@ -1,15 +1,14 @@
 package edu.sc.seis.fissuresUtil.psn;
 
-import edu.sc.seis.fissuresUtil.psn.PSNDateTime;
-import edu.sc.seis.fissuresUtil.psn.PSNEventInfo;
 import edu.sc.seis.fissuresUtil.psn.PSNEventRecord;
 import edu.sc.seis.fissuresUtil.psn.PSNHeader;
-import edu.sc.seis.fissuresUtil.psn.PSNVariableHeader;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * PSNDataFile.java
@@ -42,6 +41,21 @@ public class PSNDataFile {
 
     public PSNEventRecord[] getEventRecords(){
         return eventRecs;
+    }
+
+    public static byte[] chopToLength(byte[] byteArray){
+        List list = new ArrayList();
+        for (int i = 0; i < byteArray.length; i++) {
+            if (byteArray[i] != 0){
+                list.add(new Byte(byteArray[i]));
+            }
+        }
+        byte[] newArray = new byte[list.size()];
+        for (int i = 0; i < list.size(); i++){
+            newArray[i]  = ((Byte)list.get(i)).byteValue();
+        }
+
+        return newArray;
     }
 
     public static void main(String[] args){

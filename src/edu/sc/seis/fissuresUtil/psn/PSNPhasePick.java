@@ -28,13 +28,13 @@ public class PSNPhasePick{
         startTime = new PSNDateTime(dis);
 
         dis.readFully(eightBytes);
-        phase = new String(eightBytes);
+        phase = new String(PSNDataFile.chopToLength(eightBytes));
 
         flags = SacTimeSeries.swapBytes((short)dis.readUnsignedShort());
         dispYPosition = SacTimeSeries.swapBytes(dis.readShort());
 
         dis.readFully(sixteenBytes);
-        travelTimeFileName = new String(sixteenBytes);
+        travelTimeFileName = new String(PSNDataFile.chopToLength(sixteenBytes));
 
         tableDepth = SacTimeSeries.swapBytes(dis.readShort());
     }

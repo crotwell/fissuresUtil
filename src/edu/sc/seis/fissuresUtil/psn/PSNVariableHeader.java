@@ -45,7 +45,7 @@ public class PSNVariableHeader{
                     //entries.put(new Byte(id), readNullTerminatedString(dis, fieldLength));
                     byte[] stringArray = new byte[fieldLength];
                     dis.readFully(stringArray);
-                    String aString = new String(stringArray);
+                    String aString = new String(PSNDataFile.chopToLength(stringArray));
                     entries.put(new Byte(id), aString);
                     //System.out.println(aString);
                     break;
@@ -150,21 +150,6 @@ public class PSNVariableHeader{
 
     public PSNPolesAndZeros getPolesAndZeros(){
         return (PSNPolesAndZeros)entries.get(new Byte((byte)12));
-    }
-
-    public static String readNullTerminatedString(DataInputStream data, int length) throws IOException{
-        StringBuffer buf = new StringBuffer();
-
-        for (int i = 0; i < length; i++) {
-            buf.append(data.readChar());
-        }
-        String out = buf.toString();
-
-        if (!out.endsWith("\0")){
-            System.out.println(out);
-        }
-
-        return out;
     }
 
     /**

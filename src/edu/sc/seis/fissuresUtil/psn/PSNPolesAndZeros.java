@@ -19,8 +19,8 @@ public class PSNPolesAndZeros{
     public PSNPolesAndZeros(DataInputStream data) throws IOException{
         dis = data;
 
-        numZeros = SacTimeSeries.swapBytes((short)dis.readUnsignedShort());
-        numPoles = SacTimeSeries.swapBytes((short)dis.readUnsignedShort());
+        numZeros = SacTimeSeries.swapBytes(dis.readShort());
+        numPoles = SacTimeSeries.swapBytes(dis.readShort());
 
         zeros = new double[numZeros][2];
         for (int i = 0; i < numZeros; i++) {
