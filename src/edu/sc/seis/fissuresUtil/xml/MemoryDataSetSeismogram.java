@@ -21,6 +21,11 @@ import org.apache.log4j.*;
  */
 public class MemoryDataSetSeismogram extends DataSetSeismogram implements Cloneable {
 
+    public MemoryDataSetSeismogram(LocalSeismogramImpl seis,
+				   String name) {
+	this(makeSeisArray(seis), null, name);
+    }
+
     public MemoryDataSetSeismogram(LocalSeismogramImpl seis) {
 	this(makeSeisArray(seis), null);
     }
@@ -44,8 +49,8 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
     public MemoryDataSetSeismogram(LocalSeismogramImpl[] seis,
 				   DataSet ds,
 				   String name) {
-	super(null,null,null);
-
+	super(makeRequestFilter(seis), null, null, name);
+	seisCache = seis;
     }
 
     public Object clone() {
@@ -66,6 +71,24 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
     }
 
     protected LocalSeismogramImpl[] seisCache;
+
+    static final RequestFilter makeRequestFilter(LocalSeismogramImpl[] seis) {
+	MicroSecondDate pre = seis[0].getBeginTime();
+	MicroSecondDate post = seis[0].getEndTime();
+	for ( int i=0; i<seis.length;i++) {
+	    if ( pre.after(seis[i].getBeginTime())) {
+		pre = seis[i].getBeginTime();
+	    } // end of if ()
+	    if ( post.before(seis[i].getEndTime())) {
+		post = seis[i].getEndTime();
+	    } // end of if ()
+	} // end of for ()
+	RequestFilter out =
+	    new RequestFilter(seis[0].channel_id,
+			      pre.getFissuresTime(),
+			      post.getFissuresTime());
+	return out;
+    }
 
     static final LocalSeismogramImpl[] makeSeisArray(LocalSeismogramImpl seis) {
 	LocalSeismogramImpl[] tmp = new LocalSeismogramImpl[1];
