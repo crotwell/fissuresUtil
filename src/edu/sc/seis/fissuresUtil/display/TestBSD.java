@@ -10,6 +10,7 @@ import java.awt.print.*;
 import java.util.*;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.freq.*;
+import edu.iris.Fissures.model.MicroSecondDate;
 
 /**
  * TestBSD.java
@@ -17,15 +18,16 @@ import edu.sc.seis.fissuresUtil.freq.*;
  *
  * Created: Tue Aug 06 21:02:31 2002
  *
- * @author <a href="mailto:Charlie@BIG-JESUS"></a>
+ * @author <a href="mailto:Charlie"></a>
  * @version
  */
 
 public class TestBSD extends JFrame{
     public TestBSD(){
 	super("TestBSD");
-	bsd = new BasicSeismogramDisplay(new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.createSineWave()),
-										      null), "TEST", null);
+	bsd = new BasicSeismogramDisplay(new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.
+								createSpike( new MicroSecondDate(50000000))),
+							       null), "TEST", null);
 	bsd.addBottomTimeBorder();
 	bsd.setSize(500, 500);
 	getContentPane().add(bsd, BorderLayout.CENTER);
