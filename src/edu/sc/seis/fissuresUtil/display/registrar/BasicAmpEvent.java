@@ -47,7 +47,7 @@ public class BasicAmpEvent implements AmpEvent{
         if(amps.length == 0){
             genericAmp = DisplayUtils.ONE_RANGE;
         } else if(amps.length == 1){
-            genericAmp = calcGenericAmp(amps[0], seismos[0]);
+            genericAmp = UnitDisplayUtil.getRealWorldUnitRange(amps[0], seismos[0]);
         }else{
             boolean equal = true;
             for(int i = 1; i < amps.length; i++){
@@ -62,22 +62,6 @@ public class BasicAmpEvent implements AmpEvent{
                 double halfRange = (amps[0].getMaxValue() - amps[0].getMinValue())/2;
                 genericAmp = new UnitRangeImpl(-halfRange, halfRange, amps[0].getUnit());
             }
-        }
-    }
-
-    /** calculates a new generic amp using the response of the given seismogram.
-     If seis does not have a response, then the initial amp is used. */
-    protected UnitRangeImpl calcGenericAmp(UnitRangeImpl inAmp, DataSetSeismogram seis) {
-        Object obj = seis.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
-        Response resp = (Response)obj;
-        if (obj != null) {
-            UnitRangeImpl respUnitRange =
-                new UnitRangeImpl(inAmp.min_value/resp.the_sensitivity.sensitivity_factor,
-                                  inAmp.max_value/resp.the_sensitivity.sensitivity_factor,
-                                  resp.stages[0].input_units);
-            return UnitDisplayUtil.getBestForDisplay(respUnitRange);
-        } else {
-            return inAmp;
         }
     }
 
