@@ -73,7 +73,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		    resize();
 		    repaint();
 		}
-		});
+	    });
 	timeScaleMap = new TimeScaleCalc(preferredBSDWidth, registrar);
 	ampScaleMap = new AmpScaleMapper(preferredBSDHeight, 4, registrar);
 	scaleBorder = new ScaleBorder();
@@ -105,7 +105,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		if(parent != null){
 		    newPlotter.setVisibility(parent.getOriginalVisibility());
 		}
-		plotters.add(seisCount, newPlotter);
+		plotters.add(newPlotter);
 		seisCount++;
 	    }
 	}
@@ -136,9 +136,11 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 									  originTime.getMicroSecondTime()), 
 						      arrivals[i].getPhase().getName());
 		plotters.addLast(current);
-		flagCount++;
 	    }
-	}catch(Exception e){}
+	} catch ( edu.iris.Fissures.IfEvent.NoPreferredOrigin e) {
+	    logger.warn("Caught NoPreferredOrigin on addFlags", e);
+	} // end of catch
+	
 	repaint();
     }
 
@@ -148,13 +150,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 
     public void addCurrentTimeFlag(){
 	plotters.addLast(new CurrentTimeFlagPlotter());
-	flagCount++;
     }
 
     public void removeAllFlags(){
 	arrivals = null;
-	plotters.subList(filterCount + seisCount, plotters.size()).clear();
-	flagCount = 0;
+	Iterator it = new PlotterIterator(FlagPlotter.class);
+	while ( it.hasNext()) {
+	    Object o = it.next();
+	    logger.debug("removeAllFlags "+o.getClass().getName());
+	    it.remove();
+	} // end of while ()
 	repaint();
     }
 
@@ -168,9 +173,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	if(seismogramNames == null || seismogramArray == null){
 	    getSeismograms();
 	    seismogramNames = new String[seismogramArray.length];
-	    java.util.List seismogramPlotters = plotters.subList(0, seismogramArray.length);
 	    for(int i = 0; i < seismogramArray.length; i++){
-		Iterator e = seismogramPlotters.iterator();
+		Iterator e = new PlotterIterator(SeismogramShape.class);
 		while(e.hasNext()){
 		    SeismogramShape current = (SeismogramShape)e.next();
 		    if(current.getSeismogram() == seismogramArray[i]){
@@ -225,84 +229,73 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     }
 
     public VerticalSeismogramDisplay getVerticalParent(){ return parent; } 
-    
-    public java.util.List getSelections(){ 
-	return plotters.subList(plotters.size() - selectionCount - selection3CCount, plotters.size()); 
-    }
-    
-    public void removeSelection(Selection oldSelection){ 
-	if(getRegSelections().contains(oldSelection)){
-	    removeRegSelection(oldSelection);
-	}else if(get3CSelections().contains(oldSelection)){
-	    remove3CSelection(oldSelection);
-	}	
+ 
+    public java.util.List getPlotters(Class plotterClass) {
+	java.util.LinkedList out = new java.util.LinkedList();
+	Iterator it = new PlotterIterator(plotterClass);
+	while ( it.hasNext()) {
+	    out.addLast(it.next());
+	} // end of while ()
+	return out;
     }
 
+    public java.util.List getSelections(){ 
+	return getPlotters(Selection.class);
+    }
+    
     public void clearSelections(){
-	clearRegSelections();
-	clear3CSelections();
+	clearSingleSelections();
+	clearThreeCSelections();
     }
     
     public java.util.List getRegSelections(){ 
-	return plotters.subList(plotters.size() - selectionCount - selection3CCount, plotters.size() - selection3CCount); 
+	return getPlotters(SingleSelection.class);
     }
 
     public void addSelection(Selection newSelection){ 
-	if(!getRegSelections().contains(newSelection)){
-	    getRegSelections().add(newSelection);
-	    selectionCount++;
+	if(! plotters.contains(newSelection)){
+	    plotters.add(newSelection);
 	    repaint();
 	}
     }
-    public void removeRegSelection(Selection oldSelection){
-	if(getRegSelections().remove(oldSelection)){
-	    selectionCount--; 
+
+    public void removeSelection(Selection old){
+	if( plotters.remove(old)){
+	    old.removeParent(this);
 	    repaint();
 	}
     }
-    public void clearRegSelections(){
-	Iterator e = getRegSelections().listIterator();
+
+    public void clearSingleSelections(){
+	Iterator e = new PlotterIterator(SingleSelection.class);
 	while(e.hasNext()){
-	    ((Selection)e.next()).removeParent(this);
-	    e.remove();
-	    selectionCount--;
-	}
-	if(selectionCount != 0){
-	    throw new RuntimeException(selectionCount + " selections left after clearing");
+	    removeSelection((Selection)e.next());
 	}
 	repaint();
     }
-
-
     
-    public java.util.List get3CSelections(){ 
-	return plotters.subList(plotters.size() - selection3CCount, plotters.size());
+    public java.util.List getThreeCSelections(){ 
+	return getPlotters(ThreeCSelection.class);
     }
 
-    public void add3CSelection(Selection newSelection){ 
-	if(!get3CSelections().contains(newSelection)){
-	    get3CSelections().add(newSelection);
-	    selection3CCount++;
+    public void add3CSelection(ThreeCSelection newSelection){ 
+	if( ! plotters.contains(newSelection)){
+	    plotters.add(newSelection);
 	    repaint();
 	}
     }
     
-    public void remove3CSelection(Selection oldSelection){ 
-	if(get3CSelections().remove(oldSelection));{ 
-	    selection3CCount--;
+    public void removeThreeCSelection(ThreeCSelection old) { 
+	if(plotters.remove(old));{ 
+	    old.removeParent(this);
 	    repaint();
 	}
     }
 
-    public void clear3CSelections(){
-	Iterator e = get3CSelections().listIterator();
+    public void clearThreeCSelections(){
+	Iterator e = new PlotterIterator(ThreeCSelection.class);
 	while(e.hasNext()){
-	    ((Selection)e.next()).removeParent(this);
-	    e.remove();
-	    selection3CCount--;
-	}
-	if(selection3CCount != 0){
-	    throw new RuntimeException(selection3CCount + " component selections left after clearing");
+	    removeThreeCSelection((ThreeCSelection)e.next());
 	}
 	repaint();
     }
@@ -381,9 +374,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public void remove(DataSetSeismogram[] seismos){}
 
     public void remove(){
-       logger.debug("bsd being removed");
-       parent.removeDisplay(this);
-       destroy();
+	logger.debug("bsd being removed");
+	parent.removeDisplay(this);
+	destroy();
     }
 
     public void destroy(){
@@ -393,15 +386,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     }
 
     public void setUnfilteredDisplay(boolean visible){
-	Iterator e = plotters.subList(0, seisCount).iterator();
-	DataSetSeismogram[] seismos = new DataSetSeismogram[seisCount];
-	int i = 0;
+	Iterator e = new PlotterIterator(SeismogramShape.class);
+	java.util.LinkedList seismoList = new java.util.LinkedList();
 	while(e.hasNext()){
 	    SeismogramShape current = (SeismogramShape)e.next();
 	    current.setVisibility(visible);
-	    seismos[i] = current.getSeismogram();
-	    i++;
+	    seismoList.addLast(current.getSeismogram());
 	} 
+	DataSetSeismogram[] seismos = 
+	    new DataSetSeismogram[seismoList.size()];
+	seismos = (DataSetSeismogram[])seismoList.toArray(seismos);
  	if (visible) {
 	    registrar.add(seismos);
 	}else {
@@ -415,7 +409,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	Plotter[] filteredShapes = new Plotter[seismograms.size()];
 	int i = 0;
 	if(filters.contains(filter)){
-	    Iterator e = plotters.subList(seisCount, seisCount + filterCount).iterator();
+	    Iterator e = new PlotterIterator(FilteredSeismogramShape.class);
 	    while(e.hasNext()){
 		FilteredSeismogramShape current = ((FilteredSeismogramShape)e.next());
 		if(current.getFilter() == filter){
@@ -431,15 +425,15 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		DataSetSeismogram current = (DataSetSeismogram)e.next();
 		FilteredSeismogramShape filteredShape = new FilteredSeismogramShape(filter, current);
 		seismos[i] = filteredShape.getFilteredSeismogram();
+		plotters.add(filteredShape);
 		filteredShapes[i] = filteredShape;
 		i++;		
-		filterCount++;
 	    }
-	    addToPlotters(seisCount, filteredShapes);
 	}
 	if (filter.getVisibility()) {
 	    registrar.add(seismos);
-	    java.util.List filterList = plotters.subList(seisCount, seisCount + filterCount);
+	    java.util.List filterList = 
+		getPlotters(FilteredSeismogramShape.class);
 	    if(filterList.size() > 1){
 		for(int j = 0; j < filteredShapes.length; j++){
 		    filterList.remove(filteredShapes[j]);
@@ -455,14 +449,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	repaint();
     }
    
-    private void addToPlotters(int startingPosition, Plotter[] newPlotters){
-	for(int i = 0; i < newPlotters.length; i++){
-	    plotters.add(startingPosition + i, newPlotters[i]);
-	}
-    }
-    
     private class PlotPainter extends JComponent{
-	public void paint(Graphics g){
+	public void paintComponent(Graphics g){
 	    Graphics2D g2 = (Graphics2D)g;
 	    Iterator e = plotters.iterator();
 	    Rectangle2D.Float stringBounds = new Rectangle2D.Float();
@@ -477,6 +465,58 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		}
 	    }
 	}
+    }
+
+    /**
+     * An iterator that only returns instances of the given class. All other
+     * elements are silently skipped.
+     */
+    class PlotterIterator implements Iterator {
+
+	PlotterIterator(Class iteratorClass) {
+	    this.iteratorClass = iteratorClass;
+	    it = plotters.iterator();
+	}
+
+	public boolean hasNext() {
+	    if ( nextObj != null) {
+		return true;
+	    } // end of if ()
+	    if ( finished ) {
+		return false;
+	    } // end of if ()
+	    //find next
+	    while ( it.hasNext()) {
+		Object n = it.next();
+		if ( iteratorClass.isInstance(n) ) {
+		    nextObj = n;
+		    return true;
+		} // end of if ()
+	    } // end of while ()
+	    finished = true;
+	    return false;
+	}
+
+	public Object next() {
+	    if ( hasNext() == false) {
+		return null;
+	    } // end of if ()
+	    // hasNext will populate nextObj if it returned true
+	    return nextObj;
+	}
+
+	public void remove() {
+	    it.remove();
+	}
+
+	private Iterator it;
+
+	private Class iteratorClass;
+
+	private Object nextObj;
+
+	private boolean finished = false;
+
     }
    
     
