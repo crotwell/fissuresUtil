@@ -188,48 +188,6 @@ public  class PlottableDisplay extends JPanel {
 			  titleYShift+plot_y/2 + plotoffset*currRow); 
 	}
 
-
-
-
-//         int row_x_start = houroffset;
-//         int row_x_end = sizerow + 50;
-
-//         int row_y_start = 100;
-//         int row_y_end = 100 ;
-
-// 	Double dblrow_y_offset= new Double( (plotoffset/100.0) * plot_y);
-//         int row_y_offset= dblrow_y_offset.intValue() / 2;
-// 	//System.out.println("row_y_offset" + row_y_offset + " plotoffset:"+ plotoffset +" plot_y:" + plot_y );
-        
-// 	//int row_y_offset=200;
-
-// 	int row_x_offset = plot_x/plot_y;
-
-//         boolean color = false;//black
-
-//         //row_y_start = row_y_offset;
-
-// 	for(int arrayi=0; arrayi<12 ; arrayi++) {
-// 	    if(color) g2.setPaint(Color.blue);
-// 	    else g2.setPaint(Color.black);
-
-// 	    if(hour>=10) {  houroffset = 5; }
-
-// 	    g2.drawString(hourmin, row_x_start, row_y_start ); 
-
-// 	    hour+=hourinterval; 
-// 	    hourmin = hour+minutes;
-
-// 	    g2.drawString(new String(hour+minutes), row_x_end, row_y_end);
-// 	    row_y_start = row_y_end += row_y_offset;
-	 
-//             if(color) color = false;
-//             else color = true;
- 
-//         }
-
-//         return;
-
     }
 
     void drawPlottableNew(Graphics g, Plottable[] plot) {
@@ -255,11 +213,6 @@ public  class PlottableDisplay extends JPanel {
 
  	    newG.setPaint(Color.red);
  	    newG.drawLine(0, 0, 6000, 0);
-// 	    newG.setPaint(Color.green);
-// 	    newG.drawLine(0, max, 500, max);
-// 	    newG.setPaint(Color.yellow);
-// 	    newG.drawLine(0, min, 500, min);
-// 	    newG.drawString("row "+currRow,currRow*xShift, 100);
 
 	     System.out.println(currRow+": "+(-1*currRow*xShift)+", "+currRow*plotoffset+"  "+getMean());
 	    if (currRow % 2 == 0) {
@@ -271,20 +224,14 @@ public  class PlottableDisplay extends JPanel {
 	    for (int i=0; i<arrayplottable.length; i++) {
 		int lastXValue = 
 		    arrayplottable[i].x_coor[arrayplottable[i].x_coor.length-1];
-		//	System.out.println("drawplottable for "+i+" "+arrayplottable[i].x_coor[0]+" "+lastXValue);
-		//System.out.println("drawplottable for "+i+" "+arrayplottable[i].y_coor[0]+" "+arrayplottable[i].y_coor[arrayplottable[i].y_coor.length-1]);
-
+	
 		// only draw plottable if it overlaps displayed part of row
 		if (( (xShift*currRow) <= arrayplottable[i].x_coor[0]
 		    && (xShift*(currRow+1)) <= arrayplottable[i].x_coor[0])
 		    || (xShift*(currRow) >= lastXValue
 			&& (xShift*(currRow+1)) >= lastXValue)) {
 		    // no overlap
-	// 	    System.out.println("No Draw: "+
-// 				       (xShift*currRow) +"<="+ arrayplottable[i].x_coor[0]
-// 		    +"&&"+ (xShift*(currRow+1)) +">="+ arrayplottable[i].x_coor[0]
-// 		    +"||"+ (xShift*currRow) +"<="+ lastXValue
-// 				       +"&&"+ (xShift*(currRow+1)) +">="+ lastXValue);
+
 		} else {
 		    newG.drawPolyline(arrayplottable[i].x_coor, 
 				      arrayplottable[i].y_coor, 
@@ -293,91 +240,13 @@ public  class PlottableDisplay extends JPanel {
 		
 	    }
 	    
-// 	    newG.setPaint(Color.red);
-// 	    newG.drawLine(0, 0, 6000, 0);
-// 	    newG.setPaint(Color.green);
-// 	    newG.drawLine(0, max, 6000, max);
-// 	    newG.setPaint(Color.yellow);
-// 	    newG.drawLine(0, min, 6000, min);
-// 	    newG.drawString("row "+currRow,currRow*xShift, 100);
-
 
 	    newG.dispose();
 	    //break; // only do first row
 	}
     }
 
-//     void drawPlottable(Graphics g) {
 
-// 	Graphics2D g2 = (Graphics2D)g;
-// 	int arrayplotsize = arrayplottable.length;
-
-// 	int xlength = clientPlottable.x_coor.length;
-// 	int ylength = clientPlottable.y_coor.length;
-
-// 	int[] x = new int[xlength];
-// 	int[] y = new int[ylength];
-		
-//         int i=0;   int j=0;
-//         int curroffset = plot_x/plotrows;
-//         int offsetIncr = curroffset;
-//         int maxoffset = plot_x;
-//         boolean color = false;
-//         int yoffset = 0;
-//         int yoffsetIncr = plotoffset;
-
-// 	/*g2.translate(int x, int y)*/
-
-// 	    for(int arrayi=0; arrayi<arrayplotsize; arrayi++) {
-// 		clientPlottable = arrayplottable[arrayi];                
-             
-// 		xlength = clientPlottable.x_coor.length;
-// 		ylength = clientPlottable.y_coor.length;
-
-// 		x = new int[xlength];
-// 		y = new int[ylength]; 
-// 		i=0; 
-
-// 		for( j = 0; j < clientPlottable.x_coor.length &&
-// 			 clientPlottable.x_coor[j] <= maxoffset; j++) {
-// 		    g2.translate(0, 0);	                    
-// 		    if(clientPlottable.x_coor[j] > curroffset) {
-//                         if(color) g2.setPaint(Color.blue);
-//                         else g2.setPaint(Color.black);
-
-                
-//                         g2.translate(40,0);
-//                         g2.drawPolyline(x, y, i--);
-
-//                         g2.translate(-40, 0);
-//                         curroffset = curroffset + offsetIncr;
-//                         yoffset = yoffset + yoffsetIncr;
-//                         i = 0;
-//                         j--;
-//                         if(color) color = false;
-//                         else color = true;
-//                     }
-//                     else {
-//                         x[i] = clientPlottable.x_coor[j] - (curroffset - offsetIncr);
-//                         y[i] = clientPlottable.y_coor[j] + yoffset;
-//                         //g2.translate(x[i], y[i]);
-//                         i++;
-//                     }
-
-// 		    /*System.out.println("x[" + i + "]:" + x[i] + ", y[ "+ i +"]:" + y[i]);*/ 
-// 		}
-                
-// 		    if(color){  g2.setPaint(Color.blue);  }
-// 		    else {      g2.setPaint(Color.black); }
- 
-// 		    g2.translate(40,0);
-// 		    g2.drawPolyline(x, y, i--);
-// 		    g2.translate(-40, 0);                        
-		  
-// 	    }	             
-
-	 
-//     }/*close drawPlottable*/
 
     public void psgramResize(int psgramwidth,int psgramheight ) {
 	setSize(new java.awt.Dimension (psgramwidth, psgramheight));
@@ -409,57 +278,7 @@ public  class PlottableDisplay extends JPanel {
      *  ie, less has to be drawn to get the rows plotted.
      */
     protected void makeSegments() {
-// 	int xShift = plot_x/plotrows/2;
-// 	LinkedList allPlot = new LinkedList();
-// 	LinkedList newPlot = new LinkedList();
 
-// 	for (int i=0; i< arrayplottable.length; i++) {
-// 	    allPlot.add(arrayplottable[i]);
-// 	} // end of for (int i=0; i< arrayplottable.length; i++)
-	    
-// 	for (int currRow = 0; currRow < plotrows; currRow++) {
-// 	    System.out.println(currRow+": "+(-1*currRow*xShift)+", "+currRow*plotoffset);
-// 	    Iterator it = allPlot.iterator();
-// 	    while (it.hasNext()) {
-// 		Plottable current = (Plottable)it.next();
-// 		int lastXValue = 
-// 		    current.x_coor[current.x_coor.length-1];
-
-// 		if (( (xShift*currRow) <= current.x_coor[0]
-// 		    && (xShift*(currRow+1)) <= current.x_coor[0])
-// 		    || (xShift*(currRow) >= lastXValue
-// 			&& (xShift*(currRow+1)) >= lastXValue)) {
-// 		    // no overlap
-// 		    System.out.println("No Draw: "+
-// 				       (xShift*currRow) +"<="+ current.x_coor[0]
-// 		    +"&&"+ (xShift*(currRow+1)) +">="+ current.x_coor[0]
-// 		    +"||"+ (xShift*currRow) +"<="+ lastXValue
-// 				       +"&&"+ (xShift*(currRow+1)) +">="+ lastXValue);
-// 		    newPlot.add(current);
-// 		} else {
-// 		    int firstHit;
-// 		    int boundary = xShift*(currRow+1);
-// 		    for (firstHit=0; boundary > current.x_coor[firstHit] && firstHit<current.x_coor.length; firstHit++) {}
-// 		    int[] earlyX = new int[firstHit+1];
-// 		    int[] earlyY = new int[firstHit+1];
-// 		    int[] lateX = 
-// 			new int[current.x_coor.length-firstHit+1];
-// 		    int[] lateY = 
-// 			new int[current.x_coor.length-firstHit+1];
-// 		    System.arraycopy(current.x_coor, 0, earlyX, 0, earlyX.length);
-// 		    System.arraycopy(current.y_coor, 0, earlyY, 0, earlyY.length);
-// 		    System.arraycopy(current.x_coor, firstHit-1, lateX, 0, lateX.length);
-// 		    System.arraycopy(current.y_coor, firstHit-1, lateY, 0, lateY.length);
-// 		    newPlot.add(new Plottable(earlyX, earlyY));
-// 		    newPlot.add(new Plottable(lateX, lateY));
-
-// 		} // end of else
-		
-// 	    }
-// 	    allPlot = newPlot;
-// 	    newPlot = new LinkedList();
-// 	}
-// 	arrayplottable = (Plottable[])allPlot.toArray(new Plottable[0]);
     }
 
     public java.awt.image.BufferedImage createBufferedImage() {
@@ -478,12 +297,7 @@ public  class PlottableDisplay extends JPanel {
 
         drawComponent(g);
 
-	/*
-	  if(offImg == null) System.out.println("Image is null.");
-	  else System.out.println("Image is NOT null.");
-	*/
-              
-        //showImage(offImg);
+
 
         return offImg;
     }

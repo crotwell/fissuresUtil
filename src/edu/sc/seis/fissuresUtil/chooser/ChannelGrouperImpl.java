@@ -5,6 +5,8 @@ import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.network.*;
 import java.util.*;
 
+import org.apache.log4j.*;
+
 /**
  * ChannelGrouperImpl.java
  *
@@ -95,17 +97,17 @@ public class ChannelGrouperImpl {
 	 char givenOrientation = givenChannelStr.charAt(givenChannelStr.length() - 1);
 	String searchString = "";
 	ChannelId[] rtnchannels = new ChannelId[3];
-
+	logger.debug("The given prefixxStr is "+givenPrefixStr);
 	for(int j = 0; j < channelIds.length; j++) {
-	    //System.out.println("THe channel Str is "+ ChannelIdUtil.toString(channels[j].get_id()));
+	    logger.debug("THe channel Str is "+ ChannelIdUtil.toString(channelIds[j]));
 	}
-	//System.out.println("The given Channel is "+givenChannelStr+" given Orientation is "+givenOrientation);
+	logger.debug("The given Channel is "+givenChannelStr+" given Orientation is "+givenOrientation);
 	for(int i = 0; i < patterns.length; i++) {
 	    if(patterns[i].indexOf(givenOrientation) != -1) {
 		searchString = patterns[i];
-		//System.out.println("The search String is "+searchString);
+		logger.debug("The search String is "+searchString);
 		searchString = searchString.replace(givenOrientation, '_');
-		//System.out.println("The search string after is "+searchString);
+		logger.debug("The search string after is "+searchString);
 	    }
 	    else {
 		return new ChannelId[0];
@@ -114,18 +116,24 @@ public class ChannelGrouperImpl {
 	    rtnchannels = new ChannelId[3];
 	    rtnchannels[count] = channelId;
 	    count++;
-	    //System.out.println("The length of the channels is "+channels.length);
+	    logger.debug("The length of the channels is "+channelIds.length);
  	    for(int counter = 0; counter < channelIds.length; counter++) {
 	 	String channelStr = channelIds[counter].channel_code;
 		String prefixStr = channelStr.substring(0, channelStr.length() - 1);
 		char orientation = channelStr.charAt(channelStr.length() - 1);
-		//System.out.println("The channelstr is "+channelStr);
+		
+		logger.debug("The channelstr is "+channelStr);
+		logger.debug("The prefixStr is "+prefixStr);
+		logger.debug("orientation is "+orientation);
+		//the below if will not be need once the sac is fixed
+		//if(orientation == givenOrientation) rtnchannels[0] = channelIds[counter];
 		if(prefixStr.equals(givenPrefixStr) && searchString.indexOf(orientation) != -1) {
-		    //System.out.println("The searchString is "+searchString);
+		//if(givenPrefixStr.indexOf(prefixStr) != -1 && searchString.indexOf(orientation) != -1) {
+		    logger.debug("The searchString is "+searchString);
 		    searchString = searchString.replace(orientation,'_');
 		    rtnchannels[count] = channelIds[counter];
 		    count++;
-		    //System.out.println("ORIENTATION "+orientation+"The matched channelStr is "+channelStr);
+		    logger.debug("ORIENTATION "+orientation+"The matched channelStr is "+channelStr);
 		}
 	      
 	    }
@@ -149,6 +157,8 @@ public class ChannelGrouperImpl {
 				      "UVZ",
 				      "123",
 				      "UVW"};
+    static Category logger = 
+	Category.getInstance(ChannelGrouperImpl.class.getName());
 	
      
 }//ChannelGrouperImpl
