@@ -18,6 +18,7 @@ import java.awt.GridBagLayout;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.log4j.Category;
+import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 
 
 /**
@@ -26,7 +27,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 5969 2003-10-02 01:45:10Z crotwell $
+ * @version $Id: ChannelChooser.java 6247 2003-10-28 19:00:12Z crotwell $
  *
  */
 
@@ -779,10 +780,22 @@ public class ChannelChooser extends JPanel {
         return getSelectedChannels(ClockUtil.now(), true);
     }
 
+    public boolean isNetworkAccessKnown(NetworkId netid) {
+        NetworkAccess net = (NetworkAccess)
+            netIdToNetMap.get(NetworkIdUtil.toString(netid));
+        if (net == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public NetworkAccess getNetworkAccess(NetworkId netid) {
         NetworkAccess net = (NetworkAccess)
             netIdToNetMap.get(NetworkIdUtil.toString(netid));
         if (net == null) {
+            logger.debug("networkAccess for "+NetworkIdUtil.toString(netid)+
+                             " is not yet loaded, trying from remote server");
             // may not be loaded yet, try to get from dc?
             NetworkDCOperations[] netdc = getNetworkDCs();
             for (int i = 0; i < netdc.length; i++) {
@@ -793,6 +806,8 @@ public class ChannelChooser extends JPanel {
                     }
                 } catch (NetworkNotFound e) {
                     // oh well, try next
+                } catch (org.omg.CORBA.COMM_FAILURE e) {
+                    // oh well, try next
                 }
             }
         }
@@ -802,7 +817,7 @@ public class ChannelChooser extends JPanel {
     /** Gets the best selected channels from the given list
      */
     protected  Channel[]  getSelectedChannels(MicroSecondDate when,
-                                             boolean pruneStations) {
+                                              boolean pruneStations) {
         LinkedList outChannels = new LinkedList();
         Station[] selectedStations = getSelectedStations(when);
         if (pruneStations) {
@@ -1190,7 +1205,17 @@ public class ChannelChooser extends JPanel {
                 setProgressMax(this, configuredNetworks.length);
                 for(int counter = 0; counter < configuredNetworks.length; counter++) {
                     try {
-                        logger.debug("Getting network for "+configuredNetworks[counter]);
+                        NSNetworkDC nsNetDC = (NSNetworkDC)netdc;
+                        // hack to avoid SP at IRIS
+                        if (configuredNetworks[counter].equals("SP") && netdc instanceof NSNetworkDC) {
+                            if (nsNetDC.getServerDNS().equals("edu/iris/dmc")) {
+                                logger.debug("HPC Skipping SP network "+configuredNetworks[counter]+" at "+nsNetDC.getServerDNS());
+                                continue;
+                            }
+                        }
+                        // end hack
+
+                        logger.debug("HPC Getting network for "+configuredNetworks[counter]+" at "+nsNetDC.getServerDNS());
                         NetworkAccess[] nets =
                             netdc.a_finder().retrieve_by_code(configuredNetworks[counter]);
                         logger.debug("Got "+nets.length+" networks for "+configuredNetworks[counter]);
@@ -1208,8 +1233,8 @@ public class ChannelChooser extends JPanel {
                                 // this is BAD CODE, but prevents the scepp
                                 // network, SP, from being loaded from the DMC
                                 if (attr.get_code().equals("SP") &&
-                                    attr.get_id().begin_time.date_time.equals("20010911010000.0000GMT")) {
-                                    // come from dmc so skip
+                                    nsNetDC.getServerDNS().equals("edu/iris/dmc")) {
+                                    // comes from dmc so skip
                                     continue;
                                 }
 
