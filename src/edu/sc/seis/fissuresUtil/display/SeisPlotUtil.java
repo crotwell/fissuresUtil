@@ -415,12 +415,16 @@ public class SeisPlotUtil  {
      }
 
     public static LocalSeismogram createSineWave(double phase, double hertz, int numPoints) {
+	return createSineWave(phase, hertz, numPoints, 1000);
+    }
+
+    public static LocalSeismogram createSineWave(double phase, double hertz, int numPoints, double amp) {
         int[] dataBits = new int[numPoints];
         double tmpDouble;
         for (int i=0; i<dataBits.length; i++) {
              dataBits[i] = 
                  (int)Math.round(Math.sin(phase + 
-                                          i*Math.PI*hertz/20.0)*1000.0);
+                                          i*Math.PI*hertz/20.0)*amp);
 	}
 	
 
