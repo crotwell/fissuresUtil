@@ -104,7 +104,7 @@ public class IntervalChooser extends JPanel{
 	int minValue = option.getMinimumValue();
 	int maxValue = option.getMaximumValue();
 
-	for(int counter = 1; counter <= maxValue; counter++) {
+	for(int counter = minValue; counter <= maxValue; counter++) {
 	
 	    valueBox.addItem(new String(new Integer(counter).toString()));
 
@@ -134,6 +134,12 @@ public class IntervalChooser extends JPanel{
 		}
 
 	    });
+
+    }
+    public void setEditable(boolean bool) {
+
+
+	valueBox.setEditable(bool);
 
     }
 
