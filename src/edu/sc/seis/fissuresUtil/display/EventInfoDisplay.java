@@ -17,18 +17,8 @@ import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.VelocityModel;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTargetContext;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetListener;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.TimeZone;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -41,11 +31,10 @@ import org.apache.log4j.Logger;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 9357 2004-06-25 20:28:22Z crotwell $
+ * @version $Id: EventInfoDisplay.java 9391 2004-06-29 14:54:06Z groves $
  */
 
-public class EventInfoDisplay extends TextInfoDisplay
-    implements DropTargetListener {
+public class EventInfoDisplay extends TextInfoDisplay{
 
     public EventInfoDisplay (){
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -358,89 +347,11 @@ public class EventInfoDisplay extends TextInfoDisplay
 
     static ParseRegions feRegions = ParseRegions.getInstance();
 
-
-    // Drag and Drop...
-
-    public void drop(DropTargetDropEvent e) {
-        //System.err.println("[Target] drop");
-        DropTargetContext targetContext = e.getDropTargetContext();
-
-        boolean outcome = false;
-
-        //         if ((e.getSourceActions() & DnDConstants.ACTION_COPY) != 0) {
-        //      System.out.println("Action.COPY & was ok");
-        //             e.acceptDrop(DnDConstants.ACTION_COPY);
-        //         } else {
-        //      System.out.println("Action.COPY & didn't");
-        //             e.rejectDrop();
-        //             return;
-        //         }
-
-        e.acceptDrop(DnDConstants.ACTION_COPY);
-
-
-        DataFlavor[] dataFlavors = e.getCurrentDataFlavors();
-        DataFlavor   transferDataFlavor = null;
-        try {
-            for (int i = 0; i < dataFlavors.length; i++) {
-                System.err.println(dataFlavors[i].getMimeType());
-                clear();
-                if (edu.sc.seis.fissuresUtil.chooser.DNDLinkedList.listDataFlavor.equals(dataFlavors[i])) {
-                    System.err.println("matched list");
-                    transferDataFlavor = dataFlavors[i];
-                    Transferable t  = e.getTransferable();
-                    LinkedList list =
-                        (LinkedList)t.getTransferData(transferDataFlavor);
-                    Iterator it = list.iterator();
-                    Object obj;
-                    while (it.hasNext()) {
-                        obj = it.next();
-                        if (obj instanceof Origin) {
-                            appendOrigin((Origin)obj);
-                            outcome = true;
-                        } else if (obj instanceof EventAccessOperations) {
-                            appendEvent((EventAccessOperations)obj);
-                            outcome = true;
-                        } // end of else
-
-                    } // end of while (it.hasNext())
-                    break;
-                }
-
-            }
-
-        } catch (BadLocationException bl) {
-            bl.printStackTrace();
-            System.err.println(bl.getMessage());
-            targetContext.dropComplete(false);
-            return;
-        } catch (java.io.IOException ioe) {
-            ioe.printStackTrace();
-            System.err.println(ioe.getMessage());
-            targetContext.dropComplete(false);
-            return;
-        } catch (UnsupportedFlavorException ufe) {
-            ufe.printStackTrace();
-            System.err.println(ufe.getMessage());
-            targetContext.dropComplete(false);
-            return;
-        } // end of try-catch
-        targetContext.dropComplete(outcome);
-    }
-
-    public void dragScroll(DropTargetDragEvent e) {
-        System.err.println("[Target] dropScroll");
-    }
-
-    public void dropActionChanged(DropTargetDragEvent e) {
-        System.err.println("[Target] dropActionChanged");
-    }
-
     TauPUtil taup;
     DecimalFormat twoDecimal = new DecimalFormat("0.00");
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
 
     static Logger logger = Logger.getLogger(EventInfoDisplay.class);
-
 }// EventInfoDisplay
+
 
