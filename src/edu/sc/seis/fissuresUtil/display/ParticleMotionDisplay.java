@@ -149,8 +149,30 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
      *
      */
     public void resize() {
+	    
 	Dimension dim = view.getSize();
+	logger.debug("view coordinates before width = "+view.getSize().width+" height = "+view.getSize().height);
 	Insets insets =	view.getInsets();
+	int width = super.getSize().width;
+	int height = super.getSize().height;
+	width = width - super.getInsets().left - super.getInsets().right;
+	height = height - super.getInsets().top - super.getInsets().bottom;
+	if(width < height) {
+	    
+	    this.setSize(new Dimension(super.getSize().width,
+				       width + super.getInsets().top + super.getInsets().bottom));
+	   
+	    
+	} else {
+	    this.setSize(new Dimension(height  + super.getInsets().left + super.getInsets().right,
+				       super.getSize().height));
+
+	}
+	view.resize();
+	logger.debug("view coordinates are  width = "+view.getSize().width+" height = "+view.getSize().height);
+	logger.debug("view insets left = "+insets.left+" right = "+insets.right);
+	logger.debug("view insets top = "+insets.top+" bottom = "+insets.bottom);
+	logger.debug("display after width = "+getSize().width+" height = "+getSize().height);
 	if(hAmpScaleMap != null) {
 	    hAmpScaleMap.setTotalPixels(dim.width  - insets.left - insets.right);
 	    vAmpScaleMap.setTotalPixels(dim.height  - insets.top - insets.bottom);
@@ -340,6 +362,6 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
     static Category logger = 
         Category.getInstance(ParticleMotionDisplay.class.getName());
-    
+    int count = 0;
     
 }// ParticleMotionDisplay

@@ -90,7 +90,7 @@ public class ParticleMotionView extends JComponent{
 
     public void resize() {
 	setSize(super.getSize());
-	particleMotionDisplay.resize();
+	//particleMotionDisplay.resize();
 	repaint();
     }
 
@@ -542,17 +542,18 @@ public class ParticleMotionView extends JComponent{
 
     /** must be square */
     public void setSize(Dimension d) {
-	System.out.println("Setting the size");
+	logger.debug("Setting the size");
 
 	Insets insets = super.insets();
-        if (d.width < d.height) {
-            super.setSize(new Dimension(d.width - insets.left - insets.right, 
-					d.width - insets.left - insets.right));
+	if (d.width < d.height) {
+            super.setSize(new Dimension(d.width,
+					d.width));
         } else {
-            super.setSize(new Dimension(d.height - insets.top - insets.bottom, 
-					d.height - insets.top - insets.bottom));
-        }
-	System.out.println("dflsdkfj height "+super.getSize().height+" eidhth "+super.getSize().width);
+            super.setSize(new Dimension(d.height, 
+					d.height));
+	}
+	
+	logger.debug("dflsdkfj height "+super.getSize().height+" eidhth "+super.getSize().width);
     }
 
 
@@ -620,7 +621,7 @@ public class ParticleMotionView extends JComponent{
 	    this.timeRangeConfig = timeRangeConfig;
 	    this.hAmpRangeConfig = hAmpRangeConfig;
 	    this.vAmpRangeConfig = vAmpRangeConfig;
-	 
+	    setColor(color);
 	    if(this.timeRangeConfig != null) {
 		this.timeRangeConfig.addTimeSyncListener(this);
 		this.microSecondTimeRange = timeRangeConfig.getTimeRange();
