@@ -11,8 +11,11 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.utility.Assert;
 import edu.sc.seis.fissuresUtil.display.ParseRegions;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import javax.swing.text.NumberFormatter;
 
 /**
  * CacheEvent.java
@@ -229,6 +232,10 @@ public class CacheEvent implements EventAccessOperations {
         return getEventInfo(event, NO_ARG_STRING);
     }
     
+    public static String getEventInfo(EventAccessOperations event, String format) {
+        return getEventInfo(event, format, new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z"));
+    }
+    
     /**
      *@ formats a string for the given event.  To insert information about a
      * certain item magic strings are used in the format string
@@ -239,10 +246,10 @@ public class CacheEvent implements EventAccessOperations {
      * DEPTH adds the depth
      *
      *For example the string
-     *"Event: " + LOC + " | " + TIME + " | " + MAG + " | " + DEPTH
+     *"Event: " + LOC + " | " + TIME + " | Mag: " + MAG + " | Depth: " + DEPTH + " " + DEPTH_UNIT
      *produces the same thing as the no format call to getEventInfo
      */
-    public static String getEventInfo(EventAccessOperations event, String format){
+    public static String getEventInfo(EventAccessOperations event, String format, DateFormat sdf){
         //Get geographic name of origin
         ParseRegions regions = new ParseRegions();
         String location = regions.getGeographicRegionName(event.get_attributes().region.number);
@@ -255,7 +262,6 @@ public class CacheEvent implements EventAccessOperations {
             origin = event.get_origins()[0];
         }
         MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String originTimeString = sdf.format(msd);
         
@@ -276,20 +282,24 @@ public class CacheEvent implements EventAccessOperations {
                 }else if(magicStrings[i].equals(TIME)){
                     buf.insert(index, originTimeString);
                 }else if(magicStrings[i].equals(MAG)){
-                    buf.insert(index, "Mag " + mag);
+                    buf.insert(index, mag);
                 }else if(magicStrings[i].equals(DEPTH)){
-                    buf.insert(index, "Depth " + depth.value + " " + UnitDisplayUtil.getNameForUnit((UnitImpl)depth.the_units));
+                    buf.insert(index, depthFormatter.format(depth.value));
+                }else if(magicStrings[i].equals(DEPTH_UNIT)){
+                    buf.insert(index, UnitDisplayUtil.getNameForUnit((UnitImpl)depth.the_units));
                 }
             }
         }
         return buf.toString();
     }
     
-    public static final String LOC = "loc", TIME = "time", MAG = "mag", DEPTH = "depth";
+    private static DecimalFormat depthFormatter = new DecimalFormat("###0.00");
     
-    private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH};
+    public static final String LOC = "LOC", TIME = "TIME", MAG = "MAG", DEPTH = "DEPTH", DEPTH_UNIT = "DEPTH_UNIT";
     
-    private static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME + " | " + MAG + " | " + DEPTH;
+    private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH, DEPTH_UNIT};
+    
+    private static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT;
 
     protected EventAccessOperations event;
     protected EventAttr attr;
@@ -297,3 +307,4 @@ public class CacheEvent implements EventAccessOperations {
     protected Origin preferred;
 
 } // CacheEvent
+
