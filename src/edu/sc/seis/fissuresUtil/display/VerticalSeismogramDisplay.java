@@ -129,13 +129,13 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		this.amp.setText("   Amplitude:-" + Math.abs(Math.round(amp)));
 	else
 	    if(Math.abs(amp) < 10)
-		this.amp.setText("   Amplitude:  000" + Math.round(amp));
+		this.amp.setText("   Amplitude: 000" + Math.round(amp));
 	    else if(Math.abs(amp) < 100)
-		this.amp.setText("   Amplitude:  00" + Math.round(amp));
+		this.amp.setText("   Amplitude: 00" + Math.round(amp));
 	    else if(Math.abs(amp) < 1000)
-		this.amp.setText("   Amplitude:  0" + Math.round(amp));
+		this.amp.setText("   Amplitude: 0" + Math.round(amp));
 	    else
-		this.amp.setText("   Amplitude:  " + Math.round(amp));
+		this.amp.setText("   Amplitude: " + Math.round(amp));
     }
     
    
@@ -189,9 +189,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected JComponent seismograms;
 
-    public JLabel time = new JLabel("   Time:                        ");
+    public static JLabel time = new JLabel("   Time:                        ");
     
-    public JLabel amp = new JLabel("   Amplitude:       ");
+    public static JLabel amp = new JLabel("   Amplitude:       ");
 
     protected SimpleDateFormat output = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.S");
 
