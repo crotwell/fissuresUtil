@@ -10,7 +10,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 2794 2002-10-22 01:39:52Z crotwell $
+ * @version $Id: Statistics.java 2814 2002-10-24 14:57:26Z crotwell $
  */
 
 public class Statistics  {
@@ -40,12 +40,12 @@ public class Statistics  {
     }
     
     public Statistics(LocalSeismogramImpl seismo){
-	if(seismo.can_convert_to_float()){
-	    fSeries = seismo.get_as_floats();
-	    endIndex = fSeries.length;
-	}else{
+	if(seismo.can_convert_to_long()){
 	    iSeries = seismo.get_as_longs();
 	    endIndex = iSeries.length;
+	}else{
+	    fSeries = seismo.get_as_floats();
+	    endIndex = fSeries.length;
 	}
 	beginIndex = 0;
     }
@@ -79,6 +79,13 @@ public class Statistics  {
     }
 
     public double[] minMaxMean(int beginIndex, int endIndex){
+	if (beginIndex < 0 ) {
+	    throw new IllegalArgumentException("begin Index < 0 "+beginIndex);
+	} // end of if (beginIndex < 0 )
+	if (endIndex > getLength() ) {
+	    throw new IllegalArgumentException("end Index > data length "+endIndex);
+	} // end of if (beginIndex < 0 )
+	
 	if(minMaxMeanCalculated){
 	    if(beginIndex == this.beginIndex && endIndex == this.endIndex){
 		return minMaxMean;
