@@ -33,18 +33,15 @@ public class UnitDisplayUtil
         UnitRangeImpl outRange = inRange;
 
         if (inRange.getUnit().equals(UnitImpl.METER_PER_SECOND)) {
-            logger.debug("in velocity section"+inRange);
             // velocity
             if (Math.abs(inRange.getMinValue()) < .001 &&
                 Math.abs(inRange.getMaxValue()) < .001) {
                 // use micron/sec
                 outRange = inRange.convertTo(UnitImpl.MICRON_PER_SECOND);
-                logger.debug("use micron/sec "+outRange);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
                 Math.abs(inRange.getMaxValue()) < 1) {
                 // use mm/sec
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER_PER_SECOND);
-                logger.debug("use mm/sec "+outRange);
             }
         } else if (inRange.getUnit().equals(UnitImpl.METER)) {
             // displacement
