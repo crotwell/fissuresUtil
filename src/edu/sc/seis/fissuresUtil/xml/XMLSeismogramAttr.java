@@ -29,11 +29,12 @@ public class XMLSeismogramAttr {
 	
 	Element property;
 	for(int counter = 0; counter < seismogramAttr.properties.length; counter++) {
-
-	    property =  XMLProperty.createElement(doc, 
-					   seismogramAttr.properties[counter],
-					   "property");
-	    element.appendChild(property);
+	    if(seismogramAttr.properties[counter] != null) {
+		property =  XMLProperty.createElement(doc, 
+						      seismogramAttr.properties[counter],
+						      "property");
+		element.appendChild(property);
+	    }
 	}
 
 	Element begin_time = doc.createElement("begin_time");
