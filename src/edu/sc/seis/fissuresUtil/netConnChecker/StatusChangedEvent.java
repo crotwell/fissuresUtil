@@ -11,15 +11,15 @@ package edu.sc.seis.fissuresUtil.netConnChecker;
  */
 
 public class StatusChangedEvent {
-    public StatusChangedEvent (Checker checker, String urlStr, ConnStatus connectionStatus){
+    public StatusChangedEvent (java.lang.Object checker, String urlStr, ConnStatus connectionStatus){
 
-	setChecker(checker);
+	setObject(checker);
 	setConnStatus(connectionStatus);
 	setURLStr(urlStr);
 	
     }
 
-    public void setChecker(Checker checker) {
+    public void setObject(java.lang.Object checker) {
 
 	this.checker = checker;
 
@@ -37,7 +37,7 @@ public class StatusChangedEvent {
 
     }
 
-    public Checker getChecker() {
+    public Object getObject() {
 
 	return checker;
 
@@ -56,7 +56,7 @@ public class StatusChangedEvent {
 
     }
 
-    private Checker checker;
+    private java.lang.Object checker;
     
     private ConnStatus connectionStatus;
 

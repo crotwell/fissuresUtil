@@ -27,5 +27,8 @@ public class ConnStatus {
 
     public static final ConnStatus FAILED = new ConnStatus("FAILED");
 
+    public static final ConnStatus UNKNOWN = new
+    ConnStatus("UNKNOWN");
+
     
 }// ConnectionStatus
