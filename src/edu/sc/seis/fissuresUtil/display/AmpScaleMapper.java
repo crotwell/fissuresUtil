@@ -29,6 +29,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpSyncListener {
 	this.totalPixels = totalPixels;
         this.hintPixels = hintPixels;
 	ampRegistrar = new AmpConfigRegistrar(ar);
+	ampRegistrar.addAmpSyncListener(this);
 	setRange();
     } 
   
