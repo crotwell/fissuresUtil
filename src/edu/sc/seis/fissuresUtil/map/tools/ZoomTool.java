@@ -32,7 +32,6 @@ public class ZoomTool extends OpenMapTool{
 	}
 
 	public void addZoomListener(ZoomListener zl){
-		System.out.println("ZoomListener: " + zl);
 		listenerList.add(ZoomListener.class, zl);
 	}
 
@@ -43,11 +42,9 @@ public class ZoomTool extends OpenMapTool{
 	private void fireZoomChanged(ZoomEvent ze){
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerList.getListenerList();
-		System.out.println("length of listeners[]: " + listeners.length);
 		// Process the listeners last to first, notifying
 		// those that are interested in this event
 		for (int i = listeners.length-2; i>=0; i-=2) {
-			System.out.println("fireZoomChanged listener informed");
 			if (listeners[i]==ZoomListener.class) {
 				// Lazily create the event:
 				if (ze != null){
@@ -58,7 +55,6 @@ public class ZoomTool extends OpenMapTool{
 	}
 
 	public void mouseClicked(MouseEvent e){
-		System.out.println("mouseClicked in ZoomEvent");
 		if (isActive()){
 			LatLonPoint llp = mapBean.getCoordinates(e);
 			mapBean.center(new CenterEvent(this, llp.getLatitude(), llp.getLongitude()));
@@ -87,4 +83,5 @@ public class ZoomTool extends OpenMapTool{
 	public String getID() {
 		return id;
 	}
+
 }

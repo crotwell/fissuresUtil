@@ -25,6 +25,7 @@ public class PanTool extends OpenMapTool{
 
 	public void mousePressed(MouseEvent e){
 		if (isActive()){
+			super.mousePressed(e);
 			startXYCoords = new int[]{e.getX(), e.getY()};
 		}
 	}
@@ -38,6 +39,7 @@ public class PanTool extends OpenMapTool{
 
 	public void mouseReleased(MouseEvent e){
 		if (isActive()){
+			super.mouseReleased(e);
 			translate(e);
 		}
 	}
