@@ -4,6 +4,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import javax.swing.SwingUtilities;
+import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 
 /**
  * MemoryDataSetSeismogram.java
@@ -15,6 +16,12 @@ import javax.swing.SwingUtilities;
  * @version 1.0
  */
 public class MemoryDataSetSeismogram extends DataSetSeismogram implements Cloneable {
+
+
+    public MemoryDataSetSeismogram(RequestFilter requestFilter,
+                                   String name) {
+        super(null, name, requestFilter);
+    }
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl seis,
                                    String name) {
@@ -46,23 +53,21 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
                                    String name) {
         super(ds, name);
         requestFilter = makeRequestFilter(seis);
-        seisCache = seis;
+        addToCache(seis);
     }
 
     public void retrieveData(final SeisDataChangeListener dataListener) {
-        SwingUtilities.invokeLater(new Runnable() {
+        WorkerThreadPool.getDefaultPool().invokeLater(new Runnable() {
                     public void run() {
-                        pushData(seisCache, dataListener);
+                        pushData(getCache(), dataListener);
                         finished(dataListener);
                     }
                 });
     }
 
     public LocalSeismogramImpl[] getCache() {
-        return seisCache;
+        return (LocalSeismogramImpl[])seisCache.toArray(new LocalSeismogramImpl[0]);
     }
-    
-    protected LocalSeismogramImpl[] seisCache;
 
     static final RequestFilter makeRequestFilter(LocalSeismogramImpl[] seis) {
         MicroSecondDate pre = seis[0].getBeginTime();
