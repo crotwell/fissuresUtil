@@ -194,9 +194,11 @@ public class ExceptionHandlerGUI {
                             FileWriter fw = new FileWriter(fileChooser.getSelectedFile().getAbsolutePath());
 			  
                             BufferedWriter bw = new BufferedWriter(fw);
-                            String str = getSystemInformation();
+                            String str = message+"\n";
                             bw.write(str, 0, str.length());
                             str = getStackTrace(exception);
+                            bw.write(str, 0, str.length());
+                            str = getSystemInformation();
                             bw.write(str, 0, str.length());
 			    
                             // fw.close();
