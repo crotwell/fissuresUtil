@@ -71,9 +71,7 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
                                              color.toString());
         BasicSeismogramDisplay newDisplay = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(), this, untransparent);
         newDisplay.add(seis, untransparent);
-        newDisplay.removeTopTimeBorder();
-        newDisplay.addBottomTimeBorder();
-        add(newDisplay);
+        getCenterPanel().add(newDisplay);
         basicDisplays.add(newDisplay);
         revalidate();
         return newDisplay;
