@@ -11,7 +11,6 @@ import edu.iris.Fissures.TimeRange;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.chooser.DataSetChannelGrouper;
 import java.awt.*;
-import java.awt.print.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.text.SimpleDateFormat;
@@ -189,14 +188,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     
     public void print(){
-	PrinterJob pj = PrinterJob.getPrinterJob();
-	SeismogramPrinter printer = new SeismogramPrinter(getDisplayArray());
-	pj.setPrintable(printer);
-	if(pj.printDialog()){
-	    try { pj.print(); } 
-	    catch(Exception e){ e.printStackTrace(); }
-	}
-	printer.restore();
+	SeismogramPrinter.print(getDisplayArray());
 	revalidate();
     }
     
