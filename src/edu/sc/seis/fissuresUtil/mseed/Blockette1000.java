@@ -23,13 +23,16 @@ public class Blockette1000 extends  DataBlockette {
 
     public Blockette1000(byte[] info) {
         super(info);
-        if (info.length < B1000_SIZE) {
-            throw new IllegalArgumentException("Blockette 1000 must have 8 bytes, but got "+info.length);
+        trimToSize(B1000_SIZE);
+        System.out.println("b1000 bytes=");
+        for (int i = 0; i < this.info.length; i++) {
+            System.out.print(" "+info[i]);
         }
+        System.out.println();
     }
 
     public int getSize() {
-        return 8;
+        return B1000_SIZE;
     }
 
     public int getType() { return 1000; }
