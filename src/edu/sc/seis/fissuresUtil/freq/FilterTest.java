@@ -6,6 +6,8 @@ package edu.sc.seis.fissuresUtil.freq;
 import edu.iris.Fissures.display.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.model.*;
+import edu.sc.seis.fissuresUtil.sac.*;
+import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 
 /**
  * FilterTest.java
@@ -24,9 +26,18 @@ public class FilterTest  {
     }
     
     public static void main(String[] args) {
+	if (args.length != 1) {
+	    System.out.println("Usage java edu.sc.seis.fissuresUtil.freq.FilterTest sacfile");
+	    System.exit(0);
+	} // end of if (args.length != 1)
+	
 	try {
-	    LocalSeismogramImpl seis = 
-		(LocalSeismogramImpl)SeisPlotUtil.createTestData();
+	    SacTimeSeries sac = new SacTimeSeries();
+	    sac.read(args[0]);
+	    LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
+
+	    //	    LocalSeismogramImpl seis = 
+	    //(LocalSeismogramImpl)SeisPlotUtil.createTestData();
 	    int[] idata = seis.get_as_longs();
 	    float[] fdata = new float[idata.length];
 	    for (int i=0; i<idata.length; i++) {
@@ -41,6 +52,12 @@ public class FilterTest  {
 	    double dt = seis.getSampling().getPeriod().convertTo(UnitImpl.SECOND).getValue();
 	    Cmplx[] filtered = filter.apply(dt, fftdata);
 	    float[] outdata = Cmplx.fftInverse(filtered, seis.getNumPoints());
+	    TimeSeriesDataSel ts = new TimeSeriesDataSel();
+	    ts.flt_values(outdata);
+	    LocalSeismogramImpl outSeis = new LocalSeismogramImpl(seis, 
+								  ts);
+	    sac = FissuresToSac.getSAC(outSeis);
+	    sac.write("filter.out");
 	} catch (Exception e) {
 	    System.err.println(e.getMessage());
 	    e.printStackTrace();
