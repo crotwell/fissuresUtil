@@ -38,172 +38,163 @@ import com.bbn.openmap.Layer;
 
 public class EventLayer extends Layer implements EventDataListener, EventLoadedListener, EQSelectionListener{
     public EventLayer(EventTableModel tableModel, ListSelectionModel lsm, MapBean mapBean){
-        this.tableModel = tableModel;
-        selectionModel = lsm;
-        tableModel.addEventDataListener(this);
-        eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
+		this.tableModel = tableModel;
+		selectionModel = lsm;
+		tableModel.addEventDataListener(this);
+		eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
 
-        //this list selection stuff does not work yet.
-        if(selectionModel != null){
-            selectionModel.addListSelectionListener(new ListSelectionListener(){
-                        public void valueChanged(ListSelectionEvent e) {
-                            EventAccessOperations[] events = new EventAccessOperations[0];
-                            //EventAccessOperations[] events = tableModel.getSelectedEvents();
-                            for (int i = 0; i < events.length; i++) {
-                                Iterator it = circles.iterator();
-                                while (it.hasNext()){
-                                    OMEvent current = (OMEvent)it.next();
-                                    try{
+		selectionModel.addListSelectionListener(new ListSelectionListener(){
+					public void valueChanged(ListSelectionEvent e) {
+						List selectedEvents = new ArrayList();
+						EventAccessOperations[] allEvents = getTableModel().getAllEvents();
+						for (int i = 0; i < allEvents.length; i++) {
+							if (selectionModel.isSelectedIndex(i)){
+								selectedEvents.add(allEvents[i]);
+							}
+						}
+						eqSelectionChanged(new EQSelectionEvent(this, new EventAccessOperations[]{(EventAccessOperations)selectedEvents.get(0)}));
+					}
 
-                                        if (current.getEvent().get_preferred_origin().equals(events[i].get_preferred_origin())){
-                                            current.select();
-                                            return;
-                                        }
-                                    }
-                                    catch(NoPreferredOrigin ex){}
-                                }
-                            }
-                        }
-
-                    });
-        }
-
-        //temporary fix for selection for now...will be removed as soon
-        //as the stuff above starts working
-        tableModel.addEQSelectionListener(this);
+				});
 
         this.mapBean = mapBean;
     }
 
     public void paint(java.awt.Graphics g) {
-        synchronized(circles){
-            circles.render(g);
-        }
+		synchronized(circles){
+			circles.render(g);
+		}
     }
 
     public void projectionChanged(ProjectionEvent e) {
-        LayerProjectionUpdater.update(e, circles, this);
+		LayerProjectionUpdater.update(e, circles, this);
     }
 
     public void eventDataChanged(EQDataEvent eqDataEvent) {
-        EventAccessOperations[] events = eqDataEvent.getEvents();
-        EventBackgroundLoaderPool loader = tableModel.getLoader();
-        for (int i = 0; i < events.length; i++) {
-            loader.getEvent(events[i], (CacheEvent)events[i], this);
-        }
+		EventAccessOperations[] events = eqDataEvent.getEvents();
+		EventBackgroundLoaderPool loader = tableModel.getLoader();
+		for (int i = 0; i < events.length; i++) {
+			loader.getEvent(events[i], (CacheEvent)events[i], this);
+		}
     }
 
     public void eventLoaded(CacheEvent event) {
-        try{
-            OMEvent omEvent = new OMEvent(event);
-            synchronized(circles){
-                circles.add(omEvent);
-            }
-            repaint();
-        }catch(NoPreferredOrigin e){
-            logger.debug("No origin for an event");
-        }
+		try{
+			OMEvent omEvent = new OMEvent(event);
+			synchronized(circles){
+				circles.add(omEvent);
+			}
+			repaint();
+		}catch(NoPreferredOrigin e){
+			logger.debug("No origin for an event");
+		}
     }
 
     public void eventDataCleared() {
-        synchronized(circles){circles.clear();}
-        repaint();
+		synchronized(circles){circles.clear();}
+		repaint();
     }
 
     public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
-        OMEvent selected = null;
-        List deselected = new ArrayList();
-        synchronized(circles){
-            Iterator it = circles.iterator();
-            while (it.hasNext()){
-                OMEvent current = (OMEvent)it.next();
-                try{
-                    if (current.getEvent().get_preferred_origin().equals(eqSelectionEvent.getEvent().get_preferred_origin())){
-                        selected = current;
-                    }else{
-                        deselected.add(current);
-                    }
-                }
-                catch(NoPreferredOrigin e){}
-            }
-        }
-        if(selected != null){
-            selected.select();
-            synchronized(circles){
-                circles.moveIndexedToTop(circles.indexOf(selected));
-            }
-        }
-        Iterator it = deselected.iterator();
-        while(it.hasNext()){
-            ((OMEvent)it.next()).deselect();
-        }
+		OMEvent selected = null;
+		List deselected = new ArrayList();
+		synchronized(circles){
+			Iterator it = circles.iterator();
+			while (it.hasNext()){
+				OMEvent current = (OMEvent)it.next();
+				try{
+					if (current.getEvent().get_preferred_origin().equals(eqSelectionEvent.getEvents()[0].get_preferred_origin())){
+						selected = current;
+					}else{
+						deselected.add(current);
+					}
+				}
+				catch(NoPreferredOrigin e){}
+			}
+		}
+		if(selected != null){
+			selected.select();
+			synchronized(circles){
+				circles.moveIndexedToTop(circles.indexOf(selected));
+			}
+		}
+		Iterator it = deselected.iterator();
+		while(it.hasNext()){
+			((OMEvent)it.next()).deselect();
+		}
 
     }
 
     private static String[] modeList = { SelectMouseMode.modeID } ;
 
     public String[] getMouseModeServiceList() {
-        return modeList;
+		return modeList;
     }
 
     public boolean mouseClicked(MouseEvent e){
-        /*synchronized(circles){
-         Iterator it = circles.iterator();
-         while(it.hasNext()){
-         OMEvent current = (OMEvent)it.next();
-         if(current.getBigCircle().contains(e.getX(), e.getY())){
-         circles.deselect();
-         current.select();
-         return true;
-         }
-         }
-         }*/
-        return false;
+
+		synchronized(circles){
+			Iterator it = circles.iterator();
+			while(it.hasNext()){
+				OMEvent current = (OMEvent)it.next();
+				if(current.getBigCircle().contains(e.getX(), e.getY())){
+					circles.deselect();
+					current.select();
+					return true;
+				}
+			}
+		}
+		return false;
     }
 
     private class OMEvent extends OMGraphicList{
-        public OMEvent(EventAccessOperations eao) throws NoPreferredOrigin{
-            super(2);
-            Origin prefOrigin = eao.get_preferred_origin();
-            float lat = prefOrigin.my_location.latitude;
-            float lon = prefOrigin.my_location.longitude;
-            float mag = prefOrigin.magnitudes[0].value;
-            mag *= mag;
-            bigCircle = new OMCircle(lat, lon, (int)Math.floor(mag), (int)Math.floor(mag));
-            OMCircle lilCircle = new OMCircle(lat, lon, 5, 5);
-            event = new CacheEvent(eao);
-            setLinePaint(Color.BLUE);
-            lilCircle.setFillPaint(Color.RED);
-            add(bigCircle);
-            add(lilCircle);
-            generate(getProjection());
-        }
+		public OMEvent(EventAccessOperations eao) throws NoPreferredOrigin{
+			super(2);
+			Origin prefOrigin = eao.get_preferred_origin();
+			float lat = prefOrigin.my_location.latitude;
+			float lon = prefOrigin.my_location.longitude;
+			float mag = prefOrigin.magnitudes[0].value;
+			mag *= mag;
+			bigCircle = new OMCircle(lat, lon, (int)Math.floor(mag), (int)Math.floor(mag));
+			OMCircle lilCircle = new OMCircle(lat, lon, 5, 5);
+			event = new CacheEvent(eao);
+			setLinePaint(Color.BLUE);
+			lilCircle.setFillPaint(Color.RED);
+			setSelectPaint(Color.MAGENTA);
+			add(bigCircle);
+			add(lilCircle);
+			generate(getProjection());
+		}
 
-        public CacheEvent getEvent(){
-            return event;
-        }
+		public CacheEvent getEvent(){
+			return event;
+		}
 
-        public void select() {
-            bigCircle.setFillPaint(Color.RED);
-            try{
-                mapBean.center(new CenterEvent(this,
-                                               event.get_preferred_origin().my_location.latitude,
-                                               event.get_preferred_origin().my_location.longitude));
-            }catch(NoPreferredOrigin e){}
-            super.select();
-        }
+		public void select() {
+			bigCircle.setFillPaint(Color.RED);
+			try{
+				mapBean.center(new CenterEvent(this,
+											   event.get_preferred_origin().my_location.latitude,
+											   event.get_preferred_origin().my_location.longitude));
+			}catch(NoPreferredOrigin e){}
+			super.select();
+		}
 
-        public void deselect(){
-            bigCircle.setFillPaint(OMGraphicConstants.clear);
-            super.deselect();
-        }
+		public void deselect(){
+			bigCircle.setFillPaint(OMGraphicConstants.clear);
+			super.deselect();
+		}
 
-        public OMCircle getBigCircle(){ return bigCircle; }
+		public OMCircle getBigCircle(){ return bigCircle; }
 
-        private CacheEvent event;
+		private CacheEvent event;
 
-        private OMCircle bigCircle;
+		private OMCircle bigCircle;
     }
+
+	private EventTableModel getTableModel(){
+		return tableModel;
+	}
 
     private OMGraphicList circles = new OMGraphicList();
 
@@ -215,6 +206,7 @@ public class EventLayer extends Layer implements EventDataListener, EventLoadedL
 
     private MapBean mapBean;
 }
+
 
 
 
