@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 1615 2002-05-10 16:40:47Z crotwell $
+ * @version $Id: ChannelChooser.java 1693 2002-05-24 17:10:49Z crotwell $
  *
  */
 
@@ -63,11 +63,13 @@ public class ChannelChooser extends JPanel{
 	Thread networkLoader = new Thread() {
 		public void run() {
 		    CacheNetworkAccess cache;
+		    logger.debug("Before networks");
 		    NetworkAccess[] nets = 
 			netdc.a_finder().retrieve_all();
 		    logger.debug("Got networks");
 		    for (int i=0; i<nets.length; i++) {
-			cache = new CacheNetworkAccess(nets[i]);
+			//  cache = new CacheNetworkAccess(nets[i]);
+			cache = new DNDNetworkAccess(nets[i]);
 			NetworkAttr attr = cache.get_attributes();
 			logger.debug("Got attributes "+attr.get_code());
 			// preload attributes
@@ -122,7 +124,8 @@ public class ChannelChooser extends JPanel{
 	gbc.weighty = 1.0;
 	final ListCellRenderer renderer = new NameListCellRenderer(true);
 
-	networkList = new JList(networks);
+	//networkList = new JList(networks);
+	networkList = new DNDJList(networks);
 	networkList.setCellRenderer(renderer);
 	networkList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 	networkList.addListSelectionListener(new ListSelectionListener() {
@@ -137,6 +140,7 @@ public class ChannelChooser extends JPanel{
 				try {
 				    stations.clear();
 				    for (int i=0; i<nets.length; i++) {
+logger.debug("Before get stations");
 					Station[] newStations = nets[i].retrieve_stations();
 					logger.debug("got "+newStations.length+" stations");
 					stations.clear();
@@ -173,7 +177,7 @@ public class ChannelChooser extends JPanel{
 	add(scroller, gbc);
 	gbc.gridx++;
 
-	stationList = new JList(stations);
+	stationList = new DNDJList(stations);
 	stationList.setCellRenderer(renderer);
 	stationList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	stationList.addListSelectionListener(new ListSelectionListener() {
