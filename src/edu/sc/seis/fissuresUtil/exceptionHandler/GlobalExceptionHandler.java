@@ -28,6 +28,10 @@ public class GlobalExceptionHandler {
         return numHandled;
     }
 
+    public static void handle(String message) {
+        handle(message, new Exception());
+    }
+    
     public static void handle(String message, Throwable thrown) {
         try {
             Iterator intIt = interceptors.iterator();
