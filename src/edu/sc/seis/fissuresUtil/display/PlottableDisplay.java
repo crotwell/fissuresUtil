@@ -642,49 +642,17 @@ public  class PlottableDisplay extends JComponent {
 	   
     }
 
-    public RequestFilter getRequestFilter() {
-	if(endx == -1) return null;
-	int[] selectedRows = getSelectedRows(beginy, endy);
-	if(selectedRows.length == 0) return null;
-	int rowvalue = 24/plotrows;
-	int plotwidth = plot_x/plotrows;
-        float beginvalue = ((beginx/(float)plotwidth)) * rowvalue + selectedRows[0] * rowvalue;
-	float endvalue = (endx/(float)plotwidth) * rowvalue + selectedRows[selectedRows.length - 1] * rowvalue;
-	return new RequestFilter(this.channelId, 
-				 getTime(beginvalue).getFissuresTime(),
-				 getTime(endvalue).getFissuresTime());
-	//edu.iris.Fissures.Time begin_time ;
-	
-// 	System.out.println(" b value is "+((beginx/plotwidth)));
-// 	System.out.println(" b value is "+((endx/plotwidth)));
-// 	System.out.println("The beginValue is "+beginvalue);
-// 	System.out.println("The endValue is "+endvalue);
-// 	System.out.println("The end time of selection is "+ getTime(endvalue));
+   
+    public RequestFilter[] getRequestFilters() {
 
-    }
-
-    private MicroSecondDate getTime(float rowoffsetvalue) {
-	
-	int tempmilliseconds =(int) (rowoffsetvalue * 60 * 60 * 1000);
-	int hours = tempmilliseconds / (60 * 60 * 1000);
-	tempmilliseconds = tempmilliseconds - hours * 60 * 60 * 1000;
-	int minutes = tempmilliseconds / (60 * 1000);
-	tempmilliseconds = tempmilliseconds - minutes * 60 * 1000;
-	int seconds = tempmilliseconds / 1000;
-	tempmilliseconds = tempmilliseconds - seconds * 1000;
- 	Calendar calendar = Calendar.getInstance();
-	calendar.setTime(this.date);
-	GregorianCalendar gregorianCalendar = new GregorianCalendar(calendar.get(Calendar.YEAR),
-								    calendar.get(Calendar.MONTH),
-								    calendar.get(Calendar.DATE),
-								    hours,
-								    minutes,
-								    seconds);
-								    
-								    
-
-	gregorianCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-	return new MicroSecondDate(gregorianCalendar.getTime());
+        RequestFilter[] filters = new RequestFilter[selectionList.size()];
+        Iterator iterator = selectionList.iterator();
+        int counter = 0;
+        while(iterator.hasNext()) {
+            PlottableSelection selection = (PlottableSelection)iterator.next();
+            filters[counter++] =  selection.getRequestFilter();
+        }
+        return filters;
     }
 
 
