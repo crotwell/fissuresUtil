@@ -58,7 +58,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
 
     public void renderToGraphics(Graphics2D g, Dimension size) {
         PRINTING = true;
-        boolean allHere = true;
+        boolean allHere = false;
         long totalWait = 0;
         Iterator seisIt = iterator(DrawableSeismogram.class);
         while(seisIt.hasNext()) {
