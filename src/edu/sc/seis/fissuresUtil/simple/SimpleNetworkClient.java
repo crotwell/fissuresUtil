@@ -8,11 +8,6 @@ package edu.sc.seis.fissuresUtil.simple;
 
 import edu.iris.Fissures.IfNetwork.*;
 
-import edu.iris.Fissures.model.AllVTFactory;
-import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
-import edu.sc.seis.fissuresUtil.namingService.FissuresNamingServiceImpl;
-import java.util.Properties;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;

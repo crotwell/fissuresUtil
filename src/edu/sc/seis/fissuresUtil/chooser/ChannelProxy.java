@@ -20,13 +20,13 @@ import org.omg.CORBA.*;
 
 public class ChannelProxy implements ChannelGrouper{
     public ChannelProxy (){
-    
+
     }
 
     public  Channel[] retrieve_grouping(org.omg.CORBA_2_3.ORB orb, ChannelId channelId) {
     Channel[] group;
     try {
-        FissuresNamingServiceImpl fissuresNamingService = new FissuresNamingServiceImpl(orb);
+        FissuresNamingService fissuresNamingService = new FissuresNamingService(orb);
         NetworkDC[] networkReferences = fissuresNamingService.getNetworkDCObjects();
         // ChannelId channelId = channel.get_id();
         for(int counter = 0; counter < networkReferences.length; counter++) {
@@ -61,6 +61,6 @@ public class ChannelProxy implements ChannelGrouper{
     public ChannelId[] retrieve_grouping(ChannelId[] channelIds, ChannelId channelId) {
     return retrieve_grouping(channelIds, channelId);
     }
-    
-   
+
+
 }// ChannelProxy

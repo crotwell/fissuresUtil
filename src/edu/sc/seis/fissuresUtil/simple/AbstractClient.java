@@ -8,7 +8,6 @@ package edu.sc.seis.fissuresUtil.simple;
 
 import edu.iris.Fissures.model.AllVTFactory;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
-import edu.sc.seis.fissuresUtil.namingService.FissuresNamingServiceImpl;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -49,7 +48,7 @@ public abstract class AbstractClient {
         /* Here we pick a name server to connect to. These are two choices for
          * the IRIS DMC and USC SCEPP, others may exist. Port 6371 are used by
          * both USC and the DMC, but this is not required.*/
-        fisName = new FissuresNamingServiceImpl(orb);
+        fisName = new FissuresNamingService(orb);
         logger.info("create fisName helper with orb");
 
         //fisName.setNameServiceCorbaLoc("corbaloc:iiop:dmc.iris.washington.edu:6371/NameService");
@@ -84,7 +83,7 @@ public abstract class AbstractClient {
 
     protected static org.omg.CORBA_2_3.ORB orb;
 
-    protected static FissuresNamingServiceImpl fisName;
+    protected static FissuresNamingService fisName;
 
     private static Logger logger = Logger.getLogger(AbstractClient.class);
 
