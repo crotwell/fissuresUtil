@@ -1,7 +1,11 @@
 #! /usr/bin/python -O
 import sys, os
+startdir = os.getcwd()
+buildPyDir = os.path.realpath(os.path.dirname(sys.argv[0]))
+os.chdir(buildPyDir)
 sys.path.append("../devTools/maven")
 import ProjectParser, mavenExecutor, scriptBuilder, depCopy, distBuilder
+os.chdir(startdir)
 from optparse import OptionParser
 
 class simpleScriptParameters(scriptBuilder.jacorbParameters):
@@ -92,7 +96,7 @@ def __buildDist(proj, scripts, name='simpleClients'):
     for script in scripts: os.remove(script)
 
 if __name__ == "__main__":
-    proj = ProjectParser.ProjectParser('./project.xml')
+    proj = ProjectParser.ProjectParser(buildPyDir + '/project.xml')
     parser = OptionParser()
     parser.add_option("-n", "--net", dest="net",
                       help="build dist with only simple net client stuff",
@@ -119,7 +123,6 @@ if __name__ == "__main__":
     elif options.dist: buildDist(proj)
     else :
         buildJars(proj)
-        os.chdir('scripts')
         if options.nscopy:
             buildNSCopyScripts(proj)
         elif options.sactodsml:
