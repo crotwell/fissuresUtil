@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Category;
+import org.jacorb.transaction.Sleeper;
 import org.omg.CORBA.UserException;
 import org.omg.CosNaming.Binding;
 import org.omg.CosNaming.BindingHolder;
@@ -277,23 +278,25 @@ public class FissuresNamingService {
         } catch(NotFound nfe) {
             switch(nfe.why.value()){
                 case NotFoundReason._missing_node:
+                    System.out.println("Missing Node");
                     try {
-                        topLevelNameContext.bind_new_context(topLevelNameContext.to_name(contextName));
+                        NamingContext nc = topLevelNameContext.bind_new_context(topLevelNameContext.to_name(contextName));
+                        // we now have the parent context, so just rebind the object
+                        NameComponent[] nameComponents = topLevelNameContext.to_name(nameString);
+                        nc.rebind(new NameComponent[] { nameComponents[nameComponents.length-1] }, obj );
                     } catch(AlreadyBound e) {
                         logger.error("Shouldn't be already bound, just got an exception saying it wasn't bound",
                                      e);
                     }
-                    topLevelNameContext.rebind(topLevelNameContext.to_name(nameString),
-                                               obj);
                     break;
                 case NotFoundReason._not_context:
-                    logger.info("Not a Context");
-                    logger.info(nfe.rest_of_name[0].id
+                    logger.error("Not a Context");
+                    logger.error(nfe.rest_of_name[0].id
                             + "  IS PASSED AS A CONTEXT. ACTUALLY IT IS ALREADY BOUND AS AN OBJECT");
                     throw nfe;
                 case NotFoundReason._not_object:
-                    logger.info("Not an Object");
-                    logger.info(nfe.rest_of_name[0].id
+                    logger.error("Not an Object");
+                    logger.error(nfe.rest_of_name[0].id
                             + "  IS PASSED AS AN OBJECT. ACTUALLY IT IS ALREADY BOUND AS A CONTEXT");
                     throw nfe;
                 default:
