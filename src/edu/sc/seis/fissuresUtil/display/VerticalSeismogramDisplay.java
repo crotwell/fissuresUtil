@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
+
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -20,23 +21,21 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * VerticalSeismogramDisplay(VSD) is a JComponent that can contain multiple
- * BasicSeismogramDisplays(BSD)
- *
- * Created: Tue Jun  4 10:52:23 2002
- *
+ * BasicSeismogramDisplays(BSD) Created: Tue Jun 4 10:52:23 2002
+ * 
  * @author Charlie Groves
  * @version 0.1
  */
-
-public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
+public abstract class VerticalSeismogramDisplay extends SeismogramDisplay {
 
     public SeismogramDisplayProvider createCenter() {
         if(cp == null) cp = new CenterPanel();
         return cp;
     }
 
-    protected class CenterPanel extends SeismogramDisplayProvider{
-        public CenterPanel(){
+    protected class CenterPanel extends SeismogramDisplayProvider {
+
+        public CenterPanel() {
             BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
             setLayout(layout);
         }
@@ -45,27 +44,27 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             return VerticalSeismogramDisplay.this;
         }
 
-        public boolean contains(SeismogramDisplay sd){
-            for (int i = 0; i < getComponentCount(); i++) {
+        public boolean contains(SeismogramDisplay sd) {
+            for(int i = 0; i < getComponentCount(); i++) {
                 if(getComponent(i) == sd) return true;
             }
             return false;
         }
 
-        public void setBorders(){
-            if(getComponentCount() >= 1){
-                if(!get(0).isFilled(TOP_CENTER)){
+        public void setBorders() {
+            if(getComponentCount() >= 1) {
+                if(!get(0).isFilled(TOP_CENTER)) {
                     get(0).add(new TimeBorder(get(0)), TOP_CENTER);
                 }
-                if(getComponentCount() > 1){
+                if(getComponentCount() > 1) {
                     get(0).clear(BOTTOM_CENTER);
                     getLast().clear(TOP_CENTER);
                 }
-                for (int i = 1; i < getComponentCount() - 1; i++) {
+                for(int i = 1; i < getComponentCount() - 1; i++) {
                     get(i).clear(TOP_CENTER);
                     get(i).clear(BOTTOM_CENTER);
                 }
-                if(!getLast().isFilled(BOTTOM_CENTER)){
+                if(!getLast().isFilled(BOTTOM_CENTER)) {
                     getLast().add(new TimeBorder(getLast(), TimeBorder.BOTTOM),
                                   BOTTOM_CENTER);
                 }
@@ -73,11 +72,11 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             validate();
         }
 
-        private SeismogramDisplay get(int pos){
+        private SeismogramDisplay get(int pos) {
             return (SeismogramDisplay)super.getComponent(pos);
         }
 
-        private SeismogramDisplay getLast(){
+        private SeismogramDisplay getLast() {
             return get(getComponentCount() - 1);
         }
     }
@@ -86,24 +85,26 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
 
     public abstract void add(DataSetSeismogram[] dss);
 
-    public void remove(DataSetSeismogram[] dss){
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+    public void remove(DataSetSeismogram[] dss) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             ((BasicSeismogramDisplay)cp.getComponent(i)).remove(dss);
         }
     }
 
-    public boolean contains(DataSetSeismogram seismo){
-        for (int i = 0; i < cp.getComponentCount(); i++) {
-            if(((SeismogramDisplay)cp.getComponent(i)).contains(seismo)){
-                return true;
-            }
-        }
-        return false;
+    public boolean contains(DataSetSeismogram seismo) {
+        return get(seismo) != null;
     }
 
-    public void add(Drawable drawable){}//NO IMPL
+    public SeismogramDisplay get(DataSetSeismogram seismo) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
+            if(((SeismogramDisplay)cp.getComponent(i)).contains(seismo)) { return (SeismogramDisplay)cp.getComponent(i); }
+        }
+        return null;
+    }
 
-    public void remove(Drawable drawable){} //NO IMPL
+    public void add(Drawable drawable) {}//NO IMPL
+
+    public void remove(Drawable drawable) {} //NO IMPL
 
     public DrawableIterator getDrawables(MouseEvent e) {
         // TODO
@@ -112,81 +113,87 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
 
     public LinkedList getDisplays() {
         LinkedList disps = new LinkedList();
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             disps.add(cp.getComponent(i));
         }
         return disps;
     }
 
-    public DataSetSeismogram[] getSeismograms(){
+    public DataSetSeismogram[] getSeismograms() {
         List grams = new ArrayList();
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             DataSetSeismogram[] seismos = ((SeismogramDisplay)cp.getComponent(i)).getSeismograms();
-            for(int j = 0; j< seismos.length; j++)  grams.add(seismos[j]);
+            for(int j = 0; j < seismos.length; j++)
+                grams.add(seismos[j]);
         }
         return ((DataSetSeismogram[])grams.toArray(new DataSetSeismogram[grams.size()]));
     }
 
-    public void remove(Selection selection){
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+    public void remove(Selection selection) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             ((SeismogramDisplay)cp.getComponent(i)).remove(selection);
         }
     }
 
-    public DrawableIterator iterator(Class drawableClass){
+    public DrawableIterator iterator(Class drawableClass) {
         List basicDisplays = new ArrayList();
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             basicDisplays.add(cp.getComponent(i));
         }
-        return new DrawableIterator(drawableClass, getAllDrawables(drawableClass,
-                                                                   basicDisplays));
+        return new DrawableIterator(drawableClass,
+                                    getAllDrawables(drawableClass,
+                                                    basicDisplays));
     }
 
-    private static List getAllDrawables(Class drawableClass, List displays){
+    private static List getAllDrawables(Class drawableClass, List displays) {
         List allDrawables = new LinkedList();
         Iterator it = displays.iterator();
-        while(it.hasNext()){
+        while(it.hasNext()) {
             SeismogramDisplay cur = (SeismogramDisplay)it.next();
             DrawableIterator drawIt = cur.iterator(drawableClass);
-            while(drawIt.hasNext()){
+            while(drawIt.hasNext()) {
                 allDrawables.add(drawIt.next());
             }
         }
         return allDrawables;
     }
 
-    protected void setBorders(){ cp.setBorders(); }
+    protected void setBorders() {
+        cp.setBorders();
+    }
 
-    public void clearSelections(){
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+    public void clearSelections() {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             ((BasicSeismogramDisplay)cp.getComponent(i)).clearSelections();
         }
     }
 
-    public void clear(){
+    public void clear() {
         cp.removeAll();
         tc.reset();
         ac.reset();
         repaint();
     }
 
-    public void print(){}
+    public void print() {}
 
     /**
-     * <code>removeAll</code> clears this display and all of its children,
-     * and if it has a parent, removes it from the parent as well
-     *
+     * <code>removeAll</code> clears this display and all of its children, and
+     * if it has a parent, removes it from the parent as well
      */
-    public void removeAll(){ clear(); }
+    public void removeAll() {
+        clear();
+    }
 
     /**
      * <code>removeDisplay</code> removes a BSD from the VSD
-     *
-     * @param display the BSD to be removed
+     * 
+     * @param display
+     *            the BSD to be removed
      * @return true if the display is removed
      */
-    public boolean removeDisplay(BasicSeismogramDisplay display){
-        if(cp.contains(display)){
+    public boolean removeDisplay(BasicSeismogramDisplay display) {
+        if(cp.contains(display)) {
             if(cp.getComponentCount() == 1) clear();
             cp.remove(display);
             setBorders();
@@ -196,37 +203,43 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         return false;
     }
 
-    public void setAmpConfig(AmpConfig ac){ this.ac = ac; }
+    public void setAmpConfig(AmpConfig ac) {
+        this.ac = ac;
+    }
 
-    public void setGlobalizedAmpConfig(AmpConfig ac){
+    public void setGlobalizedAmpConfig(AmpConfig ac) {
         setAmpConfig(ac);
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             ((SeismogramDisplay)cp.getComponent(i)).setAmpConfig(ac);
         }
         globalizedAmp = true;
         tc.addListener(ac);
     }
 
-    public void setIndividualizedAmpConfig(AmpConfig ac){
+    public void setIndividualizedAmpConfig(AmpConfig ac) {
         Class configClass = ac.getClass();
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             SeismogramDisplay cur = (SeismogramDisplay)cp.getComponent(i);
-            try{
+            try {
                 cur.setAmpConfig((AmpConfig)configClass.newInstance());
-            }catch(IllegalAccessException e){
-                GlobalExceptionHandler.handle("Problem creating ampConfig from class", e);
-            }catch(InstantiationException e){
-                GlobalExceptionHandler.handle("Problem creating ampConfig from class", e);
+            } catch(IllegalAccessException e) {
+                GlobalExceptionHandler.handle("Problem creating ampConfig from class",
+                                              e);
+            } catch(InstantiationException e) {
+                GlobalExceptionHandler.handle("Problem creating ampConfig from class",
+                                              e);
             }
         }
         tc.removeListener(ac);
         globalizedAmp = false;
     }
 
-    public AmpConfig getAmpConfig(){ return ac; }
+    public AmpConfig getAmpConfig() {
+        return ac;
+    }
 
-    public void setTimeConfig(TimeConfig config){
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+    public void setTimeConfig(TimeConfig config) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             SeismogramDisplay cur = (SeismogramDisplay)cp.getComponent(i);
             if(cur.getTimeConfig().equals(tc)) cur.setTimeConfig(config);
         }
@@ -234,18 +247,20 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         tc = config;
     }
 
-    public TimeConfig getTimeConfig(){ return tc; }
+    public TimeConfig getTimeConfig() {
+        return tc;
+    }
 
-    public void reset(){
+    public void reset() {
         tc.reset();
         ac.reset();
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             ((SeismogramDisplay)cp.getComponent(i)).reset();
         }
     }
 
-    public void reset(DataSetSeismogram[] seismos){
-        for (int i = 0; i < cp.getComponentCount(); i++) {
+    public void reset(DataSetSeismogram[] seismos) {
+        for(int i = 0; i < cp.getComponentCount(); i++) {
             ((SeismogramDisplay)cp.getComponent(i)).reset(seismos);
         }
     }
