@@ -76,6 +76,7 @@ public class LongShortStoN {
         int nsta=(int)(shortTime.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
         int ntdly=(int)(delay.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
         int nmean=(int)(meanTime.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
+        System.out.println("dt="+dt+" nlta="+nlta+" nsta="+nsta+" ntdly="+ntdly+" nmean="+nmean);
 
         if (seis.getEndTime().subtract(seis.getBeginTime()).lessThan(delay) || nsta > ntdly || ntdly > seis.getNumPoints()) {
             // seis is too short, so no trigger possible
@@ -236,4 +237,5 @@ public class LongShortStoN {
     protected float threshold;
     protected TimeInterval meanTime;
 }
+
 
