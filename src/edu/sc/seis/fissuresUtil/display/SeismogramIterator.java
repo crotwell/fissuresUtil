@@ -10,6 +10,7 @@ import java.util.*;
 
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -17,7 +18,6 @@ import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
 import org.apache.log4j.Logger;
-import edu.iris.Fissures.model.SamplingImpl;
 
 /** Takes an array of LocalSeismograms and iterates through them, point by point
  */
@@ -86,7 +86,7 @@ public class SeismogramIterator implements Iterator{
      * @exception NoSuchElementException iteration has no more elements.
      */
     public Object next() {
-        if(currentPoint < lastPoint){
+        if(currentPoint < endPoint){
             return getValueAt(currentPoint++);
         }
         throw new NoSuchElementException();
@@ -100,7 +100,7 @@ public class SeismogramIterator implements Iterator{
      * @return <tt>true</tt> if the iterator has more elements.
      */
     public boolean hasNext() {
-        if(currentPoint < lastPoint){
+        if(currentPoint < endPoint){
             return true;
         }
         return false;
@@ -121,11 +121,9 @@ public class SeismogramIterator implements Iterator{
     public void setTimeRange(MicroSecondTimeRange timeRange){
         this.timeRange = timeRange;
         if(timeRange == DisplayUtils.ZERO_TIME){
-            currentPoint = 0;
-            lastPoint = 0;
+            currentPoint = numPoints;
         }else if(seisTimeRange == DisplayUtils.ZERO_TIME){
-            currentPoint = 0;
-            lastPoint = 0;
+            currentPoint = numPoints;
         }else{
             long seisBegin = seisTimeRange.getBeginTime().getMicroSecondTime();
             long seisEnd = seisTimeRange.getEndTime().getMicroSecondTime();
@@ -133,17 +131,28 @@ public class SeismogramIterator implements Iterator{
             long timeEnd = timeRange.getEndTime().getMicroSecondTime();
             currentPoint = (int)DisplayUtils.linearInterp(seisBegin, seisEnd,
                                                           numPoints, timeBegin);
-            lastPoint = (int)DisplayUtils.linearInterp(seisBegin, seisEnd,
-                                                       numPoints, timeEnd);
-            //System.out.println("currentPoint: " + currentPoint + " lastPoint " + lastPoint + " seisTR " + seisTimeRange + " timeRange " + timeRange);
+            endPoint = (int)DisplayUtils.linearInterp(seisBegin, seisEnd,
+                                                      numPoints, timeEnd);
+            if(currentPoint < 0){
+                currentPoint = 0;
+            }
+            if(endPoint > numPoints){
+                endPoint = numPoints;
+            }
         }
     }
 
     public LocalSeismogramImpl[] getSeismograms(){ return seismograms; }
 
-    public double[] minMaxMean(){ return minMaxMean(currentPoint, lastPoint); }
+    public double[] minMaxMean(){
+        return minMaxMean(currentPoint, endPoint);
+    }
 
     public double[] minMaxMean(int startPoint, int endPoint){
+        if(startPoint >= endPoint){
+            double[] zeros = { Double.NaN,Double.NaN,Double.NaN};
+            return zeros;
+        }
         int currentPoint = startPoint;
         double[] minMaxMean ={Double.POSITIVE_INFINITY,Double.NEGATIVE_INFINITY,0};
         int totalNumCalculated = 0;//number of points over which values have been taken
@@ -267,11 +276,7 @@ public class SeismogramIterator implements Iterator{
 
     private Map points = new HashMap();
 
-    private int currentPoint = 0;
-
-    private int lastPoint = 0;
-
-    private int numPoints = 0;
+    private int currentPoint, numPoints,endPoint;
 
     private LocalSeismogramImpl[] seismograms;
 
