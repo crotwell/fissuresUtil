@@ -75,8 +75,9 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 			  boolean horizPlane) {
 	particleDisplayPanel = new JLayeredPane();
 	radioPanel = new JPanel();
+	OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
 	this.setLayout(new BorderLayout());
-	particleDisplayPanel.setLayout(new OverlayLayout(particleDisplayPanel));
+	particleDisplayPanel.setLayout(overlayLayout);
 	radioPanel.setLayout(new GridLayout(1, 0));
 	
 	
