@@ -286,8 +286,8 @@ public class Cmplx {
     public static final float[] convolve(float[] fdata, float[] gdata) {
 	    Cmplx[] fTrans = fft(fdata);
 	    Cmplx[] gTrans = fft(gdata);
-	    for (int i=0; i<fdata.length; i++) {
-		fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i]);
+	    for (int i=0; i<fTrans.length; i++) {
+            fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i]);
 	    } // end of for (int i=0; i<gdata.length; i++)
 	    return fftInverse(fTrans, fdata.length);	    
     }
@@ -301,8 +301,8 @@ public class Cmplx {
 	public static final float[] correlate(float[] fdata, float[] gdata) {
 	    Cmplx[] fTrans = fft(fdata);
 	    Cmplx[] gTrans = fft(gdata);
-	    for (int i=0; i<fdata.length; i++) {
-		fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i].conjg());
+	    for (int i=0; i<fTrans.length; i++) {
+            fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i].conjg());
 	    } // end of for (int i=0; i<gdata.length; i++)
 	    return fftInverse(fTrans, fdata.length);	    
 	}
