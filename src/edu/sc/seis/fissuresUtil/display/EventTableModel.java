@@ -94,6 +94,7 @@ public class EventTableModel
 		    cache.get_preferred_origin().origin_time;
 		MicroSecondDate msd = new MicroSecondDate(fisDate);
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		return sdf.format(msd);
 		//return msd.toString();
 	    case MAGVALUE:
@@ -121,7 +122,7 @@ public class EventTableModel
 		}
 		//return type;
 		//case MAGVALUE:
-		return new Float(cache.get_preferred_origin().magnitudes[0].value).toString() + type;
+		return new Float(cache.get_preferred_origin().magnitudes[0].value).toString() + " "+type;
 	    default:
 		return "XXXX";
 	    }
