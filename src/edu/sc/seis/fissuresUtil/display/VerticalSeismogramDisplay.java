@@ -1,8 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
-import java.util.*;
-
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
@@ -14,6 +13,11 @@ import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.TimeZone;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import org.apache.log4j.Category;
@@ -197,8 +201,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         basicDisplays.clear();
         sorter = new SeismogramSorter();
         globalRegistrar = null;
-        time.setText("   Time: ");
-        amp.setText("   Amp: ");
+        timeLabel.setText("   Time: ");
+        ampLabel.setText("   Amp: ");
         repaint();
     }
 
@@ -234,24 +238,58 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      * @param time the new label time
      * @param amp the new label amp
      */
-    public void setLabels(MicroSecondDate newTime, QuantityImpl newAmp){
-        calendar.setTime(newTime);
-        if(output.format(calendar.getTime()).length() == 21)
-            time.setText("Time: " + output.format(calendar.getTime()) + "00");
-        else if(output.format(calendar.getTime()).length() == 22)
-            time.setText("Time: " + output.format(calendar.getTime()) + "0");
-        else
-            time.setText("Time: " + output.format(calendar.getTime()));
+    public void setLabels(MicroSecondDate newTime, QuantityImpl newAmp, UnitRangeImpl ampRange){
+        if(curAmpRange != ampRange){
+            double absMax = Math.abs(ampRange.getMaxValue());
+            double absMin = Math.abs(ampRange.getMinValue());
+            double maxVal;
+            if(absMax > absMin){
+                maxVal = absMax;
+            }else{
+                maxVal = absMin;
+            }
+            if(maxVal < 1){
+                formatter = new DecimalFormat(" 0.###E0;-0.###E0");
+            }else{
+                StringBuffer formatPattern = new StringBuffer(" 0.00;-0.00");
+                while(maxVal > 10){
+                    formatPattern.insert(1,"0");
+                    formatPattern.insert(formatPattern.length() - 4, "0");
+                    maxVal /= 10;
+                }
+                formatter = new DecimalFormat(formatPattern.toString());
+            }
+            curAmpRange = ampRange;
+        }
         double newAmpVal = newAmp.getValue();
         String ampString = amplitude;
-        if(Math.abs(newAmpVal) < .001) {
-            ampString += ampFormatExp.format(newAmpVal);
-        } else {
-            ampString += ampFormat.format(newAmpVal);
+        ampString += formatter.format(newAmpVal);
+        ampLabel.setText(ampString+" "+
+                             unitDisplayUtil.getNameForUnit(newAmp.getUnit()));
+        calendar.setTime(newTime);
+        StringBuffer timeString = new StringBuffer(ampLabel.getText().length());
+        if(output.format(calendar.getTime()).length() == 21)
+            timeString.append(output.format(calendar.getTime()) + "00");
+        else if(output.format(calendar.getTime()).length() == 22)
+            timeString.append(output.format(calendar.getTime()) + "0");
+        else
+            timeString.append(output.format(calendar.getTime()));
+        int numSpaces = ampLabel.getText().length() - timeString.length() - 10;//Amplitude: is 10 chars
+        if(numSpaces < 0){
+            timeString.insert(0, "Time:");
+            timeLabel.setText(timeString.toString());
+        }else{
+            StringBuffer spaces = new StringBuffer(numSpaces);
+            for (int i = 0; i < numSpaces; i++){
+                spaces.append(" ");
+            }
+            timeString.insert(0, spaces);
+            timeString.insert(0, "Time:");
+            timeLabel.setText(timeString.toString());
         }
-        amp.setText(ampString+" "+
-                        unitDisplayUtil.getNameForUnit(newAmp.getUnit()));
     }
+
+    private UnitRangeImpl curAmpRange;
 
     private String amplitude = new String("Amplitude:");
 
@@ -260,7 +298,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      *of this vertical seismogram display concatenated together
      */
     public static String getLabelText(){
-        return time.getText() + amp.getText();
+        return timeLabel.getText() + ampLabel.getText();
     }
 
     /**
@@ -398,9 +436,9 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
                 ((BasicSeismogramDisplay)e.next()).getRegistrar().setAmpConfig((AmpConfig)globalRegistrar);
     }
 
-    public static JLabel getTimeLabel(){ return time; }
+    public static JLabel getTimeLabel(){ return timeLabel; }
 
-    public static JLabel getAmpLabel(){ return amp; }
+    public static JLabel getAmpLabel(){ return ampLabel; }
 
     protected String suffix = "";
 
@@ -412,13 +450,15 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
 
     protected LinkedList basicDisplays = new LinkedList();
 
-    public static JLabel time = new JLabel("");
+    public static JLabel timeLabel = new JLabel("");
 
-    public static JLabel amp = new JLabel("");
+    public static JLabel ampLabel = new JLabel("");
 
     public static DecimalFormat ampFormat = new DecimalFormat(" 000.00;-000.00");
 
     public static DecimalFormat ampFormatExp = new DecimalFormat(" 0.###E0;-0.###E0");
+
+    public static DecimalFormat formatter;
 
     UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
 
