@@ -1,5 +1,7 @@
-package edu.sc.seis.fissuresUtil.display;
+package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 
@@ -13,13 +15,13 @@ import java.awt.Color;
  * @version 1.0
  */
 public class ThreeCSelection extends Selection {
-     public ThreeCSelection(MicroSecondDate begin, 
-			    MicroSecondDate end, 
-			    Registrar reg, 
-			    DataSetSeismogram[] seismograms, 
-			    BasicSeismogramDisplay parent, 
-			    Color color){
-	 super(begin, end, reg, seismograms, parent, color);
+     public ThreeCSelection(MicroSecondDate begin,
+                MicroSecondDate end,
+                Registrar reg,
+                DataSetSeismogram[] seismograms,
+                BasicSeismogramDisplay parent,
+                Color color){
+     super(begin, end, reg, seismograms, parent, color);
      }
 
 } // ThreeCSelection

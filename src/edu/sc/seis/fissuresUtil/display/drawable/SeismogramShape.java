@@ -1,6 +1,11 @@
-package edu.sc.seis.fissuresUtil.display;
+package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
+import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -19,7 +24,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 4002 2003-05-22 18:08:36Z groves $
+ * @version $Id: SeismogramShape.java 4006 2003-05-22 18:47:38Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{

@@ -1,4 +1,4 @@
-package edu.sc.seis.fissuresUtil.display;
+package edu.sc.seis.fissuresUtil.display.drawable;
 
 import java.awt.Graphics2D;
 /**
@@ -14,5 +14,5 @@ import java.awt.Graphics2D;
 public interface NamedPlotter extends Plotter{
 
     public boolean drawName(Graphics2D canvas, int xPosition, int yPosition);
-    
+
 }// NamedPlotter
