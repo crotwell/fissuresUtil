@@ -137,11 +137,13 @@ public class BasicTimeConfig implements TimeConfig{
     public void shaleTime(double shift, double scale, DataSetSeismogram[] seismos){
         this.shift += shift * this.scale;
         this.scale *= scale;
-        time = time.shale(shift, scale);
-        for(int i = 0; i < seismos.length; i++){
-            seismoTimes.put(seismos[i], time);
+        if(time != null){
+            time = time.shale(shift, scale);
+            for(int i = 0; i < seismos.length; i++){
+                seismoTimes.put(seismos[i], time);
+            }
+            fireTimeEvent();
         }
-        fireTimeEvent();
     }
 
     public TimeEvent fireTimeEvent(){
