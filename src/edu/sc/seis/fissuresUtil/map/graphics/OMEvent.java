@@ -18,6 +18,7 @@ import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.awt.Color;
 
 public class OMEvent extends OMGraphicList{
@@ -65,7 +66,7 @@ public class OMEvent extends OMGraphicList{
                                            0.0f,
                                            event.get_preferred_origin().my_location.longitude));
         }catch(NoPreferredOrigin e){
-            System.out.println("For some reason, a NoPreferredOrigin has been called.");
+            GlobalExceptionHandler.handle("For some reason, a NoPreferredOrigin has been called.", e);
         }
     }
 
