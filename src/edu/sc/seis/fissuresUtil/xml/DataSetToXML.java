@@ -244,7 +244,7 @@ public class DataSetToXML {
      * @return a <code>XMLDataSet</code> populated form the URL
      */
     public static DataSet load(URL datasetURL)
-        throws IOException, ParserConfigurationException, SAXException {
+        throws IOException, ParserConfigurationException, SAXException, UnsupportedFileTypeException {
         DataSet dataset = null;
 
         DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
@@ -271,7 +271,7 @@ public class DataSetToXML {
 
     /** Extracts the dataset from the element, which is assumed to be a
      &lt;dataset&gt; element. */
-    public DataSet extract(URL base, Element element) throws MalformedURLException{
+    public DataSet extract(URL base, Element element) throws MalformedURLException, UnsupportedFileTypeException{
         String name = "";
         String owner = "";
         String id = element.getAttribute("datasetid");
