@@ -5,6 +5,8 @@ import edu.iris.Fissures.IfNetwork.*;
 import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
+import edu.iris.Fissures.network.NetworkIdUtil;
 
 public class SimpleNetworkClient implements TestingClient {
     public SimpleNetworkClient(){
@@ -67,9 +69,8 @@ public class SimpleNetworkClient implements TestingClient {
             nets = finder.retrieve_all();
             logger.info("There are "+nets.length+" networks");
             for (int i = 0; i < nets.length; i++) {
-                logger.info("net "+i+" "+nets[i].get_attributes().get_code());
+                logger.info("net "+i+" "+NetworkIdUtil.toString(nets[i].get_attributes().get_id()));
             }
-
 
         }catch (NetworkNotFound e) {
             logger.error("Network "+networkCode+" was not found", e);
