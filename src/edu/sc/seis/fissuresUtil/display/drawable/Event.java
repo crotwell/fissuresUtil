@@ -21,6 +21,10 @@ import java.util.List;
  */
 
 public class Event implements NamedDrawable{
+    public Event(Arrival[] arrivals, MicroSecondDate originTime){
+        this(arrivals, originTime, null);
+    }
+
     public Event(Arrival[] arrivals, MicroSecondDate originTime, String name){
         flags = new ArrayList(arrivals.length);
         for (int i = 0; i < arrivals.length; i++){
@@ -40,12 +44,12 @@ public class Event implements NamedDrawable{
     }
 
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
-        /*if(visible && name != null){
+        if(visible && name != null){
             canvas.drawString(name, xPosition, yPosition);
             FontMetrics fm = canvas.getFontMetrics();
             Rectangle2D stringBounds = fm.getStringBounds(name, canvas);
             return stringBounds;
-         }*/
+        }
         return DisplayUtils.EMPTY_RECTANGLE;
     }
 
