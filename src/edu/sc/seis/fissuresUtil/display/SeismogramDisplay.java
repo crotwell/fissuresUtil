@@ -39,6 +39,10 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
         listeners.remove(listener);
     }
 
+    public SeismogramDisplayProvider getCenter(){
+        return (SeismogramDisplayProvider)get(CENTER);
+    }
+
     public abstract SeismogramDisplayProvider createCenter();
 
     public void outputToPNG(String filename) throws IOException{
