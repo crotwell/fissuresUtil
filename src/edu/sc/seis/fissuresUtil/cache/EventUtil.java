@@ -126,7 +126,7 @@ public class EventUtil {
     private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH,
             DEPTH_UNIT, LAT, LON };
 
-    private static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME
-            + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT;
+    public static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME
+            + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT + "| (" +  LAT + ", " +  LON+")";
     
 }
