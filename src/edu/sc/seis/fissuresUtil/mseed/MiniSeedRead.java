@@ -11,151 +11,159 @@ package edu.sc.seis.fissuresUtil.mseed;
  * @version
  */
 
-import java.io.*;
 import edu.iris.Fissures.utility.Assert;
+import edu.iris.dmc.seedcodec.Codec;
+import edu.iris.dmc.seedcodec.DecompressedData;
+import edu.iris.dmc.seedcodec.UnsupportedCompressionType;
+import java.io.BufferedInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.Socket;
 
 public class MiniSeedRead  {
-    
-    public MiniSeedRead(DataInput inStream) 
-	throws IOException {
-	this.inStream = inStream;
+
+    public MiniSeedRead(DataInput inStream)
+    throws IOException {
+    this.inStream = inStream;
     }
 
     public void close() throws IOException {
         inStream = null;
     }
-    
+
     /** gets the next logical record int the seed volume. This may not
-	exactly correspond to the logical record structure within the 
-	volume as "continued" records will be concatinated to avoid 
-	partial blockettes. */
-    public SeedRecord getNextRecord() 
+    exactly correspond to the logical record structure within the
+    volume as "continued" records will be concatinated to avoid
+    partial blockettes. */
+    public SeedRecord getNextRecord()
     throws SeedFormatException, IOException {
-	ControlHeader header = ControlHeader.read(inStream);
+    ControlHeader header = ControlHeader.read(inStream);
 
-	if (header instanceof DataHeader) {
-	    return readDataRecord((DataHeader)header);
-	} else {
+    if (header instanceof DataHeader) {
+        return readDataRecord((DataHeader)header);
+    } else {
 throw new SeedFormatException("Found a control record in miniseed");
-//	    return readControlRecord(header);
+//      return readControlRecord(header);
 
-	}
+    }
     }
 
-    
-    
+
+
     /**
        * Get the value of readData.
        * @return Value of readData.
        */
     public boolean isReadData() {return readData;}
-    
+
     /**
        * Set the value of readData.
        * @param v  Value to assign to readData.
        */
     public void setReadData(boolean  v) {this.readData = v;}
-    
+
 /*
-    protected ControlRecord readControlRecord(ControlHeader header) 
+    protected ControlRecord readControlRecord(ControlHeader header)
     throws IOException {
-	ControlRecord controlRec = new ControlRecord(header);
+    ControlRecord controlRec = new ControlRecord(header);
 
-	// preload first blockette
-	AsciiBlockette b = nextControlHeaderBlockette();
-	
-	
+    // preload first blockette
+    AsciiBlockette b = nextControlHeaderBlockette();
 
-	return controlRec;
+
+
+    return controlRec;
     }
 
-    protected AsciiBlockette nextControlHeaderBlockette() 
-	throws IOException {
-	byte[] typeBytes = new byte[3];
-	inStream.readFully(typeBytes);
-	String typeString = new String(typeBytes);
+    protected AsciiBlockette nextControlHeaderBlockette()
+    throws IOException {
+    byte[] typeBytes = new byte[3];
+    inStream.readFully(typeBytes);
+    String typeString = new String(typeBytes);
 
-	byte[] lengthBytes = new byte[4];
-	inStream.readFully(lengthBytes);
-	String lengthString = new String(lengthBytes);
+    byte[] lengthBytes = new byte[4];
+    inStream.readFully(lengthBytes);
+    String lengthString = new String(lengthBytes);
 
-	byte[] blocketteBytes = 
-	    new byte[Integer.parseInt(lengthString)-7];
-	inStream.readFully(blocketteBytes);
+    byte[] blocketteBytes =
+        new byte[Integer.parseInt(lengthString)-7];
+    inStream.readFully(blocketteBytes);
 
-	return (AsciiBlockette)
-	    Blockette.parseBlockette(Integer.valueOf(typeString
-						     ).shortValue(), 
-				     blocketteBytes);
+    return (AsciiBlockette)
+        Blockette.parseBlockette(Integer.valueOf(typeString
+                             ).shortValue(),
+                     blocketteBytes);
     }
 */
 
     protected DataRecord readDataRecord(DataHeader header)
     throws IOException, SeedFormatException {
-	Assert.isTrue(header.getDataBlocketteOffset()>= header.getSize(),
-		      "Offset to first blockette must be larger than the header size");
-	byte[] garbage = new byte[header.getDataBlocketteOffset()-
-				 header.getSize()];
+    Assert.isTrue(header.getDataBlocketteOffset()>= header.getSize(),
+              "Offset to first blockette must be larger than the header size");
+    byte[] garbage = new byte[header.getDataBlocketteOffset()-
+                 header.getSize()];
 
-	DataRecord dataRec = new DataRecord(header);
+    DataRecord dataRec = new DataRecord(header);
 
         if (garbage.length != 0) {
             inStream.readFully(garbage);
         }
 
-	byte[] blocketteBytes;
-	int currOffset = header.getDataBlocketteOffset();
-	int type, nextOffset;
- 	for (int i=0; i< header.getNumBlockettes() ; i++) {
-	    //get blockette type (first 2 bytes)
-	    byte hibyte = inStream.readByte();
-	    byte lowbyte = inStream.readByte();
-	    type = Utility.uBytesToInt(hibyte, lowbyte, false);
+    byte[] blocketteBytes;
+    int currOffset = header.getDataBlocketteOffset();
+    int type, nextOffset;
+    for (int i=0; i< header.getNumBlockettes() ; i++) {
+        //get blockette type (first 2 bytes)
+        byte hibyte = inStream.readByte();
+        byte lowbyte = inStream.readByte();
+        type = Utility.uBytesToInt(hibyte, lowbyte, false);
             // System.out.println("Blockette type "+type);
 
-	    hibyte = inStream.readByte();
-	    lowbyte = inStream.readByte();
-	    nextOffset = Utility.uBytesToInt(hibyte, lowbyte, false);
+        hibyte = inStream.readByte();
+        lowbyte = inStream.readByte();
+        nextOffset = Utility.uBytesToInt(hibyte, lowbyte, false);
 
-	    // account for the 4 bytes above
-	    currOffset +=  4;
+        // account for the 4 bytes above
+        currOffset +=  4;
 
-	    if (nextOffset != 0) {
-		blocketteBytes = new byte[nextOffset - currOffset];
-	    } else if (header.getDataOffset() > currOffset) {
-		blocketteBytes = new byte[header.getDataOffset()-
-					 currOffset];
+        if (nextOffset != 0) {
+        blocketteBytes = new byte[nextOffset - currOffset];
+        } else if (header.getDataOffset() > currOffset) {
+        blocketteBytes = new byte[header.getDataOffset()-
+                     currOffset];
 
-	    } else {
-		blocketteBytes = new byte[0];
-	    }
-	    inStream.readFully(blocketteBytes);
+        } else {
+        blocketteBytes = new byte[0];
+        }
+        inStream.readFully(blocketteBytes);
             if (nextOffset != 0) {
                 currOffset = nextOffset;
             } else {
                 currOffset += blocketteBytes.length;
             }
 
-	    Blockette b = Blockette.parseBlockette(type, 
+        Blockette b = Blockette.parseBlockette(type,
                                                    blocketteBytes);
-	    dataRec.addBlockette(b);
-	    
-	    if (nextOffset == 0) {
-		break;
-	    }
-	}
+        dataRec.addBlockette(b);
 
-	Blockette[] allBs = dataRec.getBlockettes(1000);
-	if (allBs.length == 0) {
-	    // no data
-	    throw new SeedFormatException("no blockette 1000");
-	} else if (allBs.length > 1) {
-	     throw new SeedFormatException(
-			   "Multiple blockette 1000s in the volume. "+
-			   allBs.length);
-	}
-        //	System.out.println("allBs.length="+allBs.length);
-	Blockette1000 b1000 = (Blockette1000)allBs[0];
+        if (nextOffset == 0) {
+        break;
+        }
+    }
+
+    Blockette[] allBs = dataRec.getBlockettes(1000);
+    if (allBs.length == 0) {
+        // no data
+        throw new SeedFormatException("no blockette 1000");
+    } else if (allBs.length > 1) {
+         throw new SeedFormatException(
+               "Multiple blockette 1000s in the volume. "+
+               allBs.length);
+    }
+        //  System.out.println("allBs.length="+allBs.length);
+    Blockette1000 b1000 = (Blockette1000)allBs[0];
         // System.out.println(b1000);
 
         byte[] timeseries;
@@ -169,7 +177,7 @@ throw new SeedFormatException("Found a control record in miniseed");
         // System.out.println("getDataRecordLength() = "+ b1000.getDataRecordLength());
         inStream.readFully(timeseries);
         dataRec.setData(timeseries);
-	return dataRec;
+    return dataRec;
     }
 
     protected DataInput inStream;
@@ -184,35 +192,55 @@ throw new SeedFormatException("Found a control record in miniseed");
             System.out.println("open socket");
 
             if (args.length == 0) {
-		//                ls = new DataInputStream(
-		// edu.iris.Fissures.liss.LissSocket.open("anmo.iu.liss.org"));
+                Socket lissConnect = new Socket("anmo.iu.liss.org", 4000);
+        ls = new DataInputStream(
+               new BufferedInputStream(
+                     lissConnect.getInputStream(), 1024));
             } else {
                 ls = new DataInputStream( new BufferedInputStream(
-              	   new FileInputStream(args[0])));
+                   new FileInputStream(args[0])));
             }
-	    MiniSeedRead rf = new MiniSeedRead(ls);
-	    for (int i=0; i<10; i++) {
-		SeedRecord sr = rf.getNextRecord();
-		System.out.println(sr);
-		if (sr instanceof DataRecord) {
-//		    Object data = ((DataRecord)sr).getDecodedData();
-//		    if (data instanceof int[]) {
-// 			int[] intData = (int[])data;
-// 			for (int j=0; j< intData.length; j++) {
-// 			    System.out.println(intData[j]);
-// 			}
-//		    }
+        MiniSeedRead rf = new MiniSeedRead(ls);
+        for (int i=0; i<10; i++) {
+        SeedRecord sr = rf.getNextRecord();
+        System.out.println(sr);
+                Codec codec = new Codec();
+        if (sr instanceof DataRecord) {
+                    DataRecord dr = (DataRecord)sr;
+                    byte[] data = dr.getData();
+                    Blockette[] blockettes = dr.getBlockettes(1000);
+                    Blockette1000 b1000 = (Blockette1000)blockettes[0];
+                    boolean swapNeeded = false;
+                    if (b1000.getWordOrder() == 0) swapNeeded = true;
+                    try {
+                        if ((int)b1000.getEncodingFormat() == 0) {
+                            String s = new String(data);
+                            System.out.println(s);
+                        } else {
+                            DecompressedData decomp = codec.decompress((int)b1000.getEncodingFormat(),
+                                                                       data,
+                                                                       dr.getHeader().getNumSamples(),
+                                                                       swapNeeded);
+                            int[] outData = decomp.getAsInt();
+                            for (int j = 0; j < 10 && j < outData.length; j++) {
+                                System.out.print(" "+outData[j]);
+                            }
+                            System.out.println();
+                        }
+                    } catch (UnsupportedCompressionType ex) {
+                        System.out.println("compression type not supported"+b1000.getEncodingFormat());
+                    }
                 }
-	    }
- 
+        }
+
 
         } catch (Exception e) {
            System.out.println(e);
-	   e.printStackTrace();
-           
+       e.printStackTrace();
+
         } finally {
             try {
-                if (ls != null) ls.close();    
+                if (ls != null) ls.close();
             } catch (Exception ee) {}
         }
     }
