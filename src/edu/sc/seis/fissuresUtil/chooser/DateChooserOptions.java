@@ -20,6 +20,7 @@ public class DateChooserOptions{
     public static final DateChooserOptions JULIANDAY = new DateChooserOptions(7);
     public static final DateChooserOptions TODAY = new DateChooserOptions(8);
     public static final DateChooserOptions RADIOBUTTON = new DateChooserOptions(9);
+    public static final DateChooserOptions WEEKAGO = new DateChooserOptions(10);
 
     private DateChooserOptions(int i){
 	option=i;
@@ -37,4 +38,3 @@ public class DateChooserOptions{
 
 }
 
-/*========================================================*/
