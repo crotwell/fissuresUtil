@@ -61,8 +61,8 @@ public class BasicAmpConfig implements AmpConfig{
                 }
             }
         }
-        this.seismos = null;
         if(someRemoved){
+            this.seismos = null;
             fireAmpEvent();
         }
         return allRemoved;
@@ -70,7 +70,9 @@ public class BasicAmpConfig implements AmpConfig{
 
     public DataSetSeismogram[] getSeismograms(){
         if(seismos == null){
-            seismos = (DataSetSeismogram[])ampData.keySet().toArray(new DataSetSeismogram[ampData.size()]);
+            synchronized(this){
+                seismos = (DataSetSeismogram[])ampData.keySet().toArray(new DataSetSeismogram[ampData.size()]);
+            }
         }
         return seismos;
     }
@@ -82,7 +84,7 @@ public class BasicAmpConfig implements AmpConfig{
      * @param seismo the seismogram whose presence is to be tested
      * @return true if the receptacle contains seismo, false otherwise
      */
-    public boolean contains(DataSetSeismogram seismo){
+    public synchronized boolean contains(DataSetSeismogram seismo){
         if(ampData.containsKey(seismo)){
             return true;
         }
@@ -94,8 +96,10 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public void reset(DataSetSeismogram[] seismos){
-        for(int i = 0; i < seismos.length; i++){
-            ((AmpConfigData)ampData.get(seismos[i])).reset();
+        synchronized(this){
+            for(int i = 0; i < seismos.length; i++){
+                ((AmpConfigData)ampData.get(seismos[i])).reset();
+            }
         }
         fireAmpEvent();
     }
@@ -105,8 +109,10 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public void shaleAmp(double shift, double scale, DataSetSeismogram[] seismos){
-        for(int i = 0; i < seismos.length; i++){
-            ((AmpConfigData)ampData.get(seismos[i])).shale(shift, scale);
+        synchronized(this){
+            for(int i = 0; i < seismos.length; i++){
+                ((AmpConfigData)ampData.get(seismos[i])).shale(shift, scale);
+            }
         }
         fireAmpEvent();
     }
@@ -140,7 +146,7 @@ public class BasicAmpConfig implements AmpConfig{
         return null;
     }
 
-    private AmpEvent calculateAmp(){
+    private synchronized AmpEvent calculateAmp(){
         Iterator e = ampData.keySet().iterator();
         boolean changed = false;
         while(e.hasNext()){
@@ -155,6 +161,7 @@ public class BasicAmpConfig implements AmpConfig{
                 changed = true;
             }
         }
+
         if(changed || currentAmpEvent == null){
             currentAmpEvent = recalculateAmp();
         }
@@ -195,8 +202,8 @@ public class BasicAmpConfig implements AmpConfig{
         } // no amp data here
         double[] minMaxMean = it.minMaxMean();
         return data.setRange(new UnitRangeImpl(minMaxMean[0],
-                                                    minMaxMean[1],
-                                                    UnitImpl.COUNT));
+                                               minMaxMean[1],
+                                               UnitImpl.COUNT));
 
     }
 
