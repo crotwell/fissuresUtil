@@ -26,7 +26,7 @@ import org.apache.log4j.*;
 public class RTTimeRangeConfig extends BasicTimeConfig{
     
     public RTTimeRangeConfig(DataSetSeismogram[] seismos){
-	this(seismos, new TimeInterval(1, UnitImpl.SECOND));
+	this(seismos, new TimeInterval(.125, UnitImpl.SECOND));
     }
 
     public RTTimeRangeConfig (DataSetSeismogram[] seismos, 
@@ -40,29 +40,14 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 	super(seismos);
 	this.update = update;
 	this.speed = speed;
-	this.lastDate = new MicroSecondDate();
-	try {
-	    URL url = new URL("http://www.seis.sc.edu/cgi-bin/date_time.pl");
-	    InputStream is = url.openStream();
-	    InputStreamReader isReader = new InputStreamReader(is);
-	    BufferedReader bufferedReader = new BufferedReader(isReader);
-	    String str;
-	    String timeStr = null;
-	    while((str = bufferedReader.readLine()) != null) {
-		timeStr = str;
-	    }
-	    this.lastDate = new MicroSecondDate();
-	    edu.iris.Fissures.Time serverTime = new edu.iris.Fissures.Time();
-	    if(timeStr != null) {
-		serverTime = new edu.iris.Fissures.Time(timeStr, -1);
-	    }
-	    MicroSecondDate serverDate = new MicroSecondDate(serverTime);
-	    System.out.println("server Date is "+serverDate);
-	    System.out.println("the lastDate is "+this.lastDate);
-	    offset = new TimeInterval(this.lastDate, serverDate);
-	    if(java.lang.Math.abs(offset.value) <  2000000) offset = new TimeInterval(serverDate, serverDate);
-	    System.out.println("The offset is "+offset.value);
-	} catch(Exception e) {e.printStackTrace();}
+    }
+    
+    public void add(DataSetSeismogram[] seismos){
+	if(time == null){
+	    time = new MicroSecondTimeRange(seismos[0].getSeismogram().getBeginTime(), 
+					    seismos[0].getSeismogram().getEndTime().subtract(threeMinutes).add(serverTimeOffset));
+	}
+	super.add(seismos);
     }
 
     public void startTimer() {
@@ -71,14 +56,15 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 		new javax.swing.Timer((int)update.convertTo(UnitImpl.MILLISECOND).value,
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
-			     if (speed != 0) {
-				 MicroSecondDate now = new MicroSecondDate().add(offset);
+			     if (speed != 0 && lastDate != null) {
+				 MicroSecondDate now = new MicroSecondDate();
 				 TimeInterval timeInterval = new TimeInterval(lastDate, now);
-				 width = (TimeInterval)timeInterval.multiplyBy(speed);
 				 lastDate = now;
 				 shaleTime(timeInterval.getValue()/time.getInterval().getValue() * speed, 1);
-				 logger.debug("Timer: updateTimeSyncListeners()  speed="+speed);
-			     } // end of if (beginTime != null)
+				 //logger.debug("Timer: updateTimeSyncListeners()  speed="+speed);
+			     } else{
+				 lastDate = new MicroSecondDate();
+			     }
 			 }
 		     });
 	    timer.setCoalesce(true); 
@@ -108,9 +94,39 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 	return speed;
     }
 
+    private static TimeInterval getServerTimeOffset(){
+	try {
+	    URL url = new URL("http://www.seis.sc.edu/cgi-bin/date_time.pl");
+	    InputStream is = url.openStream();
+	    InputStreamReader isReader = new InputStreamReader(is);
+	    BufferedReader bufferedReader = new BufferedReader(isReader);
+	    String str;
+	    String timeStr = null;
+	    while((str = bufferedReader.readLine()) != null) {
+		timeStr = str;
+	    }
+	    MicroSecondDate localTime = new MicroSecondDate();
+	    edu.iris.Fissures.Time serverTime = new edu.iris.Fissures.Time();
+	    if(timeStr != null) {
+		serverTime = new edu.iris.Fissures.Time(timeStr, -1);
+	    }
+	    MicroSecondDate serverDate = new MicroSecondDate(serverTime);
+	    //System.out.println("server Date is "+serverDate);
+	    //System.out.println("the lastDate is "+this.lastDate);
+	    TimeInterval offset = new TimeInterval(localTime, serverDate);
+	    if(java.lang.Math.abs(offset.value) <  2000000) offset = new TimeInterval(serverDate, serverDate);
+	    //System.out.println("The offset is "+offset.value);
+	    return offset;
+	} 
+	catch(Exception e) {
+	    e.printStackTrace();
+	    return null;
+	}
+    }	
+
     private TimeInterval update;
 
-    private TimeInterval offset;
+    public static final TimeInterval serverTimeOffset = RTTimeRangeConfig.getServerTimeOffset();
 
     private MicroSecondDate lastDate;
 
@@ -121,7 +137,11 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 
     protected javax.swing.Timer reloadTimer;
 
-    protected TimeInterval width = new TimeInterval(1, UnitImpl.SECOND);
+    protected TimeInterval width;
 
     private static Category logger = Category.getInstance(RTTimeRangeConfig.class.getName());
+
+    private static long MINUTE = 60 * 1000 * 1000;
+
+    private static TimeInterval threeMinutes = new TimeInterval(new MicroSecondDate(0), new MicroSecondDate(3 * MINUTE));
 }// RTTimeRangeConfig
