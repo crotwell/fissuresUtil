@@ -1,29 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
-import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.Time;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.TauP.Arrival;
-import edu.sc.seis.TauP.TauModelException;
-import edu.sc.seis.fissuresUtil.bag.TauPUtil;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.TextTable;
-import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
-import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -37,11 +13,38 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+
 import javax.swing.ToolTipManager;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.log4j.Category;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.TauP.TauModelException;
+import edu.sc.seis.fissuresUtil.bag.TauPUtil;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.TextTable;
+import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
+import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 
 /**
  * FlagPlotter.java
@@ -165,24 +168,24 @@ public class Flag implements Drawable{
                                           + chanId.channel_code);
                     }
                     else if (template[i].equals(EVENT_NAME)){ //Event Name
-                        dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.LOC));
+                        dataCells.add(EventUtil.getEventInfo(event, EventUtil.LOC));
                     }
                     else if (template[i].equals(EVENT_MAG)){ //Event Magnitude
-                        dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.MAG));
+                        dataCells.add(EventUtil.getEventInfo(event, EventUtil.MAG));
                     }
                     else if (template[i].equals(EVENT_ORIG)){ //Event Origin Time
-                        dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.TIME));
+                        dataCells.add(EventUtil.getEventInfo(event, EventUtil.TIME));
                     }
                     else if (template[i].equals(EVENT_DEPTH)){ //Event Depth
-                        dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.DEPTH
+                        dataCells.add(EventUtil.getEventInfo(event, EventUtil.DEPTH
                                                                   + ' '
-                                                                  + CacheEvent.DEPTH_UNIT));
+                                                                  + EventUtil.DEPTH_UNIT));
                     }
                     else if (template[i].equals(EVENT_LAT)){ //Event Latitude
-                        dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.LAT));
+                        dataCells.add(EventUtil.getEventInfo(event, EventUtil.LAT));
                     }
                     else if (template[i].equals(EVENT_LON)){ //Event Longitude
-                        dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.LON));
+                        dataCells.add(EventUtil.getEventInfo(event, EventUtil.LON));
                     }else if (template[i].equals(ORIGIN_DIFF)){ //flagTime-originTime
                         TimeInterval interval = getTimeDifferenceFromOrigin(flag, event);
                         QuantityImpl timeInSeconds = interval.convertTo(UnitImpl.SECOND);
@@ -225,7 +228,7 @@ public class Flag implements Drawable{
                                          EventAccessOperations event){
         Station station =
             dss.getDataSet().getChannel(dss.getRequestFilter().channel_id).my_site.my_station;
-        Origin origin = CacheEvent.extractOrigin(event);
+        Origin origin = EventUtil.extractOrigin(event);
         try {
             Arrival [] arrivals = taup.calcTravelTimes(station, origin, new String[]{"ttp"});
             return arrivals;
@@ -293,7 +296,7 @@ public class Flag implements Drawable{
     }
 
     public static TimeInterval getTimeDifferenceFromOrigin(Flag flag, EventAccessOperations event){
-        Origin origin = CacheEvent.extractOrigin(event);
+        Origin origin = EventUtil.extractOrigin(event);
         MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
         MicroSecondDate flagTime = flag.getFlagTime();
         return originTime.difference(flagTime);

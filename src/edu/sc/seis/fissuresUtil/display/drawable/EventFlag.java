@@ -1,6 +1,16 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
+import java.text.DecimalFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
@@ -9,15 +19,9 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * EventFlagPlotter.java
@@ -204,7 +208,7 @@ public class EventFlag{
     
     public String getTitle(){
         if(eventTitle == null){
-            eventTitle = CacheEvent.getEventInfo(eventAccess, CacheEvent.LOC + " | Mag: " + CacheEvent.MAG + " | Depth: "  + CacheEvent.DEPTH + " " + CacheEvent.DEPTH_UNIT + " | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
+            eventTitle = EventUtil.getEventInfo(eventAccess, EventUtil.LOC + " | Mag: " + EventUtil.MAG + " | Depth: "  + EventUtil.DEPTH + " " + EventUtil.DEPTH_UNIT + " | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
         }
         return eventTitle;
     }

@@ -11,8 +11,9 @@ import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.event.ZoomListener;
 
-import edu.iris.Fissures.IfEvent.*;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.map.OpenMap;
 import edu.sc.seis.fissuresUtil.map.layers.ChannelChooserLayer;
 
@@ -91,7 +92,7 @@ public class ZoomTool extends OpenMapTool {
 				&& map.getEventLayer().getSelectedEvents().length > 0) {
 			EventAccessOperations event = map.getEventLayer()
 					.getSelectedEvents()[0];
-			Origin orig = CacheEvent.extractOrigin(event);
+			Origin orig = EventUtil.extractOrigin(event);
 			center.setLatitude(0f);
 			center.setLongitude((float)orig.my_location.longitude);
 		}
