@@ -14,26 +14,31 @@ package edu.sc.seis.fissuresUtil.mseed;
 import java.io.*;
 
 public class BlocketteUnknown extends Blockette {
+    
 
     public BlocketteUnknown(byte[] info, int type) {
-	this.info = info;	
-	this.type = type;
+    this.info = info;
+    this.type = type;
     }
        
     public int getType() {
-	return type;
+    return type;
     }
-	
+    
     public String getName() {
-	return "Unknown";
+    return "Unknown";
     }
 
     public int getSize() {
-	return info.length;
+    return info.length;
     }
 
     public byte[] toBytes() {
-	return info;
+    return info;
+    }
+    
+    public void writeASCII(Writer out) throws IOException {
+        out.write("Blockette UNKNOWN");
     }
   
     protected int type;
