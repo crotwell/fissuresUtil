@@ -9,12 +9,11 @@
        <property name="javadocs" value="${doc}/javadocs" />
        <property file="../KeySigning/ant.props" />
        <property name="junit_jar" value="../junit3.7/junit.jar" />
-       <property name="fissuresImpljar" value="/seis/data0/crotwell/fissures/dist/lib/FissuresImpl.jar" />
-       <property name="fissuresIDLjar" value="/seis/data0/crotwell/fissures/dist/lib/FissuresIDL.jar" />
-       <property name="junitdir" value="/seis/data0/crotwell/junit3.7" />
-       <property name="log4j" value="/seis/data0/crotwell/log4j" />
-       <property name="objar" value="/seis/data0/crotwell/OrbacusSignedJars/dist/OB.jar" />
-       <property name="obnamingjar" value="/seis/data0/crotwell/OrbacusSignedJars/dist/OBNaming.jar" />
+       <property name="fissuresImpljar" value="../fissures/dist/lib/FissuresImpl.jar" />
+       <property name="fissuresIDLjar" value="../fissures/dist/lib/FissuresIDL.jar" />
+       <property name="log4j" value="../log4j" />
+       <property name="objar" value="../OrbacusSignedJars/dist/OB.jar" />
+       <property name="obnamingjar" value="../OrbacusSignedJars/dist/OBNaming.jar" />
 
               <path id="myclasspath" >
                 <pathelement location="${junit_jar}"/>
@@ -40,11 +39,12 @@
        <target name="javacompile" 
                depends="prepare">
          <!-- Compile the java code from ${src} into ${build} -->
-         <javac destdir="${build}" >
+         <javac destdir="${build}" debug="true" >
             <classpath refid="myclasspath" />
             <src path="${src}" />
             <include name="**/*.java" />
          </javac>
+         <copy todir="${build}/edu/sc/seis/fissuresUtil/chooser" file="${src}/edu/sc/seis/fissuresUtil/chooser/ChannelChooser.properties" />
          <copy todir="${build}/edu/sc/seis/fissuresUtil/display" file="${src}/edu/sc/seis/fissuresUtil/display/FERegions.prop" />
        </target>
 
@@ -73,7 +73,11 @@
             packagenames="edu.sc.seis.fissuresUtil.*"  maxmemory="64m" >
             <classpath refid="myclasspath" />
 
-        <link href="http://www.seis.sc.edu/software/Fissures/idljava_docs" />
+        <link href="http://www.seis.sc.edu/software/Fissures/current/dist/doc/javadocs/" />
+        <link href="http://www.seis.sc.edu/software/Fissures/current/dist/doc/idljava_docs/" />
+        <link href="http://www.seis.sc.edu/software/Fissures/fissuresUtil/dist/doc/javadocs/" />
+        <link href="http://java.sun.com/products/jdk/1.3/docs/api/" />
+        <link href="http://www.w3.org/DOM/2000/12/dom2-javadoc/" />
          </javadoc>
        </target>
 
