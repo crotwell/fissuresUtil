@@ -65,7 +65,6 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	this.parent = parent;
 	timeRegistrar.addTimeSyncListener(this);
 	ampRegistrar.addAmpSyncListener(this);
-	filters = parent.getCurrentFilters();
 	addSeismogram(seis);
 	setLayout(new OverlayLayout(this));
 	addComponentListener(new ComponentAdapter() {
@@ -168,6 +167,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     public Dimension getDisplaySize(){ return displaySize; }
 
     public TimeInterval getDisplayInterval(){ return imagePainter.displayInterval; }
+
+    public LinkedList getFilters(){ return filters; }
 
     public void addBottomTimeBorder(){	
 	scaleBorder.setBottomScaleMapper(timeScaleMap); 
@@ -388,6 +389,31 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	repaint();
     }
 
+    public void applyFilter(ButterworthFilter filter){
+	synchronized(imageMaker){
+	    if(filters.contains(filter)){
+		Iterator e = filterPlotters.keySet().iterator();
+		while(e.hasNext()){
+		FilteredSeismogramPlotter current = ((FilteredSeismogramPlotter)e.next());
+		if(current.getFilter() == filter)
+		    current.toggleVisibility();
+		}
+	    }else{
+		Iterator e = seismos.iterator();
+		while(e.hasNext()){
+		    LocalSeismogram current = ((DataSetSeismogram)e.next()).getSeismogram();
+		    logger.debug("creating a new filter for " + name);
+		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, current,
+											      timeRegistrar, ampRegistrar);
+		    filteredPlotter.setVisibility(true);
+		    filterPlotters.put(filteredPlotter, filterColors[filterPlotters.size()%filterColors.length]);
+		}
+	    }
+	}
+	redo = true;
+	repaint();
+    }
+
     public void setFilter(ButterworthFilter filter, boolean visible){
 	synchronized(imageMaker){
 	    if(filters.contains(filter)){
@@ -537,7 +563,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     
     protected LinkedList selections = new LinkedList();
     
-    protected LinkedList filters = new LinkedList();
+    protected static LinkedList filters = new LinkedList();
 
     protected HashMap seisPlotters = new HashMap();
     
