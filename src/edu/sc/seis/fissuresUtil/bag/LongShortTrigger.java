@@ -90,6 +90,10 @@ public class LongShortTrigger implements Serializable {
     public float getSTA() { return sta; }
 
     public float getLTA() { return lta; }
+    
+    public String toString() {
+        return ""+getValue();
+    }
 
     private String seisId;
 
