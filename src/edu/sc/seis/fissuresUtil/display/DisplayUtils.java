@@ -102,14 +102,14 @@ public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet datas
 					  long x) {
         if (x == xa) return 0;
         if (x == xb) return y;
-        double result = y*(x-xa)/(double)(xb-xa);
+        int result = (int)(y*(x-xa)/(double)(xb-xa));
 	if(result < 0){
 	    return 0;
 	}
-	if(result >= y){
-	    return y - 1;
+	if(result > y){
+	    return y;
 	}
-	return (int)Math.round(result);
+	return result;
     }
     
     public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
