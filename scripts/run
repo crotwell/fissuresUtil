@@ -1,0 +1,1 @@
+java -cp ../build:${CLASSPATH} edu/sc/seis/fissuresUtil/netConnChecker/TestChecker
