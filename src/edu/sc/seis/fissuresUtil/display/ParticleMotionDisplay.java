@@ -159,17 +159,17 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
             new BottomTitleBorder("X - axis Title");
         vTitleBorder = 
             new LeftTitleBorder("Y - axis Title");
-	particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(
-									  BorderFactory.createCompoundBorder(
-													     BorderFactory.createRaisedBevelBorder(),
-													     //  hTitleBorder),
+// 	particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(
+// 									  BorderFactory.createCompoundBorder(
+// 													     BorderFactory.createRaisedBevelBorder(),
+// 													     //  hTitleBorder),
 									  
-													     BorderFactory.createCompoundBorder(hTitleBorder,
-																		vTitleBorder)),
-									  BorderFactory.createCompoundBorder(
-								scaleBorder,
-								BorderFactory.createLoweredBevelBorder()))
-	  );
+// 													     BorderFactory.createCompoundBorder(hTitleBorder,
+// 																		vTitleBorder)),
+// 									  BorderFactory.createCompoundBorder(
+// 								scaleBorder,
+// 								BorderFactory.createLoweredBevelBorder()))
+// 	  );
 
 	
 	add(particleDisplayPanel, BorderLayout.CENTER);
