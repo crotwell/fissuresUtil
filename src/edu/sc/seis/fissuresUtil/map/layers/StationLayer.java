@@ -1,15 +1,7 @@
 package edu.sc.seis.fissuresUtil.map.layers;
-import edu.sc.seis.fissuresUtil.map.*;
-
-
-/**
- * EventLayer.java
- *
- * @author Created by Charlie Groves
- */
-
 import edu.sc.seis.fissuresUtil.chooser.*;
 
+import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -19,9 +11,12 @@ import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.TauP.SphericalCoords;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
 import edu.sc.seis.fissuresUtil.display.EventDataListener;
+import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -33,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 
 public class StationLayer extends MouseAdapterLayer implements StationDataListener,
     StationSelectionListener, AvailableStationDataListener, EQSelectionListener, EventDataListener{
@@ -155,6 +149,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
                   OMPoly.COORDMODE_ORIGIN);
             station = stat;
             setDefaultColor(DOWN_STATION);
+            setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             setLinePaint(Color.BLACK);
             generate(getProjection());
         }
@@ -164,7 +159,9 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         }
 
         public void select(){
-            setFillPaint(Color.RED);
+            //setFillPaint(Color.RED);
+            setStroke(DisplayUtils.TWO_PIXEL_STROKE);
+            setLinePaint(Color.WHITE);
             selected = true;
         }
 
@@ -192,7 +189,9 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         }
 
         public void deselect(){
-            setFillPaint(defaultColor);
+            //setFillPaint(defaultColor);
+            setStroke(DisplayUtils.ONE_PIXEL_STROKE);
+            setLinePaint(Color.BLACK);
             selected = false;
         }
 
@@ -203,7 +202,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
         private boolean selected = false;
 
-        private boolean isUp = true;
+        private boolean isUp = false;
 
         private Station station;
 
@@ -315,8 +314,10 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         buf.append(station.name);
         if (event != null){
             try{
-                double dist = StationLayer.calcDistStationToEvent(station, event);
-                buf.append(" | Distance to Event: ");
+                double dist = StationLayer.calcDistEventFromLocation(station.my_location.latitude,
+                                                                     station.my_location.longitude,
+                                                                     event);
+                buf.append(" | Distance from Event: ");
                 buf.append(dist);
                 buf.append(" deg");
             }
@@ -325,14 +326,14 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         return buf.toString();
     }
 
-    public static double calcDistStationToEvent(Station station, EventAccessOperations event)
+    public static double calcDistEventFromLocation(double latitude, double longitude, EventAccessOperations event)
         throws NoPreferredOrigin{
 
         Origin origin = event.get_preferred_origin();
         double dist = SphericalCoords.distance(origin.my_location.latitude,
-                                        origin.my_location.longitude,
-                                        station.my_location.latitude,
-                                        station.my_location.longitude);
+                                               origin.my_location.longitude,
+                                               latitude,
+                                               longitude);
 
         dist = (int)(dist*100);
         dist = dist/100;
