@@ -31,12 +31,15 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
     }
 
     public void addSeismogram(LocalSeismogram seis){
-	if(beginTime == null)
+	if(beginTime == null){
 	    this.beginTime = ((LocalSeismogramImpl)seis).getBeginTime();
+	    seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime());
+	}else
+	    seismos.put(seis, this.beginTime);
 	if(displayInterval == null)
 	    this.displayInterval = new TimeInterval(((LocalSeismogramImpl)seis).getBeginTime(), 
 						    ((LocalSeismogramImpl)seis).getEndTime());
-	seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime());
+	
 	this.updateTimeSyncListeners();
     }	
 

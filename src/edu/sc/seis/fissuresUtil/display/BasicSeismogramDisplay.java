@@ -89,7 +89,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     public void addSeismogram(LocalSeismogram newSeismogram){
 	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram, timeConfig, ampConfig);
 	plotters.put(newPlotter, colors[plotters.size()%colors.length]);
-	timeConfig.addSeismogram(newSeismogram); 
+	timeConfig.addSeismogram(newSeismogram);
 	ampConfig.addSeismogram(newSeismogram);
 	redo = true;
     }
@@ -223,15 +223,14 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		Selection curr = ((Selection)e.next());
 		if(curr.borders(selectionBegin, selectionEnd)){
 		    currentSelection = curr;
-		    break;
+		    repaint();
+		    return;
 		}
 	    }
-	    if(currentSelection == null){
-		selections.add(new Selection(selectionBegin, selectionEnd, timeConfig, plotters));
-		currentSelection = ((Selection)selections.getFirst());
-		repaint();
-		return;
-	    }
+	    currentSelection = new Selection(selectionBegin, selectionEnd, timeConfig, plotters);
+	    selections.add(currentSelection);
+	    repaint();
+	    return;
 	}
 	currentSelection.adjustRange(selectionBegin, selectionEnd);		
     	repaint();
@@ -269,7 +268,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
    
     private Color[] colors = { Color.blue, Color.red, Color.yellow, Color.green, Color.black };
 
-    private Color[] transparentColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64) };
+    private Color[] transparentColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64), 
+					  new Color(0, 0, 255, 64)};
     
     static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 

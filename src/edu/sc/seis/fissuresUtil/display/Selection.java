@@ -26,8 +26,10 @@ public class Selection {
 	this.plotters = plotters;
 	internalTimeConfig = new BoundedTimeConfig();
 	Iterator e = plotters.keySet().iterator();
-	while(e.hasNext())
-	    internalTimeConfig.addSeismogram(((SeismogramPlotter)e.next()).getSeismogram(), begin);
+	while(e.hasNext()){
+	    added = ((SeismogramPlotter)e.next()).getSeismogram();
+	    internalTimeConfig.addSeismogram(added, begin);
+	}
 	internalTimeConfig.setDisplayInterval(begin.difference(end));
     }
 
@@ -43,19 +45,16 @@ public class Selection {
 	double timeWidth = timeConfig.getTimeRange().getInterval().getValue();
 	double beginDistance = Math.abs(begin.getMicroSecondTime() - selectionEnd.getMicroSecondTime())/timeWidth;
 	double endDistance = Math.abs(end.getMicroSecondTime() - selectionBegin.getMicroSecondTime())/timeWidth;
-	if(beginDistance < .05 || endDistance < .05){
-	    if(beginDistance < endDistance){
-		this.begin = selectionBegin;
-		internalTimeConfig.setAllBeginTime(selectionBegin);
-		internalTimeConfig.setDisplayInterval(end.difference(begin));
-		return true;
-	    }else{
-		this.end = selectionEnd;
-		internalTimeConfig.setDisplayInterval(end.difference(begin));
-		return true;
-	    }
+	if(beginDistance < endDistance){
+	    this.begin = selectionBegin;
+	    internalTimeConfig.setAllBeginTime(selectionBegin);
+	    internalTimeConfig.setDisplayInterval(end.difference(begin));
+	    return true;
+	}else{
+	    this.end = selectionEnd;
+	    internalTimeConfig.setDisplayInterval(end.difference(begin));
+	    return true;
 	}
-	return false;
     }
 
     public boolean remove(){
@@ -101,12 +100,13 @@ public class Selection {
 	return ((LocalSeismogramImpl)((SeismogramPlotter)e.next()).getSeismogram());
     }
 
-    public TimeRangeConfig getInternalConfig(){ 
-		return internalTimeConfig; }
+    public TimeRangeConfig getInternalConfig(){ return internalTimeConfig; }
 
     protected MicroSecondDate begin, end;
 
     protected TimeRangeConfig timeConfig, internalTimeConfig;
 
     protected HashMap plotters;
+    
+    LocalSeismogram added;
 }// Selection
