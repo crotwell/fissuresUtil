@@ -7,19 +7,15 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ActionListener;
+import java.awt.Rectangle;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import javax.swing.JButton;
-import java.awt.event.ActionEvent;
 
 /**
  * EventFlagPlotter.java
@@ -38,13 +34,13 @@ public class EventFlag{
         this.eventAccess = eventAccess;
     }
 
-    private int getX(){
+    public int getX(){
         double xPercentage = getEventXPercent(eventAccess);
         return (int)(xPercentage * plottableDisplay.getRowWidth());
     }
 
-    private int getY(){
-        int row = getEventRow(eventAccess);
+    public int getY(){
+        int row = getRow(eventAccess);
         return row * plottableDisplay.getRowOffset() + plottableDisplay.titleHeight;
     }
 
@@ -59,18 +55,25 @@ public class EventFlag{
         g2.drawLine(xLoc, -halfOffset, xLoc, halfOffset);
     }
 
-    public boolean isSelected(int x, int y) {
-        int rx = curreventcolumn + PlottableDisplay.LABEL_X_SHIFT;
-        int ry = plottableDisplay.getRowOffset()/2+plottableDisplay.getRowOffset()*curreventrow;
-
-        if(x >= rx && x <= (rx + eventName.length() * 8) &&
-           y >= ry && y <= (ry + 20)) {
-            return true;
+    public boolean isSelected(int[][] rowAndX) {
+        int row = getRow();
+        int x = getX();
+        for (int i = 0; i < rowAndX.length; i++) {
+            int[] cur = rowAndX[i];
+            if(row == cur[0]){
+                if(x <= cur[2] && x >= cur[1]){
+                    return true;
+                }
+            }
         }
         return false;
     }
 
-    private int getEventRow(EventAccessOperations eventAccess) {
+    private int getRow(){
+        return getRow(eventAccess);
+    }
+
+    private int getRow(EventAccessOperations eventAccess) {
         try {
             if(eventOrigin == null) {
                 eventOrigin = eventAccess.get_preferred_origin();
@@ -89,7 +92,6 @@ public class EventFlag{
 
         }
         return -1;
-
     }
 
     private double getEventXPercent(EventAccessOperations eventAccess){
@@ -116,20 +118,31 @@ public class EventFlag{
         return leftoverHours/hoursPerRow;
     }
 
-    public String getName(){
-        if(eventName == null){
-            eventName = EventLayer.getEventInfo(eventAccess);
-        }
-        return eventName;
+    public void setTitleLoc(int x, int y, int width, int height){
+        titleX = x;
+        titleY = y;
+        titleWidth = width;
+        titleHeight = height;
     }
+
+    public Rectangle getTitleLoc(){
+        return new Rectangle(titleX, titleY, titleWidth, titleHeight);
+    }
+
+    public String getTitle(){
+        if(eventTitle == null){
+            eventTitle = EventLayer.getEventInfo(eventAccess);
+        }
+        return eventTitle;
+    }
+
+    public EventAccessOperations getEvent(){ return eventAccess; }
 
     public Color getColor(){ return color; }
 
-    private int curreventrow;
+    private int titleX, titleY, titleWidth, titleHeight;
 
-    private int curreventcolumn;
-
-    private String eventName;
+    private String eventTitle;
 
     private PlottableDisplay plottableDisplay;
 
@@ -137,8 +150,7 @@ public class EventFlag{
 
     private Origin eventOrigin;
 
-    private Color color = SeismogramDisplay.colors[colorCount++%SeismogramDisplay.colors.length];
+    private Color color = SeismogramDisplay.colors[++colorCount%SeismogramDisplay.colors.length];
 
     private static int colorCount = 0;
-
 }// EventFlagPlotter
