@@ -90,6 +90,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         plotters.add(timeAmpLabel);
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
+        plotters.add(new DisplayRemove(this));
     }
 
     public void add(DataSetSeismogram[] seismos){
