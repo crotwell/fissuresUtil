@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 4633 2003-07-03 17:28:36Z oliverpa $
+ * @version $Id: EventTableModel.java 4648 2003-07-03 19:54:13Z oliverpa $
  */
 
 public class EventTableModel
@@ -233,10 +233,12 @@ public class EventTableModel
         }
     }
 
+	//temporary fix for map selection
 	public void addEQSelectionListener(EQSelectionListener eqSelListener){
 		listenerList.add(EQSelectionListener.class, eqSelListener);
 	}
 
+	//temporary fix for map selection
 	private void fireEQSelectionChanged(){
         EQSelectionEvent eqSelectionEvent = null;
         // Guaranteed to return a non-null array
@@ -261,6 +263,7 @@ public class EventTableModel
         return eaos;
     }
 
+	//temporary fix for map selection of events
 	public EventAccessOperations selectEvent(int row){
 		selectedEvent = getEventForRow(row);
 		fireEQSelectionChanged();
@@ -281,6 +284,7 @@ public class EventTableModel
 
     protected EventBackgroundLoaderPool loader;
 
+	//temporary fix for map selection of events
 	protected EventAccessOperations selectedEvent;
 
     protected static final int LATITUDE = 4;
