@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.FissuresException;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class FilteredDataSetSeismogram extends DataSetSeismogram implements SeismogramContainerListener{
 
@@ -94,8 +96,12 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
                     }
                 }
                 if(!found){
+                    try {
                     data.add(new SoftReference(filterData(containedSeis[i],
                                                           filter)));
+                    } catch ( FissuresException e) {
+                        GlobalExceptionHandler.handle("Problem filtering seismograms", e);
+                    }
                 }
             }
             if((containedSeis.length - alreadyFiltered.size()) > 0){
@@ -105,7 +111,7 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
     }
 
     public static LocalSeismogramImpl filterData(LocalSeismogramImpl seismogram,
-                                                 NamedFilter filter){
+                                                 NamedFilter filter) throws FissuresException {
         float[] fdata;
         if(seismogram.can_convert_to_float())
             fdata = seismogram.get_as_floats();

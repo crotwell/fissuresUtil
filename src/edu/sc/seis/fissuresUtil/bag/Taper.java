@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.bag;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.FissuresException;
 
 /**
  * Taper.java
@@ -11,7 +12,7 @@ import org.apache.log4j.Logger;
  * Created: Sat Oct 19 21:53:21 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: Taper.java 6976 2004-02-05 22:19:23Z crotwell $
+ * @version $Id: Taper.java 7451 2004-03-05 21:32:18Z crotwell $
  */
 
 public class Taper implements LocalSeismogramFunction {
@@ -31,7 +32,7 @@ public class Taper implements LocalSeismogramFunction {
     this.width = width;
     }
 
-    public LocalSeismogramImpl apply(LocalSeismogramImpl seis){
+    public LocalSeismogramImpl apply(LocalSeismogramImpl seis) throws FissuresException {
     if (seis.can_convert_to_short()) {
         short[] sSeries = seis.get_as_shorts();
         return new LocalSeismogramImpl(seis, apply(sSeries));

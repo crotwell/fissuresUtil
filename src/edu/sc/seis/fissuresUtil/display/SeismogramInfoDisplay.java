@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.TimeZone;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import edu.iris.Fissures.FissuresException;
 
 /**
  * SeismogramInfoDisplay.java
@@ -109,7 +110,7 @@ public class SeismogramInfoDisplay extends TextInfoDisplay {
     }
 
 
-    public void addSeismogram(LocalSeismogramImpl seis){
+    public void addSeismogram(LocalSeismogramImpl seis) throws FissuresException {
         try {
             Document doc = getDocument();
             appendLine(doc, "");

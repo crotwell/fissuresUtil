@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.swing.Timer;
+import edu.iris.Fissures.FissuresException;
 
 public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionListener,
     PlayEventListener{
@@ -140,7 +141,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
 
     }
 
-    private void sendToWAV(){
+    private void sendToWAV() throws FissuresException {
         DataOutputStream dos = null;
         try{
             dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("seis.wav")));

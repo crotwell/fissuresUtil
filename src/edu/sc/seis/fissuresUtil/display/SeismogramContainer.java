@@ -10,6 +10,9 @@ import edu.sc.seis.fissuresUtil.cache.AbstractJob;
 import edu.sc.seis.fissuresUtil.database.DBDataCenter;
 import java.lang.ref.SoftReference;
 import org.apache.log4j.Logger;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.iris.dmc.seedcodec.CodecException;
+import edu.iris.Fissures.network.ChannelIdUtil;
 
 /**<code>SeismogramContainer</code> Takes a DataSetSeismogram and requests its
  *data.  It holds whatever it gets in soft references so that they can be
@@ -22,12 +25,12 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
     public SeismogramContainer(DataSetSeismogram seismogram){
         this(null, seismogram);
     }
-    
+
     public SeismogramContainer(SeismogramContainerListener initialListener,
                                DataSetSeismogram seismogram){
         this(initialListener, seismogram, false);
     }
-    
+
     public SeismogramContainer(SeismogramContainerListener initialListener,
                                DataSetSeismogram seismogram,
                                boolean debug){
@@ -39,13 +42,13 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
         seismogram.addRequestFilterChangeListener(this);
         this.debug = debug;
     }
-    
+
     public void finished(SeisDataChangeEvent sdce) {
         finished = true;
         addSeismograms(sdce.getSeismograms());
         //loadStatus.decrementDataRetrievers();
     }
-    
+
     public SeismogramIterator getIterator(){
         //use circuitous route to return time to sidestep class variable time
         //getting set to null at other points in the code
@@ -56,7 +59,7 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
         }
         return getIterator(fullTime);
     }
-    
+
     public SeismogramIterator getIterator(MicroSecondTimeRange timeRange){
         SoftReference iteratorReference = null;
         synchronized(threadToIterator){
@@ -81,9 +84,9 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
         }
         return it;
     }
-    
+
     public String toString(){ return seismogram.getName() + " Container"; }
-    
+
     /**
      * ignore in the hopes someone else is handling this
      */
@@ -95,11 +98,11 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
             logger.warn("Error retrieving seismograms", sdce.getCausalException());
         }
     }
-    
+
     public void pushData(SeisDataChangeEvent sdce) {
         addSeismograms(sdce.getSeismograms());
     }
-    
+
     public void endTimeChanged() {
         synchronized(softSeis){
             synchronized(threadToIterator){
@@ -108,7 +111,7 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
             }
         }
     }
-    
+
     public void beginTimeChanged() {
         synchronized(softSeis){
             synchronized(threadToIterator){
@@ -117,9 +120,10 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
             }
         }
     }
-    
+
     private void addSeismograms(LocalSeismogramImpl[] seismograms){
         boolean newData = false;
+        LinkedList badSeis = null;
         synchronized(softSeis){
             for (int j = 0; j < seismograms.length; j++) {
                 LocalSeismogramImpl[] curSeis = getSeismograms(false);
@@ -139,15 +143,20 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
                            DataSetSeismogram.equalOrContains(cur, seismograms[j]))
                             it.remove();
                     }
-                    softSeis.add(new SoftReference(seismograms[j]));
-                    newData = true;
+                    if (seismograms[j].isDataDecodable()) {
+                        softSeis.add(new SoftReference(seismograms[j]));
+                        newData = true;
+                    } else {
+                        if (badSeis == null) {badSeis = new LinkedList();}
+                        badSeis.add(seismograms[j]);
+                    }
                 }
             }
         }
         if(newData){
             time = null;
             noData = false;
-            
+
             SeismogramContainerListener[] listArray;
             synchronized(listeners){
                 listArray = new SeismogramContainerListener[listeners.size()];
@@ -163,12 +172,15 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
                 listArray[i].updateData();
             }
         }
+        if (badSeis != null) {
+            GlobalExceptionHandler.handle(new CodecException("Got "+badSeis.size()+" seismograms that couldn't be decompressed for "+ChannelIdUtil.toString(getDataSetSeismogram().getRequestFilter().channel_id)));
+        }
     }
-    
+
     public LocalSeismogramImpl[] getSeismograms(){
         return getSeismograms(true);
     }
-    
+
     private LocalSeismogramImpl[] getSeismograms(boolean retrieveOnEmpty){
         boolean callRetrieve = false;
         List existant = new ArrayList();
@@ -200,19 +212,19 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
         }
         return seis;
     }
-    
+
     public void addListener(SeismogramContainerListener listener){
         synchronized(listeners){
             listeners.add(listener);
         }
     }
-    
+
     public void removeListener(SeismogramContainerListener listener){
         synchronized(listeners){
             listeners.remove(listener);
         }
     }
-    
+
     public String getDataStatus(){
         if(noData && finished){
             return NO_DATA;
@@ -222,50 +234,50 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
             return HAVE_DATA;
         }
     }
-    
+
     public DataSetSeismogram getDataSetSeismogram(){ return seismogram; }
-    
+
     private List listeners = Collections.synchronizedList(new ArrayList());
-    
+
     private DataSetSeismogram seismogram;
-    
+
     private List softSeis = Collections.synchronizedList(new ArrayList());
-    
+
     private Map threadToIterator = Collections.synchronizedMap(new HashMap());
-    
+
     private static final LocalSeismogramImpl[] EMPTY_ARRAY = {};
-    
+
     private static Logger logger = Logger.getLogger(SeismogramContainer.class);
-    
+
     private boolean finished = false;
-    
+
     private boolean noData = true;
-    
+
     public static final String NO_DATA = "No data available";
-    
+
     public static final String GETTING_DATA = "Trying to get data";
-    
+
     public static final String HAVE_DATA = "";
-    
+
     private MicroSecondTimeRange time;
-    
+
     private boolean debug;
-    
+
     // private static LoaderJob loadStatus = new LoaderJob();
-    
+
     private static class LoaderJob extends AbstractJob{
-        
+
         public LoaderJob(){
             super("Seismic Data Loader");
             setFinished();
             //JobTracker.getTracker().add(this);
         }
-        
+
         public synchronized void incrementDataRetrievers(){
             outRetrieving++;
             updateStatus();
         }
-        
+
         public synchronized void decrementDataRetrievers(){
             if(--outRetrieving <= 0){
                 outRetrieving = 0;
@@ -274,13 +286,13 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
                 updateStatus();
             }
         }
-        
+
         private void updateStatus(){
             setStatus(outRetrieving + " seismograms are attempting to get data");
         }
-        
+
         public void run() {}
-        
+
         private int outRetrieving = 0;
     }
 }

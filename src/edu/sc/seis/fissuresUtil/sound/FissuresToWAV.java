@@ -17,6 +17,8 @@ import java.io.IOException;
 import org.apache.log4j.Category;
 import edu.iris.Fissures.model.TimeInterval;
 import javax.swing.event.EventListenerList;
+import edu.iris.Fissures.FissuresException;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * FissuresToWAV.java
@@ -44,7 +46,7 @@ public class FissuresToWAV {
         blockAlign = numChannels * (bitsPerSample/8);
     }
 
-    public void writeWAV(DataOutput out, MicroSecondTimeRange tr) throws IOException {
+    public void writeWAV(DataOutput out, MicroSecondTimeRange tr) throws IOException, FissuresException  {
         updateInfo(container.getIterator(tr));
         writeChunkData(out);
         writeWAVData(out);
@@ -63,8 +65,8 @@ public class FissuresToWAV {
         try{
             writeWAVData(dos, container.getIterator(tr));
         }
-        catch(IOException e){
-            e.printStackTrace();
+        catch(Exception e){
+            GlobalExceptionHandler.handle(e);
         }
 
         if (clip != null) clip.close();
@@ -141,11 +143,11 @@ public class FissuresToWAV {
         writeLittleEndian(out, subchunk2Size); // subchunk2 size
     }
 
-    private void writeWAVData(DataOutput out)throws IOException{
+    private void writeWAVData(DataOutput out)throws IOException {
         writeWAVData(out, container.getIterator());
     }
 
-    private void writeWAVData(DataOutput out, SeismogramIterator iterator) throws IOException{
+    private void writeWAVData(DataOutput out, SeismogramIterator iterator) throws IOException {
 
         //calculate maximum amplification factor to avoid either
         //clipping or dead quiet
