@@ -22,7 +22,6 @@ public class TableSetup {
     private static void createTable(String tablename,
                              Connection conn,
                              String creationStmt) throws SQLException {
-        System.out.println("Running create statement " + creationStmt);
         if(!DBUtil.tableExists(tablename, conn)) {
             conn.createStatement().executeUpdate(creationStmt);
         }
