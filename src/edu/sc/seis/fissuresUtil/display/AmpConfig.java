@@ -3,9 +3,8 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.UnitRangeImpl;
 
 /**
- * AmpConfigs calculate the amp ranges for a given set of seismograms.  An amp config requires a time config internally to allow it to
- * perform operations when it is not possible to pass the set of times over which it calculates.  
- *
+ * AmpConfigs calculate the amp ranges for a given set of seismograms based on a certain rule.
+ * See BasicAmpConfig or RMeanAmpConfig for implementations of a couple rules.
  * Created: Tue Aug 27 14:48:03 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
@@ -40,7 +39,7 @@ public interface AmpConfig extends DataSetSeismogramReceptacle{
     public void shaleAmp(double shift, double scale, DataSetSeismogram[] seismos);
     
     /**
-     * <code>addListener</code> causese listener to receive updates when this
+     * <code>addListener</code> causes listener to receive updates when this
      * AmpConfig changes
      * 
      */
@@ -54,8 +53,8 @@ public interface AmpConfig extends DataSetSeismogramReceptacle{
     public void removeListener(AmpListener listener);
 
     /**
-     * <code>fireAmpEvent</code> notifies all listeners of the current state 
-     * of this ampconfig
+     * <code>fireAmpEvent</code> makes the AmpConfig create a new AmpEvent
+     * reflecting its current internal state and send it to all AmpListeners
      * @return a <code>ConfigEvent</code> value
      */
     public AmpEvent fireAmpEvent();
