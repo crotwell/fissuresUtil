@@ -160,14 +160,22 @@ public class SeismogramShapeIterator implements PathIterator {
     }
     
     public void next(){
+        if(currentIndex % 200 == 0){
+            logger.debug("calling next()");
+        }
         currentIndex++;
     }
     
     public int getWindingRule(){
+        logger.debug("calling getWindingRule");
+        
         return WIND_NON_ZERO;
     }
     
     public boolean isDone(){
+        if(currentIndex % 200 == 0){
+            logger.debug("calling isDone");
+        }
         if(currentIndex == endIndex){
             return true;
         }
@@ -205,6 +213,9 @@ public class SeismogramShapeIterator implements PathIterator {
         min = !min;
         coordinates[0] = currentIndex;
         coordinates[1] = points[i][currentIndex];
+        if(coordinates[0] % 100 == 0){
+            logger.debug("x: " + coordinates[0] + " y: " + coordinates[1]);
+        }
         if(at != null){
             at.transform(coordinates, 0, coordinates, 0, 1);
         }
