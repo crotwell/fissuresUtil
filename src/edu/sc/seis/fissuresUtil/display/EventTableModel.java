@@ -20,7 +20,7 @@ import org.apache.log4j.*;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version
+ * @version $Id: EventTableModel.java 1788 2002-06-04 20:23:16Z crotwell $
  */
 
 public class EventTableModel 
@@ -98,6 +98,10 @@ public class EventTableModel
 		return sdf.format(msd);
 		//return msd.toString();
 	    case MAGVALUE:
+		if (cache.get_preferred_origin().magnitudes.length == 0) {
+		    return "none";
+		}
+		
 		String type =  cache.get_preferred_origin().magnitudes[0].type;
 		if (type.equals(edu.iris.Fissures.MB_MAG_TYPE.value)) {
 		    type = "mb";
