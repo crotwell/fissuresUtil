@@ -26,7 +26,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 5801 2003-09-26 16:00:33Z groves $
+ * @version $Id: ChannelChooser.java 5820 2003-09-26 20:59:18Z crotwell $
  *
  */
 
@@ -690,6 +690,17 @@ public class ChannelChooser extends JPanel {
         return chan;
     }
 
+    /** returns selected items from channel list. May be full codes like BHZ or
+     just band codes like B */
+    public String[] getSelectedChanCodes() {
+        Object[] vals = channelList.getSelectedValues();
+        String[] out = new String[vals.length];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = (String)vals[i];
+        }
+        return out;
+    }
+
     public NetworkAccess[] getSelectedNetworks() {
         if ( ! showNetworks) {
             return getNetworks();
@@ -1036,7 +1047,6 @@ public class ChannelChooser extends JPanel {
     protected JList networkList;
     protected JList stationList;
     protected JList siteList;
-    protected JList bandList;
     protected JList orientationList;
     protected JList channelList;
     protected JProgressBar progressBar = new JProgressBar(0, 100);
