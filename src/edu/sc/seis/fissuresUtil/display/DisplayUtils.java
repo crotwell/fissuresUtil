@@ -327,6 +327,8 @@ public class DisplayUtils {
 
     public static Font MONOSPACED_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
+    public static final Font BORDER_FONT = new Font("Arial", Font.PLAIN, 10);
+
     public static final Stroke ONE_PIXEL_STROKE = new BasicStroke(1);
 
     public static final Stroke TWO_PIXEL_STROKE = new BasicStroke(2);
