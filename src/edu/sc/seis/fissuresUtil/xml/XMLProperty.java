@@ -1,14 +1,10 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.apache.xpath.*;
-import org.apache.xpath.objects.*;
-import java.io.*;
-import java.net.*;
+import edu.iris.Fissures.IfSeismogramDC.Property;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Describe class <code>XMLProperty</code> here.
@@ -19,18 +15,35 @@ import java.net.*;
 public class XMLProperty {
 
     /**
-     * Describe <code>createElement</code> method here.
-     *
-     * @param doc a <code>Document</code> value
-     * @param prop a <code>Property</code> value
-     * @param tagName a <code>String</code> value
-     * @return an <code>Element</code> value
+     * StAX insert
+     */
+    public static void insert(XMLStreamWriter writer, Property prop)
+        throws XMLStreamException{
+
+        insert(writer, prop.name, prop.value);
+    }
+
+    /**
+     * StAX insert
+     */
+    public static void insert(XMLStreamWriter writer, String name, String value)
+        throws XMLStreamException{
+
+        XMLUtil.writeTextElement(writer, "name", name);
+        XMLUtil.writeTextElement(writer, "value", value);
+    }
+
+    /**
+     * DOM insert
      */
     public static void insert(Element element,
                               Property prop) {
         insert(element, prop.name, prop.value);
     }
 
+    /**
+     * DOM insert
+     */
     public static void insert(Element element,
                               String name,
                               String value) {
@@ -51,9 +64,9 @@ public class XMLProperty {
      * @return a <code>Property</code> value
      */
     public static Property getProperty(Element base) {
-    String name = XMLUtil.getText(XMLUtil.getElement(base,"name"));
-    String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
-    return new Property(name, value);
+        String name = XMLUtil.getText(XMLUtil.getElement(base,"name"));
+        String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
+        return new Property(name, value);
     }
 
 }

@@ -1,13 +1,12 @@
 /**
  * DataSetToXML.java
  *
- * @author Created by Omnicore CodeGuide
+ * This is the DOM-based DataSetToXML
  */
 
 package edu.sc.seis.fissuresUtil.xml;
 
 import edu.iris.Fissures.AuditInfo;
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -57,6 +56,7 @@ public class DataSetToXML {
         return filename;
     }
 
+
     public void writeToFile(Element datasetElement, File outFile)
         throws IOException, MalformedURLException {
         File tempFile;
@@ -99,11 +99,14 @@ public class DataSetToXML {
         return element;
     }
 
-    /** inserts the dataset, and all child datasets recursively, into the
-     document, along with dataset seismograms and parameters if they can be
-     stored. Note that all dataSetSeismograms are converted to
-     URLDataSetSeismograms and stored in a directory structure that
-     mirrors the dataset structure under the given directory. */
+    /**
+     * DOM insert
+     * inserts the dataset, and all child datasets recursively, into the
+     * document, along with dataset seismograms and parameters if they can be
+     * stored. Note that all dataSetSeismograms are converted to
+     * URLDataSetSeismograms and stored in a directory structure that
+     * mirrors the dataset structure under the given directory.
+     */
     public Element insert(Element parent, DataSet dataset, File directory, SeismogramFileTypes fileType)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Element child = parent.getOwnerDocument().createElement("dataset");
@@ -112,6 +115,9 @@ public class DataSetToXML {
         return child;
     }
 
+    /**
+     * DOM insert
+     */
     public Element insert(Document doc, DataSet dataset, File directory, SeismogramFileTypes fileType)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Element element = doc.createElement("dataset");
@@ -126,6 +132,9 @@ public class DataSetToXML {
         return element;
     }
 
+    /**
+     * DOM insertInto
+     */
     public void insertInto(Element element, DataSet dataset, File directory, SeismogramFileTypes fileType)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Document doc = element.getOwnerDocument();
@@ -182,7 +191,9 @@ public class DataSetToXML {
         return child;
     }
 
-    /** inserts the child dataset as a datasetRef element. The URL is assumed
+    /**
+     * DOM insertRef
+     * inserts the child dataset as a datasetRef element. The URL is assumed
      *  to be in a subdirectory relative to the current dataset.
      */
     public Element insertRef(Element element, DataSet dataset, File directory)
@@ -191,7 +202,9 @@ public class DataSetToXML {
         return insertRef(element, directory.getName()+"/"+dsFile.getName(), dataset.getName());
     }
 
-    /** inserts the child dataset as a datasetRef element. The URL is assumed
+    /**
+     * DOM insertRef
+     * inserts the child dataset as a datasetRef element. The URL is assumed
      *  to be in a subdirectory relative to the current dataset.
      */
     public Element insertRef(Element parent, String datasetURL, String linkTitle)
@@ -204,7 +217,9 @@ public class DataSetToXML {
         return element;
     }
 
-    /** inserts the parameter into the given element.
+    /**
+     * DOM insert
+     * inserts the parameter into the given element.
      */
     public Element insert(Element parent, String name, Object parameter) {
         Element element =
@@ -216,23 +231,11 @@ public class DataSetToXML {
         return element;
     }
 
-    /** inserts the parameter into the given element.
+    /**
+     * DOM insertParameter
+     * inserts the parameter into the given element.
      */
     public Element insertParameter(Element parent, String name, String typeDef, String typeName, String value) {
-        Element element =
-            parent.getOwnerDocument().createElement("parameter");
-        parent.appendChild(element);
-        XMLParameter.insert(element,
-                            name,
-                            typeDef,
-                            typeName,
-                            value);
-        return element;
-    }
-
-    /** inserts the parameter into the given element.
-     */
-    public Element insertParameter(Element parent, String name, String typeDef, String typeName, Element value) {
         Element element =
             parent.getOwnerDocument().createElement("parameter");
         parent.appendChild(element);

@@ -31,13 +31,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.DOMException;
 
 /**
  * URLDataSetSeismogram.java
@@ -447,6 +448,62 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             System.arraycopy(fileType, 0, tmpTypes, 0, fileType.length);
             fileType = tmpTypes;
             fileType[fileType.length-1] = seisFileType;
+        }
+    }
+
+    /** allows the saving of a URLDataSetSeismogram in XML format. The
+     actual waveform data is not saved, just the URLs to it. If local
+     saving is needed, localize should be used before calling insertInto. All
+     URLs are saved realtive to the base. */
+    public void insertInto(XMLStreamWriter writer, URL base)
+        throws XMLStreamException{
+
+        XMLUtil.writeTextElement(writer, "name", getName());
+        writer.writeStartElement("requestFilter");
+        XMLRequestFilter.insert(writer, getRequestFilter());
+        writer.writeEndElement();
+
+        logger.debug("Saving "+url.length+" urls for "+getName());
+        String baseStr = base.toString();
+        String outStr;
+        for (int i = 0; i < url.length; i++) {
+            outStr = url[i].toString();
+            logger.debug("base="+baseStr+" outStr="+outStr);
+            if (outStr.startsWith(baseStr)){
+                outStr = outStr.substring(baseStr.length());
+            }
+            writer.writeStartElement("url");
+            writer.writeAttribute("xlink:type", "simple");
+            writer.writeAttribute("xlink:href", outStr);
+            writer.writeAttribute("xlink:role", fileType[i].getURLValue().toString());
+            writer.writeEndElement();
+        }
+
+        Iterator it = getAuxillaryDataKeys().iterator();
+        while (it.hasNext()){
+            Object next = it.next();
+            if (next instanceof String){
+                if (getAuxillaryData(next) instanceof String){
+                    writer.writeStartElement(PROPERTY);
+                    XMLProperty.insert(writer, (String)next, (String)getAuxillaryData(next));
+                    writer.writeEndElement();
+                }
+                else if (getAuxillaryData(next) instanceof Element){
+                    logger.debug(NAMED_VALUE + " insert placeholder");
+                    //writer.writeStartElement(NAMED_VALUE);
+                    //XMLUtil.writeTextElement(writer, "name", (String)next);
+                    //writer.writeStartElement("value");
+                    //XMLUtil.writeNode(writer, (Element)getAuxillaryData(next));
+                    //writer.writeEndElement();
+                    //writer.writeEndElement();
+                }
+            }
+            else {
+                logger.warn("try to save aux data "+
+                                next+" "+
+                                getAuxillaryData(next).getClass()+": "+getAuxillaryData(next)+
+                                " but don't know how.");
+            }
         }
     }
 
