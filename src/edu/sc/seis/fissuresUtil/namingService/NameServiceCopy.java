@@ -26,7 +26,7 @@ public class NameServiceCopy {
     }
 
     public static void main(String[] args) throws CannotProceed, InvalidName,
-            NotFound, org.omg.CORBA.ORBPackage.InvalidName {
+            NotFound {
         // this parse the args, reads properties, and inits the orb
         Initializer.init(args);
         boolean skipServerPing = false;
