@@ -1,21 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 
 public class EQDataEvent{
-    private Object src;
-    private EventAccessOperations[] evs;
+    private CacheEvent[] evs;
 
-    public EQDataEvent(Object source, EventAccessOperations[] events){
-        src = source;
-        evs = events;
-    }
+    public EQDataEvent(CacheEvent[] events){ evs = events; }
 
-    public Object getSource(){
-        return src;
-    }
-
-    public EventAccessOperations[] getEvents(){
-        return evs;
-    }
+    public CacheEvent[] getEvents(){ return evs; }
 }
