@@ -65,9 +65,9 @@ public class BasicLayoutConfig implements LayoutConfig{
         if(someAdded){
             fireLayoutEvent();
         }
-        if(seis.size() > 0){
+        if(noDist.size() > 0){
             noDistDialog();
-        }else{
+        }else if(seis.size() <= 0){
             unableToDisplayDialog();
         }
 
