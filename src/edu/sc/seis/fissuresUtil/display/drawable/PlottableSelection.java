@@ -29,7 +29,7 @@ import java.util.TimeZone;
 public class PlottableSelection implements Plotter{
     public PlottableSelection (PlottableDisplay display){
         this.plottableDisplay = display;
-        display.setDate(Calendar.getInstance().getTime());
+        //display.setDate(Calendar.getInstance().getTime());
     }
 
     public PlottableSelection(PlottableDisplay display, Color color) {
@@ -42,7 +42,6 @@ public class PlottableSelection implements Plotter{
         beginx = x;
         beginy = y;
     }
-
 
     public void draw(Graphics2D canvas, java.awt.Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         //in this draw of PlottableSelection the following are not used
