@@ -21,10 +21,6 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
     /**
      * this constructor assumes that some outside entity is going to set the
      * range on this scalemapper
-     *
-     * @param    totalPixels         an int
-     * @param    hintPixels          an int
-     *
      */
     public AmpScaleMapper(int totalPixels, int hintPixels){
         this(totalPixels, hintPixels, null);
@@ -34,7 +30,6 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
     /**
      * this constructor uses the passed in amp config to determine the value
      * for the scale mapper
-     *
      */
     public AmpScaleMapper(int totalPixels,
                           int hintPixels,
@@ -50,19 +45,13 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
         if(event instanceof LazyAmpEvent){
             ((LazyAmpEvent)event).addCalculateListener(this);
         }else{
-            DataSetSeismogram seis = event.getSeismograms()[0];
-            if(seis != null){
-                setUnitRange(unitDisplayUtil.getBestForDisplay(event.getAmp(seis)));
-            }else{
-                setUnitRange(event.getAmp());
-            }
+            setUnitRange(event.getAmp());
         }
     }
 
     public String getAxisLabel(){
-        return "Amplitude (" + unitDisplayUtil.getNameForUnit(getUnit()) + ")";
+        return "Amplitude (" + UnitDisplayUtil.getNameForUnit(getUnit()) + ")";
     }
 
     private UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
 } // AmpScaleMapper
-
