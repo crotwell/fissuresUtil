@@ -116,9 +116,6 @@ public class MicroSecondTimeRange{
 
     public String toString(){ return beginTime + " to " + endTime; }
 
-    public static MicroSecondTimeRange ONE_MS = new MicroSecondTimeRange(new MicroSecondDate(0),
-                                                                         new MicroSecondDate(1));
-
     private final MicroSecondDate beginTime;
 
     private final MicroSecondDate endTime;
