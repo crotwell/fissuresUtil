@@ -16,7 +16,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 1870 2002-06-12 21:10:26Z crotwell $
+ * @version $Id: SacDirToDataSet.java 2064 2002-07-08 20:09:02Z telukutl $
  */
 
 public class SacDirToDataSet {
@@ -38,8 +38,10 @@ public class SacDirToDataSet {
 	DocumentBuilder docBuilder = factory.newDocumentBuilder();
 	String userName = System.getProperty("user.name");
 	URL dirURL = base;
+	System.out.println(" dirURL is "+dirURL.toString());
 	try {
-	    dirURL = new URL(base, directory.getName()+"/");
+	    dirURL = new URL(dirURL, directory.getName()+"/");
+	    System.out.println("updated dirURL is "+dirURL.toString());
 	} catch (MalformedURLException e) {
 	    e.printStackTrace();
 	    return;	    
@@ -59,10 +61,9 @@ public class SacDirToDataSet {
 	    audit[0] = new AuditInfo(userName,
 				     "Added parameter "+key);
 	    try {
-		dataset.addParameterRef(new URL(dirURL,
-						(String)paramRefs.get(key)),
-					key,
-					audit);
+		dataset.addParameter(key,new URL(dirURL,
+						(String)paramRefs.get(key)).toString(),
+				     audit);
 		
 	    } catch (MalformedURLException e) {
 		//can't happen?
@@ -90,7 +91,12 @@ public class SacDirToDataSet {
 		audit[0] = new AuditInfo(userName+" via SacDirToDataSet",
 					 "seismogram loaded from "+sacFiles[i].getCanonicalPath());
 		URL seisURL = new URL(dirURL, sacFiles[i].getName());
-		dataset.addSeismogramRef(seisURL, 
+		System.out.println(" the seisURL is "+seisURL.toString());
+		DataInputStream dis = new DataInputStream(new BufferedInputStream(seisURL.openStream())); 
+		SacTimeSeries sac = new SacTimeSeries();
+		sac.read(dis);
+		edu.iris.Fissures.seismogramDC.LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
+		dataset.addSeismogramRef(seis, seisURL, 
 					 sacFiles[i].getName(), 
 					 new Property[0], 
 					 new ParameterRef[0],
@@ -149,6 +155,7 @@ public class SacDirToDataSet {
 		i+=2;
 	    } else  if (args[i].equals("-base")) {
 		baseStr = args[i+1];
+		System.out.println("The baseStr is "+baseStr);
 		i+=2;
 	    } else  if (args[i].equals("-exclude")) {
 		excludes.add(args[i+1]);
@@ -164,6 +171,7 @@ public class SacDirToDataSet {
 
 	try {
 	    base = new URL(baseStr);
+	    System.out.println("base is "+base.toString());
 	    File f = new File(dirName);
 	    if (dirName != null && f.isDirectory()) {
 		SacDirToDataSet sdir = new SacDirToDataSet(base, f, dsName, excludes, params);
