@@ -34,7 +34,7 @@ public class SeismogramPDFBuilder {
     public SeismogramPDFBuilder(SeismogramDisplay disp) {
         display = disp;
     }
-
+    
     public void createPDF() {
         if (display != null) {
             if (display instanceof VerticalSeismogramDisplay) {
@@ -47,14 +47,14 @@ public class SeismogramPDFBuilder {
             }
             getImagesPerPage(basicDisplays.size());
             if(seisPerPageSet){
-                String tmp = chooseOutputFile();
+                String tmp = chooseOutputFile("pdf");
                 if (tmp != null) {
                     createPDF(tmp);
                 }
             }
         }
     }
-
+    
     public void createPDF(String fileName) {
         try {
             createPDF(new FileOutputStream(fileName));
@@ -63,7 +63,7 @@ public class SeismogramPDFBuilder {
             ex.printStackTrace();
         }
     }
-
+    
     public void createPDF(FileOutputStream fos) {
         if (display != null) {
             if (display instanceof VerticalSeismogramDisplay) {
@@ -74,132 +74,132 @@ public class SeismogramPDFBuilder {
             float zoomFactor = 4.0f;
             int topMargin = 50;
             int bottomMargin = 50;
-
+            
             // this variable is used to scale the scales up and down.....
             // just a display resolution item.
             float scaleZoomFactor = 2.0f;
-
+            
             // step 1: creation of a document-object
             Rectangle rect = PageSize.LETTER;
             Document document = new Document(rect);
-
+            
             try {
                 // step 2:
                 // we create a writer that listens to the document
                 // and directs a PDF-stream to a file
                 PdfWriter writer = PdfWriter.getInstance(document, fos);
-
+                
                 // step 3: we open the document
                 document.open();
-
+                
                 // step 4: we grab the ContentByte and do some stuff with it
-
+                
                 // we create a template and a Graphics2D object that corresponds with it
                 int scaleW = (int)rect.width();
                 int scaleH = (int)rect.height();
-
+                
                 float ys = 0;
                 float xs = 0;
-
+                
                 int w = (int)( (float)scaleW * zoomFactor);
                 int h = (int)( (float)scaleH * zoomFactor);
-
+                
                 int availableH = h;
                 int widthForTraces = w;
-
+                
                 int heightForTraces = 0;
-
+                
                 PdfContentByte cb = writer.getDirectContent();
-
+                
                 // layer for drawing traces
                 PdfTemplate tpTraces = cb.createTemplate(w, h);
                 Graphics2D g2Traces = tpTraces.createGraphics(w, h);
-
+                
                 // layer for drawing Amplitude labels
                 PdfTemplate tpScales = cb.createTemplate(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
                 Graphics2D g2Scales = tpScales.createGraphics(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-
+                
                 // layer for drawing time labels
                 PdfTemplate frameScales = cb.createTemplate(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
                 Graphics2D g2FrameScales = frameScales.createGraphics(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-
+                
                 // layer for drawing last page bottom label
                 PdfTemplate lastPageScales = cb.createTemplate(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
                 Graphics2D g2lastPageScales = lastPageScales.createGraphics(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-
+                
                 int imagesOnPageCount = 0;
-
+                
                 Iterator it = basicDisplays.iterator();
                 BasicSeismogramDisplay bsd = null;
-
+                
                 Dimension scaleSize = null;
                 Dimension scaleScaleSize = null;
                 Dimension timeScaleSize = null;
-
+                
                 boolean initedScaleSize = false;
-
+                
                 BasicSeismogramDisplay tbsd = (BasicSeismogramDisplay)basicDisplays.getLast();
                 BasicSeismogramDisplay.PRINTING = true;
                 while (it.hasNext()) {
                     // loop over all traces
-
+                    
                     bsd = (BasicSeismogramDisplay)(it.next());
-
+                    
                     if (!initedScaleSize) {
                         // first time through setup some things
-
+                        
                         // get true margins
                         topMargin = bsd.getAmplitudeLabelHeight();
-
+                        
                         // mover over around insets
                         g2Traces.translate(extraInset*zoomFactor,extraInset*zoomFactor);
                         g2Scales.translate((int)(extraInset*scaleZoomFactor), (int)(extraInset*scaleZoomFactor));
-
+                        
                         // mover over around margins
                         g2Traces.translate(leftMargin*zoomFactor,topMargin*zoomFactor);
                         g2Scales.translate(0,(int)(topMargin*scaleZoomFactor));
-
+                        
                         // calculate spacing
                         availableH = availableH - (int)(zoomFactor * (topMargin+ bottomMargin + extraInset + extraInset));
                         heightForTraces = availableH/(imagesPerPage);
                         widthForTraces -= leftMargin*zoomFactor;
                         widthForTraces -= 2*extraInset*zoomFactor;
-
+                        
                         initedScaleSize = true;
-
+                        
                         // draw to time scale layers.
                         g2lastPageScales.translate(leftMargin*scaleZoomFactor,0);
                         g2lastPageScales.translate(extraInset*scaleZoomFactor, extraInset*scaleZoomFactor);
-
+                        
                         timeScaleSize = bsd.drawTopTimeBorders(g2lastPageScales, (int)(widthForTraces*scaleZoomFactor/zoomFactor),
                                                                    (int)(topMargin*scaleZoomFactor));
-
+                        
                         g2FrameScales.translate(extraInset*scaleZoomFactor, extraInset*scaleZoomFactor);
                         g2FrameScales.translate(leftMargin*scaleZoomFactor,0);
                         timeScaleSize = bsd.drawTopTimeBorders(g2FrameScales, (int)(widthForTraces*scaleZoomFactor/zoomFactor),
                                                                    (int)(topMargin*scaleZoomFactor));
-
+                        
                         g2FrameScales.translate(0,availableH*scaleZoomFactor/zoomFactor);
-
+                        
                         int ttcount = basicDisplays.size();
                         int tracesLastPage = ttcount%imagesPerPage;
-
+                        
                         g2lastPageScales.translate(0,(heightForTraces*tracesLastPage*scaleZoomFactor)/(zoomFactor));
-
+                        
                         g2FrameScales.translate(0,topMargin);
                         g2lastPageScales.translate(0,topMargin);
-
+                        
                         timeScaleSize = tbsd.drawBottomTimeBorders(g2lastPageScales, (int)(widthForTraces*scaleZoomFactor/zoomFactor),
                                                                        (int)(topMargin*scaleZoomFactor));
-
+                        
                         timeScaleSize = tbsd.drawBottomTimeBorders(g2FrameScales, (int)(widthForTraces*scaleZoomFactor/zoomFactor),
                                                                        (int)(topMargin*scaleZoomFactor));
-
+                        
                         g2lastPageScales.dispose();
                         g2FrameScales.dispose();
-
+                        
                     }
-
+                    
                     boolean notAllHere = true;
                     int wait = 0;
                     while(notAllHere && wait < 10000){
@@ -222,69 +222,69 @@ public class SeismogramPDFBuilder {
                     DisplayUtils.DEFAULT_FONT = new Font("Serif", Font.PLAIN, 24);
                     bsd.drawSeismograms(g2Traces,new Dimension(widthForTraces,heightForTraces));
                     DisplayUtils.DEFAULT_FONT = prevValue;
-
+                    
                     drawBox(g2Traces, widthForTraces, heightForTraces);
-
+                    
                     // draw amplitude scale
                     scaleScaleSize = bsd.drawAmpBorders(g2Scales,(int)(leftMargin*scaleZoomFactor),
                                                             (int)(heightForTraces*scaleZoomFactor/zoomFactor));
-
+                    
                     // draw amplitude scale
                     scaleScaleSize = bsd.drawAmpBorders(g2Scales,(int)(leftMargin*scaleZoomFactor),
                                                             (int)(heightForTraces*scaleZoomFactor/zoomFactor));
-
+                    
                     // draw a box around this region.
                     drawBox(g2Scales, scaleScaleSize.width, scaleScaleSize.height);
-
+                    
                     if (++imagesOnPageCount == imagesPerPage) {
                         // page is full, finish page and create a new page.
-
+                        
                         g2Traces.dispose();
                         g2Scales.dispose();
-
+                        
                         cb.addTemplate(tpTraces, 1.0f/zoomFactor, 0, 0, 1.0f/zoomFactor, 0, 0);
-
+                        
                         xs = 1.0f/scaleZoomFactor;
                         ys = 1.0f/scaleZoomFactor;
-
+                        
                         cb.addTemplate(tpScales,xs,0,0, ys,0,0);
-
+                        
                         cb.addTemplate(frameScales,xs,0,0, ys,0,0);
-
+                        
                         // create a new page
                         document.newPage();
-
+                        
                         // create 2 new templates for drawing to.
                         tpTraces = cb.createTemplate(w, h);
                         g2Traces = tpTraces.createGraphics(w, h);
-
+                        
                         tpScales = cb.createTemplate(scaleW*scaleZoomFactor, scaleH*scaleZoomFactor);
                         g2Scales = tpScales.createGraphics(scaleW*scaleZoomFactor, scaleH*scaleZoomFactor);
-
+                        
                         g2Traces.translate(extraInset*zoomFactor, extraInset*zoomFactor);
                         g2Scales.translate(extraInset*scaleZoomFactor, extraInset*scaleZoomFactor);
-
+                        
                         // translate over to avoid drawing new page in top left corner.
                         g2Traces.translate(leftMargin*zoomFactor,topMargin*zoomFactor);
                         g2Scales.translate(0,(int)(topMargin*scaleZoomFactor));
-
-
+                        
+                        
                         // reset current count
                         imagesOnPageCount = 0;
-
+                        
                     } else {
                         // step down the page
                         g2Traces.translate(0,heightForTraces);
                         g2Scales.translate(0,heightForTraces*scaleZoomFactor/zoomFactor);
-
+                        
                     }
                 }
-
+                
                 if (imagesOnPageCount != 0) {
                     // finish writing to the Graphics2D
                     g2Traces.dispose();
                     g2Scales.dispose();
-
+                    
                     cb.addTemplate(tpTraces, 1.0f/zoomFactor, 0, 0, 1.0f/zoomFactor, 0, 0);
                     xs = 1.0f/scaleZoomFactor;
                     ys = 1.0f/scaleZoomFactor;
@@ -299,12 +299,12 @@ public class SeismogramPDFBuilder {
         }
         BasicSeismogramDisplay.PRINTING = false;
     }
-
+    
     private void drawBox(Graphics2D g2, int width, int height) {
         g2.setColor(Color.BLACK);
         g2.drawRect(0,0,width,height);
     }
-
+    
     /**
      *<code>getImagesPerPage</code> pops up a dialog that gets the number of seismograms the user wants
      * on each page, sets the value, and sets the number of pages
@@ -329,7 +329,7 @@ public class SeismogramPDFBuilder {
             imagesPerPage = numOfSeis;
         }
         options.setSelectedIndex(imagesPerPage-1);
-
+        
         JButton next = new JButton("Next");
         next.addActionListener(new ActionListener(){
                     public void actionPerformed(ActionEvent e){
@@ -341,7 +341,7 @@ public class SeismogramPDFBuilder {
                                                           JOptionPane.WARNING_MESSAGE);
                         }else if(currentNumber > numOfSeis){
                             JOptionPane.showMessageDialog(null,
-                                                          "The number of seismograms selected must less than " + (numOfSeis + 1),
+                                                          "The number of seismograms selected can be at most " + numOfSeis,
                                                           "Selected Too Many",
                                                           JOptionPane.WARNING_MESSAGE);
                         }else{
@@ -372,40 +372,83 @@ public class SeismogramPDFBuilder {
         dialog.pack();
         dialog.show();
     }
-
+    
     private void setSeisPerPage(int num) {
         seisPerPageSet = true;
         imagesPerPage = num;
     }
-
-    private String chooseOutputFile() {
-        final JFileChooser fc = new JFileChooser();
-        String extensions[] = {"pdf"};
+    private String chooseOutputFile(String extension) {
+        final JFileChooser fc;
+        if (lastSaveLocation != null) {
+            fc = new JFileChooser(lastSaveLocation);
+        } else {
+            fc = new JFileChooser();
+        }
+        String extensions[] = new String[1];
+        extensions[0] = extension;
         fc.setFileFilter(new FileNameFilter(extensions));
-        fc.setDialogTitle("Save as PDF");
-        fc.setSelectedFile(new File("output.pdf"));
-        int returnVal = fc.showSaveDialog(display);
+        
+        fc.setDialogTitle("Save to File");
+        fc.setSelectedFile(new File("output."+extension));
+        
+        int returnVal = fc.showSaveDialog(null);
+        
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            return fc.getSelectedFile().getAbsolutePath();
+            File file = fc.getSelectedFile();
+            lastSaveLocation = file.getParentFile();
+            String newExtension =
+                file.getName().substring(file.getName().lastIndexOf(".")+1);
+                System.out.println("extension old="+file.getName()+" ext="+extension+"  new="+newExtension);
+            if ( ! newExtension.equalsIgnoreCase(extension)) {
+                // add extension to end
+                file = new File(file.getAbsolutePath()+"."+extension);
+            }
+            if (file.exists()) {
+                Object[] options = new String[3];
+                options[0] = "Replace";
+                options[1] = "Choose Again";
+                options[2] = "Cancel";
+                int n = JOptionPane.showOptionDialog(display,
+                                                     "File "+file.getName()+" exists, replace?",
+                                                     "File Exists",
+                                                     JOptionPane.YES_NO_CANCEL_OPTION,
+                                                     JOptionPane.QUESTION_MESSAGE,
+                                                     null,     //don't use a custom Icon
+                                                     options,  //the titles of buttons
+                                                     options[0]); //default button title);
+                if (n == JOptionPane.CANCEL_OPTION) {
+                    return null;
+                } else if (n == JOptionPane.CANCEL_OPTION) {
+                    return chooseOutputFile(extension);
+                }
+                // ok to replace...
+            }
+            String fileName = file.getAbsolutePath();
+            
+            return file.getAbsolutePath();
+        } else {
+            //log.append("Open command cancelled by user.");
         }
         return null;
     }
-
+    
+    private static File lastSaveLocation = null;
+    
     private static EmptyBorder EMPTY_BORDER = new EmptyBorder(5, 5, 5, 5);
-
+    
     LinkedList basicDisplays = null;
-
+    
     SeismogramDisplay display = null;
-
+    
     //used to indicate if setSeisPerPage was successful
     private boolean seisPerPageSet = false;
-
+    
     // default number of images to print per page
     int imagesPerPage = 6;
-
+    
     // an extra amount to inset entire printed page
     int extraInset = 50;
-
+    
     // these numbers are wrt the scale layers.
     int leftMargin = 50;
 }
