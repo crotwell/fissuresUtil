@@ -38,8 +38,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      * @param seis a <code>LocalSeismogram</code> value
      * @param timeBorder a <code>boolean</code> value
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, boolean timeBorder){
-	this(seis, new TimeConfigRegistrar(), new AmpConfigRegistrar(), timeBorder);
+    public BasicSeismogramDisplay(LocalSeismogram seis){
+	this(seis, new TimeConfigRegistrar(), new AmpConfigRegistrar());
     }
    
     /**
@@ -49,8 +49,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      * @param tr a <code>TimeConfigRegistrar</code> value
      * @param timeBorder a <code>boolean</code> value
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, boolean timeBorder){
-	this(seis, tr, new AmpConfigRegistrar(), timeBorder);
+    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr){
+	this(seis, tr, new AmpConfigRegistrar());
     }
     
     /**
@@ -60,8 +60,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      * @param ar an <code>AmpConfigRegistrar</code> value
      * @param timeBorder a <code>boolean</code> value
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, AmpConfigRegistrar ar, boolean timeBorder){
-	this(seis, new TimeConfigRegistrar(), ar, timeBorder);
+    public BasicSeismogramDisplay(LocalSeismogram seis, AmpConfigRegistrar ar){
+	this(seis, new TimeConfigRegistrar(), ar);
     }
 
     /**
@@ -72,8 +72,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      * @param ar an <code>AmpConfigRegistrar</code> value
      * @param timeBorder a <code>boolean</code> value
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, boolean timeBorder){
-	this(seis, tr, ar, timeBorder, "");
+    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar){
+	this(seis, tr, ar, "");
     }
 
     /**
@@ -85,12 +85,12 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      * @param timeBorder a <code>boolean</code> value
      * @param name a <code>String</code> value
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, boolean timeBorder, String name){
-	this(seis, tr, ar, timeBorder, name, null);
+    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name){
+	this(seis, tr, ar, name, null);
     }
 
-   BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, boolean timeBorder, String name, 
-				  VerticalSeismogramDisplay parent){
+   BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name, 
+			  VerticalSeismogramDisplay parent){
 	super();
 	this.setLayout(new OverlayLayout(this));
 	this.addComponentListener(new ComponentAdapter() {
@@ -111,8 +111,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.filters = parent.getCurrentFilters();
 	this.addSeismogram(seis);
 	scaleBorder = new ScaleBorder();
-	if(timeBorder)
-	    scaleBorder.setBottomScaleMapper(timeScaleMap);
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
 	setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
 											new LeftTitleBorder("")),
