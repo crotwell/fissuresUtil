@@ -1,17 +1,13 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
-import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JDBCMagnitude  extends EventTable {
     public JDBCMagnitude(Connection conn) throws SQLException{
@@ -40,6 +36,7 @@ public class JDBCMagnitude  extends EventTable {
                                             " magnitudevalue ,"+
                                             " magnitudecontributorid FROM magnitude"+
                                             " WHERE originid = ?");
+        dropAll = conn.prepareStatement("DELETE FROM magnitude");
     }
 
     public boolean exists(Magnitude magnitude, int originId) throws SQLException, NotFound {
@@ -111,5 +108,11 @@ public class JDBCMagnitude  extends EventTable {
     protected PreparedStatement exists;
 
     protected PreparedStatement putStmt;
+    
+    protected PreparedStatement dropAll;
+
+    public void clean() throws SQLException {
+        dropAll.executeUpdate();
+    }
 } // JDBCMagnitude
 
