@@ -59,11 +59,9 @@ public class JobTracker implements StatusListener{
     }
 
     private void fireTrackerUpdated(){
-        synchronized(listeners) {
-            Iterator it = listeners.iterator();
-            while(it.hasNext()){
-                ((TrackerListener)it.next()).trackerUpdated(this);
-            }
+        TrackerListener[] tempListeners = (TrackerListener[])listeners.toArray(new TrackerListener[0]);
+        for (int i = 0; i < tempListeners.length; i++) {
+            tempListeners[i].trackerUpdated(this);
         }
     }
 
