@@ -25,7 +25,7 @@ public class NameServiceWalker {
         System.out.println("Got "+eventdcs.length+" event dcs");
         NSSeismogramDC[] seisdcs = fisName.getAllSeismogramDC();
         System.out.println("Got "+seisdcs.length+" seis dcs");
-        RequestFilter[] rf = SimpleSeismogramClient.createRF();
+        RequestFilter[] rf = SimpleSeismogramClient.createCurrentRF();
         rf[0].channel_id = Initializer.AMNOChannel;
         for (int i = 0; i < seisdcs.length; i++) {
             try {

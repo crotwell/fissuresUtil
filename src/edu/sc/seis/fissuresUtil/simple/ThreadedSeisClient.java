@@ -19,7 +19,7 @@ public class ThreadedSeisClient extends SimpleSeismogramClient{
     }
 
     private class AvailableData implements Runnable{
-        public void run() { seisDC.available_data(createRF()); }
+        public void run() { seisDC.available_data(createCurrentRF()); }
 
         public String toString(){ return "available_data"; }
     }
