@@ -112,28 +112,33 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     }
 
     public void updateTimeRange(){
-	Iterator e = seismos.keySet().iterator();
+	if(!taken){
+	    snapshot.update(seismos, timeConfig.getTimeRange());
+	}
 	this.updateTimeSyncListeners(); 
     }
 
-    public synchronized TimeSnapshot takeSnapshot(){
-	snapshot.setGeneric(timeConfig.getTimeRange());
-	return snapshot;//new TimeSnapshot(seismos, timeConfig.getTimeRange());
+    public TimeSnapshot takeSnapshot(){
+	taken = true;
+	return snapshot;
     }
-    
-    protected TimeSnapshot snapshot;
+
+    public void returnSnapshot(){
+	taken = false;
+	snapshot.update(seismos, timeConfig.getTimeRange());
+    }
     
     public void unregister(){ timeConfig.removeTimeSyncListener(this); }
 
-    public synchronized void setDisplayInterval(TimeInterval t){ timeConfig.setDisplayInterval(t); }
+    public void setDisplayInterval(TimeInterval t){ timeConfig.setDisplayInterval(t); }
 
-    public synchronized void setBeginTime(MicroSecondDate b){ timeConfig.setBeginTime(b); }
+    public void setBeginTime(MicroSecondDate b){ timeConfig.setBeginTime(b); }
     
-    public synchronized void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
+    public void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
 	timeConfig.setBeginTime(seismo, b);
     }
     
-    public synchronized void setAllBeginTime(MicroSecondDate b){ 
+    public void setAllBeginTime(MicroSecondDate b){ 
 	Iterator e = seismos.keySet().iterator();
 	while(e.hasNext()){
 	    timeConfig.setBeginTime((DataSetSeismogram)e.next(), b);
@@ -148,16 +153,18 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     public TimeFinder getTimeFinder(){ return timeFinder; }
 
     public void setTimeFinder(TimeFinder tf){ timeFinder = tf; }
- 
+
+    protected boolean taken = false;
+
     protected HashMap seismos = new HashMap();
 
     protected TimeRangeConfig timeConfig;
 
     protected Set timeListeners = new HashSet();
 
+    protected TimeSnapshot snapshot;
+    
     protected TimeFinder timeFinder;
-
-    protected MicroSecondTimeRange genericTime;
 
     protected Category logger = Category.getInstance(TimeConfigRegistrar.class.getName());
 }// TimeConfigRegistrar
