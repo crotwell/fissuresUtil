@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.database;
 
 import java.sql.SQLException;
-import java.sql.Statement;
 import junit.framework.TestCase;
 
 /**
