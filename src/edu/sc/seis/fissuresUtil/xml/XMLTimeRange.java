@@ -29,19 +29,38 @@ public class XMLTimeRange {
 
     public static TimeRange getTimeRange(Element base) {
 	// get the start time
-	NodeList start_time_node = XMLUtil.evalNodeList(base, "start_time");
+	Element start_time_node = XMLUtil.getElement(base, "start_time");
 	edu.iris.Fissures.Time start_time = new edu.iris.Fissures.Time();
-	if(start_time_node != null && start_time_node.getLength() != 0) {
-	    start_time = XMLTime.getFissuresTime((Element)start_time_node.item(0));
+	if(start_time_node != null) {
+	    start_time = XMLTime.getFissuresTime(start_time_node);
 	}
 
 	//get the end time
-	NodeList end_time_node = XMLUtil.evalNodeList(base, "end_time");
+	Element end_time_node = XMLUtil.getElement(base, "end_time");
 	edu.iris.Fissures.Time end_time = new edu.iris.Fissures.Time();
-	if(end_time_node != null && end_time_node.getLength() != 0) {
-	    end_time = XMLTime.getFissuresTime((Element)end_time_node.item(0));
+	if(end_time_node != null) {
+	    end_time = XMLTime.getFissuresTime(end_time_node);
 	}
 	return new TimeRange(start_time,
 			     end_time);
     }
+
+//   public static TimeRange getTimeRange(Element base) {
+// 	// get the start time
+// 	NodeList start_time_node = XMLUtil.evalNodeList(base, "start_time");
+// 	edu.iris.Fissures.Time start_time = new edu.iris.Fissures.Time();
+// 	if(start_time_node != null && start_time_node.getLength() != 0) {
+// 	    start_time = XMLTime.getFissuresTime((Element)start_time_node.item(0));
+// 	}
+
+// 	//get the end time
+// 	NodeList end_time_node = XMLUtil.evalNodeList(base, "end_time");
+// 	edu.iris.Fissures.Time end_time = new edu.iris.Fissures.Time();
+// 	if(end_time_node != null && end_time_node.getLength() != 0) {
+// 	    end_time = XMLTime.getFissuresTime((Element)end_time_node.item(0));
+// 	}
+// 	return new TimeRange(start_time,
+// 			     end_time);
+//     }
+
 }// XMLTimeRange
