@@ -18,7 +18,7 @@ public class JDBCOriginTest extends TestCase {
         super(testname);
         originTable = new JDBCOrigin(ConnMgr.createConnection());
     }
-    
+
     public void testPutGet() throws SQLException, NotFound {
         Origin[] origins = MockOrigin.createOrigins();
         for (int i = 0; i < origins.length; i++) {
@@ -33,7 +33,7 @@ public class JDBCOriginTest extends TestCase {
                          new MicroSecondDate(extracted.origin_time));
         }
     }
-    
+
     public void testDoubleInsert() throws SQLException{
         Origin[] origins = MockOrigin.createOrigins();
         for (int i = 0; i < origins.length; i++) {
@@ -42,7 +42,7 @@ public class JDBCOriginTest extends TestCase {
             assertEquals(dbidA, dbidB);
         }
     }
-    
+
     public void testWithEvents() throws SQLException, NoPreferredOrigin,NotFound{
         EventAccessOperations[] evs = MockEventAccessOperations.createEvents();
         for (int i = 0; i < evs.length; i++) {
@@ -57,7 +57,7 @@ public class JDBCOriginTest extends TestCase {
             assertEquals(dbidA, dbidB);
         }
     }
-    
+
     public void testGetDBId()throws SQLException, NotFound{
         Origin[] origins = MockOrigin.createOrigins();
         for (int i = 0; i < origins.length; i++) {
@@ -65,6 +65,7 @@ public class JDBCOriginTest extends TestCase {
             assertEquals(dbid, originTable.getDBId(origins[i]));
         }
     }
-    
+
     protected JDBCOrigin originTable;
 }
+
