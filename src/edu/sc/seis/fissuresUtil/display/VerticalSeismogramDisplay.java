@@ -123,6 +123,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
 	seismograms.remove(display);
 	basicDisplays.remove(display);
+	sorter.remove(display.getName());
 	if(basicDisplays.size() > 1){
 	    ((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
 	    ((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
