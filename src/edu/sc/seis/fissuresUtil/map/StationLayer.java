@@ -90,7 +90,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
                   stat.my_location.longitude, xPoints, yPoints,
                   OMPoly.COORDMODE_ORIGIN);
             station = stat;
-            setFillPaint(Color.BLUE);
+            setFillPaint(STATION);
             setLinePaint(Color.BLACK);
             generate(getProjection());
         }
@@ -114,7 +114,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         }
 
         public void deselect(){
-            setFillPaint(Color.BLUE);
+            setFillPaint(STATION);
             selected = false;
         }
 
@@ -134,6 +134,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     private static String[] modeList = { SelectMouseMode.modeID } ;
 
     private ChannelChooser chooser;
+
+	public static final Color STATION = new Color(43, 33, 243);
 
     public String[] getMouseModeServiceList() {
         return modeList;
