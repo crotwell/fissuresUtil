@@ -124,7 +124,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             shapeLayerProps.put("prettyName", "Political Solid");
             shapeLayerProps.put("lineColor", "FF000000");
             if(etopoLoc == null) {
-                shapeLayerProps.put("fillColor", "5539DA87");
+                shapeLayerProps.put("fillColor", "FF39DA87");
             }
             shapeLayerProps.put("shapeFile", shapefile + ".shp");
             shapeLayerProps.put("spatialIndex", shapefile + ".ssx");
