@@ -18,8 +18,7 @@ public class RMeanAmpEvent extends BasicAmpEvent {
 
     protected UnitRangeImpl calcGenericAmp(UnitRangeImpl inAmp, DataSetSeismogram seis) {
         UnitRangeImpl basic = super.calcGenericAmp(inAmp, seis);
-        double mean = (basic.getMaxValue() - basic.getMinValue())/2;
-        double offset = basic.getMaxValue() - mean;
+        double offset = (basic.getMaxValue() - basic.getMinValue())/2;
         UnitRangeImpl out = new UnitRangeImpl(-1 * offset,
                                               offset ,
                                               basic.getUnit());
