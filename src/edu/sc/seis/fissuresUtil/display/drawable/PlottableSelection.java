@@ -12,7 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -129,13 +129,27 @@ public class PlottableSelection{
         if(!visible) return null;
         if(endRow == -1) return null;
         int rows = display.getRows();
-        int rowvalue = display.getTotalHours()/rows;
-        float plotwidth = display.getPlotWidth()/rows;
-        float beginvalue = startRowX/plotwidth * rowvalue + startRow * rowvalue;
-        float endvalue = endRowX/plotwidth * rowvalue + endRow * rowvalue;
+        double rowWidth = display.getRowWidth();
+        int offset = PlottableDisplay.LABEL_X_SHIFT;
+        double beginPercentage = ((startRowX - offset)/rowWidth + startRow)/rows;
+        double endPercentage = ((endRowX - offset)/rowWidth + endRow)/rows;
         return new RequestFilter(display.getChannelId(),
-                                 getTime(beginvalue).getFissuresTime(),
-                                 getTime(endvalue).getFissuresTime());
+                                 getTime(beginPercentage).getFissuresTime(),
+                                 getTime(endPercentage).getFissuresTime());
+    }
+
+    private MicroSecondDate getTime(double percentageOfPlottable){
+        Date startTime = display.getDate();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startTime);
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        startTime = calendar.getTime();
+        long milliSecondsPast = (long)(percentageOfPlottable * (display.getTotalHours() * 60 * 60 * 1000));
+        return new MicroSecondDate(new Date(startTime.getTime() + milliSecondsPast));
     }
 
     public int[][] getSelectedArea(){
@@ -267,27 +281,6 @@ public class PlottableSelection{
         endRowX = x + width/2;
     }
 
-    private MicroSecondDate getTime(float rowoffsetvalue) {
-        int tempmilliseconds =(int) (rowoffsetvalue * 60 * 60 * 1000);
-        int hours = tempmilliseconds / (60 * 60 * 1000);
-        tempmilliseconds = tempmilliseconds - hours * 60 * 60 * 1000;
-        int minutes = tempmilliseconds / (60 * 1000);
-        tempmilliseconds = tempmilliseconds - minutes * 60 * 1000;
-        int seconds = tempmilliseconds / 1000;
-        tempmilliseconds = tempmilliseconds - seconds * 1000;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(display.getDate());
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        GregorianCalendar gregorianCalendar = new GregorianCalendar(calendar.get(Calendar.YEAR),
-                                                                    calendar.get(Calendar.MONTH),
-                                                                    calendar.get(Calendar.DATE),
-                                                                    hours,
-                                                                    minutes,
-                                                                    seconds);
-        gregorianCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return new MicroSecondDate(gregorianCalendar.getTime());
-    }
-
     public void setExtractColor(Color newColor){
         extractColor = newColor;
         display.repaint();
@@ -296,7 +289,7 @@ public class PlottableSelection{
     public boolean borders(int x, int y){
         int row = getRow(y);
         if((row == startRow && Math.abs(x - startRowX) < 3) ||
-           (row == endRow && Math.abs(x - endRowX) < 3)){
+               (row == endRow && Math.abs(x - endRowX) < 3)){
             return true;
         }
         return false;
