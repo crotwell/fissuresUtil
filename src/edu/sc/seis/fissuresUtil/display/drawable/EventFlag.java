@@ -8,13 +8,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
@@ -157,17 +156,13 @@ public class EventFlag{
     
     private MicroSecondDate getTime(Arrival arrival){
         MicroSecondDate eventTime = getOriginTime();
-        return new MicroSecondDate((long)arrival.getTime() * 1000000 + eventTime.getMicroSecondTime());
+        return new MicroSecondDate((long)(arrival.getTime() * 1000000.0) + eventTime.getMicroSecondTime());
     }
     
     private int getRow(MicroSecondDate time){
-        long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
-        Calendar calendar = Calendar.getInstance();
-        Date date = new Date(microSeconds/1000);
-        calendar.setTime(date);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        return hours/2;
+        MicroSecondDate startTime = new MicroSecondDate(display.getDate());
+        QuantityImpl intervalInHours = time.subtract(startTime).convertTo(UnitImpl.HOUR);
+        return (int)intervalInHours.get_value()/2;
     }
     
     private double getOriginXPercent(){
@@ -175,23 +170,25 @@ public class EventFlag{
     }
     
     private double getXPercent(Arrival arrival){
+        System.out.println(arrival.getName());
         return getXPercent(getTime(arrival));
     }
     
     private double getXPercent(MicroSecondDate time){
-        long microSeconds =  time.getMicroSecondTime();
-        Calendar calendar = Calendar.getInstance();
-        Date date = new Date(microSeconds/1000);
-        calendar.setTime(date);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int hours = calendar.get(Calendar.HOUR);
-        int minutes = calendar.get(Calendar.MINUTE);
-        int seconds = calendar.get(Calendar.SECOND);
+        MicroSecondDate startTime = new MicroSecondDate(display.getDate());
+        TimeInterval interval = time.subtract(startTime);
+        QuantityImpl intervalInHours = interval.convertTo(UnitImpl.HOUR);
+        QuantityImpl intervalInMinutes = interval.convertTo(UnitImpl.MINUTE);
+        
+        int hours = (int)intervalInHours.get_value();
+        int minutes = (int)((intervalInHours.get_value() - (int)intervalInHours.get_value())*60);
+        int seconds = (int)((intervalInMinutes.get_value() - (int)intervalInMinutes.get_value())*60);
         double hoursPerRow = 24/display.getRows();
         double leftoverHours = hours%hoursPerRow;
         leftoverHours += minutes/60.0;
         leftoverHours += seconds/60.0/60.0;
-        return leftoverHours/hoursPerRow;
+        double xPercent = leftoverHours/hoursPerRow;
+        return xPercent;
     }
     
     public void setTitleLoc(int x, int y, int width, int height){
@@ -263,4 +260,6 @@ public class EventFlag{
     private Arrival[] arrivals;
     
     private static int colorCount = 0;
+    
+    private static Logger logger = Logger.getLogger(EventFlag.class);
 }// EventFlagPlotter
