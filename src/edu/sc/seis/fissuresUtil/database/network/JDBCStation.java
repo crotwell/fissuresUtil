@@ -143,7 +143,7 @@ public class JDBCStation extends NetworkTable {
             getIfNameExists.setInt(1, dbid);
             ResultSet rs = getIfNameExists.executeQuery();
             if (!rs.next()) {//No name, so we need to add the attr part
-                int index = insertOnlyStation(sta, updateSta, 1, locTable, time);
+                int index = insertOnlyStation(sta, updateSta, 1, netTable, locTable, time);
                 updateSta.setInt(index, dbid);
                 updateSta.executeUpdate();
             }
@@ -227,10 +227,12 @@ public class JDBCStation extends NetworkTable {
         StationId id = extractId(rs, netTable, time);
         edu.iris.Fissures.Time endTime = time.get(rs.getInt("sta_end_id"));
         sta = new StationImpl(id, rs.getString("sta_name"),
-                locTable.get(rs.getInt("loc_id")), new TimeRange(id.begin_time,
-                        endTime), rs.getString("sta_operator"),
-                rs.getString("sta_description"), rs.getString("sta_comment"),
-                netTable.get(rs.getInt("net_id")));
+                              locTable.get(rs.getInt("loc_id")),
+                              new TimeRange(id.begin_time, endTime),
+                              rs.getString("sta_operator"),
+                              rs.getString("sta_description"),
+                              rs.getString("sta_comment"),
+                              netTable.get(rs.getInt("net_id")));
         dbIdsToStations.put(new Integer(rs.getInt("sta_id")), sta);
         return sta;
     }
@@ -255,13 +257,15 @@ public class JDBCStation extends NetworkTable {
             JDBCNetwork netTable, JDBCLocation locTable, JDBCTime time)
             throws SQLException {
         index = insertId(sta.get_id(), stmt, index, netTable, time);
-        index = insertOnlyStation(sta, stmt, index, locTable, time);
+        index = insertOnlyStation(sta, stmt, index, netTable, locTable, time);
         return index;
     }
 
     public static int insertOnlyStation(Station sta, PreparedStatement stmt,
-            int index, JDBCLocation locTable, JDBCTime time)
+            int index, JDBCNetwork netTable, JDBCLocation locTable, JDBCTime time)
             throws SQLException {
+        // make sure network is completely inserted
+        int notUsed = netTable.put(sta.my_network);
         stmt.setInt(index++, time.put(sta.effective_time.end_time));
         stmt.setString(index++, sta.name);
         stmt.setString(index++, sta.operator);
@@ -287,6 +291,11 @@ public class JDBCStation extends NetworkTable {
                 + ", sta_end_id, sta_name, station.loc_id, sta_operator, sta_description, sta_comment";
     }
 
+    public static void emptyCache() {
+        stationIdsToDbIds.clear();
+        dbIdsToStations.clear();
+    }
+    
     protected JDBCNetwork getNetTable() {
         return netTable;
     }
