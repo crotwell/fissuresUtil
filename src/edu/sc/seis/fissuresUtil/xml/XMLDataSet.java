@@ -12,17 +12,18 @@ import org.apache.xpath.*;
 import org.apache.xpath.objects.*;
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 import org.apache.log4j.*;
 
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1686 2002-05-24 13:00:23Z crotwell $
+ * @version $Id: XMLDataSet.java 1690 2002-05-24 15:23:13Z crotwell $
  */
-public class XMLDataSetAccess implements DataSetAccess, Serializable {
+public class XMLDataSet implements DataSet, Serializable {
 
-    public static XMLDataSetAccess load(InputStream inStream) {
-	XMLDataSetAccess dataset = null;
+    public static XMLDataSet load(InputStream inStream) {
+	XMLDataSet dataset = null;
 	try {
 	    DocumentBuilderFactory factory
 		= DocumentBuilderFactory.newInstance();
@@ -37,32 +38,34 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 		System.out.println(docElement.getTagName()+" {"+docElement.getAttribute("datasetid")+"}");
 	    }
 	} catch (java.io.IOException e) {
-	    logger.error("Error loading XMLDataSetAccess",e);
+	    logger.error("Error loading XMLDataSet",e);
 	} catch (org.xml.sax.SAXException e) {
-	    logger.error("Error loading XMLDataSetAccess",e);
+	    logger.error("Error loading XMLDataSet",e);
 	} catch (javax.xml.parsers.ParserConfigurationException e) {
-	    logger.error("Error loading XMLDataSetAccess",e);
+	    logger.error("Error loading XMLDataSet",e);
 	} // end of try-catch
 	return dataset;
 	
     }
 
     /** Creates an empty dataset. */
-    public XMLDataSetAccess(DocumentBuilder docBuilder, 
-			    String id, 
-			    String name,
-			    String Owner) {
+    public XMLDataSet(DocumentBuilder docBuilder, 
+		      String id, 
+		      String name,
+		      String owner) {
 	this.docBuilder = docBuilder;
 	Document doc = docBuilder.newDocument();
 	config = doc.createElement("dataset");
 	Element nameE = doc.createElement("name");
+	nameE.setNodeValue(name);
 	Element ownerE = doc.createElement("owner");
+	ownerE.setNodeValue(owner);
 	config.setAttribute("datasetid", id);
 	config.appendChild(nameE);
 	config.appendChild(ownerE);
     }
 
-    public XMLDataSetAccess(DocumentBuilder docBuilder, Element config) {
+    public XMLDataSet(DocumentBuilder docBuilder, Element config) {
 	this.docBuilder = docBuilder;
 	this.config = config;
     }
@@ -75,8 +78,18 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	return evalString(config, "name/text()");
     }
 
-    public String[] getParameterRefNames() {
-	return getAllAsStrings("parameterRef/text()");
+    public void setName(String name) {
+	Element nameElement = evalElement(config, "name");
+	nameElement.setNodeValue(name);
+    }
+
+    public String[] getParameterNames() {
+	String[] params = getAllAsStrings("parameter/name/text()");
+	String[] paramRefs = getAllAsStrings("parameterRef/text()");
+	String[] all = new String[params.length+paramRefs.length];
+	System.arraycopy(params, 0, all, 0, params.length);
+	System.arraycopy(paramRefs, 0, all, params.length, paramRefs.length);
+	return all;
     }
 
     public Element getParamter(String name) {
@@ -109,17 +122,58 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	return null;
     }
 
+    public void addParameter(Element param) {
+	config.appendChild(param);
+    }
+
     public String[] getDataSetIds() {
 	return getAllAsStrings("*/@datasetid");
     }
 
-    public DataSetAccess getDataSet(String id) {
+    public String[] getDataSetNames() {
+	String[] ids = getDataSetIds();
+	String[] names = new String[ids.length];
+	for (int i=0; i<ids.length; i++) {
+	    DataSet ds = getDataSetById(ids[i]);
+	    names[i] = ds.getName();
+	} // end of for (int i=0; i<ids.length; i++)
+	return names;
+    }
+
+    public DataSet getDataSet(String name) {
+	String[] ids = getDataSetIds();
+	for (int i=0; i<ids.length; i++) {
+	    DataSet ds = getDataSetById(ids[i]);
+	    if (name == ds.getName()) {
+		return ds;
+	    }
+	} // end of for (int i=0; i<ids.length; i++)
+	return null;
+    }
+
+    public void addDataSet(DataSet dataset) {
+	if (dataset instanceof XMLDataSet) {
+	    config.appendChild(((XMLDataSet)dataset).config);
+	} // end of if (dataset instanceof XMLDataSet)
+    }
+
+    public void createDataSet(String id, String name, String owner) {
+	addDataSet(new XMLDataSet(docBuilder, id, name, owner));
+    }
+
+    public DataSet getDataSetById(String id) {
+	if (dataSetCache.containsKey(id)) {
+	    return (DataSet)dataSetCache.get(id);
+	}
+
 	NodeList nList = 
 	    evalNodeList(config, "//dataset[@datasetid="+dquote+id+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
-		return new XMLDataSetAccess(docBuilder, (Element)n);
+		XMLDataSet dataset = new XMLDataSet(docBuilder, (Element)n);
+		dataSetCache.put(id, dataset);
+		return dataset;
 	    }
 	}
 
@@ -131,7 +185,7 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	    if (n instanceof Element) {
 		try {
 		    SimpleXLink sl = new SimpleXLink(docBuilder, (Element)n);
-		    return new XMLDataSetAccess(docBuilder, sl.retrieve());
+		    return new XMLDataSet(docBuilder, sl.retrieve());
 		} catch (Exception e) {
 		    logger.error("Couldn't get datasetRef", e);
 		} // end of try-catch
@@ -148,6 +202,10 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
     }
 
     public LocalSeismogramImpl getSeismogram(String name) {
+	if (seismogramCache.containsKey(name)) {
+	    return (LocalSeismogramImpl)seismogramCache.get(name);
+	} // end of if (seismogramCache.containsKey(name))
+	
 	NodeList nList = 
 	    evalNodeList(config, "SacSeismogram[name="+dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
@@ -178,6 +236,7 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 								   name);
 			seis.setProperties(newProps);
 		    }
+		    seismogramCache.put(name, seis);
 		    return seis;
 		}
 		
@@ -187,6 +246,34 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	    
 	}
 	return null;
+    }
+
+    public void addSeismogram(LocalSeismogramImpl seis) {
+
+	// Note this does not set the xlink, as the seis has not been saved anywhere yet.
+
+	Document doc = config.getOwnerDocument();
+	Element sac = doc.createElement("SacSeismogram");
+	Element nameE = doc.createElement("name");
+	nameE.setNodeValue(seis.getProperty("name"));
+	config.appendChild(nameE);
+
+	Property[] props = seis.getProperties();
+	Element propE, propNameE, propValueE;
+	for (int i=0; i<props.length; i++) {
+	    if (props[i].name != "name") {
+		propE = doc.createElement("property");
+		propNameE = doc.createElement("name");
+		propNameE.setNodeValue(props[i].name);
+		propValueE = doc.createElement("value");
+		propValueE.setNodeValue(props[i].value);
+		propE.appendChild(propNameE);
+		propE.appendChild(propValueE);
+	    }
+	}
+	config.appendChild(sac);
+
+	seismogramCache.put(seis.getProperty("name"), seis);
     }
 
     protected String[] getAllAsStrings(String path) {
@@ -210,6 +297,15 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	return null;
     }
 
+    protected Element evalElement(Node context, String path) {
+	NodeList nList = evalNodeList(context, path);
+	if (nList != null && nList.getLength() != 0) {
+	    return (Element)nList.item(0);
+	}
+	logger.error("Couldn't get NodeList "+path);
+	return null;
+    }
+
     protected String evalString(Node context, String path) {
 	try {
 	    return xpath.eval(config, "@datasetid").str();
@@ -225,12 +321,16 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 
     protected DocumentBuilder docBuilder;
 
+    protected HashMap dataSetCache = new HashMap();
+
+    protected HashMap seismogramCache = new HashMap();
+
     private static final String dquote = ""+'"';
 
     static Category logger = 
-	Category.getInstance(XMLDataSetAccess.class.getName());
+	Category.getInstance(XMLDataSet.class.getName());
 
-    static void testDataSet(DataSetAccess dataset, String indent) {
+    static void testDataSet(DataSet dataset, String indent) {
 	indent = indent+"  ";
 	String[] names = dataset.getSeismogramNames();
 	System.out.println(indent+" has "+names.length+" seismograms.");
@@ -240,7 +340,7 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	    System.out.println(seis.getNumPoints());
 
 	}
-	names = dataset.getDataSetIds();
+	names = dataset.getDataSetNames();
 	System.out.println(indent+" has "+names.length+" datasets.");
 	for (int num=0; num<names.length; num++) {
 	    System.out.println(indent+" Dataset name="+names[num]);
@@ -253,7 +353,7 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	    BasicConfigurator.configure();
 
 	    System.out.println("Starting..");
-	    XMLDataSetAccess dataset = load(new BufferedInputStream(new FileInputStream(args[0])));
+	    XMLDataSet dataset = load(new BufferedInputStream(new FileInputStream(args[0])));
 
 	    testDataSet(dataset, " ");
 
