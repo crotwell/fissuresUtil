@@ -106,7 +106,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 				current.setDefaultColor(DOWN_STATION);
 			}
 		}
-
+		repaint();
 	}
 
 
