@@ -4,6 +4,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainerFactory;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -23,7 +24,7 @@ public class AmpConfigData implements SeismogramContainerListener{
 
     public AmpConfigData (DataSetSeismogram seismo,  AmpConfig parent) {
         this.parent = parent;
-        this.container = new SeismogramContainer(this, seismo);
+        this.container = SeismogramContainerFactory.create(this, seismo);
     }
 
     public void updateData() {
