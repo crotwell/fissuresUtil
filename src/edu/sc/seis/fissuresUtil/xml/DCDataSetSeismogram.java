@@ -78,8 +78,6 @@ public class DCDataSetSeismogram
         }
     }
 
-    RequestFilter requestFilter;
-
     private DataCenterOperations dataCenterOps;
 
     static Category logger =
