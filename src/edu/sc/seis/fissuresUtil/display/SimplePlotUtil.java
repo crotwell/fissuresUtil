@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: SimplePlotUtil.java 10399 2004-09-09 18:22:57Z groves $
  */
 
 public class SimplePlotUtil  {
@@ -221,18 +221,6 @@ public class SimplePlotUtil  {
             }
         }
         return out;
-    }
-    
-    private static double greatestAbsoluteValue(double[] values){
-        double maxAbs = Math.abs(values[0]);
-        int maxPos = 0;
-        for (int i = 1; i < values.length; i++) {
-            if(Math.abs(values[i])>maxAbs){
-                maxAbs = Math.abs(values[i]);
-                maxPos = i;
-            }
-        }
-        return values[maxPos];
     }
     
     private static int getMinValue(int[] yValues, int startIndex, int endIndex) {
@@ -488,19 +476,28 @@ public class SimplePlotUtil  {
         return createSpike(ClockUtil.now());
     }
     
+    public static LocalSeismogramImpl createTestData(MicroSecondDate startTime){
+        return createSpike(startTime.add(ONE_SECOND));
+    }
+        
+    
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
+        return createSpike(spikeTime, new TimeInterval(50, UnitImpl.SECOND));
+    }
+    
+    public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime, TimeInterval traceLength){
         String name = "spike at "+spikeTime.toString();
-        int[] dataBits = new int[1000];
+        // assume 20 sps
+        int[] dataBits = new int[20 * (int)traceLength.convertTo(UnitImpl.SECOND).getValue()];
         for (int i=0; i<dataBits.length; i++) {
-            // assume 20 sps
             if (i % 20 == 0) {
                 dataBits[i] = 100;
             } // end of if (i % 20 = 0)
         } // end of for (int i=0; i<dataBits.length; i++)
-        
-        MicroSecondDate begin = spikeTime;
-        return createTestData(name, dataBits, begin.getFissuresTime());
+        return createTestData(name, dataBits, spikeTime.subtract(ONE_SECOND).getFissuresTime());
     }
+    
+    private static final TimeInterval ONE_SECOND = new TimeInterval(1, UnitImpl.SECOND);
     
     static Category logger = Category.getInstance(SimplePlotUtil.class.getName());
     
