@@ -122,7 +122,7 @@ public interface DataSet {
     public void addSeismogram(LocalSeismogramImpl seis, AuditInfo[] audit);
 
 
-    public void addDataSetSeismogram(DataSetSeismogram dss);
+    public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit);
     
     public DataSetSeismogram getDataSetSeismogram(String name);
 
