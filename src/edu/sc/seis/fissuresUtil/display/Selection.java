@@ -74,7 +74,6 @@ public abstract class Selection implements TimeListener, Plotter{
 	    canvas.draw(selection);
 	    canvas.setPaint(color.darker());
 	    canvas.draw(selection);
-	    logger.debug("Finished drawing selection");
 	} 
     }
     
