@@ -2,21 +2,16 @@ package edu.sc.seis.fissuresUtil.map.layers;
 import edu.sc.seis.fissuresUtil.display.*;
 
 import com.bbn.openmap.MapBean;
-import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
-import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
-import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.cache.EventBackgroundLoaderPool;
 import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
 import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
-import java.awt.Color;
+import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +34,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         addEQSelectionListener(this);
         tableModel.addEventDataListener(this);
         eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
-        
+
         selectionModel.addListSelectionListener(new ListSelectionListener(){
                     public void valueChanged(ListSelectionEvent e) {
                         EventAccessOperations[] selectedEvents = getSelectedEvents();
@@ -47,22 +42,22 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                             fireEQSelectionChanged(new EQSelectionEvent(this, selectedEvents));
                         }
                     }
-                    
+
                 });
-        
+
         this.mapBean = mapBean;
     }
-    
+
     public void paint(java.awt.Graphics g) {
         synchronized(circles){
             circles.render(g);
         }
     }
-    
+
     public void projectionChanged(ProjectionEvent e) {
         LayerProjectionUpdater.update(e, circles, this);
     }
-    
+
     public void eventDataChanged(EQDataEvent eqDataEvent) {
         EventAccessOperations[] events = eqDataEvent.getEvents();
         EventBackgroundLoaderPool loader = tableModel.getLoader();
@@ -70,10 +65,10 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             loader.getEvent(events[i], (CacheEvent)events[i], this);
         }
     }
-    
+
     public void eventLoaded(CacheEvent event) {
         try{
-            OMEvent omEvent = new OMEvent(event);
+            OMEvent omEvent = new OMEvent(event, this, mapBean);
             synchronized(circles){
                 circles.add(omEvent);
             }
@@ -82,12 +77,12 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             logger.debug("No origin for an event");
         }
     }
-    
+
     public void eventDataCleared() {
         synchronized(circles){circles.clear();}
         repaint();
     }
-    
+
     public void addEQSelectionListener(EQSelectionListener listener){
         listenerList.add(EQSelectionListener.class, listener);
         EventAccessOperations[] selectedEvents = getSelectedEvents();
@@ -95,7 +90,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             listener.eqSelectionChanged(new EQSelectionEvent(this, getSelectedEvents()));
         }
     }
-    
+
     public void fireEQSelectionChanged(EQSelectionEvent e){
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -108,7 +103,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             }
         }
     }
-    
+
     //FIXME: make this work for more than one selected event at a time
     public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
         OMEvent selected = null;
@@ -140,21 +135,21 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         while(it.hasNext()){
             ((OMEvent)it.next()).deselect();
         }
-        
+
     }
-    
+
     private static String[] modeList = { SelectMouseMode.modeID } ;
-    
+
     public String[] getMouseModeServiceList() {
         return modeList;
     }
-    
+
     public boolean mouseClicked(MouseEvent e){
         if (currentPopup != null){
             currentPopup.setVisible(false);
             currentPopup = null;
         }
-        
+
         synchronized(circles){
             Iterator it = circles.iterator();
             List eventsUnderMouse = new ArrayList();
@@ -187,15 +182,15 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                                     }
                                 });
                         menuItem.addMouseListener(new MouseAdapter(){
-                                    
+
                                     public void mouseEntered(MouseEvent e) {
                                         menuItem.setArmed(true);
                                     }
-                                    
+
                                     public void mouseExited(MouseEvent e) {
                                         menuItem.setArmed(false);
                                     }
-                                    
+
                                 });
                         popup.add(menuItem);
                     }
@@ -208,10 +203,10 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     public boolean mouseMoved(MouseEvent e){
         //System.out.println("Something is happening: EventLayer");
         synchronized(circles){
@@ -231,77 +226,11 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         //fireRequestInfoLine(" ");
         return false;
     }
-    
-    private class OMEvent extends OMGraphicList{
-        public OMEvent(EventAccessOperations eao) throws NoPreferredOrigin{
-            super(2);
-            Origin prefOrigin = eao.get_preferred_origin();
-            float lat = prefOrigin.my_location.latitude;
-            float lon = prefOrigin.my_location.longitude;
-            float mag = prefOrigin.magnitudes[0].value;
-            
-            double scale = 1.8;
-            int lilDiameter = (int)Math.pow(scale, 3.0);
-            OMCircle lilCircle = new OMCircle(lat, lon, lilDiameter, lilDiameter);
-            if (mag <= 3.0){
-                bigCircle = new OMCircle(lat, lon, lilDiameter, lilDiameter);
-            }
-            else{
-                mag = (float)(Math.pow(scale, (double)mag));
-                bigCircle = new OMCircle(lat, lon, (int)Math.floor(mag), (int)Math.floor(mag));
-            }
-            event = new CacheEvent(eao);
-            
-            Color color = getDepthColor((QuantityImpl)prefOrigin.my_location.depth);
-            lilCircle.setLinePaint(Color.BLACK);
-            lilCircle.setFillPaint(color);
-            bigCircle.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
-            bigCircle.setLinePaint(color);
-            add(bigCircle);
-            add(lilCircle);
-            generate(getProjection());
-        }
-        
-        public CacheEvent getEvent(){
-            return event;
-        }
-        
-        public void select() {
-            bigCircle.setFillPaint(new Color(0, 0, 0, 64));
-            try{
-                mapBean.center(new CenterEvent(this,
-                                               0.0f,
-                                               event.get_preferred_origin().my_location.longitude));
-            }catch(NoPreferredOrigin e){}
-        }
-        
-        public void deselect(){
-            bigCircle.setFillPaint(OMGraphicList.clear);
-        }
-        
-        public OMCircle getBigCircle(){ return bigCircle; }
-        
-        private Color getDepthColor(QuantityImpl depth){
-            double depthKM = depth.convertTo(UnitImpl.KILOMETER).value;
-            Color color = MEDIUM_DEPTH_EVENT;
-            if (depthKM <= 40.0){
-                color = SHALLOW_DEPTH_EVENT;
-            }
-            if (depthKM >= 150.0){
-                color = DEEP_DEPTH_EVENT;
-            }
-            return color;
-        }
-        
-        private CacheEvent event;
-        
-        private OMCircle bigCircle;
-    }
-    
+
     private EventTableModel getTableModel(){
         return tableModel;
     }
-    
+
     private EventAccessOperations[] getSelectedEvents(){
         List selectedEvents = new ArrayList();
         EventAccessOperations[] allEvents = getTableModel().getAllEvents();
@@ -312,25 +241,18 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         }
         return (EventAccessOperations[])selectedEvents.toArray(new EventAccessOperations[0]);
     }
-    
+
     private OMGraphicList circles = new OMGraphicList();
-    
+
     private static Logger logger = Logger.getLogger(EventLayer.class);
-    
+
     private EventTableModel tableModel;
-    
+
     private ListSelectionModel selectionModel;
-    
+
     private MapBean mapBean;
-    
+
     private JPopupMenu currentPopup;
-    
-    public static final Color SHALLOW_DEPTH_EVENT = new Color(243, 33, 78);
-    
-    public static final Color MEDIUM_DEPTH_EVENT = new Color(246, 185, 42);
-    
-    public static final Color DEEP_DEPTH_EVENT = new Color(245, 249, 27);
-    
 }
 
 
