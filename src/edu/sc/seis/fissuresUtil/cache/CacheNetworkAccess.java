@@ -26,11 +26,8 @@ public class CacheNetworkAccess implements NetworkAccess {
 
     public NetworkAttr
     get_attributes() {
-        logger.debug("Trying to get network attributes");
     if (attr == null) {
-        logger.debug("Going remote for network attributes");
         attr = net.get_attributes();
-        logger.debug("Got attributes from remote");
     }
     return attr;
     }
@@ -42,11 +39,8 @@ public class CacheNetworkAccess implements NetworkAccess {
 
     public Station[]
     retrieve_stations() {
-        logger.debug("Trying to get stations");
     if (stations == null) {
-        logger.debug("Going remote for stations");
         stations = net.retrieve_stations();
-        logger.debug("Got stations from remote");
     }
     return stations;
     }
@@ -59,11 +53,8 @@ public class CacheNetworkAccess implements NetworkAccess {
     public Channel[]
     retrieve_for_station(StationId id) {
     String idStr = StationIdUtil.toString(id);
-        logger.debug("Trying to get channels for "+idStr);
     if ( ! channelMap.containsKey(idStr)) {
-        logger.debug("Going remote to get channels for "+idStr);
         channelMap.put(idStr, net.retrieve_for_station(id));
-        logger.debug("Got channels for "+idStr);
     }
     return (Channel[])channelMap.get(idStr);
     }
