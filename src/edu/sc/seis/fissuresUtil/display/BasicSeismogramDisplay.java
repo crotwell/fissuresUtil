@@ -76,8 +76,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         ampScaleMap = new AmpScaleMapper(PREFERRED_HEIGHT, 4, registrar);
         scaleBorder = new ScaleBorder();
         scaleBorder.setLeftScaleMapper(ampScaleMap);
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
-                                                                                        new LeftTitleBorder("")),
+        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
                                                      BorderFactory.createCompoundBorder(scaleBorder,
                                                                                         BorderFactory.createLoweredBevelBorder())));
         Insets insets = getInsets();
@@ -378,6 +377,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         Insets current = this.getInsets();
         setPreferredSize(new Dimension(PREFERRED_WIDTH + current.left + current.right,
                                        PREFERRED_HEIGHT + current.top + current.bottom));
+    }
+
+    public void addLeftTitleBorder(LeftTitleBorder rtb){
+        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
+                                                                                        rtb),
+                                                     BorderFactory.createCompoundBorder(scaleBorder,
+                                                                                        BorderFactory.createLoweredBevelBorder())));
     }
 
     protected void resize() {
