@@ -105,6 +105,8 @@ public abstract class BigX extends MouseAdapter implements Plotter, MouseMotionL
         }
     }
 
+    public Color getDrawColor(){ return drawColor; }
+
     private Color drawColor = Color.BLACK;
 
     private int xMax = 10, xMin = 5, yMax = 10, yMin = 5;
