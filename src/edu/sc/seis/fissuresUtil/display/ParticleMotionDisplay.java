@@ -1,5 +1,4 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.registrar.*;
 import javax.swing.*;
 
 import edu.iris.Fissures.FissuresException;
@@ -16,6 +15,8 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.TauP.SphericalCoords;
 import edu.sc.seis.fissuresUtil.chooser.SeisTimeFilterSelector;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -27,7 +28,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.border.Border;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -38,14 +39,12 @@ import org.apache.log4j.Category;
  * @version
  */
 
-public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpListener {
+public class ParticleMotionDisplay extends JPanel{
 
     public ParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
-                                 TimeConfig tc, AmpConfig ac,
-                                 boolean advancedOption, Color color) {
+                                 TimeConfig tc, Color color) {
         particleDisplayPanel = new JLayeredPane();
         OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
-
         radioPanel = new JPanel();
         this.setLayout(new BorderLayout());
         particleDisplayPanel.setLayout(overlayLayout);
@@ -76,13 +75,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
         add(particleDisplayPanel, BorderLayout.CENTER);
         radioPanel.setVisible(false);
         add(radioPanel, BorderLayout.SOUTH);
-
-        if(tc != null) {
-            tc.addListener((TimeListener)this);
-        }
-        if(ac != null){
-            ac.addListener((AmpListener)this);
-        }
         addComponentListener(new ComponentAdapter() {
                     public void componentResized(ComponentEvent e) {
                         resize();
@@ -91,17 +83,11 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
                         resize();
                     }
                 });
-
         ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
                                                                         tc,
                                                                         this, color);
         t.execute();
-        //decide whether to form the radioSetPanel or the checkBoxPanel.
-        if(!advancedOption) {
-            formRadioSetPanel();
-        } else {
-            formCheckBoxPanel();
-        }
+        formRadioSetPanel();
         initialized = t.getCompletion();
         if(initialized){
             setInitialButton();
@@ -128,18 +114,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 
         SeisTimeFilterSelector selector = new SeisTimeFilterSelector();
         return selector.getFromGivenFilters(dataCenter, filters);
-    }
-
-
-
-    public void updateAmp(AmpEvent event){
-        hAmpScaleMap.setUnitRange(event.getAmp());
-        vAmpScaleMap.setUnitRange(event.getAmp());
-    }
-
-
-    public void updateTime(TimeEvent timeEvent) {
-        view.updateTime();
     }
 
     /**
@@ -189,14 +163,10 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     }
 
     public synchronized void addParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
-                                                      TimeConfig tc, AmpConfig ac, Color color) {
+                                                      TimeConfig tc, Color color) {
         ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
                                                                         tc,
                                                                         this, color);
-        if(tc != null) {
-            tc.addListener((TimeListener)this);
-            ac.addListener((AmpListener)this);
-        }
         t.execute();
     }
 
@@ -207,7 +177,7 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
      * @param dataset an <code>edu.sc.seis.fissuresUtil.xml.DataSet</code> value
      * @param chanId a <code>ChannelId</code> value
      */
-    public synchronized void displayBackAzimuth(edu.sc.seis.fissuresUtil.xml.DataSet dataset, ChannelId chanId) {
+    public synchronized void displayBackAzimuth(DataSet dataset, ChannelId chanId, Color color) {
         EventAccessOperations cacheEvent = dataset.getEvent();
         Channel channel = dataset.getChannel(chanId);
         if(cacheEvent != null) {
@@ -219,30 +189,12 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
                                                          origin.my_location.latitude,
                                                          origin.my_location.longitude);
                 double angle = 90 - azimuth;
-
-                addAzimuthLine(angle);
-                addSector(angle+5, angle-5);
+                view.addAzimuthLine(angle, color);
+                view.addSector(angle+5, angle-5);
             } catch(NoPreferredOrigin npoe) {
                 logger.debug("no preferred origin");
             }
         }
-    }
-
-    /*
-     * adds an azimuthLine to the display at angle of degrees
-     * @param degrees a <code>double</code> value
-     */
-    public synchronized void addAzimuthLine(double degrees) {
-        view.addAzimuthLine(degrees);
-    }
-
-    /**
-     * adds a sector to the display
-     * @param degreeone a <code>double</code> value
-     * @param degreetwo a <code>double</code> value
-     */
-    public synchronized void addSector(double degreeone, double degreetwo) {
-        view.addSector(degreeone, degreetwo);
     }
 
     /**
@@ -251,26 +203,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
      */
     public synchronized ParticleMotionView getView() {
         return view;
-    }
-
-    /**
-     * builds a checkBoxPanel. using the checkBox Panel the particleMotions of
-     * all the three planes can be viewed simultaneouly by overlapping.
-     * @param channelGroup a <code>ChannelId[]</code> value
-     */
-    public void formCheckBoxPanel() {
-        JCheckBox[] checkBoxes  = new JCheckBox[3];
-        for(int i = 0; i < checkBoxes.length; i++) {
-            checkBoxes[i] = new JCheckBox(labelStrings[i]);
-            checkBoxes[i].setActionCommand(labelStrings[i]);
-            checkBoxes[i].addItemListener(new RadioButtonListener());
-        }
-        initialButton = checkBoxes[0];
-        view.setDisplayKey(checkBoxes[0].getText());
-        for(int counter = 0; counter < checkBoxes.length; counter++) {
-            radioPanel.add(checkBoxes[counter]);
-        }
-        radioPanel.setVisible(true);
     }
 
     /**
@@ -287,7 +219,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
         }
         initialButton = radioButtons[0];
         ButtonGroup buttonGroup = new ButtonGroup();
-        view.setDisplayKey(radioButtons[0].getText());
         for(int counter = 0; counter < radioButtons.length; counter++) {
             buttonGroup.add(radioButtons[counter]);
             radioPanel.add(radioButtons[counter]);
@@ -342,8 +273,7 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 
     private AbstractButton initialButton;
 
-    static Category logger =
-        Category.getInstance(ParticleMotionDisplay.class.getName());
+    static Logger logger = Logger.getLogger(ParticleMotionDisplay.class);
 
     private static final String[] labelStrings = { DisplayUtils.NORTHEAST,
             DisplayUtils.UPNORTH,
@@ -352,12 +282,19 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     private class RadioButtonListener implements ItemListener {
         public void itemStateChanged(ItemEvent ae) {
             if(ae.getStateChange() == ItemEvent.SELECTED) {
-                view.addDisplayKey(((AbstractButton)ae.getItem()).getText());
-                setHorizontalTitle(view.getSelectedParticleMotion()[0].hseis.toString());
-                setVerticalTitle(view.getSelectedParticleMotion()[0].vseis.toString());
-                view.updateTime();
-            } else if(ae.getStateChange() == ItemEvent.DESELECTED){
-                view.removeDisplaykey(((AbstractButton)ae.getItem()).getText());
+                String orientation = ((AbstractButton)ae.getItem()).getText();
+                view.setDisplayKey(orientation);
+                if(orientation.equals(labelStrings[0])){
+                    setHorizontalTitle("North-South");
+                    setVerticalTitle("East-West");
+                }else if(orientation.equals(labelStrings[1])){
+                    setHorizontalTitle("Up-Down");
+                    setVerticalTitle("North-South");
+                }else{
+                    setHorizontalTitle("Up-Down");
+                    setVerticalTitle("East-West");
+                }
+                repaint();
             }
             repaint();
         }
