@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 
@@ -41,6 +43,14 @@ public class TimeBorder extends Border implements TitleProvider {
             calendar.setTime(middleDate);
             return axisFormat.format(calendar.getTime());
         }
+    }
+
+    public void setTitleFont(Font f) {
+        this.titleFont = f;
+    }
+
+    public Font getTitleFont() {
+        return titleFont;
     }
 
     protected UnitRangeImpl getRange() {
@@ -148,6 +158,10 @@ public class TimeBorder extends Border implements TitleProvider {
         recip.add(new TimeBorderFormat("MM/dd HH:mm", inter, divPerLabel));
     }
 
+    public String getMaxLengthFormattedString() {
+        return ("MM/dd HH:mm");
+    }
+
     private SeismogramDisplay disp;
 
     class TimeBorderFormat extends BorderFormat {
@@ -174,6 +188,8 @@ public class TimeBorder extends Border implements TitleProvider {
 
         private DateFormat format;
     }
+
+    private Font titleFont = DisplayUtils.DEFAULT_FONT;
 
     private Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
