@@ -50,8 +50,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac,
                                   SeismogramDisplay parent)throws IllegalArgumentException{
         this.parent = parent;
-        setTimeConfig(tc);
-        setAmpConfig(ac);
         setLayout(new OverlayLayout(this));
         addComponentListener(new ComponentAdapter() {
                     public void componentResized(ComponentEvent e) {
@@ -76,6 +74,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         setSize();
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
+        setTimeConfig(tc);
+        setAmpConfig(ac);
         drawables.add(new TimeAmpLabel(this));
         add(new PlotPainter());
     }
@@ -98,6 +98,14 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                                                                                    drawables));
         }
         seismogramArray = null;
+    }
+
+    public void remove(Drawable drawable) {
+        drawables.remove(drawable);
+    }
+
+    public void add(Drawable drawable) {
+        drawables.add(drawable);
     }
 
     public DataSetSeismogram[] getSeismograms(){
@@ -144,11 +152,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public void setAmpConfig(AmpConfig ac){
         if(this.ac != null){
             this.ac.removeListener(this);
+            this.ac.removeListener(ampScaleMap);
             tc.removeListener(this.ac);
             this.ac.remove(getSeismograms());
         }
         this.ac = ac;
         ac.addListener(this);
+        ac.addListener(ampScaleMap);
         tc.addListener(ac);
         ac.add(getSeismograms());
     }
@@ -170,11 +180,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         if(this.tc != null){
             this.tc.removeListener(this);
             this.tc.removeListener(ac);
+            this.tc.removeListener(timeScaleMap);
             this.tc.add(getSeismograms());
         }
         this.tc = tc;
         tc.addListener(this);
         tc.addListener(ac);
+        tc.addListener(timeScaleMap);
         tc.add(getSeismograms());
     }
     public TimeConfig getTimeConfig(){ return tc; }
@@ -427,8 +439,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public final static int PREFERRED_HEIGHT = 150;
 
     public final static int PREFERRED_WIDTH = 250;
-
-    private ArrayList filters = new ArrayList();
 
     private SeismogramDisplay parent;
 
