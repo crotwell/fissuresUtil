@@ -5,7 +5,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.database.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.text.ParseException;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +23,7 @@ import org.apache.log4j.Category;
  * @version
  */
 
-public class BasicAmpConfig implements AmpConfig{
+public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     public BasicAmpConfig(DataSetSeismogram[] seismos){
 		add(seismos);
     }
@@ -36,18 +36,14 @@ public class BasicAmpConfig implements AmpConfig{
     public void add(DataSetSeismogram[] seismos){
 		for(int i = 0; i < seismos.length; i++){
 			ampData.put(seismos[i], new AmpConfigData(seismos[i], null, null, shift, scale));
+			seismos[i].addSeisDataChangeListener(this);
+			seismos[i].retrieveData(this);
 		}
-		this.seismos = null;
-		calculateAmp();
-		recalculateAmp();
-		fireAmpEvent();
     }
 	
     public synchronized void pushData(SeisDataChangeEvent sdce) {
-		for(int i = 0; i < sdce.getSeismos().length; i++){
-			DisplayUtils.statCache.put(sdce.getSource(), 
-									   new Statistics(sdce.getSeismos()[i]));
-		}
+		AmpConfigData dssData = (AmpConfigData)ampData.get(sdce.getSource());
+		dssData.addSeismograms(sdce.getSeismos());
 		this.seismos = null;
 		calculateAmp();
 		recalculateAmp();
@@ -148,8 +144,11 @@ public class BasicAmpConfig implements AmpConfig{
 		boolean changed = false;
 		while(e.hasNext()){
 			AmpConfigData current = (AmpConfigData)ampData.get(e.next());
-			if(current.setTime(getTime(current.getSeismogram()))){ //checks for the time update equaling the old time
-				if(setAmpRange(current.getSeismogram())){ //checks if the new time changes the amp range
+			if(current.hasNewData()){
+				setAmpRange(current.getDSS());
+				changed = true;
+			}else if(current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
+				if(setAmpRange(current.getDSS())){ //checks if the new time changes the amp range
 					changed = true;// only generates a new amp event if the amp ranges have changed
 				}
 			}
@@ -187,20 +186,19 @@ public class BasicAmpConfig implements AmpConfig{
     
     private boolean setAmpRange(DataSetSeismogram seismo){
 		AmpConfigData data = (AmpConfigData)ampData.get(seismo);
-		int[] seisIndex = DisplayUtils.getSeisPoints(seismo, data.getTime());
-		if(seisIndex[0] == seisIndex[1]) {
+		LocalSeismogramImpl seismogram = (LocalSeismogramImpl)data.getSeismograms().get(0);
+		int[] seisIndex = DisplayUtils.getSeisPoints(seismogram, data.getTime());
+		if(seisIndex[1] < 0 || seisIndex[0] >= seismogram.getNumPoints()) {
 			//no data points in window, set range to 0
 			data.setCalcIndex(seisIndex);
 			return data.setCleanRange(DisplayUtils.ZERO_RANGE);
 		}
-		/*commented out in anticipation of new DataSetSeismogram point detection
-		 rendering this useless
-		 if(seisIndex[0] < 0){
-		 seisIndex[0] = 0;
-		 }
-		 if(seisIndex[1] >= seis.getNumPoints()){
-		 seisIndex[1] = seis.getNumPoints() -1;
-		 }*/
+		if(seisIndex[0] < 0){
+			seisIndex[0] = 0;
+		}
+		if(seisIndex[1] >= seismogram.getNumPoints()){
+			seisIndex[1] = seismogram.getNumPoints() -1;
+		}
 		double[] minMax = ((Statistics)DisplayUtils.statCache.get(seismo)).minMaxMean(seisIndex[0], seisIndex[1]);
 		data.setCalcIndex(seisIndex);
 		return data.setCleanRange(new UnitRangeImpl(minMax[0], minMax[1], UnitImpl.COUNT));
@@ -226,6 +224,6 @@ public class BasicAmpConfig implements AmpConfig{
     protected TimeEvent currentTimeEvent;
     
     protected AmpEvent currentAmpEvent;
-    
+	
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }//BasicAmpConfig
