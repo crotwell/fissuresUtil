@@ -15,6 +15,8 @@ import java.util.List;
  */
 
 public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListener{
+    //TODO add checks for existance of time and amp listeners
+    //and only create amp and time configs based on that
     /**
      * Creates a new <code>Registrar</code> instance with a BasicTimeConfig and a RMeanAmpConfig.
      *
