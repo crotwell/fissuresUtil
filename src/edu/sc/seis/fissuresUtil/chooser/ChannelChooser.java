@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 1899 2002-06-17 20:25:03Z crotwell $
+ * @version $Id: ChannelChooser.java 1954 2002-06-25 19:24:19Z telukutl $
  *
  */
 
@@ -35,15 +35,30 @@ public class ChannelChooser extends JPanel{
              defaultSelectableOrientations,
              defaultAutoSelectedOrientation,
              defaultSelectableBand,
-             defaultAutoSelectBand);
+             defaultAutoSelectBand, 
+	     new String[0]);
     }
+    
+    public ChannelChooser(NetworkDC netdcgiven, 
+			  String[] configuredNetworks) {
+        this(netdcgiven,
+             false,
+             defaultSelectableOrientations,
+             defaultAutoSelectedOrientation,
+             defaultSelectableBand,
+             defaultAutoSelectBand, 
+	     configuredNetworks);
+    }
+    
+
 
     public ChannelChooser(NetworkDC netdcgiven, 
                           boolean showSites,
                           int[] selectableOrientations,
                           int autoSelectedOrientation,
                           String[] selectableBandGain,
-                          String[] autoSelectBandGain){
+                          String[] autoSelectBandGain,
+			  String[] configuredNetworks){
         this.showSites = showSites;
         this.selectableOrientations = selectableOrientations;
         this.autoSelectedOrientation = autoSelectedOrientation;
@@ -51,9 +66,18 @@ public class ChannelChooser extends JPanel{
         this.autoSelectBandGain = autoSelectBandGain;
         bundle = ResourceBundle.getBundle(ChannelChooser.class.getName());
         initFrame();
+	setConfiguredNetworks(configuredNetworks);
+	System.out.println("The length of the configured Networks is "+this.configuredNetworks.length);
         setNetworkDC(netdcgiven);
     }
-
+    
+    public void setConfiguredNetworks(String[] configuredNetworks) {
+	this.configuredNetworks = new String[configuredNetworks.length];
+	System.arraycopy(configuredNetworks, 0, 
+			 this.configuredNetworks, 0,
+			 configuredNetworks.length);
+			 
+    }
     public void setNetworkDC(NetworkDC netdcgiven) {
         netdc = netdcgiven;
         channels.clear();
@@ -64,29 +88,57 @@ public class ChannelChooser extends JPanel{
                 public void run() {
                     CacheNetworkAccess cache;
                     logger.debug("Before networks");
-                    NetworkAccess[] nets = 
-                        netdc.a_finder().retrieve_all();
-                    logger.debug("Got networks");
-                    for (int i=0; i<nets.length; i++) {
-                        // skip null networks...probably a bug on the server
-                        if (nets[i] != null) {
-                            //  cache = new CacheNetworkAccess(nets[i]);
-                            cache = new DNDNetworkAccess(nets[i]);
-                            NetworkAttr attr = cache.get_attributes();
-                            logger.debug("Got attributes "+attr.get_code());
-                            // preload attributes
-                            networks.addElement(cache);
-                        } else {
-                            logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
-                        } // end of else
+		    if(configuredNetworks == null || configuredNetworks.length == 0) {
+			NetworkAccess[] nets = 
+			    netdc.a_finder().retrieve_all();
+			logger.debug("Got networks");
+			for (int i=0; i<nets.length; i++) {
+			    // skip null networks...probably a bug on the server
+			    if (nets[i] != null) {
+				//  cache = new CacheNetworkAccess(nets[i]);
+				cache = new DNDNetworkAccess(nets[i]);
+				NetworkAttr attr = cache.get_attributes();
+				logger.debug("Got attributes "+attr.get_code());
+				// preload attributes
+				networks.addElement(cache);
+			    } else {
+				logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
+			    } // end of else
                         
-                    }
-                    if (nets.length == 1) {
-                        networkList.getSelectionModel().setSelectionInterval(0,0);
-                    } // end of if (nets.length = 1)
-		    
-                }
-            };
+			}
+			if (nets.length == 1) {
+			    networkList.getSelectionModel().setSelectionInterval(0,0);
+			} // end of if (nets.length = 1)
+		    } else {
+			//when the channelChooser is configured with networkCodes....
+			int totalNetworks = 0;
+			for(int counter = 0; counter < configuredNetworks.length; counter++) {
+			      try {
+				NetworkAccess[] nets = 
+				    netdc.a_finder().retrieve_by_code(configuredNetworks[counter]);
+				for(int subCounter = 0; subCounter < nets.length; subCounter++) {
+				    if (nets[subCounter] != null) {
+					//  cache = new CacheNetworkAccess(nets[subCounter]);
+					cache = new DNDNetworkAccess(nets[subCounter]);
+					NetworkAttr attr = cache.get_attributes();
+					logger.debug("Got attributes "+attr.get_code());
+					// preload attributes
+					networks.addElement(cache);
+					totalNetworks++;
+				    } else {
+					logger.warn("a networkaccess returned from NetworkFinder.retrieve_by_code is null, skipping.");
+				    } // end of else
+				}//end of inner for subCounter = 0;
+			    }catch(NetworkNotFound nnfe) {
+				logger.warn("Network "+configuredNetworks[counter]+" not found while getting network access uding NetworkFinder.retrieve_by_code");
+			    }
+			}//end of outer for counter = 0;
+			if (totalNetworks == 1) {
+			    networkList.getSelectionModel().setSelectionInterval(0,0);
+			} // end of if (totalNetworks == 1)
+		    }//end of if else checking for configuredNetworks == null 
+		}
+	    };
         networkLoader.start();
     }
 
@@ -512,6 +564,7 @@ public class ChannelChooser extends JPanel{
     protected boolean showSites;
     protected String[] selectableBandGain;
     protected String[] autoSelectBandGain;
+    private String[] configuredNetworks;
     protected int[] selectableOrientations;
     protected int autoSelectedOrientation;
 
