@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
+import edu.sc.seis.fissuresUtil.display.mouse.*;
 
+import edu.sc.seis.fissuresUtil.display.borders.Border;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
@@ -10,6 +12,8 @@ import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,14 +27,15 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         this(mouseForwarder, motionForwarder);
     }
 
-    public SeismogramDisplay(MouseForwarder mf, MouseMotionForwarder mmf){
+    public SeismogramDisplay(SDMouseForwarder mf, SDMouseMotionForwarder mmf){
         mouseForwarder = mf;
         motionForwarder = mmf;
         if(mouseForwarder == null || motionForwarder == null){
-            mouseForwarder = new MouseForwarder();
-            motionForwarder = new MouseMotionForwarder();
-            //throw new IllegalStateException("The mouse forwarders on SeismogramDisplay must be set before any seismogram displays are invoked");
+            mouseForwarder = new SDMouseForwarder();
+            motionForwarder = new SDMouseMotionForwarder();
         }
+        setLayout(new GridBagLayout());
+        add(getCenterPanel(), CENTER);
     }
 
     public void add(SeismogramDisplayListener listener){
@@ -39,6 +44,13 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     public void remove(SeismogramDisplayListener listener){
         listeners.remove(listener);
+    }
+
+    public abstract SeismogramDisplayProvider getCenterPanel();
+
+    public void removeAll(){
+        for (int i = 0; i < borders.length; i++) { clear(i); }
+        super.removeAll();
     }
 
     public Color getColor(){ return null; }
@@ -73,19 +85,19 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         }
         return COLORS[i++%COLORS.length];
     }
-	
-	public MicroSecondDate getTime(MouseEvent e){
-		return SimplePlotUtil.getValue(getWidth() - getInsets().left - getInsets().right,
-									   getTimeConfig().getTime().getBeginTime(),
-									   getTimeConfig().getTime().getEndTime(),
-									   e.getX() - getInsets().left);
-	}
-	
-	//this may become abstract later
-	//this reaks of HACK!
-	public int countDrawables(){
-		return 0;
-	}
+
+    public MicroSecondDate getTime(MouseEvent e){
+        return SimplePlotUtil.getValue(getWidth() - getInsets().left - getInsets().right,
+                                       getTimeConfig().getTime().getBeginTime(),
+                                       getTimeConfig().getTime().getEndTime(),
+                                       e.getX() - getInsets().left);
+    }
+
+    //this may become abstract later
+    //this reaks of HACK!
+    public int countDrawables(){
+        return 0;
+    }
 
     private int i = 0;
 
@@ -115,19 +127,54 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     public void remove(Selection selection){}
 
-    public static void setMouseMotionForwarder(MouseMotionForwarder mf){
+    public static void setMouseMotionForwarder(SDMouseMotionForwarder mf){
         motionForwarder = mf;
     }
 
-    public static MouseMotionForwarder getMouseMotionForwarder(){
+    protected void add(JComponent comp, int position){
+        if(position == CENTER){
+            center = comp;
+        }
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;//Fill all panels in both directions
+        gbc.gridx = position%3;
+        gbc.gridy = position/3;
+        if(gbc.gridx == 1) gbc.weightx = 1;//All row 1 components have a x
+        else gbc.weightx = 0;//weight of 1
+        if(gbc.gridy == 1) gbc.weighty = 1;// All column 1 components have y
+        else gbc.weighty = 0;//weight of 1
+        super.add(comp, gbc);
+    }
+
+    public void addBorder(Border border, int position) {
+        add(border, position);
+    }
+
+    public void addTitle(String title, int position){
+
+    }
+
+    public void clear(int position){
+        if(position == CENTER){
+            remove(center);
+            center = null;
+        }else if(isFilled(position)){
+            remove(borders[position]);
+            borders[position] = null;
+        }
+    }
+
+    public boolean isFilled(int position){ return borders[position] != null; }
+
+    public static SDMouseMotionForwarder getMouseMotionForwarder(){
         return motionForwarder;
     }
 
-    public static void setMouseForwarder(MouseForwarder mf){
+    public static void setMouseForwarder(SDMouseForwarder mf){
         mouseForwarder = mf;
     }
 
-    public static MouseForwarder getMouseForwarder(){ return mouseForwarder; }
+    public static SDMouseForwarder getMouseForwarder(){ return mouseForwarder; }
 
     public static Set getActiveFilters(){ return activeFilters; }
 
@@ -137,15 +184,25 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     public static boolean getCurrentTimeFlag(){ return currentTimeFlag; }
 
-    private static MouseMotionForwarder motionForwarder;
+    private static SDMouseMotionForwarder motionForwarder;
 
-    private static MouseForwarder mouseForwarder;
+    private static SDMouseForwarder mouseForwarder;
 
     private List listeners = new ArrayList();
 
     private static boolean currentTimeFlag = false;
 
     protected static Set activeFilters = new HashSet();
+
+    public static final int TOP_LEFT = 0, TOP_CENTER = 1, TOP_RIGHT = 2,
+        CENTER_LEFT = 3, CENTER_RIGHT = 5, BOTTOM_LEFT = 6, BOTTOM_CENTER = 7,
+        BOTTOM_RIGHT = 8;
+
+    protected static final int CENTER = 4;
+
+    private JComponent center;
+
+    private Border[] borders = new Border[9];
 
     public static final Color[] COLORS = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
 }
