@@ -6,6 +6,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
@@ -16,7 +17,6 @@ import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 /**
@@ -138,16 +138,42 @@ public class DisplayUtils {
         long seisEnd = seis.getEndTime().getMicroSecondTime();
         int numValues = seis.getNumPoints();
         int[] values = new int[2];
+        //System.out.println("SeisBegin " + seisBegin + " TimeBegin: " + time.getBeginTime().getMicroSecondTime() + " Seis end: " + seisEnd + " Time end: " + time.getEndTime().getMicroSecondTime());
         values[0] =
-            (int)Math.floor(linearInterp(seisBegin,
-                                         seisEnd,
-                                         numValues,
-                                         time.getBeginTime().getMicroSecondTime()));
+            (int)(linearInterp(seisBegin,
+                               seisEnd,
+                               numValues,
+                               time.getBeginTime().getMicroSecondTime()));
         values[1] =
-            (int)Math.ceil(linearInterp(seisBegin,
-                                        seisEnd,
-                                        numValues,
-                                        time.getEndTime().getMicroSecondTime()));
+            (int)(linearInterp(seisBegin,
+                               seisEnd,
+                               numValues,
+                               time.getEndTime().getMicroSecondTime()));
+        return values;
+    }
+
+    /** Calculates the indexes within the seismogram data points,
+     correspoding to the begin and end time of the given range.
+     The amplitude of the
+     seismogram is not important for this calculation.
+     */
+    public static final int[] getPoints(SeismogramIterator it,
+                                        MicroSecondTimeRange time){
+        long seisBegin= it.getSeisTime().getBeginTime().getMicroSecondTime();
+        long seisEnd = it.getSeisTime().getEndTime().getMicroSecondTime();
+        int numValues = it.getNumPoints();
+        int[] values = new int[2];
+        //System.out.println("SeisBegin " + seisBegin + " TimeBegin: " + time.getBeginTime().getMicroSecondTime() + " Seis end: " + seisEnd + " Time end: " + time.getEndTime().getMicroSecondTime());
+        values[0] =
+            (int)(linearInterp(seisBegin,
+                               seisEnd,
+                               numValues,
+                               time.getBeginTime().getMicroSecondTime()));
+        values[1] =
+            (int)(linearInterp(seisBegin,
+                               seisEnd,
+                               numValues,
+                               time.getEndTime().getMicroSecondTime()));
         return values;
     }
 
@@ -160,7 +186,9 @@ public class DisplayUtils {
     }
 
     /**
-     * Sorts the passed array of seismograms by begin time.
+     * Sorts the passed array of seismograms by begin time. If a seismogram is
+     * completely enveloped by another seismogram in terms of time, it is not
+     * returned
      *
      * @returns the seismograms in order of begin time
      */
@@ -183,7 +211,16 @@ public class DisplayUtils {
             if(!added){
                 sortedSeis.add(seis[i]);
             }
-
+        }
+        LocalSeismogramImpl prev = null;
+        ListIterator it = sortedSeis.listIterator();
+        while(it.hasNext()){
+            LocalSeismogramImpl cur = (LocalSeismogramImpl)it.next();
+            if(prev != null && prev.getEndTime().after(cur.getEndTime())){
+                it.remove();
+            }else{
+                prev = cur;
+            }
         }
         return (LocalSeismogramImpl[])sortedSeis.toArray(new LocalSeismogramImpl[sortedSeis.size()]);
     }
@@ -201,6 +238,43 @@ public class DisplayUtils {
             }
         }
         return new MicroSecondTimeRange(beginTime, endTime);
+    }
+
+    public static boolean areOverlapping(LocalSeismogramImpl one,
+                                         LocalSeismogramImpl two){
+        MicroSecondDate[] oneTimes = { one.getBeginTime(), one.getEndTime()};
+        MicroSecondDate[] twoTimes = { two.getBeginTime(), two.getEndTime()};
+        if((oneTimes[0].before(twoTimes[1]) && oneTimes[1].after(twoTimes[0]))||
+               (twoTimes[0].before(oneTimes[1]) && twoTimes[1].after(oneTimes[0]))){
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean areContiguous(LocalSeismogramImpl one,
+                                        LocalSeismogramImpl two){
+        if(!areOverlapping(one, two)){
+            if(one.getEndTime().before(two.getBeginTime())){
+                return areContiguous(one.getEndTime(),
+                                     two.getBeginTime(),
+                                     one.getSampling().getPeriod());
+            }else{
+                return areContiguous(two.getEndTime(),
+                                     one.getBeginTime(),
+                                     one.getSampling().getPeriod());
+            }
+        }
+        return false;
+    }
+
+    private static boolean areContiguous(MicroSecondDate one,
+                                         MicroSecondDate two,
+                                         TimeInterval interval){
+        TimeInterval doubleInterval = (TimeInterval)interval.multiplyBy(2.0);
+        if(one.add(doubleInterval).after(two)){
+            return true;
+        }
+        return false;
     }
 
     public static String getOrientationName(DataSetSeismogram dss){
@@ -259,11 +333,10 @@ public class DisplayUtils {
         return true;
     }
 
-    private static final double linearInterp(long xa, long xb, int y,
-                                             long x) {
-        if (x == xa) return 0;
-        if (x == xb) return y;
-        return y*(x-xa)/(double)(xb-xa);
+    public static final double linearInterp(long firstPoint, long lastPoint,
+                                            int numValues, long currentPoint){
+        return
+            (currentPoint-firstPoint)/(double)(lastPoint-firstPoint)*(numValues-1);
     }
 
     public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
