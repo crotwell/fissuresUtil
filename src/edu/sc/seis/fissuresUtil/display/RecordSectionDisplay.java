@@ -61,7 +61,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         }
         ac.add(seismos);
         if(layout == null){
-            setLayout(new BasicLayoutConfig());
+            setLayout(getNewLayoutConfig());
         }
         layout.add(seismos);
         for (int i = 0; i < seismos.length; i++){
@@ -141,6 +141,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     }
     
     public AmpConfig getAmpConfig(){ return ac; }
+    
+    protected LayoutConfig getNewLayoutConfig(){
+        return new BasicLayoutConfig();
+    }
     
     public void setLayout(LayoutConfig layout){
         if(this.layout != null){
