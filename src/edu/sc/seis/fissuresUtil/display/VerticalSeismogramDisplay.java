@@ -337,7 +337,8 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         } else {
             ampString += ampFormat.format(newAmpVal);
         }
-        amp.setText(ampString+" "+newAmp.getUnit());
+        amp.setText(ampString+" "+
+                        unitDisplayUtil.getNameForUnit(newAmp.getUnit()));
     }
 
 
@@ -702,6 +703,8 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 
     public static DecimalFormat ampFormatExp = new DecimalFormat(" 0.###E0;-0.###E0");
 
+    UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
+    
     protected SimpleDateFormat output = new SimpleDateFormat("HH:mm:ss.SSS");
 
     protected static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
