@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 4629 2003-07-03 16:43:34Z groves $
+ * @version $Id: EventTableModel.java 4633 2003-07-03 17:28:36Z oliverpa $
  */
 
 public class EventTableModel
@@ -233,6 +233,26 @@ public class EventTableModel
         }
     }
 
+	public void addEQSelectionListener(EQSelectionListener eqSelListener){
+		listenerList.add(EQSelectionListener.class, eqSelListener);
+	}
+
+	private void fireEQSelectionChanged(){
+        EQSelectionEvent eqSelectionEvent = null;
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i]==EQSelectionListener.class) {
+                // Lazily create the event:
+                if (eqSelectionEvent == null)
+                    eqSelectionEvent = new EQSelectionEvent(this, selectedEvent);
+                ((EQSelectionListener)listeners[i+1]).eqSelectionChanged(eqSelectionEvent);
+            }
+        }
+	}
+
     public EventAccessOperations[] getAllEvents(){
         EventAccessOperations[] eaos = new EventAccessOperations[getRowCount()];
         for (int i = 0; i < getRowCount(); i++) {
@@ -240,6 +260,12 @@ public class EventTableModel
         }
         return eaos;
     }
+
+	public EventAccessOperations selectEvent(int row){
+		selectedEvent = getEventForRow(row);
+		fireEQSelectionChanged();
+		return selectedEvent;
+	}
 
     protected ParseRegions FERegions = new ParseRegions();
 
@@ -254,6 +280,8 @@ public class EventTableModel
     protected NumberFormat depthFormat = new DecimalFormat("0.0");
 
     protected EventBackgroundLoaderPool loader;
+
+	protected EventAccessOperations selectedEvent;
 
     protected static final int LATITUDE = 4;
     protected static final int LONGITUDE = 5;
@@ -283,4 +311,5 @@ public class EventTableModel
     static Category logger = Category.getInstance(EventTableModel.class.getName());
 
 } // EventTableModel
+
 
