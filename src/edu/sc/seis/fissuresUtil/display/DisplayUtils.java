@@ -511,8 +511,9 @@ public class DisplayUtils {
 
     public static final Stroke THREE_PIXEL_STROKE = new BasicStroke(3);
 
-    public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
-
+    /**
+     * Used by amp configs to indicate no data
+     */
     public static final UnitRangeImpl ONE_RANGE = new UnitRangeImpl(-1, 1, UnitImpl.COUNT);
 
     public static final MicroSecondTimeRange ZERO_TIME = new MicroSecondTimeRange(new MicroSecondDate(0), new MicroSecondDate(0));
