@@ -1,21 +1,18 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.drawable.*;
 import edu.sc.seis.fissuresUtil.display.registrar.*;
-import java.util.*;
+import java.awt.*;
 
-import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.OverlayLayout;
@@ -79,13 +76,11 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         setSize();
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
-        drawable.add(new TimeAmpLabel(this));
+        drawables.add(new TimeAmpLabel(this));
         add(new PlotPainter());
     }
 
     public void add(DataSetSeismogram[] seismos){
-        tc.add(seismos);
-        ac.add(seismos);
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
@@ -94,12 +89,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                 if(parent != null){
                     newPlotter.setVisibility(parent.getOriginalVisibility());
                 }
-                drawable.add(newPlotter);
+                drawables.add(newPlotter);
             }
         }
-        Iterator e = globalFilters.iterator();
+        Iterator e = activeFilters.iterator();
         while(e.hasNext()){
-            applyFilter((ColoredFilter)e.next());
+            DisplayUtils.applyFilter((ColoredFilter)e.next(), new DrawableIterator(DrawableSeismogram.class,
+                                                                                   drawables));
         }
         seismogramArray = null;
     }
@@ -113,24 +109,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     public List getSeismogramList(){ return seismograms; }
 
-    public void addFlags(Arrival[] arrivals) {
-        try{
-            MicroSecondDate originTime = new MicroSecondDate(((DataSetSeismogram)seismograms.getFirst()).getDataSet().
-                                                                 getEvent().get_preferred_origin().origin_time);
-
-            for(int i = 0; i < arrivals.length; i++){
-                Flag current = new Flag(new MicroSecondDate((long)(arrivals[i].getTime() * 1000000) +
-                                                                              originTime.getMicroSecondTime()),
-                                                      arrivals[i].getPhase().getName());
-                drawable.addLast(current);
-            }
-        } catch ( NoPreferredOrigin e) {
-            logger.warn("Caught NoPreferredOrigin on addFlags", e);
-        } // end of catch
-
-        repaint();
-    }
-
     public void reset(){
         tc.reset();
         ac.reset();
@@ -142,18 +120,18 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void setCurrentTimeFlag(boolean visible){
+        DrawableIterator it = new DrawableIterator(CurrentTimeFlag.class, drawables);
         if(visible){
-            drawable.addLast(new CurrentTimeFlag());
+            if(it.hasNext()){
+                ((CurrentTimeFlag)it.next()).setVisibility(true);
+            }else{
+                drawables.addLast(new CurrentTimeFlag());
+            }
         }else{
-            DrawableIterator it = new DrawableIterator(CurrentTimeFlag.class);
-            it.clear();
+            if(it.hasNext()){
+                ((CurrentTimeFlag)it.next()).setVisibility(false);
+            }
         }
-    }
-
-    public void removeAllFlags(){
-        DrawableIterator it = new DrawableIterator(Flag.class);
-        it.clear();
-        repaint();
     }
 
     public SeismogramDisplay getParentDisplay(){ return parent; }
@@ -227,37 +205,34 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     public SeismogramDisplay getDisplayParent(){ return parent; }
 
-    public java.util.List getPlotters(Class plotterClass) {
-        java.util.LinkedList out = new java.util.LinkedList();
-        Iterator it = new DrawableIterator(plotterClass);
-        while ( it.hasNext()) {
-            out.addLast(it.next());
-        } // end of while ()
-        return out;
+    public DrawableIterator iterator(Class drawableClass) {
+        return  new DrawableIterator(drawableClass, drawables);
     }
 
     public TimeAmpLabel getTimeAmpLabel(){
-        DrawableIterator pi = new DrawableIterator(TimeAmpLabel.class);
+        DrawableIterator pi = new DrawableIterator(TimeAmpLabel.class, drawables);
         return (TimeAmpLabel)pi.next();
     }
 
-    public java.util.List getSelections(){
-        return getPlotters(Selection.class);
-    }
-
     public void clearSelections(){
-        new DrawableIterator(Selection.class).clear();
+        Iterator it = drawables.iterator();
+        while(it.hasNext()){
+            Drawable current = (Drawable)it.next();
+            if(current instanceof Selection){
+                it.remove();
+            }
+        }
     }
 
     public void addSelection(Selection newSelection){
-        if(!drawable.contains(newSelection)){
-            drawable.add(newSelection);
+        if(!drawables.contains(newSelection)){
+            drawables.add(newSelection);
             repaint();
         }
     }
 
     public void remove(Selection old){
-        if(drawable.remove(old)){
+        if(drawables.remove(old)){
             repaint();
         }
     }
@@ -265,9 +240,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public void print(){
         parent.print();
     }
-
-    public static Set getGlobalFilters(){ return globalFilters; }
-
     public boolean hasBottomTimeBorder(){
         if(scale.getBottomScaleMapper() != null){
             return true;
@@ -348,12 +320,14 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         for(int i = 0; i < seismos.length; i++){
             if(seismograms.contains(seismos[i])){
                 seismograms.remove(seismos[i]);
-                DrawableIterator it = new DrawableIterator(DrawableSeismogram.class);
+                Iterator it = drawables.iterator();
                 while(it.hasNext()){
-                    DrawableSeismogram current = (DrawableSeismogram)it.next();
-                    if(current.getSeismogram() == seismos[i]){
-                        it.remove();
-                        repaint();
+                    Drawable current = (Drawable)it.next();
+                    if(current instanceof DrawableSeismogram){
+                        if(((DrawableSeismogram)current).getSeismogram() == seismos[i]){
+                            it.remove();
+                            repaint();
+                        }
                     }
                 }
             }
@@ -383,26 +357,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void setOriginalVisibility(boolean visible){
-        Iterator e = new DrawableIterator(DrawableSeismogram.class);
-        LinkedList seismoList = new java.util.LinkedList();
-        List drawableList = new ArrayList();
-        while(e.hasNext()){
-            DrawableSeismogram current = (DrawableSeismogram)e.next();
-            if ( current.getClass().equals(DrawableSeismogram.class)) {
-                drawableList.add(current);
-                seismoList.addLast(current.getSeismogram());
-            } // end of if ()
-        }
-        DataSetSeismogram[] seismos = new DataSetSeismogram[seismoList.size()];
-        seismos = (DataSetSeismogram[])seismoList.toArray(seismos);
-        if (visible) {
-            tc.add(seismos);
-            ac.add(seismos);
-        }else {
-            tc.remove(seismos);
-            ac.remove(seismos);
-        } // end of else
-        e = drawableList.iterator();
+        Iterator e = new DrawableIterator(DrawableSeismogram.class, drawables);
         while(e.hasNext()){
             DrawableSeismogram current = (DrawableSeismogram)e.next();
             current.setVisibility(visible);
@@ -419,152 +374,40 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         }
     }
 
-    public void applyFilter(ColoredFilter filter){
-        DataSetSeismogram[] seismos = new DataSetSeismogram[seismograms.size()];
-        int i = 0;
-        LinkedList filterShapes = new LinkedList();
-        if(filters.contains(filter)){
-            Iterator e = new DrawableIterator(DrawableFilteredSeismogram.class);
-            while(e.hasNext()){
-                DrawableFilteredSeismogram current = ((DrawableFilteredSeismogram)e.next());
-                if(current.getFilter() == filter){
-                    current.setVisibility(filter.getVisibility());
-                    e.remove();
-                    filterShapes.addLast(current);
-                    seismos[i] = current.getFilteredSeismogram();
-                    i++;
-                }
-            }
-        }else{
-            filters.add(filter);
-            Iterator e = seismograms.iterator();
-            while(e.hasNext()){
-                DataSetSeismogram current = (DataSetSeismogram)e.next();
-                DrawableFilteredSeismogram filteredShape = new DrawableFilteredSeismogram(this, current, filter);
-                seismos[i] = filteredShape.getFilteredSeismogram();
-                filterShapes.add(filteredShape);
-                i++;
-            }
-        }
-        if (filter.getVisibility()) {
-            tc.add(seismos);
-            ac.add(seismos);
-        }else {
-            tc.remove(seismos);
-            ac.remove(seismos);
-        }
-        drawable.addAll(filterShapes);
-        repaint();
-    }
-
-    public void removeFilter(ColoredFilter filter){
-        if(filters.contains(filter)){
-            DataSetSeismogram[] seismos = new DataSetSeismogram[seismograms.size()];
-            int i = 0;
-            Iterator e = new DrawableIterator(DrawableFilteredSeismogram.class);
-            while(e.hasNext()){
-                DrawableFilteredSeismogram current = ((DrawableFilteredSeismogram)e.next());
-                if(current.getFilter() == filter){
-                    e.remove();
-                    seismos[i] = current.getFilteredSeismogram();
-                    i++;
-                }
-            }
-            filters.remove(filter);
-            tc.remove(seismos);
-            ac.remove(seismos);
-        }
-    }
-
     private class PlotPainter extends JComponent{
         public void paintComponent(Graphics g){
             Graphics2D g2 = (Graphics2D)g;
             g2.setColor(Color.WHITE);
             Dimension size = getSize();
             g2.fill(new Rectangle2D.Float(0,0, size.width, size.height));
-            int namesDrawn = 1;
-            Rectangle2D.Float stringBounds = new Rectangle2D.Float();
-            stringBounds.setRect(g2.getFontMetrics().getStringBounds("test", g2));
-            for (int i = 0; i < drawable.size(); i++){
-                Drawable current = (Drawable)drawable.get(i);
+            FontMetrics fm = g2.getFontMetrics();
+            Rectangle2D stringBounds = fm.getStringBounds("test", g2);
+            Rectangle2D topLeftFilled = new Rectangle2D.Float(0,0,0,(float)stringBounds.getHeight());
+            for (int i = 0; i < drawables.size(); i++){
+                Drawable current = (Drawable)drawables.get(i);
                 current.draw(g2, size, currentTimeEvent, currentAmpEvent);
                 if(current instanceof TimeAmpLabel){
                     TimeAmpLabel taPlotter = (TimeAmpLabel)current;
                     g2.setFont(DisplayUtils.MONOSPACED_FONT);
-                    stringBounds.setRect(g2.getFontMetrics().getStringBounds(taPlotter.getText(), g2));
-                    taPlotter.drawName(g2,(int)(size.width - stringBounds.width), size.height - 3);
+                    FontMetrics monoMetrics = g2.getFontMetrics();
+                    stringBounds = monoMetrics.getStringBounds(taPlotter.getText(), g2);
+                    taPlotter.drawName(g2,(int)(size.width - stringBounds.getWidth()),
+                                       size.height - 3);
                     g2.setFont(DisplayUtils.DEFAULT_FONT);
                 }else if(current instanceof NamedDrawable){
-                    if(((NamedDrawable)current).drawName(g2, 5, (int)(namesDrawn * stringBounds.height)))
-                        namesDrawn++;
+                    Rectangle2D drawnSize = ((NamedDrawable)current).drawName(g2, 5, (int)topLeftFilled.getHeight());
+                    topLeftFilled.setRect(0,0,
+                                          drawnSize.getWidth(),
+                                          topLeftFilled.getHeight() + drawnSize.getHeight());
                 }
             }
         }
     }
 
-    /**
-     * An iterator that only returns instances of the given class. All other
-     * elements are silently skipped.
-     */
-    private class DrawableIterator implements Iterator {
-
-        private DrawableIterator(Class iteratorClass) {
-            this.iteratorClass = iteratorClass;
-            it = drawable.iterator();
-        }
-
-        public boolean hasNext() {
-            if ( nextObj != null) {
-                return true;
-            } // end of if ()
-            if ( finished ) {
-                return false;
-            } // end of if ()
-            //find next
-            while ( it.hasNext()) {
-                Object n = it.next();
-                if ( iteratorClass.isInstance(n) ) {
-                    nextObj = n;
-                    return true;
-                } // end of if ()
-            } // end of while ()
-            finished = true;
-            return false;
-        }
-
-        public Object next() {
-            if ( hasNext() == false) {
-                return null;
-            } // end of if ()
-            // hasNext will populate nextObj if it returned true
-            Object out = nextObj;
-            nextObj=null;
-            return out;
-        }
-
-        public void remove() {
-            it.remove();
-        }
-
-        public void clear(){
-            while(hasNext()){
-                next();
-                remove();
-            }
-        }
-        private Iterator it;
-
-        private Class iteratorClass;
-
-        private Object nextObj;
-
-        private boolean finished = false;
-
-    }
 
     public void addSoundPlay(){
         try{
-            drawable.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
+            drawables.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
         }
         catch(NullPointerException e){
             System.out.println("Sample Rate cannot be calculated, so sound is not permitted.");
@@ -573,11 +416,14 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void removeSoundPlay(){
-        new DrawableIterator(SoundPlay.class).clear();
+        Iterator it = drawables.iterator();
+        while(it.hasNext()){
+            Drawable current = (Drawable)it.next();
+            if(current instanceof SoundPlay){
+                it.remove();
+            }
+        }
     }
-
-    private static Set globalFilters = new HashSet();
-
     public final static int PREFERRED_HEIGHT = 150;
 
     public final static int PREFERRED_WIDTH = 250;
@@ -588,7 +434,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     private LinkedList seismograms = new LinkedList();
 
-    private LinkedList drawable =new LinkedList();
+    private LinkedList drawables =new LinkedList();
 
     private TimeConfig tc;
 
