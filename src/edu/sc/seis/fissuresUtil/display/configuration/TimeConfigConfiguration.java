@@ -51,12 +51,18 @@ public class TimeConfigConfiguration implements Cloneable {
     }
 
     public TimeConfig getTimeConfig(Element el) throws NoSuchFieldException {
-        TimeConfigConfiguration tConfig = TimeConfigConfiguration.create(el);
+        TimeConfigConfiguration tConfig = new TimeConfigConfiguration();
+        tConfig.configure(el);
+        tConfig.setTimeConfig(tConfig.createTimeConfig());
         return tConfig.getTimeConfig();
     }
 
+    private void setTimeConfig(TimeConfig timeConfig) {
+        this.timeConfig = timeConfig;
+    }
+
     private TimeConfig getTimeConfig() {
-        return this.timeConfig;
+        return timeConfig;
     }
 
     public static TimeConfigConfiguration create(Element el)
