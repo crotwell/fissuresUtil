@@ -21,6 +21,7 @@ public class FissuresNamingServiceImpl extends FissuresNamingService {
      *
      * @param props a <code>java.util.Properties</code> value
      * @exception InvalidName if an error occurs
+     * @deprecated Please use FissuresNamingService instead
      */
 
     public FissuresNamingServiceImpl (java.util.Properties props) {
@@ -32,6 +33,7 @@ public class FissuresNamingServiceImpl extends FissuresNamingService {
      *
      * @param orb an <code>org.omg.CORBA_2_3.ORB</code> value
      * @exception InvalidName if an error occurs
+     * @deprecated Please use FissuresNamineService instead
      */
     public FissuresNamingServiceImpl(org.omg.CORBA_2_3.ORB orb) {
         super(orb);
