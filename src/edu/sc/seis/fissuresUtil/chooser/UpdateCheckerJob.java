@@ -26,7 +26,15 @@ public class UpdateCheckerJob  extends AbstractJob {
         this(displayName, programName, version, updateURL, gui, false);
     }
 
-    public UpdateCheckerJob(String displayName, String programName, String version, String updateURL, boolean gui, boolean forceCheck) {
+    /** @param forceCheck overides the users "don't bother me until..." setting
+     * in the Java Preferences. Usually this should be false, but is useful for
+     * testing. */
+    public UpdateCheckerJob(String displayName,
+                            String programName,
+                            String version,
+                            String updateURL,
+                            boolean gui,
+                            boolean forceCheck) {
         super(displayName);
         this.programName = programName;
         this.updateURL = updateURL;
@@ -34,6 +42,7 @@ public class UpdateCheckerJob  extends AbstractJob {
         this.forceCheck = forceCheck;
         this.version = version;
         prefs = Preferences.userNodeForPackage(this.getClass());
+        this.prefsName = programName+"_"+NEXT_CHECK_DATE;
     }
 
     public void run() {
@@ -46,23 +55,15 @@ public class UpdateCheckerJob  extends AbstractJob {
 
         boolean checkNeeded = true;
         prefs = prefs.node("UpdateCheckerTask");
-        try {
-            String[] keys = prefs.keys();
-            for (int i = 0; i < keys.length; i++) {
-                if (keys[i].equals(getName()+"/"+NEXT_CHECK_DATE)) {
-                    String nextCheckDate = prefs.get(getName()+"/"+NEXT_CHECK_DATE, "");
-                    MicroSecondDate date = new MicroSecondDate(new Time(nextCheckDate, -1));
-                    MicroSecondDate now = ClockUtil.now();
-                    if (date.after(now) && ! forceCheck) {
-                        // don't check
-                        logger.debug("no updated wanted until "+date);
-                        setFinished(true);
-                        return;
-                    }
-                }
-            }
-        } catch (BackingStoreException e) {
-            GlobalExceptionHandler.handle("Trouble getting prefereces for update checker.", e);
+        MicroSecondDate now = ClockUtil.now();
+        String nextCheckDate = prefs.get(prefsName,
+                                         now.subtract(SIX_HOUR).getFissuresTime().date_time);
+        MicroSecondDate date = new MicroSecondDate(new Time(nextCheckDate, -1));
+        if (date.after(now) && ! forceCheck) {
+            // don't check
+            logger.debug("no updated wanted until "+date);
+            setFinished(true);
+            return;
         }
         setStatus("Connect to server");
 
@@ -75,10 +76,14 @@ public class UpdateCheckerJob  extends AbstractJob {
             logger.info("our version is "+version+", update version is "+updates[updates.length-1].getVersion());
             UpdateAction[] actions = updates[updates.length-1].getUpdateActions();
             LocationUpdate locationUpdate = (LocationUpdate)actions[0];
-            if (isGui) {
-                handleUpdateGUI(locationUpdate);
-            } else {
-                handleUpdateNonGUI(locationUpdate);
+            try {
+                if (isGui) {
+                    handleUpdateGUI(locationUpdate);
+                } else {
+                    handleUpdateNonGUI(locationUpdate);
+                }
+            } catch (BackingStoreException e) {
+                GlobalExceptionHandler.handle("trouble flushing preferences for updatechecker", e);
             }
         }else if(showNoUpdate) {
             JOptionPane.showMessageDialog(null,
@@ -90,7 +95,7 @@ public class UpdateCheckerJob  extends AbstractJob {
         setFinished();
     }
 
-    protected void handleUpdateGUI(LocationUpdate locationUpdate) {
+    protected void handleUpdateGUI(LocationUpdate locationUpdate) throws BackingStoreException {
         Object[] options = new String[3];
         options[0] = "Go To Update Page";
         options[1] = "Remind in a fortnight";
@@ -104,28 +109,25 @@ public class UpdateCheckerJob  extends AbstractJob {
                                              options,  //the titles of buttons
                                              options[0]); //default button title
         logger.debug("return val is "+n);
-        TimeInterval nextInterval = new TimeInterval(6, UnitImpl.HOUR);
+        TimeInterval nextInterval = SIX_HOUR;
         if (n == JOptionPane.YES_OPTION) {
             logger.debug("Opening browser");
             setStatus("Opening browser");
             locationUpdate.run();
 
         } else if (n == 1) {
-            nextInterval = new TimeInterval(14, UnitImpl.DAY);
+            nextInterval = FORTNIGHT;
         } else if (n == 2) {
-            nextInterval = new TimeInterval(30, UnitImpl.DAY);
+            nextInterval = MONTH;
         }
         MicroSecondDate nextCheck = ClockUtil.now().add(nextInterval);
-        prefs.put(getName()+"/"+NEXT_CHECK_DATE, nextCheck.getFissuresTime().date_time);
+        prefs.put(prefsName, nextCheck.getFissuresTime().date_time);
         logger.debug("no update check wanted for "+nextInterval+", next at "+nextCheck);
-        try {
-            prefs.flush();
-        } catch (BackingStoreException e) {
-            GlobalExceptionHandler.handle("trouble flushing preferences for updatechecker", e);
-        }
+        prefs.flush();
+        logger.debug("done flushing prefs");
     }
 
-    protected void handleUpdateNonGUI(LocationUpdate locationUpdate) {
+    protected void handleUpdateNonGUI(LocationUpdate locationUpdate) throws BackingStoreException {
         System.out.println("*******************************************************");
         System.out.println();
         System.out.println("An updated version of "+programName+" is available!");
@@ -139,7 +141,18 @@ public class UpdateCheckerJob  extends AbstractJob {
         System.out.println("Description: "+locationUpdate.getDescription());
         System.out.println();
         System.out.println("*******************************************************");
+        prefs.put(prefsName,
+                  ClockUtil.now().add(SIX_HOUR).getFissuresTime().date_time);
+        prefs.flush();
     }
+
+    protected final TimeInterval SIX_HOUR = new TimeInterval(6, UnitImpl.HOUR);
+
+    protected final TimeInterval FORTNIGHT = new TimeInterval(14, UnitImpl.DAY);
+
+    protected final TimeInterval MONTH = new TimeInterval(30, UnitImpl.DAY);
+
+    protected String prefsName;
 
     protected String version;
 
