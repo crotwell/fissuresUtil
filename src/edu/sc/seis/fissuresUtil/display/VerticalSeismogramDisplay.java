@@ -262,10 +262,14 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             curAmpRange = ampRange;
         }
         double newAmpVal = newAmp.getValue();
+        if(newAmpVal == Double.NaN){
+            ampLabel.setText("");
+        }else{
         String ampString = amplitude;
         ampString += formatter.format(newAmpVal);
         ampLabel.setText(ampString+" "+
                              unitDisplayUtil.getNameForUnit(newAmp.getUnit()));
+        }
         calendar.setTime(newTime);
         StringBuffer timeString = new StringBuffer(ampLabel.getText().length());
         if(output.format(calendar.getTime()).length() == 21)
