@@ -78,8 +78,10 @@ public class JDBCEventAccess extends EventTable {
         }
         getAttrAndOrigin.setInt(1, dbid);
         ResultSet rs = getAttrAndOrigin.executeQuery();
-        rs.next();
+        if (rs.next()) {
         return getEvent(rs, dbid);
+        }
+        throw new NotFound();
     }
 
     private CacheEvent getEvent(ResultSet rs, int dbid) throws NotFound,
