@@ -63,11 +63,9 @@ public class ExceptionReporterUtils{
     }
 
     public static String getExceptionClassName(Throwable e){
-        String defaultName = e.toString();
-        int colonIndex = defaultName.indexOf(":");
-        defaultName = defaultName.substring(0, colonIndex);
+        String defaultName = e.getClass().toString();
         int lastPeriod = defaultName.lastIndexOf(".");
-        defaultName = defaultName.substring(++lastPeriod);
+        if(lastPeriod != -1) defaultName = defaultName.substring(++lastPeriod);
         return defaultName;
     }
 
