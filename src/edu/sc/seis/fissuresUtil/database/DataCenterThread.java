@@ -72,15 +72,15 @@ public class DataCenterThread implements Runnable{
                 }
             }
         }
+        LocalSeismogramImpl[] seisArray = new LocalSeismogramImpl[seismograms.size()];
+        seisRef = new SoftReference(seismograms.toArray(seisArray));
+        finished = true;
         synchronized(initiators){
             Iterator it = initiators.iterator();
             while(it.hasNext()){
                 a_client.finished(((SeisDataChangeListener)it.next()));
             }
         }
-        LocalSeismogramImpl[] seisArray = new LocalSeismogramImpl[seismograms.size()];
-        seisRef = new SoftReference(seismograms.toArray(seisArray));
-        finished = true;
     }
 
     public boolean getData(SeisDataChangeListener listener,
