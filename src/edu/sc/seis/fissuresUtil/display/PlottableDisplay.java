@@ -522,7 +522,7 @@ public  class PlottableDisplay extends JComponent {
     protected JLabel imagePanel = new JLabel("no image");
 
     private edu.iris.Fissures.Plottable[] arrayplottable = new edu.iris.Fissures.Plottable[0] ;
-    private String  plottablename="Please choose a SCEPP station from the oil rig and then click load data on the menu above.";
+    private String  plottablename="Please choose a SCEPP station from the South Carolina icon and then click load data on the menu above.";
     private Image image = null;
     private Shape plottableShape = null;
 
