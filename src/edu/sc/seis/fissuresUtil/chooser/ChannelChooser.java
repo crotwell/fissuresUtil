@@ -12,45 +12,36 @@ import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
+import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.lang.reflect.InvocationTargetException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.log4j.Category;
-import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 
 
 /**
  * ChannelChooser.java
- *
- * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
- *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 6868 2004-01-22 15:50:58Z crotwell $
+ * @version $Id: ChannelChooser.java 7940 2004-03-31 20:20:14Z groves $
  *
  */
 
 
 public class ChannelChooser extends JPanel {
-
-    public ChannelChooser(NetworkDCOperations[] netdcgiven) {
-        this(netdcgiven,
-             false);
+    public ChannelChooser(NetworkDCOperations[] netDC) {
+        this(netDC, false);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netdcgiven,
-                          boolean showSites) {
-        this(netdcgiven,
-             showSites,
-             new String[0]);
+    public ChannelChooser(NetworkDCOperations[] netDC, boolean showSites) {
+        this(netDC, showSites, new String[0]);
     }
 
     public ChannelChooser(NetworkDCOperations[] netdcgiven,
                           String[] configuredNetworks) {
-        this(netdcgiven,
-             false,
-             configuredNetworks);
+        this(netdcgiven, false, configuredNetworks);
     }
 
     public ChannelChooser(NetworkDCOperations[] netdcgiven,
@@ -135,7 +126,7 @@ public class ChannelChooser extends JPanel {
         this.selectableBand = selectableBand;
         this.autoSelectBand = autoSelectBand;
         progressBar.setValue(0);
-        progressBar.setStringPainted(true);;
+        progressBar.setStringPainted(true);
         bundle = ResourceBundle.getBundle(ChannelChooser.class.getName());
         initFrame();
         setConfiguredNetworks(configuredNetworks);
@@ -276,7 +267,7 @@ public class ChannelChooser extends JPanel {
     private void layoutWidgets() {
         setLayout(new GridBagLayout());
         gbc = new GridBagConstraints();
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.gridx = 0;
@@ -380,7 +371,7 @@ public class ChannelChooser extends JPanel {
                         int last = e.getLastIndex();
                         ListSelectionModel selections = networkList.getSelectionModel();
                         for (int i=first; i<=last; i++) {
-                                NetworkAccess net = (NetworkAccess)networks.get(i);
+                            NetworkAccess net = (NetworkAccess)networks.get(i);
                             if (selections.isSelectedIndex(i)) {
                                 // i is selected, so must have not been selected
                                 // before. Note this may not be a good assumption
@@ -676,42 +667,15 @@ public class ChannelChooser extends JPanel {
     protected void clearStationsFromThread() {
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
-                        public void run() {
-                            clearStations();
-                        }
+                        public void run() { clearStations(); }
                     });
-
-        }
-        catch (InterruptedException e) {
+        }catch (InterruptedException e) {
             logger.warn("Caught exception while clearing stations, will continue. Hope all is well...", e);
             // oh well...
-        }
-        catch (java.lang.reflect.InvocationTargetException e) {
+        }catch (InvocationTargetException e) {
             logger.warn("Caught exception while clearing stations, will continue. Hope all is well...", e);
             // oh well...
         } // end of try-catch
-    }
-
-    public Site[]  getSites() {
-        Object[] objArray = sites.toArray();
-        HashMap outSites = new HashMap();
-        for (int i=0; i<objArray.length; i++) {
-            for (int j=0; j<1; j++) {
-
-            } // end of for (int j=0; j<1; j++)
-
-        } // end of for (int i=0; i<objArray.length; i++)
-
-        return castSiteArray(objArray);
-    }
-
-    protected Site[] castSiteArray(Object[] objArray) {
-        Site[] site
-            = new Site[objArray.length];
-        for (int i=0; i<site.length; i++) {
-            site[i] = (Site)objArray[i];
-        }
-        return site;
     }
 
     public Channel[]  getChannels() {
@@ -726,15 +690,6 @@ public class ChannelChooser extends JPanel {
         return staChans;
     }
 
-    protected Channel[] castChannelArray(Object[] objArray) {
-        Channel[] chan
-            = new Channel[objArray.length];
-        for (int i=0; i<chan.length; i++) {
-            chan[i] = (Channel)objArray[i];
-        }
-        return chan;
-    }
-
     /** returns selected items from channel list. May be full codes like BHZ or
      just band codes like B */
     public String[] getSelectedChanCodes() {
@@ -747,10 +702,7 @@ public class ChannelChooser extends JPanel {
     }
 
     public NetworkAccess[] getSelectedNetworks() {
-        if ( ! showNetworks) {
-            return getNetworks();
-        } // end of if ()
-
+        if ( ! showNetworks) { return getNetworks(); }
         return castNetworkArray(networkList.getSelectedValues());
     }
 
@@ -771,11 +723,9 @@ public class ChannelChooser extends JPanel {
         for ( int i=0; i<in.length; i++) {
             MicroSecondDate b = new MicroSecondDate(in[i].effective_time.start_time);
             MicroSecondDate e = new MicroSecondDate(in[i].effective_time.end_time);
-            if (when.after(b) && when.before(e)) {
-                out.add(in[i]);
-            }
+            if (when.after(b) && when.before(e)) { out.add(in[i]); }
         } // end of for ()
-        return (Station[])out.toArray(new Station[0]);
+        return (Station[])out.toArray(new Station[out.size()]);
     }
 
     public void clearStationSelection(){
@@ -790,16 +740,11 @@ public class ChannelChooser extends JPanel {
             if(cur.equals(stat)){
                 if(selModel.isSelectedIndex(i)){
                     selModel.removeSelectionInterval(i, i);
-                }else{
-                    selModel.addSelectionInterval(i, i);
-                }
+                }else{ selModel.addSelectionInterval(i, i); }
                 stationList.ensureIndexIsVisible(i);
                 return;
             }
         }
-    }
-    public Site[]  getSelectedSites() {
-        return castSiteArray(siteList.getSelectedValues());
     }
 
     /** Gets the selected channels, but only if they overlap the given time.
@@ -1251,13 +1196,8 @@ public class ChannelChooser extends JPanel {
                         logger.debug("Got "+nets.length+" networks for "+configuredNetworks[counter]);
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if (nets[subCounter] != null) {
-                                // this code is here because DNDNetworkAccess
-                                // was failing to initialize under java web start
-                                // on some windows machines. Drag and Drop was disabled
-
                                 // preload attributes
                                 cache = new CacheNetworkAccess(nets[subCounter]);
-                                //cache = new DNDNetworkAccess(nets[subCounter]);
                                 NetworkAttr attr = cache.get_attributes();
 
                                 // this is BAD CODE, but prevents the scepp
