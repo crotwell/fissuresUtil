@@ -25,26 +25,34 @@ import org.apache.log4j.Category;
  * @version
  */
 
-public class Flag implements Drawable{
+public class Flag implements Drawable {
     
-    public Flag(MicroSecondDate flagTime, String name){
+    public Flag(MicroSecondDate flagTime, String name) {
         this(flagTime, name, null);
     }
     
-    public Flag(MicroSecondDate flagTime, String name, DataSetSeismogram seis){
+    public Flag(MicroSecondDate flagTime, String name, DrawableSeismogram seis) {
         this.flagTime = flagTime;
         this.name = name;
         this.seis = seis;
     }
     
-    public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
+    public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent) {
         if(visible){
-            canvas.setFont(DisplayUtils.BOLD_FONT);
             MicroSecondTimeRange timeRange = timeEvent.getTime();
-            if(seis != null)
-                timeRange = timeEvent.getTime(seis);
+            if(seis != null) {
+                if(timeEvent.contains(seis.getSeismogram())){
+                    timeRange = timeEvent.getTime(seis.getSeismogram());
+                }else{
+                    DataSetSeismogram[] seismo = { seis.getSeismogram() };
+                    seis.getParent().getTimeConfig().add(seismo);
+                    seis.getParent().repaint();
+                    return;
+                }
+            }
             if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
                 return;
+            canvas.setFont(DisplayUtils.BOLD_FONT);
             double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
             int location = (int)(offset * (double)size.width);
             Area pole = new Area(new Rectangle(location, 0, 1, size.height));
@@ -56,11 +64,10 @@ public class Flag implements Drawable{
             flag.add(pole);
             canvas.setColor(color);
             canvas.fill(flag);
-                canvas.setColor(Color.BLACK);
+            canvas.setColor(Color.BLACK);
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             canvas.draw(flag);
-            if(BasicSeismogramDisplay.PRINTING)
-                canvas.setColor(Color.WHITE);
+            if(BasicSeismogramDisplay.PRINTING) canvas.setColor(Color.WHITE);
             canvas.drawString(name, location + PADDING/2, stringBounds.height - PADDING/2);
         }
     }
@@ -73,7 +80,7 @@ public class Flag implements Drawable{
     
     public MicroSecondDate getFlagTime(){ return flagTime; }
     
-    public void setFlagTime(MicroSecondDate flagTime){
+    public void setFlagTime(MicroSecondDate flagTime) {
         this.flagTime = flagTime;
     }
     
@@ -85,7 +92,7 @@ public class Flag implements Drawable{
     
     private String name;
     
-    private DataSetSeismogram seis;
+    private DrawableSeismogram seis;
     
     //pixels of space of flag around the font
     private static final int PADDING = 4;
