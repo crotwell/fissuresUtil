@@ -22,7 +22,6 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import com.bbn.openmap.BufferedMapBean;
 import com.bbn.openmap.InformationDelegator;
-import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapBean;
@@ -33,15 +32,13 @@ import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.LayerStatusEvent;
 import com.bbn.openmap.event.LayerStatusListener;
 import com.bbn.openmap.event.MapMouseMode;
+import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.layer.GraticuleLayer;
-import com.bbn.openmap.layer.etopo.ETOPOJarLayer;
 import com.bbn.openmap.layer.etopo.ETOPOLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
-import com.bbn.openmap.proj.Orthographic;
 import com.bbn.openmap.proj.Projection;
-import com.bbn.openmap.proj.ProjectionFactory;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.chooser.AvailableStationDataEvent;
 import edu.sc.seis.fissuresUtil.chooser.StationDataEvent;
@@ -53,6 +50,9 @@ import edu.sc.seis.fissuresUtil.map.layers.ColorMapEtopoLayer;
 import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
+import edu.sc.seis.fissuresUtil.map.layers.FissuresGraticuleLayer;
+import edu.sc.seis.fissuresUtil.map.layers.FissuresShapeLayer;
+import edu.sc.seis.fissuresUtil.map.layers.OverriddenOMLayer;
 import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
 import edu.sc.seis.fissuresUtil.map.tools.PanTool;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
@@ -101,19 +101,18 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             // Create a MapBean
             mapBean = getMapBean();
             //get the projection and set its background color and center point
-            /*String projections[] = ProjectionFactory.getAvailableProjections();
-            System.out.println("projections:");
-            for(int i = 0; i < projections.length; i++) {
-                System.out.println(projections[i]);
-            }
-            Projection proj = (Projection)mapBean.getProjection();
-            proj = ProjectionFactory.makeProjection(ProjectionFactory.getProjType(projections[4]), proj);
-            mapBean.setProjection(proj);
-            Projection proj = new Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT,
-                                                               mapBean.DEFAULT_CENTER_LON),
-                                               DEFAULT_SCALE,
-                                               mapBean.DEFAULT_WIDTH,
-                                               mapBean.DEFAULT_HEIGHT);*/
+            /*
+             * String projections[] =
+             * ProjectionFactory.getAvailableProjections();
+             * System.out.println("projections:"); for(int i = 0; i <
+             * projections.length; i++) { System.out.println(projections[i]); }
+             * Projection proj = (Projection)mapBean.getProjection(); proj =
+             * ProjectionFactory.makeProjection(ProjectionFactory.getProjType(projections[4]),
+             * proj); mapBean.setProjection(proj); Projection proj = new
+             * Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT,
+             * mapBean.DEFAULT_CENTER_LON), DEFAULT_SCALE,
+             * mapBean.DEFAULT_WIDTH, mapBean.DEFAULT_HEIGHT);
+             */
             //Projection proj = (Projection)mapBean.getProjection();
             mapBean.setBackgroundColor(WATER);
             mapHandler.add(mapBean);
@@ -124,8 +123,9 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             // LayerHandler will find the MapBean in the MapHandler.
             lh = new LayerHandler();
             mapHandler.add(lh);
-            GraticuleLayer gl = new GraticuleLayer();
+            GraticuleLayer gl = new FissuresGraticuleLayer();
             Properties graticuleLayerProps = gl.getProperties(new Properties());
+            graticuleLayerProps.setProperty("prettyName", "Graticule Layer");
             graticuleLayerProps.setProperty("show1And5Lines", "true");
             graticuleLayerProps.setProperty("10DegreeColor", "FF888888");
             graticuleLayerProps.setProperty("1DegreeColor", "C7003300");
@@ -136,11 +136,11 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             // Create a ShapeLayer to show world political boundaries.
             //ShapeLayer shapeLayer = new ShapeLayer();
             //Debug.debugAll = true;
-            shapeLayer = new InformativeShapeLayer();
+            shapeLayer = new FissuresShapeLayer();
             shapeLayer.addLayerStatusListener(this);
             //Create shape layer properties
             Properties shapeLayerProps = new Properties();
-            shapeLayerProps.put("prettyName", "Political Solid");
+            shapeLayerProps.put("prettyName", "Political Boundaries Layer");
             shapeLayerProps.put("lineColor", "FF000000");
             shapeLayerProps.put("fillColor", "FF39DA87");
             shapeLayerProps.put("shapeFile", shapefile + ".shp");
@@ -229,19 +229,16 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public void setEtopoLayer(String etopoDir, String colorMapFilename) {
         ETOPOLayer topoLayer = null;
-        if(colorMapFilename != null) {
-            try {
+        try {
+            if(colorMapFilename == null) {
+                topoLayer = new ColorMapEtopoLayer();
+            } else {
                 topoLayer = new ColorMapEtopoLayer(colorMapFilename);
-            } catch(Exception e) {
-                logger.debug("problem loading custom color map. "
-                        + "falling back to default Etopo layer.");
             }
+        } catch(Exception e) {
+            GlobalExceptionHandler.handle("problem loading color map for etopo layer",
+                                          e);
         }
-        if(topoLayer == null) {
-            topoLayer = new ETOPOJarLayer();
-        }
-        System.out.println("etopoDir: " + etopoDir);
-        System.out.println("color map: " + colorMapFilename);
         Properties etopoProps = new Properties();
         etopoProps.put("path", etopoDir);
         etopoProps.put("prettyName", "World Terrain Elevation / Ocean Depth");
@@ -305,6 +302,22 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         return statusObj.intValue();
     }
 
+    public void overrideProjChangedInOMLayers(boolean override) {
+        Layer[] layers = getLayers();
+        for(int i = 0; i < layers.length; i++) {
+            Layer cur = layers[i];
+            if(cur instanceof OverriddenOMLayer) {
+                ((OverriddenOMLayer)cur).setOverrideProjectionChanged(override);
+            }
+            //this keeps the shapelayer happy, since it doesn't like to repaint
+            //sometimes
+            if(cur instanceof ShapeLayer) {
+                ((ShapeLayer)cur).projectionChanged(new ProjectionEvent(this,
+                                                                        null));
+            }
+        }
+    }
+
     public void writeMapToPNG(String filename) throws IOException {
         synchronized(OpenMap.class) {
             Projection proj = mapBean.getProjection();
@@ -318,10 +331,8 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             g.setColor(WATER);
             g.fillRect(0, 0, w, h);
             Layer[] layers = getLayers();
-            //while(!mapBean.isBuffered()){
-            //   System.out.println("mapbean is not buffered! waiting");
-            //}
             for(int i = layers.length - 1; i >= 0; i--) {
+                logger.debug("rendering " + layers[i].getName());
                 layers[i].renderDataForProjection(proj, g);
             }
             File loc = new File(filename);
@@ -349,15 +360,6 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
     }
 
     SoftReference imgRef = new SoftReference(null);
-
-    private class InformativeShapeLayer extends ShapeLayer {
-
-        public void renderDataForProjection(Projection p, Graphics g) {
-            logger.debug(ExceptionReporterUtils.getMemoryUsage()
-                    + " InformativeShapeLayer: rendering shape layer");
-            super.renderDataForProjection(p, g);
-        }
-    }
 
     public static String translateLayerStatus(int status) {
         switch(status){

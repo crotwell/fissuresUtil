@@ -40,6 +40,7 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
 
     public DistanceLayer(MapBean mapBean){
         this.mapBean = mapBean;
+        setName("Distance Information Layer");
     }
 
     /**
@@ -99,7 +100,6 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
 
     private void makeDistCircle(LatLonPoint llp, double radiusDegrees, Paint p){
         synchronized(distCircles){
-            //System.out.println("making distance circles: radius " + radiusDegrees);
             OMCircle circle = new DistCircle(llp, radiusDegrees, p);
             distCircles.add(circle);
 
@@ -114,7 +114,6 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
                 if (i > 1){
                     labelInt = 180 - (int)radiusDegrees;
                 }
-                //System.out.println("adding label: " + labelInt);
                 TextLabel label = new TextLabel(adjustLatLonByPixels(labelPoints[i], 0, 6),
                                                 Integer.toString(labelInt));
                 //label.setRenderType(OMGraphic.RENDERTYPE_OFFSET);

@@ -15,6 +15,7 @@ public class ChannelChooserLayer extends StationLayer{
 
     public ChannelChooserLayer(ChannelChooser c){
         super();
+        setName("Channel Chooser Layer");
         c.addStationDataListener(this);
         c.addStationSelectionListener(this);
         c.addAvailableStationDataListener(this);
