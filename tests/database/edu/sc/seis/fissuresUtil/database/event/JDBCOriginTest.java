@@ -9,8 +9,8 @@ import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfEvent.MockEventAccessOperations;
-import edu.sc.seis.mockFissures.IfEvent.MockOrigin;
+import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
+import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockOrigin;
 
 public class JDBCOriginTest extends TestCase {
     public JDBCOriginTest(String testname) throws SQLException{

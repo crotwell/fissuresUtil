@@ -12,7 +12,7 @@ import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfNetwork.MockStation;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStation;
 
 public class JDBCStationTest extends TestCase{
     public JDBCStationTest() throws SQLException{ stationTable = new JDBCStation(); }

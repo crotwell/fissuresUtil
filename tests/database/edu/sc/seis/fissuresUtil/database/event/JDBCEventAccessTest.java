@@ -8,7 +8,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfEvent.MockEventAccessOperations;
+import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
 
 public class JDBCEventAccessTest extends TestCase{
     public JDBCEventAccessTest(String name) throws SQLException{

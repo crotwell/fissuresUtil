@@ -12,7 +12,7 @@ import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.network.SiteIdUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfNetwork.MockSite;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockSite;
 
 public class JDBCSiteTest extends TestCase{
     public void testDoublePut() throws SQLException, NotFound{
