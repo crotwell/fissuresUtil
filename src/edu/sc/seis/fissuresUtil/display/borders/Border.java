@@ -294,6 +294,10 @@ public abstract class Border extends JComponent{
             return translation;
         }
 
+        public double getDivSize() {
+            return divSize;
+        }
+
         public abstract String getLabel(double value);
 
         protected double divSize;
@@ -321,4 +325,8 @@ public abstract class Border extends JComponent{
 
     private static final int TICK_PAD = 3, LABEL_PAD = 10, LABEL_TICK_LENGTH = 10,
         TICK_LENGTH = 4;
+
+
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Border.class);
+
 }
