@@ -58,11 +58,13 @@ def __buildScripts(proj, mainclasses, propFile='simpleClient.prop'):
         filenames.append(scriptBuilder.build(winParams, proj))
     return filenames
 
-def buildJars(fisProj):
+def buildJars(fisProj, clean=False):
     curdir = os.path.abspath('.')
     os.chdir(fisProj.path)
     allProj = [ProjectParser.ProjectParser('../fissures/project.xml'),
                fisProj]
+    if clean:
+        for proj in allProj: mavenExecutor.mavenExecutor(proj).clean()
     for proj in allProj: mavenExecutor.mavenExecutor(proj).jarinst()
     os.chdir(curdir)
 
@@ -76,7 +78,7 @@ def __buildDist(proj, scripts, name='simpleClients'):
     extras = [(script, script) for script in  scripts]
     extras.append(('scripts/simpleClient.prop', 'simpleClient.prop'))
     extras.append(('src', 'src'))
-    buildJars(proj)
+    buildJars(proj, True)
     distBuilder.buildDist(proj, extras, name)
     for script in scripts: os.remove(script)
 
