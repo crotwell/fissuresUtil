@@ -7,6 +7,7 @@ package edu.sc.seis.fissuresUtil.map;
  */
 
 
+import com.bbn.openmap.Layer;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.ProjectionEvent;
@@ -29,14 +30,13 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionListener;
 import java.util.List;
-import org.apache.log4j.Logger;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
-import com.bbn.openmap.Layer;
+import javax.swing.event.ListSelectionListener;
+import org.apache.log4j.Logger;
 
-public class EventLayer extends Layer implements EventDataListener, EventLoadedListener, EQSelectionListener{
+public class EventLayer extends MouseAdapterLayer implements EventDataListener, EventLoadedListener, EQSelectionListener{
     public EventLayer(EventTableModel tableModel, ListSelectionModel lsm, MapBean mapBean){
 		this.tableModel = tableModel;
 		selectionModel = lsm;
@@ -57,7 +57,7 @@ public class EventLayer extends Layer implements EventDataListener, EventLoadedL
 
 				});
 
-        this.mapBean = mapBean;
+		this.mapBean = mapBean;
     }
 
     public void paint(java.awt.Graphics g) {
@@ -138,8 +138,11 @@ public class EventLayer extends Layer implements EventDataListener, EventLoadedL
 			while(it.hasNext()){
 				OMEvent current = (OMEvent)it.next();
 				if(current.getBigCircle().contains(e.getX(), e.getY())){
-					circles.deselect();
-					current.select();
+					System.out.println("Selection of event " + current.getEvent());
+					int rowToSelect = tableModel.getRowForEvent(current.getEvent());
+					if (rowToSelect != -1){
+						selectionModel.setSelectionInterval(rowToSelect, rowToSelect);
+					}
 					return true;
 				}
 			}
