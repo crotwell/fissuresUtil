@@ -16,6 +16,7 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.io.File;
@@ -30,15 +31,30 @@ public class SeismogramPDFBuilder {
         createPDF(disp, fileName, 1);
     }
 
+    public static void createPDF(SeismogramDisplay disp, String fileName, boolean landscape) throws FileNotFoundException {
+        createPDF(disp, fileName, 1, landscape);
+    }
+
     public static  void createPDF(SeismogramDisplay disp, String fileName,int dispPerPage) throws FileNotFoundException {
         createPDF(disp, new File(fileName), dispPerPage);
+    }
+
+    public static  void createPDF(SeismogramDisplay disp, String fileName,int dispPerPage, boolean landscape) throws FileNotFoundException {
+        createPDF(disp, new File(fileName), dispPerPage, landscape);
     }
 
     public static void createPDF(SeismogramDisplay disp, File f, int dispPerPage) throws FileNotFoundException{
         createPDF(disp, new FileOutputStream(f), dispPerPage);
     }
 
+    public static void createPDF(SeismogramDisplay disp, File f, int dispPerPage, boolean landscape) throws FileNotFoundException{
+        createPDF(disp, new FileOutputStream(f), dispPerPage, landscape);
+    }
     public static void createPDF(SeismogramDisplay disp, FileOutputStream fos, int dispPerPage) {
+        createPDF(disp, fos, dispPerPage, false);
+    }
+
+    public static void createPDF(SeismogramDisplay disp, FileOutputStream fos, int dispPerPage, boolean landscape) {
         List displays = new ArrayList();
         if(disp instanceof VerticalSeismogramDisplay){
             displays =  ((VerticalSeismogramDisplay)disp).getDisplays();
@@ -60,11 +76,20 @@ public class SeismogramPDFBuilder {
 
             int pageW = (int)PageSize.LETTER.width();
             int pageH = (int)PageSize.LETTER.height();
-            int pixelsPerDisplay = (int)((pageH - vertMargins)/(double)dispPerPage);
+            int pixelsPerDisplay;
+            if (landscape) {
+                pixelsPerDisplay = (int)Math.floor((pageH - vertMargins)/(double)dispPerPage);
+            } else {
+                pixelsPerDisplay = (int)Math.floor((pageW - horizMargins)/(double)dispPerPage);
+            }
             PdfContentByte cb = writer.getDirectContent();
             // layer for SeismogramDisplay
             PdfTemplate tpTraces = cb.createTemplate(pageW, pageH);
             Graphics2D g2Traces = tpTraces.createGraphics(pageW, pageH);
+            if (landscape) {
+                g2Traces.translate(0, pageH);
+                g2Traces.rotate(Math.toRadians(90));
+            }
             g2Traces.translate(rightMargin, topMargin);
             int seisOnCurPage = 0;
             BasicSeismogramDisplay.PRINTING = true;
@@ -81,6 +106,10 @@ public class SeismogramPDFBuilder {
                     document.newPage();
                     tpTraces = cb.createTemplate(pageW, pageH);
                     g2Traces = tpTraces.createGraphics(pageW, pageH);
+                    if (landscape) {
+                        g2Traces.translate(0, pageH);
+                        g2Traces.rotate(Math.toRadians(90));
+                    }
                     g2Traces.translate(rightMargin, topMargin);
                     // reset current count
                     seisOnCurPage = 0;
@@ -95,7 +124,7 @@ public class SeismogramPDFBuilder {
                 g2Traces.dispose();
             }
         }catch (DocumentException ex) {
-
+            GlobalExceptionHandler.handle("problem saving to pdf", ex);
         }
         // step 5: we close the document
         document.close();
