@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4602 2003-06-30 18:19:41Z crotwell $
+ * @version $Id: ChannelChooser.java 4616 2003-07-02 17:44:56Z crotwell $
  *
  */
 
@@ -288,7 +288,7 @@ public class ChannelChooser extends JPanel {
         add(orientationLabel, gbc);
         gbc.gridy++;
         scroller = new JScrollPane(orientationList);
-        gbc.weighty = 1.0;
+        gbc.weighty = .5;
         add(scroller, gbc);
         gbc.gridx++;
         gbc.gridy--;
@@ -298,7 +298,7 @@ public class ChannelChooser extends JPanel {
         add(chLabel, gbc);
         gbc.gridy++;
         scroller = new JScrollPane(channelList);
-        gbc.weighty = 1.0;
+        gbc.weighty = .5;
         add(scroller, gbc);
         gbc.gridx++;
         gbc.gridy--;
@@ -845,6 +845,12 @@ public class ChannelChooser extends JPanel {
         } // end of for (int staNum=0; staNum<selStation.length; staNum++)
 
         logger.debug("Found "+outChannels.size()+" chanels");
+        Iterator it = outChannels.iterator();
+        while (it.hasNext()) {
+            Channel temp = (Channel)it.next();
+            logger.debug("Found channel "+ChannelIdUtil.toString(temp.get_id()));
+            logger.debug("Station is "+StationIdUtil.toString(temp.my_site.my_station.get_id()));
+        }
         return (Channel[])outChannels.toArray(new Channel[0]);
     }
 
@@ -1110,6 +1116,15 @@ public class ChannelChooser extends JPanel {
                                 cache = new CacheNetworkAccess(nets[subCounter]);
                                 //cache = new DNDNetworkAccess(nets[subCounter]);
                                 NetworkAttr attr = cache.get_attributes();
+
+                                // this is BAD CODE, but prevents the scepp
+                                // network, SP, from being loaded from the DMC
+                                if (attr.get_code().equals("SP") &&
+                                    attr.get_id().begin_time.date_time.equals("20010911010000.0000GMT")) {
+                                    // come from dmc so skip
+                                    continue;
+                                }
+
                                 NetworkAccess[] storedNets =
                                     (NetworkAccess[])netDCToNetMap.get(netdc);
                                 if ( storedNets == null) {
@@ -1295,6 +1310,7 @@ public class ChannelChooser extends JPanel {
         Category.getInstance(ChannelChooser.class.getName());
 
 } // ChannelChooser
+
 
 
 
