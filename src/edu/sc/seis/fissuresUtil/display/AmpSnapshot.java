@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.util.HashMap;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.iris.Fissures.model.UnitImpl;
 import java.util.Iterator;
 
 /**
@@ -25,8 +26,10 @@ public class AmpSnapshot {
 	while(e.hasNext()){
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    UnitRangeImpl currentUnit = (UnitRangeImpl)seismos.get(current);
-	    this.seismoAmpRange.put(current, new UnitRangeImpl(currentUnit.getMinValue(), currentUnit.getMaxValue(),
-							       currentUnit.getUnit()));
+	    if(currentUnit != null){
+		this.seismoAmpRange.put(current, new UnitRangeImpl(currentUnit.getMinValue(), currentUnit.getMaxValue(),
+								   currentUnit.getUnit()));
+	    }
 	}
     }    
 
