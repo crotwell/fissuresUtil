@@ -32,7 +32,7 @@ public class EventTableLayer extends EventLayer{
         selectionModel = lsm;
         addEQSelectionListener(this);
         tableModel.addEventDataListener(this);
-        eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
+        eventDataChanged(new EQDataEvent(tableModel.getAllEvents()));
 
         selectionModel.addListSelectionListener(new ListSelectionListener(){
                     public void valueChanged(ListSelectionEvent e) {
