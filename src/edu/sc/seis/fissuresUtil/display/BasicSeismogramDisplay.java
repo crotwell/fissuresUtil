@@ -138,7 +138,18 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      */
     public void removeSeismogram(LocalSeismogram oldSeis){}
 
-    /**
+   public void removeAllSeismograms(){
+       Iterator e = plotters.keySet().iterator();
+       while(e.hasNext()){
+	   LocalSeismogram current = ((SeismogramPlotter)e.next()).getSeismogram();
+	   timeConfig.removeSeismogram(current);
+	   ampConfig.removeSeismogram(current);
+       }
+       timeConfig.removeTimeSyncListener(this);
+       ampConfig.removeAmpSyncListener(this);
+   }
+
+       /**
      * Returns the amp range configurator the display is using
      *
      * 

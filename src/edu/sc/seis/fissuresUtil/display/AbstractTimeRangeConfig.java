@@ -50,7 +50,7 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     }
 
     /**
-     * Remove the values from this seismogram from the configuration
+     * Remove the values of this seismogram from the configuration
      *
      * @param seis the seismogram to be removed
      */

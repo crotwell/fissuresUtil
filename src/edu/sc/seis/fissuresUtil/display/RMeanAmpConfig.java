@@ -57,17 +57,9 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
 	    double medDif = (max-min)/2;
 	    if(this.ampRange == null)
-		this.ampRange = new UnitRangeImpl(-medDif,
-						  medDif,
-						  seis.getAmplitudeRange().getUnit());
-	    if(-medDif < this.ampRange.getMinValue())
-		this.ampRange = new UnitRangeImpl(-medDif,
-						  this.ampRange.getMaxValue(),
-						  seis.getAmplitudeRange().getUnit());
-	    if(medDif > this.ampRange.getMaxValue())
-		this.ampRange = new UnitRangeImpl(this.ampRange.getMinValue(), 
-						  medDif,
-						  seis.getAmplitudeRange().getUnit());
+		this.ampRange = new UnitRangeImpl(-medDif, medDif, seis.getAmplitudeRange().getUnit());
+	    else if(medDif > this.ampRange.getMaxValue())
+		this.ampRange = new UnitRangeImpl(-medDif, medDif, seis.getAmplitudeRange().getUnit());
 	    double bottom = this.ampRange.getMinValue() + mean;
 	    double top = this.ampRange.getMaxValue() + mean;
 	    return new UnitRangeImpl(bottom,
@@ -82,7 +74,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     }
 
     public void visibleAmpCalc(TimeRangeConfig timeConfig){
-		UnitRangeImpl tempRange = ampRange;
+	UnitRangeImpl tempRange = ampRange;
 	ampRange = null;
 	this.timeConfig = timeConfig;
 	Iterator e = seismos.iterator();
@@ -104,12 +96,12 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     }
     
     public void removeSeismogram(LocalSeismogram aSeis){ 
+	MicroSecondTimeRange calcIntv;
+	if(this.timeConfig == null)
+	    calcIntv = new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime());
+	else
+	    calcIntv = timeConfig.getTimeRange(aSeis);
 	if(seismos.contains(aSeis)){
-	    MicroSecondTimeRange calcIntv;
-	    if(this.timeConfig == null)
-		calcIntv = new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime());
-	    else
-		calcIntv = timeConfig.getTimeRange(aSeis);
 	    LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
 	    int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
 						   seis.getBeginTime(),
@@ -138,6 +130,9 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    }
 	    seismos.remove(aSeis);
 	    if(ampRange == null){
+		Iterator e = seismos.iterator();
+		while(e.hasNext())
+		    this.getAmpRange(((LocalSeismogram)e.next()), calcIntv);
 		this.updateAmpSyncListeners();
 	    }
 	}

@@ -54,6 +54,8 @@ public class SeismogramPlotter implements Plotter{
 	catch(Exception e){ e.printStackTrace(); }
 	return currentShape;
     }
+
+    public LocalSeismogram getSeismogram(){ return seismogram; }
     
     protected LocalSeismogram seismogram;
 
