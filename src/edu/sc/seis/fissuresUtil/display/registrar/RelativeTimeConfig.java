@@ -14,15 +14,19 @@ import java.util.Date;
 
 public class RelativeTimeConfig extends BasicTimeConfig{
     public void add(DataSetSeismogram[] seis){
-        if(seismoTimes.size() >= 1){
-            
+        if(time == null){
+            if(initialTime == null){
+                initialTime = getInitialTime(seis[0]);
+            }
             time = new MicroSecondTimeRange(new MicroSecondDate(new Date(5 * 24 * 60 * 60 * 1000)),
                                             initialTime.getInterval());
+            initialTime = new MicroSecondTimeRange(time.getBeginTime(),
+                                                   initialTime.getInterval());
             time = time.shale(shift, scale);
         }
         super.add(seis);
     }
-
+    
     protected MicroSecondTimeRange getInitialTime(DataSetSeismogram seis){
         MicroSecondTimeRange rfTimeRange = new MicroSecondTimeRange(seis.getRequestFilter());
         TimeInterval interval;
@@ -32,7 +36,7 @@ public class RelativeTimeConfig extends BasicTimeConfig{
             interval = rfTimeRange.getInterval();
         }
         MicroSecondTimeRange rfIntervalTime = new MicroSecondTimeRange(rfTimeRange.getBeginTime(),
-                                                                      interval);
+                                                                       interval);
         return rfIntervalTime.shale(shift, scale);
     }
 }
