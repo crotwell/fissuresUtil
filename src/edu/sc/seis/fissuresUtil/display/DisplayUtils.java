@@ -516,19 +516,6 @@ public class DisplayUtils {
         return end;
     }
 
-    public static boolean hasSomeSortOfOrigin(EventAccessOperations event){
-        Origin origin = null;
-        try{
-            origin = event.get_preferred_origin();
-        }
-        catch (NoPreferredOrigin e){
-            if (event.get_origins().length > 0){
-                origin = event.get_origins()[0];
-            }
-        }
-        return origin != null;
-    }
-
     public static final String UP = "Up";
 
     public static final String EAST = "East";
