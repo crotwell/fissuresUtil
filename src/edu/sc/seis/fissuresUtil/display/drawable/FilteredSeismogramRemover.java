@@ -10,7 +10,7 @@ import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
-public class FilteredSeismogramRemover extends SeismogramRemove{
+public class FilteredSeismogramRemover extends SeismogramRemover{
     public FilteredSeismogramRemover(DataSetSeismogram seis,
                                      ColoredFilter filter,
                                      SeismogramDisplay display){

@@ -15,7 +15,7 @@ import java.awt.Graphics2D;
 
 
 
-public class DrawableSeismogram implements NamedPlotter{
+public class DrawableSeismogram implements NamedDrawable{
     public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis){
         this(parent, seis, Color.blue);
     }
@@ -29,14 +29,14 @@ public class DrawableSeismogram implements NamedPlotter{
                               Color color,
                               String name){
         this(parent, new SeismogramShape(parent, seis), color, name,
-             new SeismogramRemove(seis, parent));
+             new SeismogramRemover(seis, parent));
     }
 
     protected DrawableSeismogram(SeismogramDisplay parent,
                                  SeismogramShape shape,
                                  Color color,
                                  String name,
-                                 SeismogramRemove remover){
+                                 SeismogramRemover remover){
         this.parent = parent;
         this.color = color;
         this.name = name;
@@ -104,6 +104,6 @@ public class DrawableSeismogram implements NamedPlotter{
 
     private boolean visible = true;
 
-    private SeismogramRemove remover;
+    private SeismogramRemover remover;
 }
 
