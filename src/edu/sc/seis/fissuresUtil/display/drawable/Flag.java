@@ -6,6 +6,7 @@ import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -27,14 +28,21 @@ import org.apache.log4j.Category;
 public class Flag implements Drawable{
     
     public Flag(MicroSecondDate flagTime, String name){
+        this(flagTime, name, null);
+    }
+    
+    public Flag(MicroSecondDate flagTime, String name, DataSetSeismogram seis){
         this.flagTime = flagTime;
         this.name = name;
+        this.seis = seis;
     }
     
     public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
         if(visible){
             canvas.setFont(DisplayUtils.BOLD_FONT);
             MicroSecondTimeRange timeRange = timeEvent.getTime();
+            if(seis != null)
+                timeRange = timeEvent.getTime(seis);
             if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
                 return;
             double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
@@ -76,6 +84,8 @@ public class Flag implements Drawable{
     private MicroSecondDate flagTime;
     
     private String name;
+    
+    private DataSetSeismogram seis;
     
     //pixels of space of flag around the font
     private static final int PADDING = 4;
