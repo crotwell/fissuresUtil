@@ -47,11 +47,6 @@ public abstract class ProxyEventAccessOperations implements
 		event = evo;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventAccessOperations#a_writeable()
-	 */
 	public Event a_writeable() {
 		if (event != null) {
 			return event.a_writeable();
@@ -60,11 +55,6 @@ public abstract class ProxyEventAccessOperations implements
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventAccessOperations#parm_svc()
-	 */
 	public ParameterComponent parm_svc() {
 		if (event != null) {
 			return event.parm_svc();
@@ -73,47 +63,22 @@ public abstract class ProxyEventAccessOperations implements
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventAccessOperations#get_attributes()
-	 */
 	public EventAttr get_attributes() {
 		return event.get_attributes();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventAccessOperations#get_origins()
-	 */
 	public Origin[] get_origins() {
 		return event.get_origins();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventAccessOperations#get_origin(java.lang.String)
-	 */
 	public Origin get_origin(String the_origin) throws OriginNotFound {
 		return event.get_origin(the_origin);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventAccessOperations#get_preferred_origin()
-	 */
 	public Origin get_preferred_origin() throws NoPreferredOrigin {
 		return event.get_preferred_origin();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventAccessOperations#get_locators(java.lang.String)
-	 */
 	public Locator[] get_locators(String an_origin) throws OriginNotFound,
 			NotImplemented {
 		if (event != null) {
@@ -122,11 +87,6 @@ public abstract class ProxyEventAccessOperations implements
 		throw new org.omg.CORBA.NO_IMPLEMENT();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventAccessOperations#get_audit_trail_for_origin(java.lang.String)
-	 */
 	public AuditElement[] get_audit_trail_for_origin(String the_origin)
 			throws OriginNotFound, NotImplemented {
 		if (event != null) {
@@ -135,11 +95,6 @@ public abstract class ProxyEventAccessOperations implements
 		throw new NotImplemented();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.AuditSystemAccess#get_audit_trail()
-	 */
 	public AuditElement[] get_audit_trail() throws NotImplemented {
 		if (event != null) {
 			return event.get_audit_trail();
@@ -148,11 +103,6 @@ public abstract class ProxyEventAccessOperations implements
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventMgrOperations#a_factory()
-	 */
 	public EventFactory a_factory() {
 		if (event != null) {
 			return event.a_factory();
@@ -161,11 +111,6 @@ public abstract class ProxyEventAccessOperations implements
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventDCOperations#a_finder()
-	 */
 	public EventFinder a_finder() {
 		if (event != null) {
 			return event.a_finder();
@@ -174,11 +119,6 @@ public abstract class ProxyEventAccessOperations implements
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.iris.Fissures.IfEvent.EventDCOperations#a_channel_finder()
-	 */
 	public EventChannelFinder a_channel_finder() {
 		if (event != null) {
 			return event.a_channel_finder();
