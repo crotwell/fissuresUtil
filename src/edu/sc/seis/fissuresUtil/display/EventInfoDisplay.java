@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 5618 2003-09-11 19:38:33Z crotwell $
+ * @version $Id: EventInfoDisplay.java 6837 2004-01-20 19:13:26Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay
@@ -294,7 +294,7 @@ public class EventInfoDisplay extends TextInfoDisplay
         return index;
     }
 
-    static ParseRegions feRegions = new ParseRegions();
+    static ParseRegions feRegions = ParseRegions.getInstance();
 
 
     // Drag and Drop...
@@ -378,6 +378,6 @@ public class EventInfoDisplay extends TextInfoDisplay
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
 
     static Logger logger = Logger.getLogger(EventInfoDisplay.class);
-    
+
 }// EventInfoDisplay
 

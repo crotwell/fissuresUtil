@@ -362,7 +362,7 @@ public class CacheEvent implements EventAccessOperations {
      */
     public static String getEventInfo(EventAccessOperations event, String format, DateFormat sdf){
         //Get geographic name of origin
-        ParseRegions regions = new ParseRegions();
+        ParseRegions regions = ParseRegions.getInstance();
         String location = regions.getGeographicRegionName(event.get_attributes().region.number);
 
         //Get Date and format it accordingly
