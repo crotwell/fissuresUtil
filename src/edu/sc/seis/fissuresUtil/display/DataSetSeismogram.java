@@ -23,6 +23,10 @@ public class DataSetSeismogram {
 
     public DataSet getDataSet(){ return dataSet; }
 
+    public boolean isFurtherThan(DataSetSeismogram seis){
+	return true;
+    }
+
     protected DataSet dataSet;
 
     protected LocalSeismogramImpl seis;

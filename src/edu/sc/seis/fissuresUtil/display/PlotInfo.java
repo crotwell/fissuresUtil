@@ -15,9 +15,10 @@ import edu.iris.Fissures.model.TimeInterval;
  */
 
 public class PlotInfo {
-    public PlotInfo(Dimension size, HashMap seisPlotters, HashMap filterPlotters, TimeInterval displayInterval){
+    public PlotInfo(Dimension size, HashMap seisPlotters, HashMap filterPlotters, HashMap flagPlotters, TimeInterval displayInterval){
 	this.size = size;
 	this.seisPlotters = seisPlotters;
+	this.flagPlotters = flagPlotters;
 	this.filterPlotters = filterPlotters;
 	this.displayInterval = displayInterval;
     }
@@ -28,11 +29,13 @@ public class PlotInfo {
 
     public HashMap getSeisPlotters(){ return seisPlotters; }
 
+    public HashMap getFlagPlotters(){ return flagPlotters; }
+
     public TimeInterval getDisplayInterval(){ return displayInterval; }
 
     private Dimension size;
     
-    private HashMap seisPlotters, filterPlotters;
+    private HashMap seisPlotters, filterPlotters, flagPlotters;
 
     private TimeInterval displayInterval;
 }// PlotInfo

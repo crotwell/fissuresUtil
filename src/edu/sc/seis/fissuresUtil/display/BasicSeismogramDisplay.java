@@ -7,6 +7,8 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.sc.seis.fissuresUtil.freq.ButterworthFilter;
+import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
+import edu.sc.seis.TauP.Arrival;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -106,6 +108,21 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	redo = true;
     }
 
+    public void addFlags(Arrival[] arrivals){
+	for(int i = 0; i < arrivals.length; i++){
+	    flagPlotters.put(new FlagPlotter(new MicroSecondDate((long)arrivals[i].getTime()), 
+					     this.timeRegistrar, 
+					     arrivals[i].getPhase().getName()), Color.blue);
+	}
+	redo = true;
+	repaint();
+    }
+
+    public void removeAllFlags(){
+	flagPlotters = new HashMap();
+	redo = true;
+	repaint();
+    }
     public LinkedList getSeismograms(){ return seismos; }
   
     public void removeSeismogram(LocalSeismogram oldSeis){}
@@ -457,7 +474,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	}
 	
 	public synchronized void createImage(){
-	    imageMaker.createImage(this, new PlotInfo(overSize, seisPlotters, filterPlotters, displayInterval));
+	    imageMaker.createImage(this, new PlotInfo(overSize, seisPlotters, filterPlotters, flagPlotters, displayInterval));
 	}
 
 	public synchronized void setImage(Image newImage){
@@ -504,6 +521,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     protected HashMap seisPlotters = new HashMap();
     
     protected HashMap filterPlotters = new HashMap();
+
+    protected HashMap flagPlotters = new HashMap();
 
     protected String name;
 
