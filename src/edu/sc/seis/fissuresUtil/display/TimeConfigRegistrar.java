@@ -33,7 +33,18 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     }
     
     
-    public void setTimeConfig(TimeRangeConfig timeConfig){ this.timeConfig = timeConfig; }
+    public void setRegistrar(TimeConfigRegistrar tr){
+	if(timeConfig instanceof TimeConfigRegistrar){
+	    ((TimeConfigRegistrar)timeConfig).removeTimeSyncListener(this);
+	}
+	tr.addTimeSyncListener(this);
+	timeConfig = tr;
+	updateTimeSyncListeners();
+    }
+    
+    public void setTimeConfig(TimeRangeConfig timeConfig){ 
+	this.timeConfig = timeConfig; 
+    }
 
     public TimeRangeConfig getTimeConfig(){ return timeConfig.getTimeConfig(); }
 
