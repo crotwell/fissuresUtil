@@ -16,6 +16,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import junit.framework.TestCase;
+import java.io.File;
 
 public class DataRecordTest extends TestCase {
 
@@ -89,7 +90,8 @@ public class DataRecordTest extends TestCase {
 
         byte[] out = bos.toByteArray();
 
-        DataOutputStream fos = new DataOutputStream(new FileOutputStream("test.mseed"));
+        File tmpMSeed = File.createTempFile("junit_fissuresUtil", ".mseed");
+        DataOutputStream fos = new DataOutputStream(new FileOutputStream(tmpMSeed));
         record.write(fos);
 
         //        for (int i = 0; i < 20; i++) {
