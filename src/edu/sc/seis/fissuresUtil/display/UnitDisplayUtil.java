@@ -125,11 +125,12 @@ public class UnitDisplayUtil
             return mu+"m/s/s";
         }
         // not a unit we have a friendly name for
-        logger.debug("not a unit we have a friendly name for"+unit.toString());
+        //logger.debug("not a unit we have a friendly name for"+unit.toString());
         return unit.toString();
     }
 
     static Logger logger = Logger.getLogger(UnitDisplayUtil.class);
 
 }
+
 
