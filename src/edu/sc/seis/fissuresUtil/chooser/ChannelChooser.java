@@ -186,6 +186,7 @@ System.out.println("8 netSet.add ");
 
 	sitMap.clear();
 	chanMap.clear();
+	String chanIdkey = "SP.BRNCH.00.BHZ";
 
 	for (int i=0; i<allChannels.length; i++) {
 
@@ -197,6 +198,9 @@ System.out.println("8 netSet.add ");
 	    edu.iris.Fissures.IfNetwork.ChannelId thechannelid = allChannels[i].get_id();
 	    String channelCode = thechannelid.channel_code;
 	    chanMap.put(channelCode, allChannels[i]);
+	    chanIdkey = netCode + "." + stationCode + "." + siteCode + "." + channelCode;
+	    chanIdMap.put(chanIdkey,thechannelid );
+	 
             
 	}
 	
@@ -230,15 +234,27 @@ System.out.println("8 netSet.add ");
 
     public ChannelId getChannelId(String keyStr) {
 
-	if( chanMap.containsKey(keyStr)) {
-	    System.out.println("Found the channelID: ");
-	    return (ChannelId)(chanMap.get(keyStr));
-	}
-	else {
-	    System.out.println("The channelID is not Found");
-	    return null;
+	System.out.println("### Passed channelID: " + keyStr);
 
-	}
+	ChannelId foundChannelId = null;
+
+	Iterator it = chanIdMap.keySet().iterator();
+
+	while (it.hasNext()) {
+	    java.lang.Object key = it.next();
+	    String stkey = (String)key;	   
+
+	    if(stkey.equals(keyStr)) {
+		//	if( chanMap.containsKey(keyStr)) {
+	        System.out.println("Found the channelID: "+stkey);
+	        foundChannelId =  (ChannelId)(chanIdMap.get(keyStr));
+	    }
+
+	} // end of while (it.hasNext())
+
+   if(foundChannelId==null) 
+        System.out.println(keyStr + "'s ChannelId could not be found.");
+    return foundChannelId;
 
     }
  
@@ -260,7 +276,8 @@ System.out.println("8 netSet.add ");
     protected TreeMap netMap = new TreeMap();
     protected TreeMap staMap = new TreeMap();
     protected TreeMap sitMap = new TreeMap();  
-    protected TreeMap chanMap = new TreeMap();  
+    protected TreeMap chanMap = new TreeMap(); 
+    protected HashMap chanIdMap = new HashMap();  
 
 
 } // PlottableClient
