@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.text.SimpleDateFormat;
+import org.apache.log4j.*;
 
 /**
  * VerticalSeismogramDisplay.java
@@ -43,6 +44,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
     
     public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, String name){
+	System.out.println(basicDisplays.size());
 	if(sorter.contains(name)){
 	    return null;
 	}
@@ -81,7 +83,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    ((BasicSeismogramDisplay)e.next()).stopImageCreation();
     }
 
-    public void removeAll(MouseEvent me){
+    public void removeAll(){
+	logger.debug("removing all displays");
 	this.stopImageCreation();
 	seismograms.removeAll();
 	remove(seismograms);
@@ -89,6 +92,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	sorter = new SeismogramSorter();
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar();
+	this.time.setText("   Time: ");
+	this.amp.setText("   Amplitude: ");
 	repaint();
     }
 
@@ -102,6 +107,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
 
     public void removeDisplay(BasicSeismogramDisplay display){
+	logger.debug("removing a display with " + basicDisplays.size() + " left");
 	if(basicDisplays.size() == 1){
 	    this.removeAll();
 	    return;
@@ -142,13 +148,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    else
 		this.amp.setText("   Amplitude: " + Math.round(amp));
     }
-    
-    public void removeAllDisplays(){
-	this.removeAll();
-	this.time.setText("   Time: ");
-	this.amp.setText("   Amplitude: ");
-	repaint();
-     }
 
     public void setUnfilteredDisplay(boolean visible){
 	Iterator e = basicDisplays.iterator();
@@ -211,4 +210,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     protected SimpleDateFormat output = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.S");
 
     protected Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+    private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
 }// VerticalSeismogramDisplay

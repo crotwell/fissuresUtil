@@ -34,19 +34,19 @@ import java.awt.print.*;
 public class BasicSeismogramDisplay extends JComponent implements SeismogramDisplay, GlobalToolbarActions{
  
     public BasicSeismogramDisplay(LocalSeismogram seis, String name, VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar();
-	ampRegistrar = new AmpConfigRegistrar();
+	timeRegistrar = new TimeConfigRegistrar(new BoundedTimeConfig(timeRegistrar));
+	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(ampRegistrar));
 	initializeDisplay(seis, name, parent);
     }
     
     public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, String name, VerticalSeismogramDisplay parent){
 	timeRegistrar = new TimeConfigRegistrar(tr);
-	ampRegistrar = new AmpConfigRegistrar();
+	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(ampRegistrar));
 	initializeDisplay(seis, name, parent);
     }
     
     public BasicSeismogramDisplay(LocalSeismogram seis, AmpConfigRegistrar ar, String name, VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar();
+	timeRegistrar = new TimeConfigRegistrar(new BoundedTimeConfig(timeRegistrar));
 	ampRegistrar = new AmpConfigRegistrar(ar);
 	initializeDisplay(seis, name, parent);
     }
@@ -148,7 +148,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
     public void removeAll(MouseEvent me){
 	logger.debug("remove all called");
-	parent.removeAll(me);
+	parent.removeAll();
     }
 
     /**
@@ -618,5 +618,5 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     private Color[] transparentColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64), 
 					  new Color(0, 0, 255, 64)};
 
-    static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
+    private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay
