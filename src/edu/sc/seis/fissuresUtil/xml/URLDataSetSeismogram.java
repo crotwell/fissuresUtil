@@ -316,6 +316,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                 obj = ref;
             } else {
                 urlToLSMap.remove(seisurl);
+                obj = null;
             }
         }
         if (obj != null) {
