@@ -12,6 +12,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.database.DBDataCenter;
 import edu.sc.seis.fissuresUtil.database.LocalDataCenterCallBack;
+import edu.sc.seis.fissuresUtil.time.CoverageTool;
 
 /**
  * DataSetSeismogram.java
@@ -70,7 +71,7 @@ public class DCDataSetSeismogram
             LocalSeismogramImpl[] cachedSeismos = new LocalSeismogramImpl[existingSeismos.size()];
             cachedSeismos = (LocalSeismogramImpl[])existingSeismos.toArray(cachedSeismos);
             pushData(cachedSeismos, dataListener);
-            uncovered = DBDataCenter.notCovered(uncovered, cachedSeismos);
+            uncovered = CoverageTool.notCovered(uncovered, cachedSeismos);
          }
         if(this.dataCenterOps instanceof DBDataCenter && uncovered.length > 0) {
             ((DBDataCenter)this.dataCenterOps).request_seismograms(uncovered,
