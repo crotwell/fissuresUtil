@@ -135,17 +135,4 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    }
 	}
     }
-
-    public void fireAmpRangeEvent(AmpSyncEvent event) {
-	double begin = event.getBegin();
-	double end = event.getEnd();
-	if(this.ampRange == null) {
-
-	    this.ampRange = new UnitRangeImpl(begin, end, UnitImpl.COUNT);
-	} else {
-	    this.ampRange = new UnitRangeImpl(begin, end, UnitImpl.COUNT);
-	}
-	this.updateAmpSyncListeners();
-    }
-
 }// RMeanAmpConfig

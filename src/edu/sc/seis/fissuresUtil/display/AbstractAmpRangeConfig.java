@@ -99,7 +99,17 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	this.updateAmpSyncListeners();
     }
 
-    public abstract void fireAmpRangeEvent(AmpSyncEvent event);
+    public void fireAmpRangeEvent(AmpSyncEvent event){
+		double begin = event.getBegin();
+	double end = event.getEnd();
+	if(this.ampRange == null) {
+
+	    this.ampRange = new UnitRangeImpl(begin, end, UnitImpl.COUNT);
+	} else {
+	    this.ampRange = new UnitRangeImpl(begin, end, UnitImpl.COUNT);
+	}
+	this.updateAmpSyncListeners();
+    }
     
     protected boolean intvCalc = false;
     
