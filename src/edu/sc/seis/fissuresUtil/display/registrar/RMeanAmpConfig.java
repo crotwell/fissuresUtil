@@ -37,7 +37,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         for(int i = 0; i < ad.length; i++){
             amps[i] = setRange(ad[i].getRange(),range);
         }
-        return new BasicAmpEvent(AmpConfigData.getSeismograms(ad), amps);
+        return new RMeanAmpEvent(AmpConfigData.getSeismograms(ad), amps);
     }
 
     protected boolean setAmpRange(AmpConfigData data){
