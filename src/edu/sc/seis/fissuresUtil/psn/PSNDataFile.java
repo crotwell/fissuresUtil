@@ -51,10 +51,6 @@ public class PSNDataFile {
 
             for (int i = 0; i < records.length; i++) {
                 System.out.println("****** Event Record " + i + " ******");
-                PSNHeader header = records[i].getFixedHeader();
-                System.out.println(header.toString());
-                PSNVariableHeader varHeader = records[i].getVariableHeader();
-                System.out.println(varHeader.toString());
                 System.out.println(records[i].toString());
             }
         }

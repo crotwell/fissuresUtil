@@ -137,6 +137,9 @@ public class PSNEventRecord {
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
+        buf.append(fixedHeader.toString());
+        buf.append(varHeader.toString());
+
         if (isShort){
             for (int i = 0; i < samplesShort.length; i++) {
                 buf.append(samplesShort[i] + " ");
