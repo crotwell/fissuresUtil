@@ -49,7 +49,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_grouping(id);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -65,7 +65,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_stations();
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -78,6 +78,9 @@ public class RetryNetworkAccess implements NetworkAccess {
         RuntimeException lastException = null;
         while (count < retry) {
             try {
+                if (count != 0) {
+                    logger.info("before retrieve_for_station after failure "+count+" of "+retry);
+                }
                 return net.retrieve_for_station(id);
             } catch (RuntimeException t) {
                 lastException = t;
@@ -97,7 +100,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.get_audit_trail_for_channel(id);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -113,7 +116,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_time_corrections(id, time_range);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -129,7 +132,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.get_attributes();
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -145,7 +148,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_groupings();
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -161,7 +164,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_instrumentation(id, the_time);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -177,7 +180,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.get_audit_trail();
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -193,7 +196,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_channel(id);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -209,7 +212,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.locate_channels(the_area, sampling, orientation);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -225,7 +228,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_all_channels(seq_max, iter);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -241,7 +244,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_calibrations(id, the_time);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
@@ -257,7 +260,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_channels_by_code(station_code, site_code, channel_code);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
