@@ -61,6 +61,7 @@ public  class PlottableDisplay extends JComponent {
 	this.addMouseListener(plottableMouseListener);
 	this.addMouseMotionListener(plottableMouseListener);
 	configChanged();
+	
     }
 
     public PlottableDisplay(ChannelId channelId) {
@@ -405,7 +406,7 @@ public  class PlottableDisplay extends JComponent {
     }
 
     /** Solely for use to d3etermine if drawing thread is still current. */
-    private Graphics2D currentImageGraphics = null;
+   private Graphics2D currentImageGraphics = null;
 
     public void showImage( Image image){
 
@@ -666,12 +667,17 @@ public  class PlottableDisplay extends JComponent {
 	try {
 	    Origin origin = eventAccess.get_preferred_origin();
 	    edu.iris.Fissures.Time time = origin.origin_time;
+	    System.out.println("ORIGIN TIME: "+new MicroSecondDate(time));
+	    
 	    long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
 	    float colhours = microSeconds/(1000 * 1000 * 60 * 60);
 	    Calendar calendar = Calendar.getInstance();
 	    Date date = new Date(microSeconds/1000);
+	    System.out.println("The date rebuilt ORIGIN TIME: "+new MicroSecondDate(date));
 	    calendar.setTime(date);
+	    calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 	    int hours = calendar.get(Calendar.HOUR_OF_DAY);
+	    System.out.println("THe hour of the day is "+hours);
 	    return hours/2; 
 				     
 	} catch(Exception e) {
@@ -690,6 +696,7 @@ public  class PlottableDisplay extends JComponent {
 	    Calendar calendar = Calendar.getInstance();
 	    Date date = new Date(microSeconds/1000);
 	    calendar.setTime(date);
+	    calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 	    int minutes = calendar.get(Calendar.MINUTE);
 	    int seconds = calendar.get(Calendar.SECOND);
 	    
@@ -794,7 +801,6 @@ public  class PlottableDisplay extends JComponent {
 
     int endx = -1;
     int endy  = -1;
-
     private Date date;
 
     }/*close class*/
