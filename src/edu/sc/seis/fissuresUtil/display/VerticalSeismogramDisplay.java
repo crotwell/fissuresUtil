@@ -93,6 +93,15 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	this.time.setText("   Time: ");
 	this.amp.setText("   Amplitude: ");
+	if(selectionDisplay != null){
+	    selectionDisplay.removeAll();
+	    selectionWindow.dispose();
+	    selectionDisplay = null;
+	}
+	if(particleDisplay != null){
+	    particleWindow.dispose();
+	    particleDisplay = null;
+	}
 	repaint();
     }
 
@@ -171,17 +180,53 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void createParticleDisplay(BasicSeismogramDisplay creator){
 	if(particleDisplay == null){
 	    logger.debug("creating particle display");
+	    particleWindow = new JDialog();
 	    LocalSeismogramImpl seis = ((LocalSeismogramImpl)creator.getSeismograms().getFirst());
 	    particleDisplay = new ParticleMotionDisplay(seis, seis, creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
 							creator.getAmpRegistrar(), Color.blue);
+	    particleDisplay.addAzimuthLine(15);
+	particleDisplay.addSector(10, 20);
+	JPanel displayPanel = new JPanel();
+	JButton zoomIn = new JButton("zoomIn");
+	JButton zoomOut = new JButton("zoomOut");
+	JPanel buttonPanel = new JPanel();
+	buttonPanel.setLayout(new FlowLayout());
+	buttonPanel.add(zoomIn);
+	buttonPanel.add(zoomOut);
+	displayPanel.setLayout(new BorderLayout());
+	displayPanel.add(particleDisplay, java.awt.BorderLayout.CENTER);
+	displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+	java.awt.Dimension size = new java.awt.Dimension(400, 400);
+	displayPanel.setSize(size);
+	particleWindow.getContentPane().add(displayPanel);
+	//particleWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	particleWindow.setSize(size);
+	zoomIn.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent ae) {
+
+		    particleDisplay.setZoomIn(true);
+		    // particleDisplay.setZoomOut(false);
+		}
+	    });
+	zoomOut.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent ae) {
+
+		    particleDisplay.setZoomOut(true);
+		    // particleDisplay.setZoomIn(false);
+		}
+	    });
+	Toolkit tk = Toolkit.getDefaultToolkit();
+	particleWindow.setLocation(400 * particleDisplays, tk.getScreenSize().height);
+	particleDisplays++;
+	particleWindow.setVisible(true);
 	}
     }
 
     public void createSelectionDisplay(BasicSeismogramDisplay creator){
 	if(selectionDisplay == null){
 	    logger.debug("creating selection display");
-	    JFrame selectionWindow = new JFrame("Selection Display");
-	    selectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    selectionWindow = new JDialog();
+	    //selectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    selectionWindow.setSize(400, 220);
 	    JToolBar infoBar = new JToolBar();
 	    infoBar.add(new FilterSelection(selectionDisplay));
@@ -193,14 +238,15 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange((LocalSeismogram)first)));
 	    ar.visibleAmpCalc(tr);
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
-	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, first.getName() + " " +
+	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, creator.getName() + "." +
 										 creator.getCurrentSelection().getColor()));
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((LocalSeismogramImpl)e.next()), 0);
 	    }
 	    selectionWindow.getContentPane().add(selectionDisplay);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
-	    selectionWindow.setLocation(tk.getScreenSize().width, tk.getScreenSize().height);
+	    selectionWindow.setLocation(tk.getScreenSize().width, tk.getScreenSize().height - selectionDisplays * 250);
+	    selectionDisplays++;
 	    selectionWindow.setVisible(true);	
 	}else{
 	    logger.debug("adding another selection");
@@ -218,6 +264,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
 	
     
+    protected static int particleDisplays = 0, selectionDisplays = 0;
+    
+    protected JDialog selectionWindow, particleWindow;
+
     protected SeismogramSorter sorter;
 
     protected TimeConfigRegistrar globalTimeRegistrar;

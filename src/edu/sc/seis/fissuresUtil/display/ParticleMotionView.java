@@ -17,7 +17,7 @@ import org.apache.log4j.*;
  * ParticleMotionView.java
  *
  *
- * Created: Tue Jun 11 15:14:17 2002
+ * Created: Tue Jun 11 15:14:17 20022002-07-05 12:49:37,661 DEBUG main vsnexplorer.CommonAccess - Inactive task: EQexplorerMode
  *
  * @author <a href="mailto:">Srinivasa Telukutla</a>
  * @version

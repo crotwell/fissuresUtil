@@ -467,7 +467,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
      */
     public static final Integer PARTICLE_MOTION_LAYER = new Integer(2);
 
-    protected AmpScaleMapper hAmpScaleMap, vAmpScaleMap;
+    protected AmpScaleMapper hAmpScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder
+    protected AmpScaleMapper vAmpScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder;
 
     protected ScaleBorder scaleBorder;
 
