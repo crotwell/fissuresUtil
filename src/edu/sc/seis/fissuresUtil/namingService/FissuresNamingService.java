@@ -80,7 +80,7 @@ public class FissuresNamingService {
     public String getNameServiceCorbaLoc() {
         return nameServiceCorbaLoc;
     }
-    
+
     /**
      * Adds another name service to which all registrations should be sent. This
      * other name service is not used for queries, only when addind new servers.
@@ -255,86 +255,51 @@ public class FissuresNamingService {
                        NamingContextExt topLevelNameContext,
                        String interfacename) throws NotFound, CannotProceed,
             InvalidName {
-         if(dns == null || dns.length() == 0) {
-             throw new NullPointerException("dns must have characters: "+dns);
-         }
-         if( objectname == null || objectname.length() == 0) {
-             throw new NullPointerException("objectname must have characters: "+objectname);
-         }
-         if( interfacename == null || interfacename.length() == 0) {
-             throw new NullPointerException("interfacename must have characters: "+interfacename);
-         }
+        if(dns == null || dns.length() == 0) { throw new IllegalArgumentException("dns must have characters: "
+                + dns); }
+        if(objectname == null || objectname.length() == 0) { throw new IllegalArgumentException("objectname must have characters: "
+                + objectname); }
+        if(interfacename == null || interfacename.length() == 0) { throw new IllegalArgumentException("interfacename must have characters: "
+                + interfacename); }
         logger.info("rebind dns=" + dns + " interface=" + interfacename
                 + " object=" + objectname);
         if(topLevelNameContext == null) {
-            logger.warn("top level name context is null! Skipping rebind...");
-            return;
+            logger.warn("top level name context is null!");
         }
         String nameString = appendKindNames(dns);
-        if(interfacename != null && interfacename.length() != 0) {
-            nameString = nameString + "/" + interfacename + ".interface";
-        }
-        if(objectname != null && objectname.length() != 0) {
-            nameString = nameString + "/" + objectname + ".object"
-                    + getVersion();
-        }
-        logger.info("the dns to be rebind is " + nameString);
-        NameComponent[] ncName = topLevelNameContext.to_name(nameString);
-        NamingContextExt namingContextTemp = topLevelNameContext;
-        for(int counter = 0; counter < ncName.length; counter++) {
-            try {
-                topLevelNameContext.rebind(topLevelNameContext.to_name(nameString),
-                                           obj);
-            } catch(NotFound nfe) {
-                switch(nfe.why.value()){
-                    case NotFoundReason._missing_node:
-                        NameComponent[] ncName1 = {nfe.rest_of_name[0]};
-                        logger.info("The id of the context is " + ncName1[0].id);
-                        int subcounter;
-                        for(subcounter = 0; subcounter < ncName.length; subcounter++) {
-                            if(ncName[subcounter].id.equals(ncName1[0].id)) {
-                                break;
-                            }
-                        }
-                        NameComponent temp[] = new NameComponent[subcounter];
-                        for(int i = 0; i < ncName.length
-                                && !ncName[i].id.equals(ncName1[0].id); i++) {
-                            temp[i] = ncName[i];
-                        }
-                        if(subcounter != 0) {
-                            logger.info("resolving new naming context");
-                            namingContextTemp = NamingContextExtHelper.narrow(topLevelNameContext.resolve(temp));
-                        }
-                        if(ncName1[0].id.equals(interfacename)) {
-                            ncName1[0].kind = INTERFACE;
-                        } else if(ncName1[0].id.equals(objectname)) {
-                            ncName1[0].kind = "object" + getVersion();
-                        } else {
-                            ncName1[0].kind = DNS;
-                        }
-                        try {
-                            namingContextTemp.bind_new_context(ncName1);
-                        } catch(AlreadyBound e) {
-                            logger.error("Caught AlreadyBound, should not happen, ignoring...",
-                                         e);
-                        } // end of try-catch
-                        topLevelNameContext.rebind(topLevelNameContext.to_name(nameString),
-                                                   obj);
-                        break;
-                    case NotFoundReason._not_context:
-                        logger.info("Not a Context");
-                        logger.info(nfe.rest_of_name[0].id
-                                + "  IS PASSED AS A CONTEXT. ACTUALLY IT IS ALREADY BOUND AS AN OBJECT");
-                        throw nfe;
-                    case NotFoundReason._not_object:
-                        logger.info("Not an Object");
-                        logger.info(nfe.rest_of_name[0].id
-                                + "  IS PASSED AS AN OBJECT. ACTUALLY IT IS ALREADY BOUND AS A CONTEXT");
-                        throw nfe;
-                    default:
-                        logger.error("Unknown NotFound error code: "+nfe.why.value(), nfe);
-                        throw nfe;
-                }
+        nameString = nameString + "/" + interfacename + ".interface";
+        String contextName = nameString;
+        nameString = nameString + "/" + objectname + ".object" + getVersion();
+        logger.info("the object to be rebound is " + nameString);
+        try {
+            topLevelNameContext.rebind(topLevelNameContext.to_name(nameString),
+                                       obj);
+        } catch(NotFound nfe) {
+            switch(nfe.why.value()){
+                case NotFoundReason._missing_node:
+                    try {
+                        topLevelNameContext.bind_new_context(topLevelNameContext.to_name(contextName));
+                    } catch(AlreadyBound e) {
+                        logger.error("Shouldn't be already bound, just got an exception saying it wasn't bound",
+                                     e);
+                    }
+                    topLevelNameContext.rebind(topLevelNameContext.to_name(nameString),
+                                               obj);
+                    break;
+                case NotFoundReason._not_context:
+                    logger.info("Not a Context");
+                    logger.info(nfe.rest_of_name[0].id
+                            + "  IS PASSED AS A CONTEXT. ACTUALLY IT IS ALREADY BOUND AS AN OBJECT");
+                    throw nfe;
+                case NotFoundReason._not_object:
+                    logger.info("Not an Object");
+                    logger.info(nfe.rest_of_name[0].id
+                            + "  IS PASSED AS AN OBJECT. ACTUALLY IT IS ALREADY BOUND AS A CONTEXT");
+                    throw nfe;
+                default:
+                    logger.error("Unknown NotFound error code: "
+                            + nfe.why.value(), nfe);
+                    throw nfe;
             }
         }
     }
@@ -695,11 +660,11 @@ public class FissuresNamingService {
 
     public static Class[] getAllInterfaces(Class c) {
         List interfaces = new ArrayList();
-        if (c.isInterface()) {
+        if(c.isInterface()) {
             interfaces.add(c);
         }
         // check for null in case of c being an interface with no superinterface
-        while( c != null && !c.equals(Object.class) ) {
+        while(c != null && !c.equals(Object.class)) {
             interfaces.addAll(Arrays.asList(c.getInterfaces()));
             c = c.getSuperclass();
         }
@@ -722,14 +687,14 @@ public class FissuresNamingService {
                 while(tokenizer.hasMoreElements()) {
                     rtnValue = (String)tokenizer.nextElement();
                 }
-                if (rtnValue.endsWith("Operations")) {
-                    rtnValue = rtnValue.substring(0, rtnValue.lastIndexOf("Operations"));
+                if(rtnValue.endsWith("Operations")) {
+                    rtnValue = rtnValue.substring(0,
+                                                  rtnValue.lastIndexOf("Operations"));
                 }
                 return rtnValue;
             }
         }
-        throw new IllegalArgumentException(cl.getName()
-                + " not recognized");
+        throw new IllegalArgumentException(cl.getName() + " not recognized");
     }
 
     private String nameServiceCorbaLoc = null;
@@ -762,7 +727,7 @@ public class FissuresNamingService {
     public static final String DNS = "dns";
 
     public static final String CORBALOC_PROP = "edu.sc.seis.fissuresUtil.nameServiceCorbaLoc";
-    
+
     public static final String ADDITIONAL_CORBALOC_PROP = "edu.sc.seis.fissuresUtil.additionalNameServiceCorbaLoc";
 
     public static final String OBJECT = "object_FVer"
