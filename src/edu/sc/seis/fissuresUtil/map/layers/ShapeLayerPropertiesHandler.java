@@ -112,12 +112,12 @@ public class ShapeLayerPropertiesHandler {
         }
         if(overviewLineWidth >= 0) {
             properties.setProperty("lineWidth", "" + overviewLineWidth);
-            properties.setProperty("overviewLineWidth", "" + overviewLineWidth);
         }
-        if(lineWidthThreshold >= 0) {
-            properties.setProperty("lineWidthThreshold", ""
-                    + lineWidthThreshold);
-        }
+        properties.setProperty("overviewLineWidth", "" + overviewLineWidth);
+        //}
+        //if(lineWidthThreshold >= 0) {
+        properties.setProperty("lineWidthThreshold", "" + lineWidthThreshold);
+        //}
         if(lineColor != null) {
             properties.setProperty("lineColor", lineColor);
         }
