@@ -1,9 +1,8 @@
 package edu.sc.seis.fissuresUtil.database;
 
 import java.sql.SQLException;
-import edu.iris.Fissures.model.TimeUtils;
-import edu.iris.Fissures.model.UnitImpl;
 import junit.framework.TestCase;
+import edu.iris.Fissures.model.TimeUtils;
 
 
 /**
@@ -23,7 +22,7 @@ public class JDBCTimeTest extends TestCase {
         assertEquals(TimeUtils.future.getFissuresTime().date_time, table.get(id).date_time);
     }
     
-    public void testDoublePut() throws NotFound, SQLException {
+    public void testDoublePut() throws SQLException {
         assertEquals(table.put(TimeUtils.future.getFissuresTime()),
                      table.put(TimeUtils.future.getFissuresTime()));
     }
