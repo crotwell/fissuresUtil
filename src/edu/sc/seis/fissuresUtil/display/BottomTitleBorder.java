@@ -18,10 +18,10 @@ import java.awt.geom.*;
 public class BottomTitleBorder extends javax.swing.border.AbstractBorder {
     
     public BottomTitleBorder(String title) {
-        top = 16;
+        top = 0;
         left = 0;
         right = 0;
-        bottom = 0;
+        bottom = 16;
         this.title = title;
     }
     
@@ -66,7 +66,7 @@ public class BottomTitleBorder extends javax.swing.border.AbstractBorder {
                              left+(width-left -
                                    right -
                                    fm.stringWidth(title))/2, 
-                             (height-top)+(fm.getAscent())/2);
+                             (height-bottom/2)+(fm.getAscent())/2);
 		
             } finally {
                 copy.dispose();
