@@ -16,6 +16,7 @@ import com.bbn.openmap.gui.OMToolSet;
 import com.bbn.openmap.gui.ToolPanel;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
+import com.bbn.openmap.util.Debug;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
 import java.awt.Color;
@@ -24,25 +25,26 @@ import javax.swing.ListSelectionModel;
 
 public class OpenMap extends OpenMapComponent{
 
-	public static final Color WATER = new Color(54, 179, 221);
+    public static final Color WATER = new Color(54, 179, 221);
 
     /**Creates a new openmap.  Both the channel chooser and the event table
      * model can be null.  If so, channels and events just won't get drawn
      */
     public OpenMap(ChannelChooser chooser, EventTableModel etm, ListSelectionModel lsm){
         try{
+            Debug.init();
             //Environment.set(Environment.BackgroundColor,"36B3DD");
             MapHandler mapHandler = new MapHandler();
             mapHandler.add(this);
             // Create a MapBean
             MapBean mapBean = new MapBean();
 
-			//get the projection and set its background color and center point
-			Proj proj = (Proj)mapBean.getProjection();
-			proj.setBackgroundColor(WATER);
-			proj.setCenter(20, 180);
+            //get the projection and set its background color and center point
+            Proj proj = (Proj)mapBean.getProjection();
+            proj.setBackgroundColor(WATER);
+            proj.setCenter(20, 180);
 
-			mapHandler.add(mapBean);
+            mapHandler.add(mapBean);
 
             // Create and add a LayerHandler to the MapHandler.  The
             // LayerHandler manages Layers, whether they are part of the
