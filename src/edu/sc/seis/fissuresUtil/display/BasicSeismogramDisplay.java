@@ -108,20 +108,26 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	redo = true;
     }
 
-    public void addFlags(Arrival[] arrivals){
+    public void addFlags(Arrival[] arrivals) {
+	try{
+	    MicroSecondDate originTime = new MicroSecondDate(((XMLDataSet)((DataSetSeismogram)seismos.getFirst()).getDataSet()).
+							     getEvent().get_preferred_origin().origin_time);
+	
+	System.out.println((long)arrivals[0].getTime() + ", "
+			   + arrivals[0].getPhase().getName() + " " + arrivals.length + " " + originTime);
 	for(int i = 0; i < arrivals.length; i++){
-	    flagPlotters.put(new FlagPlotter(new MicroSecondDate((long)arrivals[i].getTime()), 
+	    flagPlotters.put(new FlagPlotter(new MicroSecondDate((long)(arrivals[i].getTime() * 1000000) + 
+								 originTime.getMicroSecondTime()), 
 					     this.timeRegistrar, 
-					     arrivals[i].getPhase().getName()), Color.blue);
+					     arrivals[i].getPhase().getName()), Color.red);
 	}
+	}catch(Exception e){}
 	redo = true;
 	repaint();
     }
 
     public void removeAllFlags(){
 	flagPlotters = new HashMap();
-	redo = true;
-	repaint();
     }
     public LinkedList getSeismograms(){ return seismos; }
   
@@ -148,11 +154,22 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     public void updateTimeRange(){
 	this.timeScaleMap.setTimes(timeRegistrar.getTimeRange().getBeginTime(), 
 				   timeRegistrar.getTimeRange().getEndTime());
-	//redo = true;
 	repaint();
     }
 
-   public void addBottomTimeBorder(){	
+    public VerticalSeismogramDisplay getVerticalParent(){ return parent; } 
+    
+    public LinkedList getSelections(){ return selections; }
+
+    public void addSelection(Selection newSelection){ selections.add(newSelection); }
+    
+    public void removeSelection(Selection oldSelection){ selections.remove(oldSelection); }
+
+    public Dimension getDisplaySize(){ return displaySize; }
+
+    public TimeInterval getDisplayInterval(){ return imagePainter.displayInterval; }
+
+    public void addBottomTimeBorder(){	
 	scaleBorder.setBottomScaleMapper(timeScaleMap); 
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
@@ -189,6 +206,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    Dimension d = getSize();
 	    int w = (d.width - insets.left - insets.right) * 5, h = d.height - insets.top - insets.bottom;
 	    overSize = new Dimension(w, h);
+	    displaySize = new Dimension(d.width - insets.left - insets.right, d.height - insets.top - insets.bottom);
 	    timeScaleMap.setTotalPixels(d.width-insets.left-insets.right);
 	    ampScaleMap.setTotalPixels(d.height-insets.top-insets.bottom);
 	}
@@ -200,7 +218,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	synchronized(imageMaker){ imageMaker.remove(imagePainter); }
     }
     
-    public void selectRegion(MouseEvent one, MouseEvent two){
+    /*public void selectRegion(MouseEvent one, MouseEvent two){
 	Insets insets = this.getInsets();
 	Dimension dim = getSize();
 	double x1percent, x2percent;
@@ -226,7 +244,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		    return;
 		}
 	    }
-	    currentSelection = new Selection(selectionBegin, selectionEnd, timeRegistrar, seisPlotters, this, 
+	    currentSelection = new Selection(selectionBegin, selectionEnd, timeRegistrar, seismos, this, 
 					     selectionColors[selections.size()%selectionColors.length]);
 	    selections.add(currentSelection);
 	    newSelection = true;
@@ -248,7 +266,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	}
 	currentSelection.release();
 	currentSelection = null;
-    }
+    }*/
+
 
     public void clearSelections(){
 	Iterator e = selections.iterator();
@@ -258,7 +277,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	selections.clear();
 	repaint();
     }
-	
+    	
 
     /**
      * Describe <code>remove</code> method here.
@@ -508,6 +527,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     }
     protected static LinkedList imageCache = new LinkedList();
            
+    protected Dimension displaySize;
+
     protected VerticalSeismogramDisplay parent; 
     
     protected Selection currentSelection; 
