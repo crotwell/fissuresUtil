@@ -67,7 +67,9 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 	ampConfig.removeSeismogram(seis);
     }
 
-    public UnitRangeImpl getAmpRange(DataSetSeismogram seis){ return ampConfig.getAmpRange(seis); }
+    public UnitRangeImpl getAmpRange(DataSetSeismogram seis){
+	return ampConfig.getAmpRange(seis); 
+    }
 
     /**
      * Returns the amplitude range for a given seismogram over a time range

@@ -52,5 +52,16 @@ public class SeismogramPlotter extends AbstractSeismogramPlotter{
 	return new GeneralPath();
     }
 
+    
+     public void setVisibility(boolean b){ 
+	 if (b == true) {
+	     ampConfig.addSeismogram(seismogram);
+	 } // end of if (b == true)
+	 else {
+	     ampConfig.removeSeismogram(seismogram);
+	 } // end of else
+	 super.setVisibility(b);
+     }
+
     static Category logger = Category.getInstance(SeismogramPlotter.class.getName());
 }// SeismogramPlotter
