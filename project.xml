@@ -115,10 +115,17 @@ oot:${pom.artifactId}</connection>
       <version>1.0</version>
       <jar>vecmath.jar</jar>
     </dependency>
-
     <dependency>
       <id>hsqldb</id>
       <version>1.7.1</version>
+    </dependency>
+    <dependency>
+      <id>javamail</id>
+      <version>1.3.1</version>
+    </dependency>
+    <dependency>
+      <id>activation</id>
+      <version>1.0.2</version>
     </dependency>
 
 
