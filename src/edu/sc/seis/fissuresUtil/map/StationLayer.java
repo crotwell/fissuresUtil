@@ -155,7 +155,9 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
 		private Color defaultColor;
     }
-    private static int[] xPoints = {-5, 0, 5};
+
+
+	private static int[] xPoints = {-5, 0, 5};
 
     private static int[] yPoints = {5, -5, 5};
 
@@ -168,6 +170,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
     private ChannelChooser chooser;
 
+	private JPopupMenu currentPopup;
+
 	public static final Color STATION = new Color(43, 33, 243);
 
 	public static final Color DOWN_STATION = new Color(183, 183, 183);
@@ -177,6 +181,11 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     }
 
     public boolean mouseClicked(MouseEvent e){
+		if (currentPopup != null){
+			currentPopup.setVisible(false);
+			currentPopup = null;
+		}
+
 		Iterator it = omgraphics.iterator();
 		List stationsUnderMouse = new ArrayList();
 		while(it.hasNext()){
@@ -207,6 +216,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 				double[] popupLoc = {compLocation.getX(), compLocation.getY()};
 				popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
 				popup.setVisible(true);
+				currentPopup = popup;
 			}
 			return true;
 		}
