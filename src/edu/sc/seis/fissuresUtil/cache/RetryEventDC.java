@@ -8,16 +8,15 @@ import org.omg.CORBA.SystemException;
 
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventDC;
-import edu.iris.Fissures.IfEvent.EventDCOperations;
 import edu.iris.Fissures.IfEvent.EventFinder;
 
 /**
  * @author oliverpa
  */
-public class RetryEventDC implements EventDCOperations {
+public class RetryEventDC extends ProxyEventDC {
 
 	public RetryEventDC(EventDC eventDC, int retry){
-		this.eventDC = eventDC;
+		setEventDC(eventDC);
 		this.retry = retry;
 	}
 	
@@ -57,7 +56,6 @@ public class RetryEventDC implements EventDCOperations {
 	        throw lastException;
 	}
 	
-	protected EventDC eventDC;
 	protected int retry;
 	
 	private static final Logger logger = Logger.getLogger(RetryEventDC.class);
