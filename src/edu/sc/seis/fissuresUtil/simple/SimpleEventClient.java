@@ -59,7 +59,7 @@ public class SimpleEventClient extends AbstractClient {
             TimeRange timeRange = new TimeRange(yesterday.getFissuresTime(),
                                                 now.getFissuresTime());
             String[] magTypes = new String[1];
-            magTypes[0] = "ALL";
+            magTypes[0] = "%";
             String[] catalogs = new String[1];
             catalogs[0] = "FINGER";
             String[] contributors = new String[1];
