@@ -28,7 +28,6 @@ public class SeismogramDisplayConfiguration implements Cloneable {
             borderBackground = ColorConfiguration.create(DOMHelper.getElement(el,
                                                                               "borderBackground"));
         }
-        ColorConfiguration borderColor = null;
         if(DOMHelper.hasElement(el, "borderColor")) {
             borderColor = ColorConfiguration.create(DOMHelper.getElement(el,
                                                                          "borderColor"));
@@ -111,6 +110,7 @@ public class SeismogramDisplayConfiguration implements Cloneable {
         clone.swapAxes = swapAxes;
         clone.drawNamesForNamedDrawables = drawNamesForNamedDrawables;
         clone.borderBackground = borderBackground;
+        clone.borderColor = borderColor;
         return clone;
     }
 
@@ -124,7 +124,7 @@ public class SeismogramDisplayConfiguration implements Cloneable {
 
     private boolean drawNamesForNamedDrawables = true, makeDefault = false;
 
-    private ColorConfiguration borderBackground;
+    private ColorConfiguration borderBackground, borderColor;
 
     private static ConfigDefinitions defs = new ConfigDefinitions();
 
