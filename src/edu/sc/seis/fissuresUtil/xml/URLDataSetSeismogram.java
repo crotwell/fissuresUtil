@@ -1,14 +1,18 @@
 package edu.sc.seis.fissuresUtil.xml;
 
+import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
-import java.lang.ref.SoftReference;
+import java.io.IOException;
 import java.net.URL;
+import java.util.WeakHashMap;
 import javax.swing.SwingUtilities;
 
 /**
@@ -26,6 +30,13 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
                                  SeismogramFileTypes fileType,
                                  DataSet dataset,
                                  String name){
+        this(new URL[] { url }, fileType, dataset, name);
+    }
+
+    public URLDataSetSeismogram (URL[] url,
+                                 SeismogramFileTypes fileType,
+                                 DataSet dataset,
+                                 String name){
         super(dataset, name);
         this.url = url;
         this.fileType = fileType;
@@ -33,6 +44,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
 
     public URLDataSetSeismogram (URL url, SeismogramFileTypes fileType, DataSet dataSet){
         this(url, fileType, dataSet, "");
+        String tmpName = url.getFile();
+        int index = tmpName.lastIndexOf(File.separatorChar);
+        setName(tmpName.substring(index)+2);
     }
 
     public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType) {
@@ -47,63 +61,84 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
                             finished(dataListener);
                             return;
                         }
-                        LocalSeismogramImpl seis = getSeismogram();
+
                         LocalSeismogramImpl[] seismos;
-                        if(seis != null) {
-                            seismos = new LocalSeismogramImpl[1];
-                            seismos[0] = seis;
-                            pushData(seismos, dataListener);
-                        } else {
-                            seismos = new LocalSeismogramImpl[0];
+                        for (int i = 0; i < url.length; i++) {
+                            try {
+                                LocalSeismogramImpl seis = getSeismogram(url[i]);
+                                if (seis != null) {
+                                    seismos = new LocalSeismogramImpl[1];
+                                    seismos[0] = seis;
+                                    pushData(seismos, dataListener);
+                                } else {
+                                    seismos = new LocalSeismogramImpl[0];
+                                }
+                            } catch(IOException e) {
+                                error(dataListener, e);
+                            } catch(FissuresException e) {
+                                error(dataListener, e);
+                            }
                         }
                         finished(dataListener);
                     }
                 });
     }
 
-    public String getName() {
-        if(super.getName() == null || super.getName().length()==0 ) {
-            String name = url.getFile();
-            int index = name.lastIndexOf(File.separatorChar);
-            setName(name.substring(index)+2);
-        }
-        return super.getName();
-    }
-
 
     public RequestFilter getRequestFilter() {
         if(super.getRequestFilter() == null) {
-            setRequestFilter(getSeismogram());
+            for (int i = 0; i < url.length; i++) {
+                try {
+                    // this updates the request filter internally as a side effect
+                    LocalSeismogramImpl seis = getSeismogram(url[i]);
+                } catch(IOException e) {
+                    GlobalExceptionHandler.handleStatic("Cannot get seismogram for "+url[i].toString(),
+                                                        e);
+                } catch(FissuresException e) {
+                    GlobalExceptionHandler.handleStatic("Cannot get seismogram for "+url[i].toString(),
+                                                        e);
+                }
+            }
         }
         return requestFilter;
     }
 
     private void setRequestFilter(LocalSeismogramImpl seis){
+        MicroSecondDate begin = seis.getBeginTime();
+        MicroSecondDate end = seis.getEndTime();
+        if (requestFilter != null) {
+            MicroSecondDate tmp = new MicroSecondDate(requestFilter.start_time);
+            if (tmp.before(begin)) begin = tmp;
+            tmp = new MicroSecondDate(requestFilter.end_time);
+            if (tmp.after(end)) end = tmp;
+        }
         requestFilter = new RequestFilter(seis.getChannelID(),
-                                          seis.getBeginTime().getFissuresTime(),
-                                          seis.getEndTime().getFissuresTime());
+                                          begin.getFissuresTime(),
+                                          end.getFissuresTime());
     }
 
-    private LocalSeismogramImpl getSeismogram() {
-        if(!seisCache.isEmpty() &&
-           seisCache.get(0) != null &&
-               ((SoftReference)seisCache.get(0)).get() != null){
-            return (LocalSeismogramImpl)((SoftReference)seisCache.get(0)).get();
+    private LocalSeismogramImpl getSeismogram(URL seisurl)
+        throws IOException, FissuresException {
+
+        Object obj = urlToLSMap.get(seisurl);
+        if (obj != null) {
+            return (LocalSeismogramImpl)obj;
         }
-        try {
-            SacTimeSeries sac = new SacTimeSeries();
-            sac.read(new DataInputStream(new BufferedInputStream(url.openStream())));
-            LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
-            setRequestFilter(seis);
-            addToCache(seis);
-            return seis;
-        } catch(Exception e) {
-            return null;
-        }
+        SacTimeSeries sac = new SacTimeSeries();
+        sac.read(new DataInputStream(new BufferedInputStream(seisurl.openStream())));
+        LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
+        setRequestFilter(seis);
+        addToCache(seis);
+        urlToLSMap.put(seisurl, seis);
+        return seis;
     }
 
-    private URL url;
+    private URL[] url;
 
     private SeismogramFileTypes fileType;
+
+    /** This allows a map from URL to LocalSeismogram, but does not prevent
+     garbage collection. */
+    private WeakHashMap urlToLSMap = new WeakHashMap();
 
 }// URLDataSetSeismogram
