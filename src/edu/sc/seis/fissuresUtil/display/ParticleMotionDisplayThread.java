@@ -95,7 +95,9 @@ public class ParticleMotionDisplayThread{
 	    } else {
 		particleMotionDisplay.formCheckBoxPanel(channelGroup);
 	    }
+
 	}
+	Color displayColor = selectionColors[particleMotionDisplay.getView().getSelectedParticleMotion().length % selectionColors.length];
 
 	for(int counter = 0; counter < dataSetSeismogram.length; counter++) {
 
@@ -108,14 +110,14 @@ public class ParticleMotionDisplayThread{
 		    particleMotionDisplay.displayBackAzimuth(dataSetSeismogram[counter].getDataSet(), channelGroup[counter]);
 		}
 		particleMotionDisplay.getView().addParticleMotionDisplay(dataSetSeismogram[counter], 
-							       dataSetSeismogram[subcounter], 
-							       timeConfigRegistrar, 
-							       hAmpConfigRegistrar, 
-							       vAmpConfigRegistrar, 
-									 selectionColors[particleMotionDisplay.getView().getSelectedParticleMotion().length % selectionColors.length],
-							       getOrientationName(channelGroup[counter].channel_code)+"-"+
-							       getOrientationName(channelGroup[subcounter].channel_code),
-							       horizPlane);
+									 dataSetSeismogram[subcounter], 
+									 timeConfigRegistrar, 
+									 hAmpConfigRegistrar, 
+									 vAmpConfigRegistrar, 
+									 displayColor,
+									 getOrientationName(channelGroup[counter].channel_code)+"-"+
+									 getOrientationName(channelGroup[subcounter].channel_code),
+									 horizPlane);
 		particleMotionDisplay.updateTimeRange();
 		
 	    }
@@ -238,9 +240,11 @@ public class ParticleMotionDisplayThread{
     private ChannelId[] channelGroup;
 
     private static Color[] selectionColors = { new Color(255, 0, 0),  
-					       new Color(255, 255, 0), 
-					       new Color(0, 255, 0),  
-					       new Color(0, 0, 255)};
+					       new Color(0, 0, 255),
+					       Color.magenta,
+					       Color.cyan,
+					       Color.white,
+					       Color.black};
 
 
     static Category logger = 

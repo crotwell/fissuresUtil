@@ -304,8 +304,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
     public synchronized void resize() {
 	if(getSize().width == 0 || getSize().height == 0) return;  
 	Dimension dim = view.getSize();
-	logger.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  IN RESIZE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-	logger.debug("view coordinates before width = "+view.getSize().width+" height = "+view.getSize().height);
+
 	Insets insets =	view.getInsets();
 	int width = particleDisplayPanel.getSize().width;
 	int height = particleDisplayPanel.getSize().height;
