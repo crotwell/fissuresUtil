@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
@@ -14,9 +15,6 @@ import edu.sc.seis.fissuresUtil.sound.PlayEventListener;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -121,7 +119,7 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
      *
      */
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
-        if(visible){
+        if(visible && !BasicSeismogramDisplay.PRINTING){
             double sizeOfDisplay = size.getWidth();
             x0 = (int)sizeOfDisplay - 20;
             x1 = (int)sizeOfDisplay - 15;

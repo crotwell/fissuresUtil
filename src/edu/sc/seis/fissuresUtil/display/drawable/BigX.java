@@ -6,13 +6,13 @@ package edu.sc.seis.fissuresUtil.display.drawable;
  * @author Created by Charlie Groves
  */
 
+import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -35,7 +35,7 @@ public abstract class BigX extends MouseAdapter implements Drawable, MouseMotion
     }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
-        if(visible){
+        if(visible && !BasicSeismogramDisplay.PRINTING){
             canvas.setColor(drawColor);
             canvas.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
             canvas.drawLine(xMin, yMin, xMax, yMax);

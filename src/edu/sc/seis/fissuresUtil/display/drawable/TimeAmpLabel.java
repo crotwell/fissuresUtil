@@ -24,7 +24,7 @@ public class TimeAmpLabel implements NamedDrawable{
     }
 
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
-        if(visible){
+        if(visible && !BasicSeismogramDisplay.PRINTING){
             canvas.setPaint(Color.BLACK);
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(canvas.getFontMetrics().getStringBounds(ampText, canvas));

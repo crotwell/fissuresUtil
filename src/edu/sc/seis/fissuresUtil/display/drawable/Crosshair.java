@@ -5,6 +5,7 @@
  */
 
 package edu.sc.seis.fissuresUtil.display.drawable;
+import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
@@ -43,7 +44,7 @@ public class Crosshair implements Drawable{
     }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
-        if(visible){
+        if(visible && !BasicSeismogramDisplay.PRINTING){
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             canvas.setPaint(Color.RED);
             canvas.draw(topXTriangle);
