@@ -246,10 +246,8 @@ public class PlottableSelection implements Plotter{
                (currx > (beginx - 10) && currx < (beginx + 10) &&
                     curry >= beginy && curry <= endy)
           ) {
-            System.out.println("returning true");
             return true;
         }
-        System.out.println("return false");
         return false;
     }
 
