@@ -21,14 +21,6 @@ import org.apache.log4j.*;
  * ConnCheckerConfig object of this collection.
  *
  * Checker.java
- *
- *
- * @Created Sept 11, 2001 
- *
- * @author Georgina Coleman
- * @version 0
- *
- *
  */
 
 public class Checker {
@@ -43,73 +35,39 @@ public class Checker {
 
         ConnCheckerCollection = connCheckerCollectionReceived;
 	try{
- 	    makeChecksFromConfig();
+ 	    runChecks();
 	}catch(IOException e){
 	    logger.warn("Could not perform makeChecksFromConfig");
 	}
     }
 
     public Checker() {
-
-
-
     }
-
-     /**  An iterator returns the ConnCheckerConfig objects from the collection 
-     * and calls the apropriate ConnChecker to try to connect to it. 
-     * @param  
-     * @returns
-     *    
-     */
-   public void makeChecksFromConfig() throws IOException {
-
-     
-       String type, name, destination;  
-       int sizeofCollection = ConnCheckerCollection.size();
-
-       logger.debug("\nSize of collection is: "+sizeofCollection);
-
-       ConnChecker site=null;
-   
-       ConnCheckerConfig objfromcollection;
-       Iterator collectionExe = ConnCheckerCollection.iterator();
-
-       while(collectionExe.hasNext()){
-
-	    /* Below:Iterator returns the ConncheckerConfig object */
-            objfromcollection =  (ConnCheckerConfig)collectionExe.next();
-          
-           
-            if(objfromcollection instanceof HTTPConfig){
-               site = new HTTPChecker((HTTPConfig)objfromcollection, this);
-            } else
-
-            if(objfromcollection instanceof CORBAConfig){             
-               site = new CorbaChecker((CORBAConfig)objfromcollection, this);              
-            }else {
-		logger.debug("skipping");
-	    }
-
-            Thread th = new Thread(site);
-            th.start();          
-	        
-       }     
     
-    } // close makeChecks
+    public void runChecks() throws IOException {
+	int sizeofCollection = ConnCheckerCollection.size();
 
-    /** Returns how many connections were finished
-     * at the moment the call was made to this method.
-     */   
-    public int checkStatus(){
+	Iterator collectionExe = ConnCheckerCollection.iterator();
+	
+	while(collectionExe.hasNext()){
+	    ConnChecker connChecker =  (ConnChecker)collectionExe.next();
+	    Thread th = new Thread(connChecker);
+	   th.start();          
+	}     
+	
+    } // close runChecks
 
-       ConnCheckerConfig objfromcollection;
+   
+    public int getNumFinished(){
+
+       ConnChecker objfromcollection;
        Iterator collectionExe = ConnCheckerCollection.iterator();
        int sizeofCollection = ConnCheckerCollection.size();
        int totalfinished = 0;
 
        while(collectionExe.hasNext()){
-          objfromcollection = (ConnCheckerConfig) collectionExe.next();
-	  if(objfromcollection.getFinished() == true){
+          objfromcollection = (ConnChecker) collectionExe.next();
+	  if(objfromcollection.isFinished() == true){
 	      totalfinished+=1;
           }
        }
@@ -124,7 +82,7 @@ public class Checker {
      */
   public Collection getSuccessfulConnections(){
 
-       ConnCheckerConfig objfromcollection;      
+       ConnChecker  objfromcollection;      
        Iterator collectionExe = ConnCheckerCollection.iterator();
        boolean conn = false;
        Collection collectionofSuccessful=new LinkedList();   
@@ -133,12 +91,11 @@ public class Checker {
 
        while(collectionExe.hasNext()){
 
-          objfromcollection = (ConnCheckerConfig) collectionExe.next();
-	  conn = objfromcollection.getSuccessful();
-
-	  if(conn == true){
+          objfromcollection = (ConnChecker) collectionExe.next();
+	  
+	  if(objfromcollection.isSuccessful()){
 	      collectionofSuccessful.add(objfromcollection);
-	      logger.debug("Successful: " + objfromcollection.getName());
+	      //	      logger.debug("Successful: " + objfromcollection.getName());
 	  }       
 
        }//close while
@@ -151,17 +108,16 @@ public class Checker {
      */
  public Collection getFinishedConnections(){
 
-       ConnCheckerConfig objfromcollection;
+       ConnChecker objfromcollection;
        Iterator collectionExe = ConnCheckerCollection.iterator();
        boolean conn = false;
        Collection collectionofFinished=new LinkedList();   
        logger.debug("\nThe finished connections are: ");
        while(collectionExe.hasNext()){
-          objfromcollection = (ConnCheckerConfig) collectionExe.next();
-	  conn = objfromcollection.getFinished();
-	  if(conn == true){
-             collectionofFinished.add(objfromcollection);
-	     logger.debug("Finished: " + objfromcollection.getName());
+          objfromcollection = (ConnChecker) collectionExe.next();
+	   if(objfromcollection.isFinished()){
+	       collectionofFinished.add(objfromcollection);
+	       //  logger.debug("Finished: " + objfromcollection.getName());
 	  }       
        }//close while
        return collectionofFinished;
@@ -173,17 +129,16 @@ public class Checker {
      */
  public Collection  getUnsuccessfulConnections(){
 
-       ConnCheckerConfig objfromcollection;
+       ConnChecker objfromcollection;
        Iterator collectionExe = ConnCheckerCollection.iterator();
        boolean conn = false;
        Collection collectionofFailed=new LinkedList(); 
        logger.debug("\nThe failed connections are: ");
        while(collectionExe.hasNext()){
-          objfromcollection = (ConnCheckerConfig) collectionExe.next();
-	  conn = objfromcollection.getSuccessful();
-	  if(conn == false){
+          objfromcollection = (ConnChecker) collectionExe.next();
+	  if(objfromcollection.isFinished() && objfromcollection.isSuccessful() == false){
               collectionofFailed.add(objfromcollection);
-	      logger.debug("Failed: " + objfromcollection.getName());
+	      //   logger.debug("Failed: " + objfromcollection.getName());
           }
        }//close while
        return collectionofFailed;
@@ -195,24 +150,23 @@ public class Checker {
      */
  public Collection getUnfinishedConnections(){
 
-       ConnCheckerConfig objfromcollection;
+       ConnChecker  objfromcollection;
        Iterator collectionExe = ConnCheckerCollection.iterator();
        boolean conn = false;
        Collection collectionofUnfinished=new LinkedList();   
        logger.debug("\nThe unfinished connections are: ");
        while(collectionExe.hasNext()){
-          objfromcollection = (ConnCheckerConfig) collectionExe.next();
-	  conn = objfromcollection.getFinished();
-	  if(conn == false){
+          objfromcollection = (ConnChecker) collectionExe.next();
+	  if(objfromcollection.isFinished() == false){
               collectionofUnfinished.add(objfromcollection);
-              logger.debug("Unfinished: " + objfromcollection.getName());
+	      // logger.debug("Unfinished: " + objfromcollection.getName());
 	  }       
        }//close while
        return collectionofUnfinished;
     }
 
     public java.util.HashMap getStatus() {
-
+	/**
 	ConnCheckerConfig objfromcollection;
        Iterator collectionExe = ConnCheckerCollection.iterator();
        boolean conn = false;
@@ -236,12 +190,13 @@ public class Checker {
 	  }
        }//close while
        // return collectionofFailed;
-       return hashMap;
+       return hashMap;**/
+					 return null;
 
     }
 
     public void addHTTPConnection(String description, String url) {
-
+	/***
 	URL urltocheck = null;
 	ConnCheckerConfig configobj;
 	try {
@@ -258,11 +213,12 @@ public class Checker {
 	 Thread th = new Thread(site);
 	 th.start();     
 	 System.out.println("Added the http connection "+description+" to the list of connections to check");
+	****/
 
     }
 
       public void addCORBAConnection(String description,  org.omg.CORBA.Object object) {
-
+	  /***
 	ConnCheckerConfig configobj;
 	 configobj = new CORBAConfig(description, object, this);
 	 ConnCheckerCollection.add(configobj);
@@ -271,13 +227,14 @@ public class Checker {
 	 Thread th = new Thread(site);
 	 th.start();
 	 System.out.println("Added the corba connection "+description+" to the list of connections to check");
+	  ***/
 
     }
     
 
     public synchronized void fireStatusChanged(String urlStr, ConnStatus connectionStatus) {
 
-	
+	/*
 	for(int counter = 0; counter < statusChangeListeners.size(); counter++) {
 
 	    System.out.println("Function fireStatusChanged is invoked by "+urlStr+" ----> "+connectionStatus);
@@ -286,24 +243,29 @@ public class Checker {
 	    listener.statusChanged(new StatusChangedEvent(this, urlStr, connectionStatus));
 
 	}
-
+	*/
     }
 
     public void addConnStatusChangedListener(ConnStatusChangedListener listener) {
 
-	statusChangeListeners.add(listener);
-
-
+	Iterator collectionExe = ConnCheckerCollection.iterator();
+	while(collectionExe.hasNext()){
+	    ConnChecker connChecker =  (ConnChecker)collectionExe.next();
+	    connChecker.addConnStatusChangedListener(listener);
+	}     
     }
 
     public void removeConnStatusChangedListener(ConnStatusChangedListener listener) {
-
-	statusChangeListeners.remove(listener);
+	Iterator collectionExe = ConnCheckerCollection.iterator();
+	while(collectionExe.hasNext()){
+	    ConnChecker connChecker =  (ConnChecker)collectionExe.next();
+	    connChecker.removeConnStatusChangedListener(listener);
+	}
     }
 
     private Collection ConnCheckerCollection;/*LinkedList collection*/
 
-    private Vector statusChangeListeners = new Vector();
+    //private Vector statusChangeListeners = new Vector();
 
     static Category logger = Category.getInstance(Checker.class);
   

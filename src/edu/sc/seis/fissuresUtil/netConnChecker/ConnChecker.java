@@ -25,10 +25,14 @@ import org.apache.log4j.*;
  */
 
 public interface ConnChecker  extends Runnable {
-
-   
-   
-
+    public boolean isFinished();
+    public boolean isTrying();
+    public boolean isUnknown();
+    public boolean isSuccessful();
+    public ConnStatus getStatus();
+    public void addConnStatusChangedListener(ConnStatusChangedListener listener);
+    public void removeConnStatusChangedListener(ConnStatusChangedListener listener);
+    public void fireStatusChanged(String urlStr, ConnStatus connectionStatus);
 }// ConnChecker interface
 
 /************************************************************/

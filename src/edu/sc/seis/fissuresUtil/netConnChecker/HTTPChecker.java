@@ -10,77 +10,55 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import org.apache.log4j.*;
 
-/**
- * Description: This implementation receives a ConnCheckerConfig object,
- * that contains 4 fields: name, URL,  finished and succesful.
- * HTTPChecker.java
- *
- * @Created Sept 10, 2001 
- *
- * @author Georgina Coleman
- * @version 0
- *
- */
 
-public class HTTPChecker implements ConnChecker  {
+
+public class HTTPChecker extends ConcreteConnChecker  {
  
-   /** The constructor receives a ConnCheckerConfig object
-    * @param conncheckerobject a ConnCheckerConfig object
-    */ 
-   public HTTPChecker(HTTPConfig conncheckerobjectgiven, Checker checker){
-
-       conncheckerobject = conncheckerobjectgiven;
-       this.checker = checker;
-
+   
+   public HTTPChecker(String description, String url){
+       super(description);
+        this.url = url;
    }// constructor
 
-        
-   /** Pre:  A Runnable thread calls run()
-    *  Post: Attempt to connect to a http site  
-    *  and set the ConnCheckerConfig finished
-    *  and successful to be true or false.
-    */ 
-   
+  
     public void run ()  {
  
-       long begintime;
+	System.out.println("running the HTTP Checker for "+getDescription());
+	  long begintime;
        long endtime; 
 
      
        try{
-	   Thread.sleep(2000);
-           begintime = System.currentTimeMillis();         
-	   URL seis = conncheckerobject.getURL();
+	   begintime = System.currentTimeMillis();         
+	   URL seis = new URL(this.url);
            URLConnection seisConnection = seis.openConnection();
            InputStreamReader buffer = new InputStreamReader(seisConnection.getInputStream());
            BufferedReader bufferread = new BufferedReader(buffer);	  
-           
-           logger.debug(bufferread.readLine());
-
-           endtime = System.currentTimeMillis();
+	   endtime = System.currentTimeMillis();
            long duration = endtime-begintime;
-
-	   conncheckerobject.setTime(duration);
-           conncheckerobject.setSuccessful(true);
-	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.SUCCESSFUL);
-	   System.out.println(conncheckerobject.getName()+" is connected." );
-
-           logger.debug("Connection to "+ conncheckerobject.getName()+" "+conncheckerobject.getTime()+" milliseconds"); 
-
+	   setTrying(false);
+	   setFinished(true);
+	   setSuccessful(true);
+	   System.out.println("Successful");
+	   fireStatusChanged(getDescription(), ConnStatus.SUCCESSFUL);
        } catch (MalformedURLException urle) {
-           conncheckerobject.setSuccessful(false);
-	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.FAILED);
-	   System.out.println(conncheckerobject.getName() + " Not connected");
+	   setTrying(false);
+	   setFinished(true);
+           setSuccessful(false);
+	   setUnknown(true);
+	   System.out.println("Unknown");
+	   fireStatusChanged(getDescription(), ConnStatus.UNKNOWN);
        } catch (IOException ioe) {
-           conncheckerobject.setSuccessful(false);  
-	   System.out.println(conncheckerobject.getName() + " Not connected");
-	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.FAILED);
+	   setTrying(false);
+	   setFinished(true);
+	   setSuccessful(false);  
+	   System.out.println("failed");
+	   //System.out.println(conncheckerobject.getName() + " Not connected");
+	   fireStatusChanged(getDescription(), ConnStatus.FAILED);
        } catch(Exception e) {
-
 	   e.printStackTrace();
-
        }
-       
+       /*
        if(conncheckerobject.getSuccessful() != true){
 	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.FAILED);
            //logger.debug
@@ -92,14 +70,10 @@ public class HTTPChecker implements ConnChecker  {
        }
 
        conncheckerobject.setFinished(true);
-   
+       */
    } // run
     
-
-    
-  
-   HTTPConfig conncheckerobject;
-    Checker checker;
+    private String url;
    static Category logger = Category.getInstance(HTTPChecker.class);
 
 } // HTTPChecker class
