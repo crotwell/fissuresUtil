@@ -20,7 +20,7 @@ public class SeisDataErrorEvent extends SeisDataChangeEvent implements WrappedEx
         this.causalException = e;
     }
 
-    public Exception getCausalException() {
+    public Throwable getCausalException() {
         return causalException;
     }
 
