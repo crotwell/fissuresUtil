@@ -4,6 +4,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
+import org.apache.log4j.Category;
 /**
  * SeismogramShapeIterator encapsulates a single plotting of a SeismogramShape.
  *
@@ -98,6 +99,8 @@ public class SeismogramShapeIterator implements PathIterator {
         startIndex = drawnPixels[0];
         endIndex = drawnPixels[1];
         currentIndex = startIndex;
+        logger.debug("Iterator drawing on " + startIndex +
+                         ", " + endIndex);
     }
     
     public int[] getDrawnPixels(){
@@ -180,6 +183,9 @@ public class SeismogramShapeIterator implements PathIterator {
         min = !min;
         coordinates[0] = currentIndex;
         coordinates[1] = points[i][currentIndex];
+        if(coordinates[0] % 100 == 0){
+            logger.debug("x: " + coordinates[0] + " y: " + coordinates[1]);
+        }
         if(at != null){
             at.transform(coordinates, 0, coordinates, 0, 1);
         }
@@ -233,7 +239,9 @@ public class SeismogramShapeIterator implements PathIterator {
     
     protected int startIndex, endIndex, currentIndex;
     
-    protected AffineTransform at;
+    protected AffineTransform at; 
     
-    
+    private static Category logger =
+        Category.getInstance(SeismogramShapeIterator.class.getName());    
 }// SeismogramShapeIterator
+
