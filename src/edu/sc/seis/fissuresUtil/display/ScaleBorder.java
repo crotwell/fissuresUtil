@@ -92,14 +92,14 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                             pixelLoc <=height-insets.bottom-bottom) {
                             if (leftScaleMap.isMajorTick(i)) {
                                 copy.draw(new Line2D.Float(left-majorTickLength,
-                                              pixelLoc,
-                                              left,
-                                              pixelLoc));
+							   pixelLoc,
+							   left,
+							   pixelLoc));
                             } else {
-                                copy.drawLine(left-minorTickLength,
-                                              pixelLoc,
-                                              left,
-                                              pixelLoc);
+                                copy.draw(new Line2D.Float(left-minorTickLength,
+							   pixelLoc,
+							   left,
+							   pixelLoc));
                             }
                             labelTemp = leftScaleMap.getLabel(i);
                             if (labelTemp != null && labelTemp.length() != 0) {
@@ -125,11 +125,11 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                                            pixelLoc,
                                            height-bottom+majorTickLength));
                             } else {
-                                copy.drawLine(pixelLoc,
-                                           height-bottom,
-                                           pixelLoc,
-                                           height-bottom+minorTickLength);
-                            }
+                                copy.draw(new Line2D.Float(pixelLoc,
+							   height-bottom,
+							   pixelLoc,
+							   height-bottom+minorTickLength));
+			    }
                             labelTemp = bottomScaleMap.getLabel(i);
                             if (labelTemp != null && labelTemp.length() != 0) {
                                 copy.drawString(labelTemp,
