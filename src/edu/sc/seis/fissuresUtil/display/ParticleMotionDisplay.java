@@ -34,6 +34,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
      */
     public ParticleMotionDisplay (LocalSeismogramImpl hSeis,
 				  LocalSeismogramImpl vSeis,
+				  TimeRangeConfig timeRangeConfig,
 				  AmpRangeConfig hAmpRangeConfig,
 				  AmpRangeConfig vAmpRangeConfig){
 	
@@ -41,7 +42,12 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	this.vAmpRangeConfig = vAmpRangeConfig;
 	
 	this.setLayout(new OverlayLayout(this));
-	view = new ParticleMotionView(hSeis, vSeis, hAmpRangeConfig, vAmpRangeConfig, this);
+	view = new ParticleMotionView(hSeis, 
+				      vSeis, 
+				      timeRangeConfig,
+				      hAmpRangeConfig, 
+				      vAmpRangeConfig, 
+				      this);
 	add(view, PARTICLE_MOTION_LAYER);
         hAmpScaleMap = new AmpScaleMapper(50,
                                           4,
@@ -81,16 +87,18 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
     public ParticleMotionDisplay(LocalSeismogramImpl hseis,
 				 LocalSeismogramImpl vseis,
+				 TimeRangeConfig timeRangeConfig,
 				 AmpRangeConfig ampRangeConfig) {
 
-	this(hseis, vseis, ampRangeConfig, ampRangeConfig);
+	this(hseis, vseis, timeRangeConfig, ampRangeConfig, ampRangeConfig);
     }
 
     public ParticleMotionDisplay(LocalSeismogramImpl hseis,
-				 LocalSeismogramImpl vseis) {
+				 LocalSeismogramImpl vseis, 
+				 TimeRangeConfig timeRangeConfig) {
 
 	//	AmpRangeConfig ampConfig = new RMeanAmpConfig();
-	this(hseis, vseis, new RMeanAmpConfig());
+	this(hseis, vseis, timeRangeConfig, new RMeanAmpConfig());
     }
 
 
@@ -204,8 +212,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	RMeanAmpConfig vAmpRangeConfig = new RMeanAmpConfig();
        
         final ParticleMotionDisplay sv = new ParticleMotionDisplay(hSeis, vSeis,
-							  vAmpRangeConfig, 
-							  vAmpRangeConfig);
+								   null,
+								   vAmpRangeConfig, 
+								   vAmpRangeConfig);
         java.awt.Dimension size = new java.awt.Dimension(400, 400);
         sv.setPreferredSize(size);
 

@@ -19,15 +19,18 @@ public class AmpScaleMapper implements ScaleMapper {
     public AmpScaleMapper(int totalPixels,
                           int hintPixels,
                           UnitRangeImpl range) {
-        this.totalPixels = totalPixels;
+	this.totalPixels = totalPixels;
         this.hintPixels = hintPixels;
-        this.range = range;
+	this.range = range;
         calculateTicks();
     }
+    
+  
   
     public int getPixelLocation(int i) {
-        return totalPixels-SeisPlotUtil.getPixel(totalPixels, range, 
-                                                 minTick + i * tickInc);
+        return SeisPlotUtil.getPixel(totalPixels, range, 
+				     minTick + i * tickInc);
+	//earlier it was total
     }
 
     public String getLabel(int i) {
@@ -105,7 +108,7 @@ public class AmpScaleMapper implements ScaleMapper {
 	while (minTick + numTicks * tickInc <= range.getMaxValue() ) {
             numTicks++; 
         }
-        //        System.out.println("tickInc="+tickInc+" minTick="+minTick+" minMajorTick="+minMajorTick+" numTicks="+numTicks);
+         //System.out.println("tickInc="+tickInc+" minTick="+minTick+" minMajorTick="+minMajorTick+" numTicks="+numTicks);
 
     }
     

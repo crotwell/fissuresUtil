@@ -26,10 +26,12 @@ import org.apache.log4j.*;
 public class ParticleMotionView extends JComponent{
     public ParticleMotionView (final LocalSeismogramImpl hseis, 
 			       LocalSeismogramImpl vseis,
+			       TimeRangeConfig timeRangeConfig,
 			       final AmpRangeConfig hAmpRangeConfig,
 			       AmpRangeConfig vAmpRangeConfig, ParticleMotionDisplay particleMotionDisplay){
 	
 	this.particleMotionDisplay = particleMotionDisplay;
+	this.timeRangeConfig = timeRangeConfig;
 
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
@@ -250,22 +252,36 @@ public class ParticleMotionView extends JComponent{
 		logger.debug("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
 				   " vmin = "+vunitRangeImpl.getMinValue());
 				   
+		MicroSecondTimeRange microSecondTimeRange = null;
+		if(timeRangeConfig == null) {
+		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
+								    new MicroSecondDate(hseis.getEndTime()));
+		} else {
+		    microSecondTimeRange = timeRangeConfig.getTimeRange();
+		}
+
+		
 		int[][] hPixels = SimplePlotUtil.compressYvalues(hseis, 
-								 new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
-											  new MicroSecondDate(hseis.getEndTime())),
-								 hunitRangeImpl,							
+								 microSecondTimeRange,
+								 hunitRangeImpl,					
 								 flipDimension);
+
 
 
 		SimplePlotUtil.scaleYvalues(hPixels,
 					    hseis, 
-					    new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
-								     new MicroSecondDate(hseis.getEndTime())),
+					    microSecondTimeRange,
 					    hunitRangeImpl,							
 					    flipDimension);
+		if(timeRangeConfig == null) {
+		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(vseis.getBeginTime()),
+								    new MicroSecondDate(vseis.getEndTime()));
+		} else {
+		    microSecondTimeRange = timeRangeConfig.getTimeRange();
+		}
+
 		int[][] vPixels = SimplePlotUtil.compressYvalues(vseis, 
-								 new MicroSecondTimeRange(new MicroSecondDate(vseis.getBeginTime()),
-											  new MicroSecondDate(vseis.getEndTime())),
+								 microSecondTimeRange,
 								 vunitRangeImpl,			
 								 dimension);
 
@@ -273,8 +289,7 @@ public class ParticleMotionView extends JComponent{
 		logger.debug("---------------------->Scaling THE Y VALUES ");
 		SimplePlotUtil.scaleYvalues(vPixels,
 					    vseis, 
-					    new MicroSecondTimeRange(new MicroSecondDate(vseis.getBeginTime()),
-								     new MicroSecondDate(vseis.getEndTime())),
+					    microSecondTimeRange,
 					    vunitRangeImpl,			
 					    dimension);
 
@@ -544,6 +559,7 @@ public class ParticleMotionView extends JComponent{
     UnitRangeImpl vunitRangeImpl = null;
     java.awt.geom.Point2D.Float startPoint;
     java.awt.geom.Point2D.Float endPoint;
+    TimeRangeConfig timeRangeConfig = null;
 
     private static int RGBCOLOR = 0;
     private ParticleMotionDisplay particleMotionDisplay; 
