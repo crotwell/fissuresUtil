@@ -6,7 +6,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding;
+import edu.iris.Fissures.codec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import java.awt.Dimension;
 import org.apache.log4j.*;
@@ -27,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2819 2002-10-24 18:13:40Z groves $
+ * @version $Id: SeismogramShape.java 2951 2002-11-23 03:01:07Z crotwell $
  */
 
 public class SeismogramShape implements Shape, Plotter {
@@ -100,11 +100,11 @@ public class SeismogramShape implements Shape, Plotter {
 	    plotSize = size;
 	    canvas.setColor(color);
 	    canvas.draw(this);
-	}catch(UnsupportedDataEncoding e){ e.printStackTrace(); }
+	}catch(CodecException e){ e.printStackTrace(); }
 	return this;
     } 
 
-    private void plotAll(Dimension size) throws UnsupportedDataEncoding{
+    private void plotAll(Dimension size) throws CodecException{
 	if(seisEnd <= seis.getNumPoints() && seisStart >= 0){
 	    if(seisStart != 0){
 		startPixel = 0;
@@ -124,7 +124,7 @@ public class SeismogramShape implements Shape, Plotter {
 	
     }
     
-    private void plotCompress(int height) throws UnsupportedDataEncoding{
+    private void plotCompress(int height) throws CodecException{
 	for(int i = startPixel; i < endPixel; i++){
 	    calculatePixel(i, height);
 	}
@@ -136,9 +136,9 @@ public class SeismogramShape implements Shape, Plotter {
      * left
      * @param time the current time for the seismogram
      * @param size the current pixel size of the rendering surface 
-     * @exception UnsupportedDataEncoding if an error occurs
+     * @exception CodecException if an error occurs
      */
-    private void dragPlot(MicroSecondTimeRange time, Dimension size) throws UnsupportedDataEncoding{
+    private void dragPlot(MicroSecondTimeRange time, Dimension size) throws CodecException{
 	int start = 0;
 	int end = 0;
 	offset += ((plotTime - time.getBeginTime().getMicroSecondTime())/
@@ -204,7 +204,7 @@ public class SeismogramShape implements Shape, Plotter {
 	samplesPerPixel = (seisEnd - seisStart)/(double)(endPixel - startPixel);
     }
     
-    private void calculatePixel(int pixel, int height)throws UnsupportedDataEncoding{
+    private void calculatePixel(int pixel, int height)throws CodecException{
 	int start = (int)Math.floor(seisStart + samplesPerPixel * (pixel - startPixel));
 	if(start < 0){
 	    start = 0;

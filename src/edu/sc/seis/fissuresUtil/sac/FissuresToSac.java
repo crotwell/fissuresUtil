@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.sac;
 
 import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.codec.CodecException;
 import edu.iris.Fissures.event.*;
 import edu.iris.Fissures.IfEvent.*;
 import edu.iris.Fissures.network.*;
@@ -33,7 +34,7 @@ public class FissuresToSac {
      * @return a <code>SacTimeSeries</code> with data and headers filled
      */
     public static SacTimeSeries getSAC(LocalSeismogramImpl seis) 
-	throws edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding 
+	throws CodecException
     {
 	SacTimeSeries sac = new SacTimeSeries();
         float[] floatSamps;
@@ -101,7 +102,7 @@ public class FissuresToSac {
      */
     public static SacTimeSeries getSAC(LocalSeismogramImpl seis,
 				       Channel channel)
-	throws edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding 
+	throws CodecException
     {
 	SacTimeSeries sac = getSAC(seis);
 	addChannel(sac, channel);
@@ -119,7 +120,7 @@ public class FissuresToSac {
      */
     public static SacTimeSeries getSAC(LocalSeismogramImpl seis,
 				       Origin origin) 
-	throws edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding 
+	throws CodecException
     {
 	SacTimeSeries sac = getSAC(seis);
 	addOrigin(sac, origin);
@@ -139,7 +140,7 @@ public class FissuresToSac {
     public static SacTimeSeries getSAC(LocalSeismogramImpl seis,
 				       Channel channel,
 				       Origin origin) 
-	throws edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding 
+	throws CodecException
     {
 	SacTimeSeries sac = getSAC(seis);
 	addChannel(sac, channel);
