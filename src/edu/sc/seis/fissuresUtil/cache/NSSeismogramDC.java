@@ -13,12 +13,14 @@ public class NSSeismogramDC implements ProxySeismogramDC {
     public NSSeismogramDC(String serverDNS,
                           String serverName,
                           FissuresNamingService fissuresNamingService) {
-        this.dns = serverDNS;
+        this.serverDNS = serverDNS;
         this.serverName = serverName;
         this.nameService = fissuresNamingService;
     } // NSEventDC constructor
 
-    public String getDns(){ return dns; }
+    public String getServerDNS(){
+        return serverDNS;
+    }
 
     public String getServerName() { return serverName; }
 
@@ -34,25 +36,25 @@ public class NSSeismogramDC implements ProxySeismogramDC {
         if ( dc == null) {
             try {
                 try {
-                    dc = nameService.getSeismogramDC(dns, serverName);
+                    dc = nameService.getSeismogramDC(serverDNS, serverName);
                 } catch (Throwable t) {
                     nameService.reset();
-                    dc = nameService.getSeismogramDC(dns, serverName);
+                    dc = nameService.getSeismogramDC(serverDNS, serverName);
                 }
             } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+dns+" "+e.toString(),
+                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
                                                   0,
                                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+dns+" "+e.toString(),
+                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
                                                   0,
                                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+dns+" "+e.toString(),
+                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
                                                   0,
                                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+dns+" "+e.toString(),
+                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
                                                   0,
                                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             } // end of try-catch
@@ -156,7 +158,7 @@ public class NSSeismogramDC implements ProxySeismogramDC {
     }
 
 
-    protected String dns, serverName;
+    protected String serverDNS, serverName;
 
     private DataCenter dc;
 
