@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,7 +25,9 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
         for (int i = 0; i < seismos.length; i++){
             amps[i] = wrapped.getAmpData(seismos[i]).getRange();
         }
-        return new AmpEvent(seismos, amps);
+        AmpEvent individualizedAmps = new AmpEvent(seismos, amps);
+        individualizedAmps.setAmp(DisplayUtils.ONE_RANGE);
+        return individualizedAmps;
     }
 
     public void clear() {
