@@ -9,8 +9,10 @@ package edu.sc.seis.fissuresUtil.bag;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import java.io.Serializable;
 
-public class LongShortTrigger {
+public class LongShortTrigger implements Serializable {
+
     public LongShortTrigger(LocalSeismogramImpl seis, int index, float value, float sta, float lta) {
         this(seis, index, value,
              seis.getBeginTime().add((TimeInterval)seis.getSampling().getPeriod().multiplyBy(index)),
