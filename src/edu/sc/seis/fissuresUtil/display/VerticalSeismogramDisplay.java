@@ -10,13 +10,14 @@ import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javax.swing.BoxLayout;
 import org.apache.log4j.Logger;
 
 /**
@@ -37,6 +38,11 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     }
 
     protected class CenterPanel extends SeismogramDisplayProvider{
+        public CenterPanel(){
+            BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
+            setLayout(layout);
+        }
+
         public SeismogramDisplay provide() {
             return VerticalSeismogramDisplay.this;
         }
@@ -49,23 +55,37 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         }
 
         public void setBorders(){
-            int num = getComponentCount();
-            if(getComponentCount() > 1){
-                SeismogramDisplay first = (SeismogramDisplay)getComponent(0);
-                first.add(new TimeBorder(first), TOP_CENTER);
-                for (int i = 1; i < num - 1; i++) {
-                    SeismogramDisplay cur = (SeismogramDisplay)getComponent(i);
-                    cur.clear(TOP_CENTER);
-                    cur.clear(BOTTOM_CENTER);
+            if(getComponentCount() >= 1){
+                if(!get(0).isFilled(TOP_CENTER)){
+                    get(0).add(new TimeBorder(get(0)), TOP_CENTER);
+                }
+                if(getComponentCount() > 1){
+                    get(0).clear(BOTTOM_CENTER);
+                    getLast().clear(TOP_CENTER);
+                }
+                for (int i = 1; i < getComponentCount() - 1; i++) {
+                    get(i).clear(TOP_CENTER);
+                    get(i).clear(BOTTOM_CENTER);
+                }
+                if(!getLast().isFilled(BOTTOM_CENTER)){
+                    getLast().add(new TimeBorder(getLast(), TimeBorder.BOTTOM),
+                                  BOTTOM_CENTER);
                 }
             }
-            SeismogramDisplay last = (SeismogramDisplay)getComponent(num - 1);
-            last.clear(TOP_CENTER);
-            last.add(new TimeBorder(last, Border.BOTTOM), BOTTOM_CENTER);
+        }
+
+        private SeismogramDisplay get(int pos){
+            return (SeismogramDisplay)super.getComponent(pos);
+        }
+
+        private SeismogramDisplay getLast(){
+            return get(getComponentCount() - 1);
         }
     }
 
-    public void add(DataSetSeismogram[] dss){ addDisplay(dss); }
+    private static final Color EVEN = new Color(0, 0, 0, 0), ODD = Color.WHITE;
+
+    public abstract void add(DataSetSeismogram[] dss);
 
     public void remove(DataSetSeismogram[] dss){
         for (int i = 0; i < cp.getComponentCount(); i++) {
@@ -81,43 +101,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         }
         return false;
     }
-
-    /**
-     * adds the given seismograms to the VSD with their seismogram names as suggestions
-     *
-     *
-     * @param dss the seismograms to be added
-     * @return the BSD the seismograms were added to
-     */
-    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss);
-
-    /**
-     * adds the seismograms to the VSD with the passed timeConfig
-     *
-     * @param dss the seismograms to be added
-     * @param tc the time config for the new seismograms
-     * @return the BSD the seismograms were added to
-     */
-    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc);
-
-    /**
-     * adds the seismograms to the VSD with the passed amp config
-     * @param dss the seismograms to be added
-     * @param ac the amp config for the new seismograms
-     * @return the BSD the seismograms were added to
-     */
-    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac);
-
-    /**
-     * adds the seismograms to the VSD with the passed timeConfig and ampConfig
-     *
-     * @param dss the seismograms for the new BSD
-     * @param tc the time config for the new BSD
-     * @param ac the amp config for the new BSD
-     * @return the BSD the seismograms were added to
-     *
-     */
-    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac);
 
     public void add(Drawable drawable){}//NO IMPL
 
