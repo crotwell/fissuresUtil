@@ -353,7 +353,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void outputToPNG(String filename) throws IOException{
-        Dimension size = getSize();
+        Dimension size = getPreferredSize();
         BufferedImage bImg = new BufferedImage(size.width, size.height,
                                                BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = bImg.createGraphics();
