@@ -217,7 +217,6 @@ public class SeismogramIterator implements Iterator{
     public String toString(){ return name + " iterator"; }
 
     private Object[] getSeisAtWithInternal(int position){
-        logger.info("getting seis with internal");
         Iterator it = iterateList.iterator();
         int curPosition = 0;
         while(it.hasNext()){
