@@ -159,6 +159,10 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         currentEvent = null;
     }
 
+    public ChannelChooser getChannelChooser(){
+        return chooser;
+    }
+
     private class OMStation extends OMPoly{
         public OMStation(Station stat){
             super(stat.my_location.latitude,
@@ -364,4 +368,5 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         return dist;
     }
 }
+
 
