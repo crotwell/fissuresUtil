@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
 /**
- * Description: StatusChangedEvent is fired when ever the status of 
- * ConnChecker is changed. 
+ * Description: StatusChangedEvent is fired when ever the status of
+ * ConnChecker is changed.
  *
  *
  * Created: Wed Jan 30 11:07:29 2002
@@ -20,12 +20,12 @@ public class StatusChangedEvent {
      * @param urlStr a <code>String</code> value
      * @param connectionStatus a <code>ConnStatus</code> value
      */
-    public StatusChangedEvent (java.lang.Object checker, String urlStr, ConnStatus connectionStatus){
+    public StatusChangedEvent (java.lang.Object checker, String urlStr, ConnStatusResult connectionStatus){
 
-	setObject(checker);
-	setConnStatus(connectionStatus);
-	setURLStr(urlStr);
-	
+    setObject(checker);
+    setConnStatus(connectionStatus);
+    setURLStr(urlStr);
+
     }
 
     /**
@@ -35,7 +35,7 @@ public class StatusChangedEvent {
      */
     public void setObject(java.lang.Object checker) {
 
-	this.checker = checker;
+    this.checker = checker;
 
     }
 
@@ -44,9 +44,9 @@ public class StatusChangedEvent {
      *
      * @param connectionStatus a <code>ConnStatus</code> value
      */
-    public void setConnStatus(ConnStatus connectionStatus) {
+    public void setConnStatus(ConnStatusResult connectionStatus) {
 
-	this.connectionStatus = connectionStatus;
+    this.connectionStatus = connectionStatus;
 
     }
 
@@ -57,7 +57,7 @@ public class StatusChangedEvent {
      */
     public void setURLStr(String urlStr) {
 
-	this.urlStr = urlStr;
+    this.urlStr = urlStr;
 
     }
 
@@ -68,7 +68,7 @@ public class StatusChangedEvent {
      */
     public Object getObject() {
 
-	return checker;
+    return checker;
 
     }
 
@@ -77,10 +77,10 @@ public class StatusChangedEvent {
      *
      * @return a <code>ConnStatus</code> value
      */
-    public ConnStatus getConnStatus() {
+    public ConnStatusResult getConnStatus() {
 
 
-	return connectionStatus;
+    return connectionStatus;
 
     }
 
@@ -91,14 +91,14 @@ public class StatusChangedEvent {
      */
     public String getURLStr() {
 
-	return urlStr;
+    return urlStr;
 
     }
 
     private java.lang.Object checker;
-    
-    private ConnStatus connectionStatus;
+
+    private ConnStatusResult connectionStatus;
 
     private String urlStr;
-    
+
 }// StatusChangedEvent

@@ -25,7 +25,7 @@ import org.apache.log4j.*;
  */
 
 public interface ConnChecker  extends Runnable {
-    public ConnStatus getStatus();
+    public ConnStatusResult getStatus();
     public String getDescription();
     public void addConnStatusChangedListener(ConnStatusChangedListener listener);
     public void removeConnStatusChangedListener(ConnStatusChangedListener listener);
