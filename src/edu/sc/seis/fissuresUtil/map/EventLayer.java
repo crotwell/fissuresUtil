@@ -133,13 +133,11 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     }
 
     public boolean mouseClicked(MouseEvent e){
-		System.out.println("mouseClicked");
 		synchronized(circles){
 			Iterator it = circles.iterator();
 			while(it.hasNext()){
 				OMEvent current = (OMEvent)it.next();
 				if(current.getBigCircle().contains(e.getX(), e.getY())){
-					System.out.println("Selection of event " + current.getEvent());
 					int rowToSelect = tableModel.getRowForEvent(current.getEvent());
 					if (rowToSelect != -1){
 						selectionModel.setSelectionInterval(rowToSelect, rowToSelect);

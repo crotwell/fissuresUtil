@@ -1,15 +1,17 @@
 package edu.sc.seis.fissuresUtil.map.tools;
 
-import com.bbn.openmap.event.MapMouseMode;
-import java.awt.event.MouseAdapter;
-import javax.swing.Icon;
-import java.awt.Cursor;
+import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
+import com.bbn.openmap.event.MapMouseMode;
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
+import javax.swing.Icon;
 
 public abstract class OpenMapTool implements MapMouseMode{
 
 	private boolean active = false;
+	private boolean isPressed = false;
+	private Cursor modeCursor, pressedCursor, currentCursor;
 
 	public void setActive(boolean isActive){
 		active = isActive;
@@ -25,7 +27,7 @@ public abstract class OpenMapTool implements MapMouseMode{
 	 */
 	public Icon getGUIIcon() {
 		return null;
-	};
+	}
 
 	/**
 	 * Gets the mouse cursor recommended for use when this mouse mode
@@ -34,7 +36,19 @@ public abstract class OpenMapTool implements MapMouseMode{
 	 * mouse mode is active.
 	 */
 	public Cursor getModeCursor() {
-		return null;
+		return modeCursor;
+	}
+
+	public Cursor getPressedCursor(){
+		return pressedCursor;
+	}
+
+	public void setModeCursor(Cursor cursor){
+		modeCursor = cursor;
+	}
+
+	public void setPressedCursor(Cursor cursor){
+		pressedCursor = cursor;
 	}
 
 	/**
@@ -77,7 +91,11 @@ public abstract class OpenMapTool implements MapMouseMode{
 	 * Invoked when the mouse cursor has been moved onto a component
 	 * but no buttons have been pushed.
 	 */
-	public void mouseMoved(MouseEvent e) {}
+	public void mouseMoved(MouseEvent e) {
+		if (!isPressed && currentCursor != modeCursor){
+			setCursor(modeCursor, e);
+		}
+	}
 
 	/**
 	 * Invoked when the mouse enters a component.
@@ -87,7 +105,12 @@ public abstract class OpenMapTool implements MapMouseMode{
 	/**
 	 * Invoked when a mouse button has been released on a component.
 	 */
-	public void mouseReleased(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {
+		isPressed = false;
+		if (currentCursor != modeCursor){
+			setCursor(modeCursor, e);
+		}
+	}
 
 	/**
 	 * Invoked when the mouse exits a component.
@@ -97,7 +120,20 @@ public abstract class OpenMapTool implements MapMouseMode{
 	/**
 	 * Invoked when a mouse button has been pressed on a component.
 	 */
-	public void mousePressed(MouseEvent e) {}
+	public void mousePressed(MouseEvent e) {
+		isPressed = true;
+		if (currentCursor != pressedCursor){
+			setCursor(pressedCursor, e);
+		}
+	}
+
+	private void setCursor(Cursor cursor, MouseEvent me){
+		if (me.getComponent() instanceof MapBean){
+			MapBean mapBean = (MapBean)me.getComponent();
+			mapBean.setCursor(cursor);
+			currentCursor = cursor;
+		}
+	}
 
 
 }
