@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 8092 2004-04-09 20:42:51Z crotwell $
+ * @version $Id: SacDirToDataSet.java 8093 2004-04-09 20:54:21Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -101,7 +101,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
             } // end of try-catch
         } // end of for (int i=0; i<sacFiles.length; i++)
 
-        dataSetToXML.save(dataset, directory);
+        dataSetToXML.save(dataset, directory, SeismogramFileTypes.SAC);
     }
 
     void loadParameterRef(Element dsElement, String paramName, String paramFile) {
@@ -281,3 +281,4 @@ public class SacDirToDataSet implements StdDataSetParamNames {
     static DataSetToXML dataSetToXML = new DataSetToXML();
 
 }// SacDirToDataSet
+
