@@ -15,16 +15,16 @@ import java.text.DecimalFormat;
 
 public class AmpScaleMapper implements ScaleMapper, AmpListener {
     public AmpScaleMapper(int totalPixels, int hintPixels, Registrar reg){
-	this.totalPixels = totalPixels;
+        this.totalPixels = totalPixels;
         this.hintPixels = hintPixels;
-	this.reg = reg;
-	reg.addListener(this);
+        this.reg = reg;
+        reg.addListener(this);
     } 
   
     public int getPixelLocation(int i) {
         return SimplePlotUtil.getPixel(totalPixels, range, 
-				     minTick + i * tickInc);
-	//earlier it was total
+                                       minTick + i * tickInc);
+        //earlier it was total
     }
 
     public String getLabel(int i) {
@@ -37,8 +37,8 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
                 // exponential notation
                 df = new DecimalFormat("0.00###");
             } else {
-	        df = new DecimalFormat("#.####");
-	    }
+                df = new DecimalFormat("#.####");
+            }
             return df.format(value);
         } else {
             return "";
@@ -67,9 +67,17 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         double hintNumber = totalPixels/(double)hintPixels;
 
         double rangeWidth = range.getMaxValue()-range.getMinValue();
+
+        if ( rangeWidth == 0) {
+            // not a real range
+            numTicks = 0;
+            return;
+        } // end of if ()
+        
+
         // find power of ten just larger than the goalTickInc 
         tickInc = Math.pow(10, 
-			   Math.ceil(Math.log(rangeWidth) /
+                           Math.ceil(Math.log(rangeWidth) /
                                      Math.log(10.0)));
         double goalTickInc = (rangeWidth) / totalPixels * hintPixels;
 
@@ -99,10 +107,10 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         }
 
         numTicks = 1;
-	while (minTick + numTicks * tickInc <= range.getMaxValue() ) {
+        while (minTick + numTicks * tickInc <= range.getMaxValue() ) {
             numTicks++; 
         }
-         //System.out.println("tickInc="+tickInc+" minTick="+minTick+" minMajorTick="+minMajorTick+" numTicks="+numTicks);
+        //System.out.println("tickInc="+tickInc+" minTick="+minTick+" minMajorTick="+minMajorTick+" numTicks="+numTicks);
 
     }
     
@@ -116,15 +124,19 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         calculateTicks();
     }
 
+    public UnitRangeImpl getUnitRange() {
+        return range;
+    }
+
     public void updateAmp(AmpEvent event){
-	range = event.getAmp();
-	calculateTicks();
+        range = event.getAmp();
+        calculateTicks();
     }
 
     public void setRegistrar(Registrar reg){
-	this.reg.removeListener(this);
-	this.reg = reg;
-	reg.addListener(this);
+        this.reg.removeListener(this);
+        this.reg = reg;
+        reg.addListener(this);
     }
 
     private int firstMajorTick = 0;
