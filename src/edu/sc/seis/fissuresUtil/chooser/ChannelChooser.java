@@ -47,7 +47,7 @@ import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 11309 2004-12-02 21:02:15Z groves $
+ * @version $Id: ChannelChooser.java 11638 2005-01-12 16:49:25Z groves $
  */
 /**
  * @author Charlie Groves
@@ -488,29 +488,24 @@ public class ChannelChooser extends JPanel {
         }
     }
 
-    private void addStation(Station sta) {
-        if(!stationMap.containsKey(sta.name)) {
-            stationNames.addElement(sta);
-            stationList.sort();
-        } // end of if ()
-        LinkedList staList = (LinkedList)stationMap.get(sta.name);
-        if(staList == null) {
-            staList = new LinkedList();
-            stationMap.put(sta.name, staList);
-        } // end of if ()
-        staList.add(sta);
-        //logger.debug("size of stationNames: " + stationNames.getSize());
-        //logger.debug("progress: " + progressBar.getString());
-    }
-
     protected void addStations(Station[] stations) {
+        boolean addedStation = false;
         for(int i = 0; i < stations.length; i++) {
-            addStation(stations[i]);
+            Station sta = stations[i];
+            if(!stationMap.containsKey(sta.name)) {
+                stationNames.addElement(sta);
+                addedStation = true;
+            } // end of if ()
+            LinkedList staList = (LinkedList)stationMap.get(sta.name);
+            if(staList == null) {
+                staList = new LinkedList();
+                stationMap.put(sta.name, staList);
+            } // end of if ()
+            staList.add(sta);
         }
-        //logger.debug("addStations(): size of stationNames: " +
-        // stationNames.size());
-        //logger.debug("addStations(): size of stationMap: " +
-        // stationMap.size());
+        if(addedStation) {
+            stationList.sort();
+        }
         fireStationDataChangedEvent(stations);
     }
 
@@ -721,10 +716,10 @@ public class ChannelChooser extends JPanel {
             logger.debug("networkAccess for " + NetworkIdUtil.toString(netid)
                     + " is not yet loaded, trying from remote server");
             // may not be loaded yet, try to get from dc?
-            NetworkDCOperations[] netdc = getNetworkDCs();
-            for(int i = 0; i < netdc.length; i++) {
+            NetworkDCOperations[] retrievedDCs = getNetworkDCs();
+            for(int i = 0; i < retrievedDCs.length; i++) {
                 try {
-                    net = netdc[i].a_finder().retrieve_by_id(netid);
+                    net = retrievedDCs[i].a_finder().retrieve_by_id(netid);
                     if(net != null) { return new CacheNetworkAccess(net); }
                 } catch(NetworkNotFound e) {
                     // oh well, try next
@@ -851,8 +846,8 @@ public class ChannelChooser extends JPanel {
         return chans;
     }
 
-    private Channel[] getVerticalChannel(Channel[] channels, String bandCode) {
-        return new Channel[] {BestChannelUtil.getVerticalChannel(channels,
+    private Channel[] getVerticalChannel(Channel[] chanArray, String bandCode) {
+        return new Channel[] {BestChannelUtil.getVerticalChannel(chanArray,
                                                                  bandCode)};
     }
 
@@ -1121,12 +1116,12 @@ public class ChannelChooser extends JPanel {
 
     class NetworkLoader extends Thread {
 
-        ProxyNetworkDC netdc;
+        ProxyNetworkDC netDC;
 
         boolean doSelect = true;
 
         public NetworkLoader(ProxyNetworkDC netdc) {
-            this.netdc = netdc;
+            this.netDC = netdc;
         }
 
         public void setDoSelect(boolean b) {
@@ -1136,13 +1131,13 @@ public class ChannelChooser extends JPanel {
         public void run() {
             setProgressOwner(this);
             if(configuredNetworks == null || configuredNetworks.length == 0) {
-                NetworkAccess[] nets = netdc.a_finder().retrieve_all();
+                NetworkAccess[] nets = netDC.a_finder().retrieve_all();
                 // I don't think this should ever happen, but...
                 if(nets == null) {
                     nets = new NetworkAccess[0];
                     logger.warn("the array returned from NetworkFinder.retrieve_all() is null.  this is wrong.");
                 }
-                netDCToNetMap.put(netdc, nets);
+                netDCToNetMap.put(netDC, nets);
                 setProgressMax(this, nets.length + 1);
                 int progressVal = 1;
                 setProgressValue(this, progressVal);
@@ -1151,7 +1146,7 @@ public class ChannelChooser extends JPanel {
                     // skip null networks...probably a bug on the server
                     if(nets[i] != null) {
                         NetworkAccess net = BulletproofVestFactory.vestNetworkAccess(nets[i],
-                                                                                     netdc);
+                                                                                     netDC);
                         net.get_attributes();
                         networkAdd(net);
                     } else {
@@ -1166,7 +1161,7 @@ public class ChannelChooser extends JPanel {
                 setProgressMax(this, configuredNetworks.length);
                 for(int counter = 0; counter < configuredNetworks.length; counter++) {
                     try {
-                        NSNetworkDC nsNetDC = (NSNetworkDC)netdc.getWrappedDC(NSNetworkDC.class);
+                        NSNetworkDC nsNetDC = (NSNetworkDC)netDC.getWrappedDC(NSNetworkDC.class);
                         // hack to avoid SP at IRIS
                         if(configuredNetworks[counter].equals("SP")) {
                             if(nsNetDC.getServerDNS().equals("edu/iris/dmc")) {
@@ -1177,13 +1172,13 @@ public class ChannelChooser extends JPanel {
                             }
                         }
                         // end hack
-                        NetworkAccess[] nets = netdc.a_finder()
+                        NetworkAccess[] nets = netDC.a_finder()
                                 .retrieve_by_code(configuredNetworks[counter]);
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if(nets[subCounter] != null) {
                                 // preload attributes
                                 NetworkAccess net = BulletproofVestFactory.vestNetworkAccess(nets[subCounter],
-                                                                                             netdc);
+                                                                                             netDC);
                                 NetworkAttr attr = net.get_attributes();
                                 // this is BAD CODE, but prevents the scepp
                                 // network, SP, from being loaded from the DMC
@@ -1193,11 +1188,11 @@ public class ChannelChooser extends JPanel {
                                     // comes from dmc so skip
                                     continue;
                                 }
-                                NetworkAccess[] storedNets = (NetworkAccess[])netDCToNetMap.get(netdc);
+                                NetworkAccess[] storedNets = (NetworkAccess[])netDCToNetMap.get(netDC);
                                 if(storedNets == null) {
                                     storedNets = new NetworkAccess[1];
                                     storedNets[0] = net;
-                                    netDCToNetMap.put(netdc, storedNets);
+                                    netDCToNetMap.put(netDC, storedNets);
                                 } else {
                                     NetworkAccess[] tmp = new NetworkAccess[storedNets.length + 1];
                                     System.arraycopy(storedNets,
@@ -1206,7 +1201,7 @@ public class ChannelChooser extends JPanel {
                                                      0,
                                                      storedNets.length);
                                     tmp[storedNets.length] = net;
-                                    netDCToNetMap.put(netdc, tmp);
+                                    netDCToNetMap.put(netDC, tmp);
                                 } // end of else
                                 networkAdd(net);
                                 totalNetworks++;
