@@ -19,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1734 2002-05-29 19:11:46Z crotwell $
+ * @version $Id: XMLDataSet.java 1735 2002-05-29 19:13:34Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -164,8 +164,8 @@ public class XMLDataSet implements DataSet, Serializable {
 
 	Document doc = config.getOwnerDocument();
 	Element param = doc.createElement("parameterRef");
-	param.setAttributeNS(xlinkNS, "type", "simple");
-	param.setAttributeNS(xlinkNS, "href", paramURL.toString());
+	param.setAttributeNS(xlinkNS, "xlink:type", "simple");
+	param.setAttributeNS(xlinkNS, "xlink:href", paramURL.toString());
 	Text text = doc.createTextNode(name);
 	param.appendChild(text);
 
