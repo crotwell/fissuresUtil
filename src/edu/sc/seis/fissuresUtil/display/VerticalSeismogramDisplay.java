@@ -287,7 +287,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void globalizeAmpRange(){
 	Iterator e = basicDisplays.iterator();
 	while(e.hasNext())
-	    ((BasicSeismogramDisplay)e.next()).getAmpRegistrar().setRegistrar(globalAmpRegistrar);
+	    ((BasicSeismogramDisplay)e.next()).getAmpRegistrar().setAmpConfig(globalAmpRegistrar);
     }
     
     public void createParticleDisplay(BasicSeismogramDisplay creator, boolean advancedOption){
