@@ -55,11 +55,11 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
             double min = seis.getMinValue(beginIndex, endIndex).getValue();
 	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
-	    double medDif = (max-min)/2;
+	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
 	    if(this.ampRange == null)
-		this.ampRange = new UnitRangeImpl(-medDif, medDif, seis.getAmplitudeRange().getUnit());
-	    else if(medDif > this.ampRange.getMaxValue())
-		this.ampRange = new UnitRangeImpl(-medDif, medDif, seis.getAmplitudeRange().getUnit());
+		this.ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
+	    else if(meanDiff > this.ampRange.getMaxValue())
+		this.ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
 	    double bottom = this.ampRange.getMinValue() + mean;
 	    double top = this.ampRange.getMaxValue() + mean;
 	    return new UnitRangeImpl(bottom,
@@ -68,7 +68,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 
 	    
 	} catch (Exception e) {
-	    ampRange = null;
+	    e.printStackTrace();
         }
 	return ampRange;
     }
@@ -121,8 +121,11 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 		return;
 	    }
 	    try {
-		double medDif = (seis.getMaxValue(beginIndex, endIndex).getValue()-seis.getMinValue(beginIndex, endIndex).getValue())/2;
-		if(medDif ==  this.ampRange.getMaxValue())
+		double min = seis.getMinValue(beginIndex, endIndex).getValue();
+		double max = seis.getMaxValue(beginIndex, endIndex).getValue();
+		double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
+		double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
+		if(meanDiff ==  this.ampRange.getMaxValue())
 		    this.ampRange = null;
 	    } 
 	    catch (Exception e) {
