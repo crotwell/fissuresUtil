@@ -7,12 +7,12 @@ import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.JDBCTest;
+import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockOrigin;
 
-public class JDBCOriginTest extends JDBCTest {
+public class JDBCOriginTest extends JDBCTearDown {
     public void setUp()throws SQLException{
         originTable = new JDBCOrigin(ConnMgr.createConnection());
     }
