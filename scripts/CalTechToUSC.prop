@@ -4,7 +4,7 @@
 #nameServiceCopy.dns=edu/sc/seis
 #nameServiceCopy.dns=edu/iris/dmc
 #nameServiceCopy.dns=edu/berkeley/geo/quake
-naveServicceCopy.dns=edu/caltech/gps/k2
+nameServiceCopy.dns=edu/caltech/gps/k2
 #
 # name serivce to copy FROM
 #
