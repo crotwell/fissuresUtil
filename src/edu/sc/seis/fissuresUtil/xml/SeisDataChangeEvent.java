@@ -14,6 +14,11 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  */
 
 public class SeisDataChangeEvent {
+ public SeisDataChangeEvent (DataSetSeismogram source,
+                             Object initiator){
+     this(new LocalSeismogramImpl[0], source, initiator);
+ }
+
  public SeisDataChangeEvent (LocalSeismogramImpl[] seismos,
                              DataSetSeismogram source,
                              Object initiator){

@@ -26,7 +26,7 @@ public abstract class AbstractDb {
             if(connection == null) {
                 String driverName = new String("org.hsqldb.jdbcDriver");
                 Class.forName(driverName).newInstance();
-                connection = DriverManager.getConnection("jdbc:hsqldb:testhsqldb", "sa", "");
+                connection = DriverManager.getConnection("jdbc:hsqldb:"+directoryName+"/"+databaseName, "sa", "");
             } 
             return connection;
         } catch(Exception sqle) {
@@ -36,8 +36,12 @@ public abstract class AbstractDb {
 	
     }
 
-    public abstract void create();
+    public abstract void create() throws SQLException;
     
     protected Connection connection;
-    
+
+    protected String databaseName = "GEE_database";
+
+    protected String directoryName = "GEE_cache";
+
 }// AbstractDb

@@ -17,6 +17,7 @@ import java.util.Vector;
 import javax.swing.JComponent;
 import org.apache.log4j.Category;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
+import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 
 /**
  * ParticleMotionView.java
@@ -519,6 +520,12 @@ public class ParticleMotionView extends JComponent{
         }
 
         public void finished(SeisDataChangeEvent sdce) {
+        }
+
+        public void error(SeisDataErrorEvent sdce) {
+            //do nothing as someone else should handle error notification to user
+            logger.warn("Error with data retrieval.",
+                        sdce.getCausalException());
         }
 
         public void updateTime(edu.sc.seis.fissuresUtil.display.TimeEvent timeEvent) {

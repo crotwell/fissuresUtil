@@ -32,4 +32,12 @@ public interface LocalDataCenterCallBack {
      */
     public void finished(SeisDataChangeListener dss);
     
+    /**
+     * Informs the callback object that it is done with the processing 
+     * of its request for seismograms because it encountered a problem.
+     * @param dss - the callback object that initiated the request for seismograms.
+     * @param e - the exception explaining the error encountered.
+     */
+    public void error(SeisDataChangeListener dss, Exception e);
+    
 }// LocalDataCenterCallBack

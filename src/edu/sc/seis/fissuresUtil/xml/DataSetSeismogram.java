@@ -8,6 +8,7 @@ import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.*;
 
+import java.sql.SQLException;
 import java.util.*;
 import org.apache.log4j.*;
 
@@ -21,36 +22,16 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
+public abstract class DataSetSeismogram 
+    implements LocalDataCenterCallBack, Cloneable {
 
 
-
-    public DataSetSeismogram() {
+    public DataSetSeismogram(DataSet ds,
+                             String name) {
         this.dssDataListeners = new LinkedList();
         this.rfChangeListeners = new LinkedList();
-    }
-
-    public DataSetSeismogram(RequestFilter rf,
-                             DataCenterOperations dco) {
-        this(rf, dco, null);
-    }
-
-    public DataSetSeismogram(RequestFilter rf,
-                             DataCenterOperations dco,
-                             DataSet ds) {
-        this(rf, dco, ds, null);
-    }
-
-    public DataSetSeismogram(RequestFilter rf,
-                             DataCenterOperations dco,
-                             DataSet ds,
-                             String name) {
-        this.requestFilter = rf;
-        this.dataCenterOps = dco;
         this.dataSet = ds;
         this.name = name;
-        this.dssDataListeners = new LinkedList();
-        this.rfChangeListeners = new LinkedList();
     }
 
     public Object clone() {
@@ -122,11 +103,11 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
 
     public edu.iris.Fissures.Time getBeginTime() {
-        return requestFilter.start_time;
+        return getRequestFilter().start_time;
     }
 
     public void setBeginTime(edu.iris.Fissures.Time time) {
-        this.requestFilter.start_time = time;
+        getRequestFilter().start_time = time;
         fireBeginTimeChangedEvent();
     }
 
@@ -135,17 +116,19 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
 
     public edu.iris.Fissures.Time getEndTime() {
-        return requestFilter.end_time;
+        return getRequestFilter().end_time;
     }
 
     public void setEndTime(edu.iris.Fissures.Time time) {
-
-        this.requestFilter.end_time = time;
+        getRequestFilter().end_time = time;
         fireEndTimeChangedEvent();
     }
 
+    /** subclass may override this if they do not wish to use the internal
+     *  requestFilter field.
+     */
     public RequestFilter getRequestFilter() {
-        return this.requestFilter;
+        return requestFilter;
     }
 
     public void addRequestFilterChangeListener(RequestFilterChangeListener listener) {
@@ -209,6 +192,16 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
         }
     }
 
+    protected void fireDataErrorEvent(SeisDataErrorEvent event) {
+        // use temp array to avoid concurrentModificationException
+        LinkedList tmp = new LinkedList(dssDataListeners);
+        Iterator iterator = tmp.iterator();
+        while(iterator.hasNext()) {
+            SeisDataChangeListener dssDataListener = (SeisDataChangeListener) iterator.next();
+            dssDataListener.error(event);
+        }
+    }
+
     public void pushData(LocalSeismogramImpl[] seismograms, SeisDataChangeListener initiator) {
         SeisDataChangeEvent event = new SeisDataChangeEvent(seismograms,
                                                             this,
@@ -217,37 +210,19 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
     }
 
     public void finished(SeisDataChangeListener initiator) {
-        SeisDataChangeEvent event = new SeisDataChangeEvent(new LocalSeismogramImpl[0],
-                                                            this,
+        SeisDataChangeEvent event = new SeisDataChangeEvent(this,
                                                             initiator);
         fireDataFinishedEvent(event);
     }
 
-    public void retrieveData(SeisDataChangeListener dataListener) {
-
-        RequestFilter[] temp = new RequestFilter[1];
-        temp[0] = requestFilter;
-        try {
-            //System.out.println("Calling the request_seismograms method of the datacenter");
-            if(this.dataCenterOps instanceof DBDataCenter) {
-
-                ((DBDataCenter)this.dataCenterOps).request_seismograms(temp,
-                                                                       (LocalDataCenterCallBack)this,
-                                                                       dataListener,
-                                                                       false,
-                                                                       new MicroSecondDate().getFissuresTime());
-
-            } else {
-                DBDataCenter.getDataCenter(this.dataCenterOps).request_seismograms(temp,
-                                                                                   (LocalDataCenterCallBack)this,
-                                                                                   dataListener,
-                                                                                   false,
-                                                                                   new MicroSecondDate().getFissuresTime());
-            }
-        } catch(FissuresException fe) {
-            logger.debug("Exception occurred while using DataCenter to get Data",fe);
-        }
+    public void error(SeisDataChangeListener initiator, Exception e) {
+        SeisDataErrorEvent event = new SeisDataErrorEvent(e,
+                                                           this,
+                                                           initiator);
+        fireDataErrorEvent(event);
     }
+
+    public abstract void retrieveData(SeisDataChangeListener dataListener);
 
     private List dssDataListeners;
 
@@ -255,15 +230,11 @@ public class DataSetSeismogram implements LocalDataCenterCallBack, Cloneable {
 
     RequestFilter requestFilter;
 
-    private DataCenterOperations dataCenterOps;
-
     private DataSet dataSet = null;
 
     private String name = null;
 
     static Category logger =
         Category.getInstance(DataSetSeismogram.class.getName());
-
-
 
 }// DataSetSeismogram

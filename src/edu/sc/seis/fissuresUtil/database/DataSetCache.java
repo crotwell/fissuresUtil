@@ -4,6 +4,8 @@ import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.*;
 
+import java.sql.SQLException;
+
 /**
  * DataSetCache.java
  *
@@ -21,7 +23,7 @@ public class DataSetCache {
 
     public void addSeismogram(LocalSeismogramImpl seis,
 			      String name,
-			      AuditInfo[] auditInfo) {
+			      AuditInfo[] auditInfo) throws SQLException {
 	
 	String fileids = DBDataCenter.getDataCenter().getFileIds(seis.getChannelID(),
 						seis.getBeginTime(),
@@ -31,7 +33,9 @@ public class DataSetCache {
     }
 
 
-    public LocalSeismogramImpl getSeismogram(String name) {
+    public LocalSeismogramImpl getSeismogram(String name)
+        throws SQLException, java.io.IOException, edu.iris.Fissures.FissuresException
+ {
 	//System.out.println("The name of the seismogram queried is "+name);
 	String fileids = SeisInfoDb.getSeisInfoDb().getFileIds(name);
 	if(fileids == null) return null;
