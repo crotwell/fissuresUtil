@@ -24,41 +24,54 @@ public class MotionVectorUtil {
     /** Creates a motion vector from 3 seismograms.
      *	@throws IncompatibleSeismograms if the channel ids
      *  or the time basis of the seismograms are not compatible.
-    */	
+     */	
     public static LocalMotionVectorImpl create(LocalSeismogram[] seismograms)
 	throws IncompatibleSeismograms {
-	for (int k=0; k<2; k++) {
+	for (int k=1; k<2; k++) {
 	     
-	if ( NetworkIdUtil.areEqual(seismograms[0].channel_id.network_id,
-				    seismograms[k].channel_id.network_id)) {
-	    throw new IncompatibleSeismograms("Networks for 0 and "+k+" are not the same, "
-					       +NetworkIdUtil.toString(seismograms[0].channel_id.network_id)
-					       +" "
-					       +NetworkIdUtil.toString(seismograms[k].channel_id.network_id));
-	}
-
-	if ( ! seismograms[0].channel_id.station_code.equals(
-							  seismograms[k].channel_id.station_code)) {
-	    throw new IncompatibleSeismograms("Station codes for 0 and "+k+" are not the same. "
-					      +seismograms[0].channel_id.station_code
-					      +" "
-					      +seismograms[k].channel_id.station_code);
-	}
-	if ( ! seismograms[0].channel_id.site_code.equals(
-							  seismograms[k].channel_id.site_code)) {
-	    throw new IncompatibleSeismograms("Site codes for 0 and "+k+" are not the same. "
-					      +seismograms[0].channel_id.site_code
-					      +" "
-					      +seismograms[k].channel_id.site_code);
-	}
-	if ( ! seismograms[0].channel_id.site_code.equals(
-							  seismograms[k].channel_id.site_code)) {
-	    throw new IncompatibleSeismograms("Site codes for 0 and "+k+" are not the same. "
-					      +seismograms[0].channel_id.site_code
-					      +" "
-					      +seismograms[k].channel_id.site_code);
-	}
-	} // end of for (int k=0; k<2; k++)
+	    if ( NetworkIdUtil.areEqual(seismograms[0].channel_id.network_id,
+					seismograms[k].channel_id.network_id)) {
+		throw new IncompatibleSeismograms("Networks for 0 and "+k+" are not the same, "
+						  +NetworkIdUtil.toString(seismograms[0].channel_id.network_id)
+						  +" "
+						  +NetworkIdUtil.toString(seismograms[k].channel_id.network_id));
+	    }
+	    
+	    if ( ! seismograms[0].channel_id.station_code.equals(
+								 seismograms[k].channel_id.station_code)) {
+		throw new IncompatibleSeismograms("Station codes for 0 and "+k+" are not the same. "
+						  +seismograms[0].channel_id.station_code
+						  +" "
+						  +seismograms[k].channel_id.station_code);
+	    }
+	    if ( ! seismograms[0].channel_id.site_code.equals(
+							      seismograms[k].channel_id.site_code)) {
+		throw new IncompatibleSeismograms("Site codes for 0 and "+k+" are not the same. "
+						  +seismograms[0].channel_id.site_code
+						  +" "
+						  +seismograms[k].channel_id.site_code);
+	    }
+	    if ( ! seismograms[0].channel_id.site_code.equals(
+							      seismograms[k].channel_id.site_code)) {
+		throw new IncompatibleSeismograms("Site codes for 0 and "+k+" are not the same. "
+						  +seismograms[0].channel_id.site_code
+						  +" "
+						  +seismograms[k].channel_id.site_code);
+	    }
+	    if ( ! seismograms[0].begin_time.equals(seismograms[k].begin_time)) {
+		throw new IncompatibleSeismograms("Site codes for 0 and "+k+" are not the same. "
+						  +seismograms[0].channel_id.site_code
+						  +" "
+						  +seismograms[k].channel_id.site_code);
+	    }
+	    if ( seismograms[0].num_points != seismograms[k].num_points) {
+		throw new IncompatibleSeismograms("Number of points for 0 and "+k+" are not the same. "
+						  +seismograms[0].num_points
+						  +" "
+						  +seismograms[k].num_points);
+	    } // end of if ()
+	    
+	} // end of for (int k=1; k<2; k++)
 	
 
 
@@ -75,15 +88,15 @@ public class MotionVectorUtil {
 	data[1] = new VectorComponent(seismograms[2].channel_id, 
 				      seismograms[2].data);
 	return new  LocalMotionVectorImpl(seismograms[0].get_id()+"MotionVec",
-				 seismograms[0].properties,
-				 seismograms[0].begin_time,
-				 seismograms[0].num_points,
-				 seismograms[0].sampling_info,
-				 seismograms[0].y_unit,
-				  channel_group,
-				 seismograms[0].parm_ids,
-				 (TimeInterval[])seismograms[0].time_corrections,
-				 seismograms[0].sample_rate_history,
+					  seismograms[0].properties,
+					  seismograms[0].begin_time,
+					  seismograms[0].num_points,
+					  seismograms[0].sampling_info,
+					  seismograms[0].y_unit,
+					  channel_group,
+					  seismograms[0].parm_ids,
+					  (TimeInterval[])seismograms[0].time_corrections,
+					  seismograms[0].sample_rate_history,
 					  data);
     }
     
