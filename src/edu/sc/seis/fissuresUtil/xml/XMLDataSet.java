@@ -25,7 +25,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3458 2003-03-14 21:38:44Z crotwell $
+ * @version $Id: XMLDataSet.java 3489 2003-03-18 19:35:44Z telukutl $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -51,7 +51,7 @@ public class XMLDataSet implements DataSet, Serializable {
     }
 
     /**
-     * Loads a xml dataset from a URL.
+     * Load a xml dataset from a URL.
      *
      * @param datasetURL an <code>URL</code> to an xml dataset
      * @return a <code>XMLDataSet</code> populated form the URL
@@ -1378,7 +1378,18 @@ public class XMLDataSet implements DataSet, Serializable {
     }
     
     public DataSetSeismogram getDataSetSeismogram(String name) {
-	return null;
+	
+	LocalSeismogramImpl seis = getSeismogram(name);
+	if(seis != null) {
+	    System.out.println("The seismogram is no null");
+	} else {
+	    System.out.println("The seismogram is not null");
+
+	}
+	RequestFilter rf = new RequestFilter(seis.getChannelID(),
+					     seis.getBeginTime().getFissuresTime(),
+					     seis.getEndTime().getFissuresTime());
+	return new DataSetSeismogram(rf, null);
     }
 
     
