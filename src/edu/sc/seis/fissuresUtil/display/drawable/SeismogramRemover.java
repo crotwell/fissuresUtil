@@ -12,7 +12,7 @@ import java.awt.Graphics2D;
 
 public class SeismogramRemover extends BigX{
     public SeismogramRemover(DataSetSeismogram seis, SeismogramDisplay display){
-        super(display.getCenterPanel());
+        super(display.getCenter());
         this.display = display;
         this.seismogram = seis;
     }
