@@ -538,7 +538,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             Element nameElement = (Element)((Element)children.item(i)).getElementsByTagName("name").item(0);
             String auxName = XMLUtil.getText(nameElement);
             urlDSS.addAuxillaryData(auxName,
-                                        ((Element)children.item(i)).getElementsByTagName("value").item(0));
+                                        ((Element)children.item(i)).getElementsByTagName("value").item(0).getFirstChild());
         }
         children = element.getElementsByTagName(PROPERTY);
         for (int i = 0; i < children.getLength(); i++) {
