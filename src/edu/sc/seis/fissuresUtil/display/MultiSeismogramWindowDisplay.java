@@ -91,13 +91,8 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             disp = new BasicSeismogramDisplay(seismos, tc, ac, this);
             int j = sorter.sort(dss[i]);
             super.add(disp, j);
-            if(basicDisplays.size() > 0){
-                ((BasicSeismogramDisplay)basicDisplays.getLast()).removeBottomTimeBorder();
-                ((BasicSeismogramDisplay)basicDisplays.getFirst()).removeTopTimeBorder();
-            }
             basicDisplays.add(j, disp);
-            ((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-            ((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
+            addTimeBorders();
         }
         return disp;
     }

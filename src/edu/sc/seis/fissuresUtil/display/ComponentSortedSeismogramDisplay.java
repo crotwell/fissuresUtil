@@ -102,23 +102,24 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
     }
 
     private void addNorth(DataSetSeismogram[] newNorth, TimeConfig tc, AmpConfig ac){
-        north = addToDisplay(north, newNorth, tc, ac);
+        north = addToDisplay(north, newNorth, tc, ac, DisplayUtils.NORTH);
     }
 
     private void addEast(DataSetSeismogram[] newEast, TimeConfig tc, AmpConfig ac){
-        east = addToDisplay(east, newEast, tc, ac);
+        east = addToDisplay(east, newEast, tc, ac, DisplayUtils.EAST);
     }
 
     private void addZ(DataSetSeismogram[] newZ, TimeConfig tc, AmpConfig ac){
-        z = addToDisplay(z, newZ, tc, ac);
+        z = addToDisplay(z, newZ, tc, ac, DisplayUtils.UP);
     }
 
     private BasicSeismogramDisplay addToDisplay(BasicSeismogramDisplay display, DataSetSeismogram[] seismos,
-                                                TimeConfig tc, AmpConfig ac){
+                                                TimeConfig tc, AmpConfig ac, String orientation){
         if(seismos.length > 0){
             if(display == null){
                 display = new BasicSeismogramDisplay(seismos, tc, ac, this);
-                initializeBSD(display, 0);
+                initializeBSD(display, 0, orientation);
+                addTimeBorders();
             }else{
                 display.add(seismos);
             }
@@ -126,10 +127,9 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
         return display;
     }
 
-    private void initializeBSD(BasicSeismogramDisplay disp, int position){
+    private void initializeBSD(BasicSeismogramDisplay disp, int position, String orientation){
         super.add(disp, position);
-        disp.addBottomTimeBorder();
-        disp.addTopTimeBorder();
+        disp.addLeftTitleBorder(new LeftTitleBorder(orientation));
         basicDisplays.add(disp);
     }
 
