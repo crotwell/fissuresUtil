@@ -5,16 +5,16 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 
 public class EQSelectionEvent{
 
-    private EventAccessOperations ev;
+    private EventAccessOperations[] evts;
     private Object src;
 
-    public EQSelectionEvent(Object source, EventAccessOperations event){
+    public EQSelectionEvent(Object source, EventAccessOperations[] events){
         src = source;
-        ev = event;
+        evts = events;
     }
 
-    public EventAccessOperations getEvent(){
-        return ev;
+    public EventAccessOperations[] getEvents(){
+        return evts;
     }
 
     public Object getSource(){
