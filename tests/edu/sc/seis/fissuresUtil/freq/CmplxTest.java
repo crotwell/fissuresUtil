@@ -56,9 +56,6 @@ extends TestCase
       inA[5] = 1;
       inB[3] = 1;
       float[] out = Cmplx.correlate(inA, inB);
-      for ( int i=0; i<inA.length; i++) {
-	  System.out.println(inA[i]+"  "+inB[i]+"  "+out[i]);
-      } // end of for ()
       
       assertEquals("float", 1.0f, out[2], 0.0000001);
     // JUnitDoclet end method apply
@@ -75,9 +72,6 @@ extends TestCase
       inB[3] = .1f;
       inB[4] = .05f;
       float[] out = Cmplx.correlate(inA, inB);
-      for ( int i=0; i<inA.length; i++) {
-	  System.out.println(inA[i]+"  "+inB[i]+"  "+out[i]);
-      } // end of for ()
       
       assertEquals("float", .15f, out[3], 0.0000001);
     // JUnitDoclet end method apply
@@ -90,10 +84,6 @@ extends TestCase
       inA[6] = 1;
       inB[3] = .1f;
       float[] out = Cmplx.convolve(inA, inB);
-      System.out.println("begin convolve");
-      for ( int i=0; i<inA.length; i++) {
-	  System.out.println(inA[i]+"  "+inB[i]+"  "+out[i]);
-      } // end of for ()
       
       assertEquals("float", .1f, out[9], 0.0000001);
     // JUnitDoclet end method apply
@@ -108,10 +98,6 @@ extends TestCase
       }
       inB[3] = .1f;
       float[] out = Cmplx.convolve(inA, inB);
-      System.out.println("begin convolve");
-      for ( int i=0; i<inA.length; i++) {
-	  System.out.println(inA[i]+"  "+inB[i]+"  "+out[i]);
-      } // end of for ()
       
       assertEquals("float", .2f, out[9], 0.0000001);
       assertEquals("float", .2f, out[8], 0.0000001);
