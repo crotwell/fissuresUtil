@@ -40,7 +40,7 @@ public class PlottableDisplayTest extends TestCase {
         System.setProperty(FissuresNamingService.CORBALOC_PROP,
                            "corbaloc:iiop:pooh.seis.sc.edu:6371/NameService");
         PlottableDC impl = Initializer.getNS().getPlottableDC("edu/sc/seis",
-                                                              "BUDPlottable");
+                                                              "BUD");
         Time t = new Time("2004313J000000.000Z", 0);
         show(impl.get_for_day(Initializer.ANDYChannel,
                               2004,
