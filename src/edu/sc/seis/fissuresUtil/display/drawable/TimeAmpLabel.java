@@ -29,8 +29,6 @@ public class TimeAmpLabel implements NamedDrawable{
 
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
         if(visible){
-            timeText = VerticalSeismogramDisplay.getTime();
-            ampText = VerticalSeismogramDisplay.getAmp();
             canvas.setPaint(Color.black);
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(canvas.getFontMetrics().getStringBounds(ampText, canvas));
@@ -47,7 +45,10 @@ public class TimeAmpLabel implements NamedDrawable{
         // Does nothing
     }
     public void setVisibility(boolean b) {
-        visible = b;
+        if(visible != b){
+            visible = b;
+            display.repaint();
+        }
     }
 
     public String getTimeText(){ return timeText; }
@@ -55,6 +56,12 @@ public class TimeAmpLabel implements NamedDrawable{
     public String getAmpText(){ return ampText; }
 
     public String getText(){ return timeText + ampText; }
+
+    public void setText(String[] timeAmp){
+        timeText = timeAmp[0];
+        ampText = timeAmp[1];
+        display.repaint();
+    }
 
     public BasicSeismogramDisplay getDisplay(){ return display; }
 
