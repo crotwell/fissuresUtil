@@ -595,7 +595,7 @@ public class DateChooser extends JPanel {
         daybox.setSelectedIndex(--day);
 
 	
-	hour = calendar.get(Calendar.HOUR);
+	hour = calendar.get(Calendar.HOUR_OF_DAY);
 	hourbox.setSelectedIndex(hour);
 	min = calendar.get(Calendar.MINUTE); 
 	minbox.setSelectedIndex(min);
