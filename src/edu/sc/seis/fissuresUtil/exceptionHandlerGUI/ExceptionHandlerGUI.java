@@ -1,11 +1,18 @@
 package edu.sc.seis.fissuresUtil.exceptionHandlerGUI;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import java.lang.*;
-import java.io.*;
+
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import org.apache.log4j.Logger;
 
 /**
  * Description: This class can be used to display the GUI showing the exception along with useful information.
@@ -28,14 +35,13 @@ public class ExceptionHandlerGUI {
      * @param e an <code>Throwable</code> value
      */
     public ExceptionHandlerGUI (Throwable e){
-        this.exception = e;
-        this.message = "A problem has occured:\n"+e.getMessage();
-        createGUI();
+        this("A problem has occured:",e);
     }
 
     public ExceptionHandlerGUI(String message, Throwable e) {
         this.exception = e;
         this.message = message;
+        logger.error(message, e);
         createGUI();
     }
 
@@ -82,7 +88,10 @@ public class ExceptionHandlerGUI {
         exceptionMessageLabel.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
         exceptionMessageLabel.setWrapStyleWord(true);
         exceptionMessageLabel.setEditable(false);
-        exceptionMessageLabel.setText(message);
+        exceptionMessageLabel.setText(message+"\n\n"+exception.getMessage());
+        if (exception.getCause() != null) {
+            exceptionMessageLabel.append("\n  caused by\n"+exception.getCause().getMessage());
+        }
         messagePanel.setLayout(new BorderLayout());
         messagePanel.add(exceptionMessageLabel);
         return messagePanel;
@@ -249,4 +258,7 @@ public class ExceptionHandlerGUI {
     private JPanel mainPanel = new JPanel();
 
     private JFrame displayFrame = new JFrame();
+
+    static Logger logger = Logger.getLogger(ExceptionHandlerGUI.class);
+
 }// ExceptionHandlerGUI
