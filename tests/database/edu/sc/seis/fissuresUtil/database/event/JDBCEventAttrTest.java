@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfEvent.MockEventAttr;
+import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAttr;
 
 public class JDBCEventAttrTest extends TestCase {
     public JDBCEventAttrTest(String testname)throws SQLException  {

@@ -6,7 +6,7 @@ import edu.iris.Fissures.Location;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
-import edu.sc.seis.mockFissures.Defaults;
+import edu.sc.seis.fissuresUtil.mockFissures.Defaults;
 // JUnitDoclet end import
 
 /**

@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfEvent.MockMagnitude;
+import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockMagnitude;
 public class JDBCMagnitudeTest extends TestCase {
     public JDBCMagnitudeTest(String testname) { super(testname); }
 

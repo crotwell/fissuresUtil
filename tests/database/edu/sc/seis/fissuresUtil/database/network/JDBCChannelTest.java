@@ -11,8 +11,8 @@ import junit.framework.TestCase;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfNetwork.MockChannel;
-import edu.sc.seis.mockFissures.IfNetwork.MockStationId;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStationId;
 
 public class JDBCChannelTest extends TestCase{
     public void testDoublePut() throws SQLException, NotFound{
