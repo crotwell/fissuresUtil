@@ -211,6 +211,10 @@ public class DBDataSet implements DataSet{
 	return null;
     }
 
+    public String[] getDataSetSeismogramNames() {
+	return new String[0];
+    }
+
 
     private String name;
 
