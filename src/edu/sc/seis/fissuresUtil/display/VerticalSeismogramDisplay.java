@@ -29,12 +29,17 @@ import org.apache.log4j.Category;
  */
 
 public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
-    /**
-     * Creates a <code>VerticalSeismogramDisplay</code> without a parent
-     *
-     */
-    public VerticalSeismogramDisplay(){
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+    public SeismogramDisplayProvider getCenterPanel() {
+        if(centerPanel == null){
+            centerPanel = new SeismogramDisplayProvider(){
+                public SeismogramDisplay provide() {
+                    return VerticalSeismogramDisplay.this;
+                }
+            };
+            centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        }
+        return centerPanel;
     }
 
     public void add(DataSetSeismogram[] dss){ addDisplay(dss); }
@@ -179,7 +184,11 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     }
 
     public void clear(){
-        removeAll();
+        centerPanel.removeAll();
+        basicDisplays.clear();
+        tc = new BasicTimeConfig();
+        ac = new RMeanAmpConfig();
+        repaint();
     }
 
     /**
@@ -188,12 +197,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      *
      */
     public void removeAll(){
-        logger.debug("removing all displays");
         super.removeAll();
-        basicDisplays.clear();
-        tc = new BasicTimeConfig();
-        ac = new RMeanAmpConfig();
-        repaint();
+        clear();
     }
 
     /**
@@ -204,34 +209,13 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      */
     public boolean removeDisplay(BasicSeismogramDisplay display){
         if(basicDisplays.contains(display)){
-            if(basicDisplays.size() == 1){
-                this.removeAll();
-                return true;
-            }
-            super.remove(display);
+            if(basicDisplays.size() == 1) clear();
             basicDisplays.remove(display);
-            ((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
-            ((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-            super.revalidate();
-            display.destroy();
-            repaint();
+            centerPanel.remove(display);
+            revalidate();
             return true;
         }
         return false;
-    }
-
-    protected void setTimeBorders(){
-        for (int i = 1; i < getComponentCount() - 1; i++){
-            BasicSeismogramDisplay cur = (BasicSeismogramDisplay)getComponent(i);
-            cur.removeTopTimeBorder();
-            cur.removeBottomTimeBorder();
-        }
-        BasicSeismogramDisplay top = (BasicSeismogramDisplay)getComponent(0);
-        top.addTopTimeBorder();
-        top.removeBottomTimeBorder();
-        BasicSeismogramDisplay bottom = (BasicSeismogramDisplay)getComponent(getComponentCount() - 1);
-        bottom.removeTopTimeBorder();
-        bottom.addBottomTimeBorder();
     }
 
     public void setAmpConfig(AmpConfig ac){
@@ -264,9 +248,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         globalizedAmp = false;
     }
 
-    public AmpConfig getAmpConfig(){
-        return ac;
-    }
+    public AmpConfig getAmpConfig(){ return ac; }
+
     public void setTimeConfig(TimeConfig config){
         Iterator it = basicDisplays.iterator();
         while(it.hasNext()){
@@ -300,6 +283,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             ((BasicSeismogramDisplay)e.next()).reset(seismos);
         }
     }
+
+    private SeismogramDisplayProvider centerPanel;
 
     protected boolean globalizedAmp = false;
 
