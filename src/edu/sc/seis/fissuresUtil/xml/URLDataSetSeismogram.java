@@ -280,7 +280,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
 
         String seisFilename = "";
         seisFilename = ChannelIdUtil.toStringNoDates(channel.get_id());
-        seisFilename = seisFilename.replace(' ', '.'); // check for space-space site
+        seisFilename = seisFilename.replace(' ', '_'); // check for space-space site
         seisFilename += suffix; // append .sac to filename
         File seisFile = new File(directory, seisFilename);
 
@@ -290,7 +290,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
 
             seisFilename =
                 ChannelIdUtil.toStringNoDates(channel.get_id())+"."+n;
-            seisFilename = seisFilename.replace(' ', '.'); // check for space-space site
+            seisFilename = seisFilename.replace(' ', '_'); // check for space-space site
             seisFilename += suffix; // append .sac to filename
             seisFile = new File(directory, seisFilename);
         } // end of while (seisFile.exists())
