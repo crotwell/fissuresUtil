@@ -4,7 +4,6 @@ import edu.sc.seis.fissuresUtil.display.borders.Border;
 import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
@@ -16,55 +15,72 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  */
 public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay {
 
+    public ComponentSortedSeismogramDisplay() {
+        this(true);
+    }
+
+    public ComponentSortedSeismogramDisplay(boolean handleBorders) {
+        this.handleBorders = handleBorders;
+    }
+
     public void add(DataSetSeismogram[] dss) {
         DataSetSeismogram[][] componentSorted = DisplayUtils.sortByComponents(dss);
-        addZ(componentSorted[2], tc);
-        addNorth(componentSorted[0], tc);
-        addEast(componentSorted[1], tc);
-        setBorders();
+        z = addToDisplay(z, componentSorted[2], DisplayUtils.UP);
+        north = addToDisplay(north, componentSorted[0], DisplayUtils.NORTH);
+        east = addToDisplay(east, componentSorted[1], DisplayUtils.EAST);
+        if(handleBorders) {
+            setBorders();
+        }
     }
 
-    private void addNorth(DataSetSeismogram[] newNorth, TimeConfig displayTC) {
-        north = addToDisplay(north, newNorth, displayTC, DisplayUtils.NORTH);
+    public void setZ(BasicSeismogramDisplay sd) {
+        z = sd;
+        setupDisplay(sd, DisplayUtils.EAST);
     }
 
-    private void addEast(DataSetSeismogram[] newEast, TimeConfig displayTC) {
-        east = addToDisplay(east, newEast, displayTC, DisplayUtils.EAST);
+    public void setNorth(BasicSeismogramDisplay sd) {
+        north = sd;
+        setupDisplay(sd, DisplayUtils.NORTH);
     }
 
-    private void addZ(DataSetSeismogram[] newZ, TimeConfig displayTC) {
-        z = addToDisplay(z, newZ, displayTC, DisplayUtils.UP);
+    public void setEast(BasicSeismogramDisplay sd) {
+        east = sd;
+        setupDisplay(sd, DisplayUtils.EAST);
     }
 
     private BasicSeismogramDisplay addToDisplay(BasicSeismogramDisplay display,
                                                 DataSetSeismogram[] seismos,
-                                                TimeConfig displayTC,
                                                 String orientation) {
         if(seismos.length > 0) {
             if(display == null) {
-                display = new BasicSeismogramDisplay(displayTC);
-                display.setParentDisplay(this);
-                int position = -1;
-                if(orientation == DisplayUtils.UP) {
-                    position = 0;
-                } else if(orientation == DisplayUtils.NORTH) {
-                    if(z != null) {
-                        position = 1;
-                    } else {
-                        position = 0;
-                    }
-                }
-                initializeBSD(display, position, orientation);
+                display = new BasicSeismogramDisplay();
+                setupDisplay(display, orientation);
+                addOrientationTitleBorder(display, orientation);
             }
             display.add(seismos);
         }
         return display;
     }
 
-    private void initializeBSD(BasicSeismogramDisplay disp,
-                               int position,
-                               String orientation) {
-        getCenter().add(disp, position);
+    private int setupDisplay(BasicSeismogramDisplay display, String orientation) {
+        display.setTimeConfig(tc);
+        display.setParentDisplay(this);
+        int position = -1;
+        if(orientation == DisplayUtils.UP) {
+            position = 0;
+        } else if(orientation == DisplayUtils.NORTH) {
+            if(z != null) {
+                position = 1;
+            } else {
+                position = 0;
+            }
+        }
+        getCenter().add(display, position);
+        return position;
+    }
+
+    private void addOrientationTitleBorder(BasicSeismogramDisplay disp,
+                                           String orientation) {
         disp.add(new TitleBorder(Border.ASCENDING, Border.RIGHT, orientation),
                  BorderedDisplay.CENTER_RIGHT);
     }
@@ -91,6 +107,8 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
         else z = null;
         return super.removeDisplay(display);
     }
+
+    private boolean handleBorders = true;
 
     private BasicSeismogramDisplay north, east, z;
 }// ComponentSortedSeismogramDisplay
