@@ -36,11 +36,17 @@ public class FissuresToSac {
 	throws edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding 
     {
 	SacTimeSeries sac = new SacTimeSeries();
-        int[] intSamps = seis.get_as_longs();
-        float[] floatSamps = new float[intSamps.length];
-        for (int n=0;n<intSamps.length;n++) {
-            floatSamps[n] = intSamps[n];
-        }
+        float[] floatSamps;
+	if (seis.can_convert_to_long()) {
+	    int[] idata = seis.get_as_longs();
+	    floatSamps = new float[idata.length];
+	    for (int i=0; i<idata.length; i++) {
+		floatSamps[i] = idata[i];
+	    }
+	} else {
+	    floatSamps = seis.get_as_floats();
+	} // end of else
+
         sac.y = floatSamps;
 
         sac.npts = sac.y.length;
