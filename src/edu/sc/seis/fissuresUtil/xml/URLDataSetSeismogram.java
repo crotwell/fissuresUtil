@@ -277,7 +277,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                          Channel channel,
                                          String suffix)
         throws IOException, NoPreferredOrigin, CodecException {
-
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel cannot be null");
+        }
         String seisFilename = "";
         seisFilename = ChannelIdUtil.toStringNoDates(channel.get_id());
         seisFilename = seisFilename.replace(' ', '_'); // check for space-space site
