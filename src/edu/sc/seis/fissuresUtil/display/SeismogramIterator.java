@@ -113,6 +113,10 @@ public class SeismogramIterator implements Iterator{
     public void remove() {}
 
     public int getNumPoints(){ return numPoints; }
+    
+    public int numPointsLeft(){ return endPoint - currentPoint; }
+    
+    public int getStartPoint(){ return currentPoint; }
 
     public MicroSecondTimeRange getTimeRange(){ return timeRange; }
 
