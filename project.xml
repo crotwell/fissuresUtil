@@ -184,6 +184,13 @@ oot:${pom.artifactId}</connection>
           </includes>
        </resource>
        <resource>
+          <directory>src/edu/sc/seis/fissuresUtil/data</directory>
+          <targetPath>edu/sc/seis/fissuresUtil/data</targetPath>
+          <includes>
+             <include>**</include>
+          </includes>
+       </resource>
+       <resource>
           <directory>src/edu/sc/seis/fissuresUtil/display</directory>
           <targetPath>edu/sc/seis/fissuresUtil/display</targetPath>
           <includes>
