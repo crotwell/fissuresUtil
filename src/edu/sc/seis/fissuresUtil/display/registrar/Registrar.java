@@ -140,7 +140,11 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         boolean someRemoved = false;
         synchronized(seismos){
             for(int i = 0; i < oldSeismos.length; i++){
-                seismos.remove(oldSeismos[i]);
+                if( seismos.remove(oldSeismos[i])){
+                    someRemoved = true;
+                }
+            }
+            if(someRemoved){
                 seismosArray = null;
             }
         }
