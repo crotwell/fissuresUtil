@@ -225,7 +225,7 @@ public class JDBCSite extends NetworkTable {
 
     }
 
-    protected JDBCStation getStationTable(){ return stationTable; }
+    public JDBCStation getStationTable(){ return stationTable; }
 
     private PreparedStatement getAllIds, getAllIdsForSta, getIfCommentExists, getByDBId,
         getDBId, updateSite, putAll, putId, getAllIdsForNet, getAllSites, getAllSitesForSta,
