@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2562 2002-09-03 17:49:36Z telukutl $
+ * @version $Id: XMLDataSet.java 2576 2002-09-10 17:55:39Z telukutl $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -235,9 +235,13 @@ public class XMLDataSet implements DataSet, Serializable {
 
 	System.out.println("IN THE METHOD GET PARAMETER ****************************************************");
 	if (parameterCache.containsKey(name)) {
-	    SoftReference softReference  = (SoftReference)parameterCache.get(name);
-	    if(softReference.get() != null) return softReference.get();
-	    else parameterCache.remove(name);
+	   
+	    Object obj = parameterCache.get(name);
+	    if(obj instanceof SoftReference) {
+		SoftReference softReference  = (SoftReference)obj;
+		if(softReference.get() != null) return softReference.get();
+		else parameterCache.remove(name);
+	    } else return obj;
 	} // end of if (parameterCache.containsKey(name))
 	
         NodeList nList = evalNodeList(config, 
@@ -297,7 +301,7 @@ public class XMLDataSet implements DataSet, Serializable {
                              Object value,
                              AuditInfo[] audit) {
 	parameterNameCache = null;
-	//        parameterCache.put(name, value);
+	parameterCache.put(name, value);
         //if (value instanceof Element) {
 	    Element parameter = 
 		config.getOwnerDocument().createElement("parameter");
@@ -834,11 +838,20 @@ public class XMLDataSet implements DataSet, Serializable {
     public LocalSeismogramImpl getSeismogram(String name) {
         if (seismogramCache.containsKey(name)) {
 	    logger.debug("getting the seismogram fromt the cache");
-            SoftReference softReference = (SoftReference)seismogramCache.get(name);
-	    LocalSeismogramImpl seis = (LocalSeismogramImpl)softReference.get();
-	    if(seis != null) return seis;
-	    else seismogramCache.remove(name);
-	    
+	    Object obj = seismogramCache.get(name);
+	    if(obj instanceof SoftReference) {
+		SoftReference softReference = (SoftReference)obj;
+		LocalSeismogramImpl seis = (LocalSeismogramImpl)softReference.get();
+		if(seis != null) {
+		    logger.debug("**********NO NULL WHILE GETTING FROM RHT CACHE");
+		    return seis;
+		}
+		else {
+		    logger.debug("********** GARBAGE COLLECTED SO SEISMOGRAM NOT IN MEWMOERY");
+		    seismogramCache.remove(name);
+		}
+		
+	    } else return (LocalSeismogramImpl)obj;
         } // end of if (seismogramCache.containsKey(name))
 	
 	//logger.debug("The name of the data set is "+getName());
@@ -905,8 +918,10 @@ public class XMLDataSet implements DataSet, Serializable {
 //                     seis.setProperties(newProps);
 
                     if (seis != null) {
+			logger.debug("***************************************************CACHING SOFTREFERENCE AS THE SEISMOGRAM IS NOT NULL");
 			seismogramCache.put(name, new SoftReference(seis));
                     } // end of if (seis != null)
+		    else logger.debug("****************************************THE SEISMOGRAM RETURNED IS NULL");
 		    
                     return seis;
                 }
@@ -1077,7 +1092,7 @@ public class XMLDataSet implements DataSet, Serializable {
             }
 	    }*/
         config.appendChild(localSeismogram);
-	seismogramCache.put(name, new SoftReference(seis));
+	seismogramCache.put(name, seis);
 
 	//logger.debug("added seis now "+getSeismogramNames().length+" seisnogram names.");
        	seismogramNameCache = null;
