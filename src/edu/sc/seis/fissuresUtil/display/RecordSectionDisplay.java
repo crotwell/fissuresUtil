@@ -13,6 +13,7 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                         resize();
                     }
                 });
+        setBackground(Color.WHITE);
     }
 
 
@@ -201,13 +203,19 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         if(updating){
             return;
         }
+
         Graphics2D g2 = (Graphics2D)g;
         synchronized(this){
             Dimension size = getSize();
             Insets insets = getInsets();
             size = new Dimension(size.width - insets.left - insets.right,
                                  size.height - insets.top - insets.bottom);
-            g2.translate(insets.left, 0);
+            g2.translate(insets.left, insets.top);
+            if(displayRemove != null){
+                g2.setColor(Color.WHITE);
+                g2.fill(new Rectangle2D.Float(0,0, size.width, size.height));
+                displayRemove.draw(g2, size, curTimeEvent, curAmpEvent);
+            }
             Iterator it = curLayoutEvent.iterator();
             double curYPos = 0;
             while(it.hasNext()){
@@ -222,11 +230,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 cur.draw(g2, drawSize, curTimeEvent, curAmpEvent);
                 cur.drawName(g2, 0, drawHeight);
             }
-            g2.translate(0, -curYPos + insets.top);
-            if(displayRemove != null){
-                displayRemove.draw(g2, size, curTimeEvent, curAmpEvent);
-            }
-            g2.translate(-insets.left, -insets.top);
+            g2.translate(-insets.left, -curYPos - insets.top);
             g2.setColor(Color.BLACK);
             g2.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
         }
