@@ -265,6 +265,10 @@ public class FissuresNamingService {
     public void rebind(String dns, String objectname, org.omg.CORBA.Object obj, NamingContextExt topLevelNameContext, String interfacename) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
         logger.info("rebind dns="+dns+" interface="+interfacename+" object="+objectname);
+        if (topLevelNameContext == null) {
+            logger.warn("top level name context is null! Skipping rebind...");
+            return;
+        }
         String nameString = appendKindNames(dns);
 
         if(interfacename != null && interfacename.length() != 0)
