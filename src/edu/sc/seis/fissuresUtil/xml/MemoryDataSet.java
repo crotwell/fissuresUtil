@@ -135,6 +135,16 @@ public class MemoryDataSet implements DataSet {
      *
      */
     public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit) {
+        if (datasetSeismogramNames.contains(dss.getName())) {
+            int n = 1;
+            String tmpName = dss.getName();
+            while(datasetSeismogramNames.contains(dss.getName())) {
+                n++;
+                tmpName = dss.getName()+"."+n;
+            }
+            // found a num that isn't used
+            dss.setName(tmpName);
+        }
         dss.setDataSet(this);
         datasetSeismograms.put(dss.getName(), dss);
         datasetSeismogramNames.add(dss.getName());
