@@ -22,21 +22,45 @@ import org.apache.log4j.*;
 
 public class DataSetSeismogram implements LocalDataCenterCallBack {
     
-    public DataSetSeismogram(RequestFilter rf, DataCenterOperations dco) {
+    public DataSetSeismogram(RequestFilter rf, 
+			     DataCenterOperations dco) {
+	this(rf, dco, null);
+    }
+
+    public DataSetSeismogram(RequestFilter rf, 
+			     DataCenterOperations dco, 
+			     DataSet ds) {
+	this(rf, dco, ds, null);
+    }
+
+    public DataSetSeismogram(RequestFilter rf, 
+			     DataCenterOperations dco, 
+			     DataSet ds,
+			     String name) {
 	this.requestFilter = rf;
 	this.dataCenterOps = dco;
+	this.dataSet = ds;
+	this.name = name;
 	this.dssDataListeners = new LinkedList();
 	this.rfChangeListeners = new LinkedList();
     }
 
-    public void setEndTime(edu.iris.Fissures.Time time) {
+    public DataSet getDataSet(){ return dataSet; }
 
-	this.requestFilter.start_time = time;
-    }
+    public String getName(){ return name; }
+
+    public String toString(){ return name; }
 
     public void setBeginTime(edu.iris.Fissures.Time time) {
 
+	this.requestFilter.start_time = time;
+	fireBeginTimeChangedEvent();
+    }
+
+    public void setEndTime(edu.iris.Fissures.Time time) {
+
 	this.requestFilter.end_time = time;
+	fireEndTimeChangedEvent();
     }
 
     public RequestFilter getRequestFilter() {
@@ -95,7 +119,7 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 	}
     }
 
-     public void pushData(LocalSeismogram[] seismograms, SeisDataChangeListener initiator) {
+     public void pushData(LocalSeismogramImpl[] seismograms, SeisDataChangeListener initiator) {
 	 SeisDataChangeEvent event = new SeisDataChangeEvent(seismograms,
 							     this, 
 							     initiator);
@@ -103,7 +127,7 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
      }
 
     public void finished(SeisDataChangeListener initiator) {
-	SeisDataChangeEvent event = new SeisDataChangeEvent(new LocalSeismogram[0],
+	SeisDataChangeEvent event = new SeisDataChangeEvent(new LocalSeismogramImpl[0],
 							    this,
 							    initiator);
 	fireDataFinishedEvent(event);
@@ -132,6 +156,10 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
     private RequestFilter requestFilter;
     
     private DataCenterOperations dataCenterOps;
+
+    private DataSet dataSet = null;
+
+    private String name = null;
 
     static Category logger = 
         Category.getInstance(DataSetSeismogram.class.getName());
