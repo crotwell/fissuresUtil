@@ -93,7 +93,12 @@ public class SeismogramContainer implements SeisDataChangeListener{
             for (int j = 0; j < seismograms.length; j++) {
                 boolean found = false;
                 for (int i = 0; i < currentSeis.length; i++){
-                    if(seismograms[j].get_id().equals(currentSeis[i].get_id())){
+                    //As I don't know how to tell which seismogram is right if
+                    //they have exactly the same times, I just keep the first one
+                    //TODO fix inability to tell between local seismograms
+                    if(seismograms[j].get_id().equals(currentSeis[i].get_id()) ||
+                           (seismograms[j].getBeginTime().equals(currentSeis[i].getBeginTime()) &&
+                                seismograms[j].getEndTime().equals(currentSeis[i].getEndTime()))){
                         found = true;
                         break;
                     }
