@@ -38,12 +38,13 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         for(int i = 0; i < ad.length; i++){
             amps[i] = setRange(ad[i].getRange(),range);
         }
-        return new AmpEvent(AmpConfigData.getSeismograms(ad), amps);
+        return new BasicAmpEvent(AmpConfigData.getSeismograms(ad), amps);
     }
 
     protected boolean setAmpRange(AmpConfigData data){
         SeismogramIterator it = data.getIterator();
         if ( !it.hasNext()) {
+            System.out.println(" it time: " + it.getTimeRange() + " seisTime: " + it.getSeisTime() + " using zero range");
             return data.setRange(DisplayUtils.ZERO_RANGE);
         }
         double[] minMaxMean = it.minMaxMean();

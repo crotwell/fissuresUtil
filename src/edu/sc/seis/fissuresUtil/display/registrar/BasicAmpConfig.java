@@ -166,7 +166,7 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public AmpEvent fireAmpEvent(){
-        return  fireAmpEvent(calculateAmp());
+        return  fireAmpEvent(calculateAmp());//new LazyAmpEvent(this));
     }
 
     private AmpEvent fireAmpEvent(AmpEvent event){
@@ -204,10 +204,10 @@ public class BasicAmpConfig implements AmpConfig{
 
     public AmpEvent updateAmpTime(TimeEvent timeEvent){
         currentTimeEvent = timeEvent;
-        return calculateAmp();
+        return calculateAmp();//LazyAmpEvent(this);
     }
 
-    private AmpEvent calculateAmp(){
+    public AmpEvent calculateAmp(){
         boolean changed = false;
         AmpConfigData[] ad = getAmpData();
         for (int i = 0; i < ad.length; i++){
@@ -250,7 +250,7 @@ public class BasicAmpConfig implements AmpConfig{
         for(int i = 0; i < ad.length; i++){
             amps[i] = fullRange;
         }
-        return new AmpEvent(getSeismograms(ad), amps);
+        return new BasicAmpEvent(getSeismograms(ad), amps);
     }
 
     protected boolean setAmpRange(AmpConfigData data){
