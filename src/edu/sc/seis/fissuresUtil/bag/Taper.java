@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  * Created: Sat Oct 19 21:53:21 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: Taper.java 6975 2004-02-05 22:14:41Z crotwell $
+ * @version $Id: Taper.java 6976 2004-02-05 22:19:23Z crotwell $
  */
 
 public class Taper implements LocalSeismogramFunction {
@@ -64,7 +64,7 @@ public class Taper implements LocalSeismogramFunction {
     for (int i=0; i < w ; i++) {
         data[i] = (float)(data[i] * (f0 - f1 * Math.cos(omega*i)));
         data[data.length-i-1] =
-        (float)(data[data.length-i] * (f0 - f1 * Math.cos(omega*i)));
+        (float)(data[data.length-i-1] * (f0 - f1 * Math.cos(omega*i)));
     }
     }
 
@@ -85,7 +85,7 @@ public class Taper implements LocalSeismogramFunction {
     for (int i=0; i < w ; i++) {
         data[i] = (data[i] * (f0 - f1 * Math.cos(omega*i)));
         data[data.length-i-1] =
-        (data[data.length-i] * (f0 - f1 * Math.cos(omega*i)));
+        (data[data.length-i-1] * (f0 - f1 * Math.cos(omega*i)));
     }
     }
 
@@ -107,7 +107,7 @@ public class Taper implements LocalSeismogramFunction {
         data[i] =
         (short)Math.round(data[i] * (f0 - f1 * Math.cos(omega*i)));
         data[data.length-i-1] =
-        (short)Math.round(data[data.length-i] * (f0 - f1 * Math.cos(omega*i)));
+        (short)Math.round(data[data.length-i-1] * (f0 - f1 * Math.cos(omega*i)));
     }
     }
 
@@ -130,7 +130,7 @@ public class Taper implements LocalSeismogramFunction {
         data[i] =
         (int)Math.round(data[i] * (f0 - f1 * Math.cos(omega*i)));
         data[data.length-i-1] =
-        (int)Math.round(data[data.length-i] * (f0 - f1 * Math.cos(omega*i)));
+        (int)Math.round(data[data.length-i-1] * (f0 - f1 * Math.cos(omega*i)));
     }
     }
 
@@ -168,3 +168,4 @@ public class Taper implements LocalSeismogramFunction {
     private static Logger logger = Logger.getLogger(Taper.class);
 
 }// Taper
+
