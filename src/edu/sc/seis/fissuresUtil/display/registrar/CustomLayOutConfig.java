@@ -21,6 +21,10 @@ public class CustomLayOutConfig extends BasicLayoutConfig {
         return lastEvent;
     }
 
+    public void setSwapAxes(boolean swapAxes) {
+        this.swapAxes = swapAxes;
+    }
+
     public synchronized LayoutEvent generateLayoutEvent() {
         DataSetSeismogram[] seis = getSeismograms();
         if(seis.length > 0) {
@@ -31,17 +35,20 @@ public class CustomLayOutConfig extends BasicLayoutConfig {
             for(int i = 0; i < data.length; i++) {
                 DataSetSeismogram cur = seis[i];
                 double curDist = ((QuantityImpl)valueMap.get(cur)).getValue();
-                double centerPercentage = (endDist - curDist) / totalDistance;
+                double centerPercentage = 0;
+                double cpVal = (endDist - curDist) / totalDistance;
+                if(swapAxes) {
+                    centerPercentage = 1 - cpVal;
+                } else {
+                    centerPercentage = cpVal;
+                }
                 data[i] = new LayoutData(cur,
                                          centerPercentage - PERCENT_OFFSET,
                                          centerPercentage + PERCENT_OFFSET);
             }
-            UnitRangeImpl range = null;
-            if(startDist > endDist) {
-                range = new UnitRangeImpl(endDist, startDist, UnitImpl.DEGREE);
-            } else {
-                range = new UnitRangeImpl(startDist, endDist, UnitImpl.DEGREE);
-            }
+            UnitRangeImpl range = new UnitRangeImpl(startDist,
+                                                    endDist,
+                                                    UnitImpl.DEGREE);
             lastEvent = new LayoutEvent(data, range);
             return lastEvent;
         }
@@ -54,6 +61,8 @@ public class CustomLayOutConfig extends BasicLayoutConfig {
     public static double PERCENT_OFFSET = 0.1;
 
     private double minDistance;
+
+    private boolean swapAxes = false;
 
     private double maxDistance;
 }
