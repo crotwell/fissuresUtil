@@ -12,11 +12,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class JDBCCatalog extends JDBCTable {
+public class JDBCCatalog extends EventTable {
     public JDBCCatalog(Connection conn) throws SQLException{
         this(conn, new JDBCContributor(conn));
     }
-    
+
     public JDBCCatalog(Connection conn, JDBCContributor jdbcContributor)
         throws SQLException {
         super("catalog", conn);
@@ -26,23 +26,23 @@ public class JDBCCatalog extends JDBCTable {
         if(!DBUtil.tableExists("catalog", conn)){
             stmt.executeUpdate(ConnMgr.getSQL("catalog.create"));
         }
-        put = conn.prepareStatement(" INSERT INTO catalog (catalogid,"+
-                                        " catalogcontributorid, catalog )"+
+        put = conn.prepareStatement(" INSERT INTO catalog (catalog_id,"+
+                                        " catalog_contributor_id, catalog_name )"+
                                         " VALUES( ?, ?, ?) ");
-        get = conn.prepareStatement("SELECT catalog, catalogcontributorid"+
-                                        " FROM catalog WHERE catalogid = ?");
-        getDBId = conn.prepareStatement("SELECT catalogid FROM catalog"+
-                                            " WHERE catalog = ? ");
-        getAll = conn.prepareStatement("SELECT DISTINCT catalog FROM catalog");
+        get = conn.prepareStatement("SELECT catalog_name, catalog_contributor_id"+
+                                        " FROM catalog WHERE catalog_id = ?");
+        getDBId = conn.prepareStatement("SELECT catalog_id FROM catalog"+
+                                            " WHERE catalog_name = ? ");
+        getAll = conn.prepareStatement("SELECT DISTINCT catalog_name FROM catalog");
     }
-    
+
     public int insert(String catalog, PreparedStatement stmt,  int index, int contributorid)
         throws SQLException {
         stmt.setInt(index++, contributorid);
         stmt.setString(index++, catalog);
         return index;
     }
-    
+
     /**
      * This function inserts a row into the Catalog table
      * @param catalog - the catalog name
@@ -60,7 +60,7 @@ public class JDBCCatalog extends JDBCTable {
             return id;
         }
     }
-    
+
     /***
      * This function returns the dbid given the catalog name
      * @ param catalog - the catalog name
@@ -70,12 +70,12 @@ public class JDBCCatalog extends JDBCTable {
         getDBId.setString(1, catalog);
         ResultSet rs = getDBId.executeQuery();
         if(rs.next()) {
-            return rs.getInt("catalogid");
+            return rs.getInt("catalog_id");
         }
         throw new NotFound("the entry for the given origin object is not found");
     }
-    
-    
+
+
     /**
      * This method returns the catalog name given the dbid
      * @param id - dbid
@@ -84,10 +84,10 @@ public class JDBCCatalog extends JDBCTable {
     public String get(int id) throws SQLException, NotFound {
         get.setInt(1,id);
         ResultSet rs = get.executeQuery();
-        if(rs.next()) return rs.getString("catalog");
+        if(rs.next()) return rs.getString("catalog_name");
         throw new NotFound(" there is no Catalog name is associated  to the id "+id);
     }
-    
+
     /**
      * This method returns the catalog names
      * @return String[] - an array of all the catalogs
@@ -95,17 +95,17 @@ public class JDBCCatalog extends JDBCTable {
     public String[] getAllCatalogs() throws SQLException {
         ArrayList aList = new ArrayList();
         ResultSet rs = getAll.executeQuery();
-        
+
         while( rs.next() ) {
-            aList.add(rs.getString("catalog"));
+            aList.add(rs.getString("catalog_name"));
         }
-        
+
         String[] catalogs = new String[aList.size()];
         catalogs = (String[])aList.toArray(catalogs);
         return catalogs;
-        
+
     }
-    
+
     /**
      * This function returns the contributor given the dbid of the contributor
      * @param id - the dbid of the contributor
@@ -114,39 +114,27 @@ public class JDBCCatalog extends JDBCTable {
     public String getContributorOnContributorId(int id) throws SQLException, NotFound {
         return jdbcContributor.get(id);
     }
-    
-    
-    /**
-     * This method returns the contributor names
-     * @return String[] - an array of all the contributors
-     */
-    public String[] getAllContributors() throws SQLException {
-        return jdbcContributor.getAll();
-    }
-    
-    /**
-     * This method returns the catalog name given the dbid
-     * @param id - dbid
-     * @return String - the name of the contributor
-     */
+
+
+
     public String getContributor(int id) throws SQLException, NotFound {
         get.setInt(1,id);
         ResultSet rs = get.executeQuery();
         if(rs.next()) {
-            return jdbcContributor.get(rs.getInt("catalogcontributorid"));
+            return jdbcContributor.get(rs.getInt("catalog_contributor_id"));
         }
         throw new NotFound(" there is no Catalog name is associated  to the id "+id);
     }
-    
+
     protected JDBCContributor jdbcContributor;
-    
+
     protected PreparedStatement getDBId;
-    
+
     protected PreparedStatement get;
-    
+
     protected PreparedStatement put;
-    
+
     protected PreparedStatement getAll;
-    
+
     private JDBCSequence seq;
 } // JDBCCatalog

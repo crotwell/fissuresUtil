@@ -17,13 +17,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JDBCEventAccess{
+public class JDBCEventAccess extends EventTable{
     public JDBCEventAccess(Connection conn) throws SQLException{
         this(conn, new JDBCOrigin(conn), new JDBCEventAttr(conn));
     }
-    
+
     public JDBCEventAccess(Connection conn, JDBCOrigin origins,
                            JDBCEventAttr attrs) throws SQLException{
+        super("eventaccess", conn);
         this.origins = origins;
         this.attrs = attrs;
         seq = new JDBCSequence(conn, "EventAccessSeq");
@@ -32,58 +33,58 @@ public class JDBCEventAccess{
             stmt.executeUpdate(ConnMgr.getSQL("EventAccess.create"));
         }
         put = conn.prepareStatement(" INSERT INTO eventaccess "+
-                                        "(eventid, IOR, originid, " +
-                                        "eventattrid, server, dns)"+
+                                        "(event_id, IOR, origin_id, " +
+                                        "eventattr_id, server, dns)"+
                                         "VALUES(?,?,?,?,?,?)");
-        getDBIdStmt = conn.prepareStatement(" SELECT eventid FROM eventaccess "+
-                                                " WHERE eventattrid = ? AND"+
-                                                " originid = ?");
+        getDBIdStmt = conn.prepareStatement(" SELECT event_id FROM eventaccess "+
+                                                " WHERE eventattr_id = ? AND"+
+                                                " origin_id = ?");
         getCorbaStrings = conn.prepareStatement(" SELECT IOR, server, dns FROM eventaccess " +
-                                                    " WHERE eventid = ?");
-        getAttrAndOrigin = conn.prepareStatement(" SELECT eventattrid, originid FROM eventaccess " +
-                                                     " WHERE eventid = ?");
-        getEventIds = conn.prepareStatement(" SELECT eventattrid, eventid, originid FROM eventaccess");
+                                                    " WHERE event_id = ?");
+        getAttrAndOrigin = conn.prepareStatement(" SELECT eventattr_id, origin_id FROM eventaccess " +
+                                                     " WHERE event_id = ?");
+        getEventIds = conn.prepareStatement(" SELECT eventattr_id, event_id, origin_id FROM eventaccess");
     }
-    
+
     public CacheEvent getEvent(int dbid) throws SQLException, NotFound{
         getAttrAndOrigin.setInt(1, dbid);
         ResultSet rs = getAttrAndOrigin.executeQuery();
         rs.next();
         return getEvent(rs, dbid);
     }
-    
+
     private CacheEvent getEvent(ResultSet rs, int dbid) throws NotFound, SQLException{
-        Origin preferredOrigin = origins.get(rs.getInt("originid"));
+        Origin preferredOrigin = origins.get(rs.getInt("origin_id"));
         Origin[] allOrigins = origins.getOrigins(dbid);
-        EventAttr attr = attrs.get(rs.getInt("eventattrid"));
+        EventAttr attr = attrs.get(rs.getInt("eventattr_id"));
         return new CacheEvent(attr, allOrigins, preferredOrigin);
     }
-    
+
     public CacheEvent[] getAllEvents() throws SQLException,SQLException{
         List events = new ArrayList();
         ResultSet rs = getEventIds.executeQuery();
         while(rs.next()){
             try {
-                events.add(getEvent(rs, rs.getInt("eventid")));
+                events.add(getEvent(rs, rs.getInt("event_id")));
             } catch (NotFound e) {
                 throw new RuntimeException("This shouldn't happen.  I just got that id", e);
             }
         }
         return (CacheEvent[])events.toArray(new CacheEvent[events.size()]);
     }
-    
+
     public String getServer(int dbid) throws SQLException{
         return getCorbaStrings(dbid)[0];
     }
-    
+
     public String getDNS(int dbid) throws SQLException{
         return getCorbaStrings(dbid)[1];
     }
-    
+
     public String getIOR(int dbid) throws SQLException{
         return getCorbaStrings(dbid)[2];
     }
-    
+
     /**
      * Method getCorbaStrings returns all the server information about this
      * event db id
@@ -100,7 +101,7 @@ public class JDBCEventAccess{
         serverInfo[2] = rs.getString("IOR");
         return serverInfo;
     }
-    
+
     /**
      * Method put adds this event to the database.  If it's already in there,
      * it merely returns the dbid of the previously inserted events.
@@ -135,7 +136,7 @@ public class JDBCEventAccess{
             return id;
         }
     }
-    
+
     public int getDBId(EventAccessOperations eao) throws SQLException, NotFound{
         getDBIdStmt.setInt(1, attrs.getDBId(eao.get_attributes()));
         try {
@@ -144,16 +145,16 @@ public class JDBCEventAccess{
             throw new IllegalArgumentException("The event access passed into getDBId must have a preferred origin");
         }
         ResultSet rs = getDBIdStmt.executeQuery();
-        if(rs.next())return rs.getInt("eventid");
+        if(rs.next())return rs.getInt("event_id");
         throw new NotFound("The event wasn't found in the db!");
     }
-    
+
     private JDBCOrigin origins;
-    
+
     private JDBCEventAttr attrs;
-    
+
     private JDBCSequence seq;
-    
+
     private PreparedStatement put, getDBIdStmt, getCorbaStrings, getAttrAndOrigin,
         getEventIds;
 }
