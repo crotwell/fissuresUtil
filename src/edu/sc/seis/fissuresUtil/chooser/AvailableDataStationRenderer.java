@@ -286,7 +286,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                         consecutiveFailures++;
                         Thread.sleep(2000 * consecutiveFailures);
                         if(consecutiveFailures > maxFail) quitThread = true;
-                    }catch(InterruptedException e) {
+                    }catch(InterruptedException interrupted) {
                     }
 
                 }
