@@ -99,7 +99,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
             if(majTickTime <= HOUR){
                 majTickTime = HOUR;
             }else if(majTickTime <= 2*HOUR){
-                majTickTime = HOUR;
+                majTickTime = 2*HOUR;
                 majTickRatio = 4;
             }else if(majTickTime <= 3*HOUR){
                 majTickTime = 3*HOUR;
@@ -112,12 +112,16 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
                 majTickRatio = 4;
             }
         }
-        else{
+        else if(majTickTime <= 4*DAY){
             majTickRatio = 6;
             //System.out.println("TimeScaleCalc ELSE"+" "+majTickTime);
             timeFormat = new SimpleDateFormat("MM/dd");
             majTickTime = DAY;
-        }
+        }else{
+	    majTickRatio = 7;
+	    timeFormat = new SimpleDateFormat("MM/dd");
+	    majTickTime = WEEK;
+	}
         timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         double numTicksDbl = ((timeIntv/(double)majTickTime) * majTickRatio);
         numTicks = (int)numTicksDbl;
@@ -212,5 +216,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     private static final long MINUTE = 60*SECOND;
     private static final long HOUR = 60*MINUTE;
     private static final long DAY = 24*HOUR;
+    private static final long WEEK = 7*DAY;
 
 }// TimeScaleCalc
