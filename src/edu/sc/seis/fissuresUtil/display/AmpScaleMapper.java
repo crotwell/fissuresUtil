@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.iris.Fissures.model.UnitImpl;
 import java.text.DecimalFormat;
 
 /**
@@ -15,9 +16,19 @@ import java.text.DecimalFormat;
 
 public class AmpScaleMapper implements ScaleMapper, AmpListener {
     public AmpScaleMapper(int totalPixels, int hintPixels, Registrar reg){
+        this(totalPixels, hintPixels, reg, 1, UnitImpl.COUNT);
+    }
+
+    public AmpScaleMapper(int totalPixels, 
+                          int hintPixels, 
+                          Registrar reg, 
+                          float sensitivity, 
+                          UnitImpl originalUnit){
         this.totalPixels = totalPixels;
         this.hintPixels = hintPixels;
         this.reg = reg;
+        this.sensitivity = sensitivity;
+        this.originalUnit = originalUnit;
         reg.addListener(this);
     }
 
@@ -30,7 +41,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
 
     public String getLabel(int i) {
         if (isLabelTick(i)) {
-            double value = minTick + i * tickInc;
+            double value = (minTick + i * tickInc)/sensitivity;
             double absValue = Math.abs(value);
             // use regular notation
             DecimalFormat df;
@@ -44,6 +55,14 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         } else {
             return "";
         }
+    }
+
+    public String getAxisLabel() {
+        return getUnit().toString();
+    }
+
+    public UnitImpl getUnit() {
+        return originalUnit;
     }
 
     public int getNumTicks() {
@@ -63,8 +82,8 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
             numTicks = 0;
             return;
         }
-
-        double rangeWidth = range.getMaxValue()-range.getMinValue();
+        UnitRangeImpl sensitivityRange = getSensitivityRange();
+        double rangeWidth = sensitivityRange.getMaxValue()-sensitivityRange.getMinValue();
 
         if ( rangeWidth == 0) {
             // not a real range
@@ -95,9 +114,9 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         }
 
         minTick = tickInc *
-            Math.floor(range.getMinValue() / tickInc);
+            Math.floor(sensitivityRange.getMinValue() / tickInc);
         double minMajorTick = majorTickStep * tickInc *
-            Math.floor(range.getMinValue() /
+            Math.floor(sensitivityRange.getMinValue() /
                            (majorTickStep * tickInc));
         firstMajorTick = (int)Math.round((minTick-minMajorTick)/tickInc);
         if (firstMajorTick < 0) {
@@ -105,7 +124,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         }
 
         numTicks = 1;
-        while (minTick + numTicks * tickInc <= range.getMaxValue() ) {
+        while (minTick + numTicks * tickInc <= sensitivityRange.getMaxValue() ) {
             numTicks++;
         }
         calcRange = tickInc * numTicks + minTick;
@@ -127,6 +146,15 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         return range;
     }
 
+    /** returns the range modified by the sensitivity. This should be
+        in units of ground motion.
+    */
+    public UnitRangeImpl getSensitivityRange() {
+        return new UnitRangeImpl(range.getMinValue()/sensitivity,
+                                 range.getMaxValue()/sensitivity,
+                                 originalUnit);
+    }
+
     public void updateAmp(AmpEvent event){
         range = event.getAmp();
         calculateTicks();
@@ -137,6 +165,10 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         this.reg = reg;
         reg.addListener(this);
     }
+
+    private float sensitivity;
+
+    private UnitImpl originalUnit;
 
     private int firstMajorTick = 0;
 
