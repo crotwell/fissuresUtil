@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import java.util.HashMap;
@@ -9,6 +8,9 @@ import java.util.LinkedList;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Dimension;
+import java.awt.geom.*;
 
 /**
  * Selection.java
@@ -20,7 +22,7 @@ import java.awt.Color;
  * @version
  */
 
-public class Selection implements TimeSyncListener{
+public class Selection implements TimeSyncListener, Plotter{
     public Selection (MicroSecondDate begin, MicroSecondDate end, TimeConfigRegistrar tr, LinkedList seismograms, 
 		      BasicSeismogramDisplay parent, Color color){
 	this.externalTimeConfig = tr;
@@ -33,13 +35,28 @@ public class Selection implements TimeSyncListener{
 	parent.repaint();
     }
 
+    public void toggleVisibility(){ visible = !visible; }
+    
+    public void setVisibility(boolean b){ visible = b; }
+    
     public boolean isVisible(){
 	MicroSecondTimeRange currentExternal = externalTimeConfig.getTimeRange();
 	MicroSecondTimeRange currentInternal = internalTimeConfig.getTimeRange();
-	if(currentExternal.getBeginTime().getMicroSecondTime() >= currentInternal.getEndTime().getMicroSecondTime() || 
+	if(!visible || currentExternal.getBeginTime().getMicroSecondTime() >= currentInternal.getEndTime().getMicroSecondTime() || 
 	   currentExternal.getEndTime().getMicroSecondTime() <= currentInternal.getBeginTime().getMicroSecondTime())
 	    return false;
 	return true;
+    }
+
+    public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState){
+	if(isVisible()){
+	    Rectangle2D selection = new Rectangle2D.Float(getX(size.width), 0, 
+							  (float)(getWidth() * size.width), 
+							  size.height);
+	    canvas.setPaint(color); 
+	    canvas.fill(selection); 
+	    canvas.draw(selection); 
+	} 
     }
     
     public void adjustRange(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
@@ -151,5 +168,5 @@ public class Selection implements TimeSyncListener{
 
     protected Color color;
 
-    protected boolean selectedBegin, released = true;
+    protected boolean selectedBegin, released = true, visible = true;
 }// Selection
