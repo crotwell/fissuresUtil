@@ -18,15 +18,15 @@ import org.apache.xpath.objects.*;
 
 public class XMLUtil {
 
-    public static Element createTextElement(Document doc, 
-                                            String elementName, 
+    public static Element createTextElement(Document doc,
+                                            String elementName,
                                             String value) {
         Element element = doc.createElement(elementName);
         Text text = doc.createTextNode(value);
         element.appendChild(text);
         return element;
     }
-    
+
     /**
      * Describe <code>evalNodeList</code> method here.
      *
@@ -35,15 +35,15 @@ public class XMLUtil {
      * @return a <code>NodeList</code> value
      */
     public static NodeList evalNodeList(Node context, String path) {
-	try {
-	    //xpath = new CachedXPathAPI();
-	     XObject xobj = xpath.eval(context, path);
+    try {
+        //xpath = new CachedXPathAPI();
+         XObject xobj = xpath.eval(context, path);
             if (xobj != null && xobj.getType() == XObject.CLASS_NODESET) {
                 return xobj.nodelist();
             }
         } catch (javax.xml.transform.TransformerException e) {
             //System.out.println("Couldn't get NodeList"+e);
-	    } // end of try-catch
+        } // end of try-catch
         return null;
     }
 
@@ -64,57 +64,58 @@ public class XMLUtil {
     }
 
 
-    /** returns the first text child within the node.
+    /** returns the concatenation of all text children within the node. Does not
+    recurse into subelements.
      */
     public static String getText(Element config) {
-	if(config == null) return new String("");
+    if(config == null) return new String("");
         NodeList children = config.getChildNodes();
         Node node;
+        String out = "";
         for (int i=0; i<children.getLength(); i++) {
             node = children.item(i);
             if (node instanceof Text) {
-                return node.getNodeValue();
+                out += node.getNodeValue();
             }
         }
-        //nothing found, return null
-        return new String("");
+        return out;
     }
 
     /** returns the element with the given name
      */
 
     public static Element getElement(Element config, String elementName) {
-	
-	NodeList children = config.getChildNodes();
-	Node node;
-	for(int counter = 0; counter < children.getLength(); counter++ ) {
-	    node = children.item(counter);
-	    if(node instanceof Element ) {
-		if(((Element)node).getTagName().equals(elementName)) {
-		    return ((Element)node);
-		}
-	    }
-	    
-	}
-	return null;
+
+    NodeList children = config.getChildNodes();
+    Node node;
+    for(int counter = 0; counter < children.getLength(); counter++ ) {
+        node = children.item(counter);
+        if(node instanceof Element ) {
+        if(((Element)node).getTagName().equals(elementName)) {
+            return ((Element)node);
+        }
+        }
+
+    }
+    return null;
     }
 
     public static Element[] getElementArray(Element config, String elementName) {
-	NodeList children = config.getChildNodes();
-	Node node;
-	ArrayList arrayList = new ArrayList();
-	for(int counter = 0; counter < children.getLength(); counter++) {
+    NodeList children = config.getChildNodes();
+    Node node;
+    ArrayList arrayList = new ArrayList();
+    for(int counter = 0; counter < children.getLength(); counter++) {
 
-	    node = children.item(counter);
-	    if(node instanceof Element) {
-		if(((Element)node).getTagName().equals(elementName)) {
-		    arrayList.add((Element)node);
-		}
-	    }
-	}
-	Element[] elementArray = new Element[arrayList.size()];
-	elementArray = (Element[]) arrayList.toArray(elementArray);
-	return elementArray;
+        node = children.item(counter);
+        if(node instanceof Element) {
+        if(((Element)node).getTagName().equals(elementName)) {
+            arrayList.add((Element)node);
+        }
+        }
+    }
+    Element[] elementArray = new Element[arrayList.size()];
+    elementArray = (Element[]) arrayList.toArray(elementArray);
+    return elementArray;
     }
 
     /**
@@ -124,15 +125,15 @@ public class XMLUtil {
      * @return a <code>String[]</code> value
      */
     public static  String[] getAllAsStrings(Element config, String path) {
-	//logger.debug("The path that is passed to GetALLASStrings is "+path);
-	
+    //logger.debug("The path that is passed to GetALLASStrings is "+path);
+
         NodeList nodes = evalNodeList(config, path);
         if (nodes == null) {
             return new String[0];
         } // end of if (nodes == null)
-        
-	String[] out = new String[nodes.getLength()];
-	//logger.debug("the length of the nodes is "+nodes.getLength());
+
+    String[] out = new String[nodes.getLength()];
+    //logger.debug("the length of the nodes is "+nodes.getLength());
         for (int i=0; i<out.length; i++) {
             out[i] = nodes.item(i).getNodeValue();
         } // end of for (int i=0; i++; i<out.length)
@@ -147,12 +148,12 @@ public class XMLUtil {
      * @return a <code>String</code> value
      */
     public static String getUniqueName(String[] nameList, String name) {
-	int counter = 0;
-	for(int i = 0; i < nameList.length; i++) {
-		if(nameList[i].indexOf(name) != -1) counter++;
-	}
-	if(counter == 0) return name;
-	return name+"_"+(counter+1);
+    int counter = 0;
+    for(int i = 0; i < nameList.length; i++) {
+        if(nameList[i].indexOf(name) != -1) counter++;
+    }
+    if(counter == 0) return name;
+    return name+"_"+(counter+1);
     }
 
      /**
