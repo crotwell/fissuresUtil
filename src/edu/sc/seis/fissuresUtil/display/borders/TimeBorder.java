@@ -29,6 +29,7 @@ public class TimeBorder extends Border implements TitleProvider {
         this.disp = disp;
         setPreferredSize(new Dimension(BasicSeismogramDisplay.PREFERRED_WIDTH,
                                        50));
+        axisFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     public String getTitle() {
@@ -39,7 +40,7 @@ public class TimeBorder extends Border implements TitleProvider {
             Date middleDate = time.getBeginTime()
                     .add(new TimeInterval(time.getInterval().divideBy(2)));
             calendar.setTime(middleDate);
-            return axisFormat.format(calendar.getTime()) + " (GMT)";
+            return axisFormat.format(calendar.getTime());
         }
     }
 
@@ -177,7 +178,7 @@ public class TimeBorder extends Border implements TitleProvider {
 
     private Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    private SimpleDateFormat axisFormat = new SimpleDateFormat("MM/dd/yyyy");
+    private SimpleDateFormat axisFormat = new SimpleDateFormat("MM/dd/yyyy (zzz)");
 
     //Five days before the epoch to 10 after
     public static MicroSecondTimeRange roundTheEpoch = new MicroSecondTimeRange(new MicroSecondDate(0),
