@@ -88,6 +88,7 @@ public class FissuresConvert  {
                     dr.addBlockette(b1000);
                     QuantityImpl hertz = ((SamplingImpl)seis.sampling_info).getFrequency().convertTo(UnitImpl.HERTZ);
                     b100.setActualSampleRate((float)hertz.getValue());
+                    System.out.println("b100 sample rate = "+b100.getActualSampleRate()+" as float="+((float)b100.getActualSampleRate()));
                     dr.addBlockette(b100);
                     dr.setData(eData[i].values);
                     outRecords.add(dr);
@@ -120,7 +121,25 @@ public class FissuresConvert  {
         return (DataRecord[])outRecords.toArray(new DataRecord[0]);
     }
 
-    public static LocalSeismogram toFissures(DataRecord seed)
+    /** assume all records from same channel and in time order with no gaps/overlaps.*/
+    public static LocalSeismogram toFissures(DataRecord[] seed)
+        throws SeedFormatException, FissuresException {
+        LocalSeismogramImpl seis = toFissures(seed[0]);
+        for (int i = 1; i < seed.length; i++) {
+            TimeSeriesDataSel bits = convertData(seed[i]);
+            EncodedData[] edata = bits.encoded_values();
+            for (int j = 0; j < edata.length; j++) {
+                if (edata[j] == null ) {
+                    System.err.println("encoded data is null "+j);
+                    System.exit(1);
+                }
+                seis.append_encoded(edata[j]);
+            }
+        }
+        return seis;
+    }
+
+    public static LocalSeismogramImpl toFissures(DataRecord seed)
         throws SeedFormatException {
 
 
