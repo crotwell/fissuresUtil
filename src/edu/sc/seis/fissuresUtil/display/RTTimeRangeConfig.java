@@ -39,6 +39,7 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 	reg.setTimeConfig(this);
 	this.update = update;
 	this.speed = speed;
+	this.lastDate = new MicroSecondDate();
     }
 
     public void startTimer() {
@@ -49,8 +50,11 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
 			     if (beginTime != null && speed != 0) {
+				 MicroSecondDate now = new MicroSecondDate();
+				 TimeInterval timeInterval = new TimeInterval(lastDate, now);
 				 width = 
-				     (TimeInterval)update.multiplyBy(speed);
+				     (TimeInterval)timeInterval.multiplyBy(speed);
+				 lastDate = now;
 				 setAllBeginTime(beginTime.add(width));
 				 getRegistrar().updateTimeSyncListeners();
 				 System.out.println("Timer: updateTimeSyncListeners()  speed="+speed);
@@ -71,6 +75,8 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
     }
 
     private TimeInterval update;
+
+    private MicroSecondDate lastDate;
 
     private float speed = 1;
 
