@@ -519,7 +519,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     public static JLabel amp = new JLabel("   Amplitude:       ");
 
-    protected SimpleDateFormat output = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.S");
+    protected SimpleDateFormat output = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 
     protected Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
