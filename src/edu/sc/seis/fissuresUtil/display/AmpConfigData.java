@@ -51,13 +51,14 @@ public class AmpConfigData {
         return (LocalSeismogramImpl[])seismograms.toArray(new LocalSeismogramImpl[0]);
     }
 
-    public void addSeismograms(LocalSeismogramImpl[] seismos){
+    public boolean addSeismograms(LocalSeismogramImpl[] seismos){
         for(int i = 0; i < seismos.length; i++){
             if(!contains(seismos[i])){
                 seismograms.add(seismos[i]);
+                newData = true;
             }
         }
-        newData = true;
+        return newData;
     }
 
     public boolean contains(LocalSeismogramImpl seis){
@@ -71,6 +72,8 @@ public class AmpConfigData {
         return found;
     }
     public boolean hasNewData(){ return newData; }
+
+    public void setNewData(boolean dataStatus){ newData = dataStatus; }
 
     public DataSetSeismogram getDSS(){ return seismo; }
 
