@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.varia.NullAppender;
 import org.w3c.dom.Element;
 
 /**
@@ -25,7 +27,7 @@ import org.w3c.dom.Element;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 9749 2004-07-22 20:23:43Z crotwell $
+ * @version $Id: SacDirToDataSet.java 9761 2004-07-23 14:33:11Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -100,7 +102,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
             } // end of try-catch
         } // end of for (int i=0; i<sacFiles.length; i++)
 
-        dataSetToXML.save(dataset, directory, SeismogramFileTypes.SAC);
+        dataSetToXML.save(dataset, new File(System.getProperty("user.dir")), SeismogramFileTypes.SAC);
     }
 
     void loadParameterRef(Element dsElement, String paramName, String paramFile) {
@@ -212,6 +214,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
             System.err.println("Usage: java edu.sc.seis.fissuresUtil.sac.SacDirToDataSet -base url -dir directoryPath -name datasetname [-exclude file] [-paramRef name file]");
             return;
         } // end of if (args.length != 2)
+        BasicConfigurator.configure(new NullAppender());
         String dirName = null;
         URL base = null;
         String baseStr = "";
@@ -276,5 +279,6 @@ public class SacDirToDataSet implements StdDataSetParamNames {
     static DataSetToXML dataSetToXML = new DataSetToXML();
 
 }// SacDirToDataSet
+
 
 
