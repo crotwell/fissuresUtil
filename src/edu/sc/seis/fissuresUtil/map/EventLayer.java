@@ -104,13 +104,16 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 			while (it.hasNext()){
 				OMEvent current = (OMEvent)it.next();
 				try{
-					if (current.getEvent().get_preferred_origin().equals(eqSelectionEvent.getEvents()[0].get_preferred_origin())){
+					//if (current.getEvent().get_preferred_origin().equals(eqSelectionEvent.getEvents()[0].get_preferred_origin())){
+					if (DisplayUtils.originIsEqual(current.getEvent(), eqSelectionEvent.getEvents()[0])){
 						selected = current;
 					}else{
 						deselected.add(current);
 					}
 				}
-				catch(NoPreferredOrigin e){}
+				catch(NoPreferredOrigin e){
+					e.printStackTrace();
+				}
 			}
 		}
 		if(selected != null){
@@ -157,30 +160,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 				try{
 					if(current.getBigCircle().contains(e.getX(), e.getY())){
 						EventAccessOperations event = current.getEvent();
-						StringBuffer buf = new StringBuffer();
-
-						//Get geographic name of origin
-						ParseRegions regions = new ParseRegions();
-						String location = regions.getGeographicRegionName(event.get_attributes().region.number);
-
-						//Get Date and format it accordingly
-						MicroSecondDate msd = new MicroSecondDate(event.get_preferred_origin().origin_time);
-						SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
-						sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-						sdf.format(msd);
-
-						//Get Magnitude
-						float mag = event.get_preferred_origin().magnitudes[0].value;
-
-						//get depth
-						Quantity depth = event.get_preferred_origin().my_location.depth;
-
-						buf.append("Event: ");
-						buf.append(location + " | ");
-						buf.append(sdf.format(msd) + " | ");
-						buf.append("Mag " + mag + " | ");
-						buf.append("Depth " + depth.value + " " + depth.the_units);
-						fireRequestInfoLine(buf.toString());
+						fireRequestInfoLine(getEventInfo(event));
 						return true;
 					}
 				}
@@ -189,6 +169,33 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 		}
 		fireRequestInfoLine(" ");
 		return false;
+	}
+
+	public static String getEventInfo(EventAccessOperations event) throws NoPreferredOrigin{
+		StringBuffer buf = new StringBuffer();
+
+		//Get geographic name of origin
+		ParseRegions regions = new ParseRegions();
+		String location = regions.getGeographicRegionName(event.get_attributes().region.number);
+
+		//Get Date and format it accordingly
+		MicroSecondDate msd = new MicroSecondDate(event.get_preferred_origin().origin_time);
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.format(msd);
+
+		//Get Magnitude
+		float mag = event.get_preferred_origin().magnitudes[0].value;
+
+		//get depth
+		Quantity depth = event.get_preferred_origin().my_location.depth;
+
+		buf.append("Event: ");
+		buf.append(location + " | ");
+		buf.append(sdf.format(msd) + " | ");
+		buf.append("Mag " + mag + " | ");
+		buf.append("Depth " + depth.value + " " + depth.the_units);
+		return buf.toString();
 	}
 
     private class OMEvent extends OMGraphicList{
