@@ -25,8 +25,10 @@ import edu.iris.Fissures.model.MicroSecondDate;
 public class TestBSD extends JFrame{
     public TestBSD(){
 	super("TestBSD");
+    edu.iris.Fissures.Time begin = 
+        new edu.iris.Fissures.Time("19911015T163000.000Z", -1);
 	bsd = new BasicSeismogramDisplay(new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.
-								createSpike( new MicroSecondDate(50000000))),
+								createSpike( new MicroSecondDate(begin))),
 							       null), "TEST", null);
 	bsd.addBottomTimeBorder();
 	bsd.setSize(500, 500);
