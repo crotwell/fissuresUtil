@@ -10,7 +10,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 2914 2002-11-15 22:53:39Z crotwell $
+ * @version $Id: Statistics.java 2917 2002-11-16 23:30:17Z crotwell $
  */
 
 public class Statistics  {
@@ -345,6 +345,28 @@ public class Statistics  {
      */
     public double stddev() {
 	return Math.sqrt(var());
+    }
+
+
+    /**
+     * Calculates the linear Least Squares slope and intercept for this series.
+     * Note that this is calculated relative to the index of the array, with
+     * zero index as the first data point. 
+     *
+     * @return the intercept in index 0 and the slope in index 1
+     */
+    public double[] linearLeastSquares() {
+	int n = getLength()-1; // use zero based, so n => n-1
+	int sumToN = n*(n+1)/2;
+	int sumSqrToN = n*(n+1)*(2*n+1)/6;
+
+	double sumValues = binarySum(0, getLength());
+	double indexSumValues = binaryIndexSum(0, getLength());
+	double d = n*sumSqrToN - sumToN*sumToN;
+	double[] out = new double[2];
+	out[0] = (sumSqrToN * sumValues - sumToN * indexSumValues)/d;
+	out[1] = (n * indexSumValues - sumValues * sumValues)/d;
+	return out;
     }
 
     /**
@@ -787,6 +809,87 @@ public class Statistics  {
 	    int middle = (start + finish) / 2;
 	    return dBinarySumDevLag(start, middle, mean, lag) +
 		dBinarySumDevLag(middle, finish, mean, lag);
+	}
+    }
+
+    /**
+     * Calulates the sum(i*yi) from beginIndex to endIndex-1.
+     * This is done recursively in halves to avoid rounding errors.
+     * This is mainly used as one of the terms in a linear least squares.
+     *
+     * @param start starting index
+     * @param finish last index +1
+     * @return the sum
+     */
+    public double binaryIndexSum(int start, int finish) {
+	if (iSeries != null) {
+	    return iBinaryIndexSum(start, finish);
+	} // end of if (iSeries != null)
+	if (sSeries != null) {
+	    return sBinaryIndexSum(start, finish);
+	} // end of if (sSeries != null)
+	if (fSeries != null) {
+	    return fBinaryIndexSum(start, finish);
+	} // end of if (fSeries != null)
+	if (dSeries != null) {
+	    return dBinaryIndexSum(start, finish);
+	} // end of if (dSeries != null)
+	return 0;
+    }
+	
+    private double iBinaryIndexSum(int start, int finish) {
+	if (finish-start < 8) {
+	    double val = 0;
+	    for (int i=start; i< finish; i++) {
+		val += i * iSeries[i];
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return iBinarySum(start, middle) +
+		iBinarySum(middle, finish);
+	}
+    }
+	
+    private double sBinaryIndexSum(int start, int finish) {
+	if (finish-start < 8) {
+	    double val = 0;
+	    for (int i=start; i< finish; i++) {
+		val += i * sSeries[i];
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return sBinarySum(start, middle) +
+		sBinarySum(middle, finish);
+	}
+    }
+	
+    private double fBinaryIndexSum(int start, int finish) {
+	if (finish-start < 8) {
+	    double val = 0;
+	    for (int i=start; i< finish; i++) {
+		val += i * fSeries[i];
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return fBinarySum(start, middle) +
+		fBinarySum(middle, finish);
+	}
+    }
+	
+    private double dBinaryIndexSum(int start, int finish) {
+	if (finish-start < 8) {
+	    double val = 0;
+	    for (int i=start; i< finish; i++) {
+		val += i * dSeries[i];
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return dBinarySum(start, middle) +
+		dBinarySum(middle, finish);
 	}
     }
 
