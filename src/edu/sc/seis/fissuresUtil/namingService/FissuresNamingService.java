@@ -77,11 +77,11 @@ public class FissuresNamingService {
      * Adds another name service to which all registrations should be sent. This
      * other name service is not used for queries, only when addind new servers.
      */
-    public void addRegisterNameServiceCorbaLoc(String nameServiceCorbaLoc) {
+    public void addOtherNameServiceCorbaLoc(String nameServiceCorbaLoc) {
         otherNS.add(nameServiceCorbaLoc);
     }
 
-    public String[] getOtherNameService() {
+    public String[] getOtherNameServices() {
         return (String[])otherNS.toArray(new String[0]);
     }
 
@@ -213,44 +213,37 @@ public class FissuresNamingService {
      * context specified in the dns doesnot exist
      * it creates a corresponding namingcontext and continues.
      */
-    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj, NamingContextExt nameContext) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj, NamingContextExt topLevelNameContext) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
         logger.info("The CLASS Name is "+obj.getClass().getName());
 
         String interfacename = getInterfaceName(obj);
-        dns = appendKindNames(dns);
+
+        logger.info("rebind dns="+dns+" interface="+interfacename+" object="+objectname);
+        String nameString = appendKindNames(dns);
 
         if(interfacename != null && interfacename.length() != 0)
-            dns = dns + "/" + interfacename + ".interface";
+            nameString = nameString + "/" + interfacename + ".interface";
         if(objectname != null && objectname.length() != 0) {
-            objectname = objectname;// + getVersion();
-            dns = dns + "/" + objectname  +  ".object" + getVersion();
+            nameString = nameString + "/" + objectname  +  ".object" + getVersion();
         }
-        logger.info("the dns to be bind is "+dns);
+        logger.info("the dns to be rebind is "+nameString);
 
         NameComponent[] ncName;
-
         try {
-            ncName = nameContext.to_name(dns);
+            ncName = topLevelNameContext.to_name(nameString);
         } catch(InvalidName ine) {
-
-            logger.info("INVALID NAME EXCEPTION IS CAUGHT");
-            throw new InvalidName();//"The DNS name "+dns+" that is passed is InValid ");
-            //return false;
-
+            logger.info("INVALID NAME EXCEPTION IS CAUGHT, dns="+nameString+" interface="+interfacename+" object="+objectname, ine);
+            throw new InvalidName();
         }
 
         NameComponent[] ncName1 = new NameComponent[1];
-        NamingContext namingContextTemp = (NamingContext)nameContext;
+        NamingContextExt namingContextTemp = topLevelNameContext;
 
         int counter;
-
         for(counter = 0; counter < ncName.length; counter++) {
-            //NameComponent temp[] = new NameComponent[counter];
             int subcounter;
             try {
-                nameContext.rebind(getNameService().to_name(dns), obj);
-                //namingContext.reslove(namingContext.to_name(dns));
-
+                topLevelNameContext.rebind(topLevelNameContext.to_name(nameString), obj);
             } catch(NotFound nfe) {
                 switch(nfe.why.value()) {
                     case NotFoundReason._missing_node:
@@ -260,26 +253,26 @@ public class FissuresNamingService {
                         subcounter = 0;
                         for(int i = 0 ; i < ncName.length && !ncName[i].id.equals(ncName1[0].id); i++) {
                             subcounter++;
-
                         }
 
                         NameComponent temp[] = new NameComponent[subcounter];
                         for(int i = 0 ; i < ncName.length && !ncName[i].id.equals(ncName1[0].id); i++) {
                             temp[i] = ncName[i];
-
                         }
 
                         if(subcounter != 0){
                             logger.info("resolving new naming context");
                             namingContextTemp =
-                                NamingContextExtHelper.narrow(nameContext.resolve(temp));
+                                NamingContextExtHelper.narrow(topLevelNameContext.resolve(temp));
                         }
 
-                        if(ncName1[0].id.equals(interfacename))
+                        if(ncName1[0].id.equals(interfacename)) {
                             ncName1[0].kind = "interface";
-                        else if(ncName1[0].id.equals(objectname))
+                        } else if(ncName1[0].id.equals(objectname)) {
                             ncName1[0].kind = "object" + getVersion();
-                        else ncName1[0].kind = "dns";
+                        } else {
+                            ncName1[0].kind = "dns";
+                        }
 
                         try {
                             namingContextTemp.bind_new_context(ncName1);
@@ -318,19 +311,29 @@ public class FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
+
     public void unbind(String dns, String interfacename, String objectname) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+        unbind(dns, interfacename, objectname, getNameService());
+        Iterator it = otherNS.iterator();
+        while (it.hasNext()) {
+            String corbaloc = (String)it.next();
+            org.omg.CORBA.Object ncObj = orb.string_to_object(corbaloc);
+            if (ncObj != null) {
+                NamingContextExt nc = NamingContextExtHelper.narrow(ncObj);
+                unbind(dns, interfacename, objectname, nc);
+            }
+        }
+    }
 
-
+    public void unbind(String dns, String interfacename, String objectname, NamingContextExt topLevelNameContext) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
         dns = appendKindNames(dns);
         if(interfacename != null && interfacename.length() != 0)
             dns = dns + "/" + interfacename + ".interface";
         if(objectname != null && objectname.length() != 0) {
-            objectname = objectname;// + getVersion();
             dns = dns + "/" + objectname + ".object" + getVersion();
         }
         try {
-
-            getNameService().unbind(getNameService().to_name(dns));
+            topLevelNameContext.unbind(topLevelNameContext.to_name(dns));
         } catch(NotFound nfe) {
             logger.info("NOT FOUND Exception caught while resolving dns name context");
             throw new NotFound();
@@ -341,9 +344,8 @@ public class FissuresNamingService {
             logger.info("CANNOT PROCEED Exception caught while resolving dns name context");
             throw new CannotProceed();
         }
-
-
     }
+
     /**
      * unbinds the CORBA object.
      *
@@ -355,31 +357,8 @@ public class FissuresNamingService {
      * @exception InvalidName if an error occurs
      */
     public void unbind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
-
-
-        dns = appendKindNames(dns);
         String interfacename = getInterfaceName(obj);
-        if(interfacename != null && interfacename.length() != 0)
-            dns = dns + "/" + interfacename + ".interface";
-        if(objectname != null && objectname.length() != 0) {
-            objectname = objectname;// + getVersion();
-            dns = dns + "/" + objectname + ".object" + getVersion();
-        }
-        try {
-
-            getNameService().unbind(getNameService().to_name(dns));
-        } catch(NotFound nfe) {
-            logger.info("NOT FOUND Exception caught while resolving dns name context");
-            throw new NotFound();
-        } catch(InvalidName ine) {
-            logger.info("INVALID NAME Exception caught while resolving dns name context");
-            throw new InvalidName();
-        } catch(CannotProceed cpe) {
-            logger.info("CANNOT PROCEED Exception caught while resolving dns name context");
-            throw new CannotProceed();
-        }
-
-
+        unbind(dns, interfacename, objectname);
     }
 
 
