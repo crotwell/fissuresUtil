@@ -59,7 +59,9 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 								selectedEvents.add(allEvents[i]);
 							}
 						}
-						eqSelectionChanged(new EQSelectionEvent(this, new EventAccessOperations[]{(EventAccessOperations)selectedEvents.get(0)}));
+						if(selectedEvents.size() > 0){
+							eqSelectionChanged(new EQSelectionEvent(this, new EventAccessOperations[]{(EventAccessOperations)selectedEvents.get(0)}));
+						}
 					}
 
 				});
