@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.cache;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventDC;
+import edu.iris.Fissures.IfEvent.EventDCOperations;
 import edu.iris.Fissures.IfEvent.EventFinder;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
@@ -32,11 +33,11 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
         eventDC = null;
     }
 
-    public org.omg.CORBA.Object getRealCorbaObject() {
-        return getCorbaObject();
+    public EventDCOperations getEventDC(){
+        return (EventDC)getCorbaObject();
     }
-
-    public synchronized EventDC getCorbaObject() {
+    
+    public synchronized org.omg.CORBA.Object getCorbaObject() {
         if(eventDC == null) {
             try {
                 try {
@@ -68,25 +69,25 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
 
     public EventChannelFinder a_channel_finder() {
         try {
-            return getCorbaObject().a_channel_finder();
+            return getEventDC().a_channel_finder();
         } catch(Throwable e) {
             // retry in case regetting from name service helps
             logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.",
                         e);
             reset();
-            return getCorbaObject().a_channel_finder();
+            return getEventDC().a_channel_finder();
         } // end of try-catch
     }
 
     public EventFinder a_finder() {
         try {
-            return getCorbaObject().a_finder();
+            return getEventDC().a_finder();
         } catch(Throwable e) {
             // retry in case regetting from name service helps
             logger.warn("Exception in a_finder(), regetting from nameservice to try again.",
                         e);
             reset();
-            return getCorbaObject().a_finder();
+            return getEventDC().a_finder();
         } // end of try-catch
     }
 

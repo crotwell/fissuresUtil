@@ -35,7 +35,7 @@ public abstract class AbstractProxyNetworkDC implements ProxyNetworkDC {
         }
     }
 
-    public NetworkDC getCorbaObject() {
+    public org.omg.CORBA.Object getCorbaObject() {
         if(netDC instanceof NetworkDC) {
             return (NetworkDC)netDC;
         } else {

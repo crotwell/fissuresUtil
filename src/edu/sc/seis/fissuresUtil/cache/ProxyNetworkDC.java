@@ -3,10 +3,8 @@
  * 
  * @author Created by Omnicore CodeGuide
  */
-
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfNetwork.NetworkDC;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 
 public interface ProxyNetworkDC extends NetworkDCOperations {
@@ -30,8 +28,7 @@ public interface ProxyNetworkDC extends NetworkDCOperations {
     public void reset();
 
     /**
-     * Gets the real corba DataCenter object for which this is a proxy.
+     * Gets the real corba object for which this is a proxy.
      */
-    public NetworkDC getCorbaObject();
-
+    public org.omg.CORBA.Object getCorbaObject();
 }
