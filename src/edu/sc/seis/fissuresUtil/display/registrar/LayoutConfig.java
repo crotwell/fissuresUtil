@@ -2,6 +2,9 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 
 
 public interface LayoutConfig extends DataSetSeismogramReceptacle{
+    
+    public String getLabel();
+    
     public void addListener(LayoutListener listener);
 
     public void removeListener(LayoutListener listener);

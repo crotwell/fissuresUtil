@@ -101,6 +101,8 @@ public class BasicLayoutConfig implements LayoutConfig{
         return (DataSetSeismogram[])seis.toArray(new DataSetSeismogram[seis.size()]);
     }
     
+    public String getLabel(){ return "Distance (Degrees)"; }
+    
     public void reset() {
         DataSetSeismogram[] seismograms = getSeismograms();
         seis.clear();
