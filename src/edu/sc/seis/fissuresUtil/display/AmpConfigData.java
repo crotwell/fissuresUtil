@@ -37,7 +37,7 @@ public class AmpConfigData {
 	this.timeRange = timeRange;
 	this.shift = shift;
 	this.scale = scale;
-	needShale = true;
+	shaledRange = null;
     }
 
     public LocalSeismogramImpl[] getSeismograms() {
@@ -75,7 +75,7 @@ public class AmpConfigData {
 	    return false;
 	}
 	cleanRange = newRange;
-	needShale = true;
+	shaledRange = null;
 	return true;
     }
 	
@@ -103,7 +103,6 @@ public class AmpConfigData {
 	addShift(shift);
 	addScale(scale);
 	shaledRange = DisplayUtils.getShaledRange(range, this.shift, this.scale);
-	needShale = false;
 	return shaledRange;
     }
 	
@@ -113,9 +112,8 @@ public class AmpConfigData {
      * @return the shaled range
      */
     public UnitRangeImpl getShaledRange(){
-	if(needShale){
+	if(shaledRange == null){
 	    shaledRange = DisplayUtils.getShaledRange(cleanRange, this.shift, this.scale);
-	    needShale = false;
 	}
 	return shaledRange;
     }
@@ -172,7 +170,7 @@ public class AmpConfigData {
      */
     public void setShift(double newShift){
 	shift = newShift;
-	needShale = true;
+	shaledRange = null;
     }
 	
     /**
@@ -183,7 +181,7 @@ public class AmpConfigData {
      */
     public double addShift(double newShift){
 	shift += newShift * scale;
-	needShale = true;
+	shaledRange = null;
 	return shift;
     }
 	
@@ -196,7 +194,7 @@ public class AmpConfigData {
      */
     public void setScale(double newScale){
 	scale = newScale;
-	needShale = true;
+	shaledRange = null;
     }
 	
     /**
@@ -208,7 +206,7 @@ public class AmpConfigData {
      */
     public double addScale(double newScale){
 	scale += newScale * scale;
-	needShale = true;
+	shaledRange = null;
 	return scale;
     }
 	
@@ -219,7 +217,6 @@ public class AmpConfigData {
     public void reset(){
 	shift = 0;
 	scale = 1;
-	needShale = false;
 	indexSet = false;
 	shaledRange = cleanRange;
     }
@@ -283,7 +280,7 @@ public class AmpConfigData {
 	
     private int[] calcIndices;
 	
-    private boolean needShale, newData;
+    private boolean newData;
     
     private boolean indexSet = false;
 	
