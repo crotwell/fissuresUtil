@@ -7,6 +7,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 /**
  * @author groves Created on Oct 28, 2004
@@ -25,6 +26,7 @@ public class SortTool {
         Arrays.sort(seis, st.new SeisBeginSorter());
         return seis;
     }
+
     public static PlottableChunk[] byBeginTimeAscending(PlottableChunk[] pc) {
         Arrays.sort(pc, st.new PCBeginSorter());
         return pc;
@@ -33,6 +35,11 @@ public class SortTool {
     public static RequestFilter[] byBeginTimeAscending(RequestFilter[] rf) {
         Arrays.sort(rf, st.new RFBeginSorter());
         return rf;
+    }
+
+    public static MicroSecondTimeRange[] byBeginTimeAscending(MicroSecondTimeRange[] ranges) {
+        Arrays.sort(ranges, st.new MSTRBeginSorter());
+        return ranges;
     }
 
     private class AscendingSizeSorter implements Comparator {
@@ -92,6 +99,13 @@ public class SortTool {
 
         public MicroSecondDate getTime(Object o) {
             return new MicroSecondDate(((RequestFilter)o).start_time);
+        }
+    }
+
+    private class MSTRBeginSorter extends AscendingTimeSorter {
+
+        public MicroSecondDate getTime(Object o) {
+            return ((MicroSecondTimeRange)o).getBeginTime();
         }
     }
 
