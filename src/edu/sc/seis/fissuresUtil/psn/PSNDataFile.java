@@ -55,6 +55,7 @@ public class PSNDataFile {
                 System.out.println(header.toString());
                 PSNVariableHeader varHeader = records[i].getVariableHeader();
                 System.out.println(varHeader.toString());
+                System.out.println(records[i].toString());
             }
         }
         catch(Throwable ee){
