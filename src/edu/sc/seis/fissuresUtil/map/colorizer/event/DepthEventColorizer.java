@@ -6,15 +6,17 @@
 
 package edu.sc.seis.fissuresUtil.map.colorizer.event;
 
+import java.awt.Color;
+import java.util.Iterator;
+
 import com.bbn.openmap.omGraphics.OMGraphicList;
+
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.cache.ProxyEventAccessOperations;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
-import java.awt.Color;
-import java.util.Iterator;
 
 public class DepthEventColorizer implements EventColorizer{
 
@@ -26,7 +28,7 @@ public class DepthEventColorizer implements EventColorizer{
         }
     }
 
-    public static Color getDepthColor(CacheEvent eao){
+    public static Color getDepthColor(ProxyEventAccessOperations eao){
         Origin prefOrigin = eao.getOrigin();
         QuantityImpl depth = (QuantityImpl)prefOrigin.my_location.depth;
         double depthKM = depth.convertTo(UnitImpl.KILOMETER).value;

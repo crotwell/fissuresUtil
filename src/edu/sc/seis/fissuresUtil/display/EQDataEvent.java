@@ -4,9 +4,9 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 
 public class EQDataEvent{
-    private CacheEvent[] evs;
+    private EventAccessOperations[] evs;
 
-    public EQDataEvent(CacheEvent[] events){ evs = events; }
+    public EQDataEvent(EventAccessOperations[] events){ evs = events; }
 
-    public CacheEvent[] getEvents(){ return evs; }
+    public EventAccessOperations[] getEvents(){ return evs; }
 }

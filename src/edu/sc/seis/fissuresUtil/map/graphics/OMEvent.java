@@ -6,23 +6,25 @@
 
 package edu.sc.seis.fissuresUtil.map.graphics;
 
+import java.awt.Color;
+import java.awt.Paint;
+
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.cache.ProxyEventAccessOperations;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.map.colorizer.event.DefaultEventColorizer;
-import java.awt.Color;
-import java.awt.Paint;
 
 public class OMEvent extends OMGraphicList implements FissuresGraphic{
 	
-    public OMEvent(CacheEvent eao, Layer eventLayer, MapBean mapBean) throws NoPreferredOrigin{
+    public OMEvent(ProxyEventAccessOperations eao, Layer eventLayer, MapBean mapBean) throws NoPreferredOrigin{
 		super(2);
 		this.mapBean = mapBean;
 		
@@ -53,7 +55,7 @@ public class OMEvent extends OMGraphicList implements FissuresGraphic{
 		generate(eventLayer.getProjection());
     }
 	
-    public CacheEvent getEvent(){
+    public ProxyEventAccessOperations getEvent(){
 		return event;
     }
 	
@@ -85,7 +87,7 @@ public class OMEvent extends OMGraphicList implements FissuresGraphic{
 	}
 	
 	private float originalScale;
-    private CacheEvent event;
+    private ProxyEventAccessOperations event;
     private MapBean mapBean;
 	private OMCircle lilCircle;
     private OMCircle bigCircle;

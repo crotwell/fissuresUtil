@@ -27,6 +27,7 @@ import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
 import edu.sc.seis.fissuresUtil.cache.EventLoader;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
+import edu.sc.seis.fissuresUtil.cache.ProxyEventAccessOperations;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
@@ -71,7 +72,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener,
 		}
 	}
 
-	public void eventLoaded(CacheEvent event) {
+	public void eventLoaded(ProxyEventAccessOperations event) {
 		try {
 			synchronized (circles) {
 				if (events.add(event)) {

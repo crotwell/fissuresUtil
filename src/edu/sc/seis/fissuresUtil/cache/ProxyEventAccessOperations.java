@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.IfEvent.Event;
+import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
@@ -27,6 +28,30 @@ import edu.iris.Fissures.IfParameterMgr.ParameterComponent;
 public abstract class ProxyEventAccessOperations implements
 		EventAccessOperations {
 
+	public EventAccess getCorbaObject(){
+		if (event instanceof ProxyEventAccessOperations){
+			return ((ProxyEventAccessOperations)event).getCorbaObject();
+		} else {
+			return (EventAccess)event;
+		}
+	}
+	
+	public EventAccessOperations getWrappedEventAccess(){
+		return event;
+	}
+	
+	public EventAccessOperations getWrappedEventAccess(Class wrappedClass){
+		if(getClass().equals(wrappedClass)) {
+			return this;
+		}
+        if(getWrappedEventAccess().getClass().equals(wrappedClass)){
+            return getWrappedEventAccess();
+        }else if(getWrappedEventAccess().getClass().equals(ProxyEventAccessOperations.class)){
+            return ((ProxyEventAccessOperations)getWrappedEventAccess()).getWrappedEventAccess(wrappedClass);
+        }
+        throw new IllegalArgumentException("This doesn't contain an Event of class " + wrappedClass);
+	}
+	
 	public void reset() {
 		if (event instanceof ProxyEventAccessOperations) {
 			((ProxyEventAccessOperations) event).reset();
