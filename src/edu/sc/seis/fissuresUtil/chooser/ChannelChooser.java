@@ -13,7 +13,7 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
-
+import org.apache.log4j.*;
 
 
 /**
@@ -22,7 +22,7 @@ import javax.swing.event.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 1573 2002-05-02 20:44:45Z crotwell $
+ * @version $Id: ChannelChooser.java 1583 2002-05-03 14:51:21Z crotwell $
  *
  */
 
@@ -62,10 +62,16 @@ public class ChannelChooser extends JPanel{
 	networks.clear();
 	Thread networkLoader = new Thread() {
 		public void run() {
+		    CacheNetworkAccess cache;
 		    NetworkAccess[] nets = 
 			netdc.a_finder().retrieve_all();
+		    logger.debug("Got networks");
 		    for (int i=0; i<nets.length; i++) {
-			networks.addElement(new CacheNetworkAccess(nets[i]));
+			cache = new CacheNetworkAccess(nets[i]);
+			NetworkAttr attr = cache.get_attributes();
+			logger.debug("Got attributes "+attr.get_code());
+			// preload attributes
+			networks.addElement(cache);
 		    }
 		    if (nets.length == 1) {
 			networkList.getSelectionModel().setSelectionInterval(0,0);
@@ -125,17 +131,21 @@ public class ChannelChooser extends JPanel{
 		    if(e.getValueIsAdjusting()){
 			return;
 		    }
-		    NetworkAccess[] nets = getSelectedNetworks();
+		    final NetworkAccess[] nets = getSelectedNetworks();
 		    stations.clear();
-		    for (int i=0; i<nets.length; i++) {
-			Station[] newStations = nets[i].retrieve_stations();
-			for (int j=0; j<newStations.length; j++) {
-			    stations.addElement(newStations[j]);
-			}
-		    } // end of for ((int i=0; i<nets.length; i++)
+		    Thread stationLoader = new Thread() {
+			    public void run() {
+				for (int i=0; i<nets.length; i++) {
+				    Station[] newStations = nets[i].retrieve_stations();
+				    for (int j=0; j<newStations.length; j++) {
+					stations.addElement(newStations[j]);
+				    }
+				} // end of for ((int i=0; i<nets.length; i++)
+			    }
+			};
+		    stationLoader.start();
 		}
-	    }
-					 );
+	    } );
 
 	JScrollPane scroller = new JScrollPane(networkList);
 	add(scroller, gbc);
@@ -704,7 +714,10 @@ public class ChannelChooser extends JPanel{
 
 
     }
-} // ChannelGUI
+
+    static Category logger = 
+	Category.getInstance(ChannelChooser.class.getName());
+} // ChannelChooser
 
 
 
