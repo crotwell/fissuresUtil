@@ -49,7 +49,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             return localLoader;
         }
         else{
-            localLoader = new EventBackgroundLoaderPool(10, this);
+            localLoader = EventBackgroundLoaderPool.getLoaderPool();
             return localLoader;
         }
     }

@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 5618 2003-09-11 19:38:33Z crotwell $
+ * @version $Id: EventTableModel.java 6691 2004-01-06 18:27:36Z crotwell $
  */
 
 public class EventTableModel
@@ -40,7 +40,7 @@ public class EventTableModel
     }
 
     public EventTableModel(EventAccessOperations[] events) {
-        loader = new EventBackgroundLoaderPool(5, this);
+        loader = EventBackgroundLoaderPool.getLoaderPool();
         updateEvents(events);
         columnNames = new String[9];
         columnNames[LATITUDE] = "Latitude";
