@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
@@ -40,6 +39,13 @@ public class SeismogramContainerTest extends TestCase{
         LocalSeismogramImpl[] otherSeis = DisplayUtilsTest.createOtherSeisArray();
         container.pushData(new SeisDataChangeEvent(otherSeis, null, container));
         LocalSeismogramImpl[] nowContains = container.getSeismograms();
+        while(nowContains.length < 6){
+            try {
+                Thread.sleep(5);
+                nowContains = container.getSeismograms();
+            }
+            catch (InterruptedException e) {}
+        }
         for (int i = 0; i < nowContains.length; i++){
             boolean found = false;
             for (int j = 0; j < alreadyContained.length && !found; j++) {
