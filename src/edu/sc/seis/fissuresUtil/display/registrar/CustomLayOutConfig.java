@@ -6,8 +6,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
- * @author danala Created on Jan 20, 2005 
- * Creates a custom layout for use in REV
+ * @author danala Created on Jan 20, 2005 Creates a custom layout for use in REV
  */
 public class CustomLayOutConfig extends BasicLayoutConfig {
 
@@ -33,8 +32,9 @@ public class CustomLayOutConfig extends BasicLayoutConfig {
                 DataSetSeismogram cur = seis[i];
                 double curDist = ((QuantityImpl)valueMap.get(cur)).getValue();
                 double centerPercentage = (endDist - curDist) / totalDistance;
-                data[i] = new LayoutData(cur, centerPercentage
-                        - PERCENT_OFFSET, centerPercentage + PERCENT_OFFSET);
+                data[i] = new LayoutData(cur,
+                                         centerPercentage - PERCENT_OFFSET,
+                                         centerPercentage + PERCENT_OFFSET);
             }
             UnitRangeImpl range = null;
             if(startDist > endDist) {
@@ -50,7 +50,7 @@ public class CustomLayOutConfig extends BasicLayoutConfig {
     }
 
     private LayoutEvent lastEvent = LayoutEvent.EMPTY_EVENT;
-    
+
     public static double PERCENT_OFFSET = 0.1;
 
     private double minDistance;
