@@ -13,16 +13,16 @@ import java.awt.event.ComponentEvent;
 
 public class DisplayRemover extends BigX{
     public DisplayRemover(SeismogramDisplay display){
-        super(display.getCenterPanel());
+        super(display.getCenter());
         this.display = display;
-        display.getCenterPanel().addComponentListener(new ComponentAdapter(){
+        display.getCenter().addComponentListener(new ComponentAdapter(){
                     public void componentResized(ComponentEvent e){setXY();}
                 });
         setXY();
     }
 
     private void setXY(){
-        setXY(display.getCenterPanel().getWidth() - 10, 5);
+        setXY(display.getCenter().getWidth() - 10, 5);
     }
 
     public void clicked(){ display.clear(); }
