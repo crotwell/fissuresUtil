@@ -10,7 +10,7 @@ import java.util.EventListener;
 
 public interface NetworkDataListener extends EventListener{
 
-    public void networkDataChanged(StationDataEvent s);
+    public void networkDataChanged(NetworkDataEvent s);
 
     public void networkDataCleared();
 }
