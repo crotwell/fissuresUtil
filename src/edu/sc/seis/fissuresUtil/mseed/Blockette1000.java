@@ -15,13 +15,17 @@ import java.io.*;
 
 public class Blockette1000 extends  DataBlockette {
 
+    public static final int B1000_SIZE = 8;
+    
     public Blockette1000() {
-        super(8);
+        super(B1000_SIZE);
     }
 
     public Blockette1000(byte[] info) {
         super(info);
-
+        if (info.length < B1000_SIZE) {
+            throw new IllegalArgumentException("Blockette 1000 must have 8 bytes, but got "+info.length);
+        }
     }
 
     public int getSize() {
