@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * RMeanAmpConfig sets a range equal to the largest difference between the minimum and maximum of a seismogram it contains.  Each seismogram
  * has its amplituded centered around its mean.  These amplitude ranges can be set to be over the full time of the seismograms, or only 
- * a certain interval specified by a MicroSecondTimeRangeConfig object given to this amp config
+ * a certain interval specified by a TimeRangeConfig object given to this amp config
  *
  *
  * Created: Tue May 28 11:31:56 2002
@@ -21,7 +21,7 @@ import java.util.*;
 
 public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     
-    /** if this Amp Config has a MicroSecondTimeRangeConfig, this returns the ampRange over the timerange for that object.  Otherwise, it uses the 
+    /** if this Amp Config has a TimeRangeConfig, this returns the ampRange over the timerange for that object.  Otherwise, it uses the 
      *  full time range for this seismogram.
      */
     public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){

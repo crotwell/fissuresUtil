@@ -66,7 +66,7 @@ public interface TimeRangeConfig {
     public void updateTimeSyncListeners();
 
     /**
-     * Takes the information from the TimeSyncEvent, adjusts the MicroSecondTimeRange, and updates according to the information in the event
+     * Takes the information from the TimeSyncEvent, adjusts the time, and updates according to the information in the event
      *
      */
     public void fireTimeRangeEvent(TimeSyncEvent e);
