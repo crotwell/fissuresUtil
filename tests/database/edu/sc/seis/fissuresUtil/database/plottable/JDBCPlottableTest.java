@@ -27,7 +27,7 @@ public class JDBCPlottableTest extends JDBCTest {
         data = createFullDayPlottable();
         plottDb = new JDBCPlottable();
     }
-    
+
     public static PlottableChunk createFullDayPlottable() {
         return new PlottableChunk(FULL_DAY, 0, 1, 2000, PIXELS, CHAN_ID);
     }
@@ -146,8 +146,6 @@ public class JDBCPlottableTest extends JDBCTest {
 
     public static final int PIXELS = 6000;
 
-    public static final int SPD = PIXELS * 2;
-
     private static final Time START_TIME = new Time("20000101T000000.000Z", 0);
 
     private static final MicroSecondDate START = new MicroSecondDate(START_TIME);
@@ -173,7 +171,7 @@ public class JDBCPlottableTest extends JDBCTest {
                                                               CHAN_ID);
         MicroSecondTimeRange fullRange = new MicroSecondTimeRange(startTime,
                                                                   end);
-        return SimplePlotUtil.makePlottable(seis, fullRange, SPD);
+        return SimplePlotUtil.makePlottable(seis, fullRange, PIXELS);
     }
 
     private PlottableChunk data;
