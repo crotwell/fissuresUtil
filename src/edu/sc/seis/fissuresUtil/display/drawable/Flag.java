@@ -79,7 +79,8 @@ public class Flag implements Drawable{
             if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
                 return;
             canvas.setFont(DisplayUtils.BOLD_FONT);
-            int location = getFlagLocation(size,timeEvent);
+			MicroSecondTimeRange time = timeEvent.getTime();
+            int location = getFlagLocation(size,time);
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(canvas.getFontMetrics().getStringBounds(name, canvas));
             if(flag == null){
@@ -107,8 +108,7 @@ public class Flag implements Drawable{
             canvas.drawString(name, location + PADDING/2, stringBounds.height - PADDING/2);
         }
     }
-	public int getFlagLocation(Dimension size, TimeEvent timeEvent) {
-		MicroSecondTimeRange timeRange = timeEvent.getTime();
+	public int getFlagLocation(Dimension size, MicroSecondTimeRange timeRange) {
 		double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
 		int loc = (int)(offset * (double)size.width);
 		return loc;
