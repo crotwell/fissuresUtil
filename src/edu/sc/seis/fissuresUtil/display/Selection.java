@@ -30,7 +30,11 @@ public class Selection implements TimeSyncListener{
 	internalTimeConfig = new TimeConfigRegistrar();
 	Iterator e = seismograms.iterator();
 	while(e.hasNext()){
-	    internalTimeConfig.addSeismogram((DataSetSeismogram)e.next(), begin);
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    internalTimeConfig.addSeismogram(current, 
+					     new MicroSecondDate(tr.getTimeRange(current).getBeginTime().getMicroSecondTime() +
+								 (begin.getMicroSecondTime() - 
+								  tr.getTimeRange().getBeginTime().getMicroSecondTime())));
 	}
 	internalTimeConfig.setBeginTime(begin);
 	internalTimeConfig.setDisplayInterval(begin.difference(end));

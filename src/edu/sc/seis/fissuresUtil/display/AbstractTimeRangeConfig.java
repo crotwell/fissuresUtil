@@ -18,15 +18,13 @@ import java.util.*;
 
 public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     
-    public AbstractTimeRangeConfig(){}
-
-    public AbstractTimeRangeConfig(TimeConfigRegistrar registrar){
-	this.registrar = registrar;
+    public AbstractTimeRangeConfig(){
+	timeFinder = new EdgeTimeFinder(this);
     }
 
-    public void setRegistrar(TimeConfigRegistrar newRegistrar){ registrar = newRegistrar; }
-
-    public TimeConfigRegistrar getRegistrar(){ return registrar; }
+    public AbstractTimeRangeConfig(TimeConfigRegistrar registrar){
+	timeListeners.add(registrar);
+    }
 
     /**
      * Takes the information from the passed seismogram and uses it along with the information already taken from other seismograms 
@@ -57,7 +55,7 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      */
     public synchronized void addSeismogram(DataSetSeismogram seis, MicroSecondDate time){ 
 	seismos.put(seis, time);
-	registrar.updateTimeSyncListeners();
+	updateTimeSyncListeners();
     }
 
     /**
@@ -73,17 +71,15 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      *
      */
     public synchronized void updateTimeSyncListeners(){
-	registrar.updateTimeSyncListeners();
+	Iterator e = timeListeners.iterator();
+	while(e.hasNext()){
+	    ((TimeSyncListener)e.next()).updateTimeRange();
+	}
     }
 
-    public void addTimeSyncListener(TimeSyncListener t){
-	registrar = (TimeConfigRegistrar)t;
-    }
+    public void addTimeSyncListener(TimeSyncListener t){ timeListeners.add(t); }
     
-    public void removeTimeSyncListener(TimeSyncListener tr){
-	registrar = null;
-    }
-	
+    public void removeTimeSyncListener(TimeSyncListener t){ timeListeners.remove(t); }	
 
     /**
      * Takes the information from the TimeSyncEvent, adjusts the MicroSecondTimeRange, and updates according to the information in the 
@@ -100,24 +96,22 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	    DataSetSeismogram curr = ((DataSetSeismogram)e.next());
 	    this.addSeismogram(curr, ((MicroSecondDate)newData.get(curr)));
 	}
-	registrar.updateTimeSyncListeners();
+	updateTimeSyncListeners();
     } 
     
-    public void setTimeFinder(TimeFinder tf){ timeFinder = tf; }
-
     public synchronized void setRelativeTime(DataSetSeismogram seis, MicroSecondDate time){
 	seismos.put(seis, time);
-	registrar.updateTimeSyncListeners();
+	updateTimeSyncListeners();
     }
 
     public synchronized  void setDisplayInterval(TimeInterval t){
 	displayInterval = t;
-	registrar.updateTimeSyncListeners();
+	updateTimeSyncListeners();
     }
 
     public synchronized void setBeginTime(MicroSecondDate b){ 
 	beginTime = b;
-	registrar.updateTimeSyncListeners();
+	updateTimeSyncListeners();
     }
 
     public synchronized void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
@@ -130,8 +124,18 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	Iterator e = seismos.keySet().iterator();
 	while(e.hasNext())
 	    seismos.put(e.next(), b);
-	registrar.updateTimeSyncListeners();
+	updateTimeSyncListeners();
     }
+
+    public synchronized void set(MicroSecondDate b, TimeInterval t){
+	displayInterval = t;
+	beginTime = b;
+	updateTimeSyncListeners();
+    }
+
+    public TimeFinder getTimeFinder(){ return timeFinder; }
+
+    public void setTimeFinder(TimeFinder tf){ timeFinder = tf; }
 
     public synchronized TimeSnapshot takeSnapshot(){
 	HashMap seismoDisplayTime = new HashMap();
@@ -143,7 +147,7 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	return new TimeSnapshot(seismoDisplayTime, this.getTimeRange());
     }
 	
-    protected TimeFinder timeFinder = new EdgeTimeFinder();
+    protected TimeFinder timeFinder;
 
     protected MicroSecondDate beginTime;
     
@@ -151,6 +155,6 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 
     protected HashMap seismos = new HashMap();
     
-    protected TimeConfigRegistrar registrar;
+    protected LinkedList timeListeners = new LinkedList();
 
 }// AbstractTimeRangeConfig

@@ -33,26 +33,26 @@ import java.awt.print.*;
 public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarActions, SeismogramDisplay{
  
     public BasicSeismogramDisplay(DataSetSeismogram seis, String name, VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar(new BoundedTimeConfig(timeRegistrar));
+	timeRegistrar = new TimeConfigRegistrar();
 	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(ampRegistrar));
 	initializeDisplay(seis, name, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram seis, TimeConfigRegistrar tr, String name, VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar((TimeRangeConfig)tr);
+    public BasicSeismogramDisplay(DataSetSeismogram seis, TimeRangeConfig tr, String name, VerticalSeismogramDisplay parent){
+	timeRegistrar = new TimeConfigRegistrar(tr);
 	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(ampRegistrar));
 	initializeDisplay(seis, name, parent);
     }
     
     public BasicSeismogramDisplay(DataSetSeismogram seis, AmpConfigRegistrar ar, String name, VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar(new BoundedTimeConfig(timeRegistrar));
+	timeRegistrar = new TimeConfigRegistrar();
 	ampRegistrar = new AmpConfigRegistrar(ar);
 	initializeDisplay(seis, name, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name, 
+    public BasicSeismogramDisplay(DataSetSeismogram seis, TimeRangeConfig tr, AmpConfigRegistrar ar, String name, 
 				  VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar((TimeRangeConfig)tr);
+	timeRegistrar = new TimeConfigRegistrar(tr);
 	ampRegistrar = new AmpConfigRegistrar(ar);
 	initializeDisplay(seis, name, parent);
     }
@@ -401,13 +401,13 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	public void paint(Graphics g){
 	    Date begin = new Date();
 	    if(image == null){
-		logger.debug("the image is null and is being created");
+		//logger.debug("the image is null and is being created");
 		synchronized(this){ displayInterval = timeRegistrar.getTimeRange().getInterval(); }
 		this.createImage();
 		return;
 		}
 	    if(image.get() == null){
-		logger.debug("image was garbage collected, and is being recreated");
+		//logger.debug("image was garbage collected, and is being recreated");
 		synchronized(this){ displayInterval = timeRegistrar.getTimeRange().getInterval(); }
 		this.createImage();
 		return;
@@ -424,7 +424,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		g2.drawImage(((Image)image.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
 		if(redo || endTime >= imageTimeRange.getEndTime().getMicroSecondTime() || 
 		   beginTime <= imageTimeRange.getBeginTime().getMicroSecondTime()){
-		    logger.debug("the image is being redone");
+		    //logger.debug("the image is being redone");
 		    this.createImage();
 		}
 		redo = false;

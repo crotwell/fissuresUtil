@@ -20,22 +20,24 @@ import java.awt.event.*;
  */
 
 public class RTTimeRangeConfig extends BoundedTimeConfig{
-    public RTTimeRangeConfig (){
+   
+    public RTTimeRangeConfig(){
 	this(new TimeConfigRegistrar());
     }
-
+    
     public RTTimeRangeConfig (TimeConfigRegistrar reg){
 	this(reg, new TimeInterval(1, UnitImpl.SECOND));
     }
 
-    public RTTimeRangeConfig (TimeConfigRegistrar reg, TimeInterval update){
+    public RTTimeRangeConfig (TimeConfigRegistrar reg, 
+			      TimeInterval update){
 	this(reg, update, 1);
     }
 
-    public RTTimeRangeConfig (TimeConfigRegistrar reg, 
+    public RTTimeRangeConfig (TimeConfigRegistrar reg,
 			      TimeInterval update, 
 			      float speed){
-	super(reg);
+	super();
 	reg.setTimeConfig(this);
 	this.update = update;
 	this.speed = speed;
@@ -56,7 +58,7 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 				     (TimeInterval)timeInterval.multiplyBy(speed);
 				 lastDate = now;
 				 setAllBeginTime(beginTime.add(width));
-				 getRegistrar().updateTimeSyncListeners();
+				 updateTimeSyncListeners();
 				 System.out.println("Timer: updateTimeSyncListeners()  speed="+speed);
 			     } // end of if (beginTime != null)
 			 }
@@ -65,7 +67,7 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 	    timer.start();
 	}
     }
-
+    
     public void setSpeed(float speed) {
 	this.speed = speed;
     }

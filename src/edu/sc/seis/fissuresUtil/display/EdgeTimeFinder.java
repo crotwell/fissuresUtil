@@ -15,13 +15,28 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class EdgeTimeFinder implements TimeFinder{
 
+    public EdgeTimeFinder(TimeRangeConfig trc){
+	this.trc = trc;
+	trc.addTimeSyncListener(this);
+    }
+
     public MicroSecondDate getBeginTime(DataSetSeismogram seismo){
-	return ((LocalSeismogramImpl)seismo.getSeismogram()).getBeginTime();
+	if(beginTime == null)
+	    return ((LocalSeismogramImpl)seismo.getSeismogram()).getBeginTime();
+	else
+	    return beginTime;
     }
    
     public MicroSecondDate getEndTime(DataSetSeismogram seismo){
 	return ((LocalSeismogramImpl)seismo.getSeismogram()).getEndTime();
     }
 
+    public void updateTimeRange(){
+	beginTime = trc.getTimeRange().getBeginTime();
+    }
+
+    protected TimeRangeConfig trc;
+
+    protected MicroSecondDate beginTime;
 
 }// EdgeTimeFinder
