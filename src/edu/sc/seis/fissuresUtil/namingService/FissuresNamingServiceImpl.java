@@ -1,23 +1,25 @@
 package edu.sc.seis.fissuresUtil.namingService;
 
 
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.IfPlottable.*;
-import edu.iris.Fissures.IfEvent.*;
-
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.*;
 import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.*;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
+
+import edu.iris.Fissures.IfEvent.EventDC;
+import edu.iris.Fissures.IfEvent.EventDCHelper;
+import edu.iris.Fissures.IfNetwork.NetworkDC;
+import edu.iris.Fissures.IfNetwork.NetworkDCHelper;
+import edu.iris.Fissures.IfPlottable.PlottableDC;
+import edu.iris.Fissures.IfPlottable.PlottableDCHelper;
+import edu.iris.Fissures.IfSeismogramDC.DataCenter;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterHelper;
+import edu.iris.Fissures.model.AllVTFactory;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+import org.apache.log4j.Category;
+import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
-//import org.omg.CORBA.ORBPackage.InvalidName;
-
-import java.util.*;
-
-import org.apache.log4j.*;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
+import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
 
 /**
  * Description: FissuresNamingService is a wrapper around CORBA Naming service. This class
@@ -93,6 +95,19 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
         return namingContext;
     }
 
+    public org.omg.CORBA.Object resolveBySteps(NameComponent[] names)
+        throws NotFound,CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+        NameComponent[] subNames;
+        org.omg.CORBA.Object out = null;
+        for (int i = 0; i < names.length; i++) {
+            subNames = new NameComponent[i+1];
+            System.arraycopy(names, 0, subNames, 0, i+1);
+            logger.debug("trying to resolve step id='"+names[i].id+"' kind='"+names[i].kind+"'");
+            out = getNameService().resolve(subNames);
+        }
+        return out;
+    }
+
     /**
      * resolves a CORBA object with the name objectname.
      *
@@ -116,13 +131,14 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
     }
     logger.info("the final dns resolved is "+dns);
     try {
-
-        return getNameService().resolve(getNameService().to_name(dns));
+        NameComponent[] names = getNameService().to_name(dns);
+        //return resolveBySteps(names); // for debugging
+        return getNameService().resolve(names);
     } catch(NotFound nfe) {
-        logger.info("NOT FOUND Exception caught while resolving dns name context and the name not found is "+nfe.rest_of_name[0].id);
+        logger.info("NOT FOUND Exception caught while resolving name context and the name not found is "+nfe.rest_of_name[0].id);
         throw nfe;
     } catch(InvalidName ine) {
-        logger.info("INVALID NAME Exception caught while resolving dns name context");
+        logger.info("INVALID NAME Exception caught while resolving name context", ine);
         throw ine;
     } catch(CannotProceed cpe) {
         logger.info("CANNOT PROCEED Exception caught while resolving dns name context");
