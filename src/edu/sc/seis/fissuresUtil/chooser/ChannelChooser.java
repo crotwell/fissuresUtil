@@ -5,12 +5,12 @@ import edu.iris.Fissures.IfNetwork.*;
 import java.util.*;
 import javax.swing.*;
 
-import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
+import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4170 2003-06-03 21:18:43Z crotwell $
+ * @version $Id: ChannelChooser.java 4202 2003-06-04 19:37:06Z crotwell $
  *
  */
 
@@ -166,7 +166,7 @@ public class ChannelChooser extends JPanel {
                                                             codeIsFirst));
     }
 
-    public void setSeismogramDC(DataCenterOperations dcops) {
+    public void setSeismogramDC(DataCenterRouter dcops) {
         AvailableDataStationRenderer stationRenderer =
             new AvailableDataStationRenderer(showNames,
                                              showCodes,
@@ -1260,6 +1260,7 @@ public class ChannelChooser extends JPanel {
         Category.getInstance(ChannelChooser.class.getName());
 
 } // ChannelChooser
+
 
 
 
