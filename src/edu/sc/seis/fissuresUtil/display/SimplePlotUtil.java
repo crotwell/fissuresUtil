@@ -25,10 +25,15 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 10441 2004-09-09 19:33:25Z groves $
+ * @version $Id: SimplePlotUtil.java 10910 2004-10-15 20:54:43Z groves $
  */
 
 public class SimplePlotUtil  {
+    public static int[][] compressXvalues(LocalSeismogram seismogram,
+                                          MicroSecondTimeRange timeRange,
+                                          Dimension size) throws CodecException{
+        return compressXvalues(seismogram, timeRange, size.width);
+    }
     
     /**
      * Compresses the seismogram to fit the given dimension for the
@@ -37,7 +42,7 @@ public class SimplePlotUtil  {
      */
     public static int[][] compressXvalues(LocalSeismogram seismogram,
                                           MicroSecondTimeRange timeRange,
-                                          Dimension size)
+                                          int width)
         throws CodecException {
         
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
@@ -80,7 +85,7 @@ public class SimplePlotUtil  {
                                             seis.getBeginTime(),
                                             seis.getEndTime(),
                                             seisStartIndex);
-        int pixelStartIndex = getPixel(size.width,
+        int pixelStartIndex = getPixel(width,
                                        tMin,
                                        tMax,
                                        tempdate);
@@ -92,7 +97,7 @@ public class SimplePlotUtil  {
                             seis.getEndTime(),
                             seisEndIndex);
         
-        int pixelEndIndex = getPixel(size.width,
+        int pixelEndIndex = getPixel(width,
                                      tMin,
                                      tMax,
                                      tempdate);
@@ -153,12 +158,7 @@ public class SimplePlotUtil  {
                                              MicroSecondTimeRange tr,
                                              UnitRangeImpl ampRange,
                                              Dimension size)throws CodecException {
-        /*double pointsPerPixel = tr.getInterval().divideBy(seis.getSampling().getPeriod()).getValue() /
-         size.width;
-         if(pointsPerPixel  < 3 ){
-         return getPlottableSimpl(seis, ampRange, tr, size);
-         }else{*/
-        int[][] uncomp = compressXvalues(seismogram, tr, size);
+        int[][] uncomp = compressXvalues(seismogram, tr, size.width);
         // enough points to take the extra time to compress the line
         int[][] comp = new int[2][2 * size.width];
         int j = 0, startIndex = 0, xvalue = 0, endIndex = 0;
@@ -491,8 +491,6 @@ public class SimplePlotUtil  {
         } // end of for (int i=0; i<dataBits.length; i++)
         return createTestData(name, dataBits, time.getFissuresTime());
     }
-    
-    private static final TimeInterval ONE_SECOND = new TimeInterval(1, UnitImpl.SECOND);
     
     static Category logger = Category.getInstance(SimplePlotUtil.class.getName());
     
