@@ -20,7 +20,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         super(seismos);
     }
 
-    protected AmpEvent recalculateAmp(){
+    protected synchronized AmpEvent recalculateAmp(){
         Iterator e = ampData.keySet().iterator();
         double range = Double.NEGATIVE_INFINITY;
         while(e.hasNext()){
