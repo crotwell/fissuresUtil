@@ -25,11 +25,11 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     public MultiSeismogramWindowDisplay(SeismogramSorter sorter){
         this.sorter = sorter;
     }
-
+    
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
         return addDisplay(dss, tc, new RMeanAmpConfig(dss));
     }
-
+    
     /**
      * creates a new BSD with an individual RMeanAmpConfig and the passed in TImeConfig
      * and adds it to the display
@@ -42,7 +42,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc){
         return addDisplay(dss, tc, new RMeanAmpConfig(dss));
     }
-
+    
     /**
      * creates a new BSD with the passed in amp config and the global TImeConfig
      * and adds it to the display
@@ -55,7 +55,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
         return addDisplay(dss, tc, ac);
     }
-
+    
     /**
      * creates a new BSD with the passed in amp and time configs and adds it to
      * the display
@@ -69,7 +69,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
         BasicSeismogramDisplay disp = null;
-
+        
         for(int i = 0; i < dss.length; i++){
             if(contains(dss[i])){
                 continue;
@@ -78,30 +78,34 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             disp = new BasicSeismogramDisplay(tc, ac, this);
             disp.add(seismos);
             int j = sorter.sort(dss[i]);
-            super.add(disp, j);
-            basicDisplays.add(j, disp);
+            addBSD(disp, j);
             setTimeBorders();
             disp.addSoundPlay();
         }
         return disp;
     }
-
+    
+    protected void addBSD(BasicSeismogramDisplay disp, int pos){
+        super.add(disp, pos);
+        basicDisplays.add(pos, disp);
+    }
+    
     public void remove(DataSetSeismogram[] dss){
         for (int i = 0; i < dss.length; i++){
             sorter.remove(dss[i]);
         }
         super.remove(dss);
     }
-
+    
     public void removeAll(){
         sorter.clear();
         super.removeAll();
     }
-
+    
     private SeismogramSorter sorter;
     private SoundPlay soundPlay;
-
+    
     private static Logger logger = Logger.getLogger(MultiSeismogramWindowDisplay.class);
-
+    
 }// MultiSeismogramWindowDisplay
 
