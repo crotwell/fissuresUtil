@@ -44,7 +44,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
     
     public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, String name){
-	System.out.println(basicDisplays.size());
 	if(sorter.contains(name)){
 	    return null;
 	}
@@ -107,7 +106,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
 
     public void removeDisplay(BasicSeismogramDisplay display){
-	logger.debug("removing a display with " + basicDisplays.size() + " left");
 	if(basicDisplays.size() == 1){
 	    this.removeAll();
 	    return;
