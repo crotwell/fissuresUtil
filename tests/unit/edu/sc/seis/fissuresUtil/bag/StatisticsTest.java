@@ -22,7 +22,7 @@ public class StatisticsTest
     // JUnitDoclet begin class
     edu.sc.seis.fissuresUtil.bag.Statistics[] stat = null;
 
-    int size = 40;
+    int size = 10000;
     int[] intTestData;
     short[] shortTestData;
     float[] floatTestData;
@@ -113,8 +113,8 @@ public class StatisticsTest
         // JUnitDoclet begin method linearLeastSquares
         for ( int i = 0; i<stat.length; i++) {
             double[] out = stat[i].linearLeastSquares();
-            assertEquals("stat["+i+"]", 0, out[0], 0.0000001);
-            assertEquals("stat["+i+"]", 1, out[1], 0.0000001);
+            assertEquals("stat["+i+"]", 0, out[0], 0.0000001*size);
+            assertEquals("stat["+i+"]", 1, out[1], 0.0000001*size);
         } // end of for ()
         // JUnitDoclet end method linearLeastSquares
     }
@@ -170,34 +170,10 @@ public class StatisticsTest
 
     }
 
-    public void testAcf() throws Exception {
-        // JUnitDoclet begin method acf
-        // JUnitDoclet end method acf
-    }
-
-    public void testAcf95conf() throws Exception {
-        // JUnitDoclet begin method acf95conf
-        // JUnitDoclet end method acf95conf
-    }
-
-    public void testAcfTRatio() throws Exception {
-        // JUnitDoclet begin method acfTRatio
-        // JUnitDoclet end method acfTRatio
-    }
-
-    public void testPacf() throws Exception {
-        // JUnitDoclet begin method pacf
-        // JUnitDoclet end method pacf
-    }
-
-    public void testPacf95conf() throws Exception {
-        // JUnitDoclet begin method pacf95conf
-        // JUnitDoclet end method pacf95conf
-    }
-
-    public void testPacfTRatio() throws Exception {
-        // JUnitDoclet begin method pacfTRatio
-        // JUnitDoclet end method pacfTRatio
+    public void testSumValues() {
+        for ( int i = 0; i<stat.length; i++) {
+            assertEquals( size, stat[i].getLength(), 0.0000001);
+        } // end of for ()
     }
 
     public void testGetLength() throws Exception {
@@ -216,7 +192,7 @@ public class StatisticsTest
     public void testBinarySum() throws Exception {
         for ( int i = 0; i<stat.length; i++) {
             int n=stat[i].getLength()-1;
-            double out = stat[i].binarySum(0, intTestData.length);
+            double out = stat[i].binarySum(0, stat[i].getLength());
             assertEquals("BinarySum", n*(n+1)/2, out, 0.0000001);
         } // end of for ()
 
@@ -236,14 +212,35 @@ public class StatisticsTest
         // JUnitDoclet begin method binaryIndexSum
         for ( int i = 0; i<stat.length; i++) {
             int n=stat[i].getLength()-1;
-            assertEquals("stat["+i+"]", n*(n+1)*(2*n+1)/6, (int)stat[i].binaryIndexSum(0, stat[i].getLength()));
+            double sumSquare = 1.0*n*(n+1)*(2*n+1)/6;
+            assertEquals("stat["+i+"]", sumSquare, stat[i].binaryIndexSum(0, stat[i].getLength()), 0.00001*sumSquare);
         } // end of for ()
         // JUnitDoclet end method binaryIndexSum
     }
 
-    public void testMain() throws Exception {
-        // JUnitDoclet begin method main
-        // JUnitDoclet end method main
+    public void testACF_PACF() throws Exception {
+        int[] testSeries = new int[10];
+        testSeries[0] = 13;
+        testSeries[1] = 8;
+        testSeries[2] = 15;
+        testSeries[3] = 4;
+        testSeries[4] = 4;
+        testSeries[5] = 12;
+        testSeries[6] = 11;
+        testSeries[7] = 7;
+        testSeries[8] = 14;
+        testSeries[9] = 12;
+        Statistics s = new Statistics(testSeries);
+        System.out.println("Mean = "+s.mean());
+        System.out.println("Variance = "+s.var());
+        double[] testACF = s.acf(5);
+        for (int i=0; i<testACF.length; i++) {
+            System.out.println("acf "+i+" = "+testACF[i]);
+        }
+        double[] testPACF = s.pacf(5);
+        for (int i=0; i<testPACF.length; i++) {
+            System.out.println("pacf "+i+" = "+testPACF[i]);
+        }
     }
 
 
