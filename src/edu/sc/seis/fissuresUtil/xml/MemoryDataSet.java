@@ -1,9 +1,8 @@
 /**
  * MemoryDataSet.java
- *
+ * 
  * @author Created by Omnicore CodeGuide
  */
-
 package edu.sc.seis.fissuresUtil.xml;
 
 import java.util.HashMap;
@@ -14,11 +13,9 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelIdUtil;
 
-
-
 public class MemoryDataSet implements DataSet {
 
-    public MemoryDataSet( String id, String name, String owner, AuditInfo[] audit) {
+    public MemoryDataSet(String id, String name, String owner, AuditInfo[] audit) {
         this.id = id;
         setName(name);
         setOwner(owner);
@@ -26,7 +23,7 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>getName</code> method here.
-     *
+     * 
      * @return a <code>String</code> value
      */
     public String getName() {
@@ -39,8 +36,9 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>setName</code> method here.
-     *
-     * @param name a <code>String</code> value
+     * 
+     * @param name
+     *            a <code>String</code> value
      */
     public void setName(String name) {
         this.name = name;
@@ -48,15 +46,16 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Sets the owner of the dataset.
-     *
-     * @param name a <code>String</code> value
+     * 
+     * @param name
+     *            a <code>String</code> value
      */
     public void setOwner(String owner) {
         this.owner = owner;
     }
 
     /**
-     *  Gets the owner of the dataset.
+     * Gets the owner of the dataset.
      */
     public String getOwner() {
         return owner;
@@ -64,7 +63,7 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>getId</code> method here.
-     *
+     * 
      * @return a <code>String</code> value
      */
     public String getId() {
@@ -73,7 +72,7 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>getDataSetNames</code> method here.
-     *
+     * 
      * @return a <code>String[]</code> value
      */
     public String[] getDataSetNames() {
@@ -82,8 +81,9 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>getDataSet</code> method here.
-     *
-     * @param name a <code>String</code> value
+     * 
+     * @param name
+     *            a <code>String</code> value
      * @return a <code>DataSet</code> value
      */
     public DataSet getDataSet(String name) {
@@ -92,14 +92,21 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>createChildDataSet</code> method here.
-     *
-     * @param id a <code>String</code> value
-     * @param name a <code>String</code> value
-     * @param owner a <code>String</code> value
-     * @param audit an <code>AuditInfo[]</code> value
+     * 
+     * @param id
+     *            a <code>String</code> value
+     * @param name
+     *            a <code>String</code> value
+     * @param owner
+     *            a <code>String</code> value
+     * @param audit
+     *            an <code>AuditInfo[]</code> value
      * @return a <code>DataSet</code> value
      */
-    public DataSet createChildDataSet(String id, String name, String owner, AuditInfo[] audit) {
+    public DataSet createChildDataSet(String id,
+                                      String name,
+                                      String owner,
+                                      AuditInfo[] audit) {
         DataSet child = new MemoryDataSet(id, name, owner, audit);
         addDataSet(child, audit);
         return child;
@@ -107,9 +114,11 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>addDataSet</code> method here.
-     *
-     * @param dataset a <code>DataSet</code> value
-     * @param audit an <code>AuditInfo[]</code> value
+     * 
+     * @param dataset
+     *            a <code>DataSet</code> value
+     * @param audit
+     *            an <code>AuditInfo[]</code> value
      */
     public void addDataSet(DataSet dataset, AuditInfo[] audit) {
         datasets.put(dataset.getName(), dataset);
@@ -118,9 +127,8 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Method getDataSetSeismogramNames
-     *
-     * @return   a String[]
-     *
+     * 
+     * @return a String[]
      */
     public String[] getDataSetSeismogramNames() {
         return (String[])datasetSeismogramNames.toArray(new String[0]);
@@ -128,18 +136,19 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Method addDataSetSeismogram
-     *
-     * @param    dss                 a  DataSetSeismogram
-     * @param    audit               an AuditInfo[]
-     *
+     * 
+     * @param dss
+     *            a DataSetSeismogram
+     * @param audit
+     *            an AuditInfo[]
      */
     public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit) {
-        if (datasetSeismogramNames.contains(dss.getName())) {
+        if(datasetSeismogramNames.contains(dss.getName())) {
             int n = 1;
             String tmpName = dss.getName();
             while(datasetSeismogramNames.contains(tmpName)) {
                 n++;
-                tmpName = dss.getName()+"."+n;
+                tmpName = dss.getName() + "." + n;
             }
             // found a num that isn't used
             dss.setName(tmpName);
@@ -151,11 +160,10 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Method getDataSetSeismogram
-     *
-     * @param    name                a  String
-     *
-     * @return   a DataSetSeismogram
-     *
+     * 
+     * @param name
+     *            a String
+     * @return a DataSetSeismogram
      */
     public DataSetSeismogram getDataSetSeismogram(String name) {
         return (DataSetSeismogram)datasetSeismograms.get(name);
@@ -163,12 +171,12 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * removes the given dataset seismogram from the dataset.
-     *
-     * @param    dss                 a  DataSetSeismogram
-     *
+     * 
+     * @param dss
+     *            a DataSetSeismogram
      */
     public void remove(DataSetSeismogram dss) {
-        if (dss != null) {
+        if(dss != null) {
             datasetSeismograms.remove(dss.getName());
             datasetSeismogramNames.remove(dss.getName());
         }
@@ -176,7 +184,7 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>getParameterNames</code> method here.
-     *
+     * 
      * @return a <code>String[]</code> value
      */
     public String[] getParameterNames() {
@@ -185,8 +193,9 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>getParameter</code> method here.
-     *
-     * @param name a <code>String</code> value
+     * 
+     * @param name
+     *            a <code>String</code> value
      * @return an <code>Object</code> value
      */
     public Object getParameter(String name) {
@@ -195,21 +204,25 @@ public class MemoryDataSet implements DataSet {
 
     /**
      * Describe <code>addParameter</code> method here.
-     *
-     * @param name a <code>String</code> value
-     * @param audit an <code>AuditInfo[]</code> value
+     * 
+     * @param name
+     *            a <code>String</code> value
+     * @param audit
+     *            an <code>AuditInfo[]</code> value
      */
     public void addParameter(String name, Object param, AuditInfo[] audit) {
         parameters.put(name, param);
         parameterNames.add(name);
     }
 
-    /** Optional method to get channel id of all Channel parameters.
-     *  @see StdDataSetParamNames for the prefix for these parameters. */
+    /**
+     * Optional method to get channel id of all Channel parameters.
+     * 
+     * @see StdDataSetParamNames for the prefix for these parameters.
+     */
     public ChannelId[] getChannelIds() {
         String[] paramNames = getParameterNames();
         LinkedList out = new LinkedList();
-
         for(int counter = 0; counter < paramNames.length; counter++) {
             if(paramNames[counter].startsWith(StdDataSetParamNames.CHANNEL)) {
                 Channel channel = (Channel)getParameter(paramNames[counter]);
@@ -221,33 +234,43 @@ public class MemoryDataSet implements DataSet {
         return channelIds;
     }
 
-    /** Optional method to get the channel from the parameters, if it exists.
-     *  Should return null otherwise.
-     *  @see StdDataSetParamNames for the prefix for these parameters.*/
+    /**
+     * Optional method to get the channel from the parameters, if it exists.
+     * Should return null otherwise.
+     * 
+     * @see StdDataSetParamNames for the prefix for these parameters.
+     */
     public Channel getChannel(ChannelId channelId) {
-        Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
+        Object obj = getParameter(StdDataSetParamNames.CHANNEL
+                + ChannelIdUtil.toString(channelId));
         return (Channel)obj;
     }
 
-    /** Optional method to get the event associated with this dataset. Not all
-     *  datasets will have an event, return null in this case.
-     *  @see StdDataSetParamNames for the prefix for these parameters.
+    /**
+     * Optional method to get the event associated with this dataset. Not all
+     * datasets will have an event, return null in this case.
+     * 
+     * @see StdDataSetParamNames for the prefix for these parameters.
      */
     public EventAccessOperations getEvent() {
         return (EventAccessOperations)getParameter(StdDataSetParamNames.EVENT);
     }
 
     protected String name;
+
     protected String owner;
+
     protected String id;
 
     protected LinkedList datasetSeismogramNames = new LinkedList();
+
     protected LinkedList parameterNames = new LinkedList();
+
     protected LinkedList datasetNames = new LinkedList();
 
     protected HashMap datasetSeismograms = new HashMap();
+
     protected HashMap parameters = new HashMap();
+
     protected HashMap datasets = new HashMap();
-
 }
-
