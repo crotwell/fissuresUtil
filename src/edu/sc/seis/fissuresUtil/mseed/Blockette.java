@@ -12,10 +12,10 @@ import java.lang.reflect.*;
  * Instead each of these values are calculated based on the data.
  */
 public abstract class  Blockette {
-
+    
     public Blockette() {
     }
-
+    
     /**
      * Method writeASCII
      *
@@ -23,61 +23,66 @@ public abstract class  Blockette {
      *
      */
     public abstract void writeASCII(Writer out) throws IOException;
-
+    
     public static Blockette parseBlockette(int type, byte[] bytes)
-    throws IOException {
-
-    try {
+        throws IOException {
+        
+        try {
             //System.out.println(" Class.forName    Blockette"+type);
-        Class blocketteClass = Class.forName("edu.sc.seis.fissuresUtil.mseed.Blockette"+type);
+            Class blocketteClass = Class.forName("edu.sc.seis.fissuresUtil.mseed.Blockette"+type);
             //System.out.println(" Class.forName suceeded");
-
-        Class[] argTypes = new Class[1];
-        //      argTypes[0] = Class.forName("byte[]");
-        argTypes[0] = byte[].class;
-        Constructor read = blocketteClass.getConstructor(argTypes);
-        Object[] arguments = new Object[1];
-        arguments[0] = bytes;
+            
+            Class[] argTypes = new Class[1];
+            //      argTypes[0] = Class.forName("byte[]");
+            argTypes[0] = byte[].class;
+            Constructor read = blocketteClass.getConstructor(argTypes);
+            // blockette needs 4 bytes for type and next offset values, even
+            // though their values are not used directly
+            byte[] fullBytes = new byte[4+bytes.length];
+            System.arraycopy(Utility.intToByteArray(type), 2, fullBytes, 0, 2);
+            System.arraycopy(bytes, 0, fullBytes, 4, bytes.length);
+            Object[] arguments = new Object[1];
+            arguments[0] = fullBytes;
             //System.out.println("Constructor  suceeded");
-
-        Blockette blockette = (Blockette)read.newInstance(arguments);
-
-
+            
+            Blockette blockette = (Blockette)read.newInstance(arguments);
+            
+            
             //System.out.println("read suceeded");
-        return blockette;
-    } catch (ClassNotFoundException e) {
-        // must not be installed, read an  unknownblockette
-System.out.println(" Class.forName failed: "+type);
-        Blockette blockette = new BlocketteUnknown(bytes, type);
-
-        return blockette;
-    } catch ( NoSuchMethodException e) {
-        // must not be installed, skip this blockette
-        return null;
-    } catch (InstantiationException e) {
-        // must not be installed, skip this blockette
-        return null;
-    } catch (IllegalAccessException  e) {
-        // must not be installed, skip this blockette
-        return null;
-    } catch (InvocationTargetException  e) {
-        // must not be installed, skip this blockette
-        return null;
+            return blockette;
+        } catch (ClassNotFoundException e) {
+            // must not be installed, read an  unknownblockette
+            System.out.println(" Class.forName failed: "+type);
+            Blockette blockette = new BlocketteUnknown(bytes, type);
+            
+            return blockette;
+        } catch ( NoSuchMethodException e) {
+            // must not be installed, skip this blockette
+            return null;
+        } catch (InstantiationException e) {
+            // must not be installed, skip this blockette
+            return null;
+        } catch (IllegalAccessException  e) {
+            // must not be installed, skip this blockette
+            return null;
+        } catch (InvocationTargetException  e) {
+            // must not be installed, skip this blockette
+            return null;
+        }
     }
-    }
-
+    
     public abstract int getType();
-
+    
     public abstract String getName();
-
+    
     public abstract int getSize();
-
+    
     public abstract byte[] toBytes();
-
+    
     public String toString() {
-    String s = getType()+": "+getName();
-    return s;
+        String s = getType()+": "+getName();
+        return s;
     }
-
+    
 }
 
