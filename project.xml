@@ -239,6 +239,7 @@
             <groupId>JacORB</groupId>
             <artifactId>JacORB</artifactId>
             <version>2.1</version>
+			<jar>JacORB-2.1_USC.jar</jar>
             <url>http://www.jacorb.org</url>
             <properties/>
         </dependency>
