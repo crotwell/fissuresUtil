@@ -40,10 +40,10 @@ public class JobDisplay extends JTable implements TrackerListener{
                 String columnName =getColumnName(counter);
                 int width = 50;
                 if( columnName.equals("Name") ) width = 100;
-                else if( columnName.equals("Status") ) width = 200;
+                else if( columnName.equals("Status") ) width = 100;
                 else if( columnName.equals("Finished")) width = 20;
                 getColumnModel().getColumn(counter).setPreferredWidth(width);
-                getColumnModel().getColumn(counter).setMinWidth(width);
+                getColumnModel().getColumn(counter).setMinWidth(width/2);
 
             }
         }
