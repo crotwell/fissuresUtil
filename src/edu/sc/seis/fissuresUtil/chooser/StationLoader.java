@@ -15,18 +15,15 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
-public class StationLoader extends Thread
-{
+public class StationLoader extends Thread {
 
-    public StationLoader(ChannelChooser chooser, NetworkAccess[] n)
-    {
+    public StationLoader(ChannelChooser chooser, NetworkAccess[] n) {
         this.chooser = chooser;
         this.nets = n;
         logger.debug("StationLoader constructor");
     }
 
-    public void addStationAcceptor(StationAcceptor acceptor)
-    {
+    public void addStationAcceptor(StationAcceptor acceptor) {
         acceptors.add(acceptor);
     }
 
@@ -36,56 +33,33 @@ public class StationLoader extends Thread
 
     private LinkedList acceptors = new LinkedList();
 
-    public void run()
-    {
+    public void run() {
         List stations = new ArrayList();
 
         chooser.setProgressOwner(this);
         chooser.setProgressMax(this, 100);
         logger.debug("Begin StationLoader.run, there are "+nets.length+" selected networks.");
-        try
-        {
-//          synchronized (chooser)
-//          {
-//              if (this.equals(chooser.getStationLoader()))
-//              {
-//                  chooser.clearStationsFromThread();
-//                  System.out.println("StationLoader: clearing stations");
-//              }
-//          }
+        try {
             int netProgressInc = 50 / nets.length;
             int progressValue = 10;
             chooser.setProgressValue(this, progressValue);
-            for (int i=0; i<nets.length; i++)
-            {
+            for (int i=0; i<nets.length; i++) {
                 logger.debug("Before get stations "+i);
                 logger.debug("Network code = "+nets[i].get_attributes().get_code());
                 Station[] newStations = nets[i].retrieve_stations();
                 logger.debug("After retrieve_stations for "+nets[i].get_attributes().get_code());
-                for (int j = 0; j < newStations.length; j++)
-                {
+                for (int j = 0; j < newStations.length; j++) {
                     stations.add(newStations[j]);
                 }
                 logger.debug("got "+newStations.length+" stations from "+
                                  nets[i].get_attributes().get_code());
                 chooser.setProgressValue(this, progressValue+netProgressInc/2);
 
-                boolean okToAdd;
-                for (int j=0; j<newStations.length; j++)
-                {
+                for (int j=0; j<newStations.length; j++) {
                     // check station name not exist, use code in that case
                     if (newStations[j].name == null ||
                         newStations[j].name.length() < 3) {
                         newStations[j].name = newStations[j].get_code();
-                    }
-                    Iterator it = acceptors.iterator();
-                    okToAdd = true;
-                    while (it.hasNext())
-                    {
-                        if ( ! ((StationAcceptor)it.next()).accept(newStations[j]))
-                        {
-                            okToAdd = false;
-                        }
                     }
                     chooser.setProgressValue(this, progressValue+netProgressInc/2-
                                                  (newStations.length-j)/newStations.length);
@@ -93,43 +67,22 @@ public class StationLoader extends Thread
                 chooser.setProgressValue(this, 100);
 
                 logger.debug("finished adding stations for "+nets[i].get_attributes().get_code());
-                //          try {
-                //          sleep((int)(.01*1000));
-                //          } catch (InterruptedException e) {
-
-                //          } // end of try-catch
-
             } // end of for ((int i=0; i<nets.length; i++)
             logger.debug("There are "+chooser.stationNames.getSize()+" items in the station list model");
-            // stationList.validate();
-            //stationList.repaint();
         }
-        catch (Throwable e)
-        {
+        catch (Throwable e) {
             GlobalExceptionHandler.handle("Unable to get stations.", e);
         } // end of try-catch   }
-
-        //chooser.addStations((Station[])stations.toArray(new Station[stations.size()]));
         stationAdd((Station[])stations.toArray(new Station[stations.size()]));
         logger.debug("There are "+chooser.stationNames.getSize()+" items in the station list model");
     }
 
     /** allows subclasses to veto a station. */
-    protected boolean acceptStation(Station sta)
-    {
+    protected boolean acceptStation(Station sta) {
         return true;
     }
 
-    void stationAdd(final Station[] s)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-                                   {
-                    public void run()
-                    {
-                        chooser.addStationsFromThread(s);
-                    }
-                });
-    }
+    void stationAdd(final Station[] s) { chooser.addStationsFromThread(s); }
 
     private static Logger logger =
         Logger.getLogger(StationLoader.class);
