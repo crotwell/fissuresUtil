@@ -186,7 +186,19 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 		}
 	    });
 	updateTimeRange();
-	     
+	addParticleMotionDisplay((LocalSeismogramImpl)seismograms[1], 
+	     (LocalSeismogramImpl)seismograms[2], 
+	     timeRangeConfig, 
+	     ampRangeConfig, 
+	     ampRangeConfig, 
+	     null);
+	addParticleMotionDisplay((LocalSeismogramImpl)seismograms[0], 
+				 (LocalSeismogramImpl)seismograms[2], 
+				 timeRangeConfig, 
+				 ampRangeConfig, 
+				 ampRangeConfig, 
+				 null);
+
 	
     }
 
