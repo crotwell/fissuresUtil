@@ -17,13 +17,11 @@ import org.apache.log4j.*;
 
 public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
     public AmpConfigRegistrar(){
-	ampConfig = new RMeanAmpConfig();
-	ampConfig.addAmpSyncListener(this);
+	this(new RMeanAmpConfig());
     }   
 
     public AmpConfigRegistrar(AmpRangeConfig ar){
-	ampConfig = ar;
-	ampConfig.addAmpSyncListener(this);
+	this(ar, null);
     }   
 
     public AmpConfigRegistrar(AmpSyncListener creator){
@@ -32,17 +30,23 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 
     public AmpConfigRegistrar (AmpRangeConfig ampConfig, AmpSyncListener creator){
 	this.ampConfig = ampConfig;
-	this.addAmpSyncListener(creator);
+	if(creator != null){
+	    this.addAmpSyncListener(creator);
+	}
 	ampConfig.addAmpSyncListener(this);
+	snapshot = new AmpSnapshot(seismograms, null);
     }	
      
-    public void setRegistrar(AmpConfigRegistrar ampRegistrar){ 
+    public void setAmpConfig(AmpRangeConfig ampConfig){ 
 	ampConfig.removeAmpSyncListener(this);
-	Iterator e = seismograms.iterator();
-	while(e.hasNext())
-	    ampRegistrar.addSeismogram(((DataSetSeismogram)e.next()));
-	ampRegistrar.addAmpSyncListener(this);
-	ampConfig = ampRegistrar;
+	Iterator e = seismograms.keySet().iterator();
+	while(e.hasNext()){
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    ampConfig.addSeismogram(current);
+	    seismograms.put(current, ampConfig.getAmpRange(current));	    
+	}
+	ampConfig.addAmpSyncListener(this);
+	this.ampConfig = ampConfig;
 	updateAmpSyncListeners();
     }
 
@@ -54,10 +58,8 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      * @param seis the seismogram to be added
      */
     public void addSeismogram(DataSetSeismogram seis){
-	if(seismograms.contains(seis))
-	    return;
-	seismograms.add(seis);
 	ampConfig.addSeismogram(seis);
+	seismograms.put(seis, ampConfig.getAmpRange(seis));
     }
 
     /**
@@ -66,8 +68,8 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      * @param seis the seismogram to be removed
      */
     public void removeSeismogram(DataSetSeismogram seis){ 
-	seismograms.remove(seis);
 	ampConfig.removeSeismogram(seis);
+	seismograms.remove(seis);
     }
 
     public void unregister(){
@@ -120,39 +122,47 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 	ampConfig.fireAmpRangeEvent(event);
     }
 
-    public void updateAmpRange(){ this.updateAmpSyncListeners(); }
+    public void updateAmpRange(){ 
+	if(!taken){
+	    snapshot.update(seismograms, ampConfig.getAmpRange());
+	}
+	this.updateAmpSyncListeners(); 
+    }
 
     public void updateTimeRange(){ ampConfig.updateTimeRange(); } 
 
     public void individualizeAmpConfig(TimeConfigRegistrar timeRegistrar){
 	AmpRangeConfig newConfig = new RMeanAmpConfig(this);
-	Iterator e = seismograms.iterator();
+	Iterator e = seismograms.keySet().iterator();
 	while(e.hasNext())
 	    newConfig.addSeismogram(((DataSetSeismogram)e.next()));
 	AmpRangeConfig oldConfig = ampConfig;
 	this.ampConfig = newConfig;
-	e = seismograms.iterator();
+	e = seismograms.keySet().iterator();
 	while(e.hasNext())
 	    oldConfig.removeSeismogram(((DataSetSeismogram)e.next()));
 	if(oldConfig instanceof AmpConfigRegistrar)
 	    ((AmpConfigRegistrar)oldConfig).removeAmpSyncListener(this);
 	this.ampConfig.visibleAmpCalc(timeRegistrar);
     }
-
+    
     public synchronized AmpSnapshot takeSnapshot(){
-	HashMap seismoAmpRange = new HashMap();
-	Iterator e = seismograms.iterator();
-	while(e.hasNext()){
-	    DataSetSeismogram current = (DataSetSeismogram)e.next();
-	    seismoAmpRange.put(current, this.getAmpRange(current));
-	}
-	return new AmpSnapshot(seismoAmpRange, this.getAmpRange());
+	taken = true;
+	return snapshot;
     }
 
+    public void returnSnapshot(){
+	taken = false;
+	snapshot.update(seismograms, ampConfig.getAmpRange());
+    }
+
+    protected boolean taken = false;
+    
+    protected AmpSnapshot snapshot;
 
     protected AmpRangeConfig ampConfig;
 
-    protected LinkedList seismograms = new LinkedList();
+    protected HashMap seismograms = new HashMap();
     
     protected Set ampListeners = new HashSet();
 

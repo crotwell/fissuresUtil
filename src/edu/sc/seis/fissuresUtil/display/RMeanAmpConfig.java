@@ -21,7 +21,7 @@ import java.util.*;
 
 public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     
-    public RMeanAmpConfig(){}
+     public RMeanAmpConfig(){}
 
     public RMeanAmpConfig(AmpConfigRegistrar registrar){
 	super.addAmpSyncListener(registrar);
@@ -36,18 +36,23 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
      *  full time range for this seismogram.
      */
     public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis){
-	if(timeRegistrar == null)
-	    return this.getAmpRange(aSeis,new MicroSecondTimeRange(aSeis.getSeismogram().getBeginTime(), 
-								   aSeis.getSeismogram().getEndTime()));
-	else {
-	    if (!timeRegistrar.contains(aSeis)) {
-		timeRegistrar.addSeismogram(aSeis);
-	    } // end of if (!timeRegistrar == null && !timeRegistrar.contains(seis))
-	    return this.getAmpRange(aSeis, this.timeRegistrar.getTimeRange(aSeis));
-	} // end of else
+	 LocalSeismogramImpl seis = aSeis.getSeismogram();
+	 MicroSecondTimeRange pastTime = (MicroSecondTimeRange)seismoTimes.get(aSeis);
+	 if(timeRegistrar == null){
+	     return getAmpRange(aSeis, (MicroSecondTimeRange)seismoTimes.get(aSeis));
+	 }else{
+	     if (!timeRegistrar.contains(aSeis)) {
+		 timeRegistrar.addSeismogram(aSeis);
+	     } 
+	     return getAmpRange(aSeis, timeRegistrar.getTimeRange(aSeis));
+	 }
     }
     
     public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis, MicroSecondTimeRange calcIntv){
+	if(seismoTimes.get(aSeis) != null && ((MicroSecondTimeRange)seismoTimes.get(aSeis)).equals(calcIntv)){
+	    return (UnitRangeImpl)seismoAmps.get(aSeis);
+	}
+	seismoTimes.put(aSeis, new MicroSecondTimeRange(calcIntv.getBeginTime(), calcIntv.getEndTime()));
 	LocalSeismogramImpl seis = aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
@@ -64,6 +69,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 
 	if (endIndex == beginIndex) {
 	    //no data points in window, leave range alone
+	    seismoAmps.put(aSeis, ampRange);
 	    return ampRange;
         }
 	try {
@@ -71,26 +77,38 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
 	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
-	    if(ampRange == null || meanDiff > ampRange.getMaxValue()){
+	    if(ampRange == null){
 		ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
+	    }else if(meanDiff > ampRange.getMaxValue()){
+		ampRange.min_value = -meanDiff;
+		ampRange.max_value = meanDiff;
 	    }
 	    double bottom = ampRange.getMinValue() + mean;
 	    double top = ampRange.getMaxValue() + mean;
-	    return new UnitRangeImpl(bottom, top, seis.getAmplitudeRange().getUnit());
+	    UnitRangeImpl current;
+	    if(seismoAmps.get(aSeis) != null){
+		current = (UnitRangeImpl)seismoAmps.get(aSeis);
+		current.min_value = bottom;
+		current.max_value = top;
+	    }else{
+		current = new UnitRangeImpl(bottom, top, seis.getAmplitudeRange().getUnit());
+	    }
+	    seismoAmps.put(aSeis, current);
+	    return current;
 	} catch (Exception e) {
 	    e.printStackTrace();
         }
-	return ampRange;
+	    seismoAmps.put(aSeis, ampRange);
+	    return ampRange;
     }
 
     public void addSeismogram(DataSetSeismogram seis){
 	this.getAmpRange(seis);
-	seismos.add(seis);
 	this.updateAmpSyncListeners();
     }
     
     public void removeSeismogram(DataSetSeismogram aSeis){ 
-	if (seismos.size() == 1) {
+	if (seismoAmps.size() == 1) {
 	    super.removeSeismogram(aSeis);
 	    return;
 	} // end of if (seismos.size() == 1)
@@ -100,7 +118,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    calcIntv = new MicroSecondTimeRange(seis.getBeginTime(), seis.getEndTime());
 	else
 	    calcIntv = timeRegistrar.getTimeRange(aSeis);
-	if(seismos.contains(aSeis)){
+	if(seismoAmps.containsKey(aSeis)){
 	    int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
 						   seis.getBeginTime(),
 						   seis.getEndTime(),
@@ -115,7 +133,8 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
 	    
 	    if (endIndex == beginIndex) {
-		seismos.remove(aSeis);
+		seismoAmps.remove(aSeis);
+		seismoTimes.remove(aSeis);
 		return;
 	    }
 	    try {
@@ -129,12 +148,13 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    catch (Exception e) {
 		this.ampRange = null;
 	    }
-	    seismos.remove(aSeis);
+	    seismoAmps.remove(aSeis);
+	    seismoTimes.remove(aSeis);
 	    if(ampRange == null){
-		Iterator e = seismos.iterator();
+		Iterator e = seismoAmps.keySet().iterator();
 		logger.debug("recalculating amp range as defining seismogram was removed");
 		while(e.hasNext())
-		    this.getAmpRange(((DataSetSeismogram)e.next()), calcIntv);
+		    this.getAmpRange(((DataSetSeismogram)e.next()));
 		this.updateAmpSyncListeners();
 	    }
 	}
