@@ -8,7 +8,7 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.utility.Logger;
-import edu.sc.seis.fissuresUtil.display.drawable.EventFlagPlotter;
+import edu.sc.seis.fissuresUtil.display.drawable.EventFlag;
 import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
@@ -409,7 +409,7 @@ public  class PlottableDisplay extends JComponent {
     private void drawEventFlags(Graphics g) {
         Iterator iterator = eventPlotterList.iterator();
         while(iterator.hasNext()) {
-            EventFlagPlotter plotter = (EventFlagPlotter) iterator.next();
+            EventFlag plotter = (EventFlag) iterator.next();
             plotter.draw((Graphics2D)g, null, null, null);
         }
     }
@@ -420,7 +420,7 @@ public  class PlottableDisplay extends JComponent {
 
     public void addEventPlotterInfo(EventAccessOperations[] eventAccessArray) {
         for(int counter = 0; counter < eventAccessArray.length; counter++) {
-            eventPlotterList.add(new EventFlagPlotter(this, eventAccess[counter]));
+            eventPlotterList.add(new EventFlag(this, eventAccess[counter]));
         }
     }
 

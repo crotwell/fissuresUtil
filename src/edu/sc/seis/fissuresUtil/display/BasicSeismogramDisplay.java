@@ -79,7 +79,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         setSize();
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
-        plotters.add(new TimeAmpPlotter(this));
+        drawable.add(new TimeAmpLabel(this));
         add(new PlotPainter());
     }
 
@@ -94,7 +94,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                 if(parent != null){
                     newPlotter.setVisibility(parent.getOriginalVisibility());
                 }
-                plotters.add(newPlotter);
+                drawable.add(newPlotter);
             }
         }
         Iterator e = globalFilters.iterator();
@@ -119,10 +119,10 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                                                                  getEvent().get_preferred_origin().origin_time);
 
             for(int i = 0; i < arrivals.length; i++){
-                FlagPlotter current = new FlagPlotter(new MicroSecondDate((long)(arrivals[i].getTime() * 1000000) +
+                Flag current = new Flag(new MicroSecondDate((long)(arrivals[i].getTime() * 1000000) +
                                                                               originTime.getMicroSecondTime()),
                                                       arrivals[i].getPhase().getName());
-                plotters.addLast(current);
+                drawable.addLast(current);
             }
         } catch ( NoPreferredOrigin e) {
             logger.warn("Caught NoPreferredOrigin on addFlags", e);
@@ -143,15 +143,15 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     public void setCurrentTimeFlag(boolean visible){
         if(visible){
-            plotters.addLast(new CurrentTimeFlagPlotter());
+            drawable.addLast(new CurrentTimeFlag());
         }else{
-            PlotterIterator it = new PlotterIterator(CurrentTimeFlagPlotter.class);
+            DrawableIterator it = new DrawableIterator(CurrentTimeFlag.class);
             it.clear();
         }
     }
 
     public void removeAllFlags(){
-        PlotterIterator it = new PlotterIterator(FlagPlotter.class);
+        DrawableIterator it = new DrawableIterator(Flag.class);
         it.clear();
         repaint();
     }
@@ -229,16 +229,16 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     public java.util.List getPlotters(Class plotterClass) {
         java.util.LinkedList out = new java.util.LinkedList();
-        Iterator it = new PlotterIterator(plotterClass);
+        Iterator it = new DrawableIterator(plotterClass);
         while ( it.hasNext()) {
             out.addLast(it.next());
         } // end of while ()
         return out;
     }
 
-    public TimeAmpPlotter getTimeAmpPlotter(){
-        PlotterIterator pi = new PlotterIterator(TimeAmpPlotter.class);
-        return (TimeAmpPlotter)pi.next();
+    public TimeAmpLabel getTimeAmpLabel(){
+        DrawableIterator pi = new DrawableIterator(TimeAmpLabel.class);
+        return (TimeAmpLabel)pi.next();
     }
 
     public java.util.List getSelections(){
@@ -246,18 +246,18 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void clearSelections(){
-        new PlotterIterator(Selection.class).clear();
+        new DrawableIterator(Selection.class).clear();
     }
 
     public void addSelection(Selection newSelection){
-        if(!plotters.contains(newSelection)){
-            plotters.add(newSelection);
+        if(!drawable.contains(newSelection)){
+            drawable.add(newSelection);
             repaint();
         }
     }
 
     public void remove(Selection old){
-        if(plotters.remove(old)){
+        if(drawable.remove(old)){
             repaint();
         }
     }
@@ -348,7 +348,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         for(int i = 0; i < seismos.length; i++){
             if(seismograms.contains(seismos[i])){
                 seismograms.remove(seismos[i]);
-                PlotterIterator it = new PlotterIterator(DrawableSeismogram.class);
+                DrawableIterator it = new DrawableIterator(DrawableSeismogram.class);
                 while(it.hasNext()){
                     DrawableSeismogram current = (DrawableSeismogram)it.next();
                     if(current.getSeismogram() == seismos[i]){
@@ -383,7 +383,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void setOriginalVisibility(boolean visible){
-        Iterator e = new PlotterIterator(DrawableSeismogram.class);
+        Iterator e = new DrawableIterator(DrawableSeismogram.class);
         LinkedList seismoList = new java.util.LinkedList();
         List drawableList = new ArrayList();
         while(e.hasNext()){
@@ -424,7 +424,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         int i = 0;
         LinkedList filterShapes = new LinkedList();
         if(filters.contains(filter)){
-            Iterator e = new PlotterIterator(DrawableFilteredSeismogram.class);
+            Iterator e = new DrawableIterator(DrawableFilteredSeismogram.class);
             while(e.hasNext()){
                 DrawableFilteredSeismogram current = ((DrawableFilteredSeismogram)e.next());
                 if(current.getFilter() == filter){
@@ -453,7 +453,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
             tc.remove(seismos);
             ac.remove(seismos);
         }
-        plotters.addAll(filterShapes);
+        drawable.addAll(filterShapes);
         repaint();
     }
 
@@ -461,7 +461,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         if(filters.contains(filter)){
             DataSetSeismogram[] seismos = new DataSetSeismogram[seismograms.size()];
             int i = 0;
-            Iterator e = new PlotterIterator(DrawableFilteredSeismogram.class);
+            Iterator e = new DrawableIterator(DrawableFilteredSeismogram.class);
             while(e.hasNext()){
                 DrawableFilteredSeismogram current = ((DrawableFilteredSeismogram)e.next());
                 if(current.getFilter() == filter){
@@ -485,17 +485,17 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
             int namesDrawn = 1;
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(g2.getFontMetrics().getStringBounds("test", g2));
-            for (int i = 0; i < plotters.size(); i++){
-                Plotter current = (Plotter)plotters.get(i);
+            for (int i = 0; i < drawable.size(); i++){
+                Drawable current = (Drawable)drawable.get(i);
                 current.draw(g2, size, currentTimeEvent, currentAmpEvent);
-                if(current instanceof TimeAmpPlotter){
-                    TimeAmpPlotter taPlotter = (TimeAmpPlotter)current;
+                if(current instanceof TimeAmpLabel){
+                    TimeAmpLabel taPlotter = (TimeAmpLabel)current;
                     g2.setFont(DisplayUtils.MONOSPACED_FONT);
                     stringBounds.setRect(g2.getFontMetrics().getStringBounds(taPlotter.getText(), g2));
                     taPlotter.drawName(g2,(int)(size.width - stringBounds.width), size.height - 3);
                     g2.setFont(DisplayUtils.DEFAULT_FONT);
-                }else if(current instanceof NamedPlotter){
-                    if(((NamedPlotter)current).drawName(g2, 5, (int)(namesDrawn * stringBounds.height)))
+                }else if(current instanceof NamedDrawable){
+                    if(((NamedDrawable)current).drawName(g2, 5, (int)(namesDrawn * stringBounds.height)))
                         namesDrawn++;
                 }
             }
@@ -506,11 +506,11 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
      * An iterator that only returns instances of the given class. All other
      * elements are silently skipped.
      */
-    private class PlotterIterator implements Iterator {
+    private class DrawableIterator implements Iterator {
 
-        private PlotterIterator(Class iteratorClass) {
+        private DrawableIterator(Class iteratorClass) {
             this.iteratorClass = iteratorClass;
-            it = plotters.iterator();
+            it = drawable.iterator();
         }
 
         public boolean hasNext() {
@@ -564,7 +564,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     public void addSoundPlay(){
         try{
-            plotters.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
+            drawable.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
         }
         catch(NullPointerException e){
             System.out.println("Sample Rate cannot be calculated, so sound is not permitted.");
@@ -573,7 +573,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void removeSoundPlay(){
-        new PlotterIterator(SoundPlay.class).clear();
+        new DrawableIterator(SoundPlay.class).clear();
     }
 
     private static Set globalFilters = new HashSet();
@@ -588,7 +588,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     private LinkedList seismograms = new LinkedList();
 
-    private LinkedList plotters =new LinkedList();
+    private LinkedList drawable =new LinkedList();
 
     private TimeConfig tc;
 

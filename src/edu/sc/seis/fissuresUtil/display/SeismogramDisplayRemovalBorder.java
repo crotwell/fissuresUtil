@@ -7,7 +7,7 @@ package edu.sc.seis.fissuresUtil.display;
  */
 
 import edu.sc.seis.fissuresUtil.display.drawable.BigX;
-import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemove;
+import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemover;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -22,7 +22,7 @@ public class SeismogramDisplayRemovalBorder extends AbstractBorder{
         right = 15;
         bottom = 0;
         this.display = display;
-        remover = new DisplayRemove(display);
+        remover = new DisplayRemover(display);
         remover.useInsets(false);
     }
 
