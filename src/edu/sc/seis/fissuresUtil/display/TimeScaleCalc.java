@@ -53,7 +53,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }else if(majTickTime <= 45 * SECOND){
             majTickRatio = 10;
             //System.out.println("TimeScaleCalc 45SECOND"+totalPixels+" "+majTickTime);
-            timeFormat = new SimpleDateFormat("HH:mm:ss");
+            timeFormat = new SimpleDateFormat("mm:ss");
             if(majTickTime <= 1.2*SECOND){
                 majTickTime = SECOND;
             }else if(majTickTime <= 3*SECOND){
