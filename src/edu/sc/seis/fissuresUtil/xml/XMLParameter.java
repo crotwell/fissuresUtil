@@ -327,8 +327,8 @@ public class XMLParameter {
                 c = c.getSuperclass();
             }
         } catch(ClassNotFoundException e) {
-            GlobalExceptionHandler.handle("A class stored in the xml data set was not found.  This is pretty screwey",
-                                          e);
+            logger.debug("unable to find class of type " + className
+                    + " loading parameter as a string");
         }
         String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
         return new ParameterRef(name, value);
@@ -375,4 +375,6 @@ public class XMLParameter {
     }
 
     private static final String xlinkNS = "http://www.w3.org/1999/xlink";
+
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(XMLParameter.class);
 }// XMLParameter
