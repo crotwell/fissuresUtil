@@ -67,11 +67,11 @@ public class ExceptionHandlerGUI {
 
         JTabbedPane tabbedPane = new JTabbedPane();
         if (greeting != null) {
-            tabbedPane.addTab("Information", getGreetingPanel());
+            tabbedPane.addTab("Information", new JScrollPane(getGreetingPanel()));
         }
-        tabbedPane.addTab("Details", getMessagePanel());
-        tabbedPane.addTab("Stack Trace", getStackTracePanel());
-        tabbedPane.addTab("System Info", getSystemInfoPanel());
+        tabbedPane.addTab("Details", new JScrollPane(getMessagePanel()));
+        tabbedPane.addTab("Stack Trace", new JScrollPane(getStackTracePanel()));
+        tabbedPane.addTab("System Info", new JScrollPane(getSystemInfoPanel()));
         java.awt.Dimension dimension = new java.awt.Dimension(800, 300);
         tabbedPane.setPreferredSize(dimension);
         tabbedPane.setMinimumSize(dimension);
@@ -81,8 +81,7 @@ public class ExceptionHandlerGUI {
     }
 
 
-    private JPanel getMessagePanel() {
-        JPanel messagePanel = new JPanel();
+    private JTextArea getMessagePanel() {
         JTextArea exceptionMessageLabel = new JTextArea();
         exceptionMessageLabel.setLineWrap(true);
         exceptionMessageLabel.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
@@ -92,59 +91,45 @@ public class ExceptionHandlerGUI {
         if (exception.getCause() != null) {
             exceptionMessageLabel.append("\n  caused by\n"+exception.getCause().getMessage());
         }
-        messagePanel.setLayout(new BorderLayout());
-        messagePanel.add(exceptionMessageLabel);
-        return messagePanel;
+        return exceptionMessageLabel;
     }
 
 
-    private JPanel getGreetingPanel() {
-        JPanel greetingPanel = new JPanel();
+    private JTextArea getGreetingPanel() {
         JTextArea greetingArea = new JTextArea();
         greetingArea.setLineWrap(true);
         greetingArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
         greetingArea.setWrapStyleWord(true);
         greetingArea.setEditable(false);
         greetingArea.setText(greeting);
-        greetingPanel.setLayout(new BorderLayout());
-        greetingPanel.add(greetingArea);
-        return greetingPanel;
+        return greetingArea;
     }
 
 
-    private JScrollPane getSystemInfoPanel() {
+    private JTextArea getSystemInfoPanel() {
         JTextArea messageArea = new JTextArea();
         messageArea.setLineWrap(true);
         messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
         messageArea.setWrapStyleWord(true);
         messageArea.setEditable(false);
 
-        JPanel stackTracePanel = new JPanel();
-        JScrollPane scrollPane = new JScrollPane(stackTracePanel);
         String traceString = "";
 
         traceString += getSystemInformation();
 
         messageArea.setText(traceString);
-        stackTracePanel.setLayout(new BorderLayout());
-        stackTracePanel.add(messageArea);
-        return scrollPane;
+        return messageArea;
     }
 
-    private JScrollPane getStackTracePanel() {
+    private JTextArea getStackTracePanel() {
         JTextArea messageArea = new JTextArea();
         messageArea.setLineWrap(true);
         messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
         messageArea.setWrapStyleWord(true);
         messageArea.setEditable(false);
 
-        JPanel stackTracePanel = new JPanel();
-        JScrollPane scrollPane = new JScrollPane(stackTracePanel);
-
         messageArea.setText(getStackTraceString());
-        stackTracePanel.setLayout(new BorderLayout());
-        stackTracePanel.add(messageArea);
-        return scrollPane;
+        return messageArea;
     }
 
     public String getStackTraceString() {
