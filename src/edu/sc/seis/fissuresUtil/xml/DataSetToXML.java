@@ -6,6 +6,11 @@
 
 package edu.sc.seis.fissuresUtil.xml;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Attr;
@@ -15,16 +20,35 @@ import org.w3c.dom.Element;
 public class DataSetToXML
 {
 
-    public Document createDocument(DataSet dataset) throws ParserConfigurationException {
+    public void save(DataSet dataset, File saveDirectory)
+    throws IOException, ParserConfigurationException, MalformedURLException {
+        File dataDir = new File(saveDirectory, "data");
+        Document doc = createDocument(dataset, saveDirectory);
+        Writer xmlWriter = new Writer(true);
+        BufferedWriter buf =
+            new BufferedWriter(new FileWriter(new File(saveDirectory, dataset.getName()+".dsml")));
+        xmlWriter.setOutput(buf);
+        xmlWriter.write(doc);
+        buf.close();
+    }
+
+    public Document createDocument(DataSet dataset, File dataDirectory)
+        throws ParserConfigurationException, MalformedURLException {
         DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
         Document doc = docBuilder.newDocument();
         Element element = doc.createElement("dataset");
-        insert(element, dataset);
+        insert(element, dataset, dataDirectory);
         doc.appendChild(element);
         return doc;
     }
 
-    public void insert(Element element, DataSet dataset) {
+    /** inserts the dataset, and all child datasets recursively, into the
+     document, along with dataset seismograms and parameters if they can be
+     stored. Note that all dataSetSeismograms are converted to
+     URLDataSetSeismograms and stored in a directory structure that
+     mirrors the dataset structure under the given directory. */
+    public void insert(Element element, DataSet dataset, File directory)
+        throws MalformedURLException {
         Document doc = element.getOwnerDocument();
         Attr id = doc.createAttribute("datasetid");
         id.setValue(dataset.getId());
@@ -37,22 +61,23 @@ public class DataSetToXML
                                                       dataset.getOwner()));
         String[] childDataSets = dataset.getDataSetNames();
         for (int i = 0; i < childDataSets.length; i++) {
-            Element child = doc.createElement("datasetRef");
-            insertRef(child, dataset.getDataSet(childDataSets[i]));
+            Element child = doc.createElement("dataset");
+            insert(child, dataset.getDataSet(childDataSets[i]), directory);
             element.appendChild(child);
         }
 
         String[] childDSS = dataset.getDataSetSeismogramNames();
         for (int i = 0; i < childDSS.length; i++) {
-            if (saveLocally) {
-                Element child = doc.createElement("urlDataSetSeismogram");
-                DataSetSeismogram dss = dataset.getDataSetSeismogram(childDSS[i]);
-                URLDataSetSeismogram urlDSS;
-                if (dss instanceof URLDataSetSeismogram) {
-                    urlDSS = (URLDataSetSeismogram)dss;
-                } else {
-                }
+            DataSetSeismogram dss = dataset.getDataSetSeismogram(childDSS[i]);
+            URLDataSetSeismogram urlDSS;
+            if (saveLocally || ! (dss instanceof URLDataSetSeismogram)) {
+                urlDSS = URLDataSetSeismogram.localize(dss, directory);
+            } else {
+                urlDSS = (URLDataSetSeismogram)dss;
             }
+            Element child = doc.createElement("urlDataSetSeismogram");
+            urlDSS.insertInto(child);
+            element.appendChild(child);
         }
 
         String[] paramNames = dataset.getParameterNames();
@@ -76,25 +101,5 @@ public class DataSetToXML
 
     protected boolean saveLocally = true;
 
-    class URLDataSetSeismogramSaver implements SeisDataChangeListener {
-        URLDataSetSeismogramSaver(URLDataSetSeismogram dss) {
-            this.dss = dss;
-            dss.retrieveData(this);
-        }
-
-        public void error(SeisDataErrorEvent sdce) {
-            // TODO
-        }
-
-        public void finished(SeisDataChangeEvent sdce) {
-            // TODO
-        }
-
-        public void pushData(SeisDataChangeEvent sdce) {
-            // TODO
-        }
-
-        URLDataSetSeismogram dss;
-    }
 }
 
