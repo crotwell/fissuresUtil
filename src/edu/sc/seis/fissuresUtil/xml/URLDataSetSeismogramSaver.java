@@ -38,7 +38,7 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
     }
 
     public boolean isError() {
-        return (error == null);
+        return (error != null);
     }
 
     public Throwable getError() {
