@@ -1,0 +1,67 @@
+package edu.sc.seis.fissuresUtil.xml;
+
+import edu.iris.Fissures.*;
+import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.network.*;
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import org.apache.log4j.*;
+
+/**
+ * XMLNetworkAttr.java
+ *
+ *
+ * Created: Tue Jul  9 10:21:32 2002
+ *
+ * @author <a href="mailto:">Srinivasa Telukutla</a>
+ * @version
+ */
+
+public class XMLNetworkAttr {
+    public static void insert(Element element, NetworkAttr networkAttr) {
+	
+	Document doc = element.getOwnerDocument();
+	element.appendChild(XMLUtil.createTextElement(doc,
+						      "name",
+						      networkAttr.name));
+	element.appendChild(XMLUtil.createTextElement(doc,
+						      "description",
+						      networkAttr.description));
+	element.appendChild(XMLUtil.createTextElement(doc,
+						      "owner",
+						      networkAttr.owner));
+	Element network_id = doc.createElement("id");
+	XMLNetworkId.insert(network_id, networkAttr.get_id());
+	element.appendChild(network_id);
+	
+	Element effective_time_range = doc.createElement("effective_time");
+	XMLTimeRange.insert(effective_time_range, networkAttr.effective_time);
+	element.appendChild(effective_time_range);
+    }
+
+    public static NetworkAttr getNetworkAttr(Element base) {
+	
+	String name = XMLUtil.evalString(base, "name");
+	String description = XMLUtil.evalString(base, "description");
+	String owner = XMLUtil.evalString(base, "owner");
+	//get the networkId
+	NetworkId id = null;
+	NodeList network_id_node = XMLUtil.evalNodeList(base, "id");
+	if(network_id_node != null && network_id_node.getLength() != 0) {
+	    id = XMLNetworkId.getNetworkId((Element)network_id_node.item(0));
+	}
+	
+	//get the effective time Range
+	NodeList effective_time_node = XMLUtil.evalNodeList(base, "effective_time");
+	TimeRange effective_time = new TimeRange();
+	if(effective_time_node != null && effective_time_node.getLength() != 0) {
+	    effective_time = XMLTimeRange.getTimeRange((Element)effective_time_node.item(0));
+	}
+	return new NetworkAttrImpl(id,
+				   name,
+				   description,
+				   owner,
+				   effective_time);
+
+    }
+}// XMLNetworkAttr
