@@ -19,7 +19,14 @@ public class PlottableMouseListener extends MouseAdapter implements MouseMotionL
 	this.plottableDisplay = plottableDisplay;
     }
 
+    public void mouseClicked(MouseEvent me) {
+        if(me.getClickCount() == 2) {
+            plottableDisplay.setSelectedEventFlag(me);
+            return;
+        }
+    }
     public void mousePressed(MouseEvent me) {
+        
         prevx = me.getX();
         prevy = me.getY();
         plottableDisplay.setSelectedSelection(prevx, prevy);
