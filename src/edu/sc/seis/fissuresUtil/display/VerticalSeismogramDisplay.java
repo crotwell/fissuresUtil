@@ -1,7 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
+import java.util.*;
+
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
@@ -12,11 +15,6 @@ import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.TimeZone;
 import javax.swing.BoxLayout;
 import org.apache.log4j.Category;
 
@@ -161,6 +159,24 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         while(it.hasNext()){
             ((BasicSeismogramDisplay)it.next()).remove(selection);
         }
+    }
+
+    public DrawableIterator iterator(Class drawableClass){
+        return new DrawableIterator(drawableClass, getAllDrawables(drawableClass,
+                                                                   basicDisplays));
+    }
+
+    private static List getAllDrawables(Class drawableClass, List displays){
+        List allDrawables = new LinkedList();
+        Iterator it = displays.iterator();
+        while(it.hasNext()){
+            SeismogramDisplay cur = (SeismogramDisplay)it.next();
+            DrawableIterator drawIt = cur.iterator(drawableClass);
+            while(drawIt.hasNext()){
+                allDrawables.add(drawIt.next());
+            }
+        }
+        return allDrawables;
     }
 
     public void clearSelections(){
@@ -317,26 +333,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     }
 
     public boolean getCurrentTimeFlagStatus(){ return currentTimeFlag; }
-
-    /**
-     * <code>applyFilter</code> applies a new filter to all the BSDs held
-     * by this VSD and its children
-     *
-     * @param filter a <code>ColoredFilter</code> value
-     */
-    public void applyFilter(ColoredFilter filter){
-        Iterator e = basicDisplays.iterator();
-        while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).applyFilter(filter);
-        }
-    }
-
-    public void removeFilter(ColoredFilter filter){
-        Iterator e = basicDisplays.iterator();
-        while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).removeFilter(filter);
-        }
-    }
 
     public void setAmpConfig(AmpConfig ac){
         this.ac = ac;
