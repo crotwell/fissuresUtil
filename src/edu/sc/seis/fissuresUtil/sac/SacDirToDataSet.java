@@ -16,14 +16,16 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 1712 2002-05-28 15:00:57Z crotwell $
+ * @version $Id: SacDirToDataSet.java 1715 2002-05-28 18:28:22Z crotwell $
  */
 
 public class SacDirToDataSet {
-    public SacDirToDataSet (File directory, 
+    public SacDirToDataSet (URL base,
+			    File directory, 
 			    String dsName, 
 			    List excludes, 
 			    Map paramRefs){
+	this.base = base;
 	this.directory = directory;	
 	this.dsName = dsName;
 	this.excludes = excludes;
@@ -35,11 +37,35 @@ public class SacDirToDataSet {
 	    = DocumentBuilderFactory.newInstance();
 	DocumentBuilder docBuilder = factory.newDocumentBuilder();
 	String userName = System.getProperty("user.name");
-	XMLDataSet dataset 
+	dataset 
 	    = new XMLDataSet(docBuilder,
-			    "genid"+Math.rint(Math.random()*Integer.MAX_VALUE),
+			     base,
+			    "genid"+Math.round(Math.random()*Integer.MAX_VALUE),
 			     dsName, 
 			     userName); 
+
+	Iterator it = paramRefs.keySet().iterator();
+	while (it.hasNext()) {
+	    String key = (String)it.next();
+	    AuditInfo[] audit = new AuditInfo[1];
+	    audit[0] = new AuditInfo(userName,
+				     "Added parameter "+key);
+	    try {
+		dataset.addParameterRef(new URL(base,
+						(String)paramRefs.get(key)),
+					key,
+					audit);
+		
+	    } catch (MalformedURLException e) {
+		//can't happen?
+		e.printStackTrace();
+		System.err.println("Caught exception on parameterRef "
+				   +key+", continuing...");
+	    } // end of try-catch
+	    
+	} // end of while (it.hasNext())
+	
+	    
 	File[] sacFiles = directory.listFiles();
 	//SacTimeSeries sac = new SacTimeSeries();
 	for (int i=0; i<sacFiles.length; i++) {
@@ -50,32 +76,12 @@ public class SacDirToDataSet {
 		continue;
 	    } // end of if (excludes.contains(sacFiles[i].getName()))
 
-	    Iterator it = paramRefs.keySet().iterator();
-	    while (it.hasNext()) {
-		String key = (String)it.next();
-		AuditInfo[] audit = new AuditInfo[1];
-		audit[0] = new AuditInfo(userName,
-					 "Added parameter "+key);
-		try {
-		    dataset.addParameterRef(new URL((String)paramRefs.get(key)),
-					    key,
-					    audit);
-		     
-		} catch (MalformedURLException e) {
-		    //can't happen?
-		    System.err.println("Caught exception on parameterRef "
-				       +key+", continuing...");
-		} // end of try-catch
-		
-	    } // end of while (it.hasNext())
-	    
-	    
 	    try {
 		//sac.read(sacFiles[i].getCanonicalPath());
 		AuditInfo[] audit = new AuditInfo[1];
 		audit[0] = new AuditInfo(userName+" via SacDirToDataSet",
 					 "seismogram loaded from sacFiles[i].getCanonicalPath()");
-		URL seisURL = new URL(sacFiles[i].getName());
+		URL seisURL = new URL(base, sacFiles[i].getName());
 		dataset.addSeismogramRef(seisURL, 
 					 sacFiles[i].getName(), 
 					 new Property[0], 
@@ -83,6 +89,7 @@ public class SacDirToDataSet {
 					 audit);
 
 	    } catch (Exception e) {
+		e.printStackTrace();
 		System.err.println("Caught exception on "
 				   +sacFiles[i].getName()+", continuing...");
 	    } // end of try-catch
@@ -92,9 +99,10 @@ public class SacDirToDataSet {
 
     void save() {
 	try {
+	    File outFile = new File(directory, dsName+".dsml");
 	    OutputStream fos = new BufferedOutputStream(
-			       new FileOutputStream(dsName+".dsml"));
-	    root.write(fos);
+			       new FileOutputStream(outFile));
+	    dataset.write(fos);
 	    fos.close();
 	} catch(Exception ex) {
 
@@ -104,28 +112,35 @@ public class SacDirToDataSet {
 	}
     }
 
+    URL base;
     File directory;
     String dsName;
-    XMLDataSet root;
+    XMLDataSet dataset;
     List excludes;
     Map paramRefs;
 
     public static void main (String[] args) {
 	if (args.length < 4) {
-	    System.err.println("Usage: java edu.sc.seis.fissuresUtil.sac.SacDirToDataSet -dir directoryPath -name datasetname [-exclude file] [-paramRef name file]");
+	    System.err.println("Usage: java edu.sc.seis.fissuresUtil.sac.SacDirToDataSet -base url -dir directoryPath -name datasetname [-exclude file] [-paramRef name file]");
 	    return;
 	} // end of if (args.length != 2)
 	String dirName = null;
+	URL base = null;
+	String baseStr = "";
 	String dsName = "default dataset name";
 	LinkedList excludes = new LinkedList();
 	HashMap params = new HashMap();
 	int i=0;
 	while (i<args.length) {
+	    System.out.println(i+" "+args[i]);
 	    if (args[i].equals("-dir")) {
 		dirName = args[i+1];
 		i+=2;
 	    } else  if (args[i].equals("-name")) {
 		dsName = args[i+1];
+		i+=2;
+	    } else  if (args[i].equals("-base")) {
+		baseStr = args[i+1];
 		i+=2;
 	    } else  if (args[i].equals("-exclude")) {
 		excludes.add(args[i+1]);
@@ -133,14 +148,17 @@ public class SacDirToDataSet {
 	    } else  if (args[i].equals("-paramRef")) {
 		params.put(args[i+1], args[i+2]);
 		i+=3;
+	    } else {
+		System.out.println("Don't understand "+args[i++]);
 	    }	    
 	} // end of for (int i=0; i<args.length; i++)
 	
 
 	try {
+	    base = new URL(baseStr);
 	    File f = new File(dirName);
 	    if (dirName != null && f.isDirectory()) {
-		SacDirToDataSet sdir = new SacDirToDataSet(f, dsName, excludes, params);
+		SacDirToDataSet sdir = new SacDirToDataSet(base, f, dsName, excludes, params);
 		sdir.process();
 		sdir.save();
 	    } else {

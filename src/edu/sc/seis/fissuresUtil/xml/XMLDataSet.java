@@ -19,11 +19,16 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1712 2002-05-28 15:00:57Z crotwell $
+ * @version $Id: XMLDataSet.java 1715 2002-05-28 18:28:22Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
-    public static XMLDataSet load(InputStream inStream) {
+    protected XMLDataSet(DocumentBuilder docBuilder, URL base) {
+	this.base = base;       
+	this.docBuilder = docBuilder;
+    }
+
+    public static XMLDataSet load(URL base, InputStream inStream) {
 	XMLDataSet dataset = null;
 	try {
 	    DocumentBuilderFactory factory
@@ -35,7 +40,7 @@ public class XMLDataSet implements DataSet, Serializable {
 
 	    if (docElement.getTagName().equals("dataset")) {
 		System.out.println("dataset yes");
-		dataset = new XMLDataSet(docBuilder, docElement);
+		dataset = new XMLDataSet(docBuilder, base, docElement);
 		System.out.println(docElement.getTagName()+" {"+docElement.getAttribute("datasetid")+"}");
 	    }
 	} catch (java.io.IOException e) {
@@ -51,28 +56,39 @@ public class XMLDataSet implements DataSet, Serializable {
 
     /** Creates an empty dataset. */
     public XMLDataSet(DocumentBuilder docBuilder, 
+		      URL base, 
 		      String id, 
 		      String name,
 		      String owner) {
-	this.docBuilder = docBuilder;
+	this(docBuilder, base);
 	Document doc = docBuilder.newDocument();
 	config = doc.createElement("dataset");
 	Element nameE = doc.createElement("name");
-	nameE.setNodeValue(name);
+	Text text = doc.createTextNode(name);
+	nameE.appendChild(text);
 	Element ownerE = doc.createElement("owner");
-	ownerE.setNodeValue(owner);
+	text = doc.createTextNode(owner);
+	ownerE.appendChild(text);
 	config.setAttribute("datasetid", id);
 	config.appendChild(nameE);
 	config.appendChild(ownerE);
     }
 
-    public XMLDataSet(DocumentBuilder docBuilder, Element config) {
-	this.docBuilder = docBuilder;
+    public XMLDataSet(DocumentBuilder docBuilder, URL base, Element config) {
+	this(docBuilder, base);
 	this.config = config;
     }
 
     public String getId() {
 	return evalString(config, "@datasetid");
+    }
+
+    public URL getBase() {
+	return base;
+    }
+
+    public void setBase(URL base) {
+	this.base = base;
     }
 
     public String getName() {
@@ -150,7 +166,8 @@ public class XMLDataSet implements DataSet, Serializable {
 	Element param = doc.createElement("parameterRef");
 	param.setAttributeNS(xlinkNS, "type", "simple");
 	param.setAttributeNS(xlinkNS, "href", paramURL.toString());
-	param.setNodeValue(name);
+	Text text = doc.createTextNode(name);
+	param.appendChild(text);
 
 	config.appendChild(param);
     }
@@ -189,7 +206,7 @@ public class XMLDataSet implements DataSet, Serializable {
 
     public DataSet createChildDataSet(String id, String name, String owner,
 				      AuditInfo[] audit) {
-	XMLDataSet dataset = new XMLDataSet(docBuilder, id, name, owner);
+	XMLDataSet dataset = new XMLDataSet(docBuilder, base, id, name, owner);
 	addDataSet(dataset, audit);
 	return dataset;
     }
@@ -204,7 +221,9 @@ public class XMLDataSet implements DataSet, Serializable {
 	if (nList != null && nList.getLength() != 0) {
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
-		XMLDataSet dataset = new XMLDataSet(docBuilder, (Element)n);
+		XMLDataSet dataset = new XMLDataSet(docBuilder, 
+						    base,
+						    (Element)n);
 		dataSetCache.put(id, dataset);
 		return dataset;
 	    }
@@ -217,8 +236,8 @@ public class XMLDataSet implements DataSet, Serializable {
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
 		try {
-		    SimpleXLink sl = new SimpleXLink(docBuilder, (Element)n);
-		    return new XMLDataSet(docBuilder, sl.retrieve());
+		    SimpleXLink sl = new SimpleXLink(docBuilder, (Element)n, base);
+		    return new XMLDataSet(docBuilder, base, sl.retrieve());
 		} catch (Exception e) {
 		    logger.error("Couldn't get datasetRef", e);
 		} // end of try-catch
@@ -327,7 +346,8 @@ public class XMLDataSet implements DataSet, Serializable {
 	sac.setAttributeNS(xlinkNS, "href", seisURL.toString());
 
 	Element nameE = doc.createElement("name");
-	nameE.setNodeValue(name);
+	Text text = doc.createTextNode(name);
+	nameE.appendChild(text);
 	sac.appendChild(nameE);
 
 	Element propE, propNameE, propValueE;
@@ -335,9 +355,13 @@ public class XMLDataSet implements DataSet, Serializable {
 	    if (props[i].name != "name") {
 		propE = doc.createElement("property");
 		propNameE = doc.createElement("name");
-		propNameE.setNodeValue(props[i].name);
+		text = doc.createTextNode(props[i].name);
+		propNameE.appendChild(text);
+
 		propValueE = doc.createElement("value");
-		propValueE.setNodeValue(props[i].value);
+		text = doc.createTextNode(props[i].value);
+		propValueE.appendChild(text);
+
 		propE.appendChild(propNameE);
 		propE.appendChild(propValueE);
 		sac.appendChild(propE);
@@ -360,7 +384,8 @@ public class XMLDataSet implements DataSet, Serializable {
     
 	java.util.Properties oprops = new java.util.Properties();
 	oprops.put("method", "xml");
-	oprops.put("indent-amount", "2");
+	oprops.put("indent", "yes");
+	oprops.put("xalan:indent-amount", "4");
 	serializer.setOutputProperties(oprops);
 	serializer.transform(new javax.xml.transform.dom.DOMSource(config), 
 			     new javax.xml.transform.stream.StreamResult(out));
@@ -408,6 +433,8 @@ public class XMLDataSet implements DataSet, Serializable {
 
     private CachedXPathAPI xpath = new CachedXPathAPI();
 
+    protected URL base;
+
     protected Element config;
 
     protected DocumentBuilder docBuilder;
@@ -447,7 +474,12 @@ public class XMLDataSet implements DataSet, Serializable {
 	    BasicConfigurator.configure();
 
 	    System.out.println("Starting..");
-	    XMLDataSet dataset = load(new BufferedInputStream(new FileInputStream(args[0])));
+	    File file = new File(args[0]);
+	    URL base = file.toURL();
+
+	    XMLDataSet dataset = load(base,
+				      new BufferedInputStream(
+					  new FileInputStream(file)));
 	    String[] names = dataset.getDataSetNames();
 	    for (int i=0; i<names.length; i++) {
 		FileOutputStream out = new FileOutputStream("test_"+names[i]);
