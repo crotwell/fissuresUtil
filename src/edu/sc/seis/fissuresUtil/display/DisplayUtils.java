@@ -71,24 +71,16 @@ public class DisplayUtils {
         DataSet dataSet = seismogram.getDataSet();
         String[] names = dataSet.getDataSetSeismogramNames();
         for (int i = 0; i < names.length; i++ ) {
-            System.out.println("Attempting to match on " + names[i]);
             DataSetSeismogram currentSeis = dataSet.getDataSetSeismogram(names[i]);
             RequestFilter currentRF = currentSeis.getRequestFilter();
             MicroSecondDate currentBegin = new MicroSecondDate(currentRF.start_time);
             MicroSecondDate currentEnd = new MicroSecondDate(currentRF.end_time);
-            System.out.println("ID: " + ChannelIdUtil.toString(currentRF.channel_id) +
-                               "\nSITE CODE: " + currentRF.channel_id.site_code + " NETWORK ID: " +
-                               currentRF.channel_id.network_id + " CHANNEL CODE: " + currentRF.channel_id.channel_code +
-                               " STATION CODE: " + currentRF.channel_id.station_code);
             if(areFriends(chanId,currentRF.channel_id)){
-                System.out.println("the channel ids are equal");
                 if((currentBegin.equals(startDate) ||
                     currentBegin.before(startDate)) &&
                        (currentEnd.equals(endDate) ||
                         currentBegin.after(endDate))){
-                    System.out.println("Found matching component");
                     componentSeismograms.add(currentSeis);
-
                 }
             }
         }
@@ -192,7 +184,7 @@ public class DisplayUtils {
             if(!names.contains(dss[i].getName())){
                 DataSetSeismogram[] newSeismograms = DisplayUtils.getComponents(dss[i]);
                 for(int j = 0; j < newSeismograms.length; j++){
-                    DataSetSeismogram current = newSeismograms[i];
+                    DataSetSeismogram current = newSeismograms[j];
                     if(DisplayUtils.getOrientationName(current).equals("North")){
                         north.add(current);
                     }else if(DisplayUtils.getOrientationName(current).equals("East")){
@@ -200,7 +192,7 @@ public class DisplayUtils {
                     }else{
                         z.add(current);
                     }
-                    names.add(current.getName());
+                    names.add(current);
                 }
             }
         }

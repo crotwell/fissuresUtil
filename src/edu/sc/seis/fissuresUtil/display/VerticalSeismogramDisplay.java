@@ -433,7 +433,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     public void createParticleDisplay(BasicSeismogramDisplay creator, boolean advancedOption){
         if(particleAllowed){
             if(particleDisplay == null){
-                particleDisplay = new ParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms()[0],
+                particleDisplay = new ParticleMotionDisplay(creator.getSeismograms()[0],
                                                             creator.getRegistrar(),
                                                             advancedOption);
                 if(particleDisplay.getInitializationStatus()){
@@ -497,7 +497,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
                                                   JOptionPane.WARNING_MESSAGE);
                 }
             }else {
-                particleDisplay.addParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms()[0],
+                particleDisplay.addParticleMotionDisplay(creator.getSeismograms()[0],
                                                          creator.getRegistrar());
                 particleWindow.toFront();
             } // end of else
@@ -546,7 +546,6 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         DataSetSeismogram[] creatorSeismos = creator.getSeismograms();
         DataSetSeismogram[] newSeismos = new DataSetSeismogram[creatorSeismos.length];
         for(int i = 0; i < creatorSeismos.length; i++){
-            //      newSeismos[i] = new DataSetSeismogram(creatorSeismos[i], creatorSeismos[i] + "." + creator.getColor());
             newSeismos[i] = (DataSetSeismogram)creatorSeismos[i].clone();
             newSeismos[i].setName(newSeismos[i].getName()+"."+creator.getColor());
         }
@@ -554,7 +553,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         creator.addDisplay(selectionDisplay);
         //makes amp scale correctly.... pick displays show up with an unexpanded amplitude.
         //remove when the real bug causing the amplitude not to scale when created is fixed
-        //creator.getInternalRegistrar().shaleTime(0, 1);
+        creator.getInternalRegistrar().shaleTime(0, 1);
         Arrival[] parentArrivals = creator.getParent().getArrivals();
         if(parentArrivals != null){
             selectionDisplay.addFlags(parentArrivals);
@@ -608,6 +607,11 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         Arrival[] parentArrivals = creator.getParent().getArrivals();
         for(int i = 0; i < componentSorted.length; i++){
             if(componentSorted[i].length > 0){
+                /*DataSetSeismogram[] newSeismos = new DataSetSeismogram[componentSorted[i].length];
+                for(int j = 0; j < newSeismos.length; j++){
+                    newSeismos[j] = (DataSetSeismogram)componentSorted[i][j].clone();
+                    newSeismos[j].setName(newSeismos[j].getName()+"."+creator.getColor());
+                 }*/
                 ((TimeConfig)creator.getInternalRegistrar()).add(componentSorted[i]);
                 BasicSeismogramDisplay newDisplay = threeSelectionDisplay.addDisplay(componentSorted[i], (TimeConfig)creator.getInternalRegistrar());
                 creator.addDisplay(newDisplay);
@@ -633,7 +637,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         }
         //makes amp scale correctly.... pick displays show up with an unexpanded amplitude.
         //remove when the real bug causing the amplitude not to scale when created is fixed
-        //creator.getInternalRegistrar().shaleTime(0, 1);
+        creator.getInternalRegistrar().shaleTime(0, 1);
     }
 
     public static JLabel getTimeLabel(){ return time; }
@@ -697,7 +701,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 
     protected static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    protected VerticalSeismogramDisplay selectionDisplay, threeSelectionDisplay, parent;
+    private VerticalSeismogramDisplay selectionDisplay, threeSelectionDisplay, parent;
 
     private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
 
