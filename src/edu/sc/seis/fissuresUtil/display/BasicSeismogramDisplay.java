@@ -456,7 +456,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
             Iterator e = seismograms.iterator();
             while(e.hasNext()){
                 DataSetSeismogram current = (DataSetSeismogram)e.next();
-                DrawableFilteredSeismogram filteredShape = new DrawableFilteredSeismogram(current, filter);
+                DrawableFilteredSeismogram filteredShape = new DrawableFilteredSeismogram(this, current, filter);
                 seismos[i] = filteredShape.getFilteredSeismogram();
                 plotters.add(filteredShape);
                 i++;
