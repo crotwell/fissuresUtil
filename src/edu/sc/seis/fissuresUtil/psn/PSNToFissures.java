@@ -25,6 +25,7 @@ import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import java.sql.Timestamp;
+import java.util.GregorianCalendar;
 
 public class PSNToFissures{
 
@@ -85,13 +86,14 @@ public class PSNToFissures{
     }
 
     public static MicroSecondDate microSecondDateFromPSN(PSNDateTime time){
-        Timestamp timeStamp = new Timestamp(time.getYear(),
-                                            time.getMonth(),
-                                            time.getDay(),
-                                            time.getHour(),
-                                            time.getMinute(),
-                                            time.getSecond(),
-                                            time.getNanosec());
+        GregorianCalendar gc = new GregorianCalendar((int)time.getYear(),
+                                                (int)time.getMonth() - 1,
+                                            (int)time.getDay(),
+                                            (int)time.getHour(),
+                                            (int)time.getMinute(),
+                                            (int)time.getSecond());
+        Timestamp timeStamp = new Timestamp(gc.getTimeInMillis());
+        timeStamp.setNanos(time.getNanosec());
         MicroSecondDate msd = new MicroSecondDate(timeStamp);
         return msd;
     }
