@@ -47,7 +47,7 @@ import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: ChannelChooser.java 11172 2004-11-16 20:56:50Z groves $
  *
  */
 
@@ -119,32 +119,22 @@ public class ChannelChooser extends JPanel {
         setConfiguredNetworks(configuredNetworks);
         setNetworkDCs(netdcgiven);
     }
-
-    public void setShowCodes(boolean val) {
-        showCodes = val;
-        AvailableDataStationRenderer stationRenderer = new AvailableDataStationRenderer(
-                showNames, showCodes, codeIsFirst);
-        stationRenderer.setJList(stationList);
-        setStationListCellRenderer(stationRenderer);
-        setNetworkListCellRenderer(new NameListCellRenderer(showNames,
-                showCodes, codeIsFirst));
-    }
-
-    public void setShowNames(boolean val) {
-        showNames = val;
-        AvailableDataStationRenderer stationRenderer = new AvailableDataStationRenderer(
-                showNames, showCodes, codeIsFirst);
-        stationRenderer.setJList(stationList);
-        setStationListCellRenderer(stationRenderer);
-        setNetworkListCellRenderer(new NameListCellRenderer(showNames,
-                showCodes, codeIsFirst));
-    }
-
+    
     public void setSeismogramDC(DataCenterRouter dcops) {
+        if(stationRenderer != null){
+            stationRenderer.stopChecking();
+        }
         stationRenderer = new AvailableDataStationRenderer(showNames,
                 showCodes, codeIsFirst, dcops, this);
         stationRenderer.setJList(stationList);
         setStationListCellRenderer(stationRenderer);
+    }
+    
+    public void setShowCodes(boolean showCodes){
+        this.showCodes = showCodes;
+        if(stationRenderer != null){
+            stationRenderer.setUseCodes(showCodes);
+        }
     }
 
     public void setAvailbleDataOrigin(Origin origin) {
@@ -368,7 +358,8 @@ public class ChannelChooser extends JPanel {
                 }
             }
         });
-        stationList = new JList(stationNames);
+        stationList = new SortedStationJList(stationNames);
+        stationList.sort();
         // set a default cell renederer, but this can be overridden
         // with the setStationListCellRenderer method
         stationList.setCellRenderer(renderer);
@@ -503,6 +494,7 @@ public class ChannelChooser extends JPanel {
     private void addStation(Station sta) {
         if (!stationMap.containsKey(sta.name)) {
             stationNames.addElement(sta);
+            stationList.sort();
         } // end of if ()
         LinkedList staList = (LinkedList) stationMap.get(sta.name);
         if (staList == null) {
@@ -769,6 +761,7 @@ public class ChannelChooser extends JPanel {
             boolean foundDup = false;
             for (int j = i + 1; j < selectedStations.length; j++) {
                 if (selectedStations[i].name.equals(selectedStations[j].name)
+                        &&selectedStations[i].get_code().equals(selectedStations[j].get_code())
                         && selectedStations[i].my_location.latitude == selectedStations[j].my_location.latitude
                         && selectedStations[i].my_location.longitude == selectedStations[j].my_location.longitude) {
                     foundDup = true;
@@ -1053,7 +1046,7 @@ public class ChannelChooser extends JPanel {
 
     protected JList networkList;
 
-    protected JList stationList;
+    protected SortedStationJList stationList;
 
     protected JList siteList;
 
@@ -1092,14 +1085,6 @@ public class ChannelChooser extends JPanel {
     private Thread progressOwner = null;
 
     private GridBagConstraints gbc;
-
-    int x_leftcorner = 0;
-
-    int y_leftcorner = 0;
-
-    int mywidth = 400;
-
-    int myheight = 200;
 
     final ListCellRenderer renderer = new NameListCellRenderer(true, false,
             true);
@@ -1277,9 +1262,6 @@ public void run() {
 
         public void run() {
             setProgressOwner(this);
-            ListSelectionModel selModel = stationList.getSelectionModel();
-            // assume only one selected network at at time...
-            NetworkAccess[] nets = getSelectedNetworks();
             setProgressMax(this, e.getLastIndex() - e.getFirstIndex() + 1);
 
             for (int i = e.getFirstIndex(); i <= e.getLastIndex(); i++) {
