@@ -300,41 +300,39 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    particleDisplay = new ParticleMotionDisplay(seis, creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
 							creator.getAmpRegistrar(), 
 							((DataSetSeismogram)creator.getSeismograms().getFirst()).getDataSet());
-	    particleDisplay.addAzimuthLine(15);
-	particleDisplay.addSector(10, 20);
-	JPanel displayPanel = new JPanel();
-	JButton zoomIn = new JButton("zoomIn");
-	JButton zoomOut = new JButton("zoomOut");
-	JPanel buttonPanel = new JPanel();
-	buttonPanel.setLayout(new FlowLayout());
-	buttonPanel.add(zoomIn);
-	buttonPanel.add(zoomOut);
-	displayPanel.setLayout(new BorderLayout());
-	displayPanel.add(particleDisplay, java.awt.BorderLayout.CENTER);
-	displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
-	java.awt.Dimension size = new java.awt.Dimension(400, 400);
-	displayPanel.setSize(size);
-	particleWindow.getContentPane().add(displayPanel);
-	particleWindow.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-			    particleWindow.dispose();
-			    particleDisplay = null;
-			}
-		    });
-	particleWindow.setSize(size);
-	zoomIn.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent ae) {
-
-		    particleDisplay.setZoomIn(true);
+	    JPanel displayPanel = new JPanel();
+	    JButton zoomIn = new JButton("zoomIn");
+	    JButton zoomOut = new JButton("zoomOut");
+	    JPanel buttonPanel = new JPanel();
+	    buttonPanel.setLayout(new FlowLayout());
+	    buttonPanel.add(zoomIn);
+	    buttonPanel.add(zoomOut);
+	    displayPanel.setLayout(new BorderLayout());
+	    displayPanel.add(particleDisplay, java.awt.BorderLayout.CENTER);
+	    displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+	    java.awt.Dimension size = new java.awt.Dimension(400, 400);
+	    displayPanel.setSize(size);
+	    particleWindow.getContentPane().add(displayPanel);
+	    particleWindow.addWindowListener(new WindowAdapter() {
+		    public void windowClosing(WindowEvent e) {
+			particleWindow.dispose();
+			particleDisplay = null;
+		    }
+		});
+	    particleWindow.setSize(size);
+	    zoomIn.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent ae) {
+			
+			particleDisplay.setZoomIn(true);
 		    // particleDisplay.setZoomOut(false);
-		}
-	    });
-	zoomOut.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent ae) {
-
-		    particleDisplay.setZoomOut(true);
-		    // particleDisplay.setZoomIn(false);
-		}
+		    }
+		});
+	    zoomOut.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent ae) {
+			
+			particleDisplay.setZoomOut(true);
+			// particleDisplay.setZoomIn(false);
+		    }
 	    });
 	Toolkit tk = Toolkit.getDefaultToolkit();
 	if(particleWindow.getSize().width*particleDisplays < tk.getScreenSize().width){
