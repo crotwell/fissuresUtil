@@ -20,6 +20,7 @@ import java.util.*;
 
 public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
     public OffsetMeanAmpConfig(LocalSeismogram aSeis, MicroSecondTimeRange range){
+	//this.ampRegistrar = registrar;
 	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
@@ -97,14 +98,14 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 
     /** Sets this amp config to work over the given TimeRangeConfig
      */
-    public void visibleAmpCalc(TimeRangeConfig timeConfig){
+    public void visibleAmpCalc(TimeConfigRegistrar timeRegistrar){
 	UnitRangeImpl tempRange = ampRange;
 	ampRange = null;
 	intvCalc = true;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
 	    LocalSeismogram current = (LocalSeismogram)e.next();
-	    this.getAmpRange(current, timeConfig.getTimeRange(current));
+	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	intvCalc = false;
 	if(ampRange == null)

@@ -19,6 +19,10 @@ import java.util.*;
 public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     
 
+    public void setRegistrar(TimeConfigRegistrar newRegistrar){ registrar = newRegistrar; }
+
+    public TimeConfigRegistrar getRegistrar(){ return registrar; }
+
     /**
      * Takes the information from the passed seismogram and uses it along with the information already taken from other seismograms 
      * along with an internal set of calculations to determine the amount of time the passed seismogram will be displayed
@@ -56,29 +60,13 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      */
     public void removeSeismogram(LocalSeismogram seis){ seismos.remove(seis); }
     
-    /**
-     * Adds a time sync listener to the list to be informed when a time sync event occurs
-     * 
-     * @param t the time sync listener to be added
-     */
-    public void addTimeSyncListener(TimeSyncListener t){ timeListeners.add(t); }
-
-    /**
-     * Removes a TimeSyncListener from the update list
-     *
-     * @param t the time sync listener to be removed
-     */
-    public void removeTimeSyncListener(TimeSyncListener t){ timeListeners.remove(t); }
-	
     
     /**
      * Fire an event to all of the time sync listeners to update their time ranges
      *
      */
     public void updateTimeSyncListeners(){
-	Iterator e = timeListeners.iterator();
-	while(e.hasNext())
-	    ((TimeSyncListener)e.next()).updateTimeRange();
+	registrar.updateTimeSyncListeners();
     }
     
     /**
@@ -128,6 +116,6 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 
     protected HashMap seismos = new HashMap();
     
-    protected LinkedList timeListeners = new LinkedList();
+    protected TimeConfigRegistrar registrar;
 
 }// AbstractTimeRangeConfig
