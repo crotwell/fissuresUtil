@@ -11,11 +11,19 @@ public class MockStation{
                                MockLocation.SIMPLE, "Joe", "this is a test",
                                "still, a test", MockNetworkAttr.createNetworkAttr());
     }
+    
+    public static Station createRestartedStation(){
+        return new StationImpl(MockStationId.createRestartedStationId(), "Test Station",
+                               MockLocation.SIMPLE, "Joe", "this is a test",
+                               "still, a test", MockNetworkAttr.createNetworkAttr());
+    }
 
     public static Station createOtherStation(){
         return new StationImpl(MockStationId.createOtherStationId(), "Noitats tset",
                                MockLocation.BERLIN, "Frank", "tset a si siht",
                                "tset a ,llits", MockNetworkAttr.createOtherNetworkAttr());
     }
+    
+    
 
 }

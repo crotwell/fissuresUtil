@@ -10,6 +10,11 @@ public class MockStationId{
         return new StationId(MockNetworkId.createNetworkID(), "STTN",
                              Defaults.EPOCH.getFissuresTime());
     }
+    
+    public static StationId createRestartedStationId(){
+        return new StationId(MockNetworkId.createNetworkID(), "STTN",
+                             Defaults.WALL_FALL.getFissuresTime());
+    }
 
    
     //this station is used as other station in MockSite and Channel as well.  
