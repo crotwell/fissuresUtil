@@ -6,6 +6,8 @@ import java.util.*;
 import edu.iris.Fissures.*;
 import edu.sc.seis.fissuresUtil.xml.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
+import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.IfParameterMgr.*;
 import javax.xml.parsers.*;
 
@@ -16,10 +18,10 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 2064 2002-07-08 20:09:02Z telukutl $
+ * @version $Id: SacDirToDataSet.java 2093 2002-07-09 20:52:59Z crotwell $
  */
 
-public class SacDirToDataSet {
+public class SacDirToDataSet implements StdDataSetParamNames {
     public SacDirToDataSet (URL base,
 			    File directory, 
 			    String dsName, 
@@ -76,7 +78,6 @@ public class SacDirToDataSet {
 	
 	    
 	File[] sacFiles = directory.listFiles();
-	//SacTimeSeries sac = new SacTimeSeries();
 	for (int i=0; i<sacFiles.length; i++) {
 	    if (excludes.contains(sacFiles[i].getName())) {
 		continue;
@@ -86,18 +87,49 @@ public class SacDirToDataSet {
 	    } // end of if (excludes.contains(sacFiles[i].getName()))
 
 	    try {
-		//sac.read(sacFiles[i].getCanonicalPath());
+            SacTimeSeries sac = new SacTimeSeries();
+		sac.read(sacFiles[i].getCanonicalPath());
 		AuditInfo[] audit = new AuditInfo[1];
 		audit[0] = new AuditInfo(userName+" via SacDirToDataSet",
 					 "seismogram loaded from "+sacFiles[i].getCanonicalPath());
 		URL seisURL = new URL(dirURL, sacFiles[i].getName());
-		System.out.println(" the seisURL is "+seisURL.toString());
-		DataInputStream dis = new DataInputStream(new BufferedInputStream(seisURL.openStream())); 
-		SacTimeSeries sac = new SacTimeSeries();
-		sac.read(dis);
+        //		System.out.println(" the seisURL is "+seisURL.toString());
+        //		DataInputStream dis = new DataInputStream(new BufferedInputStream(seisURL.openStream())); 
+        //		SacTimeSeries sac = new SacTimeSeries();
+		//sac.read(dis);
 		edu.iris.Fissures.seismogramDC.LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
+
+        edu.sc.seis.fissuresUtil.cache.CacheEvent event = 
+            SacToFissures.getEvent(sac);
+        if (event != null && dataset.getParameter(EVENT) == null) {
+            // add event
+            AuditInfo[] eventAudit = new AuditInfo[1];
+            eventAudit[0] = new AuditInfo(System.getProperty("user.name"),
+                                          "event loaded from sac file.");
+            dataset.addParameter( EVENT, event, eventAudit);
+        } // end of if (event != null)
+        
+        Channel channel = 
+            SacToFissures.getChannel(sac);
+        String channelParamName = 
+            CHANNEL+ChannelIdUtil.toString(seis.channel_id);
+        if (channel != null && 
+            dataset.getParameter(channelParamName) == null) {
+            // add event
+            AuditInfo[] chanAudit = new AuditInfo[1];
+            chanAudit[0] = new AuditInfo(System.getProperty("user.name"),
+                                          "channel loaded from sac file.");
+            dataset.addParameter(channelParamName, channel, chanAudit);
+        }
+        
+
+        String seisName = sacFiles[i].getName();
+        if (seisName.endsWith(".SAC")) {
+            seisName = seisName.substring(seisName.length()-4);
+        } // end of if (seisName.endsWith(".SAC"))
+        
 		dataset.addSeismogramRef(seis, seisURL, 
-					 sacFiles[i].getName(), 
+					 seisName, 
 					 new Property[0], 
 					 new ParameterRef[0],
 					 audit);
