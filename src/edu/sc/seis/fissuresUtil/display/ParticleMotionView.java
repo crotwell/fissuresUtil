@@ -277,7 +277,7 @@ public class ParticleMotionView extends JComponent{
 	logger.debug("IN DRAW AZIMUTH");
 	 if(!particleMotion.isHorizontalPlane()) return;
 	 Shape sector = getSectorShape();
-	 graphics2D.setColor(Color.blue);
+	 graphics2D.setColor(new Color(100, 160, 140));
 	 graphics2D.fill(sector);
          graphics2D.draw(sector);
 	 graphics2D.setStroke(new BasicStroke(2.0f));
@@ -770,16 +770,12 @@ public class ParticleMotionView extends JComponent{
     private ParticleMotionDisplay particleMotionDisplay; 
 
     private static final Color[]  COLORS = { Color.red,
-					   Color.orange,
-					   Color.pink,
-					   Color.yellow,
-					   Color.green,
-					   Color.magenta,
-					   Color.cyan,
-					   Color.blue,
-					   Color.white,
-					   Color.black};
-
+					     Color.magenta,
+					     Color.cyan,
+					     Color.blue,
+					     Color.white,
+					     Color.black};
+    
     class ParticleMotion implements TimeSyncListener{
 	public ParticleMotion(final DataSetSeismogram hseis, 
 			      DataSetSeismogram vseis,
