@@ -18,7 +18,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 2259 2002-07-17 17:32:22Z crotwell $
+ * @version $Id: SacDirToDataSet.java 2260 2002-07-17 17:35:42Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -38,7 +38,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 	DocumentBuilderFactory factory
 	    = DocumentBuilderFactory.newInstance();
 	DocumentBuilder docBuilder = factory.newDocumentBuilder();
-	URL dirURL = base;
+	dirURL = base;
 	System.out.println(" dirURL is "+dirURL.toString());
 	try {
 	    dirURL = new URL(dirURL, directory.getName()+"/");
@@ -97,7 +97,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 	    audit[0] = new AuditInfo(userName,
 				     "Added parameter "+paramName+" for "+paramFile);
 	    try {
-		dataset.addParameter(paramName,new URL(base,
+		dataset.addParameter(paramName,new URL(dirURL,
                                          paramFile).toString(),
                              audit);
 		
@@ -122,7 +122,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 		AuditInfo[] audit = new AuditInfo[1];
 		audit[0] = new AuditInfo(userName+" via SacDirToDataSet",
 					 "seismogram loaded from "+sacFile.getCanonicalPath());
-		URL seisURL = new URL(base, sacFile.getName());
+		URL seisURL = new URL(dirURL, sacFile.getName());
         //		System.out.println(" the seisURL is "+seisURL.toString());
         //		DataInputStream dis = new DataInputStream(new BufferedInputStream(seisURL.openStream())); 
         //		SacTimeSeries sac = new SacTimeSeries();
@@ -184,6 +184,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 
 	String userName = System.getProperty("user.name");
     URL base;
+	URL dirURL;
     File directory;
     String dsName;
     XMLDataSet dataset;
