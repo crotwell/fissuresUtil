@@ -12,20 +12,23 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
 
 public class ExceptionReporterUtils{
     public static String getTrace(Throwable exception) {
         String traceString = "";
-        if (exception instanceof FissuresException) {
-            traceString += "Description: "+((FissuresException)exception).the_error.error_description+"\n";
-            traceString += "Error Code: "+((FissuresException)exception).the_error.error_code+"\n";
-        }
-        if(exception instanceof SQLException){
-            traceString += "SQLState: " + ((SQLException)exception).getSQLState()+ '\n';
-            traceString += "Vendor code: " + ((SQLException)exception).getErrorCode() + '\n';
-        }
-        if (exception.getCause() != null) {
-            traceString += getTrace(exception.getCause())+"\n";
+        List extractors = GlobalExceptionHandler.getExtractors();
+        Iterator it = extractors.iterator();
+        while (it.hasNext()) {
+            Extractor ext = (Extractor)it.next();
+            if (ext.canExtract(exception)) {
+                traceString += ext.extract(exception)+"\n";
+                Throwable t = ext.getSubThrowable(exception);
+                if (t != null) {
+                    traceString += getTrace(t)+"\n";
+                }
+            }
         }
         traceString += extractTrace(exception);
         return traceString;
