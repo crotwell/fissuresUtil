@@ -56,7 +56,7 @@ public class BottomTitleBorder extends javax.swing.border.AbstractBorder {
                             int width, 
                             int height) {
 
-        Graphics2D copy = (Graphics2D)g;
+        Graphics2D copy = (Graphics2D)g.create();
         if (copy != null) {
             try {
                 AffineTransform insetMove = AffineTransform.getTranslateInstance(x, y);
