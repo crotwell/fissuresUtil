@@ -206,7 +206,7 @@
         <dependency>
             <groupId>openmap</groupId>
             <artifactId>openmap</artifactId>
-            <version>4.6</version>
+            <version>4.6.1</version>
             <url>openmap.bbn.com</url>
         </dependency>
         <dependency>
