@@ -77,19 +77,15 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         setTimeConfig(tc);
         setAmpConfig(ac);
         drawables.add(new TimeAmpLabel(this));
-        add(new PlotPainter());
+        add(plotPainter);
     }
 
     public void add(DataSetSeismogram[] seismos){
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
-                DrawableSeismogram newPlotter = new DrawableSeismogram(this, seismos[i],
-                                                                       seisColors[(seismograms.size() -1) % seisColors.length]);
-                if(parent != null){
-                    newPlotter.setVisibility(parent.getOriginalVisibility());
-                }
-                drawables.add(newPlotter);
+                drawables.add(new DrawableSeismogram(this, seismos[i],
+                                                     seisColors[(seismograms.size() -1) % seisColors.length]));
             }
         }
         Iterator e = activeFilters.iterator();
@@ -125,21 +121,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public void reset(DataSetSeismogram[] seismograms){
         tc.reset(seismograms);
         ac.reset(seismograms);
-    }
-
-    public void setCurrentTimeFlag(boolean visible){
-        DrawableIterator it = new DrawableIterator(CurrentTimeFlag.class, drawables);
-        if(visible){
-            if(it.hasNext()){
-                ((CurrentTimeFlag)it.next()).setVisibility(true);
-            }else{
-                drawables.addLast(new CurrentTimeFlag());
-            }
-        }else{
-            if(it.hasNext()){
-                ((CurrentTimeFlag)it.next()).setVisibility(false);
-            }
-        }
     }
 
     public SeismogramDisplay getParentDisplay(){ return parent; }
@@ -368,51 +349,38 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         tc.removeListener(timeScaleMap);
     }
 
-    public void setOriginalVisibility(boolean visible){
-        Iterator e = new DrawableIterator(DrawableSeismogram.class, drawables);
-        while(e.hasNext()){
-            DrawableSeismogram current = (DrawableSeismogram)e.next();
-            current.setVisibility(visible);
+    public void drawSeismograms(Graphics2D g2, Dimension size){
+        g2.setColor(Color.WHITE);
+        g2.fill(new Rectangle2D.Float(0,0, size.width, size.height));
+        FontMetrics fm = g2.getFontMetrics();
+        Rectangle2D stringBounds = fm.getStringBounds("test", g2);
+        Rectangle2D topLeftFilled = new Rectangle2D.Float(0,0,0,(float)stringBounds.getHeight());
+        for (int i = 0; i < drawables.size(); i++){
+            Drawable current = (Drawable)drawables.get(i);
+            current.draw(g2, size, currentTimeEvent, currentAmpEvent);
+            if(current instanceof TimeAmpLabel){
+                TimeAmpLabel taPlotter = (TimeAmpLabel)current;
+                g2.setFont(DisplayUtils.MONOSPACED_FONT);
+                FontMetrics monoMetrics = g2.getFontMetrics();
+                stringBounds = monoMetrics.getStringBounds(taPlotter.getText(), g2);
+                taPlotter.drawName(g2,(int)(size.width - stringBounds.getWidth()),
+                                   size.height - 3);
+                g2.setFont(DisplayUtils.DEFAULT_FONT);
+            }else if(current instanceof NamedDrawable){
+                Rectangle2D drawnSize = ((NamedDrawable)current).drawName(g2, 5, (int)topLeftFilled.getHeight());
+                topLeftFilled.setRect(0,0,
+                                      drawnSize.getWidth(),
+                                      topLeftFilled.getHeight() + drawnSize.getHeight());
+            }
         }
-        repaint();
-    }
-
-    public boolean getOriginalVisibility(){
-        if(getDisplayParent() != null){
-            return getDisplayParent().getOriginalVisibility();
-        }
-        else{
-            return true;
+        if(getCurrentTimeFlag()){
+            currentTimeFlag.draw(g2, size, currentTimeEvent, currentAmpEvent);
         }
     }
 
     private class PlotPainter extends JComponent{
         public void paintComponent(Graphics g){
-            Graphics2D g2 = (Graphics2D)g;
-            g2.setColor(Color.WHITE);
-            Dimension size = getSize();
-            g2.fill(new Rectangle2D.Float(0,0, size.width, size.height));
-            FontMetrics fm = g2.getFontMetrics();
-            Rectangle2D stringBounds = fm.getStringBounds("test", g2);
-            Rectangle2D topLeftFilled = new Rectangle2D.Float(0,0,0,(float)stringBounds.getHeight());
-            for (int i = 0; i < drawables.size(); i++){
-                Drawable current = (Drawable)drawables.get(i);
-                current.draw(g2, size, currentTimeEvent, currentAmpEvent);
-                if(current instanceof TimeAmpLabel){
-                    TimeAmpLabel taPlotter = (TimeAmpLabel)current;
-                    g2.setFont(DisplayUtils.MONOSPACED_FONT);
-                    FontMetrics monoMetrics = g2.getFontMetrics();
-                    stringBounds = monoMetrics.getStringBounds(taPlotter.getText(), g2);
-                    taPlotter.drawName(g2,(int)(size.width - stringBounds.getWidth()),
-                                       size.height - 3);
-                    g2.setFont(DisplayUtils.DEFAULT_FONT);
-                }else if(current instanceof NamedDrawable){
-                    Rectangle2D drawnSize = ((NamedDrawable)current).drawName(g2, 5, (int)topLeftFilled.getHeight());
-                    topLeftFilled.setRect(0,0,
-                                          drawnSize.getWidth(),
-                                          topLeftFilled.getHeight() + drawnSize.getHeight());
-                }
-            }
+            drawSeismograms((Graphics2D)g, getSize());
         }
     }
 
@@ -450,6 +418,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     private AmpConfig ac;
 
+    private PlotPainter plotPainter = new PlotPainter();
+
     private TimeEvent currentTimeEvent;
 
     private AmpEvent currentAmpEvent;
@@ -461,6 +431,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     private AmpScaleMapper ampScaleMap;
 
     private DataSetSeismogram[] seismogramArray;
+
+    private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
 
     private static Color[] seisColors = { Color.BLUE, Color.RED,  Color.DARK_GRAY, Color.GREEN, Color.BLACK, Color.GRAY };
 
