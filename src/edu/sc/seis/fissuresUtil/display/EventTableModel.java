@@ -124,7 +124,6 @@ public class EventTableModel
 		//case MAGVALUE:
 		return new Float(cache.get_preferred_origin().magnitudes[0].value).toString() + " "+type;
 	    default:
-		return "XXXX";
 	    }
 	} catch (NoPreferredOrigin e) {
 	    return "No Pref Origin";
