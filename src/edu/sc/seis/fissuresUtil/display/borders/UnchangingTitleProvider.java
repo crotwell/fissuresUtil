@@ -6,7 +6,12 @@ import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 public class UnchangingTitleProvider implements TitleProvider {
 
     public UnchangingTitleProvider(String title) {
+        this(title, DisplayUtils.DEFAULT_FONT);
+    }
+
+    public UnchangingTitleProvider(String title, Font f) {
         this.title = title;
+        setTitleFont(f);
     }
 
     public String getTitle() {
@@ -15,11 +20,11 @@ public class UnchangingTitleProvider implements TitleProvider {
 
     private String title;
 
-    public Font getFont() {
+    public Font getTitleFont() {
         return font;
     }
 
-    public void setFont(Font f) {
+    public void setTitleFont(Font f) {
         this.font = f;
     }
 
