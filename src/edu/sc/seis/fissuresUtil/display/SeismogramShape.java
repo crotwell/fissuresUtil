@@ -18,7 +18,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3305 2003-02-21 01:21:36Z groves $
+ * @version $Id: SeismogramShape.java 3324 2003-02-21 19:21:43Z groves $
  */
 
 public class SeismogramShape implements Shape{
@@ -163,7 +163,7 @@ public class SeismogramShape implements Shape{
             double shift = (i-totalShift)*pointsPerPixel;
             double unroundStartPoint = iterator.getBaseSeisPoint() + shift;
             int startPoint = (int)Math.floor(unroundStartPoint);
-            int endPoint = (int)Math.ceil(unroundStartPoint + pointsPerPixel+1);
+            int endPoint = (int)Math.ceil(unroundStartPoint + pointsPerPixel);
             if(startPoint < 0){
                 startPoint = 0;
             }
@@ -277,5 +277,6 @@ public class SeismogramShape implements Shape{
     private static Category logger =
     Category.getInstance(SeismogramShape.class.getName());
 }// SeismogramShape
+
 
 
