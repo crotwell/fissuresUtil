@@ -108,6 +108,8 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
         makeDistCircle(llp, 30.0);
         makeDistCircle(llp, 60.0);
         makeDistCircle(llp, 90.0);
+        makeDistCircle(llp, 120.0);
+        makeDistCircle(llp, 150.0);
     }
 
     public void paint(java.awt.Graphics g){
