@@ -2,31 +2,24 @@ package edu.sc.seis.fissuresUtil.simple;
 
 import edu.iris.Fissures.IfNetwork.*;
 
+import edu.iris.Fissures.network.NetworkIdUtil;
+import edu.iris.Fissures.network.StationIdUtil;
 import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
-import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
-import edu.iris.Fissures.network.NetworkIdUtil;
 
 public class SimpleNetworkClient implements TestingClient {
-    public SimpleNetworkClient(){
-        String networkCode;
-        String serverDNS;
-        String serverName;
+    //IRIS
+    public SimpleNetworkClient(){ this("II", "edu/iris/dmc", "IRIS_NetworkDC");}
 
-        // iris
-        // We will try to get data from the II network.
-        networkCode = "II";
-        serverDNS="edu/iris/dmc";
-        serverName = "IRIS_NetworkDC";
+    // Berkeley
+    //public SimpleNetworkClient(){ this("NC", "edu/berkeley/geo/quake", "NCEDC_NetworkDC"); }
 
-        // Berkeley
-        //networkCode = "NC";
-        //serverDNS="edu/berkeley/geo/quake";
-        //serverName = "NCEDC_NetworkDC";
+    //South Carolina (SCEPP)
+    //public SimpleNetworkClient(){ this("SP", "edu/sc/seis", "SCEPPNetworkDC") ;}
 
-        //South Carolina (SCEPP)
-        //
+    public SimpleNetworkClient(String networkCode, String serverDNS,
+                               String serverName){
         try {
             /* This step is not required, but sometimes helps to determine if
              *  a server is down. if this call succedes but the next fails, then
@@ -56,8 +49,9 @@ public class SimpleNetworkClient implements TestingClient {
              *  represents the II network, but is still a remote (corba) object.
              */
             NetworkAccess[] nets = finder.retrieve_by_code(networkCode);
-            logger.info("got NetworkAccess for "+networkCode);
+            System.out.println("got NetworkAccess for "+networkCode + " time " +  nets[0].get_attributes().get_id().begin_time);
             net = nets[0];
+
 
             /** get all stations and print their codes. Note that their might
              be several stations with the same code, but different effective
@@ -65,8 +59,9 @@ public class SimpleNetworkClient implements TestingClient {
             Station[] stations = net.retrieve_stations();
             logger.info("Threre are "+stations.length+" stations in "+networkCode);
             for (int i = 0; i < stations.length; i++) {
-                logger.info("got station "+stations[i].get_code());
+                logger.info("got station " + StationIdUtil.toString(stations[i].get_id()));
             }
+            testStation = stations[0];
 
             /** Get all the channels for the first station and print their codes.
              *  Note that there may be several channels with the same code but
@@ -76,13 +71,14 @@ public class SimpleNetworkClient implements TestingClient {
             for (int i = 0; i < channels.length; i++) {
                 logger.info("got channel "+channels[i].my_site.get_code()+"."+channels[i].get_code());
             }
+            testChannel = channels[0];
 
             /** get all the networks and print their code. */
-            nets = finder.retrieve_all();
-            logger.info("There are "+nets.length+" networks");
-            for (int i = 0; i < nets.length; i++) {
-                logger.info("net "+i+" "+NetworkIdUtil.toString(nets[i].get_attributes().get_id()));
-            }
+            //nets = finder.retrieve_all();
+            //logger.info("There are "+nets.length+" networks");
+            //for (int i = 0; i < nets.length; i++) {
+            //    logger.info("net "+i+" "+NetworkIdUtil.toString(nets[i].get_attributes().get_id()));
+            //}
 
         }catch (NetworkNotFound e) {
             logger.error("Network "+networkCode+" was not found", e);
@@ -134,6 +130,8 @@ public class SimpleNetworkClient implements TestingClient {
         return stations;
     }
 
+    protected Channel testChannel;
+    protected Station testStation;
     protected NetworkAccess net;
     private static Logger logger = Logger.getLogger(SimpleNetworkClient.class);
 
