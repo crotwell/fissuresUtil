@@ -65,8 +65,6 @@ public abstract class AbstractClient {
         Properties props = System.getProperties();
         for (int i=0; i<args.length-1; i++) {
             if (args[i].equals("-props")) {
-                // override with values in local directory,
-                // but still load defaults with original name
                 propFilename = args[i+1];
                 try {
                     FileInputStream in = new FileInputStream(propFilename);
