@@ -48,12 +48,24 @@ public class DataSetToXML {
 
     public void writeToFile(Element datasetElement, File outFile)
         throws IOException, ParserConfigurationException, MalformedURLException {
-                BufferedWriter buf =
-            new BufferedWriter(new FileWriter(outFile));
+        File tempFile;
+        if (outFile.exists()) {
+            tempFile = File.createTempFile("Temp_"+outFile.getName(), "dsml", outFile.getParentFile());
+        } else {
+            tempFile = outFile;
+        }
+        BufferedWriter buf =
+            new BufferedWriter(new FileWriter(tempFile));
         Writer xmlWriter = new Writer();
         xmlWriter.setOutput(buf);
         xmlWriter.write(datasetElement);
         buf.close();
+        if (outFile != tempFile) {
+            if ( ! tempFile.renameTo(outFile)) {
+                // didn't overwrite
+                logger.error("Unable to move temp file "+tempFile.getName()+" to "+outFile.getName());
+            }
+        }
     }
 
     public Element createDocument(DataSet dataset, File dataDirectory)
@@ -65,15 +77,7 @@ public class DataSetToXML {
 
         DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
         Document doc = docBuilder.newDocument();
-        Element element = doc.createElement("dataset");
-        element.setAttribute("xmlns:dataset", "http://www.seis.sc.edu/xschema/dataset/2.0");
-        element.setAttribute("xmlns", "http://www.seis.sc.edu/xschema/dataset/2.0");
-        element.setAttribute("xsi:schemaLocation",
-                             "http://www.seis.sc.edu/xschema/dataset/2.0 http://www.seis.sc.edu/xschema/dataset/2.0/dataset.xsd");
-        element.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        element.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-        doc.appendChild(element);
-        insert(element, dataset, dataDirectory);
+        Element element = insert(doc, dataset, dataDirectory);
         return element;
     }
 
@@ -82,7 +86,29 @@ public class DataSetToXML {
      stored. Note that all dataSetSeismograms are converted to
      URLDataSetSeismograms and stored in a directory structure that
      mirrors the dataset structure under the given directory. */
-    public void insert(Element element, DataSet dataset, File directory)
+    public Element insert(Element parent, DataSet dataset, File directory)
+        throws IOException, ParserConfigurationException, MalformedURLException {
+        Element child = parent.getOwnerDocument().createElement("dataset");
+        insertInto(child, dataset, directory);
+        parent.appendChild(child);
+        return child;
+    }
+
+    public Element insert(Document doc, DataSet dataset, File directory)
+        throws IOException, ParserConfigurationException, MalformedURLException {
+        Element element = doc.createElement("dataset");
+        element.setAttribute("xmlns:dataset", "http://www.seis.sc.edu/xschema/dataset/2.0");
+        element.setAttribute("xmlns", "http://www.seis.sc.edu/xschema/dataset/2.0");
+        element.setAttribute("xsi:schemaLocation",
+                             "http://www.seis.sc.edu/xschema/dataset/2.0 http://www.seis.sc.edu/xschema/dataset/2.0/dataset.xsd");
+        element.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        element.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        insertInto(element, dataset, directory);
+        doc.appendChild(element);
+        return element;
+    }
+
+    public void insertInto(Element element, DataSet dataset, File directory)
         throws IOException, ParserConfigurationException, MalformedURLException {
         Document doc = element.getOwnerDocument();
         element.setAttribute("datasetid", dataset.getId());
@@ -100,15 +126,11 @@ public class DataSetToXML {
                 childDirectory.mkdirs();
             }
 
-            Element child;
             if (useDataSetRef) {
-                child = doc.createElement("datasetRef");
-                insertRef(child, dataset.getDataSet(childDataSets[i]), childDirectory);
+                insertRef(element, dataset.getDataSet(childDataSets[i]), childDirectory);
             } else {
-                child = doc.createElement("dataset");
-                insert(child, dataset.getDataSet(childDataSets[i]), childDirectory);
+                insert(element, dataset.getDataSet(childDataSets[i]), childDirectory);
             }
-            element.appendChild(child);
         }
 
         String[] childDSS = dataset.getDataSetSeismogramNames();
@@ -122,43 +144,58 @@ public class DataSetToXML {
             } else {
                 urlDSS = (URLDataSetSeismogram)dss;
             }
-            Element child = doc.createElement("urlDataSetSeismogram");
-            urlDSS.insertInto(child);
-            element.appendChild(child);
+            insert(element, urlDSS);
         }
 
         String[] paramNames = dataset.getParameterNames();
         for (int i = 0; i < paramNames.length; i++) {
-            Element parameter =
-                doc.createElement("parameter");
-            XMLParameter.insert(parameter,
-                                paramNames[i],
-                                dataset.getParameter(paramNames[i]));
-            element.appendChild(parameter);
+            insert(element, paramNames[i], dataset.getParameter(paramNames[i]));
         }
 
+    }
 
+    /** inserts a URLDataSetSeismogram element into the parent. The URLDataSetSeismogram
+     *  Element is returned.
+     */
+    public Element insert(Element parent, URLDataSetSeismogram urlDSS) {
+        Element child = parent.getOwnerDocument().createElement("urlDataSetSeismogram");
+        urlDSS.insertInto(child);
+        parent.appendChild(child);
+        return child;
     }
 
     /** inserts the child dataset as a datasetRef element. The URL is assumed
      *  to be in a subdirectory relative to the current dataset.
      */
-    public void insertRef(Element element, DataSet dataset, File directory)
+    public Element insertRef(Element element, DataSet dataset, File directory)
         throws IOException, ParserConfigurationException, MalformedURLException {
         File dsFile = save(dataset, directory);
-        insertRef(element, dsFile.toURI().toURL(), dataset.getName());
+        return insertRef(element, dsFile.toURI().toURL(), dataset.getName());
     }
 
         /** inserts the child dataset as a datasetRef element. The URL is assumed
      *  to be in a subdirectory relative to the current dataset.
      */
-    public void insertRef(Element element, URL datasetURL, String linkTitle)
+    public Element insertRef(Element parent, URL datasetURL, String linkTitle)
         throws IOException, ParserConfigurationException, MalformedURLException {
+        Element element = parent.getOwnerDocument().createElement("datasetRef");
         element.setAttribute("xlink:href", datasetURL.toString());
         element.setAttribute("xlink:type", "simple");
         element.setAttribute("xlink:title", linkTitle);
+        return element;
     }
 
+    /** inserts the parameter into the given element.
+     */
+    public Element insert(Element parent, String name, Object parameter) {
+        Element element =
+            parent.getOwnerDocument().createElement("parameter");
+        parent.appendChild(element);
+        XMLParameter.insert(element,
+                            name,
+                            parameter);
+        return element;
+    }
 
     /**
      * Load a xml dataset from a URL.
