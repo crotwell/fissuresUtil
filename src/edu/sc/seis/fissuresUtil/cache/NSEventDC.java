@@ -5,12 +5,12 @@
  */
 
 package edu.sc.seis.fissuresUtil.cache;
-import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
-import edu.iris.Fissures.IfEvent.EventDCOperations;
-import edu.iris.Fissures.IfEvent.EventDC;
-import edu.iris.Fissures.IfEvent.EventFinder;
-import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
+import edu.iris.Fissures.IfEvent.EventDC;
+import edu.iris.Fissures.IfEvent.EventDCOperations;
+import edu.iris.Fissures.IfEvent.EventFinder;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
+import org.apache.log4j.Logger;
 
 
 
@@ -21,7 +21,7 @@ public class NSEventDC implements EventDCOperations {
                      FissuresNamingService fissuresNamingService) {
         this.serverDNS = serverDNS;
         this.serverName = serverName;
-        this.fissuresNamingService = fissuresNamingService;
+        this.namingService = fissuresNamingService;
     } // NSEventDC constructor
 
     public String getServerDNS() {
@@ -39,8 +39,12 @@ public class NSEventDC implements EventDCOperations {
     public synchronized EventDC getEventDC() {
         if ( eventDC == null) {
             try {
-                eventDC = fissuresNamingService.getEventDC(serverDNS,
-                                                           serverName);
+                try {
+                    eventDC = namingService.getEventDC(serverDNS, serverName);
+                } catch (Throwable t) {
+                    namingService.reset();
+                    eventDC = namingService.getEventDC(serverDNS,serverName);
+                }
             } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
                 throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
                                                   0,
@@ -90,7 +94,7 @@ public class NSEventDC implements EventDCOperations {
 
     protected String serverName;
 
-    protected FissuresNamingService fissuresNamingService;
+    protected FissuresNamingService namingService;
 
     private static Logger logger =
         Logger.getLogger(NSEventDC.class);

@@ -1,15 +1,13 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.DataCenter;
-import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
-import edu.sc.seis.fissuresUtil.cache.NSEventDC;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.Time;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import org.apache.log4j.Logger;
-import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.Time;
 
 public class NSSeismogramDC implements ProxySeismogramDC {
     public NSSeismogramDC(String serverDNS,
@@ -35,7 +33,12 @@ public class NSSeismogramDC implements ProxySeismogramDC {
     public synchronized DataCenter getDataCenter() {
         if ( dc == null) {
             try {
-                dc = nameService.getSeismogramDC(dns, serverName);
+                try {
+                    dc = nameService.getSeismogramDC(dns, serverName);
+                } catch (Throwable t) {
+                    nameService.reset();
+                    dc = nameService.getSeismogramDC(dns, serverName);
+                }
             } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
                 throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+dns+" "+e.toString(),
                                                   0,
