@@ -129,7 +129,25 @@ public class ParticleMotionDisplayThread{
     public DataSetSeismogram[] retrieve_seismograms() {
 	LocalSeismogramImpl seis = dataSetSeismogram[0].getSeismogram();
 	Date chanIdStartTime = Calendar.getInstance().getTime();
-	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSetSeismogram[0].getDataSet()).getChannelIds();
+	//	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSetSeismogram[0].getDataSet()).getChannelIds();
+
+	edu.sc.seis.fissuresUtil.xml.XMLDataSet ds = 
+	    (edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSetSeismogram[0].getDataSet();
+	String[] paramNames = ds.getParameterNames();
+	LinkedList list = new LinkedList();
+	String origChannelIdStr = ChannelIdUtil.toString(seis.getChannelID());
+	origChannelIdStr = origChannelIdStr.substring(0, origChannelIdStr.indexOf(seis.getChannelID().channel_code)+2);
+	String chanGroupString = edu.sc.seis.fissuresUtil.xml.StdDataSetParamNames.CHANNEL +
+	    origChannelIdStr;
+	for (int i=0; i<paramNames.length; i++) {
+	    if (paramNames[i].startsWith(chanGroupString)) {
+	 	logger.debug("found match parameter channelId "+paramNames[i]);
+		list.add(((Channel)ds.getParameter(paramNames[i])).get_id());
+	    } // end of if (paramNames[i].startsWith(origChannelIdStr))
+	    
+	} // end of for (int i=0; i<paramNames[i]; i++)
+	ChannelId[] channelIds = (ChannelId[])list.toArray(new ChannelId[0]);
+
 	Date chanIdendTime = Calendar.getInstance().getTime();
 	logger.debug(" Time for CHan ID is "+(chanIdendTime.getTime() - chanIdStartTime.getTime()));
 	
