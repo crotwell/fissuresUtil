@@ -83,7 +83,7 @@ public  class PlottableDisplay extends JPanel {
 			     String nameofstation) {
         removeAll();
         this.arrayplottable = clientPlott;
-	int[] minmax = PlottableUtils.findMinMax(arrayplottable);
+	int[] minmax = findMinMax(arrayplottable);
 	min = minmax[0];
 	max = minmax[1];
 	setAmpScale(ampScalePercent);
@@ -374,6 +374,24 @@ public  class PlottableDisplay extends JPanel {
 	    } 
 
     }//close writePNG
+    public int[] findMinMax(Plottable[] arrayplottable) {
+       int min = arrayplottable[0].y_coor[0];
+       int max = arrayplottable[0].y_coor[0];
+       for(int arrayi=0; arrayi<arrayplottable.length ; arrayi++) {        
+	   for(int ploti=0; ploti<arrayplottable[arrayi].y_coor.length ; ploti++) {            
+	       min = Math.min(min, arrayplottable[arrayi].y_coor[ploti]);
+	       max = Math.max(max, arrayplottable[arrayi].y_coor[ploti]);
+	   } 
+       }
+
+       int[] minandmax = new int[2];
+       minandmax[0]= min;
+       minandmax[1]= max;
+
+       System.out.println("Array Min:"+min+" ArrayMax:"+max);
+
+       return minandmax;
+   }
 
     private edu.iris.Fissures.Plottable[] arrayplottable = new edu.iris.Fissures.Plottable[0] ; 
     private String  plottablename="Please, click on DataSource.";
