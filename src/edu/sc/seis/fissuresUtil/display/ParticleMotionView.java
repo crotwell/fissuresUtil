@@ -10,7 +10,6 @@ import java.awt.geom.*;
 import java.awt.event.*;
 import java.util.*;
 import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.display.*;
 import org.apache.log4j.*;
 
 /**

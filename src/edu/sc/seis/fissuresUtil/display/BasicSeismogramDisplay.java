@@ -31,22 +31,22 @@ import java.awt.print.*;
 
 public class BasicSeismogramDisplay extends JComponent implements ConfigListener{
  
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, String name, 
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, String[] names, 
 				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-	this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), name, parent);
+	this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), names, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, String name, 
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, String[] names, 
 				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-	this(seismos, tc, new RMeanAmpConfig(seismos), name, parent);
+	this(seismos, tc, new RMeanAmpConfig(seismos), names, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, AmpConfig ac, String name, 
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, AmpConfig ac, String[] names, 
 				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-	this(seismos, new BasicTimeConfig(seismos), ac, name, parent);
+	this(seismos, new BasicTimeConfig(seismos), ac, names, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, AmpConfig ac, String name, 
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, AmpConfig ac, String[] names, 
 				  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
 	if(seismos.length == 0){
 	    throw new IllegalArgumentException("The array of seismograms given to a basic seismogram display must not be of length 0.");
@@ -61,10 +61,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	    throw new IllegalArgumentException("A BasicSeismogramDisplay requires at least one non-null seismogram to initialize");
 	}
 	registrar = new Registrar(seismos, tc, ac);
-	this.name = name;
 	this.parent = parent;
 	registrar.addListener(this);
-	add(seismos);
+	add(seismos, names);
 	setLayout(new OverlayLayout(this));
 	addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -93,19 +92,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	add(plotPainter);
     }
 
-    public void add(DataSetSeismogram[] seismos){
+    public void add(DataSetSeismogram[] seismos, String[] names){
 	registrar.add(seismos);
 	for(int i = 0; i < seismos.length; i++){
 	    if(seismos[i] != null){
-		/*System.out.println("new seismogram begin time: " + seismos[i].getSeismogram().getBeginTime() + 
-				   ", new seismogram end time: " + seismos[i].getSeismogram().getEndTime() + 
-				   ", number of points:" + seismos[i].getSeismogram().getNumPoints()); */
 		seismograms.add(seismos[i]);	
 		SeismogramShape newPlotter;
 		if (autoColor) {
-		    newPlotter = new SeismogramShape(seismos[i], seisColors[seisCount%seisColors.length]);
+		    newPlotter = new SeismogramShape(seismos[i], seisColors[seisCount%seisColors.length], names[i]);
 		}else {
-		    newPlotter = new SeismogramShape(seismos[i], Color.blue);
+		    newPlotter = new SeismogramShape(seismos[i], Color.blue, names[i]);
 		} // end of else
 		if(parent != null){
 		    newPlotter.setVisibility(parent.getOriginalVisibility());
@@ -118,14 +114,17 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	while(e.hasNext()){
 	    applyFilter((ColoredFilter)e.next());
 	}
+	seismogramArray = null;
     }
-    
-    public void remove(DataSetSeismogram[] oldSeismos){
-    } 
 
     public DataSetSeismogram[] getSeismograms(){ 
-	return (DataSetSeismogram[])seismograms.toArray(new DataSetSeismogram[seismograms.size()]); 
+	if(seismogramArray == null){
+	    seismogramArray = (DataSetSeismogram[])seismograms.toArray(new DataSetSeismogram[seismograms.size()]); 
+	}
+	return seismogramArray;
     }
+
+    public java.util.List getSeismogramList(){ return seismograms; }
   
     public void addFlags(Arrival[] arrivals) {
 	try{
@@ -156,9 +155,27 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 
     public VerticalSeismogramDisplay getParentDisplay(){ return parent; }
     
-    public String getName(){ return name; }
-    
-    public void setName(String name){ this.name = name; } 
+    /**
+     * Returns an array of names of seismograms in corresponding order with the array 
+     * returned by getSeismograms
+     */
+    public String[] getNames(){ 
+	if(seismogramNames == null || seismogramArray == null){
+	    getSeismograms();
+	    seismogramNames = new String[seismogramArray.length];
+	    java.util.List seismogramPlotters = plotters.subList(0, seismogramArray.length);
+	    for(int i = 0; i < seismogramArray.length; i++){
+		Iterator e = seismogramPlotters.iterator();
+		while(e.hasNext()){
+		    SeismogramShape current = (SeismogramShape)e.next();
+		    if(current.getSeismogram() == seismogramArray[i]){
+			seismogramNames[i] = current.getName();
+		    }
+		}
+	    }
+	}
+	return seismogramNames; 
+    }
     
     public Registrar getRegistrar(){ return registrar; }
 
@@ -326,8 +343,10 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	ampScaleMap.setTotalPixels(displaySize.height);
     }
 
+    public void remove(DataSetSeismogram[] seismos){}
+
     public void remove(){
-       logger.debug(name + " being removed");
+       logger.debug("bsd being removed");
        parent.removeDisplay(this);
        destroy();
     }
@@ -357,7 +376,6 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     }
 
     public void applyFilter(ColoredFilter filter){
-	logger.debug("applying filter on " + name);
 	DataSetSeismogram[] seismos = new DataSetSeismogram[seismograms.size()];
 	Plotter[] filteredShapes = new Plotter[seismograms.size()];
 	int i = 0;
@@ -412,12 +430,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	public void paint(Graphics g){
 	    Graphics2D g2 = (Graphics2D)g;
 	    Iterator e = plotters.iterator();
+	    Rectangle2D.Float stringBounds = new Rectangle2D.Float();
+	    stringBounds.setRect(g2.getFontMetrics().getStringBounds("test", g2));
+	    int i = 0;
 	    while(e.hasNext()){
-		((Plotter)e.next()).draw(g2, displaySize, currentTimeEvent, currentAmpEvent);
-	    }
-	    if(name != null){
-		g2.setPaint(Color.black);
-		g2.drawString(name, 5, displaySize.height - 3);
+		Plotter current = (Plotter)e.next();
+		current.draw(g2, displaySize, currentTimeEvent, currentAmpEvent);
+		if(current instanceof NamedPlotter){
+		    if(((NamedPlotter)current).drawName(g2, 5, (int)(displaySize.height - 3 - i * stringBounds.height)))
+			i++;
+		}
 	    }
 	}
     }
@@ -441,8 +463,6 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     
     private int seisCount = 0, filterCount = 0, flagCount = 0, selectionCount = 0, selection3CCount = 0;
 
-    private String name;
-
     private Registrar registrar;
 
     private TimeEvent currentTimeEvent;
@@ -459,6 +479,10 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 
     private boolean autoColor = true;
 
+    private DataSetSeismogram[] seismogramArray;
+
+    private String[] seismogramNames;
+    
     private static Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
 
     private static Color[] selectionColors = { new NamedColor(255, 0, 0, 64, "red"),  

@@ -27,13 +27,13 @@ public class TestBSD extends JFrame{
 	super("TestBSD");
 	edu.iris.Fissures.Time begin = 
         new edu.iris.Fissures.Time("19911015T163000.000Z", -1);
-    DataSetSeismogram[] seismos = {new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.
+    DataSetSeismogram[] seismos = {new DataSetSeismogram(((LocalSeismogramImpl)SimplePlotUtil.
 								createSineWave()),null)};
-    bsd = new BasicSeismogramDisplay(seismos, "TEST", null);
-	bsd.addBottomTimeBorder();
+    String[] names = {"FIRST"};
+    bsd = new BasicSeismogramDisplay(seismos, names, null);
+    bsd.addBottomTimeBorder();
 	bsd.setSize(500, 500);
 	getContentPane().add(bsd, BorderLayout.CENTER);
-	//bsd.addSeismogram(new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.createSineWave()),null));
 	addFilterButton();
 	addScrollLeftButton();
 	addScrollRightButton();
@@ -45,10 +45,12 @@ public class TestBSD extends JFrame{
 
     public void addTestData(int numSeis){
 	DataSetSeismogram[] seismos = new DataSetSeismogram[numSeis];
+	String[] names = new String[numSeis];
 	for(int i = 0; i < numSeis; i++){
-	    seismos[i] = new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.createTestData()), null);
+	    seismos[i] = new DataSetSeismogram(((LocalSeismogramImpl)SimplePlotUtil.createTestData()), null);
+	    names[i] = "SINE" + 1;
 	}
-	bsd.add(seismos);
+	bsd.add(seismos, names);
 
     }
     

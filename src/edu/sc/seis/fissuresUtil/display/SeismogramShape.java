@@ -27,18 +27,19 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2951 2002-11-23 03:01:07Z crotwell $
+ * @version $Id: SeismogramShape.java 2963 2002-11-26 20:08:00Z groves $
  */
 
-public class SeismogramShape implements Shape, Plotter {
+public class SeismogramShape implements Shape, NamedPlotter {
     /**
      * 
      * @param color the color of the seismogram
      */
-    public SeismogramShape (DataSetSeismogram seis, Color color){
+    public SeismogramShape (DataSetSeismogram seis, Color color, String name){
 	this.dss = seis;
 	this.seis = seis.getSeismogram();
 	this.color = color;
+	this.name = name;
 	this.stat = new Statistics(this.seis);
     }
     
@@ -50,6 +51,8 @@ public class SeismogramShape implements Shape, Plotter {
 
     public DataSetSeismogram getSeismogram() { return dss; }
     
+    public String getName(){ return name; }
+    
     /**
      * Draws this <code>SeismogramShape</code>on the supplied graphics after updating it based on the TimeEvent and AmpEvent
      *
@@ -59,6 +62,15 @@ public class SeismogramShape implements Shape, Plotter {
 	if(visible){
 	    setPlot(canvas, tEvent.getTime(dss), aEvent.getAmp(dss), size);
 	}
+    }
+
+    public boolean drawName(Graphics2D canvas, int xPosition, int yPosition){
+	if(visible){
+	    canvas.setPaint(color);
+	    canvas.drawString(name, xPosition, yPosition);
+	    return true;
+	}
+	return false;
     }
 
     /**
@@ -324,6 +336,8 @@ public class SeismogramShape implements Shape, Plotter {
      */
     private double offset, seisOffset;
     
+    private String name;
+
     protected long plotTime;
     
     protected UnitRangeImpl plotAmp;

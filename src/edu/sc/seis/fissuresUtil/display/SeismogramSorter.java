@@ -15,14 +15,17 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  */
 
 public class SeismogramSorter {
-    public int sort(DataSetSeismogram[] seismograms, String name){
-	names.add(name);
-	return names.size() - 1;
+      
+    public int sort(DataSetSeismogram[] seismograms, String[] names){
+	this.names.add(names);
+	return this.names.size() - 1;
     }
 
-    public boolean contains(String name){
-	if(names.contains(name))
-	    return true;
+    public boolean contains(String[] names){
+	for(int i = 0; i < names.length; i++){
+	    if(this.names.contains(names[i]))
+		return true;
+	}
 	return false;
     }
 
