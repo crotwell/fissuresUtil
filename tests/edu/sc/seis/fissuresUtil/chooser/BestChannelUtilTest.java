@@ -3,13 +3,14 @@
  */
 package edu.sc.seis.fissuresUtil.chooser;
 
+import junit.framework.TestCase;
+
 import org.apache.log4j.BasicConfigurator;
 
-import junit.framework.TestCase;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.sc.seis.mockFissures.IfNetwork.MockNetworkAccess;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkAccess;
 
 /**
  * @author Charlie Groves
