@@ -109,7 +109,7 @@ public class FissuresToWAV {
     private void updateInfo(SeismogramIterator iterator){
         chunkSize = 36 + 2*iterator.getNumPoints();
         subchunk2Size = iterator.getNumPoints() * blockAlign;
-        sampleRate = calculateSampleRate(container.getIterator().getSampling(), speedUp);
+        sampleRate = calculateSampleRate(container.getIterator().getSampling());
         byteRate = sampleRate * blockAlign;
     }
 
@@ -149,15 +149,15 @@ public class FissuresToWAV {
 
         //calculate maximum amplification factor to avoid either
         //clipping or dead quiet
-		double[] minMaxMean = iterator.minMaxMean();
-		double absMax = Double.MAX_VALUE;
-		if (Math.abs(minMaxMean[0]) > Math.abs(minMaxMean[1])){
-			absMax = Math.abs(minMaxMean[0]);
-		}
-		else{
-			absMax = Math.abs(minMaxMean[1]);
-		}
-		double amplification = (32000.0/absMax);
+        double[] minMaxMean = iterator.minMaxMean();
+        double absMax = Double.MAX_VALUE;
+        if (Math.abs(minMaxMean[0]) > Math.abs(minMaxMean[1])){
+            absMax = Math.abs(minMaxMean[0]);
+        }
+        else{
+            absMax = Math.abs(minMaxMean[1]);
+        }
+        double amplification = (32000.0/absMax);
 
         while (iterator.hasNext()){
             try{
@@ -189,11 +189,18 @@ public class FissuresToWAV {
         }
     }
 
-    public static int calculateSampleRate(SamplingImpl sampling, int speedUp){
+    public int calculateSampleRate(SamplingImpl sampling){
         System.out.println(sampling);
         QuantityImpl freq = sampling.getFrequency();
         freq = freq.convertTo(UnitImpl.HERTZ);
-        return (int)(freq.getValue() * speedUp);
+        int sampleRate = (int)(freq.getValue() * speedUp);
+        while (sampleRate > 48000){
+            setSpeedUp(speedUp/2);
+            System.out.println("speedUp = " + speedUp);
+            sampleRate = (int)(freq.getValue() * speedUp);
+            System.out.println("sampleRate = " + sampleRate);
+        }
+        return sampleRate;
     }
 
     public static TimeInterval calculateTime(MicroSecondTimeRange tr, int speedUp){
