@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4478 2003-06-19 19:05:29Z groves $
+ * @version $Id: ChannelChooser.java 4602 2003-06-30 18:19:41Z crotwell $
  *
  */
 
@@ -710,6 +710,20 @@ public class ChannelChooser extends JPanel {
     public NetworkAccess getNetworkAccess(NetworkId netid) {
         NetworkAccess net = (NetworkAccess)
             netIdToNetMap.get(NetworkIdUtil.toString(netid));
+        if (net == null) {
+            // may not be loaded yet, try to get from dc?
+            NetworkDCOperations[] netdc = getNetworkDCs();
+            for (int i = 0; i < netdc.length; i++) {
+                try {
+                    net = netdc[i].a_finder().retrieve_by_id(netid);
+                    if (net != null) {
+                        return new CacheNetworkAccess(net);
+                    }
+                } catch (NetworkNotFound e) {
+                    // oh well, try next
+                }
+            }
+        }
         return net;
     }
 
