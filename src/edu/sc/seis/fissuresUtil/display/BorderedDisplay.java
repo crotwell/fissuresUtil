@@ -98,6 +98,14 @@ public class BorderedDisplay extends JPanel {
         super.add(comp, gbc);
     }
 
+    public void clearBorders() {
+        for(int i = 0; i < comps.length; i++) {
+            if(i != CENTER) {
+                clear(i);
+            }
+        }
+    }
+
     public void clear(int position) {
         if(isFilled(position)) {
             remove(comps[position]);
