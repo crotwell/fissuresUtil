@@ -9,7 +9,6 @@ package edu.sc.seis.fissuresUtil.map;
 import com.bbn.openmap.*;
 
 import com.bbn.openmap.event.MapMouseMode;
-import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.gui.OMToolSet;
 import com.bbn.openmap.gui.ToolPanel;
 import com.bbn.openmap.layer.shape.ShapeLayer;
@@ -17,8 +16,6 @@ import com.bbn.openmap.proj.CADRG;
 import com.bbn.openmap.proj.Proj;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
-import edu.sc.seis.fissuresUtil.map.tools.OpenMapTool;
-import edu.sc.seis.fissuresUtil.map.tools.WrapperTool;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 import java.awt.Color;
 import java.util.ArrayList;
