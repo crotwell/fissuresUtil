@@ -95,6 +95,13 @@ public class JDBCChannelTest extends JDBCTest {
         int idDbId = chanTable.put(chan.get_id());
         assertEquals(idDbId, chanDbId);
     }
+
+    public void testPutChanId() throws SQLException, NotFound {
+        int dbid = chanTable.put(chan.get_id());
+        int dbid2 = chanTable.put(chan.get_id());
+        assertEquals(dbid, dbid2);
+        assertEquals(dbid, chanTable.getDBId(chan.get_id()));
+    }
     
     
     private JDBCChannel chanTable;
