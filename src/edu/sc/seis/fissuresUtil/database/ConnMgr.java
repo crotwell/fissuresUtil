@@ -66,6 +66,10 @@ public class ConnMgr {
 
     public static void setDB(Properties props){ ConnMgr.props = props; }
 
+    public static boolean hasSQL(String key){
+        return props.containsKey(key);
+    }
+    
     public static String getSQL(String key){
         String SQL = props.getProperty(key);
         if(SQL == null){
