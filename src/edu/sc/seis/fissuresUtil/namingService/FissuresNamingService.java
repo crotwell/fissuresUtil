@@ -24,6 +24,9 @@ import org.omg.CosNaming.NamingContextPackage.InvalidName;
 
 
 public interface FissuresNamingService {
+
+    public void setNameServiceCorbaLoc(String nameServiceCorbaLoc);
+
     org.omg.CORBA.Object resolve(String dns, String interfacename, String objectname) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName;
 
     void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName, Exception;
