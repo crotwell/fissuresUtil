@@ -20,6 +20,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import javax.swing.border.Border;
 import org.apache.log4j.Category;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 
 
 /**
@@ -212,9 +213,8 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
      * @param chanId a <code>ChannelId</code> value
      */
     public synchronized void displayBackAzimuth(edu.sc.seis.fissuresUtil.xml.DataSet dataset, ChannelId chanId) {
-        edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent =
-            ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getEvent();
-        Channel channel = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getChannel(chanId);
+        EventAccessOperations cacheEvent = dataset.getEvent();
+        Channel channel = dataset.getChannel(chanId);
         if(cacheEvent != null) {
             try {
                 Origin origin = cacheEvent.get_preferred_origin();
