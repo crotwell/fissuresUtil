@@ -38,6 +38,8 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         listeners.remove(listener);
     }
 
+    public Color getColor(){ return null; }
+
     public Color getNextColor(Class colorGroupClass){
         int[] usages = new int[colors.length];
         for (int i = 0; i < colors.length; i++){
