@@ -10,74 +10,157 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 2814 2002-10-24 14:57:26Z crotwell $
+ * @version $Id: Statistics.java 2914 2002-11-15 22:53:39Z crotwell $
  */
 
 public class Statistics  {
     
+    /**
+     * Creates a new <code>Statistics</code> instance.
+     *
+     * @param iSeries an <code>int[]</code> value
+     */
     public Statistics(int[] iSeries) {
 	this.iSeries = iSeries;
 	beginIndex = 0;
 	endIndex = iSeries.length;
     }
 
+    /**
+     * Creates a new <code>Statistics</code> instance.
+     *
+     * @param sSeries a <code>short[]</code> value
+     */
     public Statistics(short[] sSeries) {
 	this.sSeries = sSeries;
 	beginIndex = 0;
 	endIndex = sSeries.length;
     }
     
+    /**
+     * Creates a new <code>Statistics</code> instance.
+     *
+     * @param fSeries a <code>float[]</code> value
+     */
     public Statistics(float[] fSeries) {
 	this.fSeries = fSeries;
 	beginIndex = 0;
 	endIndex = fSeries.length;
     }
     
+    /**
+     * Creates a new <code>Statistics</code> instance.
+     *
+     * @param dSeries a <code>double[]</code> value
+     */
     public Statistics(double[] dSeries) {
 	this.dSeries = dSeries;
 	beginIndex = 0;
 	endIndex = dSeries.length;
     }
     
+    /**
+     * Creates a new <code>Statistics</code> instance.
+     *
+     * @param seismo a <code>LocalSeismogramImpl</code> value
+     */
     public Statistics(LocalSeismogramImpl seismo){
-	if(seismo.can_convert_to_long()){
+	if(seismo.can_convert_to_short()){
+	    sSeries = seismo.get_as_shorts();
+	    endIndex = sSeries.length;
+	}else if(seismo.can_convert_to_long()){
 	    iSeries = seismo.get_as_longs();
 	    endIndex = iSeries.length;
-	}else{
+	}else if(seismo.can_convert_to_float()){
 	    fSeries = seismo.get_as_floats();
 	    endIndex = fSeries.length;
+	}else{
+	    dSeries = seismo.get_as_doubles();
+	    endIndex = dSeries.length;
 	}
 	beginIndex = 0;
     }
 
+    /**
+     * Finds the <code>min</code> value.
+     *
+     * @return the minimum
+     */
     public double min() {
 	return minMaxMean()[0];
     }
 
+    /**
+     * Finds the <code>min</code> value between index beginIndex and endIndex-1.
+     *
+     * @param beginIndex first index to search
+     * @param endIndex end index, last + 1
+     * @return a <code>double</code> value
+     */
     public double min(int beginIndex, int endIndex){
 	return minMaxMean(beginIndex, endIndex)[0];
     }
 
+    /**
+     * Finds the <code>max</code> value.
+     *
+     * @return a <code>double</code> value
+     */
     public double max(){
 	return minMaxMean()[1];
     }
 
+    /**
+     * Finds the <code>max</code> value between index beginIndex and endIndex-1.
+     *
+     * @param beginIndex an <code>int</code> value
+     * @param endIndex an <code>int</code> value
+     * @return a <code>double</code> value
+     */
     public double max(int beginIndex, int endIndex){
 	return minMaxMean(beginIndex, endIndex)[1];
     }
 
+    /**
+     * Calulates <code>mean</code> of the data.
+     *
+     * @return a <code>double</code> value
+     */
     public double mean(){
 	return minMaxMean()[2];
     }
 
+    /**
+     * Finds the <code>mean</code> value between index beginIndex and endIndex-1.
+     *
+     * @param beginIndex an <code>int</code> value
+     * @param endIndex an <code>int</code> value
+     * @return a <code>double</code> value
+     */
     public double mean(int beginIndex, int endIndex){
 	return minMaxMean(beginIndex, endIndex)[2];
     }
 
+    /**
+     * Calculates the min, max  and mean. The value at index 0 is the min,
+     * at index 1 is the max and at index 2 is the mean
+     *
+     * @return min, max, mean in a double[3]
+     */
     public double[] minMaxMean(){
 	return minMaxMean(0, getLength());
     }
 
+    /**
+     * Calculates the min, max  and mean from beginIndex to endIndex-1. 
+     * The value at index 0 is the min,
+     * at index 1 is the max and at index 2 is the mean
+     *
+     *
+     * @param beginIndex first index
+     * @param endIndex last index +1
+     * @return min, max, mean in a double[3]
+     */
     public double[] minMaxMean(int beginIndex, int endIndex){
 	if (beginIndex < 0 ) {
 	    throw new IllegalArgumentException("begin Index < 0 "+beginIndex);
@@ -90,9 +173,14 @@ public class Statistics  {
 	    if(beginIndex == this.beginIndex && endIndex == this.endIndex){
 		return minMaxMean;
 	    }
+
+	    // begin or end has changed, destory any cached values
+	    flushCache();
+
 	    if(this.beginIndex > beginIndex && this.endIndex < endIndex || 
 	       this.beginIndex < beginIndex && this.endIndex > endIndex){
-		return calculateMinMaxMean(beginIndex, endIndex);
+		minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+		return minMaxMean;
 	    }
 	    int removalStart, removalEnd, newDataStart, newDataEnd;
 	    if(this.beginIndex < beginIndex || this.endIndex < endIndex){
@@ -111,11 +199,13 @@ public class Statistics  {
 		for(int j = removalStart; j <= removalEnd; j++) {
 		    if(iSeries[j] <= minMaxMean[0]){ 
 			// if min is found in remave section reaclulate
-			return calculateMinMaxMean(beginIndex, endIndex);
+			minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+			return minMaxMean;
 		    }
 		    if(iSeries[j] >= minMaxMean[1]){
 			// if max is found in remove section reaclulate
-			return calculateMinMaxMean(beginIndex, endIndex);
+			minMaxMean= calculateMinMaxMean(beginIndex, endIndex);
+			return minMaxMean;
 		    }
 		    minMaxMean[2] -= iSeries[j];
 		}
@@ -131,10 +221,12 @@ public class Statistics  {
 	    }else if(sSeries != null){
 		for(int j = removalStart; j <= removalEnd; j++) {
 		    if(sSeries[j] <= minMaxMean[0]){ 
-			return calculateMinMaxMean(beginIndex, endIndex);
+			minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+			return minMaxMean;
 		    }
 		    if(sSeries[j] >= minMaxMean[1]){
-			return calculateMinMaxMean(beginIndex, endIndex);
+			minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+			return minMaxMean;
 		    }
 		    minMaxMean[2] -= sSeries[j];
 		}
@@ -150,10 +242,12 @@ public class Statistics  {
 	    }else if(fSeries != null){
 		for(int j = removalStart; j <= removalEnd; j++) {
 		    if(fSeries[j] <= minMaxMean[0]){ 
-			return calculateMinMaxMean(beginIndex, endIndex);
+			minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+			return minMaxMean;
 		    }
 		    if(fSeries[j] >= minMaxMean[1]){
-			return calculateMinMaxMean(beginIndex, endIndex);
+			minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+			return minMaxMean;
 		    }
 		    minMaxMean[2] -= fSeries[j];
 		}
@@ -169,10 +263,12 @@ public class Statistics  {
 	    }else if(dSeries != null){
 		for(int j = removalStart; j <= removalEnd; j++) {
 		    if(dSeries[j] <= minMaxMean[0]){ 
-			return calculateMinMaxMean(beginIndex, endIndex);
+			minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+			return minMaxMean;
 		    }
 		    if(dSeries[j] >= minMaxMean[1]){
-			return calculateMinMaxMean(beginIndex, endIndex);
+			minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+			return minMaxMean;
 		    }
 		    minMaxMean[2] -= dSeries[j];
 		}
@@ -188,48 +284,52 @@ public class Statistics  {
 	    }
 	    this.beginIndex = beginIndex;
 	    this.endIndex = endIndex;
-	    minMaxMean[2] /= endIndex - beginIndex;
+	    minMaxMeanCalculated = true;
 	    return minMaxMean;
 	}
-	return calculateMinMaxMean(beginIndex, endIndex);
+	minMaxMean = calculateMinMaxMean(beginIndex, endIndex);
+	return minMaxMean;
     }
     
     private double[] calculateMinMaxMean(int beginIndex, int endIndex){
-	minMaxMean[0] = Double.POSITIVE_INFINITY;
-	minMaxMean[1] = Double.NEGATIVE_INFINITY;
-	minMaxMean[2] = 0;
+	double[] outMinMaxMean = new double[3];
+	outMinMaxMean[0] = Double.POSITIVE_INFINITY;
+	outMinMaxMean[1] = Double.NEGATIVE_INFINITY;
+	outMinMaxMean[2] = 0;
 	if (iSeries != null) {
 	    for (int i = beginIndex; i < endIndex; i++) {
-		minMaxMean[0] = Math.min(minMaxMean[0], iSeries[i]);
-		minMaxMean[1] = Math.max(minMaxMean[1], iSeries[i]);
-		minMaxMean[2] += iSeries[i];
+		outMinMaxMean[0] = Math.min(outMinMaxMean[0], iSeries[i]);
+		outMinMaxMean[1] = Math.max(outMinMaxMean[1], iSeries[i]);
+		outMinMaxMean[2] += iSeries[i];
 	    } // end of for (int i=0; i<iSeries.length; i++)
 	} else if (sSeries != null) {
 	    for (int i = beginIndex; i < endIndex; i++) {
-		minMaxMean[0] = Math.min(minMaxMean[0], sSeries[i]);
-		minMaxMean[1] = Math.max(minMaxMean[1], sSeries[i]);
-		minMaxMean[2] += sSeries[i];
+		outMinMaxMean[0] = Math.min(outMinMaxMean[0], sSeries[i]);
+		outMinMaxMean[1] = Math.max(outMinMaxMean[1], sSeries[i]);
+		outMinMaxMean[2] += sSeries[i];
 	    } // end of for (int i=0; i<sSeries.length; i++)
 	} else if (fSeries != null) {
 	    for (int i = beginIndex; i < endIndex; i++) {
-		minMaxMean[0] = Math.min(minMaxMean[0], fSeries[i]);
-		minMaxMean[1] = Math.max(minMaxMean[1], fSeries[i]);
-		minMaxMean[2] += fSeries[i];
+		outMinMaxMean[0] = Math.min(outMinMaxMean[0], fSeries[i]);
+		outMinMaxMean[1] = Math.max(outMinMaxMean[1], fSeries[i]);
+		outMinMaxMean[2] += fSeries[i];
 	    } // end of for (int i=0; i<fSeries.length; i++)
 	} else if (dSeries != null) {
 	    for (int i = beginIndex; i < endIndex; i++) {
-		minMaxMean[0] = Math.min(minMaxMean[0], dSeries[i]);
-		minMaxMean[1] = Math.max(minMaxMean[1], dSeries[i]);
-		minMaxMean[2] += dSeries[i];
+		outMinMaxMean[0] = Math.min(outMinMaxMean[0], dSeries[i]);
+		outMinMaxMean[1] = Math.max(outMinMaxMean[1], dSeries[i]);
+		outMinMaxMean[2] += dSeries[i];
 	    } // end of for (int i=0; i<dSeries.length; i++)
 	}
-	minMaxMean[2] /= (endIndex - beginIndex);
-	this.beginIndex = beginIndex;
-	this.endIndex = endIndex;
-	minMaxMeanCalculated = true;
-	return minMaxMean;
+	outMinMaxMean[2] /= (endIndex - beginIndex);
+	return outMinMaxMean;
     }
 
+    /**
+     * Calualates the variance.
+     *
+     * @return variance
+     */
     public double var() {
 	if ( ! varianceCalculated) {
 	    variance = binarySumDevSqr(0, getLength(), mean()) /
@@ -238,10 +338,21 @@ public class Statistics  {
 	return variance;
     }
 
+    /**
+     * Calulates the standard deviation. This is a shortcut for Math.sqrt(var());
+     *
+     * @return the Standard deviation
+     */
     public double stddev() {
 	return Math.sqrt(var());
     }
 
+    /**
+     * Calculates the autocovariance function out to the given lag.
+     *
+     * @param maxlag the maximum lag to calculate the acf
+     * @return the acf for the series out to maxlag
+     */
     public double[] acf(int maxlag) {
 	if (autocorrelation.length < maxlag+1) {
 	    double[] tmp = new double[maxlag+1];
@@ -258,6 +369,12 @@ public class Statistics  {
 	return autocorrelation;
     }
 
+    /**
+     * Describe <code>acf95conf</code> method here.
+     *
+     * @param maxlag an <code>int</code> value
+     * @return a <code>double[]</code> value
+     */
     public double[] acf95conf(int maxlag) {
 	double[] acfVals = acf(maxlag);
 	double[] out = new double[acfVals.length];
@@ -270,6 +387,12 @@ public class Statistics  {
 	return out;
     }
 
+    /**
+     * Calculates the TRatio for the acf out to the given max lag.
+     *
+     * @param maxlag the maximu lag
+     * @return the T ratio
+     */
     public double[] acfTRatio(int maxlag) {
 	double[] acfVals = acf(maxlag);
 	double[] conf = acf95conf(maxlag);
@@ -281,8 +404,12 @@ public class Statistics  {
 	return out;
     }
 
-    /** Computes the partial autocorrelation function, after Wei, William S.
-     *  Time Series Analysis, pp 22-23. */
+    /**
+     * Computes the partial autocorrelation function, after Wei, William S.
+     *  Time Series Analysis, pp 22-23.
+     * @param maxlag the maximum lag
+     * @return the pacf
+     */
     public double[] pacf(int maxlag) {
 	if (partialautocorr.length < maxlag) {
 	    double[] tmp = new double[maxlag];
@@ -316,12 +443,25 @@ public class Statistics  {
 	return partialautocorr;
     }
 	
+    /**
+     * Calculates the 95 percent confidence for the pacf. This is just
+     * 1.96*sqrt(length)
+     *
+     * @param maxlag the maximum lag
+     * @return the 95 percent conf for the pacf
+     */
     public double pacf95conf(int maxlag) {
 	double out = 1.96 /
 	    Math.sqrt(getLength());
 	return out;
     }
 
+    /**
+     * Calculates the TRatio for the pacf.
+     *
+     * @param maxlag the maximum lag
+     * @return T ratio for the pacf
+     */
     public double[] pacfTRatio(int maxlag) {
 	double[] pacfVals = pacf(maxlag);
 	double conf = pacf95conf(maxlag);
@@ -333,6 +473,9 @@ public class Statistics  {
 	return out;
     }
 
+    /**
+     * The length of the series.
+     */
     public int getLength() {
 	if (iSeries != null) {
 	    return iSeries.length;
@@ -349,10 +492,15 @@ public class Statistics  {
 	return 0;
     }
 
-    /** Creates a histogram of the values. Each value is added to the bin
-	Math.floor((value-start)/width) and the returned int array has
-	length number
-    */
+    /**
+     * Creates a histogram of the values. Each value is added to the bin
+     Math.floor((value-start)/width) and the returned int array has
+     length number
+     * @param start binning start value
+     * @param width bin width
+     * @param number number of bins
+     * @return an histogram
+     */
     public int[] histogram(double start, double width, int number) {
 	int[] histo = new int[number];
 	int bin;
@@ -395,7 +543,15 @@ public class Statistics  {
 	return new int[0];
     }
 
-    protected double binarySum(int start, int finish) {
+    /**
+     * Calulates the sum of the series from beginIndex to endIndex-1.
+     * This is done recursively in halves to avoid rounding errors.
+     *
+     * @param start starting index
+     * @param finish last index +1
+     * @return the sum
+     */
+    public double binarySum(int start, int finish) {
 	if (iSeries != null) {
 	    return iBinarySum(start, finish);
 	} // end of if (iSeries != null)
@@ -467,7 +623,16 @@ public class Statistics  {
 	}
     }
 
-    protected double binarySumDevSqr(int start, int finish, double mean) {
+    /**
+     * Calulates the sum of the square of the difference from the mean.
+     * Sum ((xi-mean)^2)
+     *
+     * @param start first index
+     * @param finish last index+1
+     * @param mean the mean
+     * @return the result
+     */
+    public double binarySumDevSqr(int start, int finish, double mean) {
 	if (iSeries != null) {
 	    return iBinarySumDevSqr(start, finish, mean);
 	} // end of if (iSeries != null)
@@ -539,8 +704,17 @@ public class Statistics  {
 	}
     }
 
-    protected double binarySumDevLag(int start, int finish, 
-				     double mean, int lag) {
+    /**
+     * Describe <code>binarySumDevLag</code> method here.
+     *
+     * @param start an <code>int</code> value
+     * @param finish an <code>int</code> value
+     * @param mean a <code>double</code> value
+     * @param lag an <code>int</code> value
+     * @return a <code>double</code> value
+     */
+    public double binarySumDevLag(int start, int finish, 
+				  double mean, int lag) {
 	if (iSeries != null) {
 	    return iBinarySumDevLag(start, finish, mean, lag);
 	} // end of if (iSeries != null)
@@ -616,6 +790,16 @@ public class Statistics  {
 	}
     }
 
+    private void flushCache() {
+	minMaxMeanCalculated = false;
+	varianceCalculated = false;
+    }
+
+    /**
+     * Describe <code>main</code> method here.
+     *
+     * @param args a <code>String[]</code> value
+     */
     public static void main(String[] args) {
 	int[] testSeries = new int[10];
 	testSeries[0] = 13;
@@ -641,23 +825,73 @@ public class Statistics  {
 	}
     }
 
+    /**
+     * Describe variable <code>iSeries</code> here.
+     *
+     */
     protected int[] iSeries;
 
+    /**
+     * Describe variable <code>sSeries</code> here.
+     *
+     */
     protected short[] sSeries;
 
+    /**
+     * Describe variable <code>fSeries</code> here.
+     *
+     */
     protected float[] fSeries;
 
+    /**
+     * Describe variable <code>dSeries</code> here.
+     *
+     */
     protected double[] dSeries;
 
-    protected boolean minMaxMeanCalculated;
+    /**
+     * Describe variable <code>minMaxMeanCalculated</code> here.
+     *
+     */
+    protected boolean minMaxMeanCalculated = false;
     
+    /**
+     * Describe variable <code>variance</code> here.
+     *
+     */
     protected double variance;
+    /**
+     * Describe variable <code>varianceCalculated</code> here.
+     *
+     */
     protected boolean varianceCalculated = false;
     
+    /**
+     * Describe variable <code>autocorrelation</code> here.
+     *
+     */
     protected double[] autocorrelation = new double[0];
+    /**
+     * Describe variable <code>partialautocorr</code> here.
+     *
+     */
     protected double[] partialautocorr = new double[0];
+    /**
+     * Describe variable <code>minMaxMean</code> here.
+     *
+     */
     protected double[] minMaxMean = new double[3];
     
-    protected int beginIndex, endIndex;
+    /**
+     * Describe variable <code>beginIndex</code> here.
+     *
+     */
+    protected int beginIndex;
+
+    /**
+     * Describe variable <code>endIndex</code> here.
+     *
+     */
+    protected int endIndex;
 
 } // Statistics
