@@ -126,6 +126,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.add(imagePainter);
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+	//plotters.put(new FlagPlotter(timeRegistrar.getTimeRange().getBeginTime(), timeRegistrar, "TEST"), colors[plotters.size()%colors.length]);
     }
 
     /**
@@ -563,7 +564,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    }
 	    if(name != null){
 		g2.setPaint(new Color(0, 0, 0, 128));
-		g2.drawString(name, 5, 10);
+		g2.drawString(name, 5, getSize().height - 3);
 	    }
 	    //logger.debug(imageCache.size() + " images in the cache");
 	    //logger.debug("the image size is: " + ImageMaker.getImageSize(((BufferedImage)overSizedImage.get())));

@@ -77,6 +77,7 @@ public class ImageMaker implements Runnable  {
 	    }
 	    Iterator e = plotters.keySet().iterator();
 	    LinkedList afterSeismograms = new LinkedList();
+	    LinkedList flags = new LinkedList();
 	    if(bufferedImage){
 		graphic.setColor(Color.white);
 		graphic.fill(new Rectangle(0, 0, size.width, size.height));
@@ -87,9 +88,19 @@ public class ImageMaker implements Runnable  {
 		if(current instanceof SeismogramPlotter){
 		    graphic.setColor((Color)plotters.get(current));
 		    graphic.draw(current.draw(size));
+		}else if(current instanceof FlagPlotter){
+		    flags.add(current);
 		}else{
 		    afterSeismograms.add(current);
 		}
+	    }
+	    e = flags.iterator();
+	    while(e.hasNext()){
+		FlagPlotter current = ((FlagPlotter)e.next());
+		graphic.setColor((Color)plotters.get(current));
+		graphic.fill(current.draw(size));
+		graphic.setColor(Color.black);
+		graphic.drawString(current.getName(), current.getStringX(), 10);
 	    }
 	    e = afterSeismograms.iterator();
 	    while(e.hasNext()){
