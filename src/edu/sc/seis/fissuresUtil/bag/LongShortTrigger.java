@@ -11,17 +11,21 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class LongShortTrigger {
-    public LongShortTrigger(LocalSeismogramImpl seis, int index, float value) {
+    public LongShortTrigger(LocalSeismogramImpl seis, int index, float value, float sta, float lta) {
         this(seis, index, value,
-             seis.getBeginTime().add((TimeInterval)seis.getSampling().getPeriod().multiplyBy(index)));
+             seis.getBeginTime().add((TimeInterval)seis.getSampling().getPeriod().multiplyBy(index)),
+            sta, lta);
     }
 
     public LongShortTrigger(LocalSeismogramImpl seis, int index, float value,
-                            MicroSecondDate when){
+                            MicroSecondDate when,
+                           float sta, float lta){
         this.seis = seis;
         this.index = index;
         this.when = when;
         this.value = value;
+        this.sta = sta;
+        this.lta = lta;
     }
 
     /**
@@ -60,6 +64,10 @@ public class LongShortTrigger {
         return seis;
     }
 
+    public float getSTA() { return sta; }
+
+    public float getLTA() { return lta; }
+
     private LocalSeismogramImpl seis;
 
     private MicroSecondDate when;
@@ -68,5 +76,9 @@ public class LongShortTrigger {
 
     private int index;
 
+    private float sta;
+
+    private float lta;
 }
+
 
