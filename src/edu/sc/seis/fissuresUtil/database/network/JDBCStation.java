@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
@@ -70,8 +71,62 @@ public class JDBCStation extends NetworkTable {
         prepareStatements();
     }
 
+    private StationId[] extractAll(PreparedStatement query) throws SQLException {
+        ResultSet rs = query.executeQuery();
+        List aList = new ArrayList();
+        try {
+            while(rs.next())
+                aList.add(extractId(rs, netTable, time));
+        } catch(NotFound e) {
+            return new StationId[] {};
+        }
+        return (StationId[])aList.toArray(new StationId[aList.size()]);
+    }
+
+    public Station[] extractAll(ResultSet rs) throws SQLException {
+        List stations = new ArrayList();
+        while(rs.next()) {
+            try {
+                stations.add(extract(rs, locTable, netTable, time));
+            } catch(NotFound e) {
+                GlobalExceptionHandler.handle("Got a not found for a particular station",
+                                              e);
+            }
+        }
+        return (Station[])stations.toArray(new Station[stations.size()]);
+    }
+
+    public Station get(int dbid) throws SQLException, NotFound {
+        Station sta = (Station)dbIdsToStations.get(new Integer(dbid));
+        if(sta != null) { return sta; }
+        getByDBId.setInt(1, dbid);
+        ResultSet rs = getByDBId.executeQuery();
+        if(rs.next()) { return extract(rs, locTable, netTable, time); }
+        throw new NotFound("No Station found for database id = " + dbid);
+    }
+
+    public Station get(StationId id) throws SQLException, NotFound {
+        return get(getDBId(id));
+    }
+
     public StationId[] getAllStationIds() throws SQLException {
         return extractAll(getAll);
+    }
+
+    public StationId[] getAllStationIds(int netDbId) throws SQLException {
+        getAllForNet.setInt(1, netDbId);
+        return extractAll(getAllForNet);
+    }
+
+    /*
+     * @returns - a 0 length array if the network isn't found
+     */
+    public StationId[] getAllStationIds(NetworkId net) throws SQLException {
+        try {
+            return getAllStationIds(netTable.getDBId(net));
+        } catch(NotFound e) {
+            return new StationId[] {};
+        }
     }
 
     /*
@@ -92,32 +147,67 @@ public class JDBCStation extends NetworkTable {
         return stations;
     }
 
-    /*
-     * @returns - a 0 length array if the network isn't found
-     */
-    public StationId[] getAllStationIds(NetworkId net) throws SQLException {
-        try {
-            return getAllStationIds(netTable.getDBId(net));
-        } catch(NotFound e) {
-            return new StationId[] {};
+    public int getDBId(StationId id) throws SQLException, NotFound {
+        Integer dbId = (Integer)stationIdsToDbIds.get(id);
+        if(dbId != null) {
+            return dbId.intValue();
         }
+        insertId(id, getDBId, 1, netTable, time);
+        ResultSet rs = getDBId.executeQuery();
+        if(rs.next()) {
+            int dbid = rs.getInt("sta_id");
+            stationIdsToDbIds.put(id, new Integer(dbid));
+            return dbid;
+        }
+        throw new NotFound("No such station id in the db");
     }
 
-    public StationId[] getAllStationIds(int netDbId) throws SQLException {
-        getAllForNet.setInt(1, netDbId);
-        return extractAll(getAllForNet);
+    public int[] getDBIds(int netDbId, String station_code)
+            throws SQLException, NotFound {
+        getDBIdsForNetAndCode.setInt(1, netDbId);
+        getDBIdsForNetAndCode.setString(2, station_code);
+        List ids = new ArrayList();
+        ResultSet rs = getDBIdsForNetAndCode.executeQuery();
+        while(rs.next()) {
+            ids.add(new Integer(rs.getInt("sta_id")));
+        }
+        if(ids.size() > 0) {
+            int[] intIds = new int[ids.size()];
+            for(int i = 0; i < ids.size(); i++) {
+                intIds[i] = ((Integer)ids.get(i)).intValue();
+            }
+            return intIds;
+        }
+        throw new NotFound("No stations in the database of code "
+                + station_code + " for netDbId " + netDbId);
     }
 
-    private StationId[] extractAll(PreparedStatement query) throws SQLException {
-        ResultSet rs = query.executeQuery();
-        List aList = new ArrayList();
-        try {
-            while(rs.next())
-                aList.add(extractId(rs, netTable, time));
-        } catch(NotFound e) {
-            return new StationId[] {};
-        }
-        return (StationId[])aList.toArray(new StationId[aList.size()]);
+    public int[] getDBIds(NetworkId net, String stationCode)
+            throws SQLException, NotFound {
+        return getDBIds(netTable.getDBId(net), stationCode);
+    }
+
+    public JDBCNetwork getNetTable() {
+        return netTable;
+    }
+
+    public StationId getStationId(int dbid) throws SQLException, NotFound {
+        Station sta = (Station)dbIdsToStations.get(new Integer(dbid));
+        if(sta != null) { return sta.get_id(); }
+        getStationIdByDBId.setInt(1, dbid);
+        ResultSet rs = getStationIdByDBId.executeQuery();
+        if(rs.next()) { return extractId(rs, netTable, time); }
+        throw new NotFound("No StationId found for database id = " + dbid);
+    }
+
+    public int put(ChannelId id) throws SQLException {
+        int netDbId = netTable.put(id.network_id);
+        int dbId = seq.next();
+        putChanIdBits.setInt(1, dbId);
+        putChanIdBits.setInt(2, netDbId);
+        putChanIdBits.setString(3, id.station_code);
+        putChanIdBits.executeUpdate();
+        return dbId;
     }
 
     public int put(Station sta) throws SQLException {
@@ -162,52 +252,21 @@ public class JDBCStation extends NetworkTable {
         return dbid;
     }
 
-    public Station get(int dbid) throws SQLException, NotFound {
-        Station sta = (Station)dbIdsToStations.get(new Integer(dbid));
-        if(sta != null) { return sta; }
-        getByDBId.setInt(1, dbid);
-        ResultSet rs = getByDBId.executeQuery();
-        if(rs.next()) { return extract(rs, locTable, netTable, time); }
-        throw new NotFound("No Station found for database id = " + dbid);
-    }
+    private PreparedStatement getAll, getAllForNet, getIfNameExists, getByDBId,
+            getStationIdByDBId, getDBId, updateSta, putAll, putId,
+            putChanIdBits, getDBIdsForNetAndCode;
 
-    public StationId getStationId(int dbid) throws SQLException, NotFound {
-        Station sta = (Station)dbIdsToStations.get(new Integer(dbid));
-        if(sta != null) { return sta.get_id(); }
-        getStationIdByDBId.setInt(1, dbid);
-        ResultSet rs = getStationIdByDBId.executeQuery();
-        if(rs.next()) { return extractId(rs, netTable, time); }
-        throw new NotFound("No StationId found for database id = " + dbid);
-    }
+    private JDBCLocation locTable;
 
-    public Station get(StationId id) throws SQLException, NotFound {
-        return get(getDBId(id));
-    }
+    private JDBCNetwork netTable;
 
-    public Station[] extractAll(ResultSet rs) throws SQLException {
-        List stations = new ArrayList();
-        while(rs.next()) {
-            try {
-                stations.add(extract(rs, locTable, netTable, time));
-            } catch(NotFound e) {
-                GlobalExceptionHandler.handle("Got a not found for a particular station",
-                                              e);
-            }
-        }
-        return (Station[])stations.toArray(new Station[stations.size()]);
-    }
+    private JDBCSequence seq;
 
-    public int getDBId(StationId id) throws SQLException, NotFound {
-        Integer dbId = (Integer)stationIdsToDbIds.get(id);
-        if(dbId != null) { return dbId.intValue(); }
-        insertId(id, getDBId, 1, netTable, time);
-        ResultSet rs = getDBId.executeQuery();
-        if(rs.next()) {
-            int dbid = rs.getInt("sta_id");
-            stationIdsToDbIds.put(id, new Integer(dbid));
-            return dbid;
-        }
-        throw new NotFound("No such station id in the db");
+    private JDBCTime time;
+
+    public static void emptyCache() {
+        stationIdsToDbIds.clear();
+        dbIdsToStations.clear();
     }
 
     public static Station extract(ResultSet rs,
@@ -248,6 +307,15 @@ public class JDBCStation extends NetworkTable {
         }
     }
 
+    public static String getNeededForStation() {
+        return getNeededForStationId()
+                + ", sta_end_id, sta_name, station.loc_id, sta_operator, sta_description, sta_comment";
+    }
+
+    public static String getNeededForStationId() {
+        return "sta_id, station.net_id, sta_code, sta_begin_id";
+    }
+
     public static int insertAll(Station sta,
                                 PreparedStatement stmt,
                                 int index,
@@ -256,6 +324,17 @@ public class JDBCStation extends NetworkTable {
                                 JDBCTime time) throws SQLException {
         index = insertId(sta.get_id(), stmt, index, netTable, time);
         index = insertOnlyStation(sta, stmt, index, netTable, locTable, time);
+        return index;
+    }
+
+    public static int insertId(StationId id,
+                               PreparedStatement stmt,
+                               int index,
+                               JDBCNetwork netTable,
+                               JDBCTime time) throws SQLException {
+        stmt.setInt(index++, netTable.put(id.network_id));
+        stmt.setString(index++, id.station_code);
+        stmt.setInt(index++, time.put(id.begin_time));
         return index;
     }
 
@@ -275,74 +354,9 @@ public class JDBCStation extends NetworkTable {
         return index;
     }
 
-    public static int insertId(StationId id,
-                               PreparedStatement stmt,
-                               int index,
-                               JDBCNetwork netTable,
-                               JDBCTime time) throws SQLException {
-        stmt.setInt(index++, netTable.put(id.network_id));
-        stmt.setString(index++, id.station_code);
-        stmt.setInt(index++, time.put(id.begin_time));
-        return index;
-    }
-
-    public static String getNeededForStationId() {
-        return "sta_id, station.net_id, sta_code, sta_begin_id";
-    }
-
-    public static String getNeededForStation() {
-        return getNeededForStationId()
-                + ", sta_end_id, sta_name, station.loc_id, sta_operator, sta_description, sta_comment";
-    }
-
-    public static void emptyCache() {
-        stationIdsToDbIds.clear();
-        dbIdsToStations.clear();
-    }
-
-    public JDBCNetwork getNetTable() {
-        return netTable;
-    }
-
-    private static Map stationIdsToDbIds = Collections.synchronizedMap(new HashMap());
-
     private static Map dbIdsToStations = Collections.synchronizedMap(new HashMap());
-
-    private JDBCLocation locTable;
-
-    private JDBCNetwork netTable;
-
-    private JDBCSequence seq;
-
-    private JDBCTime time;
-
-    private PreparedStatement getAll, getAllForNet, getIfNameExists, getByDBId,
-            getStationIdByDBId, getDBId, updateSta, putAll, putId,
-            getDBIdsForNetAndCode;
 
     private static final Logger logger = Logger.getLogger(JDBCStation.class);
 
-    public int[] getDBIds(NetworkId net, String stationCode) throws SQLException, NotFound{
-        return getDBIds(netTable.getDBId(net), stationCode);
-    }
-    
-    public int[] getDBIds(int netDbId, String station_code)
-            throws SQLException, NotFound {
-        getDBIdsForNetAndCode.setInt(1, netDbId);
-        getDBIdsForNetAndCode.setString(2, station_code);
-        List ids = new ArrayList();
-        ResultSet rs = getDBIdsForNetAndCode.executeQuery();
-        while(rs.next()) {
-            ids.add(new Integer(rs.getInt("sta_id")));
-        }
-        if(ids.size() > 0) {
-            int[] intIds = new int[ids.size()];
-            for(int i = 0; i < ids.size(); i++) {
-                intIds[i] = ((Integer)ids.get(i)).intValue();
-            }
-            return intIds;
-        }
-       throw new NotFound("No stations in the database of code "
-                + station_code + " for netDbId " + netDbId);
-    }
+    private static Map stationIdsToDbIds = Collections.synchronizedMap(new HashMap());
 }// JDBCStation
