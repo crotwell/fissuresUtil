@@ -83,24 +83,27 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    long beginTime = timeConfig.getTimeRange().getBeginTime().getMicroSecondTime();
 	    long overEndTime = overTimeRange.getEndTime().getMicroSecondTime();
 	    long overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
-	    if(endTime >= overEndTime || beginTime <= overBeginTime || 
-	       displayInterval.getValue() != timeConfig.getTimeRange().getInterval().getValue()) 
+	    if(endTime >= overEndTime || beginTime <= overBeginTime) 
 		this.createOversizedImage();
+	    //displayInterval.getValue() != timeConfig.getTimeRange().getInterval().getValue()
 	    Graphics2D g2 = (Graphics2D)g;
 	    double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * overSize.getWidth();
 	    AffineTransform tx;
-	//if(displayInterval.getValue() == timeConfig.getTimeRange().getInterval().getValue())
+	    if(displayInterval.getValue() == timeConfig.getTimeRange().getInterval().getValue()){
 		tx = AffineTransform.getTranslateInstance(-offset, 0.0);
-	/*    else{
+		g2.drawImage(overSizedImage, tx, null);
+	    } else{
 		double scale = displayInterval.getValue()/timeConfig.getTimeRange().getInterval().getValue();
 		tx = AffineTransform.getTranslateInstance(-offset * scale, 0.0);
 		tx.scale(scale, 1);
-		}*/
-	    g2.drawImage(overSizedImage, tx, null);
+		g2.drawImage(overSizedImage, tx, null);
+		redo = true;
+		repaint();
+	    }
+	   
 	} 
 
 	public void createOversizedImage(){
-	    System.out.println("Creating image");
 	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(2);
 	    redo = false;
 	    Dimension d = getSize();
@@ -173,6 +176,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.timeScaleMap.setTimes(timeConfig.getTimeRange().getBeginTime(), 
 				   timeConfig.getTimeRange().getEndTime());
 	repaint();
+	
     }
 
     public void addBottomTimeBorder(){	
