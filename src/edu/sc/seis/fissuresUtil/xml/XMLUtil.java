@@ -35,7 +35,7 @@ public class XMLUtil {
      */
     public static NodeList evalNodeList(Node context, String path) {
 	try {
-	    xpath = new CachedXPathAPI();
+	    //xpath = new CachedXPathAPI();
 	     XObject xobj = xpath.eval(context, path);
             if (xobj != null && xobj.getType() == XObject.CLASS_NODESET) {
                 return xobj.nodelist();
