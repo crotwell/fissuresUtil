@@ -57,8 +57,9 @@ public abstract class Initializer{
                 fisName = new FissuresNamingService(orb);
                 logger.info("create fisName helper with orb");
 
-                fisName.setNameServiceCorbaLoc("corbaloc:iiop:dmc.iris.washington.edu:6371/NameService");
-                //fisName.setNameServiceCorbaLoc("corbaloc:iiop:pooh.seis.sc.edu:6371/NameService");
+                //fisName.setNameServiceCorbaLoc("corbaloc:iiop:dmc.iris.washington.edu:6371/NameService");
+                fisName.setNameServiceCorbaLoc(props.getProperty("edu.sc.seis.fissuresUtil.nameServiceCorbaLoc",
+                                                                 "corbaloc:iiop:pooh.seis.sc.edu:6371/NameService"));
                 //fisName.setNameServiceCorbaLoc("corbaloc:iiop:sob.iris.washington.edu:6371/NameService");
                 fisName.getNameService();
                 logger.info("got fis name service");
