@@ -93,17 +93,19 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	int i = 0;
 	Iterator e = creator.getSeismograms().iterator();
 	DataSetSeismogram first = ((DataSetSeismogram)creator.getSeismograms().getFirst());
+	LocalSeismogramImpl seis = first.getSeismogram();
 	XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
 	ChannelId[] channelIds = dataSet.getChannelIds();
 	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, 
-								  first.getSeismogram().getChannelID());
+	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
 	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
 	try{
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		seismograms[counter] = new DataSetSeismogram(dataSet.getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter])),
-							     dataSet);
-		if(seismograms[counter] != null && first.getSeismogram() != seismograms[counter].getSeismogram()){
+		String name = DisplayUtils.getSeismogramName(channelGroup[counter], dataSet, 
+						   new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), 
+										   seis.getEndTime().getFissuresTime()));
+		seismograms[counter] = new DataSetSeismogram(dataSet.getSeismogram(name), dataSet);
+		if(seismograms[counter] != null && seis != seismograms[counter].getSeismogram()){
 		    int j = i;
 		    Iterator g = basicDisplays.iterator();
 		    while(g.hasNext() && j == i){
@@ -403,33 +405,40 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
-	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
+	    DataSetSeismogram first = ((DataSetSeismogram)creator.getSeismograms().getFirst());
+	    LocalSeismogramImpl seis = first.getSeismogram();
 	    XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange(first)));
-	    creator.addDisplay(threeSelectionDisplay.addDisplay(first, tr, ar, 
-								creator.getParent().getName() + "." + creator.getColor()));
 	    ChannelId[] channelIds = dataSet.getChannelIds();
 	    ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	    ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, 
-								      first.getSeismogram().getChannelID());
+	    ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
 	    DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
-	    System.out.println(channelGroup.length);
 	    try{
 		for(int counter = 0; counter < channelGroup.length; counter++) {
-		    seismograms[counter] = new DataSetSeismogram(dataSet.
-								 getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter])),
-								 dataSet);
-		    if(seismograms[counter].getSeismogram() != null && first.getSeismogram() != seismograms[counter].getSeismogram()){
+		    String name = DisplayUtils.getSeismogramName(channelGroup[counter], dataSet, 
+						       new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), 
+										       seis.getEndTime().getFissuresTime()));
+		    seismograms[counter] = new DataSetSeismogram(dataSet.getSeismogram(name), dataSet);
+		    if(seismograms[counter].getSeismogram() != null){
+			Iterator g = basicDisplays.iterator();
+			while(g.hasNext()){
+			    BasicSeismogramDisplay current = ((BasicSeismogramDisplay)g.next());
+			    Iterator h = current.getSeismograms().iterator();
+			    while(h.hasNext()){
+				if(((DataSetSeismogram)h.next()).getSeismogram() == seismograms[counter].getSeismogram()){
+				    current.addSelection(creator);
+				}
+			    }
+			}
+			AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
+			ar.visibleAmpCalc(tr);
 			creator.addDisplay(threeSelectionDisplay.addDisplay(seismograms[counter], tr, ar, 
 									    seismograms[counter].getSeismogram().getName() + "." 
 									    + creator.getColor()));
 		    }
-			
 		}
 	    }catch(Exception f){ 
 		f.printStackTrace();
 	    }	
-	    ar.visibleAmpCalc(tr);
 	    threeSelectionWindow.getContentPane().add(threeSelectionDisplay);
 	    threeSelectionWindow.setSize(400, 400);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
