@@ -44,6 +44,8 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     public abstract void applyFilter(ColoredFilter filter);
 
+    public abstract void removeFilter(ColoredFilter filter);
+
     public abstract void setOriginalVisibility(boolean visible);
 
     public abstract void print();
