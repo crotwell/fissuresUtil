@@ -24,11 +24,16 @@ public class AmpConfigConfiguration implements Cloneable {
     private AmpConfig getAmpConfig(Element el) {
         AmpConfigConfiguration aConfig = new AmpConfigConfiguration();
         aConfig.configure(el);
+        aConfig.setAmpConfig(aConfig.createAmpConfig());
         return aConfig.getAmpConfig();
     }
 
     private AmpConfig getAmpConfig() {
         return ampConfig;
+    }
+
+    private void setAmpConfig(AmpConfig ampConfig) {
+        this.ampConfig = ampConfig;
     }
 
     public AmpConfig createAmpConfig() {
@@ -43,8 +48,7 @@ public class AmpConfigConfiguration implements Cloneable {
         return ac;
     }
 
-    public static AmpConfigConfiguration create(Element el)
-            throws NoSuchFieldException {
+    public static AmpConfigConfiguration create(Element el) {
         AmpConfigConfiguration c = null;
         if(defs.hasDefinition(el)) {
             AmpConfigConfiguration base = (AmpConfigConfiguration)defs.getDefinition(el);
