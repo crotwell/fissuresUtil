@@ -186,7 +186,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         while ( ! saver.isFinished()) {
             logger.debug("Waiting for saver to finish");
             try {
-                Thread.sleep(2000);
+                Thread.sleep(100);
             } catch(InterruptedException e) {
             }
         }
