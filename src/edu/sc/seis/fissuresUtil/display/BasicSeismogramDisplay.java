@@ -293,18 +293,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     public void remove(Selection old){
         if( plotters.remove(old)){
-            old.removeParent(this);
             repaint();
         }
     }
 
     public void clearSingleSelections(){
-        Iterator e = new PlotterIterator(SingleSelection.class);
-        while(e.hasNext()){
-            Selection old = (Selection)e.next();
-            e.remove();
-            old.removeParent(this);
-        }
+        PlotterIterator e = new PlotterIterator(SingleSelection.class);
+        e.clear();
         repaint();
     }
 
@@ -321,18 +316,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     public void removeThreeCSelection(ThreeCSelection old) {
         if(plotters.remove(old)){
-            old.removeParent(this);
             repaint();
         }
     }
 
     public void clearThreeCSelections(){
-        Iterator e = new PlotterIterator(ThreeCSelection.class);
-        while(e.hasNext()){
-            Selection old = (Selection)e.next();
-            e.remove();
-            old.removeParent(this);
-        }
+        PlotterIterator e = new PlotterIterator(ThreeCSelection.class);
+        e.clear();
         repaint();
     }
 
