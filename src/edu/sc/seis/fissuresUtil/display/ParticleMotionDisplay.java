@@ -37,14 +37,10 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				  TimeRangeConfig timeRangeConfig,
 				  AmpRangeConfig hAmpRangeConfig,
 				  AmpRangeConfig vAmpRangeConfig){
-	
-	this.timeRangeConfig = timeRangeConfig;
-	if(timeRangeConfig != null) {
-	    this.timeRangeConfig.addTimeSyncListener(this);
-	}
+
 	this.hAmpRangeConfig = hAmpRangeConfig;
 	this.vAmpRangeConfig = vAmpRangeConfig;
-	
+
 	this.setLayout(new OverlayLayout(this));
 	view = new ParticleMotionView(hSeis, 
 				      vSeis, 
@@ -52,6 +48,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				      hAmpRangeConfig, 
 				      vAmpRangeConfig, 
 				      this);
+	if(timeRangeConfig != null) {
+	    timeRangeConfig.addTimeSyncListener(this);
+	}
 	view.setSize(new java.awt.Dimension(300, 300));
 	add(view, PARTICLE_MOTION_LAYER);
     hAmpScaleMap = new AmpScaleMapper(50,
@@ -93,14 +92,6 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     }
 
 
-    public void updateTimeRange() {
-	if(this.timeRangeConfig == null) {
-	    view.updateTimeRange(null);
-	} else {
-	    view.updateTimeRange(this.timeRangeConfig.getTimeRange());
-	}
-    }
-    
     public ParticleMotionDisplay(LocalSeismogramImpl hseis,
 				 LocalSeismogramImpl vseis,
 				 TimeRangeConfig timeRangeConfig,
@@ -161,12 +152,18 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
     public void addParticleMotionDisplay(LocalSeismogramImpl hseis,
 					 LocalSeismogramImpl vseis,
+					 TimeRangeConfig timeRangeConfig,
 					 AmpRangeConfig hAmpRangeConfig,
 					 AmpRangeConfig vAmpRangeConfig) {
+
 	view.addParticleMotionDisplay(hseis,
 				      vseis,
+				      timeRangeConfig,
 				      hAmpRangeConfig,
 				      vAmpRangeConfig);
+	if(timeRangeConfig != null) {
+	    timeRangeConfig.addTimeSyncListener(this);
+	}
     }
     
     
@@ -205,6 +202,11 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     public void fireAmpRangeEvent(AmpSyncEvent event) {
 
 	this.hAmpRangeConfig.fireAmpRangeEvent(event);
+    }
+
+    public void updateTimeRange() {
+
+	view.updateTimeRange();
     }
 
     /**
@@ -302,8 +304,6 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
      *
      */
     public static final Integer PARTICLE_MOTION_LAYER = new Integer(2);
-
-    private TimeRangeConfig timeRangeConfig = null;
 
     protected AmpScaleMapper hAmpScaleMap, vAmpScaleMap;
 

@@ -31,63 +31,39 @@ public class ParticleMotionView extends JComponent{
 			       AmpRangeConfig vAmpRangeConfig, ParticleMotionDisplay particleMotionDisplay){
 	
 	this.particleMotionDisplay = particleMotionDisplay;
-	if(timeRangeConfig != null) {
-
-	    this.microSecondTimeRange = timeRangeConfig.getTimeRange();
-	}
+	
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
+							   timeRangeConfig,
 							   hAmpRangeConfig,
 							   vAmpRangeConfig);
 	displays.add(particleMotion);
 	    
 	vunitRangeImpl = vAmpRangeConfig.getAmpRange(vseis);
-	hunitRangeImpl = hAmpRangeConfig.getAmpRange(hseis);
+	hunitRangeImpl = hAmpRangeConfig.getAmpRange(vseis);
 	
 	this.addMouseListener(new MouseAdapter() {
 
 		public void mouseClicked(MouseEvent me) {
-		    //UnitRangeImpl unitRangeImpl = hAmpRangeConfig.getAmpRange(hseis);
-		    //double min = unitRangeImpl.getMinValue();
-		    //double max = unitRangeImpl.getMaxValue();
-		    ///Insets insets = getInsets();
-		    //double  fmin = getSize().getWidth() - insets.left - insets.right;
-		    //double fmax = super.getSize().getHeight() - insets.top - insets.bottom;
-		    //int newx = (int)(((max - min) / fmin * me.getX()) - max);
-		    //(int)(max - (((max - min) * (fmin - me.getX()) )/ (fmax - me.getY())));
-		    //int newy =  (int)(((min - max) / fmax * me.getY()) + max);
+		   
 		    int clickCount = 0;
 		    if(zoomIn)  {
 			clickCount = 1;
-			//particleMotionDisplay.fireAmpRangeEvent(new AmpSyncEvent(50.0, 50.0, true));
-		    }
+			    }
 		    if(zoomOut) { 
 			clickCount = 2;
-			//	particleMotionDisplay.fireAmpRangeEvent(new AmpSyncEvent(-50.0, -50.0, true));
 		    }
-		    
 		    zoomInParticleMotionDisplay(clickCount, me.getX(), me.getY());
-		    //logger.debug("me x "+me.getX()+" me y "+me.getY());
-		    //findPoint(me.getClickCount(), me.getX(), me.getY());
 		    startPoint = null;
 		    endPoint = null;
 		}
 
 		public void mousePressed(MouseEvent me) {
 		    startPoint = new java.awt.geom.Point2D.Float((float)me.getX(), (float)me.getY());
-    		}
-		
-		public void mouseReleased(MouseEvent me) {
-		    // endPoint = new java.awt.geom.Point2D.Float(me.getX(), me.getY());
-		    
-		    // zoomInParticleMotionDisplay(me.getX(), me.getY());
-		  
-		    
 		}
 	
 	    });
 	
-
 
 	this.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -266,8 +242,8 @@ public class ParticleMotionView extends JComponent{
 	    //			       dimension.height - insets.top - insets.bottom);
 	    Dimension flipDimension = new Dimension(dimension.height,
 						    dimension.width);
-	    System.out.println("The width is "+dimension.width+" height is "+dimension.height);
-	    System.out.println("______________________________________________________________");
+	    //System.out.println("The width is "+dimension.width+" height is "+dimension.height);
+	    //System.out.println("______________________________________________________________");
 	    
 	    try {
 
@@ -276,14 +252,16 @@ public class ParticleMotionView extends JComponent{
 				   " hmin = "+hunitRangeImpl.getMinValue());
 		System.out.println("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
 				   " vmin = "+vunitRangeImpl.getMinValue());
-				   
-		if(microSecondTimeRange == null) {
+		MicroSecondTimeRange microSecondTimeRange = null;		   
+		if(particleMotion.timeRangeConfig == null) {
 		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
 								    new MicroSecondDate(hseis.getEndTime()));
-		    System.out.println("beginTime = "+hseis.getBeginTime());
-		    System.out.println("endTime = "+hseis.getEndTime());
-		} 
+		    //System.out.println("beginTime = "+hseis.getBeginTime());
+		    //System.out.println("endTime = "+hseis.getEndTime());
+		} else {
 
+		    microSecondTimeRange = particleMotion.getTimeRange();
+		} 
 		
 		int[][] hPixels = SimplePlotUtil.compressYvalues(hseis, 
 								 microSecondTimeRange,
@@ -456,10 +434,12 @@ public class ParticleMotionView extends JComponent{
     
     public void addParticleMotionDisplay(LocalSeismogramImpl hseis,
 					 LocalSeismogramImpl vseis,
+					 TimeRangeConfig timeRangeConfig,
 					 AmpRangeConfig hAmpRangeConfig,
 					 AmpRangeConfig vAmpRangeConfig) {
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
+							   timeRangeConfig,
 							   hAmpRangeConfig,
 							   vAmpRangeConfig);
 	displays.add(particleMotion);
@@ -519,7 +499,7 @@ public class ParticleMotionView extends JComponent{
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    AmpRangeConfig ampRangeConfig = particleMotion.vAmpRangeConfig;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.vseis);
-	    if(min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
+	    if( min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
 	}
 	return min;
     }
@@ -573,9 +553,8 @@ public class ParticleMotionView extends JComponent{
     
     }
 
-    
-    public void updateTimeRange(MicroSecondTimeRange microSecondTimeRange) {
-	this.microSecondTimeRange = microSecondTimeRange;
+    /*** updates the timeRange****/
+    public void updateTimeRange() {
 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
 					   getMaxHorizontalAmplitude(),
 					   UnitImpl.COUNT);
@@ -585,6 +564,7 @@ public class ParticleMotionView extends JComponent{
 	particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
 	particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
     }
+    
 
     private boolean zoomIn = false;
     private boolean zoomOut = false;
@@ -596,8 +576,7 @@ public class ParticleMotionView extends JComponent{
     UnitRangeImpl vunitRangeImpl = null;
     java.awt.geom.Point2D.Float startPoint;
     java.awt.geom.Point2D.Float endPoint;
-    MicroSecondTimeRange microSecondTimeRange = null;
-
+   
     private static int RGBCOLOR = 0;
     private ParticleMotionDisplay particleMotionDisplay; 
 
@@ -612,18 +591,38 @@ public class ParticleMotionView extends JComponent{
 					   Color.white,
 					   Color.black};
 
-    class ParticleMotion{
+    class ParticleMotion implements TimeSyncListener{
 	public ParticleMotion(final LocalSeismogramImpl hseis, 
-			       LocalSeismogramImpl vseis,
-			       final AmpRangeConfig hAmpRangeConfig,
-			       AmpRangeConfig vAmpRangeConfig) {
+			      LocalSeismogramImpl vseis,
+			      TimeRangeConfig timeRangeConfig,
+			      final AmpRangeConfig hAmpRangeConfig,
+			      AmpRangeConfig vAmpRangeConfig) {
 
 	    this.hseis = hseis;
 	    this.vseis = vseis;
+	    this.timeRangeConfig = timeRangeConfig;
 	    this.hAmpRangeConfig = hAmpRangeConfig;
 	    this.vAmpRangeConfig = vAmpRangeConfig;
+	 
+	    if(this.timeRangeConfig != null) {
+		this.timeRangeConfig.addTimeSyncListener(this);
+		this.microSecondTimeRange = timeRangeConfig.getTimeRange();
+		this.hAmpRangeConfig.visibleAmpCalc(this.timeRangeConfig);
+		this.vAmpRangeConfig.visibleAmpCalc(this.timeRangeConfig);
+	    }
 	}
 
+	
+	public void updateTimeRange() {
+	    if(timeRangeConfig != null) {
+		this.microSecondTimeRange = timeRangeConfig.getTimeRange();
+	    }
+	}
+    
+	public MicroSecondTimeRange getTimeRange() {
+
+	    return this.microSecondTimeRange;
+	}
 	public void setShape(Shape shape) {
 	    this.shape = shape;
 	}
@@ -653,6 +652,8 @@ public class ParticleMotionView extends JComponent{
 	public LocalSeismogramImpl vseis;
 	public AmpRangeConfig hAmpRangeConfig;
 	public AmpRangeConfig vAmpRangeConfig;
+	public TimeRangeConfig timeRangeConfig;
+	private MicroSecondTimeRange microSecondTimeRange;
 	private Shape shape;
 	private Color color = null;
 	private boolean selected = false;
