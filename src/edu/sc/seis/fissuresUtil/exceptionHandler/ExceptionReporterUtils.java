@@ -59,5 +59,14 @@ public class ExceptionReporterUtils{
         e.printStackTrace(printWriter);
         return stringWriter.toString();
     }
+    
+    public static String getExceptionClassName(Throwable e){
+        String defaultName = e.toString();
+        int colonIndex = defaultName.indexOf(":");
+        defaultName = defaultName.substring(0, colonIndex);
+        int lastPeriod = defaultName.lastIndexOf(".");
+        defaultName = defaultName.substring(++lastPeriod);
+        return defaultName;
+    }
 }
 
