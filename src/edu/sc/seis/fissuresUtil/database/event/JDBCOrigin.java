@@ -17,12 +17,11 @@ public class JDBCOrigin extends JDBCTable {
              new JDBCParameterRef(conn), new JDBCMagnitude(conn),
              new JDBCCatalog(conn));
     }
-    
+
     /**
      * Constructor for the JDBCOrigin class. In this Constructor the following tables are created
      * 1. Origin
      * 2. OriginParameterReference
-     * 3. OriginMagnitude
      */
     public JDBCOrigin(Connection conn, JDBCLocation jdbcLocation,
                       JDBCEventAttr jdbcEventAttr,
@@ -44,9 +43,6 @@ public class JDBCOrigin extends JDBCTable {
         if(!DBUtil.tableExists("originparamref", conn)){
             stmt.executeUpdate(ConnMgr.getSQL("originparamref.create"));
         }
-        if(!DBUtil.tableExists("originmagnitude", conn)){
-            stmt.executeUpdate(ConnMgr.getSQL("originmagnitude.create"));
-        }
         putStmt = conn.prepareStatement(" INSERT INTO origin "+
                                             "(originid, "+
                                             "origincatalogid, " +
@@ -64,23 +60,14 @@ public class JDBCOrigin extends JDBCTable {
         deleteOriginParamRefStmt = conn.prepareStatement(" DELETE FROM "+
                                                              parameterSubTableName+
                                                              " WHERE originparamrefid = ?");
-        putMagStmt = conn.prepareStatement(" INSERT INTO originmagnitude "+
-                                               "(originmagnitudeid,"+
-                                               " originrefmagnitudeid )"+
-                                               " VALUES(?,?)");
-        deleteOriginMagnitudeStmt = conn.prepareStatement(" DELETE FROM originmagnitude"+
-                                                              " WHERE originmagnitudeid = ?");
         getDBIdStmt = conn.prepareStatement(" SELECT originid FROM origin "+
-                                                " WHERE "+
-                                                " origincatalogid = ? AND"+
+                                                " WHERE origincatalogid = ? AND"+
                                                 " origin_time = ? AND" +
                                                 " originnanoseconds = ? AND"+
                                                 " originleapseconds = ? AND"+
                                                 " originlocationid = ? AND"+
                                                 " origintextid = ?");
-        getStmt = conn.prepareStatement(" SELECT *"+
-                                            " FROM origin"+
-                                            " WHERE originid = ?");
+        getStmt = conn.prepareStatement(" SELECT * FROM origin WHERE originid = ?");
         getParamsStmt = conn.prepareStatement(" SELECT parametera_id, parametercreator FROM "+
                                                   jdbcParamRef.getTableName()+","+
                                                   parameterSubTableName+","+
@@ -92,19 +79,6 @@ public class JDBCOrigin extends JDBCTable {
                                                   " originparamrefid = "+
                                                   " originid AND "+
                                                   " originid = ?");
-        getMagStmt = conn.prepareStatement(" SELECT magnitudetype,magnitudevalue,"+
-                                               jdbcMagnitude.getTableName()+
-                                               ".magnitudecontributorid FROM "+
-                                               jdbcMagnitude.getTableName()+","+
-                                               magnitudeSubTableName+","+
-                                               tableName+
-                                               " WHERE "+
-                                               " magnitude.magnitudeid = "+
-                                               " originmagnitude.originrefmagnitudeid"+
-                                               " AND "+
-                                               " originmagnitudeid = "+
-                                               " originid AND "+
-                                               " originid = ?");
         updateEventIdStmt = conn.prepareStatement(" UPDATE "+tableName+
                                                       " SET origineventid = ? "+
                                                       " WHERE originid = ?");
@@ -113,8 +87,8 @@ public class JDBCOrigin extends JDBCTable {
         getAllStmt = conn.prepareStatement(" SELECT originid FROM origin "+
                                                "  WHERE origineventid = ?");
     }
-    
-    
+
+
     /**
      * inserts an origin object into the database and returns the correspoding dbid
      * @param origin - Origin
@@ -125,7 +99,7 @@ public class JDBCOrigin extends JDBCTable {
             return getDBId(origin);
         } catch( NotFound ex) { return insertOrigin(origin); }
     }
-    
+
     private int insertOrigin(Origin o) throws SQLException{
         int id = seq.next();
         putStmt.setInt(1,id);
@@ -135,7 +109,7 @@ public class JDBCOrigin extends JDBCTable {
         putMagnitudes(o.magnitudes,id);
         return id;
     }
-    
+
     /**
      * This method is mainly used in updating the origineventid of the origin class given the Origin.
      * If the Origin is not present already it is inserted.
@@ -148,13 +122,13 @@ public class JDBCOrigin extends JDBCTable {
         setEventId(id, eventId);
         return id;
     }
-    
+
     private void setEventId(int originId, int eventId) throws SQLException{
         updateEventIdStmt.setInt(1,eventId);
         updateEventIdStmt.setInt(2,originId);
         updateEventIdStmt.executeUpdate();
     }
-    
+
     /**
      * This method inserts the parameterRef into the parameterRef Table.
      * @param params - Array of ParameterRef
@@ -165,8 +139,8 @@ public class JDBCOrigin extends JDBCTable {
             putParamRef(id, jdbcParamRef.put(params[i]));
         }
     }
-    
-    
+
+
     /**
      * This method inserts a row into originparameterreference table
      * @param id - origin dbid
@@ -177,7 +151,7 @@ public class JDBCOrigin extends JDBCTable {
         putOriginParamRefStmt.setInt(2, paramId);
         putOriginParamRefStmt.executeUpdate();
     }
-    
+
     /**
      * This method deletes all the rows int originparameterreference for which
      * originparameterreferenceid = originid
@@ -187,40 +161,17 @@ public class JDBCOrigin extends JDBCTable {
         deleteOriginParamRefStmt.setInt(1, originid);
         deleteOriginParamRefStmt.executeUpdate();
     }
-    
-    
+
+
     /**
      * This method inserts the Magnitude into the Magnitude Table.
      * @param magnitudes - Array of Magnitude
      * @originid - dbid
      */
     public void putMagnitudes(Magnitude[] mags, int id) throws SQLException {
-        for( int i=0; i < mags.length ; i++) {
-            putMag(id, jdbcMagnitude.put(mags[i]));
-        }
+        jdbcMagnitude.put(mags, id);
     }
-    
-    /**
-     * This method inserts a row into originmagnitude table
-     * @param id - origin dbid
-     * @mag id - the int obtained after inserting one of the magnitudes into the MagnitudeTable
-     */
-    public void putMag(int id, int magId) throws SQLException {
-        putMagStmt.setInt(1, id);
-        putMagStmt.setInt(2, magId);
-        putMagStmt.executeUpdate();
-    }
-    
-    
-    /**
-     * This method deletes all the rows int originMagnitude for which originmagnitudeid = originid
-     * @param originid - the dbid of the origin
-     */
-    public void deleteMag(int originid ) throws SQLException {
-        deleteOriginMagnitudeStmt.setInt(1, originid);
-        deleteOriginMagnitudeStmt.executeUpdate();
-    }
-    
+
     /**
      * This method returns the dbid given the origin object
      * @param origin - Origin
@@ -232,7 +183,7 @@ public class JDBCOrigin extends JDBCTable {
         if(rs.next())return rs.getInt("originid");
         throw new NotFound('\n'+getDBIdStmt.toString());
     }
-    
+
     /**
      * This function returns all the origins as an array of Origins.
      * @param eventid - the the dbid of the event
@@ -245,20 +196,20 @@ public class JDBCOrigin extends JDBCTable {
         while (rs.next())  origins.add(get(rs.getInt("originid")));
         return (Origin[])origins.toArray(new Origin[origins.size()]);
     }
-    
-    
-    
+
+
+
     /**
      * This method returns the origin object given the dbid
      * @param id - dbid
      */
-    public Origin get(int id) throws SQLException, NotFound {
-        getStmt.setInt(1,id);
+    public Origin get(int originId) throws SQLException, NotFound {
+        getStmt.setInt(1,originId);
         ResultSet rs = getStmt.executeQuery();
-        if(rs.next())  return extract(rs,id);
-        throw new NotFound(" there is no Origin object corresponding to the id "+id);
+        if(rs.next())  return extract(rs,originId);
+        throw new NotFound(" there is no Origin object corresponding to the id "+originId);
     }
-    
+
     public int insert(Origin origin,PreparedStatement stmt, int index)
         throws SQLException{
         stmt.setInt(index++, jdbcCatalog.put(origin.catalog, origin.contributor));
@@ -267,14 +218,14 @@ public class JDBCOrigin extends JDBCTable {
         stmt.setString(index++, origin.get_id());
         return index;
     }
-    
-    
+
+
     /**
      * this method returns the ParameterRef array given the dbid
      * @param id - dbid
      * @return - array of ParameterRef
      */
-    
+
     public ParameterRef[] getParams(int id) throws SQLException{
         List ids = new ArrayList();
         getParamsStmt.setInt(1,id);
@@ -285,33 +236,25 @@ public class JDBCOrigin extends JDBCTable {
         }
         return (ParameterRef[]) ids.toArray(new ParameterRef[ids.size()]);
     }
-    
+
     /**
      * this method returns the Magnitude array given the dbid
      * @param id - dbid
      * @return - array of Magnitude
      */
-    public Magnitude[] getMags(int id) throws SQLException, NotFound{
-        List ids = new ArrayList();
-        getMagStmt.setInt(1,id);
-        ResultSet rs = getMagStmt.executeQuery();
-        while(rs.next()) {
-            ids.add(new Magnitude(rs.getString("magnitudetype"),
-                                  rs.getFloat("magnitudevalue"),
-                                  jdbcCatalog.getContributorOnContributorId(rs.getInt("magnitudecontributorid"))));
-        }
-        return (Magnitude[]) ids.toArray(new Magnitude[ids.size()]);
+    public Magnitude[] getMags(int originId) throws SQLException, NotFound{
+        return jdbcMagnitude.get(originId);
     }
-    
+
     /**
      * returns the Origin object given the result set and dbid
      * @param rs - ResultSet
      * @param id - dbid
      * @return - Origin
      */
-    public Origin extract(ResultSet rs,int id) throws SQLException,NotFound {
-        ParameterRef[] params = getParams(id);
-        Magnitude[] magnitudes = getMags(id);
+    public Origin extract(ResultSet rs,int originId) throws SQLException,NotFound {
+        ParameterRef[] params = getParams(originId);
+        Magnitude[] magnitudes = getMags(originId);
         Timestamp ts = rs.getTimestamp("origin_time");
         int nanoseconds = rs.getInt("originnanoseconds");
         int leapseconds = rs.getInt("originleapseconds");
@@ -323,40 +266,23 @@ public class JDBCOrigin extends JDBCTable {
                               magnitudes,
                               params);
     }
-    
-    /**
-     * This function deletes the row corresponding to the give originid
-     * @param originid - the dbid of the origin
-     */
-    public void deleteOrigin(int originid) throws SQLException, NotFound {
-        getStmt.setInt(1,originid);
-        ResultSet rs = getStmt.executeQuery();
-        if(rs.next()) {
-            deleteOriginStmt.setInt(1, originid);
-            deleteParamRef(originid);
-            deleteMag(originid);
-            jdbcEventAttr.clearPreferredOrigin(originid);
-            deleteOriginStmt.executeUpdate();
-        }
-    }
-    
+
     protected JDBCLocation jdbcLocation;
-    
+
     protected JDBCMagnitude jdbcMagnitude;
-    
+
     protected JDBCParameterRef jdbcParamRef;
-    
+
     protected JDBCEventAttr jdbcEventAttr;
-    
+
     protected JDBCCatalog jdbcCatalog;
-    
+
     protected String magnitudeSubTableName = "originmagnitude";
-    
-    private PreparedStatement putStmt, getStmt, getDBIdStmt, getMagStmt,
-        getParamsStmt, putMagStmt, deleteOriginMagnitudeStmt,
-        putOriginParamRefStmt, deleteOriginParamRefStmt, updateEventIdStmt,
-        getAllStmt, deleteOriginStmt;
-    
+
+    private PreparedStatement putStmt, getStmt, getDBIdStmt,
+        getParamsStmt,  putOriginParamRefStmt, deleteOriginParamRefStmt,
+        updateEventIdStmt, getAllStmt, deleteOriginStmt;
+
     private JDBCSequence seq;
-    
+
 } // JDBCOrigin

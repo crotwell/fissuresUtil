@@ -3,7 +3,6 @@ package edu.sc.seis.fissuresUtil.database.event;
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
-import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import java.sql.Connection;
@@ -11,107 +10,89 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JDBCMagnitude  extends JDBCTable {
     public JDBCMagnitude(Connection conn) throws SQLException{
         this(conn, new JDBCContributor(conn));
     }
-    
-    
+
     public JDBCMagnitude(Connection conn, JDBCContributor jdbcContributor) throws SQLException {
         super("magnitude", conn);
         this.jdbcContributor = jdbcContributor;
         Statement stmt = conn.createStatement();
-        seq = new JDBCSequence(conn, "MagnitudeSeq");
         if(!DBUtil.tableExists("magnitude", conn)){
             stmt.executeUpdate(ConnMgr.getSQL("magnitude.create"));
         }
         putStmt = conn.prepareStatement("INSERT INTO magnitude"+
-                                            " (magnitudeid,"+
-                                            " magnitudetype,"+
+                                            " ( magnitudetype,"+
                                             " magnitudevalue,"+
-                                            " magnitudecontributorid)"+
+                                            " magnitudecontributorid,"+
+                                            " originid)"+
                                             " VALUES(?,?,?,?)");
-        getDBIdStmt = conn.prepareStatement(" SELECT magnitudeid FROM magnitude"+
-                                                " WHERE magnitudetype = ? AND"+
-                                                " magnitudevalue = ? AND "+
-                                                " magnitudecontributorid = ? ");
+        exists = conn.prepareStatement(" SELECT * FROM magnitude"+
+                                           " WHERE magnitudetype = ? AND"+
+                                           " magnitudevalue = ? AND "+
+                                           " magnitudecontributorid = ? AND "+
+                                           " originid = ?");
         getStmt = conn.prepareStatement(" SELECT magnitudetype ,"+
                                             " magnitudevalue ,"+
                                             " magnitudecontributorid FROM magnitude"+
-                                            " WHERE magnitudeid = ?");
+                                            " WHERE originid = ?");
     }
-    
-    /**
-     * This function returns the dbid given the magnitude object.
-     * @param magnitude - the Magnitude
-     * @return dbid
-     */
-    public int getDBId(Magnitude magnitude) throws SQLException, NotFound {
-        insert(magnitude,getDBIdStmt,1);
-        ResultSet rs = getDBIdStmt.executeQuery();
-        if(rs.next()) {
-            return rs.getInt("magnitudeid");
-        }
+
+    public boolean exists(Magnitude magnitude, int originId) throws SQLException, NotFound {
+        insert(magnitude,originId,exists);
+        ResultSet rs = exists.executeQuery();
+        if(rs.next())  return true;
         throw new NotFound("magnitude is not found");
     }
-    
-    
-    /**
-     * This inserts the details of magnitude into a preparedStatement
-     * @param magnitude - Magnitude.
-     * @param stmt - PreparedStatement
-     * @param index - the index
-     * @return - the resulting index.
-     */
-    public int insert(Magnitude magnitude,PreparedStatement stmt,int index)
+
+    public void insert(Magnitude magnitude,int originId, PreparedStatement stmt)
         throws SQLException {
-        stmt.setString(index++,magnitude.type);
-        stmt.setFloat(index++,magnitude.value);
-        stmt.setInt(index++,jdbcContributor.put(magnitude.contributor));
-        return index;
+        stmt.setString(1,magnitude.type);
+        stmt.setFloat(2,magnitude.value);
+        stmt.setInt(3,jdbcContributor.put(magnitude.contributor));
+        stmt.setInt(4, originId);
     }
-    
-    
-    /**
-     * Inserts the details of magnitude into the database and returns the dbid
-     * @param magnitude - Magnitude.
-     * @return int - dbid
-     */
-    public int put(Magnitude magnitude) throws SQLException{
+
+    public void put(Magnitude magnitude, int originId) throws SQLException{
         try {
-            return getDBId(magnitude);
+            exists(magnitude, originId);
         } catch(NotFound e) {
-            int id = seq.next();
-            putStmt.setInt(1,id);
-            insert(magnitude,putStmt,2);
+            insert(magnitude,originId,putStmt);
             putStmt.executeUpdate();
-            return id;
-            
         }
     }
-    
+
     /**
      * This method is used to put magnitudes (array) into the database
      * @ param magnitudes - array of Magnitude
      */
-    public void put(Magnitude[] magnitudes) throws SQLException{
-        for(int i=0; i<magnitudes.length; i++ ) put(magnitudes[i]);
+    public void put(Magnitude[] magnitudes, int originId) throws SQLException{
+        for(int i=0; i<magnitudes.length; i++ ) put(magnitudes[i], originId);
     }
-    
-    
+
+
     /**
      * returns the Magnitudes given the dbid
      * @param id - dbid
      * @return - Magnitude.
      */
-    public Magnitude get(int id) throws SQLException,NotFound {
+    public Magnitude[] get(int id) throws SQLException,NotFound {
         getStmt.setInt(1,id);
         ResultSet rs = getStmt.executeQuery();
-        if(rs.next())  return extract(rs);
+        List mags = new ArrayList();
+        while(rs.next()){
+            mags.add(extract(rs));
+        }
+        if(mags.size() > 0) {
+            return (Magnitude[])mags.toArray(new Magnitude[mags.size()]);
+        }
         throw new NotFound("NO Magnitude is found for the given id");
     }
-    
+
     /**
      * returns a magnitude object given the resultset.
      * @param rs - ResultSet
@@ -122,15 +103,13 @@ public class JDBCMagnitude  extends JDBCTable {
                              rs.getFloat("magnitudevalue"),
                              jdbcContributor.get(rs.getInt("magnitudecontributorid")));
     }
-    
+
     protected JDBCContributor jdbcContributor;
-    
+
     protected PreparedStatement getStmt;
-    
-    protected PreparedStatement getDBIdStmt;
-    
+
+    protected PreparedStatement exists;
+
     protected PreparedStatement putStmt;
-    
-    private JDBCSequence seq;
 } // JDBCMagnitude
 
