@@ -20,10 +20,23 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	this(new BoundedTimeConfig()); 
     }
 
+    public TimeConfigRegistrar(TimeSyncListener creator){ 
+	this(new BoundedTimeConfig(), creator); 
+    }
+
     public TimeConfigRegistrar(TimeRangeConfig timeConfig){
 	this.timeConfig = timeConfig;
 	timeConfig.addTimeSyncListener(this);
 	timeFinder = timeConfig.getTimeFinder();
+	snapshot = new TimeSnapshot(seismos, null);
+    }
+    
+    public TimeConfigRegistrar(TimeRangeConfig timeConfig, TimeSyncListener creator){
+	this.timeConfig = timeConfig;
+	timeConfig.addTimeSyncListener(this);
+	this.addTimeSyncListener(creator);
+	timeFinder = timeConfig.getTimeFinder();
+	snapshot = new TimeSnapshot(seismos, null);
     }
     
     public void setTimeConfig(TimeRangeConfig newTimeConfig){ 
@@ -32,11 +45,11 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	timeFinder = newTimeConfig.getTimeFinder();
 	newTimeConfig.addTimeSyncListener(this);
 	while(e.hasNext()){
-	    System.out.println("switching seismograms");
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    timeConfig.removeSeismogram(current);
 	    this.addSeismogram(current);
 	    newTimeConfig.addSeismogram(current, (MicroSecondDate)seismos.get(current));
+	    seismos.put(current, newTimeConfig.getTimeRange(current));
 	}
 	timeConfig = newTimeConfig;
     }
@@ -47,13 +60,13 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
      * @param seis the seismogram to be added
      */
     public void addSeismogram(DataSetSeismogram seis){
-	seismos.put(seis, timeFinder.getBeginTime(seis));
 	timeConfig.addSeismogram(seis, timeFinder.getBeginTime(seis));
+	seismos.put(seis, timeConfig.getTimeRange(seis));	
     }
 
     public void addSeismogram(DataSetSeismogram seis, MicroSecondDate b){
-	seismos.put(seis, b);
 	timeConfig.addSeismogram(seis, b);
+	seismos.put(seis, timeConfig.getTimeRange(seis));
     }
 
     /**
@@ -70,14 +83,11 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     }
 
     public MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){
-	MicroSecondTimeRange current =  timeConfig.getTimeRange(seis);
-	seismoDisplayTime.put(seis, current);
-	return current;
+	return (MicroSecondTimeRange)seismos.get(seis);
     }
 
     public MicroSecondTimeRange getTimeRange(){ 
-	genericTime = timeConfig.getTimeRange();
-	return genericTime; 
+	return timeConfig.getTimeRange();
     }
     
     /**
@@ -107,12 +117,16 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     }
 
     public void updateTimeRange(){
+	Iterator e = seismos.keySet().iterator();
 	this.updateTimeSyncListeners(); 
     }
 
     public synchronized TimeSnapshot takeSnapshot(){
-	return new TimeSnapshot((HashMap)seismoDisplayTime.clone(), genericTime);
+	snapshot.setGeneric(timeConfig.getTimeRange());
+	return snapshot;//new TimeSnapshot(seismos, timeConfig.getTimeRange());
     }
+    
+    protected TimeSnapshot snapshot;
     
     public void unregister(){ timeConfig.removeTimeSyncListener(this); }
 
@@ -122,15 +136,12 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     
     public synchronized void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
 	timeConfig.setBeginTime(seismo, b);
-	seismos.put(seismo, b);
     }
     
     public synchronized void setAllBeginTime(MicroSecondDate b){ 
 	Iterator e = seismos.keySet().iterator();
 	while(e.hasNext()){
-	    DataSetSeismogram current = (DataSetSeismogram)e.next();
-	    timeConfig.setBeginTime(current, b);
-	    seismos.put(current, b);
+	    timeConfig.setBeginTime((DataSetSeismogram)e.next(), b);
 	}
     }
 
@@ -145,8 +156,6 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
  
     protected HashMap seismos = new HashMap();
 
-    protected HashMap seismoDisplayTime = new HashMap();
-    
     protected TimeRangeConfig timeConfig;
 
     protected Set timeListeners = new HashSet();
