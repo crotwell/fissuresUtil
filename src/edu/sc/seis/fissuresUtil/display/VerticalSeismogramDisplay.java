@@ -51,8 +51,15 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay((LocalSeismogram)seis, tr,
 								 ar, true, name, this);
-	names.add(name);
-	seismograms.add(disp);
+	int i = 0;
+	for(i = 0; i < names.size(); i++){
+	    if(name.compareTo(((String)names.get(i))) == 1){
+	    }else{
+		break;
+	    }
+	}
+	names.add(name, i);
+	seismograms.add(disp, i);
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
 	if(basicDisplays.size() > 0){
