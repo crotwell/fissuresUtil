@@ -1,7 +1,5 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.sc.seis.fissuresUtil.exceptionHandler.WrappedException;
-
 /**
  * SeisDataErrorEvent.java
  *
@@ -11,7 +9,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.WrappedException;
  * @author <a href="mailto:crotwell@owl.seis.sc.edu">Philip Crotwell</a>
  * @version 1.0
  */
-public class SeisDataErrorEvent extends SeisDataChangeEvent implements WrappedException {
+public class SeisDataErrorEvent extends SeisDataChangeEvent  {
 
     public SeisDataErrorEvent(Throwable e,
                              DataSetSeismogram source,
