@@ -1,11 +1,13 @@
 package edu.sc.seis.fissuresUtil.database.plottable;
 
+import java.util.Properties;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.MockFERegion;
@@ -41,7 +43,10 @@ public class JDBCPlottableTest extends TestCase {
 
     public void testPut() throws CodecException {
         Plottable plottable = createPlottable();
-        
+        JDBCPlottable jdbcPlot = new JDBCPlottable(ConnMgr.createConnection(),
+                                                   new Properties());
+        int dbid = jdbcPlot.put(plottable);
+        Plottable out = jdbcPlot.get(dbid);
     }
     
     public void testGetStatus() {}

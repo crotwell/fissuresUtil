@@ -22,17 +22,6 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCTable;
 
-/**
- * JDBCPlottableCache.java Created: Tue Oct 9 12:24:20 2001
- * 
- * @author <a href="mailto: "Srinivasa Telukutla </a>
- * @description this class is used to cache plottables.
- * @version
- */
-
-
-
-
 public class JDBCPlottable extends JDBCTable{
     
     /**
@@ -172,7 +161,7 @@ public class JDBCPlottable extends JDBCTable{
      * @return int - the dbid of the cached entry.
      **************************************************************************/
     
-    public int put( edu.iris.Fissures.Plottable plottable[], LocalSeismogram[] localSeismograms,
+    public int put( edu.iris.Fissures.Plottable plottable[], 
                     edu.iris.Fissures.IfNetwork.ChannelId channel_id,
                     edu.iris.Fissures.Dimension pixel_size, int year, int jday, String status) throws SQLException, IOException{
         int dbid = 0;
@@ -192,7 +181,6 @@ public class JDBCPlottable extends JDBCTable{
             getCurrentTime();
             //      if( calendar.get(Calendar.DAY_OF_YEAR) > jday &&
             // calendar.get(Calendar.YEAR) >= year) {
-            LocalSeismogramImpl seis = (LocalSeismogramImpl)localSeismograms[localSeismograms.length - 1];
             //      if(getCurrentTime()*1000 > (new
             // MicroSecondDate(seis.getEndTime())).getMicroSecondTime()){
             //  putStmt.setString(index++, "COMPLETE");
