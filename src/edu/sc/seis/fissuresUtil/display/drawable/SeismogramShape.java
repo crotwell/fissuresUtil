@@ -2,6 +2,8 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.sc.seis.fissuresUtil.display.*;
 
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Dimension;
@@ -20,7 +22,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 9060 2004-06-04 15:16:11Z groves $
+ * @version $Id: SeismogramShape.java 9094 2004-06-07 17:40:54Z crotwell $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -171,8 +173,12 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         }
         int[][] points = iterator.getPoints();
         double pointsPerPixel = iterator.getPointsPerPixel();
-        double minAmp = iterator.getAmp().getMinValue();
-        double maxAmp = iterator.getAmp().getMaxValue();
+        UnitImpl lseisUnit = container.getIterator().getUnit();
+        UnitRangeImpl ampRange = iterator.getAmp();
+        // WARNING, the next line may break GEE - 6/7/2004 HPC
+        ampRange = ampRange.convertTo(lseisUnit);
+        double minAmp = ampRange.getMinValue();
+        double maxAmp = ampRange.getMaxValue();
         double range = maxAmp - minAmp;
         int height = iterator.getSize().height;
         int totalShift = iterator.getTotalShift();
