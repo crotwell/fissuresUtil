@@ -100,7 +100,7 @@ public class UnitDisplayUtil {
             return "m/s";
         }
         if (unit.equals(UnitImpl.MICRON_PER_SECOND)) {
-            return mu+"m/s";
+            return "microns/sec";
         }
         if (unit.equals(UnitImpl.MILLIMETER_PER_SECOND)) {
             return "mm/s";
@@ -112,7 +112,7 @@ public class UnitDisplayUtil {
             return "mm";
         }
         if (unit.equals(UnitImpl.MICROMETER)) {
-            return mu+"m";
+            return "micrometer";
         }
         if (unit.equals(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
             return "m/s/s";
@@ -121,7 +121,10 @@ public class UnitDisplayUtil {
             return "mm/s/s";
         }
         if (unit.equals(UnitImpl.MICROMETER_PER_SECOND_PER_SECOND)) {
-            return mu+"m/s/s";
+            return "micrometer/s/s";
+        }
+        if(unit.equals(UnitImpl.COUNT)){
+            return "COUNTS";
         }
         // not a unit we have a friendly name for
         //logger.debug("not a unit we have a friendly name for"+unit.toString());
