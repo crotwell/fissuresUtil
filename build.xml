@@ -85,8 +85,8 @@ packagenames="edu.sc.seis.fissuresUtil.*.*"  maxmemory="64m" >
        <target name="dist" depends="testcompile, jar, signjar">
          <zip zipfile="${dist}/lib/fissuresUtil_src.zip" >
               <fileset dir=".." >
-                 <include name="FissuresUtil/**/*.java" />
-                 <exclude name="FissuresUtil/**/*.class" />
+                 <include name="fissuresUtil/**/*.java" />
+                 <exclude name="fissuresUtil/**/*.class" />
               </fileset>
          </zip>
        </target>
