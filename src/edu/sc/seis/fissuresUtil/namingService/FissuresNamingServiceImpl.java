@@ -249,8 +249,11 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
 
     public DataCenter getSeismogramDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
-	
-	DataCenter datacenter = DataCenterHelper.narrow(getSeismogramDCObject(dns, objectname));
+        logger.debug("before get SeismogramDC Object");
+        org.omg.CORBA.Object obj = getSeismogramDCObject(dns, objectname);
+        logger.debug("before narrow");
+	DataCenter datacenter = DataCenterHelper.narrow(obj);
+        logger.debug("after narrow");
 	return datacenter;
 
     }
