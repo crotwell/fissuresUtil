@@ -292,7 +292,6 @@ public class SeismogramIterator implements Iterator{
     
     private SamplingImpl sampling;
     
-    //TODO Make SeismogramShape understand drawing NOT_A_NUMBER
     public static final QuantityImpl NOT_A_NUMBER = new QuantityImpl(Double.NaN,
                                                                      UnitImpl.COUNT);
     
