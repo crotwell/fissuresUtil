@@ -59,7 +59,16 @@ public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
     }
 
     public void filterData(){
-	float[] fdata = seis.get_as_floats();
+	float[] fdata;
+	if(seis.can_convert_to_float())
+	    fdata = seis.get_as_floats();
+	else{
+	    int[] idata = seis.get_as_longs();
+	    fdata = new float[idata.length];
+	    for(int i = 0; i < idata.length; i++)
+		fdata[i] = idata[i];
+	    idata = null;
+	}	    
 	// remove the mean before filtering
 	double mean = 0;
 	for (int i=0; i<fdata.length; i++) {
