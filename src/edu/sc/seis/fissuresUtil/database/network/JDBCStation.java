@@ -1,21 +1,17 @@
 package edu.sc.seis.fissuresUtil.database.network;
 
+import edu.sc.seis.fissuresUtil.database.*;
+
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.network.StationImpl;
-import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
-import edu.sc.seis.fissuresUtil.database.JDBCSequence;
-import edu.sc.seis.fissuresUtil.database.JDBCTime;
-import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.fissuresUtil.database.JDBCLocation;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -63,13 +59,13 @@ public class JDBCStation extends NetworkTable{
         putId = conn.prepareStatement("INSERT INTO station (sta_id, net_id, sta_code, " +
                                           "sta_begin_id) "+
                                           "VALUES (?, ?, ?, ?)");
-        String getAllQuery = "SELECT sta_id, net_id, sta_code, sta_begin_id FROM station";
+        String getAllQuery = "SELECT " + getNeededForStationId() + " FROM station";
         getAll = conn.prepareStatement(getAllQuery);
-        getAllForNet = conn.prepareStatement(getAllQuery + " WHERE net_id = ?");
+        getAllForNet = conn.prepareStatement(getAllQuery + " WHERE station.net_id = ?");
         getIfNameExists = conn.prepareStatement("SELECT sta_id FROM station " +
                                                     "WHERE sta_id = ? AND " +
                                                     "sta_name IS NOT NULL");
-        getByDBId = conn.prepareStatement("SELECT * FROM station WHERE sta_id = ?");
+        getByDBId = conn.prepareStatement("SELECT " + getNeededForStation() + " FROM station WHERE sta_id = ?");
         getDBId = conn.prepareStatement("SELECT sta_id FROM station WHERE net_id = ? AND " +
                                             "sta_code = ? AND sta_begin_id = ?");
         updateSta = conn.prepareStatement("UPDATE station SET sta_end_id = ?, " +
@@ -152,6 +148,19 @@ public class JDBCStation extends NetworkTable{
         return get(getDBId(id));
     }
 
+    public Station[] extractAll(ResultSet rs) throws SQLException{
+        List stations = new ArrayList();
+        while(rs.next()){
+            try {
+                stations.add(extract(rs, locTable, netTable, time));
+            } catch (NotFound e) {
+                GlobalExceptionHandler.handle("Got a not found for a particular station",
+                                              e);
+            }
+        }
+        return (Station[])stations.toArray(new Station[stations.size()]);
+    }
+
     public int getDBId(StationId id)  throws SQLException, NotFound {
         insertId(id, getDBId, 1, netTable, time);
         ResultSet rs = getDBId.executeQuery();
@@ -212,6 +221,15 @@ public class JDBCStation extends NetworkTable{
         return index;
     }
 
+    public static String getNeededForStationId(){
+        return "sta_id, station.net_id, sta_code, sta_begin_id";
+    }
+
+    public static String getNeededForStation(){
+        return getNeededForStationId() +
+            ", sta_end_id, sta_name, station.loc_id, sta_operator, sta_description, sta_comment";
+    }
+
     protected JDBCNetwork getNetTable(){ return netTable; }
 
     private JDBCLocation locTable;
@@ -223,3 +241,4 @@ public class JDBCStation extends NetworkTable{
 
     private static final Logger logger = Logger.getLogger(JDBCStation.class);
 }// JDBCStation
+
