@@ -15,15 +15,14 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import org.apache.log4j.Logger;
 
-public class UnitDisplayUtil
-{
+public class UnitDisplayUtil {
 
     public static final String mu = "\u03BC";
 
     public QuantityImpl getBestForDisplay(QuantityImpl quantity) {
         UnitRangeImpl inRange = new UnitRangeImpl(quantity.getValue(),
-                                          quantity.getValue(),
-                                          quantity.getUnit());
+                                                  quantity.getValue(),
+                                                  quantity.getUnit());
         inRange = getBestForDisplay(inRange);
         return new QuantityImpl(inRange.getMinValue(), inRange.getUnit());
     }
@@ -39,7 +38,7 @@ public class UnitDisplayUtil
                 // use micron/sec
                 outRange = inRange.convertTo(UnitImpl.MICRON_PER_SECOND);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
-                Math.abs(inRange.getMaxValue()) < 1) {
+                       Math.abs(inRange.getMaxValue()) < 1) {
                 // use mm/sec
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER_PER_SECOND);
             }
@@ -50,7 +49,7 @@ public class UnitDisplayUtil
                 // use micron
                 outRange = inRange.convertTo(UnitImpl.MICRON);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
-                Math.abs(inRange.getMaxValue()) < 1) {
+                       Math.abs(inRange.getMaxValue()) < 1) {
                 // use mm
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER);
             }
@@ -61,14 +60,14 @@ public class UnitDisplayUtil
                 // use micron/sec/sec
                 outRange = inRange.convertTo(UnitImpl.MICROMETER_PER_SECOND_PER_SECOND);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
-                Math.abs(inRange.getMaxValue()) < 1) {
+                       Math.abs(inRange.getMaxValue()) < 1) {
                 // use mm/sec/sec
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER_PER_SECOND_PER_SECOND);
             }
         } else {
-//            logger.debug("No case, using amp range of "+outRange.getMinValue()+" to "
-//                             +outRange.getMaxValue()+" "+
-//                             outRange.getUnit());
+            //            logger.debug("No case, using amp range of "+outRange.getMinValue()+" to "
+            //                             +outRange.getMaxValue()+" "+
+            //                             outRange.getUnit());
         }
         return outRange;
     }
@@ -85,7 +84,7 @@ public class UnitDisplayUtil
             realWorldUnit = (UnitImpl)response.stages[0].input_units;
             sensitivity = response.the_sensitivity.sensitivity_factor;
         }
-//        logger.debug("sensitivity is "+sensitivity+" to get to "+realWorldUnit);
+        //        logger.debug("sensitivity is "+sensitivity+" to get to "+realWorldUnit);
         UnitRangeImpl out = new UnitRangeImpl(ur.getMinValue()/sensitivity,
                                               ur.getMaxValue()/sensitivity,
                                               realWorldUnit);
@@ -132,5 +131,6 @@ public class UnitDisplayUtil
     static Logger logger = Logger.getLogger(UnitDisplayUtil.class);
 
 }
+
 
 

@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
+import edu.sc.seis.fissuresUtil.display.registrar.*;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelIdUtil;

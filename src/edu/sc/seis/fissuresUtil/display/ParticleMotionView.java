@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
+import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -530,7 +531,7 @@ public class ParticleMotionView extends JComponent{
                         sdce.getCausalException());
         }
 
-        public void updateTime(edu.sc.seis.fissuresUtil.display.TimeEvent timeEvent) {
+        public void updateTime(edu.sc.seis.fissuresUtil.display.registrar.TimeEvent timeEvent) {
             this.microSecondTimeRange = timeEvent.getTime();
         }
 

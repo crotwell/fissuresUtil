@@ -1,11 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
+import edu.sc.seis.fissuresUtil.display.registrar.*;
 
+import edu.sc.seis.fissuresUtil.display.drawable.*;
 import java.awt.*;
 import java.util.*;
 
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.TauP.Arrival;
-import edu.sc.seis.fissuresUtil.display.NamedColor;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;

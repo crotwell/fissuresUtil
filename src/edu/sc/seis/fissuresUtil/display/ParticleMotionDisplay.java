@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
+import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -141,7 +142,7 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     }
 
 
-    public void updateTime(edu.sc.seis.fissuresUtil.display.TimeEvent timeEvent) {
+    public void updateTime(edu.sc.seis.fissuresUtil.display.registrar.TimeEvent timeEvent) {
         view.updateTime();
     }
 
