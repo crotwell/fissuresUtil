@@ -29,7 +29,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3651 2003-04-08 15:26:27Z crotwell $
+ * @version $Id: ChannelChooser.java 3653 2003-04-08 17:42:39Z crotwell $
  *
  */
 
@@ -143,9 +143,33 @@ public class ChannelChooser extends JPanel{
 		setConfiguredNetworks(configuredNetworks);
 		setNetworkDCs(netdcgiven);
     }
+
+    public void setShowCodes(boolean val) {
+        showCodes = val;
+        setStationListCellRenderer(new NameListCellRenderer(showNames,
+                                                            showCodes,
+                                                            codeIsFirst));
+        setNetworkListCellRenderer(new NameListCellRenderer(showNames,
+                                                            showCodes,
+                                                            codeIsFirst));
+    }
 	
-    public void setStationListCellRenderer(ListCellRenderer stationRenderer) {
-		stationList.setCellRenderer(stationRenderer);
+    public void setShowNames(boolean val) {
+        showNames = val;
+        setStationListCellRenderer(new NameListCellRenderer(showNames,
+                                                            showCodes,
+                                                            codeIsFirst));
+        setNetworkListCellRenderer(new NameListCellRenderer(showNames,
+                                                            showCodes,
+                                                            codeIsFirst));
+    }
+	
+    public void setStationListCellRenderer(ListCellRenderer r) {
+		stationList.setCellRenderer(r);
+    }
+	
+    public void setNetworkListCellRenderer(ListCellRenderer r) {
+		networkList.setCellRenderer(r);
     }
 	
     public Map getNetDCToNetMap() {
@@ -195,9 +219,9 @@ public class ChannelChooser extends JPanel{
 		gbc.weighty = 0.0;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		
-		
 		JScrollPane scroller;
+
+        // networks
 		if ( showNetworks) {
             gbc.gridwidth = 2;
 			add(netLabel, gbc);
@@ -211,6 +235,7 @@ public class ChannelChooser extends JPanel{
             gbc.weighty = 0;
 		} // end of if ()
 		
+        // station
         gbc.gridwidth = 2;
 		add(staLabel, gbc);
 		gbc.gridy++;
@@ -221,6 +246,7 @@ public class ChannelChooser extends JPanel{
         gbc.gridwidth = 1;
         gbc.weighty = 0;
 		
+        // sites (aka loc id)
 		if (showSites) {
 			add(siLabel, gbc);
 			gbc.gridy++;
@@ -233,6 +259,7 @@ public class ChannelChooser extends JPanel{
             gbc.weighty = 0;
 		}
 
+        // orientation
 		add(orientationLabel, gbc);
 		gbc.gridy++;
 		scroller = new JScrollPane(orientationList);
@@ -242,6 +269,7 @@ public class ChannelChooser extends JPanel{
 		gbc.gridy--;
         gbc.weighty = 0;
 		
+        // channel or band
 		add(chLabel, gbc);
 		gbc.gridy++;
 		scroller = new JScrollPane(channelList);
@@ -251,6 +279,7 @@ public class ChannelChooser extends JPanel{
 		gbc.gridy--;
         gbc.weighty = 0;
 		
+        // progress bar
 		gbc.gridy++;
 		gbc.gridy++;
 		gbc.gridx = 0;
@@ -404,8 +433,8 @@ public class ChannelChooser extends JPanel{
     }
 	
     protected void addStation(Station sta) {
-		if ( ! stationNames.contains(sta.name)) {
-			stationNames.addElement(sta.name);
+		if ( ! stationMap.containsKey(sta.name)) {
+			stationNames.addElement(sta);
 		} // end of if ()
 		LinkedList staList = (LinkedList)stationMap.get(sta.name);
 		if ( staList == null) {
@@ -414,7 +443,7 @@ public class ChannelChooser extends JPanel{
 		} // end of if ()
 		staList.add(sta);
     }
-	
+
     /** Adds a stations, but using SwingUtilities.invokeLater. This allows
 	 threads beside the event dispatch thread to interact with the
 	 swing widgets.
@@ -431,7 +460,8 @@ public class ChannelChooser extends JPanel{
 		LinkedList out = new LinkedList();
 		Object[] objArray = stationNames.toArray();
 		for ( int i=0; i<objArray.length; i++) {
-			LinkedList staList = (LinkedList)stationMap.get(objArray[i]);
+            String name = ((Station)objArray[i]).name;
+			LinkedList staList = (LinkedList)stationMap.get(name);
 			out.addAll(staList);
 		} // end of for ()
 		
@@ -704,6 +734,10 @@ public class ChannelChooser extends JPanel{
     }
 	
     /*================Class Variables===============*/
+
+    protected boolean showCodes = false;
+    protected boolean showNames = true;
+    protected boolean codeIsFirst = true;
 	
     protected boolean showSites;
     protected boolean showNetworks;
@@ -791,7 +825,9 @@ public class ChannelChooser extends JPanel{
     int mywidth = 400;
     int myheight = 200;
 	
-    final ListCellRenderer renderer = new NameListCellRenderer(true);
+    final ListCellRenderer renderer = new NameListCellRenderer(true,
+                                                               false, 
+                                                               true);
 	
 	
 	
@@ -1030,7 +1066,7 @@ public class ChannelChooser extends JPanel{
 			
 			for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
 				String staName =
-					(String)stationNames.getElementAt(i);
+					((Station)stationNames.getElementAt(i)).name;
 				LinkedList stations = (LinkedList)stationMap.get(staName);
 				Iterator it = stations.iterator();
 				while ( it.hasNext()) {
