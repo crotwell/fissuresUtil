@@ -80,4 +80,8 @@ public interface TimeConfig extends DataSetSeismogramReceptacle {
      *
      */
     public MicroSecondTimeRange getTime(DataSetSeismogram seis);
+
+    public double getShift();
+
+    public double getScale();
 }// TimeConfig
