@@ -47,6 +47,7 @@ public class OMEvent extends OMGraphicList{
         lilCircle.setFillPaint(color);
         bigCircle.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
         bigCircle.setLinePaint(color);
+        bigCircle.setSelectPaint(color);
         add(bigCircle);
         add(lilCircle);
         generate(eventLayer.getProjection());
@@ -57,15 +58,19 @@ public class OMEvent extends OMGraphicList{
     }
 
     public void select() {
+        super.select();
         bigCircle.setFillPaint(new Color(0, 0, 0, 64));
         try{
             mapBean.center(new CenterEvent(this,
                                            0.0f,
                                            event.get_preferred_origin().my_location.longitude));
-        }catch(NoPreferredOrigin e){}
+        }catch(NoPreferredOrigin e){
+            System.out.println("For some reason, a NoPreferredOrigin has been called.");
+        }
     }
 
     public void deselect(){
+        super.deselect();
         bigCircle.setFillPaint(OMGraphicList.clear);
     }
 
@@ -86,6 +91,5 @@ public class OMEvent extends OMGraphicList{
     private CacheEvent event;
     private MapBean mapBean;
     private OMCircle bigCircle;
-
 }
 

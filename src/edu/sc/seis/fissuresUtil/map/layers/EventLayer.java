@@ -28,23 +28,7 @@ import javax.swing.event.ListSelectionListener;
 import org.apache.log4j.Logger;
 
 public class EventLayer extends MouseAdapterLayer implements EventDataListener, EventLoadedListener, EQSelectionListener{
-    public EventLayer(EventTableModel tableModel, ListSelectionModel lsm, MapBean mapBean){
-        this.tableModel = tableModel;
-        selectionModel = lsm;
-        addEQSelectionListener(this);
-        tableModel.addEventDataListener(this);
-        eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
-
-        selectionModel.addListSelectionListener(new ListSelectionListener(){
-                    public void valueChanged(ListSelectionEvent e) {
-                        EventAccessOperations[] selectedEvents = getSelectedEvents();
-                        if(selectedEvents.length > 0){
-                            fireEQSelectionChanged(new EQSelectionEvent(this, selectedEvents));
-                        }
-                    }
-
-                });
-
+    public EventLayer(MapBean mapBean){
         this.mapBean = mapBean;
     }
 
@@ -58,9 +42,21 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         LayerProjectionUpdater.update(e, circles, this);
     }
 
+    //Override this method if you want this to be connected to some
+    //other EventLoadedListener, such as an EventTableModel
+    public EventBackgroundLoaderPool getLoader(){
+        if (localLoader != null){
+            return localLoader;
+        }
+        else{
+            localLoader = new EventBackgroundLoaderPool(10, this);
+            return localLoader;
+        }
+    }
+
     public void eventDataChanged(EQDataEvent eqDataEvent) {
         EventAccessOperations[] events = eqDataEvent.getEvents();
-        EventBackgroundLoaderPool loader = tableModel.getLoader();
+        EventBackgroundLoaderPool loader = getLoader();
         for (int i = 0; i < events.length; i++) {
             loader.getEvent(events[i], (CacheEvent)events[i], this);
         }
@@ -161,10 +157,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
             }
             if (eventsUnderMouse.size() > 0){
                 if (eventsUnderMouse.size() == 1){
-                    int rowToSelect = tableModel.getRowForEvent((EventAccessOperations)eventsUnderMouse.get(0));
-                    if (rowToSelect != -1){
-                        selectionModel.setSelectionInterval(rowToSelect, rowToSelect);
-                    }
+                    selectEvent((EventAccessOperations)eventsUnderMouse.get(0));
                 }
                 else{
                     final JPopupMenu popup = new JPopupMenu();
@@ -174,10 +167,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                         final JMenuItem menuItem = new JMenuItem(CacheEvent.getEventInfo(current));
                         menuItem.addActionListener(new ActionListener(){
                                     public void actionPerformed(ActionEvent e) {
-                                        int rowToSelect = tableModel.getRowForEvent(current);
-                                        if (rowToSelect != -1){
-                                            selectionModel.setSelectionInterval(rowToSelect, rowToSelect);
-                                        }
+                                        selectEvent(current);
                                         popup.setVisible(false);
                                     }
                                 });
@@ -207,8 +197,14 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         return false;
     }
 
+    //extend this method if you want this selection to hook up
+    //with an external event browser (ie. an EventTableModel)
+    public void selectEvent(EventAccessOperations evo){
+        //noImpl
+    }
+
+
     public boolean mouseMoved(MouseEvent e){
-        //System.out.println("Something is happening: EventLayer");
         synchronized(circles){
             Iterator it = circles.iterator();
             while(it.hasNext()){
@@ -223,36 +219,24 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                 catch(Exception ex){}
             }
         }
-        //fireRequestInfoLine(" ");
         return false;
     }
 
-    private EventTableModel getTableModel(){
-        return tableModel;
-    }
-
-    private EventAccessOperations[] getSelectedEvents(){
-        List selectedEvents = new ArrayList();
-        EventAccessOperations[] allEvents = getTableModel().getAllEvents();
-        for (int i = 0; i < allEvents.length; i++) {
-            if (selectionModel.isSelectedIndex(i)){
-                selectedEvents.add(allEvents[i]);
-            }
-        }
-        return (EventAccessOperations[])selectedEvents.toArray(new EventAccessOperations[0]);
+    //implement this method to get the selected events from
+    //your source (ie. the EventTableModel)
+    public EventAccessOperations[] getSelectedEvents(){
+        return new EventAccessOperations[0];
     }
 
     private OMGraphicList circles = new OMGraphicList();
 
     private static Logger logger = Logger.getLogger(EventLayer.class);
 
-    private EventTableModel tableModel;
-
-    private ListSelectionModel selectionModel;
-
     private MapBean mapBean;
 
     private JPopupMenu currentPopup;
+
+    private EventBackgroundLoaderPool localLoader;
 }
 
 

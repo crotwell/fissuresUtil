@@ -12,6 +12,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.map.layers.ChannelChooserLayer;
 import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
+import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
 import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 import java.awt.Color;
@@ -65,7 +66,7 @@ public class OpenMap extends OpenMapComponent{
             mapHandler.add(lh);
 
             if(etm != null){
-                el = new EventLayer(etm, lsm, mapBean);
+                el = new EventTableLayer(etm, lsm, mapBean);
                 mapHandler.add(el);
                 lh.addLayer(el, 1);
 
