@@ -24,12 +24,6 @@ public class AmpConfigData implements SeismogramContainerListener{
     public AmpConfigData (DataSetSeismogram seismo,  AmpConfig parent) {
         this.parent = parent;
         this.container = new SeismogramContainer(this, seismo);
-        Object respObj;
-        if ((respObj = seismo.getAuxillaryData(StdAuxillaryDataNames.RESPONSE)) != null &&
-            respObj instanceof Response) {
-            Response resp = (Response)respObj;
-            seismoUnit = (UnitImpl)resp.stages[0].input_units;
-        }
     }
 
     public void updateData() {
