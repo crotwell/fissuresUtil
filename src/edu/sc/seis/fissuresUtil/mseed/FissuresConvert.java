@@ -79,7 +79,9 @@ public class FissuresConvert  {
                     dr.setData(eData[i].values);
                     outRecords.add(dr);
                 } else {
-                    throw new SeedFormatException("Can't fit data into record");
+                    throw new SeedFormatException("Can't fit data into record"+
+                                                      (eData[i].values.length + header.getSize() + b1000.getSize())+" "+
+                                                      eData[i].values.length +" "+ header.getSize() + b1000.getSize());
                 } // end of else
 
             } // end of for ()
