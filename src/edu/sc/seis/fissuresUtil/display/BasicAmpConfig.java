@@ -185,7 +185,12 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     private boolean setAmpRange(DataSetSeismogram seismo){
-                AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+	AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+
+	if ( data.getSeismograms().length == 0) {
+	    return data.setCleanRange(DisplayUtils.ZERO_RANGE);
+	} // end of if ()
+	
                 LocalSeismogramImpl seismogram = (LocalSeismogramImpl)data.getSeismograms()[0];
                 int[] seisIndex = DisplayUtils.getSeisPoints(seismogram, data.getTime());
                 if(seisIndex[1] < 0 || seisIndex[0] >= seismogram.getNumPoints()) {
@@ -199,7 +204,8 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
                 if(seisIndex[1] >= seismogram.getNumPoints()){
                         seisIndex[1] = seismogram.getNumPoints() -1;
                 }
-                double[] minMax = ((Statistics)DisplayUtils.statCache.get(seismo)).minMaxMean(seisIndex[0], seisIndex[1]);
+                double[] minMax = 
+		    data.getStatistics(seismogram).minMaxMean(seisIndex[0], seisIndex[1]);
                 data.setCalcIndex(seisIndex);
                 return data.setCleanRange(new UnitRangeImpl(minMax[0], minMax[1], UnitImpl.COUNT));
     }
