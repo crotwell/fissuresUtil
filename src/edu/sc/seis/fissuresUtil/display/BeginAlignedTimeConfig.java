@@ -37,7 +37,8 @@ public class BeginAlignedTimeConfig extends BasicTimeConfig{
 		}
 		for(int i = 0; i < seismos.length; i++){
 			if(!contains(seismos[i])){
-				MicroSecondTimeRange current = MicroSecondTimeRange.createTimeRangeFromFilter(seismos[i].getRequestFilter());
+				MicroSecondTimeRange current = new MicroSecondTimeRange(seismos[i].getRequestFilter());
+				seismoTimes.put(seismos[i], current.shale(shift, scale));
 			}
 		}
 		fireTimeEvent();

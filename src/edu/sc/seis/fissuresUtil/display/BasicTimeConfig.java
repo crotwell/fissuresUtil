@@ -40,12 +40,7 @@ public class BasicTimeConfig implements TimeConfig{
 	 */
     public void add(DataSetSeismogram[] seismos){
 		if(time == null){
-			try{
-				time = new MicroSecondTimeRange(seismos[0].getRequestFilter());
-			}catch(ParseException e){	
-				logger.debug("Error parsing the request filter to create a MicroSecondTimeRange");
-				time = MicroSecondTimeRange.ONE_MS;
-			}
+			time = new MicroSecondTimeRange(seismos[0].getRequestFilter());
 		}
 		for(int i = 0; i < seismos.length; i++){
 			if(!contains(seismos[i])){
@@ -159,14 +154,8 @@ public class BasicTimeConfig implements TimeConfig{
 		listeners.remove(listener);
 	}
 	
-	private TimeInterval getInterval(DataSetSeismogram seismo){  
-		try{
-			MicroSecondTimeRange intervalContainer = new MicroSecondTimeRange(seismo.getRequestFilter());
-			return intervalContainer.getInterval();
-		}catch(ParseException e){
-			logger.debug("caught parse exception turning RequestFilter into MicroSecondTimeRange.  Using one MS interval");
-			return MicroSecondTimeRange.ONE_MS.getInterval();
-		}
+	protected TimeInterval getInterval(DataSetSeismogram seismo){  
+		return new MicroSecondTimeRange(seismo.getRequestFilter()).getInterval();
 	}
 	
 	/**
