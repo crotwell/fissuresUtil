@@ -1,7 +1,13 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
-import javax.swing.*;
-   
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.Station;
+import java.awt.Component;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
+
 class NameListCellRenderer extends DefaultListCellRenderer {
     NameListCellRenderer(boolean useNames){
 	this.useNames = useNames;
@@ -19,7 +25,7 @@ class NameListCellRenderer extends DefaultListCellRenderer {
 		if (name == null || name.length() == 0) {
 		    name = ((NetworkAccess)value).get_attributes().get_code();
 		    if (name.startsWith("X") || name.startsWith("Y") || name.startsWith("Z")) {
-			edu.iris.Fissures.Time start = 
+			edu.iris.Fissures.Time start =
 			    ((NetworkAccess)value).get_attributes().get_id().begin_time;
 			name += start.date_time.substring(2,4);
 		    } // end of if (name.startsWith("X"))
@@ -67,10 +73,10 @@ class NameListCellRenderer extends DefaultListCellRenderer {
 	} // end of if (value instanceof String)
 	
 	
-	return super.getListCellRendererComponent(list, 
-						  name, 
-						  index, 
-						  isSelected, 
+	return super.getListCellRendererComponent(list,
+						  name,
+						  index,
+						  isSelected,
 						  cellHasFocus);
         }
     boolean useNames;
