@@ -32,14 +32,17 @@ public abstract class Border extends JComponent{
             labelTickWidth = -LABEL_TICK_LENGTH;
             tickWidth = -TICK_LENGTH;
         }else throw new IllegalArgumentException("side must be LEFT, RIGHT, BOTTOM, or TOP as defined in Border");
+
         if(side == LEFT || side == RIGHT){
             this.direction = VERTICAL;
             labelTickHeight = 0;
             tickHeight = 0;
+            setMinimumSize(new Dimension(65, 100));
         }else{
             this.direction = HORIZONTAL;
             labelTickWidth = 0;
             tickWidth = 0;
+            setMinimumSize(new Dimension(100, 45));
         }
         borderFormats = createFormats();
     }
