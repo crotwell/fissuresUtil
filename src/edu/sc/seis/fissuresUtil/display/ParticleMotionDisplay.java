@@ -142,7 +142,7 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     }
 
 
-    public void updateTime(edu.sc.seis.fissuresUtil.display.registrar.TimeEvent timeEvent) {
+    public void updateTime(TimeEvent timeEvent) {
         view.updateTime();
     }
 
