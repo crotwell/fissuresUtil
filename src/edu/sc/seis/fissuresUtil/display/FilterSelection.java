@@ -118,7 +118,7 @@ public class FilterSelection extends JPanel{
             }
             Object source = e.getItemSelectable();
             if(source == original){
-                listener.setUnfilteredDisplay(visibility);
+                listener.setOriginalVisibility(visibility);
             }else{
                 ColoredFilter chosenFilter;
                 if(source == teleseismic){
