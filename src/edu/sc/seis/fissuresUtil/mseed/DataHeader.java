@@ -23,41 +23,41 @@ import java.util.TimeZone;
  @version 08/28/2000
  */
 public class DataHeader extends ControlHeader {
-
+    
     protected byte[] stationIdentifier = new byte[5];
-
+    
     protected byte[] locationIdentifier = new byte[2];
-
+    
     protected byte[] channelIdentifier = new byte[3];
-
+    
     protected byte[] networkCode = new byte[2];
-
+    
     protected byte[] startTime = new byte[10];
-
+    
     protected int numSamples;
-
+    
     protected int sampleRateFactor;
-
+    
     protected int sampleRateMultiplier;
-
+    
     protected byte activityFlags;
-
+    
     protected byte ioClockFlags;
-
+    
     protected byte dataQualityFlags;
-
+    
     protected byte numBlockettes;
-
-    protected byte[] timeCorrection = new byte[5];
-
+    
+    protected byte[] timeCorrection = new byte[4];
+    
     protected int dataOffset;
-
+    
     protected int dataBlocketteOffset;
-
+    
     /**
      creates a DataHeader object with listed sequence number, type code,
      and continuation code boolean.
-
+    
      @param sequenceNum sequence number of the record represented by this object.
      @param typeCode character representing the type of record represented
      by this object
@@ -68,26 +68,26 @@ public class DataHeader extends ControlHeader {
                        char typeCode, boolean continuationCode) {
         super(sequenceNum, typeCode, continuationCode);
     }
-
+    
     /**
      Instantiate an object of this class and read an FSDH byte
      stream into it, parsing the contents
      into the instance variables of this object, which represent the
      individual FSDH fields.<br>
      Note, first 8 bytes are assumed to already have been read.
-
+    
      @param in SEED data stream offset 8 bytes from beginning of record.
-
+    
      @param sequenceNum 6 digit ascii sequence tag at the beginning of
-
+    
      SEED record.
      @param typeCode character representing the type of record being read
-
+    
      @param continuationCode true if this record is flagged as a continuation
      from its previous SEED record.
-
+    
      @return an object of this class with fields filled from 'in' parameter
-
+    
      @throws IOException
      @throws SeedFormatException
      */
@@ -96,7 +96,7 @@ public class DataHeader extends ControlHeader {
                                   char typeCode,
                                   boolean continuationCode)
         throws IOException, SeedFormatException {
-
+        
         byte[] buf = new byte[40];
         in.readFully(buf);
         DataHeader data = new DataHeader(sequenceNum,
@@ -105,8 +105,8 @@ public class DataHeader extends ControlHeader {
         data.read(buf,0);
         return data;
     }
-
-
+    
+    
     /** test whether the data being read needs to be byte-swapped
      look for bogus year value to determine this */
     private boolean flagByteSwap () {
@@ -115,13 +115,13 @@ public class DataHeader extends ControlHeader {
         if ( (year < 1960) || (year > 2050) ) return true;
         else return false;
     }
-
-
+    
+    
     /**
      populates this object with Fixed Section Data Header info.
      this routine modified to include byte offset, should the station identifier
      start at a byte offset (such as 8 from the beginning of a data record).
-
+    
      @param buf data buffer containing FSDH information
      @param offset byte offset to begin reading buf
      */
@@ -148,16 +148,16 @@ public class DataHeader extends ControlHeader {
         dataBlocketteOffset = Utility.uBytesToInt
             (buf[offset+38], buf[offset+39], byteSwapFlag);
     }
-
+    
     /**
      write DataHeader contents to a DataOutput stream
-
+    
      @param dh DataHeader to read values from
      @param dos DataOutput stream to write to
      */
     protected void write(DataOutput dos) throws IOException {
         super.write(dos);
-
+        
         dos.write(Utility.pad(getStationIdentifier().getBytes("ASCII"),
                               5,
                                   (byte)32));
@@ -171,26 +171,26 @@ public class DataHeader extends ControlHeader {
                               2,
                                   (byte)32));
         dos.write(startTime);
-        dos.write((short)getNumSamples());
-        dos.write((short)getSampleRateFactor());
-        dos.write((short)getSampleRateMultiplier());
-        dos.write(getActivityFlags());
-        dos.write(getIOClockFlags());
-        dos.write(getDataQualityFlags());
-        dos.write(getNumBlockettes());
+        dos.writeShort((short)getNumSamples());
+        dos.writeShort((short)getSampleRateFactor());
+        dos.writeShort((short)getSampleRateMultiplier());
+        dos.writeByte(getActivityFlags());
+        dos.writeByte(getIOClockFlags());
+        dos.writeByte(getDataQualityFlags());
+        dos.writeByte(getNumBlockettes());
         dos.write(getTimeCorrection());
-        dos.write((short)getDataOffset());
-        dos.write((short)getDataBlocketteOffset());
+        dos.writeShort((short)getDataOffset());
+        dos.writeShort((short)getDataBlocketteOffset());
     }
-
+    
     public short getSize() { return 48;}
-
+    
     /**
      * Get the value of stationIdentifier.
      * @return Value of stationIdentifier.
      */
     public String getStationIdentifier() {return new String(stationIdentifier);}
-
+    
     /**
      * Set the value of stationIdentifier.
      * @param v  Value to assign to stationIdentifier.
@@ -203,14 +203,14 @@ public class DataHeader extends ControlHeader {
             e.printStackTrace();
         }
     }
-
-
+    
+    
     /**
      * Get the value of locationIdentifier.
      * @return Value of locationIdentifier.
      */
     public String getLocationIdentifier() {return new String(locationIdentifier);}
-
+    
     /**
      * Set the value of locationIdentifier.
      * @param v  Value to assign to locationIdentifier.
@@ -224,16 +224,16 @@ public class DataHeader extends ControlHeader {
             e.printStackTrace();
         }
     }
-
-
+    
+    
     /**
      * Get the value of channelIdentifier.
      * @return Value of channelIdentifier.
      */
     public String getChannelIdentifier() {
-
+        
         return new String(channelIdentifier);}
-
+    
     /**
      * Set the value of channelIdentifier.
      * @param v  Value to assign to channelIdentifier.
@@ -246,13 +246,13 @@ public class DataHeader extends ControlHeader {
             e.printStackTrace();
         }
     }
-
+    
     /**
      * Get the value of networkCode.
      * @return Value of networkCode.
      */
     public String getNetworkCode() {return new String(networkCode);}
-
+    
     /**
      * Set the value of networkCode.
      * @param v  Value to assign to networkCode.
@@ -266,8 +266,8 @@ public class DataHeader extends ControlHeader {
             e.printStackTrace();
         }
     }
-
-
+    
+    
     // extract SEED time structure from the startTime byte vector, splitting into
     // meaningful elements of year, day, time
     // Btime is an inner class
@@ -286,12 +286,12 @@ public class DataHeader extends ControlHeader {
             (startTime[8], startTime[9], byteSwapFlag);
         return bTime;
     }
-
-
+    
+    
     /**
      get the sample rate.  derived from sample rate factor
      and the sample rate multiplier
-
+    
      @return sample rate
      */
     public float getSampleRate () {
@@ -308,7 +308,7 @@ public class DataHeader extends ControlHeader {
         }
         return sampleRate;
     }
-
+    
     // convert contents of Btime structure to the number of
     // ten thousandths of seconds it represents within that year
     private double ttConvert (Btime bTime) {
@@ -319,8 +319,8 @@ public class DataHeader extends ControlHeader {
         tenThousandths += bTime.tenthMilli;
         return tenThousandths;
     }
-
-
+    
+    
     // take the Btime structure and forward-project a new time that is
     // the specified number of ten thousandths of seconds ahead
     private Btime projectTime (Btime bTime, double tenThousandths) {
@@ -352,12 +352,12 @@ public class DataHeader extends ControlHeader {
         tenThousandths -= (double) bTime.sec * 10000.0;
         // set tenth seconds
         bTime.tenthMilli = (int) tenThousandths;
-
+        
         // return the resultant value
         return bTime;
     }
-
-
+    
+    
     // return a Btime structure containing the derived end time for this record
     private Btime getEndBtime () {
         Btime startBtime = getStartBtime();
@@ -367,8 +367,8 @@ public class DataHeader extends ControlHeader {
         // return the time structure projected by the number of ten thousandths of seconds
         return projectTime(startBtime,numTenThousandths);
     }
-
-
+    
+    
     /**
      * Get the value of startTime.
      * @return Value of startTime.
@@ -388,11 +388,11 @@ public class DataHeader extends ControlHeader {
                               twoZero.format(startStruct.sec) + "." +
                               fourZero.format(startStruct.tenthMilli) );
     }
-
+    
     /**
      get the value of end time.  derived from Start time,
      sample rate, and number of samples.
-
+    
      @return the value of end time
      */
     public String getEndTime() {
@@ -410,11 +410,11 @@ public class DataHeader extends ControlHeader {
                               twoZero.format(endStruct.sec) + "." +
                               fourZero.format(endStruct.tenthMilli) );
     }
-
-
+    
+    
     /**
      get the value of start time in ISO format
-
+    
      @return the value of start time in ISO format
      */
     public String getISOStartTime() {
@@ -427,7 +427,7 @@ public class DataHeader extends ControlHeader {
                                                             startStruct.min,
                                                             fSecond);
     }
-
+    
     /**
      * Set the value of startTime.
      * @param v  Value to assign to startTime.
@@ -446,121 +446,120 @@ public class DataHeader extends ControlHeader {
     //        }
     //        this.startTime = startTimeBytes;
     //    }
-
+    
     public void setStartTime(MicroSecondDate date) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.setTime(date);
-
+        
         Btime btime = new Btime();
         btime.tenthMilli = (int)Math.round(((date.getTime()*1000+date.getMicroSeconds()) % 1000000) / 100.0);
         btime.year = cal.get(cal.YEAR);
         btime.jday = cal.get(cal.DAY_OF_YEAR);
-        btime.hour = cal.get(cal.HOUR);
-        System.out.println("Hour "+cal.get(cal.HOUR)+" btime="+btime.hour+" date="+date.getFissuresTime().date_time);
+        btime.hour = cal.get(cal.HOUR_OF_DAY);
         btime.min = cal.get(cal.MINUTE);
         btime.sec = cal.get(cal.SECOND);
         this.startTime = btime.getAsBytes();
     }
-
+    
     static java.text.SimpleDateFormat seedDate =
         new java.text.SimpleDateFormat("yyyy,DDD,HH,mm,ss.");
-
-
+    
+    
     /**
      * Get the value of numSamples.
      * @return Value of numSamples.
      */
     public int getNumSamples() {return numSamples;}
-
+    
     /**
      * Set the value of numSamples.
      * @param v  Value to assign to numSamples.
      */
     public void setNumSamples(short  v) {
-
+        
         this.numSamples = v;
     }
-
+    
     /**
      * Get the value of sampleRateFactor.
      * @return Value of sampleRateFactor.
      */
     public int getSampleRateFactor() {return sampleRateFactor;}
-
+    
     /**
      * Set the value of sampleRateFactor.
      * @param v  Value to assign to sampleRateFactor.
      */
     public void setSampleRateFactor(short  v) {
-
+        
         this.sampleRateFactor = v;}
-
+    
     /**
      * Get the value of sampleRateMultiplier.
      * @return Value of sampleRateMultiplier.
      */
     public int getSampleRateMultiplier() {return sampleRateMultiplier;}
-
+    
     /**
      * Set the value of sampleRateMultiplier.
      * @param v  Value to assign to sampleRateMultiplier.
      */
     public void setSampleRateMultiplier(short  v) {this.sampleRateMultiplier = v;}
-
+    
     /**
      * Get the value of activityFlags.
      * @return Value of activityFlags.
      */
     public byte getActivityFlags() {return activityFlags;}
-
+    
     /**
      * Set the value of activityFlags.
      * @param v  Value to assign to activityFlags.
      */
     public void setActivityFlags(byte  v) {this.activityFlags = v;}
-
+    
     /**
      * Get the value of IOClockFlags.
      * @return Value of IOClockFlags.
      */
     public byte getIOClockFlags() {return ioClockFlags;}
-
+    
     /**
      * Set the value of IOClockFlags.
      * @param v  Value to assign to IOClockFlags.
      */
     public void setIOClockFlags(byte  v) {this.ioClockFlags = v;}
-
+    
     /**
      * Get the value of dataQualityFlags.
      * @return Value of dataQualityFlags.
      */
     public byte getDataQualityFlags() {return dataQualityFlags;}
-
+    
     /**
      * Set the value of dataQualityFlags.
      * @param v  Value to assign to dataQualityFlags.
      */
     public void setDataQualityFlags(byte  v) {this.dataQualityFlags = v;}
-
+    
     /**
      * Get the value of numBlockettes.
      * @return Value of numBlockettes.
      */
     public byte getNumBlockettes() {return numBlockettes;}
-
+    
     /**
      * Set the value of numBlockettes.
      * @param v  Value to assign to numBlockettes.
      */
     public void setNumBlockettes(byte  v) {this.numBlockettes = v;}
-
+    
     /**
      * Get the value of timeCorrection.
      * @return Value of timeCorrection.
      */
     public byte[] getTimeCorrection() {return timeCorrection;}
-
+    
     /**
      * Set the value of timeCorrection.
      * @param v  Value to assign to timeCorrection.
@@ -578,34 +577,34 @@ public class DataHeader extends ControlHeader {
             this.timeCorrection = v;
         }
     }
-
+    
     /**
      * Get the value of dataOffset.
      * @return Value of dataOffset.
      */
     public int getDataOffset() {return dataOffset;}
-
+    
     /**
      * Set the value of dataOffset.
      * @param v  Value to assign to dataOffset.
      */
     public void setDataOffset(short  v) {this.dataOffset = v;}
-
+    
     /**
      * Get the value of dataBlocketteOffset.
      * @return Value of dataBlocketteOffset.
      */
     public int getDataBlocketteOffset() {return dataBlocketteOffset;}
-
+    
     /**
      * Set the value of dataBlocketteOffset.
      * @param v  Value to assign to dataBlocketteOffset.
      */
     public void setDataBlocketteOffset(short  v) {this.dataBlocketteOffset = v;}
-
+    
     /**
      Present a default string representation of the contents of this object
-
+    
      @return formatted string of object contents
      */
     public String toString() {
