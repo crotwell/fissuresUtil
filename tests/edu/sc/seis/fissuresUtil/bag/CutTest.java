@@ -44,7 +44,7 @@ extends TestCase
   protected void setUp() throws Exception {
     // JUnitDoclet begin method testcase.setUp
     super.setUp();
-    seis = SeisPlotUtil.createTestData("est");
+    seis = SimplePlotUtil.createTestData("est");
     cut = createInstance();
     // JUnitDoclet end method testcase.setUp
   }
