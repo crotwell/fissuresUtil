@@ -1,11 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.iris.Fissures.IfNetwork.Response;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.IfNetwork.Response;
 import java.text.DecimalFormat;
+import org.apache.log4j.Logger;
 
 /**
  * AmpScaleMapper.java
@@ -145,7 +146,8 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
     public void updateAmp(AmpEvent event){
         lastAmpEvent = event;
         if (event.getSeismograms().length != 0) {
-        setUnitRange(getRealWorldUnitRange(event.getAmp(), event.getSeismograms()[0]));
+        setUnitRange(unitDisplayUtil.getRealWorldUnitRange(event.getAmp(),
+                                                           event.getSeismograms()[0]));
         } else {
             setUnitRange(event.getAmp());
         }
@@ -157,23 +159,6 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         reg.addListener(this);
     }
 
-    public UnitRangeImpl getRealWorldUnitRange(UnitRangeImpl ur, DataSetSeismogram seismo) {
-        UnitImpl lastUnit = null;
-        UnitImpl realWorldUnit = UnitImpl.COUNT;
-        // this is the constant to divide by to get real worl units (not counts)
-        float sensitivity = 1.0f;
-        Object responseObj =
-            seismo.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
-        if (responseObj != null && responseObj instanceof Response) {
-            Response response = (Response)responseObj;
-            realWorldUnit = (UnitImpl)response.stages[0].input_units;
-            sensitivity = response.the_sensitivity.sensitivity_factor;
-        }
-        UnitRangeImpl out = new UnitRangeImpl(ur.getMinValue()/sensitivity,
-                                              ur.getMaxValue()/sensitivity,
-                                              realWorldUnit);
-        return out;
-    }
 
     private UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
 
@@ -198,5 +183,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
     private UnitRangeImpl range;
 
     private Registrar reg;
+
+    static Logger logger = Logger.getLogger(AmpScaleMapper.class);
 
 } // AmpScaleMapper
