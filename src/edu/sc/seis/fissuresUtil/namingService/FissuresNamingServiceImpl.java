@@ -66,8 +66,8 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	if(interfacename != null && interfacename.length() != 0)
 	    dns = dns + "/" + interfacename + ".interface";
 	if(objectname != null && objectname.length() != 0) {
-	    objectname = objectname + getVersion();
-	    dns = dns + "/" + objectname + ".object";
+	    objectname = objectname;// + getVersion();
+	    dns = dns + "/" + objectname + ".object"+getVersion();
 	}
 	logger.info("the final dns resolved is "+dns);
 	try {
@@ -99,8 +99,8 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	if(interfacename != null && interfacename.length() != 0)
 	    dns = dns + "/" + interfacename + ".interface";
 	if(objectname != null && objectname.length() != 0) {    
-	    objectname = objectname + getVersion();
-	    dns = dns + "/" + objectname  +  ".object";
+	    objectname = objectname;// + getVersion();
+	    dns = dns + "/" + objectname  +  ".object" + getVersion();
 	}
 	logger.info("the dns to be bind is "+dns);
 	
@@ -155,7 +155,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 		    if(ncName1[0].id.equals(interfacename))
 			ncName1[0].kind = "interface";
 		    else if(ncName1[0].id.equals(objectname))
-			ncName1[0].kind = "object";
+			ncName1[0].kind = "object" + getVersion();
 		    else ncName1[0].kind = "dns";
 
 		    try {
@@ -193,8 +193,8 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	if(interfacename != null && interfacename.length() != 0)
 	    dns = dns + "/" + interfacename + ".interface";
 	if(objectname != null && objectname.length() != 0) {
-	    objectname = objectname + getVersion();
-	    dns = dns + "/" + objectname + ".object";
+	    objectname = objectname;// + getVersion();
+	    dns = dns + "/" + objectname + ".object" + getVersion();
 	}
 	try {
 	
@@ -273,7 +273,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	if(interfacename != null && interfacename.length() != 0)
 	    dns = dns + "/" + interfacename + ".interface";
 
-	return getNames(dns, "object");
+	return getNames(dns, "object" + getVersion());
 
     }
 
