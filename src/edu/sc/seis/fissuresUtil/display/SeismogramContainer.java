@@ -74,23 +74,27 @@ public class SeismogramContainer implements SeisDataChangeListener{
     }
 
     private  void addSeismograms(LocalSeismogramImpl[] seismograms){
+        boolean newData = false;
         LocalSeismogramImpl[] currentSeis = getSeismograms();
         synchronized(this){
             for (int j = 0; j < seismograms.length; j++) {
                 boolean found = false;
                 for (int i = 0; i < currentSeis.length; i++){
                     if(seismograms[j].get_id().equals(currentSeis[i].get_id())){
+                        logger.debug("Caught attempt to add seismogram with id: " + seismograms[j].get_id());
                         found = true;
                         break;
                     }
                 }
                 if(!found){
+                    logger.debug("adding seismogram with id: " + seismograms[j].get_id());
                     softSeis.add(new SoftReference(seismograms[j]));
                     changed = true;
+                    newData = true;
                 }
             }
         }
-        if(changed){
+        if(newData){
             time = null;
             noData = false;
             Iterator it = listeners.iterator();
