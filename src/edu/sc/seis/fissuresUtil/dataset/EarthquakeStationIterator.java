@@ -20,22 +20,27 @@ public class EarthquakeStationIterator implements Iterator {
     }
 
     private void buildIterationSequence(DataSet ds, EventAccessOperations ev) {
-        Map stations = null;
-        if(ds.getEvent() != null) {
-            stations = updateMap(ds.getEvent());
-        } else if(ev == null) {
-            stations = updateMap("No Earthquake");
-        }
         String[] names = ds.getDataSetSeismogramNames();
-        for(int i = 0; i < names.length; i++) {
-            DataSetSeismogram seis = ds.getDataSetSeismogram(names[i]);
-            String sta = seis.getRequestFilter().channel_id.station_code;
-            if(!stations.containsKey(sta)) {
-                stations.put(sta, new ArrayList());
+        if(names.length > 0) {
+            Map stations = null;
+            if(ds.getEvent() != null) {
+                stations = updateMap(ds.getEvent());
+            } else if(ev == null) {
+                stations = updateMap("No Earthquake");
             }
-            ((List)stations.get(sta)).add(seis);
+            for(int i = 0; i < names.length; i++) {
+                DataSetSeismogram seis = ds.getDataSetSeismogram(names[i]);
+                String sta = seis.getRequestFilter().channel_id.station_code;
+                if(!stations.containsKey(sta)) {
+                    stations.put(sta, new ArrayList());
+                }
+                ((List)stations.get(sta)).add(seis);
+            }
         }
         names = ds.getDataSetNames();
+        if (ds.getEvent() != null){
+            ev = ds.getEvent();
+        }
         for(int i = 0; i < names.length; i++) {
             buildIterationSequence(ds.getDataSet(names[i]), ev);
         }
