@@ -56,9 +56,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		    resize();
 		}
 	    });
-        setMinimumSize(new Dimension(100, 50));
+	setMinimumSize(new Dimension(100, 50));
 	tr.addTimeSyncListener(this);
 	ar.addAmpSyncListener(this);
+	this.name = name;
 	this.timeConfig = tr;
 	this.ampConfig = ar;
 	this.addSeismogram(seis);
@@ -187,6 +188,14 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	synchronized(imageMaker){ imageMaker.remove(imagePainter); }
     }
 
+    public void turnOnToolTip(){
+	this.setToolTipText(name);
+    }
+
+    public void turnOffToolTip(){
+	this.setToolTipText("");
+    }
+
     protected static ImageMaker imageMaker = new ImageMaker();
 
     protected Dimension overSize;
@@ -210,6 +219,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     protected ImagePainter imagePainter;
 
     protected boolean redo;
+
+    protected String name;
 
     protected class ImagePainter extends JComponent{
 	public void paint(Graphics g){
