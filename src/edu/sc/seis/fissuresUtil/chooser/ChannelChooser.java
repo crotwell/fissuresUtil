@@ -26,7 +26,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 5279 2003-09-02 17:43:13Z crotwell $
+ * @version $Id: ChannelChooser.java 5280 2003-09-02 17:51:14Z crotwell $
  *
  */
 
@@ -716,6 +716,19 @@ public class ChannelChooser extends JPanel {
         return (Station[])out.toArray(new Station[0]);
     }
 
+    public Station[] getSelectedStations(MicroSecondDate when) {
+        Station[] in = getSelectedStations();
+        LinkedList out = new LinkedList();
+        for ( int i=0; i<in.length; i++) {
+            MicroSecondDate b = new MicroSecondDate(in[i].effective_time.start_time);
+            MicroSecondDate e = new MicroSecondDate(in[i].effective_time.end_time);
+            if (when.after(b) && when.before(e)) {
+                out.add(in[i]);
+            }
+        } // end of for ()
+        return (Station[])out.toArray(new Station[0]);
+    }
+
     public void clearStationSelection(){
         stationList.getSelectionModel().clearSelection();
     }
@@ -775,7 +788,7 @@ public class ChannelChooser extends JPanel {
     protected  Channel[]  getSelectedChannels(MicroSecondDate when,
                                              boolean pruneStations) {
         LinkedList outChannels = new LinkedList();
-        Station[] selectedStations = getSelectedStations();
+        Station[] selectedStations = getSelectedStations(when);
         if (pruneStations) {
             LinkedList outStations = new LinkedList();
             for (int i = 0; i < selectedStations.length-1; i++) {
