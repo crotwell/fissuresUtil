@@ -67,8 +67,12 @@ public class BulletproofVestFactory{
     }
 
     public static ProxySeismogramDC vestSeismogramDC(String serverDNS, String serverName, FissuresNamingService fisName) {
+        return vestSeismogramDC(serverDNS, serverName, fisName, 3);
+    }
+
+    public static ProxySeismogramDC vestSeismogramDC(String serverDNS, String serverName, FissuresNamingService fisName, int count) {
         NSSeismogramDC ns = new NSSeismogramDC(serverDNS, serverName, fisName);
-        RetrySeismogramDC retry = new RetrySeismogramDC(ns, 3);
+        RetrySeismogramDC retry = new RetrySeismogramDC(ns, count);
         return retry;
     }
 
