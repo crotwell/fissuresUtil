@@ -105,6 +105,9 @@ public class UnitDisplayUtil {
         if (unit.equals(UnitImpl.MILLIMETER_PER_SECOND)) {
             return "mm/s";
         }
+		if (unit.equals(UnitImpl.KILOMETER)){
+			return "km";
+		}
         if (unit.equals(UnitImpl.METER)) {
             return "m";
         }
