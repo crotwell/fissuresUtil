@@ -239,7 +239,7 @@ public class EventFlag{
     
     private Origin eventOrigin;
     
-    private Color color = SeismogramDisplay.colors[++colorCount%SeismogramDisplay.colors.length];
+    private Color color = SeismogramDisplay.COLORS[++colorCount%SeismogramDisplay.COLORS.length];
     
     private Arrival[] arrivals;
     
