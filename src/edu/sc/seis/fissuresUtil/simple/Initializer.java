@@ -107,7 +107,9 @@ public abstract class Initializer{
 
     private static final String[] EMPTY_ARGS = {};
     private static Logger logger = Logger.getLogger(Initializer.class);
-
+    public static final NetworkId IU = new NetworkId("IU", new Time("19981026200000.0000GMT", 0));
+    public static final StationId AMNO = new StationId(IU, "ANMO", new Time("19981026200000.0000GMT", 0));
+    public static final ChannelId AMNOChannel = new ChannelId(IU, "ANMO", "00", "BH1", new Time("19981026200000.0000GMT", 0));
     public static final NetworkId fakeNet = new NetworkId("II", new Time("19861024000000.0000GMT", 0));
     public static final StationId fakeStation = new StationId(fakeNet, "AAK", new Time("19901012000000.0000GMT", 0));
     public static final ChannelId fakeChan = new ChannelId(fakeNet, "AAK", "  ", "BHE", new Time("19901012000000.0000GMT", 0));
