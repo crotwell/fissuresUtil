@@ -20,18 +20,21 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 public class BulletproofVestFactory{
 
     public static ProxyNetworkAccess networkAccessVest(NetworkAccess na, ProxyNetworkDC netDC) {
+        //avoid vesting if it is already vested.
+        if(na instanceof CacheNetworkAccess) {
+            return (ProxyNetworkAccess) na;
+        }else {
+            // side effect, make sure we have an NSNetworkDC inside the ProxyNetworkDC
+            NSNetworkDC nsNetDC = (NSNetworkDC)netDC.getWrappedDC(NSNetworkDC.class);
+            // side effect  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
+            NetworkId id = synch.get_attributes().get_id();
+            NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, netDC);
+            RetryNetworkAccess retry = new RetryNetworkAccess(nsNetworkAccess, 3);
+            CacheNetworkAccess cache = new CacheNetworkAccess(retry);
+            return cache;
+        }
 
-        // side effect, make sure we have an NSNetworkDC inside the ProxyNetworkDC
-        NSNetworkDC nsNetDC = (NSNetworkDC)netDC.getWrappedDC(NSNetworkDC.class);
-        // side effect  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-        SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
-        RetryNetworkAccess retry = new RetryNetworkAccess(synch, 3);
-        CacheNetworkAccess cache = new CacheNetworkAccess(retry);
-        NetworkId id = cache.get_attributes().get_id();
-        synch.setNetworkAccess(new NSNetworkAccess(na, id, netDC));
-        return cache;
     }
-
 }
 
