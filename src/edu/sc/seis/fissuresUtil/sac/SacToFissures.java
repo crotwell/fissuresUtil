@@ -5,10 +5,14 @@ import java.text.DecimalFormat;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.IfEvent.*;
+import edu.iris.Fissures.event.*;
+import edu.iris.Fissures.IfParameterMgr.*;
 import edu.iris.Fissures.IfTimeSeries.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.*;
-import edu.iris.Fissures.display.EventTemp;
+//import edu.iris.Fissures.display.EventTemp;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 
 /**
  * SacToFissures.java
@@ -84,15 +88,15 @@ public class SacToFissures  {
                                               sac.nzhour,
                                               sac.nzmin,
                                               sac.nzsec+sac.nzmsec/1000f);
-        String net = "";
+        String net = "XX";
         if ( ! sac.knetwk.trim().equals("-12345")) {
             net = sac.knetwk.trim();
         }
-        String sta = "";
+        String sta = "XXXXX";
         if ( ! sac.kstnm.trim().equals("-12345")) {
             sta = sac.kstnm.trim();
         }
-        String chan = "";
+        String chan = "XXX";
         if ( ! sac.kcmpnm.trim().equals("-12345")) {
             chan = sac.kcmpnm.trim();
         }
@@ -162,7 +166,7 @@ public class SacToFissures  {
         
     }
 
-    public static EventTemp getEvent(SacTimeSeries sac) {
+    public static CacheEvent getEvent(SacTimeSeries sac) {
 	if (sac.o != sac.FLOAT_UNDEF &&
             sac.evla != sac.FLOAT_UNDEF &&
             sac.evlo != sac.FLOAT_UNDEF &&
@@ -178,16 +182,31 @@ public class SacToFissures  {
 	    TimeInterval sacOMarker = new TimeInterval(sac.o, UnitImpl.SECOND);
             beginTime = beginTime.add(sacOMarker);
             System.out.println("SacToFissuresB "+beginTime+"  "+sacOMarker);
+            EventAttr attr = new EventAttrImpl("SAC Event");
+            Origin[] origins = new Origin[1];
+            Location loc;
 	    if (sac.evdp > 1000) {
-		return new EventTemp(beginTime,
-				     sac.evla, 
-				     sac.evlo, 
-				     sac.evdp/1000); // make depth km
-	    } // end of if (sac.evdp > 1000)
-	    return new EventTemp(beginTime,
-				 sac.evla, 
-				 sac.evlo, 
-				 sac.evdp);
+            loc = new Location(sac.evla, 
+                               sac.evlo,
+                               new QuantityImpl(0, UnitImpl.METER), 
+                               new QuantityImpl(sac.evdp, UnitImpl.METER),
+                               LocationType.GEOGRAPHIC);
+        } else {
+            loc = new Location(sac.evla, 
+                               sac.evlo,
+                               new QuantityImpl(0, UnitImpl.METER), 
+                               new QuantityImpl(sac.evdp, UnitImpl.KILOMETER),
+                               LocationType.GEOGRAPHIC);
+        } // end of else
+        origins[0] = new OriginImpl("genid:"+
+                                   Math.round(Math.random()*Integer.MAX_VALUE),
+                                    "",
+                                    "",
+                                    beginTime.getFissuresTime(),
+                                    loc,
+                                    new Magnitude[0],
+                                    new ParameterRef[0]);
+	    return new CacheEvent(attr, origins, origins[0]);
 	} else {
 	    return null;
 	}
