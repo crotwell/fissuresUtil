@@ -14,9 +14,6 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  */
 
 public class AmpEvent {
-    public AmpEvent(DataSetSeismogram[] seismos, AmpConfig amp){
-
-    }
 
     public AmpEvent(DataSetSeismogram[] seismos, UnitRangeImpl[] amps){
         if ( seismos.length != amps.length) {
