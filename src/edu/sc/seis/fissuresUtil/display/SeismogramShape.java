@@ -7,6 +7,7 @@ import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
+import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -21,7 +22,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3660 2003-04-10 19:06:03Z groves $
+ * @version $Id: SeismogramShape.java 3671 2003-04-13 01:55:40Z crotwell $
  */
 
 public class SeismogramShape implements Shape, SeisDataChangeListener{
@@ -167,6 +168,12 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
         pushData(sdce);
         finished = true;
     }
+
+    public void error(SeisDataErrorEvent sdce) {
+        //do nothing as someone else should handle error notification to user
+        logger.warn("Error with data retrieval.", sdce.getCausalException());
+    }
+
 
     public String getDataStatus(){
         if(noData && finished){

@@ -16,6 +16,8 @@ import edu.iris.Fissures.IfSeismogramDC.*;
 public interface SeisDataChangeListener {
     public void pushData(SeisDataChangeEvent sdce);
     
+    public void error(SeisDataErrorEvent sdce);
+
     public void finished(SeisDataChangeEvent sdce);
 
 }// DSSDataListener

@@ -343,7 +343,6 @@ public class Cmplx {
 			j += m;
 		}
 
-
 		int i, istep;
 		double wtemp, wr, wpr, wpi, wi, theta;
 		double tempr, tempi;

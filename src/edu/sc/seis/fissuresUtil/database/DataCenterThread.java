@@ -41,7 +41,7 @@ public class DataCenterThread implements Runnable{
                 //System.out.println("The length of the seismograms in thread is "+seis.length);
                 a_client.pushData(seisImpl, initiator);
             } catch(FissuresException fe) {
-                fe.printStackTrace();
+                a_client.error(initiator, fe);
                 continue;
             }
         }

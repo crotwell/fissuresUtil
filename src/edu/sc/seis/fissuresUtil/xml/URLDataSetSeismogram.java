@@ -20,12 +20,11 @@ import javax.swing.*;
 public class URLDataSetSeismogram extends DataSetSeismogram{
     public URLDataSetSeismogram (URL url, 
                                  SeismogramFileTypes fileType,
-                                 DataSet dataSet,
+                                 DataSet dataset,
                                  String name){
-        setName(name);
+        super(dataset, name);
         this.url = url;
         this.fileType = fileType;
-        this.dataSet = dataSet;
     }
 
     public URLDataSetSeismogram (URL url, SeismogramFileTypes fileType, DataSet dataSet){
@@ -34,10 +33,6 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
 
     public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType) {
         this(url, fileType, null);
-    }
-
-    public Object clone() {
-        return super.clone();
     }
 
     public void retrieveData(final SeisDataChangeListener dataListener) {
@@ -98,14 +93,8 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
         }
     }
 
-
-    public DataSet getDataSet(){ return dataSet; }
-
-
     private URL url;
 
     private SeismogramFileTypes fileType;
-
-    DataSet dataSet;
 
 }// URLDataSetSeismogram
