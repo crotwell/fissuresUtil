@@ -573,19 +573,19 @@ public  class PlottableDisplay extends JPanel {
     java.awt.image.BufferedImage bufferedImage = null;
 
     /* Defaults for plottable */
-    int plotrows=12;
-    int sizerow;
-    int plotoffset=60; 
-    String plottitle="true";  
-    int plot_x=6000; 
-    int plot_y=2000;
-    int plotwidth=700;
-    int plotheight=2600;
-    int totalhours = 24;
+    public int plotrows=12;
+    public int sizerow;
+    public int plotoffset=60; 
+    public String plottitle="true";  
+    public int plot_x=6000; 
+    public int plot_y=2000;
+    public int plotwidth=700;
+    public int plotheight=2600;
+    public int totalhours = 24;
 
-    int min;
-    int max;
-    int mean;
+    public int min;
+    public int max;
+    public int mean;
     float ampScale = 1.0f;
     float ampScalePercent = 1.0f;
     int titleYShift = 40;
