@@ -511,27 +511,34 @@ public  class PlottableDisplay extends JComponent {
     }
     
     private int[] getSelectedRows(int beginy, int endy) {
-	ArrayList arrayList = new ArrayList();
-	for(int counter = 0; counter < plotrows; counter++) {
-	    int value =  plot_y/2 + titleYShift + plotoffset*counter;
-	    if(value >= beginy && value <= endy) {
-		arrayList.add(new Integer(counter));
-	    }
-	}
-	int[] rtnValues = new int[arrayList.size()];
-	for(int counter = 0; counter < arrayList.size(); counter++) {
-	    rtnValues[counter] = ((Integer)arrayList.get(counter)).intValue();
-	    //System.out.println("The row selected is "+rtnValues[counter]);
-	}
-	return rtnValues;
+        if(beginy == -1 || endy == -1) return new int[0];
+        ArrayList arrayList = new ArrayList();
+        int selectionOffset = plotoffset / 2;
+        for(int counter = 0; counter < plotrows; counter++) {
+	    int value =  (plot_y/2 + titleYShift + plotoffset*counter);
+   
+        //if(((value - selectionOffset) <= beginy) &&
+        if( (beginy <= (value + selectionOffset)) &&
+           (endy >= beginy) && 
+            (endy > (value - selectionOffset))) {
+            //(endy <= (value + selectionOffset))) { 
+            arrayList.add(new Integer(counter));
+        }
+        }
+        int[] rtnValues = new int[arrayList.size()];
+        for(int counter = 0; counter < arrayList.size(); counter++) {
+            rtnValues[counter] = ((Integer)arrayList.get(counter)).intValue();
+            //System.out.println("The row selected is "+rtnValues[counter]);
+        }
+        return rtnValues;
     }
 
 
     private boolean isRowSelected(int[] rows, int currrow) {
-	for(int counter = 0; counter < rows.length; counter++) {
-	    if(rows[counter] == currrow) return true;
-	}
-	return false;
+        for(int counter = 0; counter < rows.length; counter++) {
+            if(rows[counter] == currrow) return true;
+        }
+        return false;
     }
 
     private void drawHighlightRegion(Graphics g) {
@@ -578,22 +585,21 @@ public  class PlottableDisplay extends JComponent {
 		int ey = plotoffset - 10;
 		if(currRow == selectedRows[0] ) {
 		    //System.out.println("Calculating values for start row");
-		    bx =  beginx + xShift*currRow ;//-labelXShift + beginx;
+		    bx =  beginx + xShift*currRow -labelXShift;// + beginx;
 		    if(selectedRows.length  != 1) {
-			ex = 6000;
+                ex = 6000;
 		    } else {
-			ex = endx - beginx;
+                ex = endx - beginx;
 		    }
-		
-		} else if(currRow == selectedRows[selectedRows.length -1 ]) {
+        } else if(currRow == selectedRows[selectedRows.length -1 ]) {
 		    //System.out.println("Caculating values for end row "+currRow);
-		    bx = xShift*currRow;
+		    bx = xShift*currRow - labelXShift;;
 		    ex = (endx);
 		} else {
 		    bx = 0;
 		    ex = 6000;
-		
-		}
+        }
+        
 		//System.out.println("NOW DRAW THE rectangle for row "+currRow);
 		newG.drawRect(bx, by, ex, ey);
 		newG.fillRect(bx, by, ex, ey);
