@@ -6,6 +6,7 @@ import edu.sc.seis.fissuresUtil.database.*;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.network.SiteImpl;
@@ -137,7 +138,7 @@ public class JDBCSite extends NetworkTable {
     public int put(Site site)  throws SQLException {
         int dbid;
         try {
-            dbid = getDBId(site.get_id(), site.my_station.get_id());
+            dbid = getDBId(site.get_id(), site.my_station);
             // No NotFound exception, so already added the id
             // now check if the attrs are added
             getIfCommentExists.setInt(1, dbid);
@@ -164,11 +165,11 @@ public class JDBCSite extends NetworkTable {
         throw new NotFound("No Station found for database id = "+dbid);
     }
 
-    public Site get(SiteId id, StationId staId)throws SQLException, NotFound {
+    public Site get(SiteId id, Station staId)throws SQLException, NotFound {
         return get(getDBId(id, staId));
     }
 
-    public int getDBId(SiteId id, StationId staId)  throws SQLException, NotFound {
+    public int getDBId(SiteId id, Station staId)  throws SQLException, NotFound {
         insertId(id, staId, getDBId, 1, stationTable, time);
         ResultSet rs = getDBId.executeQuery();
         if(rs.next()){ return rs.getInt("site_id"); }
@@ -201,7 +202,7 @@ public class JDBCSite extends NetworkTable {
     public static int insertAll(Site site, PreparedStatement stmt, int index,
                                 JDBCStation stationTable, JDBCLocation locTable,
                                 JDBCTime time)throws SQLException {
-        index = insertId(site.get_id(), site.my_station.get_id(), stmt, index,
+        index = insertId(site.get_id(), site.my_station, stmt, index,
                          stationTable, time);
         index = insertOnlySite(site, stmt, index, locTable, time);
         return index;
@@ -216,9 +217,9 @@ public class JDBCSite extends NetworkTable {
         return index;
     }
 
-    public static int insertId(SiteId id, StationId staId, PreparedStatement stmt, int index,
+    public static int insertId(SiteId id, Station sta, PreparedStatement stmt, int index,
                                JDBCStation stationTable, JDBCTime time) throws SQLException{
-        stmt.setInt(index++, stationTable.put(staId));
+        stmt.setInt(index++, stationTable.put(sta));
         stmt.setString(index++, id.site_code);
         stmt.setInt(index++, time.put(id.begin_time));
         return index;
