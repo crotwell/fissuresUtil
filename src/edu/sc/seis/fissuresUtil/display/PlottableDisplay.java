@@ -12,6 +12,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -344,7 +345,10 @@ public class PlottableDisplay extends JComponent {
     public Image createImage() {
         final int width = getSize().width;
         final int height = getSize().height;
-        final Image offImg = super.createImage(width, height);
+        //final Image offImg = super.createImage(width, height);
+        final Image offImg = new BufferedImage(width,
+                                               height,
+                                               BufferedImage.TYPE_INT_RGB);
         Thread t = new Thread("Plottable Image Creator") {
 
             public void run() {
@@ -360,6 +364,23 @@ public class PlottableDisplay extends JComponent {
         };
         t.start();
         return offImg;
+    }
+
+    public void renderToGraphics(Graphics2D g, Dimension size) {
+        Graphics curGraphics = currentImageGraphics;
+        currentImageGraphics = g;
+        Dimension curSize = getSize();
+        setSize(size);
+        validate();
+        setDoubleBuffered(false);
+        g.setBackground(Color.WHITE);
+        g.clearRect(0, 0, size.width, size.height);
+        drawComponent(g);
+        repaint();
+        setDoubleBuffered(true);
+        currentImageGraphics = curGraphics;
+        setSize(curSize);
+        validate();
     }
 
     public void outputToPNG(String filename) throws IOException {
@@ -378,8 +399,12 @@ public class PlottableDisplay extends JComponent {
         BufferedImage img = new BufferedImage(getSize().width,
                                               getSize().height,
                                               BufferedImage.TYPE_INT_RGB);
-        paintComponent(img.getGraphics());
+        renderToGraphics((Graphics2D)img.getGraphics(), size);
+        try {
+            Thread.sleep(5000);
+        } catch(InterruptedException e) {}
         ImageIO.write(img, "png", temp);
+        //        ImageIO.write((RenderedImage)createImage(), "png", temp);
         file.delete();
         temp.renameTo(file);
     }
