@@ -27,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2818 2002-10-24 18:10:34Z groves $
+ * @version $Id: SeismogramShape.java 2819 2002-10-24 18:13:40Z groves $
  */
 
 public class SeismogramShape implements Shape, Plotter {
@@ -189,7 +189,6 @@ public class SeismogramShape implements Shape, Plotter {
 	    return;
 	}
 	int[] points = DisplayUtils.getSeisPoints(seis, time);
-	System.out.println("calculation points for seismogram  shape: " + points[0] + ", " + points[1]);
 	seisStart = points[0];
 	seisEnd = points[1];
 	MicroSecondDate temp = getValue(seis.getNumPoints(), seis.getBeginTime(), seis.getEndTime(), seisStart);
@@ -202,7 +201,6 @@ public class SeismogramShape implements Shape, Plotter {
 	    temp = time.getEndTime();
 	}
 	endPixel = getPixel(size.width, time.getBeginTime(), time.getEndTime(), temp);
-	System.out.println("pixels to be drawn by seismogram shape: " + startPixel + ", " + endPixel);
 	samplesPerPixel = (seisEnd - seisStart)/(double)(endPixel - startPixel);
     }
     
