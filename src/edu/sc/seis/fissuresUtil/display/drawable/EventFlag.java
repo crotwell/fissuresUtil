@@ -1,19 +1,25 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
-import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
-import java.awt.AlphaComposite;
+import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import javax.swing.JButton;
+import java.awt.event.ActionEvent;
 
 /**
  * EventFlagPlotter.java
@@ -26,87 +32,61 @@ import java.util.TimeZone;
  */
 
 public class EventFlag implements Drawable{
-    public EventFlag (PlottableDisplay plottableDisplay,
-                             EventAccessOperations eventAccess){
-
+    public EventFlag (final PlottableDisplay plottableDisplay,
+                      EventAccessOperations eventAccess){
         this.plottableDisplay = plottableDisplay;
+        selectButton.addActionListener(new ActionListener(){
+                    public void actionPerformed(ActionEvent e) {
+                        plottableDisplay.setSelection(getX(), getY(), 50);
+                    }
+
+                });
+        plottableDisplay.add(selectButton);
         this.eventAccess = eventAccess;
     }
 
     public void draw(Graphics2D canvas, java.awt.Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
-        //        addEventInfo(canvas);
         drawEvents(canvas);
     }
 
-    public void toggleVisibility() {
-
-    }
-
     public void setVisibility(boolean b) {
-
     }
 
-    public void addEventInfo(Graphics g) {
-        //   int[] rows = new int[eventAccess.length];
-        //         int[] cols = new int[eventAccess.length];
-        //         for(int  counter = 0; counter < eventAccess.length; counter++) {
-        //             rows[counter] = getEventRow(eventAccess[counter]);
-        //             cols[counter] = getEventColumn(eventAccess[counter]);
-        //         }
-        //         // drawEvents(eventAccess, rows, cols, g);
+    private int getX(){
+        double xPercentage = getEventXPercent(eventAccess);
+        return (int)(xPercentage * plottableDisplay.getRowWidth());
     }
 
-
+    private int getY(){
+        int row = getEventRow(eventAccess);
+        return row * plottableDisplay.getRowOffset() + plottableDisplay.titleHeight;
+    }
 
     private void drawEvents(Graphics g) {
         // get new graphics to avoid messing up original
-        Graphics2D newG = (Graphics2D)g.create();
+        Graphics2D g2 = (Graphics2D)g.create();
+        g2.translate(0, getY());
 
-        if(g != plottableDisplay.getCurrentImageGraphics()) {
-            newG.translate(PlottableDisplay.LABEL_X_SHIFT,
-                           PlottableDisplay.TITLE_Y_SHIFT);
-        }
+        /*g2.setPaint(Color.black);
+         g2.drawString(eventName, xLoc,  -3);
 
-        int xShift = plottableDisplay.getRowWidth();
-        int eventrow = getEventRow(eventAccess);
-        int eventcolumn = getEventColumn(eventAccess);
-
-        java.awt.geom.AffineTransform affine = newG.getTransform();
-
-        double yTrans = plottableDisplay.getRowHeight()/2+
-            plottableDisplay.getOffset()*eventrow;
-        affine.concatenate(affine.getTranslateInstance(-1*xShift*eventrow,
-                                                       yTrans));
-
-        java.awt.geom.AffineTransform tempAffine = newG.getTransform();
-        tempAffine.concatenate(tempAffine.getTranslateInstance(-1*xShift*eventrow,
-                                                               yTrans));
-        curreventrow = eventrow;
-        curreventcolumn = eventcolumn;
-        newG.setTransform(tempAffine);
-        newG.setPaint(Color.black);
-
-        newG.drawString(this.eventName, xShift*eventrow + eventcolumn,  -25);
-
-        //account for graphics y positive down
-        affine.concatenate(affine.getScaleInstance(1, -1));
-
-        newG.setTransform(affine);
-        newG.setPaint(this.currentColor);
-
-        newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                                                     .4f));
-
-        newG.drawRect( xShift*eventrow + eventcolumn - 5, 20, eventName.length() * 8, 20);
-        newG.fillRect( xShift*eventrow + eventcolumn - 5, 20, eventName.length() * 8,20);
-        newG.drawLine(xShift*eventrow + eventcolumn - 5,20,xShift*eventrow + eventcolumn - 5, 0);
-        newG.dispose();
+         g2.setPaint(currentColor);
+         Rectangle2D bounds = g2.getFontMetrics().getStringBounds(eventName,g2);
+         bounds.setFrame(xLoc ,-bounds.getHeight(), bounds.getWidth(), bounds.getHeight());
+         g2.draw(bounds);
+         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+         .4f));
+         g2.fill(bounds);*/
+        g2.setStroke(new BasicStroke(3));
+        g2.setPaint(color);
+        int halfOffset =  plottableDisplay.getRowOffset()/2;
+        int xLoc = getX();
+        g2.drawLine(xLoc, -halfOffset, xLoc, halfOffset);
     }
-
 
     public boolean isSelected(int x, int y) {
         int rx = curreventcolumn + PlottableDisplay.LABEL_X_SHIFT;
-        int ry = plottableDisplay.getRowHeight()/2+plottableDisplay.getOffset()*curreventrow;
+        int ry = plottableDisplay.getRowOffset()/2+plottableDisplay.getRowOffset()*curreventrow;
 
         if(x >= rx && x <= (rx + eventName.length() * 8) &&
            y >= ry && y <= (ry + 20)) {
@@ -115,22 +95,12 @@ public class EventFlag implements Drawable{
         return false;
     }
 
-    public void setSelected(boolean value) {
-        if(value) {
-            this.currentColor = ACTIVECOLOR;
-        } else {
-            this.currentColor = INACTIVECOLOR;
-        }
-
-    }
-
-
     private int getEventRow(EventAccessOperations eventAccess) {
         try {
             if(eventOrigin == null) {
                 eventOrigin = eventAccess.get_preferred_origin();
             }
-            edu.iris.Fissures.Time time = eventOrigin.origin_time;
+            Time time = eventOrigin.origin_time;
 
             long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
             Calendar calendar = Calendar.getInstance();
@@ -147,41 +117,44 @@ public class EventFlag implements Drawable{
 
     }
 
-
-    private int getEventColumn(EventAccessOperations eventAccess) {
-        try {
-            if(eventOrigin == null) {
+    private double getEventXPercent(EventAccessOperations eventAccess){
+        if(eventOrigin == null) {
+            try {
                 eventOrigin = eventAccess.get_preferred_origin();
+            } catch (NoPreferredOrigin e) {
+                eventOrigin = eventAccess.get_origins()[0];
             }
-
-            edu.iris.Fissures.Time time = eventOrigin.origin_time;
-            if(this.eventName == null) {
-                this.eventName = eventAccess.get_attributes().name;
-            }
-            long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
-            Calendar calendar = Calendar.getInstance();
-            Date date = new Date(microSeconds/1000);
-            calendar.setTime(date);
-            calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-            int minutes = calendar.get(Calendar.MINUTE);
-            int seconds = calendar.get(Calendar.SECOND);
-
-            float colhours = (minutes * 60 + seconds) / (float) (60 * 60);
-
-            int rowvalue = 24/plottableDisplay.getRows();
-            int rowWidth = plottableDisplay.getRowWidth();
-            int  rtnvalue = (int)(((float)rowWidth/rowvalue) * colhours);
-
-            return rtnvalue;
-
-        } catch(Exception e) {
-
         }
-        return -1;
-
+        Time time = eventOrigin.origin_time;
+        long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
+        Calendar calendar = Calendar.getInstance();
+        Date date = new Date(microSeconds/1000);
+        calendar.setTime(date);
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        int hours = calendar.get(Calendar.HOUR);
+        int minutes = calendar.get(Calendar.MINUTE);
+        int seconds = calendar.get(Calendar.SECOND);
+        double hoursPerRow = 24/plottableDisplay.getRows();
+        double leftoverHours = hours%hoursPerRow;
+        leftoverHours += minutes/60.0;
+        leftoverHours += seconds/60.0/60.0;
+        return leftoverHours/hoursPerRow;
     }
-    public Color getColor(){ return currentColor; }
 
+    public String getName(){
+        if(eventName == null){
+            eventName = EventLayer.getEventInfo(eventAccess);
+        }
+        return eventName;
+    }
+
+    public JButton getButton(){
+        return selectButton;
+    }
+
+    public Color getColor(){ return color; }
+
+    private JButton selectButton = new JButton("Select");
 
     private int curreventrow;
 
@@ -195,10 +168,8 @@ public class EventFlag implements Drawable{
 
     private Origin eventOrigin;
 
-    private static final Color ACTIVECOLOR = Color.green;
+    private Color color = SeismogramDisplay.colors[colorCount++%SeismogramDisplay.colors.length];
 
-    private static final Color INACTIVECOLOR = Color.red;
-
-    private Color currentColor = INACTIVECOLOR;
+    private static int colorCount = 0;
 
 }// EventFlagPlotter
