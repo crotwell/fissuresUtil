@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 4138 2003-05-30 18:01:27Z oliverpa $
+ * @version $Id: EventTableModel.java 4629 2003-07-03 16:43:34Z groves $
  */
 
 public class EventTableModel
@@ -56,6 +56,7 @@ public class EventTableModel
 
     }
 
+    public EventBackgroundLoaderPool getLoader(){ return loader; }
 
     public int getColumnCount() { return 8; }
 
@@ -193,14 +194,10 @@ public class EventTableModel
     public void eventLoaded(CacheEvent cache) {
         cachedEvents.put(cache, cache);
         backgrounded.remove(cache);
-        System.out.println("ETM 196: cache.getEventAccess: " + cache.getEventAccess());
-        //Integer rowNum = (Integer)rowNumber.get(cache.getEventAccess());
         Integer rowNum = (Integer)rowNumber.get(cache);
-        if (cache.getEventAccess() == null) System.out.println("cache.getEventAccess() is null!");
-        if (cache == null) System.out.println("cache is null!");
-        if (rowNum == null) System.out.println("rowNum is NULL!");
-        fireTableRowsUpdated(rowNum.intValue(), rowNum.intValue());
-        System.out.println("loaded event "+cache.get_attributes().name);
+        if (rowNum != null){
+            fireTableRowsUpdated(rowNum.intValue(), rowNum.intValue());
+        }
     }
 
     public void addEventDataListener(EventDataListener edl){
