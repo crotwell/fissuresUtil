@@ -29,26 +29,26 @@ import org.apache.log4j.Logger;
  */
 
 public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
-    private DBDataCenter (DataCenterOperations dataCenterRouter) throws SQLException {
+    private DBDataCenter (String directoryName, String databaseName, DataCenterOperations dataCenterRouter) throws SQLException {
         this.dataCenter = dataCenterRouter;
-        hsqlRequestFilterDb = new HSQLRequestFilterDb(dataCenterRouter);
+        hsqlRequestFilterDb = new HSQLRequestFilterDb(directoryName, databaseName, dataCenterRouter);
     }
 
-    private DBDataCenter () throws SQLException {
+    private DBDataCenter (String directoryName, String databaseName) throws SQLException {
 
-        hsqlRequestFilterDb = new HSQLRequestFilterDb();
+        hsqlRequestFilterDb = new HSQLRequestFilterDb(directoryName, databaseName);
     }
 
-    public static DBDataCenter getDataCenter(DataCenterOperations dataCenterRouter) throws SQLException {
+    public static DBDataCenter getDataCenter(String directoryName, String databaseName, DataCenterOperations dataCenterRouter) throws SQLException {
         if(dbDataCenter == null) {
-            dbDataCenter = new DBDataCenter(dataCenterRouter);
+            dbDataCenter = new DBDataCenter(directoryName, databaseName, dataCenterRouter);
         }
         return dbDataCenter;
     }
 
-    public static DBDataCenter getDataCenter() throws SQLException {
+    public static DBDataCenter getDataCenter(String directoryName, String databaseName) throws SQLException {
         if(dbDataCenter == null) {
-            dbDataCenter = new DBDataCenter();
+            dbDataCenter = new DBDataCenter(directoryName, databaseName);
         }
         return dbDataCenter;
     }

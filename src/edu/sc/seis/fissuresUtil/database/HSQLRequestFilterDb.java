@@ -35,12 +35,15 @@ import org.apache.log4j.Category;
  */
 
 public class HSQLRequestFilterDb extends AbstractDb{
-    public HSQLRequestFilterDb (DataCenterOperations router) throws SQLException {
+    public HSQLRequestFilterDb (String directoryName, String databaseName, DataCenterOperations router) throws SQLException {
+        super(directoryName, databaseName);
         this.dataCenterRouter = router;
         create();
     }
 
-    public HSQLRequestFilterDb() throws SQLException {
+    public HSQLRequestFilterDb(String directoryName, String databaseName) throws SQLException {
+        super(directoryName, databaseName);
+        ung = UniqueNumberGenerator.getUNG(directoryName, databaseName);
         create();
     }
 
@@ -203,7 +206,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
             if(!directory.exists()) {
                 directory.mkdirs();
             }
-            int id = UniqueNumberGenerator.getUniqueIdentifier();
+            int id = ung.getUniqueIdentifier();
             File sacDirectory = new File(directory,
                                          PREFIX+id);
             sac.write(sacDirectory);
@@ -409,6 +412,8 @@ public class HSQLRequestFilterDb extends AbstractDb{
     }
 
     private String dataDirectoryName = directoryName+"/data/";
+
+    private UniqueNumberGenerator ung;
 
     private PreparedStatement getTotalSizeStmt;
 

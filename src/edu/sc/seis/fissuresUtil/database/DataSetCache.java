@@ -17,31 +17,36 @@ import java.sql.SQLException;
  */
 
 public class DataSetCache {
-    public DataSetCache (){
-	
+    public DataSetCache (String directoryName, String databaseName){
+        this.directoryName = directoryName;
+        this.databaseName = databaseName;
     }
 
     public void addSeismogram(LocalSeismogramImpl seis,
-			      String name,
-			      AuditInfo[] auditInfo) throws SQLException {
-	
-	String fileids = DBDataCenter.getDataCenter().getFileIds(seis.getChannelID(),
-						seis.getBeginTime(),
-						seis.getEndTime());
-	SeisInfoDb.getSeisInfoDb().insert(name, 
-					  fileids);
+                  String name,
+                  AuditInfo[] auditInfo) throws SQLException {
+
+    String fileids = DBDataCenter.getDataCenter(directoryName, databaseName).getFileIds(seis.getChannelID(),
+                        seis.getBeginTime(),
+                        seis.getEndTime());
+    SeisInfoDb.getSeisInfoDb(directoryName, databaseName).insert(name,
+                      fileids);
     }
 
 
     public LocalSeismogramImpl getSeismogram(String name)
         throws SQLException, java.io.IOException, edu.iris.Fissures.FissuresException
  {
-	//System.out.println("The name of the seismogram queried is "+name);
-	String fileids = SeisInfoDb.getSeisInfoDb().getFileIds(name);
-	if(fileids == null) return null;
-	System.out.println("The value of the fileids is "+fileids);
-	return (LocalSeismogramImpl)DBDataCenter.getDataCenter().getSeismogram(fileids);
+    //System.out.println("The name of the seismogram queried is "+name);
+    String fileids = SeisInfoDb.getSeisInfoDb(directoryName, databaseName).getFileIds(name);
+    if(fileids == null) return null;
+    System.out.println("The value of the fileids is "+fileids);
+    return (LocalSeismogramImpl)DBDataCenter.getDataCenter(directoryName, databaseName).getSeismogram(fileids);
 
     }
-    
+
+    String directoryName;
+
+    String databaseName;
+
 }// DataSetCache
