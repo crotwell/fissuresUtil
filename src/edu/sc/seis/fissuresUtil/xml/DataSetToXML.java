@@ -45,6 +45,12 @@ public class DataSetToXML {
         DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
         Document doc = docBuilder.newDocument();
         Element element = doc.createElement("dataset");
+        element.setAttribute("xmlns:dataset", "http://www.seis.sc.edu/xschema/dataset/2.0");
+        element.setAttribute("xmlns", "http://www.seis.sc.edu/xschema/dataset/2.0");
+        element.setAttribute("xsi:schemaLocation",
+                             "http://www.seis.sc.edu/xschema/dataset/2.0 http://www.seis.sc.edu/xschema/dataset/2.0/sod.xsd");
+        element.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+
         doc.appendChild(element);
         insert(element, dataset, dataDirectory);
         return element;
