@@ -19,7 +19,8 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * @version
  */
 public class MicroSecondTimeRange {
-    public MicroSecondTimeRange(LocalSeismogramImpl ls){
+
+    public MicroSecondTimeRange(LocalSeismogramImpl ls) {
         this(ls.getBeginTime(), ls.getEndTime());
     }
 
@@ -53,6 +54,14 @@ public class MicroSecondTimeRange {
 
     public MicroSecondTimeRange(MicroSecondDate beginTime, TimeInterval interval) {
         this(beginTime, beginTime.add(interval));
+    }
+
+    public MicroSecondTimeRange(MicroSecondTimeRange timeRange,
+            MicroSecondTimeRange timeRange2) {
+        this(timeRange.getBeginTime().before(timeRange2.getBeginTime()) ? timeRange.getBeginTime()
+                     : timeRange2.getBeginTime(),
+             timeRange.getEndTime().after(timeRange2.getEndTime()) ? timeRange.getEndTime()
+                     : timeRange2.getEndTime());
     }
 
     public boolean intersects(MicroSecondDate newTime) {
