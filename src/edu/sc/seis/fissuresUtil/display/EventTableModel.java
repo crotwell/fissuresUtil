@@ -7,8 +7,8 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.fissuresUtil.cache.EventLoader;
 import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
+import edu.sc.seis.fissuresUtil.cache.EventLoader;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.text.DecimalFormat;
@@ -27,7 +27,7 @@ import org.apache.log4j.Category;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 8849 2004-05-21 16:35:53Z groves $
+ * @version $Id: EventTableModel.java 9427 2004-07-02 01:46:11Z groves $
  */
 
 public class EventTableModel
@@ -37,10 +37,10 @@ public class EventTableModel
     /** Creates a table model without any events. Events can be
      *  added later with the updateEvents method. */
     public EventTableModel() {
-        this(new EventAccessOperations[0]);
+        this(new CacheEvent[0]);
     }
 
-    public EventTableModel(EventAccessOperations[] events) {
+    public EventTableModel(CacheEvent[] events) {
         updateEvents(events);
         columnNames = new String[9];
         columnNames[LATITUDE] = "Latitude";
@@ -177,7 +177,7 @@ public class EventTableModel
         }
     }
 
-    public void updateEvents(EventAccessOperations[] events) {
+    public void updateEvents(CacheEvent[] events) {
         this.events = events;
         cachedEvents.clear();
         rowNumber.clear();
@@ -186,8 +186,8 @@ public class EventTableModel
         fireEventDataChanged(events);
     }
 
-    public void appendEvents(EventAccessOperations[] appendEvents) {
-        EventAccessOperations[] tmp = new EventAccessOperations[events.length+appendEvents.length];
+    public void appendEvents(CacheEvent[] appendEvents) {
+        CacheEvent[] tmp = new CacheEvent[events.length+appendEvents.length];
         System.arraycopy(events, 0, tmp, 0, events.length);
         System.arraycopy(appendEvents, 0, tmp, events.length, appendEvents.length);
         this.events = tmp;
@@ -208,7 +208,7 @@ public class EventTableModel
         listenerList.add(EventDataListener.class, edl);
     }
 
-    private void fireEventDataChanged(EventAccessOperations[] events){
+    private void fireEventDataChanged(CacheEvent[] events){
         EQDataEvent eqDataEvent = null;
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -218,13 +218,13 @@ public class EventTableModel
             if (listeners[i]==EventDataListener.class) {
                 // Lazily create the event:
                 if (eqDataEvent == null)
-                    eqDataEvent = new EQDataEvent(this, events);
+                    eqDataEvent = new EQDataEvent(events);
                 ((EventDataListener)listeners[i+1]).eventDataChanged(eqDataEvent);
             }
         }
     }
 
-    private void fireEventDataAppended(EventAccessOperations[] events){
+    private void fireEventDataAppended(CacheEvent[] events){
         EQDataEvent eqDataEvent = null;
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -234,7 +234,7 @@ public class EventTableModel
             if (listeners[i]==EventDataListener.class) {
                 // Lazily create the event:
                 if (eqDataEvent == null)
-                    eqDataEvent = new EQDataEvent(this, events);
+                    eqDataEvent = new EQDataEvent(events);
                 ((EventDataListener)listeners[i+1]).eventDataAppended(eqDataEvent);
             }
         }
@@ -253,8 +253,8 @@ public class EventTableModel
         }
     }
 
-    public EventAccessOperations[] getAllEvents(){
-        EventAccessOperations[] eaos = new EventAccessOperations[getRowCount()];
+    public CacheEvent[] getAllEvents(){
+        CacheEvent[] eaos = new CacheEvent[getRowCount()];
         for (int i = 0; i < getRowCount(); i++) {
             eaos[i] = getEventForRow(i);
         }
@@ -277,7 +277,7 @@ public class EventTableModel
 
     protected static ParseRegions FERegions = ParseRegions.getInstance();
 
-    protected EventAccessOperations[] events;
+    protected CacheEvent[] events;
 
     protected WeakHashMap cachedEvents = new WeakHashMap();
 
