@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -79,7 +80,11 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             }
             globalRegistrar = new Registrar(dss);
             if(setAC){
-                ac = globalRegistrar;
+                if(ampConfig != null){
+                    ac = ampConfig;
+                }else{
+                    ac = globalRegistrar;
+                }
             }
             tc = globalRegistrar;
         }
@@ -100,5 +105,15 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
         }
         return disp;
     }
+
+    public void setIndividualizedAmpConfig(AmpConfig ac){
+        ampConfig = new IndividualizedAmpConfig(ac);
+        if(basicDisplays.size() != 0){
+            BasicSeismogramDisplay  disp = (BasicSeismogramDisplay)basicDisplays.getFirst();
+            disp.setAmpConfig(ampConfig);
+        }
+    }
+
+    private AmpConfig ampConfig;
 
 }// SingleSeismogramWindowDisplay
