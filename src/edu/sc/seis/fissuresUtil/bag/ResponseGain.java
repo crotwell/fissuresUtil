@@ -8,7 +8,11 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Applys the overall sensitivity to a seismogram. This is purely a scale
@@ -61,7 +65,7 @@ public class ResponseGain implements LocalSeismogramFunction {
     }
 
     public Instrumentation getInstrumentation(ChannelId channel_id, Time begin_time) throws NetworkNotFound, ChannelNotFound {
-        Instrumentation inst = getFromCache(channel_id);
+        Instrumentation inst = getFromCache(channel_id, begin_time);
         if (inst == null) {
             NetworkAccess net = finder.retrieve_by_id(channel_id.network_id);
             inst = net.retrieve_instrumentation(channel_id, begin_time);
@@ -73,14 +77,23 @@ public class ResponseGain implements LocalSeismogramFunction {
     private NetworkFinder finder;
 
     public void addToCache(ChannelId chan, Instrumentation inst) {
-        instCache.put(ChannelIdUtil.toString(chan),
-                      new InstrumentationDater(chan, inst));
+        List instList = (List)instCache.get(ChannelIdUtil.toString(chan));
+        if (instList == null) {
+            instList = new LinkedList();
+            instCache.put(ChannelIdUtil.toString(chan), instList);
+        }
+        instList.add(new InstrumentationDater(chan, inst));
     }
 
-    public Instrumentation getFromCache(ChannelId chan) {
-        InstrumentationDater instD = (InstrumentationDater)instCache.get(ChannelIdUtil.toString(chan));
-        if (instD != null) {
-            return instD.inst;
+    public Instrumentation getFromCache(ChannelId chan, Time begin_time) {
+        List instList = (List)instCache.get(ChannelIdUtil.toString(chan));
+        Iterator it = instList.iterator();
+        while (it.hasNext()) {
+            InstrumentationDater instD = (InstrumentationDater)it.next();
+            MicroSecondTimeRange timeRange = new MicroSecondTimeRange(instD.inst.effective_time);
+            if (instD != null && timeRange.intersects(new MicroSecondDate(begin_time))) {
+                return instD.inst;
+            }
         }
         return null;
     }
