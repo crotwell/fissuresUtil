@@ -115,19 +115,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      */
     public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac);
 
-
-    public java.util.List getSeismogramNames(){
-        java.util.List names = new ArrayList();
-        Iterator e = basicDisplays.iterator();
-        while(e.hasNext()){
-            String[] current = ((BasicSeismogramDisplay)e.next()).getNames();
-            for(int i = 0; i < current.length; i++){
-                names.add(current[i]);
-            }
-        }
-        return names;
-    }
-
     public DataSetSeismogram[] getSeismograms(){
         java.util.List seismogramList = new ArrayList();
         Iterator e = basicDisplays.iterator();
@@ -181,7 +168,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     public void clearSelections(){
         Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).clearSingleSelections();
+            ((BasicSeismogramDisplay)e.next()).clearSelections();
         }
     }
 
@@ -199,8 +186,8 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         super.removeAll();
         basicDisplays.clear();
         registrar = null;
-        timeLabel.setText("   Time: ");
-        ampLabel.setText("   Amplitude: ");
+        time = "   Time: ";
+        amp = "   Amplitude: ";
         repaint();
     }
 
@@ -244,78 +231,64 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
 
 
     /**
-     * <code>setLabels</code> sets the time and amp labels for all VSDs
+     * <code>setTimeAmp</code> sets the time and amp labels for all VSDs
      *
      * @param time the new label time
      * @param amp the new label amp
      */
-    public void setLabels(MicroSecondDate newTime, QuantityImpl newAmp, UnitRangeImpl ampRange){
-        if(curAmpRange != ampRange){
-            double absMax = Math.abs(ampRange.getMaxValue());
-            double absMin = Math.abs(ampRange.getMinValue());
-            double maxVal;
-            if(absMax > absMin){
-                maxVal = absMax;
-            }else{
-                maxVal = absMin;
-            }
-            if(maxVal < 1){
-                formatter = new DecimalFormat(" 0.###E0;-0.###E0");
-            }else{
-                StringBuffer formatPattern = new StringBuffer(" 0.00;-0.00");
-                while(maxVal > 10){
-                    formatPattern.insert(1,"0");
-                    formatPattern.insert(formatPattern.length() - 4, "0");
-                    maxVal /= 10;
-                }
-                formatter = new DecimalFormat(formatPattern.toString());
-            }
-            curAmpRange = ampRange;
-        }
+    public void setTimeAmp(MicroSecondDate newTime, QuantityImpl newAmp, UnitRangeImpl ampRange){
+        /*if(curAmpRange != ampRange){
+         double absMax = Math.abs(ampRange.getMaxValue());
+         double absMin = Math.abs(ampRange.getMinValue());
+         double maxVal;
+         if(absMax > absMin){
+         maxVal = absMax;
+         }else{
+         maxVal = absMin;
+         }
+         if(maxVal < 1){
+         formatter = new DecimalFormat(" 0.###E0;-0.###E0");
+         }else{
+         StringBuffer formatPattern = new StringBuffer(" 0.00;-0.00");
+         while(maxVal > 10){
+         formatPattern.insert(1,"0");
+         formatPattern.insert(formatPattern.length() - 4, "0");
+         maxVal /= 10;
+         }
+         formatter = new DecimalFormat(formatPattern.toString());
+         }
+         curAmpRange = ampRange;
+         }*/
         double newAmpVal = newAmp.getValue();
         if(newAmpVal == Double.NaN){
-            ampLabel.setText("");
+            amp = "";
         }else{
             String ampString = amplitude;
             ampString += formatter.format(newAmpVal);
-            ampLabel.setText(ampString+" "+
-                                 unitDisplayUtil.getNameForUnit(newAmp.getUnit()));
+            amp = ampString+" "+unitDisplayUtil.getNameForUnit(newAmp.getUnit());
         }
         calendar.setTime(newTime);
-        StringBuffer timeString = new StringBuffer(ampLabel.getText().length());
+        StringBuffer timeBuffer = new StringBuffer(amp.length());
         if(output.format(calendar.getTime()).length() == 21)
-            timeString.append(output.format(calendar.getTime()) + "00");
+            timeBuffer.append(output.format(calendar.getTime()) + "00");
         else if(output.format(calendar.getTime()).length() == 22)
-            timeString.append(output.format(calendar.getTime()) + "0");
+            timeBuffer.append(output.format(calendar.getTime()) + "0");
         else
-            timeString.append(output.format(calendar.getTime()));
-        int numSpaces = ampLabel.getText().length() - timeString.length() - 10;//Amplitude: is 10 chars
-        if(numSpaces < 0){
-            timeString.insert(0, "Time:");
-            timeLabel.setText(timeString.toString());
-        }else{
-            StringBuffer spaces = new StringBuffer(numSpaces);
-            for (int i = 0; i < numSpaces; i++){
-                spaces.append(" ");
-            }
-            timeString.insert(0, spaces);
-            timeString.insert(0, "Time:");
-            timeLabel.setText(timeString.toString());
-        }
+            timeBuffer.append(output.format(calendar.getTime()));
+        //int numSpaces = amp.length() - timeString.length() - 10;//Amplitude: is 10 chars
+        //if(numSpaces < 0){
+        timeBuffer.insert(0, "Time:");
+        time = timeBuffer.toString();
+        /*}else{
+         StringBuffer spaces = new StringBuffer(numSpaces);
+         for (int i = 0; i < numSpaces; i++){
+         spaces.append(" ");
+         }
+         timeString.insert(0, spaces);
+         timeString.insert(0, "Time:");
+         time = timeString.toString();
+         }*/
     }
-
-    private UnitRangeImpl curAmpRange;
-
-    private String amplitude = new String("Amplitude:");
-
-    /**
-     *<code>getLabelText</code> gets the text held by the time and amp labels
-     *of this vertical seismogram display concatenated together
-     */
-    public static String getLabelText(){
-        return timeLabel.getText() + ampLabel.getText();
-    }
-
     /**
      * <code>setOriginalDisplay</code> sets the display of the unfiltered
      * seismogram in all BSDs held by this VSD or its children
@@ -356,6 +329,13 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         Iterator e = basicDisplays.iterator();
         while(e.hasNext()){
             ((BasicSeismogramDisplay)e.next()).applyFilter(filter);
+        }
+    }
+
+    public void removeFilter(ColoredFilter filter){
+        Iterator e = basicDisplays.iterator();
+        while(e.hasNext()){
+            ((BasicSeismogramDisplay)e.next()).removeFilter(filter);
         }
     }
 
@@ -454,9 +434,9 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
 
     private BasicSeismogramDisplay topDisplay, bottomDisplay;
 
-    public static JLabel getTimeLabel(){ return timeLabel; }
+    public static String getTime(){ return time; }
 
-    public static JLabel getAmpLabel(){ return ampLabel; }
+    public static String getAmp(){ return amp; }
 
     protected String suffix = "";
 
@@ -466,15 +446,15 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
 
     protected LinkedList basicDisplays = new LinkedList();
 
-    public static JLabel timeLabel = new JLabel("");
+    public static String time = new String("");
 
-    public static JLabel ampLabel = new JLabel("");
+    public static String amp = new String("");
 
-    public static DecimalFormat ampFormat = new DecimalFormat(" 000.00;-000.00");
+    private UnitRangeImpl curAmpRange;
 
-    public static DecimalFormat ampFormatExp = new DecimalFormat(" 0.###E0;-0.###E0");
+    private String amplitude = new String("Amplitude:");
 
-    public static DecimalFormat formatter;
+    public static DecimalFormat formatter = new DecimalFormat(" 0.000E0;-0.000E0");
 
     UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
 
