@@ -18,7 +18,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 2560 2002-09-03 17:48:50Z telukutl $
+ * @version $Id: SacDirToDataSet.java 2566 2002-09-03 19:15:10Z telukutl $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -137,39 +137,43 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 		
 		
 		System.out.println("The PATH is "+sacFile.getParent());
+		
 		edu.sc.seis.fissuresUtil.cache.CacheEvent event = 
 		    SacToFissures.getEvent(sac);
-		String eventName = event.get_attributes().name;
-		
-		String eName = eventName.replace(' ', '_');
-		if (event != null && dataset.getParameter(EVENT) == null) {
-		    // add event
-		    File outFile = new File(sacFile.getParent(), eName);
-		    OutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
+
+		  
+		    if (event != null && dataset.getParameter(EVENT) == null) {
+			String eventName = event.get_attributes().name;
+				
+			String eName = eventName.replace(' ', '_');
+			// add event
+			File outFile = new File(sacFile.getParent(), eName);
+			OutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
 		    
-		    AuditInfo[] eventAudit = new AuditInfo[1];
-		    eventAudit[0] = new AuditInfo(System.getProperty("user.name"),
-						  "event loaded from sac file.");
-		    XMLParameter.write(fos, event);
-		    fos.close();
-		    dataset.addParameterRef( new URL("file:"+eName), EVENT, event,eventAudit);
-		    edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent = (edu.sc.seis.fissuresUtil.cache.CacheEvent)((XMLDataSet)dataset).getParameter(EVENT);
-		    if(cacheEvent == null){
-			System.out.println("CACHE EVENT IS NULL");
-			System.exit(0);
-		    }
-		    else System.out.println("CACHE EVENT IS NOT NULL");
-		} // end of if (event != null)
+			AuditInfo[] eventAudit = new AuditInfo[1];
+			eventAudit[0] = new AuditInfo(System.getProperty("user.name"),
+						      "event loaded from sac file.");
+			XMLParameter.write(fos, event);
+			fos.close();
+			dataset.addParameterRef( new URL("file:"+eName), EVENT, event,eventAudit);
+			edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent = (edu.sc.seis.fissuresUtil.cache.CacheEvent)((XMLDataSet)dataset).getParameter(EVENT);
+			if(cacheEvent == null){
+			    System.out.println("CACHE EVENT IS NULL");
+			    System.exit(0);
+			}
+			else System.out.println("CACHE EVENT IS NOT NULL");
+		    } // end of if (event != null)
         
         Channel channel = 
             SacToFissures.getChannel(sac);
-        String channelParamName = 
+	String channelParamName = 
             CHANNEL+ChannelIdUtil.toString(seis.channel_id);
 	
 
-
         if (channel != null && 
             dataset.getParameter(channelParamName) == null) {
+
+
 	    File outFile = new File(sacFile.getParent(), ChannelIdUtil.toString(seis.channel_id));
 	    BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
 
