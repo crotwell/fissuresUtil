@@ -42,7 +42,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	    this.displayInterval = new TimeInterval(((LocalSeismogramImpl)seis).getBeginTime(), 
 						    ((LocalSeismogramImpl)seis).getEndTime());
 	
-	this.updateTimeSyncListeners();
+	registrar.updateTimeSyncListeners();
     }	
 
     public void addSeismogram(LocalSeismogram seis, MicroSecondDate time){
@@ -51,7 +51,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	if(displayInterval == null)
 	    this.displayInterval = new TimeInterval(time, ((LocalSeismogramImpl)seis).getEndTime());
 	seismos.put(seis, time);
-	this.updateTimeSyncListeners();
+	registrar.updateTimeSyncListeners();
     }
     
     /**  When BoundedTimeConfig receives a TimeSyncEvent, it merely changes the time range by the percentages contained in the 
@@ -76,7 +76,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	    seismos.put(current, new MicroSecondDate((long)(((MicroSecondDate)seismos.get(current)).getMicroSecondTime() + difference)));
 	}
 	displayInterval = new TimeInterval(beginTime, endTime);
-	this.updateTimeSyncListeners();
+	registrar.updateTimeSyncListeners();
     }
     
 }// BoundedTimeConfig
