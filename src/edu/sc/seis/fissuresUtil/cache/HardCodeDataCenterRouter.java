@@ -18,7 +18,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import java.util.LinkedList;
 import java.util.List;
@@ -317,13 +317,13 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                 sceppDC = fissuresNamingService.getSeismogramDC("edu/sc/seis",
                                                                 "SCEPPSeismogramDC");
             } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             }
         }
         return sceppDC;
@@ -354,13 +354,13 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                 budDC = fissuresNamingService.getSeismogramDC("edu/iris/dmc",
                                                               "IRIS_BudDataCenter");
             } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             }
         }
         return budDC;
@@ -391,13 +391,13 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                 pondDC = fissuresNamingService.getSeismogramDC("edu/iris/dmc",
                                                                "IRIS_PondDataCenter");
             } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-                GlobalExceptionHandler.handleStatic("Can't get DataCenter for "+dsname, e);
+                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
             }
         }
         return pondDC;

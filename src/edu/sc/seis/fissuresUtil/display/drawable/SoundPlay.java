@@ -9,7 +9,7 @@ import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.sound.FissuresToWAV;
 import edu.sc.seis.fissuresUtil.sound.PlayEvent;
 import edu.sc.seis.fissuresUtil.sound.PlayEventListener;
@@ -175,14 +175,14 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
             dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("seis.wav")));
         }
         catch (FileNotFoundException e){
-            GlobalExceptionHandler.handleStatic("file not found", e);
+            GlobalExceptionHandler.handle("file not found", e);
         }
         try{
             seisWAV.writeWAV(dos, timeEvent.getTime(container.getDataSetSeismogram()));
             dos.close();
         }
         catch(IOException e){
-            GlobalExceptionHandler.handleStatic(e);
+            GlobalExceptionHandler.handle(e);
         }
     }
 

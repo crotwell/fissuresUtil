@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.WrappedException;
+import edu.sc.seis.fissuresUtil.exceptionHandler.WrappedException;
 
 /**
  * SeisDataErrorEvent.java

@@ -10,7 +10,7 @@ package edu.sc.seis.fissuresUtil.xml;
  * @version
  */
 
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -33,7 +33,7 @@ public class SeismogramFileTypes {
             return new URL(URL_PREFIX+getValue());
         } catch (MalformedURLException e) {
             // shouldn't ever happen as these are static strings
-            GlobalExceptionHandler.handleStatic("Trouble creating URL for file type "+getValue(), e);
+            GlobalExceptionHandler.handle("Trouble creating URL for file type "+getValue(), e);
         }
         return null;
     }

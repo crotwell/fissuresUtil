@@ -16,7 +16,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import org.apache.log4j.Logger;
 
 /** Takes an array of LocalSeismograms and iterates through them, point by point
@@ -74,7 +74,7 @@ public class SeismogramIterator implements Iterator{
             Integer point = (Integer)seisAndPoint[1];
             return seis.getValueAt(point.intValue());
         }catch(CodecException e){
-            GlobalExceptionHandler.handleStatic(e);
+            GlobalExceptionHandler.handle(e);
         }
         return null;
     }

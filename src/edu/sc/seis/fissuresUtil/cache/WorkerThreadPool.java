@@ -6,7 +6,7 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.util.LinkedList;
 
 public class WorkerThreadPool
@@ -68,7 +68,7 @@ public class WorkerThreadPool
                     Runnable r = getFromQueue();
                     r.run();
                 } catch (Exception e) {
-                    GlobalExceptionHandler.handleStatic(e);
+                    GlobalExceptionHandler.handle(e);
                 }
             }
         }
