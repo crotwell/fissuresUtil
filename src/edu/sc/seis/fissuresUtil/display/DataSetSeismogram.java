@@ -2,6 +2,8 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.xml.*;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.TauP.SphericalCoords;
+import edu.iris.Fissures.Location;
 
 /**
  * DataSetSeismogram.java
@@ -23,7 +25,16 @@ public class DataSetSeismogram {
 
     public DataSet getDataSet(){ return dataSet; }
 
-    public boolean isFurtherThan(DataSetSeismogram seis){
+    public boolean isFurtherThan(DataSetSeismogram seismo){
+	try{
+	    Location eventLoc = ((XMLDataSet)dataSet).getEvent().get_preferred_origin().my_location;
+	    Location seisLoc = ((XMLDataSet)dataSet).getChannel(seis.channel_id).my_site.my_location;
+	    Location seismoLoc = ((XMLDataSet)seismo.getDataSet()).getChannel(seismo.getSeismogram().channel_id).my_site.my_location;
+	    if(SphericalCoords.distance(eventLoc.latitude, eventLoc.longitude, seisLoc.latitude, seisLoc.longitude) <
+	       SphericalCoords.distance(eventLoc.latitude, eventLoc.longitude, seismoLoc.latitude, seismoLoc.longitude))
+		return true;
+	    return false;
+	}catch(Exception e){}
 	return true;
     }
 
