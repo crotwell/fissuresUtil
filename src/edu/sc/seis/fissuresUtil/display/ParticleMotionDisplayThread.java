@@ -40,7 +40,7 @@ public class ParticleMotionDisplayThread{
             channelGroup[counter] = dssArray[counter].getRequestFilter().channel_id;
         }
         if(displayColor == null){
-            displayColor = selectionColors[particleMotionDisplay.getView().getSelectedParticleMotion().length % selectionColors.length];
+            displayColor = SeismogramDisplay.COLORS[particleMotionDisplay.getView().getSelectedParticleMotion().length % SeismogramDisplay.COLORS.length];
         }
 
         for(int counter = 0; counter < dssArray.length; counter++) {
@@ -115,13 +115,6 @@ public class ParticleMotionDisplayThread{
     private ParticleMotionDisplay  particleMotionDisplay;
 
     private Color displayColor;
-
-    private static Color[] selectionColors = { new Color(255, 0, 0),
-            new Color(0, 0, 255),
-            Color.magenta,
-            Color.cyan,
-            Color.white,
-            Color.black};
 
     static Category logger =
         Category.getInstance(ParticleMotionDisplayThread.class.getName());
