@@ -64,6 +64,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public void add(DataSetSeismogram[] seismos){ add(seismos, null); }
 
     public void add(DataSetSeismogram[] seismos, Color color){
+        logger.debug("add seismo "+seismos.length+" name0="+seismos[0].getName());
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
