@@ -20,6 +20,14 @@ import org.apache.log4j.Logger;
 
 public class SeismogramContainer implements SeisDataChangeListener{
     public SeismogramContainer(DataSetSeismogram seismogram){
+        this(null, seismogram);
+    }
+
+    public SeismogramContainer(SeismogramContainerListener initialListener,
+                               DataSetSeismogram seismogram){
+        if(initialListener != null){
+            listeners.add(initialListener);
+        }
         this.seismogram = seismogram;
         seismogram.addSeisDataChangeListener(this);
         seismogram.retrieveData(this);
@@ -73,7 +81,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
         addSeismograms(sdce.getSeismograms());
     }
 
-    private  void addSeismograms(LocalSeismogramImpl[] seismograms){
+    private void addSeismograms(LocalSeismogramImpl[] seismograms){
         boolean newData = false;
         LocalSeismogramImpl[] currentSeis = getSeismograms();
         synchronized(this){
@@ -81,13 +89,11 @@ public class SeismogramContainer implements SeisDataChangeListener{
                 boolean found = false;
                 for (int i = 0; i < currentSeis.length; i++){
                     if(seismograms[j].get_id().equals(currentSeis[i].get_id())){
-                        logger.debug("Caught attempt to add seismogram with id: " + seismograms[j].get_id());
                         found = true;
                         break;
                     }
                 }
                 if(!found){
-                    logger.debug("adding seismogram with id: " + seismograms[j].get_id());
                     softSeis.add(new SoftReference(seismograms[j]));
                     changed = true;
                     newData = true;
