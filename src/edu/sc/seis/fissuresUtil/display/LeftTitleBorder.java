@@ -1,12 +1,11 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import javax.swing.JComponent;
 import javax.swing.border.AbstractBorder;
 
 /**
@@ -66,7 +65,10 @@ public class LeftTitleBorder extends AbstractBorder {
             titleBounds = g2D.getFontMetrics().getStringBounds(title, g2D);
             left = (int)titleBounds.getHeight();
         }
-        double yTranslate = height - (height - y - titleBounds.getWidth())/2;
+        Insets componentInsets = ((JComponent)c).getInsets();
+        height = height - componentInsets.bottom - componentInsets.top;
+        double yTranslate = componentInsets.top +
+            height - (height - y - titleBounds.getWidth())/2;
         double xTranslate = x + titleBounds.getHeight();
         g2D.translate(xTranslate, yTranslate);
         g2D.rotate(-Math.PI/2);
