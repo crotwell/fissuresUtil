@@ -16,7 +16,9 @@ import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 /**
  * DisplayUtils.java
  *
@@ -37,9 +39,9 @@ public class DisplayUtils {
             SeismogramAttrImpl atrib = (SeismogramAttrImpl)attrs[counter];
             if(ChannelIdUtil.areEqual(channelId,atrib.getChannelID())){
                 if((atrib.getBeginTime().equals(startDate) ||
-                    atrib.getBeginTime().before(startDate)) &&
+                        atrib.getBeginTime().before(startDate)) &&
                        (atrib.getEndTime().equals(endDate) ||
-                        atrib.getEndTime().after(endDate))){
+                            atrib.getEndTime().after(endDate))){
                     arrayList.add(atrib.getName());
 
                 }
@@ -77,9 +79,9 @@ public class DisplayUtils {
             MicroSecondDate currentEnd = new MicroSecondDate(currentRF.end_time);
             if(areFriends(chanId,currentRF.channel_id)){
                 if((currentBegin.equals(startDate) ||
-                    currentBegin.before(startDate)) &&
+                        currentBegin.before(startDate)) &&
                        (currentEnd.equals(endDate) ||
-                        currentBegin.after(endDate))){
+                            currentBegin.after(endDate))){
                     componentSeismograms.add(currentSeis);
                 }
             }
@@ -155,6 +157,50 @@ public class DisplayUtils {
             names[i] = "" + dss[i];
         }
         return names;
+    }
+
+    /**
+     * Sorts the passed array of seismograms by begin time.
+     *
+     * @returns the seismograms in order of begin time
+     */
+    public static LocalSeismogramImpl[] sortByDate(LocalSeismogramImpl[] seis){
+        List sortedSeis = new ArrayList();
+        for(int i = 0; i < seis.length; i++){
+            MicroSecondDate timeToBeAdded = seis[i].getBeginTime();
+            ListIterator it = sortedSeis.listIterator();
+            boolean added = false;
+            while(it.hasNext()){
+                LocalSeismogramImpl current = (LocalSeismogramImpl)it.next();
+                MicroSecondDate currentTime = current.getBeginTime();
+                if(timeToBeAdded.before(currentTime)){
+                    it.previous();
+                    it.add(seis[i]);
+                    added = true;
+                    break;
+                }
+            }
+            if(!added){
+                sortedSeis.add(seis[i]);
+            }
+
+        }
+        return (LocalSeismogramImpl[])sortedSeis.toArray(new LocalSeismogramImpl[sortedSeis.size()]);
+    }
+
+    /**
+     *@returns A time range encompassing the earliest begin time of the passed
+     * in seismograms to the latest end time
+     */
+    public static MicroSecondTimeRange getFullTime(LocalSeismogramImpl[] seis){
+        MicroSecondDate beginTime = sortByDate(seis)[0].getBeginTime();
+        MicroSecondDate endTime = new MicroSecondDate(0);
+        for(int i = 0; i < seis.length; i++){
+            if(seis[i].getEndTime().after(endTime)){
+                endTime = seis[i].getEndTime();
+            }
+        }
+        return new MicroSecondTimeRange(beginTime, endTime);
     }
 
     public static String getOrientationName(DataSetSeismogram dss){
