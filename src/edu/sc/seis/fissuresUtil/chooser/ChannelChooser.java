@@ -124,7 +124,20 @@ public class ChannelChooser{
         
             System.out.println("2setNetworks() ");
 
-            allNets = netfromdc.retrieve_all();
+// 	    // testing...
+//             System.out.println("2testing _non_existent()"+netfromdc._non_existent());
+// 	    allNets = new NetworkAccess[0];
+// 	    try {
+// 		boolean isOut = netfromdc._is_a(NetworkFinderHelper.id());
+//             System.out.println("2testing _is_a"+isOut);
+
+// 	    allNets = netfromdc. retrieve_by_code("II");
+// 	    } catch (Exception e) {
+// 		e.printStackTrace();	
+// 	    } // end of try-catch
+	    
+
+	    allNets = netfromdc.retrieve_all();
             System.out.println("3 retrieve_all() ");
 
         } else if(netfound != null) {
@@ -169,14 +182,14 @@ System.out.println("8 netSet.add ");
 
 	edu.iris.Fissures.IfNetwork.NetworkAccess netAccess = (edu.iris.Fissures.IfNetwork.NetworkAccess) netMap.get(netcode);
 	edu.iris.Fissures.IfNetwork.Station[] allstations = netAccess.retrieve_stations();
-
+	System.out.println("got "+allstations.length+" stations.");
 	Set staSet = new HashSet();
 	staMap.clear();
 
 	for (int i=0; i < allstations.length; i++) {
 	    StationId id = allstations[i].get_id();
 	    String stationCode = id.station_code;
-	    NetworkAttr attr = netAccess.get_attributes();
+	    //	    NetworkAttr attr = netAccess.get_attributes();
 
 	    staMap.put(stationCode, allstations[i]);
 
