@@ -22,7 +22,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.awt.Color;
 
 public class OMEvent extends OMGraphicList{
-    public OMEvent(EventAccessOperations eao, Layer eventLayer, MapBean mapBean) throws NoPreferredOrigin{
+    public OMEvent(CacheEvent eao, Layer eventLayer, MapBean mapBean) throws NoPreferredOrigin{
         super(2);
         this.mapBean = mapBean;
 
@@ -41,7 +41,7 @@ public class OMEvent extends OMGraphicList{
             mag = (float)(Math.pow(scale, (double)mag));
             bigCircle = new OMCircle(lat, lon, (int)Math.floor(mag), (int)Math.floor(mag));
         }
-        event = new CacheEvent(eao);
+        event = eao;
 
         Color color = getDepthColor((QuantityImpl)prefOrigin.my_location.depth);
         lilCircle.setLinePaint(Color.BLACK);
