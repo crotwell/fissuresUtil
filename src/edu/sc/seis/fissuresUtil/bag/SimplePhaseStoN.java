@@ -79,12 +79,18 @@ public class SimplePhaseStoN {
              new TimeInterval(-5, UnitImpl.SECOND));
     }
 
+    /** Calculates the trigger value for the given wondows. Returns null if
+     * either of the windows have no data in them. */
     public LongShortTrigger process(Location stationLoc,
                                     Origin origin,
                                     LocalSeismogramImpl seis) throws FissuresException, TauModelException, PhaseNonExistent {
-        Statistics shortStat = new Statistics(shortCut.cut(stationLoc, origin, seis));
+        LocalSeismogramImpl shortSeis = shortCut.cut(stationLoc, origin, seis);
+        LocalSeismogramImpl longSeis = longCut.cut(stationLoc, origin, seis);
+        if (shortSeis == null || longSeis == null) { return null; }
+
+        Statistics shortStat = new Statistics(shortSeis);
         double numerator = shortStat.var();
-        Statistics longStat = new Statistics(longCut.cut(stationLoc, origin, seis));
+        Statistics longStat = new Statistics(longSeis);
         double denominator = longStat.var();
 
         Arrival[] arrivals = taup.calcTravelTimes(stationLoc, origin, new String[] {phase});
