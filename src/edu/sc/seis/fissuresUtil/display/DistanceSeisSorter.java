@@ -44,6 +44,11 @@ public class DistanceSeisSorter extends SeismogramSorter implements LayoutListen
         return false;
     }
 
+    public void clear() {
+        super.clear();
+        layoutConfig.clear();
+    }
+
     private BasicLayoutConfig layoutConfig = new BasicLayoutConfig();
 
 }
