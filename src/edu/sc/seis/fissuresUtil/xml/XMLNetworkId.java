@@ -26,7 +26,20 @@ public class XMLNetworkId {
 	 Element begin_time = doc.createElement("begin_time");
 	 XMLTime.insert(begin_time, networkId.begin_time);
 	 element.appendChild(begin_time);
-	 
+    }
+    
+    public static NetworkId getNetworkId(Element base) {
+	//get NetworkCode
+	String network_code = XMLUtil.evalString(base, "network_code");
+	//System.out.println("The network_code is "+network_code);
 
-     }
+	//get begin_time
+	edu.iris.Fissures.Time begin_time = new edu.iris.Fissures.Time();
+	NodeList begin_time_node = XMLUtil.evalNodeList(base, "begin_time");
+	if(begin_time_node != null && begin_time_node.getLength() != 0) {
+	    begin_time = XMLTime.getFissuresTime((Element)begin_time_node.item(0));
+	}
+	return new NetworkId(network_code, begin_time);
+	
+    }
 }// XMLNetworkId

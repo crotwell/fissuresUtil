@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import edu.iris.Fissures.*;
+
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import org.apache.log4j.*;
@@ -42,4 +43,33 @@ public class XMLLocation {
         } // end of else
     }
     
-}// XMLLocation
+
+public static Location getLocation(Element base) {
+
+	float latitude = Float.parseFloat(XMLUtil.evalString(base, "latitude"));
+	float longitude = Float.parseFloat(XMLUtil.evalString(base, "longitude"));
+	NodeList elevationNode = XMLUtil.evalNodeList(base, "elevation");
+	Quantity elevation = null;
+	if(elevationNode != null && elevationNode.getLength() !=  0) {
+		elevation = XMLQuantity.getQuantity((Element)elevationNode.item(0));
+	}
+	NodeList depthNode = XMLUtil.evalNodeList(base, "depth");
+	Quantity depth = null;
+	if(depthNode != null && depthNode.getLength() != 0) {
+		depth = XMLQuantity.getQuantity((Element)depthNode.item(0));
+	}
+	LocationType locationType;
+	String type = XMLUtil.evalString(base, "type");
+	if(type.equals("GEOGRAPHIC")) {
+		locationType = LocationType.GEOGRAPHIC;
+	} else {
+		locationType = LocationType.GEOCENTRIC;
+	}
+	return new Location(latitude,
+			    longitude,
+			    elevation,
+			    depth,
+			    locationType);
+}
+
+}//XMLLocation

@@ -11,7 +11,7 @@ import java.net.*;
  * protocol is known, ie  URLConnection can be gotten from Java.
  *
  * @author Philip Crotwell
- * @version $Id: SimpleXLink.java 1750 2002-05-30 21:17:40Z crotwell $
+ * @version $Id: SimpleXLink.java 2065 2002-07-08 20:17:02Z telukutl $
 */
 public class SimpleXLink {
 
@@ -45,7 +45,7 @@ public class SimpleXLink {
 	int sharpIndex = xlink.indexOf("#");
 	String fragment = xlink.substring(sharpIndex+1, xlink.length());
 	int index;
-	System.out.println(fragment);
+	//System.out.println("fragment "+fragment);
 
 	// check for escaped quotes, ASCII 22 (hex) is quote
 	while ((index = fragment.indexOf("%22")) != -1) {
@@ -74,7 +74,7 @@ public class SimpleXLink {
 	XObject xobj = XPathAPI.eval(context, path);
 	if (xobj.getType() == XObject.CLASS_NODESET) {
 	    NodeList nList = xobj.nodelist();
-	    System.out.println("got "+nList.getLength());
+	    //System.out.println("got "+nList.getLength());
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
 		return (Element)n;
@@ -86,7 +86,7 @@ public class SimpleXLink {
 
     public static void main (String[] args) throws Exception {
 	try {
-	    System.out.println("Starting..");
+	    //System.out.println("Starting..");
 	    DocumentBuilderFactory factory
 		= DocumentBuilderFactory.newInstance();
 	    DocumentBuilder docBuilder = factory.newDocumentBuilder();
@@ -103,12 +103,12 @@ public class SimpleXLink {
 	    Node n = mList.item(j);
 	    if (n instanceof Element) {
 		Element nodeElement = (Element)n;
-		System.out.println(nodeElement.getTagName()+" {"+nodeElement.getAttribute("xlink:href")+"}");
+		//System.out.println(nodeElement.getTagName()+" {"+nodeElement.getAttribute("xlink:href")+"}");
 		if (nodeElement.getTagName().equals("datasetRef")) {
-		    System.out.println("datasetRef yes");
+		    //System.out.println("datasetRef yes");
 		SimpleXLink sxlink = new SimpleXLink(docBuilder, nodeElement);
 		Element e = sxlink.retrieve();
-		System.out.println(e.getTagName()+" {"+e.getAttribute("datasetid")+"}");
+		//System.out.println(e.getTagName()+" {"+e.getAttribute("datasetid")+"}");
 		} // end of if (nodeElement.getTagName().equals("dataset"))
 	    } // end of if (node instanceof Element)
 	    
