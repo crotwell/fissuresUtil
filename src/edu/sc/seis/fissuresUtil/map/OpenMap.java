@@ -142,6 +142,10 @@ public class OpenMap extends OpenMapComponent{
         }
     }
 
+    public Layer[] getLayers(){
+        return lh.getLayers();
+    }
+
     public MapBean getMapBean(){
         if (mapBean == null){
             mapBean = new MapBean();
