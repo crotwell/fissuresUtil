@@ -375,7 +375,21 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	ampScaleMap.setTotalPixels(displaySize.height);
     }
 
-    // public void remove(DataSetSeismogram[] seismos){}
+    public void remove(DataSetSeismogram[] seismos){
+	for(int i = 0; i < seismos.length; i++){
+	    if(seismograms.contains(seismos[i])){
+		seismograms.remove(seismos[i]);
+		PlotterIterator it = new PlotterIterator(SeismogramShape.class);
+		while(it.hasNext()){
+		    SeismogramShape current = (SeismogramShape)it.next();
+		    if(current.getSeismogram() == seismos[i]){
+			plotters.remove(current);
+		    }
+		}
+	    }
+	}
+	registrar.remove(seismos);
+    }
 
     /** removes this Basic SeismogramDisplay from the parent. */
     public void remove(){
