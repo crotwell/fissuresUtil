@@ -22,7 +22,7 @@ public class NSNetworkDC implements NetworkDCOperations {
                        FissuresNamingService fissuresNamingService) {
         this.serverDNS = serverDNS;
         this.serverName = serverName;
-        this.fissuresNamingService = fissuresNamingService;
+        this.namingService = fissuresNamingService;
     } // NSNetworkDC constructor
 
     public String getServerDNS() {
@@ -40,8 +40,12 @@ public class NSNetworkDC implements NetworkDCOperations {
     public synchronized NetworkDC getNetworkDC() {
         if ( netDC == null) {
             try {
-                netDC = fissuresNamingService.getNetworkDC(serverDNS,
-                                                           serverName);
+                try {
+                    netDC = namingService.getNetworkDC(serverDNS, serverName);
+                } catch (Throwable t) {
+                    namingService.reset();
+                    netDC = namingService.getNetworkDC(serverDNS, serverName);
+                }
             } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
                 throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
                                                   0,
@@ -91,7 +95,7 @@ public class NSNetworkDC implements NetworkDCOperations {
 
     protected String serverName;
 
-    protected FissuresNamingService fissuresNamingService;
+    protected FissuresNamingService namingService;
 
     private static Category logger =
         Category.getInstance(NSNetworkDC.class.getName());
