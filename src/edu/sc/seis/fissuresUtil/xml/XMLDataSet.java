@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2198 2002-07-15 12:46:05Z telukutl $
+ * @version $Id: XMLDataSet.java 2200 2002-07-15 14:07:57Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -765,7 +765,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	
 	}
 	name = getUniqueName(name);
-	seis.setProperty(seisNameKey, name);
+	seis.setName(name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
 	//localSeismogram.appendChild(seismogramAttr);
@@ -838,7 +838,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	
 	}
 	name = getUniqueName(name);
-	seis.setProperty(seisNameKey, name);
+	seis.setName(name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
 	//localSeismogram.appendChild(seismogramAttr);
