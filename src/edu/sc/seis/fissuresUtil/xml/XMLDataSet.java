@@ -19,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1711 2002-05-28 13:33:10Z crotwell $
+ * @version $Id: XMLDataSet.java 1712 2002-05-28 15:00:57Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -140,6 +140,19 @@ public class XMLDataSet implements DataSet, Serializable {
 	    logger.warn("Parameter is only stored in memory.");
 	} // end of else
 	
+    }
+
+    public void addParameterRef(URL paramURL, 
+				String name, 
+				AuditInfo[] audit) {
+
+	Document doc = config.getOwnerDocument();
+	Element param = doc.createElement("parameterRef");
+	param.setAttributeNS(xlinkNS, "type", "simple");
+	param.setAttributeNS(xlinkNS, "href", paramURL.toString());
+	param.setNodeValue(name);
+
+	config.appendChild(param);
     }
 
     public String[] getDataSetIds() {
@@ -308,10 +321,11 @@ public class XMLDataSet implements DataSet, Serializable {
 				 ParameterRef[] parm_ids,
 				 AuditInfo[] audit) {
 
-	// Note this does not set the xlink, as the seis has not been saved anywhere yet.
-
 	Document doc = config.getOwnerDocument();
 	Element sac = doc.createElement("SacSeismogram");
+	sac.setAttributeNS(xlinkNS, "type", "simple");
+	sac.setAttributeNS(xlinkNS, "href", seisURL.toString());
+
 	Element nameE = doc.createElement("name");
 	nameE.setNodeValue(name);
 	sac.appendChild(nameE);
@@ -405,6 +419,7 @@ public class XMLDataSet implements DataSet, Serializable {
     protected HashMap parameterCache = new HashMap();
 
     private static final String dquote = ""+'"';
+    private static final String xlinkNS = "http://www.w3.org/1999/xlink";
 
     static Category logger = 
 	Category.getInstance(XMLDataSet.class.getName());
