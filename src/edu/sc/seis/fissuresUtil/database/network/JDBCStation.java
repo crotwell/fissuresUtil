@@ -17,11 +17,11 @@ import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCLocation;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
@@ -54,23 +54,11 @@ public class JDBCStation extends NetworkTable {
         this.netTable = jdbcNetwork;
         this.time = time;
         seq = new JDBCSequence(conn, "StationSeq");
-        if(!DBUtil.tableExists("station", conn)) {
-            conn.createStatement()
-                    .executeUpdate(ConnMgr.getSQL("station.create"));
-        }
-        String getAllQuery = "SELECT " + getNeededForStationId()
-                + " FROM station";
-        getAll = conn.prepareStatement(getAllQuery);
-        getAllForNet = conn.prepareStatement(getAllQuery
-                + " WHERE station.net_id = ?");
-        getByDBId = conn.prepareStatement("SELECT " + getNeededForStation()
-                + " FROM station WHERE sta_id = ?");
-        getStationIdByDBId = conn.prepareStatement("SELECT "
-                + getNeededForStationId() + " FROM station WHERE sta_id = ?");
-        prepareStatements();
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     private StationId[] extractAll(PreparedStatement query) throws SQLException {
+        System.out.println(query);
         ResultSet rs = query.executeQuery();
         List aList = new ArrayList();
         try {
@@ -112,6 +100,21 @@ public class JDBCStation extends NetworkTable {
         return extractAll(getAll);
     }
 
+    public Station[] getAllStations() throws SQLException {
+        StationId[] ids = getAllStationIds();
+        Station[] stations = new Station[ids.length];
+        for(int i = 0; i < stations.length; i++) {
+            try {
+                stations[i] = get(ids[i]);
+            } catch(NotFound e) {
+                GlobalExceptionHandler.handle("Unable to extract a station right after getting its id from the db",
+                                              e);
+                return new Station[0];
+            }
+        }
+        return stations;
+    }
+    
     public StationId[] getAllStationIds(int netDbId) throws SQLException {
         getAllForNet.setInt(1, netDbId);
         return extractAll(getAllForNet);

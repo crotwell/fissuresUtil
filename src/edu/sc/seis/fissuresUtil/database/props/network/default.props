@@ -31,6 +31,21 @@ station.create = CREATE TABLE station ( sta_id int NOT NULL, \
                                         REFERENCES location(loc_id), \
                                         PRIMARY KEY(sta_id))
                                         
+#set ( $station_neededForStationId = "sta_id, station.net_id, sta_code, sta_begin_id" )
+
+#set ( $station_neededForStation = "$station_neededForStationId, sta_end_id, sta_name, station.loc_id, sta_operator, sta_description, sta_comment" )
+
+station.getAllQuery = SELECT $station_neededForStationId FROM station
+
+station.getAllForNet = SELECT $station_neededForStationId FROM station \
+                 WHERE station.net_id = ?
+
+station.getByDBId = SELECT $station_neededForStation \
+                FROM station WHERE sta_id = ?                 
+
+station.getStationIdByDBId = SELECT $station_neededForStationId \
+          FROM station WHERE sta_id = ?                   
+
 station.getDBIdsForNetAndCode = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ?
 
 station.putAll = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id, sta_end_id, \
@@ -106,11 +121,49 @@ channel.create = CREATE TABLE channel (chan_id int, \
                                        REFERENCES time (time_id), \
                                        FOREIGN KEY (chan_end_id) \
                                        REFERENCES time (time_id))
-                                       
+
+#set ( $channel_neededForChanId = "chan_id, channel.site_id, chan_code, chan_begin_id" )
+
+#set ( $channel_neededForChannel = "$channel_neededForChanId, chan_end_id, chan_name, chan_sampling_numpoints, chan_sampling_interval_id, chan_orientation_dip, chan_orientation_az" )
+
+#set ( $channel_getAllIdsQuery = "SELECT $channel_neededForChanId FROM channel" )
+
+channel.getAllIds = $channel_getAllIdsQuery
+
+channel.getAllIdsForStation = $channel_getAllIdsQuery , site \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = ?
+
+channel.getAllIdsForNetwork = $getAllIdsQuery \
+                , site, station \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = station.sta_id AND station.net_id = ?
+
+#set ( $channel_getAllQuery = "SELECT $channel_neededForChannel FROM channel" )
+
+channel.getAllChans = $channel_getAllQuery
+
+channel.getAllChansForStation = $channel_getAllQuery , site \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = ?
+
+channel.getByCodes = $channel_getAllQuery, site, station \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = station.sta_id AND \
+                station.net_id = ? AND \
+                station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ?
+
+channel.getAllChansForNetwork = $channel_getAllQuery , site, station \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = station.sta_id AND station.net_id = ?
+
+channel.getStationDbId = SELECT sta_id FROM channel, site where Channel.site_id = site.site_id AND chan_id = ?
+
 channel.putAll = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id, \
                  chan_end_id, chan_name, chan_orientation_az, chan_orientation_dip, \
                  chan_sampling_interval_id, chan_sampling_numpoints) \
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
 channel.updateNonId = UPDATE channel set site_id = ? , chan_end_id = ?, chan_name= ?, \
                       chan_orientation_az = ?, chan_orientation_dip = ?, \
                       chan_sampling_interval_id = ?, chan_sampling_numpoints = ? \

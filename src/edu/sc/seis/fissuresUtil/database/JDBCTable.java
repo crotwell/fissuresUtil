@@ -1,9 +1,6 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.SQLException;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * JDBCTable.java All methods are unsyncronized, the calling application should
@@ -28,32 +25,6 @@ public class JDBCTable {
 
     public Connection getConnection() {
         return conn;
-    }
-
-    /**
-     * Finds all PreparedStatement fields on this class and if an sql statement
-     * is available in ConnMgr of the form tablename.fieldname a prepared
-     * statement is created for it and assigned to the field
-     */
-    protected void prepareStatements() throws SQLException {
-        Field[] fields = getClass().getDeclaredFields();
-        for(int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            String key = tableName + "." + field.getName();
-            if(ConnMgr.hasSQL(key)) {
-                String sql = ConnMgr.getSQL(key);
-                field.setAccessible(true);
-                try {
-                    field.set(this, conn.prepareStatement(sql));
-                } catch(IllegalArgumentException e) {
-                    GlobalExceptionHandler.handle("Thought this couldn't happen since I checked the object type.",
-                                                  e);
-                } catch(IllegalAccessException e) {
-                    GlobalExceptionHandler.handle("Thought this couldn't happen since I called setAccessible.  Looks like I was wrong",
-                                                  e);
-                }
-            }
-        }
     }
 
     protected String tableName;
