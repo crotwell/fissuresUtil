@@ -1,9 +1,9 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -31,7 +31,7 @@ public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionL
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         if(visible){
             canvas.setColor(drawColor);
-            canvas.setStroke(new BasicStroke(3));
+            canvas.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
             canvas.drawLine(xMin, yMin, xMax, yMax);
             canvas.drawLine(xMin, yMax, xMax, yMin);
         }

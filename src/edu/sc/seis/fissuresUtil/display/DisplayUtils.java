@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
 import edu.iris.Fissures.TimeRange;
@@ -16,6 +15,8 @@ import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
+import java.awt.BasicStroke;
+import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -308,6 +309,12 @@ public class DisplayUtils {
         return
             (currentPoint-firstPoint)/(double)(lastPoint-firstPoint)*(numValues-1);
     }
+
+    public static final Stroke ONE_PIXEL_STROKE = new BasicStroke(1);
+
+    public static final Stroke TWO_PIXEL_STROKE = new BasicStroke(2);
+
+    public static final Stroke THREE_PIXEL_STROKE = new BasicStroke(3);
 
     public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
 
