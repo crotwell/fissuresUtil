@@ -4,6 +4,9 @@ import java.awt.*;
 
 import com.sun.media.jai.codec.PNGEncodeParam;
 import edu.iris.Fissures.Plottable;
+import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.IfSeismogramDC.*;
+import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.utility.Logger;
 import java.awt.geom.Point2D;
 import java.awt.geom.GeneralPath;
@@ -20,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
 import java.util.ArrayList;
+import java.util.*;
 
 /**
  * PlottableDisplay.java
@@ -58,6 +62,19 @@ public  class PlottableDisplay extends JComponent {
 	configChanged();
     }
 
+    public PlottableDisplay(ChannelId channelId) {
+	this();
+	this.channelId = channelId;
+    }
+
+    public void setChannelId(ChannelId channelId) {
+	this.channelId = channelId;
+    }
+
+    public void setDate(Date date) {
+	this.date = date;
+    }
+
     public void setOffset(int offset) {
 	plotoffset = offset;
 	configChanged();
@@ -67,7 +84,7 @@ public  class PlottableDisplay extends JComponent {
 	if (this.ampScalePercent != ampScalePercent) {
 	    this.ampScalePercent = ampScalePercent;
 	    //	this.ampScale = ampScalePercent;
-	    System.out.println("AmpScale "+ampScalePercent+" "+ampScale);
+	    //System.out.println("AmpScale "+ampScalePercent+" "+ampScale);
 	    configChanged();
 	}
     }
@@ -77,11 +94,11 @@ public  class PlottableDisplay extends JComponent {
 	// signal any drawing thread to stop
 	currentImageGraphics = null;
 
-	System.out.println("psgramwidth size:"+getSize().toString());
+	//System.out.println("psgramwidth size:"+getSize().toString());
 	
 	int newpsgramwidth = plot_x/plotrows +2*labelXShift;
 	int newpsgramheight = plot_y +(plotoffset * (plotrows-1))+titleYShift;
-	System.out.println(plotoffset+"111 psgramwidth" + newpsgramwidth + "psgramheight" + newpsgramheight);
+	//System.out.println(plotoffset+"111 psgramwidth" + newpsgramwidth + "psgramheight" + newpsgramheight);
 	setPreferredSize(new java.awt.Dimension(newpsgramwidth, newpsgramheight));
 	repaint();
     }
@@ -118,7 +135,7 @@ public  class PlottableDisplay extends JComponent {
 	}
 	//	g.fillRect(beginx, beginy, (endx - beginx), (endy - beginy));
 	g.drawImage(image, 0, 0, this);
-	System.out.println("Repaiting high light region");
+	//System.out.println("Repaiting high light region");
 	drawHighlightRegion(g);
     }
 
@@ -134,8 +151,8 @@ public  class PlottableDisplay extends JComponent {
 	// for time label on left and title at top
 	g.translate(labelXShift, 
 		    titleYShift); 
-	System.out.println("clipRect "+ plot_x/plotrows+"  "+ 
-		      plot_y +(plotoffset * (plotrows-1)));
+	//System.out.println("clipRect "+ plot_x/plotrows+"  "+ 
+	//plot_y +(plotoffset * (plotrows-1)));
 	g.clipRect(0, 0, 
 		      plot_x/plotrows, 
 		      plot_y +(plotoffset * (plotrows-1)));
@@ -197,18 +214,18 @@ public  class PlottableDisplay extends JComponent {
 
 	int xShift = plot_x/plotrows;
 	mean = getMean();
-	System.out.println("plottable.length"+plot.length);
+	//stem.out.println("plottable.length"+plot.length);
 
 	// get new graphics to avoid messing up original
 	Graphics2D newG = (Graphics2D)g.create(); 
 	
 	int[] selectedRows = getSelectedRows(beginy, endy);
 
-	System.out.println("The plot_y is "+plot_y+" plottoffset is "+plotoffset);
+	//stem.out.println("The plot_y is "+plot_y+" plottoffset is "+plotoffset);
 	for (int currRow = 0; currRow < plotrows; currRow++) {
 	    if (g != currentImageGraphics) return;
 
-	    System.out.println(currRow);
+	    //System.out.println(currRow);
 
 	    // shift for row (left so time is in window, 
 	    //down to correct row on screen, plus
@@ -236,7 +253,7 @@ public  class PlottableDisplay extends JComponent {
 	    affine.concatenate(affine.getTranslateInstance(0, -1*mean));
 	    newG.setTransform(affine);
 	    
-	     System.out.println(currRow+": "+(-1*currRow*xShift)+", "+currRow*plotoffset+"  "+mean);
+	    //System.out.println(currRow+": "+(-1*currRow*xShift)+", "+currRow*plotoffset+"  "+mean);
 	    if (currRow % 2 == 0) {
 		newG.setPaint(Color.black);
 	    } else {
@@ -279,7 +296,7 @@ public  class PlottableDisplay extends JComponent {
 						plot[a].y_coor[i]);
 			    
 			} // end of else
-			System.out.println("Bounds "+currentShape.getBounds().width+" "+currentShape.getBounds().x);
+			//System.out.println("Bounds "+currentShape.getBounds().width+" "+currentShape.getBounds().x);
 			 wholeShape.append(currentShape, false);
 			 currentShape = 
 			     new GeneralPath(GeneralPath.WIND_EVEN_ODD, 
@@ -471,14 +488,15 @@ public  class PlottableDisplay extends JComponent {
 
 
     public void setSelectedRectangle(int beginx, int beginy, int endx, int endy) {
-
+       
 	this.beginx = beginx;
 	this.beginy = beginy;
 	this.endx = endx;
 	this.endy = endy;
-	System.out.println("beginx = "+beginx+" endx = "+endx);
-	System.out.println("beginy = "+beginy+" endy = "+endy);
-	System.out.println("NOW call repaint");
+	
+	//System.out.println("beginx = "+beginx+" endx = "+endx);
+	//System.out.println("beginy = "+beginy+" endy = "+endy);
+	//System.out.println("NOW call repaint");
 	//	configChanged();
 	
 	repaint();
@@ -495,7 +513,7 @@ public  class PlottableDisplay extends JComponent {
 	int[] rtnValues = new int[arrayList.size()];
 	for(int counter = 0; counter < arrayList.size(); counter++) {
 	    rtnValues[counter] = ((Integer)arrayList.get(counter)).intValue();
-	    System.out.println("The row selected is "+rtnValues[counter]);
+	    //System.out.println("The row selected is "+rtnValues[counter]);
 	}
 	return rtnValues;
     }
@@ -551,7 +569,7 @@ public  class PlottableDisplay extends JComponent {
 		int by =  -plotoffset/2 + 10;
 		int ey = plotoffset - 10;
 		if(currRow == selectedRows[0] ) {
-		    System.out.println("Calculating values for start row");
+		    //System.out.println("Calculating values for start row");
 		    bx =  beginx + xShift*currRow ;//-labelXShift + beginx;
 		    if(selectedRows.length  != 1) {
 			ex = 6000;
@@ -560,7 +578,7 @@ public  class PlottableDisplay extends JComponent {
 		    }
 		
 		} else if(currRow == selectedRows[selectedRows.length -1 ]) {
-		    System.out.println("Caculating values for end row "+currRow);
+		    //System.out.println("Caculating values for end row "+currRow);
 		    bx = xShift*currRow;
 		    ex = (endx);
 		} else {
@@ -568,16 +586,61 @@ public  class PlottableDisplay extends JComponent {
 		    ex = 6000;
 		
 		}
-		System.out.println("NOW DRAW THE rectangle for row "+currRow);
+		//System.out.println("NOW DRAW THE rectangle for row "+currRow);
 		newG.drawRect(bx, by, ex, ey);
 		newG.fillRect(bx, by, ex, ey);
 		
 	    }//end of if
 	    newG.setTransform(original);
 	}//end of for
-	    
+	//getRequestFilter();
 	    newG.dispose();
 	   
+    }
+
+    public RequestFilter getRequestFilter() {
+	if(endx == -1) return null;
+	int[] selectedRows = getSelectedRows(beginy, endy);
+	if(selectedRows.length == 0) return null;
+	int rowvalue = 24/plotrows;
+	int plotwidth = plot_x/plotrows;
+        float beginvalue = ((beginx/(float)plotwidth)) * rowvalue + selectedRows[0] * rowvalue;
+	float endvalue = (endx/(float)plotwidth) * rowvalue + selectedRows[selectedRows.length - 1] * rowvalue;
+	return new RequestFilter(this.channelId, 
+				 getTime(beginvalue).getFissuresTime(),
+				 getTime(endvalue).getFissuresTime());
+	//edu.iris.Fissures.Time begin_time ;
+	
+// 	System.out.println(" b value is "+((beginx/plotwidth)));
+// 	System.out.println(" b value is "+((endx/plotwidth)));
+// 	System.out.println("The beginValue is "+beginvalue);
+// 	System.out.println("The endValue is "+endvalue);
+// 	System.out.println("The end time of selection is "+ getTime(endvalue));
+
+    }
+
+    private MicroSecondDate getTime(float rowoffsetvalue) {
+	
+	int tempmilliseconds =(int) (rowoffsetvalue * 60 * 60 * 1000);
+	int hours = tempmilliseconds / (60 * 60 * 1000);
+	tempmilliseconds = tempmilliseconds - hours * 60 * 60 * 1000;
+	int minutes = tempmilliseconds / (60 * 1000);
+	tempmilliseconds = tempmilliseconds - minutes * 60 * 1000;
+	int seconds = tempmilliseconds / 1000;
+	tempmilliseconds = tempmilliseconds - seconds * 1000;
+ 	Calendar calendar = Calendar.getInstance();
+	calendar.setTime(this.date);
+	GregorianCalendar gregorianCalendar = new GregorianCalendar(calendar.get(Calendar.YEAR),
+								    calendar.get(Calendar.MONTH),
+								    calendar.get(Calendar.DATE),
+								    hours,
+								    minutes,
+								    seconds);
+								    
+								    
+
+	gregorianCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+	return new MicroSecondDate(gregorianCalendar.getTime());
     }
 
     protected JLabel imagePanel = new JLabel("no image");
@@ -598,6 +661,7 @@ public  class PlottableDisplay extends JComponent {
     public int plotheight=2600;
     public int totalhours = 24;
 
+    public ChannelId channelId;
     public int min;
     public int max;
     public int mean;
@@ -611,6 +675,8 @@ public  class PlottableDisplay extends JComponent {
 
     int endx = -1;
     int endy  = -1;
+
+    private Date date;
 
     }/*close class*/
 
