@@ -84,6 +84,13 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 	}
     }
 
+    public void stopTimer(){
+	if(timer != null){
+	    timer.stop();
+	    timer = null;
+	}
+    }
+
     public void reset(){
 	speed = 2;
 	super.reset();
