@@ -104,12 +104,17 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     } 
     
     public synchronized void setRelativeTime(DataSetSeismogram seis, MicroSecondDate time){
-	seismos.put(seis, time);
+	((MicroSecondTimeRange)seismos.get(seis)).setBeginTime(time);
 	updateTimeSyncListeners();
     }
 
     public synchronized  void setDisplayInterval(TimeInterval t){
 	displayInterval = t;
+	Iterator e = seismos.keySet().iterator();
+	while(e.hasNext()){
+	    MicroSecondTimeRange current = (MicroSecondTimeRange)seismos.get(e.next());
+	    current.setEndTime(current.getBeginTime().add(t));
+	}
 	updateTimeSyncListeners();
     }
 
@@ -118,25 +123,27 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	updateTimeSyncListeners();
     }
 
-    public synchronized void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
-	if(seismos.containsKey(seismo))
-	    seismos.put(seismo, b);
+    public synchronized void setBeginTime(DataSetSeismogram seis, MicroSecondDate b){
+	((MicroSecondTimeRange)seismos.get(seis)).setBeginTime(b);
+	updateTimeSyncListeners();
     }
 
     public synchronized void setAllBeginTime(MicroSecondDate b){
 	beginTime = b;
 	Iterator e = seismos.keySet().iterator();
-	while(e.hasNext())
-	    seismos.put(e.next(), b);
+	while(e.hasNext()){
+	    MicroSecondTimeRange current = (MicroSecondTimeRange)seismos.get(e.next());
+	    current.setBeginTime(b);
+	    current.setEndTime(b.add(displayInterval));
+	}
 	updateTimeSyncListeners();
     }
 
     public synchronized void set(MicroSecondDate b, TimeInterval t){
-	displayInterval = t;
 	beginTime = b;
-	Iterator e = seismos.keySet().iterator();
-	while(e.hasNext())
-	    seismos.put(e.next(), b);
+	displayInterval = t;
+	setDisplayInterval(t);
+	setAllBeginTime(b);
 	updateTimeSyncListeners();
     }
 
