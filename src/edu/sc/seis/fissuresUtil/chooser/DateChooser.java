@@ -8,9 +8,20 @@ import java.util.*;
 import java.text.*;
 
 /** JPanel Utility that creates year, month, days, etc to be placed on a JFrame.
- *  DateChooser 
+ *  It return only a Date object, from which you may obtain all the necessary information.
+ *  DateChooser can be initialized by using the DateChooserOptions singleton:  
+	DateChooserOptions[] dateformat = new DateChooserOptions[6];
+        dateformat[0] = DateChooserOptions.YEAR;
+        dateformat[1] = DateChooserOptions.MONTH;
+        dateformat[2] = DateChooserOptions.DAY;
+        dateformat[3] = DateChooserOptions.HOUR;
+        dateformat[4] = DateChooserOptions.MINUTES;
+        dateformat[5] = DateChooserOptions.SECONDS;
+	final DateChooser startDate = new DateChooser(dateformat);
+	final DateChooser endDate = new DateChooser(dateformat);
+
  * 
- * @author: Georgina Coleman
+ * @author <a href="mailto:georginamc@prodigy.net">Georgina Coleman</a>
  * @created: 12 Nov 2001
  *
  */

@@ -26,11 +26,15 @@ import org.omg.CosNaming.NamingContextPackage.*;
 
 /**
  * ChannelChooserGUI.java
+ * 
+ * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
+Use as the follwoing:
+ * ChannelChooserGUI channelChooser = new ChannelChooserGUI(netDC);
+
  *
- *
- * @author: Georgina Coleman 
+ * @author <a href="mailto:georginamc@prodigy.net">Georgina Coleman</a>
  * @version
- * 12/04/2001
+ * Date: 12/04/2001
  */
 
 
