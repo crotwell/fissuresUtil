@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.xml;
 
+import edu.sc.seis.fissuresUtil.psn.*;
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
@@ -322,9 +323,19 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         if (obj != null) {
             return (LocalSeismogramImpl)obj;
         }
-        SacTimeSeries sac = new SacTimeSeries();
-        sac.read(new DataInputStream(new BufferedInputStream(seisurl.openStream())));
-        LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
+
+        LocalSeismogramImpl seis;
+
+        String fileName = seisurl.getFile();
+        if (fileName.substring(fileName.length() - 3, fileName.length()).equals("psn")){
+            PSNDataFile psnData = new PSNDataFile(fileName);
+            seis = PSNToFissures.getSeismograms(psnData)[0];
+        }
+        else{
+            SacTimeSeries sac = new SacTimeSeries();
+            sac.read(new DataInputStream(new BufferedInputStream(seisurl.openStream())));
+            seis = SacToFissures.getSeismogram(sac);
+        }
 
         // set channel id correctly if extra info stored in Aux data
         Object netBegin = getAuxillaryData(NETWORK_BEGIN);
