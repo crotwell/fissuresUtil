@@ -50,7 +50,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
     public void renderToGraphics(Graphics g, Dimension size) {
         boolean notAllHere = true;
         long totalWait = 0;
-        while(notAllHere){
+        while(notAllHere && totalWait < 2 * 60 * 1000){
             Iterator seisIt = iterator(DrawableSeismogram.class);
             while(seisIt.hasNext()){
                 DrawableSeismogram cur = (DrawableSeismogram)seisIt.next();
@@ -70,8 +70,13 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
             logger.debug("Rendering to graphics after waiting " + totalWait + " millis for data to arrive");
             notAllHere = false;
         }
+        if(totalWait >= TWO_MIN){
+            logger.debug("GAVE UP WAITING ON DATA TO RENDER TO GRAPHICS!  SOMEONE IS LYING OR REALLY REALLY SLOW! OR BOTH!!");
+        }
         super.renderToGraphics(g, size);
     }
+
+    private static final long TWO_MIN = 2 * 60 * 1000;
 
     public Color getColor(){ return null; }
 
