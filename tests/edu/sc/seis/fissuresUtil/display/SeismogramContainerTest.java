@@ -16,17 +16,21 @@ public class SeismogramContainerTest extends TestCase{
         seismograms = DisplayUtilsTest.createThreeSeisArray();
         dss = new MemoryDataSetSeismogram(seismograms, null);
         container = new SeismogramContainer(dss);
-    }
-
-    public void testPushAlreadyAddedData(){
         LocalSeismogramImpl[] alreadyContained = container.getSeismograms();
-        while(alreadyContained.length < 3){
+        int maxTries = 100;
+        while(maxTries > 0 && alreadyContained.length < 3){
+            maxTries--;
             try {
                 Thread.sleep(5);
             }
             catch (InterruptedException e) {}
             alreadyContained = container.getSeismograms();
         }
+        assertEquals("problem getting initial seismograms", 3, alreadyContained.length);
+    }
+
+    public void testPushAlreadyAddedData(){
+        LocalSeismogramImpl[] alreadyContained = container.getSeismograms();
         container.pushData(new SeisDataChangeEvent(DisplayUtilsTest.createThreeSeisArray(),
                                                    null,
                                                    container));
@@ -39,9 +43,8 @@ public class SeismogramContainerTest extends TestCase{
         LocalSeismogramImpl[] otherSeis = DisplayUtilsTest.createOtherSeisArray();
         container.pushData(new SeisDataChangeEvent(otherSeis, null, container));
         LocalSeismogramImpl[] nowContains = container.getSeismograms();
-        //assertEquals("must be exactly 6 seismograms", 6, nowContains.length);
+        assertEquals("must be exactly 6 seismograms", 6, nowContains.length);
         for (int i = 0; i < nowContains.length; i++){
-            System.out.println("nowContains "+i+" "+nowContains[i].get_id());
             boolean found = false;
             for (int j = 0; j < alreadyContained.length; j++) {
                 if(nowContains[i] == alreadyContained[j]){
@@ -61,13 +64,6 @@ public class SeismogramContainerTest extends TestCase{
 
     public void testGetSeismograms(){
         LocalSeismogramImpl[] contained = container.getSeismograms();
-        while(contained.length < 3){
-            try {
-                Thread.sleep(5);
-            }
-            catch (InterruptedException e) {}
-            contained = container.getSeismograms();
-        }
         ArrayAssert.assertEquivalenceArrays(seismograms, contained);
     }
 
