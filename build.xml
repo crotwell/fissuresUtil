@@ -1,5 +1,5 @@
 
-<project name="FissuresUtil" default="dist" basedir=".">
+<project name="fissuresUtil" default="dist" basedir=".">
 
 <!-- set global properties for this build -->
        <property name="src" value="src" />
@@ -32,8 +32,6 @@
          <javac destdir="${build}" classpath="${build}:${fissuresImpljar}:${fissuresIDLjar}:${junitdir}/junit.jar:${objar}:${obnamingjar}" >
             <src path="${src}" />
             <include name="**/*.java" />
-            <exclude name="src/edu/sc/seis/fissuresUtil/namingService/TestNamingService.java" />
-
          </javac>
        </target>
 
@@ -72,11 +70,11 @@ packagenames="edu.sc.seis.fissuresUtil.*.*"  maxmemory="64m" >
        </target>
 
        <target name="jar" depends="javacompile, testcompile">
-         <jar jarfile="${dist}/lib/FissuresUtil.jar" basedir="${build}" />
+         <jar jarfile="${dist}/lib/fissuresUtil.jar" basedir="${build}" />
        </target>
 
        <target name="signjar" depends="jar" if="signjarpasswd">
-         <signjar jar="${dist}/lib/FissuresUtil.jar"
+         <signjar jar="${dist}/lib/fissuresUtil.jar"
                   alias="scepp"
                   storepass="${signjarpasswd}"
                   keystore="../KeySigning/SCEPPKeystore"/>
@@ -86,6 +84,7 @@ packagenames="edu.sc.seis.fissuresUtil.*.*"  maxmemory="64m" >
          <zip zipfile="${dist}/lib/fissuresUtil_src.zip" >
               <fileset dir=".." >
                  <include name="fissuresUtil/**/*.java" />
+                 <include name="fissuresUtil/build.xml" />
                  <exclude name="fissuresUtil/**/*.class" />
               </fileset>
          </zip>
