@@ -1,4 +1,55 @@
 <?xml version="1.0"?>
-<seismogramDisplay>
+<displayConfig>
     <type>recordSection</type>
-</seismogramDisplay>
+    <dontDrawNamedDrawableNames/>
+    <traceColors>
+        <color>
+            <red>63</red>
+            <green>44</green>
+            <blue>127</blue>
+            <alpha>255</alpha>
+        </color>
+        <color id="bluish">
+            <red>200</red>
+            <green>218</green>
+            <blue>221</blue>
+            <alpha>255</alpha>
+        </color>
+    </traceColors>
+    <borderBackground base="bluish"/>
+    <borderColor>
+        <red>204</red>
+        <green>204</green>
+        <blue>204</blue>
+        <alpha>255</alpha>
+    </borderColor>
+    <border>
+        <type>time</type>
+        <position>left</position>
+        <titleFont id="Title">
+            <size>18</size>
+            <name>MS-Trebuchet</name>
+        </titleFont>
+    </border>
+    <border>
+        <type>title</type>
+        <position>right</position>
+        <title>
+            <text>Vertical</text>
+            <font base="Title"/>
+        </title>
+    </border>
+    <border>
+        <type>dist</type>
+        <position>bottom</position>
+        <titleFont base="Title"/>
+    </border>
+    <border>
+        <type>title</type>
+        <position>top</position>
+        <title>
+            <text>Seismograms by distance</text>
+            <font base="Title"/>
+        </title>
+    </border>
+</displayConfig>
