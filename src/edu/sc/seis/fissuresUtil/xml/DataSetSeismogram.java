@@ -28,8 +28,15 @@ public abstract class DataSetSeismogram
 
     public DataSetSeismogram(DataSet ds,
                              String name) {
+        this(ds, name, null);
+    }
+
+    public DataSetSeismogram(DataSet ds,
+                             String name,
+                            RequestFilter requestFilter) {
         this.dssDataListeners = new LinkedList();
         this.rfChangeListeners = new LinkedList();
+        this.requestFilter = requestFilter;
         this.dataSet = ds;
         this.name = name;
     }
