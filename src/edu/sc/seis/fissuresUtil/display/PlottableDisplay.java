@@ -460,7 +460,7 @@ public  class PlottableDisplay extends JComponent {
 
     public static final int TOTAL_WIDTH = 6000;
 
-    public static final int OFFSET = 40;
+    public static final int OFFSET = 30;
 
     public int titleHeight = 140;
 
