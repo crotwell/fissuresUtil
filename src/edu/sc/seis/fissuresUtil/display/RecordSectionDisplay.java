@@ -141,12 +141,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
     }
 
     public synchronized void clear() {
-        if(layout != null){
-            layout.clear();
-        }
-        if(registrar != null){
-            registrar.clear();
-        }
+        layout = null;
+        registrar = null;
         dssPlotter.clear();
         displayRemove = null;
         setBorder(BorderFactory.createEmptyBorder());
