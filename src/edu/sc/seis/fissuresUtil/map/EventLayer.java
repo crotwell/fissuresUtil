@@ -186,32 +186,29 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                     final JPopupMenu popup = new JPopupMenu();
                     it = eventsUnderMouse.iterator();
                     while (it.hasNext()){
-                        try{
-                            final EventAccessOperations current = (EventAccessOperations)it.next();
-                            final JMenuItem menuItem = new JMenuItem(getEventInfo(current));
-                            menuItem.addActionListener(new ActionListener(){
-                                        public void actionPerformed(ActionEvent e) {
-                                            int rowToSelect = tableModel.getRowForEvent(current);
-                                            if (rowToSelect != -1){
-                                                selectionModel.setSelectionInterval(rowToSelect, rowToSelect);
-                                            }
-                                            popup.setVisible(false);
+                        final EventAccessOperations current = (EventAccessOperations)it.next();
+                        final JMenuItem menuItem = new JMenuItem(getEventInfo(current));
+                        menuItem.addActionListener(new ActionListener(){
+                                    public void actionPerformed(ActionEvent e) {
+                                        int rowToSelect = tableModel.getRowForEvent(current);
+                                        if (rowToSelect != -1){
+                                            selectionModel.setSelectionInterval(rowToSelect, rowToSelect);
                                         }
-                                    });
-                            menuItem.addMouseListener(new MouseAdapter(){
+                                        popup.setVisible(false);
+                                    }
+                                });
+                        menuItem.addMouseListener(new MouseAdapter(){
 
-                                        public void mouseEntered(MouseEvent e) {
-                                            menuItem.setArmed(true);
-                                        }
+                                    public void mouseEntered(MouseEvent e) {
+                                        menuItem.setArmed(true);
+                                    }
 
-                                        public void mouseExited(MouseEvent e) {
-                                            menuItem.setArmed(false);
-                                        }
+                                    public void mouseExited(MouseEvent e) {
+                                        menuItem.setArmed(false);
+                                    }
 
-                                    });
-                            popup.add(menuItem);
-                        }
-                        catch(NoPreferredOrigin ee){}
+                                });
+                        popup.add(menuItem);
                     }
                     Point compLocation = e.getComponent().getLocationOnScreen();
                     double[] popupLoc = {compLocation.getX(), compLocation.getY()};
@@ -245,7 +242,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         return false;
     }
 
-    public static String getEventInfo(EventAccessOperations event) throws NoPreferredOrigin{
+    public static String getEventInfo(EventAccessOperations event){
         StringBuffer buf = new StringBuffer();
 
         //Get geographic name of origin
@@ -253,16 +250,22 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         String location = regions.getGeographicRegionName(event.get_attributes().region.number);
 
         //Get Date and format it accordingly
-        MicroSecondDate msd = new MicroSecondDate(event.get_preferred_origin().origin_time);
+        Origin origin;
+        try{
+            origin = event.get_preferred_origin();
+        }catch(NoPreferredOrigin e){
+            origin = event.get_origins()[0];
+        }
+        MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         sdf.format(msd);
 
         //Get Magnitude
-        float mag = event.get_preferred_origin().magnitudes[0].value;
+        float mag = origin.magnitudes[0].value;
 
         //get depth
-        Quantity depth = event.get_preferred_origin().my_location.depth;
+        Quantity depth = origin.my_location.depth;
 
         buf.append("Event: ");
         buf.append(location + " | ");
