@@ -150,11 +150,11 @@ public class SimplePlotUtil  {
 					     UnitRangeImpl ampRange,
 					     Dimension size)throws UnsupportedDataEncoding {
 	LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
-	double pointsPerPixel = tr.getInterval().divideBy(seis.getSampling().getPeriod()).getValue() / 
+	/*double pointsPerPixel = tr.getInterval().divideBy(seis.getSampling().getPeriod()).getValue() / 
 	    size.width;
 	if(pointsPerPixel  < 3 ){
-	    return getPlottableSimple(seis, ampRange, tr, size);
-	}else{
+	return getPlottableSimple(seis, ampRange, tr, size);
+	}else{*/
 	    int[][] uncomp = scaleXvalues(seismogram, tr, ampRange, size);
 	    // enough points to take the extra time to compress the line
 	    int[][] comp = new int[2][2 * size.width];
@@ -187,7 +187,7 @@ public class SimplePlotUtil  {
 	    System.arraycopy(comp[1], 0, temp[1], 0, j);
 	
 	    return temp;
-	}
+	
     }
    
     protected static void  scaleYvalues(int[][] comp, LocalSeismogram seismogram, MicroSecondTimeRange tr, 
