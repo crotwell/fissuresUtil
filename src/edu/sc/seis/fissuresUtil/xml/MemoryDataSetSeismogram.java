@@ -4,6 +4,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import javax.swing.SwingUtilities;
+import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 
 /**
  * MemoryDataSetSeismogram.java
@@ -15,6 +16,11 @@ import javax.swing.SwingUtilities;
  * @version 1.0
  */
 public class MemoryDataSetSeismogram extends DataSetSeismogram implements Cloneable {
+
+     public MemoryDataSetSeismogram(RequestFilter requestFilter,
+                                    String name) {
+         super(null, name, requestFilter);
+     }
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl seis,
                                    String name) {
@@ -45,12 +51,15 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
                                    DataSet ds,
                                    String name) {
         super(ds, name);
+        if (seis == null || seis.length == 0) {
+            throw new IllegalArgumentException("Seismogram array cannot be empty");
+        }
         requestFilter = makeRequestFilter(seis);
         seisCache = seis;
     }
 
     public void retrieveData(final SeisDataChangeListener dataListener) {
-        SwingUtilities.invokeLater(new Runnable() {
+        WorkerThreadPool.getDefaultPool().invokeLater(new Runnable() {
                     public void run() {
                         pushData(seisCache, dataListener);
                         finished(dataListener);
@@ -58,10 +67,17 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
                 });
     }
 
-    public LocalSeismogramImpl[] getCache() {
+    public synchronized LocalSeismogramImpl[] getCache() {
         return seisCache;
     }
-    
+
+    public synchronized void add(LocalSeismogramImpl seis ) {
+        LocalSeismogramImpl[] tmp = new LocalSeismogramImpl[seisCache.length+1];
+        System.arraycopy(seisCache, 0, tmp, 0, seisCache.length);
+        tmp[tmp.length-1] = seis;
+        seisCache = tmp;
+    }
+
     protected LocalSeismogramImpl[] seisCache;
 
     static final RequestFilter makeRequestFilter(LocalSeismogramImpl[] seis) {
@@ -87,3 +103,4 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
         return tmp;
     }
 }
+
