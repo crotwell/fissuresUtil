@@ -47,11 +47,11 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     public void projectionChanged(ProjectionEvent e) {
         LayerProjectionUpdater.update(e, omgraphics, this);
     }
-    
+
     public void honorRepaint(boolean honor){ honorRepaint = honor; }
-    
+
     public void repaint(){ if(honorRepaint) super.repaint(); }
-    
+
     private boolean honorRepaint = true;
 
     /*This adds each of these stations to the layer
@@ -160,13 +160,13 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         currentEvent = eqSelectionEvent.getEvents()[0];
     }
 
+    /** No impl here, only the eventDataCleared() method is needed*/
+    public void eventDataAppended(EQDataEvent eqDataEvent) {
+    }
 
-    /**
-     * Method eventDataChanged
-     *
-     * @param    eqDataEvent         an EQDataEvent
-     *
-     */
+
+
+    /** No impl here, only the eventDataCleared() method is needed*/
     public void eventDataChanged(EQDataEvent eqDataEvent) {}
 
     /**

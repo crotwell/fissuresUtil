@@ -26,7 +26,7 @@ import org.apache.log4j.Category;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 6861 2004-01-21 21:52:30Z crotwell $
+ * @version $Id: EventTableModel.java 7310 2004-02-26 03:34:00Z crotwell $
  */
 
 public class EventTableModel
@@ -187,6 +187,15 @@ public class EventTableModel
         fireEventDataChanged(events);
     }
 
+    public void appendEvents(EventAccessOperations[] appendEvents) {
+        EventAccessOperations[] tmp = new EventAccessOperations[events.length+appendEvents.length];
+        System.arraycopy(events, 0, tmp, 0, events.length);
+        System.arraycopy(appendEvents, 0, tmp, events.length, appendEvents.length);
+        this.events = tmp;
+        fireTableDataChanged();
+        fireEventDataAppended(events);
+    }
+
     public void eventLoaded(CacheEvent cache) {
         cachedEvents.put(cache, cache);
         backgrounded.remove(cache);
@@ -212,6 +221,22 @@ public class EventTableModel
                 if (eqDataEvent == null)
                     eqDataEvent = new EQDataEvent(this, events);
                 ((EventDataListener)listeners[i+1]).eventDataChanged(eqDataEvent);
+            }
+        }
+    }
+
+    private void fireEventDataAppended(EventAccessOperations[] events){
+        EQDataEvent eqDataEvent = null;
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i]==EventDataListener.class) {
+                // Lazily create the event:
+                if (eqDataEvent == null)
+                    eqDataEvent = new EQDataEvent(this, events);
+                ((EventDataListener)listeners[i+1]).eventDataAppended(eqDataEvent);
             }
         }
     }
