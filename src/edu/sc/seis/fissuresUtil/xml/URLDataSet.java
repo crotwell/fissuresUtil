@@ -57,7 +57,6 @@ public class URLDataSet implements DataSet {
      *
      */
     public DataSetSeismogram getDataSetSeismogram(String name) {
-        // TODO
         return getCache().getDataSetSeismogram(name);
     }
     
@@ -100,7 +99,6 @@ public class URLDataSet implements DataSet {
      * @return a <code>String[]</code> value
      */
     public String[] getParameterNames() {
-        // TODO
         return getCache().getParameterNames();
     }
     
@@ -169,7 +167,6 @@ public class URLDataSet implements DataSet {
      *
      */
     public String[] getDataSetSeismogramNames() {
-        // TODO
         return getCache().getDataSetSeismogramNames();
     }
     
