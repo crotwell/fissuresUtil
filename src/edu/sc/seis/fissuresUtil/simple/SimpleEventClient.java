@@ -54,7 +54,7 @@ public class SimpleEventClient extends AbstractClient {
             logger.info("got EventFinder");
 
             MicroSecondDate now = new MicroSecondDate();
-            MicroSecondDate yesterday = now.subtract(new TimeInterval(1, UnitImpl.DAY));
+            MicroSecondDate yesterday = now.subtract(new TimeInterval(5, UnitImpl.DAY));
             TimeRange timeRange = new TimeRange(now.getFissuresTime(),
                                                 yesterday.getFissuresTime());
             String[] magTypes = new String[1];
@@ -62,7 +62,7 @@ public class SimpleEventClient extends AbstractClient {
             String[] catalogs = new String[1];
             catalogs[0] = "FINGER";
             String[] contributors = new String[1];
-            contributors[0] = "USGS";
+            contributors[0] = "NEIC";
 
             EventSeqIterHolder iter = new EventSeqIterHolder();
             EventAccess[] events =
