@@ -23,13 +23,13 @@ public class ClockUtil {
         from the server. This uses a simple cgi-bin script located at
         http://www.seis.sc.edu/cgi-bin/date_time.pl. The URL can be overridden
         with the setTimeURL method.
-    */ 
+    */
     public static TimeInterval getTimeOffset() {
         if (serverOffset == null) {
             try {
                 serverOffset = getServerTimeOffset();
             } catch (IOException e) {
-                // oh well, cant get to server, use CPU time, so 
+                // oh well, cant get to server, use CPU time, so
                 // offset is zero
                 return ZERO_OFFSET;
             } // end of try-catch
@@ -41,7 +41,7 @@ public class ClockUtil {
     /** Creates a new MicroSecondDate that reflects the current time to
      *  the best ability of the system. If a connection to a remote server
      *  cannot be estabilished, then the current CPU time is used.
-     */ 
+     */
     public static MicroSecondDate now() {
         MicroSecondDate nowTime = new MicroSecondDate();
         return nowTime.add(getTimeOffset());
@@ -81,14 +81,14 @@ public class ClockUtil {
         TimeInterval offset = new TimeInterval(localTime, serverDate);
 
         // assume small time
-        if(java.lang.Math.abs(offset.value) <  2000000) offset = new TimeInterval(serverDate, serverDate);
+        //if(java.lang.Math.abs(offset.value) <  2000000) offset = new TimeInterval(serverDate, serverDate);
         //System.out.println("The offset is "+offset.value);
         return offset;
     }
 
     private static TimeInterval serverOffset = null;
 
-    private static final TimeInterval ZERO_OFFSET = new TimeInterval(0, 
+    private static final TimeInterval ZERO_OFFSET = new TimeInterval(0,
                                                                      UnitImpl.SECOND);
 
     private static URL SEIS_SC_EDU_URL;
@@ -98,7 +98,7 @@ public class ClockUtil {
     static {
         // we have to do this in a static block because of the exception
         try {
-            SEIS_SC_EDU_URL = 
+            SEIS_SC_EDU_URL =
                 new URL("http://www.seis.sc.edu/cgi-bin/date_time.pl");
         } catch (MalformedURLException e) {
             // Can't happen

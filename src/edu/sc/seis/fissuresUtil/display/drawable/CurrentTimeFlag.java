@@ -1,8 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
-import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.RTTimeRangeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -19,11 +18,11 @@ import java.awt.Graphics2D;
 
 public class CurrentTimeFlag extends Flag {
     public CurrentTimeFlag (){
-        super(new MicroSecondDate().add(RTTimeRangeConfig.serverTimeOffset), "Current Time");
+        super(ClockUtil.now(), "Current Time");
     }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
-        setFlagTime(new MicroSecondDate().add(RTTimeRangeConfig.serverTimeOffset));
+        setFlagTime(ClockUtil.now());
         super.draw(canvas, size, timeEvent, ampEvent);
     }
 

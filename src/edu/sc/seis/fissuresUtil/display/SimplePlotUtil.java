@@ -20,7 +20,7 @@ import org.apache.log4j.Category;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 3887 2003-05-15 19:01:36Z groves $
+ * @version $Id: SimplePlotUtil.java 5149 2003-08-17 22:20:11Z crotwell $
  */
 
 public class SimplePlotUtil  {
@@ -579,7 +579,7 @@ public class SimplePlotUtil  {
     }
 
     public static LocalSeismogramImpl createSpike() {
-        return createSpike(new MicroSecondDate());
+        return createSpike(ClockUtil.now());
     }
 
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
