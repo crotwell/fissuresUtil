@@ -108,7 +108,6 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener,
 		for (int i = listeners.length - 2; i >= 0; i -= 2) {
 			if (listeners[i] == EQSelectionListener.class) {
 				// Lazily create the event:
-				System.out.println(listeners[i + 1]);
 				((EQSelectionListener) listeners[i + 1]).eqSelectionChanged(e);
 			}
 		}
