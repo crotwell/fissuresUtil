@@ -57,7 +57,13 @@ public class ConnMgr {
     
     public static void setDB(Properties props){ ConnMgr.props = props; }
     
-    public static String getSQL(String key){ return props.getProperty(key); }
+    public static String getSQL(String key){
+        String SQL = props.getProperty(key);
+        if(SQL == null){
+            throw new IllegalArgumentException("No such sql entry " + key + " Make sure the properties files are in the jars and are being loaded");
+        }
+        return props.getProperty(key);
+    }
     
     private static String getDriver(){ return props.getProperty("driver"); }
     
