@@ -40,7 +40,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception InvalidName if an error occurs
      */
    
-    public FissuresNamingServiceImpl (java.util.Properties props) throws   org.omg.CORBA.ORBPackage.InvalidName{
+    public FissuresNamingServiceImpl (java.util.Properties props) {
 	this.props = props;
 	String[] args = new String[0];
 
@@ -50,18 +50,6 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	// register valuetype factories
 	AllVTFactory vt = new AllVTFactory();
 	vt.register(orb);
-
-	// get a reference to the Naming Service root_context
-	org.omg.CORBA.Object rootObj = 
-	    orb.resolve_initial_references("NameService");
-	if (rootObj == null) {
-	    //logger.error
-	    logger.info("Name service object is null!");
-	    return;
-	}
-	namingContext = NamingContextExtHelper.narrow(rootObj);
-	//logger.info
-	logger.info("got Name context");
 	
     }
 
@@ -71,10 +59,25 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @param orb an <code>org.omg.CORBA_2_3.ORB</code> value
      * @exception InvalidName if an error occurs
      */
-    public FissuresNamingServiceImpl(org.omg.CORBA_2_3.ORB orb) throws  org.omg.CORBA.ORBPackage.InvalidName {
-	org.omg.CORBA.Object obj = null;
-	obj = orb.resolve_initial_references("NameService");
-	namingContext = NamingContextExtHelper.narrow(obj);	
+    public FissuresNamingServiceImpl(org.omg.CORBA_2_3.ORB orb) {
+        this.orb = orb;
+    }
+
+    public NamingContextExt getNameService() throws org.omg.CORBA.ORBPackage.InvalidName{
+        if (namingContext == null) {
+            // get a reference to the Naming Service root_context
+            org.omg.CORBA.Object rootObj = 
+                orb.resolve_initial_references("NameService");
+            if (rootObj == null) {
+                //logger.error
+                logger.info("Name service object is null!");
+                return null;
+            }
+            namingContext = NamingContextExtHelper.narrow(rootObj);
+            //logger.info
+            logger.info("got Name context");
+        } // end of if (namingContext == null)
+        return namingContext;
     }
 
     /**
@@ -88,7 +91,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public org.omg.CORBA.Object resolve(String dns, String interfacename, String objectname) throws NotFound,CannotProceed, InvalidName {
+    public org.omg.CORBA.Object resolve(String dns, String interfacename, String objectname) throws NotFound,CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 	
 	dns = appendKindNames(dns);
 
@@ -101,7 +104,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	logger.info("the final dns resolved is "+dns);
 	try {
 	
-	    return namingContext.resolve(namingContext.to_name(dns));
+	    return getNameService().resolve(getNameService().to_name(dns));
 	} catch(NotFound nfe) {
 	    logger.info("NOT FOUND Exception caught while resolving dns name context and the name not found is "+nfe.rest_of_name[0].id);
 	    throw new NotFound();
@@ -126,7 +129,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName {
+    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	
 	logger.info("The CLASS Name is "+obj.getClass().getName());
@@ -147,7 +150,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	NameComponent[] ncName;
 
 	try { 
-	    ncName = namingContext.to_name(dns);
+	    ncName = getNameService().to_name(dns);
 	} catch(InvalidName ine) {
 
 	    logger.info("INVALID NAME EXCEPTION IS CAUGHT");
@@ -157,7 +160,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	}
 
 	NameComponent[] ncName1 = new NameComponent[1];
-	NamingContext namingContextTemp = (NamingContext)namingContext;
+	NamingContext namingContextTemp = (NamingContext)getNameService();
 
 	int counter;
 	
@@ -165,7 +168,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	    //NameComponent temp[] = new NameComponent[counter];
 	    int subcounter;
 	    try {
-		namingContext.rebind(namingContext.to_name(dns), obj);
+		getNameService().rebind(getNameService().to_name(dns), obj);
 		//namingContext.reslove(namingContext.to_name(dns));
 				
 	    } catch(NotFound nfe) {
@@ -189,7 +192,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 		    if(subcounter != 0){
 			logger.info("resolving new naming context");
 			namingContextTemp = 
-			    NamingContextExtHelper.narrow(namingContext.resolve(temp));
+			    NamingContextExtHelper.narrow(getNameService().resolve(temp));
 		    }
 
 		    if(ncName1[0].id.equals(interfacename))
@@ -235,7 +238,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public void unbind(String dns, String interfacename, String objectname) throws NotFound, CannotProceed, InvalidName {
+    public void unbind(String dns, String interfacename, String objectname) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 	
 	
 	dns = appendKindNames(dns);
@@ -247,7 +250,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	}
 	try {
 	
-	    namingContext.unbind(namingContext.to_name(dns));
+	    getNameService().unbind(getNameService().to_name(dns));
 	} catch(NotFound nfe) {
 	    logger.info("NOT FOUND Exception caught while resolving dns name context");
 	    throw new NotFound();
@@ -271,7 +274,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public void unbind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName {
+    public void unbind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 	
 
 	dns = appendKindNames(dns);
@@ -284,7 +287,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	}
 	try {
 	
-	    namingContext.unbind(namingContext.to_name(dns));
+	    getNameService().unbind(getNameService().to_name(dns));
 	} catch(NotFound nfe) {
 	    logger.info("NOT FOUND Exception caught while resolving dns name context");
 	    throw new NotFound();
@@ -311,7 +314,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public NetworkDC getNetworkDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName {
+    public NetworkDC getNetworkDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 	NetworkDC netdc = NetworkDCHelper.narrow(getNetworkDCObject(dns, objectname));
 	return netdc;
 
@@ -328,7 +331,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public DataCenter getSeismogramDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName {
+    public DataCenter getSeismogramDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
         logger.debug("before get SeismogramDC Object");
         org.omg.CORBA.Object obj = getSeismogramDCObject(dns, objectname);
         logger.debug("before narrow");
@@ -349,7 +352,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public PlottableDC getPlottableDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName {
+    public PlottableDC getPlottableDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	PlottableDC plottabledc = PlottableDCHelper.narrow(getPlottableDCObject(dns, objectname));
 	return plottabledc;
@@ -367,7 +370,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public EventDC getEventDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName {
+    public EventDC getEventDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	
 	EventDC eventdc = EventDCHelper.narrow(getEventDCObject(dns, objectname));
@@ -386,7 +389,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public org.omg.CORBA.Object getNetworkDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName {
+    public org.omg.CORBA.Object getNetworkDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	org.omg.CORBA.Object obj = resolve(dns, "NetworkDC", objectname);
 	return obj;
@@ -404,7 +407,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public org.omg.CORBA.Object getSeismogramDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName {
+    public org.omg.CORBA.Object getSeismogramDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	org.omg.CORBA.Object obj = resolve(dns, "DataCenter", objectname);
 	return obj;
@@ -422,7 +425,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public org.omg.CORBA.Object getPlottableDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName {
+    public org.omg.CORBA.Object getPlottableDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	org.omg.CORBA.Object obj = resolve(dns, "PlottableDC", objectname);
 	return obj;
@@ -440,7 +443,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public org.omg.CORBA.Object getEventDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName {
+    public org.omg.CORBA.Object getEventDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	org.omg.CORBA.Object obj = resolve(dns, "EventDC", objectname);
 	return obj;
@@ -464,7 +467,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	    if(path == null) {
 		obj = getRoot();
 	    } else {
-		obj =  namingContext.resolve(namingContext.to_name(path));
+		obj =  getNameService().resolve(getNameService().to_name(path));
 	    }
 	    NamingContextExt namingContextTemp = NamingContextExtHelper.narrow(obj);
 	    BindingListHolder bindingList = new BindingListHolder();
@@ -499,7 +502,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 			String objectPath = new String();
 			if(path == null) objectPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
 			else objectPath = path + "/"+binding.binding_name[0].id+"."+"object"+getVersion();
-			org.omg.CORBA.Object object =  namingContext.resolve(namingContext.to_name(objectPath));
+			org.omg.CORBA.Object object =  getNameService().resolve(getNameService().to_name(objectPath));
 			arrayList.add(object);
 			
 		    }//end of inner if
@@ -566,9 +569,9 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      *
      * @return an <code>org.omg.CORBA.Object</code> value
      */
-    public org.omg.CORBA.Object getRoot() {
+    public org.omg.CORBA.Object getRoot() throws org.omg.CORBA.ORBPackage.InvalidName{
 
-	return namingContext;
+	return getNameService();
     }
 
     /**
@@ -580,7 +583,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public String[] getInterfaceNames(String dns) throws NotFound, CannotProceed, InvalidName {
+    public String[] getInterfaceNames(String dns) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 	
 	dns = appendKindNames(dns);
 	
@@ -598,7 +601,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public String[] getInstanceNames(String dns, String interfacename) throws NotFound, CannotProceed, InvalidName {
+    public String[] getInstanceNames(String dns, String interfacename) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	dns = appendKindNames(dns);
 	if(interfacename != null && interfacename.length() != 0)
@@ -618,7 +621,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public String[] getDNSNames(String dns) throws NotFound, CannotProceed, InvalidName {
+    public String[] getDNSNames(String dns) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 
 	String tempdns = new String(dns);
 	dns = appendKindNames(dns);
@@ -631,11 +634,11 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     }
     
-    private String[] getNames(String dns, String key) throws NotFound, CannotProceed, InvalidName {
+    private String[] getNames(String dns, String key) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
 	ArrayList arrayList = new ArrayList();
 
 	try {
-	    NamingContextExt namingContextTemp = NamingContextExtHelper.narrow(namingContext.resolve(namingContext.to_name(dns)));
+	    NamingContextExt namingContextTemp = NamingContextExtHelper.narrow(getNameService().resolve(getNameService().to_name(dns)));
 	    BindingListHolder bindingList = new BindingListHolder();
 	    BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
 
