@@ -4,15 +4,14 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
-import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
-import edu.sc.seis.fissuresUtil.chooser.DataSetChannelGrouper;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
@@ -78,10 +77,10 @@ public class DisplayUtils {
             MicroSecondDate currentBegin = new MicroSecondDate(currentRF.start_time);
             MicroSecondDate currentEnd = new MicroSecondDate(currentRF.end_time);
             System.out.println("ID: " + ChannelIdUtil.toString(currentRF.channel_id) +
-                              "\nSITE CODE: " + currentRF.channel_id.site_code + " NETWORK ID: " +
-                              currentRF.channel_id.network_id + " CHANNEL CODE: " + currentRF.channel_id.channel_code +
-                              " STATION CODE: " + currentRF.channel_id.station_code);
-            if(ChannelIdUtil.areEqual(chanId,currentRF.channel_id)){
+                               "\nSITE CODE: " + currentRF.channel_id.site_code + " NETWORK ID: " +
+                               currentRF.channel_id.network_id + " CHANNEL CODE: " + currentRF.channel_id.channel_code +
+                               " STATION CODE: " + currentRF.channel_id.station_code);
+            if(areFriends(chanId,currentRF.channel_id)){
                 System.out.println("the channel ids are equal");
                 if((currentBegin.equals(startDate) ||
                     currentBegin.before(startDate)) &&
@@ -96,6 +95,15 @@ public class DisplayUtils {
         DataSetSeismogram[] components = new DataSetSeismogram[componentSeismograms.size()];
         componentSeismograms.toArray(components);
         return components;
+    }
+
+    public static boolean areFriends(ChannelId a, ChannelId b) {
+        MicroSecondDate aBeginMSD = new MicroSecondDate(a.begin_time);
+        MicroSecondDate bBeginMSD = new MicroSecondDate(b.begin_time);
+        return NetworkIdUtil.areEqual(a.network_id, b.network_id) &&
+            a.station_code.equals(b.station_code) &&
+            a.site_code.equals(b.site_code) &&
+            aBeginMSD.equals(bBeginMSD);
     }
 
     public static String getSeismogramName(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
@@ -205,13 +213,13 @@ public class DisplayUtils {
     }
 
     public static boolean allNull(Object[] array){
-        boolean nonNull = false;
-        for (int i = 0; i < array.length && !nonNull; i++ ) {
+        boolean allNull = true;
+        for (int i = 0; i < array.length && allNull; i++ ) {
             if(array[i] != null){
-                nonNull = true;
+                allNull = false;
             }
         }
-        return nonNull;
+        return allNull;
     }
 
     private static final double linearInterp(long xa, long xb, int y,
