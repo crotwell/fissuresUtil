@@ -9,7 +9,7 @@ import edu.iris.Fissures.Time;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import org.apache.log4j.Logger;
 
-public class NSSeismogramDC implements ProxySeismogramDC {
+public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
     public NSSeismogramDC(String serverDNS,
                           String serverName,
                           FissuresNamingService fissuresNamingService) {

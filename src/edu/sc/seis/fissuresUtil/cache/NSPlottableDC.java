@@ -19,7 +19,7 @@ import edu.iris.Fissures.Plottable;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import org.apache.log4j.Logger;
 
-public class NSPlottableDC implements PlottableDCOperations {
+public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
 
     public NSPlottableDC(String serverDNS,
                          String serverName,
