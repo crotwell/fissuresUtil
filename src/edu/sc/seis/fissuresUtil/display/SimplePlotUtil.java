@@ -23,27 +23,37 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 11561 2005-01-05 18:23:08Z groves $
+ * @version $Id: SimplePlotUtil.java 11568 2005-01-05 20:09:57Z groves $
  */
 public class SimplePlotUtil {
 
     /**
      * Creates a plottable with all the data from the seismogram that falls
      * inside of the time range at samplesPerDay. Each pixel in the plottable is
-     * of 1/samplesPerDay * 2 days long so that two values can be returned for
-     * each x point in the plottable. The first value is the min value over the
-     * time covered in the seismogram, and the second value is the max. The
-     * seismogram points in a plottable pixel consist of the first point at or
-     * after the start time of the pixel to the last point before the start time
-     * of the next pixel.
+     * of 1/pixelsPerDay days long. Two points are returned for each pixel. The
+     * first value is the min value over the time covered in the seismogram, and
+     * the second value is the max. The seismogram points in a plottable pixel
+     * consist of the first point at or after the start time of the pixel to the
+     * last point before the start time of the next pixel.
      */
     public static Plottable makePlottable(LocalSeismogramImpl seis,
                                           MicroSecondTimeRange tr,
-                                          int samplesPerDay)
+                                          int pixelsPerDay)
             throws CodecException {
+        logger.debug("Making plottable for seis starting at "
+                + seis.getBeginTime() + " lasting for "
+                + seis.getTimeInterval() + " with " + seis.getNumPoints()
+                + " points");
+        logger.debug("The plottable is supposed to cover " + tr + " at "
+                + pixelsPerDay);
+        if(tr.getEndTime().before(seis.getEndTime())
+                || tr.getBeginTime().after(seis.getEndTime())) {
+            int[] empty = new int[0];
+            return new Plottable(empty, empty);
+        }
         //Calculating the number of plottable pixels to cover the full time
         // range
-        double pixelPeriod = 1 / (double)samplesPerDay * 2.0d;//in days
+        double pixelPeriod = 1 / (double)pixelsPerDay;//in days
         TimeInterval trInt = (TimeInterval)tr.getInterval()
                 .convertTo(UnitImpl.DAY);
         double exactNumPixels = trInt.divideBy(pixelPeriod).getValue();
