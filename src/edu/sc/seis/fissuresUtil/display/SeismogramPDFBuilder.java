@@ -9,48 +9,43 @@ package edu.sc.seis.fissuresUtil.display;
  * @version 1.0
  */
 
-import java.awt.*;
 import javax.swing.*;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.PageSize;
-import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 import edu.sc.seis.fissuresUtil.chooser.FileNameFilter;
-import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
 import javax.swing.border.EmptyBorder;
 
 public class SeismogramPDFBuilder {
     public SeismogramPDFBuilder(SeismogramDisplay disp) {
-        display = disp;
+        if (disp instanceof VerticalSeismogramDisplay) {
+            displays = ((VerticalSeismogramDisplay)disp).getDisplays();
+        }else displays.add(disp);
     }
 
     public void createPDF() {
-        if (display != null) {
-            if (display instanceof VerticalSeismogramDisplay) {
-                basicDisplays = ((VerticalSeismogramDisplay)display).getDisplays();
-                if (basicDisplays == null)
-                    return;
-                if (basicDisplays.size() == 0) {
-                    return;
-                }
-            }
-            getImagesPerPage(basicDisplays.size());
-            if(seisPerPageSet){
-                String tmp = chooseOutputFile("pdf");
-                if (tmp != null) {
-                    createPDF(tmp);
-                }
+        if (displays.size() == 0)  return;
+        getImagesPerPage(displays.size());
+        if(seisPerPageSet){
+            String tmp = chooseOutputFile("pdf");
+            if (tmp != null) {
+                createPDF(tmp);
             }
         }
     }
@@ -69,247 +64,55 @@ public class SeismogramPDFBuilder {
     }
 
     public void createPDF(FileOutputStream fos) {
-        if (display != null) {
-            if (display instanceof VerticalSeismogramDisplay) {
-                basicDisplays = ((VerticalSeismogramDisplay)display).getDisplays();
-                if (basicDisplays == null || basicDisplays.size() == 0)
-                    return;
-            }
-            float zoomFactor = 4.0f;
-            int topMargin = 50;
-            int bottomMargin = 50;
-
-            // this variable is used to scale the scales up and down.....
-            // just a display resolution item.
-            float scaleZoomFactor = 2.0f;
-
-            // step 1: creation of a document-object
-            Rectangle rect = PageSize.LETTER;
-            Document document = new Document(rect);
-
-            try {
-                // step 2:
-                // we create a writer that listens to the document
-                // and directs a PDF-stream to a file
-                PdfWriter writer = PdfWriter.getInstance(document, fos);
-
-                // step 3: we open the document
-                document.open();
-
-                // step 4: we grab the ContentByte and do some stuff with it
-
-                // we create a template and a Graphics2D object that corresponds with it
-                int scaleW = (int)rect.width();
-                int scaleH = (int)rect.height();
-
-                float ys = 0;
-                float xs = 0;
-
-                int w = (int)( (float)scaleW * zoomFactor);
-                int h = (int)( (float)scaleH * zoomFactor);
-
-                int availableH = h;
-                int widthForTraces = w;
-
-                int heightForTraces = 0;
-
-                PdfContentByte cb = writer.getDirectContent();
-
-                // layer for drawing traces
-                PdfTemplate tpTraces = cb.createTemplate(w, h);
-                Graphics2D g2Traces = tpTraces.createGraphics(w, h);
-
-                // layer for drawing Amplitude labels
-                PdfTemplate tpScales = cb.createTemplate(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-                Graphics2D g2Scales = tpScales.createGraphics(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-
-                // layer for drawing time labels
-                PdfTemplate frameScales = cb.createTemplate(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-                Graphics2D g2FrameScales = frameScales.createGraphics(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-
-                // layer for drawing last page bottom label
-                PdfTemplate lastPageScales = cb.createTemplate(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-                Graphics2D g2lastPageScales = lastPageScales.createGraphics(scaleW*scaleZoomFactor,scaleH*scaleZoomFactor);
-
-                int imagesOnPageCount = 0;
-
-                Iterator it = basicDisplays.iterator();
-                BasicSeismogramDisplay bsd = null;
-
-                Dimension scaleSize = null;
-                Dimension scaleScaleSize = null;
-                Dimension timeScaleSize = null;
-
-                boolean initedScaleSize = false;
-
-                BasicSeismogramDisplay tbsd = (BasicSeismogramDisplay)basicDisplays.getLast();
-                BasicSeismogramDisplay.PRINTING = true;
-                while (it.hasNext()) {
-                    // loop over all traces
-
-                    bsd = (BasicSeismogramDisplay)(it.next());
-
-                    if (!initedScaleSize) {
-                        // first time through setup some things
-
-                        // get true margins
-                        //topMargin = bsd.getAmplitudeLabelHeight();
-
-                        // mover over around insets
-                        g2Traces.translate(extraInset*zoomFactor,extraInset*zoomFactor);
-                        g2Scales.translate((int)(extraInset*scaleZoomFactor), (int)(extraInset*scaleZoomFactor));
-
-                        // mover over around margins
-                        g2Traces.translate(leftMargin*zoomFactor,topMargin*zoomFactor);
-                        g2Scales.translate(0,(int)(topMargin*scaleZoomFactor));
-
-                        // calculate spacing
-                        availableH = availableH - (int)(zoomFactor * (topMargin+ bottomMargin + extraInset + extraInset));
-                        heightForTraces = availableH/(imagesPerPage);
-                        widthForTraces -= leftMargin*zoomFactor;
-                        widthForTraces -= 2*extraInset*zoomFactor;
-
-                        initedScaleSize = true;
-
-                        // draw to time scale layers.
-                        g2lastPageScales.translate(leftMargin*scaleZoomFactor,0);
-                        g2lastPageScales.translate(extraInset*scaleZoomFactor, extraInset*scaleZoomFactor);
-
-                        //timeScaleSize = bsd.drawTopTimeBorders(g2lastPageScales, (int)(widthForTraces*scaleZoomFactor/zoomFactor),
-                         //                                          (int)(topMargin*scaleZoomFactor));
-
-                        g2FrameScales.translate(extraInset*scaleZoomFactor, extraInset*scaleZoomFactor);
-                        g2FrameScales.translate(leftMargin*scaleZoomFactor,0);
-                        //timeScaleSize = bsd.drawTopTimeBorders(g2FrameScales, (int)(widthForTraces*scaleZoomFactor/zoomFactor),
-                        //                                           (int)(topMargin*scaleZoomFactor));
-
-                        g2FrameScales.translate(0,availableH*scaleZoomFactor/zoomFactor);
-
-                        int ttcount = basicDisplays.size();
-                        int tracesLastPage = ttcount%imagesPerPage;
-
-                        g2lastPageScales.translate(0,(heightForTraces*tracesLastPage*scaleZoomFactor)/(zoomFactor));
-
-                        g2FrameScales.translate(0,topMargin);
-                        g2lastPageScales.translate(0,topMargin);
-
-                        //timeScaleSize = tbsd.drawBottomTimeBorders(g2lastPageScales, (int)(widthForTraces*scaleZoomFactor/zoomFactor),
-                                                                       //(int)(topMargin*scaleZoomFactor));
-
-                        //timeScaleSize = tbsd.drawBottomTimeBorders(g2FrameScales, (int)(widthForTraces*scaleZoomFactor/zoomFactor),
-                          //                                             (int)(topMargin*scaleZoomFactor));
-
-                        g2lastPageScales.dispose();
-                        g2FrameScales.dispose();
-
-                    }
-
-                    boolean notAllHere = true;
-                    int wait = 0;
-                    while(notAllHere && wait < 10000){
-                        Iterator seisIt = bsd.iterator(DrawableSeismogram.class);
-                        while(seisIt.hasNext()){
-                            DrawableSeismogram cur = (DrawableSeismogram)seisIt.next();
-                            String status = cur.getDataStatus();
-                            if(status == SeismogramContainer.GETTING_DATA){
-                                cur.getData();
-                                try {
-                                    wait += 100;
-                                    Thread.sleep(100);
-                                } catch (InterruptedException e) {}
-                                break;
-                            }
-                        }
-                        notAllHere = false;
-                    }
-                    Font prevDefValue = DisplayUtils.DEFAULT_FONT;
-                    DisplayUtils.DEFAULT_FONT = new Font("Serif", Font.PLAIN, 24);
-                    Font prevBoldValue = DisplayUtils.BOLD_FONT;
-                    DisplayUtils.BOLD_FONT = new Font("Serif", Font.BOLD, 24);
-                    bsd.drawSeismograms(g2Traces,new Dimension(widthForTraces,heightForTraces));
-                    DisplayUtils.DEFAULT_FONT = prevDefValue;
-                    DisplayUtils.BOLD_FONT = prevBoldValue;
-
-                    drawBox(g2Traces, widthForTraces, heightForTraces);
-
-                    // draw amplitude scale
-                    //scaleScaleSize = bsd.drawAmpBorders(g2Scales,(int)(leftMargin*scaleZoomFactor),
-                      //                                      (int)(heightForTraces*scaleZoomFactor/zoomFactor));
-
-                    // draw amplitude scale
-                    //scaleScaleSize = bsd.drawAmpBorders(g2Scales,(int)(leftMargin*scaleZoomFactor),
-                      //                                      (int)(heightForTraces*scaleZoomFactor/zoomFactor));
-
-                    // draw a box around this region.
-                    drawBox(g2Scales, scaleScaleSize.width, scaleScaleSize.height);
-
-                    if (++imagesOnPageCount == imagesPerPage) {
-                        // page is full, finish page and create a new page.
-
-                        g2Traces.dispose();
-                        g2Scales.dispose();
-
-                        cb.addTemplate(tpTraces, 1.0f/zoomFactor, 0, 0, 1.0f/zoomFactor, 0, 0);
-
-                        xs = 1.0f/scaleZoomFactor;
-                        ys = 1.0f/scaleZoomFactor;
-
-                        cb.addTemplate(tpScales,xs,0,0, ys,0,0);
-
-                        cb.addTemplate(frameScales,xs,0,0, ys,0,0);
-
-                        // create a new page
-                        document.newPage();
-
-                        // create 2 new templates for drawing to.
-                        tpTraces = cb.createTemplate(w, h);
-                        g2Traces = tpTraces.createGraphics(w, h);
-
-                        tpScales = cb.createTemplate(scaleW*scaleZoomFactor, scaleH*scaleZoomFactor);
-                        g2Scales = tpScales.createGraphics(scaleW*scaleZoomFactor, scaleH*scaleZoomFactor);
-
-                        g2Traces.translate(extraInset*zoomFactor, extraInset*zoomFactor);
-                        g2Scales.translate(extraInset*scaleZoomFactor, extraInset*scaleZoomFactor);
-
-                        // translate over to avoid drawing new page in top left corner.
-                        g2Traces.translate(leftMargin*zoomFactor,topMargin*zoomFactor);
-                        g2Scales.translate(0,(int)(topMargin*scaleZoomFactor));
-
-
-                        // reset current count
-                        imagesOnPageCount = 0;
-
-                    } else {
-                        // step down the page
-                        g2Traces.translate(0,heightForTraces);
-                        g2Scales.translate(0,heightForTraces*scaleZoomFactor/zoomFactor);
-
-                    }
-                }
-
-                if (imagesOnPageCount != 0) {
-                    // finish writing to the Graphics2D
+        // step 1: creation of a document-object
+        Document document = new Document(PageSize.LETTER);
+        try {
+            // step 2:
+            // we create a writer that listens to the document
+            // and directs a PDF-stream to a file
+            PdfWriter writer = PdfWriter.getInstance(document, fos);
+            document.open();
+            // we create a template and a Graphics2D object that corresponds with it
+            int pageW = (int)PageSize.LETTER.width();
+            int pageH = (int)PageSize.LETTER.height();
+            PdfContentByte cb = writer.getDirectContent();
+            // layer for SeismogramDisplay
+            PdfTemplate tpTraces = cb.createTemplate(pageW, pageH);
+            Graphics2D g2Traces = tpTraces.createGraphics(pageW, pageH);
+            g2Traces.translate(rightMargin, topMargin);
+            int imagesOnPageCount = 0;
+            BasicSeismogramDisplay.PRINTING = true;
+            Iterator it = displays.iterator();
+            int pixelsPerDisplay = (int)((pageH - vertMargins)/(double)imagesPerPage);
+            while (it.hasNext()) {
+                // loop over all traces
+                SeismogramDisplay sd = (SeismogramDisplay)it.next();
+                sd.renderToGraphics(g2Traces, new Dimension((pageW - horizMargins),
+                                                            pixelsPerDisplay));
+                if (++imagesOnPageCount == imagesPerPage) {
+                    // page is full, finish page and create a new page.
+                    cb.addTemplate(tpTraces, 0, 0);
                     g2Traces.dispose();
-                    g2Scales.dispose();
-
-                    cb.addTemplate(tpTraces, 1.0f/zoomFactor, 0, 0, 1.0f/zoomFactor, 0, 0);
-                    xs = 1.0f/scaleZoomFactor;
-                    ys = 1.0f/scaleZoomFactor;
-                    cb.addTemplate(tpScales,xs,0,0, ys,0,0);
-                    // on the last page, add the partial page template instead.
-                    cb.addTemplate(lastPageScales,xs,0,0, ys,0,0);
+                    tpTraces = cb.createTemplate(pageW, pageH);
+                    g2Traces = tpTraces.createGraphics(pageW, pageH);
+                    g2Traces.translate(rightMargin, topMargin);
+                    // reset current count
+                    imagesOnPageCount = 0;
+                } else {
+                    // step down the page
+                    g2Traces.translate(0,pixelsPerDisplay);
                 }
             }
-            catch (DocumentException ex) {}
-            // step 5: we close the document
-            document.close();
+            if (imagesOnPageCount != 0) {
+                // finish writing to the Graphics2D
+                cb.addTemplate(tpTraces, 0, 0);
+                g2Traces.dispose();
+            }
         }
+        catch (DocumentException ex) {}
+        // step 5: we close the document
+        document.close();
         BasicSeismogramDisplay.PRINTING = false;
-    }
-
-    private void drawBox(Graphics2D g2, int width, int height) {
-        g2.setColor(Color.BLACK);
-        g2.drawRect(0,0,width,height);
     }
 
     /**
@@ -437,20 +240,19 @@ public class SeismogramPDFBuilder {
 
     private static EmptyBorder EMPTY_BORDER = new EmptyBorder(5, 5, 5, 5);
 
-    LinkedList basicDisplays = null;
-
-    SeismogramDisplay display = null;
+    private List displays = new ArrayList();
 
     //used to indicate if setSeisPerPage was successful
     private boolean seisPerPageSet = false;
 
     // default number of images to print per page
-    int imagesPerPage = 6;
+    private int imagesPerPage = 1;
+    private int leftMargin = 50, rightMargin = 50,
+        topMargin = 50, bottomMargin = 50;
 
-    // an extra amount to inset entire printed page
-    int extraInset = 50;
+    private int horizMargins = leftMargin + rightMargin,
+        vertMargins = topMargin + bottomMargin;
 
-    // these numbers are wrt the scale layers.
-    int leftMargin = 50;
+
 }
 
