@@ -6,6 +6,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import org.apache.log4j.*;
 
 /**
  * FissuresToWAV.java
@@ -40,8 +41,7 @@ public class FissuresToWAV {
 	SamplingImpl sampling = (SamplingImpl)seis.getSampling();
 	QuantityImpl freq = sampling.getFrequency();
 	freq = freq.convertTo(UnitImpl.HERTZ);
-	int samp = (int)freq.getValue();
-	samp *= speedUp;
+	int samp = (int)(freq.getValue() * speedUp);
 	writeLittleEndian(out, samp); // sample rate
 	writeLittleEndian(out, samp*2); // byte rate, 2 bytes per sample
 	writeLittleEndian(out, (short)2); // block align
@@ -62,18 +62,20 @@ public class FissuresToWAV {
 	throws IOException {
 	byte[] tmpBytes;
 	tmpBytes = Utility.intToByteArray(value);
-	out.write(tmpBytes[0]);
-	out.write(tmpBytes[1]);
-	out.write(tmpBytes[2]);
 	out.write(tmpBytes[3]);
+	out.write(tmpBytes[2]);
+	out.write(tmpBytes[1]);
+	out.write(tmpBytes[0]);
     }
 
     protected static void writeLittleEndian(DataOutput out, short value) 
 	throws IOException {
 	byte[] tmpBytes;
 	tmpBytes = Utility.intToByteArray((int)value);
-	out.write(tmpBytes[0]);
-	out.write(tmpBytes[1]);
+	out.write(tmpBytes[3]);
+	out.write(tmpBytes[2]);
     }
+    static Category logger = 
+	Category.getInstance(FissuresToWAV.class.getName());
 
 } // FissuresToWAV
