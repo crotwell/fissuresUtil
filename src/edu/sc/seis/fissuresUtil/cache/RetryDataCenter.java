@@ -26,6 +26,17 @@ public class RetryDataCenter implements  ProxySeismogramDC {
         // don't need to do anything
     }
 
+    public DataCenterOperations getWrappedDC() { return dc; }
+
+    public DataCenterOperations getWrappedDC(Class wrappedClass) {
+        if(getWrappedDC().getClass().equals(wrappedClass)){
+            return getWrappedDC();
+        }else if(getWrappedDC().getClass().equals(ProxySeismogramDC.class)){
+            ((ProxySeismogramDC)getWrappedDC()).getWrappedDC(wrappedClass);
+        }
+        throw new IllegalArgumentException("This RetryDataCenter doesn't contain a DC of class " + wrappedClass);
+    }
+
     public DataCenter getCorbaObject() {
         if (dc instanceof ProxySeismogramDC) {
             return ((ProxySeismogramDC)dc).getCorbaObject();

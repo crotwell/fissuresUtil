@@ -8,6 +8,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.Time;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 
 public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
     public NSSeismogramDC(String serverDNS,
@@ -16,11 +17,21 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         this.serverDNS = serverDNS;
         this.serverName = serverName;
         this.nameService = fissuresNamingService;
-    } // NSEventDC constructor
-
-    public String getServerDNS(){
-        return serverDNS;
     }
+
+    public DataCenterOperations getWrappedDC() { return getDataCenter(); }
+
+    public DataCenterOperations getWrappedDC(Class wrappedClass) {
+        if(wrappedClass.equals(DataCenter.class)){
+            return getDataCenter();
+        }
+        else{
+            throw new IllegalArgumentException("NSSeismogramDCs only contain DataCenters, so it can't contain a ProxyDC of class " + wrappedClass);
+
+        }
+    }
+
+    public String getServerDNS(){ return serverDNS; }
 
     public String getServerName() { return serverName; }
 
