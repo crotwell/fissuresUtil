@@ -87,6 +87,6 @@ public class ThreadedEventClient extends AbstractThreadedClient{
     private static Logger logger = Logger.getLogger(ThreadedEventClient.class);
     
     public static void main(String[] args){
-        new ThreadedEventClient(args).runAll();
+        Tester.runAll(new ThreadedEventClient(args));
     }
 }

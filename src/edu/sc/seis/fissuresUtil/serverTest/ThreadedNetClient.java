@@ -84,17 +84,12 @@ public class ThreadedNetClient extends AbstractThreadedClient{
         }
         
         public String toString(){ return "retrieve_channel"; }
-    }
-    
-    private NetworkId fakeNet = new NetworkId("II", new Time("19861024000000.0000GMT", 0));
-    private StationId fakeStation = new StationId(fakeNet, "AAK", new Time("19901012000000.0000GMT", 0));
-    private ChannelId fakeChan = new ChannelId(fakeNet, "AAK", "  ", "BHE", new Time("19901012000000.0000GMT", 0));
-    private NetworkAccess net = null;
+    }private NetworkAccess net = null;
     
     private static final String[] EMPTY_ARGS = {};
     private static Logger logger = Logger.getLogger(ThreadedNetClient.class);
     
     public static void main(String[] args){
-        new ThreadedNetClient(args).runAll();
+        Tester.runAll(new ThreadedNetClient(args));
     }
 }
