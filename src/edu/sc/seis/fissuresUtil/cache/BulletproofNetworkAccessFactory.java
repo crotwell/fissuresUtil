@@ -19,7 +19,7 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
  */
 public class BulletproofNetworkAccessFactory{
     public static NetworkAccess vest(NetworkAccess na, NetworkDCOperations DC){
-        SynchronizedDCNetworkAccess synch = new SynchronizedDCNetworkAccess(na, DC);
+        SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
         RetryNetworkAccess retry = new RetryNetworkAccess(synch, 3);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry);
         NetworkId id = cache.get_attributes().get_id();
