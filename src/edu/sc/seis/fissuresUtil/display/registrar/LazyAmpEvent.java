@@ -39,7 +39,7 @@ public class LazyAmpEvent implements AmpEvent{
 
     private synchronized void calculate(){
         if(!calculated){
-            event = config.calculateAmp();
+            event = config.calculate();
             calculated = true;
             Iterator it = calculateListeners.iterator();
             while(it.hasNext()){

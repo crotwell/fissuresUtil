@@ -19,8 +19,8 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
         add(seismos);
     }
 
-    public synchronized AmpEvent recalculateAmp(){
-        ((BasicAmpConfig)wrapped).calculateAmp();
+    public synchronized AmpEvent calculate(){
+        ((BasicAmpConfig)wrapped).calculate();
         AmpConfigData[] ad = getAmpData();
         UnitRangeImpl[] amps = new UnitRangeImpl[ad.length];
         for (int i = 0; i < ad.length; i++){
@@ -92,13 +92,12 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
 
     public AmpConfigData[] getAmpData(){ return wrapped.getAmpData(); }
 
-    public AmpEvent fireAmpEvent() {
-        AmpEvent current = recalculateAmp();
+    public void fireAmpEvent() {
+        AmpEvent current = calculate();
         Iterator it = listeners.iterator();
         while(it.hasNext()){
             ((AmpListener)it.next()).updateAmp(current);
         }
-        return current;
     }
 
     public DataSetSeismogram[] getSeismograms() {
