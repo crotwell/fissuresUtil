@@ -47,8 +47,11 @@ public class ExceptionHandlerGUI {
 	JScrollPane scrollPane = new JScrollPane(stackTracePanel);
 	String traceString = "";
 	if (exception instanceof WrappedException) {
-	    traceString += 
-		getStackTrace(((WrappedException)exception).getCausalException());
+	    WrappedException we = (WrappedException)exception;
+	    if (we.getCausalException() != null) {
+		traceString += 
+		    getStackTrace(we.getCausalException());
+	    } // end of if (we.getCausalException() != null)
 	}
 	traceString += getStackTrace(exception);
 
