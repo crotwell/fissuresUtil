@@ -28,14 +28,10 @@ public class MouseMotionForwarder implements MouseMotionListener {
     }
 
     public void addMouseMotionListener(MouseMotionListener m) {
-	if(current != null)
-	    listenerList.remove(MouseMotionListener.class, current);
-	current = m;
 	listenerList.add(MouseMotionListener.class, m);
     }
 
     public void removeMouseMotionListener(MouseMotionListener m) {
-	current = null;
 	listenerList.remove(MouseMotionListener.class, m);
     }
 
@@ -50,7 +46,7 @@ public class MouseMotionForwarder implements MouseMotionListener {
 	Object[] listeners = listenerList.getListenerList();
 	// Process the listeners last to first, notifying
 	// those that are interested in this event
-	for (int i = listeners.length-2; i>=0; i-=2) {
+	for (int i = listeners.length-1; i>=0; i-=1) {
 	    if (listeners[i]==MouseMotionListener.class) {
 		((MouseMotionListener)listeners[i+1]).mouseDragged(e);
 	    }              
@@ -61,7 +57,7 @@ public class MouseMotionForwarder implements MouseMotionListener {
 	Object[] listeners = listenerList.getListenerList();
 	// Process the listeners last to first, notifying
 	// those that are interested in this event
-	for (int i = listeners.length-2; i>=0; i-=2) {
+	for (int i = listeners.length-1; i>=0; i-=1) {
 	    if (listeners[i]==MouseMotionListener.class) {
 		((MouseMotionListener)listeners[i+1]).mouseMoved(e);
 	    }              
