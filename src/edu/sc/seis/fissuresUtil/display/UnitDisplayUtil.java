@@ -16,9 +16,9 @@ import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import org.apache.log4j.Logger;
 
 public class UnitDisplayUtil {
-
+    
     public static final String mu = "\u03BC";
-
+    
     public static QuantityImpl getBestForDisplay(QuantityImpl quantity) {
         UnitRangeImpl inRange = new UnitRangeImpl(quantity.getValue(),
                                                   quantity.getValue(),
@@ -26,15 +26,20 @@ public class UnitDisplayUtil {
         inRange = getBestForDisplay(inRange);
         return new QuantityImpl(inRange.getMinValue(), inRange.getUnit());
     }
-
+    
     public static UnitRangeImpl getBestForDisplay(UnitRangeImpl inRange) {
         // just in case we don't have a case for this unit
         UnitRangeImpl outRange = inRange;
-
-        if (inRange.getUnit().equals(UnitImpl.METER_PER_SECOND)) {
+        
+        if (inRange.getUnit().isConvertableTo(UnitImpl.METER_PER_SECOND)) {
             // velocity
-            if (Math.abs(inRange.getMinValue()) < .001 &&
-                Math.abs(inRange.getMaxValue()) < .001) {
+            inRange = inRange.convertTo(UnitImpl.METER_PER_SECOND);
+            if (Math.abs(inRange.getMinValue()) < .00001 &&
+                Math.abs(inRange.getMaxValue()) < .00001) {
+                // use micron/sec
+                outRange = inRange.convertTo(UnitImpl.NANOMETER_PER_SECOND);
+            } else if (Math.abs(inRange.getMinValue()) < .01 &&
+                       Math.abs(inRange.getMaxValue()) < .01) {
                 // use micron/sec
                 outRange = inRange.convertTo(UnitImpl.MICRON_PER_SECOND);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
@@ -42,10 +47,15 @@ public class UnitDisplayUtil {
                 // use mm/sec
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER_PER_SECOND);
             }
-        } else if (inRange.getUnit().equals(UnitImpl.METER)) {
+        } else if (inRange.getUnit().isConvertableTo(UnitImpl.METER)) {
             // displacement
-            if (Math.abs(inRange.getMinValue()) < .001 &&
-                Math.abs(inRange.getMaxValue()) < .001) {
+            inRange = inRange.convertTo(UnitImpl.METER);
+            if (Math.abs(inRange.getMinValue()) < .00001 &&
+                Math.abs(inRange.getMaxValue()) < .00001) {
+                // use nanometer
+                outRange = inRange.convertTo(UnitImpl.NANOMETER);
+            } else if (Math.abs(inRange.getMinValue()) < .01 &&
+                       Math.abs(inRange.getMaxValue()) < .01) {
                 // use micron
                 outRange = inRange.convertTo(UnitImpl.MICRON);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
@@ -53,10 +63,15 @@ public class UnitDisplayUtil {
                 // use mm
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER);
             }
-        } else if (inRange.getUnit().equals(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
+        } else if (inRange.getUnit().isConvertableTo(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
             //acceleration
-            if (Math.abs(inRange.getMinValue()) < .001 &&
-                Math.abs(inRange.getMaxValue()) < .001) {
+            inRange = inRange.convertTo(UnitImpl.METER_PER_SECOND_PER_SECOND);
+            if (Math.abs(inRange.getMinValue()) < .00001 &&
+                Math.abs(inRange.getMaxValue()) < .00001) {
+                // use nanometer/sec/sec
+                outRange = inRange.convertTo(UnitImpl.NANOMETER_PER_SECOND_PER_SECOND);
+            } else if (Math.abs(inRange.getMinValue()) < .01 &&
+                       Math.abs(inRange.getMaxValue()) < .01) {
                 // use micron/sec/sec
                 outRange = inRange.convertTo(UnitImpl.MICROMETER_PER_SECOND_PER_SECOND);
             } else if (Math.abs(inRange.getMinValue()) < 1 &&
@@ -71,7 +86,9 @@ public class UnitDisplayUtil {
         }
         return outRange;
     }
-
+    
+    /** calculates a new UnitRangeImpl using the response of the given seismogram.
+     If seis does not have a response, then the input amp is used. */
     public static UnitRangeImpl getRealWorldUnitRange(UnitRangeImpl ur, DataSetSeismogram seismo) {
         UnitImpl realWorldUnit = UnitImpl.COUNT;
         // this is the constant to divide by to get real worl units (not counts)
@@ -87,10 +104,10 @@ public class UnitDisplayUtil {
         UnitRangeImpl out = new UnitRangeImpl(ur.getMinValue()/sensitivity,
                                               ur.getMaxValue()/sensitivity,
                                               realWorldUnit);
-
+        
         return getBestForDisplay(out);
     }
-
+    
     /** tries to come up with better names for some standard units than the
      auto-generated versions. */
     public static String getNameForUnit(UnitImpl unit) {
@@ -132,9 +149,9 @@ public class UnitDisplayUtil {
         //logger.debug("not a unit we have a friendly name for"+unit.toString());
         return unit.toString();
     }
-
+    
     static Logger logger = Logger.getLogger(UnitDisplayUtil.class);
-
+    
 }
 
 
