@@ -87,6 +87,8 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         timeConfig = newConfig;
     }
 
+    public synchronized TimeConfig getTimeConfig(){ return timeConfig; }
+
     /**
      * <code>setAmpConfig</code> sets this registrar to use the passed AmpConfig and
      * adds this registrar's seismograms to it.  If there is already an AmpConfig for
@@ -114,6 +116,8 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         newConfig.addListener(this);
         ampConfig = newConfig;
     }
+
+    public synchronized AmpConfig getAmpConfig(){ return ampConfig; };
 
     public synchronized TimeEvent getLatestTime(){ return timeEvent; }
 
@@ -149,24 +153,24 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
      * @param oldSeismos the <code>DataSetSeismogram[]</code> to be removed
      * @return true if the seismograms are all removed.
      */
-    public synchronized boolean remove(DataSetSeismogram[] oldSeismos){
-        boolean allRemoved = true;
+    public synchronized void remove(DataSetSeismogram[] oldSeismos){
         for(int i = 0; i < oldSeismos.length; i++){
-            if(!seismos.remove(oldSeismos[i])){
-                allRemoved = false;
-            }
-        }
-        if(timeConfig instanceof Registrar){
-            ((Registrar)timeConfig).removeFromTimeConfig(oldSeismos);
-        }else{
-            timeConfig.remove(oldSeismos);
+            seismos.remove(oldSeismos[i]);
         }
         if(ampConfig instanceof Registrar){
             ((Registrar)ampConfig).removeFromAmpConfig(oldSeismos);
         }else{
             ampConfig.remove(oldSeismos);
         }
-        return allRemoved;
+        if(timeConfig instanceof Registrar){
+            ((Registrar)timeConfig).removeFromTimeConfig(oldSeismos);
+        }else{
+            timeConfig.remove(oldSeismos);
+        }
+    }
+
+    public synchronized void clear(){
+        remove(getSeismograms());
     }
 
     /**
@@ -379,6 +383,7 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
 
     public void addListener(ConfigListener listener){
         globalListeners.add(listener);
+        fireGlobalEvent(new ConfigEvent(getSeismograms(), timeEvent, ampEvent));
     }
 
     public void removeListener(ConfigListener listener){
