@@ -46,8 +46,6 @@ public class XMLProperty {
     public static Element createElement(Document doc, 
 					Property prop, 
 					String tagName) {
-	System.out.println("The name of the property is "+prop.name);
-	System.out.println("The value of the property is "+prop.value);
 	Element element = doc.createElement(tagName);
 
 	Text textNode = doc.createTextNode(prop.name);
