@@ -10,7 +10,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 2682 2002-10-07 14:51:59Z groves $
+ * @version $Id: Statistics.java 2794 2002-10-22 01:39:52Z crotwell $
  */
 
 public class Statistics  {
@@ -21,10 +21,22 @@ public class Statistics  {
 	endIndex = iSeries.length;
     }
 
+    public Statistics(short[] sSeries) {
+	this.sSeries = sSeries;
+	beginIndex = 0;
+	endIndex = sSeries.length;
+    }
+    
     public Statistics(float[] fSeries) {
 	this.fSeries = fSeries;
 	beginIndex = 0;
 	endIndex = fSeries.length;
+    }
+    
+    public Statistics(double[] dSeries) {
+	this.dSeries = dSeries;
+	beginIndex = 0;
+	endIndex = dSeries.length;
     }
     
     public Statistics(LocalSeismogramImpl seismo){
@@ -91,9 +103,11 @@ public class Statistics  {
 	    if(iSeries != null){
 		for(int j = removalStart; j <= removalEnd; j++) {
 		    if(iSeries[j] <= minMaxMean[0]){ 
+			// if min is found in remave section reaclulate
 			return calculateMinMaxMean(beginIndex, endIndex);
 		    }
 		    if(iSeries[j] >= minMaxMean[1]){
+			// if max is found in remove section reaclulate
 			return calculateMinMaxMean(beginIndex, endIndex);
 		    }
 		    minMaxMean[2] -= iSeries[j];
@@ -106,6 +120,25 @@ public class Statistics  {
 			minMaxMean[1] = iSeries[j];
 		    }
 		    minMaxMean[2] += iSeries[j];
+		}
+	    }else if(sSeries != null){
+		for(int j = removalStart; j <= removalEnd; j++) {
+		    if(sSeries[j] <= minMaxMean[0]){ 
+			return calculateMinMaxMean(beginIndex, endIndex);
+		    }
+		    if(sSeries[j] >= minMaxMean[1]){
+			return calculateMinMaxMean(beginIndex, endIndex);
+		    }
+		    minMaxMean[2] -= sSeries[j];
+		}
+		for(int j = newDataStart; j <= newDataEnd; j++) {
+		    if(sSeries[j] < minMaxMean[0]){ 
+			minMaxMean[0] = sSeries[j];
+		    }
+		    if(sSeries[j] > minMaxMean[1]){
+			minMaxMean[1] = sSeries[j];
+		    }
+		    minMaxMean[2] += sSeries[j];
 		}
 	    }else if(fSeries != null){
 		for(int j = removalStart; j <= removalEnd; j++) {
@@ -126,6 +159,25 @@ public class Statistics  {
 		    }
 		    minMaxMean[2] += fSeries[j];
 		}
+	    }else if(dSeries != null){
+		for(int j = removalStart; j <= removalEnd; j++) {
+		    if(dSeries[j] <= minMaxMean[0]){ 
+			return calculateMinMaxMean(beginIndex, endIndex);
+		    }
+		    if(dSeries[j] >= minMaxMean[1]){
+			return calculateMinMaxMean(beginIndex, endIndex);
+		    }
+		    minMaxMean[2] -= dSeries[j];
+		}
+		for(int j = newDataStart; j <= newDataEnd; j++) {
+		    if(dSeries[j] < minMaxMean[0]){ 
+			minMaxMean[0] = dSeries[j];
+		    }
+		    if(dSeries[j] > minMaxMean[1]){
+			minMaxMean[1] = dSeries[j];
+		    }
+		    minMaxMean[2] += dSeries[j];
+		}
 	    }
 	    this.beginIndex = beginIndex;
 	    this.endIndex = endIndex;
@@ -145,12 +197,24 @@ public class Statistics  {
 		minMaxMean[1] = Math.max(minMaxMean[1], iSeries[i]);
 		minMaxMean[2] += iSeries[i];
 	    } // end of for (int i=0; i<iSeries.length; i++)
+	} else if (sSeries != null) {
+	    for (int i = beginIndex; i < endIndex; i++) {
+		minMaxMean[0] = Math.min(minMaxMean[0], sSeries[i]);
+		minMaxMean[1] = Math.max(minMaxMean[1], sSeries[i]);
+		minMaxMean[2] += sSeries[i];
+	    } // end of for (int i=0; i<sSeries.length; i++)
 	} else if (fSeries != null) {
 	    for (int i = beginIndex; i < endIndex; i++) {
 		minMaxMean[0] = Math.min(minMaxMean[0], fSeries[i]);
 		minMaxMean[1] = Math.max(minMaxMean[1], fSeries[i]);
 		minMaxMean[2] += fSeries[i];
 	    } // end of for (int i=0; i<fSeries.length; i++)
+	} else if (dSeries != null) {
+	    for (int i = beginIndex; i < endIndex; i++) {
+		minMaxMean[0] = Math.min(minMaxMean[0], dSeries[i]);
+		minMaxMean[1] = Math.max(minMaxMean[1], dSeries[i]);
+		minMaxMean[2] += dSeries[i];
+	    } // end of for (int i=0; i<dSeries.length; i++)
 	}
 	minMaxMean[2] /= (endIndex - beginIndex);
 	this.beginIndex = beginIndex;
@@ -266,8 +330,14 @@ public class Statistics  {
 	if (iSeries != null) {
 	    return iSeries.length;
 	}
+	if (sSeries != null) {
+	    return sSeries.length;
+	}
 	if (fSeries != null) {
 	    return fSeries.length;
+	}
+	if (dSeries != null) {
+	    return dSeries.length;
 	}
 	return 0;
     }
@@ -288,9 +358,27 @@ public class Statistics  {
 	    } // end of for (int i=0; i< iSeries.length; i++)
 	    return histo;	    
 	}
+	if (sSeries != null) {
+	    for (int i=0; i< sSeries.length; i++) {
+		bin = (int)Math.floor((sSeries[i]-start)/width);
+		if (bin >= 0 && bin < number) {
+		    histo[bin]++;
+		} // end of if (bin >= 0 && bin < number)
+	    } // end of for (int i=0; i< iSeries.length; i++)
+	    return histo;	    
+	}
 	if (fSeries != null) {
 	    for (int i=0; i< fSeries.length; i++) {
 		bin = (int)Math.floor((fSeries[i]-start)/width);
+		if (bin >= 0 && bin < number) {
+		    histo[bin]++;
+		} // end of if (bin >= 0 && bin < number)
+	    } // end of for (int i=0; i< iSeries.length; i++)
+	    return histo;	    
+	}
+	if (dSeries != null) {
+	    for (int i=0; i< dSeries.length; i++) {
+		bin = (int)Math.floor((dSeries[i]-start)/width);
 		if (bin >= 0 && bin < number) {
 		    histo[bin]++;
 		} // end of if (bin >= 0 && bin < number)
@@ -304,9 +392,15 @@ public class Statistics  {
 	if (iSeries != null) {
 	    return iBinarySum(start, finish);
 	} // end of if (iSeries != null)
+	if (sSeries != null) {
+	    return sBinarySum(start, finish);
+	} // end of if (sSeries != null)
 	if (fSeries != null) {
 	    return fBinarySum(start, finish);
-	} // end of if (iSeries != null)
+	} // end of if (fSeries != null)
+	if (dSeries != null) {
+	    return dBinarySum(start, finish);
+	} // end of if (dSeries != null)
 	return 0;
     }
 	
@@ -324,6 +418,20 @@ public class Statistics  {
 	}
     }
 	
+    private double sBinarySum(int start, int finish) {
+	if (finish-start < 8) {
+	    double val = 0;
+	    for (int i=start; i< finish; i++) {
+		val += sSeries[i];
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return sBinarySum(start, middle) +
+		sBinarySum(middle, finish);
+	}
+    }
+	
     private double fBinarySum(int start, int finish) {
 	if (finish-start < 8) {
 	    double val = 0;
@@ -337,14 +445,34 @@ public class Statistics  {
 		fBinarySum(middle, finish);
 	}
     }
+	
+    private double dBinarySum(int start, int finish) {
+	if (finish-start < 8) {
+	    double val = 0;
+	    for (int i=start; i< finish; i++) {
+		val += dSeries[i];
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return dBinarySum(start, middle) +
+		dBinarySum(middle, finish);
+	}
+    }
 
     protected double binarySumDevSqr(int start, int finish, double mean) {
 	if (iSeries != null) {
 	    return iBinarySumDevSqr(start, finish, mean);
 	} // end of if (iSeries != null)
+	if (sSeries != null) {
+	    return sBinarySumDevSqr(start, finish, mean);
+	} // end of if (sSeries != null)
 	if (fSeries != null) {
 	    return fBinarySumDevSqr(start, finish, mean);
 	} // end of if (iSeries != null)
+	if (dSeries != null) {
+	    return dBinarySumDevSqr(start, finish, mean);
+	} // end of if (dSeries != null)
 	return 0;
     }
 
@@ -362,6 +490,20 @@ public class Statistics  {
 	}
     }
 
+    private double sBinarySumDevSqr(int start, int finish, double mean) {
+	if (finish-start < 8) {
+	    double val = 0;
+	    for (int i=start; i< finish; i++) {
+		val += (sSeries[i]-mean)*(sSeries[i]-mean);
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return sBinarySumDevSqr(start, middle, mean) +
+		sBinarySumDevSqr(middle, finish, mean);
+	}
+    }
+
     private double fBinarySumDevSqr(int start, int finish, double mean) {
 	if (finish-start < 8) {
 	    double val = 0;
@@ -376,14 +518,34 @@ public class Statistics  {
 	}
     }
 
+    private double dBinarySumDevSqr(int start, int finish, double mean) {
+	if (finish-start < 8) {
+	    double val = 0;
+	    for (int i=start; i< finish; i++) {
+		val += (dSeries[i]-mean)*(dSeries[i]-mean);
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return dBinarySumDevSqr(start, middle, mean) +
+		dBinarySumDevSqr(middle, finish, mean);
+	}
+    }
+
     protected double binarySumDevLag(int start, int finish, 
 				     double mean, int lag) {
 	if (iSeries != null) {
 	    return iBinarySumDevLag(start, finish, mean, lag);
 	} // end of if (iSeries != null)
+	if (sSeries != null) {
+	    return sBinarySumDevLag(start, finish, mean, lag);
+	} // end of if (sSeries != null)
 	if (fSeries != null) {
 	    return fBinarySumDevLag(start, finish, mean, lag);
 	} // end of if (iSeries != null)
+	if (dSeries != null) {
+	    return dBinarySumDevLag(start, finish, mean, lag);
+	} // end of if (dSeries != null)
 	return 0;
     }
 
@@ -402,6 +564,21 @@ public class Statistics  {
 	}
     }
 
+    private double sBinarySumDevLag(int start, int finish, 
+				    double mean, int lag) {
+	if (finish-start < lag+8) {
+	    double val = 0;
+	    for (int i=start; i< finish && i<getLength()-lag; i++) {
+		val += (sSeries[i]-mean)*(sSeries[i+lag]-mean);
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return sBinarySumDevLag(start, middle, mean, lag) +
+		sBinarySumDevLag(middle, finish, mean, lag);
+	}
+    }
+
     private double fBinarySumDevLag(int start, int finish, 
 				    double mean, int lag) {
 	if (finish-start < lag+8) {
@@ -414,6 +591,21 @@ public class Statistics  {
 	    int middle = (start + finish) / 2;
 	    return fBinarySumDevLag(start, middle, mean, lag) +
 		fBinarySumDevLag(middle, finish, mean, lag);
+	}
+    }
+
+    private double dBinarySumDevLag(int start, int finish, 
+				    double mean, int lag) {
+	if (finish-start < lag+8) {
+	    double val = 0;
+	    for (int i=start; i< finish && i<getLength()-lag; i++) {
+		val += (dSeries[i]-mean)*(dSeries[i+lag]-mean);
+	    }
+	    return val;
+	} else {
+	    int middle = (start + finish) / 2;
+	    return dBinarySumDevLag(start, middle, mean, lag) +
+		dBinarySumDevLag(middle, finish, mean, lag);
 	}
     }
 
@@ -444,7 +636,11 @@ public class Statistics  {
 
     protected int[] iSeries;
 
+    protected short[] sSeries;
+
     protected float[] fSeries;
+
+    protected double[] dSeries;
 
     protected boolean minMaxMeanCalculated;
     
