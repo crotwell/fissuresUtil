@@ -27,5 +27,7 @@ public class BackAzimuthLayoutConfig extends BasicLayoutConfig{
             fireLayoutEvent();
         }
     }
+    
+    public String getLabel(){ return "Back Azimuth (Degrees)"; }
 }
 
