@@ -22,29 +22,6 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         super(seismos);
     }
 
-    protected AmpEvent calculateAmp(){
-        Iterator e = ampData.keySet().iterator();
-        boolean changed = false;
-        while(e.hasNext()){
-            AmpConfigData current = (AmpConfigData)ampData.get(e.next());
-            //checks for the time update equaling the old time
-            if(current.setTime(getTime(current.getDSS()))){
-                //checks if the new time changes the amp range
-                if(setAmpRange(current.getDSS())){
-                    // only generates a new amp event if the amp ranges change
-                    changed = true;
-                }
-            }else if(current.hasNewData()){
-                setAmpRange(current.getDSS());
-                changed = true;
-            }
-        }
-        if(changed || currentAmpEvent == null){
-            recalculateAmp();
-        }
-        return currentAmpEvent;
-    }
-
     protected AmpEvent recalculateAmp(){
         Iterator e = ampData.keySet().iterator();
         double range = Double.NEGATIVE_INFINITY;
@@ -130,3 +107,4 @@ public class RMeanAmpConfig extends BasicAmpConfig {
     private static Category logger = Category.getInstance(RMeanAmpConfig.class.getName());
 
 }// RMeanAmpConfig
+
