@@ -8,18 +8,14 @@ import java.sql.SQLException;
 public class JDBCSequence{
     
     public JDBCSequence(Connection conn, String name)throws SQLException{
-        this(conn, name, initCreateStmt(conn, name), initNextValStmt(conn, name));
-    }
-
-    public JDBCSequence(Connection conn, String name, String creationSQL, String nextValSQL)throws SQLException{
         try{
             if(!DBUtil.sequenceExists(name, conn)){
-                conn.createStatement().executeUpdate(creationSQL);
+                conn.createStatement().executeUpdate(initCreateStmt(conn, name));
             }
         }catch(SQLException e){
-            logger.info("Database must already exist for "+name, e);
+            logger.info("Sequence must already exist for "+name, e);
         }
-        nextVal = conn.prepareStatement(nextValSQL);
+        nextVal = conn.prepareStatement(initNextValStmt(conn, name));
     }
 
     public int next() throws SQLException {
