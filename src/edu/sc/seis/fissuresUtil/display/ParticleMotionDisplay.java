@@ -36,7 +36,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				  LocalSeismogramImpl vSeis,
 				  TimeRangeConfig timeRangeConfig,
 				  AmpRangeConfig hAmpRangeConfig,
-				  AmpRangeConfig vAmpRangeConfig){
+				  AmpRangeConfig vAmpRangeConfig, Color color){
 
 	this.hAmpRangeConfig = hAmpRangeConfig;
 	this.vAmpRangeConfig = vAmpRangeConfig;
@@ -47,7 +47,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				      timeRangeConfig,
 				      hAmpRangeConfig, 
 				      vAmpRangeConfig, 
-				      this);
+				      this,
+				      color);
 	if(timeRangeConfig != null) {
 	    timeRangeConfig.addTimeSyncListener(this);
 	}
@@ -90,6 +91,15 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	
    
     }
+
+    public ParticleMotionDisplay (LocalSeismogramImpl hSeis,
+				  LocalSeismogramImpl vSeis,
+				  TimeRangeConfig timeRangeConfig,
+				  AmpRangeConfig hAmpRangeConfig,
+				  AmpRangeConfig vAmpRangeConfig){
+	this(hSeis, vSeis, timeRangeConfig, hAmpRangeConfig, vAmpRangeConfig, null);
+    }
+
 
 
     public ParticleMotionDisplay(LocalSeismogramImpl hseis,
@@ -154,20 +164,31 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 					 LocalSeismogramImpl vseis,
 					 TimeRangeConfig timeRangeConfig,
 					 AmpRangeConfig hAmpRangeConfig,
-					 AmpRangeConfig vAmpRangeConfig) {
+					 AmpRangeConfig vAmpRangeConfig, Color color) {
 
 	view.addParticleMotionDisplay(hseis,
 				      vseis,
 				      timeRangeConfig,
 				      hAmpRangeConfig,
-				      vAmpRangeConfig);
+				      vAmpRangeConfig,
+				      color);
 	if(timeRangeConfig != null) {
 	    timeRangeConfig.addTimeSyncListener(this);
 	}
     }
     
-    
-
+    public void addParticleMotionDisplay(LocalSeismogramImpl hseis,
+					 LocalSeismogramImpl vseis,
+					 TimeRangeConfig timeRangeConfig,
+					 AmpRangeConfig hAmpRangeConfig,
+					 AmpRangeConfig vAmpRangeConfig) {
+	
+	addParticleMotionDisplay(hseis, vseis,
+				 timeRangeConfig,
+				 hAmpRangeConfig,
+				 vAmpRangeConfig,
+				 null);
+    }
     /**
      * sets the AmplitudeRange of the ParticleMotionDisplay.
      *
@@ -247,9 +268,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	/*ParticleMotionDisplay svex = new ParticleMotionDisplay(hSeisex, vSeisex,
 							  vAmpRangeConfig, 
 							  vAmpRangeConfig);*/
-	/*sv.addParticleMotionDisplay(hSeisex, vSeisex,
+	sv.addParticleMotionDisplay(hSeisex, vSeisex,null,
 				    vAmpRangeConfig,
-				    vAmpRangeConfig);*/
+				    vAmpRangeConfig);
 	//logger.debug("The min amp of second before "+
 	//	vAmpRangeConfig.getAmpRange(vSeisex).getMinValue());
 	//logger.debug("The max amp of second before "
