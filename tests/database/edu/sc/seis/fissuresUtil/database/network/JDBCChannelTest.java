@@ -15,6 +15,31 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStationId;
 
 public class JDBCChannelTest extends TestCase{
+    
+
+    public void testPutGet() throws SQLException, NotFound{
+        JDBCChannel chanTable = new JDBCChannel();
+        Channel chan = MockChannel.createChannel();
+        int dbid = chanTable.put(chan);
+        chanTable.getSiteTable().getStationTable().emptyCache();
+        Channel out = chanTable.get(dbid);
+        assertEquals(chan.sampling_info, out.sampling_info);
+        assertTrue(ChannelIdUtil.areEqual(chan.get_id(),
+                                          out.get_id()));
+        assertEquals("site lat", chan.my_site.my_location.latitude,
+                     out.my_site.my_location.latitude, 0.0001f);
+        assertEquals("site lon", chan.my_site.my_location.longitude,
+                     out.my_site.my_location.longitude, 0.0001f);
+        assertEquals("station lat", chan.my_site.my_station.my_location.latitude,
+                     out.my_site.my_station.my_location.latitude, 0.0001f);
+        assertEquals("station lon", chan.my_site.my_station.my_location.longitude,
+                     out.my_site.my_station.my_location.longitude, 0.0001f);
+        assertEquals("station Name", chan.my_site.my_station.name,
+                     out.my_site.my_station.name);
+        assertEquals("network name", chan.my_site.my_station.my_network.name,
+                     out.my_site.my_station.my_network.name);
+    }
+    
     public void testDoublePut() throws SQLException, NotFound{
         JDBCChannel chanTable = new JDBCChannel();
         Channel chan = MockChannel.createChannel();
