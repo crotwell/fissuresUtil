@@ -23,6 +23,7 @@ import java.util.Properties;
 import javax.swing.ListSelectionModel;
 
 public class OpenMap extends OpenMapComponent{
+
 	public static final Color WATER = new Color(54, 179, 221);
 
     /**Creates a new openmap.  Both the channel chooser and the event table

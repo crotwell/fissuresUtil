@@ -155,7 +155,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 			float lon = prefOrigin.my_location.longitude;
 			float mag = prefOrigin.magnitudes[0].value;
 
-			double scale = 2.2;
+			double scale = 1.8;
 			int lilDiameter = (int)Math.pow(scale, 3.0);
 			OMCircle lilCircle = new OMCircle(lat, lon, lilDiameter, lilDiameter);
 			if (mag <= 3.0){
