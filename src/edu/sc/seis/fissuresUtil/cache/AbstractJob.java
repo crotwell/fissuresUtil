@@ -65,8 +65,14 @@ public abstract class AbstractJob implements Job{
     public boolean isFinished(){ return finished; }
 
     protected void setFinished(){
-        finished = true;
-        setStatus(FINISHED);
+        setFinished(true);
+    }
+
+    protected void setFinished(boolean finished){
+        this.finished = finished;
+        if(finished){
+            setStatus(FINISHED);
+        }
         fireStatusUpdate();
     }
 
