@@ -23,7 +23,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
     } 
   
     public int getPixelLocation(int i) {
-        return SeisPlotUtil.getPixel(totalPixels, range, 
+        return SimplePlotUtil.getPixel(totalPixels, range, 
 				     minTick + i * tickInc);
 	//earlier it was total
     }

@@ -481,8 +481,8 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 	ArrayList arrayList = new ArrayList();
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    for(int subcounter = counter+1; subcounter < channelGroup.length; subcounter++) {
-		String labelStr = getOrientationName(channelGroup[counter].channel_code)+"-"+
-		    getOrientationName(channelGroup[subcounter].channel_code);
+		String labelStr = DisplayUtils.getOrientationName(channelGroup[counter].channel_code)+"-"+
+		    DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code);
 		JCheckBox radioButton = new JCheckBox(labelStr);
 		radioButton.setActionCommand(labelStr);
 		radioButton.addItemListener(new RadioButtonListener());
@@ -512,8 +512,8 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 	ArrayList arrayList = new ArrayList();
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    for(int subcounter = counter + 1; subcounter < channelGroup.length; subcounter++) {
-		String labelStr = getOrientationName(channelGroup[counter].channel_code)+"-"+
-		    getOrientationName(channelGroup[subcounter].channel_code);
+		String labelStr = DisplayUtils.getOrientationName(channelGroup[counter].channel_code)+"-"+
+		    DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code);
 		JRadioButton radioButton = new JRadioButton(labelStr);
 		radioButton.setActionCommand(labelStr);
 		radioButton.addItemListener(new RadioButtonListener());
@@ -544,19 +544,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 	initialButton.setSelected(true);
     }
 
-
-    /**
-     * returns the actual direction for the given orientation.
-     * @param orientation a <code>String</code> value
-     * @return a <code>String</code> value
-     */
-    public String getOrientationName(String orientation) {
-
-	char ch = orientation.charAt(2);
-	if(ch == 'E' || ch == '1' || ch == 'U') return "East";
-	else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
-	else return "Up";
-    }
 
     /**
      * sets the title of the Horizontal Border

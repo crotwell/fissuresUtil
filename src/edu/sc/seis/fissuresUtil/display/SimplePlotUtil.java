@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.utility.*;
 import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.display.TimePlotConfig;
 import edu.iris.Fissures.IfTimeSeries.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
@@ -428,6 +427,182 @@ public class SimplePlotUtil  {
 	TimeInterval width = sampling.getPeriod();
 	width = (TimeInterval)width.multiplyBy(index);
 	return beginTime.add(width);
+    }
+    public static LocalSeismogram createTestData() {
+        return createTestData("Fake Data");
+    }
+
+    public static LocalSeismogram createTestData(String name) {
+        int[] dataBits = new int[100];
+        double tmpDouble;
+        for (int i=0; i<dataBits.length; i++) {
+            tmpDouble = Math.random()*2.0 -1.0;
+            //    tmpDouble = .4 + Math.random()*.1;
+            // this makes the values a little more likely to be close 
+            // to the center, making it slightly more seimogram like
+            tmpDouble = tmpDouble * tmpDouble * tmpDouble * tmpDouble * tmpDouble;
+            dataBits[i] = (int)Math.round(tmpDouble*2000.0);
+        }
+
+        return createTestData(name, dataBits);
+    }
+
+    public static LocalSeismogram createTestData(String name, int[] dataBits) {
+        String id = "Nowhere: "+name;
+        edu.iris.Fissures.Time time = 
+                new edu.iris.Fissures.Time("19991231T235959.000Z", 
+                                                    -1);
+        
+        TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
+        SamplingImpl sampling = 
+            new SamplingImpl(20,
+                         timeInterval);
+        ChannelId channelID = new ChannelId(new NetworkId("XX",
+							  time), 
+					    "FAKE",
+					    "00", 
+					    "BHZ",
+                                            time);
+
+        TimeSeriesDataSel bits = new TimeSeriesDataSel();
+        bits.int_values(dataBits);
+
+        Property[] props = new Property[1];
+        props[0] = new Property("Name", name);
+	TimeInterval[] time_corr = new TimeInterval[1];
+	time_corr[0] = new TimeInterval(.123, UnitImpl.SECOND);
+        LocalSeismogramImpl seis = 
+	    new LocalSeismogramImpl(id,
+				    props,
+				    time,
+				    dataBits.length,
+				    sampling,
+				    UnitImpl.COUNT,
+				    channelID,
+				    new ParameterRef[0],
+				    time_corr,
+				    new SamplingImpl[0],
+				    bits);
+        return seis;
+    }
+   public static LocalSeismogram createTestData(String name, int[] dataBits, edu.iris.Fissures.Time time) {
+        String id = "Nowhere: "+name;
+	TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
+        SamplingImpl sampling = 
+            new SamplingImpl(20,
+                         timeInterval);
+        ChannelId channelID = new ChannelId(new NetworkId("XX",
+							  time), 
+					    "FAKE",
+					    "00", 
+					    "BHZ",
+                                            time);
+
+        TimeSeriesDataSel bits = new TimeSeriesDataSel();
+        bits.int_values(dataBits);
+
+        Property[] props = new Property[1];
+        props[0] = new Property("Name", name);
+	TimeInterval[] time_corr = new TimeInterval[1];
+	time_corr[0] = new TimeInterval(.123, UnitImpl.SECOND);
+        LocalSeismogramImpl seis = 
+	    new LocalSeismogramImpl(id,
+				    props,
+				    time,
+				    dataBits.length,
+				    sampling,
+				    UnitImpl.COUNT,
+				    channelID,
+				    new ParameterRef[0],
+				    time_corr,
+				    new SamplingImpl[0],
+				    bits);
+        return seis;
+    }
+
+    public static LocalSeismogram createCustomSineWave(){
+	int[] dataBits = new int[1200];
+        double tmpDouble;
+        for (int i=0; i<dataBits.length; i++) {
+             dataBits[i] = 
+                 (int)Math.round(Math.sin(0 + 
+                                          i*Math.PI*1/20.0)*1000);
+	}
+	return createTestData("Sine Wave", dataBits, new edu.iris.Fissures.Time("19911015T163000.000Z", -1));
+    }
+    
+    public static LocalSeismogram createSineWave() {
+        return createSineWave(0);
+    }
+
+    public static LocalSeismogram createSineWave(double phase) {
+        return createSineWave(phase, 1);
+    }
+
+     public static LocalSeismogram createSineWave(double phase, double hertz) {
+	 return createSineWave(phase, hertz, 1200);
+     }
+
+    public static LocalSeismogram createSineWave(double phase, double hertz, int numPoints) {
+	return createSineWave(phase, hertz, numPoints, 1000);
+    }
+
+    public static LocalSeismogram createSineWave(double phase, double hertz, int numPoints, double amp) {
+        int[] dataBits = new int[numPoints];
+        double tmpDouble;
+        for (int i=0; i<dataBits.length; i++) {
+             dataBits[i] = 
+                 (int)Math.round(Math.sin(phase + 
+                                          i*Math.PI*hertz/20.0)*amp);
+	}
+	
+
+        return createTestData("Sine Wave, phase "+phase+" hertz "+hertz,
+                              dataBits);
+    }
+
+   public static LocalSeismogram createHighSineWave(double phase, double hertz) {
+        int[] dataBits = new int[120];
+        double tmpDouble;
+        for (int i=0; i<dataBits.length; i++) {
+             dataBits[i] = 
+                 (int)Math.round(Math.sin(phase + 
+                                          i*Math.PI*hertz/20.0)*1000.0+500);
+	}
+	
+
+        return createTestData("Sine Wave, phase "+phase+" hertz "+hertz,
+                              dataBits);
+    }
+
+    public static LocalSeismogram createLowSineWave(double phase, double hertz) {
+        int[] dataBits = new int[120];
+        double tmpDouble;
+        for (int i=0; i<dataBits.length; i++) {
+             dataBits[i] = 
+                 (int)Math.round(Math.sin(phase + 
+                                          i*Math.PI*hertz/20.0)*1000.0-500);
+	}
+	
+
+        return createTestData("Sine Wave, phase "+phase+" hertz "+hertz,
+                              dataBits);
+    }
+
+    public static LocalSeismogram createSpike(MicroSecondDate spikeTime) {
+        String name = "spike at "+spikeTime.toString();
+        int[] dataBits = new int[1000];
+        for (int i=0; i<dataBits.length; i++) {
+            // assume 20 sps
+            if (i % 20 == 0) {
+                dataBits[i] = 100;                 
+            } // end of if (i % 20 = 0)
+        } // end of for (int i=0; i<dataBits.length; i++)
+        
+        //        dataBits[5*20] = 100;
+        MicroSecondDate begin = spikeTime;
+        //            spikeTime.subtract(new TimeInterval(5, UnitImpl.SECOND));
+        return createTestData(name, dataBits, begin.getFissuresTime());
     }
 
     static Category logger = Category.getInstance(SimplePlotUtil.class.getName());

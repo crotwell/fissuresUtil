@@ -8,7 +8,7 @@ import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfPlottable.*;
-import edu.iris.Fissures.display.*;
+//import edu.iris.Fissures.display.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.utility.*;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;

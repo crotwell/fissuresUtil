@@ -98,6 +98,23 @@ public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet datas
 	return values;
     }
 
+    public static String[] getSeismogramNames(DataSetSeismogram[] dss){
+	String[] names = new String[dss.length];
+	for(int i = 0; i < dss.length; i++){
+	    names[i] = dss[i].getSeismogram().getName();
+	}
+	return names;
+    }
+
+    public static String getOrientationName(String orientation) {
+
+	char ch = orientation.charAt(2);
+	if(ch == 'E' || ch == '1' || ch == 'U') return "East";
+	else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
+	else return "Up";
+    }
+    
+
     private static final int linearInterp(long xa, long xb, int y,
 					  long x) {
         if (x == xa) return 0;

@@ -31,13 +31,17 @@ import java.awt.Graphics2D;
  *
  * Created: Thu Aug 08 14:24:04 2002
  *
- * @author <a href="mailto:Charlie@BIG-JESUS"></a>
+ * @author Charlie Groves
  * @version
  */
 
 public class FilteredSeismogramShape extends SeismogramShape {
     public FilteredSeismogramShape(ColoredFilter filter, DataSetSeismogram seismogram){
-	super(seismogram, filter.getColor());
+	this(filter, seismogram, filter.getName());
+    }
+
+	public FilteredSeismogramShape(ColoredFilter filter, DataSetSeismogram seismogram, String name){
+	super(seismogram, filter.getColor(), name);
 	this.seismogram = seismogram;
 	this.filter = filter;
 	filterData();

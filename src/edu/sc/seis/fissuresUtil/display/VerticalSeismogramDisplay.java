@@ -19,9 +19,9 @@ import org.apache.log4j.*;
 import edu.sc.seis.TauP.Arrival;
 
 /**
- * VerticalSeismogramDisplay(VSD) is a JScrollPane that can contain multiple 
+ * VerticalSeismogramDisplay(VSD) is a JComponent that can contain multiple 
  * BasicSeismogramDisplays(BSD) and also controls the selection windows and 
- * particle motion windows created by its BSDs
+ * particle motion windows created by its BSDs.  It merely adds 
  *
  *
  * Created: Tue Jun  4 10:52:23 2002
@@ -30,7 +30,7 @@ import edu.sc.seis.TauP.Arrival;
  * @version 0.1
  */
 
-public class VerticalSeismogramDisplay extends JComponent{
+public abstract class VerticalSeismogramDisplay extends JComponent{
     /**
      * Creates a <code>VerticalSeismogramDisplay</code> without a parent
      *
@@ -64,89 +64,80 @@ public class VerticalSeismogramDisplay extends JComponent{
     }
     
     /**
-     * creates a new BSD with an individual RMeanAmpConfig and the global time registrar for
-     * BSDs in this VSD and adds it to the the VSD
+     * adds the given seismograms to the VSD with their seismogram names as suggestions
+     * 
      *
-     * @param dss the seismograms for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
+     * @param dss the seismograms to be added
+     * @return the BSD the seismograms were added to
      */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, String name){
-	return addDisplay(dss, globalRegistrar, new RMeanAmpConfig(dss), name);
-    }
+    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss);
+    
+    /**
+     * adds the given seismograms to the VSD
+     * 
+     *
+     * @param dss the seismograms to be added
+     * @param names suggested names for the seismograms
+     * @return the BSD the seismograms were added to
+     */
+    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, String[] names);
 
     /**
-     * creates a new BSD with an individual RMeanAmpConfig and the passed in TImeConfig
-     * and adds it to the display
+     * adds the seismograms to the VSD with the passed timeConfig
+     *
+     * @param dss the seismograms to be added
+     * @param tc the time config for the new seismograms
+     * @param names suggested names for the seismograms
+     * @return the BSD the seismograms were added to
+     */
+    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, String[] names);
+    
+    /**
+     * adds the seismograms to the VSD with the passed amp config
+     * @param dss the seismograms to be added
+     * @param ac the amp config for the new seismograms
+     * @param names suggested names for the seismograms
+     * @return the BSD the seismograms were added to
+     */
+    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac, String[] names);
+    
+     /**
+     * adds the seismograms to the VSD with the passed timeConfig and ampConfig
      *
      * @param dss the seismograms for the new BSD
      * @param tc the time config for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, String name){
-	return addDisplay(dss, tc, new RMeanAmpConfig(dss), name);
-    }
-    
-     /**
-     * creates a new BSD with the passed in amp config and the global TImeConfig
-     * and adds it to the display
-     *
-     * @param dss the seismograms for the new BSD
      * @param ac the amp config for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
+     * @param names the seismogram names
+     * @return the BSD the seismograms were added to
+     * 
      */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac, String name){
-	return addDisplay(dss, globalRegistrar, ac, name);
-    }
+    public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac, String[] names);
     
-     /**
-     * creates a new BSD with the passed in amp and time configs and adds it to
-     * the display
-     *
-     * @param dss the seismograms for the new BSD
-     * @param tc the time config for the new BSD
-     * @param ac the amp config for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
-     * @return a <code>BasicSeismogramDisplay</code> value
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac, String name){
-	if(tc == globalRegistrar && globalRegistrar == null){
-	    globalRegistrar = new Registrar(dss);
-	    tc = globalRegistrar;
+    
+    public java.util.List getSeismogramNames(){
+	java.util.List names = new ArrayList();
+	Iterator e = basicDisplays.iterator();
+	while(e.hasNext()){
+	    String[] current = ((BasicSeismogramDisplay)e.next()).getNames();
+	    for(int i = 0; i < current.length; i++){
+		names.add(current[i]);
+	    }
 	}
-	if(sorter.contains(name)){
-	    return null;
-	}
-	BasicSeismogramDisplay disp = new BasicSeismogramDisplay(dss, tc, ac, name, this);
-	int i = sorter.sort(dss, name);
-	super.add(disp, i);
-	disp.addMouseMotionListener(motionForwarder);
-	disp.addMouseListener(mouseForwarder);
-	if(basicDisplays.size() > 0){
-	    ((BasicSeismogramDisplay)basicDisplays.getLast()).removeBottomTimeBorder();
-	    ((BasicSeismogramDisplay)basicDisplays.getFirst()).removeTopTimeBorder();
-	}
-	basicDisplays.add(i, disp);
-	((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-	((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
-	return disp;
+	return names;
     }
 
-    /**
-     * <code>addSeismogram</code> adds the array of seismograms to the BSD
-     * in position <code>index</code> in the VSD
-     *
-     * @param seismos the seismograms to be added to the bsd
-     * @param index the BSDs position in the list of held BSDs.  obtainable by calling index 
-     * of whichever display you want on the list returned by getDisplays()
-     */
-    public void addSeismogram(DataSetSeismogram[] seismos, int index){
-	((BasicSeismogramDisplay)basicDisplays.get(index)).add(seismos);
+    public DataSetSeismogram[] getSeismograms(){
+	java.util.List seismogramList = new ArrayList();
+	Iterator e = basicDisplays.iterator();
+	while(e.hasNext()){
+	    DataSetSeismogram[] seismos = ((BasicSeismogramDisplay)e.next()).getSeismograms();
+	    for(int i = 0; i < seismos.length; i++){
+		seismogramList.add(seismos[i]);
+	    }
+	}
+	return ((DataSetSeismogram[])seismogramList.toArray(new DataSetSeismogram[seismogramList.size()]));
     }
-
+	    
     /**
      * <code>getDisplays</code> returns a list of all the displays directly held by this VSD
      *
@@ -160,10 +151,9 @@ public class VerticalSeismogramDisplay extends JComponent{
      *
      * @return a list of all displays in this VSD or its children
      */
-
-   public LinkedList getAllBasicDisplays(){
-       return getAllBasicDisplays(new LinkedList());
-   }
+    public LinkedList getAllBasicDisplays(){
+	return getAllBasicDisplays(new LinkedList());
+    }
     
     /**
      * <code>getAllBasicDisplays</code> returns a list of all displays held directly
@@ -200,7 +190,7 @@ public class VerticalSeismogramDisplay extends JComponent{
     }
 	
     /**
-     * <code>setSort</code> changes the method by which added displays are
+     * <code>setSort/code> changes the method by which added displays are
      * ordered.  NOIMPL
      *
      * @param sorter the new sorter
@@ -397,6 +387,12 @@ public class VerticalSeismogramDisplay extends JComponent{
 	}
     }
 
+    public Registrar getGlobalRegistrar(){ return globalRegistrar; }
+
+    public void setGlobalRegistrar(Registrar newGlobal){
+	globalRegistrar = newGlobal;
+    }
+
     /**
      * this merely calls reset on the globalRegistrar
      */	
@@ -511,7 +507,7 @@ public class VerticalSeismogramDisplay extends JComponent{
     public void createSelectionDisplay(Selection creator){
 	if(selectionDisplay == null){
 	    logger.debug("creating selection display");
-	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
+	    selectionDisplay = new MultiSeismogramWindowDisplay(mouseForwarder, motionForwarder, this);
 	    addSelection(creator, selectionDisplay);
 	    selectionWindow = new JFrame(tagWindowName);
 	    selectionWindow.addWindowListener(new WindowAdapter() {
@@ -534,8 +530,14 @@ public class VerticalSeismogramDisplay extends JComponent{
 
     private void addSelection(Selection creator, VerticalSeismogramDisplay reaper){
 	DataSetSeismogram[] seismos = creator.getSeismograms();
-	creator.addDisplay(reaper.addDisplay(seismos, (TimeConfig)creator.getInternalRegistrar(), 
-					     creator.getParent().getName() + "." + creator.getColor()));
+	String[] parentNames = creator.getParent().getNames();
+	String[] names = new String[parentNames.length];
+	for(int i = 0; i < parentNames.length; i++){
+	    names[i] = parentNames[i] + "." + creator.getColor();
+	}
+	creator.addDisplay(reaper.addDisplay(seismos, 
+					     (TimeConfig)creator.getInternalRegistrar(), 
+					     names));
     }
 
     /**
@@ -559,7 +561,7 @@ public class VerticalSeismogramDisplay extends JComponent{
 	    Toolkit tk = Toolkit.getDefaultToolkit();
 	    threeSelectionWindow.setLocation((tk.getScreenSize().width - threeSelectionWindow.getSize().width)/2,
 					     (tk.getScreenSize().height - threeSelectionWindow.getSize().height)/2);
-	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
+	    threeSelectionDisplay = new ComponentSortedSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    addGroupedSelection(creator, threeSelectionDisplay);
 	    threeSelectionWindow.getContentPane().add(new JScrollPane(threeSelectionDisplay));
 	    threeSelectionWindow.setVisible(true);
@@ -571,44 +573,27 @@ public class VerticalSeismogramDisplay extends JComponent{
     }
 
     private void addGroupedSelection(Selection creator, VerticalSeismogramDisplay reaper){
-	DataSetSeismogram[] creatorSeismograms = creator.getSeismograms();
-	ArrayList allMatchingDSS = new ArrayList();
-	for(int i = 0; i < creatorSeismograms.length; i++){
-	    LocalSeismogramImpl seis = creatorSeismograms[i].getSeismogram();
-	    XMLDataSet dataSet = (XMLDataSet)creatorSeismograms[i].getDataSet();
-	    ChannelId[] channelGroup = DataSetChannelGrouper.retrieveGrouping(dataSet, seis.getChannelID());
-	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		LocalSeismogram[] seismograms  = DisplayUtils.getSeismogram(channelGroup[counter], dataSet, 
-									    new TimeRange(seis.getBeginTime().getFissuresTime(), 
-											  seis.getEndTime().getFissuresTime()));
-		
-		if(seismograms.length > 0){
-		    DataSetSeismogram[] dataSetSeismograms = new DataSetSeismogram[seismograms.length];
-		    for(int j = 0; j < seismograms.length; j++){
-			dataSetSeismograms[i] = new DataSetSeismogram((LocalSeismogramImpl)seismograms[j], dataSet);
-			allMatchingDSS.add(dataSetSeismograms[i]);
+	String[] names = DisplayUtils.getSeismogramNames(creator.getSeismograms());
+	for(int i = 0; i < names.length; i++){
+	    names[i] += "." + creator.getColor();
+	}
+	threeSelectionDisplay.addDisplay(creator.getSeismograms(), 
+					 (TimeConfig)creator.getInternalRegistrar(), 
+					 names);
+	Iterator g = basicDisplays.iterator();
+	DataSetSeismogram[] addedSeismograms = ((ComponentSortedSeismogramDisplay)threeSelectionDisplay).getRecentlyAddedSeismograms();
+	while(g.hasNext()){
+	    BasicSeismogramDisplay current = ((BasicSeismogramDisplay)g.next());
+	    DataSetSeismogram[] basicDisplaySeismos = current.getSeismograms();
+	    for(int  i = 0; i < addedSeismograms.length; i++){
+		for(int j = 0; j < basicDisplaySeismos.length; j++){
+		    if(addedSeismograms[i].getSeismogram() == basicDisplaySeismos[j].getSeismogram()){
+			current.add3CSelection(creator);
+			creator.addParent(current);
 		    }
-		    creator.addDisplay(reaper.addDisplay(dataSetSeismograms, (TimeConfig)creator.getInternalRegistrar(), 
-							 dataSetSeismograms[0].getSeismogram().getName() + "." 
-							 + creator.getColor()));
 		}
 	    }
 	}
-	Iterator g = basicDisplays.iterator();
-	while(g.hasNext()){
-	    BasicSeismogramDisplay current = ((BasicSeismogramDisplay)g.next());
-	    DataSetSeismogram[] seismos = current.getSeismograms();
-	    for(int  i = 0; i < seismos.length; i++){
-		Iterator e = allMatchingDSS.iterator();
-		while(e.hasNext()){
-		    if(seismos[i].getSeismogram() == ((DataSetSeismogram)e.next()).getSeismogram()){
-			current.add3CSelection(creator);
-			creator.addParent(current);
-			e.remove();
-		    }
-		}
-	    }
-	    }
     }
 
     public static JLabel getTimeLabel(){ return time; }
@@ -642,7 +627,7 @@ public class VerticalSeismogramDisplay extends JComponent{
     public boolean getParticleAllowed(){ return particleAllowed; }
 
 
-protected static int particleDisplays = 0, selectionDisplays = 0;
+    protected static int particleDisplays = 0, selectionDisplays = 0;
     
     protected boolean originalVisible;
 
@@ -680,31 +665,4 @@ protected static int particleDisplays = 0, selectionDisplays = 0;
 
     private static String particleWindowName = "Particle Motion";
 
-    /**  a factory constructor for a VSD with 6 identical sine waves
-     *@returns a vsd containing 6 identical sine waves
-     */
-    public static VerticalSeismogramDisplay create6SineDisplay(){
-	DataSetSeismogram[] seismos = {new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.
-							      createSineWave()),null)};
-	VerticalSeismogramDisplay vsd = new VerticalSeismogramDisplay(null, null);
-	vsd.addDisplay(seismos, "sine");
-	vsd.addDisplay(seismos, "sine2");	
-	vsd.addDisplay(seismos, "sine3");	
-	vsd.addDisplay(seismos, "sine4");	
-	vsd.addDisplay(seismos, "sine5");	
-	vsd.addDisplay(seismos, "sine6");
-	return vsd;
-    }
-
-    public static void main(String[] args){
-	JFrame frame = new JFrame("Test Vertical Seismogram Display");
-	frame.addWindowListener(new java.awt.event.WindowAdapter() {
-                public void windowClosed(java.awt.event.WindowEvent e) {
-                    System.exit(0);
-                }
-            });
-	frame.getContentPane().add(create6SineDisplay());
-	frame.pack();
-	frame.show();
-    }
 }// VerticalSeismogramDisplay

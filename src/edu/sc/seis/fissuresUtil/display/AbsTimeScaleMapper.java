@@ -37,7 +37,7 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
     }
 
     public int getPixelLocation(int i) {
-        return SeisPlotUtil.getPixel(totalPixels, beginTime, endTime, 
+        return SimplePlotUtil.getPixel(totalPixels, beginTime, endTime, 
 				     new MicroSecondDate(Math.round(minTick.getMicroSecondTime() +
 								    i * tickInc)));
     }

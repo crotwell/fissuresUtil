@@ -15,7 +15,6 @@ import java.awt.datatransfer.*;
 import java.awt.*;              //for layout managers
 import java.awt.event.*;        //for action and window events
 import java.util.*;
-import edu.iris.Fissures.display.*;
 
 /**
  * NetInfoDisplay.java

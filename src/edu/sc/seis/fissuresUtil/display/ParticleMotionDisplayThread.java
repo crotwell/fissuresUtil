@@ -105,8 +105,8 @@ public class ParticleMotionDisplayThread{
 									 dataSetSeismogram[subcounter], 
 									 registrar, 
 									 displayColor,
-									 getOrientationName(channelGroup[counter].channel_code)+"-"+
-									 getOrientationName(channelGroup[subcounter].channel_code),
+									 DisplayUtils.getOrientationName(channelGroup[counter].channel_code)+"-"+
+									 DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code),
 									 horizPlane);
 		//particleMotionDisplay.updateTimeRange();
 		
@@ -192,14 +192,6 @@ public class ParticleMotionDisplayThread{
    }	
 
 
-    public String getOrientationName(String orientation) {
-
-	char ch = orientation.charAt(2);
-	if(ch == 'E' || ch == '1' || ch == 'U') return "East";
-	else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
-	else return "Up";
-    }
-    
   
     
     
