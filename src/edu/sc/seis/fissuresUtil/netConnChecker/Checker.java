@@ -41,6 +41,8 @@ public class Checker {
                     ConnStatus curStatus = connChecker.getStatus();
                     if(curStatus == ConnStatus.SUCCESSFUL) return ConnStatus.SUCCESSFUL;
                     else if(curStatus == ConnStatus.TRYING) trying = true;
+                } else {
+                    logger.warn("Skipping "+checkerClass.getName()+"  "+connChecker.getClass().getName());
                 }
             }
         }
