@@ -11,17 +11,46 @@ import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
+import edu.iris.Fissures.IfNetwork.NetworkDC;
 
 
 /** Just a pass thru class for the remote networkdc, but this will retry
  *  if there are errors, up to the specified number. This can help in the
  *  case of temporary network/server errors, but may simply waste time in
  *  the case of bigger errors. */
-public class RetryNetworkDC implements NetworkDCOperations {
+public class RetryNetworkDC implements ProxyNetworkDC {
 
     public RetryNetworkDC(NetworkDCOperations netDC, int retry) {
         this.netDC = netDC;
         this.retry = retry;
+    }
+
+    public NetworkDCOperations getWrappedDC() {
+        return netDC;
+    }
+
+    public NetworkDCOperations getWrappedDC(Class wrappedClass) {
+        if (this.getClass().isAssignableFrom(wrappedClass)) {
+            return this;
+        } else {
+             NetworkDCOperations tmp = getWrappedDC();
+            if (tmp instanceof ProxyNetworkDC) {
+                return ((ProxyNetworkDC)tmp).getWrappedDC(wrappedClass);
+            }
+        }
+        throw new IllegalArgumentException("Can't find class "+wrappedClass.getName());
+    }
+
+    public void reset() {
+        // nothing
+    }
+
+    public NetworkDC getCorbaObject() {
+        if (netDC instanceof NetworkDC) {
+            return (NetworkDC)netDC;
+        } else {
+            return ((ProxyNetworkDC)netDC).getCorbaObject();
+        }
     }
 
     public NetworkExplorer a_explorer() {

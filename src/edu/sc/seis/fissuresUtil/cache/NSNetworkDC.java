@@ -16,14 +16,44 @@ import org.apache.log4j.Category;
  * @author <a href="mailto:crotwell@owl.seis.sc.edu">Philip Crotwell</a>
  * @version 1.0
  */
-public class NSNetworkDC implements ServerNameDNS, NetworkDCOperations {
+public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
 
     public NSNetworkDC(String serverDNS, String serverName,
                        FissuresNamingService fissuresNamingService) {
         this.serverDNS = serverDNS;
         this.serverName = serverName;
         this.namingService = fissuresNamingService;
-    } // NSNetworkDC constructor
+    }
+
+    public NetworkDCOperations getWrappedDC() {
+        return getNetworkDC();
+    }
+
+    public NetworkDCOperations getWrappedDC(Class wrappedClass) {
+        if (this.getClass().isAssignableFrom(wrappedClass)) {
+            return this;
+        } else {
+             NetworkDCOperations tmp = getWrappedDC();
+            if (tmp instanceof ProxyNetworkDC) {
+                return ((ProxyNetworkDC)tmp).getWrappedDC(wrappedClass);
+            }
+        }
+        throw new IllegalArgumentException("Can't find class "+wrappedClass.getName());
+    }
+
+    public NetworkDC getCorbaObject() {
+        // side effect - make sure netDC is loaded
+        NetworkDC n = getNetworkDC();
+        if (n instanceof NetworkDC) {
+            return (NetworkDC)n;
+        } else {
+            return ((ProxyNetworkDC)n).getCorbaObject();
+        }
+    }
+
+    public FissuresNamingService getFissuresNamingService() {
+        return namingService;
+    }
 
     public String getServerDNS() {
         return serverDNS;

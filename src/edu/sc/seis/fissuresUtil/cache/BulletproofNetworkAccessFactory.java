@@ -3,7 +3,7 @@ package edu.sc.seis.fissuresUtil.cache;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.iris.Fissures.IfNetwork.NetworkNotFound;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 /**
  * BulletproofNetworkAccess combines our four delicious ProxyNetworkAccess
@@ -18,12 +18,20 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
  *
  */
 public class BulletproofNetworkAccessFactory{
-    public static NetworkAccess vest(NetworkAccess na, NetworkDCOperations DC){
+
+    public static NetworkAccess vest(NetworkAccess na, ProxyNetworkDC netDC) {
+
+        // side effect, make sure we have an NSNetworkDC inside the ProxyNetworkDC
+        NSNetworkDC nsNetDC = (NSNetworkDC)netDC.getWrappedDC(NSNetworkDC.class);
+        // side effect  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
         SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
         RetryNetworkAccess retry = new RetryNetworkAccess(synch, 3);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry);
         NetworkId id = cache.get_attributes().get_id();
-        synch.setNetworkAccess(new NSNetworkAccess(na, id, DC));
+        synch.setNetworkAccess(new NSNetworkAccess(na, id, netDC));
         return cache;
     }
+
 }
+
