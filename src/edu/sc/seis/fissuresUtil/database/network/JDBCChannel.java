@@ -67,7 +67,7 @@ public class JDBCChannel extends NetworkTable {
                 + " FROM channel";
         getAllIds = conn.prepareStatement(getAllIdsQuery);
         getAllIdsForStation = conn.prepareStatement(getAllIdsQuery + ", site "
-                + "WHERE channel.site_id = ? AND " + "site.sta_id = ?");
+                + "WHERE channel.site_id = site.site_id AND " + "site.sta_id = ?");
         getAllIdsForNetwork = conn.prepareStatement(getAllIdsQuery
                 + ", site, station "
                 + "WHERE channel.site_id = site.site_id AND "
