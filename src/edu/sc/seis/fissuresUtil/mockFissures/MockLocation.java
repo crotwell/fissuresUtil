@@ -30,13 +30,15 @@ public class MockLocation {
 
     public static Location[] create(int rows, int cols) {
         Location[] locs = new Location[rows * cols];
-        float lonStep = 360 / cols;
-        float latStep = 180 / rows;
+        float lonStep = (360 - cols) / cols;
+        float latStep = (180 - rows)/ rows;
         for(int i = 0; i < rows; i++) {
-            float lat = -90 + latStep * i;
+            float lat = -90 + (rows/2) + latStep * i;
             int rowOffset = i * cols;
+            int lon = -180 + (cols/2);
             for(int j = 0; j < cols; j++) {
-                locs[rowOffset + j] = MockLocation.create(lat, lonStep * j);
+                locs[rowOffset + j] = MockLocation.create(lat, lon);
+                lon += lonStep;
             }
         }
         return locs;
