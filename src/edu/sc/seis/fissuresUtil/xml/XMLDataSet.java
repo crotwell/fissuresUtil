@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3820 2003-05-05 17:07:22Z crotwell $
+ * @version $Id: XMLDataSet.java 4009 2003-05-22 21:38:28Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -503,6 +503,7 @@ public class XMLDataSet implements DataSet, Serializable{
      */
     public void addDataSet(edu.sc.seis.fissuresUtil.xml.DataSet dataset,
                            AuditInfo[] audit) {
+
         if (dataset instanceof XMLDataSet) {
             XMLDataSet xds = (XMLDataSet)dataset;
             Element element = xds.getElement();
@@ -531,6 +532,7 @@ public class XMLDataSet implements DataSet, Serializable{
         } else {
             logger.warn("Attempt to add non-XML dataset");
         } // end of else
+
 
     }
 
@@ -577,7 +579,6 @@ public class XMLDataSet implements DataSet, Serializable{
      */
     public DataSet createChildDataSet(String id, String name, String owner,
                                       AuditInfo[] audit) {
-        dataSetIdCache = null;
         name = XMLUtil.getUniqueName(getDataSetNames(), name);
         XMLDataSet dataset = new XMLDataSet(docBuilder, base, id, name, owner);
         addDataSet(dataset, audit);
