@@ -44,10 +44,11 @@ public class SeismogramPDFBuilder {
     }
 
     public static void createPDF(SeismogramDisplay disp, File f, int dispPerPage) throws FileNotFoundException{
-        createPDF(disp, new FileOutputStream(f), dispPerPage);
+        createPDF(disp, f, dispPerPage, false);
     }
 
     public static void createPDF(SeismogramDisplay disp, File f, int dispPerPage, boolean landscape) throws FileNotFoundException{
+        f.getParentFile().mkdirs();
         createPDF(disp, new FileOutputStream(f), dispPerPage, landscape);
     }
     public static void createPDF(SeismogramDisplay disp, FileOutputStream fos, int dispPerPage) {
