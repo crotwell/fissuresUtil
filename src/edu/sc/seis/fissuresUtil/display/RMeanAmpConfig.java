@@ -92,7 +92,6 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         data.setCalcIndex(seisIndex);
         double min = minMaxMean[2] - meanDiff;
         double max = minMaxMean[2] + meanDiff;
-        System.out.println(seismo + " amp range: " + min + ", " + max + " Points: " + seisIndex[0] + ", " + seisIndex[1]);
         return data.setCleanRange(new UnitRangeImpl(min, max, UnitImpl.COUNT));
     }
     
