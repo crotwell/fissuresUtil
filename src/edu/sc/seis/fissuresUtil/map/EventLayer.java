@@ -11,6 +11,7 @@ import edu.sc.seis.fissuresUtil.display.*;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.CenterEvent;
+import com.bbn.openmap.event.InfoDisplayEvent;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMCircle;
@@ -129,7 +130,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     }
 
     public boolean mouseClicked(MouseEvent e){
-
+		System.out.println("mouseClicked");
 		synchronized(circles){
 			Iterator it = circles.iterator();
 			while(it.hasNext()){
@@ -146,6 +147,38 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 		}
 		return false;
     }
+
+	public boolean mouseMoved(MouseEvent e){
+		//setToolTipText(getToolTipText(e));
+		return false;
+	}
+
+	/**
+	 * Returns the string to be used as the tooltip for <i>event</i>.
+	 * By default this returns any string set using
+	 * <code>setToolTipText</code>.  If a component provides
+	 * more extensive API to support differing tooltips at different locations,
+	 * this method should be overridden.
+	 */
+	public String getToolTipText(MouseEvent e) {
+		String toolTipText = null;
+		synchronized(circles){
+			Iterator it = circles.iterator();
+			while(it.hasNext()){
+				OMEvent current = (OMEvent)it.next();
+				try{
+					if(current.getBigCircle().contains(e.getX(), e.getY())){
+						EventAccessOperations event = current.getEvent();
+						StringBuffer buf = new StringBuffer();
+						buf.append(event.get_preferred_origin().origin_time.date_time);
+						toolTipText = buf.toString();
+					}
+				}
+				catch(Exception ex){}
+			}
+		}
+		return toolTipText;
+	}
 
     private class OMEvent extends OMGraphicList{
 		public OMEvent(EventAccessOperations eao) throws NoPreferredOrigin{
@@ -232,6 +265,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 	public static final Color MEDIUM_DEPTH_EVENT = new Color(246, 185, 42);
 
 	public static final Color DEEP_DEPTH_EVENT = new Color(245, 249, 27);
+
 }
 
 
