@@ -8,7 +8,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
-import edu.sc.seis.fissuresUtil.chooser.ChannelGrouperImpl;
+import edu.sc.seis.fissuresUtil.chooser.DataSetChannelGrouper;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -454,23 +454,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
 	//ChannelId[] channelIds = dataSet.getChannelIds();
 
-	String[] paramNames = dataSet.getParameterNames();
-	LinkedList list = new LinkedList();
-	String origChannelIdStr = ChannelIdUtil.toString(seis.getChannelID());
-	origChannelIdStr = origChannelIdStr.substring(0, origChannelIdStr.indexOf(seis.getChannelID().channel_code)+2);
-	String chanGroupString = edu.sc.seis.fissuresUtil.xml.StdDataSetParamNames.CHANNEL +
-	    origChannelIdStr;
-	for (int i=0; i<paramNames.length; i++) {
-	    if (paramNames[i].startsWith(chanGroupString)) {
-	 	logger.debug("found match parameter channelId "+paramNames[i]);
-		list.add(((edu.iris.Fissures.IfNetwork.Channel)dataSet.getParameter(paramNames[i])).get_id());
-	    } // end of if (paramNames[i].startsWith(origChannelIdStr))
-	    
-	} // end of for (int i=0; i<paramNames[i]; i++)
-	ChannelId[] channelIds = (ChannelId[])list.toArray(new ChannelId[0]);
-
-	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
+	ChannelId[] channelGroup = 
+	    DataSetChannelGrouper.retrieveGrouping(dataSet, 
+						   seis.getChannelID());
 	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
 	try{
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
