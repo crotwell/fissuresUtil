@@ -22,7 +22,7 @@ import javax.swing.event.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 1567 2002-05-01 21:06:02Z crotwell $
+ * @version $Id: ChannelChooser.java 1573 2002-05-02 20:44:45Z crotwell $
  *
  */
 
@@ -32,19 +32,26 @@ public class ChannelChooser extends JPanel{
     public ChannelChooser(NetworkDC netdcgiven) {
 	this(netdcgiven,
 	     false,
-	     THREE_COMPONENT,
-	     defaultSelectable,
-	     defaultAutoSelect);
+	     defaultSelectableOrientations,
+	     defaultAutoSelectedOrientation,
+	     defaultSelectableBand,
+	     defaultAutoSelectBand);
     }
 
     public ChannelChooser(NetworkDC netdcgiven, 
 			  boolean showSites,
-			  int orientationConfig,
+			  int[] selectableOrientations,
+			  int autoSelectedOrientation,
 			  String[] selectableBandGain,
 			  String[] autoSelectBandGain){
+	this.showSites = showSites;
+	this.selectableOrientations = selectableOrientations;
+	this.autoSelectedOrientation = autoSelectedOrientation;
+	this.selectableBandGain = selectableBandGain;
+	this.autoSelectBandGain = autoSelectBandGain;
+	bundle = ResourceBundle.getBundle(ChannelChooser.class.getName());
         initFrame();
 	setNetworkDC(netdcgiven);
-	this.orientationConfig = orientationConfig;
     }
 
     public void setNetworkDC(NetworkDC netdcgiven) {
@@ -60,6 +67,10 @@ public class ChannelChooser extends JPanel{
 		    for (int i=0; i<nets.length; i++) {
 			networks.addElement(new CacheNetworkAccess(nets[i]));
 		    }
+		    if (nets.length == 1) {
+			networkList.getSelectionModel().setSelectionInterval(0,0);
+		    } // end of if (nets.length = 1)
+		    
 		}
 	    };
 	networkLoader.start();
@@ -77,10 +88,11 @@ public class ChannelChooser extends JPanel{
 	gbc.gridx = 0;
 	gbc.gridy = 0;
 
-	JLabel netLabel = new JLabel("NETWORKS  ");
-	JLabel staLabel = new JLabel("STATIONS   ");
-	JLabel siLabel = new JLabel("SITES   ");
-	JLabel chLabel = new JLabel("CHANNELS");
+	JLabel netLabel = new JLabel(bundle.getString("LABEL_NETWORKS"));
+	JLabel staLabel = new JLabel(bundle.getString("LABEL_STATIONS"));
+	JLabel siLabel = new JLabel(bundle.getString("LABEL_SITES"));
+	JLabel orientationLabel = new JLabel(bundle.getString("LABEL_ORIENTATIONS"));
+	JLabel chLabel = new JLabel(bundle.getString("LABEL_CHANNELS"));
 	netLabel.setToolTipText(lnettip);
 	staLabel.setToolTipText(lstatip);
 	siLabel.setToolTipText(lsittip);
@@ -90,7 +102,11 @@ public class ChannelChooser extends JPanel{
 	gbc.gridx++;
 	add(staLabel, gbc);
 	gbc.gridx++;
-	add(siLabel, gbc);
+	if (showSites) {
+	    add(siLabel, gbc);
+	    gbc.gridx++;
+	} // end of if (showSites)
+	add(orientationLabel, gbc);
 	gbc.gridx++;
 	add(chLabel, gbc);
 	gbc.gridx++;
@@ -98,12 +114,12 @@ public class ChannelChooser extends JPanel{
 	gbc.gridy++;
 	gbc.gridx = 0;
 	gbc.weighty = 1.0;
-	ListCellRenderer renderer = new NameListCellRenderer(true);
+	final ListCellRenderer renderer = new NameListCellRenderer(true);
 
-	netList = new JList(networks);
-	netList.setCellRenderer(renderer);
-	netList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-	netList.addListSelectionListener(new ListSelectionListener() {
+	networkList = new JList(networks);
+	networkList.setCellRenderer(renderer);
+	networkList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	networkList.addListSelectionListener(new ListSelectionListener() {
 
 		public void valueChanged(ListSelectionEvent e) {
 		    if(e.getValueIsAdjusting()){
@@ -121,7 +137,7 @@ public class ChannelChooser extends JPanel{
 	    }
 					 );
 
-	JScrollPane scroller = new JScrollPane(netList);
+	JScrollPane scroller = new JScrollPane(networkList);
 	add(scroller, gbc);
 	gbc.gridx++;
 
@@ -178,16 +194,87 @@ public class ChannelChooser extends JPanel{
 	add(scroller, gbc);
 	gbc.gridx++;
  
-	bandList = new JList(sites);
-	bandList.setCellRenderer(renderer);
-	bandList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	scroller = new JScrollPane(bandList);
+	siteList = new JList(sites);
+	siteList.setCellRenderer(renderer);
+	siteList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	scroller = new JScrollPane(siteList);
+	if (showSites) {
+	    add(scroller, gbc);
+	    gbc.gridx++;
+	}	
+
+	final ListCellRenderer bundleRenderer = new BundleListCellRenderer();
+
+	String[] orientationTypes = new String[4];
+	orientationTypes[THREE_COMPONENT] = "THREE_COMPONENT"; 
+	orientationTypes[VERTICAL_ONLY] = "VERTICAL_ONLY";
+	orientationTypes[HORIZONTAL_ONLY] = "HORIZONTAL_ONLY";
+	orientationTypes[INDIVIDUAL_CHANNELS] = "INDIVIDUAL_CHANNELS";
+
+	orientationList = new JList(orientationTypes);
+	orientationList.setCellRenderer(bundleRenderer);
+	orientationList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	orientationList.getSelectionModel().setSelectionInterval(autoSelectedOrientation, autoSelectedOrientation);	
+	orientationList.addListSelectionListener(new ListSelectionListener() {
+
+		public void valueChanged(ListSelectionEvent e) {
+		    if(e.getValueIsAdjusting()){
+			return;
+		    }
+		    String selected = (String)orientationList.getSelectedValue();
+		    if ((selected.equals("THREE_COMPONENT") ||
+			 selected.equals("VERTICAL_ONLY") ||
+			 selected.equals("HORIZONTAL_ONLY"))
+			&& channelList.getModel() != bandListModel) {
+			channelList.setModel(bandListModel);
+			channelList.setCellRenderer(bundleRenderer);
+		    } else if (selected.equals("INDIVIDUAL_CHANNELS") 
+			       && channelList.getModel() != channels) {
+			channelList.setModel(channels);
+			channelList.setCellRenderer(renderer);
+		    }
+		}
+	    });
+	scroller = new JScrollPane(orientationList);
 	add(scroller, gbc);
 	gbc.gridx++;
+
+	bandListModel.addElement("LONG_PERIOD");
+	bandListModel.addElement("BROAD_BAND");
+	bandListModel.addElement("SHORT_PERIOD");
+	bandListModel.addElement("VERY_LONG_PERIOD");
+	bandListModel.addElement("ULTRA_LONG_PERIOD");
+	bandListModel.addElement("EXTREMELY_LONG_PERIOD");
+	bandListModel.addElement("MID_PERIOD");
+	bandListModel.addElement("EXTREMELY_SHORT_PERIOD");
+	bandListModel.addElement("HIGH_BROAD_BAND");
+	bandListModel.addElement("ADMINISTRATIVE");
+	bandListModel.addElement("WEATHER_ENVIRONMENTAL");
+	bandListModel.addElement("EXPERIMENTAL");
+
+	if (autoSelectedOrientation == INDIVIDUAL_CHANNELS) {
+	    channelList = new JList(channels);
+	    channelList.setCellRenderer(renderer);
+	} else {
+	    channelList = new JList(bandListModel);
+	    channelList.setCellRenderer(bundleRenderer);
+	} // end of else
 	
-	channelList = new JList(channels);
-	channelList.setCellRenderer(renderer);
 	channelList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	ListModel chanListModel = channelList.getModel();
+	ListSelectionModel channelSelctionModel 
+	    = channelList.getSelectionModel();
+	for (int j=0; j<autoSelectBandGain.length; j++) {
+	    for (int i=0; i<chanListModel.getSize(); i++) {
+		String listElement = (String)chanListModel.getElementAt(i);
+		System.out.println(bundle.getString("CODE_"+listElement)+" = "+autoSelectBandGain[j]);
+		if (bundle.getString("CODE_"+listElement).equals(autoSelectBandGain[j])) {
+		    channelSelctionModel.addSelectionInterval(i,i);
+		    break;
+		}
+	    } // end of for (int i=0; i<chanListModel; i++)
+	} // end of for (int j=0; j<autoSelectBandGain.length; j++)
+	
 	scroller = new JScrollPane(channelList);
 	add(scroller, gbc);
 	gbc.gridx++;
@@ -259,7 +346,7 @@ public class ChannelChooser extends JPanel{
     }
 
     public NetworkAccess[] getSelectedNetworks(){
-	return (NetworkAccess[])netList.getSelectedValues();
+	return castNetworkArray(networkList.getSelectedValues());
     }      
 
     public Station[]  getSelectedStations(){
@@ -270,29 +357,177 @@ public class ChannelChooser extends JPanel{
         return castSiteArray(siteList.getSelectedValues());
     }
 
+    public static final String[] siteCodeHeuristic = { "00", "  ", "01" };
+
     public Channel[]  getSelectedChannels(){
 	Channel[] inChannels = getChannels();
 	LinkedList outChannels = new LinkedList();
+	Station[] selectedStations = getSelectedStations();
 	Object[] selectedChannelCodes = channelList.getSelectedValues();
-	Object[] selectedSiteCodes = siteList.getSelectedValues();
 
-	search:
-	for (int i=0; i<inChannels.length; i++) {
-	    for (int j=0; j<selectedSiteCodes.length; j++) {
-		for (int k=0; k<selectedChannelCodes.length; k++) {
-		    if (inChannels[i].my_site.get_code().equals(selectedSiteCodes[j]) 
-			&& inChannels[i].get_code().equals(selectedChannelCodes[k])) {
-			outChannels.add(inChannels[i]);
-			continue search;
+	// assume only one selected network
+	NetworkAccess[] nets = getSelectedNetworks();
+	NetworkAccess net = nets[0];
+	for (int staNum=0; staNum<selectedStations.length; staNum++) {
+	    Channel[] staChans = 
+		net.retrieve_for_station(selectedStations[staNum].get_id());
+	    if ( ! showSites) {
+		if (orientationList.getSelectedValue().equals("INDIVIDUAL_CHANNELS")) {
+		    // use real channel codes
+		    bandSearch:
+		    for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
+			for (int chanNum=0; chanNum< staChans.length; chanNum++) {
+			    for (int h=0; h<siteCodeHeuristic.length; h++) {
+				if (staChans[chanNum].my_site.get_code().equals(siteCodeHeuristic[h]) && staChans[chanNum].get_code().equals(selectedChannelCodes[bandNum])) {
+				    outChannels.add(staChans[chanNum]);
+				    continue bandSearch;
+				}
+			    }
+			}
+		    }
+		    
+		    // end of if INDIVIDUAL_CHANNELS
+		} else if (orientationList.getSelectedValue().equals("THREE_COMPONENT")) {
+		    for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
+			Channel tmpV = getBestVerticalChannel(staChans, 
+						      (String)selectedChannelCodes[bandNum]);
+			Channel[] tmpH = getBestHorizontalChannels(staChans, 
+							(String)selectedChannelCodes[bandNum]);
+			if (tmpV != null && 
+			    tmpH != null && 
+			    tmpV.my_site.get_code().equals(tmpH[0].my_site.get_code()) && 
+			    tmpV.get_code().substring(1,2).equals(tmpH[0].get_code().substring(1,2)) &&
+			    tmpV.my_site.get_code().equals(tmpH[1].my_site.get_code()) && 
+			    tmpV.get_code().substring(1,2).equals(tmpH[1].get_code().substring(1,2))) {
+			    outChannels.add(tmpV);
+			    outChannels.add(tmpH[0]);
+			    outChannels.add(tmpH[1]);
+			} // end of if (tmp != null)
+		    } // end of else
+		} else if (orientationList.getSelectedValue().equals("VERTICAL_ONLY")) {
+		    for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
+			Channel tmp = getBestVerticalChannel(staChans, 
+						      (String)selectedChannelCodes[bandNum]);
+			if (tmp != null) {
+			    outChannels.add(tmp);
+			} // end of if (tmp != null)
+		    }
+		} else if (orientationList.getSelectedValue().equals("HORIZONTAL_ONLY")) {
+		    for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
+			Channel[] tmp = getBestHorizontalChannels(staChans, 
+							(String)selectedChannelCodes[bandNum]);
+			if (tmp != null) {
+			    outChannels.add(tmp[0]);
+			    outChannels.add(tmp[1]);
+			} // end of if (tmp != null)
+		    } // end of else
+		}		
+	    } else {
+		// pay attention to selected Sites
+		Object[] selectedSiteCodes = siteList.getSelectedValues();
+		search:
+		for (int i=0; i<inChannels.length; i++) {
+		    for (int j=0; j<selectedSiteCodes.length; j++) {
+			for (int k=0; k<selectedChannelCodes.length; k++) {
+			    if (inChannels[i].my_site.get_code().equals(selectedSiteCodes[j]) 
+				&& inChannels[i].get_code().equals(selectedChannelCodes[k])) {
+				outChannels.add(inChannels[i]);
+				continue search;
+			    }
+			}
 		    }
 		}
-	    }
-	}
 	
+
+	    } // end of if (showSites)
+	     
+	} // end of for (int staNum=0; staNum<selStation.length; staNum++)
+	
+	System.out.println("Found "+outChannels.size()+" chanels");
         return (Channel[])outChannels.toArray(new Channel[0]);
     }
 
+    /** finds the best vertical channel for the band code. All channels are
+     * assumed to come from the same station. 
+     * @returns best vertical channel, or null if no vertical can be found
+    */	
+    protected Channel getBestVerticalChannel(Channel[] inChan, 
+					     String bandCode) {
+	return getBestChannel(inChan, bandCode, "Z");
+    }
+
+    /** finds the best vertical channel for the band code. All channels are
+     * assumed to come from the same station. Makes sure that the 2 channels
+     * have the same gain and site.
+     * @returns best vertical channel, or null if no vertical can be found
+    */	
+    protected Channel[] getBestHorizontalChannels(Channel[] inChan, 
+						  String bandCode) {
+	// try to find N,E
+	Channel north = getBestChannel(inChan, bandCode, "N");
+	Channel east = getBestChannel(inChan, bandCode, "E");
+	if (north != null && 
+	    east != null && 
+	    north.my_site.get_code().equals(east.my_site.get_code()) && 
+	    north.get_code().substring(1,2).equals(east.get_code().substring(1,2))) {
+	    Channel[] tmp = new Channel[2];
+	    tmp[0] = north;
+	    tmp[1] = east;
+	    return tmp;
+	}
+									     
+	// try to find 1,2
+	north = getBestChannel(inChan, bandCode, "1");
+	east = getBestChannel(inChan, bandCode, "2");
+	if (north != null && 
+	    east != null && 
+	    north.my_site.get_code().equals(east.my_site.get_code()) && 
+	    north.get_code().substring(1,2).equals(east.get_code().substring(1,2))) {
+	    Channel[] tmp = new Channel[2];
+	    tmp[0] = north;
+	    tmp[1] = east;
+	    return tmp;
+	}
+									     
+	return null;
+    }
+
+    protected Channel getBestChannel(Channel[] inChan, 
+				     String bandCode,
+				     String orientationCode) {
+	System.out.println("getBestChannel"+ bandCode+orientationCode);
+	String bc = bundle.getString("CODE_"+bandCode);
+	for (int h=0; h<siteCodeHeuristic.length; h++) {
+	    for (int chanNum=0; chanNum<inChan.length; chanNum++) {
+		if (inChan[chanNum].my_site.get_code().equals(siteCodeHeuristic[h]) 
+		    && inChan[chanNum].get_code().endsWith(orientationCode)
+		    && inChan[chanNum].get_code().startsWith(bc)) {
+		    return inChan[chanNum];
+				}
+	    }
+	}
+
+	// can't find one by hueristic, just find one
+	for (int chanNum=0; chanNum<inChan.length; chanNum++) {
+	    if (inChan[chanNum].get_code().endsWith(orientationCode)
+		&& inChan[chanNum].get_code().startsWith(bc)) {
+		return inChan[chanNum];
+	    }
+	}
+	// oh well, return null
+	System.out.println("can't find"+ bc+orientationCode);
+	return null;
+    }
+
    /*================Class Variables===============*/
+
+    protected boolean showSites;
+    protected String[] selectableBandGain;
+    protected String[] autoSelectBandGain;
+    protected int[] selectableOrientations;
+    protected int autoSelectedOrientation;
+
+    protected ResourceBundle bundle;
 
     String lnettip = "Source of data";
     String lstatip = "Station";
@@ -305,11 +540,10 @@ public class ChannelChooser extends JPanel{
     String bhetip = "B=Broad Band | H=High Gain Seismometer | E=East-West";
     String bhntip = "B=Broad Band | H=High Gain Seismometer | N=North-South";
  
-    private int orientationConfig;
     public static final int THREE_COMPONENT = 0;
     public static final int VERTICAL_ONLY = 1;
     public static final int HORIZONTAL_ONLY = 2;
-    public static final int ALL_COMPONENTS = 3;
+    public static final int INDIVIDUAL_CHANNELS = 3;
 
     public static final String EXTREMELY_SHORT_PERIOD = "E";
     public static final String SHORT_PERIOD = "S";
@@ -323,38 +557,29 @@ public class ChannelChooser extends JPanel{
     public static final String ADMINISTRATIVE = "A";
     public static final String WEATHER_ENVIRONMENTAL = "W";
     public static final String EXPERIMENTAL = "X";
-    public static final HashMap bandCodeNames;
 
-    static {
-	bandCodeNames = new HashMap();
-	bandCodeNames.put(EXTREMELY_SHORT_PERIOD, "EXTREMELY_SHORT_PERIOD");
-	bandCodeNames.put(SHORT_PERIOD , "SHORT_PERIOD");
-	bandCodeNames.put(HIGH_BROAD_BAND , "HIGH_BROAD_BAND");
-	bandCodeNames.put(BROAD_BAND , "BROAD_BAND");
-	bandCodeNames.put(MID_PERIOD , "MID_PERIOD");
-	bandCodeNames.put(LONG_PERIOD , "LONG_PERIOD");
-	bandCodeNames.put(VERY_LONG_PERIOD , "VERY_LONG_PERIOD");
-	bandCodeNames.put(ULTRA_LONG_PERIOD , "ULTRA_LONG_PERIOD");
-	bandCodeNames.put(EXTREMELY_LONG_PERIOD , "EXTREMELY_LONG_PERIOD");
-	bandCodeNames.put(ADMINISTRATIVE , "ADMINISTRATIVE");
-	bandCodeNames.put(WEATHER_ENVIRONMENTAL , "WEATHER_ENVIRONMENTAL");
-	bandCodeNames.put(EXPERIMENTAL , "EXPERIMENTAL");
-    }
+    private static final String[] defaultSelectableBand = { BROAD_BAND, 
+							LONG_PERIOD };
+    private static final String[] defaultAutoSelectBand = { LONG_PERIOD };
+    private static final int[] defaultSelectableOrientations 
+	= { THREE_COMPONENT, 
+	    VERTICAL_ONLY, 
+	    HORIZONTAL_ONLY, 
+	    INDIVIDUAL_CHANNELS };
+    private static final int defaultAutoSelectedOrientation = THREE_COMPONENT;
 
-    private static final String[] defaultSelectable = { BROAD_BAND, LONG_PERIOD };
-    private static final String[] defaultAutoSelect = { LONG_PERIOD };
-
-
-    protected JList netList;
+    protected JList networkList;
     protected JList stationList;
     protected JList siteList;
     protected JList bandList;
+    protected JList orientationList;
     protected JList channelList;
 
     protected DefaultListModel networks = new DefaultListModel();
     protected DefaultListModel stations = new DefaultListModel();
     protected DefaultListModel sites = new DefaultListModel();
     protected DefaultListModel channels = new DefaultListModel();
+    protected DefaultListModel bandListModel = new DefaultListModel();
     protected HashMap channelMap = new HashMap();
 
     private NetworkDC netdc;
@@ -439,6 +664,46 @@ public class ChannelChooser extends JPanel{
 	boolean useNames;
     }
 
+
+    class BundleListCellRenderer extends DefaultListCellRenderer {
+	BundleListCellRenderer(){
+	   
+	}
+
+	public Component getListCellRendererComponent(JList list,
+						      Object value,
+						      int index,
+						      boolean isSelected,
+						      boolean cellHasFocus) {
+	    Object useValue = value;
+	    String name = "XXXX";
+	    try {
+		name = bundle.getString((String)value);
+		useValue = name;
+	    } catch (java.util.MissingResourceException e) {
+		try {
+		    // try NAME_value
+		    name = bundle.getString("NAME_"+(String)value);
+		    useValue = name;
+		} catch (java.util.MissingResourceException ee) {
+		    // use default value???
+		    useValue = value;
+		} // end of try-catch
+	    } // end of try-catch
+	    
+	    if (useValue.equals(name) && (name == null || name.length() == 0)){
+		useValue = value;
+	    } // end of if (name == null || name.length == 0)
+	    
+	    return super.getListCellRendererComponent(list, 
+						      useValue, 
+						      index, 
+						      isSelected, 
+						      cellHasFocus);
+	}
+
+
+    }
 } // ChannelGUI
 
 
