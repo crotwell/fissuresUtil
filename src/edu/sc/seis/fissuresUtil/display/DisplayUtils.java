@@ -418,7 +418,8 @@ public class DisplayUtils {
         
         return true;
     }
-    public static QuantityImpl calculateBackAzimuth(DataSetSeismogram seis) {
+    
+    public static DistAz calculateDistAz(DataSetSeismogram seis) {
         EventAccessOperations event = seis.getDataSet().getEvent();
         ChannelId chanId = seis.getRequestFilter().channel_id;
         Channel channel = seis.getDataSet().getChannel(chanId);
@@ -436,16 +437,33 @@ public class DisplayUtils {
             if (eventLoc == null) { return null; }
             DistAz distAz = new DistAz(seisLoc.latitude, seisLoc.longitude,
                                        eventLoc.latitude, eventLoc.longitude);
+            return distAz;
+        }
+        return null;
+    }
+    
+    public static QuantityImpl calculateBackAzimuth(DataSetSeismogram seis) {
+        DistAz distAz = calculateDistAz(seis);
+        if (distAz != null) {
             return new QuantityImpl(distAz.baz, UnitImpl.DEGREE);
         }
         return null;
     }
     
+    public static QuantityImpl calculateAzimuth(DataSetSeismogram seis) {
+        DistAz distAz = calculateDistAz(seis);
+        if (distAz != null) {
+            return new QuantityImpl(distAz.az, UnitImpl.DEGREE);
+        }
+        return null;
+    }
+    
     public static QuantityImpl calculateDistance(DataSetSeismogram seis){
-        EventAccessOperations event = seis.getDataSet().getEvent();
-        ChannelId chanId = seis.getRequestFilter().channel_id;
-        Channel seismoChannel = seis.getDataSet().getChannel(chanId);
-        return calculateDistance(seismoChannel, event);
+        DistAz distAz = calculateDistAz(seis);
+        if (distAz != null) {
+            return new QuantityImpl(distAz.delta, UnitImpl.DEGREE);
+        }
+        return null;
     }
     public static QuantityImpl calculateDistance(Channel channel, EventAccessOperations event){
         if(channel != null && event != null){
