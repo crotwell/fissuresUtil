@@ -38,7 +38,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	else{	    
 	    AmpRangeConfig ar = new RMeanAmpConfig();
 	    TimeRangeConfig tr = new BoundedTimeConfig();
-	    ar.visibleAmpCalc(tr);
+	    //ar.visibleAmpCalc(tr);
 	    this.addDisplay(seis, tr, ar);
 	}	    
     }
