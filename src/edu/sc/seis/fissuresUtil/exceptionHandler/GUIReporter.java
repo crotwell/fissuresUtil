@@ -30,19 +30,44 @@ import org.apache.log4j.Logger;
 
 
 public class GUIReporter implements ExceptionReporter{
-    
+
     public void report(String message, Throwable e, List sections) {
+        if (displayFrame != null) {
+            if (atMostOneAtATime) {
+                // in this case, there is already a GUIReporter up, with a
+                // previous exception. So, we bounce this exception. The
+                // GlobalExceptionHandler will send it to the log files, so
+                // there is no reason to annoy the user with a follow up
+                // problem that may have been caused by the previous one
+                return;
+            } else {
+                // user want to see multiple frames, create a new one
+                displayFrame = null;
+                displayPanel = null;
+            }
+        }
         this.message = message;
         this.e = e;
         this.sections = sections;
-        if(displayPanel == null){
-            createFrame();
-        }
+        createFrame();
         displayPanel.add(createGUI(e, message, sections),
                          BorderLayout.CENTER);
         displayPanel.revalidate();
+        SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        displayFrame.pack();
+                        displayFrame.show();
+                    }
+                });
     }
-    
+
+    /** Determines if the display will show more than one exception at a time.
+     * The default is TRUE.
+     **/
+    public void setAtMostOneAtATime(boolean b) {
+        atMostOneAtATime = b;
+    }
+
     private JTabbedPane createGUI(Throwable e, String message, List sections) {
         JTabbedPane tabbedPane = new JTabbedPane();
         if(greeting != null){
@@ -60,7 +85,7 @@ public class GUIReporter implements ExceptionReporter{
         tabbedPane.setMinimumSize(dimension);
         return tabbedPane;
     }
-    
+
     private static JScrollPane createTextArea(String message){
         JTextArea messageArea = new JTextArea();
         messageArea.setLineWrap(true);
@@ -72,30 +97,31 @@ public class GUIReporter implements ExceptionReporter{
         }
         return new JScrollPane(messageArea);
     }
-    
+
     private void createFrame() {
-        JFrame displayFrame = new JFrame();
+        displayFrame = new JFrame();
+        displayFrame.setDefaultCloseOperation (WindowConstants.DISPOSE_ON_CLOSE);
         displayFrame.addWindowListener(new WindowAdapter(){
                     public void windowClosing(WindowEvent e) {
                         displayPanel = null;
+                        displayFrame = null;
                     }
                 });
         displayPanel = new JPanel(new BorderLayout());
-        displayPanel.add(createButtonPanel(displayFrame),
+        displayPanel.add(createButtonPanel(),
                          BorderLayout.SOUTH);
         Dimension dimension = new Dimension(800, 400);
         displayPanel.setPreferredSize(dimension);
         displayFrame.setContentPane(displayPanel);
         displayFrame.setSize(dimension);
-        displayFrame.pack();
-        displayFrame.show();
     }
-    
-    private JPanel createButtonPanel(final JFrame displayFrame){
+
+    private JPanel createButtonPanel(){
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         displayFrame.dispose();
+                        displayFrame = null;
                         displayPanel = null;
                     }
                 });
@@ -115,7 +141,7 @@ public class GUIReporter implements ExceptionReporter{
                             }
                         }
                     }
-                    
+
                     public void writeFile()throws IOException{
                         JFileChooser fileChooser = new JFileChooser();
                         fileChooser.setSelectedFile(new File(ExceptionReporterUtils.getExceptionClassName(e) + ".txt"));
@@ -126,29 +152,33 @@ public class GUIReporter implements ExceptionReporter{
                         }
                     }
                 });
-        
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(closeButton);
         buttonPanel.add(saveToFile);
         return buttonPanel;
     }
-    
+
     public static void setGreeting(String title, String contents) {
         if(greeting != null){
             contents = greeting.getContents() + contents;
         }
         greeting = new Section(title, contents);
     }
-    
+
+    private boolean atMostOneAtATime = true;
+
+    private JFrame displayFrame;
+
     private static Section greeting;
-    
+
     private String message;
-    
+
     private Throwable e;
-    
+
     private List sections;
-    
+
     private JPanel displayPanel;
-    
+
     private static Logger logger = Logger.getLogger(GUIReporter.class);
 }// ExceptionHandlerGUI
