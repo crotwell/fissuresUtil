@@ -123,11 +123,11 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
     }
 
     private void makeDistCircles(LatLonPoint llp){
-        makeDistCircle(llp, 30.0, Color.MAGENTA.darker().darker());
-        makeDistCircle(llp, 60.0, Color.MAGENTA.darker());
-        makeDistCircle(llp, 90.0, Color.MAGENTA);
-        makeDistCircle(llp, 120.0, Color.MAGENTA.brighter());
-        makeDistCircle(llp, 150.0, Color.MAGENTA.brighter().brighter());
+        makeDistCircle(llp, 30.0, new Color(255, 255, 255));
+        makeDistCircle(llp, 60.0, new Color(255, 191, 255));
+        makeDistCircle(llp, 90.0, new Color(255, 127, 255));
+        makeDistCircle(llp, 120.0, new Color(255, 64, 255));
+        makeDistCircle(llp, 150.0, new Color(255, 0, 255));
     }
 
     public void paint(java.awt.Graphics g){
