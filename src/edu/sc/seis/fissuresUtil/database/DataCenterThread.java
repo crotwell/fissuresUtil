@@ -37,7 +37,8 @@ public class DataCenterThread implements Runnable{
 		RequestFilter[] temp = new RequestFilter[1];
 		temp[0] = requestFilters[counter];
 		//System.out.println("Making a request to retrieve seismograms");
-		LocalSeismogram[] seis = dbDataCenter.retrieve_seismograms(temp);
+		LocalSeismogramImpl[] seis =
+					(LocalSeismogramImpl[])dbDataCenter.retrieve_seismograms(temp);
 		//System.out.println("The length of the seismograms in thread is "+seis.length);
 		a_client.pushData(seis, initiator);
 	    } catch(FissuresException fe) {
@@ -60,3 +61,4 @@ public class DataCenterThread implements Runnable{
     private static Category logger = Category.getInstance(DataCenterThread.class.getName());
     
 }// DataCenterThread
+

@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.database;
 
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.model.*;
 
 import edu.sc.seis.fissuresUtil.cache.*;
@@ -67,12 +68,12 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/request_seismograms:1.0
     //
     /** if long_lived is true then the request is "sticky" in that
-     *the client wants the data center to return not just the data 
+     *the client wants the data center to return not just the data
      *that it has in its archive currently, but also any data that it
-     *receives up to the  expiration_time. For instance if a station 
+     *receives up to the  expiration_time. For instance if a station
      *sends its data by mailing tapes, then a researcher could issue
-     *a request for data that is expected to be delivered from a 
-     *recent earthquake, even thought the data center does not yet 
+     *a request for data that is expected to be delivered from a
+     *recent earthquake, even thought the data center does not yet
      *have the data. Note that expiration_time is ignored if long_lived
      *is false.*/
 
@@ -83,9 +84,9 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 			    boolean long_lived,
 			    edu.iris.Fissures.Time expiration_time)
         throws edu.iris.Fissures.FissuresException {
-	//first check the database to  see if there is any data for each 
-	//of the request filters if data present return data and 
-	//modify the requestFilters so that they just get only the 
+	//first check the database to  see if there is any data for each
+	//of the request filters if data present return data and
+	//modify the requestFilters so that they just get only the
 	//data missing in the database.
 	//a separate thread must be spanned to get the missing data.
 	
@@ -130,18 +131,18 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     public synchronized LocalSeismogram[]
     retrieve_seismograms(RequestFilter[] a_filterseq)
         throws edu.iris.Fissures.FissuresException {
-	//here first check with the database to see if 
+	//here first check with the database to see if
 	//if the seismogram is already in the cache.
 	//if it is the case .. return it..
 	//else use the dataCenter Router to get the seismograms.
 	//LocalSeismogram[] localSeismograms = new LocalSeismogram[a_filterseq.length];
 	ArrayList arrayList = new ArrayList();
 	//	for(int counter = 0; counter < a_filterseq.length; counter++) {
-	LocalSeismogram[] localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
+	LocalSeismogramImpl[] localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
 	if(localSeismograms.length == 0 && dataCenterRouter != null)  {
-	    localSeismograms = dataCenterRouter.retrieve_seismograms(a_filterseq);
+	    localSeismograms = (LocalSeismogramImpl[])dataCenterRouter.retrieve_seismograms(a_filterseq);
 	    hsqlRequestFilterDb.addSeismogram(localSeismograms);
-	} 
+	}
 	insertIntoArrayList(arrayList, localSeismograms);
 	    //}
 	LocalSeismogram[] rtnValues = new LocalSeismogram[arrayList.size()];
@@ -222,3 +223,4 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     private static DBDataCenter dbDataCenter;
     
 }// DBDataCenter
+
