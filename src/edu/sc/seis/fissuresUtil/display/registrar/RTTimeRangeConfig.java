@@ -1,24 +1,13 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import edu.sc.seis.fissuresUtil.display.*;
-
-
-import edu.sc.seis.fissuresUtil.xml.*;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-
-
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.seismogramDC.*;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-
-import java.util.*;
-import java.net.*;
-import java.io.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.event.*;
-
-import org.apache.log4j.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import org.apache.log4j.Category;
 /**
  * RTTimeRangeConfig.java
  *
@@ -106,7 +95,7 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 
     private TimeInterval update;
 
-    public static final TimeInterval serverTimeOffset = 
+    public static final TimeInterval serverTimeOffset =
         ClockUtil.getTimeOffset();
 
     private MicroSecondDate lastDate;
@@ -122,7 +111,7 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 
     private static Category logger = Category.getInstance(RTTimeRangeConfig.class.getName());
 
-    private static TimeInterval threeMinutes = 
+    private static TimeInterval threeMinutes =
         new TimeInterval(3, UnitImpl.MINUTE);
 
 }// RTTimeRangeConfig

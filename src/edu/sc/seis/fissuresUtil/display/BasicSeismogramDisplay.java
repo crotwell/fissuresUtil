@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.registrar.*;
-
 import edu.sc.seis.fissuresUtil.display.drawable.*;
+import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
 import java.util.*;
 
