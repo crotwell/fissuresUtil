@@ -29,6 +29,10 @@ public class UnitRangeMapper implements ScaleMapper{
     public String getLabel(int i) {
         if (isLabelTick(i)) {
             double value = minTick + i * tickInc;
+            if (range.getUnit().equals(UnitImpl.DEGREE)) {
+                // special case for degree, use modulo 360
+                value = value % 360.0;
+            }
             double absValue = Math.abs(value);
             // use regular notation
             DecimalFormat df;
