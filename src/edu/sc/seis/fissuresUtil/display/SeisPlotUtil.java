@@ -114,7 +114,7 @@ public class SeisPlotUtil  {
         //System.out.println("SeisPlotUtil Time window: "+seis.getBeginTime()+" "+config.getBeginTime()+"\n"+seis.getEndTime()+" "+config.getEndTime());
 
 	if ( seis.getEndTime().before(t.getBeginTime()) ||
-	     seis.getBeginTime().after(t.getEndTime()) ) {
+	     seis.getBeginTime().after(t.getEndTime())){
 	    out[0] = new int[0];
 	    out[1] = new int[0];
             //Logger.log(5,"SeisPlotUtil no data in time window");
@@ -130,11 +130,11 @@ public class SeisPlotUtil  {
 	int seisStartIndex = getPixel(seis.getNumPoints(),
 				      seis.getBeginTime(),
 				      seis.getEndTime(),
-				      t.getBeginTime());
+				      tMin);
 	int seisEndIndex = getPixel(seis.getNumPoints(),
 				      seis.getBeginTime(),
 				      seis.getEndTime(),
-				      t.getEndTime());
+				      tMax);
 	// get one more
 	seisStartIndex--;
 	seisEndIndex++;

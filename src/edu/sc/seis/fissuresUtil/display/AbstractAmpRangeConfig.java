@@ -39,7 +39,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
     
     /**
      * Calculates the amplitudes for all seismograms currently held by the configurator based on the time range rules for them held 
-     * in the MicroSecondTimeRangeConfig object passed
+     * in the TimeRangeConfig object passed
      *
      */
     public abstract void visibleAmpCalc(TimeRangeConfig timeConfig);

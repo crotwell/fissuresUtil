@@ -67,15 +67,17 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 		if (topScaleMap != null) {
 		    numTicks = topScaleMap.getNumTicks();
 		    for (int i=0; i<numTicks; i++) {
-			pixelLoc = insets.left+left+
-                            topScaleMap.getPixelLocation(i);
-			copy.draw(new Line2D.Float(pixelLoc, c.getSize().height-bottom, pixelLoc,c.getSize().height-bottom/2));
+			pixelLoc = insets.left + left + topScaleMap.getPixelLocation(i);
+			if(topScaleMap.isMajorTick(i))
+			    copy.draw(new Line2D.Float(pixelLoc, top, pixelLoc, top - majorTickLength));
+			else
+			    copy.draw(new Line2D.Float(pixelLoc, top, pixelLoc, top - minorTickLength));
 			labelTemp = topScaleMap.getLabel(i);
                         if (labelTemp != null && labelTemp.length() != 0) {
                             copy.drawString(labelTemp,
                                             pixelLoc,
-                                            c.getSize().height-insets.bottom-
-                                            fm.getDescent()-fm.getLeading());
+					    top - majorTickLength-
+                                            fm.getLeading());
                         }
 		    }
 		}
@@ -195,7 +197,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 
     public void setBottomScaleMapper(ScaleMapper scaleMap) {
         this.bottomScaleMap = scaleMap;
-        bottom = majorTickLength+10; //guess as not sure of what font will be
+        bottom = majorTickLength+15; //guess as not sure of what font will be
     }
         
     public void clearBottomScaleMapper() {

@@ -23,7 +23,7 @@ import java.awt.event.*;
  * @version 0.1
  */
 
-public class BasicSeismogramDisplay extends JLayeredPane implements SeismogramDisplay, TimeSyncListener, AmpSyncListener, ControlChangeListener{
+public class BasicSeismogramDisplay extends JComponent implements SeismogramDisplay, TimeSyncListener, AmpSyncListener, ControlChangeListener{
     
     /**
      * Creates a new <code>BasicSeismogramDisplay</code> instance with the seismogram passed and a BoundedTimeConfig and MinMaxAmp config
@@ -31,8 +31,8 @@ public class BasicSeismogramDisplay extends JLayeredPane implements SeismogramDi
      * @param seis a <code>LocalSeismogram</code> value
      * @param ct the ControlToolbar for this display
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, ControlToolbar ct){
-	this(seis, new BoundedTimeConfig(), new OffsetMeanAmpConfig(), ct);
+    public BasicSeismogramDisplay(LocalSeismogram seis, boolean timeBorder){
+	this(seis, new BoundedTimeConfig(), new MinMaxAmpConfig(), timeBorder);
     }
    
     /**
@@ -40,10 +40,10 @@ public class BasicSeismogramDisplay extends JLayeredPane implements SeismogramDi
      *
      * @param seis a <code>LocalSeismogram</code> value
      * @param tr a <code>TimeRangeConfig</code> value
-     * @param ct the ControlToolbar for this display
+     * @param timeBorder determines if this display is to have a time axis
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, ControlToolbar ct){
-	this(seis, tr, new MinMaxAmpConfig(), ct);
+    public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, boolean timeBorder){
+	this(seis, tr, new MinMaxAmpConfig(), timeBorder);
     }
     
     /**
@@ -51,22 +51,22 @@ public class BasicSeismogramDisplay extends JLayeredPane implements SeismogramDi
      *
      * @param seis a <code>LocalSeismogram</code> value
      * @param ar an <code>AmpRangeConfig</code> value
-     * @param ct the ControlToolbar for this display
+     * @param timeBorder determines if this display is to have a time axis
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, AmpRangeConfig ar, ControlToolbar ct){
-	this(seis, new RelativeTimeConfig(), ar, ct);
+    public BasicSeismogramDisplay(LocalSeismogram seis, AmpRangeConfig ar, boolean timeBorder){
+	this(seis, new BoundedTimeConfig(), ar, timeBorder);
     }
     
     /**
      * Creates a new <code>BasicSeismogramDisplay</code> instance. Adds borders based on the time and amplitude specified by the two 
-     * configs.  Also adds a mouse listener on the componenet that fires a MicroSecondTimeRangeEvent indicating zoom.
+     * configs.  Also adds a mouse listener on the componenet that fires a TimeRangeEvent indicating zoom.
      *
      * @param seis a <code>LocalSeismogram</code> value
      * @param tr a <code>TimeRangeConfig</code> value
      * @param ar an <code>AmpRangeConfig</code> value
-     * @param ct the ControlToolbar for this display
+     * @param timeBorder determines if this display is to have a time axis
      */
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar, ControlToolbar ct){
+    public BasicSeismogramDisplay(LocalSeismogram seis, TimeRangeConfig tr, AmpRangeConfig ar, boolean timeBorder){
 	super();
 	this.setLayout(new OverlayLayout(this));
 	this.addComponentListener(new ComponentAdapter() {
@@ -78,33 +78,33 @@ public class BasicSeismogramDisplay extends JLayeredPane implements SeismogramDi
 		}
 	    });
         setMinimumSize(new Dimension(100, 50));
-        setPreferredSize(new Dimension(400, 500));
+        setPreferredSize(new Dimension(200, 100));
 	tr.addTimeSyncListener(this);
 	ar.addAmpSyncListener(this);
 	this.timeConfig = tr;
 	this.ampConfig = ar;
-	this.controls = ct;
-	controls.addControlBehaviorListener(this);
+	//this.controls = timeBorder;
+	//controls.addControlBehaviorListener(this);
 	this.addSeismogram(seis);
 	scaleBorder = new ScaleBorder();
-	scaleBorder.setBottomScaleMapper(timeScaleMap);
+	if(timeBorder)
+	    scaleBorder.setBottomScaleMapper(timeScaleMap);
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
         titleBorder = 
             new LeftTitleBorder("");
 	setBorder(BorderFactory.createCompoundBorder(
-						     BorderFactory.createCompoundBorder(
-											BorderFactory.createRaisedBevelBorder(),
-											titleBorder),
+		  BorderFactory.createCompoundBorder(
+		  BorderFactory.createRaisedBevelBorder(),
+		  titleBorder),
 						     BorderFactory.createCompoundBorder(
 											scaleBorder,
-											BorderFactory.createLoweredBevelBorder()))
-		  );
-	current = new MouseInputAdapter() {
+											BorderFactory.createLoweredBevelBorder())));
+	/*current = new MouseInputAdapter() {
 		public void mouseClicked(MouseEvent e){
 		    timeConfig.fireTimeRangeEvent(new TimeSyncEvent(.125, -.125, false));
 		    ampConfig.visibleAmpCalc(timeConfig);
-		}};
-	addMouseListener(current);
+		    }};
+	addMouseListener(current);*/
 	
     }
 
@@ -262,6 +262,19 @@ public class BasicSeismogramDisplay extends JLayeredPane implements SeismogramDi
 	    addMouseListener(current);}
     }
     
+    public void setBottomTimeBorder(boolean t){
+	if(t)
+	    scaleBorder.setBottomScaleMapper(timeScaleMap);
+	else
+	    scaleBorder.clearBottomScaleMapper();
+    }
+
+    public void setTopTimeBorder(boolean t){
+	if(t)
+	    scaleBorder.setTopScaleMapper(timeScaleMap);
+	else
+	    scaleBorder.clearTopScaleMapper();
+    }
     /**
      * <code>seismoPlotters</code> a linked list holding all of the seismograms currently being displayed
      *
@@ -293,35 +306,36 @@ public class BasicSeismogramDisplay extends JLayeredPane implements SeismogramDi
 	    JFrame jf = new JFrame("Test Seismogram View");
 	    LocalSeismogram test1 = SeisPlotUtil.createSineWave();
 	    LocalSeismogram test2 = SeisPlotUtil.createTestData();
-	    BasicSeismogramDisplay sv = new BasicSeismogramDisplay(test1, new ControlToolbar());
+	    BasicSeismogramDisplay sv = new BasicSeismogramDisplay(test1, true);
 	    //sv.addSeismogram(test2);
-	    Dimension size = new Dimension(400, 200);
-	    sv.setPreferredSize(size);
-	    jf.getContentPane().add(sv.getControls().getToolBar(), java.awt.BorderLayout.NORTH);
-	    jf.getContentPane().add(sv, java.awt.BorderLayout.CENTER);
+	    Dimension size = new Dimension(400, 400);
+	    Dimension seisSize = new Dimension(400, 200);
+	    sv.setPreferredSize(seisSize);
+	    //jf.getContentPane().add(sv.getControls().getToolBar(), java.awt.BorderLayout.NORTH);
+	    jf.getContentPane().add(sv, java.awt.BorderLayout.SOUTH);
 	    jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    jf.setSize(size);
-	    jf.setVisible(true);
+	    jf.setVisible(false);
 	    jf.addWindowListener(new WindowAdapter() {
 		    public void windowClosed(WindowEvent e) {
 			System.exit(0);
 		    }
 		});
-	    JFrame jf2 = new JFrame("Test Seismogram View 2");
+	    //JFrame jf2 = new JFrame("Test Seismogram View 2");
 	    LocalSeismogram test3 = SeisPlotUtil.createLowSineWave(0,1);
 	    LocalSeismogram test4 = SeisPlotUtil.createTestData();
-	    BasicSeismogramDisplay sv2 = new BasicSeismogramDisplay(test3, sv.getTimeConfig(), sv.getAmpConfig(), sv.getControls());
+	    BasicSeismogramDisplay sv2 = new BasicSeismogramDisplay(test3, sv.getTimeConfig(), sv.getAmpConfig(), false);
 	    sv2.addSeismogram(test4);
-	    sv2.setPreferredSize(size);
-	    jf2.getContentPane().add(sv2, java.awt.BorderLayout.CENTER);
-	    jf2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    sv2.setPreferredSize(seisSize);
+	    jf.getContentPane().add(sv2, java.awt.BorderLayout.NORTH);
+	    /*jf2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    jf2.setSize(size);
 	    jf2.setVisible(true);
 	    jf2.addWindowListener(new WindowAdapter() {
 		    public void windowClosed(WindowEvent e) {
 			System.exit(0);
 		    }
-		});
+		    });*/
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}

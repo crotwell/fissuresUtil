@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * OffsetMeanAmpConfig sets every seismogram to zero amplitude at its mean, and displays a user defined amount around it.  If no offset is 
  * given, 500 is used. These amplitude ranges can be set to be over the full time of the seismograms, or only a certain interval 
- * specified by a MicroSecondTimeRangeConfig object given to this amp config
+ * specified by a TimeRangeConfig object given to this amp config
  *
  *
  * Created: Tue May 28 14:40:39 2002
@@ -43,7 +43,7 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	int endIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
                                                seis.getEndTime(),
-                                               calcIntv.getEndTime());
+					     calcIntv.getEndTime());
         if (endIndex < 0) endIndex = 0;
         if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
 
@@ -66,7 +66,7 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	return ampRange;
     }
 
-    /** Sets this amp config to work over the given MicroSecondTimeRangeConfig
+    /** Sets this amp config to work over the given TimeRangeConfig
      */
     public void visibleAmpCalc(TimeRangeConfig timeConfig){
 	UnitRangeImpl tempRange = ampRange;
