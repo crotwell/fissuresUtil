@@ -14,7 +14,7 @@ import java.text.DecimalFormat;
  * @version
  */
 
-public class AmpScaleMapper implements ScaleMapper {
+public class AmpScaleMapper implements ScaleMapper, AmpSyncListener {
     
     public AmpScaleMapper(int totalPixels,
                           int hintPixels,
@@ -24,8 +24,13 @@ public class AmpScaleMapper implements ScaleMapper {
 	this.range = range;
         calculateTicks();
     }
-    
-  
+
+    public AmpScaleMapper(int totalPixels, int hintPixels, AmpRangeConfig ar){
+	this.totalPixels = totalPixels;
+        this.hintPixels = hintPixels;
+	ampRegistrar = new AmpConfigRegistrar(ar);
+	setRange();
+    } 
   
     public int getPixelLocation(int i) {
         return SeisPlotUtil.getPixel(totalPixels, range, 
@@ -122,6 +127,15 @@ public class AmpScaleMapper implements ScaleMapper {
         calculateTicks();
     }
 
+    public void setRange(){
+	range = ampRegistrar.getAmpRange();
+	calculateTicks();
+    }
+
+    public void updateAmpRange(){
+	setRange();
+    }
+
     protected int firstMajorTick = 0;
 
     protected int majorTickStep = 10;
@@ -137,5 +151,7 @@ public class AmpScaleMapper implements ScaleMapper {
     protected int hintPixels;
 
     protected UnitRangeImpl range;
+
+    protected AmpConfigRegistrar ampRegistrar;
 
 } // AmpScaleMapper
