@@ -6,11 +6,9 @@ package edu.sc.seis.fissuresUtil.map;
  * @author Created by Charlie Groves
  */
 
-import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.Layer;
-import com.bbn.openmap.MapBean;
-import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
 import edu.iris.Fissures.IfNetwork.Station;
@@ -30,12 +28,11 @@ public class StationLayer extends Layer implements StationDataListener,
      * If station data is passed, a blue triangle is drawn on the map.
      * If a station is selected, the triangle turns red.
      */
-    public StationLayer(ChannelChooser c, MapBean mapBean) {
+    public StationLayer(ChannelChooser c) {
         omgraphics = new OMGraphicList();
         //add the necessary data listeners to the channel chooser, provided it exists
         c.addStationDataListener(this);
         c.addStationSelectionListener(this);
-        this.mapBean = mapBean;
     }
 
     public void paint(java.awt.Graphics g) {
@@ -43,8 +40,7 @@ public class StationLayer extends Layer implements StationDataListener,
     }
 
     public void projectionChanged(ProjectionEvent e) {
-        omgraphics.project(e.getProjection(), true);
-        repaint();
+        LayerProjectionUpdater.update(e, omgraphics, this);
     }
 
     /*This adds each of these stations to the layer
@@ -56,10 +52,6 @@ public class StationLayer extends Layer implements StationDataListener,
             omgraphics.add(new OMStation(stations[i]));
         }
         repaint();
-        LatLonPoint center = mapBean.getCenter();
-        mapBean.center(new CenterEvent(this, center.getLatitude(),
-                                       center.getLongitude()));
-
     }
 
     public void stationDataCleared() {
@@ -97,6 +89,7 @@ public class StationLayer extends Layer implements StationDataListener,
             station = stat;
             setFillPaint(Color.BLUE);
             setSelectPaint(Color.RED);
+            generate(getProjection());
         }
 
         public Station getStation(){
@@ -113,6 +106,4 @@ public class StationLayer extends Layer implements StationDataListener,
      *  A list of graphics to be painted on the map.
      */
     private OMGraphicList omgraphics;
-
-    private MapBean mapBean;
 }
