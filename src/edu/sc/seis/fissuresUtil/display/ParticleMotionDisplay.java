@@ -30,6 +30,109 @@ import org.apache.log4j.*;
  */
 
 public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, TimeSyncListener {
+
+    public ParticleMotionDisplay(DataSetSeismogram hseis,
+				 TimeConfigRegistrar timeConfigRegistrar,
+				 AmpConfigRegistrar hAmpConfigRegistrar,
+				 AmpConfigRegistrar vAmpConfigRegistrar,
+				 Color color,
+				 boolean advancedOption) {
+	
+	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	particleDisplayPanel = new JLayeredPane();
+	OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
+
+	radioPanel = new JPanel();
+	this.setLayout(new BorderLayout());
+	particleDisplayPanel.setLayout(overlayLayout);
+	radioPanel.setLayout(new GridLayout(1, 0));
+
+	if(timeConfigRegistrar != null) {
+	    timeConfigRegistrar.addTimeSyncListener(this);
+	}
+
+	view = new ParticleMotionView(this);
+	view.setSize(new java.awt.Dimension(300, 300));
+	particleDisplayPanel.add(view, PARTICLE_MOTION_LAYER);
+	hAmpScaleMap = new AmpScaleMapper(50,
+                                          4,
+					  hAmpConfigRegistrar.getAmpRange(hseis));
+        vAmpScaleMap = new AmpScaleMapper(50,
+                                          4,
+					  vAmpConfigRegistrar.getAmpRange(hseis));
+	scaleBorder = new ScaleBorder();
+	scaleBorder.setBottomScaleMapper(hAmpScaleMap);
+	scaleBorder.setLeftScaleMapper(vAmpScaleMap);        
+        hTitleBorder = 
+            new BottomTitleBorder(hseis.getSeismogram().getName());
+        vTitleBorder = 
+            new CenterTitleBorder(hseis.getSeismogram().getName());
+	particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(
+									  BorderFactory.createCompoundBorder(
+													     BorderFactory.createRaisedBevelBorder(),
+													          hTitleBorder),
+									  
+									  // BorderFactory.createCompoundBorder(hTitleBorder,
+									  // vTitleBorder)),
+									  BorderFactory.createCompoundBorder(
+								scaleBorder,
+								BorderFactory.createLoweredBevelBorder()))
+	  );
+
+	
+	add(particleDisplayPanel, BorderLayout.CENTER);
+	radioPanel.setVisible(false);
+	add(radioPanel, BorderLayout.SOUTH);
+		
+	this.addComponentListener(new ComponentAdapter() {
+		public void componentResized(ComponentEvent e) {
+		 
+		    resize();
+		}
+		public void componentShown(ComponentEvent e) {
+		    resize();
+		}
+	    });
+
+	// radioPanel.addContainerListener(new ContainerAdapter() {
+// 		public void componentAdded(ContainerEvent e) {
+// 		    System.out.println("******************************* COMPONENT is ADDED");
+// 		    resize();
+// 		}
+// 		public void componentRemove(ContainerEvent e) {
+// 		    resize();
+// 		}
+// 	    });
+
+	
+	updateTimeRange();
+	Thread t = new Thread(new ParticleMotionDisplayThread(hseis,
+							      timeConfigRegistrar,
+							      hAmpConfigRegistrar,
+							      vAmpConfigRegistrar,
+							      advancedOption, 
+							      true,
+							      this));
+	
+	t.start();
+					  
+    }
+
+
+    public ParticleMotionDisplay (DataSetSeismogram hSeis,
+				  TimeConfigRegistrar timeConfigRegistrar,
+				  AmpConfigRegistrar hAmpConfigRegistrar,
+				  AmpConfigRegistrar vAmpConfigRegistrar, boolean advancedOption){
+	this(hSeis,
+	     timeConfigRegistrar,
+	     hAmpConfigRegistrar,
+	     vAmpConfigRegistrar,
+	     null,
+	     advancedOption); //setting the advanced option to be false;
+    }
+
+    
     /**
      * Creates a new <code>ParticleMotionDisplay</code> instance.
      *
@@ -39,293 +142,115 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
      * @param vAmpRangeConfig an <code>AmpRangeConfig</code> value
      */
     public ParticleMotionDisplay (DataSetSeismogram hSeis,
-				  DataSetSeismogram vSeis,
 				  TimeConfigRegistrar timeConfigRegistrar,
 				  AmpConfigRegistrar hAmpConfigRegistrar,
 				  AmpConfigRegistrar vAmpConfigRegistrar, Color color){
-
-	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
-
-
-	showScale(hSeis, 
-		  vSeis,
-		  timeConfigRegistrar,
-		  hAmpConfigRegistrar,
-		  vAmpConfigRegistrar,
-		  color, "", false);
-	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
-		public void componentResized(ComponentEvent e) {
-		    resolveParticleMotion();
-		    resize();
-		}
-		public void componentShown(ComponentEvent e) {
-		    resize();
-		}
-	    });
-	updateTimeRange();
+	this(hSeis,
+	     timeConfigRegistrar,
+	     hAmpConfigRegistrar,
+	     vAmpConfigRegistrar,
+	     color,
+	     false); //setting the advanced option to be false;
     }
 
-    public void showScale(DataSetSeismogram hSeis,
-			  DataSetSeismogram vSeis,
-			  TimeConfigRegistrar timeConfigRegistrar,
-			  AmpConfigRegistrar hAmpConfigRegistrar,
-			  AmpConfigRegistrar vAmpConfigRegistrar, Color color,
-			  String  key,
-			  boolean horizPlane) {
-	particleDisplayPanel = new JLayeredPane();
-	radioPanel = new JPanel();
-	OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
-	this.setLayout(new BorderLayout());
-	particleDisplayPanel.setLayout(overlayLayout);
-	radioPanel.setLayout(new GridLayout(1, 0));
-	
-	
-	view = new ParticleMotionView(hSeis, 
-				      vSeis, 
-				      timeConfigRegistrar,
-				      hAmpConfigRegistrar, 
-				      vAmpConfigRegistrar, 
-				      this,
-				      color,
-				      key, 
-				      horizPlane);
-	if(timeConfigRegistrar != null) {
-	    timeConfigRegistrar.addTimeSyncListener(this);
-	}
-	view.setSize(new java.awt.Dimension(300, 300));
-	particleDisplayPanel.add(view, PARTICLE_MOTION_LAYER);
-	hAmpScaleMap = new AmpScaleMapper(50,
-                                          4,
-					  hAmpConfigRegistrar.getAmpRange(hSeis));
-        vAmpScaleMap = new AmpScaleMapper(50,
-                                          4,
-					  vAmpConfigRegistrar.getAmpRange(vSeis));
-	scaleBorder = new ScaleBorder();
-	scaleBorder.setBottomScaleMapper(hAmpScaleMap);
-	scaleBorder.setLeftScaleMapper(vAmpScaleMap);        
-        hTitleBorder = 
-            new BottomTitleBorder(hSeis.getSeismogram().getName());
-        vTitleBorder = 
-            new CenterTitleBorder(vSeis.getSeismogram().getName());
-	particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(
-									  //BorderFactory.createCompoundBorder(
-									  BorderFactory.createRaisedBevelBorder(),
-									  //			     hTitleBorder),
-			 //BorderFactory.createCompoundBorder(hTitleBorder,
-			 //				    vTitleBorder)),
-	    		     BorderFactory.createCompoundBorder(
-								scaleBorder,
-								BorderFactory.createLoweredBevelBorder()))
-	  );
-
-	
-	add(particleDisplayPanel, BorderLayout.CENTER);
-	add(radioPanel, BorderLayout.SOUTH);
-	
-    }
 
     public ParticleMotionDisplay (DataSetSeismogram hSeis,
-				  DataSetSeismogram vSeis,
 				  TimeConfigRegistrar timeConfigRegistrar,
 				  AmpConfigRegistrar hAmpConfigRegistrar,
 				  AmpConfigRegistrar vAmpConfigRegistrar){
-	this(hSeis, vSeis, timeConfigRegistrar, hAmpConfigRegistrar, vAmpConfigRegistrar, null);
+	this(hSeis,
+	     timeConfigRegistrar,
+	     hAmpConfigRegistrar,
+	     vAmpConfigRegistrar,
+	     null,
+	     false); //setting the advanced option to be false;
     }
 
 
+  public ParticleMotionDisplay(DataSetSeismogram hseis,
+			       TimeConfigRegistrar timeConfigRegistrar,
+			       AmpConfigRegistrar ampRangeConfig) {
 
-    public ParticleMotionDisplay(DataSetSeismogram hseis,
-				 DataSetSeismogram vseis,
-				 TimeConfigRegistrar timeConfigRegistrar,
-				 AmpConfigRegistrar ampRangeConfig) {
-
-	this(hseis, vseis, timeConfigRegistrar, ampRangeConfig, ampRangeConfig);
+      this(hseis, timeConfigRegistrar, ampRangeConfig, ampRangeConfig);
     }
 
     public ParticleMotionDisplay(DataSetSeismogram hseis,
-				 DataSetSeismogram vseis, 
 				 TimeConfigRegistrar timeConfigRegistrar) {
-
-	//	AmpConfigRegistrar ampConfig = new RMeanAmpConfig();
-	this(hseis, vseis, timeConfigRegistrar, new AmpConfigRegistrar());
+	this(hseis,timeConfigRegistrar, new AmpConfigRegistrar());
     }
 
-    public ParticleMotionDisplay(DataSetSeismogram[] seis,
-				 TimeConfigRegistrar timeConfigRegistrar,
-				 AmpConfigRegistrar hAmpConfigRegistrar,
-				 AmpConfigRegistrar vAmpConfigRegistrar) {
+    //  public ParticleMotionDisplay(DataSetSeismogram[] seis,
+// 				 TimeConfigRegistrar timeConfigRegistrar,
+// 				 AmpConfigRegistrar hAmpConfigRegistrar,
+// 				 AmpConfigRegistrar vAmpConfigRegistrar) {
 	
 	
-	ChannelId[] channelGroup = new ChannelId[3];
+// 	ChannelId[] channelGroup = new ChannelId[3];
 	
-      	edu.iris.Fissures.Time startTime;
-	edu.iris.Fissures.Time endTime;
-	if(seis.length < 2) return;
-	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
-	if(timeConfigRegistrar != null) {
-	    startTime = timeConfigRegistrar.getTimeRange().getBeginTime().getFissuresTime();
-	    endTime = timeConfigRegistrar.getTimeRange().getEndTime().getFissuresTime();
-	} else {
-	    startTime = seis[0].getSeismogram().getBeginTime().getFissuresTime();
-	    endTime = seis[0].getSeismogram().getEndTime().getFissuresTime();
-	}
+//       	edu.iris.Fissures.Time startTime;
+// 	edu.iris.Fissures.Time endTime;
+// 	if(seis.length < 2) return;
+// 	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
+// 	if(timeConfigRegistrar != null) {
+// 	    startTime = timeConfigRegistrar.getTimeRange().getBeginTime().getFissuresTime();
+// 	    endTime = timeConfigRegistrar.getTimeRange().getEndTime().getFissuresTime();
+// 	} else {
+// 	    startTime = seis[0].getSeismogram().getBeginTime().getFissuresTime();
+// 	    endTime = seis[0].getSeismogram().getEndTime().getFissuresTime();
+// 	}
 
-	for(int counter = 0; counter < seis.length; counter++) {
+// 	for(int counter = 0; counter < seis.length; counter++) {
 	    
-	    seismograms[counter] = seis[counter];
-	    channelGroup[counter] = seis[counter].getSeismogram().getChannelID();
-	}
+// 	    seismograms[counter] = seis[counter];
+// 	    channelGroup[counter] = seis[counter].getSeismogram().getChannelID();
+// 	}
 								     
-	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+// 	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+// 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
 	
-	showScale(seismograms[0], 
-	     seismograms[1], 
-	     timeConfigRegistrar, 
-	     hAmpConfigRegistrar, 
-	     vAmpConfigRegistrar, 
-	     null, getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[1].channel_code), 
-		  false);
-	formRadioSetPanel(channelGroup);
-	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
-		public void componentResized(ComponentEvent e) {
-		    resolveParticleMotion();
-		    resize();
-		}
-		public void componentShown(ComponentEvent e) {
-		    resize();
-		}
-	    });
-	updateTimeRange();
-	if(seismograms.length == 3) {
-	    System.out.println(" ADDED THe first seismograme ");
-	    addParticleMotionDisplay(seismograms[1], 
-				     seismograms[2], 
-				     timeConfigRegistrar, 
-				     hAmpConfigRegistrar, 
-				     vAmpConfigRegistrar, 
-				     null,
-				     getOrientationName(channelGroup[1].channel_code)+"-"+
-				     getOrientationName(channelGroup[2].channel_code),false);
-	    System.out.println(" ADDED he second SEismograme");
-	    addParticleMotionDisplay(seismograms[0], 
-				     seismograms[2], 
-				     timeConfigRegistrar, 
-				     hAmpConfigRegistrar, 
-				     vAmpConfigRegistrar, 
-				     null,
-				     getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code), 
-				     false);
-	    System.out.println("Added the third display ");
-	}
+// 	showScale(seismograms[0], 
+// 	     seismograms[1], 
+// 	     timeConfigRegistrar, 
+// 	     hAmpConfigRegistrar, 
+// 	     vAmpConfigRegistrar, 
+// 	     null, getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[1].channel_code), 
+// 		  false);
+// 	formRadioSetPanel(channelGroup);
+// 	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
+// 		public void componentResized(ComponentEvent e) {
+// 		    resolveParticleMotion();
+// 		    resize();
+// 		}
+// 		public void componentShown(ComponentEvent e) {
+// 		    resize();
+// 		}
+// 	    });
+// 	updateTimeRange();
+// 	if(seismograms.length == 3) {
+// 	    System.out.println(" ADDED THe first seismograme ");
+// 	    addParticleMotionDisplay(seismograms[1], 
+// 				     seismograms[2], 
+// 				     timeConfigRegistrar, 
+// 				     hAmpConfigRegistrar, 
+// 				     vAmpConfigRegistrar, 
+// 				     null,
+// 				     getOrientationName(channelGroup[1].channel_code)+"-"+
+// 				     getOrientationName(channelGroup[2].channel_code),false);
+// 	    System.out.println(" ADDED he second SEismograme");
+// 	    addParticleMotionDisplay(seismograms[0], 
+// 				     seismograms[2], 
+// 				     timeConfigRegistrar, 
+// 				     hAmpConfigRegistrar, 
+// 				     vAmpConfigRegistrar, 
+// 				     null,
+// 				     getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code), 
+// 				     false);
+// 	    System.out.println("Added the third display ");
+// 	}
 	    
-    }
+//     }
 
-
-    public ParticleMotionDisplay(DataSetSeismogram hseis,
-				 TimeConfigRegistrar timeConfigRegistrar,
-				 AmpConfigRegistrar hAmpConfigRegistrar,
-				 AmpConfigRegistrar vAmpConfigRegistrar,
-				 boolean advancedOption) {
-	LocalSeismogramImpl seis = hseis.getSeismogram();
-	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)hseis.getDataSet()).getChannelIds();
-	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	logger.debug("the original channel_code from the seismogram is "+seis.getChannelID().channel_code);
-	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
-	System.out.println("THe length of the channel group is "+channelGroup.length);
-	edu.iris.Fissures.Time startTime;
-	edu.iris.Fissures.Time endTime;
-	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
-	if(timeConfigRegistrar != null) {
-	    startTime = timeConfigRegistrar.getTimeRange().getBeginTime().getFissuresTime();
-	    endTime = timeConfigRegistrar.getTimeRange().getEndTime().getFissuresTime();
-	} else {
-	    startTime = seis.getBeginTime().getFissuresTime();
-	    endTime = seis.getEndTime().getFissuresTime();
-	}
-	System.out.println("Start Time is "+new MicroSecondDate(startTime));
-	System.out.println("end Time is "+new MicroSecondDate(endTime));
-	try {
-	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		
-		logger.debug("The **** seismogram name is "+ChannelIdUtil.toStringNoDates(channelGroup[counter]));
-		
-		seismograms[counter] = new DataSetSeismogram(hseis.getDataSet().
-							     getSeismogram(DisplayUtils.getSeismogramName(channelGroup[counter], 
-											     hseis.getDataSet(),
-											     new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), seis.getEndTime().getFissuresTime()))), hseis.getDataSet());
-		//ChannelIdUtil.toStringNoDates(channelGroup[counter]));
-		timeConfigRegistrar.addSeismogram(seismograms[counter]);
-		//hAmpRangeConfigRegistrar.addSeismogram(seismograms
-		if(seismograms[counter] == null) 
-		    logger.debug(" seismograms["+counter+"] is NULL");
-		else 
-		    logger.debug(" seismograms["+counter+"] is NOT NULL");
-	    }
-	    
-	} catch(Exception e) {
-	    
-	    e.printStackTrace();//strack trace
-	}
-	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
-	boolean horizPlane = isHorizontalPlane(seismograms[0].getSeismogram().getChannelID(),
-					       seismograms[1].getSeismogram().getChannelID(),
-					       hseis.getDataSet());
-	showScale(seismograms[0], 
-		  seismograms[1], 
-		  timeConfigRegistrar, 
-		  hAmpConfigRegistrar, 
-		  vAmpConfigRegistrar, 
-		  null, 
-		  getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[1].channel_code),
-		  horizPlane
-		  );
-	if(!advancedOption) {
-	    formRadioSetPanel(channelGroup);
-	} else {
-	    formCheckBoxPanel(channelGroup);
-	}
-	displayBackAzimuth(hseis.getDataSet(), channelGroup[0]);
-
-	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
-		public void componentResized(ComponentEvent e) {
-		    resolveParticleMotion();
-		    resize();
-		}
-		public void componentShown(ComponentEvent e) {
-		    resize();
-		}
-	    });
-	updateTimeRange();
-	System.out.println(" ADDED THe first seismograme ");
-	horizPlane = isHorizontalPlane(seismograms[1].getSeismogram().getChannelID(),
-				       seismograms[2].getSeismogram().getChannelID(),
-				       hseis.getDataSet());
-	addParticleMotionDisplay(seismograms[1], 
-				 seismograms[2], 
-				 timeConfigRegistrar, 
-				 hAmpConfigRegistrar, 
-				 vAmpConfigRegistrar, 
-				 null,
-				 getOrientationName(channelGroup[1].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code),
-				 horizPlane);
-	System.out.println(" ADDED he second SEismograme");
-	horizPlane = isHorizontalPlane(seismograms[0].getSeismogram().getChannelID(),
-				  seismograms[2].getSeismogram().getChannelID(),
-				  hseis.getDataSet());	
-	addParticleMotionDisplay(seismograms[0], 
-				 seismograms[2], 
-				 timeConfigRegistrar, 
-				 hAmpConfigRegistrar, 
-				 vAmpConfigRegistrar, 
-				 null,
-				 getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code),
-				 horizPlane);
-	System.out.println("Added the third display ");
-    }
-				 
+		 
     public LocalSeismogram[] retreiveSeismograms(edu.iris.Fissures.Time startTime, 
 						 edu.iris.Fissures.Time endTime, 
 						 ChannelId channelId,
@@ -346,10 +271,6 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
     }
 
 
-
-    public void resolveParticleMotion() {
-
-    }
 
     public void updateAmpRange() {
 	this.hAmpScaleMap.setUnitRange(hAmpConfigRegistrar.getAmpRange());
@@ -406,121 +327,26 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	    vAmpScaleMap.setTotalPixels(dim.height  - insets.top - insets.bottom);
 	}
 	repaint();
-    }
+    }//
     
     public void addParticleMotionDisplay(DataSetSeismogram hseis,
 					  TimeConfigRegistrar timeConfigRegistrar,
 					  AmpConfigRegistrar hAmpConfigRegistrar,
 					  AmpConfigRegistrar vAmpConfigRegistrar) {
-	LocalSeismogramImpl seis = hseis.getSeismogram();
-	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)hseis.getDataSet()).getChannelIds();
-	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
-	logger.debug("the original channel_code from the seismogram is "+ seis.getChannelID().channel_code);
-	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
-	System.out.println("THe length of the channel group is "+channelGroup.length);
-	edu.iris.Fissures.Time startTime;
-	edu.iris.Fissures.Time endTime;
-	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
-	if(timeConfigRegistrar != null) {
-	    startTime = timeConfigRegistrar.getTimeRange().getBeginTime().getFissuresTime();
-	    endTime = timeConfigRegistrar.getTimeRange().getEndTime().getFissuresTime();
-	} else {
-	    startTime = seis.getBeginTime().getFissuresTime();
-	    endTime = seis.getEndTime().getFissuresTime();
-	}
-	System.out.println("Start Time is "+new MicroSecondDate(startTime));
-	System.out.println("end Time is "+new MicroSecondDate(endTime));
-	try {
-	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		String name = DisplayUtils.getSeismogramName(channelGroup[counter], hseis.getDataSet(), 
-							     new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), 
-											     seis.getEndTime().getFissuresTime()));
-		seismograms[counter] = new DataSetSeismogram(hseis.getDataSet().getSeismogram(name), hseis.getDataSet());
-		timeConfigRegistrar.addSeismogram(seismograms[counter]);
-		//hAmpRangeConfigRegistrar.addSeismogram(seismograms
-		if(seismograms[counter] == null) 
-		    logger.debug(" seismograms["+counter+"] is NULL");
-		else 
-		    logger.debug(" seismograms["+counter+"] is NOT NULL");
-	    }
-								     
-	 } catch(Exception e) {
-	    
-	     e.printStackTrace();
-	 }
-	boolean horizPlane = isHorizontalPlane( ((LocalSeismogramImpl)seismograms[0].getSeismogram()).getChannelID(),
-					   ((LocalSeismogramImpl)seismograms[1].getSeismogram()).getChannelID(),
-					   hseis.getDataSet());	
-	addParticleMotionDisplay(seismograms[0], 
-				 seismograms[1], 
-				 timeConfigRegistrar, 
-				 hAmpConfigRegistrar, 
-				 vAmpConfigRegistrar, 
-				 null,
-				 getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[1].channel_code),
-				 horizPlane);
-	//updateTimeRange();
-	System.out.println(" ADDED THe first seismograme ");
-	horizPlane = isHorizontalPlane(((LocalSeismogramImpl)seismograms[1].getSeismogram()).getChannelID(),
-				  ((LocalSeismogramImpl)seismograms[2].getSeismogram()).getChannelID(),
-				  hseis.getDataSet());	
-	addParticleMotionDisplay(seismograms[1], 
-				 seismograms[2], 
-				 timeConfigRegistrar, 
-				 hAmpConfigRegistrar, 
-				 vAmpConfigRegistrar, 
-				 null,
-				 getOrientationName(channelGroup[1].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code),
-				 horizPlane);
-	System.out.println(" ADDED he second SEismograme");
-	horizPlane = isHorizontalPlane(((LocalSeismogramImpl)seismograms[0].getSeismogram()).getChannelID(),
-				  ((LocalSeismogramImpl)seismograms[2].getSeismogram()).getChannelID(),
-				  hseis.getDataSet());
-	addParticleMotionDisplay(seismograms[0], 
-				 seismograms[2], 
-				 timeConfigRegistrar, 
-				 hAmpConfigRegistrar, 
-				 vAmpConfigRegistrar, 
-				 null,
-				 getOrientationName(channelGroup[0].channel_code)+"-"+getOrientationName(channelGroup[2].channel_code),
-				 horizPlane);
-	System.out.println("Added the third display ");
 
-    }
-
-    public void addParticleMotionDisplay(DataSetSeismogram hseis,
-					 DataSetSeismogram vseis,
-					 TimeConfigRegistrar timeConfigRegistrar,
-					 AmpConfigRegistrar hAmpConfigRegistrar,
-					 AmpConfigRegistrar vAmpConfigRegistrar, Color color, 
-					 String key,
-					 boolean horizPlane) {
-
-	view.addParticleMotionDisplay(hseis,
-				      vseis,
-				      timeConfigRegistrar,
-				      hAmpConfigRegistrar,
-				      vAmpConfigRegistrar,
-				      color, key,
-				      horizPlane);
-	if(timeConfigRegistrar != null) {
-	    timeConfigRegistrar.addTimeSyncListener(this);
-	}
-    }
-    
-    public void addParticleMotionDisplay(DataSetSeismogram hseis,
-					 DataSetSeismogram vseis,
-					 TimeConfigRegistrar timeConfigRegistrar,
-					 AmpConfigRegistrar hAmpConfigRegistrar,
-					 AmpConfigRegistrar vAmpConfigRegistrar) {
+	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
+	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	Thread t = new Thread(new ParticleMotionDisplayThread(hseis,
+							      timeConfigRegistrar,
+							      hAmpConfigRegistrar,
+							      vAmpConfigRegistrar,
+							      false, 
+							      false,
+							      this));
 	
-	addParticleMotionDisplay(hseis, vseis,
-				 timeConfigRegistrar,
-				 hAmpConfigRegistrar,
-				 vAmpConfigRegistrar,
-				 null, "", false);
-    }
+	t.start();
 
+    }
 
     public void displayBackAzimuth(edu.sc.seis.fissuresUtil.xml.DataSet dataset, ChannelId chanId) {
 	edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent = 
@@ -544,15 +370,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	}
     }
 
-    public String getOrientationName(String orientation) {
-
-	char ch = orientation.charAt(2);
-	if(ch == 'E' || ch == '1' || ch == 'U') return "East";
-	else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
-	else return "Up";
-    }
-
-  
+   
 
     /**
      * sets the AmplitudeRange of the ParticleMotionDisplay.
@@ -570,19 +388,6 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	view.addAzimuthLine(degrees);
     }
 
-   public boolean isHorizontalPlane(ChannelId channelIdone, 
-			       ChannelId channelIdtwo,
-			       edu.sc.seis.fissuresUtil.xml.DataSet dataset) {
-
-	Channel channelOne = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getChannel(channelIdone);
-	Channel channelTwo = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getChannel(channelIdtwo);
-	if(channelOne.an_orientation.dip == 90 &&
-	   channelTwo.an_orientation.dip == 90)  {
-	   return true; 
-	}
-	return false;
-   }	
-
     public void addSector(double degreeone, double degreetwo) {
 
 	view.addSector(degreeone, degreetwo);
@@ -598,6 +403,11 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	view.setZoomOut(value);
     }
 
+
+    public ParticleMotionView getView() {
+	return this.view;
+    }
+
     public void fireAmpRangeEvent(AmpSyncEvent event) {
 
 	this.hAmpConfigRegistrar.fireAmpRangeEvent(event);
@@ -609,6 +419,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
     }
 
     public void formCheckBoxPanel(ChannelId[] channelGroup) {
+	//radioPanel.removeAll();
 	ArrayList arrayList = new ArrayList();
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    for(int subcounter = counter+1; subcounter < channelGroup.length; subcounter++) {
@@ -628,9 +439,11 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    radioPanel.add(checkBoxes[counter]);
 	}
+	radioPanel.setVisible(true);
     }
 
     public void formRadioSetPanel(ChannelId[] channelGroup) {
+	//radioPanel.removeAll();
 	ArrayList arrayList = new ArrayList();
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    for(int subcounter = counter + 1; subcounter < channelGroup.length; subcounter++) {
@@ -654,14 +467,20 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	    buttonGroup.add(radioButtons[counter]);
 	    radioPanel.add(radioButtons[counter]);
 	}
+	radioPanel.setVisible(true);
+    }
+
+
+    public String getOrientationName(String orientation) {
+
+	char ch = orientation.charAt(2);
+	if(ch == 'E' || ch == '1' || ch == 'U') return "East";
+	else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
+	else return "Up";
     }
     
-    public void removeAll(){
-	logger.debug("removing all");
-	hAmpConfigRegistrar.unregister();
-	vAmpConfigRegistrar.unregister();
-	view.removeAll();
-    }
+  
+  
 
     /**
      * Describe constant <code>PARTICLE_MOTION_LAYER</code> here.

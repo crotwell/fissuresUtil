@@ -24,6 +24,11 @@ import org.apache.log4j.*;
  */
 
 public class ParticleMotionView extends JComponent{
+
+    public ParticleMotionView(ParticleMotionDisplay particleMotionDisplay) {
+	this.particleMotionDisplay = particleMotionDisplay;
+	addListeners();
+    }
     public ParticleMotionView (final DataSetSeismogram hseis, 
 			       DataSetSeismogram vseis,
 			       TimeConfigRegistrar timeRegistrar,
@@ -51,7 +56,13 @@ public class ParticleMotionView extends JComponent{
 	vunitRangeImpl = vAmpConfigRegistrar.getAmpRange(vseis);
 	hunitRangeImpl = hAmpConfigRegistrar.getAmpRange(vseis);
 	
-	this.addMouseListener(new MouseAdapter() {
+	addListeners();
+	
+				    
+    }
+
+    public void addListeners() {
+		this.addMouseListener(new MouseAdapter() {
 
 		public void mouseClicked(MouseEvent me) {
 		   
@@ -90,8 +101,6 @@ public class ParticleMotionView extends JComponent{
 		    repaint();
 		}
 	    });
-	
-				    
     }
 
     public void resize() {
@@ -493,9 +502,9 @@ public class ParticleMotionView extends JComponent{
 	    
 	}
 	return (Shape)generalPath;
-    }
+    }//
     
-    public void addParticleMotionDisplay(DataSetSeismogram hseis,
+    public synchronized void addParticleMotionDisplay(DataSetSeismogram hseis,
 					 DataSetSeismogram vseis,
 					 TimeConfigRegistrar timeRegistrar,
 					 AmpConfigRegistrar hAmpConfigRegistrar,
@@ -761,13 +770,6 @@ public class ParticleMotionView extends JComponent{
 	private Color color = null;
 	private boolean selected = false;
 	private boolean horizPlane = false;
-    }
-
-    public void removeAll(){
-	Iterator e = displays.iterator();
-	while (e.hasNext()) {
-	    ((ParticleMotion)e.next()).timeRegistrar.unregister();
-	} // end of while (e.hasNext())
     }
 
     static Category logger = 
