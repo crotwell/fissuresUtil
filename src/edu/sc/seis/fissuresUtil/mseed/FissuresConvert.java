@@ -1,15 +1,23 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
-import java.util.*;
-import java.io.*;
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfRealTimeCollector.DataChunk;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesType;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
+import edu.sc.seis.fissuresUtil.database.DataCenterUtil;
+import java.util.LinkedList;
 
 /**
  * FissuresConvert.java
@@ -38,86 +46,113 @@ public class FissuresConvert  {
         MicroSecondDate start = new MicroSecondDate(seis.begin_time);
         if ( seis.data.discriminator().equals(TimeSeriesType.TYPE_ENCODED) ) {
             // encoded data
-            DataHeader header;
-            Blockette1000 b1000;
-            Blockette100 b100;
+
             EncodedData[] eData = seis.data.encoded_values();
-            for ( int i=0; i< eData.length; i++) {
-                header = new DataHeader(seqStart++, 'D', false);
-                b1000 = new Blockette1000();
-                b100 = new Blockette100();
-                if ( eData[i].values.length + header.getSize() + b1000.getSize() +b100.getSize() < RECORD_SIZE ) {
-                    // can fit into one record
-                    ChannelId chan = seis.channel_id;
-                    header.setStationIdentifier(chan.station_code);
-                    header.setLocationIdentifier(chan.site_code);
-                    header.setChannelIdentifier(chan.channel_code);
-                    header.setNetworkCode(chan.network_id.network_code);
-                    TimeInterval sampPeriod =
-                        ((SamplingImpl)seis.sampling_info).getPeriod();
-                    header.setStartTime(start);
-                    header.setNumSamples((short)eData[i].num_points);
-                    start = start.add((TimeInterval)sampPeriod.multiplyBy(eData[i].num_points));
+            outRecords = toMSeed(eData, seis.channel_id, start, (SamplingImpl)seis.sampling_info, seqStart);
 
-
-                    double sps = 1/sampPeriod.convertTo(UnitImpl.SECOND).getValue();
-
-
-                    // don't get too close to the max for a short, use ceil as neg
-                    int divisor = (int)Math.ceil((Short.MIN_VALUE+2)/sps);
-                    // don't get too close to the max for a short
-                    if (divisor < Short.MIN_VALUE+2) {
-                        divisor = Short.MIN_VALUE+2;
-                    }
-                    int factor = (int)Math.round(-1*sps*divisor);
-
-                    header.setSampleRateFactor((short)factor);
-                    header.setSampleRateMultiplier((short)divisor);
-
-
-                    b1000.setEncodingFormat((byte)eData[i].compression);
-                    if ( eData[i].byte_order ) {
-                        // seed uses oposite convention
-                        b1000.setWordOrder( (byte)0 );
-                    } else {
-                        b1000.setWordOrder( (byte)1 );
-                    } // end of else
-
-                    b1000.setDataRecordLength( RECORD_SIZE_POWER);
-                    DataRecord dr = new DataRecord(header);
-                    dr.addBlockette(b1000);
-                    QuantityImpl hertz = ((SamplingImpl)seis.sampling_info).getFrequency().convertTo(UnitImpl.HERTZ);
-                    b100.setActualSampleRate((float)hertz.getValue());
-                    dr.addBlockette(b100);
-                    dr.setData(eData[i].values);
-                    outRecords.add(dr);
-                } else {
-                    throw new SeedFormatException("Can't fit data into record"+
-                                                      (eData[i].values.length + header.getSize() + b1000.getSize() + b100.getSize())+" "+
-                                                      eData[i].values.length +" "+ (header.getSize() + b1000.getSize() + b100.getSize()));
-                } // end of else
-
-            } // end of for ()
 
         } else {
             // not encoded
-            int samples = seis.num_points;
-            while ( samples > 0 ) {
-                DataHeader header = new DataHeader(seqStart++, 'D', false);
-                ChannelId chan = seis.channel_id;
-                header.setStationIdentifier(chan.station_code);
-                header.setLocationIdentifier(chan.site_code);
-                header.setChannelIdentifier(chan.channel_code);
-                header.setNetworkCode(chan.network_id.network_code);
-                header.setStartTime(start);
-
-                Blockette1000 b1000 = new Blockette1000();
-
-                //  b1000.setEncodeingFormat((byte)seis.);
-                DataRecord dr = new DataRecord(header);
-            } // end of while ()
+            throw new SeedFormatException("Can only handle EncodedData now");
+            //          int samples = seis.num_points;
+            //          while ( samples > 0 ) {
+            //              DataHeader header = new DataHeader(seqStart++, 'D', false);
+            //              ChannelId chan = seis.channel_id;
+            //              header.setStationIdentifier(chan.station_code);
+            //              header.setLocationIdentifier(chan.site_code);
+            //              header.setChannelIdentifier(chan.channel_code);
+            //              header.setNetworkCode(chan.network_id.network_code);
+            //              header.setStartTime(start);
+//
+            //              Blockette1000 b1000 = new Blockette1000();
+//
+            //              //  b1000.setEncodeingFormat((byte)seis.);
+            //              DataRecord dr = new DataRecord(header);
+            //          } // end of while ()
         }
         return (DataRecord[])outRecords.toArray(new DataRecord[0]);
+    }
+
+
+    public static DataRecord[] toMSeed(DataChunk chunk) throws SeedFormatException {
+        LinkedList outRecords;
+        if (chunk.data.discriminator().equals(TimeSeriesType.TYPE_ENCODED)) {
+            outRecords = toMSeed(chunk.data.encoded_values(),
+                                 chunk.channel,
+                                 new MicroSecondDate(chunk.begin_time),
+                                 DataCenterUtil.getSampling(chunk),
+                                 chunk.seq_num);
+
+        } else {
+            throw new SeedFormatException("Can only handle EncodedData now");
+        }
+        return (DataRecord[])outRecords.toArray(new DataRecord[0]);
+    }
+
+    public static LinkedList toMSeed(EncodedData[] eData,
+                                     ChannelId channel_id,
+                                     MicroSecondDate start,
+                                     SamplingImpl sampling_info,
+                                     int seqStart) throws SeedFormatException {
+        LinkedList list = new LinkedList();
+        DataHeader header;
+        Blockette1000 b1000;
+        Blockette100 b100;
+        for ( int i=0; i< eData.length; i++) {
+            header = new DataHeader(seqStart++, 'D', false);
+            b1000 = new Blockette1000();
+            b100 = new Blockette100();
+            if ( eData[i].values.length + header.getSize() + b1000.getSize() +b100.getSize() < RECORD_SIZE ) {
+                // can fit into one record
+                header.setStationIdentifier(channel_id.station_code);
+                header.setLocationIdentifier(channel_id.site_code);
+                header.setChannelIdentifier(channel_id.channel_code);
+                header.setNetworkCode(channel_id.network_id.network_code);
+                TimeInterval sampPeriod = sampling_info.getPeriod();
+                header.setStartTime(start);
+                header.setNumSamples((short)eData[i].num_points);
+                start = start.add((TimeInterval)sampPeriod.multiplyBy(eData[i].num_points));
+
+
+                double sps = 1/sampPeriod.convertTo(UnitImpl.SECOND).getValue();
+
+
+                // don't get too close to the max for a short, use ceil as neg
+                int divisor = (int)Math.ceil((Short.MIN_VALUE+2)/sps);
+                // don't get too close to the max for a short
+                if (divisor < Short.MIN_VALUE+2) {
+                    divisor = Short.MIN_VALUE+2;
+                }
+                int factor = (int)Math.round(-1*sps*divisor);
+
+                header.setSampleRateFactor((short)factor);
+                header.setSampleRateMultiplier((short)divisor);
+
+
+                b1000.setEncodingFormat((byte)eData[i].compression);
+                if ( eData[i].byte_order ) {
+                    // seed uses oposite convention
+                    b1000.setWordOrder( (byte)0 );
+                } else {
+                    b1000.setWordOrder( (byte)1 );
+                } // end of else
+
+                b1000.setDataRecordLength( RECORD_SIZE_POWER);
+                DataRecord dr = new DataRecord(header);
+                dr.addBlockette(b1000);
+                QuantityImpl hertz = sampling_info.getFrequency().convertTo(UnitImpl.HERTZ);
+                b100.setActualSampleRate((float)hertz.getValue());
+                dr.addBlockette(b100);
+                dr.setData(eData[i].values);
+                list.add(dr);
+            } else {
+                throw new SeedFormatException("Can't fit data into record"+
+                                                  (eData[i].values.length + header.getSize() + b1000.getSize() + b100.getSize())+" "+
+                                                  eData[i].values.length +" "+ (header.getSize() + b1000.getSize() + b100.getSize()));
+            } // end of else
+
+        } // end of for ()
+        return list;
     }
 
     /** assume all records from same channel and in time order with no gaps/overlaps.*/
@@ -264,8 +299,8 @@ public class FissuresConvert  {
         return (SeismogramAttrImpl)toFissures(seed);
     }
 
-    byte RECORD_SIZE_POWER = 12;
+    static final byte RECORD_SIZE_POWER = 12;
 
-    int RECORD_SIZE = (int)Math.pow(2, RECORD_SIZE_POWER);
+    static int RECORD_SIZE = (int)Math.pow(2, RECORD_SIZE_POWER);
 
 } // FissuresConvert
