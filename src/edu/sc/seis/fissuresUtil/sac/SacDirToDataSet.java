@@ -1,15 +1,28 @@
 package edu.sc.seis.fissuresUtil.sac;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import edu.iris.Fissures.*;
 import edu.sc.seis.fissuresUtil.xml.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.IfNetwork.*;
+
+import edu.iris.Fissures.AuditInfo;
+import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.IfParameterMgr.*;
-import javax.xml.parsers.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Element;
 
 /**
  * SacDirToDataSet.java
@@ -18,274 +31,253 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 4122 2003-05-28 15:38:17Z crotwell $
+ * @version $Id: SacDirToDataSet.java 5108 2003-08-12 02:45:10Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
     public SacDirToDataSet (URL base,
-                File directory,
-                String dsName,
-                List excludes,
-                Map paramRefs){
-    this.base = base;
-    this.directory = directory;
-    this.dsName = dsName;
-    this.excludes = excludes;
-    this.paramRefs = paramRefs;
+                            File directory,
+                            String dsName,
+                            List excludes,
+                            Map paramRefs){
+        this.base = base;
+        this.directory = directory;
+        this.dsName = dsName;
+        this.excludes = excludes;
+        this.paramRefs = paramRefs;
     }
-
-    void process() throws ParserConfigurationException {
-    DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
-    dirURL = base;
-    System.out.println(" dirURL is "+dirURL.toString());
-    System.out.println(" directory name is "+directory.getName());
-    try {
+    
+    void process() throws ParserConfigurationException,
+        MalformedURLException,
+        IOException {
+        
+        dirURL = base;
+        System.out.println(" dirURL is "+dirURL.toString());
+        System.out.println(" directory name is "+directory.getName());
+        
         dirURL = new URL(dirURL.toString()+"/"+directory.getName()+"/");
         System.out.println("updated dirURL is "+dirURL.toString());
-    } catch (MalformedURLException e) {
-        e.printStackTrace();
-        return;
-    } // end of try-catch
-
-    dataset
-        = new XMLDataSet(docBuilder,
-                 dirURL,
-                "genid"+Math.round(Math.random()*Integer.MAX_VALUE),
-                 dsName,
-                 userName);
-
-    Iterator it = paramRefs.keySet().iterator();
-    while (it.hasNext()) {
-        String key = (String)it.next();
-        //loadParameterRef(key, (String)paramRefs.get(key));
-
-    } // end of while (it.hasNext())
-
-
-    File[] files = directory.listFiles();
-    for (int i=0; i<files.length; i++) {
-        try {
-            String filename = files[i].getName();
-            // maybe an image?
-            if (filename.endsWith(".gif") ||
-                filename.endsWith(".GIF") ||
-                filename.endsWith(".png") ||
-                filename.endsWith(".PNG") ||
-                filename.endsWith(".jpeg") ||
-                filename.endsWith(".JPEG") ||
-                filename.endsWith(".jpg") ||
-                filename.endsWith(".JPG") ) {
-                String name = filename.substring(0, filename.lastIndexOf('.'));
-                loadParameterRef(filename, filename);
-            } else {
-                // try as a sac file
-                loadSacFile(files[i]);
-            } // end of else
-
-        } catch (Exception e) {
-        e.printStackTrace();
-        System.err.println("Caught exception on "
-                   +files[i].getName()+", continuing...");
-        } // end of try-catch
-    } // end of for (int i=0; i<sacFiles.length; i++)
-
+        
+        AuditInfo[] audit = new AuditInfo[1];
+        audit[0] = new AuditInfo(userName, "Dataset created from SAC files in "+directory.getPath());
+        dataset
+            = new MemoryDataSet("genid"+Math.round(Math.random()*Integer.MAX_VALUE),
+                                dsName,
+                                userName,
+                                audit);
+        Element dsElement = dataSetToXML.createDocument(dataset, directory);
+        
+        Iterator it = paramRefs.keySet().iterator();
+        while (it.hasNext()) {
+            String key = (String)it.next();
+            //loadParameterRef(key, (String)paramRefs.get(key));
+            
+        } // end of while (it.hasNext())
+        
+        File[] files = directory.listFiles();
+        for (int i=0; i<files.length; i++) {
+            try {
+                String filename = files[i].getName();
+                // maybe an image?
+                if (filename.endsWith(".gif") ||
+                    filename.endsWith(".GIF") ||
+                    filename.endsWith(".png") ||
+                    filename.endsWith(".PNG") ||
+                    filename.endsWith(".jpeg") ||
+                    filename.endsWith(".JPEG") ||
+                    filename.endsWith(".jpg") ||
+                    filename.endsWith(".JPG") ) {
+                    String name = filename.substring(0, filename.lastIndexOf('.'));
+                    loadParameterRef(dsElement, filename, filename);
+                } else {
+                    // try as a sac file
+                    loadSacFile(dsElement, files[i]);
+                } // end of else
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("Caught exception on "
+                                       +files[i].getName()+", continuing...");
+            } // end of try-catch
+        } // end of for (int i=0; i<sacFiles.length; i++)
+        
+        dataSetToXML.save(dataset, directory);
     }
-
-    void loadParameterRef(String paramName, String paramFile) {
+    
+    void loadParameterRef(Element dsElement, String paramName, String paramFile) {
         AuditInfo[] audit = new AuditInfo[1];
         audit[0] = new AuditInfo(userName,
-                     "Added parameter "+paramName+" for "+paramFile);
-        try {
-        if(dataset.getParameter(paramName) != null) return;
-        dataset.addParameterRef(new URL("file:"+paramName),
-                    paramName,
-                    dataset.getParameter(paramName),
-                    audit);
-                //  new URL(dirURL,
-//                      paramFile).toString(),
-//                  audit);
-
-        } catch (MalformedURLException e) {
-        //can't happen?
-        e.printStackTrace();
-        System.err.println("Caught exception on parameterRef "
-                   +paramName+", continuing...");
-        } // end of try-catch
+                                 "Added parameter "+paramName+" for "+paramFile);
+        
+        Element paramElement = dsElement.getOwnerDocument().createElement("parameter");
+        dsElement.appendChild(paramElement);
+        dataSetToXML.insertParameter(paramElement,
+                                     paramName,
+                                     "http://www.w3.org/TR/xlink/",
+                                     "xml:xlink",
+                                     paramName);
+        
     }
-
-    void loadSacFile(File sacFile) throws IOException, FissuresException {
+    
+    void loadSacFile(Element dsElement, File sacFile) throws IOException, FissuresException {
         if (excludes.contains(sacFile.getName())) {
-        return;
+            return;
         } // end of if (excludes.contains(sacFile.getName()))
         if (paramRefs.containsValue(sacFile.getName())) {
-        return;
+            return;
         } // end of if (excludes.contains(sacFile.getName()))
-
-            SacTimeSeries sac = new SacTimeSeries();
+        
+        SacTimeSeries sac = new SacTimeSeries();
         sac.read(sacFile.getCanonicalPath());
         AuditInfo[] audit = new AuditInfo[1];
         audit[0] = new AuditInfo(userName+" via SacDirToDataSet",
-                     "seismogram loaded from "+sacFile.getCanonicalPath());
+                                 "seismogram loaded from "+sacFile.getCanonicalPath());
         URL seisURL = new URL(dirURL, sacFile.getName());
         //      System.out.println(" the seisURL is "+seisURL.toString());
         //      DataInputStream dis = new DataInputStream(new BufferedInputStream(seisURL.openStream()));
         //      SacTimeSeries sac = new SacTimeSeries();
         //sac.read(dis);
         edu.iris.Fissures.seismogramDC.LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
-
-
+        
+        
         System.out.println("The PATH is "+sacFile.getParent());
-
+        
         edu.sc.seis.fissuresUtil.cache.CacheEvent event =
             SacToFissures.getEvent(sac);
-
-
-            if (event != null && dataset.getParameter(EVENT) == null) {
+        
+        if (event != null && dataset.getParameter(EVENT) == null) {
             String eventName = event.get_attributes().name;
-
+            
             String eName = eventName.replace(' ', '_');
-            // add event
-            File outFile = new File(sacFile.getParent(), eName);
-            OutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
-
+            Element paramElement = dsElement.getOwnerDocument().createElement("parameter");
+            dsElement.appendChild(paramElement);
+            dataSetToXML.insert(paramElement,
+                                StdDataSetParamNames.EVENT,
+                                event);
             AuditInfo[] eventAudit = new AuditInfo[1];
             eventAudit[0] = new AuditInfo(System.getProperty("user.name"),
-                              "event loaded from sac file.");
-            XMLParameter.write(fos, event);
-            fos.close();
-            dataset.addParameterRef( new URL("file:"+eName), EVENT, event,eventAudit);
-            } // end of if (event != null)
-
+                                          "event loaded from sac file.");
+            dataset.addParameter(StdDataSetParamNames.EVENT,
+                                 event,
+                                 eventAudit);
+        } // end of if (event != null)
+        
         Channel channel =
             SacToFissures.getChannel(sac);
-    String channelParamName =
-            CHANNEL+ChannelIdUtil.toString(seis.channel_id);
-
-
+        String channelParamName =
+            StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(seis.channel_id);
+        
+        
         if (channel != null &&
             dataset.getParameter(channelParamName) == null) {
-
-        String chanFileName = ChannelIdUtil.toString(seis.channel_id);
-        chanFileName = chanFileName.replace(' ', '_');
-        File outFile = new File(sacFile.getParent(), chanFileName);
-        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
-
-            // add event
+            
+            // add channel
             AuditInfo[] chanAudit = new AuditInfo[1];
             chanAudit[0] = new AuditInfo(System.getProperty("user.name"),
-                                          "channel loaded from sac file.");
-        XMLParameter.write(fos, channel);
-        fos.close();
-            dataset.addParameterRef(new URL("file:"+ChannelIdUtil.toString(seis.channel_id)),
-                    channelParamName,
-                    channel,
-                    chanAudit);
-
-    }
-
-
+                                         "channel loaded from sac file.");
+            
+            dataset.addParameter(channelParamName,
+                                 channel,
+                                 chanAudit);
+            Element paramElement = dsElement.getOwnerDocument().createElement("parameter");
+            dsElement.appendChild(paramElement);
+            dataSetToXML.insert(paramElement,
+                                channelParamName,
+                                channel);
+            
+            
+        }
+        
+        
         String seisName = sacFile.getName();
         if (seisName.endsWith(".SAC")) {
-        seisName = seisName.substring(0,seisName.length()-4);
+            seisName = seisName.substring(0,seisName.length()-4);
         } // end of if (seisName.endsWith(".SAC"))
         seis.setName(seisName);
-
-        dataset.addSeismogramRef(seis, seisURL,
-                     seisName,
-                     new Property[0],
-                     new ParameterRef[0],
-                     audit);
-
+        URLDataSetSeismogram urlDSS = new URLDataSetSeismogram(seisURL,
+                                                               SeismogramFileTypes.SAC,
+                                                               dataset);
+        urlDSS.addToCache(seisURL, seis);
+        AuditInfo[] seisAudit = new AuditInfo[1];
+        seisAudit[0] = new AuditInfo(System.getProperty("user.name"),
+                                     "seismogram loaded from sac file.");
+        
+        dataset.addDataSetSeismogram(urlDSS, seisAudit);
+        
     }
-
-    void save() {
-    try {
-
-
-        File outFile = new File(directory, dsName+".dsml");
-        OutputStream fos = new BufferedOutputStream(
-                   new FileOutputStream(outFile));
-        dataset.write(fos);
-        fos.close();
-    } catch(Exception ex) {
-
-        System.out.println("EXCEPTION CAUGHT WHILE trying to save dataset"
-                   +ex.toString());
-        ex.printStackTrace();
-    }
-    }
-
+    
     String userName = System.getProperty("user.name");
     URL base;
     URL dirURL;
     File directory;
     String dsName;
-    XMLDataSet dataset;
+    DataSet dataset;
     List excludes;
     Map paramRefs;
-
+    
     public static void main (String[] args) {
-    if (args.length < 4) {
-        System.err.println("Usage: java edu.sc.seis.fissuresUtil.sac.SacDirToDataSet -base url -dir directoryPath -name datasetname [-exclude file] [-paramRef name file]");
-        return;
-    } // end of if (args.length != 2)
-    String dirName = null;
-    URL base = null;
-    String baseStr = "";
-    String dsName = "default dataset name";
-    LinkedList excludes = new LinkedList();
-    HashMap params = new HashMap();
-    int i=0;
-    while (i<args.length) {
-        System.out.println(i+" "+args[i]);
-        if (args[i].equals("-dir")) {
-        dirName = args[i+1];
-        i+=2;
-        } else  if (args[i].equals("-name")) {
-        String tmp = args[i+1];
-        if (tmp.endsWith("/") ||
-            tmp.endsWith("\\") ||
-            tmp.endsWith(":") ||
-            tmp.endsWith(".") ) {
-            tmp = tmp.substring(0, tmp.length()-1);
-        } // end of if (dsName.endsWith('/'))
-        tmp = tmp.replace(' ','_');
-        if (tmp.length() > 0) {
-            dsName = tmp;
-        } // end of if (tmp.length() > 0)
-        i+=2;
-        } else  if (args[i].equals("-base")) {
-        baseStr = args[i+1];
-        System.out.println("The baseStr is "+baseStr);
-        i+=2;
-        } else  if (args[i].equals("-exclude")) {
-        excludes.add(args[i+1]);
-        i+=2;
-        } else  if (args[i].equals("-paramRef")) {
-        params.put(args[i+1], args[i+2]);
-        i+=3;
-        } else {
-        System.out.println("Don't understand "+args[i++]);
-        }
-    } // end of for (int i=0; i<args.length; i++)
-
-
-    try {
-        base = new URL(baseStr);
-        System.out.println("base is "+base.toString());
-        File f = new File(dirName);
-        if (dirName != null && f.isDirectory()) {
-        SacDirToDataSet sdir = new SacDirToDataSet(base, f, dsName, excludes, params);
-        sdir.process();
-        sdir.save();
-        } else {
-        System.err.println("Not a directory: "+args[1]);
-        } // end of else
-    } catch (Exception e) {
-        e.printStackTrace();
-    } // end of try-catch
-
-
+        if (args.length < 4) {
+            System.err.println("Usage: java edu.sc.seis.fissuresUtil.sac.SacDirToDataSet -base url -dir directoryPath -name datasetname [-exclude file] [-paramRef name file]");
+            return;
+        } // end of if (args.length != 2)
+        String dirName = null;
+        URL base = null;
+        String baseStr = "";
+        String dsName = "default dataset name";
+        LinkedList excludes = new LinkedList();
+        HashMap params = new HashMap();
+        int i=0;
+        while (i<args.length) {
+            System.out.println(i+" "+args[i]);
+            if (args[i].equals("-dir")) {
+                dirName = args[i+1];
+                i+=2;
+            } else  if (args[i].equals("-name")) {
+                String tmp = args[i+1];
+                if (tmp.endsWith("/") ||
+                    tmp.endsWith("\\") ||
+                    tmp.endsWith(":") ||
+                    tmp.endsWith(".") ) {
+                    tmp = tmp.substring(0, tmp.length()-1);
+                } // end of if (dsName.endsWith('/'))
+                tmp = tmp.replace(' ','_');
+                if (tmp.length() > 0) {
+                    dsName = tmp;
+                } // end of if (tmp.length() > 0)
+                i+=2;
+            } else  if (args[i].equals("-base")) {
+                baseStr = args[i+1];
+                System.out.println("The baseStr is "+baseStr);
+                i+=2;
+            } else  if (args[i].equals("-exclude")) {
+                excludes.add(args[i+1]);
+                i+=2;
+            } else  if (args[i].equals("-paramRef")) {
+                params.put(args[i+1], args[i+2]);
+                i+=3;
+            } else {
+                System.out.println("Don't understand "+args[i++]);
+            }
+        } // end of for (int i=0; i<args.length; i++)
+        
+        
+        try {
+            base = new URL(baseStr);
+            System.out.println("base is "+base.toString());
+            File f = new File(dirName);
+            if (dirName != null && f.isDirectory()) {
+                SacDirToDataSet sdir = new SacDirToDataSet(base, f, dsName, excludes, params);
+                sdir.process();
+            } else {
+                System.err.println("Not a directory: "+args[1]);
+            } // end of else
+        } catch (Exception e) {
+            e.printStackTrace();
+        } // end of try-catch
+        
+        
     } // end of main ()
-
+    
+    static DataSetToXML dataSetToXML = new DataSetToXML();
+    
 }// SacDirToDataSet
