@@ -1,0 +1,28 @@
+
+#
+# the dns to copy
+#nameServiceCopy.dns=edu/sc/seis
+#nameServiceCopy.dns=edu/iris/dmc
+#nameServiceCopy.dns=edu/berkeley/geo/quake
+naveServicceCopy.dns=edu/caltech/gps/k2
+#
+# name serivce to copy FROM
+#
+#edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:dmc.iris.washington.edu:6371/NameService
+
+#
+# the corbaloc of the name server to copy TO
+#nameServiceCopy.copyTo=corbaloc:iiop:dmc.iris.washington.edu:6371/NameService
+nameServiceCopy.copyTo=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+
+# start of log4j configuration
+log4j.rootCategory=debug, C
+
+log4j.appender.C=org.apache.log4j.ConsoleAppender
+log4j.appender.C.layout=org.apache.log4j.PatternLayout
+log4j.appender.C.layout.ConversionPattern=%d{ISO8601} %p %t %c{2} - %m%n
+
+# end of log4j configuration.
+
+
