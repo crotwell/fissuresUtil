@@ -24,7 +24,7 @@ public class PhaseCut {
     /** warning, this class assumes that no other thread will be accessing
      the TauP_Time class while it is being used here. If another thread
      accesses it, the results will be unpredictable. */
-    public PhaseCut(TauP_Time timeCalc,
+    public PhaseCut(TauPUtil timeCalc,
                     String beginPhase, TimeInterval beginOffset,
                     String endPhase, TimeInterval endOffset) {
         this.timeCalc = timeCalc;
@@ -43,16 +43,7 @@ public class PhaseCut {
                                    Origin origin,
                                    LocalSeismogramImpl seis)
         throws TauModelException, PhaseNonExistent, FissuresException  {
-        QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
-        depth = depth.convertTo(UnitImpl.KILOMETER);
-        DistAz distAz = new DistAz(stationLoc.latitude,
-                                   stationLoc.longitude,
-                                   origin.my_location.latitude,
-                                   origin.my_location.longitude);
-        timeCalc.setSourceDepth(depth.getValue());
-        timeCalc.setPhaseNames(new String[] {beginPhase, endPhase} );
-        timeCalc.calculate(distAz.delta);
-        Arrival[] arrivals = timeCalc.getArrivals();
+        Arrival[] arrivals = timeCalc.calcTravelTimes(stationLoc, origin, new String[] {beginPhase, endPhase});
 
         MicroSecondDate beginTime = null;
         MicroSecondDate endTime = null;
@@ -65,6 +56,10 @@ public class PhaseCut {
             }
         }
         if (beginTime == null) {
+            DistAz distAz = new DistAz(stationLoc.latitude,
+                                       stationLoc.longitude,
+                                       origin.my_location.latitude,
+                                       origin.my_location.longitude);
             throw new PhaseNonExistent("Phase "+beginPhase+
                                            " does not exist at this distance, "+
                                            distAz.delta+" degrees");
@@ -79,6 +74,10 @@ public class PhaseCut {
             }
         }
         if (endTime == null) {
+            DistAz distAz = new DistAz(stationLoc.latitude,
+                                       stationLoc.longitude,
+                                       origin.my_location.latitude,
+                                       origin.my_location.longitude);
             throw new PhaseNonExistent("Phase "+endPhase+
                                            " does not exist at this distance, "+
                                            distAz.delta+" degrees");
@@ -90,7 +89,7 @@ public class PhaseCut {
         return cut.apply(seis);
     }
 
-    TauP_Time timeCalc;
+    TauPUtil timeCalc;
 
     String beginPhase;
 
