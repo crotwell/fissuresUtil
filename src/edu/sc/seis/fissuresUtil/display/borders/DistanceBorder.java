@@ -12,8 +12,11 @@ import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
 
 public class DistanceBorder extends AbstractUnitRangeBorder{
     public DistanceBorder(RecordSectionDisplay rsd){
-        super(LEFT, DESCENDING);
-        this.rsd = rsd;
+        this(rsd,Border.DESCENDING);
+    }
+    public DistanceBorder(RecordSectionDisplay rsd, int order){
+        super(LEFT,order);
+        this.rsd=rsd;
         displayNegatives = false;
     }
 
