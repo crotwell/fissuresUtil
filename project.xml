@@ -301,14 +301,14 @@
     <build>
         <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>
         <sourceDirectory>src</sourceDirectory>
-        <unitTestSourceDirectory>tests/database</unitTestSourceDirectory>
+        <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
         <unitTest>
             <includes>
                 <include>edu/**/*Test.java</include>
             </includes>
             <resources>
                 <resource>
-                    <directory>tests/unit/edu/sc/seis/fissuresUtil/database/event</directory>
+                    <directory>tests/database/edu/sc/seis/fissuresUtil/database/event</directory>
                     <targetPath>edu/sc/seis/fissuresUtil/database/event/</targetPath>
                     <includes>
                         <include>*.props</include>
