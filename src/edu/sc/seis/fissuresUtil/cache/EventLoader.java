@@ -13,6 +13,12 @@ package edu.sc.seis.fissuresUtil.cache;
  */
 
 public class EventLoader implements Runnable {
+    public EventLoader(CacheEvent cache){
+        // no impl the listener
+        this(cache, new EventLoadedListener() {
+            public void eventLoaded(ProxyEventAccessOperations event) {}
+        });
+    }
     public EventLoader(CacheEvent cache,EventLoadedListener listener){
         this.cache = cache;
         this.listener = listener;
