@@ -67,24 +67,14 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
      * @param newConfig a <code>TimeConfig</code> value
      */
     public synchronized void setTimeConfig(TimeConfig newConfig){
+        DataSetSeismogram[] seismosArray = getSeismograms();
         if(seismos.size() > 0){
-            DataSetSeismogram[] seismosArray = (DataSetSeismogram[])seismos.toArray(new DataSetSeismogram[seismos.size()]);
-            if(timeConfig instanceof Registrar){
-                ((Registrar)timeConfig).removeFromTimeConfig(seismosArray);
-            }else{
-                timeConfig.remove(seismosArray);
-            }
-            if(newConfig instanceof Registrar){
-                ((Registrar)newConfig).addToTimeConfig(seismosArray);
-            }else{
-                newConfig.add(seismosArray);
-            }
-        }
-        if(timeConfig != null){
             timeConfig.removeListener(this);
+            removeFromTimeConfig(seismosArray);
         }
-        newConfig.addListener(this);
         timeConfig = newConfig;
+        addToTimeConfig(seismosArray);
+        newConfig.addListener(this);
     }
 
     public synchronized TimeConfig getTimeConfig(){ return timeConfig; }
@@ -97,24 +87,16 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
      * @param newConfig the new <code>AmpConfig</code> for this Registrar
      */
     public synchronized void setAmpConfig(AmpConfig newConfig){
-        DataSetSeismogram[] seismosArray = (DataSetSeismogram[])seismos.toArray(new DataSetSeismogram[seismos.size()]);
+        DataSetSeismogram[] seismosArray = getSeismograms();
         if(ampConfig != null){
             if(seismos.size() > 0){
-                if(ampConfig instanceof Registrar){
-                    ((Registrar)ampConfig).removeFromAmpConfig(seismosArray);
-                }else{
-                    ampConfig.remove(seismosArray);
-                }
                 ampConfig.removeListener(this);
+                removeFromAmpConfig(seismosArray);
             }
         }
-        if(newConfig instanceof Registrar){
-            ((Registrar)newConfig).addToAmpConfig(seismosArray);
-        }else{
-            newConfig.add(seismosArray);
-        }
-        newConfig.addListener(this);
         ampConfig = newConfig;
+        addToAmpConfig(seismosArray);
+        newConfig.addListener(this);
     }
 
     public synchronized AmpConfig getAmpConfig(){ return ampConfig; };
@@ -134,17 +116,8 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         for(int i = 0; i < newSeismos.length; i++){
             seismos.add(newSeismos[i]);
         }
-        if(timeConfig instanceof Registrar){
-            ((Registrar)timeConfig).addToTimeConfig(newSeismos);
-        }else{
-            timeConfig.add(newSeismos);
-        }
-        if(ampConfig instanceof Registrar){
-            ((Registrar)ampConfig).addToAmpConfig(newSeismos);
-        }else{
-            ampConfig.add(newSeismos);
-        }
-
+        addToTimeConfig(newSeismos);
+        addToAmpConfig(newSeismos);
     }
 
     /**
@@ -157,20 +130,14 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         for(int i = 0; i < oldSeismos.length; i++){
             seismos.remove(oldSeismos[i]);
         }
-        if(ampConfig instanceof Registrar){
-            ((Registrar)ampConfig).removeFromAmpConfig(oldSeismos);
-        }else{
-            ampConfig.remove(oldSeismos);
-        }
-        if(timeConfig instanceof Registrar){
-            ((Registrar)timeConfig).removeFromTimeConfig(oldSeismos);
-        }else{
-            timeConfig.remove(oldSeismos);
-        }
+        removeFromAmpConfig(oldSeismos);
+        removeFromTimeConfig(oldSeismos);
     }
 
     public synchronized void clear(){
-        remove(getSeismograms());
+        seismos.clear();
+        clearAmpConfig();
+        clearTimeConfig();
     }
 
     /**
@@ -204,16 +171,8 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
      *
      */
     public synchronized void reset(){
-        if(timeConfig instanceof Registrar){
-            ((Registrar)timeConfig).resetTimeConfig();
-        }else{
-            timeConfig.reset();
-        }
-        if(ampConfig instanceof Registrar){
-            ((Registrar)ampConfig).resetAmpConfig();
-        }else{
-            ampConfig.reset();
-        }
+        resetTimeConfig();
+        resetAmpConfig();
     }
 
     /**
@@ -222,16 +181,8 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
      * @param seismos the seismograms to be reset
      */
     public synchronized void reset(DataSetSeismogram[] seismos){
-        if(timeConfig instanceof Registrar){
-            ((Registrar)timeConfig).resetTimeConfig(seismos);
-        }else{
-            timeConfig.reset(seismos);
-        }
-        if(ampConfig instanceof Registrar){
-            ((Registrar)ampConfig).resetAmpConfig(seismos);
-        }else{
-            ampConfig.reset(seismos);
-        }
+        resetAmpConfig(seismos);
+        resetTimeConfig(seismos);
     }
 
     //End of implementation of DataSetSeismogramRegistrar
@@ -437,6 +388,14 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         }
     }
 
+    private void clearTimeConfig(){
+        if(timeConfig instanceof Registrar){
+            ((Registrar)timeConfig).clearTimeConfig();
+        }else{
+            timeConfig.clear();
+        }
+    }
+
     private void addToAmpConfig(DataSetSeismogram[] seismograms){
         if(ampConfig instanceof Registrar){
             ((Registrar)ampConfig).addToAmpConfig(seismograms);
@@ -469,6 +428,15 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         }
     }
 
+    private void clearAmpConfig(){
+        if(ampConfig instanceof Registrar){
+            ((Registrar)ampConfig).clearAmpConfig();
+        }else{
+            ampConfig.clear();
+        }
+    }
+
+
     private TimeConfig timeConfig;
 
     private AmpConfig ampConfig;
@@ -484,5 +452,4 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
     private TimeEvent timeEvent;
 
     private AmpEvent ampEvent;
-
 }// Registrar
