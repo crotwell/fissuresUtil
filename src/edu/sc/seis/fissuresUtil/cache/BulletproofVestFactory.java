@@ -19,11 +19,10 @@ public class BulletproofVestFactory{
      * to use a NSNetworkDC as the type of NetworkDCOperations as it allows the
      * NetworkDC to be refreshed from the naming service if the reference goes stale
      *
-     * @throws IllegalArguemtnException if the netDC does not wrap a NSNetworkDC at some level.
      */
     public static ProxyNetworkAccess vestNetworkAccess(NetworkAccess na, ProxyNetworkDC netDC) {
         //avoid vesting if it is already vested.
-        if(na instanceof CacheNetworkAccess) {
+        if(na instanceof ProxyNetworkAccess) {
             return (ProxyNetworkAccess) na;
         }else {
             // side effect, make sure we have an NSNetworkDC inside the ProxyNetworkDC
