@@ -11,7 +11,7 @@ import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.Time;
 
-public class NSSeismogramDC implements DataCenterOperations{
+public class NSSeismogramDC implements ProxySeismogramDC {
     public NSSeismogramDC(String serverDNS,
                           String serverName,
                           FissuresNamingService fissuresNamingService) {
@@ -26,6 +26,10 @@ public class NSSeismogramDC implements DataCenterOperations{
 
     public synchronized void reset() {
         dc = null;
+    }
+
+    public DataCenter getCorbaObject() {
+        return getDataCenter();
     }
 
     public synchronized DataCenter getDataCenter() {
