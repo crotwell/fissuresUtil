@@ -6,9 +6,10 @@ package edu.sc.seis.fissuresUtil.map;
  * @author Created by Charlie Groves
  */
 
-import com.bbn.openmap.Layer;
+import com.bbn.openmap.event.MapMouseListener;
+import com.bbn.openmap.event.NavMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
-import com.bbn.openmap.omGraphics.OMGraphic;
+import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
 import edu.iris.Fissures.IfNetwork.Station;
@@ -18,9 +19,10 @@ import edu.sc.seis.fissuresUtil.chooser.StationDataListener;
 import edu.sc.seis.fissuresUtil.chooser.StationSelectionEvent;
 import edu.sc.seis.fissuresUtil.chooser.StationSelectionListener;
 import java.awt.Color;
+import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
-public class StationLayer extends Layer implements StationDataListener,
+public class StationLayer extends MouseAdapterLayer implements StationDataListener,
     StationSelectionListener{
     /**
      * Adds this layer as a listener on station data arriving and station
@@ -33,6 +35,7 @@ public class StationLayer extends Layer implements StationDataListener,
         //add the necessary data listeners to the channel chooser, provided it exists
         c.addStationDataListener(this);
         c.addStationSelectionListener(this);
+        chooser = c;
     }
 
     public void paint(java.awt.Graphics g) {
@@ -88,7 +91,7 @@ public class StationLayer extends Layer implements StationDataListener,
                   OMPoly.COORDMODE_ORIGIN);
             station = stat;
             setFillPaint(Color.BLUE);
-            setSelectPaint(Color.RED);
+            setLinePaint(Color.BLACK);
             generate(getProjection());
         }
 
@@ -96,14 +99,61 @@ public class StationLayer extends Layer implements StationDataListener,
             return station;
         }
 
+        public void select(){
+            setFillPaint(Color.RED);
+            selected = true;
+        }
+
+        public boolean toggleSelection(){
+            if(!selected){
+                select();
+            }else{
+                deselect();
+            }
+            return selected;
+        }
+
+        public void deselect(){
+            setFillPaint(Color.BLUE);
+            selected = false;
+        }
+
+        private boolean selected = false;
+
         private Station station;
     }
-    private static int[] xPoints = {-3, 0, 3};
+    private static int[] xPoints = {-5, 0, 5};
 
-    private static int[] yPoints = {3, -3, 3};
+    private static int[] yPoints = {5, -5, 5};
 
     /**
      *  A list of graphics to be painted on the map.
      */
     private OMGraphicList omgraphics;
+
+    private static String[] modeList = { SelectMouseMode.modeID } ;
+
+    private ChannelChooser chooser;
+
+    public MapMouseListener getMapMouseListener(){
+        return this;
+    }
+
+    public String[] getMouseModeServiceList() {
+        return modeList;
+    }
+
+    public boolean mouseClicked(MouseEvent e){
+        Iterator it = omgraphics.iterator();
+        while(it.hasNext()){
+            OMStation current = (OMStation)it.next();
+            if(current.contains(e.getX(), e.getY())){
+                chooser.toggleStationSelected(current.getStation());
+                //current.toggleSelection();
+                //chooser.setStationSelected(current.getStation());
+                //repaint();
+            }
+        }
+        return true;
+    }
 }
