@@ -398,7 +398,6 @@ public class SeismogramPDFBuilder {
             lastSaveLocation = file.getParentFile();
             String newExtension =
                 file.getName().substring(file.getName().lastIndexOf(".")+1);
-                System.out.println("extension old="+file.getName()+" ext="+extension+"  new="+newExtension);
             if ( ! newExtension.equalsIgnoreCase(extension)) {
                 // add extension to end
                 file = new File(file.getAbsolutePath()+"."+extension);
@@ -452,3 +451,4 @@ public class SeismogramPDFBuilder {
     // these numbers are wrt the scale layers.
     int leftMargin = 50;
 }
+
