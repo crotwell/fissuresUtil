@@ -64,7 +64,7 @@ public class ExtendedXMLDataSet extends XMLDataSet{
 	DataSetSeismogram dss = (DataSetSeismogram)dataSetSeismograms.get(name);
 	return dss;
     }
-    
+
 
     Map dataSetSeismograms = new HashMap();
     List dssNames = new LinkedList();

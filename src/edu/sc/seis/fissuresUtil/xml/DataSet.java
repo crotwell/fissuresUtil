@@ -126,4 +126,6 @@ public interface DataSet {
     
     public DataSetSeismogram getDataSetSeismogram(String name);
 
+    public String[] getDataSetSeismogramNames();
+
 }
