@@ -57,13 +57,20 @@ public class FissuresConvert  {
                     header.setNumSamples((short)eData[i].num_points);
                     start = start.add((TimeInterval)sampPeriod.multiplyBy(eData[i].num_points));
 
-                    // >0 so samples/second
-                    // mul by 500 to preserve more digits, 20 sps => 10000
-                    // 100
-                    // this may not be the best in all cases, but is a
-                    // reasonable guess
-                    header.setSampleRateFactor((short)(1/sampPeriod.convertTo(UnitImpl.SECOND).getValue()*100));
-                    header.setSampleRateMultiplier((short) -100);
+
+                    double sps = 1/sampPeriod.convertTo(UnitImpl.SECOND).getValue();
+
+
+                    // don't get too close to the max for a short, use ceil as neg
+                    int divisor = (int)Math.ceil((Short.MIN_VALUE+2)/sps);
+                    // don't get too close to the max for a short
+                    if (divisor < Short.MIN_VALUE+2) {
+                        divisor = Short.MIN_VALUE+2;
+                    }
+                    int factor = (int)Math.round(-1*sps*divisor);
+
+                    header.setSampleRateFactor((short)factor);
+                    header.setSampleRateMultiplier((short)divisor);
 
                     b1000.setEncodingFormat((byte)eData[i].compression);
                     if ( eData[i].byte_order ) {
