@@ -16,8 +16,7 @@ public class AmpConfigConfiguration implements Cloneable {
         if(type.equals("individual")) {
             if(DOMHelper.hasElement(element, "ampConfig")) {
                 Element ampConfigEl = DOMHelper.getElement(element, "ampConfig");
-                ampConfig = AmpConfigConfiguration.create(ampConfigEl)
-                        .createAmpConfig();
+                ampConfigForIndividualizedInternal = AmpConfigConfiguration.create(ampConfigEl);
             }
         }
     }
@@ -29,7 +28,7 @@ public class AmpConfigConfiguration implements Cloneable {
         } else if(type.equals("rmean")) {
             ac = new RMeanAmpConfig();
         } else if(type.equals("individual")) {
-            ac = new IndividualizedAmpConfig(ampConfig);
+            ac = new IndividualizedAmpConfig(ampConfigForIndividualizedInternal.createAmpConfig());
         }
         return ac;
     }
@@ -50,13 +49,13 @@ public class AmpConfigConfiguration implements Cloneable {
     public Object clone() {
         AmpConfigConfiguration clone = new AmpConfigConfiguration();
         clone.type = type;
-        clone.ampConfig = ampConfig;
+        clone.ampConfigForIndividualizedInternal = ampConfigForIndividualizedInternal;
         return clone;
     }
 
     private String type;
 
-    private AmpConfig ampConfig;
+    private AmpConfigConfiguration ampConfigForIndividualizedInternal;
 
     private static ConfigDefinitions defs = new ConfigDefinitions();
 }

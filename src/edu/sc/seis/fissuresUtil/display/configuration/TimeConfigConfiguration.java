@@ -28,7 +28,7 @@ public class TimeConfigConfiguration implements Cloneable {
             throws NoSuchFieldException {
         if(DOMHelper.hasElement(element, "timeConfig")) {
             Element el = DOMHelper.getElement(element, "timeConfig");
-            timeConfig = TimeConfigConfiguration.create(el).createTimeConfig();
+            realTimeInternalTimeConfig = TimeConfigConfiguration.create(el);
         }
         if(DOMHelper.hasElement(element, "advanceInterval")) {
             Element intervalEl = DOMHelper.getElement(element,
@@ -74,7 +74,9 @@ public class TimeConfigConfiguration implements Cloneable {
         } else if(type.equals("phaseAligned")) {
             tc = new PhaseAlignedTimeConfig(phaseName);
         } else if(type.equals("autoAdvance")) {
-            tc = new RTTimeRangeConfig(timeConfig, advanceInterval, advPerSec);
+            tc = new RTTimeRangeConfig(realTimeInternalTimeConfig.createTimeConfig(),
+                                       advanceInterval,
+                                       advPerSec);
         }
         return tc;
     }
@@ -83,7 +85,7 @@ public class TimeConfigConfiguration implements Cloneable {
         TimeConfigConfiguration clone = new TimeConfigConfiguration();
         clone.type = type;
         clone.phaseName = phaseName;
-        clone.timeConfig = timeConfig;
+        clone.realTimeInternalTimeConfig = realTimeInternalTimeConfig;
         clone.advanceInterval = advanceInterval;
         clone.advPerSec = advPerSec;
         return clone;
@@ -93,7 +95,7 @@ public class TimeConfigConfiguration implements Cloneable {
 
     private String phaseName;
 
-    private TimeConfig timeConfig;
+    private TimeConfigConfiguration realTimeInternalTimeConfig;
 
     private TimeInterval advanceInterval = RTTimeRangeConfig.DEFAULT_REFRESH;
 
