@@ -185,6 +185,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(particleDisplay != null){
 	    particleWindow.dispose();
 	    particleDisplays--;
+	    particleDisplay.removeAll();
 	    particleDisplay = null;
 	}
 	repaint();
@@ -294,8 +295,14 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(particleDisplay == null){
 	    logger.debug("creating particle display");
 	    particleWindow = new JFrame(particleWindowName);
+	    particleWindow.addWindowListener(new WindowAdapter() {
+		    public void windowClosing(WindowEvent e) {
+			particleDisplay.removeAll();
+			particleDisplays--;
+		    }
+		});
 	    particleDisplay = new ParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
-							(TimeConfigRegistrar)creator.getTimeConfig(), 
+							new TimeConfigRegistrar((TimeConfigRegistrar)creator.getTimeConfig()), 
 							creator.getAmpRegistrar(), 
 							creator.getAmpRegistrar(),
 							advancedOption);
