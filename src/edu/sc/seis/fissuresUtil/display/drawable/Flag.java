@@ -36,17 +36,17 @@ import org.w3c.dom.Element;
  */
 
 public class Flag implements Drawable{
-    
+
     public Flag(MicroSecondDate flagTime, String name) {
         this(flagTime, name, null);
     }
-    
+
     public Flag(MicroSecondDate flagTime, String name, DrawableSeismogram seis) {
         this.flagTime = flagTime;
         this.name = name;
         this.seis = seis;
     }
-    
+
     public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent) {
         if(visible){
             MicroSecondTimeRange timeRange = timeEvent.getTime();
@@ -92,56 +92,58 @@ public class Flag implements Drawable{
             canvas.drawString(name, location + PADDING/2, stringBounds.height - PADDING/2);
         }
     }
-	
-	public static Flag getFlagFromElement(Element el){
-		String name = el.getAttribute("name");
-		logger.debug("Flag name: " + name);
-		logger.debug("Flag time from element: " + el.getAttribute("time"));
-		MicroSecondDate time = new MicroSecondDate(new Time(el.getAttribute("time"), 0));
-		logger.debug("Flag time: " + time.getFissuresTime().date_time);
-		
-		return new Flag(time, name);
-	}
-	
-	public static Element createFlagElement(String name, MicroSecondDate time) throws ParserConfigurationException{
-		Document doc = XMLDataSet.getDocumentBuilder().newDocument();
-		Element el = doc.createElement("pickFlag");
-		el.setAttribute("name", name);
-		el.setAttribute("time", time.getFissuresTime().date_time);
-		return el;
-	}
-	
+
+    public static Flag getFlagFromElement(Element el){
+        String name = el.getAttribute("name");
+        logger.debug("Flag name: " + name);
+        logger.debug("Flag time from element: " + el.getAttribute("time"));
+        MicroSecondDate time = new MicroSecondDate(new Time(el.getAttribute("time"), 0));
+        logger.debug("Flag time: " + time.getFissuresTime().date_time);
+
+        return new Flag(time, name);
+    }
+
+    public static Element createFlagElement(String name, MicroSecondDate time) throws ParserConfigurationException{
+        Document doc = XMLDataSet.getDocumentBuilder().newDocument();
+        Element el = doc.createElement("pickFlag");
+        el.setAttribute("name", name);
+        el.setAttribute("time", time.getFissuresTime().date_time);
+        return el;
+    }
+
+    public String getName(){ return name; }
+
     private Area flag;
-    
+
     private int prevLocation;
-    
+
     public Color getColor(){ return color; }
-    
+
     public void setColor(Color color){ this.color = color; }
-    
+
     public void setVisibility(boolean b){ visible = b; }
-    
+
     public MicroSecondDate getFlagTime(){ return flagTime; }
-    
+
     public void setFlagTime(MicroSecondDate flagTime) {
         this.flagTime = flagTime;
     }
-    
+
     private Color color = Color.RED;
-    
+
     private boolean visible = true;
-    
+
     private MicroSecondDate flagTime;
-    
+
     private String name;
-    
+
     private DrawableSeismogram seis;
-    
+
     //pixels of space of flag around the font
     private static final int PADDING = 4;
-    
+
     private static Category logger = Category.getInstance(Flag.class.getName());
-	
-	private ToolTipManager tipManager = ToolTipManager.sharedInstance();
-    
+
+    private ToolTipManager tipManager = ToolTipManager.sharedInstance();
+
 }// FlagPlotter
