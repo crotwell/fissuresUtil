@@ -54,7 +54,7 @@ public class DataHeaderTest extends TestCase {
         int min = 23;
         int sec = 56;
         int tsec = 9870; // ISO time doesn't use tenthmillis, last is 0
-        System.out.println(""+year+jday+"J"+hour+min+sec+"."+tsec+"Z");
+       // System.out.println(""+year+jday+"J"+hour+min+sec+"."+tsec+"Z");
         ISOTime iso = new ISOTime(""+year+jday+"J"+hour+min+sec+"."+tsec+"Z");
         header.setStartTime(iso.getDate());
         header.setStationIdentifier("ACFLR");
@@ -101,7 +101,7 @@ public class DataHeaderTest extends TestCase {
         int min = 23;
         int sec = 56;
         int tsec = 9870; // ISO time doesn't use tenthmillis, last is 0
-        System.out.println(""+year+jday+"J"+hour+min+sec+"."+tsec+"Z");
+       // System.out.println(""+year+jday+"J"+hour+min+sec+"."+tsec+"Z");
         ISOTime iso = new ISOTime(""+year+jday+"J"+hour+min+sec+"."+tsec+"Z");
         header.setStartTime(iso.getDate());
         MicroSecondDate orig = iso.getDate();
