@@ -40,10 +40,9 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
         try {
 	    double min = seis.getMinValue(beginIndex, endIndex).getValue();
 	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
-	    if(min > max)
-		ampRange = new UnitRangeImpl(min, -min, seis.getAmplitudeRange().getUnit());
-	    else
-		ampRange = new UnitRangeImpl(-max, max, seis.getAmplitudeRange().getUnit());
+	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
+	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
+	    ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
 	}catch (Exception e) {
 	    ampRange = new UnitRangeImpl(-500, 500, UnitImpl.COUNT);
         }
