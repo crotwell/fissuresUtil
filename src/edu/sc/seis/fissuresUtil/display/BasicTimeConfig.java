@@ -40,14 +40,12 @@ public class BasicTimeConfig implements TimeConfig{
      * @param seismo the seismogram to be added
      */
     public void add(DataSetSeismogram[] seismos){
-	if(interval == null){
-	    interval = getInterval(seismos[0]);
+	if(time == null){
+	    time = new MicroSecondTimeRange(seismos[0].getSeismogram().getBeginTime(), getInterval(seismos[0]));
 	}
 	for(int i = 0; i < seismos.length; i++){
 	    if(!contains(seismos[i])){
-		MicroSecondTimeRange current = new MicroSecondTimeRange(seismos[i].getSeismogram().getBeginTime(),
-									getInterval(seismos[i]));
-		seismoTimes.put(seismos[i], current.shale(shift, scale));
+		seismoTimes.put(seismos[i], time);
 	    }
 	}
 	seismograms = null;
@@ -109,7 +107,6 @@ public class BasicTimeConfig implements TimeConfig{
      * @param seismo a <code>DataSetSeismogram</code> to be reset
      */
     public void reset(DataSetSeismogram[] seismos){
-	interval = getInterval(seismos[0]);
 	for(int i = 0; i < seismos.length; i++){
 	    seismoTimes.remove(seismos[i]);
 	}
@@ -123,9 +120,9 @@ public class BasicTimeConfig implements TimeConfig{
     public void shaleTime(double shift, double scale, DataSetSeismogram[] seismos){
 	this.shift += shift * this.scale;
 	this.scale *= scale;
-	interval = (TimeInterval)interval.multiplyBy(scale);
+	time = time.shale(shift, scale);
 	for(int i = 0; i < seismos.length; i++){
-	    seismoTimes.put(seismos[i], ((MicroSecondTimeRange)seismoTimes.get(seismos[i])).shale(shift, scale));
+	    seismoTimes.put(seismos[i], time);
 	}
 	fireTimeEvent();
     }
@@ -134,9 +131,12 @@ public class BasicTimeConfig implements TimeConfig{
 	DataSetSeismogram[] seismos = getSeismograms();
 	MicroSecondTimeRange[] times = new MicroSecondTimeRange[seismos.length];
 	for(int i = 0; i < seismos.length; i++){
-	    times[i] = (MicroSecondTimeRange)seismoTimes.get(seismos[i]);
+	    times[i] = time;
 	}
-	TimeEvent event = new TimeEvent(seismos, times);
+	return fireTimeEvent(new TimeEvent(seismos, times));
+    }
+
+    protected TimeEvent fireTimeEvent(TimeEvent event){
 	Iterator f = listeners.iterator();
 	while(f.hasNext()){
 	    ((TimeListener)f.next()).updateTime(event);
@@ -167,13 +167,13 @@ public class BasicTimeConfig implements TimeConfig{
      * <code>seismoTimes</code> contains all of the seismograms held by this config with their current TimeRange
      *
      */
-    private Map seismoTimes = new HashMap();
+    protected Map seismoTimes = new HashMap();
     
     private DataSetSeismogram[] seismograms;
 
-    private double shift;
+    protected double shift;
 
-    private double scale = 1;
+    protected double scale = 1;
 
-    protected TimeInterval interval;
+    private MicroSecondTimeRange time;
 }// BasicTimeConfig
