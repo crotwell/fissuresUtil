@@ -22,6 +22,7 @@ import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.Arrival;
 import edu.iris.Fissures.IfNetwork.Channel;
+import edu.sc.seis.TauP.SphericalCoords;
 
 public class PhaseAlignedTimeConfig extends RelativeTimeConfig{
     public MicroSecondTimeRange getInitialTime(DataSetSeismogram seis){
@@ -66,9 +67,9 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig{
         QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
         depth = depth.convertTo(UnitImpl.KILOMETER);
         taup.setSourceDepth(depth.getValue());
-        DistAz distAz = new DistAz(station.latitude, station.longitude,
+        double degrees = SphericalCoords.distance(station.latitude, station.longitude,
                                    origin.my_location.latitude, origin.my_location.longitude);
-        taup.calculate(distAz.delta);
+        taup.calculate(degrees);
         Arrival[] arrivals = taup.getArrivals();
         MicroSecondDate out =  new MicroSecondDate(origin.origin_time);
         if (arrivals.length > 0) {
