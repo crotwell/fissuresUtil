@@ -74,6 +74,11 @@ public class StationLoader extends Thread
                 boolean okToAdd;
                 for (int j=0; j<newStations.length; j++)
                 {
+                    // check station name not exist, use code in that case
+                    if (newStations[j].name == null ||
+                        newStations[j].name.length() < 3) {
+                        newStations[j].name = newStations[j].get_code();
+                    }
                     Iterator it = acceptors.iterator();
                     okToAdd = true;
                     while (it.hasNext())
