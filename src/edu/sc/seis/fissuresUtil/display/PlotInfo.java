@@ -15,21 +15,24 @@ import edu.iris.Fissures.model.TimeInterval;
  */
 
 public class PlotInfo {
-    public PlotInfo(Dimension size, HashMap plotters, TimeInterval displayInterval){
+    public PlotInfo(Dimension size, HashMap seisPlotters, HashMap filterPlotters, TimeInterval displayInterval){
 	this.size = size;
-	this.plotters = plotters;
+	this.seisPlotters = seisPlotters;
+	this.filterPlotters = filterPlotters;
 	this.displayInterval = displayInterval;
     }
 
     public Dimension getSize(){ return size; }
 
-    public HashMap getPlotters(){ return plotters; }
+    public HashMap getFilterPlotters(){ return filterPlotters; }
+
+    public HashMap getSeisPlotters(){ return seisPlotters; }
 
     public TimeInterval getDisplayInterval(){ return displayInterval; }
 
     private Dimension size;
     
-    private HashMap plotters;
+    private HashMap seisPlotters, filterPlotters;
 
     private TimeInterval displayInterval;
 }// PlotInfo

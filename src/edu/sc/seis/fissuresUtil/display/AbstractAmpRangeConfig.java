@@ -70,7 +70,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      * @param seis a <code>LocalSeismogram</code> value
      */
     public void removeSeismogram(LocalSeismogram seis){ 
-	if(seismos.size() < 1)
+	if(seismos.size() == 1)
 	    if(timeRegistrar != null)
 		timeRegistrar.removeTimeSyncListener(this);
 	seismos.remove(seis); 

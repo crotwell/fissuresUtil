@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 public interface GlobalToolbarActions {
     public void drag(MouseEvent meOne, MouseEvent meTwo);
 
+    public void print();
+
     public void mouseMoved(MouseEvent me);
 
     public void mouseReleased(MouseEvent me);

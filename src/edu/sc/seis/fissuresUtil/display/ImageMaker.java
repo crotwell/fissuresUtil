@@ -50,7 +50,7 @@ public class ImageMaker implements Runnable  {
 	Graphics2D graphic;
 	Image currentImage = null;
 	Dimension size; 
-	HashMap plotters;
+	HashMap filterPlotters, seisPlotters;
 	numLeft = requests.size();
 	while(numLeft > 0){
 	    begin = new Date();
@@ -59,7 +59,8 @@ public class ImageMaker implements Runnable  {
 		currentPatron = ((BasicSeismogramDisplay.ImagePainter)requests.getFirst()); 
 		currentRequirements = ((PlotInfo)patrons.get(currentPatron)); 
 		size = currentRequirements.getSize();
-		plotters = ((HashMap)currentRequirements.getPlotters().clone());
+		seisPlotters = ((HashMap)currentRequirements.getSeisPlotters().clone());
+		filterPlotters = ((HashMap)currentRequirements.getFilterPlotters().clone());
 	    	if(requests.contains(currentPatron) && size.width > 0){
 		    currentImage = currentPatron.createImage(size.width, size.height);
 		    graphic = (Graphics2D)currentImage.getGraphics();
@@ -69,37 +70,28 @@ public class ImageMaker implements Runnable  {
 		    break;
 		}
 	    }
-	    Iterator e = plotters.keySet().iterator();
-	    LinkedList afterSeismograms = new LinkedList();
-	    LinkedList flags = new LinkedList();
+	    Iterator e = seisPlotters.keySet().iterator();
 	    graphic.setColor(Color.white);
 	    graphic.fill(new Rectangle(0, 0, size.width, size.height));
 	    Date beginPlotting = new Date();
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
-		if(current instanceof SeismogramPlotter){
-		    graphic.setColor((Color)plotters.get(current));
-		    graphic.draw(current.draw(size));
-		}else if(current instanceof FlagPlotter){
-		    flags.add(current);
-		}else{
-		    afterSeismograms.add(current);
-		}
+		graphic.setColor((Color)seisPlotters.get(current));
+		graphic.draw(current.draw(size));
 	    }
-	    e = flags.iterator();
+	    e = filterPlotters.keySet().iterator();
 	    while(e.hasNext()){
+		Plotter current = ((Plotter)e.next());
+		graphic.setColor((Color)filterPlotters.get(current));
+		graphic.draw(current.draw(size));
+	    }
+	    /*while(e.hasNext()){
 		FlagPlotter current = ((FlagPlotter)e.next());
 		graphic.setColor((Color)plotters.get(current));
 		graphic.fill(current.draw(size));
 		graphic.setColor(Color.black);
 		graphic.drawString(current.getName(), current.getStringX(), 10);
-	    }
-	    e = afterSeismograms.iterator();
-	    while(e.hasNext()){
-		Plotter current = ((Plotter)e.next());
-		graphic.setColor((Color)plotters.get(current));
-		graphic.draw(current.draw(size));
-	    }
+		}*/
 	    Date endPlotting = new Date();
 	    long interval = (endPlotting.getTime() - beginPlotting.getTime());
 	    //logger.debug("plotting: " + interval + "ms");
