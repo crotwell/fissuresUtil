@@ -1,23 +1,23 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfEvent.*;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
+import org.apache.log4j.Logger;
 
 import edu.iris.Fissures.AuditElement;
-import edu.iris.Fissures.IfParameterMgr.ParameterComponent;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.IfEvent.*;
+import edu.iris.Fissures.IfParameterMgr.ParameterComponent;
 import edu.iris.Fissures.event.EventAttrImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.ParseRegions;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import org.apache.log4j.Logger;
 
 /**
  * CacheEvent.java
@@ -161,8 +161,9 @@ public class CacheEvent implements EventAccessOperations {
         if(o == this){ return true; }
         else if (getEventAccess() != null &&
                  o instanceof CacheEvent &&
-                     ((CacheEvent)o).getEventAccess() != null) {
-            return getEventAccess().equals(((CacheEvent)o).getEventAccess());
+                     ((CacheEvent)o).getEventAccess() != null &&
+                     getEventAccess().equals(((CacheEvent)o).getEventAccess())) {
+            return true;
         }else if(o instanceof EventAccessOperations){
             EventAccessOperations oEvent = (EventAccessOperations)o;
             if(get_attributes().equals(oEvent.get_attributes())){
