@@ -13,7 +13,9 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -387,25 +389,21 @@ public class PlottableDisplay extends JComponent {
     }
 
     public void outputToPNG(File file) throws IOException {
-        outputToPNG(file, getPreferredSize());
-    }
-
-    public void outputToPNG(File file, Dimension size) throws IOException {
         file.getCanonicalFile().getParentFile().mkdirs();
         File temp = File.createTempFile(file.getName(),
                                         null,
                                         file.getParentFile());
+        outputToPNG(new FileOutputStream(temp));
+        file.delete();
+        temp.renameTo(file);
+    }
+
+    public void outputToPNG(OutputStream out) throws IOException{
         BufferedImage img = new BufferedImage(getSize().width,
                                               getSize().height,
                                               BufferedImage.TYPE_INT_RGB);
-        renderToGraphics((Graphics2D)img.getGraphics(), size);
-        try {
-            Thread.sleep(5000);
-        } catch(InterruptedException e) {}
-        ImageIO.write(img, "png", temp);
-        //        ImageIO.write((RenderedImage)createImage(), "png", temp);
-        file.delete();
-        temp.renameTo(file);
+        renderToGraphics((Graphics2D)img.getGraphics(), getSize());
+        ImageIO.write(img, "png", out);
     }
 
     public int[] findMinMax(Plottable[] arrayplottable) {
