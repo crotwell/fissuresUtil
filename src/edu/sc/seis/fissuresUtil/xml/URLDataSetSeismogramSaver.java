@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
+import org.apache.log4j.Logger;
 
 public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
     URLDataSetSeismogramSaver(DataSetSeismogram dss,
@@ -50,14 +51,17 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
     }
 
     public void error(SeisDataErrorEvent sdce) {
+        logger.debug("Got error "+sdce.getCausalException());
         setError(sdce.getCausalException());
     }
 
     public void finished(SeisDataChangeEvent sdce) {
+        logger.debug("Got finished");
         finished = true;
     }
 
     public void pushData(SeisDataChangeEvent sdce) {
+        logger.debug("Got pushData");
         LocalSeismogramImpl[] seis = sdce.getSeismograms();
 
         for (int i = 0; i < seis.length; i++) {
@@ -94,5 +98,8 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
     DataSetSeismogram inDSS;
 
     URLDataSetSeismogram urlDSS;
+
+    private static Logger logger = Logger.getLogger(URLDataSetSeismogramSaver.class);
+
 }
 
