@@ -6,8 +6,11 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -36,17 +39,21 @@ public class BorderedDisplay extends JPanel {
     }
 
     public void outputToPNG(File loc, Dimension size) throws IOException {
-        BufferedImage bImg = new BufferedImage(size.width,
-                                               size.height,
-                                               BufferedImage.TYPE_INT_RGB);
-        renderToGraphics(bImg.createGraphics(), size);
         loc.getCanonicalFile().getParentFile().mkdirs();
         File temp = File.createTempFile(loc.getName(),
                                         null,
                                         loc.getParentFile());
-        ImageIO.write(bImg, "png", temp);
+        outputToPNG(new BufferedOutputStream(new FileOutputStream(temp)), size);
         loc.delete();
         temp.renameTo(loc);
+    }
+
+    public void outputToPNG(OutputStream loc, Dimension size) throws IOException {
+        BufferedImage bImg = new BufferedImage(size.width,
+                                               size.height,
+                                               BufferedImage.TYPE_INT_RGB);
+        renderToGraphics(bImg.createGraphics(), size);
+        ImageIO.write(bImg, "png", loc);
     }
 
     public void renderToGraphics(Graphics2D g) {
