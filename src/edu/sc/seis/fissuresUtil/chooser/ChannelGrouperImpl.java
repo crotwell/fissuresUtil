@@ -77,11 +77,11 @@ public class ChannelGrouperImpl {
 	      
 	    }
 	    if( searchString.equals("___") ) {
-		//System.out.println("---------------___----------> RETURNING THE CHANNELS");
+		logger.debug("---------------___----------> RETURNING THE CHANNELS");
 		for(int counter = 0; counter < rtnchannels.length; counter++) {
 
-		    //if(rtnchannels[counter] == null) //System.out.println(" IS NULL ");
-		    // else //System.out.println(" IS NOT NULL ");
+		    if(rtnchannels[counter] == null) System.out.println(" IS NULL ");
+		    else System.out.println(" IS NOT NULL ");
 		}
 		return rtnchannels;
 	    }
@@ -144,11 +144,11 @@ public class ChannelGrouperImpl {
 	      
 	    }
 	    if( searchString.equals("___") ) {
-		//System.out.println("---------------___----------> RETURNING THE CHANNELS");
+	       logger.debug("---------------___----------> RETURNING THE CHANNELS");
 		for(int counter = 0; counter < rtnchannels.length; counter++) {
 
-		    //if(rtnchannels[counter] == null) //System.out.println(" IS NULL ");
-		    // else //System.out.println(" IS NOT NULL ");
+		   if(rtnchannels[counter] == null) logger.debug(" "+counter+"  IS NULL ");
+		   else logger.debug(" "+counter+"  IS NOT NULL ");
 		}
 		return sortChannelGroup(rtnchannels);
 	    }
