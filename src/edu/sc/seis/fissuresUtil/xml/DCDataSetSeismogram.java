@@ -69,7 +69,6 @@ public class DCDataSetSeismogram
             uncovered = DBDataCenter.notCovered(uncovered, cachedSeismos);
         }
         try{
-            System.out.println("requesting seismograms");
             if(this.dataCenterOps instanceof DBDataCenter && uncovered.length > 0) {
                 ((DBDataCenter)this.dataCenterOps).request_seismograms(uncovered,
                                                                            (LocalDataCenterCallBack)this,
