@@ -330,6 +330,7 @@ public class FissuresNamingService {
      */
     public void unbind(String dns, String interfacename, String objectname)
             throws NotFound, CannotProceed, InvalidName {
+        logger.info("unbind "+dns+"/"+interfacename+"/"+objectname);
         unbind(dns, interfacename, objectname, getNameService());
         Iterator it = otherNS.iterator();
         while(it.hasNext()) {
