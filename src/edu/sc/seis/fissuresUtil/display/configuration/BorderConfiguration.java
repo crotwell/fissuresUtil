@@ -139,7 +139,7 @@ public class BorderConfiguration implements Cloneable {
         clone.minTickValue = minTickValue;
         clone.maxTickValue = maxTickValue;
         clone.titles.addAll(titles);
-        return this;
+        return clone;
     }
 
     private String type = TITLE, order = ASCENDING, position = LEFT;
