@@ -51,7 +51,10 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
                                    DataSet ds,
                                    String name) {
         super(ds, name);
-        if (seis == null || seis.length == 0) {
+        if (seis == null) {
+            throw new IllegalArgumentException("Seismogram array cannot be null");
+        }
+        if (seis.length == 0) {
             throw new IllegalArgumentException("Seismogram array cannot be empty");
         }
         requestFilter = makeRequestFilter(seis);
