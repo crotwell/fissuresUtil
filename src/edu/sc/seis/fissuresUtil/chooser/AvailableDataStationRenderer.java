@@ -27,6 +27,8 @@ import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JList;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.network.NetworkIdUtil;
 
 public class AvailableDataStationRenderer extends NameListCellRenderer {
 
@@ -66,7 +68,6 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
     }
 
     protected void startThread() {
-        logger.debug("start threads for network/station checks");
         // first start the network checker as it may be more efficient
         // in case networks are already loaded
         recheckNetworks();
@@ -112,8 +113,12 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             Station station = (Station)it.next();
             Object obj = stationsUpNow.get(station);
             if (!(obj instanceof Station)){
-                boolean b = ((Boolean)obj).booleanValue();
-                listener.stationAvailabiltyChanged(new AvailableStationDataEvent(this, station, b));
+                int status = ((Boolean)obj).booleanValue()
+                    ? AvailableStationDataEvent.UP
+                    : AvailableStationDataEvent.DOWN;
+                listener.stationAvailabiltyChanged(new AvailableStationDataEvent(this,
+                                                                                 station,
+                                                                                 status));
             }
         }
     }
@@ -123,10 +128,15 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
+        AvailableStationDataEvent fooEvent = null;
         for (int i = listeners.length-2; i>=0; i-=2) {
             if (listeners[i]==AvailableStationDataListener.class) {
                 // Lazily create the event:
-                AvailableStationDataEvent fooEvent = new AvailableStationDataEvent(this, sta, isUp);
+                if (fooEvent == null) {
+                    int status = isUp
+                        ? AvailableStationDataEvent.UP
+                        : AvailableStationDataEvent.DOWN;
+                    fooEvent = new AvailableStationDataEvent(this, sta, status); }
                 ((AvailableStationDataListener)listeners[i+1]).stationAvailabiltyChanged(fooEvent);
             }
         }
@@ -256,7 +266,6 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
     class NetworkChecker extends AbstractJob{
         NetworkChecker(NetworkAccess net) {
             super(net.get_attributes().get_code()+" Available Data");
-            logger.debug("NetworkChecker constructor"+net.get_attributes().get_code());
             this.net = net;
             JobTracker.getTracker().add(this);
         }
@@ -336,6 +345,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                     setStatus(consecutiveFailures+" ReRequesting available data status");
                 }
                 request = dc.available_data(request);
+                logger.debug(request.length+" items returned for "+net.get_attributes().get_code());
                 setStatus(request.length+" items returned");
                 if (request.length == 0) {
                     logger.warn("there is no available data "+net.get_attributes().get_code());
@@ -344,6 +354,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 LinkedList allStations = new LinkedList();
                 for (int i = 0; i < stations.length; i++) {
                     allStations.add(stations[i]);
+                    logger.debug(StationIdUtil.toString(stations[i].get_id()));
                 }
                 for (int i = 0; i < request.length; i++) {
                     if (request[i].channel_id.station_code.endsWith("-farm")) {
@@ -364,7 +375,6 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                             it.remove();
                         }
                     }
-                    it = null;
                 }
                 Iterator it = allStations.iterator();
                 while (it.hasNext()) {
@@ -374,7 +384,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 quitThread = true;
 
             } else {
-                logger.debug("no datacenter for network");
+                logger.warn("no datacenter for network "+NetworkIdUtil.toString(net.get_attributes().get_id()));
                 quitThread = false;
             }
         }
@@ -413,12 +423,10 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                     } else {
                         finishedError(station);
                     }
-                } catch (InterruptedException e) {
                 } catch (Exception e) {
                     logger.warn("Trouble checkng on the available data for "+
                                     StationIdUtil.toString(station.get_id()), e);
                     finishedError(station, e);
-
                 }
             }
         }
@@ -447,5 +455,5 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
     private List netCheckers = new ArrayList();
 
-    static Logger logger = Logger.getLogger(AvailableDataStationRenderer.class);
+    private static Logger logger = Logger.getLogger(AvailableDataStationRenderer.class);
 }

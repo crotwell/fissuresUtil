@@ -8,26 +8,38 @@ import edu.iris.Fissures.IfNetwork.Station;
  * @author Created by Philip Oliver-Paull
  */
 public class AvailableStationDataEvent{
-	private Object source;
-	private Station station;
-	private boolean isUp;
+    private Object source;
+    private Station station;
+    private int isUp;
 
-	public AvailableStationDataEvent(Object source, Station station, boolean isUp){
-		this.source = source;
-		this.station = station;
-		this.isUp = isUp;
-	}
+    public static final int UP = 2;
+    public static final int DOWN = 1;
+    public static final int UNKNOWN = 0;
 
-	public Object getSource(){
-		return source;
-	}
+    public AvailableStationDataEvent(Object source, Station station, int isUp){
+        this.source = source;
+        this.station = station;
+        this.isUp = isUp;
+    }
 
-	public Station getStation(){
-		return station;
-	}
+    public Object getSource(){
+        return source;
+    }
 
-	public boolean stationIsUp(){
-		return isUp;
-	}
+    public Station getStation(){
+        return station;
+    }
+
+    public boolean stationIsUp(){
+        return isUp == UP;
+    }
+
+    public boolean isStatusKnown() {
+        return isUp != 0;
+    }
+
+    public int getStationStatus() {
+        return isUp;
+    }
 }
 
