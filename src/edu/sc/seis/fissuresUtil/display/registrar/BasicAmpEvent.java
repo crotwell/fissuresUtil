@@ -41,7 +41,7 @@ public class BasicAmpEvent implements AmpEvent{
         return genericAmp;
     }
 
-    private void generateGenericAmp(){
+    protected void generateGenericAmp(){
         // Currently, we only do "real world units" in the case of one seismogram
         // eventually, the overlays should
         if(amps.length == 0){
@@ -82,13 +82,14 @@ public class BasicAmpEvent implements AmpEvent{
         throw new IllegalArgumentException("Seismogram is not in this AmpEvent");
     }
 
-    private DataSetSeismogram[] seismos;
+    protected DataSetSeismogram[] seismos;
 
-    private UnitRangeImpl[] amps;
+    protected UnitRangeImpl[] amps;
 
-    private UnitRangeImpl genericAmp;
+    protected UnitRangeImpl genericAmp;
 
     private static Logger logger = Logger.getLogger(BasicAmpEvent.class);
 
 }
+
 
