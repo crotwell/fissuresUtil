@@ -229,7 +229,7 @@ public class JDBCChannel extends NetworkTable {
     }
 
     public static String getNeededForChanId(){
-        return "chan_id, site_id, chan_code, chan_begin_id";
+        return "chan_id, channel.site_id, chan_code, chan_begin_id";
     }
 
     public static String getNeededForChannel(){
