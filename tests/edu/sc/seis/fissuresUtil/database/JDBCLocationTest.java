@@ -11,7 +11,7 @@ public class JDBCLocationTest extends TestCase {
     public JDBCLocationTest(String testname) { super(testname); }
     
     protected void setUp() throws SQLException {
-        Connection conn = ConnMgr.getConnection();
+        Connection conn = ConnMgr.createConnection();
         jdbcLocation = new JDBCLocation(conn);
     }
     

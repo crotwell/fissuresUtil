@@ -10,7 +10,7 @@ public class JDBCUnitTest extends TestCase {
     public JDBCUnitTest(String testname) { super(testname);  }
     
     public void setUp() throws SQLException{
-        table = new JDBCUnit(ConnMgr.getConnection());
+        table = new JDBCUnit(ConnMgr.createConnection());
     }
     
     public void testPutAndGet() throws SQLException, NotFound{

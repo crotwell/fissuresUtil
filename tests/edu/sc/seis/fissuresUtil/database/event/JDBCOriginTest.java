@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 public class JDBCOriginTest extends TestCase {
     public JDBCOriginTest(String testname) throws SQLException{
         super(testname);
-        originTable = new JDBCOrigin(ConnMgr.getConnection());
+        originTable = new JDBCOrigin(ConnMgr.createConnection());
     }
     
     public void testPutGet() throws SQLException, NotFound {

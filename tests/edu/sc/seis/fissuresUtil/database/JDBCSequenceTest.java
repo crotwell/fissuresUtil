@@ -26,7 +26,7 @@ public class JDBCSequenceTest extends TestCase{
     }
     
     private JDBCSequence createTestSeq() throws SQLException{
-        return new JDBCSequence(ConnMgr.getConnection(), "EventAttrSeq");
+        return new JDBCSequence(ConnMgr.createConnection(), "EventAttrSeq");
     }
     
     public void testNextWhileOtherThreadIsIncrementing()throws SQLException{
