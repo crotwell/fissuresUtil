@@ -21,7 +21,7 @@ import org.apache.log4j.Category;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 5755 2003-09-25 04:55:21Z groves $
+ * @version $Id: SimplePlotUtil.java 5835 2003-09-29 01:14:21Z groves $
  */
 
 public class SimplePlotUtil  {
@@ -208,9 +208,13 @@ public class SimplePlotUtil  {
         double ampMin = a.getMinValue();
         double ampMax = a.getMaxValue();
         for (int j = 0; j < out.length; j++) {
-            out[j] =
-                (int)Math.round(linearInterp(ampMin, 0, ampMax, size.height,
-                                                 ((QuantityImpl)iterator.next()).getValue()));
+            double curVal = ((QuantityImpl)iterator.next()).getValue();
+            if(Double.isNaN(curVal)){//Gap in trace
+                out[j] = Integer.MAX_VALUE;
+            }else{
+                out[j] = (int)Math.round(linearInterp(ampMin, 0, ampMax,
+                                                      size.height, curVal));
+            }
         }
         return out;
     }
@@ -246,22 +250,6 @@ public class SimplePlotUtil  {
         }
         return maxValue;
         
-    }
-    
-    /** flips an array of ints to be inArray[i] = maxValue -
-     inArray[i]. This is mainly useful when displaying as
-     calculations are generally done in the traditional y positive
-     up coordinate system, and then "flipped" at the last minute to
-     plot int the graphical y positive down screen coordinate
-     system.
-     */
-    public static final void flipArray(int[] inArray, int maxValue) {
-        for (int i = 0; i < inArray.length; i++) {
-            // this does the equivalent of inArray[i] = maxValue - intArray[i];
-            // but is presumably faster as no temp ints need be created
-            inArray[i] *= -1;
-            inArray[i] += maxValue;
-        }
     }
     
     /** solves the equation <pre>(yb-ya)/(xb-xa) = (y-ya)/(x-xa)</pre>
