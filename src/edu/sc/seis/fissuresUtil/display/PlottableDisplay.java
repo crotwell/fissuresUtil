@@ -49,41 +49,6 @@ public  class PlottableDisplay extends JComponent {
         setLayout(new BorderLayout());
         tempSelection = new PlottableSelection(this);
         selection = new PlottableSelection(this);
-        addMouseMotionListener(new MouseMotionListener(){
-                    public void mouseDragged(MouseEvent e) {}
-
-                    public void mouseMoved(MouseEvent e) {
-                        Iterator it = eventPlotterList.iterator();
-                        while(it.hasNext()){
-                            EventFlag cur = (EventFlag)it.next();
-                            if(cur.getTitleLoc().contains(e.getX(), e.getY())){
-                                int eventWidth = cur.getEventWidth();
-                                tempSelection.setXY(cur.getEventX() + eventWidth/2,
-                                                    cur.getEventY(),
-                                                    eventWidth + 50);
-                                repaint();
-                                return;
-                            }
-                        }
-                        tempSelection.setXY(-1,-1, 0);
-                        repaint();
-                    }
-                });
-        addMouseListener(new MouseAdapter(){
-                    public void mouseClicked(MouseEvent e){
-                        Iterator it = eventPlotterList.iterator();
-                        while(it.hasNext()){
-                            EventFlag cur = (EventFlag)it.next();
-                            if(cur.getTitleLoc().contains(e.getX(), e.getY())){
-                                selection = tempSelection;
-                                tempSelection = new PlottableSelection(PlottableDisplay.this);
-                                selection.setPlaced(true);
-                                repaint();
-                                return;
-                            }
-                        }
-                    }
-                });
 
         configChanged();
     }
@@ -133,6 +98,9 @@ public  class PlottableDisplay extends JComponent {
         stationName = nameofstation;
         this.orientationName = orientationName;
         dateName = dateFormater.format(date);
+        if(!date.equals(this.date)){
+            selection = new PlottableSelection(this);
+        }
         this.date = date;
         this.channelId = channelId;
         plottableShape = makeShape(clientPlott);
@@ -448,6 +416,17 @@ public  class PlottableDisplay extends JComponent {
         }
     }
 
+    public PlottableSelection getTempSelection(){ return tempSelection; }
+
+    public void placeTempSelection(){
+        selection = tempSelection;
+        tempSelection = new PlottableSelection(this);
+        selection.setPlaced(true);
+        repaint();
+    }
+
+    public LinkedList getEvents(){ return eventPlotterList; }
+
     public RequestFilter getRequestFilter(int x, int y) {
         if(selection.intersectsExtract(x,y))return selection.getRequestFilter();
         return null;
@@ -482,7 +461,7 @@ public  class PlottableDisplay extends JComponent {
 
     public static final int TOTAL_WIDTH = 6000;
 
-    public static final int OFFSET = 75;
+    public static final int OFFSET = 40;
 
     public int titleHeight = 140;
 
