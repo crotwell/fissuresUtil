@@ -180,16 +180,13 @@ public class BasicAmpConfig implements AmpConfig{
         fireAmpEvent();
     }
 
-    public AmpEvent fireAmpEvent(){
-        return  fireAmpEvent(new LazyAmpEvent(this));
-    }
+    public void fireAmpEvent(){ fireAmpEvent(new LazyAmpEvent(this)); }
 
-    private AmpEvent fireAmpEvent(AmpEvent event){
+    private void fireAmpEvent(AmpEvent event){
         AmpListener[] al = getAmpListeners();
         for (int i = 0; i < al.length; i++){
             al[i].updateAmp(event);
         }
-        return event;
     }
 
     public void addListener(AmpListener listener){
@@ -225,7 +222,7 @@ public class BasicAmpConfig implements AmpConfig{
         fireAmpEvent(ampEvent);
     }
 
-    public AmpEvent calculateAmp(){
+    public AmpEvent calculate(){
         boolean changed = false;
         AmpConfigData[] ad = getAmpData();
         for (int i = 0; i < ad.length; i++){
@@ -241,14 +238,14 @@ public class BasicAmpConfig implements AmpConfig{
         }
 
         if(changed || ampEvent instanceof LazyAmpEvent){
-            ampEvent = recalculateAmp();
+            ampEvent = recalculate();
         }
 
         return ampEvent;
     }
 
 
-    protected AmpEvent recalculateAmp(){
+    public AmpEvent recalculate(){
         AmpConfigData[] ad = getAmpData();
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
@@ -273,9 +270,10 @@ public class BasicAmpConfig implements AmpConfig{
 
     protected boolean setAmpRange(AmpConfigData data){
         SeismogramIterator it = data.getIterator();
-        if (!it.hasNext()) {//if the iterator on this time range has no next
-            return data.setRange(DisplayUtils.ZERO_RANGE);//point, there is
-        } // no amp data here
+        if (!it.hasNext()) {
+        //the iterator on this data has no next point, there is no amp data here
+            return data.setRange(DisplayUtils.ONE_RANGE);
+        }
         double[] minMaxMean = it.minMaxMean();
         return data.setRange(UnitDisplayUtil.getBestForDisplay(new UnitRangeImpl(minMaxMean[0],
                                                                                  minMaxMean[1],
