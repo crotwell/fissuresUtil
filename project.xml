@@ -125,7 +125,7 @@
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>1.7.3</version>
+            <version>1.7.3_USC1</version>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>
