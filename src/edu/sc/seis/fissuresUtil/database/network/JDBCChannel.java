@@ -189,7 +189,7 @@ public class JDBCChannel extends NetworkTable {
     public static ChannelId extractId(ResultSet rs, JDBCSite siteTable,
                                       JDBCTime time) throws SQLException{
         try {
-            SiteId siteId = siteTable.get(rs.getInt("site_id")).get_id();
+            SiteId siteId = siteTable.getSiteId(rs.getInt("site_id"));
             return new ChannelId(siteId.network_id, siteId.station_code,
                                  siteId.site_code, rs.getString("chan_code"),
                                  time.get(rs.getInt("chan_begin_id")));

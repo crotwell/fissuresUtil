@@ -74,6 +74,8 @@ public class JDBCStation extends NetworkTable {
                 + "WHERE sta_id = ? AND " + "sta_name IS NOT NULL");
         getByDBId = conn.prepareStatement("SELECT " + getNeededForStation()
                 + " FROM station WHERE sta_id = ?");
+        getStationIdByDBId = conn.prepareStatement("SELECT " + getNeededForStationId()
+                                                   + " FROM station WHERE sta_id = ?");
         getDBId = conn.prepareStatement("SELECT sta_id FROM station WHERE net_id = ? AND "
                 + "sta_code = ? AND sta_begin_id = ?");
         updateSta = conn.prepareStatement("UPDATE station SET sta_end_id = ?, "
@@ -178,6 +180,15 @@ public class JDBCStation extends NetworkTable {
         throw new NotFound("No Station found for database id = " + dbid);
     }
 
+    public StationId getStationId(int dbid) throws SQLException, NotFound {
+        Station sta = (Station) dbIdsToStations.get(new Integer(dbid));
+        if (sta != null) { return sta.get_id(); }
+        getStationIdByDBId.setInt(1, dbid);
+        ResultSet rs = getStationIdByDBId.executeQuery();
+        if (rs.next()) { return extractId(rs, netTable, time); }
+        throw new NotFound("No StationId found for database id = " + dbid);
+    }
+
     public Station get(StationId id) throws SQLException, NotFound {
         return get(getDBId(id));
     }
@@ -228,7 +239,7 @@ public class JDBCStation extends NetworkTable {
             JDBCTime time) throws SQLException, NotFound {
         edu.iris.Fissures.Time begin_time = time.get(rs.getInt("sta_begin_id"));
         try {
-            NetworkId netId = netTable.get(rs.getInt("net_id")).get_id();
+            NetworkId netId = netTable.getNetworkId(rs.getInt("net_id"));
             StationId id = new StationId(netId, rs.getString("sta_code"),
                     begin_time);
             stationIdsToDbIds.put(id, new Integer(rs.getInt("sta_id")));
@@ -292,7 +303,7 @@ public class JDBCStation extends NetworkTable {
 
     private JDBCTime time;
 
-    private PreparedStatement getAll, getAllForNet, getIfNameExists, getByDBId,
+    private PreparedStatement getAll, getAllForNet, getIfNameExists, getByDBId, getStationIdByDBId,
             getDBId, updateSta, putAll, putId;
 
     private static final Logger logger = Logger.getLogger(JDBCStation.class);
