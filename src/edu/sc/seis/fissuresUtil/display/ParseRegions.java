@@ -1,9 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-
 import java.io.*;
 import java.util.*;
 import java.lang.*;
+import edu.iris.Fissures.*;
+
 /**
  * ParseRegions.java
  *
@@ -40,6 +41,16 @@ public class ParseRegions {
 	if (seisNum > 0 && seisNum <= 50) {
 	    return feProps.getProperty("SeismicRegion"+seisNum);
 	} // end of if (seisNum > 0 && seisNum <= 50)
+	return "Unknown";
+    }
+
+    public String getRegionName(FlinnEngdahlRegion region){
+	if (region.type.equals(FlinnEngdahlType.SEISMIC_REGION)) {
+	    return getSeismicRegionName(region.number);
+	}
+	if (region.type.equals(FlinnEngdahlType.GEOGRAPHIC_REGION)) {
+	    return getGeographicRegionName(region.number);
+	}
 	return "Unknown";
     }
 
