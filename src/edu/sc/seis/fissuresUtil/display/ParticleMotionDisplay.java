@@ -44,19 +44,20 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	JPanel informationPanel = new JPanel();
 	String message = " Please Wait ....For the Particle Motion Window";
  	JLabel jLabel = new JLabel(message);
-	JTextArea textArea = new JTextArea();
+	JTextArea textArea = new JTextArea("LKJDLKJFDJFLKDJFLKDJFKLDJFLKDJFKLDJLKJDFL", 80,40);
+	textArea.setVisible(true);
 	informationPanel.setLayout(new BorderLayout());
 	informationPanel.add(textArea, BorderLayout.CENTER);
 	informationPanel.setSize(new java.awt.Dimension(500, 300));
 
-	displayFrame.getContentPane().add(informationPanel);
+	displayFrame.getContentPane().setLayout(new BorderLayout());
+	displayFrame.getContentPane().add(jLabel, BorderLayout.CENTER);
+
 	displayFrame.setSize(new java.awt.Dimension(500, 300));
+	informationPanel.setVisible(true);
 	displayFrame.pack();
-	displayFrame.show();
-	try {
-	    Thread.sleep(5000);
-	}catch(Exception e) {}
-	
+	displayFrame.setVisible(true);
+
 	createGUI(timeConfigRegistrar,
 		  hAmpConfigRegistrar,
 		  vAmpConfigRegistrar);
@@ -87,18 +88,17 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	JPanel informationPanel = new JPanel();
 	String message = " Please Wait ....For the Particle Motion Window";
  	JLabel jLabel = new JLabel(message);
-	JTextArea textArea = new JTextArea();
+	JTextArea textArea = new JTextArea("SDJSLDJDKJDKJSKJDJDSKJKLSDJSJD");
 	informationPanel.setLayout(new BorderLayout());
 	informationPanel.add(textArea, BorderLayout.CENTER);
 	informationPanel.setSize(new java.awt.Dimension(500, 300));
 
-	displayFrame.getContentPane().add(informationPanel);
+	displayFrame.getContentPane().setLayout(new BorderLayout());
+	displayFrame.getContentPane().add(informationPanel, BorderLayout.CENTER);
 	displayFrame.setSize(new java.awt.Dimension(500, 300));
 	displayFrame.pack();
 	displayFrame.show();
-	try {
-	    Thread.sleep(5000);
-	}catch(Exception e) {}
+
 	
 	createGUI(timeConfigRegistrar,
 		  hAmpConfigRegistrar,
@@ -302,8 +302,9 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
      *
      */
     public synchronized void resize() {
-	    
+	if(getSize().width == 0 || getSize().height == 0) return;  
 	Dimension dim = view.getSize();
+	logger.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  IN RESIZE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	logger.debug("view coordinates before width = "+view.getSize().width+" height = "+view.getSize().height);
 	Insets insets =	view.getInsets();
 	int width = particleDisplayPanel.getSize().width;
