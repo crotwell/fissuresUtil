@@ -134,6 +134,14 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         calculateTicks();
     }
 
+    /**
+     * read the number of pixels allocated for this scale;
+     * @return
+     */
+    public int  getTotalPixels() {
+        return this.totalPixels;
+    }
+
     public void setTimes(MicroSecondDate beginTime,
                          MicroSecondDate endTime) {
         this.beginTime = beginTime.getMicroSecondTime();
@@ -163,7 +171,8 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
      @returns the location of the tick i in pixels
      @param i the current tick
      */
-    public  int getPixelLocation(int i){ return (int)(i*tickSpacing + tickOffset); }
+    public  int getPixelLocation(int i){
+        return (int)(i*tickSpacing + tickOffset); }
 
     /**
      @returns the number of ticks
