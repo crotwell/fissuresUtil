@@ -197,6 +197,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.setToolTipText("");
     }
 
+    public String getName(){ return name; }
+    
+    public void setName(String name){ this.name = name; } 
+
     public void selectRegion(MouseEvent one, MouseEvent two){
 	Insets insets = this.getInsets();
 	Dimension dim = getSize();
@@ -225,7 +229,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		}
 	    }
 	    if(currentSelection == null){
-		selections.add(new Selection(selectionBegin, selectionEnd, timeConfig));
+		selections.add(new Selection(selectionBegin, selectionEnd, timeConfig, plotters));
 		currentSelection = ((Selection)selections.getFirst());
 		repaint();
 		return;
@@ -235,13 +239,15 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     	repaint();
     }
 
-    public void releaseCurrentRangeSelection(){
+    public void releaseCurrentSelection(){
 	if(currentSelection != null && currentSelection.remove()){
 	    selections.remove(currentSelection);
 	    repaint();
 	}
 	currentSelection = null;
     }
+
+    public Selection getCurrentSelection(){ return currentSelection; }
     
     protected Selection currentSelection; 
     
@@ -264,6 +270,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     protected AmpScaleMapper ampScaleMap = new AmpScaleMapper(50, 4, new UnitRangeImpl(0, 500, UnitImpl.COUNT));//placeholder
    
     private Color[] colors = { Color.blue, Color.red, Color.yellow, Color.green, Color.black };
+
+    private Color[] transparentColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64) };
     
     static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 
@@ -313,16 +321,20 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    }
 	    if(selections.size() > 0){
 		Iterator e = selections.iterator();
+		int i = 0;
 		while(e.hasNext()){
 		    Selection currentSelection = (Selection)(e.next());
+		    
 		    if(currentSelection.isVisible()){
 			Rectangle2D current = new Rectangle2D.Float(currentSelection.getX(getSize().width), 0, 
 								    (float)(currentSelection.getWidth() * getSize().width), 
 								    getSize().height);
-			g2.setPaint(new Color(255, 255, 0, 64));
+			g2.setPaint(transparentColors[i%transparentColors.length]);
 			g2.fill(current);
 			g2.draw(current);
+			
 		    } 
+		    i++;
 		}
 	    }	
 	}
