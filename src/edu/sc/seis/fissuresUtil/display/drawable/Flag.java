@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -35,6 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Category;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 
 /**
  * FlagPlotter.java
@@ -190,7 +192,16 @@ public class Flag implements Drawable{
 	}
 	
 	private static String getEventInfo(EventAccessOperations event, String format){
-		if (DisplayUtils.hasSomeSortOfOrigin(event)){
+		Origin origin = null;
+		try {
+			origin = event.get_preferred_origin();
+		} catch (NoPreferredOrigin e) {
+			Origin[] origins = event.get_origins();
+			if (origins.length > 0){
+				origin = origins[0];
+			}
+		}
+		if (origin != null){
 			return CacheEvent.getEventInfo(event, format);
 		}
 		return "...";
@@ -240,48 +251,57 @@ public class Flag implements Drawable{
 	}
 	
 	public static TimeInterval getTimeDifferenceFromOrigin(Flag flag, EventAccessOperations event){
-		if (DisplayUtils.hasSomeSortOfOrigin(event)){
-			MicroSecondDate originTime = new MicroSecondDate(event.get_origins()[0].origin_time);
+		Origin origin = null;
+		try {
+			origin = event.get_preferred_origin();
+		} catch (NoPreferredOrigin e) {
+			Origin[] origins = event.get_origins();
+			if (origins.length > 0){
+				origin = origins[0];
+			}
+		}
+		if (origin != null){
+			MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
 			MicroSecondDate flagTime = flag.getFlagTime();
 			return originTime.difference(flagTime);
 		}
 		return null;
 	}
 	
-    public String getName(){ return name; }
+	public String getName(){ return name; }
 	
-    private Area flag;
+	private Area flag;
 	
-    private int prevLocation;
+	private int prevLocation;
 	
-    public Color getColor(){ return color; }
+	public Color getColor(){ return color; }
 	
-    public void setColor(Color color){ this.color = color; }
+	public void setColor(Color color){ this.color = color; }
 	
-    public void setVisibility(boolean b){ visible = b; }
+	public void setVisibility(boolean b){ visible = b; }
 	
-    public MicroSecondDate getFlagTime(){ return flagTime; }
+	public MicroSecondDate getFlagTime(){ return flagTime; }
 	
-    public void setFlagTime(MicroSecondDate flagTime) {
+	public void setFlagTime(MicroSecondDate flagTime) {
 		this.flagTime = flagTime;
-    }
+	}
 	
-    private Color color = Color.RED;
+	private Color color = Color.RED;
 	
-    private boolean visible = true;
+	private boolean visible = true;
 	
-    private MicroSecondDate flagTime;
+	private MicroSecondDate flagTime;
 	
-    private String name;
+	private String name;
 	
-    private DrawableSeismogram seis;
+	private DrawableSeismogram seis;
 	
-    //pixels of space of flag around the font
-    private static final int PADDING = 4;
+	//pixels of space of flag around the font
+	private static final int PADDING = 4;
 	
-    private static Category logger = Category.getInstance(Flag.class.getName());
+	private static Category logger = Category.getInstance(Flag.class.getName());
 	
-    private ToolTipManager tipManager = ToolTipManager.sharedInstance();
+	private ToolTipManager tipManager = ToolTipManager.sharedInstance();
 	
 	//names for the data template
 	public static final String NAME = "Flag Name";
