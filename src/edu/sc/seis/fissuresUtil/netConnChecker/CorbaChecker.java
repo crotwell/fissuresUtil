@@ -3,41 +3,33 @@ package edu.sc.seis.fissuresUtil.netConnChecker;
 import org.apache.log4j.Category;
 import org.omg.CORBA.COMM_FAILURE;
 
-public class CorbaChecker extends ConcreteConnChecker  {
-    protected CorbaChecker(String description){
+public class CorbaChecker extends ConcreteConnChecker {
+
+    protected CorbaChecker(String description) {
         super(description);
     }
-    
-    /**
-     * Creates a new <code>CorbaChecker</code> instance.
-     *
-     * @param obj an <code>org.omg.CORBA.Object</code> value
-     * @param description a <code>String</code> value
-     */
-    public CorbaChecker(org.omg.CORBA.Object obj, String description){
+
+    public CorbaChecker(org.omg.CORBA.Object obj, String description) {
         super(description);
         this.obj = obj;
     }
 
-    /** Pre: A Runnable thread calls run()
-     *  Post: Attempt to make a Corba connection
-     */
-    public void run()  {
+    public void run() {
         try {
-            if(obj._non_existent() == true){
+            if(obj._non_existent() == true) {
                 reason = "got non existent";
                 setFinished(true);
                 setTrying(false);
                 setSuccessful(false);
                 fireStatusChanged(getDescription(), ConnStatus.FAILED);
-            }else {
+            } else {
                 setFinished(true);
                 setTrying(false);
                 setSuccessful(true);
                 fireStatusChanged(getDescription(), ConnStatus.SUCCESSFUL);
             }
             return;
-        } catch(COMM_FAILURE cf){
+        } catch(COMM_FAILURE cf) {
             cause = cf;
             setFinished(true);
             setTrying(false);
@@ -47,7 +39,6 @@ public class CorbaChecker extends ConcreteConnChecker  {
     }
 
     protected org.omg.CORBA.Object obj;
+
     static Category logger = Category.getInstance(CorbaChecker.class);
-
-
 }// CorbaChecker class
