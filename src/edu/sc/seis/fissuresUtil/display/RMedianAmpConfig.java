@@ -24,16 +24,25 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
     /** Returns the median centered amp range for a seismogram for its complete time range
      */
     public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis){
-	if(timeRegistrar == null)
-	    return this.getAmpRange(aSeis,new MicroSecondTimeRange(aSeis.getSeismogram().getBeginTime(), 
-								   aSeis.getSeismogram().getEndTime()));
-	else
-	    return this.getAmpRange(aSeis, this.timeRegistrar.getTimeRange(aSeis));
+	LocalSeismogramImpl seis = aSeis.getSeismogram();
+	 MicroSecondTimeRange pastTime = (MicroSecondTimeRange)seismoTimes.get(aSeis);
+	 if(timeRegistrar == null){
+	     return getAmpRange(aSeis, (MicroSecondTimeRange)seismoTimes.get(aSeis));
+	 }else{
+	     if (!timeRegistrar.contains(aSeis)) {
+		 timeRegistrar.addSeismogram(aSeis);
+	     } 
+	     return getAmpRange(aSeis, timeRegistrar.getTimeRange(aSeis));
+	 }
     }
 
     /** Returns the median centered amp range for a seismogram over a given time interval
      */
     public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis, MicroSecondTimeRange calcIntv){
+	if(seismoTimes.get(aSeis) != null && ((MicroSecondTimeRange)seismoTimes.get(aSeis)).equals(calcIntv)){
+	    return (UnitRangeImpl)seismoAmps.get(aSeis);
+	}
+	seismoTimes.put(aSeis, new MicroSecondTimeRange(calcIntv.getBeginTime(), calcIntv.getEndTime()));
 	LocalSeismogramImpl seis = aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
@@ -50,7 +59,8 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 
 	if (endIndex == beginIndex) {
             // no data points in window, leave config alone
-	    return ampRange;
+	      seismoAmps.put(aSeis, ampRange);
+	      return ampRange;
         }
         try {
             double min = seis.getMinValue(beginIndex, endIndex).getValue();
@@ -61,21 +71,22 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 		this.ampRange = new UnitRangeImpl(-medDif,
 						  medDif,
 						  seis.getAmplitudeRange().getUnit());
-	    if(-medDif < this.ampRange.getMinValue())
-		this.ampRange = new UnitRangeImpl(-medDif,
-						  this.ampRange.getMaxValue(),
-						  seis.getAmplitudeRange().getUnit());
-	    if(medDif > this.ampRange.getMaxValue())
-		this.ampRange = new UnitRangeImpl(this.ampRange.getMinValue(), 
-						  medDif,
-						  seis.getAmplitudeRange().getUnit());
+	    if(-medDif < this.ampRange.getMinValue()){
+		this.ampRange.min_value = -medDif;
+		this.ampRange.max_value = medDif;
+	    }
 	    double bottom = this.ampRange.getMinValue() + median;
 	    double top = this.ampRange.getMaxValue() + median;
-	    return new UnitRangeImpl(bottom,
-				     top,
-				     seis.getAmplitudeRange().getUnit());
-
-	    
+	    UnitRangeImpl current;
+	    if(seismoAmps.get(aSeis) != null){
+		current = (UnitRangeImpl)seismoAmps.get(aSeis);
+		current.min_value = bottom;
+		current.max_value = top;
+	    }else{
+		current = new UnitRangeImpl(bottom, top, seis.getAmplitudeRange().getUnit());
+	    }
+	    seismoAmps.put(aSeis, current);
+	    return current;
 	} catch (Exception e) {
 	    ampRange = null;
         }
@@ -88,7 +99,7 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 	UnitRangeImpl tempRange = ampRange;
 	ampRange = null;
 	this.timeRegistrar = timeRegistrar;
-	Iterator e = seismos.iterator();
+	Iterator e = seismoAmps.keySet().iterator();
 	while(e.hasNext()){
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
@@ -102,12 +113,11 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
     
     public void addSeismogram(DataSetSeismogram seis){
 	this.getAmpRange(seis);
-	seismos.add(seis);
 	this.updateAmpSyncListeners();
     }
 
     public void removeSeismogram(DataSetSeismogram aSeis){ 
-	if(seismos.contains(aSeis)){
+	if(seismoAmps.containsKey(aSeis)){
 	    MicroSecondTimeRange calcIntv;
 	    if(this.timeRegistrar == null)
 		calcIntv = new MicroSecondTimeRange(aSeis.getSeismogram().getBeginTime(), aSeis.getSeismogram().getEndTime());
@@ -128,7 +138,8 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 	    if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
 	    
 	    if (endIndex == beginIndex) {
-		seismos.remove(aSeis);
+		seismoAmps.remove(aSeis);
+		seismoTimes.remove(aSeis);
 		return;
 	    }
 	    try {
@@ -139,7 +150,8 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 	    catch (Exception e) {
 		this.ampRange = null;
 	    }
-	    seismos.remove(aSeis);
+	    seismoAmps.remove(aSeis);
+	    seismoTimes.remove(aSeis);
 	    if(ampRange == null){
 		this.updateAmpSyncListeners();
 	    }

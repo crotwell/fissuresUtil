@@ -18,7 +18,6 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
     public AbstractAmpRangeConfig(){}
 
     public AbstractAmpRangeConfig(LinkedList seismos){
-	this.seismos = seismos;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
 	    this.addSeismogram(((DataSetSeismogram)e.next()));
@@ -60,7 +59,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      * Adds a seismogram to the current amplitude configurator
      *
      */
-    public void addSeismogram(DataSetSeismogram seis){ seismos.add(seis); }
+    public void addSeismogram(DataSetSeismogram seis){ getAmpRange(seis); }
 
     /**
      * Removes a seismogram from this amplitude configurator
@@ -68,8 +67,9 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      * @param seis a <code>DataSetSeismogram</code> value
      */
     public void removeSeismogram(DataSetSeismogram seis){ 
-	seismos.remove(seis); 
-	if (seismos.isEmpty()) {
+	seismoAmps.remove(seis); 
+	seismoTimes.remove(seis);
+	if (seismoAmps.isEmpty()) {
 	    ampRange = new UnitRangeImpl(-1, 1, UnitImpl.COUNT);
 	    updateAmpSyncListeners();
 	} // end of if (seismos.isEmpty())
@@ -94,7 +94,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
     public void updateTimeRange(){
 	UnitRangeImpl tempRange = ampRange;
 	ampRange = null;
-	Iterator e = seismos.iterator();
+	Iterator e = seismoAmps.keySet().iterator();
 	while(e.hasNext()){
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    if(!timeRegistrar.contains(current)){
@@ -121,7 +121,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	this.updateAmpSyncListeners();
     }
 
-    public LinkedList getSeismograms(){ return seismos; }
+    public HashMap getSeismograms(){ return seismoAmps; }
 
     public void addSeismograms(LinkedList newSeismos){
 	Iterator e = newSeismos.iterator();
@@ -130,13 +130,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
     }
 
     public synchronized AmpSnapshot takeSnapshot(){
-	HashMap seismoAmpRange = new HashMap();
-	Iterator e = seismos.iterator();
-	while(e.hasNext()){
-	    DataSetSeismogram current = (DataSetSeismogram)e.next();
-	    seismoAmpRange.put(current, this.getAmpRange(current));
-	}
-	return new AmpSnapshot(seismoAmpRange, this.getAmpRange());
+	return new AmpSnapshot(seismoAmps, this.getAmpRange());
     }
 
     protected boolean intvCalc = false;
@@ -145,7 +139,9 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 
     protected TimeConfigRegistrar timeRegistrar = null;
 
-    protected LinkedList seismos = new LinkedList();
+    protected HashMap seismoAmps = new HashMap();
+
+    protected HashMap seismoTimes = new HashMap();
     
     protected Set ampListeners = new HashSet();
 

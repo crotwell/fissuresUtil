@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.util.HashMap;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import java.util.Iterator;
 
 /**
  * AmpSnapshot.java
@@ -14,10 +15,20 @@ import edu.iris.Fissures.model.UnitRangeImpl;
  */
 
 public class AmpSnapshot {
-    public AmpSnapshot(HashMap seismoAmpRange, UnitRangeImpl generalRange){
-	this.seismoAmpRange = seismoAmpRange;
-	this.generalRange = generalRange;
+    public AmpSnapshot(HashMap seismos, UnitRangeImpl generalRange){
+	update(seismos, generalRange);
     }
+
+    public void update(HashMap seismos, UnitRangeImpl generalRange){
+	this.generalRange = generalRange;
+	Iterator e = seismos.keySet().iterator();
+	while(e.hasNext()){
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    UnitRangeImpl currentUnit = (UnitRangeImpl)seismos.get(current);
+	    this.seismoAmpRange.put(current, new UnitRangeImpl(currentUnit.getMinValue(), currentUnit.getMaxValue(),
+							       currentUnit.getUnit()));
+	}
+    }    
 
     public UnitRangeImpl getAmpRange(){ return generalRange; }
     
@@ -25,6 +36,6 @@ public class AmpSnapshot {
 
     private UnitRangeImpl generalRange;
 
-    private HashMap seismoAmpRange;
+    private HashMap seismoAmpRange = new HashMap();;
     
 }// AmpSnapshot

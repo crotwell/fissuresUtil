@@ -34,8 +34,11 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
      *  range has not been set, the current ampRange is returned.  If not, then it is calculated and checked against the current ampRange
      */
     public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis, MicroSecondTimeRange calcIntv){
-	if(seismos.contains(aSeis) && !intvCalc && ampRange != null)
-	    return ampRange;
+	boolean update = false;
+	if(seismoTimes.get(aSeis) != null && ((MicroSecondTimeRange)seismoTimes.get(aSeis)).equals(calcIntv)){
+	    return (UnitRangeImpl)seismoAmps.get(aSeis);
+	}
+	seismoTimes.put(aSeis, new MicroSecondTimeRange(calcIntv.getBeginTime(), calcIntv.getEndTime()));
 	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
@@ -54,24 +57,28 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 	    return ampRange;
         }
         try {
-            
-            if(this.ampRange == null){
-		this.ampRange = new UnitRangeImpl(seis.getMinValue(beginIndex, endIndex).getValue(), 
-							       seis.getMaxValue(beginIndex, endIndex).getValue(), 
-						  seis.getAmplitudeRange().getUnit());
-		return ampRange;
+	    double minValue = seis.getMinValue(beginIndex, endIndex).getValue();
+	    double maxValue = seis.getMaxValue(beginIndex, endIndex).getValue();
+	    if(ampRange == null){
+		ampRange = new UnitRangeImpl(minValue, maxValue, seis.getAmplitudeRange().getUnit());
+		update = true;
+	    }else{
+		if(minValue < ampRange.getMinValue()){
+		    ampRange.min_value = minValue;
+		    update = true;
+		}
+		if(maxValue > ampRange.getMaxValue()){
+		    ampRange.max_value = maxValue;
+		update = true;
+		}
 	    }
-	if(seis.getMinValue(beginIndex, endIndex).getValue() < this.ampRange.getMinValue())
-	    this.ampRange = new UnitRangeImpl(seis.getMinValue(beginIndex, endIndex).getValue(),
-					      this.ampRange.getMaxValue(),
-					      this.ampRange.getUnit());
-	if(seis.getMaxValue(beginIndex, endIndex).getValue() > this.ampRange.getMaxValue())
-	    this.ampRange = new UnitRangeImpl(this.ampRange.getMinValue(), 
-					      seis.getMaxValue(beginIndex, endIndex).getValue(),
-					      this.ampRange.getUnit());
+	    seismoAmps.put(aSeis, ampRange);
 	} catch (Exception e) {
 	    ampRange = null;
         }
+	if(update){
+	    updateAmpSyncListeners();
+	}
 	return ampRange;
     }
 
@@ -82,7 +89,7 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 	ampRange = null;
 	this.timeRegistrar = timeRegistrar;
 	intvCalc = true;
-	Iterator e = seismos.iterator();
+	Iterator e = seismoAmps.keySet().iterator();
 	while(e.hasNext()){
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
@@ -93,52 +100,63 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 	this.updateAmpSyncListeners();
     }
 
-    /** Adds a seismogram to the current config and adjusts the ranges if it defined the minimum or maximum amplitude
+    /** Adds a seismogram to the current config and adjusts the ranges if it defines the minimum or maximum amplitude
      */
     public void addSeismogram(DataSetSeismogram aSeis){
 	this.getAmpRange(aSeis);
-	seismos.add(aSeis);
-	this.updateAmpSyncListeners();
     }
 
-    /** Removes a seismogram from the current config
+    /** Removes a seismogram from the current config and adjusts the amp range if it is the defining seismogram
      */
     public void removeSeismogram(DataSetSeismogram aSeis){ 
-	if(seismos.contains(aSeis)){
+	if(seismoAmps.containsKey(aSeis)){
 	    LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis.getSeismogram();
 	    MicroSecondTimeRange calcIntv;
-	    if(timeRegistrar == null)
+	    if(timeRegistrar == null){
 		calcIntv = new MicroSecondTimeRange(seis.getBeginTime(), seis.getEndTime());
-	    else
-		calcIntv = timeRegistrar.getTimeRange(aSeis);
-	    int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
-						   seis.getBeginTime(),
-						   seis.getEndTime(),
-						   calcIntv.getBeginTime());
-	    if (beginIndex < 0) beginIndex = 0;
-	    if (beginIndex > seis.getNumPoints()) beginIndex = seis.getNumPoints();
-	    int endIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
-						 seis.getBeginTime(),
-						 seis.getEndTime(),
-						 calcIntv.getEndTime());
-	    if (endIndex < 0) endIndex = 0;
-	    if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
-	    if (endIndex == beginIndex) {
-		seismos.remove(seis);
-		return;
 	    }
-        try {
-	    if(seis.getMinValue(beginIndex, endIndex).getValue() == this.ampRange.getMinValue())
-		this.ampRange = null;
-	    else if(seis.getMaxValue(beginIndex, endIndex).getValue() == this.ampRange.getMaxValue())
-		this.ampRange = null;
-	} 
-	catch (Exception e) {
-	    ampRange = null;
-        }
-	seismos.remove(seis);
-	if(ampRange == null)
-	    this.updateAmpSyncListeners();
+	    else{
+		calcIntv = timeRegistrar.getTimeRange(aSeis);
+	    }
+	    try {
+		UnitRangeImpl current;
+		if(calcIntv.equals(seismoTimes.get(aSeis))){
+		    current = (UnitRangeImpl)seismoAmps.get(aSeis);
+		}else{
+		    int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
+							   seis.getBeginTime(),
+							   seis.getEndTime(),
+							   calcIntv.getBeginTime());
+		    if (beginIndex < 0) beginIndex = 0;
+		    if (beginIndex > seis.getNumPoints()) beginIndex = seis.getNumPoints();
+		    int endIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
+							 seis.getBeginTime(),
+							 seis.getEndTime(),
+							 calcIntv.getEndTime());
+		    if (endIndex < 0) endIndex = 0;
+		    if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
+		    if (endIndex == beginIndex) {
+			seismoAmps.remove(seis);
+			seismoTimes.remove(seis);
+			return;
+		    }
+		    current = new UnitRangeImpl(seis.getMinValue(beginIndex, endIndex).getValue(), 
+						seis.getMaxValue(beginIndex, endIndex).getValue(), 
+						seis.getAmplitudeRange().getUnit());
+		}
+		
+		if(current.getMinValue() == ampRange.getMinValue())
+		    this.ampRange = null;
+		else if(current.getMaxValue() == ampRange.getMaxValue())
+		    this.ampRange = null;
+	    } 
+	    catch (Exception e) {
+		ampRange = null;
+	    }
+	    seismoAmps.remove(seis);
+	    seismoTimes.remove(seis);
+	    if(ampRange == null)
+		this.updateAmpSyncListeners();
 	}
     }
 

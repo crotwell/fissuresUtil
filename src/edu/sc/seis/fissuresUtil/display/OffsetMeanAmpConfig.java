@@ -7,9 +7,9 @@ import edu.iris.Fissures.seismogramDC.*;
 import java.util.*;
 
 /**
- * OffsetMeanAmpConfig sets every seismogram to zero amplitude at its mean, and displays a user defined amount around it.  If no offset is 
- * given, 500 is used. These amplitude ranges can be set to be over the full time of the seismograms, or only a certain interval 
- * specified by a TimeRangeConfig object given to this amp config
+ * OffsetMeanAmpConfig sets every seismogram to zero amplitude at its mean, and displays a user defined amount around it.  
+ * If no offset is given, 500 is used. These amplitude ranges can be set to be over the full time of the seismograms, or only a 
+ * certain interval specified by a TimeRangeConfig object given to this amp config
  *
  *
  * Created: Tue May 28 14:40:39 2002
@@ -21,6 +21,7 @@ import java.util.*;
 public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
     public OffsetMeanAmpConfig(DataSetSeismogram aSeis, MicroSecondTimeRange range){
 	//this.ampRegistrar = registrar;
+	seismoTimes.put(aSeis, new MicroSecondTimeRange(range.getBeginTime(), range.getEndTime()));
 	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
@@ -44,7 +45,9 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
 	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
 	    ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
+	    seismoAmps.put(aSeis, ampRange);
 	}catch (Exception e) {
+	    seismoAmps.put(aSeis, ampRange);
 	    ampRange = new UnitRangeImpl(-500, 500, UnitImpl.COUNT);
         }
     }
@@ -56,14 +59,23 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 /** Returns the OffsetMean amplitude for a given seismogram over its full time range
      */
     public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis){
-	return this.getAmpRange(aSeis,
-				new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis.getSeismogram()).getBeginTime(), 
-							 ((LocalSeismogramImpl)aSeis.getSeismogram()).getEndTime()));
+	if(timeRegistrar != null){
+	    return this.getAmpRange(aSeis,
+				    new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis.getSeismogram()).getBeginTime(), 
+							     ((LocalSeismogramImpl)aSeis.getSeismogram()).getEndTime()));
+	}else{
+	    return getAmpRange(aSeis, timeRegistrar.getTimeRange(aSeis));
+	}
     }
+
 
     /** Returns the OffsetMean amplitude for a given seismogram over a set time range
      */
     public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis, MicroSecondTimeRange calcIntv){
+	if(seismoTimes.get(aSeis) != null && ((MicroSecondTimeRange)seismoTimes.get(aSeis)).equals(calcIntv)){
+	    return (UnitRangeImpl)seismoAmps.get(aSeis);
+	}
+	seismoTimes.put(aSeis, calcIntv);
 	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
@@ -86,53 +98,52 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
 	    double bottom = this.ampRange.getMinValue() + mean;
 	    double top = this.ampRange.getMaxValue() + mean;
-	    return new UnitRangeImpl(bottom,
-				     top,
-				     seis.getAmplitudeRange().getUnit());
-
-	    
+	    seismoAmps.put(aSeis,  new UnitRangeImpl(bottom,
+						     top,
+						     seis.getAmplitudeRange().getUnit()));
+			   
+	    return (UnitRangeImpl)seismoAmps.get(aSeis);
 	} catch (Exception e) {
 	    ampRange = null;
         }
 	return ampRange;
     }
 
-    /** Sets this amp config to work over the given TimeRangeConfig
+    /** Sets this amp config to work over the given TimeConfigRegistrar
      */
     public void visibleAmpCalc(TimeConfigRegistrar timeRegistrar){
-	if(seismos.size() < 1)
+	if(seismoAmps.size() < 1)
 	    return;
-	LocalSeismogramImpl seis = ((DataSetSeismogram)seismos.getFirst()).getSeismogram();
-	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
-                                               seis.getBeginTime(),
-                                               seis.getEndTime(),
-					       timeRegistrar.getTimeRange().getBeginTime());
-	if (beginIndex < 0) beginIndex = 0;
-	if (beginIndex > seis.getNumPoints()) beginIndex = seis.getNumPoints();
-	int endIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
-                                               seis.getBeginTime(),
-                                               seis.getEndTime(),
-                                               timeRegistrar.getTimeRange().getEndTime());
-        if (endIndex < 0) endIndex = 0;
-        if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
+	this.timeRegistrar = timeRegistrar;
+	// LocalSeismogramImpl seis = ((DataSetSeismogram)seismoAmps.keySet().getFirst()).getSeismogram();
+// 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
+//                                                seis.getBeginTime(),
+//                                                seis.getEndTime(),
+// 					       timeRegistrar.getTimeRange().getBeginTime());
+// 	if (beginIndex < 0) beginIndex = 0;
+// 	if (beginIndex > seis.getNumPoints()) beginIndex = seis.getNumPoints();
+// 	int endIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
+//                                                seis.getBeginTime(),
+//                                                seis.getEndTime(),
+//                                                timeRegistrar.getTimeRange().getEndTime());
+//         if (endIndex < 0) endIndex = 0;
+//         if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
 
-	if (endIndex == beginIndex) {
-	   ampRange =  new UnitRangeImpl(-500, 500, UnitImpl.COUNT);
-        }
-        try {
-	    double min = seis.getMinValue(beginIndex, endIndex).getValue();
-	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
-	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
-	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
-	    ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
-	}catch(Exception e){e.printStackTrace();}
+// 	if (endIndex == beginIndex) {
+// 	   ampRange =  new UnitRangeImpl(-500, 500, UnitImpl.COUNT);
+//         }
+//         try {
+// 	    double min = seis.getMinValue(beginIndex, endIndex).getValue();
+// 	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
+// 	    double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
+// 	    double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
+// 	    ampRange = new UnitRangeImpl(-meanDiff, meanDiff, seis.getAmplitudeRange().getUnit());
+// 	}catch(Exception e){e.printStackTrace();}
 	this.updateAmpSyncListeners();
     }
     
     public void addSeismogram(DataSetSeismogram seis){
 	this.getAmpRange(seis);
-	seismos.add(seis);
-	this.updateAmpSyncListeners();
     }
 
     public int getOffset(){ return offset; }
