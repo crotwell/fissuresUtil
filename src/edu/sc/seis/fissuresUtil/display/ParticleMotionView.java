@@ -407,8 +407,8 @@ public class ParticleMotionView extends JComponent{
 	logger.debug("IN DRAW PARTICLE MOTION");
 
 	Dimension dimension = super.getSize();
-	LocalSeismogramImpl hseis = particleMotion.hseis.getSeismogram();
-	LocalSeismogramImpl vseis = particleMotion.vseis.getSeismogram();
+	LocalSeismogramImpl hseis = null;//particleMotion.hseis.getSeismogram();
+	LocalSeismogramImpl vseis = null;//particleMotion.vseis.getSeismogram();
 
 	//AmpConfigRegistrar vAmpConfigRegistrar = particleMotion.vAmpConfigRegistrar;
 	//AmpConfigRegistrar hAmpConfigRegistrar = particleMotion.hAmpConfigRegistrar;
