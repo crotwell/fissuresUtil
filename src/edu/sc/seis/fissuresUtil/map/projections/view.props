@@ -43,9 +43,9 @@ SouthCarolina.lowerRightLon=-77
 SouthCarolina.centerLat=34
 SouthCarolina.centerLon=-81
 
-California.upperLeftLat=42
-California.upperLeftLon=-125
+California.upperLeftLat=50
+California.upperLeftLon=-130
 California.lowerRightLat=32
-California.lowerRightLon=-112.5
-California.centerLat=37
-California.centerLon=-118.75
+California.lowerRightLon=-82
+California.centerLat=41
+California.centerLon=-112.75
