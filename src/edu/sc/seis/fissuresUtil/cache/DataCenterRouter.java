@@ -31,10 +31,6 @@ import org.apache.log4j.Category;
  * @version 1.0
  */
 public class DataCenterRouter implements DataCenterOperations {
-    public DataCenterRouter() {
-
-    } // DataCenterRouter constructor
-
     public void addDataCenter(DataCenterOperations dc) {
         unmatchedDCList.add(dc);
     }
