@@ -21,6 +21,8 @@ public interface GlobalToolbarActions {
 
     public void remove(MouseEvent me);
 
+    public void removeAll(MouseEvent me);
+
     public void zoomIn(MouseEvent me);
 
     public void zoomIn(MouseEvent meOne, MouseEvent meTwo);
