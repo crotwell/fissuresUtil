@@ -21,18 +21,18 @@ public class HTMLReporter implements ExceptionReporter{
     }
 
     public void report(String message, Throwable e, List sections) throws IOException{
-        File outFile = new File(directory, "Exception_"+lastFileNum+".html");
+        int cur = GlobalExceptionHandler.getNumHandled();
+        File outFile = new File(directory, "Exception_"+cur+".html");
         appendToIndexFile(outFile, e);
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(outFile));
-        String str = getHeader(e, lastFileNum);
+        String str = getHeader(e, cur);
         str += message;
         str += "\n<br/>\n<br/>\n";
         String stackTrace = "<h2>Stack Trace</h2><br/>";
         str +=   stackTrace +makeDivider(stackTrace.length()) + "<pre>"+ ExceptionReporterUtils.getTrace(e)+"</pre>";
         bw.write(constructString(str, sections));
         bw.close();
-        lastFileNum++;
     }
 
     protected void initIndexFile() throws IOException {
@@ -90,8 +90,5 @@ public class HTMLReporter implements ExceptionReporter{
     }
 
     private File directory;
-
-    private int lastFileNum = 1;
-
 }
 
