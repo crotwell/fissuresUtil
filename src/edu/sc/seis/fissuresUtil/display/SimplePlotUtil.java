@@ -21,7 +21,7 @@ import org.apache.log4j.Category;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 5729 2003-09-24 17:27:58Z groves $
+ * @version $Id: SimplePlotUtil.java 5755 2003-09-25 04:55:21Z groves $
  */
 
 public class SimplePlotUtil  {
@@ -513,4 +513,5 @@ public class SimplePlotUtil  {
     static Category logger = Category.getInstance(SimplePlotUtil.class.getName());
     
 } // SimplePlotUtil
+
 
