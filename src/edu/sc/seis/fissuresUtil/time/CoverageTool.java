@@ -7,10 +7,8 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
-
 /**
- * @author groves
- * Created on Oct 28, 2004
+ * @author groves Created on Oct 28, 2004
  */
 public class CoverageTool {
 
@@ -22,7 +20,7 @@ public class CoverageTool {
     public static RequestFilter[] notCovered(RequestFilter[] neededFilters,
                                              LocalSeismogramImpl[] existingFilters) {
         if(existingFilters.length == 0) { return neededFilters; }
-        LocalSeismogramImpl[] sorted = SortTool.sortByDate(existingFilters);
+        LocalSeismogramImpl[] sorted = SortTool.byBeginTimeAscending(existingFilters);
         MicroSecondTimeRange[] ranges = new MicroSecondTimeRange[sorted.length];
         for(int i = 0; i < sorted.length; i++) {
             ranges[i] = new MicroSecondTimeRange(sorted[i]);
@@ -33,7 +31,7 @@ public class CoverageTool {
     public static RequestFilter[] notCovered(RequestFilter[] existingFilters,
                                              RequestFilter[] neededFilters) {
         if(existingFilters.length == 0) { return neededFilters; }
-        RequestFilter[] sorted = SortTool.sortByDate(existingFilters);
+        RequestFilter[] sorted = SortTool.byBeginTimeAscending(existingFilters);
         MicroSecondTimeRange[] ranges = new MicroSecondTimeRange[sorted.length];
         for(int i = 0; i < sorted.length; i++) {
             ranges[i] = new MicroSecondTimeRange(sorted[i]);
@@ -77,4 +75,5 @@ public class CoverageTool {
             }
         }
         return (RequestFilter[])unsatisfied.toArray(new RequestFilter[unsatisfied.size()]);
-    }}
+    }
+}
