@@ -13,13 +13,6 @@ import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class EmptyTimeEvent extends TimeEvent {
     public EmptyTimeEvent (MicroSecondTimeRange time){
-        super(null,null);
-        this.genericTime = time;
+        super(null,null, time);
     }
-
-    public MicroSecondTimeRange getTime(){
-        return genericTime;
-    }
-
-    private MicroSecondTimeRange genericTime;
 }// EmptyTimeEvent
