@@ -3,7 +3,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.database.SeisDataChangeEvent;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.database.SeisDataChangeEvent;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import java.awt.Dimension;
@@ -24,7 +24,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3364 2003-03-03 20:58:02Z groves $
+ * @version $Id: SeismogramShape.java 3428 2003-03-13 20:45:24Z crotwell $
  */
 
 public class SeismogramShape implements Shape, SeisDataChangeListener{
