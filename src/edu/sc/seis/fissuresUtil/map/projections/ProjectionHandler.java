@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.map.projections;
 
 import java.awt.Point;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +70,11 @@ public class ProjectionHandler {
         viewProps = new Properties();
         ClassLoader cl = ProjectionHandler.class.getClassLoader();
         try {
-            viewProps.load(cl.getResourceAsStream(VIEW_PROP_LOC));
+            InputStream in = cl.getResourceAsStream(VIEW_PROP_LOC);
+            if (in == null) {
+                throw new IOException("Can't find "+VIEW_PROP_LOC+" as resource");
+            }
+            viewProps.load(in);
         } catch(IOException e) {
             throw new RuntimeException("Unable to find " + VIEW_PROP_LOC
                     + " in jar", e);
