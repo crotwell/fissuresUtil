@@ -1,8 +1,3 @@
-/**
- * MemoryDataSet.java
- * 
- * @author Created by Omnicore CodeGuide
- */
 package edu.sc.seis.fissuresUtil.xml;
 
 import java.util.HashMap;
@@ -21,11 +16,6 @@ public class MemoryDataSet implements DataSet {
         setOwner(owner);
     }
 
-    /**
-     * Describe <code>getName</code> method here.
-     * 
-     * @return a <code>String</code> value
-     */
     public String getName() {
         return name;
     }
@@ -34,91 +24,50 @@ public class MemoryDataSet implements DataSet {
         return getName();
     }
 
-    /**
-     * Describe <code>setName</code> method here.
-     * 
-     * @param name
-     *            a <code>String</code> value
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * Sets the owner of the dataset.
-     * 
-     * @param name
-     *            a <code>String</code> value
-     */
     public void setOwner(String owner) {
         this.owner = owner;
     }
 
-    /**
-     * Gets the owner of the dataset.
-     */
     public String getOwner() {
         return owner;
     }
 
-    /**
-     * Describe <code>getId</code> method here.
-     * 
-     * @return a <code>String</code> value
-     */
     public String getId() {
         return id;
     }
 
     /**
-     * Describe <code>getDataSetNames</code> method here.
-     * 
-     * @return a <code>String[]</code> value
+     * @return all the names of this DataSet's children
      */
     public String[] getDataSetNames() {
         return (String[])datasetNames.toArray(new String[0]);
     }
 
     /**
-     * Describe <code>getDataSet</code> method here.
-     * 
-     * @param name
-     *            a <code>String</code> value
-     * @return a <code>DataSet</code> value
+     * @return a DataSet with the given name
      */
-    public DataSet getDataSet(String name) {
-        return (DataSet)datasets.get(name);
+    public DataSet getDataSet(String dsName) {
+        return (DataSet)datasets.get(dsName);
     }
 
     /**
-     * Describe <code>createChildDataSet</code> method here.
-     * 
-     * @param id
-     *            a <code>String</code> value
-     * @param name
-     *            a <code>String</code> value
-     * @param owner
-     *            a <code>String</code> value
-     * @param audit
-     *            an <code>AuditInfo[]</code> value
-     * @return a <code>DataSet</code> value
+     * Creates a new data set and adds it to this one as a child
      */
-    public DataSet createChildDataSet(String id,
-                                      String name,
-                                      String owner,
+    public DataSet createChildDataSet(String newId,
+                                      String newName,
+                                      String newOwner,
                                       AuditInfo[] audit) {
-        DataSet child = new MemoryDataSet(id, name, owner, audit);
+        DataSet child = new MemoryDataSet(newId, newName, newOwner, audit);
         addDataSet(child, audit);
         return child;
     }
 
     /**
-     * Describe <code>addDataSet</code> method here.
-     * 
-     * @param dataset
-     *            a <code>DataSet</code> value
-     * @param audit
-     *            an <code>AuditInfo[]</code> value
+     * adds the given DataSet as a child of this one
      */
     public void addDataSet(DataSet dataset, AuditInfo[] audit) {
         datasets.put(dataset.getName(), dataset);
@@ -126,21 +75,16 @@ public class MemoryDataSet implements DataSet {
     }
 
     /**
-     * Method getDataSetSeismogramNames
-     * 
-     * @return a String[]
+     * @return the names of all directly held DataSetSeismograms
      */
     public String[] getDataSetSeismogramNames() {
         return (String[])datasetSeismogramNames.toArray(new String[0]);
     }
 
     /**
-     * Method addDataSetSeismogram
-     * 
-     * @param dss
-     *            a DataSetSeismogram
-     * @param audit
-     *            an AuditInfo[]
+     * adds the DataSetSeismogram to this DataSet. If a seismogram of the same
+     * name is already in the data set, dss's name has a number appended to it
+     * until it's unique
      */
     public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit) {
         if(datasetSeismogramNames.contains(dss.getName())) {
@@ -159,21 +103,14 @@ public class MemoryDataSet implements DataSet {
     }
 
     /**
-     * Method getDataSetSeismogram
-     * 
-     * @param name
-     *            a String
-     * @return a DataSetSeismogram
+     * @return the DataSetSeismogram inserted with this name
      */
-    public DataSetSeismogram getDataSetSeismogram(String name) {
-        return (DataSetSeismogram)datasetSeismograms.get(name);
+    public DataSetSeismogram getDataSetSeismogram(String seismogramName) {
+        return (DataSetSeismogram)datasetSeismograms.get(seismogramName);
     }
 
     /**
      * removes the given dataset seismogram from the dataset.
-     * 
-     * @param dss
-     *            a DataSetSeismogram
      */
     public void remove(DataSetSeismogram dss) {
         if(dss != null) {
@@ -182,37 +119,17 @@ public class MemoryDataSet implements DataSet {
         }
     }
 
-    /**
-     * Describe <code>getParameterNames</code> method here.
-     * 
-     * @return a <code>String[]</code> value
-     */
     public String[] getParameterNames() {
         return (String[])parameterNames.toArray(new String[0]);
     }
 
-    /**
-     * Describe <code>getParameter</code> method here.
-     * 
-     * @param name
-     *            a <code>String</code> value
-     * @return an <code>Object</code> value
-     */
-    public Object getParameter(String name) {
-        return parameters.get(name);
+    public Object getParameter(String paramName) {
+        return parameters.get(paramName);
     }
 
-    /**
-     * Describe <code>addParameter</code> method here.
-     * 
-     * @param name
-     *            a <code>String</code> value
-     * @param audit
-     *            an <code>AuditInfo[]</code> value
-     */
-    public void addParameter(String name, Object param, AuditInfo[] audit) {
-        parameters.put(name, param);
-        parameterNames.add(name);
+    public void addParameter(String paramName, Object param, AuditInfo[] audit) {
+        parameters.put(paramName, param);
+        parameterNames.add(paramName);
     }
 
     /**
