@@ -529,7 +529,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 	DataSetSeismogram[] creatorSeismos = creator.getSeismograms();
 	DataSetSeismogram[] newSeismos = new DataSetSeismogram[creatorSeismos.length];
 	for(int i = 0; i < creatorSeismos.length; i++){
-	    newSeismos[i] = new DataSetSeismogram(creatorSeismos[i], "." + creator.getColor());
+	    newSeismos[i] = new DataSetSeismogram(creatorSeismos[i], creatorSeismos[i] + "." + creator.getColor());
 	}
 	BasicSeismogramDisplay selectionDisplay = reaper.addDisplay(newSeismos, (TimeConfig)creator.getInternalRegistrar());
 	creator.addDisplay(selectionDisplay);

@@ -19,30 +19,25 @@ import java.util.Date;
  */
 
 public class DataSetSeismogram {
-    public DataSetSeismogram(DataSetSeismogram dss, String suffix){
-	this(dss.getSeismogram(), dss.getDataSet(), dss.getSuffix() + suffix);
+    public DataSetSeismogram(DataSetSeismogram dss, String name){
+	this(dss.getSeismogram(), dss.getDataSet(), name);
     }
     
     public DataSetSeismogram (LocalSeismogramImpl seismo, DataSet ds){
-	this(seismo, ds, "");
+	this(seismo, ds, seismo.getName());
     }
 
-    public DataSetSeismogram(LocalSeismogramImpl seismo, DataSet ds, String suffix){
+    public DataSetSeismogram(LocalSeismogramImpl seismo, DataSet ds, String name){
 	this.seis = seismo;
 	this.dataSet = ds;
-	this.suffix = suffix;
-	this.fullName = seismo.getName() + suffix;
+	this.name = name;
     }
     
     public LocalSeismogramImpl getSeismogram(){ return seis; }
 
     public DataSet getDataSet(){ return dataSet; }
 
-    public String getName(){ return seis.getName(); }
-    
-    public String getSuffix(){ return suffix; }
-
-    public String toString(){ return fullName; }
+    public String toString(){ return name; }
 
     public boolean isFurtherThan(DataSetSeismogram seismo){
 	
@@ -74,5 +69,5 @@ public class DataSetSeismogram {
 
     private final LocalSeismogramImpl seis;
 
-    private final String suffix, fullName;
+    private final String name;
 }// DataSetSeismogram

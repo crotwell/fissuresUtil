@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.Iterator;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
@@ -18,15 +19,16 @@ public class SeismogramSorter {
       
     public int sort(DataSetSeismogram[] seismograms){
 	for(int i = 0; i < seismograms.length; i++){
-	    names.add(seismograms[i].getName());
+	    names.add(seismograms[i].toString());
 	}
 	return this.names.size() - 1;
     }
     
     public boolean contains(DataSetSeismogram[] seismos){
 	for(int i = 0; i < seismos.length; i++){
-	    if(this.names.contains(seismos[i].toString()))
+	    if(names.contains(seismos[i].toString())){
 		return true;
+	    }
 	}
 	return false;
     }
