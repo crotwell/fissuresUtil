@@ -113,6 +113,7 @@ public class ParticleMotionView extends JComponent implements TimeListener{
             return;
         }
         g2D.setColor(particleMotion.getColor());
+        g2D.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
         try {
             MicroSecondTimeRange tr = particleMotion.getTimeRange();
             AmpEvent ae = particleMotion.getAmpEvent();
@@ -157,8 +158,10 @@ public class ParticleMotionView extends JComponent implements TimeListener{
         g2D.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
         while(it.hasNext()){
             Double key = (Double)it.next();
+            Color parMoCo =(Color)azimuths.get(key);
+            g2D.setColor(new Color(parMoCo.getRed(), parMoCo.getGreen(),
+                                   parMoCo.getBlue(), 96));
             GeneralPath generalPath = new GeneralPath();
-            g2D.setColor((Color)azimuths.get(key));
             double degrees = key.doubleValue();
             int x = (int)(fmin * Math.cos(Math.toRadians(degrees)));
             int y = (int)(fmax * Math.sin(Math.toRadians(degrees)));
