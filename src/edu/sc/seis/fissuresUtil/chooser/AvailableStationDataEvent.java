@@ -8,7 +8,6 @@ import edu.iris.Fissures.IfNetwork.Station;
  * @author Created by Philip Oliver-Paull
  */
 public class AvailableStationDataEvent{
-    private Object source;
     private Station station;
     private int isUp;
 
@@ -16,14 +15,9 @@ public class AvailableStationDataEvent{
     public static final int DOWN = 1;
     public static final int UNKNOWN = 0;
 
-    public AvailableStationDataEvent(Object source, Station station, int isUp){
-        this.source = source;
+    public AvailableStationDataEvent(Station station, int isUp){
         this.station = station;
         this.isUp = isUp;
-    }
-
-    public Object getSource(){
-        return source;
     }
 
     public Station getStation(){

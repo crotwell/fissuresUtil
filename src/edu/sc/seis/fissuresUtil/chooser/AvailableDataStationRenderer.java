@@ -116,8 +116,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 int status = ((Boolean)obj).booleanValue()
                     ? AvailableStationDataEvent.UP
                     : AvailableStationDataEvent.DOWN;
-                listener.stationAvailabiltyChanged(new AvailableStationDataEvent(this,
-                                                                                 station,
+                listener.stationAvailabiltyChanged(new AvailableStationDataEvent(station,
                                                                                  status));
             }
         }
@@ -136,7 +135,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                     int status = isUp
                         ? AvailableStationDataEvent.UP
                         : AvailableStationDataEvent.DOWN;
-                    fooEvent = new AvailableStationDataEvent(this, sta, status); }
+                    fooEvent = new AvailableStationDataEvent(sta, status); }
                 ((AvailableStationDataListener)listeners[i+1]).stationAvailabiltyChanged(fooEvent);
             }
         }
