@@ -1,9 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +31,7 @@ public class BorderedDisplay extends JPanel{
             Dimension size = getSize();
             BufferedImage bImg = new BufferedImage(size.width, size.height,
                                                    BufferedImage.TYPE_INT_RGB);
-            Graphics2D g2d = bImg.createGraphics();
-            print(g2d);
+            renderToGraphics(bImg.createGraphics(), size);
             File loc = new File(filename);
             loc.getCanonicalFile().getParentFile().mkdirs();
             File temp = File.createTempFile(loc.getName(), null);
@@ -48,7 +45,37 @@ public class BorderedDisplay extends JPanel{
         }
     }
 
-    protected void add(JComponent comp, int position){
+    public void renderToGraphics(Graphics g, Dimension size){
+        if(getRootPane() == null){//This won't display if it's not in a root pane
+            JFrame frame = new JFrame();//so this plan that is so crazy it might
+            frame.getContentPane().add(this);//actually work will actually work
+            frame.pack();
+        }
+        Dimension curSize = getSize();
+        setSize(size);
+        validate();
+        print(g);
+        setSize(curSize);
+        validate();
+    }
+
+    public Component add(Component comp){
+        throw new UnsupportedOperationException("Use add(JComponent, int) instead");
+    }
+
+    public void add(Component comp, Object obj){
+        throw new UnsupportedOperationException("Use add(JComponent, int) instead");
+    }
+
+    public Component add(Component comp, int position){
+        throw new UnsupportedOperationException("Use add(JComponent, int) instead");
+    }
+
+    /**
+     * Adds the given component in the passed in position.  The position must be
+     * one of the nine position ints defined in this class
+     */
+    public void add(JComponent comp, int position){
         clear(position);
         comps[position] = comp;
         GridBagConstraints gbc = new GridBagConstraints();
@@ -85,3 +112,4 @@ public class BorderedDisplay extends JPanel{
 
     private JComponent[] comps = new JComponent[9];
 }
+
