@@ -9,7 +9,7 @@ import java.awt.print.*;
 
 /**
  * SeismogramPrinter prints an array of BasicSeismogramDisplays
- * 
+ *
  *
  * Created: Sun Oct 13 17:06:40 2002
  *
@@ -32,6 +32,19 @@ public class SeismogramPrinter implements Printable{
 
     private SeismogramPrinter(BasicSeismogramDisplay[] displays){
 	this.displays = displays;
+
+        if (displays.length == 0)
+          return;
+
+        // turn off global double buffering
+        // SBH - efficiency code
+        //        RepaintManager currentManager = null;
+        //
+        //        if (displays[0] instanceof JComponent) {
+        //          currentManager = RepaintManager.currentManager((JComponent)displays[0]);
+        //          currentManager.setDoubleBufferingEnabled(false);
+        //        }
+
 	//creates arrays for storing all of the displays initial conditions and stores them
 	sizes = new Dimension[displays.length];
 	bottomBorder = new boolean[displays.length];
@@ -48,7 +61,7 @@ public class SeismogramPrinter implements Printable{
 	PrinterJob pj = PrinterJob.getPrinterJob();
 	pj.setPrintable(this);
 	if(initialize() != CANCELLED && pj.printDialog()){
-	    try { pj.print(); } 
+	    try { pj.print(); }
 	    catch(Exception e){ e.printStackTrace(); }
 	}
 	//restores the displays back to their original conditions
@@ -63,8 +76,14 @@ public class SeismogramPrinter implements Printable{
 	    displays[i].setSize(sizes[i]);
 	    displays[i].resize();
 	}
+
+        // SBH - efficiency code
+        //        if (currentManager != null) {
+        //          // turn global double buffering back on.
+        //          currentManager.setDoubleBufferingEnabled(true);
+        //        }
     }
-        
+
     /**
      * Implementation of java.awt.print.Printable's <code>print</code> method.
      * Allows this object to be printed by java's print api
@@ -87,7 +106,7 @@ public class SeismogramPrinter implements Printable{
 	}
 	return PAGE_EXISTS;
     }
-        
+
     /**
      *<code>initialize</code> pops up a dialog that gets the number of seismograms the user wants
      * on each page, sets the value, and sets the number of pages
@@ -116,14 +135,14 @@ public class SeismogramPrinter implements Printable{
 	  if(!selectedPreviously){
 	  int currentNumber = ((Integer)options.getSelectedItem()).intValue();
 	  if(currentNumber < 0){
-	  JOptionPane.showMessageDialog(null, 
-	  "The number of seismograms selected must be greater than 0", 
-	  "Selected Too Few", 
+	  JOptionPane.showMessageDialog(null,
+	  "The number of seismograms selected must be greater than 0",
+	  "Selected Too Few",
 	  JOptionPane.WARNING_MESSAGE);
 	  }else if(currentNumber > numOfSeis){
-	  JOptionPane.showMessageDialog(null, 
-	  "The number of seismograms selected must less than " + (numOfSeis + 1), 
-	  "Selected Too Many", 
+	  JOptionPane.showMessageDialog(null,
+	  "The number of seismograms selected must less than " + (numOfSeis + 1),
+	  "Selected Too Many",
 	  JOptionPane.WARNING_MESSAGE);
 	  }else{
 	  setSeisPerPage(currentNumber);
@@ -131,7 +150,7 @@ public class SeismogramPrinter implements Printable{
 	  }
 	  selectedPreviously = true;
 	  }else{
-	  selectedPreviously = false; 
+	  selectedPreviously = false;
 	  }
 	  }
 	  });*/
@@ -140,14 +159,14 @@ public class SeismogramPrinter implements Printable{
 		public void actionPerformed(ActionEvent e){
 		    int currentNumber = ((Integer)options.getSelectedItem()).intValue();
 		    if(currentNumber < 0){
-			JOptionPane.showMessageDialog(null, 
-						      "The number of seismograms selected must be greater than 0", 
-						      "Selected Too Few", 
+			JOptionPane.showMessageDialog(null,
+						      "The number of seismograms selected must be greater than 0",
+						      "Selected Too Few",
 						      JOptionPane.WARNING_MESSAGE);
 		    }else if(currentNumber > numOfSeis){
-			JOptionPane.showMessageDialog(null, 
-						      "The number of seismograms selected must less than " + (numOfSeis + 1), 
-						      "Selected Too Many", 
+			JOptionPane.showMessageDialog(null,
+						      "The number of seismograms selected must less than " + (numOfSeis + 1),
+						      "Selected Too Many",
 						      JOptionPane.WARNING_MESSAGE);
 		    }else{
 			setSeisPerPage(currentNumber);
@@ -192,15 +211,15 @@ public class SeismogramPrinter implements Printable{
     private boolean[] topBorder;
 
     private boolean[] bottomBorder;
- 
+
     private BasicSeismogramDisplay[] displays;
- 
+
     private int pageCount;
 
     private boolean initialized = false;
-    
+
     private int seisPerPage = -1;
 
     private static EmptyBorder emptyBorder = new EmptyBorder(5, 5, 5, 5);
-    
+
 }// SeismogramPrinter
