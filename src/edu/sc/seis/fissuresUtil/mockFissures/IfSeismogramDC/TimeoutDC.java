@@ -8,11 +8,11 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 public class TimeoutDC extends MockDC {
 
     /**
-     * Creates a seismogram dc that waits 10 minutes before returning and prints
+     * Creates a seismogram dc that waits 1 minute before returning and prints
      * the amount of remaining time to the console every 10 seconds
      */
     public TimeoutDC() {
-        this(10 * 60 * 1000, 10 * 1000);
+        this(60 * 1000, 10 * 1000);
     }
 
     /**
@@ -28,11 +28,10 @@ public class TimeoutDC extends MockDC {
     public RequestFilter[] available_data(RequestFilter[] a_filterseq) {
         try {
             for(int i = waitTime; i > 0; i -= updateInterval) {
-                Thread.sleep(updateInterval);
                 logger.debug("Waiting another " + i / 1000
-                        + " seconds before returning available data");
+                             + " seconds before returning available data");
+                Thread.sleep(updateInterval);
             }
-            Thread.sleep(10 * 60 * 1000);
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
@@ -44,4 +43,5 @@ public class TimeoutDC extends MockDC {
     private int updateInterval;
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TimeoutDC.class);
+
 }
