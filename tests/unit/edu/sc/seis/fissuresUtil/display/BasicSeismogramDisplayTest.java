@@ -5,7 +5,6 @@
  */
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.Dimension;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
