@@ -18,7 +18,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 2093 2002-07-09 20:52:59Z crotwell $
+ * @version $Id: SacDirToDataSet.java 2185 2002-07-12 20:18:53Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -125,8 +125,9 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 
         String seisName = sacFiles[i].getName();
         if (seisName.endsWith(".SAC")) {
-            seisName = seisName.substring(seisName.length()-4);
+            seisName = seisName.substring(0,seisName.length()-4);
         } // end of if (seisName.endsWith(".SAC"))
+        seis.setName(seisName);
         
 		dataset.addSeismogramRef(seis, seisURL, 
 					 seisName, 
