@@ -143,6 +143,7 @@ public class ExceptionHandlerGUI {
         rtnValue += "java.runtime.version : "+System.getProperty("java.runtime.version")+"\n";
         rtnValue += "java.class.version : "+System.getProperty("java.class.version")+"\n";
         rtnValue += "java.class.path : "+System.getProperty("java.class.path")+"\n";
+        rtnValue += "edu.sc.seis.gee.configuration : "+System.getProperty("edu.sc.seis.gee.configurtation")+"\n";
         rtnValue += "user.name : "+System.getProperty("user.name")+"\n";
         rtnValue += "user.timeZone : "+System.getProperty("user.timeZone")+"\n";
         rtnValue += "user.region : "+System.getProperty("user.region")+"\n";
