@@ -8,7 +8,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 
-public class Crosshair implements Drawable{
+public class Crosshair implements MovableDrawable{
     public Crosshair(int x, int y){
         int[] xTriX =  {x-5,x,x+5, x+5,x-5};
         int[] xTriY = {6, 1, 6,12,12};
