@@ -17,47 +17,48 @@ import javax.swing.table.*;
  */
 
 public class EventBackgroundLoader {
-    
-    public EventBackgroundLoader(EventBackgroundLoaderPool pool) {
-	this.pool = pool;
 
-	Runnable r = new Runnable() {
-		public void run() {
-		    try {
-			runWork();
-		    } catch (Exception e) {
-			e.printStackTrace();
-		    }
-		}
-	    };
-	privateThread = new Thread(eventLoaderThreadGroup,
+    public EventBackgroundLoader(EventBackgroundLoaderPool pool) {
+    this.pool = pool;
+
+    Runnable r = new Runnable() {
+        public void run() {
+            try {
+            runWork();
+            } catch (Exception e) {
+            e.printStackTrace();
+            }
+        }
+        };
+    privateThread = new Thread(eventLoaderThreadGroup,
                                r,
                                "EventLoader"+getThreadNum());
-	privateThread.start();
+    privateThread.start();
     }
 
     public void runWork() {
-	
-	EventQueueElement q;
-	EventAttr attr;
-	Origin origin;
-	while (noStopThread) {
-	    try {
-		q = pool.getFromQueue();
-		attr = q.getCache().get_attributes();
-		try {
-		    origin = q.getCache().get_preferred_origin();
-		} catch (NoPreferredOrigin ee) {
-		}
-		pool.fireEventLoaded(q.getCache());
-	    } catch (InterruptedException e) {
 
-	    }
-	}
+    EventQueueElement q;
+    EventAttr attr;
+    Origin origin;
+    while (noStopThread) {
+        try {
+        q = pool.getFromQueue();
+        attr = q.getCache().get_attributes();
+        try {
+            origin = q.getCache().get_preferred_origin();
+        } catch (NoPreferredOrigin ee) {
+        }
+        if (pool == null) System.out.println("pool is null!");
+        pool.fireEventLoaded(q.getCache());
+        } catch (InterruptedException e) {
+
+        }
+    }
     }
 
     public void stopThread() {
-	noStopThread = false;
+    noStopThread = false;
     }
 
     private Thread privateThread;

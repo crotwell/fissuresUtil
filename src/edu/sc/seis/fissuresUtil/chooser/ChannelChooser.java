@@ -29,7 +29,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4131 2003-05-30 02:54:13Z crotwell $
+ * @version $Id: ChannelChooser.java 4136 2003-05-30 16:16:22Z oliverpa $
  *
  */
 
@@ -479,16 +479,16 @@ public class ChannelChooser extends JPanel {
             stationMap.put(sta.name, staList);
         } // end of if ()
         staList.add(sta);
-        logger.debug("size of stationNames: " + stationNames.getSize());
-        logger.debug("progress: " + progressBar.getString());
+        //logger.debug("size of stationNames: " + stationNames.getSize());
+        //logger.debug("progress: " + progressBar.getString());
     }
     
     protected void addStations(Station[] stations) {
         for (int i = 0; i < stations.length; i++) {
             addStation(stations[i]);
         }
-        logger.debug("addStations(): size of stationNames: " + stationNames.size());
-        logger.debug("addStations(): size of stationMap: " + stationMap.size());
+        //logger.debug("addStations(): size of stationNames: " + stationNames.size());
+        //logger.debug("addStations(): size of stationMap: " + stationMap.size());
         System.out.println(stationList.toString());
         fireStationDataChangedEvent(stations);
     }
@@ -578,8 +578,8 @@ public class ChannelChooser extends JPanel {
     public Station[] getStations() {
         LinkedList out = new LinkedList();
         Object[] objArray = stationNames.toArray();
-        logger.debug("Object array length: " + objArray.length);
-        logger.debug("stationNames size: " + stationNames.getSize());
+        //logger.debug("Object array length: " + objArray.length);
+        //logger.debug("stationNames size: " + stationNames.getSize());
         for ( int i=0; i<objArray.length; i++) {
             String name = ((Station)objArray[i]).name;
             LinkedList staList = (LinkedList)stationMap.get(name);
@@ -1239,6 +1239,7 @@ public class ChannelChooser extends JPanel {
         Category.getInstance(ChannelChooser.class.getName());
     
 } // ChannelChooser
+
 
 
 

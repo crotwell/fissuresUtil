@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.IfEvent.EventAccess;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
@@ -26,7 +27,7 @@ import java.util.TimeZone;
 
 public class EventFlagPlotter implements Plotter{
     public EventFlagPlotter (PlottableDisplay plottableDisplay,
-                             EventAccess eventAccess){
+                             EventAccessOperations eventAccess){
 
         this.plottableDisplay = plottableDisplay;
         this.eventAccess = eventAccess;
@@ -136,7 +137,7 @@ public class EventFlagPlotter implements Plotter{
     }
 
 
-     private int getEventRow(EventAccess eventAccess) {
+     private int getEventRow(EventAccessOperations eventAccess) {
     try {
         if(eventOrigin == null) {
             eventOrigin = eventAccess.get_preferred_origin();
@@ -163,7 +164,7 @@ public class EventFlagPlotter implements Plotter{
     }
 
 
-     private int getEventColumn(EventAccess eventAccess) {
+     private int getEventColumn(EventAccessOperations eventAccess) {
     try {
         if(eventOrigin == null) {
             eventOrigin = eventAccess.get_preferred_origin();
@@ -204,7 +205,7 @@ public class EventFlagPlotter implements Plotter{
 
     private PlottableDisplay plottableDisplay;
 
-    private EventAccess eventAccess;
+    private EventAccessOperations eventAccess;
 
     private Origin eventOrigin;
 
