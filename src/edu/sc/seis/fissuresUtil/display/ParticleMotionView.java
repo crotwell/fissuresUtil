@@ -512,10 +512,12 @@ public class ParticleMotionView extends JComponent{
         }
 
         public void pushData(SeisDataChangeEvent sdce) {
-            if(sdce.getSource() == hseis){
-                hSeisLocal = sdce.getSeismograms()[0];
-            }else if(sdce.getSource() == vseis){
-                vSeisLocal = sdce.getSeismograms()[0];
+            if(sdce.getSeismograms().length >= 1){
+                if(sdce.getSource() == hseis){
+                    hSeisLocal = sdce.getSeismograms()[0];
+                }else if(sdce.getSource() == vseis){
+                    vSeisLocal = sdce.getSeismograms()[0];
+                }
             }
         }
 
