@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
 //import edu.sc.seis.sac.*;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.*;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
@@ -240,6 +241,31 @@ public class Checker {
        return hashMap;
 
     }
+
+    public void addHTTPConnection(String description, String url) {
+
+	URL urltocheck = null;
+	ConnCheckerConfig configobj;
+	try {
+	    urltocheck = new URL(url);
+	} catch(MalformedURLException mfue) {
+
+	    ExceptionHandlerGUI.handleException(mfue);
+	    return;
+	}
+	 configobj = new HTTPConfig(description, urltocheck, this);
+	 ConnCheckerCollection.add(configobj);
+
+    }
+
+      public void addCORBAConnection(String description,  org.omg.CORBA.Object object) {
+
+	ConnCheckerConfig configobj;
+	 configobj = new CORBAConfig(description, object, this);
+	 ConnCheckerCollection.add(configobj);
+
+    }
+    
 
     public synchronized void fireStatusChanged(String urlStr, ConnStatus connectionStatus) {
 
