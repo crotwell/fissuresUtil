@@ -225,6 +225,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     }
 
     public boolean mouseMoved(MouseEvent e){
+        //System.out.println("Something is happening: EventLayer");
         synchronized(circles){
             Iterator it = circles.iterator();
             while(it.hasNext()){
@@ -239,7 +240,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                 catch(Exception ex){}
             }
         }
-        fireRequestInfoLine(" ");
+        //fireRequestInfoLine(" ");
         return false;
     }
 

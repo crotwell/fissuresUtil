@@ -313,7 +313,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
                     return true;
                 }
             }
-            fireRequestInfoLine(" ");
+            //fireRequestInfoLine(" ");
             return false;
         }
     }

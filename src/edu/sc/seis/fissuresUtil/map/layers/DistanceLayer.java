@@ -5,30 +5,39 @@
  */
 
 package edu.sc.seis.fissuresUtil.map.layers;
-import edu.sc.seis.fissuresUtil.map.*;
-
 import com.bbn.openmap.LatLonPoint;
-import com.bbn.openmap.Layer;
+import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.Projection;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
 import edu.sc.seis.fissuresUtil.display.EventDataListener;
+import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
+import edu.sc.seis.fissuresUtil.map.layers.MouseAdapterLayer;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
 
-public class DistanceLayer extends Layer implements EQSelectionListener, EventDataListener{
+public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListener, EventDataListener{
+
+    private static String[] modeList = { SelectMouseMode.modeID } ;
 
     private OMGraphicList distCircles = new OMGraphicList();
+    private MapBean mapBean;
+    private EventAccessOperations[] events;
 
-    public DistanceLayer(){
+    public DistanceLayer(MapBean mapBean){
+        this.mapBean = mapBean;
     }
 
     /**
@@ -55,7 +64,8 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
             distCircles.clear();
         }
         try{
-            Origin origin = eqSelectionEvent.getEvents()[0].get_preferred_origin();
+            events = eqSelectionEvent.getEvents();
+            Origin origin = events[0].get_preferred_origin();
             LatLonPoint llp = new LatLonPoint(origin.my_location.latitude, origin.my_location.longitude);
             makeDistCircles(llp);
             repaint();
@@ -118,6 +128,19 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
         }
     }
 
+    public boolean mouseMoved(MouseEvent e){
+        try{
+            LatLonPoint llp = mapBean.getCoordinates(e);
+            double dist = StationLayer.calcDistEventFromLocation(llp.getLatitude(),
+                                                                 llp.getLongitude(),
+                                                                 events[0]);
+            String message = "Distance from Event: " + dist + " deg";
+            fireRequestInfoLine(message);
+        }
+        catch(NoPreferredOrigin npo){}
+        return false;
+    }
+
     private static LatLonPoint makeTextLabelLatLon(LatLonPoint center, double radiusDegrees, Projection prj, boolean isUpper){
         LatLonPoint textLLP;
 
@@ -152,6 +175,29 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
         public TextLabel(LatLonPoint position, String text){
             super(position.getLatitude(), position.getLongitude(), text, OMText.JUSTIFY_CENTER);
         }
+    }
+
+    /**
+     * Return a list of the modes that are interesting to the
+     * MapMouseListener.  The source MouseEvents will only get sent to
+     * the MapMouseListener if the mode is set to one that the
+     * listener is interested in.
+     * Layers interested in receiving events should register for
+     * receiving events in "select" mode:
+     * <code>
+     * <pre>
+     *  return new String[] {
+     *      SelectMouseMode.modeID
+     *  };
+     * </pre>
+     * <code>
+     * @return String[] of modeID's
+     * @see NavMouseMode#modeID
+     * @see SelectMouseMode#modeID
+     * @see NullMouseMode#modeID
+     */
+    public String[] getMouseModeServiceList() {
+        return modeList;
     }
 }
 
