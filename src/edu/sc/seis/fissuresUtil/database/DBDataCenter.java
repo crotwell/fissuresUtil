@@ -9,11 +9,12 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.Logger;
+
 
 /**
  * DBDataCenter.java
@@ -138,7 +139,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
             LocalSeismogramImpl[] localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
             RequestFilter[] uncovered = notCovered(a_filterseq, localSeismograms);
             if(uncovered.length != 0 && dataCenter != null)  {
-                localSeismograms = (LocalSeismogramImpl[])dataCenter.retrieve_seismograms(a_filterseq);
+                localSeismograms = (LocalSeismogramImpl[])dataCenter.retrieve_seismograms(uncovered);
                 hsqlRequestFilterDb.addSeismogram(localSeismograms);
             }
             insertIntoArrayList(arrayList, localSeismograms);
@@ -184,11 +185,13 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
                     unsatisfied.add(new RequestFilter(filters[i].channel_id,
                                                       timeEnd.getFissuresTime(),
                                                       filterEnd.getFissuresTime()));
+                    logger.debug("Requesting data past the end of current data");
                 }
                 if(filterBegin.before(timeBegin)){
                     unsatisfied.add(new RequestFilter(filters[i].channel_id,
                                                       filterBegin.getFissuresTime(),
                                                       timeBegin.getFissuresTime()));
+                    logger.debug("Requesting data before the begin of current data");
                 }
             }
         }
@@ -283,6 +286,8 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     }
 
     private ThreadGroup dbThreadGroup = new ThreadGroup("DBDataCenter");
+
+    Logger logger = Logger.getLogger(DBDataCenter.class);
 
 }// DBDataCenter
 
