@@ -19,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1721 2002-05-28 21:12:38Z crotwell $
+ * @version $Id: XMLDataSet.java 1734 2002-05-29 19:11:46Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -200,8 +200,27 @@ public class XMLDataSet implements DataSet, Serializable {
     public void addDataSet(DataSet dataset,
 			   AuditInfo[] audit) {
 	if (dataset instanceof XMLDataSet) {
-	    config.appendChild(((XMLDataSet)dataset).config);
-	} // end of if (dataset instanceof XMLDataSet)
+	    XMLDataSet xds = (XMLDataSet)dataset;
+	    Element element = xds.getElement();
+	    if (element.getOwnerDocument().equals(config.getOwnerDocument())) {
+		config.appendChild(element);
+		logger.debug("dataset append "+config.getChildNodes().getLength());
+	    } else {
+		// not from the same document, must clone
+		Node copyNode = config.getOwnerDocument().importNode(element, 
+								     true);
+		config.appendChild(copyNode);
+		logger.debug("dataset import "+config.getChildNodes().getLength());
+		NodeList nl = config.getChildNodes();
+		for (int i=0; i<nl.getLength(); i++) {
+		    logger.debug("node "+nl.item(i).getLocalName());
+		} // end of for (int i=0; i<nl.getLenght(); i++)
+		
+	    } // end of else
+	} else {
+	    logger.warn("Attempt to add non-XML dataset");
+	} // end of else
+	
     }
 
     public DataSet createChildDataSet(String id, String name, String owner,
@@ -258,6 +277,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	    return (LocalSeismogramImpl)seismogramCache.get(name);
 	} // end of if (seismogramCache.containsKey(name))
 	
+	String urlString = "NONE";
 	NodeList nList = 
 	    evalNodeList(config, "SacSeismogram[name="+dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
@@ -265,8 +285,12 @@ public class XMLDataSet implements DataSet, Serializable {
 		Node n = nList.item(0); 
 		if (n instanceof Element) {
 		    Element e = (Element)n;
+		    urlString = e.getAttribute("xlink:href");
+		    if (urlString == null || urlString == "") {
+			throw new MalformedURLException(name+" does not have an xlink:href attribute");			 
+		    } // end of if (urlString == null || urlString == "")
 		    URL sacURL = 
-			new URL(e.getAttribute("xlink:href"));
+			new URL(urlString);
 		    DataInputStream dis = new DataInputStream(new BufferedInputStream(sacURL.openStream())); 
 		    SacTimeSeries sac = new SacTimeSeries();
 		    sac.read(dis);
@@ -292,8 +316,12 @@ public class XMLDataSet implements DataSet, Serializable {
 		    return seis;
 		}
 		
+	    } catch (MalformedURLException e) {
+		logger.error("Couldn't get seismogram "+name, e);
+		logger.error(urlString);
 	    } catch (Exception e) {
-		logger.error("Couldn't get seismogram", e);
+		logger.error("Couldn't get seismogram "+name, e);
+		logger.error(urlString);
 	    } // end of try-catch
 	    
 	}
@@ -342,8 +370,8 @@ public class XMLDataSet implements DataSet, Serializable {
 
 	Document doc = config.getOwnerDocument();
 	Element sac = doc.createElement("SacSeismogram");
-	sac.setAttributeNS(xlinkNS, "type", "simple");
-	sac.setAttributeNS(xlinkNS, "href", seisURL.toString());
+	sac.setAttributeNS(xlinkNS, "xlink:type", "simple");
+	sac.setAttributeNS(xlinkNS, "xlink:href", seisURL.toString());
 
 	Element nameE = doc.createElement("name");
 	Text text = doc.createTextNode(name);
@@ -370,6 +398,12 @@ public class XMLDataSet implements DataSet, Serializable {
 	config.appendChild(sac);
     }
 
+    /** returns a DOM Element that represents this dataset.
+     */
+    public Element getElement() {
+	return config;
+    }
+
     public void write(OutputStream out) throws Exception {
 	DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
 	DocumentBuilder docBuilder = dfactory.newDocumentBuilder();
@@ -387,7 +421,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	oprops.put("indent", "yes");
 	oprops.put("xalan:indent-amount", "4");
 	serializer.setOutputProperties(oprops);
-	serializer.transform(new javax.xml.transform.dom.DOMSource(config), 
+	serializer.transform(new javax.xml.transform.dom.DOMSource(getElement()), 
 			     new javax.xml.transform.stream.StreamResult(out));
 
     }
