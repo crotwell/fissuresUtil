@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3247 2003-02-06 03:19:29Z crotwell $
+ * @version $Id: ChannelChooser.java 3250 2003-02-06 19:30:50Z crotwell $
  *
  */
 
@@ -160,7 +160,8 @@ public class ChannelChooser extends JPanel{
         networks.clear();
 	for (int i=0; i<netdcgiven.length; i++) {
 	    NetworkLoader networkLoader = new NetworkLoader(netdcgiven[i]);
-	    if (netdcgiven.length == 1 || ! showNetworks) {
+
+	    if ( ! showNetworks) {
 		networkLoader.setDoSelect(true);
 	    } else {
 		networkLoader.setDoSelect(false);
@@ -529,8 +530,7 @@ public class ChannelChooser extends JPanel{
                 } else if (orientationList.getSelectedValue().equals("THREE_COMPONENT")) {
                     for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
                         // selected channel codes in this case are really "band code names"
-                        String bandName = (String)selectedChannelCodes[bandNum];
-                        String bc = bundle.getString("CODE_"+bandName);
+                        String bc = (String)selectedChannelCodes[bandNum];
                         Channel[] tmpH = 
                             BestChannelUtil.getHorizontalChannels(staChans,
                                                                   bc);
@@ -559,8 +559,7 @@ public class ChannelChooser extends JPanel{
                     } // end of else
                 } else if (orientationList.getSelectedValue().equals("VERTICAL_ONLY")) {
                     for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
-                        String bandName = (String)selectedChannelCodes[bandNum];
-                        String bc = bundle.getString("CODE_"+bandName);
+                        String bc = (String)selectedChannelCodes[bandNum];
                         Channel tmp = BestChannelUtil.getVerticalChannel(staChans, 
                                                                          bc);
                         if (tmp != null) {
@@ -569,8 +568,7 @@ public class ChannelChooser extends JPanel{
                     }
                 } else if (orientationList.getSelectedValue().equals("HORIZONTAL_ONLY")) {
                     for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
-                        String bandName = (String)selectedChannelCodes[bandNum];
-                        String bc = bundle.getString("CODE_"+bandName);
+                        String bc = (String)selectedChannelCodes[bandNum];
                         Channel[] tmp = 
                             BestChannelUtil.getHorizontalChannels(staChans, 
                                                                   bc);
