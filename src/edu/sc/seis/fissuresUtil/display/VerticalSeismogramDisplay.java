@@ -29,16 +29,16 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     public void addDisplay(LocalSeismogram seis){
 	if(basicDisplays.size() > 0)
-	    this.addDisplay((LocalSeismogramImpl)seis,((BasicSeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
-			    ((BasicSeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
+	    this.addDisplay((LocalSeismogramImpl)seis,((SeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
+			    ((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
 	else	    
 	    this.addDisplay((LocalSeismogramImpl)seis, new BoundedTimeConfig(), new MinMaxAmpConfig());
     }
     
     public void addDisplay(LocalSeismogramImpl seis){
 	if(basicDisplays.size() > 0)
-	    this.addDisplay(seis,((BasicSeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
-			((BasicSeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
+	    this.addDisplay(seis,((SeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
+			((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
 	else	    
 	    this.addDisplay(seis, new BoundedTimeConfig(), new MinMaxAmpConfig());
     }
@@ -50,15 +50,15 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
 	if(basicDisplays.size() > 0){
-	    ((BasicSeismogramDisplay)basicDisplays.getLast()).setBottomTimeBorder(false);
-	    ((BasicSeismogramDisplay)basicDisplays.getFirst()).setTopTimeBorder(true);
+	    ((SeismogramDisplay)basicDisplays.getLast()).removeBottomTimeBorder();
+	    ((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
 	}
 	basicDisplays.add(disp);
 	disp.revalidate();
     }
 
     public void addSeismogram(LocalSeismogramImpl seis, int index){
-	((BasicSeismogramDisplay)basicDisplays.get(index)).addSeismogram((LocalSeismogram)seis);
+	((SeismogramDisplay)basicDisplays.get(index)).addSeismogram((LocalSeismogram)seis);
     }
 
     public LinkedList getDisplays(){ return basicDisplays; }

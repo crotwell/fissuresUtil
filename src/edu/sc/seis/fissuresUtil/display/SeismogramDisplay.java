@@ -13,7 +13,7 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
  * @version 0.1
  */
 
-public interface SeismogramDisplay {
+public interface SeismogramDisplay extends TimeSyncListener, AmpSyncListener {
     
     /**
      * Adds a seismogram to the display
@@ -42,12 +42,13 @@ public interface SeismogramDisplay {
      */
     public TimeRangeConfig getTimeConfig();
 
-    /**
-     * Returns the toolbar for the display
-     *
-     *
-     *
-     */
-    public ControlToolbar getControls();
-    
+    public void addBottomTimeBorder();
+
+    public void removeBottomTimeBorder();
+
+    public void addTopTimeBorder();
+
+    public void removeTopTimeBorder();
+
+   
 }// SeismogramDisplay
