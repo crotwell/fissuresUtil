@@ -2,7 +2,7 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.sc.seis.fissuresUtil.display.*;
 
-import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 9094 2004-06-07 17:40:54Z crotwell $
+ * @version $Id: SeismogramShape.java 9829 2004-07-27 19:58:51Z crotwell $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -216,7 +216,12 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         lastPoint = container.getIterator().getValueAt(endPoint).getValue();
         double difference = unroundStartPoint - startPoint;
         double value = firstPoint * (1 - difference) + (lastPoint * difference);
-        points[0][point] = height - (int)((value  - minAmp)/range * height);
+        if (container.getDataSetSeismogram().getAuxillaryDataKeys().contains("sensitivity") &&
+                ((Sensitivity)container.getDataSetSeismogram().getAuxillaryData("sensitivity")).sensitivity_factor < 0) {
+            points[0][point] = (int)((value  - minAmp)/range * height);
+        } else {
+            points[0][point] = height - (int)((value  - minAmp)/range * height);
+        }
         points[1][point] = points[0][point];
     }
 
@@ -233,8 +238,14 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
             endPoint = it.getNumPoints();
         }
         double[] minMax = it.minMaxMean(startPoint,endPoint);
-        points[0][point] = height - (int)((minMax[0]  - minAmp)/range * height);
-        points[1][point] = height - (int)((minMax[1] - minAmp)/range * height);
+        if (container.getDataSetSeismogram().getAuxillaryDataKeys().contains("sensitivity") &&
+                ((Sensitivity)container.getDataSetSeismogram().getAuxillaryData("sensitivity")).sensitivity_factor < 0) {
+            points[0][point] = (int)((minMax[0]  - minAmp)/range * height);
+            points[1][point] = (int)((minMax[1] - minAmp)/range * height);
+        } else {
+            points[0][point] = height - (int)((minMax[0]  - minAmp)/range * height);
+            points[1][point] = height - (int)((minMax[1] - minAmp)/range * height);
+        }
     }
 
     private static double getShiftPercentage(MicroSecondTimeRange from,
