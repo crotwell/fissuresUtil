@@ -293,7 +293,7 @@ public class Cmplx {
     }
 	
     /** Computes the correlation of fdata with gdata. The value of
-	the output at index i is the sum of fdata[i+j]*gdata[j], although
+	the output at index i is the sum over j of fdata[i+j]*gdata[j], although
 	using the FFT is much faster than direct sum.
 
 	@see http://www.ulib.org/webRoot/Books/Numerical_Recipes/bookcpdf.html section 13-2
