@@ -31,9 +31,6 @@ public class OpenMap extends OpenMapComponent{
             // Create a MapBean
             MapBean mapBean = new MapBean();
 
-            // Set the map's center
-            mapBean.setCenter(new LatLonPoint(43.0f, -95.0f));
-
             // Set the map's scale 1:120 million
             mapBean.setScale(120000000f);
 
@@ -48,27 +45,21 @@ public class OpenMap extends OpenMapComponent{
             mapHandler.add(lh);
 
             if(chooser != null){
-                StationLayer sl = new StationLayer(chooser, mapBean);
+                StationLayer sl = new StationLayer(chooser);
                 mapHandler.add(sl);
+                lh.addLayer(sl,0);
             }
 
             if(etm != null){
-                EventLayer el = new EventLayer(etm, mapBean);
+                EventLayer el = new EventLayer(etm);
                 mapHandler.add(el);
+                lh.addLayer(el, 1);
             }
 
             // Create a ShapeLayer to show world political boundaries.
-            // Set the properties of the layer.  This assumes that the
-            // datafiles "dcwpo-browse.shp" and "dcwpo-browse.ssx" are in
-            // a path specified in the CLASSPATH variable.  These files
-            // are distributed with OpenMap and reside in the toplevel
-            // "share" subdirectory.
             ShapeLayer shapeLayer = new ShapeLayer();
 
-            // Since this Properties object is being used just for
-            // this layer, the properties do not have to be scoped
-            // with marker name, like the layer properties in the
-            // ../hello/HelloWorld.properties file.
+            //Create shape layer properties
             Properties shapeLayerProps = new Properties();
             shapeLayerProps.put("prettyName", "Political Solid");
             shapeLayerProps.put("lineColor", "000000");

@@ -7,12 +7,10 @@ package edu.sc.seis.fissuresUtil.map;
  */
 
 
-import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.Layer;
-import com.bbn.openmap.MapBean;
-import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.omGraphics.OMCircle;
+import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
@@ -25,9 +23,8 @@ import java.awt.Color;
 import org.apache.log4j.Logger;
 
 public class EventLayer extends Layer implements EventDataListener{
-    public EventLayer(EventTableModel tableModel, MapBean mapBean){
+    public EventLayer(EventTableModel tableModel){
         tableModel.addEventDataListener(this);
-        this.mapBean = mapBean;
     }
 
     public void paint(java.awt.Graphics g) {
@@ -35,8 +32,7 @@ public class EventLayer extends Layer implements EventDataListener{
     }
 
     public void projectionChanged(ProjectionEvent e) {
-        circles.project(e.getProjection(), true);
-        repaint();
+        LayerProjectionUpdater.update(e, circles, this);
     }
 
     public void eventDataChanged(EQDataEvent eqDataEvent) {
@@ -48,9 +44,6 @@ public class EventLayer extends Layer implements EventDataListener{
                 logger.debug("No origin for an event");
             }
         }
-        LatLonPoint center = mapBean.getCenter();
-        mapBean.center(new CenterEvent(this, center.getLatitude(),
-                                       center.getLongitude()));
     }
 
     public void eventDataCleared() {
@@ -73,20 +66,13 @@ public class EventLayer extends Layer implements EventDataListener{
             setSelectPaint(Color.RED);
             add(bigCircle);
             add(lilCircle);
+            generate(getProjection());
         }
 
         private CacheEvent event;
     }
 
-
-    /**
-     *  A list of graphics to be painted on the map.
-     */
     private OMGraphicList circles = new OMGraphicList();
 
-    private OMGraphicList interiorCircles = new OMGraphicList();
-
     private Logger logger = Logger.getLogger(EventLayer.class);
-
-    private MapBean mapBean;
 }
