@@ -120,6 +120,21 @@ public class BasicLayoutConfig implements LayoutConfig{
         add((DataSetSeismogram[])reset.toArray(new DataSetSeismogram[reset.size()]));
     }
 
+    public double getScale() {
+        return scale;
+    }
+
+    /**
+     *sets the amount by which every seismogram in the layout is being scaled
+     *@param scale - the factor by which the seismogram height is multiplied
+     */
+    public void setScale(double scale) {
+        if(this.scale != scale){
+            this.scale = scale;
+            fireLayoutEvent();
+        }
+    }
+
     public synchronized LayoutEvent generateLayoutEvent(){
         DataSetSeismogram[] seis = getSeismograms();
         if(seis.length > 0){
@@ -153,7 +168,7 @@ public class BasicLayoutConfig implements LayoutConfig{
                 LayoutData[] data = { new LayoutData(seis[0], 0.0, 1.0)};
                 return new LayoutEvent(data, LayoutEvent.ONE_DEGREE);
             }
-            double offset = minDistBetween/2;
+            double offset = minDistBetween * scale/2;
             double startDist =  ((QuantityImpl)distanceMap.get(orderedSeis.get(0))).getValue() - offset;
             double endDist = ((QuantityImpl)distanceMap.get(orderedSeis.get(orderedSeis.size() - 1))).getValue() + offset;
             double totalDistance = endDist - startDist;
@@ -196,4 +211,6 @@ public class BasicLayoutConfig implements LayoutConfig{
     private List listeners = new ArrayList();
 
     private List seis =  new ArrayList();
+
+    private double scale = 1;
 }
