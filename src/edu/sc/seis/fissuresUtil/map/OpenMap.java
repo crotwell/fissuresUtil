@@ -6,12 +6,12 @@ package edu.sc.seis.fissuresUtil.map;
  * @author Created by Charlie Groves
  */
 
-import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
+import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.MultipleSoloMapComponentException;
-import com.bbn.openmap.event.PanEvent;
+import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.gui.OMToolSet;
 import com.bbn.openmap.gui.ToolPanel;
 import com.bbn.openmap.layer.shape.ShapeLayer;
@@ -82,6 +82,9 @@ public class OpenMap extends OpenMapComponent{
             // the OMToolSet and add it to itself.
             mapHandler.add(omts);
             mapHandler.add(toolBar);
+
+            mapHandler.add(new MouseDelegator());
+            mapHandler.add(new SelectMouseMode());
         } catch (MultipleSoloMapComponentException msmce) {
             // The MapHandler is only allowed to have one of certain
             // items.  These items implement the SoloMapComponent
