@@ -24,7 +24,11 @@ public class OriginAlignedTimeConfig extends RelativeTimeConfig{
             try {
                 seisOrigin = eao.get_preferred_origin();
             }catch (NoPreferredOrigin e) {
-                seisOrigin = eao.get_origins()[0];
+                if (eao.get_origins().length > 0) {
+                    seisOrigin = eao.get_origins()[0];
+                } else {
+                    return super.getInitialTime(seis);
+                }
             }
             MicroSecondDate originTime = new MicroSecondDate(seisOrigin.origin_time);
             TimeInterval interval;
@@ -39,5 +43,7 @@ public class OriginAlignedTimeConfig extends RelativeTimeConfig{
         }
         return super.getInitialTime(seis);
     }
+
+
 }
 
