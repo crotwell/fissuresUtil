@@ -73,7 +73,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 			labelTemp = topScaleMap.getLabel(i);
                         if (labelTemp != null && labelTemp.length() != 0) {
                             copy.drawString(labelTemp,
-                                            pixelLoc,
+                                            pixelLoc - (labelTemp.length() * 2),
 					    top - majorTickLength-
                                             fm.getLeading());
                         }
@@ -105,7 +105,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 			    else if(i == numTicks - 1)
 				copy.drawString(labelTemp,
 						insets.left - insets.right - 45,
-						pixelLoc - 5);
+						pixelLoc + 5);
 			    else
 				copy.drawString(labelTemp,
 						insets.left - insets.right - 45,
