@@ -124,6 +124,9 @@ public class PlottableCache implements PlottableDCOperations{
 	return null;
     }
 
+    /**
+       HashMap to maintins the cache of the dayPlottables
+    **/
     private HashMap dayCache = new HashMap();
     private PlottableDC plottableDC;
     static Category logger = 
