@@ -34,7 +34,8 @@ public class TimeEvent {
             }else{
                 genericTime = DisplayUtils.ONE_TIME;
             }
-        }return genericTime;
+        }
+        return genericTime;
     }
 
     private int indexOf(DataSetSeismogram seismo){
