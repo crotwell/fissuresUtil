@@ -10,9 +10,9 @@ public class ReverseMultiWindowDisplay extends MultiSeismogramWindowDisplay{
     public ReverseMultiWindowDisplay(SeismogramSorter sorter){
         super(sorter);
     }
-    
+
     protected void addBSD(BasicSeismogramDisplay disp, int pos){
-        super.addBSD(disp, getComponentCount() - pos);
+        super.addBSD(disp, cp.getComponentCount() - pos);
     }
 }
 

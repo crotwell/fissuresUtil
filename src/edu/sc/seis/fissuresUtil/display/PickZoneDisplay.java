@@ -15,6 +15,11 @@ import java.awt.Color;
 
 public class PickZoneDisplay extends VerticalSeismogramDisplay{
 
+    public void add(DataSetSeismogram[] dss) {
+        // TODO
+    }
+
+
     /**
      * adds the seismograms to the VSD with the passed amp config
      * @param dss the seismograms to be added
@@ -69,12 +74,13 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
                                              color.getGreen(),
                                              255,
                                              color.toString());
-        BasicSeismogramDisplay newDisplay = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(), this, untransparent);
-        newDisplay.add(seis, untransparent);
-        createCenter().add(newDisplay);
+        BasicSeismogramDisplay disp = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(), untransparent);
+        disp.setParentDisplay(this);
+        disp.add(seis, untransparent);
+        getCenter().add(disp);
         revalidate();
         setBorders();
-        return newDisplay;
+        return disp;
     }
 
     public BasicSeismogramDisplay add(DataSetSeismogram seis){
