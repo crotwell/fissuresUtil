@@ -31,10 +31,10 @@ public class AmpEvent {
 		genericAmp = amps[0];
 	    }else{
 		boolean equal = true;
-		for(int i = 0; i < seismos.length; i++){
-		    if(!amps[i].equals(amps[i+1])){
+		for(int i = 1; i < amps.length; i++){
+		    if(!amps[i].equals(amps[i-1])){
 			equal = false;
-			i = seismos.length;
+			i = amps.length;
 		    }
 		}
 		if(equal){
