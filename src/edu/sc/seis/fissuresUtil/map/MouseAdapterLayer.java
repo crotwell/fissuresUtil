@@ -39,6 +39,10 @@ public abstract class MouseAdapterLayer extends Layer implements MapMouseListene
      */
     public abstract String[] getMouseModeServiceList();
 
+    public MapMouseListener getMapMouseListener(){
+        return this;
+    }
+
     public void mouseEntered(MouseEvent e) {}
 
     public boolean mouseDragged(MouseEvent e) { return false;   }
