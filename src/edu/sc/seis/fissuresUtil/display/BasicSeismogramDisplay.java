@@ -4,6 +4,7 @@ import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
 import java.util.*;
 
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
@@ -83,14 +84,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         setPreferredSize(new Dimension(PREFERRED_WIDTH + insets.left + insets.right, PREFERRED_HEIGHT + insets.top + insets.bottom));
         resize();
         repaint();
-        plotPainter = new PlotPainter();
-        add(plotPainter);
-        timeAmpLabel = new TimeAmpPlotter(this);
-        plotters.add(timeAmpLabel);
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
+        timeAmpLabel = new TimeAmpPlotter(this);
+        plotters.add(timeAmpLabel);
         plotters.add(new DisplayRemove(this));
-        setBackground(Color.WHITE);
+        plotPainter = new PlotPainter();
+        add(plotPainter);
     }
 
     public void add(DataSetSeismogram[] seismos){
@@ -134,7 +134,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
                                                       arrivals[i].getPhase().getName());
                 plotters.addLast(current);
             }
-        } catch ( edu.iris.Fissures.IfEvent.NoPreferredOrigin e) {
+        } catch ( NoPreferredOrigin e) {
             logger.warn("Caught NoPreferredOrigin on addFlags", e);
         } // end of catch
 
@@ -286,14 +286,14 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     }
 
     public void addSelection(Selection newSelection){
-        if(! plotters.contains(newSelection)){
+        if(!plotters.contains(newSelection)){
             plotters.add(newSelection);
             repaint();
         }
     }
 
     public void remove(Selection old){
-        if( plotters.remove(old)){
+        if(plotters.remove(old)){
             repaint();
         }
     }
@@ -309,7 +309,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     }
 
     public void addThreeCSelection(ThreeCSelection newSelection){
-        if( ! plotters.contains(newSelection)){
+        if(!plotters.contains(newSelection)){
             plotters.add(newSelection);
             repaint();
         }
@@ -506,23 +506,23 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     private class PlotPainter extends JComponent{
         public void paintComponent(Graphics g){
             Graphics2D g2 = (Graphics2D)g;
-            g2.setColor(getBackground());
+            g2.setColor(Color.WHITE);
             g2.fill(new Rectangle2D.Float(0,0, getSize().width, getSize().height));
-            Iterator e = plotters.iterator();
-            Rectangle2D.Float stringBounds = new Rectangle2D.Float();
-            stringBounds.setRect(g2.getFontMetrics().getStringBounds("test", g2));
-            int i = 0;
-            while(e.hasNext()){
-                Plotter current = (Plotter)e.next();
+            int namesDrawn = 0;
+            for (int i = 0; i < plotters.size(); i++){
+                Rectangle2D.Float stringBounds = new Rectangle2D.Float();
+                stringBounds.setRect(g2.getFontMetrics().getStringBounds("test", g2));
+                Plotter current = (Plotter)plotters.get(i);
                 current.draw(g2, displaySize, currentTimeEvent, currentAmpEvent);
                 if(current instanceof TimeAmpPlotter){
+                    TimeAmpPlotter taPlotter = (TimeAmpPlotter)current;
                     g2.setFont(DisplayUtils.MONOSPACED_FONT);
-                    stringBounds.setRect(g2.getFontMetrics().getStringBounds((((TimeAmpPlotter)current).getText()), g2));
-                    ((NamedPlotter)current).drawName(g2,(int)(displaySize.width - stringBounds.width), displaySize.height - 3);
+                    stringBounds.setRect(g2.getFontMetrics().getStringBounds(taPlotter.getText(), g2));
+                    taPlotter.drawName(g2,(int)(displaySize.width - stringBounds.width), displaySize.height - 3);
                     g2.setFont(DisplayUtils.DEFAULT_FONT);
                 }else if(current instanceof NamedPlotter){
-                    if(((NamedPlotter)current).drawName(g2, 5, (int)(displaySize.height - 3 - i * stringBounds.height)))
-                        i++;
+                    if(((NamedPlotter)current).drawName(g2, 5, (int)(displaySize.height - 3 - namesDrawn * stringBounds.height)))
+                        namesDrawn++;
                 }
             }
         }
@@ -588,13 +588,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     }
 
-	public void addSoundPlay(){
-		plotters.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
-	}
-
-	public void removeSoundPlay(){
-		new PlotterIterator(SoundPlay.class).clear();
-	}
+    public void addSoundPlay(){
+        plotters.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
+    }
+    public void removeSoundPlay(){
+        new PlotterIterator(SoundPlay.class).clear();
+    }
 
     private static Set globalFilters = new HashSet();
 
@@ -610,7 +609,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     private LinkedList seismograms = new LinkedList();
 
-    private LinkedList plotters = new LinkedList();
+    private LinkedList plotters =new LinkedList();
 
     private Registrar registrar;
 
