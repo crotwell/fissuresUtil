@@ -22,10 +22,10 @@ public class FilteredSeismogramShape extends SeismogramShape {
     }
 
     public ColoredFilter getFilter(){
-        return ((FilteredDataSetSeismogram)container.getDataSetSeismogram()).getFilter();
+        return ((FilteredDataSetSeismogram)getSeismogram()).getFilter();
     }
 
     public DataSetSeismogram getFilteredSeismogram(){
-        return container.getDataSetSeismogram();
+        return getSeismogram();
     }
 }// FilteredSeismogramShape

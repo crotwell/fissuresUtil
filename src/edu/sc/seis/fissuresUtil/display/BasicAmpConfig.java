@@ -1,11 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
+
+
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
-import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
-import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +22,7 @@ import org.apache.log4j.Category;
  * @version
  */
 
-public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
+public class BasicAmpConfig implements AmpConfig{
     public BasicAmpConfig(DataSetSeismogram[] seismos){
         if(seismos == null || DisplayUtils.allNull(seismos)){
             throw new IllegalArgumentException("Some non null seismograms must be given to an amp config on instantiation");
@@ -39,39 +38,9 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     public synchronized void add(DataSetSeismogram[] seismos){
         for(int i = 0; i < seismos.length; i++){
             if(!ampData.containsKey(seismos[i])){
-                ampData.put(seismos[i], new AmpConfigData(seismos[i],
-                                                          DisplayUtils.ONE_RANGE,
-                                                          DisplayUtils.ONE_TIME,
-                                                          shift, scale));
+                ampData.put(seismos[i], new AmpConfigData(seismos[i], this));
             }
-            seismos[i].addSeisDataChangeListener(this);
-            seismos[i].retrieveData(this);
         }
-    }
-
-    public void pushData(SeisDataChangeEvent sdce) {
-        AmpConfigData dssData = (AmpConfigData)ampData.get(sdce.getSource());
-        if ( dssData == null) {
-            // must not be a DataSetSeismogram registered with us, ignore
-            return;
-        } // end of if ()
-        boolean newData = false;
-        synchronized(this){
-            newData = dssData.addSeismograms(sdce.getSeismograms());
-        }
-        this.seismos = null;
-        if(listeners.size() > 0 && newData){
-            fireAmpEvent();
-        }
-    }
-
-    public void finished(SeisDataChangeEvent sdce) {
-    }
-
-    public void error(SeisDataErrorEvent sdce) {
-        //do nothing as someone else should handle error notification to user
-        logger.warn("Error with data retrieval.",
-                    sdce.getCausalException());
     }
 
     /**
@@ -171,7 +140,7 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
         return null;
     }
 
-    protected synchronized AmpEvent calculateAmp(){
+    private AmpEvent calculateAmp(){
         Iterator e = ampData.keySet().iterator();
         boolean changed = false;
         while(e.hasNext()){
@@ -179,38 +148,18 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
 
             if(current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
                 if(setAmpRange(current.getDSS())){ //checks if the new time changes the amp range
-                    current.setNewData(false);
                     changed = true;// only generates a new amp event if the amp ranges have changed
                 }
             }else if(current.hasNewData()){
-                current.setNewData(false);
                 setAmpRange(current.getDSS());
                 changed = true;
             }
         }
         if(changed || currentAmpEvent == null){
-            recalculateAmp();
+            currentAmpEvent = recalculateAmp();
         }
 
         return currentAmpEvent;
-    }
-
-    protected void checkSeismogramUnits(DataSetSeismogram seismo){
-        AmpConfigData data = (AmpConfigData)ampData.get(seismo);
-        LocalSeismogramImpl[] seismograms = data.getSeismograms();
-        UnitImpl seisUnit = null;
-        for(int i = 0; i < seismograms.length; i++){
-            LocalSeismogramImpl seis = seismograms[i];
-            if (seisUnit == null) {
-                seisUnit = seis.getUnit();
-            }
-            if ( ! seis.getUnit().equals(seisUnit)) {
-
-                // very unusuall for seismograms not to have the same unit
-                // recorded from the same channel
-                throw new IllegalArgumentException("Seismograms in the same DataSetSeismogram do not have the same units!");
-            }
-        }
     }
 
 
@@ -219,7 +168,7 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
         while(e.hasNext()){
-            UnitRangeImpl current = ((AmpConfigData)ampData.get(e.next())).getShaledRange();
+            UnitRangeImpl current = ((AmpConfigData)ampData.get(e.next())).getRange();
             if(current != null){
                 if(current.getMaxValue() > max){
                     max = current.getMaxValue();
@@ -235,74 +184,59 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
         for(int i = 0; i < seismos.length; i++){
             amps[i] = fullRange;
         }
-        currentAmpEvent = new AmpEvent(seismos, amps);
-        return currentAmpEvent;
+        return new AmpEvent(seismos, amps);
     }
 
-    protected synchronized boolean setAmpRange(DataSetSeismogram seismo){
+    protected boolean setAmpRange(DataSetSeismogram seismo){
         AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+        SeismogramIterator it = data.getIterator();
+        if (!it.hasNext()) {//if the iterator on this time range has no next
+            return data.setRange(DisplayUtils.ZERO_RANGE);//point, there is
+        } // no amp data here
+        double[] minMaxMean = it.minMaxMean();
+        return data.setRange(new UnitRangeImpl(minMaxMean[0],
+                                                    minMaxMean[1],
+                                                    UnitImpl.COUNT));
 
-        if ( data.getSeismograms().length == 0) {
-            return data.setCleanRange(DisplayUtils.ZERO_RANGE);
-        } // end of if ()
-
-        LocalSeismogramImpl[] seismograms = data.getSeismograms();
-        double[] minMaxAll = new double[2];
-        minMaxAll[0] = Double.POSITIVE_INFINITY;
-        minMaxAll[1] = Double.NEGATIVE_INFINITY;
-        boolean dataInTimeRange = false;//set to true if one of the seismograms
-        //has data in the current time range
-        for(int i = 0; i< seismograms.length; i++){
-            LocalSeismogramImpl seismogram = seismograms[i];
-            int[] seisIndex = DisplayUtils.getSeisPoints(seismogram, data.getTime());
-            if(seisIndex[1] < 0 || seisIndex[0] >= seismogram.getNumPoints()) {
-                //no data points in window, set range to 0
-                break;
-            }
-            if(seisIndex[0] < 0){
-                seisIndex[0] = 0;
-            }
-            if(seisIndex[1] >= seismogram.getNumPoints()){
-                seisIndex[1] = seismogram.getNumPoints() -1;
-            }
-            double[] minMax =
-                data.getStatistics(seismogram).minMaxMean(seisIndex[0], seisIndex[1]);
-            if(minMax[0] < minMaxAll[0]){
-                minMaxAll[0] = minMax[0];
-            }
-            if(minMax[1] > minMaxAll[1]){
-                minMaxAll[1] = minMax[1];
-            }
-            dataInTimeRange = true;
-        }
-        if(dataInTimeRange){
-            return data.setCleanRange(new UnitRangeImpl(minMaxAll[0], minMaxAll[1], UnitImpl.COUNT));
-        }else{
-            return data.setCleanRange(DisplayUtils.ZERO_RANGE);
-        }
     }
 
-    protected MicroSecondTimeRange getTime(DataSetSeismogram seismo){
+    private MicroSecondTimeRange getTime(DataSetSeismogram seismo){
         if(currentTimeEvent != null){
             return currentTimeEvent.getTime(seismo);
         }
         return new MicroSecondTimeRange(seismo.getRequestFilter());
     }
 
+
+
+    private void checkSeismogramUnits(DataSetSeismogram seismo){
+        AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+        LocalSeismogramImpl[] seismograms = data.getIterator().getSeismograms();
+        UnitImpl seisUnit = null;
+        for(int i = 0; i < seismograms.length; i++){
+            LocalSeismogramImpl seis = seismograms[i];
+            if (seisUnit == null) {
+                seisUnit = seis.getUnit();
+            }
+            if ( ! seis.getUnit().equals(seisUnit)) {
+                // very unusuall for seismograms not to have the same unit
+                // recorded from the same channel
+                throw new IllegalArgumentException("Seismograms in the same DataSetSeismogram do not have the same units!");
+            }
+        }
+    }
+
     protected Map ampData = new HashMap();
-
-    private double scale = 1.0;
-
-    private double shift = 0;
 
     private List listeners = new ArrayList();
 
     private DataSetSeismogram[] seismos;
 
-    protected TimeEvent currentTimeEvent;
+    private TimeEvent currentTimeEvent;
 
-    protected AmpEvent currentAmpEvent;
+    private AmpEvent currentAmpEvent;
 
     private static Category logger = Category.getInstance(BasicAmpConfig.class.getName());
 }//BasicAmpConfig
+
 
