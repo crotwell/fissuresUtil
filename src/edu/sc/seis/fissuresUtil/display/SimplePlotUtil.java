@@ -21,11 +21,11 @@ import org.apache.log4j.Category;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 5418 2003-09-06 23:43:53Z groves $
+ * @version $Id: SimplePlotUtil.java 5729 2003-09-24 17:27:58Z groves $
  */
 
 public class SimplePlotUtil  {
-
+    
     /**
      * Compresses the seismogram to fit the given dimension for the
      * given timeRange. The returned arrays represent pixel coordinates
@@ -35,28 +35,28 @@ public class SimplePlotUtil  {
                                           MicroSecondTimeRange timeRange,
                                           Dimension size)
         throws CodecException {
-
+        
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
-
+        
         int[][] out = new int[2][];
         int seisIndex = 0;
         int numAdded = 0;
-
-
+        
+        
         if ( seis.getEndTime().before(timeRange.getBeginTime()) ||
             seis.getBeginTime().after(timeRange.getEndTime()) ) {
-
+            
             out[0] = new int[0];
             out[1] = new int[0];
             logger.info("The end time is before the beginTime in simple seismogram");
             return out;
         }
-
-
-
+        
+        
+        
         MicroSecondDate tMin = timeRange.getBeginTime();
         MicroSecondDate tMax = timeRange.getEndTime();
-
+        
         int seisStartIndex = getPixel(seis.getNumPoints(),
                                       seis.getBeginTime(),
                                       seis.getEndTime(),
@@ -71,7 +71,7 @@ public class SimplePlotUtil  {
         if (seisEndIndex >= seis.getNumPoints()) {
             seisEndIndex = seis.getNumPoints()-1;
         }
-
+        
         MicroSecondDate tempdate = getValue(seis.getNumPoints(),
                                             seis.getBeginTime(),
                                             seis.getEndTime(),
@@ -80,20 +80,20 @@ public class SimplePlotUtil  {
                                        tMin,
                                        tMax,
                                        tempdate);
-
-
-
+        
+        
+        
         tempdate = getValue(seis.getNumPoints(),
                             seis.getBeginTime(),
                             seis.getEndTime(),
                             seisEndIndex);
-
+        
         int pixelEndIndex = getPixel(size.width,
                                      tMin,
                                      tMax,
                                      tempdate);
-
-
+        
+        
         int pixels = seisEndIndex - seisStartIndex + 1;
         out[0] = new int[2*pixels];
         out[1] = new int[out[0].length];
@@ -126,7 +126,7 @@ public class SimplePlotUtil  {
                 j = 0;
                 xvalue = tempValue;
                 numAdded = numAdded+2;
-
+                
             }
             seisIndex++;
         }
@@ -144,7 +144,7 @@ public class SimplePlotUtil  {
         System.arraycopy(out[1], 0, temp[1], 0, numAdded);
         return temp;
     }
-
+    
     protected static int[][] compressYvalues(LocalSeismogram seismogram,
                                              MicroSecondTimeRange tr,
                                              UnitRangeImpl ampRange,
@@ -171,7 +171,7 @@ public class SimplePlotUtil  {
                 xvalue = uncomp[0][i];
             }
         }
-
+        
         if(xvalue != 0) {
             startIndex = uncomp[0].length - 1;
             endIndex = uncomp[0].length - 1;
@@ -184,11 +184,11 @@ public class SimplePlotUtil  {
         int temp[][] = new int[2][j];
         System.arraycopy(comp[0], 0, temp[0], 0, j);
         System.arraycopy(comp[1], 0, temp[1], 0, j);
-
+        
         return temp;
-
+        
     }
-
+    
     protected static void  scaleYvalues(int[][] comp, LocalSeismogram seismogram, MicroSecondTimeRange tr,
                                         UnitRangeImpl ampRange,  Dimension size) {
         double yMin = ampRange.getMinValue();
@@ -197,144 +197,57 @@ public class SimplePlotUtil  {
             comp[1][i] = Math.round((float)(linearInterp(yMin, 0,
                                                          yMax, size.height,
                                                          comp[1][i])));
-
+            
         }
     }
-
-    public static int[][] getPlottableSimple(LocalSeismogram seismogram,
-                                             UnitRangeImpl a,
-                                             MicroSecondTimeRange t,
-                                             Dimension size)
-        throws CodecException {
-
-        LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
-
-        int[][] out = new int[2][];
-
-        if ( seis.getEndTime().before(t.getBeginTime()) ||
-            seis.getBeginTime().after(t.getEndTime())){
-            out[0] = new int[0];
-            out[1] = new int[0];
-            //Logger.log(5,"SeisPlotUtil no data in time window");
-
-            return out;
+    
+    public static int[] getPlottableSimple(SeismogramIterator iterator,
+                                           UnitRangeImpl a,
+                                           Dimension size){
+        int[] out = new int[iterator.numPointsLeft()];
+        double ampMin = a.getMinValue();
+        double ampMax = a.getMaxValue();
+        for (int j = 0; j < out.length; j++) {
+            out[j] =
+                (int)Math.round(linearInterp(ampMin, 0, ampMax, size.height,
+                                                 ((QuantityImpl)iterator.next()).getValue()));
         }
-
-        MicroSecondDate tMin = t.getBeginTime();
-        MicroSecondDate tMax = t.getEndTime();
-        double yMin = a.getMinValue();
-        double yMax = a.getMaxValue();
-
-        int seisStartIndex = getPixel(seis.getNumPoints(),
-                                      seis.getBeginTime(),
-                                      seis.getEndTime(),
-                                      tMin);
-        int seisEndIndex = getPixel(seis.getNumPoints(),
-                                    seis.getBeginTime(),
-                                    seis.getEndTime(),
-                                    tMax);
-        // get one more
-        seisStartIndex--;
-        seisEndIndex++;
-        if (seisStartIndex < 0) {
-            seisStartIndex = 0;
-        }
-        if (seisEndIndex >= seis.getNumPoints()) {
-            seisEndIndex = seis.getNumPoints()-1;
-        }
-        MicroSecondDate temp = getValue(seis.getNumPoints(),
-                                        seis.getBeginTime(),
-                                        seis.getEndTime(),
-                                        seisStartIndex);
-        int pixelStartIndex = getPixel(size.width,
-                                       t.getBeginTime(),
-                                       t.getEndTime(),
-                                       temp);
-
-        temp = getValue(seis.getNumPoints(),
-                        seis.getBeginTime(),
-                        seis.getEndTime(),
-                        seisEndIndex);
-        int pixelEndIndex = getPixel(size.width,
-                                     t.getBeginTime(),
-                                     t.getEndTime(),
-                                     temp);
-
-
-        return getPlottableSimple(seis,
-                                  seisStartIndex, seisEndIndex,
-                                  pixelStartIndex, pixelEndIndex,
-                                  yMin, yMax,
-                                  size);
+        return out;
     }
-
-    public static int[][] getPlottableSimple(LocalSeismogramImpl seis,
-                                             int seisStartIndex,
-                                             int seisEndIndex,
-                                             int pixelStartIndex,
-                                             int pixelEndIndex,
-                                             double yMin,
-                                             double yMax,
-                                             Dimension size)
-        throws CodecException {
-        int[][] out = new int[2][];
-        int seisIndex = 0;
-        int numAdded = 0;
-
-        out[0] = new int[seisEndIndex-seisStartIndex+1];
-        out[1] = new int[out[0].length];
-        seisIndex = seisStartIndex;
-
-        numAdded = 0;
-        while (seisIndex < seisEndIndex) {
-
-
-            out[0][numAdded] =
-                (int) Math.round((linearInterp(seisStartIndex,
-                                                pixelStartIndex,
-                                                seisEndIndex,
-                                                pixelEndIndex,
-                                                seisIndex)));
-
-            out[1][numAdded] =
-                (int)Math.round((linearInterp( yMin, 0,
-                                                yMax, size.height,
-                                                seis.getValueAt(seisIndex).getValue())));
-
-            numAdded++;
-            seisIndex = seisIndex + 1;
+    
+    private static double greatestAbsoluteValue(double[] values){
+        double maxAbs = Math.abs(values[0]);
+        int maxPos = 0;
+        for (int i = 1; i < values.length; i++) {
+            if(Math.abs(values[i])>maxAbs){
+                maxAbs = Math.abs(values[i]);
+                maxPos = i;
+            }
         }
-
-        int temp[][] = new int[2][];
-        temp[0] = new int[numAdded];
-        temp[1] = new int[numAdded];
-        System.arraycopy(out[0], 0, temp[0], 0, numAdded);
-        System.arraycopy(out[1], 0, temp[1], 0, numAdded);
-        return temp;
-
+        return values[maxPos];
     }
-
+    
     private static int getMinValue(int[] yValues, int startIndex, int endIndex) {
-
+        
         int minValue = java.lang.Integer.MAX_VALUE;
         for( int i = startIndex; i <= endIndex; i++) {
             if(yValues[i] < minValue) minValue = yValues[i];
-
+            
         }
         return minValue;
-
+        
     }
-
+    
     private static int getMaxValue(int[] yValues, int startIndex, int endIndex) {
-
+        
         int maxValue = java.lang.Integer.MIN_VALUE;
         for( int i = startIndex; i <= endIndex; i++) {
             if(yValues[i] > maxValue) maxValue = yValues[i];
         }
         return maxValue;
-
+        
     }
-
+    
     /** flips an array of ints to be inArray[i] = maxValue -
      inArray[i]. This is mainly useful when displaying as
      calculations are generally done in the traditional y positive
@@ -350,7 +263,7 @@ public class SimplePlotUtil  {
             inArray[i] += maxValue;
         }
     }
-
+    
     /** solves the equation <pre>(yb-ya)/(xb-xa) = (y-ya)/(x-xa)</pre>
      *  for y given x. Useful for finding the pixel for a value given the
      *  dimension of the area and the range of values it is supposed to
@@ -364,7 +277,7 @@ public class SimplePlotUtil  {
         if (x == xb) return yb;
         return (yb - ya)*(x-xa)/(xb-xa) + ya;
     }
-
+    
     public static final int getPixel(int totalPixels,
                                      MicroSecondDate begin,
                                      MicroSecondDate end,
@@ -375,7 +288,7 @@ public class SimplePlotUtil  {
                                             totalPixels,
                                             value.getMicroSecondTime()));
     }
-
+    
     public static final MicroSecondDate getValue(int totalPixels,
                                                  MicroSecondDate begin,
                                                  MicroSecondDate end,
@@ -389,14 +302,14 @@ public class SimplePlotUtil  {
         return new MicroSecondDate(begin.getMicroSecondTime() +
                                        Math.round(value));
     }
-
+    
     public static final int getPixel(int totalPixels,
                                      UnitRangeImpl range,
                                      QuantityImpl value) {
         QuantityImpl converted = value.convertTo(range.getUnit());
         return getPixel(totalPixels, range, converted.getValue());
     }
-
+    
     public static final int getPixel(int totalPixels,
                                      UnitRangeImpl range,
                                      double value) {
@@ -404,7 +317,7 @@ public class SimplePlotUtil  {
                                             range.getMaxValue(), totalPixels,
                                             value));
     }
-
+    
     public static final QuantityImpl getValue(int totalPixels,
                                               UnitRangeImpl range,
                                               int pixel) {
@@ -415,7 +328,7 @@ public class SimplePlotUtil  {
                                     pixel);
         return new QuantityImpl(value, range.getUnit());
     }
-
+    
     public static final MicroSecondDate getTimeForIndex(int index,
                                                         MicroSecondDate beginTime,
                                                         SamplingImpl sampling) {
@@ -426,7 +339,7 @@ public class SimplePlotUtil  {
     public static LocalSeismogramImpl createTestData() {
         return createTestData("Fake Data");
     }
-
+    
     public static LocalSeismogramImpl createTestData(String name) {
         int[] dataBits = new int[100];
         double tmpDouble;
@@ -438,16 +351,16 @@ public class SimplePlotUtil  {
             tmpDouble = tmpDouble * tmpDouble * tmpDouble * tmpDouble * tmpDouble;
             dataBits[i] = (int)Math.round(tmpDouble*2000.0);
         }
-
+        
         return createTestData(name, dataBits);
     }
-
+    
     public static LocalSeismogramImpl createTestData(String name, int[] dataBits) {
         String id = "Nowhere: "+name;
         edu.iris.Fissures.Time time =
             new edu.iris.Fissures.Time("19991231T235959.000Z",
                                        -1);
-
+        
         TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
         SamplingImpl sampling =
             new SamplingImpl(20,
@@ -458,10 +371,10 @@ public class SimplePlotUtil  {
                                             "00",
                                             "BHZ",
                                             time);
-
+        
         TimeSeriesDataSel bits = new TimeSeriesDataSel();
         bits.int_values(dataBits);
-
+        
         Property[] props = new Property[1];
         props[0] = new Property("Name", name);
         TimeInterval[] time_corr = new TimeInterval[1];
@@ -480,7 +393,7 @@ public class SimplePlotUtil  {
                                     bits);
         return seis;
     }
-
+    
     public static LocalSeismogramImpl createTestData(String name, int[] dataBits, edu.iris.Fissures.Time time) {
         String id = "Nowhere: "+name;
         TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
@@ -493,10 +406,10 @@ public class SimplePlotUtil  {
                                             "00",
                                             "BHZ",
                                             time);
-
+        
         TimeSeriesDataSel bits = new TimeSeriesDataSel();
         bits.int_values(dataBits);
-
+        
         Property[] props = new Property[1];
         props[0] = new Property("Name", name);
         TimeInterval[] time_corr = new TimeInterval[1];
@@ -515,7 +428,7 @@ public class SimplePlotUtil  {
                                     bits);
         return seis;
     }
-
+    
     public static LocalSeismogramImpl createCustomSineWave(){
         int[] dataBits = new int[1200];
         for (int i=0; i<dataBits.length; i++) {
@@ -525,23 +438,23 @@ public class SimplePlotUtil  {
         }
         return createTestData("Sine Wave", dataBits, new edu.iris.Fissures.Time("19911015T163000.000Z", -1));
     }
-
+    
     public static LocalSeismogramImpl createSineWave() {
         return createSineWave(0);
     }
-
+    
     public static LocalSeismogramImpl createSineWave(double phase) {
         return createSineWave(phase, 1);
     }
-
+    
     public static LocalSeismogramImpl createSineWave(double phase, double hertz) {
         return createSineWave(phase, hertz, 1200);
     }
-
+    
     public static LocalSeismogramImpl createSineWave(double phase, double hertz, int numPoints) {
         return createSineWave(phase, hertz, numPoints, 1000);
     }
-
+    
     public static LocalSeismogramImpl createSineWave(double phase, double hertz, int numPoints, double amp) {
         int[] dataBits = new int[numPoints];
         for (int i=0; i<dataBits.length; i++) {
@@ -549,12 +462,12 @@ public class SimplePlotUtil  {
                 (int)Math.round(Math.sin(phase +
                                              i*Math.PI*hertz/20.0)*amp);
         }
-
-
+        
+        
         return createTestData("Sine Wave, phase "+phase+" hertz "+hertz,
                               dataBits);
     }
-
+    
     public static LocalSeismogramImpl createHighSineWave(double phase, double hertz) {
         int[] dataBits = new int[120];
         for (int i=0; i<dataBits.length; i++) {
@@ -562,12 +475,12 @@ public class SimplePlotUtil  {
                 (int)Math.round(Math.sin(phase +
                                              i*Math.PI*hertz/20.0)*1000.0+500);
         }
-
-
+        
+        
         return createTestData("Sine Wave, phase "+phase+" hertz "+hertz,
                               dataBits);
     }
-
+    
     public static LocalSeismogramImpl createLowSineWave(double phase, double hertz) {
         int[] dataBits = new int[120];
         for (int i=0; i<dataBits.length; i++) {
@@ -578,11 +491,11 @@ public class SimplePlotUtil  {
         return createTestData("Sine Wave, phase "+phase+" hertz "+hertz,
                               dataBits);
     }
-
+    
     public static LocalSeismogramImpl createSpike() {
         return createSpike(ClockUtil.now());
     }
-
+    
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
         String name = "spike at "+spikeTime.toString();
         int[] dataBits = new int[1000];
@@ -592,12 +505,12 @@ public class SimplePlotUtil  {
                 dataBits[i] = 100;
             } // end of if (i % 20 = 0)
         } // end of for (int i=0; i<dataBits.length; i++)
-
+        
         MicroSecondDate begin = spikeTime;
         return createTestData(name, dataBits, begin.getFissuresTime());
     }
-
+    
     static Category logger = Category.getInstance(SimplePlotUtil.class.getName());
-
+    
 } // SimplePlotUtil
 
