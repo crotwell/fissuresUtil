@@ -30,5 +30,8 @@ public class ConnStatus {
     public static final ConnStatus UNKNOWN = new
     ConnStatus("UNKNOWN");
 
+    public static final ConnStatus TRYING = new
+    ConnStatus("TRYING");
+
     
 }// ConnectionStatus

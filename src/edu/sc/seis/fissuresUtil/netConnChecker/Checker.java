@@ -52,7 +52,7 @@ public class Checker {
 	while(collectionExe.hasNext()){
 	    ConnChecker connChecker =  (ConnChecker)collectionExe.next();
 	    Thread th = new Thread(connChecker);
-	   th.start();          
+	    th.start();          
 	}     
 	
     } // close runChecks
@@ -166,37 +166,34 @@ public class Checker {
     }
 
     public java.util.HashMap getStatus() {
-	/**
-	ConnCheckerConfig objfromcollection;
-       Iterator collectionExe = ConnCheckerCollection.iterator();
-       boolean conn = false;
-       //Collection collectionofFailed=new LinkedList(); 
-       java.util.HashMap hashMap = new java.util.HashMap();
        
-       logger.debug("\nThe failed connections are: ");
+	ConnChecker objfromcollection;
+	Iterator collectionExe = ConnCheckerCollection.iterator();
+	boolean conn = false;
+	java.util.HashMap hashMap = new java.util.HashMap();
+      
        while(collectionExe.hasNext()){
-          objfromcollection = (ConnCheckerConfig) collectionExe.next();
-	  conn = objfromcollection.getSuccessful();
+          objfromcollection = (ConnChecker) collectionExe.next();
+	  conn = objfromcollection.isSuccessful();
 	  if(conn == true){
-	      hashMap.put(objfromcollection.getName(), ConnStatus.SUCCESSFUL);
-	      
-	      //              collectionofFailed.add(objfromcollection);
-	      logger.debug("Failed: " + objfromcollection.getName());
-	      
-          } else if(objfromcollection.getFinished() == true) {
-	      hashMap.put(objfromcollection.getName(), ConnStatus.FAILED);
-	  } else {
-	      hashMap.put(objfromcollection.getName(), ConnStatus.UNFINISHED);
+	      hashMap.put(objfromcollection.getDescription(), ConnStatus.SUCCESSFUL);
+	  } else if(objfromcollection.isFinished() == true) {
+	      if(objfromcollection.isUnknown() == true) {
+		  hashMap.put(objfromcollection.getDescription(), ConnStatus.UNKNOWN);
+	      }
+	      else {
+		  hashMap.put(objfromcollection.getDescription(), ConnStatus.FAILED);
+	      }
+	  }  else {
+	      hashMap.put(objfromcollection.getDescription(), ConnStatus.TRYING);
 	  }
        }//close while
        // return collectionofFailed;
-       return hashMap;**/
-					 return null;
-
-    }
-
-    public void addHTTPConnection(String description, String url) {
-	/***
+       return hashMap;
+      }
+    /***
+    public void addHTTPConnection(HTTPCHe) {
+	***
 	URL urltocheck = null;
 	ConnCheckerConfig configobj;
 	try {
@@ -213,12 +210,12 @@ public class Checker {
 	 Thread th = new Thread(site);
 	 th.start();     
 	 System.out.println("Added the http connection "+description+" to the list of connections to check");
-	****/
+	****
 
     }
 
       public void addCORBAConnection(String description,  org.omg.CORBA.Object object) {
-	  /***
+	  ***
 	ConnCheckerConfig configobj;
 	 configobj = new CORBAConfig(description, object, this);
 	 ConnCheckerCollection.add(configobj);
@@ -227,11 +224,18 @@ public class Checker {
 	 Thread th = new Thread(site);
 	 th.start();
 	 System.out.println("Added the corba connection "+description+" to the list of connections to check");
-	  ***/
+	 ***
 
+    }**/
+
+    public void addConnCheckerConnection(ConnChecker connChecker) {
+
+	ConnCheckerCollection.add(connChecker);
+	Thread th = new Thread(connChecker);
+	th.start();
+	      
     }
     
-
     public synchronized void fireStatusChanged(String urlStr, ConnStatus connectionStatus) {
 
 	/*
