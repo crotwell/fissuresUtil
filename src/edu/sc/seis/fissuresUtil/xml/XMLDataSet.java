@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 5154 2003-08-18 16:33:38Z crotwell $
+ * @version $Id: XMLDataSet.java 7304 2004-02-25 21:57:22Z groves $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -282,7 +282,7 @@ public class XMLDataSet implements DataSet, Serializable{
 
         NodeList nList = XMLUtil.evalNodeList(config,
                                               "parameter[name/text()="+
-                                              dquote+name+dquote+"]");
+                                                  dquote+name+dquote+"]");
         if (nList != null && nList.getLength() != 0) {
             //logger.debug("getting the parameter "+name);
             Node n = nList.item(0);
@@ -748,7 +748,7 @@ public class XMLDataSet implements DataSet, Serializable{
         String urlString = "NONE";
         NodeList nList =
             XMLUtil.evalNodeList(config, "localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
-                                 "]"+"[value="+dquote+name+dquote+"]"+"/../../data");
+                                     "]"+"[value="+dquote+name+dquote+"]"+"/../../data");
         if(nList == null || (nList != null && nList.getLength() == 0)) {
             //    nList =  getNoNameSeismogram(name);
         }
@@ -794,7 +794,7 @@ public class XMLDataSet implements DataSet, Serializable{
         if(sacURL != null) {
             NodeList nList =
                 XMLUtil.evalNodeList(config, "localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
-                                     "]"+"[value="+dquote+name+dquote+"]"+"/../../data");
+                                         "]"+"[value="+dquote+name+dquote+"]"+"/../../data");
             Node n = nList.item(0);
             Element e = (Element)n;
             //logger.debug("The sacUrl is "+sacURL.toString());
@@ -1025,10 +1025,7 @@ public class XMLDataSet implements DataSet, Serializable{
 
     public static DocumentBuilder getDocumentBuilder()
         throws ParserConfigurationException {
-        if (staticDocBuilder == null) {
-            staticDocBuilder = getDocumentBuilderFactory().newDocumentBuilder();
-        }
-        return staticDocBuilder;
+        return getDocumentBuilderFactory().newDocumentBuilder();
     }
 
 
