@@ -27,35 +27,39 @@ public class MotionVectorUtil {
     */	
     public static LocalMotionVectorImpl create(LocalSeismogram[] seismograms)
 	throws IncompatibleSeismograms {
+	for (int k=0; k<2; k++) {
+	     
 	if ( NetworkIdUtil.areEqual(seismograms[0].channel_id.network_id,
-				    seismograms[1].channel_id.network_id)) {
-	    throw new IncompatibleSeismograms("Networks for 0 and 1 are not the same, "
+				    seismograms[k].channel_id.network_id)) {
+	    throw new IncompatibleSeismograms("Networks for 0 and "+k+" are not the same, "
 					       +NetworkIdUtil.toString(seismograms[0].channel_id.network_id)
 					       +" "
-					       +NetworkIdUtil.toString(seismograms[1].channel_id.network_id));
+					       +NetworkIdUtil.toString(seismograms[k].channel_id.network_id));
 	}
 
 	if ( ! seismograms[0].channel_id.station_code.equals(
-							  seismograms[1].channel_id.station_code)) {
-	    throw new IncompatibleSeismograms("Station codes for 0 and 1 are not the same. "
+							  seismograms[k].channel_id.station_code)) {
+	    throw new IncompatibleSeismograms("Station codes for 0 and "+k+" are not the same. "
 					      +seismograms[0].channel_id.station_code
 					      +" "
-					      +seismograms[1].channel_id.station_code);
+					      +seismograms[k].channel_id.station_code);
 	}
 	if ( ! seismograms[0].channel_id.site_code.equals(
-							  seismograms[1].channel_id.site_code)) {
-	    throw new IncompatibleSeismograms("Site codes for 0 and 1 are not the same. "
+							  seismograms[k].channel_id.site_code)) {
+	    throw new IncompatibleSeismograms("Site codes for 0 and "+k+" are not the same. "
 					      +seismograms[0].channel_id.site_code
 					      +" "
-					      +seismograms[1].channel_id.site_code);
+					      +seismograms[k].channel_id.site_code);
 	}
 	if ( ! seismograms[0].channel_id.site_code.equals(
-							  seismograms[1].channel_id.site_code)) {
-	    throw new IncompatibleSeismograms("Site codes for 0 and 1 are not the same. "
+							  seismograms[k].channel_id.site_code)) {
+	    throw new IncompatibleSeismograms("Site codes for 0 and "+k+" are not the same. "
 					      +seismograms[0].channel_id.site_code
 					      +" "
-					      +seismograms[1].channel_id.site_code);
+					      +seismograms[k].channel_id.site_code);
 	}
+	} // end of for (int k=0; k<2; k++)
+	
 
 
 	// all checks pass, so put into a motion vector
