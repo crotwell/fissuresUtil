@@ -27,44 +27,44 @@ extends TestCase
     double[] doubleTestData;
 
   // JUnitDoclet end class
-  
+
   public RTrendTest(String name) {
     // JUnitDoclet begin method RTrendTest
     super(name);
     // JUnitDoclet end method RTrendTest
   }
-  
+
   public edu.sc.seis.fissuresUtil.bag.RTrend createInstance() throws Exception {
     // JUnitDoclet begin method testcase.createInstance
     return new edu.sc.seis.fissuresUtil.bag.RTrend();
     // JUnitDoclet end method testcase.createInstance
   }
-  
+
   protected void setUp() throws Exception {
     // JUnitDoclet begin method testcase.setUp
     super.setUp();
-      short size = 4;
+      short size = 40;
       intTestData = new int[size];
       shortTestData = new short[size];
       floatTestData = new float[size];
       doubleTestData = new double[size];
       for (short i=0; i<size; i++) {
-	  shortTestData[i] = i;
-	  intTestData[i] = i;
-	  floatTestData[i] = i;
-	  doubleTestData[i] = i;
+      shortTestData[i] = 1;
+      intTestData[i] = i;
+      floatTestData[i] = i;
+      doubleTestData[i] = i;
       } // end of for (int i=0; i<intTestData.length; i++)
       rtrend = createInstance();
     // JUnitDoclet end method testcase.setUp
   }
-  
+
   protected void tearDown() throws Exception {
     // JUnitDoclet begin method testcase.tearDown
     rtrend = null;
     super.tearDown();
     // JUnitDoclet end method testcase.tearDown
   }
-  
+
   public void testApply() throws Exception {
     // JUnitDoclet begin method apply
       short[] sOut = rtrend.apply(shortTestData);
@@ -77,14 +77,14 @@ extends TestCase
       assertEquals("double", 0, dOut[0], 0.000001);
     // JUnitDoclet end method apply
   }
-  
+
   public void testApplyInPlace() throws Exception {
     // JUnitDoclet begin method applyInPlace
     // JUnitDoclet end method applyInPlace
   }
-  
-  
-  
+
+
+
   /**
   * JUnitDoclet moves marker to this method, if there is not match
   * for them in the regenerated code and if the marker is not empty.
@@ -95,7 +95,7 @@ extends TestCase
     // JUnitDoclet begin method testcase.testVault
     // JUnitDoclet end method testcase.testVault
   }
-  
+
   public static void main(String[] args) {
     // JUnitDoclet begin method testcase.main
     junit.textui.TestRunner.run(RTrendTest.class);
