@@ -1,14 +1,13 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import java.util.*;
+
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.apache.log4j.Logger;
 
 /**<code>SeismogramContainer</code> Takes a DataSetSeismogram and requests its
@@ -38,19 +37,25 @@ public class SeismogramContainer implements SeisDataChangeListener{
         addSeismograms(sdce.getSeismograms());
     }
 
-    public synchronized SeismogramIterator getIterator(){
-        if(time == null){
-            time = DisplayUtils.getFullTime(getSeismograms());
-            return getIterator(time);
-        }else{
-            return getIterator(time);
+    public SeismogramIterator getIterator(){
+        //use circuitous route to return time to sidestep class variable time
+        //getting set to null at other points in the code
+        MicroSecondTimeRange fullTime = time;
+        if(fullTime == null){
+            fullTime = DisplayUtils.getFullTime(getSeismograms());
+            time = fullTime;
         }
+        return getIterator(fullTime);
     }
 
-    public synchronized SeismogramIterator getIterator(MicroSecondTimeRange timeRange){
-        if(softIterator != null){
-            SeismogramIterator it = (SeismogramIterator)softIterator.get();
-            if(!changed && it != null){
+    public SeismogramIterator getIterator(MicroSecondTimeRange timeRange){
+        SoftReference iteratorReference = null;
+        synchronized(threadToIterator){
+            iteratorReference = (SoftReference)threadToIterator.get(Thread.currentThread());
+        }
+        if(iteratorReference != null){
+            SeismogramIterator it = (SeismogramIterator)iteratorReference.get();
+            if(it != null){
                 if(it.getTimeRange().equals(timeRange)){
                     return it;
                 }else if(timeRange != null){
@@ -59,12 +64,12 @@ public class SeismogramContainer implements SeisDataChangeListener{
                 }
             }
         }
-        changed = false;
-
         SeismogramIterator it = new SeismogramIterator(seismogram.getName(),
                                                        getSeismograms(),
                                                        timeRange);
-        softIterator = new SoftReference(it);
+        synchronized(threadToIterator){
+            threadToIterator.put(Thread.currentThread(),new SoftReference(it));
+        }
         return it;
     }
 
@@ -84,7 +89,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
     private void addSeismograms(LocalSeismogramImpl[] seismograms){
         boolean newData = false;
         LocalSeismogramImpl[] currentSeis = getSeismograms();
-        synchronized(this){
+        synchronized(softSeis){
             for (int j = 0; j < seismograms.length; j++) {
                 boolean found = false;
                 for (int i = 0; i < currentSeis.length; i++){
@@ -95,37 +100,44 @@ public class SeismogramContainer implements SeisDataChangeListener{
                 }
                 if(!found){
                     softSeis.add(new SoftReference(seismograms[j]));
-                    changed = true;
                     newData = true;
                 }
             }
         }
         if(newData){
+            synchronized(threadToIterator){
+                threadToIterator.clear();
+            }
             time = null;
             noData = false;
-            Iterator it = listeners.iterator();
-            while(it.hasNext()){//let all listeners know about new data
-                SeismogramContainerListener current = (SeismogramContainerListener)it.next();
-                current.updateData();
+            SeismogramContainerListener[] listArray;
+            synchronized(listeners){
+                listArray = new SeismogramContainerListener[listeners.size()];
+                listeners.toArray(listArray);
+            }
+            for (int i = 0; i < listArray.length; i++){
+                listArray[i].updateData();
             }
         }
     }
 
-    public synchronized LocalSeismogramImpl[] getSeismograms(){
-        if(softSeis.size() == 0){
-            return EMPTY_ARRAY;
-        }
-        List existant = new ArrayList();
-        Iterator it = softSeis.iterator();
+    public LocalSeismogramImpl[] getSeismograms(){
         boolean callRetrieve = false;
-        while(it.hasNext()){
-            SoftReference current = (SoftReference)it.next();
-            Object o = current.get();
-            if(o != null){
-                existant.add(o);
-            }else{
-                callRetrieve = true;
-                it.remove();
+        List existant = new ArrayList();
+        synchronized(softSeis){
+            if(softSeis.size() == 0){
+                return EMPTY_ARRAY;
+            }
+            Iterator it = softSeis.iterator();
+            while(it.hasNext()){
+                SoftReference current = (SoftReference)it.next();
+                Object o = current.get();
+                if(o != null){
+                    existant.add(o);
+                }else{
+                    callRetrieve = true;
+                    it.remove();
+                }
             }
         }
         if(callRetrieve){
@@ -136,11 +148,15 @@ public class SeismogramContainer implements SeisDataChangeListener{
     }
 
     public void addListener(SeismogramContainerListener listener){
-        listeners.add(listener);
+        synchronized(listeners){
+            listeners.add(listener);
+        }
     }
 
     public void removeListener(SeismogramContainerListener listener){
-        listeners.remove(listener);
+        synchronized(listeners){
+            listeners.remove(listener);
+        }
     }
 
     public String getDataStatus(){
@@ -155,13 +171,13 @@ public class SeismogramContainer implements SeisDataChangeListener{
 
     public DataSetSeismogram getDataSetSeismogram(){ return seismogram; }
 
-    private List listeners = new ArrayList();
+    private List listeners = Collections.synchronizedList(new ArrayList());
 
     private DataSetSeismogram seismogram;
 
-    private List softSeis = new ArrayList();
+    private List softSeis = Collections.synchronizedList(new ArrayList());
 
-    private SoftReference softIterator;
+    private Map threadToIterator = Collections.synchronizedMap(new HashMap());
 
     private static final LocalSeismogramImpl[] EMPTY_ARRAY = {};
 
@@ -176,8 +192,6 @@ public class SeismogramContainer implements SeisDataChangeListener{
     private static final String GETTING_DATA = "Trying to get data";
 
     private static final String EMPTY = "";
-
-    private boolean changed;
 
     private MicroSecondTimeRange time;
 }
