@@ -70,9 +70,11 @@ public class ExceptionReporterUtils{
     }
 
     public static String getMemoryUsage() {
-        return ((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())/1024/1024)+"/"+
-            (Runtime.getRuntime().totalMemory()/1024/1024)+"/"+
-            (Runtime.getRuntime().maxMemory()/1024/1024);
+        return ((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())/MB)+"/"+
+            (Runtime.getRuntime().totalMemory()/MB)+"/"+
+            (Runtime.getRuntime().maxMemory()/MB+" Mb");
     }
+
+    private static final long MB = 1024*1024;
 }
 
