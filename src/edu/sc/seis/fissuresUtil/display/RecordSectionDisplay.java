@@ -1,27 +1,30 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.display.registrar.*;
+import java.awt.*;
 
 import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemove;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class RecordSectionDisplay extends SeismogramDisplay implements ConfigListener, LayoutListener{
 
     public RecordSectionDisplay(){
+        setLayout(new BorderLayout());
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
         border = new ScaleBorder();
@@ -30,9 +33,35 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                         resize();
                     }
                 });
-        setBackground(Color.WHITE);
+        int min = 10;
+        int max = 100;
+        scalingSlider = new JSlider(JSlider.VERTICAL, min, max, min);
+        scalingSlider.setMajorTickSpacing(10);
+        scalingSlider.setPaintTicks(true);
+        scalingSlider.setBorder(BorderFactory.createRaisedBevelBorder());
+
+        //Create the label table
+        Hashtable labelTable = new Hashtable();
+        labelTable.put(new Integer(min), new JLabel("Normal"));
+        labelTable.put(new Integer(max), new JLabel("Huge"));
+        scalingSlider.setLabelTable(labelTable);
+        scalingSlider.setPaintLabels(true);
+        scalingSlider.addChangeListener(new ChangeListener() {
+                    public void stateChanged(ChangeEvent ce) {
+                        scalingChanged(((JSlider)ce.getSource()).getValue());
+                    }
+                });
+        add(scalingSlider, BorderLayout.EAST);
+
+        painter = new PlotPainter();
+        add(painter, BorderLayout.CENTER);
     }
 
+
+    private void scalingChanged(int newScaling){
+        scaling = newScaling/(double)10;
+        repaint();
+    }
 
 
     public RecordSectionDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
@@ -62,8 +91,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         updating = false;
         if(displayRemove == null){
             displayRemove = new DisplayRemove(this);
-            setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
-                                                                                            new LeftTitleBorder("")),
+            setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
                                                          BorderFactory.createCompoundBorder(border,
                                                                                             BorderFactory.createLoweredBevelBorder())));
 
@@ -194,41 +222,38 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         curLayoutEvent = event;
         repaint();
     }
-
-    public void paintComponent(Graphics g){
-        if(updating){
-            return;
-        }
-
-        Graphics2D g2 = (Graphics2D)g;
-        synchronized(this){
-            Dimension size = getSize();
-            Insets insets = getInsets();
-            size = new Dimension(size.width - insets.left - insets.right,
-                                 size.height - insets.top - insets.bottom);
-            g2.translate(insets.left, insets.top);
-            if(displayRemove != null){
-                g2.setColor(Color.WHITE);
-                g2.fill(new Rectangle2D.Float(0,0, size.width, size.height));
-                displayRemove.draw(g2, size, curTimeEvent, curAmpEvent);
+    private class PlotPainter extends JComponent{
+        public void paintComponent(Graphics g){
+            if(updating){
+                return;
             }
-            Iterator it = curLayoutEvent.iterator();
-            double curYPos = 0;
-            while(it.hasNext()){
-                LayoutData current = (LayoutData)it.next();
-                double neededYPos = current.getStart() * size.height;
-                double translate = neededYPos - curYPos;
-                g2.translate(0, translate);
-                curYPos = neededYPos;
-                int drawHeight = (int)((current.getEnd() - current.getStart())*size.height);
-                Dimension drawSize = new Dimension(size.width, drawHeight);
-                DrawableSeismogram cur = (DrawableSeismogram)dssPlotter.get(current.getSeis());
-                cur.draw(g2, drawSize, curTimeEvent, curAmpEvent);
-                cur.drawName(g2, 0, drawHeight/2);
+            Graphics2D g2 = (Graphics2D)g;
+            synchronized(this){
+                Dimension size = getSize();
+                int width = size.width;
+                int height = size.height;
+                if(displayRemove != null){
+                    g2.setColor(Color.WHITE);
+                    g2.fill(new Rectangle2D.Float(0,0, width, height));
+                    displayRemove.draw(g2, size, curTimeEvent, curAmpEvent);
+                }
+                Iterator it = curLayoutEvent.iterator();
+                double curYPos = 0;
+                while(it.hasNext()){
+                    LayoutData current = (LayoutData)it.next();
+                    System.out.println(current.getStart());
+                    double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
+                    int drawHeight = (int)((current.getEnd() - current.getStart())*height * scaling);
+                    double neededYPos = midPoint - drawHeight/2;
+                    double translate = neededYPos - curYPos;
+                    g2.translate(0, translate);
+                    curYPos = neededYPos;
+                    Dimension drawSize = new Dimension(width, drawHeight);
+                    DrawableSeismogram cur = (DrawableSeismogram)dssPlotter.get(current.getSeis());
+                    cur.draw(g2, drawSize, curTimeEvent, curAmpEvent);
+                    cur.drawName(g2, 0, drawHeight/2);
+                }
             }
-            g2.translate(-insets.left, -curYPos - insets.top);
-            g2.setColor(Color.BLACK);
-            g2.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
         }
     }
 
@@ -240,9 +265,11 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         if(d.height <= 0 || d.width <= 0){
             return;
         }
-        if(timeScaleMap != null) timeScaleMap.setTotalPixels(d.width);
+        Rectangle newPainterBounds = new Rectangle(insets.left, insets.right,
+                                                   d.width, d.height);
+        painter.setBounds(newPainterBounds);
+        if(timeScaleMap != null) timeScaleMap.setTotalPixels(d.width - scalingSlider.getSize().width);
         if(distanceScaler != null) distanceScaler.setTotalPixels(d.height);
-        repaint();
     }
 
     public void setCurrentTimeFlag(boolean visible){
@@ -286,4 +313,11 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
     private ScaleBorder border;
 
     private boolean updating;
+
+    private PlotPainter painter;
+
+    private double scaling = 1;
+
+    private JSlider scalingSlider;
 }
+
