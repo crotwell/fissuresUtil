@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 2437 2002-08-01 17:37:23Z crotwell $
+ * @version $Id: ChannelChooser.java 2665 2002-10-03 15:16:19Z crotwell $
  *
  */
 
@@ -635,7 +635,8 @@ public class ChannelChooser extends JPanel{
             if (value instanceof Station) {
                 if (useNames) {
                     name = ((Station)value).name;
-                    if (name == null || name.length() == 0) {
+                    // assume name of length 1 isn't a name
+                    if (name == null || name.length() <= 1) {
                         name = ((Station)value).get_code();
                     }
                 } else {
