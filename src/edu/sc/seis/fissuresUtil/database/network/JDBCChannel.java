@@ -84,6 +84,96 @@ public class JDBCChannel extends NetworkTable {
         prepareStatements();
     }
 
+    private ChannelId[] extractAllChanIds(PreparedStatement query)
+            throws SQLException {
+        ResultSet rs = query.executeQuery();
+        List aList = new ArrayList();
+        while(rs.next()) {
+            aList.add(extractId(rs, siteTable, time));
+        }
+        return (ChannelId[])aList.toArray(new ChannelId[aList.size()]);
+    }
+
+    public Channel[] extractAllChans(PreparedStatement query)
+            throws SQLException, NotFound {
+        ResultSet rs = query.executeQuery();
+        List aList = new ArrayList();
+        while(rs.next()) {
+            aList.add(extract(rs, siteTable, time, quantityTable));
+        }
+        return (Channel[])aList.toArray(new Channel[aList.size()]);
+    }
+
+    public Channel get(ChannelId id, Site site) throws SQLException, NotFound {
+        return get(getDBId(id));
+    }
+
+    public Channel get(int dbid) throws SQLException, NotFound {
+        getByDBId.setInt(1, dbid);
+        ResultSet rs = getByDBId.executeQuery();
+        if(rs.next()) { return extract(rs, siteTable, time, quantityTable); }
+        throw new NotFound("No Channel found for database id = " + dbid);
+    }
+
+    public ChannelId[] getAllChannelIds() throws SQLException {
+        return extractAllChanIds(getAllIds);
+    }
+
+    public ChannelId[] getAllChannelIds(NetworkId network) throws NotFound,
+            SQLException {
+        int net_id = netTable.getDBId(network);
+        getAllIdsForNetwork.setInt(1, net_id);
+        return extractAllChanIds(getAllIdsForNetwork);
+    }
+
+    public ChannelId[] getAllChannelIds(StationId station) throws NotFound,
+            SQLException {
+        int sta_id = stationTable.getDBId(station);
+        getAllIdsForStation.setInt(1, sta_id);
+        return extractAllChanIds(getAllIdsForStation);
+    }
+
+    public Channel[] getAllChannels() throws NotFound, SQLException {
+        return extractAllChans(getAllChans);
+    }
+
+    public Channel[] getAllChannels(NetworkId network) throws NotFound,
+            SQLException {
+        int net_id = netTable.getDBId(network);
+        getAllChansForNetwork.setInt(1, net_id);
+        return extractAllChans(getAllChansForNetwork);
+    }
+
+    public Channel[] getAllChannels(StationId station) throws NotFound,
+            SQLException {
+        int sta_id = stationTable.getDBId(station);
+        getAllChansForStation.setInt(1, sta_id);
+        return extractAllChans(getAllChansForStation);
+    }
+
+    public int getDBId(ChannelId id) throws SQLException, NotFound {
+        int netDbId = netTable.getDBId(id.network_id);
+        int[] possibleStaDbIds = stationTable.getDBIds(netDbId, id.station_code);
+        int[] possibleSiteIds = siteTable.getDBIds(possibleStaDbIds,
+                                                   id.site_code);
+        int beginId = time.put(id.begin_time);
+        String query = "SELECT chan_id FROM channel WHERE chan_begin_id = "
+                + beginId + " and chan_code = '" + id.channel_code + "'"
+                + " and site_id IN (";
+        for(int i = 0; i < possibleSiteIds.length - 1; i++) {
+            query += possibleSiteIds[i] + ", ";
+        }
+        query += possibleSiteIds[possibleSiteIds.length - 1] + ")";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        if(rs.next()) { return rs.getInt("chan_id"); }
+        throw new NotFound("No such channel id in the db");
+    }
+
+    public JDBCSite getSiteTable() {
+        return siteTable;
+    }
+
     public int put(Channel chan) throws SQLException {
         int dbid;
         try {
@@ -115,91 +205,24 @@ public class JDBCChannel extends NetworkTable {
         return dbid;
     }
 
-    public ChannelId[] getAllChannelIds() throws SQLException {
-        return extractAllChanIds(getAllIds);
-    }
+    private PreparedStatement getAllChans, getAllChansForStation,
+            getAllChansForNetwork, getByDBId, putAll,
+            putId;
 
-    public ChannelId[] getAllChannelIds(StationId station) throws NotFound,
-            SQLException {
-        int sta_id = stationTable.getDBId(station);
-        getAllIdsForStation.setInt(1, sta_id);
-        return extractAllChanIds(getAllIdsForStation);
-    }
+    private PreparedStatement getAllIds, getAllIdsForStation,
+            getAllIdsForNetwork;
 
-    public ChannelId[] getAllChannelIds(NetworkId network) throws NotFound,
-            SQLException {
-        int net_id = netTable.getDBId(network);
-        getAllIdsForNetwork.setInt(1, net_id);
-        return extractAllChanIds(getAllIdsForNetwork);
-    }
+    private JDBCNetwork netTable;
 
-    public Channel[] getAllChannels() throws NotFound, SQLException {
-        return extractAllChans(getAllChans);
-    }
+    private JDBCQuantity quantityTable;
 
-    public Channel[] getAllChannels(StationId station) throws NotFound,
-            SQLException {
-        int sta_id = stationTable.getDBId(station);
-        getAllChansForStation.setInt(1, sta_id);
-        return extractAllChans(getAllChansForStation);
-    }
+    private JDBCSequence seq;
 
-    public Channel[] getAllChannels(NetworkId network) throws NotFound,
-            SQLException {
-        int net_id = netTable.getDBId(network);
-        getAllChansForNetwork.setInt(1, net_id);
-        return extractAllChans(getAllChansForNetwork);
-    }
+    private JDBCSite siteTable;
 
-    public Channel[] extractAllChans(PreparedStatement query)
-            throws SQLException, NotFound {
-        ResultSet rs = query.executeQuery();
-        List aList = new ArrayList();
-        while(rs.next()) {
-            aList.add(extract(rs, siteTable, time, quantityTable));
-        }
-        return (Channel[])aList.toArray(new Channel[aList.size()]);
-    }
+    private JDBCStation stationTable;
 
-    private ChannelId[] extractAllChanIds(PreparedStatement query)
-            throws SQLException {
-        ResultSet rs = query.executeQuery();
-        List aList = new ArrayList();
-        while(rs.next()) {
-            aList.add(extractId(rs, siteTable, time));
-        }
-        return (ChannelId[])aList.toArray(new ChannelId[aList.size()]);
-    }
-
-    public Channel get(int dbid) throws SQLException, NotFound {
-        getByDBId.setInt(1, dbid);
-        ResultSet rs = getByDBId.executeQuery();
-        if(rs.next()) { return extract(rs, siteTable, time, quantityTable); }
-        throw new NotFound("No Channel found for database id = " + dbid);
-    }
-
-    public Channel get(ChannelId id, Site site) throws SQLException, NotFound {
-        return get(getDBId(id));
-    }
-
-    public int getDBId(ChannelId id) throws SQLException, NotFound {
-        int netDbId = netTable.getDBId(id.network_id);
-        int[] possibleStaDbIds = stationTable.getDBIds(netDbId, id.station_code);
-        int[] possibleSiteIds = siteTable.getDBIds(possibleStaDbIds,
-                                                   id.site_code);
-        int beginId = time.put(id.begin_time);
-        String query = "SELECT chan_id FROM channel WHERE chan_begin_id = "
-                + beginId + " and chan_code = '" + id.channel_code + "'"
-                + " and site_id IN (";
-        for(int i = 0; i < possibleSiteIds.length - 1; i++) {
-            query += possibleSiteIds[i] + ", ";
-        }
-        query += possibleSiteIds[possibleSiteIds.length - 1] + ")";
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        if(rs.next()) { return rs.getInt("chan_id"); }
-        throw new NotFound("No such channel id in the db");
-    }
+    private JDBCTime time;
 
     public static Channel extract(ResultSet rs,
                                   JDBCSite siteTable,
@@ -236,6 +259,16 @@ public class JDBCChannel extends NetworkTable {
         }
     }
 
+    public static String getNeededForChanId() {
+        return "chan_id, channel.site_id, chan_code, chan_begin_id";
+    }
+
+    public static String getNeededForChannel() {
+        return getNeededForChanId()
+                + ", chan_end_id, chan_name, chan_sampling_numpoints, "
+                + "chan_sampling_interval_id, chan_orientation_dip, chan_orientation_az ";
+    }
+
     public static int insertAll(Channel chan,
                                 PreparedStatement stmt,
                                 int index,
@@ -252,17 +285,15 @@ public class JDBCChannel extends NetworkTable {
         return index;
     }
 
-    public static int insertOnlyChannel(Channel chan,
-                                        PreparedStatement stmt,
-                                        int index,
-                                        JDBCQuantity quantityTable,
-                                        JDBCTime time) throws SQLException {
-        stmt.setInt(index++, time.put(chan.effective_time.end_time));
-        stmt.setString(index++, chan.name);
-        stmt.setFloat(index++, chan.an_orientation.azimuth);
-        stmt.setFloat(index++, chan.an_orientation.dip);
-        stmt.setInt(index++, quantityTable.put(chan.sampling_info.interval));
-        stmt.setInt(index++, chan.sampling_info.numPoints);
+    public static int insertId(ChannelId id,
+                               int siteDbId,
+                               PreparedStatement stmt,
+                               int index,
+                               JDBCSite siteTable,
+                               JDBCTime time) throws SQLException {
+        stmt.setInt(index++, siteDbId);
+        stmt.setString(index++, id.channel_code);
+        stmt.setInt(index++, time.put(id.begin_time));
         return index;
     }
 
@@ -283,50 +314,19 @@ public class JDBCChannel extends NetworkTable {
         return insertId(id, siteTable.put(site), stmt, index, siteTable, time);
     }
 
-    public static int insertId(ChannelId id,
-                               int siteDbId,
-                               PreparedStatement stmt,
-                               int index,
-                               JDBCSite siteTable,
-                               JDBCTime time) throws SQLException {
-        stmt.setInt(index++, siteDbId);
-        stmt.setString(index++, id.channel_code);
-        stmt.setInt(index++, time.put(id.begin_time));
+    public static int insertOnlyChannel(Channel chan,
+                                        PreparedStatement stmt,
+                                        int index,
+                                        JDBCQuantity quantityTable,
+                                        JDBCTime time) throws SQLException {
+        stmt.setInt(index++, time.put(chan.effective_time.end_time));
+        stmt.setString(index++, chan.name);
+        stmt.setFloat(index++, chan.an_orientation.azimuth);
+        stmt.setFloat(index++, chan.an_orientation.dip);
+        stmt.setInt(index++, quantityTable.put(chan.sampling_info.interval));
+        stmt.setInt(index++, chan.sampling_info.numPoints);
         return index;
     }
-
-    public static String getNeededForChanId() {
-        return "chan_id, channel.site_id, chan_code, chan_begin_id";
-    }
-
-    public static String getNeededForChannel() {
-        return getNeededForChanId()
-                + ", chan_end_id, chan_name, chan_sampling_numpoints, "
-                + "chan_sampling_interval_id, chan_orientation_dip, chan_orientation_az ";
-    }
-
-    public JDBCSite getSiteTable() {
-        return siteTable;
-    }
-
-    private PreparedStatement getAllIds, getAllIdsForStation,
-            getAllIdsForNetwork;
-
-    private PreparedStatement getAllChans, getAllChansForStation,
-            getAllChansForNetwork, getByDBId, putAll,
-            putId;
-
-    private JDBCSequence seq;
-
-    private JDBCQuantity quantityTable;
-
-    private JDBCSite siteTable;
-
-    private JDBCStation stationTable;
-
-    private JDBCNetwork netTable;
-
-    private JDBCTime time;
 
     private static final Logger logger = Logger.getLogger(JDBCChannel.class);
 } // JDBCChannel
