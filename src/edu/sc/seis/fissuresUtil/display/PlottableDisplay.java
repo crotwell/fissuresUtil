@@ -397,6 +397,13 @@ public  class PlottableDisplay extends JComponent {
         repaint();
     }
 
+    public boolean bordersSelection(int x, int y) {
+        if(selection.borders(x, y)){
+            return true;
+        }
+        return false;
+    }
+
     private void drawSelection(Graphics g) {
         selection.draw(g);
         tempSelection.draw(g);
