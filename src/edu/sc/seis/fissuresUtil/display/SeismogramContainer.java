@@ -35,7 +35,6 @@ public class SeismogramContainer implements SeisDataChangeListener{
     }
 
     public synchronized SeismogramIterator getIterator(MicroSecondTimeRange timeRange){
-        //logger.debug("Getting Iterator");
         if(softIterator != null){
             SeismogramIterator it = (SeismogramIterator)softIterator.get();
             if(!changed && it != null){
@@ -102,18 +101,19 @@ public class SeismogramContainer implements SeisDataChangeListener{
         }
         List existant = new ArrayList();
         Iterator it = softSeis.iterator();
-        boolean calledRetrieved = false;
+        boolean callRetrieve = false;
         while(it.hasNext()){
             SoftReference current = (SoftReference)it.next();
-            if(current.get() != null){
-                existant.add(current.get());
+            Object o = current.get();
+            if(o != null){
+                existant.add(o);
             }else{
+                callRetrieve = true;
                 it.remove();
-                if(!calledRetrieved){
-                    seismogram.retrieveData(this);
-                    calledRetrieved = true;
-                }
             }
+        }
+        if(callRetrieve){
+            seismogram.retrieveData(this);
         }
         return (LocalSeismogramImpl[])existant.toArray(new LocalSeismogramImpl[existant.size()]);
     }
@@ -162,3 +162,4 @@ public class SeismogramContainer implements SeisDataChangeListener{
 
     private boolean changed;
 }
+
