@@ -1,10 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.sc.seis.TauP.*;
 import edu.sc.seis.fissuresUtil.chooser.*;
 import edu.sc.seis.fissuresUtil.namingService.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.IfEvent.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.network.*;
 
@@ -257,7 +259,6 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	}
 	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
-	
 	showScale((LocalSeismogramImpl)seismograms[0], 
 	     (LocalSeismogramImpl)seismograms[1], 
 	     timeConfigRegistrar, 
@@ -265,6 +266,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	     vAmpConfigRegistrar, 
 	     null, channelGroup[0].channel_code+"-"+channelGroup[1].channel_code);
 	formRadioSetPanel(channelGroup);
+	displayBackAzimuth(dataSet, channelGroup[0]);
+
 	particleDisplayPanel.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
 		    resolveParticleMotion();
@@ -488,6 +491,29 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 				 hAmpConfigRegistrar,
 				 vAmpConfigRegistrar,
 				 null, "");
+    }
+
+
+    public void displayBackAzimuth(edu.sc.seis.fissuresUtil.xml.DataSet dataset, ChannelId chanId) {
+	edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent = 
+	    ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getEvent();
+	Channel channel = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getChannel(chanId);
+	if(cacheEvent != null) {
+	    try {
+		Origin origin = cacheEvent.get_preferred_origin();
+		Station station = channel.my_site.my_station;
+		double azimuth = SphericalCoords.azimuth(station.my_location.latitude,
+							 station.my_location.longitude,
+							 origin.my_location.latitude, 
+							 origin.my_location.longitude);
+		double angle = 90 - azimuth;
+		
+		addAzimuthLine(angle);
+		addSector(angle+5, angle-5);
+	    } catch(NoPreferredOrigin npoe) {
+		logger.debug("no preferred origin");
+	    }
+	}
     }
     /**
      * sets the AmplitudeRange of the ParticleMotionDisplay.
