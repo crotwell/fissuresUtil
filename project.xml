@@ -110,7 +110,7 @@ oot:${pom.artifactId}</connection>
     </dependency>
     <dependency>
       <id>hsqldb</id>
-      <version>1.7.1</version>
+      <version>1.7.2rc1</version>
     </dependency>
     <dependency>
       <id>javamail</id>
@@ -189,6 +189,13 @@ oot:${pom.artifactId}</connection>
     </unitTest>
     <sourceDirectory>src</sourceDirectory>
     <resources>
+      <resource>
+	<directory>src/edu/sc/seis/fissuresUtil/database/props</directory>
+	<targetPath>edu/sc/seis/fissuresUtil/database/props</targetPath>
+	<includes>
+	  <include>*.props</include>
+	</includes>
+      </resource>
       <resource>
         <directory>src/edu/sc/seis/fissuresUtil/chooser</directory>
         <targetPath>edu/sc/seis/fissuresUtil/chooser</targetPath>
