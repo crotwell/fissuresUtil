@@ -41,12 +41,16 @@ import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
  * @version
  */
 public class PlottableDisplay extends JComponent {
-    
-    public PlottableDisplay(){
+
+    public PlottableDisplay() {
         this(Color.WHITE, Color.BLUE);
     }
 
     public PlottableDisplay(Color background, Color trace) {
+        this(background, trace, true);
+    }
+    
+    public PlottableDisplay(Color background, Color trace, boolean includeText) {
         super();
         dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
         removeAll();
@@ -58,6 +62,11 @@ public class PlottableDisplay extends JComponent {
         configChanged();
         backgroundColor = background;
         traceColor = trace;
+        this.includeText = includeText;
+        if (!includeText) {
+            titleHeight = 30;
+            configChanged();
+        }
     }
 
     public void setOffset(int offset) {
@@ -183,48 +192,50 @@ public class PlottableDisplay extends JComponent {
     }
 
     void drawTitle(Graphics g) {
-        Graphics2D g2 = (Graphics2D)g;
-        int titleYPos = 20;
-        if(stationName.length() > 0) {
-            titleYPos += drawTitle(titleYPos, "Station: ", stationName, g2)[0];
+        if(includeText) {
+            Graphics2D g2 = (Graphics2D)g;
+            int titleYPos = 20;
+            if(stationName.length() > 0) {
+                titleYPos += drawTitle(titleYPos, "Station: ", stationName, g2)[0];
+            }
+            if(dateName.length() > 0) {
+                titleYPos += drawTitle(titleYPos, "Date: ", dateName, g2)[0];
+            }
+            if(orientationName.length() > 0) {
+                titleYPos += drawTitle(titleYPos,
+                                       "Orientation: ",
+                                       orientationName,
+                                       g2)[0];
+            }
+            Iterator it = eventPlotterList.iterator();
+            while(it.hasNext()) {
+                EventFlag cur = (EventFlag)it.next();
+                int[] size = drawTitle(titleYPos,
+                                       LABEL_X_SHIFT,
+                                       "Event: ",
+                                       cur.getTitle(),
+                                       g2,
+                                       cur.getColor());
+                cur.setTitleLoc(LABEL_X_SHIFT,
+                                titleYPos - size[0],
+                                size[1],
+                                size[0]);
+                titleYPos += size[0];
+            }
+            String myt = "Time";
+            String mygmt = "GMT";
+            g2.setPaint(Color.black);
+            if(titleYPos < 30) titleYPos = 40;
+            g2.drawString(myt, 10, titleYPos - 10);
+            g2.drawString(myt, rowWidth + LABEL_X_SHIFT, titleYPos - 10);
+            g2.drawString(mygmt, 10, titleYPos - 20);
+            g2.drawString(mygmt, rowWidth + LABEL_X_SHIFT, titleYPos - 20);
+            if(titleHeight != titleYPos + rowOffset) {
+                titleHeight = titleYPos + rowOffset;
+                configChanged();
+            }
+            return;
         }
-        if(dateName.length() > 0) {
-            titleYPos += drawTitle(titleYPos, "Date: ", dateName, g2)[0];
-        }
-        if(orientationName.length() > 0) {
-            titleYPos += drawTitle(titleYPos,
-                                   "Orientation: ",
-                                   orientationName,
-                                   g2)[0];
-        }
-        Iterator it = eventPlotterList.iterator();
-        while(it.hasNext()) {
-            EventFlag cur = (EventFlag)it.next();
-            int[] size = drawTitle(titleYPos,
-                                   LABEL_X_SHIFT,
-                                   "Event: ",
-                                   cur.getTitle(),
-                                   g2,
-                                   cur.getColor());
-            cur.setTitleLoc(LABEL_X_SHIFT,
-                            titleYPos - size[0],
-                            size[1],
-                            size[0]);
-            titleYPos += size[0];
-        }
-        String myt = "Time";
-        String mygmt = "GMT";
-        g2.setPaint(Color.black);
-        if(titleYPos < 30) titleYPos = 40;
-        g2.drawString(myt, 10, titleYPos - 10);
-        g2.drawString(myt, rowWidth + LABEL_X_SHIFT, titleYPos - 10);
-        g2.drawString(mygmt, 10, titleYPos - 20);
-        g2.drawString(mygmt, rowWidth + LABEL_X_SHIFT, titleYPos - 20);
-        if(titleHeight != titleYPos + rowOffset) {
-            titleHeight = titleYPos + rowOffset;
-            configChanged();
-        }
-        return;
     }
 
     void drawTimeTicks(Graphics g) {
@@ -372,8 +383,11 @@ public class PlottableDisplay extends JComponent {
         t.start();
         return offImg;
     }
-    
+
     public void renderToGraphics(Graphics2D g, Dimension size) {
+        if(getRootPane() == null) {
+            addNotify();
+        }
         Graphics curGraphics = currentImageGraphics;
         currentImageGraphics = g;
         Dimension curSize = getSize();
@@ -383,6 +397,8 @@ public class PlottableDisplay extends JComponent {
         g.setBackground(backgroundColor);
         g.clearRect(0, 0, size.width, size.height);
         drawComponent(g);
+        drawEventFlags(g);
+        drawSelection(g);
         repaint();
         setDoubleBuffered(true);
         currentImageGraphics = curGraphics;
@@ -404,10 +420,15 @@ public class PlottableDisplay extends JComponent {
         temp.renameTo(file);
     }
 
-    public void outputToPNG(OutputStream out) throws IOException{
-        BufferedImage img = new BufferedImage(getSize().width,
-                                              getSize().height,
-                                              BufferedImage.TYPE_INT_RGB);
+    public void outputToPNG(OutputStream out) throws IOException {
+        configChanged();
+        if(getRootPane() == null) {
+            addNotify();
+            repaint();
+        }
+        BufferedImage img = new BufferedImage(getPreferredSize().width,
+                                              getPreferredSize().height,
+                                              BufferedImage.TYPE_INT_ARGB);
         renderToGraphics((Graphics2D)img.getGraphics(), getSize());
         ImageIO.write(img, "png", out);
     }
@@ -419,8 +440,8 @@ public class PlottableDisplay extends JComponent {
             minandmax[1] = 1;
             return minandmax;
         } // end of if (arrayplottable.length == 0)
-        int min = arrayplottable[0].y_coor[0];
-        int max = arrayplottable[0].y_coor[0];
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
         for(int arrayi = 0; arrayi < arrayplottable.length; arrayi++) {
             for(int ploti = 0; ploti < arrayplottable[arrayi].y_coor.length; ploti++) {
                 min = Math.min(min, arrayplottable[arrayi].y_coor[ploti]);
@@ -502,8 +523,8 @@ public class PlottableDisplay extends JComponent {
         return (EventAccessOperations[])selectedEvents.toArray(eventArray);
     }
 
-    public void addEventPlotterInfo(EventAccessOperations[] eventAccessArray,
-                                    Arrival[][] arrivals) {
+    private void addEventPlotterInfo(EventAccessOperations[] eventAccessArray,
+                                     Arrival[][] arrivals) {
         for(int i = 0; i < eventAccessArray.length; i++) {
             eventPlotterList.add(new EventFlag(this,
                                                eventAccessArray[i],
@@ -558,9 +579,9 @@ public class PlottableDisplay extends JComponent {
     public int getTotalHours() {
         return totalHours;
     }
-    
+
     private Color backgroundColor;
-    
+
     private Color traceColor;
 
     private int totalHours = 24;
@@ -592,6 +613,8 @@ public class PlottableDisplay extends JComponent {
     private Shape plottableShape = null;
 
     private Graphics currentImageGraphics = null;
+    
+    private boolean includeText;
 
     private static SimpleDateFormat dateFormater = new SimpleDateFormat("EEEE, d MMMM yyyy");
 
