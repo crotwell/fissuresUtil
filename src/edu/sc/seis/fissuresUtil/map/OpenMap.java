@@ -56,8 +56,8 @@ import edu.sc.seis.fissuresUtil.map.layers.OverriddenOMLayer;
 import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
 import edu.sc.seis.fissuresUtil.map.tools.PanTool;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
-import edu.sc.seis.mockFissures.IfEvent.MockEventAccessOperations;
-import edu.sc.seis.mockFissures.IfNetwork.MockStation;
+import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStation;
 
 public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
