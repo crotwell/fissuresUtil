@@ -338,7 +338,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
 
     public void print() {
         JOptionPane.showMessageDialog(this,
-                                      "Record section output to PDF will be available in a later version of the program",
+                                      "Sorry!  Record section output to PDF is not available in this version of GEE.\nThis feature will be added in a future release.",
                                       "Not available in this version",
                                       JOptionPane.INFORMATION_MESSAGE);
             // TODO
