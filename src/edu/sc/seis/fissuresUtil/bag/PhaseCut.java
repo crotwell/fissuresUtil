@@ -54,10 +54,10 @@ public class PhaseCut {
                                                         UnitImpl.SECOND));
             beginTime = beginTime.add(beginOffset);
         } else {
-            DistAz distAz = timeCalc.calcDistAz(stationLoc, origin);
+            DistAz distAz = new DistAz(stationLoc, origin.my_location);
             throw new PhaseNonExistent("Phase "+beginPhase+
                                            " does not exist at this distance, "+
-                                           distAz.delta+" degrees");
+                                           distAz.getDelta()+" degrees");
         }
 
         if (endArrivals.length != 0) {
@@ -65,10 +65,10 @@ public class PhaseCut {
                                                         UnitImpl.SECOND));
             endTime = endTime.add(endOffset);
         } else {
-            DistAz distAz = timeCalc.calcDistAz(stationLoc, origin);
+            DistAz distAz = new DistAz(stationLoc, origin.my_location);
             throw new PhaseNonExistent("Phase "+endPhase+
                                            " does not exist at this distance, "+
-                                           distAz.delta+" degrees");
+                                           distAz.getDelta()+" degrees");
         }
 
         logger.debug("Phase cut from "+beginTime+" to "+endTime);

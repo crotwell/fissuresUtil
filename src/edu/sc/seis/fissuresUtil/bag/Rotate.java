@@ -16,7 +16,7 @@ import edu.iris.Fissures.FissuresException;
  * Created: Sun Dec 15 13:43:21 2002
  *
  * @author Philip Crotwell
- * @version $Id: Rotate.java 7451 2004-03-05 21:32:18Z crotwell $
+ * @version $Id: Rotate.java 8483 2004-05-04 19:47:11Z groves $
  */
 public class Rotate implements LocalMotionVectorFunction {
 
@@ -51,9 +51,8 @@ public class Rotate implements LocalMotionVectorFunction {
                                       LocalSeismogramImpl y,
                                       Location staLoc,
                                       Location evtLoc) throws FissuresException  {
-        DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
-                                   evtLoc.latitude, evtLoc.longitude);
-        return Rotate.rotate(x, y, dtor(180+distAz.baz));
+        DistAz distAz = new DistAz(staLoc, evtLoc);
+        return Rotate.rotate(x, y, dtor(180+distAz.getBaz()));
     }
 
     /** rotates the two seismograms by the given angle. It is assumed that
