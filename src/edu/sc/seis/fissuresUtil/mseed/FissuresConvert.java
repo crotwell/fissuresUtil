@@ -53,18 +53,22 @@ public class FissuresConvert  {
 
         } else if ( seis.data.discriminator().equals(TimeSeriesType.TYPE_FLOAT) ) {
             try {
+                // for float, 64 bytes = 4 bytes * 16 samples, so each edata holds 62*16 samples
                 EncodedData[] eData = new EncodedData[(int)Math.ceil(seis.num_points*4.0f/(62*64))];
                 float[] data = seis.get_as_floats();
                 for (int i = 0; i < eData.length; i++) {
 
                     byte[] dataBytes = new byte[62*64];
                     int j;
-                    for (j = 0; j + (62*64*i) < data.length && j < 62*16; j++) {
-                        int val = Float.floatToIntBits(data[j + (62*64*i)]);
+                    for (j = 0; j + (62*16*i) < data.length && j < 62*16; j++) {
+                        int val = Float.floatToIntBits(data[j + (62*16*i)]);
                         dataBytes[4*j] = (byte)((val & 0xff000000) >> 24);
                         dataBytes[4*j+1] = (byte)((val & 0x00ff0000) >> 16);
                         dataBytes[4*j+2] = (byte)((val & 0x0000ff00) >> 8);
                         dataBytes[4*j+3] = (byte)((val & 0x000000ff));
+                    }
+                    if (j == 0) {
+                        throw new SeedFormatException("try to put 0 float samples into an encodedData object j="+j+" i="+i+" seis.num_ppoints="+seis.num_points);
                     }
                     eData[i] = new EncodedData((short)B1000Types.FLOAT,
                                                dataBytes,
