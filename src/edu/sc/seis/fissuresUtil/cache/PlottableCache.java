@@ -1,13 +1,19 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfPlottable.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.IfEvent.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.*;
-import java.util.*;
-import java.lang.ref.*;
-import org.apache.log4j.*;
+import edu.iris.Fissures.Dimension;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfPlottable.PlottableDC;
+import edu.iris.Fissures.IfPlottable.PlottableDCOperations;
+import edu.iris.Fissures.IfPlottable.PlottableNotAvailable;
+import edu.iris.Fissures.IfPlottable.UnsupportedDimension;
+import edu.iris.Fissures.Plottable;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import java.lang.ref.SoftReference;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.TimeZone;
+import org.apache.log4j.Category;
 
 /**
  * PlottableCache.java
@@ -20,7 +26,7 @@ import org.apache.log4j.*;
  */
 public class PlottableCache implements PlottableDCOperations{
     public PlottableCache (PlottableDC plottableDC){
-	this.plottableDC = plottableDC;
+        this.plottableDC = plottableDC;
     }
     //
     // IDL:iris.edu/Fissures/IfPlottable/PlottableDC/custom_sizes:1.0
@@ -31,23 +37,22 @@ public class PlottableCache implements PlottableDCOperations{
      *dimensions for events and whole day Plottables. */
 
     public boolean custom_sizes() {
-	return true;
+        return true;
     }
 
     //
     // IDL:iris.edu/Fissures/IfPlottable/PlottableDC/get_plottable:1.0
     //
     /** Gets a Plottable for a specific time window for a channel at the
-     *given size. Because of the extra overhead of handling custom 
+     *given size. Because of the extra overhead of handling custom
      *time ranges, this functionality is optional. */
     public edu.iris.Fissures.Plottable[] get_plottable(
-						edu.iris.Fissures.IfSeismogramDC.RequestFilter request,
-						edu.iris.Fissures.Dimension pixel_size)
-	throws PlottableNotAvailable,
-	UnsupportedDimension,
-	edu.iris.Fissures.NotImplemented
-    {
-	return null;
+                                                       edu.iris.Fissures.IfSeismogramDC.RequestFilter request,
+                                                       edu.iris.Fissures.Dimension pixel_size)
+        throws PlottableNotAvailable,
+        UnsupportedDimension,
+        edu.iris.Fissures.NotImplemented {
+        return null;
     }
     //
     // IDL:iris.edu/Fissures/IfPlottable/PlottableDC/get_whole_day_sizes:1.0
@@ -60,7 +65,7 @@ public class PlottableCache implements PlottableDCOperations{
 
     public edu.iris.Fissures.Dimension[] get_whole_day_sizes() {
 
-	return null;
+        return null;
     }
     //
     // IDL:iris.edu/Fissures/IfPlottable/PlottableDC/get_for_day:1.0
@@ -69,29 +74,37 @@ public class PlottableCache implements PlottableDCOperations{
      *display. For faster response, the client should use one of the
      *cached dimensions. */
 
-    public edu.iris.Fissures.Plottable[]
-	get_for_day(edu.iris.Fissures.IfNetwork.ChannelId channel_id,
-		    int year,
-		    int jday,
-		    edu.iris.Fissures.Dimension pixel_size)
-        throws PlottableNotAvailable,
-	UnsupportedDimension {
-	SoftReference ref;
-	Plottable[] plottableArray;
-	String key = ChannelIdUtil.toString(channel_id)+"."+Integer.toString(year)+"."+Integer.toString(jday);
-	ref = (SoftReference)dayCache.get(key);
-	if(ref != null) {
-	    plottableArray = (Plottable[])ref.get();
-	    if(plottableArray != null) {
-		return plottableArray;
-	    } else {
-		dayCache.remove(key);
-	    }
-	}
-	plottableArray = plottableDC.get_for_day(channel_id, year, jday, pixel_size);
-	
-	dayCache.put(key, new SoftReference(plottableArray));
-	return plottableArray;
+    public Plottable[] get_for_day(ChannelId channel_id, int year, int jDay,
+                                   Dimension pixel_size)
+        throws PlottableNotAvailable, UnsupportedDimension {
+
+        //If getting plottable for today, don't use cache
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.setTime(new Date());
+        int todayJDay = calendar.get(Calendar.DAY_OF_YEAR);
+        int todayYear = calendar.get(Calendar.YEAR);
+        if(jDay == todayJDay && todayYear == year){
+            return plottableDC.get_for_day(channel_id, year, jDay, pixel_size);
+        }
+
+        //not for today, so attempt to get plottable from cache
+        SoftReference ref;
+        Plottable[] plottableArray;
+        String key = ChannelIdUtil.toString(channel_id)+"."+Integer.toString(year)+"."+Integer.toString(jDay);
+        ref = (SoftReference)dayCache.get(key);
+        if(ref != null) {
+            plottableArray = (Plottable[])ref.get();
+            if(plottableArray != null) {
+                return plottableArray;
+            } else {
+                dayCache.remove(key);
+            }
+        }
+        //plottable is not in cache, fetch and store
+        plottableArray = plottableDC.get_for_day(channel_id, year, jDay, pixel_size);
+
+        dayCache.put(key, new SoftReference(plottableArray));
+        return plottableArray;
     }
 
     //
@@ -104,8 +117,8 @@ public class PlottableCache implements PlottableDCOperations{
      *should use cached dimensions if possible. */
 
     public edu.iris.Fissures.Dimension[]
-	get_event_sizes() {
-	return null;
+        get_event_sizes() {
+        return null;
     }
 
     //
@@ -116,20 +129,20 @@ public class PlottableCache implements PlottableDCOperations{
      *cached dimensions. */
 
     public edu.iris.Fissures.Plottable[]
-	get_for_event(edu.iris.Fissures.IfEvent.EventAccess event,
-		      edu.iris.Fissures.IfNetwork.ChannelId channel_id,
-		      edu.iris.Fissures.Dimension pixel_size)
+        get_for_event(edu.iris.Fissures.IfEvent.EventAccess event,
+                      edu.iris.Fissures.IfNetwork.ChannelId channel_id,
+                      edu.iris.Fissures.Dimension pixel_size)
         throws PlottableNotAvailable,
-	UnsupportedDimension {
-	return null;
+        UnsupportedDimension {
+        return null;
     }
 
     /**
-       HashMap to maintins the cache of the dayPlottables
-    **/
+     HashMap to maintins the cache of the dayPlottables
+     **/
     private HashMap dayCache = new HashMap();
     private PlottableDC plottableDC;
-    static Category logger = 
-	Category.getInstance(PlottableCache.class.getName());
-    
+    static Category logger =
+        Category.getInstance(PlottableCache.class.getName());
+
 }// PlottableCache
