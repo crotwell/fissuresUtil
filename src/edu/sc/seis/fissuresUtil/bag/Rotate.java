@@ -6,6 +6,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalMotionVectorImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import java.awt.geom.AffineTransform;
+import edu.iris.Fissures.Location;
 
 /**
  * Rotate.java
@@ -14,7 +15,7 @@ import java.awt.geom.AffineTransform;
  * Created: Sun Dec 15 13:43:21 2002
  *
  * @author Philip Crotwell
- * @version $Id: Rotate.java 3885 2003-05-15 18:35:47Z crotwell $
+ * @version $Id: Rotate.java 6725 2004-01-12 03:31:06Z crotwell $
  */
 public class Rotate implements LocalMotionVectorFunction {
     
@@ -38,6 +39,21 @@ public class Rotate implements LocalMotionVectorFunction {
                                           vec.sample_rate_history,
                                           data);
     }
+        
+    /** rotates the two seismograms to the great circle path radial and transverse.
+     It is assumed that
+     the two seismograms orientation are perpendicular to each other and
+     are oriented in the east, x and north, y, directions.
+     @returns the rotated data from the two seismograms, index 0 is
+     the tangential and index 1 is the radial.*/
+    public static float[][] rotateGCP(LocalSeismogramImpl x,
+                                      LocalSeismogramImpl y,
+                                      Location staLoc,
+                                      Location evtLoc) {
+        DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
+                                   evtLoc.latitude, evtLoc.longitude);
+        return Rotate.rotate(x, y, (180-distAz.baz)*Math.PI/180);
+    }
     
     /** rotates the two seismograms by the given angle. It is assumed that
      the two seismograms orientation are perpendicular to each other and
@@ -45,8 +61,8 @@ public class Rotate implements LocalMotionVectorFunction {
      @returns the rotated data from the two seismograms, index 0 is
      the new x and index 1 is the new y.*/
     public static float[][] rotate(LocalSeismogramImpl x,
-                              LocalSeismogramImpl y,
-                              double radians) {
+                                   LocalSeismogramImpl y,
+                                   double radians) {
         float[][] data = new float[2][];
         float[] temp = x.get_as_floats();
         data[0] = new float[temp.length];
@@ -69,7 +85,7 @@ public class Rotate implements LocalMotionVectorFunction {
     }
     
     /** Performs the rotation from the given matrix. It is assumed to be
-    a pure rotation matrix (no translation) and the translation components
+     a pure rotation matrix (no translation) and the translation components
      of the affine transform are ignored if present. */
     public static void rotate(float[] x, float[] y, AffineTransform affine) {
         if (x.length != y.length) {
