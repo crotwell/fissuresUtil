@@ -38,39 +38,41 @@ import com.bbn.openmap.Layer;
 
 public class EventLayer extends Layer implements EventDataListener, EventLoadedListener, EQSelectionListener{
     public EventLayer(EventTableModel tableModel, ListSelectionModel lsm, MapBean mapBean){
-		this.tableModel = tableModel;
-		selectionModel = lsm;
-		tableModel.addEventDataListener(this);
-		eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
+        this.tableModel = tableModel;
+        selectionModel = lsm;
+        tableModel.addEventDataListener(this);
+        eventDataChanged(new EQDataEvent(this, tableModel.getAllEvents()));
 
-		//this list selection stuff does not work yet.
-		selectionModel.addListSelectionListener(new ListSelectionListener(){
-					public void valueChanged(ListSelectionEvent e) {
-						EventAccessOperations[] events = new EventAccessOperations[0];
-						//EventAccessOperations[] events = tableModel.getSelectedEvents();
-						for (int i = 0; i < events.length; i++) {
-							Iterator it = circles.iterator();
-							while (it.hasNext()){
-								OMEvent current = (OMEvent)it.next();
-								try{
+        //this list selection stuff does not work yet.
+        if(selectionModel != null){
+            selectionModel.addListSelectionListener(new ListSelectionListener(){
+                        public void valueChanged(ListSelectionEvent e) {
+                            EventAccessOperations[] events = new EventAccessOperations[0];
+                            //EventAccessOperations[] events = tableModel.getSelectedEvents();
+                            for (int i = 0; i < events.length; i++) {
+                                Iterator it = circles.iterator();
+                                while (it.hasNext()){
+                                    OMEvent current = (OMEvent)it.next();
+                                    try{
 
-									if (current.getEvent().get_preferred_origin().equals(events[i].get_preferred_origin())){
-										current.select();
-										return;
-									}
-								}
-								catch(NoPreferredOrigin ex){}
-							}
-						}
-					}
+                                        if (current.getEvent().get_preferred_origin().equals(events[i].get_preferred_origin())){
+                                            current.select();
+                                            return;
+                                        }
+                                    }
+                                    catch(NoPreferredOrigin ex){}
+                                }
+                            }
+                        }
 
-				});
+                    });
+        }
 
-		//temporary fix for selection for now...will be removed as soon
-		//as the stuff above starts working
-		tableModel.addEQSelectionListener(this);
+        //temporary fix for selection for now...will be removed as soon
+        //as the stuff above starts working
+        tableModel.addEQSelectionListener(this);
 
-		this.mapBean = mapBean;
+        this.mapBean = mapBean;
     }
 
     public void paint(java.awt.Graphics g) {
@@ -145,17 +147,17 @@ public class EventLayer extends Layer implements EventDataListener, EventLoadedL
     }
 
     public boolean mouseClicked(MouseEvent e){
-        synchronized(circles){
-            Iterator it = circles.iterator();
-            while(it.hasNext()){
-                OMEvent current = (OMEvent)it.next();
-                if(current.getBigCircle().contains(e.getX(), e.getY())){
-                    circles.deselect();
-                    current.select();
-                    return true;
-                }
-            }
-        }
+        /*synchronized(circles){
+         Iterator it = circles.iterator();
+         while(it.hasNext()){
+         OMEvent current = (OMEvent)it.next();
+         if(current.getBigCircle().contains(e.getX(), e.getY())){
+         circles.deselect();
+         current.select();
+         return true;
+         }
+         }
+         }*/
         return false;
     }
 
@@ -172,7 +174,6 @@ public class EventLayer extends Layer implements EventDataListener, EventLoadedL
             event = new CacheEvent(eao);
             setLinePaint(Color.BLUE);
             lilCircle.setFillPaint(Color.RED);
-            setSelectPaint(Color.MAGENTA);
             add(bigCircle);
             add(lilCircle);
             generate(getProjection());
@@ -210,9 +211,10 @@ public class EventLayer extends Layer implements EventDataListener, EventLoadedL
 
     private EventTableModel tableModel;
 
-	private ListSelectionModel selectionModel;
+    private ListSelectionModel selectionModel;
 
     private MapBean mapBean;
 }
+
 
 
