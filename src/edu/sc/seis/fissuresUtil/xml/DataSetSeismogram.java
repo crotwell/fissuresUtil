@@ -47,7 +47,7 @@ public abstract class DataSetSeismogram
     }
 
     public boolean equals(Object other) {
-        if ( ! (other instanceof DataSetSeismogram)) {
+        if ( ! (getClass().equals(other.getClass()))) {
             return false;
         } // end of if ()
         if (super.equals(other)) {
