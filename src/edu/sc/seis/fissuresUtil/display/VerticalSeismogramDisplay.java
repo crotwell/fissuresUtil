@@ -119,9 +119,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     protected LinkedList basicDisplays = new LinkedList();
 
-    protected MouseForwarder mouseForwarder = new MouseForwarder();
+    protected static MouseForwarder mouseForwarder = new MouseForwarder();
 
-    protected MouseMotionForwarder motionForwarder = new MouseMotionForwarder();
+    protected static MouseMotionForwarder motionForwarder = new MouseMotionForwarder();
 
     protected JComponent seismograms;
 
