@@ -64,6 +64,14 @@ public abstract class Border extends JComponent {
         fixSize();
     }
 
+    public void clipTicks(boolean clipTicks,
+                          double minTickVal,
+                          double maxTickVal) {
+        this.clipTicks = clipTicks;
+        this.minTickValue = minTickVal;
+        this.maxTickValue = maxTickVal;
+    }
+
     public void paint(Graphics g) {
         Graphics2D g2d = (Graphics2D)g;
         g.setColor(getBackground());
@@ -128,7 +136,11 @@ public abstract class Border extends JComponent {
     protected int side, direction, order, labelTickHeight, labelTickWidth,
             tickHeight, tickWidth, type;
 
-    protected boolean displayNegatives = true;
+    protected boolean clipTicks = false;
+
+    protected double minTickValue;
+
+    protected double maxTickValue;
 
     protected abstract class BorderFormat {
 
@@ -204,16 +216,19 @@ public abstract class Border extends JComponent {
                         / divSize;
                 double pixelsPerLabelTick = getLimitingSize() / numDivisions;
                 double pixelsPerMinorTick = pixelsPerLabelTick / ticksPerDiv;
+                double labelValPerTick = divSize / ticksPerDiv;
                 int numLabelTicks = (int)Math.ceil(numDivisions) + 1;
                 //Create tick shapes
                 GeneralPath labelTickShape = new GeneralPath();
                 GeneralPath minorTickShape = new GeneralPath();
                 float[] nextLabelPoint = getFirstPoint();
                 double labelValue = getFirstLabelValue(range);
-                double labelMaxVal = getLastLabelValue(range);
+                if(!clipTicks) {
+                    minTickValue = 0;
+                    maxTickValue = Double.MAX_VALUE;
+                }
                 for(int i = 0; i < numLabelTicks; i++) {
-                    if(displayNegatives
-                            || (labelValue >= 0 && labelValue <= labelMaxVal)) {
+                    if((labelValue >= minTickValue && labelValue <= maxTickValue)) {
                         labelTickShape.moveTo(nextLabelPoint[0],
                                               nextLabelPoint[1]);
                         labelTickShape.lineTo(nextLabelPoint[0]
@@ -221,7 +236,11 @@ public abstract class Border extends JComponent {
                                 + labelTickHeight);
                         float[] nextMinorPoint = getNextPoint((float)pixelsPerMinorTick,
                                                               nextLabelPoint);
+                        double tempVal = labelValue;
                         for(int j = 0; j < ticksPerDiv - 1; j++) {
+                            if(tempVal >= maxTickValue) {
+                                break;
+                            }
                             minorTickShape.moveTo(nextMinorPoint[0],
                                                   nextMinorPoint[1]);
                             minorTickShape.lineTo(nextMinorPoint[0] + tickWidth,
@@ -229,6 +248,7 @@ public abstract class Border extends JComponent {
                                                           + tickHeight);
                             nextMinorPoint = getNextPoint((float)pixelsPerMinorTick,
                                                           nextMinorPoint);
+                            tempVal += labelValPerTick;
                         }
                     }
                     nextLabelPoint = getNextPoint((float)pixelsPerLabelTick,
@@ -256,7 +276,7 @@ public abstract class Border extends JComponent {
                 nextLabelPoint = getFirstPoint();
                 g2d.setFont(getFont());
                 for(int i = 0; i < numLabelTicks; i++) {
-                    if(displayNegatives || value >= 0) {
+                    if((value >= minTickValue && value <= maxTickValue)) {
                         label(getLabel(value),
                               nextLabelPoint,
                               g2d,
@@ -342,12 +362,6 @@ public abstract class Border extends JComponent {
         private double getFirstLabelValue(UnitRangeImpl r) {
             double min = r.min_value;
             double divisions = Math.floor(min / divSize);
-            return divisions * divSize;
-        }
-
-        private double getLastLabelValue(UnitRangeImpl r) {
-            double max = r.max_value;
-            double divisions = Math.floor(max / divSize);
             return divisions * divSize;
         }
 
