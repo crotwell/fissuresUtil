@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.util.*;
 import java.lang.*;
+import edu.iris.Fissures.model.*;
 
 /**
  * IntervalChooser.java
@@ -18,52 +19,23 @@ import java.lang.*;
  */
 
 public class IntervalChooser extends JPanel{
+    /**
+     * Creates a new <code>IntervalChooser</code> instance.
+     *
+     */
     public IntervalChooser (){
 	initFrame();
-	//	populateUnits();
     }
 
+    /**
+     * Creates a new <code>IntervalChooser</code> instance.
+     *
+     * @param options an <code>IntervalChooserOptions[]</code> value
+     */
     public IntervalChooser(IntervalChooserOptions[] options) {
 
 	initFrame();
 	populateUnits(options);
-
-	units = new String[options.length];
-	minValues = new int[options.length];
-	maxValues = new int[options.length];
-
-	for(int counter = 0; counter < options.length; counter++) {
-
-	    int value = options[counter].getIntervalChooserValue();
-	    minValues[counter] = options[counter].getMinimumValue();
-	    maxValues[counter] = options[counter].getMaximumValue();
-
-	    switch(value) {
-	    case 0:
-		units[counter] = "seconds";
-		break;
-	    case 1: 
-		units[counter] = "minutes";
-		break;
-	    case 2:
-		units[counter] = "hours";
-		break;
-	    case 3: 
-		units[counter] = "days";
-		break;
-	    case 4:
-		units[counter] = "months";
-		break;
-	    case 5:
-		units[counter] = "years";
-		break;
-		
-	    }
-   	
-	}
-
-	
-
     }
 
     private void initFrame() {
@@ -90,20 +62,9 @@ public class IntervalChooser extends JPanel{
     }
 
     private void populateValues(IntervalChooserOptions option) {
-	/*int minValue = 0;
-	  int maxValue = 0;*/
 	valueBox.removeAllItems();
-	/*if( unit.equals("sec") ) { minValue = 1; maxValue = 60;}
-	else if(unit.equals("min")) { minValue = 1; maxValue = 60;}
-	else if(unit.equals("hr")) { minValue = 1; maxValue = 24;}
-	else if(unit.equals("day")) { minValue = 1; maxValue = 31;}
-	else if(unit.equals("month")) { minValue = 1; maxValue = 12;}
-	else if(unit.equals("year")) { minValue = 1; maxValue = 4;}
-	*/
-
 	int minValue = option.getMinimumValue();
 	int maxValue = option.getMaximumValue();
-
 	for(int counter = minValue; counter <= maxValue; counter++) {
 	
 	    valueBox.addItem(new String(new Integer(counter).toString()));
@@ -127,22 +88,30 @@ public class IntervalChooser extends JPanel{
 	unitBox.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 		    JComboBox cb = (JComboBox)e.getSource();
-		     IntervalChooserOptions newSelection = (IntervalChooserOptions)cb.getSelectedItem();
-		     System.out.println("The new value selected is "+newSelection.getIntervalChooserValue());
-		     populateValues(newSelection);
+		    IntervalChooserOptions newSelection = (IntervalChooserOptions)cb.getSelectedItem();
+		    System.out.println("The new value selected is "+newSelection.getIntervalChooserValue());
+		    populateValues(newSelection);
               
 		}
 
 	    });
 
     }
+    /**
+     * Describe <code>setEditable</code> method here.
+     *
+     * @param bool a <code>boolean</code> value
+     */
     public void setEditable(boolean bool) {
-
-
 	valueBox.setEditable(bool);
-
     }
 
+    /**
+     * Describe <code>setDefault</code> method here.
+     *
+     * @param index an <code>int</code> value
+     * @param option an <code>IntervalChooserOptions</code> value
+     */
     public void setDefault(int index, IntervalChooserOptions option) {
 	
 	unitBox.setSelectedItem(option);
@@ -150,6 +119,53 @@ public class IntervalChooser extends JPanel{
 
     }
 
+    /**
+     * Describe <code>getInterval</code> method here.
+     *
+     * @return a <code>TimeInterval</code> value
+     */
+    public TimeInterval getInterval() {
+	
+	int intervalValue;
+	TimeInterval interval = null;
+	try {
+	    
+	    intervalValue = Integer.parseInt((String)valueBox.getSelectedItem());
+
+	} catch(NumberFormatException nfe) {
+	    intervalValue = 0;
+	}
+	IntervalChooserOptions option = (IntervalChooserOptions)unitBox.getSelectedItem();
+	int unitValue = option.getIntervalChooserValue();
+	
+	if( unitValue == 0 ) { 
+	    interval = new TimeInterval(intervalValue, UnitImpl.SECOND);
+	}
+	else if(unitValue == 1 ) {
+	    interval = new TimeInterval(intervalValue, UnitImpl.MINUTE);
+	}
+	else if(unitValue == 2 ) {
+	    interval = new TimeInterval(intervalValue, UnitImpl.HOUR);
+	}
+	else if(unitValue == 3) {
+	    interval = new TimeInterval(intervalValue, UnitImpl.DAY);
+	}
+	else if(unitValue == 4){
+	    interval = new TimeInterval(intervalValue * 30, UnitImpl.DAY);
+	}
+	else if(unitValue == 5) {
+	    interval = new TimeInterval(intervalValue * 365, UnitImpl.DAY);
+	}
+	
+	return interval;
+    }
+
+    /**
+     * Describe <code>getDate</code> method here.
+     *
+     * @param date a <code>Date</code> value
+     * @return a <code>Date</code> value
+     */
     public Date getDate(Date date) {
 	
 	Calendar calendar = Calendar.getInstance(); 
@@ -169,27 +185,21 @@ public class IntervalChooser extends JPanel{
 	
 	if( unitValue == 0 ) { 
 	    calendar.add(Calendar.SECOND, rollBackValue);
-	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000);
 	}
-	else if(unitValue == 1 ) {//unit.equals("min")) { 
+	else if(unitValue == 1 ) {
 	    calendar.add(Calendar.MINUTE, rollBackValue);
-	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 *60); 
 	}
-	else if(unitValue == 2 ) { //.equals("hr")) {  
+	else if(unitValue == 2 ) {
 	    calendar.add(Calendar.HOUR, rollBackValue);
-	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 * 60 * 60);
 	}
-	else if(unitValue == 3) {//.equals("day")) {  
+	else if(unitValue == 3) {
 	    calendar.add(Calendar.DAY_OF_YEAR, rollBackValue);
-	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 * 60 * 60 * 24);
 	}
-	else if(unitValue == 4){//.equals("month")) {  
+	else if(unitValue == 4){
 	    calendar.add(Calendar.MONTH, rollBackValue);
-	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 * 60 * 24 * 31 );
 	}
-	else if(unitValue == 5) {//.equals("year")) {  
+	else if(unitValue == 5) {
 	    calendar.add(Calendar.YEAR, rollBackValue);
-	    //returnDate.setTime(calendar.getTime().getTime() + rollBackValue * 1000 * 60 * 60 * 24 * 31 * 12  );
 	}
 	
 	return calendar.getTime();
@@ -202,11 +212,4 @@ public class IntervalChooser extends JPanel{
     private JComboBox unitBox;
 
     private JComboBox valueBox;
-
-    String[] units;
-
-    int[] minValues;
-
-    int[] maxValues;
-
-}// IntervalChooser
+   }// IntervalChooser
