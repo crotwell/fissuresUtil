@@ -18,6 +18,7 @@ import edu.sc.seis.TauP.SphericalCoords;
 import edu.sc.seis.fissuresUtil.chooser.SeisTimeFilterSelector;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -41,7 +42,7 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 
     public ParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
                                  TimeConfig tc, AmpConfig ac,
-                                 boolean advancedOption) {
+                                 boolean advancedOption, Color color) {
         particleDisplayPanel = new JLayeredPane();
         OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
 
@@ -93,7 +94,7 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 
         ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
                                                                         tc,
-                                                                        this);
+                                                                        this, color);
         t.execute();
         //decide whether to form the radioSetPanel or the checkBoxPanel.
         if(!advancedOption) {
@@ -188,10 +189,10 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     }
 
     public synchronized void addParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
-                                                      TimeConfig tc, AmpConfig ac) {
+                                                      TimeConfig tc, AmpConfig ac, Color color) {
         ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
                                                                         tc,
-                                                                        this);
+                                                                        this, color);
         if(tc != null) {
             tc.addListener((TimeListener)this);
             ac.addListener((AmpListener)this);
