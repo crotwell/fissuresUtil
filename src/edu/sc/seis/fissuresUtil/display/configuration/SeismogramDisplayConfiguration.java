@@ -49,7 +49,7 @@ public class SeismogramDisplayConfiguration {
         if(makeDefault) { return new BasicSeismogramDisplay(); }
         SeismogramDisplay disp;
         if(type.equals("recordSection")) {
-            disp = new RecordSectionDisplay();
+            disp = new RecordSectionDisplay(swapAxes);
         } else if(type.equals("basic")) {
             disp = new BasicSeismogramDisplay();
         } else {
@@ -85,6 +85,8 @@ public class SeismogramDisplayConfiguration {
     private BorderConfiguration[] borders = new BorderConfiguration[0];
 
     private List colorClasses = new ArrayList();
+
+    private boolean swapAxes = true;
 
     private boolean drawNamesForNamedDrawables = true, makeDefault = false;
 
