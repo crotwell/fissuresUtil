@@ -10,25 +10,32 @@ public class Tester{
             this.r = r;
             this.repeats = repeats;
         }
-        
+
         public void run() {
-            for (int i = 0; i < 3; i++){
-                logger.info("run " + (i + 1) + " of " + repeats + " for " + r);
-                r.run();
+            int i = 0;
+            try {
+                for (i = 0; i < repeats; i++){
+                    logger.info("run " + (i + 1) + " of " + repeats + " for " + r);
+                    r.run();
+                    logger.info("finished " + (i + 1) + " of " + repeats + " for " + r);
+                }
+            } catch (Throwable e) {
+                logger.warn("fail " + (i + 1) + " of " + repeats + " for " + r, e);
             }
+            logger.info("leave thread for "+r);
         }
-        
+
         public String toString(){ return "" + r; }
-        
+
         private Runnable r;
         private int repeats;
     }
-    
+
     /**Runs all the runnables 3 times against each other pair wise with one
      * thread per runnable
      */
     public static void runAll(Runnable[] runnables){ runAll(runnables, 3, 1); }
-    
+
     public static void runAll(Runnable[] runnables, int runsPerThread,
                               int threadsPerRunnable){
         runnables = wrapInRepeaters(runnables, runsPerThread);
@@ -37,8 +44,8 @@ public class Tester{
                 logger.info("Starting " + runnables[i] + " against " + runnables[j]);
                 Thread[] threads = new Thread[threadsPerRunnable * 2];
                 for (int k = 0; k < threads.length; k += 2){
-                    threads[k] = new Thread(runnables[i], runnables[i] + " thread" + k/2);
-                    threads[k + 1] = new Thread(runnables[j], runnables[j] + " thread" + k/2);
+                    threads[k] = new Thread(runnables[i], runnables[i] + " thread" + k);
+                    threads[k + 1] = new Thread(runnables[j], runnables[j] + " thread" + (k+1));
                 }
                 for (int k = 0; k < threads.length; k++) threads[k].start();
                 boolean joined = false;
@@ -52,7 +59,7 @@ public class Tester{
             }
         }
     }
-    
+
     private static Runnable[] wrapInRepeaters(Runnable[] runnables,int repeats){
         Tester t = new Tester();
         for (int i = 0; i < runnables.length; i++) {
@@ -60,9 +67,9 @@ public class Tester{
         }
         return runnables;
     }
-    
+
     private static Logger logger = Logger.getLogger(Tester.class);
-    
+
     public static void main(String[] args){
         Initializer.init(args);
         new ThreadedSeisClient().exercise();
