@@ -34,7 +34,7 @@ public class FissuresToWAV {
         blockAlign, byteRate, subchunk2Size;
     private Clip clip;
     private SeismogramContainer container;
-	private EventListenerList listenerList = new EventListenerList();
+    private EventListenerList listenerList = new EventListenerList();
 
     public FissuresToWAV(SeismogramContainer container, int speedUp) {
         this.container = container;
@@ -50,10 +50,10 @@ public class FissuresToWAV {
         writeWAVData(out);
     }
 
-	public void play(MicroSecondTimeRange tr){
-		Thread playThread = new PlayThread(tr);
-		playThread.run();
-	}
+    public void play(MicroSecondTimeRange tr){
+        Thread playThread = new PlayThread(tr);
+        playThread.run();
+    }
 
     private synchronized void playFromThread(MicroSecondTimeRange tr){
         updateInfo();
@@ -83,7 +83,7 @@ public class FissuresToWAV {
             //clip.open(audioFormat, data, 0, 100);
             try{
                 clip.open(ais);
-				firePlayEvent(calculateTime(tr, speedUp));
+                firePlayEvent(calculateTime(tr, speedUp), clip);
                 clip.start();
             }
             catch(IOException e){
@@ -165,21 +165,21 @@ public class FissuresToWAV {
         }
     }
 
-	public void addPlayEventListener(PlayEventListener pel){
-		listenerList.add(PlayEventListener.class, pel);
-	}
+    public void addPlayEventListener(PlayEventListener pel){
+        listenerList.add(PlayEventListener.class, pel);
+    }
 
-	private void firePlayEvent(TimeInterval interval){
-       PlayEvent playEvent = null;
+    private void firePlayEvent(TimeInterval interval, Clip clip){
+        PlayEvent playEvent = null;
         Object[] listeners = listenerList.getListenerList();
         for (int i = listeners.length-2; i>=0; i-=2) {
             if (listeners[i]==PlayEventListener.class) {
                 if (playEvent == null)
-                    playEvent = new PlayEvent(this, interval);
+                    playEvent = new PlayEvent(this, interval, clip);
                 ((PlayEventListener)listeners[i+1]).eventPlayed(playEvent);
             }
         }
-	}
+    }
 
     public static int calculateSampleRate(SamplingImpl sampling, int speedUp){
         System.out.println(sampling);
@@ -188,10 +188,10 @@ public class FissuresToWAV {
         return (int)(freq.getValue() * speedUp);
     }
 
-	public static TimeInterval calculateTime(MicroSecondTimeRange tr, int speedUp){
-		TimeInterval interval = new TimeInterval(tr.getInterval().divideBy((double)speedUp));
-		return interval;
-	}
+    public static TimeInterval calculateTime(MicroSecondTimeRange tr, int speedUp){
+        TimeInterval interval = new TimeInterval(tr.getInterval().divideBy((double)speedUp));
+        return interval;
+    }
 
     protected static void writeLittleEndian(DataOutput out, int value)
         throws IOException {
@@ -211,18 +211,18 @@ public class FissuresToWAV {
         out.write(tmpBytes[2]);
     }
 
-	public class PlayThread extends Thread{
-		MicroSecondTimeRange timeRange;
+    public class PlayThread extends Thread{
+        MicroSecondTimeRange timeRange;
 
-		public PlayThread(MicroSecondTimeRange tr){
-			timeRange = tr;
-		}
+        public PlayThread(MicroSecondTimeRange tr){
+            timeRange = tr;
+        }
 
-		public void run(){
-			playFromThread(timeRange);
-		}
+        public void run(){
+            playFromThread(timeRange);
+        }
 
-	}
+    }
 
     static Category logger =
         Category.getInstance(FissuresToWAV.class.getName());
