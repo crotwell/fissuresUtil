@@ -55,8 +55,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 		insets.top -= y+top;
 		insets.bottom -= bottom + y;
                 FontMetrics fm = copy.getFontMetrics();
-		System.out.println(x + " " +  y + " " + insets.left + " " + insets.right + " " + insets.top + " " + insets.bottom + " " + top +  " " + left + " " + bottom + " " + right);
-		 String labelTemp;
+		String labelTemp;
 		// top
 		int numTicks;
 		int pixelLoc;
