@@ -1,10 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -37,8 +39,9 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         int majTickNum = totalPixels/60;
         majTickTime = timeIntv/majTickNum;
         majTickRatio = 10;
+        daysInBorder = false;
         if(majTickTime <= SECOND){
-            timeFormat = new SimpleDateFormat("mm:ss.S");
+            borderFormat = new SimpleDateFormat("mm:ss.S");
             if(majTickTime <= 1000){
                 majTickTime = 1000;
             }else if(majTickTime <= 10000){
@@ -52,7 +55,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
 
         }else if(majTickTime <= 45 * SECOND){
             majTickRatio = 10;
-            timeFormat = new SimpleDateFormat("mm:ss");
+            borderFormat = new SimpleDateFormat("mm:ss");
             if(majTickTime <= 1.2*SECOND){
                 majTickTime = SECOND;
             }else if(majTickTime <= 3*SECOND){
@@ -72,7 +75,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 3*MINUTE){
             majTickRatio = 6;
-            timeFormat = new SimpleDateFormat("HH:mm:ss");
+            borderFormat = new SimpleDateFormat("HH:mm:ss");
             if(majTickTime <= MINUTE+10*SECOND){
                 majTickTime = MINUTE;
             }else if(majTickTime <= 2*MINUTE+30*SECOND){
@@ -83,7 +86,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 30*MINUTE){
             majTickRatio = 10;
-            timeFormat = new SimpleDateFormat("HH:mm:ss");
+            borderFormat = new SimpleDateFormat("HH:mm:ss");
             if(majTickTime <= 6*MINUTE){
                 majTickTime = 5*MINUTE;
                 majTickRatio = 5;
@@ -97,7 +100,8 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 4*HOUR){
             majTickRatio = 6;
-            timeFormat = new SimpleDateFormat("MM/dd HH:mm");
+            daysInBorder = true;
+            borderFormat = new SimpleDateFormat("MM/dd HH:mm");
             if(majTickTime <= HOUR){
                 majTickTime = HOUR;
             }else if(majTickTime <= 2*HOUR){
@@ -113,14 +117,16 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         }
         else if(majTickTime <= 4*DAY){
             majTickRatio = 6;
-            timeFormat = new SimpleDateFormat("MM/dd");
+            daysInBorder = true;
+            borderFormat = new SimpleDateFormat("MM/dd");
             majTickTime = DAY;
         }else{
             majTickRatio = 7;
-            timeFormat = new SimpleDateFormat("MM/dd");
+            daysInBorder = true;
+            borderFormat = new SimpleDateFormat("MM/dd");
             majTickTime = WEEK;
         }
-        timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        borderFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         double numTicksDbl = ((timeIntv/(double)majTickTime) * majTickRatio);
         numTicks = (int)numTicksDbl;
         if(beginTime > 0){
@@ -162,13 +168,19 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         if (isLabelTick(i)) {
             MicroSecondDate date = new MicroSecondDate(firstLabelTime + i/majTickRatio * majTickTime);
             calendar.setTime(date);
-            return timeFormat.format(calendar.getTime());
+            return borderFormat.format(calendar.getTime());
         }
         return "";
     }
 
     public String getAxisLabel() {
-        return "Time (GMT)";
+        if(time != null && !daysInBorder){
+        Date middleDate = time.getBeginTime().add(new TimeInterval(time.getInterval().divideBy(2)));
+        calendar.setTime(middleDate);
+        return axisFormat.format(calendar.getTime()) + " (GMT)";
+        }else{
+            return "Time (GMT)";
+        }
     }
 
     /**
@@ -201,10 +213,17 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     }
 
     public void updateTime(TimeEvent event){
+        time = event.getTime();
         setTimes(event.getTime().getBeginTime(), event.getTime().getEndTime());
     }
 
-    private SimpleDateFormat timeFormat;
+    private SimpleDateFormat borderFormat;
+
+    private boolean daysInBorder = false;
+
+    private MicroSecondTimeRange time;
+
+    private SimpleDateFormat axisFormat = new SimpleDateFormat("MM/dd/yyyy");
 
     private Calendar calendar  = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
