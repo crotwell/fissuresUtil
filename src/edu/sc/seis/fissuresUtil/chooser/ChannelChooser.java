@@ -29,7 +29,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3910 2003-05-16 17:31:50Z crotwell $
+ * @version $Id: ChannelChooser.java 3917 2003-05-18 00:33:26Z crotwell $
  *
  */
 
@@ -1020,6 +1020,20 @@ public class ChannelChooser extends JPanel{
                 Iterator it = stations.iterator();
                 while ( it.hasNext()) {
                     Station sta = (Station)it.next();
+                    
+                    // unselected station, remove all channels from this station
+                    synchronized (ChannelChooser.this) {
+                        if (this.equals(getChannelLoader())) {
+                            if ( ! stationList.isSelectedIndex(i)) {
+                                removeChannels(sta);
+                                continue;
+                            } // end of else
+                        } else {
+                            // no loner active channel loader
+                            return;
+                        } // end of else
+                    }
+                    
                     Channel[] chans = null;
                     NetworkAccess net = (NetworkAccess)
                         netIdToNetMap.get(NetworkIdUtil.toString(sta.get_id().network_id));
@@ -1036,14 +1050,12 @@ public class ChannelChooser extends JPanel{
                         if (this.equals(getChannelLoader())) {
                             if (stationList.isSelectedIndex(i)) {
                                 addChannels(chans);
-                            } else {
-                                removeChannels(chans);
                             } // end of else
                         } else {
                             // no loner active channel loader
                             return;
                         } // end of else
-                    } // end of while ()
+                    }
                 }
                 setProgressValue(this, i-e.getFirstIndex());
             } // end of for (int i=e.getFirstIndex(); i<e.getLastIndex(); i++)
@@ -1074,6 +1086,21 @@ public class ChannelChooser extends JPanel{
                 }
             }
         }
+        
+        void removeChannels(Station station) {
+            String stationPrefix =
+                NetworkIdUtil.toString(station.get_id().network_id)+"."+
+                station.get_id().station_code;
+            Iterator it = channelMap.keySet().iterator();
+            String key;
+            while (it.hasNext()) {
+                key = (String)it.next();
+                if (key.startsWith(stationPrefix)) {
+                    it.remove();
+                }
+            }
+        }
+        
     }
 
     static Category logger =
