@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 10399 2004-09-09 18:22:57Z groves $
+ * @version $Id: SimplePlotUtil.java 10441 2004-09-09 19:33:25Z groves $
  */
 
 public class SimplePlotUtil  {
@@ -476,17 +476,12 @@ public class SimplePlotUtil  {
         return createSpike(ClockUtil.now());
     }
     
-    public static LocalSeismogramImpl createTestData(MicroSecondDate startTime){
-        return createSpike(startTime.add(ONE_SECOND));
-    }
-        
-    
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
         return createSpike(spikeTime, new TimeInterval(50, UnitImpl.SECOND));
     }
     
-    public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime, TimeInterval traceLength){
-        String name = "spike at "+spikeTime.toString();
+    public static LocalSeismogramImpl createSpike(MicroSecondDate time, TimeInterval traceLength){
+        String name = "spike at "+time.toString();
         // assume 20 sps
         int[] dataBits = new int[20 * (int)traceLength.convertTo(UnitImpl.SECOND).getValue()];
         for (int i=0; i<dataBits.length; i++) {
@@ -494,7 +489,7 @@ public class SimplePlotUtil  {
                 dataBits[i] = 100;
             } // end of if (i % 20 = 0)
         } // end of for (int i=0; i<dataBits.length; i++)
-        return createTestData(name, dataBits, spikeTime.subtract(ONE_SECOND).getFissuresTime());
+        return createTestData(name, dataBits, time.getFissuresTime());
     }
     
     private static final TimeInterval ONE_SECOND = new TimeInterval(1, UnitImpl.SECOND);
