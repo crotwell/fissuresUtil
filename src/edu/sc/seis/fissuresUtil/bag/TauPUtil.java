@@ -12,6 +12,7 @@ import edu.iris.Fissures.Location;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.TauP.TauModel;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.TauP_Time;
 
@@ -37,6 +38,10 @@ public class TauPUtil {
         taup_time.calculate(distAz.delta);
         Arrival[] arrivals = taup_time.getArrivals();
         return arrivals;
+    }
+
+    public TauModel getTauModel() {
+        return taup_time.getTauModel();
     }
 
     TauP_Time taup_time;
