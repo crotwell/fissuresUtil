@@ -260,7 +260,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        sdf.format(msd);
+        String originTimeString = sdf.format(msd);
 
         //Get Magnitude
         float mag = origin.magnitudes[0].value;
@@ -270,7 +270,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 
         buf.append("Event: ");
         buf.append(location + " | ");
-        buf.append(sdf.format(msd) + " | ");
+        buf.append(originTimeString + " | ");
         buf.append("Mag " + mag + " | ");
 
         UnitDisplayUtil udu = new UnitDisplayUtil();
