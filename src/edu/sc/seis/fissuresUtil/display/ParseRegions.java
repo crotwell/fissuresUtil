@@ -34,7 +34,7 @@ public class ParseRegions {
     public String getGeographicRegionName(int geoNum) {
         String propValue = 
 	    feProps.getProperty("GeogRegion"+geoNum);
-	if (propValue != null && propValue.length > 1) {
+	if (propValue != null && propValue.length() > 1) {
             return propValue;
 	}
 	return "GeoRegion"+geoNum;
@@ -43,7 +43,7 @@ public class ParseRegions {
     public String getSeismicRegionName(int seisNum) {
         String propValue =
            feProps.getProperty("SeismicRegion"+seisNum);
-	if (propValue != null && propValue.length > 1) {
+	if (propValue != null && propValue.length() > 1) {
             return propValue;
 	}
 	return "SeisRegion"+seisNum;
