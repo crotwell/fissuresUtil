@@ -24,7 +24,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class DataSetToXML {
-    
+
     /** Saves the given dataset to an xml file in the given directory. The
      file is returned. */
     public File save(DataSet dataset, File saveDirectory)
@@ -44,14 +44,14 @@ public class DataSetToXML {
         logger.debug("Done with save to "+saveDirectory.toString());
         return outFile;
     }
-    
+
     public Element createDocument(DataSet dataset, File dataDirectory)
         throws IOException, ParserConfigurationException, MalformedURLException {
-        
+
         if(!dataDirectory.exists() ) {
             dataDirectory.mkdirs();
         }
-        
+
         DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
         Document doc = docBuilder.newDocument();
         Element element = doc.createElement("dataset");
@@ -65,7 +65,7 @@ public class DataSetToXML {
         insert(element, dataset, dataDirectory);
         return element;
     }
-    
+
     /** inserts the dataset, and all child datasets recursively, into the
      document, along with dataset seismograms and parameters if they can be
      stored. Note that all dataSetSeismograms are converted to
@@ -88,7 +88,7 @@ public class DataSetToXML {
             if ( ! childDirectory.exists()) {
                 childDirectory.mkdirs();
             }
-            
+
             Element child;
             if (useDataSetRef) {
                 child = doc.createElement("datasetRef");
@@ -99,7 +99,7 @@ public class DataSetToXML {
             }
             element.appendChild(child);
         }
-        
+
         String[] childDSS = dataset.getDataSetSeismogramNames();
         File dataDir = new File(directory, "data");
         dataDir.mkdirs();
@@ -115,7 +115,7 @@ public class DataSetToXML {
             urlDSS.insertInto(child);
             element.appendChild(child);
         }
-        
+
         String[] paramNames = dataset.getParameterNames();
         for (int i = 0; i < paramNames.length; i++) {
             Element parameter =
@@ -125,10 +125,10 @@ public class DataSetToXML {
                                 dataset.getParameter(paramNames[i]));
             element.appendChild(parameter);
         }
-        
-        
+
+
     }
-    
+
     /** inserts the child dataset as a datasetRef element. The URL is assumed
      *  to be in a subdirectory relative to the current dataset.
      */
@@ -148,21 +148,25 @@ public class DataSetToXML {
     public static DataSet load(URL datasetURL)
         throws IOException, ParserConfigurationException, SAXException {
         DataSet dataset = null;
-        
+
         DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
-        
+
         Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
         Element docElement = doc.getDocumentElement();
-        
-        if (docElement.getTagName().equals("dataset")) {
+
+        if (docElement.getTagName().equals("dataset") &&
+            docElement.getAttribute("xsi:schemaLocation").equals(DSML_SCHEMA2_0)) {
             DataSetToXML dataSetToXML = new DataSetToXML();
             dataset = dataSetToXML.extract(datasetURL, docElement);
+        } else {
+            dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
         }
-        
+
         return dataset;
-        
+
     }
-    
+    public static final String DSML_SCHEMA2_0 = "http://www.seis.sc.edu/xschema/dataset/2.0";
+
     /** Extracts the dataset from the element, which is assumed to be a
      &lt;dataset&gt; element. */
     public DataSet extract(URL base, Element element) throws MalformedURLException{
@@ -188,7 +192,7 @@ public class DataSetToXML {
         MemoryDataSet dataset = new MemoryDataSet(id, name, owner, audit);
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
-            
+logger.debug("loading element "+child.getNodeName());
             if (child.getNodeName().equals("dataset")) {
                 dataset.addDataSet(extract(base, (Element)child), audit);
             } else if (child.getNodeName().equals("datasetRef")) {
@@ -207,13 +211,13 @@ public class DataSetToXML {
         }
         return dataset;
     }
-    
+
     protected boolean saveLocally = true;
-    
+
     /** If true, then each dataset is put into a separate dsml file. Otherwise
      the child datasets are embedded in the parent dsml file. */
     protected boolean useDataSetRef = true;
-    
+
     static Logger logger = Logger.getLogger(DataSetToXML.class);
 }
 
