@@ -50,6 +50,10 @@ public class EventTableLayer extends EventLayer{
         }
     }
 
+    public EventTableModel getTableModel(){
+        return tableModel;
+    }
+
    public EventBackgroundLoaderPool getLoader(){
         return tableModel.getLoader();
     }
