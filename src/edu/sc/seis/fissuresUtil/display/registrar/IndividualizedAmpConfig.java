@@ -25,7 +25,7 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
         for (int i = 0; i < ad.length; i++){
             amps[i] = ad[i].getRange();
         }
-        AmpEvent individualizedAmps = new AmpEvent(AmpConfigData.getSeismograms(ad), amps);
+        AmpEvent individualizedAmps = new BasicAmpEvent(AmpConfigData.getSeismograms(ad), amps);
         individualizedAmps.setAmp(DisplayUtils.ONE_RANGE);
         return individualizedAmps;
     }
