@@ -123,7 +123,11 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         double numTicksDbl = ((timeIntv/(double)majTickTime) * majTickRatio);
         numTicks = (int)numTicksDbl;
-        firstLabelTime = (beginTime/majTickTime + 1) * majTickTime;
+        if(beginTime > 0){
+            firstLabelTime = (beginTime/majTickTime + 1) * majTickTime;
+        }else{
+            firstLabelTime = (beginTime/majTickTime) * majTickTime;
+        }
         majTickOffset = (int)((firstLabelTime - beginTime)/(double)timeIntv * numTicks);
         tickOffset = (firstLabelTime - beginTime)/(double)timeIntv/majTickRatio * totalPixels;
         tickSpacing = totalPixels/numTicksDbl;
@@ -190,8 +194,9 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
      @param i the current tick
      */
     public  boolean isMajorTick(int i){
-        if(i%majTickRatio - majTickOffset == 0)
+        if(i%majTickRatio - majTickOffset == 0){
             return true;
+        }
         return false;
     }
 
@@ -228,5 +233,4 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     private static final long HOUR = 60*MINUTE;
     private static final long DAY = 24*HOUR;
     private static final long WEEK = 7*DAY;
-
 }// TimeScaleCalc
