@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 5108 2003-08-12 02:45:10Z crotwell $
+ * @version $Id: SacDirToDataSet.java 7121 2004-02-13 19:02:46Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -46,18 +46,18 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         this.excludes = excludes;
         this.paramRefs = paramRefs;
     }
-    
+
     void process() throws ParserConfigurationException,
         MalformedURLException,
         IOException {
-        
+
         dirURL = base;
         System.out.println(" dirURL is "+dirURL.toString());
         System.out.println(" directory name is "+directory.getName());
-        
+
         dirURL = new URL(dirURL.toString()+"/"+directory.getName()+"/");
         System.out.println("updated dirURL is "+dirURL.toString());
-        
+
         AuditInfo[] audit = new AuditInfo[1];
         audit[0] = new AuditInfo(userName, "Dataset created from SAC files in "+directory.getPath());
         dataset
@@ -66,14 +66,14 @@ public class SacDirToDataSet implements StdDataSetParamNames {
                                 userName,
                                 audit);
         Element dsElement = dataSetToXML.createDocument(dataset, directory);
-        
+
         Iterator it = paramRefs.keySet().iterator();
         while (it.hasNext()) {
             String key = (String)it.next();
             //loadParameterRef(key, (String)paramRefs.get(key));
-            
+
         } // end of while (it.hasNext())
-        
+
         File[] files = directory.listFiles();
         for (int i=0; i<files.length; i++) {
             try {
@@ -93,22 +93,22 @@ public class SacDirToDataSet implements StdDataSetParamNames {
                     // try as a sac file
                     loadSacFile(dsElement, files[i]);
                 } // end of else
-                
+
             } catch (Exception e) {
                 e.printStackTrace();
                 System.err.println("Caught exception on "
                                        +files[i].getName()+", continuing...");
             } // end of try-catch
         } // end of for (int i=0; i<sacFiles.length; i++)
-        
+
         dataSetToXML.save(dataset, directory);
     }
-    
+
     void loadParameterRef(Element dsElement, String paramName, String paramFile) {
         AuditInfo[] audit = new AuditInfo[1];
         audit[0] = new AuditInfo(userName,
                                  "Added parameter "+paramName+" for "+paramFile);
-        
+
         Element paramElement = dsElement.getOwnerDocument().createElement("parameter");
         dsElement.appendChild(paramElement);
         dataSetToXML.insertParameter(paramElement,
@@ -116,9 +116,9 @@ public class SacDirToDataSet implements StdDataSetParamNames {
                                      "http://www.w3.org/TR/xlink/",
                                      "xml:xlink",
                                      paramName);
-        
+
     }
-    
+
     void loadSacFile(Element dsElement, File sacFile) throws IOException, FissuresException {
         if (excludes.contains(sacFile.getName())) {
             return;
@@ -126,7 +126,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         if (paramRefs.containsValue(sacFile.getName())) {
             return;
         } // end of if (excludes.contains(sacFile.getName()))
-        
+
         SacTimeSeries sac = new SacTimeSeries();
         sac.read(sacFile.getCanonicalPath());
         AuditInfo[] audit = new AuditInfo[1];
@@ -138,16 +138,16 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         //      SacTimeSeries sac = new SacTimeSeries();
         //sac.read(dis);
         edu.iris.Fissures.seismogramDC.LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
-        
-        
+
+
         System.out.println("The PATH is "+sacFile.getParent());
-        
+
         edu.sc.seis.fissuresUtil.cache.CacheEvent event =
             SacToFissures.getEvent(sac);
-        
+
         if (event != null && dataset.getParameter(EVENT) == null) {
             String eventName = event.get_attributes().name;
-            
+
             String eName = eventName.replace(' ', '_');
             Element paramElement = dsElement.getOwnerDocument().createElement("parameter");
             dsElement.appendChild(paramElement);
@@ -161,21 +161,21 @@ public class SacDirToDataSet implements StdDataSetParamNames {
                                  event,
                                  eventAudit);
         } // end of if (event != null)
-        
+
         Channel channel =
             SacToFissures.getChannel(sac);
         String channelParamName =
             StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(seis.channel_id);
-        
-        
+
+
         if (channel != null &&
             dataset.getParameter(channelParamName) == null) {
-            
+
             // add channel
             AuditInfo[] chanAudit = new AuditInfo[1];
             chanAudit[0] = new AuditInfo(System.getProperty("user.name"),
                                          "channel loaded from sac file.");
-            
+
             dataset.addParameter(channelParamName,
                                  channel,
                                  chanAudit);
@@ -184,11 +184,11 @@ public class SacDirToDataSet implements StdDataSetParamNames {
             dataSetToXML.insert(paramElement,
                                 channelParamName,
                                 channel);
-            
-            
+
+
         }
-        
-        
+
+
         String seisName = sacFile.getName();
         if (seisName.endsWith(".SAC")) {
             seisName = seisName.substring(0,seisName.length()-4);
@@ -197,15 +197,15 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         URLDataSetSeismogram urlDSS = new URLDataSetSeismogram(seisURL,
                                                                SeismogramFileTypes.SAC,
                                                                dataset);
-        urlDSS.addToCache(seisURL, seis);
+        urlDSS.addToCache(seisURL, SeismogramFileTypes.SAC, seis);
         AuditInfo[] seisAudit = new AuditInfo[1];
         seisAudit[0] = new AuditInfo(System.getProperty("user.name"),
                                      "seismogram loaded from sac file.");
-        
+
         dataset.addDataSetSeismogram(urlDSS, seisAudit);
-        
+
     }
-    
+
     String userName = System.getProperty("user.name");
     URL base;
     URL dirURL;
@@ -214,7 +214,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
     DataSet dataset;
     List excludes;
     Map paramRefs;
-    
+
     public static void main (String[] args) {
         if (args.length < 4) {
             System.err.println("Usage: java edu.sc.seis.fissuresUtil.sac.SacDirToDataSet -base url -dir directoryPath -name datasetname [-exclude file] [-paramRef name file]");
@@ -259,8 +259,8 @@ public class SacDirToDataSet implements StdDataSetParamNames {
                 System.out.println("Don't understand "+args[i++]);
             }
         } // end of for (int i=0; i<args.length; i++)
-        
-        
+
+
         try {
             base = new URL(baseStr);
             System.out.println("base is "+base.toString());
@@ -274,10 +274,10 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         } catch (Exception e) {
             e.printStackTrace();
         } // end of try-catch
-        
-        
+
+
     } // end of main ()
-    
+
     static DataSetToXML dataSetToXML = new DataSetToXML();
-    
+
 }// SacDirToDataSet

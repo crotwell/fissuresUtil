@@ -16,16 +16,16 @@ import java.net.URL;
 
 public class SeismogramFileTypes {
     private SeismogramFileTypes (String val){
-    this.val = val;
+        this.val = val;
     }
 
     public boolean equals(Object obj) {
-    if(! (obj instanceof SeismogramFileTypes) ) return false;
-    return ((SeismogramFileTypes)obj).getValue().equals(this.val);
+        if(! (obj instanceof SeismogramFileTypes) ) return false;
+        return ((SeismogramFileTypes)obj).getValue().equals(this.val);
     }
 
     public String getValue() {
-    return this.val;
+        return this.val;
     }
 
     public URL getURLValue() {
@@ -36,6 +36,17 @@ public class SeismogramFileTypes {
             GlobalExceptionHandler.handle("Trouble creating URL for file type "+getValue(), e);
         }
         return null;
+    }
+
+    public static SeismogramFileTypes fromString(String typeURL) throws UnsupportedFileTypeException {
+        if (typeURL.equals(MSEED.getURLValue().toString())) {
+            return MSEED;
+        } else if (typeURL.equals(SAC.getURLValue().toString())) {
+            return SAC;
+        } else if (typeURL.equals(PSN.getURLValue().toString())) {
+            return PSN;
+        }
+        throw new UnsupportedFileTypeException(typeURL);
     }
 
     public static final SeismogramFileTypes SAC = new SeismogramFileTypes("sac");

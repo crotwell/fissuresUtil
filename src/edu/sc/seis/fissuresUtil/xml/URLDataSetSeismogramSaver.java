@@ -17,12 +17,13 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
+
     URLDataSetSeismogramSaver(DataSetSeismogram dss,
                               File directory) {
         this.inDSS = dss;
         this.directory = directory;
         urlDSS = new URLDataSetSeismogram(new URL[0],
-                                          SeismogramFileTypes.SAC,
+                                          new SeismogramFileTypes[0],
                                           inDSS.getDataSet(),
                                           inDSS.getName(),
                                           inDSS.getRequestFilter());
@@ -84,17 +85,15 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
 
         for (int i = 0; i < seis.length; i++) {
             try {
-                File seisFile = URLDataSetSeismogram.saveAsSac(seis[i],
+                File seisFile = URLDataSetSeismogram.saveAs(seis[i],
                                     directory,
                                     inDSS.getDataSet().getChannel(inDSS.getRequestFilter().channel_id),
-                                    inDSS.getDataSet().getEvent());
+                                    inDSS.getDataSet().getEvent(),
+                                                           SeismogramFileTypes.MSEED);
                 urlDSS.addToCache(seisFile.toURI().toURL(),
+                                  SeismogramFileTypes.MSEED,
                                   seis[i]);
-            } catch (NoPreferredOrigin e) {
-                setError(e);
-            } catch (CodecException e) {
-                setError(e);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 setError(e);
             }
         }
