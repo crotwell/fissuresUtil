@@ -7,15 +7,31 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class AbstractJob implements Job{
+public abstract class AbstractJob implements Job, Runnable {
     public AbstractJob(String name){
         this.name = name;
     }
 
+    public void run() {
+        try {
+            runJob();
+            if ( ! isFinished()) {
+                // runJob didn't set finished on its own
+                setFinished();
+            }
+        } catch (Throwable e) {
+            if ( ! isFinished()) {
+                // runJob didn't set finished on its own
+                setFinished();
+            }
+            GlobalExceptionHandler.handle(e);
+        }
+    }
 
     /**
      * Method getStatus is used to indicate the current status of this long
@@ -53,7 +69,7 @@ public abstract class AbstractJob implements Job{
      */
     public void add(StatusListener listener){
         if(!listeners.contains(listener))
-           listeners.add(listener);
+            listeners.add(listener);
     }
 
     private void fireStatusUpdate(){

@@ -45,7 +45,7 @@ public class UpdateCheckerJob  extends AbstractJob {
         this.prefsName = programName+"_"+NEXT_CHECK_DATE;
     }
 
-    public void run() {
+    public void runJob() {
         // only check if have not yet checked, or if forceCheck is true
         if ( !forceCheck && checkedYet) {
             setFinished();

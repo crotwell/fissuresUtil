@@ -7,7 +7,7 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 
-public interface Job extends Runnable{
+public interface Job {
     /**
      * Method getStatus is used to indicate the current status of this long
      * running process
@@ -18,6 +18,10 @@ public interface Job extends Runnable{
      */
     public String getStatus();
 
+    /** run acts like the run method of Runnable, but is wrapped by the Job
+     * system so that any exceptions are caught and the job is set to
+     * finished. This prevents the "flashing forever" case seen often in GEE. */
+    public void runJob();
 
     /**
      * Method getName returns a name for this process that succinctly describes

@@ -277,7 +277,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
         int consecutiveFailures = 0;
 
-        public void run() {
+        public void runJob() {
             int maxFail = 5;
             setFinished(false);
             consecutiveFailures = 0;
