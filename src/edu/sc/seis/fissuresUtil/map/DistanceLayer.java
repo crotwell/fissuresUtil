@@ -50,7 +50,9 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
      * FIXME: make this work for more than one event
      */
     public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
-        distCircles.clear();
+        synchronized(distCircles){
+            distCircles.clear();
+        }
         try{
             Origin origin = eqSelectionEvent.getEvents()[0].get_preferred_origin();
             LatLonPoint llp = new LatLonPoint(origin.my_location.latitude, origin.my_location.longitude);
@@ -75,7 +77,9 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
      *
      */
     public void eventDataCleared() {
-        distCircles.clear();
+        synchronized(distCircles){
+            distCircles.clear();
+        }
     }
 
     private void makeDistCircle(LatLonPoint llp, double radiusDegrees){
@@ -84,13 +88,19 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
         OMCircle circle = new DistCircle(llp, radiusDegrees);
         LatLonPoint labelPointUp = makeTextLabelLatLon(llp, radiusDegrees, proj, true);
         if (proj.isPlotable(labelPointUp)){
-            distCircles.add(new TextLabel(labelPointUp, Integer.toString((int)radiusDegrees)));
+            synchronized(distCircles){
+                distCircles.add(new TextLabel(labelPointUp, Integer.toString((int)radiusDegrees)));
+            }
         }
         LatLonPoint labelPointDown = makeTextLabelLatLon(llp, radiusDegrees, proj, false);
         if (proj.isPlotable(labelPointDown)){
-            distCircles.add(new TextLabel(labelPointDown, Integer.toString((int)radiusDegrees)));
+            synchronized(distCircles){
+                distCircles.add(new TextLabel(labelPointDown, Integer.toString((int)radiusDegrees)));
+            }
         }
-        distCircles.add(circle);
+        synchronized(distCircles){
+            distCircles.add(circle);
+        }
     }
 
     private void makeDistCircles(LatLonPoint llp){
@@ -100,7 +110,9 @@ public class DistanceLayer extends Layer implements EQSelectionListener, EventDa
     }
 
     public void paint(java.awt.Graphics g){
-        distCircles.render(g);
+        synchronized(distCircles){
+            distCircles.render(g);
+        }
     }
 
     private static LatLonPoint makeTextLabelLatLon(LatLonPoint center, double radiusDegrees, Projection prj, boolean isUpper){
