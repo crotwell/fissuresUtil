@@ -1,17 +1,21 @@
 package edu.sc.seis.fissuresUtil.display;
-import java.awt.geom.*;
-
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
-import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
+import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JComponent;
 import org.apache.log4j.Category;
 
@@ -22,7 +26,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3671 2003-04-13 01:55:40Z crotwell $
+ * @version $Id: SeismogramShape.java 3774 2003-04-29 19:56:54Z groves $
  */
 
 public class SeismogramShape implements Shape, SeisDataChangeListener{
@@ -100,7 +104,7 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
         }else{
             iterator.setSeisPoints(currentIterator.getSeisPoints());
             iterator.setDrawnPixels(currentIterator.getDrawnPixels());
-            iterator.setTotalShift(currentIterator.getTotalShift() + shift);
+            iterator.setTotalShift(currentIterator.getTotalShift());
         }
         iterator.setLeftoverPixels(pixels - shift);
         currentIterator = iterator;
@@ -147,13 +151,27 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
     }
 
     public synchronized void pushData(SeisDataChangeEvent sdce) {
+        LocalSeismogramImpl[] sdceSeis = sdce.getSeismograms();
+        List newUnique = new ArrayList();
+        for(int i = 0; i < sdceSeis.length; i++){
+            boolean matched = false;
+            for(int j = 0; j < seis.length; j++){
+                if(sdceSeis[i].get_id().equals(seis[j].get_id())){
+                    matched = true;
+                    break;
+                }
+            }
+            if(!matched){
+                newUnique.add(sdceSeis[i]);
+            }
+        }
         LocalSeismogramImpl[] tmp =
-            new LocalSeismogramImpl[seis.length+sdce.getSeismograms().length];
+            new LocalSeismogramImpl[seis.length+newUnique.size()];
         Statistics[] tmpStat = new Statistics[tmp.length];
         System.arraycopy(seis, 0, tmp, 0, seis.length);
         System.arraycopy(stat, 0, tmpStat, 0, stat.length);
-        for ( int i=0; i<sdce.getSeismograms().length; i++) {
-            tmp[seis.length+i] = sdce.getSeismograms()[i];
+        for ( int i=0; i<newUnique.size(); i++) {
+            tmp[seis.length+i] = (LocalSeismogramImpl)newUnique.get(i);
             tmpStat[seis.length+i] = new Statistics(tmp[seis.length+i]);
             noData = false;
         } // end of for ()
@@ -203,7 +221,7 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
                 plotExpansion(unroundStartPoint, points, minAmp, range, height, i);
             }else{
                 plotCompression(unroundStartPoint, points, minAmp, range, height,
-                               i, pointsPerPixel);
+                                i, pointsPerPixel);
             }
         }
     }
@@ -213,7 +231,7 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
         int startPoint = (int)Math.floor(unroundStartPoint);
         if(startPoint < 0 && startPoint >= -3) {
             startPoint = 0;//if the base point is off a bit, fudge a little
-         }
+        }
         int endPoint = startPoint + 1;
         double firstPoint = 0;
         double lastPoint = 0;
@@ -294,7 +312,7 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
         }else{
             displayPixels[1] =
                 (int)Math.round((seis[0].getNumPoints() - seisPoints[0])/
-                                seisPointRange * displayWidth);
+                                    seisPointRange * displayWidth);
         }
         iterator.setDrawnPixels(displayPixels);
         return displayPixels;
