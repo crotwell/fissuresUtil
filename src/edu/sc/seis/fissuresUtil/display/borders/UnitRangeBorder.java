@@ -1,48 +1,27 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
-import java.awt.Dimension;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 
-public abstract class UnitRangeBorder extends Border implements TitleProvider{
-    public UnitRangeBorder(int side, int order){
+public class UnitRangeBorder extends AbstractUnitRangeBorder{
+    public UnitRangeBorder(int side, int order, String title){
+        this(side, order, title, DisplayUtils.ONE_RANGE);
+    }
+
+    public UnitRangeBorder(int side, int order, String title,
+                           UnitRangeImpl initialRange){
         super(side, order);
-        add((TitleProvider)this);
-        setPreferredSize(new Dimension(80, 50));
+        this.title = title;
+        setRange(initialRange);
     }
 
-    protected List createFormats() {
-        List formats = new ArrayList();
-        for (int i = 1; i <= 100000000; i *= 10) {
-            formats.add(new UnitRangeFormatter(i, 2));
-            formats.add(new UnitRangeFormatter(i*5, 5));
-        }
-        return formats;
-    }
+    public String getTitle() { return title; }
 
-    public abstract UnitRangeImpl getRange();
+    public UnitRangeImpl getRange(){ return range; }
 
-    public abstract String getTitle();
+    public void setRange(UnitRangeImpl range){ this.range = range; }
 
-    private class UnitRangeFormatter extends BorderFormat{
+    private UnitRangeImpl range;
 
-        public UnitRangeFormatter(double division, int ticksPerDivision){
-            super(division, ticksPerDivision);
-            if (division < 10 && division != 0 ) {
-                // exponential notation
-                df = new DecimalFormat("0.00###");
-            } else {
-                df = new DecimalFormat("#.####");
-            }
-        }
-
-        public String getMaxString() { return df.format(divSize * 10); }
-
-        public String getLabel(double value) { return df.format(value); }
-
-        private DecimalFormat df;
-    }
+    private String title;
 }
-
