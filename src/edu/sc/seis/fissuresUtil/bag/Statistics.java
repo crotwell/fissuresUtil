@@ -11,7 +11,7 @@ import edu.iris.Fissures.FissuresException;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 8832 2004-05-21 02:13:37Z crotwell $
+ * @version $Id: Statistics.java 8873 2004-05-24 15:57:27Z crotwell $
  */
 
 public class Statistics  {
@@ -358,8 +358,8 @@ public class Statistics  {
      */
     public double[] linearLeastSquares() {
         int n = getLength()-1; // use zero based, so n => n-1
-        int sumToN = n*(n+1)/2;
-        int sumSqrToN = n*(n+1)*(2*n+1)/6;
+        double sumToN = 1.0*n*(n+1)/2;
+        double sumSqrToN = 1.0*n*(n+1)*(2*n+1)/6;
 
         double sumValues = binarySum(0, getLength());
         double indexSumValues = binaryIndexSum(0, getLength());
@@ -592,7 +592,7 @@ public class Statistics  {
     }
 
     private double iBinarySum(int start, int finish) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += iSeries[i];
@@ -606,7 +606,7 @@ public class Statistics  {
     }
 
     private double sBinarySum(int start, int finish) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += sSeries[i];
@@ -620,7 +620,7 @@ public class Statistics  {
     }
 
     private double fBinarySum(int start, int finish) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += fSeries[i];
@@ -634,7 +634,7 @@ public class Statistics  {
     }
 
     private double dBinarySum(int start, int finish) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += dSeries[i];
@@ -673,7 +673,7 @@ public class Statistics  {
     }
 
     private double iBinarySumDevSqr(int start, int finish, double mean) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += (iSeries[i]-mean)*(iSeries[i]-mean);
@@ -687,7 +687,7 @@ public class Statistics  {
     }
 
     private double sBinarySumDevSqr(int start, int finish, double mean) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += (sSeries[i]-mean)*(sSeries[i]-mean);
@@ -701,7 +701,7 @@ public class Statistics  {
     }
 
     private double fBinarySumDevSqr(int start, int finish, double mean) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += (fSeries[i]-mean)*(fSeries[i]-mean);
@@ -715,7 +715,7 @@ public class Statistics  {
     }
 
     private double dBinarySumDevSqr(int start, int finish, double mean) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += (dSeries[i]-mean)*(dSeries[i]-mean);
@@ -756,7 +756,7 @@ public class Statistics  {
 
     private double iBinarySumDevLag(int start, int finish,
                                     double mean, int lag) {
-        if (finish-start < lag+8) {
+        if (finish-start < lag+SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish && i<getLength()-lag; i++) {
                 val += (iSeries[i]-mean)*(iSeries[i+lag]-mean);
@@ -771,7 +771,7 @@ public class Statistics  {
 
     private double sBinarySumDevLag(int start, int finish,
                                     double mean, int lag) {
-        if (finish-start < lag+8) {
+        if (finish-start < lag+SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish && i<getLength()-lag; i++) {
                 val += (sSeries[i]-mean)*(sSeries[i+lag]-mean);
@@ -786,7 +786,7 @@ public class Statistics  {
 
     private double fBinarySumDevLag(int start, int finish,
                                     double mean, int lag) {
-        if (finish-start < lag+8) {
+        if (finish-start < lag+SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish && i<getLength()-lag; i++) {
                 val += (fSeries[i]-mean)*(fSeries[i+lag]-mean);
@@ -801,7 +801,7 @@ public class Statistics  {
 
     private double dBinarySumDevLag(int start, int finish,
                                     double mean, int lag) {
-        if (finish-start < lag+8) {
+        if (finish-start < lag+SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish && i<getLength()-lag; i++) {
                 val += (dSeries[i]-mean)*(dSeries[i+lag]-mean);
@@ -840,7 +840,7 @@ public class Statistics  {
     }
 
     private double iBinaryIndexSum(int start, int finish) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += i * iSeries[i];
@@ -854,7 +854,7 @@ public class Statistics  {
     }
 
     private double sBinaryIndexSum(int start, int finish) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += i * sSeries[i];
@@ -868,7 +868,7 @@ public class Statistics  {
     }
 
     private double fBinaryIndexSum(int start, int finish) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += i * fSeries[i];
@@ -882,7 +882,7 @@ public class Statistics  {
     }
 
     private double dBinaryIndexSum(int start, int finish) {
-        if (finish-start < 8) {
+        if (finish-start < SPLIT_SUMMING_LIMIT) {
             double val = 0;
             for (int i=start; i< finish; i++) {
                 val += i * dSeries[i];
@@ -900,103 +900,46 @@ public class Statistics  {
         varianceCalculated = false;
     }
 
-    /**
-     * Describe <code>main</code> method here.
-     *
-     * @param args a <code>String[]</code> value
-     */
-    public static void main(String[] args) {
-        int[] testSeries = new int[10];
-        testSeries[0] = 13;
-        testSeries[1] = 8;
-        testSeries[2] = 15;
-        testSeries[3] = 4;
-        testSeries[4] = 4;
-        testSeries[5] = 12;
-        testSeries[6] = 11;
-        testSeries[7] = 7;
-        testSeries[8] = 14;
-        testSeries[9] = 12;
-        Statistics s = new Statistics(testSeries);
-        System.out.println("Mean = "+s.mean());
-        System.out.println("Variance = "+s.var());
-        double[] testACF = s.acf(5);
-        for (int i=0; i<testACF.length; i++) {
-            System.out.println("acf "+i+" = "+testACF[i]);
-        }
-        double[] testPACF = s.pacf(5);
-        for (int i=0; i<testPACF.length; i++) {
-            System.out.println("pacf "+i+" = "+testPACF[i]);
-        }
-    }
-
-    /**
-     * Describe variable <code>iSeries</code> here.
-     *
-     */
     protected int[] iSeries;
 
-    /**
-     * Describe variable <code>sSeries</code> here.
-     *
-     */
     protected short[] sSeries;
 
-    /**
-     * Describe variable <code>fSeries</code> here.
-     *
-     */
     protected float[] fSeries;
 
-    /**
-     * Describe variable <code>dSeries</code> here.
-     *
-     */
     protected double[] dSeries;
 
     /**
-     * Describe variable <code>minMaxMeanCalculated</code> here.
+     * Has min/max/mean already been calculated and cached.
      *
      */
     protected boolean minMaxMeanCalculated = false;
 
     /**
-     * Describe variable <code>variance</code> here.
-     *
-     */
-    protected double variance;
-    /**
-     * Describe variable <code>varianceCalculated</code> here.
-     *
-     */
-    protected boolean varianceCalculated = false;
-
-    /**
-     * Describe variable <code>autocorrelation</code> here.
-     *
-     */
-    protected double[] autocorrelation = new double[0];
-    /**
-     * Describe variable <code>partialautocorr</code> here.
-     *
-     */
-    protected double[] partialautocorr = new double[0];
-    /**
-     * Describe variable <code>minMaxMean</code> here.
+     * index 0 has min, index 1 has max, index 2 has mean.
      *
      */
     protected double[] minMaxMean = new double[3];
 
+    protected double variance;
     /**
-     * Describe variable <code>beginIndex</code> here.
+     * Has the variable been calculated and cached.
      *
      */
+    protected boolean varianceCalculated = false;
+
+    protected double[] autocorrelation = new double[0];
+
+    protected double[] partialautocorr = new double[0];
+
     protected int beginIndex;
 
-    /**
-     * Describe variable <code>endIndex</code> here.
-     *
-     */
     protected int endIndex;
+
+    /** many methods work by splitting the data array in half and using
+     * recursion to avoid later points not effecting the sums due to
+     * rounding and loss of precision. This specifices the point at which
+     * the array is too short for recursion and we just do a linear sum. This
+     * helps avoid possible stack overflows and possibly with speed. */
+    private static int SPLIT_SUMMING_LIMIT = 16;
 
 } // Statistics
