@@ -2,13 +2,11 @@ package edu.sc.seis.fissuresUtil.bag;
 
 import java.util.ArrayList;
 import java.util.List;
-import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.Sampling;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.SamplingRange;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.TauP.SphericalCoords;
 
 
 /**
