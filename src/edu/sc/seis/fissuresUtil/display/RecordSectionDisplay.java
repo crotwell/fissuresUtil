@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.border.Border;
 
 public class RecordSectionDisplay extends SeismogramDisplay implements TimeListener, AmpListener, LayoutListener{
-
+    
     public RecordSectionDisplay(){
         setLayout(new BorderLayout());
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
@@ -35,7 +35,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                     }
                 });
     }
-
+    
     public RecordSectionDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
                                 AmpConfig ac){
         this();
@@ -43,14 +43,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         setAmpConfig(ac);
         add(seismos);
     }
-
+    
     public void scalingChanged(double newScaling){
         scaling = newScaling;
         if(layout != null){
             layout.setScale(newScaling/10);
         }
     }
-
+    
     public synchronized void add(DataSetSeismogram[] seismos){
         if(tc == null){
             setTimeConfig(new RelativeTimeConfig());
@@ -83,24 +83,24 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         }
         revalidate();
     }
-
+    
     public void add(Drawable drawable){
         if(!drawables.contains(drawable)){
             drawables.add(drawable);
             repaint();
         }
     }
-
+    
     public void remove(Drawable drawable){
         drawables.remove(drawable);
     }
-
+    
     public DrawableIterator getDrawables(MouseEvent e) {
         Insets insets = getInsets();
         return getDrawables(e.getX() - insets.left,
                             e.getY() - insets.top);
     }
-
+    
     public void setTimeConfig(TimeConfig tc) {
         if(this.tc != null){
             this.tc.removeListener(this);
@@ -115,9 +115,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         resize();
         this.tc = tc;
     }
-
+    
     public TimeConfig getTimeConfig(){ return tc; }
-
+    
     public void setAmpConfig(AmpConfig ac){
         if(this.ac != null){
             this.ac.removeListener(this);
@@ -131,17 +131,17 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         ac.addListener(this);
         ac.add(getSeismograms());
     }
-
+    
     public void setGlobalizedAmpConfig(AmpConfig ac){
         setAmpConfig(ac);
     }
-
+    
     public void setIndividualizedAmpConfig(AmpConfig ac){
         setAmpConfig(new IndividualizedAmpConfig(ac));
     }
-
+    
     public AmpConfig getAmpConfig(){ return ac; }
-
+    
     public void setLayout(LayoutConfig layout){
         if(this.layout != null){
             this.layout.removeListener(this);
@@ -156,16 +156,16 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         layout.addListener(this);
         this.layout = layout;
     }
-
+    
     public synchronized DataSetSeismogram[] getSeismograms() {
         return drawableToDataSet(drawables);
     }
-
-
+    
+    
     public DrawableIterator iterator(Class drawableClass) {
         return new DrawableIterator(drawableClass, drawables);
     }
-
+    
     private DataSetSeismogram[] drawableToDataSet(List drawables){
         List dataSetSeis = new ArrayList();
         Iterator it = new DrawableIterator(DrawableSeismogram.class, drawables);
@@ -176,21 +176,21 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         dataSetSeis.toArray(seis);
         return seis;
     }
-
+    
     public void reset() {
         tc.reset();
         ac.reset();
     }
-
+    
     public void reset(DataSetSeismogram[] seismos) {
         tc.reset(seismos);
         ac.reset(seismos);
     }
-
+    
     public synchronized void clear() {
         removeAll();
     }
-
+    
     public synchronized void removeAll(){
         layout = null;
         tc = null;
@@ -201,7 +201,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         painter = null;
         super.removeAll();
     }
-
+    
     public synchronized void remove(DataSetSeismogram[] seismos) {
         List removed = new ArrayList();
         for (int i = 0; i < seismos.length; i++){
@@ -220,7 +220,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         ac.remove(removedSeis);
         layout.remove(removedSeis);
     }
-
+    
     public synchronized boolean contains(DataSetSeismogram seismo) {
         DataSetSeismogram[] seismos = getSeismograms();
         for (int i = 0; i < seismos.length; i++){
@@ -230,22 +230,22 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         }
         return false;
     }
-
+    
     public void updateTime(TimeEvent event) {
         timeEvent = event;
         repaint();
     }
-
+    
     public void updateAmp(AmpEvent event) {
         ampEvent = event;
         repaint();
     }
-
+    
     public void updateLayout(LayoutEvent event) {
         curLayoutEvent = event;
         repaint();
     }
-
+    
     public void drawSeismograms(Graphics2D g2, Dimension size){
         synchronized(this){
             int width = size.width;
@@ -259,8 +259,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                 LayoutData current = (LayoutData)it.next();
                 double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
                 int drawHeight = (int)((current.getEnd() - current.getStart())*height);
+                //If the draw height is less than 40, change the scale so that
+                //it is
                 if(drawHeight < 40){
-                    drawHeight = 40;
+                    double percentIncreaseNeeded = 41/(double)drawHeight;
+                    System.out.println(percentIncreaseNeeded);
+                    scalingChanged(scaling * percentIncreaseNeeded);
+                    return;
                 }
                 double neededYPos = midPoint - drawHeight/2;
                 if(neededYPos < 0){
@@ -287,7 +292,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
             }
         }
     }
-
+    
     public DrawableIterator getDrawables(int x, int y){
         Iterator it = drawablePositions.keySet().iterator();
         List drawablesIntersected = new ArrayList();
@@ -300,9 +305,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         }
         return new DrawableIterator(Drawable.class, drawablesIntersected);
     }
-
+    
     private Map drawablePositions = new HashMap();
-
+    
     public DrawableSeismogram toDrawable(DataSetSeismogram seis){
         Iterator it = new DrawableIterator(DrawableSeismogram.class,
                                            drawables);
@@ -315,15 +320,15 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         }
         return current;
     }
-
-
+    
+    
     private class DrawablePainter extends JComponent{
         public void paintComponent(Graphics g){
             drawSeismograms((Graphics2D)g,getSize());
         }
-
+        
     }
-
+    
     protected synchronized void resize(){
         Insets insets = getInsets();
         Dimension d = getSize();
@@ -335,48 +340,49 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         if(timeScaleMap != null) timeScaleMap.setTotalPixels(d.width);
         if(distanceScaler != null) distanceScaler.setTotalPixels(d.height);
     }
-
+    
     public void print() {
         JOptionPane.showMessageDialog(this,
                                       "Sorry!  Record section output to PDF is not available in this version of GEE.\nThis feature will be added in a future release.",
                                       "Not available in this version",
                                       JOptionPane.INFORMATION_MESSAGE);
-            // TODO
+        // TODO
     }
-
+    
     public void setParticleAllowed(boolean allowed) {
         // TODO
     }
-
+    
     private SeismogramDisplayRemovalBorder displayRemover;
-
+    
     private List drawables = new ArrayList();
-
+    
     private TimeConfig tc;
-
+    
     private AmpConfig ac;
-
+    
     private LayoutConfig layout;
-
+    
     private AmpEvent ampEvent;
-
+    
     private TimeEvent timeEvent;
-
+    
     private LayoutEvent curLayoutEvent = LayoutEvent.EMPTY_EVENT;
-
+    
     private TimeScaleCalc timeScaleMap;
-
+    
     private DistanceScaleMapper distanceScaler;
-
+    
     private ScaleBorder border;
-
+    
     private DrawablePainter painter;
-
+    
     private double scaling = LayoutScaler.INITIAL_SCALE;
-
+    
     private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
-
+    
     private Border etched  = BorderFactory.createEtchedBorder();
-
+    
     private Border loweredBevel = BorderFactory.createLoweredBevelBorder();
 }
+
