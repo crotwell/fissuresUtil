@@ -1,11 +1,8 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
+import edu.sc.seis.fissuresUtil.display.*;
+
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
-import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -14,7 +11,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import javax.swing.JComponent;
 import org.apache.log4j.Logger;
 
 /**
@@ -24,12 +20,12 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 4455 2003-06-18 17:17:05Z groves $
+ * @version $Id: SeismogramShape.java 4546 2003-06-26 13:49:55Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
 
-    public SeismogramShape(JComponent parent, DataSetSeismogram seis){
+    public SeismogramShape(SeismogramDisplay parent, DataSetSeismogram seis){
         this.parent = parent;
         this.container = new SeismogramContainer(seis);
         container.addListener(this);
@@ -327,7 +323,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         return container.getDataSetSeismogram();
     }
 
-    private JComponent parent;
+    private SeismogramDisplay parent;
 
     private SeismogramShapeIterator currentIterator;
 

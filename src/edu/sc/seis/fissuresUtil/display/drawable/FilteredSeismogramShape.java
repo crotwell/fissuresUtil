@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.FilteredDataSetSeismogram;
-import javax.swing.JComponent;
 
 /**
  * FilteredSeismogramShape.java
@@ -17,7 +17,7 @@ import javax.swing.JComponent;
 public class FilteredSeismogramShape extends SeismogramShape {
     public FilteredSeismogramShape(ColoredFilter filter,
                                    DataSetSeismogram seismogram,
-                                   JComponent parent){
+                                   SeismogramDisplay parent){
         super(parent, new FilteredDataSetSeismogram(seismogram, filter));
     }
 
