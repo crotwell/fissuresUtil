@@ -22,7 +22,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
                                  SeismogramFileTypes fileType,
                                  DataSet dataSet,
                                  String name){
-        this.name = name;
+        setName(name);
         this.url = url;
         this.fileType = fileType;
         this.dataSet = dataSet;
