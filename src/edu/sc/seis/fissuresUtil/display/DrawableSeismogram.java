@@ -46,6 +46,7 @@ public class DrawableSeismogram implements NamedPlotter{
     public boolean getVisiblity(){ return visible; }
 
     public void toggleVisibility(){
+        setVisibility(!visible);
     }
 
     public void draw(Graphics2D canvas,
@@ -86,6 +87,5 @@ public class DrawableSeismogram implements NamedPlotter{
     protected SeismogramShape shape;
 
     private boolean visible = true;
-
 }
 
