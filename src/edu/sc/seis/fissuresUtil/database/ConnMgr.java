@@ -72,24 +72,24 @@ public class ConnMgr {
         if(in != null) existing.load(in);
     }
 
-    public static void setDB(Properties props) {
-        ConnMgr.props = props;
+    public static void setDB(Properties newprops) {
+        props = newprops;
     }
 
     public static boolean hasSQL(String key) {
-        return props.containsKey(key);
+        return getProps().containsKey(key);
     }
 
     public static String getSQL(String key) {
-        String SQL = props.getProperty(key);
+        String SQL = getProps().getProperty(key);
         if(SQL == null) { throw new IllegalArgumentException("No such sql entry "
                 + key
                 + " Make sure the properties files are in the jars and are being loaded"); }
-        return props.getProperty(key);
+        return SQL;
     }
 
     private static String getDriver() {
-        return props.getProperty("driver");
+        return getProps().getProperty("driver");
     }
 
     public static void setURL(String url) {
@@ -97,19 +97,19 @@ public class ConnMgr {
     }
 
     public static String getURL() {
-        if(url == null) url = props.getProperty("URL");
+        if(url == null) url = getProps().getProperty("URL");
         return url;
     }
 
     private static String getPass() {
-        return props.getProperty("password");
+        return getProps().getProperty("password");
     }
 
     private static String getUser() {
-        return props.getProperty("user");
+        return getProps().getProperty("user");
     }
 
-    public static Connection createConnection() throws SQLException {
+    private static Properties getProps() {
         synchronized(ConnMgr.class) {
             if(props == null) {
                 try {
@@ -117,6 +117,10 @@ public class ConnMgr {
                 } catch(IOException e) {}
             }
         }
+        return props;
+    }
+    
+    public static Connection createConnection() throws SQLException {
         try {
             Class.forName(getDriver()).newInstance();
         } catch(Exception e) {
