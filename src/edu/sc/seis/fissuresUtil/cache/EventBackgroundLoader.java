@@ -5,6 +5,7 @@ import edu.iris.Fissures.IfEvent.*;
 import edu.iris.Fissures.event.*;
 import java.util.*;
 import javax.swing.table.*;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * EventBackgroundLoader.java
@@ -19,47 +20,47 @@ import javax.swing.table.*;
 public class EventBackgroundLoader {
 
     public EventBackgroundLoader(EventBackgroundLoaderPool pool) {
-    this.pool = pool;
+        this.pool = pool;
 
-    Runnable r = new Runnable() {
-        public void run() {
-            try {
-            runWork();
-            } catch (Exception e) {
-            e.printStackTrace();
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    runWork();
+                } catch (Exception e) {
+                    GlobalExceptionHandler.handle(e);
+                }
             }
-        }
         };
-    privateThread = new Thread(eventLoaderThreadGroup,
-                               r,
-                               "EventLoader"+getThreadNum());
-    privateThread.start();
+        privateThread = new Thread(eventLoaderThreadGroup,
+                                   r,
+                                   "EventLoader"+getThreadNum());
+        privateThread.start();
     }
 
     public void runWork() {
 
-    EventQueueElement q;
-    EventAttr attr;
-    Origin origin;
-    while (noStopThread) {
-        try {
-        q = pool.getFromQueue();
-        attr = q.getCache().get_attributes();
-        try {
-            origin = q.getCache().get_preferred_origin();
-        } catch (NoPreferredOrigin ee) {
-        }
-        q.listener.eventLoaded(q.getCache());
-        if (pool == null) System.out.println("pool is null!");
-        pool.fireEventLoaded(q.getCache());
-        } catch (InterruptedException e) {
+        EventQueueElement q;
+        EventAttr attr;
+        Origin origin;
+        while (noStopThread) {
+            try {
+                q = pool.getFromQueue();
+                attr = q.getCache().get_attributes();
+                try {
+                    origin = q.getCache().get_preferred_origin();
+                } catch (NoPreferredOrigin ee) {
+                }
+                q.listener.eventLoaded(q.getCache());
+                if (pool == null) System.out.println("pool is null!");
+                pool.fireEventLoaded(q.getCache());
+            } catch (InterruptedException e) {
 
+            }
         }
-    }
     }
 
     public void stopThread() {
-    noStopThread = false;
+        noStopThread = false;
     }
 
     private Thread privateThread;
