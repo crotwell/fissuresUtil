@@ -116,6 +116,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
     public void add(Drawable drawable) {
         if(!drawables.contains(drawable)) {
             drawables.add(drawable);
+            if(hasConfiguredColors(drawable.getClass())) {
+                drawable.setColor(getNextColor(drawable.getClass()));
+            }
             repaint();
         }
     }
@@ -276,7 +279,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
             repaint();
         }
     }
-    
+
     public void print() {
         parent.print();
     }
@@ -350,7 +353,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
                                    (int)(size.width - stringBounds.getWidth()),
                                    size.height - 3);
                 g2.setFont(DisplayUtils.DEFAULT_FONT);
-            } else if(current instanceof NamedDrawable) {
+            } else if(drawNamesForNamedDrawables
+                    && current instanceof NamedDrawable) {
                 Rectangle2D drawnSize = ((NamedDrawable)current).drawName(g2,
                                                                           5,
                                                                           (int)topLeftFilled.getHeight());
@@ -379,7 +383,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
         public SeismogramDisplay provide() {
             return BasicSeismogramDisplay.this;
         }
-        
+
         public void paintComponent(Graphics g) {
             drawSeismograms((Graphics2D)g, getSize());
         }
