@@ -17,7 +17,7 @@ import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModelException;
 
 /** Calculates a signal to noise ration around a phase. The short time window
- * (numerator of the ratio) is given by the variance of the section of the seismogram
+ * (numerator of the ratio) is given by the standard deviation of the section of the seismogram
  * from phase + shortOffsetBegin to phase + shortOffsetEnd. The long time
  * window (demominator of the ratio) is similar. The first arriving phase of
  * the calculated arrivals is used. */
@@ -89,9 +89,9 @@ public class SimplePhaseStoN {
         if (shortSeis == null || longSeis == null) { return null; }
 
         Statistics shortStat = new Statistics(shortSeis);
-        double numerator = shortStat.var();
+        double numerator = shortStat.stddev();
         Statistics longStat = new Statistics(longSeis);
-        double denominator = longStat.var();
+        double denominator = longStat.stddev();
 
         Arrival[] arrivals = taup.calcTravelTimes(stationLoc, origin, new String[] {phase});
         MicroSecondDate phaseTime = null;
