@@ -26,7 +26,7 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class Selection implements TimeListener, Plotter{
+public abstract class Selection implements TimeListener, Plotter{
     public Selection (MicroSecondDate begin, MicroSecondDate end, Registrar reg, DataSetSeismogram[] seismograms, 
 		      BasicSeismogramDisplay parent, Color color){
 	if ( end.equals(begin)) {
@@ -74,6 +74,7 @@ public class Selection implements TimeListener, Plotter{
 	    canvas.draw(selection);
 	    canvas.setPaint(color.darker());
 	    canvas.draw(selection);
+	    logger.debug("Finished drawing selection");
 	} 
     }
     
