@@ -2,9 +2,9 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 
 
 public interface LayoutConfig extends DataSetSeismogramReceptacle{
-    
+
     public String getLabel();
-    
+
     public void addListener(LayoutListener listener);
 
     public void removeListener(LayoutListener listener);
@@ -20,6 +20,8 @@ public interface LayoutConfig extends DataSetSeismogramReceptacle{
      * the seismograms contained in its getSeismograms() method
      */
     public LayoutEvent generateLayoutEvent();
+
+    public LayoutEvent getLayout();
 
     /**
      *sets the amount by which every seismogram in the layout is being scaled

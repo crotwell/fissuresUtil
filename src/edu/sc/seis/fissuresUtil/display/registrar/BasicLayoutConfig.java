@@ -13,31 +13,31 @@ import javax.swing.JOptionPane;
 
 public class BasicLayoutConfig implements LayoutConfig{
     public BasicLayoutConfig(){ }
-    
+
     public BasicLayoutConfig(DataSetSeismogram[] seismos){
         add(seismos);
     }
-    
+
     public synchronized void addListener(LayoutListener listener) {
         listeners.add(listener);
         fireLayoutEvent();
     }
-    
+
     public synchronized void removeListener(LayoutListener listener) {
         listeners.remove(listener);
     }
-    
+
     public void fireLayoutEvent(){
         fireLayoutEvent(generateLayoutEvent());
     }
-    
+
     private synchronized void fireLayoutEvent(LayoutEvent event) {
         Iterator it = listeners.iterator();
         while(it.hasNext()){
             ((LayoutListener)it.next()).updateLayout(event);
         }
     }
-    
+
     /*
      *Checks the given seismograms for already being in the config, and if not,
      *adds them and fires a new LayoutEvent with them
@@ -61,7 +61,7 @@ public class BasicLayoutConfig implements LayoutConfig{
             fireLayoutEvent();
         }
     }
-    
+
     /**
      *Attempts to remove all given seismograms from this Config.  If any are
      * removed, a layout event is fired
@@ -82,33 +82,33 @@ public class BasicLayoutConfig implements LayoutConfig{
             fireLayoutEvent();
         }
     }
-    
+
     public synchronized boolean contains(DataSetSeismogram seismo) {
         if(seis.contains(seismo)){
             return true;
         }
         return false;
     }
-    
+
     public synchronized void clear() {
         if(seis.size() > 0){
             seis.clear();
             fireLayoutEvent();
         }
     }
-    
+
     public DataSetSeismogram[] getSeismograms() {
         return (DataSetSeismogram[])seis.toArray(new DataSetSeismogram[seis.size()]);
     }
-    
+
     public String getLabel(){ return "Distance (Degrees)"; }
-    
+
     public void reset() {
         DataSetSeismogram[] seismograms = getSeismograms();
         seis.clear();
         add(seismograms);
     }
-    
+
     public void reset(DataSetSeismogram[] seismos) {
         List reset = new ArrayList();
         for (int i = 0; i < seismos.length; i++){
@@ -119,11 +119,11 @@ public class BasicLayoutConfig implements LayoutConfig{
         }
         add((DataSetSeismogram[])reset.toArray(new DataSetSeismogram[reset.size()]));
     }
-    
+
     public double getScale() {
         return scale;
     }
-    
+
     /**
      *sets the amount by which every seismogram in the layout is being scaled
      *@param scale - the factor by which the seismogram height is multiplied
@@ -134,7 +134,7 @@ public class BasicLayoutConfig implements LayoutConfig{
             fireLayoutEvent();
         }
     }
-    
+
     public synchronized LayoutEvent generateLayoutEvent(){
         DataSetSeismogram[] seis = getSeismograms();
         if(seis.length > 0){
@@ -170,7 +170,8 @@ public class BasicLayoutConfig implements LayoutConfig{
                 }
                 double dist = ((QuantityImpl)valueMap.get(orderedSeis.get(0))).getValue();
                 UnitRangeImpl range = new UnitRangeImpl(dist - 2, dist + 2, UnitImpl.DEGREE);
-                return new LayoutEvent(data, range);
+                lastEvent = new LayoutEvent(data, range);
+                return lastEvent;
             }
             double offset = minDistBetween * scale/2;
             double startDist =  ((QuantityImpl)valueMap.get(orderedSeis.get(0))).getValue() - offset;
@@ -185,19 +186,25 @@ public class BasicLayoutConfig implements LayoutConfig{
                 data[i] = new LayoutData(cur,
                                          centerPercentage - percentageOffset,
                                          centerPercentage + percentageOffset);
-                
+
             }
             UnitRangeImpl range = new UnitRangeImpl(startDist, endDist, UnitImpl.DEGREE);
-            return new LayoutEvent(data, range);
+            lastEvent = new  LayoutEvent(data, range);
+            return lastEvent;
         }
-        return LayoutEvent.EMPTY_EVENT;
+        lastEvent = LayoutEvent.EMPTY_EVENT;
+        return lastEvent;
     }
-    
+
+    public LayoutEvent getLayout(){ return lastEvent; }
+
+    private LayoutEvent lastEvent = LayoutEvent.EMPTY_EVENT;
+
     protected Map valueMap = new HashMap();
-    
+
     private Set listeners = new HashSet();
-    
+
     protected List seis =  new ArrayList();
-    
+
     private double scale = 1;
 }
