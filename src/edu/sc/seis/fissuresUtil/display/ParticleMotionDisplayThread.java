@@ -164,16 +164,7 @@ public class ParticleMotionDisplayThread{
 
 
 
-	edu.iris.Fissures.Time startTime;
-	edu.iris.Fissures.Time endTime;
 	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
-	if(timeConfigRegistrar != null) {
-	    startTime = timeConfigRegistrar.getTimeRange().getBeginTime().getFissuresTime();
-	    endTime = timeConfigRegistrar.getTimeRange().getEndTime().getFissuresTime();
-	} else {
-	    startTime = seis.getBeginTime().getFissuresTime();
-	    endTime = seis.getEndTime().getFissuresTime();
-	}
 	try {
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
 		
