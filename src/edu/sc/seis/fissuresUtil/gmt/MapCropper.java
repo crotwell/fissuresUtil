@@ -58,12 +58,14 @@ public class MapCropper {
                                   region,
                                   "t0.4",
                                   "0/0/255",
+                                  "5/255",
                                   stationCoords);
             PSXYExecute.addPoints("world.ps",
                                   projection,
                                   region,
                                   "c0.7",
-                                  "255/0/0",
+                                  null,
+                                  "12/255/0/0",
                                   eventCoords);
             int[][] rawStationPoints = MapProjectExecute.forward(projection, region, stationCoords);
             int[][] rawEventPoints = MapProjectExecute.forward(projection, region, eventCoords);
