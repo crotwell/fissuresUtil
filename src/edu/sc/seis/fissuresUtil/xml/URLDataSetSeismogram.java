@@ -420,7 +420,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                 Element prop = doc.createElement("property");
                 XMLProperty.insert(prop, (String)next, (String)getAuxillaryData(next));
             } else {
-                System.out.println("try to save aux data "+
+                logger.warn("try to save aux data "+
                                        next+" "+
                                        getAuxillaryData(next).getClass()+": "+getAuxillaryData(next)+
                                        " but only know how to save strings.");

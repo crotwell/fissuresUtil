@@ -72,7 +72,7 @@ public class FissuresToWAV {
         AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, true, false);
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
         if (!AudioSystem.isLineSupported(info)) {
-            System.out.println("Line not supported, apparently...");
+            logger.debug("Line not supported, apparently...");
         }
         // Obtain and open the line.
         try {
@@ -190,15 +190,15 @@ public class FissuresToWAV {
     }
 
     public int calculateSampleRate(SamplingImpl sampling){
-        System.out.println(sampling);
+        logger.debug(sampling);
         QuantityImpl freq = sampling.getFrequency();
         freq = freq.convertTo(UnitImpl.HERTZ);
         int sampleRate = (int)(freq.getValue() * speedUp);
         while (sampleRate > 48000){
             setSpeedUp(speedUp/2);
-            System.out.println("speedUp = " + speedUp);
+            logger.debug("speedUp = " + speedUp);
             sampleRate = (int)(freq.getValue() * speedUp);
-            System.out.println("sampleRate = " + sampleRate);
+            logger.debug("sampleRate = " + sampleRate);
         }
         return sampleRate;
     }

@@ -4,6 +4,7 @@ import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
 
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ComponentAdapter;
@@ -512,8 +513,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
             drawables.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
         }
         catch(NullPointerException e){
-            System.out.println("Sample Rate cannot be calculated, so sound is not permitted.");
-            e.printStackTrace();
+            GlobalExceptionHandler.handleStatic("Sample Rate cannot be calculated, so sound is not permitted.", e);
         }
     }
 

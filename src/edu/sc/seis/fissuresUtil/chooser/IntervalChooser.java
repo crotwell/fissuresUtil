@@ -24,8 +24,8 @@ public class IntervalChooser extends JPanel{
      *
      */
     public IntervalChooser (){
-	initFrame();
-	setEditable(true);
+    initFrame();
+    setEditable(true);
     }
 
     /**
@@ -35,9 +35,9 @@ public class IntervalChooser extends JPanel{
      */
     public IntervalChooser(IntervalChooserOptions[] options) {
 
-	initFrame();
-	populateUnits(options);
-	setEditable(true);
+    initFrame();
+    populateUnits(options);
+    setEditable(true);
     }
 
     /**
@@ -46,24 +46,24 @@ public class IntervalChooser extends JPanel{
      */
     private void initFrame() {
     
-	bagLayout = new GridBagLayout();
-	constraints = new GridBagConstraints();
-	valueBox = new JComboBox();
-	unitBox = new JComboBox();
+    bagLayout = new GridBagLayout();
+    constraints = new GridBagConstraints();
+    valueBox = new JComboBox();
+    unitBox = new JComboBox();
 
-	constraints.weightx = 1.0;
-	constraints.weighty = 1.0;
-	constraints.gridx = 0;
-	constraints.gridy = 0;
-	constraints.fill = constraints.BOTH;
-	this.setLayout(bagLayout);
+    constraints.weightx = 1.0;
+    constraints.weighty = 1.0;
+    constraints.gridx = 0;
+    constraints.gridy = 0;
+    constraints.fill = constraints.BOTH;
+    this.setLayout(bagLayout);
 
-	bagLayout.setConstraints(valueBox, constraints);
-	this.add(valueBox);
+    bagLayout.setConstraints(valueBox, constraints);
+    this.add(valueBox);
 
-	constraints.gridx = constraints.gridx + 1;
-	bagLayout.setConstraints(unitBox, constraints);
-	this.add(unitBox);
+    constraints.gridx = constraints.gridx + 1;
+    bagLayout.setConstraints(unitBox, constraints);
+    this.add(unitBox);
 
     }
 
@@ -72,36 +72,36 @@ public class IntervalChooser extends JPanel{
      */
 
     private void populateValues(IntervalChooserOptions option) {
-	/*int tempValue = valueBox.getSelectedIndex();
-	valueBox.removeAllItems();
-	int minValue = option.getMinimumValue();
-	int maxValue = option.getMaximumValue();
-	for(int counter = minValue; counter <= maxValue; counter++) {
-	
-	    valueBox.addItem(new String(new Integer(counter).toString()));
+    /*int tempValue = valueBox.getSelectedIndex();
+    valueBox.removeAllItems();
+    int minValue = option.getMinimumValue();
+    int maxValue = option.getMaximumValue();
+    for(int counter = minValue; counter <= maxValue; counter++) {
+    
+        valueBox.addItem(new String(new Integer(counter).toString()));
 
-	}
-	if(tempValue > maxValue) tempValue = maxValue;
-	valueBox.setSelectedIndex(tempValue);
-	*/
+    }
+    if(tempValue > maxValue) tempValue = maxValue;
+    valueBox.setSelectedIndex(tempValue);
+    */
 
-	for(int counter = -100; counter <= -10; counter = counter+10) {
+    for(int counter = -100; counter <= -10; counter = counter+10) {
 
-	    valueBox.addItem(new String(Integer.toString(counter)));
-	}
-	for(int counter = -9; counter <= 0; counter = counter + 1) {
+        valueBox.addItem(new String(Integer.toString(counter)));
+    }
+    for(int counter = -9; counter <= 0; counter = counter + 1) {
 
-	    valueBox.addItem(new String(Integer.toString(counter)));
-	}
+        valueBox.addItem(new String(Integer.toString(counter)));
+    }
 
-	for(int counter = 1; counter <= 10; counter++) {
+    for(int counter = 1; counter <= 10; counter++) {
 
-	    valueBox.addItem(new String(Integer.toString(counter)));
-	}
-	for(int counter = 20; counter <= 100; counter = counter + 10) {
+        valueBox.addItem(new String(Integer.toString(counter)));
+    }
+    for(int counter = 20; counter <= 100; counter = counter + 10) {
 
-	    valueBox.addItem(new String(Integer.toString(counter)));
-	}
+        valueBox.addItem(new String(Integer.toString(counter)));
+    }
     }
 
     /*
@@ -110,34 +110,33 @@ public class IntervalChooser extends JPanel{
 
     private void populateUnits(IntervalChooserOptions[] options) {
     
-	for( int counter = 0; counter < options.length; counter++) {
+    for( int counter = 0; counter < options.length; counter++) {
 
-	    unitBox.addItem(options[counter]);
+        unitBox.addItem(options[counter]);
 
-	}
-	unitBox.setSelectedIndex(1);
-	populateValues(options[1]);
-	valueBox.setSelectedIndex(9);
-	unitBox.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    JComboBox cb = (JComboBox)e.getSource();
-		    IntervalChooserOptions newSelection = (IntervalChooserOptions)cb.getSelectedItem();
-		    System.out.println("The new value selected is "+newSelection.getIntervalChooserValue());
-		    // populateValues(newSelection);
+    }
+    unitBox.setSelectedIndex(1);
+    populateValues(options[1]);
+    valueBox.setSelectedIndex(9);
+    unitBox.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            JComboBox cb = (JComboBox)e.getSource();
+            IntervalChooserOptions newSelection = (IntervalChooserOptions)cb.getSelectedItem();
+            // populateValues(newSelection);
               
-		}
+        }
 
-	    });
+        });
 
     }
     /**
-     * this method is used to set if the value displayed in the interval chooser is 
+     * this method is used to set if the value displayed in the interval chooser is
      * editable or not.
      *
      * @param bool a <code>boolean</code> value
      */
     public void setEditable(boolean bool) {
-	valueBox.setEditable(bool);
+    valueBox.setEditable(bool);
     }
 
     /**
@@ -147,9 +146,9 @@ public class IntervalChooser extends JPanel{
      * @param option an <code>IntervalChooserOptions</code> value
      */
     public void setDefault(int index, IntervalChooserOptions option) {
-	
-	unitBox.setSelectedItem(option);
-	valueBox.setSelectedIndex(index + 1);
+    
+    unitBox.setSelectedItem(option);
+    valueBox.setSelectedIndex(index + 1);
 
     }
 
@@ -157,7 +156,7 @@ public class IntervalChooser extends JPanel{
     
     public void setSelectedValue(int value) {
 
-	valueBox.setSelectedItem(String.valueOf(value));
+    valueBox.setSelectedItem(String.valueOf(value));
     }
 
     /**
@@ -166,85 +165,85 @@ public class IntervalChooser extends JPanel{
      * @return a <code>TimeInterval</code> value
      */
     public TimeInterval getInterval() {
-	
-	int intervalValue;
-	TimeInterval interval = null;
-	try {
-	    
-	    intervalValue = Integer.parseInt((String)valueBox.getSelectedItem());
+    
+    int intervalValue;
+    TimeInterval interval = null;
+    try {
+        
+        intervalValue = Integer.parseInt((String)valueBox.getSelectedItem());
 
-	} catch(NumberFormatException nfe) {
-	    intervalValue = 0;
-	}
-	IntervalChooserOptions option = (IntervalChooserOptions)unitBox.getSelectedItem();
-	int unitValue = option.getIntervalChooserValue();
-	
-	if( unitValue == 0 ) { 
-	    interval = new TimeInterval(intervalValue, UnitImpl.SECOND);
-	}
-	else if(unitValue == 1 ) {
-	    interval = new TimeInterval(intervalValue, UnitImpl.MINUTE);
-	}
-	else if(unitValue == 2 ) {
-	    interval = new TimeInterval(intervalValue, UnitImpl.HOUR);
-	}
-	else if(unitValue == 3) {
-	    interval = new TimeInterval(intervalValue, UnitImpl.DAY);
-	}
-	else if(unitValue == 4){
-	    interval = new TimeInterval(intervalValue * 30, UnitImpl.DAY);
-	}
-	else if(unitValue == 5) {
-	    interval = new TimeInterval(intervalValue * 365, UnitImpl.DAY);
-	}
-	
-	return interval;
+    } catch(NumberFormatException nfe) {
+        intervalValue = 0;
+    }
+    IntervalChooserOptions option = (IntervalChooserOptions)unitBox.getSelectedItem();
+    int unitValue = option.getIntervalChooserValue();
+    
+    if( unitValue == 0 ) {
+        interval = new TimeInterval(intervalValue, UnitImpl.SECOND);
+    }
+    else if(unitValue == 1 ) {
+        interval = new TimeInterval(intervalValue, UnitImpl.MINUTE);
+    }
+    else if(unitValue == 2 ) {
+        interval = new TimeInterval(intervalValue, UnitImpl.HOUR);
+    }
+    else if(unitValue == 3) {
+        interval = new TimeInterval(intervalValue, UnitImpl.DAY);
+    }
+    else if(unitValue == 4){
+        interval = new TimeInterval(intervalValue * 30, UnitImpl.DAY);
+    }
+    else if(unitValue == 5) {
+        interval = new TimeInterval(intervalValue * 365, UnitImpl.DAY);
+    }
+    
+    return interval;
     }
 
     /**
-     * This method adds the current value displayed in the intervalchooser, to the date passed to it 
+     * This method adds the current value displayed in the intervalchooser, to the date passed to it
      * and returns the resultant date.
      *
      * @param date a <code>Date</code> value
      * @return a <code>Date</code> value
      */
     public Date addTo(Date date) {
-	
-	Calendar calendar = Calendar.getInstance(); 
-	calendar.setTime(date);
-	int rollBackValue;
-	try {
-	    
-	    rollBackValue = Integer.parseInt((String)valueBox.getSelectedItem());
+    
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    int rollBackValue;
+    try {
+        
+        rollBackValue = Integer.parseInt((String)valueBox.getSelectedItem());
 
-	} catch(NumberFormatException nfe) {
+    } catch(NumberFormatException nfe) {
 
-	    rollBackValue = 0;
-	}
-	IntervalChooserOptions option = (IntervalChooserOptions)unitBox.getSelectedItem();
-	
-	int unitValue = option.getIntervalChooserValue();
-	
-	if( unitValue == 0 ) { 
-	    calendar.add(Calendar.SECOND, rollBackValue);
-	}
-	else if(unitValue == 1 ) {
-	    calendar.add(Calendar.MINUTE, rollBackValue);
-	}
-	else if(unitValue == 2 ) {
-	    calendar.add(Calendar.HOUR, rollBackValue);
-	}
-	else if(unitValue == 3) {
-	    calendar.add(Calendar.DAY_OF_YEAR, rollBackValue);
-	}
-	else if(unitValue == 4){
-	    calendar.add(Calendar.MONTH, rollBackValue);
-	}
-	else if(unitValue == 5) {
-	    calendar.add(Calendar.YEAR, rollBackValue);
-	}
-	
-	return calendar.getTime();
+        rollBackValue = 0;
+    }
+    IntervalChooserOptions option = (IntervalChooserOptions)unitBox.getSelectedItem();
+    
+    int unitValue = option.getIntervalChooserValue();
+    
+    if( unitValue == 0 ) {
+        calendar.add(Calendar.SECOND, rollBackValue);
+    }
+    else if(unitValue == 1 ) {
+        calendar.add(Calendar.MINUTE, rollBackValue);
+    }
+    else if(unitValue == 2 ) {
+        calendar.add(Calendar.HOUR, rollBackValue);
+    }
+    else if(unitValue == 3) {
+        calendar.add(Calendar.DAY_OF_YEAR, rollBackValue);
+    }
+    else if(unitValue == 4){
+        calendar.add(Calendar.MONTH, rollBackValue);
+    }
+    else if(unitValue == 5) {
+        calendar.add(Calendar.YEAR, rollBackValue);
+    }
+    
+    return calendar.getTime();
 
     }
     private GridBagConstraints constraints;

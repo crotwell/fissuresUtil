@@ -19,7 +19,6 @@ public abstract class AbstractQueue {
 
         while(list.size() == 0 && sourceAlive == true) {
             try {
-                System.out.println("Waiting in POP");
                 wait();
             } catch(InterruptedException ie) { }
 

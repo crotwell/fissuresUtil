@@ -12,7 +12,7 @@ import org.apache.log4j.*;
  * protocol is known, ie  URLConnection can be gotten from Java.
  *
  * @author Philip Crotwell
- * @version $Id: SimpleXLink.java 3746 2003-04-24 18:54:35Z groves $
+ * @version $Id: SimpleXLink.java 5618 2003-09-11 19:38:33Z crotwell $
 */
 public class SimpleXLink {
 
@@ -93,7 +93,6 @@ public class SimpleXLink {
     XObject xobj = XPathAPI.eval(context, path);
     if (xobj.getType() == XObject.CLASS_NODESET) {
         NodeList nList = xobj.nodelist();
-        System.out.println("got "+nList.getLength());
         Node n = nList.item(0);
         if (n instanceof Element) {
         return (Element)n;
