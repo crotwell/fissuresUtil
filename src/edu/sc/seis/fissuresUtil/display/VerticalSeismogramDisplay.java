@@ -69,6 +69,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay(dss, (TimeRangeConfig)tr, name, this);
 	int i = sorter.sort(dss, name);
+	System.out.println("The value of i is "+i);
 	seismograms.add(disp, i);
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
@@ -165,7 +166,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.removeAll();
 	remove(seismograms);
 	basicDisplays.clear();
-	sorter = new AlphaSeisSorter();
+	sorter = new SeismogramSorter();
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	this.time.setText("   Time: ");
