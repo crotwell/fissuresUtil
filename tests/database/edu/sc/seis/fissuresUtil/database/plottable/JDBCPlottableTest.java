@@ -37,8 +37,6 @@ public class JDBCPlottableTest extends JDBCTest {
         PlottableChunk[] out = plottDb.get(data.getTimeRange(),
                                            data.getChannel(),
                                            data.getSamplesPerDay());
-        System.out.println(data);
-        System.out.println(out[0]);
         assertEquals(data, out[0]);
     }
 
@@ -49,8 +47,6 @@ public class JDBCPlottableTest extends JDBCTest {
                                                       2000,
                                                       SPD,
                                                       CHAN_ID);
-        System.out.println(data);
-        System.out.println(secondDay);
         plottDb.put(new PlottableChunk[] {data, secondDay});
         MicroSecondDate halfPastFirstDay = START.add((TimeInterval)ONE_DAY.divideBy(2));
         MicroSecondTimeRange halfFirstToHalfSecond = new MicroSecondTimeRange(halfPastFirstDay,
@@ -76,7 +72,7 @@ public class JDBCPlottableTest extends JDBCTest {
     }
 
     public void testUpdate() throws SQLException, IOException {
-        for(int i = 1; i < 20; i += 3){
+        for(int i = 1; i < 20; i += 3) {
             plottDb.put(breakIntoPieces(data, i));
         }
         assertEquals(data, plottDb.get(data.getTimeRange(),
@@ -84,17 +80,37 @@ public class JDBCPlottableTest extends JDBCTest {
                                        data.getSamplesPerDay())[0]);
     }
 
+    public void testYearStraddlingData() throws CodecException, SQLException,
+            IOException {
+        Time start = new Time("19991231T120000.000Z", 0);
+        MicroSecondDate startDate = new MicroSecondDate(start);
+        Plottable p = makeDay(startDate);
+        PlottableChunk chunk = new PlottableChunk(p,
+                                                  SPD / 2,
+                                                  startDate,
+                                                  SPD,
+                                                  CHAN_ID);
+        plottDb.put(new PlottableChunk[] {chunk});
+        PlottableChunk[] results = plottDb.get(chunk.getTimeRange(),
+                                               chunk.getChannel(),
+                                               chunk.getSamplesPerDay());
+        assertEquals(chunk.getTimeRange().getBeginTime(),
+                     results[0].getBeginTime());
+        assertEquals(chunk.getTimeRange().getEndTime(), results[1].getEndTime());
+    }
+
     private static PlottableChunk[] breakIntoPieces(PlottableChunk original,
                                                     int numPieces) {
         PlottableChunk[] pieces = new PlottableChunk[numPieces];
         int pieceSize = SPD / numPieces;
         for(int i = 0; i < pieces.length; i++) {
-            int startPoint = i*pieceSize;
-            int stopPoint = (i+1)*pieceSize;
-            if(i == pieces.length - 1){
+            int startPoint = i * pieceSize;
+            int stopPoint = (i + 1) * pieceSize;
+            if(i == pieces.length - 1) {
                 stopPoint = SPD;
             }
-            pieces[i] = makeSubPlottable(original, startPoint, stopPoint - startPoint);
+            pieces[i] = makeSubPlottable(original, startPoint, stopPoint
+                    - startPoint);
         }
         return pieces;
     }
@@ -140,19 +156,23 @@ public class JDBCPlottableTest extends JDBCTest {
     private static Plottable FULL_DAY = null;
     static {
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%C{1}.%M - %m\n")));
-        MicroSecondDate end = START.add(ONE_DAY);
-        LocalSeismogramImpl seis = SimplePlotUtil.createSpike(START,
-                                                              ONE_DAY,
-                                                              757);
-        MicroSecondTimeRange fullRange = new MicroSecondTimeRange(START, end);
         try {
-            int[][] coords = SimplePlotUtil.makePlottable(seis,
-                                                            fullRange,
-                                                            SPD);
-            FULL_DAY = new Plottable(coords[0], coords[1]);
+            FULL_DAY = makeDay(START);
         } catch(CodecException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Plottable makeDay(MicroSecondDate startTime)
+            throws CodecException {
+        MicroSecondDate end = startTime.add(ONE_DAY);
+        LocalSeismogramImpl seis = SimplePlotUtil.createSpike(startTime,
+                                                              ONE_DAY,
+                                                              757);
+        MicroSecondTimeRange fullRange = new MicroSecondTimeRange(startTime,
+                                                                  end);
+        int[][] coords = SimplePlotUtil.makePlottable(seis, fullRange, SPD);
+        return new Plottable(coords[0], coords[1]);
     }
 
     private PlottableChunk data;
