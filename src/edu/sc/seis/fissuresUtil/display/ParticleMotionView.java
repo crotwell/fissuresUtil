@@ -30,7 +30,8 @@ public class ParticleMotionView extends JComponent{
 			       final AmpConfigRegistrar hAmpConfigRegistrar,
 			       AmpConfigRegistrar vAmpConfigRegistrar, 
 			       ParticleMotionDisplay particleMotionDisplay,
-			       Color color){
+			       Color color,
+			       String key){
 	
 	this.particleMotionDisplay = particleMotionDisplay;
 	
@@ -39,7 +40,8 @@ public class ParticleMotionView extends JComponent{
 							   timeRegistrar,
 							   hAmpConfigRegistrar,
 							   vAmpConfigRegistrar,
-							   color);
+							   color, 
+							   key);
 	displays.add(particleMotion);
 	    
 	vunitRangeImpl = vAmpConfigRegistrar.getAmpRange(vseis);
@@ -227,12 +229,16 @@ public class ParticleMotionView extends JComponent{
 	graphics2D.setStroke(new BasicStroke(1.0f));
 	for(int counter = 0; counter < displays.size(); counter++) {
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
+	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    if(particleMotion.isSelected()) continue;
 	    drawParticleMotion(particleMotion, graphics2D);
 	}//end of for
 	System.out.println("ENd of the for");
 	for(int counter = 0; counter < displays.size(); counter++) {
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
+	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    if(particleMotion.isSelected()) {
 		particleMotion.setSelected(false);
 		drawParticleMotion(particleMotion, g);
@@ -451,13 +457,14 @@ public class ParticleMotionView extends JComponent{
 					 TimeConfigRegistrar timeRegistrar,
 					 AmpConfigRegistrar hAmpConfigRegistrar,
 					 AmpConfigRegistrar vAmpConfigRegistrar, 
-					 Color color) {
+					 Color color, 
+					 String key) {
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
 							   timeRegistrar,
 							   hAmpConfigRegistrar,
 							   vAmpConfigRegistrar,
-							   color);
+							   color, key);
 	displays.add(particleMotion);
 
 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
@@ -581,8 +588,24 @@ public class ParticleMotionView extends JComponent{
 	particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
 	particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
     }
-    
+    /** sets the display key ***/
+    public void setDisplayKey(String key) {
+	this.displayKey = key;
+    }
+    public void addDisplayKey(String key) {
+	this.displayKeys.add(key);
+    }
 
+    public void removeDisplaykey(String key) {
+	this.displayKeys.remove(key);
+    }
+
+    /** gets the display key **/
+    public String getDisplayKey() {
+	return this.displayKey;
+    }
+    private Vector displayKeys = new Vector();
+    private String displayKey =  new String();
     private boolean zoomIn = false;
     private boolean zoomOut = false;
     
@@ -614,20 +637,22 @@ public class ParticleMotionView extends JComponent{
 			      TimeConfigRegistrar timeRegistrar,
 			      final AmpConfigRegistrar hAmpConfigRegistrar,
 			      AmpConfigRegistrar vAmpConfigRegistrar, 
-			      Color color) {
+			      Color color,
+			      String key) {
 
 	    this.hseis = hseis;
 	    this.vseis = vseis;
 	    this.timeRegistrar = timeRegistrar;
 	    this.hAmpConfigRegistrar = hAmpConfigRegistrar;
 	    this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	    this.key = key;
 	    setColor(color);
 	    if(this.timeRegistrar != null) {
 		this.timeRegistrar.addTimeSyncListener(this);
 		this.microSecondTimeRange = timeRegistrar.getTimeRange();
 		this.hAmpConfigRegistrar.visibleAmpCalc(this.timeRegistrar);
 		this.vAmpConfigRegistrar.visibleAmpCalc(this.timeRegistrar);
-		}
+	    }
 	}
 
 	
@@ -672,6 +697,7 @@ public class ParticleMotionView extends JComponent{
 	public AmpConfigRegistrar hAmpConfigRegistrar;
 	public AmpConfigRegistrar vAmpConfigRegistrar;
 	public TimeConfigRegistrar timeRegistrar;
+	public String key = new String();
 	private MicroSecondTimeRange microSecondTimeRange;
 	private Shape shape;
 	private Color color = null;
