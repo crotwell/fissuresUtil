@@ -17,7 +17,7 @@ import org.apache.log4j.*;
  * ConnChecker.java
  *
  *
- * @Created Sept 11, 2001 
+ * @Created Sept 11, 2001
  *
  * @author Georgina Coleman
  * @version 0
@@ -25,16 +25,9 @@ import org.apache.log4j.*;
  */
 
 public interface ConnChecker  extends Runnable {
-    public boolean isFinished();
-    public boolean isTrying();
-    public boolean isUnknown();
-    public boolean isSuccessful();
     public ConnStatus getStatus();
     public String getDescription();
     public void addConnStatusChangedListener(ConnStatusChangedListener listener);
     public void removeConnStatusChangedListener(ConnStatusChangedListener listener);
     public void fireStatusChanged(String urlStr, ConnStatus connectionStatus);
 }// ConnChecker interface
-
-/************************************************************/
-
