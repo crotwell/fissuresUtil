@@ -1,9 +1,11 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 
 public abstract class AbstractUnitRangeBorder extends Border implements
         TitleProvider {
@@ -23,7 +25,17 @@ public abstract class AbstractUnitRangeBorder extends Border implements
         return formats;
     }
 
-    public abstract String getTitle();
+    public Font getTitleFont() {
+        return titleFont;
+    }
+
+    public void setTitleFont(Font f) {
+        titleFont = f;
+    }
+
+    public String getMaxLengthFormattedString() {
+        return ("0.000E00");
+    }
 
     private class UnitRangeFormatter extends BorderFormat {
 
@@ -56,4 +68,6 @@ public abstract class AbstractUnitRangeBorder extends Border implements
 
         private DecimalFormat df;
     }
+
+    private Font titleFont = DisplayUtils.DEFAULT_FONT;
 }
