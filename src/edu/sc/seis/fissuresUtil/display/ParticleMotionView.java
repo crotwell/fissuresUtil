@@ -51,8 +51,11 @@ public class ParticleMotionView extends JComponent{
 		    //int newx = (int)(((max - min) / fmin * me.getX()) - max);
 		    //(int)(max - (((max - min) * (fmin - me.getX()) )/ (fmax - me.getY())));
 		    //int newy =  (int)(((min - max) / fmax * me.getY()) + max);
-		    if(me.getClickCount() == 1) 
-		    zoomInParticleMotionDisplay(1, me.getX(), me.getY());
+		    int clickCount = 0;
+		    if(zoomIn)  clickCount = 1;
+		    if(zoomOut) clickCount = 2;
+		    
+		    zoomInParticleMotionDisplay(clickCount, me.getX(), me.getY());
 		    //System.out.println("me x "+me.getX()+" me y "+me.getY());
 		    //findPoint(me.getClickCount(), me.getX(), me.getY());
 		    startPoint = null;
@@ -117,17 +120,19 @@ public class ParticleMotionView extends JComponent{
 	    if(xone < 0) centerx = -centerx;
 	    if(yone < 0) centery = -centery;
 	} else {
-	    if(hmin < 0 ) centerx = -centerx;
-	    if(vmin < 0) centery = -centery;
+	    //if(hmin < 0 ) centerx = -centerx;
+	    //	if(vmin < 0) centery = -centery;
 	}
 	int xa, xs, ya, ys;
 	if(clickCount == 1) {
+	    
 	    xa = xone - centerx;
 	    xs = xone + centerx;
 	    ya = yone - centery;
 	    ys = yone + centery;
 	} else {
-	 
+	    if(centerx < 0) centerx = -centerx;
+	    if(centery < 0) centery = -centery;
 	    xa = (int)hmin - centerx;
 	    xs = (int)hmax + centerx;
 	    ya = (int)vmin - centery;
@@ -227,14 +232,22 @@ public class ParticleMotionView extends JComponent{
 		if(RGBCOLOR == COLORS.length) RGBCOLOR = 0;
 	    }
 	    graphics2D.setColor(color);
-
+	    Insets insets = getInsets();
+	   dimension = new java.awt.Dimension(dimension.width - insets.left - insets.right,
+					       dimension.height - insets.top - insets.bottom);
 					       
 	    Dimension flipDimension = new Dimension(dimension.height,
 						    dimension.width);
+	    System.out.println("The width is "+dimension.width+" height is "+dimension.height);
 	    
 	    try {
 
 		
+		System.out.println("In PaintSeismogram hmax = "+hunitRangeImpl.getMaxValue()+
+				   " hmin = "+hunitRangeImpl.getMinValue());
+		System.out.println("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
+				   " vmin = "+vunitRangeImpl.getMinValue());
+				   
 		int[][] hPixels = SimplePlotUtil.compressYvalues(hseis, 
 								 new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
 											  new MicroSecondDate(hseis.getEndTime())),
@@ -254,12 +267,16 @@ public class ParticleMotionView extends JComponent{
 								 vunitRangeImpl,			
 								 dimension);
 
+
+		System.out.println("---------------------->Scaling THE Y VALUES ");
 		SimplePlotUtil.scaleYvalues(vPixels,
 					    vseis, 
 					    new MicroSecondTimeRange(new MicroSecondDate(vseis.getBeginTime()),
 								     new MicroSecondDate(vseis.getEndTime())),
 					    vunitRangeImpl,			
 					    dimension);
+
+		SimplePlotUtil.flipArray(vPixels[1], dimension.height);
 
 		int len = vPixels[1].length;
 		int[] x, y;
@@ -268,10 +285,13 @@ public class ParticleMotionView extends JComponent{
 		x = hPixels[1];
 		y = vPixels[1];
 		if (hPixels[1].length < len) { len = hPixels.length; }
-		
-		
-	
-		
+		System.out.println("-----------------------------------------");
+		for(int c = 0;  c < len; c++) {
+
+		    // System.out.println("x = "+hPixels[1][c]+" y = "+vPixels[1][c]);
+		  
+		}
+		g.drawPolyline(hPixels[1], vPixels[1], len);
 		Shape shape = getParticleMotionPath(hPixels[1], vPixels[1]);
 		particleMotion.setShape(shape);
 		graphics2D.draw(shape);
@@ -322,10 +342,14 @@ public class ParticleMotionView extends JComponent{
        
 	double  fmin = getSize().getWidth() - insets.left - insets.right;
 	double fmax = getSize().getHeight() - insets.top - insets.bottom;
-       	int newx = (int)(((0-hmin) * fmin)/ (hmax - hmin));
+	int originx = (int)(fmin/2);//(int)((hmax - hmin) /4);
+	int originy = (int)(fmax/2);//((vmax - vmin) /4);
+       	int newx = originx; 
+	    //(int)(((originx-hmin) * fmin)/ (hmax - hmin));
 	    //(int)(((max - min) / fmin * me.getX()) - max);
 	//(int)(max - (((max - min) * (fmin - me.getX()) )/ (fmax - me.getY())));
-	int newy =  (int)(fmax - (((0-vmin)*fmax)/(vmax - vmin)));
+	int newy =  originy;
+	    //(int)(fmax - (((originy-vmin)*fmax)/(vmax - vmin)));
 	    //(int)(((min - max) / fmax * me.getY()) + max);
 	//System.out.println(" min= "+hmin+" max= "+hmax+" fmin= "+fmin+" fmax= "+fmax);
 	//System.out.println("newx = "+newx+" newy = "+newy);
@@ -358,12 +382,17 @@ public class ParticleMotionView extends JComponent{
 	unitRangeImpl =  hunitRangeImpl;//particleMotion.hAmpRangeConfig.getAmpRange(particleMotion.hseis);
 	double hmin = hunitRangeImpl.getMinValue();
 	double hmax = hunitRangeImpl.getMaxValue();
-
+	
 	Insets insets = getInsets();
 	double  fmin = getSize().getWidth() - insets.left - insets.right;
 	double fmax = getSize().getHeight() - insets.top - insets.bottom;
-	int newx = (int)(((0-hmin) * fmin)/ (hmax - hmin));//(int)((max * fmin)/ (max - min));
-	int newy = (int)(fmax - (int)(((0-vmin)*fmax)/(vmax - vmin)));
+	int originx = (int)(fmin/2);//(int)((hmax - hmin) /4);
+	int originy = (int)(fmax/2);//((vmax - vmin) /4);
+
+	int newx = originx;
+	//(int)(((originx-hmin) * fmin)/ (hmax - hmin));//(int)((max * fmin)/ (max - min));
+	int newy = originy;
+	//(int)(fmax - (int)(((originy-vmin)*fmax)/(vmax - vmin)));
 
 	GeneralPath generalPath = new GeneralPath();
 
@@ -488,6 +517,23 @@ public class ParticleMotionView extends JComponent{
             super.setSize(new Dimension(d.height, d.height));
         }
     }
+
+
+    public void setZoomIn(boolean value) {
+
+	this.zoomIn  = true;
+	this.zoomOut = false;
+    }
+    
+    public void setZoomOut(boolean value) {
+
+	this.zoomIn = false;
+	this.zoomOut = true;
+    
+    }
+
+    private boolean zoomIn = false;
+    private boolean zoomOut = false;
     
     LinkedList displays = new LinkedList();
     LinkedList azimuths = new LinkedList();
