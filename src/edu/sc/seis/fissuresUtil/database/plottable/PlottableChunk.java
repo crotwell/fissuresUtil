@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.database.plottable;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -56,12 +58,7 @@ public class PlottableChunk {
                         if(year == oChunk.year) {
                             if(data.x_coor.length == oChunk.data.x_coor.length) {
                                 for(int i = 0; i < data.x_coor.length; i++) {
-                                    if(data.x_coor[i] != oChunk.data.x_coor[i]) {
-                                        System.out.println(i + " "
-                                                + data.x_coor[i] + " "
-                                                + oChunk.data.x_coor[i]);
-                                        return false;
-                                    }
+                                    if(data.x_coor[i] != oChunk.data.x_coor[i]) { return false; }
                                 }
                                 return true;
                             }
@@ -184,32 +181,38 @@ public class PlottableChunk {
     public PlottableChunk[] breakIntoDays() {
         int numDays = (int)Math.ceil(getData().y_coor.length
                 / getSamplesPerDay());
-        PlottableChunk[] dayChunks = new PlottableChunk[numDays];
+        if(getData().y_coor.length % getSamplesPerDay() == 0
+                && beginSample != 0) {
+            numDays++;
+        }
+        List dayChunks = new ArrayList();
         MicroSecondDate time = getBeginTime();
-        for(int i = 0; i < dayChunks.length; i++) {
+        for(int i = 0; i < numDays; i++) {
             int copyStartPoint = i * getSamplesPerDay();
             int newChunkStartPoint = 0;
             if(i == 0) {
-                copyStartPoint = getBeginSample();
                 newChunkStartPoint = getBeginSample();
             }
-            int endOfDaySample = (i + 1) * getSamplesPerDay();
+            if(i != 0){
+                copyStartPoint -= getBeginSample();
+            }
+            int endOfDaySample = (i + 1) * getSamplesPerDay() - getBeginSample();
             int copyEndPoint = endOfDaySample;
-            if(endOfDaySample > getEndSample()) {
-                copyEndPoint = getEndSample();
+            if(endOfDaySample > getEndSample() - getBeginSample()) {
+                copyEndPoint = getEndSample() - getBeginSample();
             }
             int[] y = new int[copyEndPoint - copyStartPoint];
             System.arraycopy(getData().y_coor, copyStartPoint, y, 0, y.length);
             Plottable p = new Plottable(null, y);
-            dayChunks[i] = new PlottableChunk(p,
-                                              newChunkStartPoint,
-                                              getJDay(time),
-                                              getYear(time),
-                                              getSamplesPerDay(),
-                                              getChannel());
+            dayChunks.add(new PlottableChunk(p,
+                                             newChunkStartPoint,
+                                             getJDay(time),
+                                             getYear(time),
+                                             getSamplesPerDay(),
+                                             getChannel()));
             time = time.add(ONE_DAY);
         }
-        return dayChunks;
+        return (PlottableChunk[])dayChunks.toArray(new PlottableChunk[0]);
     }
 
     private ChannelId channel;
