@@ -254,7 +254,7 @@ useful things already done.</description>
 </dependency>
   </dependencies>
   <build>
-    <nagEmailAddress>crotwell@seis.sc.edu</nagEmailAddress>
+    <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>
     <sourceDirectory>src</sourceDirectory>
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
 <!-- Unit test cases -->
