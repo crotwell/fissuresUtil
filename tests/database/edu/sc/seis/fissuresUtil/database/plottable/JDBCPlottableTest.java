@@ -13,7 +13,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
-import edu.sc.seis.fissuresUtil.database.JDBCTest;
+import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannelId;
@@ -21,7 +21,7 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannelId;
 /**
  * @author crotwell Created on Sep 23, 2004
  */
-public class JDBCPlottableTest extends JDBCTest {
+public class JDBCPlottableTest extends JDBCTearDown {
 
     public void setUp() throws SQLException {
         data = createFullDayPlottable();

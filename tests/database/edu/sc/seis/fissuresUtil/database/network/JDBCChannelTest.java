@@ -8,12 +8,12 @@ package edu.sc.seis.fissuresUtil.database.network;
 import java.sql.SQLException;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.sc.seis.fissuresUtil.database.JDBCTest;
+import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStationId;
 
-public class JDBCChannelTest extends JDBCTest {
+public class JDBCChannelTest extends JDBCTearDown {
 
     public void setUp()throws SQLException{
         chanTable = new JDBCChannel();

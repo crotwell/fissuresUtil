@@ -6,11 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.JDBCTest;
+import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAttr;
 
-public class JDBCEventAttrTest extends JDBCTest {
+public class JDBCEventAttrTest extends JDBCTearDown {
 
     public void setUp() throws SQLException {
         eventAttrs.add(MockEventAttr.create("name1", 50));

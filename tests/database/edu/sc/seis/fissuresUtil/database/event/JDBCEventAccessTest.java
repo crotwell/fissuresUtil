@@ -5,11 +5,11 @@ import org.apache.log4j.BasicConfigurator;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.JDBCTest;
+import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
 
-public class JDBCEventAccessTest extends JDBCTest {
+public class JDBCEventAccessTest extends JDBCTearDown {
 
     public void setUp() throws SQLException {
         this.eventTable = new JDBCEventAccess(ConnMgr.createConnection());
