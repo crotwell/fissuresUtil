@@ -44,23 +44,38 @@ public class DataCenterRouter implements DataCenterOperations {
         addDataCenter(net.get_attributes().get_id(), dc);
     }
 
-    public void addDataCenter(NetworkId networkId, DataCenterOperations dc) {
-        logger.debug("adding "+networkId.network_code);
-        List dcList = (List)netToDCMap.get(NetworkIdUtil.toString(networkId));
+    public void addDataCenter(NetworkId networkId,  DataCenterOperations dc) {
+        addDataCenter(networkId.network_code, dc);
+    }
+
+    public void addDataCenter(String network_code,  DataCenterOperations dc) {
+        logger.debug("adding "+network_code);
+        List dcList = (List)netToDCMap.get(network_code);
         if ( dcList == null) {
             dcList = new LinkedList();
-            netToDCMap.put(NetworkIdUtil.toString(networkId), dcList);
+            netToDCMap.put(network_code, dcList);
         } // end of if ()
 
         dcList.add(dc);
+
+        Iterator it = netToDCMap.keySet().iterator();
+        while (it.hasNext()) {
+            Object key = it.next();
+            dcList = (List)netToDCMap.get(key);
+            logger.debug("netToDCMap: "+key+" size is "+dcList.size());
+        }
     }
 
     public List getDataCenter(NetworkAccess net) {
-        return getDataCenter(net.get_attributes().get_id());
+        return getDataCenter(net.get_attributes().get_code());
     }
 
     public List getDataCenter(NetworkId networkId) {
-        return (List)netToDCMap.get(NetworkIdUtil.toString(networkId));
+        return getDataCenter(networkId.network_code);
+    }
+
+    public List getDataCenter(String networkCode) {
+        return (List)netToDCMap.get(networkCode);
     }
 
     public List getDataCenter(ChannelId chanId) {
@@ -70,6 +85,16 @@ public class DataCenterRouter implements DataCenterOperations {
     public RequestFilter[] available_data(RequestFilter[] filters) {
         HashMap datacenterMap = makeMap(filters);
         LinkedList out = new LinkedList();
+        if (datacenterMap.keySet().size() == 0) {
+            String s = "No datacenters found for request: ";
+            for (int i = 0; i < filters.length; i++) {
+                s+= " "+ChannelIdUtil.toStringNoDates(filters[i].channel_id)+
+                    filters[i].start_time.date_time+
+                    " to "+filters[i].end_time.date_time+", ";
+            }
+            logger.warn(s);
+        }
+
         Iterator it = datacenterMap.keySet().iterator();
         while ( it.hasNext()) {
             List dcList = (List)it.next();
