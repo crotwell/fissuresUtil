@@ -28,10 +28,10 @@ public class EventTableModel
     /** Creates a table model without any events. Events can be
      *  added later with the updateEvents method. */
     public EventTableModel() {
-	this(new EventAccess[0]);
+	this(new EventAccessOperations[0]);
     }
 
-    public EventTableModel(EventAccess[] events) {
+    public EventTableModel(EventAccessOperations[] events) {
 	loader = new EventBackgroundLoaderPool(5, this);
 	updateEvents(events);
         columnNames = new String[10];
@@ -48,7 +48,7 @@ public class EventTableModel
 
     }
 
-    public int getColumnCount() { return 8; }
+    public int getColumnCount() { return 10; }
 
     public int getRowCount() { return events.length; }
 
@@ -127,7 +127,7 @@ public class EventTableModel
 	}
     }
 
-    public void updateEvents(EventAccess[] events) {
+    public void updateEvents(EventAccessOperations[] events) {
 	this.events = events;
 	cachedEvents.clear();
 	rowNumber.clear();
@@ -143,7 +143,7 @@ public class EventTableModel
 	System.out.println("loaded event "+cache.get_attributes().name);
     }
 
-    protected EventAccess[] events;
+    protected EventAccessOperations[] events;
 
     protected WeakHashMap cachedEvents = new WeakHashMap();
 

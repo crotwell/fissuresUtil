@@ -27,7 +27,7 @@ public class CacheEvent implements EventAccessOperations {
 	this.preferred = preferred;
     }
 
-    public CacheEvent(EventAccess event) {
+    public CacheEvent(EventAccessOperations event) {
 	Assert.isNotNull(event, "EventAccess cannot be null");
 	this.event = event;
 	this.attr = null;
@@ -35,7 +35,7 @@ public class CacheEvent implements EventAccessOperations {
 	this.preferred = null;
     }
 
-    public EventAccess getEventAccess() {
+    public EventAccessOperations getEventAccess() {
 	return event;
     }
 
@@ -215,7 +215,7 @@ public class CacheEvent implements EventAccessOperations {
 	    throw new edu.iris.Fissures.NotImplemented();
 	}
 
-    protected EventAccess event;    
+    protected EventAccessOperations event;    
     protected EventAttr attr;
     protected Origin[] origins;
     protected Origin preferred;

@@ -16,7 +16,7 @@ import edu.iris.Fissures.event.*;
 
 public class EventQueueElement  {
     
-    public EventQueueElement(EventAccess event,
+    public EventQueueElement(EventAccessOperations event,
 			     CacheEvent cache,
 			     EventLoadedListener listener) {
 	this.event = event;
@@ -28,7 +28,7 @@ public class EventQueueElement  {
 	return cache;
     }
 
-    EventAccess event;
+    EventAccessOperations event;
     CacheEvent cache;
     EventLoadedListener listener;
 

@@ -25,7 +25,7 @@ public class EventBackgroundLoaderPool  {
 	}
     }
 
-    public void getEvent(EventAccess event,
+    public void getEvent(EventAccessOperations event,
 			 CacheEvent cache,
 			 EventLoadedListener  listener) {
 	addToQueue(event, cache, listener);
@@ -80,7 +80,7 @@ public class EventBackgroundLoaderPool  {
 	return (EventBackgroundLoader)idleWorkers.removeLast();
     }
 
-    protected synchronized void addToQueue(EventAccess event,
+    protected synchronized void addToQueue(EventAccessOperations event,
 					   CacheEvent cache,
 					   EventLoadedListener listener) {
 	queue.addFirst(new EventQueueElement(event, cache, listener));
