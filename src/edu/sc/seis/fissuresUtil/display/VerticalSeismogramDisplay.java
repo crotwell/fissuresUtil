@@ -582,7 +582,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      *
      * @param creator the selection whose seismograms will be added
      */
-    public void createSelectionDisplay(Selection creator){
+    public void createSelectionDisplay(Selection creator, JToolBar toolbar){
         if(selectionDisplay == null){
             logger.debug("creating selection display");
             selectionDisplay = new MultiSeismogramWindowDisplay(this);
@@ -594,7 +594,9 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
                         }
                     });
             selectionWindow.setSize(400, 200);
-            selectionWindow.getContentPane().add(new JScrollPane(selectionDisplay));
+            selectionWindow.getContentPane().setLayout(new BorderLayout());
+            selectionWindow.getContentPane().add(toolbar, BorderLayout.NORTH);
+            selectionWindow.getContentPane().add(new JScrollPane(selectionDisplay), BorderLayout.CENTER);
             Toolkit tk = Toolkit.getDefaultToolkit();
             selectionWindow.setLocation((tk.getScreenSize().width - selectionWindow.getSize().width)/2,
                                             (tk.getScreenSize().height - selectionWindow.getSize().height)/2);
