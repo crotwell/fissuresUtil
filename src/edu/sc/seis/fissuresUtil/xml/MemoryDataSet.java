@@ -113,15 +113,6 @@ public class MemoryDataSet implements DataSet {
     }
     
     /**
-     * Describe <code>getSeismogramNames</code> method here.
-     *
-     * @return a <code>String[]</code> value
-     */
-    public String[] getSeismogramNames() {
-        return (String[])datasetSeismogramNames.toArray(new String[0]);
-    }
-    
-    /**
      * Method getDataSetSeismogramNames
      *
      * @return   a String[]
@@ -166,27 +157,6 @@ public class MemoryDataSet implements DataSet {
             datasetSeismograms.remove(dss.getName());
             datasetSeismogramNames.remove(dss.getName());
         }
-    }
-    
-    /**
-     * Describe <code>addSeismogram</code> method here.
-     *
-     * @param seis a <code>LocalSeismogramImpl</code> value
-     * @param audit an <code>AuditInfo[]</code> value
-     */
-    public void addSeismogram(LocalSeismogramImpl seis, AuditInfo[] audit) {
-        seismograms.put(seis.getName(), seis);
-        seismogramNames.add(seis.getName());
-    }
-    
-    /**
-     * Describe <code>getSeismogram</code> method here.
-     *
-     * @param name a <code>String</code> value
-     * @return a <code>LocalSeismogramImpl</code> value
-     */
-    public LocalSeismogramImpl getSeismogram(String name) {
-        return (LocalSeismogramImpl)seismograms.get(name);
     }
     
     /**
@@ -256,12 +226,10 @@ public class MemoryDataSet implements DataSet {
     protected String owner;
     protected String id;
     
-    protected LinkedList seismogramNames = new LinkedList();
     protected LinkedList datasetSeismogramNames = new LinkedList();
     protected LinkedList parameterNames = new LinkedList();
     protected LinkedList datasetNames = new LinkedList();
     
-    protected HashMap seismograms = new HashMap();
     protected HashMap datasetSeismograms = new HashMap();
     protected HashMap parameters = new HashMap();
     protected HashMap datasets = new HashMap();
