@@ -5,11 +5,11 @@ import junit.framework.TestCase;
 
 public class JDBCSequenceTest extends TestCase{
     public JDBCSequenceTest(String name) { super(name); }
-    
+
     public void testNext() throws SQLException{
         next5(createTestSeq());
     }
-    
+
     private int next5(JDBCSequence seq) throws SQLException{
         int initialVal = seq.next() + 1;
         for (int i = initialVal; i < initialVal + 4; i++){
@@ -17,18 +17,17 @@ public class JDBCSequenceTest extends TestCase{
         }
         return initialVal + 5;
     }
-    
+
     public void testDoubleCreate() throws SQLException{
         int valueAfterInitialRun = next5(createTestSeq());
         int valueAfterSecondRun = next5(createTestSeq());
-        System.out.println(valueAfterSecondRun);
         assertEquals(valueAfterInitialRun, valueAfterSecondRun -5);
     }
-    
+
     private JDBCSequence createTestSeq() throws SQLException{
-        return new JDBCSequence(ConnMgr.createConnection(), "EventAttrSeq");
+        return new JDBCSequence(ConnMgr.createConnection(), "ParameterRefSeq");
     }
-    
+
     public void testNextWhileOtherThreadIsIncrementing()throws SQLException{
         SequenceGrabber[] grabbers = new SequenceGrabber[5];
         for (int i = 0; i < grabbers.length; i++) {
@@ -42,7 +41,7 @@ public class JDBCSequenceTest extends TestCase{
                 grabbers[i].join();
             } catch (InterruptedException e) {}//try to join again if interrupted
         }
-        
+
         for (int i = 0; i < grabbers.length; i++) {
             //this tests that a single thread hasn't gotten the same value twice
             for (int j = 0; j < grabbers[i].results.length; j++) {
@@ -57,14 +56,13 @@ public class JDBCSequenceTest extends TestCase{
                 }
             }
         }
-        System.out.println(createTestSeq().next());
     }
-    
+
     private class SequenceGrabber extends Thread{
         public SequenceGrabber() throws SQLException{
             seq = createTestSeq();
         }
-        
+
         public void run() {
             for (int i = 0; i < results.length; i++){
                 try {
@@ -72,9 +70,9 @@ public class JDBCSequenceTest extends TestCase{
                 } catch (SQLException e) { throw new RuntimeException(e);}
             }
         }
-        
+
         JDBCSequence seq;
-        
+
         int[] results = new int[50];
     }
 }

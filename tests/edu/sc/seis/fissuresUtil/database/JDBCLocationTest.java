@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.database;
 
 import edu.iris.Fissures.Location;
-import edu.sc.seis.fissuresUtil.database.event.JDBCLocation;
+import edu.sc.seis.fissuresUtil.database.JDBCLocation;
 import edu.sc.seis.mockFissures.MockLocation;
 import java.sql.Connection;
 import java.sql.SQLException;
