@@ -149,19 +149,6 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     }
 
 	public boolean mouseMoved(MouseEvent e){
-		//setToolTipText(getToolTipText(e));
-		return false;
-	}
-
-	/**
-	 * Returns the string to be used as the tooltip for <i>event</i>.
-	 * By default this returns any string set using
-	 * <code>setToolTipText</code>.  If a component provides
-	 * more extensive API to support differing tooltips at different locations,
-	 * this method should be overridden.
-	 */
-	public String getToolTipText(MouseEvent e) {
-		String toolTipText = null;
 		synchronized(circles){
 			Iterator it = circles.iterator();
 			while(it.hasNext()){
@@ -171,13 +158,15 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 						EventAccessOperations event = current.getEvent();
 						StringBuffer buf = new StringBuffer();
 						buf.append(event.get_preferred_origin().origin_time.date_time);
-						toolTipText = buf.toString();
+						fireRequestToolTip(e, buf.toString());
+						return true;
 					}
 				}
 				catch(Exception ex){}
 			}
 		}
-		return toolTipText;
+		fireHideToolTip(e);
+		return false;
 	}
 
     private class OMEvent extends OMGraphicList{
