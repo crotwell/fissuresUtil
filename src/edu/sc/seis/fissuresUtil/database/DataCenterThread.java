@@ -47,9 +47,9 @@ public class DataCenterThread implements Runnable{
     public void run() {
         JobTracker.getTracker().add(job);
         job.incrementRetrievers();
+        //TODO use array of rf in retrieve call
         List seismograms = new ArrayList();
         for(int counter = 0; counter <  requestFilters.length; counter++) {
-            System.out.println("getting " + new MicroSecondTimeRange(requestFilters[counter]));
             try {
                 RequestFilter[] temp = { requestFilters[counter] };
                 LocalSeismogram[] seis = dbDataCenter.retrieve_seismograms(temp);
@@ -66,7 +66,6 @@ public class DataCenterThread implements Runnable{
             } catch(FissuresException fe) {
                 synchronized(initiators){
                     failed = true;
-                    System.out.println("FISSURES FAILED");
                     Iterator it = initiators.iterator();
                     while(it.hasNext()){
                         a_client.error(((SeisDataChangeListener)it.next()), fe);
@@ -76,7 +75,6 @@ public class DataCenterThread implements Runnable{
             } catch(org.omg.CORBA.SystemException fe) {
                 synchronized(initiators){
                     failed = true;
-                    System.out.println("CORBA FAILED");
                     Iterator it = initiators.iterator();
                     while(it.hasNext()){
                         a_client.error(((SeisDataChangeListener)it.next()), fe);
