@@ -65,7 +65,7 @@ public class SimplePhaseStoN {
              longOffsetBegin,
              longOffsetEnd,
              "prem",
-             new TauPUtil("prem"));
+             TauPUtil.getTauPUtil("prem"));
     }
 
     /** Defaults to plus and minues 5 seconds around the phase for the short
