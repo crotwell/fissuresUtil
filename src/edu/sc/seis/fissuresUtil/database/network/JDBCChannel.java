@@ -194,7 +194,7 @@ public class JDBCChannel extends NetworkTable {
                                                    id.site_code);
         int beginId = time.put(id.begin_time);
         String query = "SELECT chan_id FROM channel WHERE chan_begin_id = "
-                + beginId + " and chan_code = '" + id.channel_code
+                + beginId + " and chan_code = '" + id.channel_code + "'"
                 + " and site_id IN (";
         for(int i = 0; i < possibleSiteIds.length - 1; i++) {
             query += possibleSiteIds[i] + ", ";
