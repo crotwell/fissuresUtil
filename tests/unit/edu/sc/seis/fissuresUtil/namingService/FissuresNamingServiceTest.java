@@ -17,7 +17,7 @@ public class FissuresNamingServiceTest extends TestCase{
         BasicConfigurator.configure();
         Initializer.init(new String[0]);
         FissuresNamingService fisName = Initializer.getNS();
-        assertEquals(3, fisName.getAllNetworkDC().length);
+        assertEquals(4, fisName.getAllNetworkDC().length);
     }
 }
 
