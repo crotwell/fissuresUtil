@@ -270,6 +270,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	Insets insets = getInsets();
 	Dimension d = getSize();
 	displaySize = new Dimension(d.width - insets.left - insets.right, d.height - insets.top - insets.bottom);
+	if(displaySize.height < 0 || displaySize.width < 0){
+	    return; 
+	}
 	timeScaleMap.setTotalPixels(displaySize.width);
 	ampScaleMap.setTotalPixels(displaySize.height);
 	repaint();
@@ -356,38 +359,19 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	    plotters.add(startingPosition + i, newPlotters[i]);
 	}
     }
-
-    public void paint(Graphics g){
-	if(displaySize.height < 0 || displaySize.width < 0){
-	    return; 
-	}
-	super.paint(g);
-    }
     
     private class PlotPainter extends JComponent{
 	public void paint(Graphics g){
-	    //Date begin = new Date();
 	    Graphics2D g2 = (Graphics2D)g;
 	    Iterator e = plotters.iterator();
-	    //Date plotBegin = new Date();
 	    while(e.hasNext()){
 		((Plotter)e.next()).draw(g2, displaySize, currentTimeEvent, currentAmpEvent);
 	    }
-	    //Date plotEnd = new Date();
 	    if(name != null){
 		g2.setPaint(Color.black);
 		g2.drawString(name, 5, displaySize.height - 3);
 	    }
-	    /*Date end = new Date();
-	    count++;
-	    nameTime = end.getTime() - plotEnd.getTime();
-	    paintTime = end.getTime() - begin.getTime();
-	    plotTime = plotEnd.getTime() - plotBegin.getTime();
-	    System.out.println("total paint(Graphics g) time: " + (paintTime) + 
-	    	       " plotter iteration time: " + (plotTime) + 
-	    	       " name paint time: " + (nameTime));*/   
 	}
-	private long nameTime, plotTime, paintTime, count;
     }
    
     
