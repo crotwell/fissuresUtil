@@ -6,16 +6,17 @@
 
 package edu.sc.seis.fissuresUtil.display.registrar;
 
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.Date;
 
 public class RelativeTimeConfig extends BasicTimeConfig{
     public void add(DataSetSeismogram[] seis){
         if(seismoTimes.size() >= 1){
-            time = new MicroSecondTimeRange(new MicroSecondDate(0),
+            
+            time = new MicroSecondTimeRange(new MicroSecondDate(new Date(5 * 24 * 60 * 60 * 1000)),
                                             initialTime.getInterval());
             time = time.shale(shift, scale);
         }
