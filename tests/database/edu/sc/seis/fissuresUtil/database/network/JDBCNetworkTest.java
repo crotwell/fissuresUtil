@@ -20,7 +20,7 @@ public class JDBCNetworkTest extends TestCase{
         NetworkAttr attr = MockNetworkAttr.createNetworkAttr();
         int dbidA = net.put(attr.get_id());
         int dbidB = net.put(attr);
-        int gottenId = net.getDBId(attr.get_id());
+        int gottenId = net.getDbId(attr.get_id());
         assertEquals(dbidA, dbidB);
         assertEquals(dbidB, gottenId);
     }
