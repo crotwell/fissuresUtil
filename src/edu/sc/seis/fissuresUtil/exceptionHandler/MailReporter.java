@@ -29,26 +29,26 @@ public class MailReporter implements ExceptionReporter{
     public MailReporter(Properties props){
         this(props, true);
     }
-    
+
     public MailReporter(Properties props, boolean displayExceptionClass){
         this.displayExceptionClass = displayExceptionClass;
         this.props = props;
         checkPropertiesSet();
     }
-    
+
     private void checkPropertiesSet() {
         checkProperty(SMTP);
         checkProperty(SUBJECT);
         checkProperty(TO);
         checkProperty(FROM);
     }
-    
+
     private void checkProperty(String property) {
         if(props.getProperty(property) == null){
             throw new IllegalStateException("A system properties required by this class isn't set! " + property + " must be set");
         }
     }
-    
+
     public void report(String message, Throwable e, List sections) throws Exception{
         props.put("mail.smtp.host", props.getProperty(SMTP));
         Session session = Session.getDefaultInstance(props, null);
@@ -73,7 +73,7 @@ public class MailReporter implements ExceptionReporter{
         msg.setContent(multipart);
         Transport.send(msg);
     }
-    
+
     private BodyPart createAttachement(Section section) throws IOException, MessagingException{
         String dir = System.getProperty("java.io.tmpdir");
         File file = new File(dir + section.getName() + ".txt");
@@ -86,37 +86,54 @@ public class MailReporter implements ExceptionReporter{
         bp.setFileName(section.getName() + ".txt");
         return bp;
     }
-    
+
     /**
      * The key is edu.sc.seis.fissuresUtil.exceptionHandler.MailReporter.SMTP
      * The value for this key in the passed in properties should be the smtp server
      * you want to use
      */
     public static final String SMTP = "edu.sc.seis.fissuresUtil.exceptionHandler.MailReporter.SMTP";
-    
+
     /**
      * the Key is edu.sc.seis.fissuresUtil.exceptionHandler.MailReporter.to
      * The value for this key in the passed in properties should be the address of the
      * desired recipient of the exception email
      */
     public static final String TO = "edu.sc.seis.fissuresUtil.exceptionHandler.MailReporter.to";
-    
+
     /**
      * The key is edu.sc.seis.fissuresUtil.exceptionHandler.MailReporter.from
      * The value for this key in the passed in properties should be the address of the
      * desired sender of the exception email
      */
     public static final String FROM = "edu.sc.seis.fissuresUtil.exceptionHandler.MailReporter.from";
-    
+
     /**
      * The key is edu.sc.seis.fissuresUtil.exceptionHandler.MailReporter.title
      * The value for this key in the passed in properties should be the address of the
      * desired subject of the exception email
      */
     public static final String SUBJECT = "edu.sc.seis.fissuresUtil.exceptionHandler.MailReporter.subject";
-    
+
     private boolean displayExceptionClass;
-    
+
     private Properties props;
+
+    /**
+     *
+     */
+    public static void main(String[] args) {
+        Properties props = new Properties();
+        System.out.println("ADDING PROPS");
+        props.put(SUBJECT, "MailReporterTest");
+        props.put(SMTP, "norman.iris.washington.edu");
+        props.put(FROM, "exception@seis.sc.edu");
+        props.put(TO, "crotwell@seis.sc.edu");
+        System.out.println("CREATING MAIL REPORTER");
+        GlobalExceptionHandler.add(new MailReporter(props));
+        System.out.println("SENDING MAIL");
+        GlobalExceptionHandler.handle("This is a test of the emergency brodcast system",
+                                      new Exception("This is only a test"));
+    }
 }
 
