@@ -5,7 +5,6 @@ import com.bbn.openmap.*;
 
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ZoomEvent;
-import com.bbn.openmap.image.ImageFormatter;
 import com.bbn.openmap.layer.GraticuleLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
@@ -22,10 +21,10 @@ import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FilePermission;
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -33,8 +32,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ListSelectionModel;
 import org.apache.log4j.Logger;
 
-public class OpenMap extends OpenMapComponent
-{
+public class OpenMap extends OpenMapComponent {
     
     public static final Color WATER = new Color(54, 179, 221);
     public static final float DEFAULT_SCALE = 200000000f;
@@ -53,10 +51,8 @@ public class OpenMap extends OpenMapComponent
     /**Creates a new openmap.  Both the channel chooser and the event table
      * model can be null.  If so, channels and events just won't get drawn
      */
-    public OpenMap(String shapefile)
-    {
-        try
-        {
+    public OpenMap(String shapefile) {
+        try {
             mapHandler = new MapHandler();
             mapHandler.add(this);
             // Create a MapBean
@@ -91,7 +87,7 @@ public class OpenMap extends OpenMapComponent
             
             mapHandler.add(gl);
             lh.addLayer(gl, 0);
-                        
+            
             // Create a ShapeLayer to show world political boundaries.
             //ShapeLayer shapeLayer = new ShapeLayer();
             ShapeLayer shapeLayer = new InformativeShapeLayer();
@@ -107,7 +103,7 @@ public class OpenMap extends OpenMapComponent
             shapeLayer.setVisible(true);
             mapHandler.add(shapeLayer);
             lh.addLayer(shapeLayer);
-                        
+            
             // Create the directional and zoom control tool
             //OMToolSet omts = new OMToolSet();
             // Create an OpenMap toolbar
@@ -128,8 +124,7 @@ public class OpenMap extends OpenMapComponent
             mapHandler.add(mouseDelegator);
             mapHandler.add(infoDel);
         }
-        catch (MultipleSoloMapComponentException msmce)
-        {
+        catch (MultipleSoloMapComponentException msmce) {
             // The MapHandler is only allowed to have one of certain
             // items.  These items implement the SoloMapComponent
             // interface.  The MapHandler can have a policy that
@@ -146,8 +141,7 @@ public class OpenMap extends OpenMapComponent
     /**
      * Creates an OpenMap with an EventTableLayer.  Consider this deprecated.
      */
-    public OpenMap(EventTableModel etm, ListSelectionModel lsm, String shapefile)
-    {
+    public OpenMap(EventTableModel etm, ListSelectionModel lsm, String shapefile) {
         this(shapefile);
         setEventLayer(new EventTableLayer(etm, lsm, mapBean));
     }
@@ -155,28 +149,25 @@ public class OpenMap extends OpenMapComponent
     /**
      * Deprecated
      */
-    public void addStationsFromChannelChooser(ChannelChooser chooser)
-    {
-        if(chooser != null)
-        {
+    public void addStationsFromChannelChooser(ChannelChooser chooser) {
+        if(chooser != null) {
             setStationLayer(new ChannelChooserLayer(chooser));
         }
     }
     
-    public void setStationLayer(StationLayer staLayer)
-    {
+    public void setStationLayer(StationLayer staLayer) {
         stl = staLayer;
         mapHandler.add(stl);
         lh.addLayer(stl,0);
         el.addEQSelectionListener(stl);
-        if (el instanceof EventTableLayer)
-        {
+        if (el instanceof EventTableLayer) {
             ((EventTableLayer)el).getTableModel().addEventDataListener(stl);
         }
     }
     
-    public void setEventLayer(EventLayer evl)
-    {
+    public StationLayer getStationLayer(){ return stl; }
+    
+    public void setEventLayer(EventLayer evl) {
         el = evl;
         mapHandler.add(el);
         lh.addLayer(el,0);
@@ -185,48 +176,41 @@ public class OpenMap extends OpenMapComponent
         el.addEQSelectionListener(dl);
         mapHandler.add(dl);
         lh.addLayer(dl, 1);
-        if (el instanceof EventTableLayer)
-        {
+        if (el instanceof EventTableLayer) {
             ((EventTableLayer)el).getTableModel().addEventDataListener(dl);
         }
     }
     
-    public Layer[] getLayers()
-    {
+    public EventLayer getEventLayer(){ return el; }
+    
+    public Layer[] getLayers() {
         return lh.getLayers();
     }
     
-    public MapBean getMapBean()
-    {
-        if (mapBean == null)
-        {
+    public MapBean getMapBean() {
+        if (mapBean == null) {
             mapBean = new BufferedMapBean();
         }
         return mapBean;
     }
     
-    public void setZoom(float zoomFactor)
-    {
+    public void setZoom(float zoomFactor) {
         mapBean.zoom(new ZoomEvent(this, ZoomEvent.ABSOLUTE, zoomFactor));
     }
     
-    public void addMouseMode(MapMouseMode mode)
-    {
+    public void addMouseMode(MapMouseMode mode) {
         mouseDelegator.addMouseMode(mode);
-        if (mode instanceof ZoomTool)
-        {
+        if (mode instanceof ZoomTool) {
             ((ZoomTool)mode).addZoomListener(getMapBean());
         }
     }
     
-    public void setActiveMouseMode(MapMouseMode mode)
-    {
+    public void setActiveMouseMode(MapMouseMode mode) {
         mouseDelegator.setActiveMouseMode(mode);
     }
     
     
-    public void writeMapToPNG(String filename)
-    {
+    public void writeMapToPNG(String filename){
         Projection proj = mapBean.getProjection();
         int w = proj.getWidth(), h = proj.getHeight();
         BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
@@ -238,19 +222,30 @@ public class OpenMap extends OpenMapComponent
             layers[i].renderDataForProjection(proj, g);
         }
         
-        try
-        {
+        try {
             File loc = new File(filename);
             File temp = File.createTempFile(loc.getName(), null);
             ImageIO.write(bi, "png", temp);
+            loc.delete();
             temp.renameTo(loc);
         }
-        catch(IOException e)
-        {
+        catch(IOException e) {
             System.out.println("there was a problem writing the file");
             
         }
     }
+    
+    private BufferedImage getImage(){
+        Object img = imgRef.get();
+        if(img == null){
+            Projection proj = mapBean.getProjection();
+            img = new BufferedImage(proj.getWidth(), proj.getHeight(), BufferedImage.TYPE_INT_RGB);
+            imgRef = new SoftReference(img);
+        }
+        return (BufferedImage)img;
+    }
+    
+    SoftReference imgRef = new SoftReference(null);
     
     private class InformativeShapeLayer extends ShapeLayer{
         public void renderDataForProjection(Projection p, Graphics g){
@@ -259,8 +254,7 @@ public class OpenMap extends OpenMapComponent
         }
     }
     
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
         
         om.writeMapToPNG("map.png");
