@@ -157,6 +157,11 @@ oot:${pom.artifactId}</connection>
       <version>1.4.1</version>
       <url>www.jacorb.org</url>
     </dependency>
+    <dependency>
+      <id>openmap</id>
+      <version>4.5.4</version>
+      <url>openmap.bbn.com</url>
+    </dependency>
 
   </dependencies>
 
