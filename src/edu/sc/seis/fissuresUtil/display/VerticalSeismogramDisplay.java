@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.text.SimpleDateFormat;
+import edu.sc.seis.fissuresUtil.xml.*;
 import org.apache.log4j.*;
 
 /**
@@ -39,17 +40,20 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	sorter = new AlphaSeisSorter();
     }
     
-    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, String name){
-	return addDisplay(seis, globalTimeRegistrar, name);
+    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, String name, DataSet ds){
+	return addDisplay(new DataSetSeismogram(seis, ds), globalTimeRegistrar, name);
+    }
+
+    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, String name, DataSet ds){
+	return addDisplay(new DataSetSeismogram(seis, ds), tr, name);
     }
     
-    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, String name){
+    public BasicSeismogramDisplay addDisplay(DataSetSeismogram dss, TimeConfigRegistrar tr, String name){
 	if(sorter.contains(name)){
 	    return null;
 	}
-	BasicSeismogramDisplay disp = new BasicSeismogramDisplay((LocalSeismogram)seis, tr,
-								 name, this);
-	int i = sorter.sort(seis, name);
+	BasicSeismogramDisplay disp = new BasicSeismogramDisplay(dss, tr, name, this);
+	int i = sorter.sort(((LocalSeismogramImpl)dss.getSeismogram()), name);
 	seismograms.add(disp, i);
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
@@ -64,8 +68,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	return disp;
     }
 
-    public void addSeismogram(LocalSeismogramImpl seis, int index){
-	((SeismogramDisplay)basicDisplays.get(index)).addSeismogram((LocalSeismogram)seis);
+    public void addSeismogram(DataSetSeismogram seis, int index){
+	((BasicSeismogramDisplay)basicDisplays.get(index)).addSeismogram(seis);
     }
 
     public LinkedList getDisplays(){ return basicDisplays; }
@@ -187,7 +191,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(particleDisplay == null){
 	    logger.debug("creating particle display");
 	    particleWindow = new JDialog();
-	    LocalSeismogramImpl seis = ((LocalSeismogramImpl)creator.getSeismograms().getFirst());
+	    LocalSeismogramImpl seis = (((LocalSeismogramImpl)((DataSetSeismogram)creator.getSeismograms().getFirst()).getSeismogram()));
 	    particleDisplay = new ParticleMotionDisplay(seis, seis, creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
 							creator.getAmpRegistrar(), Color.blue);
 	    particleDisplay.addAzimuthLine(15);
@@ -240,14 +244,15 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    selectionWindow.getContentPane().add(infoBar, BorderLayout.SOUTH);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getCurrentSelection().getInternalConfig();
-	    LocalSeismogramImpl first = ((LocalSeismogramImpl)e.next());
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange((LocalSeismogram)first)));
+	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()), 
+										   tr.getTimeRange(first.getSeismogram())));
 	    ar.visibleAmpCalc(tr);
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
 	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, creator.getName() + "." +
 										 creator.getCurrentSelection().getColor()));
 	    while(e.hasNext()){
-		selectionDisplay.addSeismogram(((LocalSeismogramImpl)e.next()), 0);
+		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
 	    selectionWindow.getContentPane().add(selectionDisplay);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
@@ -258,13 +263,14 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    logger.debug("adding another selection");
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getCurrentSelection().getInternalConfig();
-	    LocalSeismogramImpl first = ((LocalSeismogramImpl)e.next());
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange((LocalSeismogram)first)));
+	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()),
+										   tr.getTimeRange(first.getSeismogram())));
 	    ar.visibleAmpCalc(tr);
 	    creator.getCurrentSelection().setDisplay(selectionDisplay.addDisplay(first, tr, creator.getName() + "." +  
 										 creator.getCurrentSelection().getColor()));
 	    while(e.hasNext()){
-		selectionDisplay.addSeismogram(((LocalSeismogramImpl)e.next()), 0);
+		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }
 	}
     }
