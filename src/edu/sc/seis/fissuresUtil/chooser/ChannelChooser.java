@@ -21,14 +21,14 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3147 2003-01-21 22:00:40Z crotwell $
+ * @version $Id: ChannelChooser.java 3209 2003-01-27 22:33:00Z crotwell $
  *
  */
 
 
 public class ChannelChooser extends JPanel{
 
-    public ChannelChooser(NetworkDC[] netdcgiven) {
+    public ChannelChooser(NetworkDCOperations[] netdcgiven) {
         this(netdcgiven,
              false,
              defaultSelectableOrientations,
@@ -38,7 +38,7 @@ public class ChannelChooser extends JPanel{
 	     new String[0]);
     }
   
-    public ChannelChooser(NetworkDC[] netdcgiven,
+    public ChannelChooser(NetworkDCOperations[] netdcgiven,
 			  boolean showSites) {
         this(netdcgiven,
              showSites,
@@ -49,7 +49,7 @@ public class ChannelChooser extends JPanel{
 	     new String[0]);
     }
    
-    public ChannelChooser(NetworkDC[] netdcgiven, 
+    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
 			  String[] configuredNetworks) {
         this(netdcgiven,
              false,
@@ -61,7 +61,7 @@ public class ChannelChooser extends JPanel{
     }
     
 
-    public ChannelChooser(NetworkDC[] netdcgiven, 
+    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
                           boolean showSites,
 			  String[] configuredNetworks) {
         this(netdcgiven,
@@ -74,7 +74,7 @@ public class ChannelChooser extends JPanel{
     }
     
 
-    public ChannelChooser(NetworkDC[] netdcgiven, 
+    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
                           boolean showSites,
                           int[] selectableOrientations,
                           int autoSelectedOrientation,
@@ -91,9 +91,13 @@ public class ChannelChooser extends JPanel{
         bundle = ResourceBundle.getBundle(ChannelChooser.class.getName());
         initFrame();
 	setConfiguredNetworks(configuredNetworks);
-        setNetworkDC(netdcgiven);
+        setNetworkDCs(netdcgiven);
     }
-    
+
+    public Map getNetDCToNetMap() {
+	return netDCToNetMap;
+    }
+
     public void setConfiguredNetworks(String[] configuredNetworks) {
 	this.configuredNetworks = new String[configuredNetworks.length];
 	System.arraycopy(configuredNetworks, 0, 
@@ -101,7 +105,12 @@ public class ChannelChooser extends JPanel{
 			 configuredNetworks.length);
 			 
     }
-    public void setNetworkDC(NetworkDC[] netdcgiven) {
+
+    public NetworkDCOperations[] getNetworkDCs() {
+	return netdc;
+    }
+
+    public void setNetworkDCs(NetworkDCOperations[] netdcgiven) {
         netdc = netdcgiven;
         channels.clear();
         sites.clear();
@@ -635,7 +644,8 @@ public class ChannelChooser extends JPanel{
     protected DefaultListModel bandListModel = new DefaultListModel();
     protected HashMap channelMap = new HashMap();
 
-    private NetworkDC[] netdc;
+    private NetworkDCOperations[] netdc;
+    protected HashMap netDCToNetMap = new HashMap();
 
     private StationLoader stationLoader = null;
     private ChannelLoader channelLoader = null;
@@ -764,9 +774,9 @@ public class ChannelChooser extends JPanel{
     }
 
     class NetworkLoader extends Thread {
-	NetworkDC netdc;
+	NetworkDCOperations netdc;
 	boolean doSelect = true;
-	public NetworkLoader(NetworkDC netdc) {
+	public NetworkLoader(NetworkDCOperations netdc) {
 	    this.netdc = netdc;
 	}
 	public void setDoSelect(boolean b) {
@@ -780,6 +790,8 @@ public class ChannelChooser extends JPanel{
 	    if(configuredNetworks == null || configuredNetworks.length == 0) {
 		NetworkAccess[] nets = 
 		    netdc.a_finder().retrieve_all();
+		netDCToNetMap.put(netdc, nets);
+
 		setProgressMax(this, nets.length+1);
 		int progressVal = 1;
 		setProgressValue(this, progressVal);
@@ -964,6 +976,7 @@ public class ChannelChooser extends JPanel{
 
     static Category logger = 
         Category.getInstance(ChannelChooser.class.getName());
+
 } // ChannelChooser
 
 
