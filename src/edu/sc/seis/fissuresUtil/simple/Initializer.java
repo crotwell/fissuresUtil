@@ -111,7 +111,18 @@ public abstract class Initializer{
     public static final NetworkId IU = new NetworkId("IU", new Time("19981026200000.0000GMT", 0));
     public static final StationId AMNO = new StationId(IU, "ANMO", new Time("19981026200000.0000GMT", 0));
     public static final ChannelId AMNOChannel = new ChannelId(IU, "ANMO", "00", "BH1", new Time("19981026200000.0000GMT", 0));
-    public static final NetworkId fakeNet = new NetworkId("II", new Time("19861024000000.0000GMT", 0));
-    public static final StationId fakeStation = new StationId(fakeNet, "AAK", new Time("19901012000000.0000GMT", 0));
-    public static final ChannelId fakeChan = new ChannelId(fakeNet, "AAK", "  ", "BHE", new Time("19901012000000.0000GMT", 0));
+    public static final NetworkId fakeNet;
+    public static StationId fakeStation;
+    public static  ChannelId fakeChan;
+    static{
+        //IRIS
+        fakeNet = new NetworkId("II", new Time("19861024000000.0000GMT", 0));
+        fakeStation = new StationId(fakeNet, "AAK", new Time("19901012000000.0000GMT", 0));
+        fakeChan = new ChannelId(fakeNet, "AAK", "  ", "BHE", new Time("19901012000000.0000GMT", 0));
+
+        //SCEPP
+        //fakeNet = new NetworkId("SP", new Time("20001209T01:00:00.000Z", 0));
+        //fakeStation = new StationId(fakeNet, "ACFLR", new Time("20001209T01:00:00.000Z", 0));
+        //fakeChan = new ChannelId(fakeNet, "ACFLR", "  ", "BHE", new Time("20001209T01:00:00.000Z", 0));
+    }
 }
