@@ -17,7 +17,7 @@ public class DistanceSeisSorter extends SeismogramSorter {
 	    i++;
 	}
 	seismos.put(name, seismo);
-	names.add(i, seismo);
+	names.add(i, name);
 	return i;
     }
 }// DistanceSeisSorter
