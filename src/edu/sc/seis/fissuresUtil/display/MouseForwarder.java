@@ -30,8 +30,16 @@ public class MouseForwarder implements MouseListener {
         listenerList.add(MouseListener.class, m);
     }
 
+    public void addPermMouseListener(MouseListener m){
+        listenerList.add(MouseListener.class, m);
+    }
+
     public void removeMouseListener(MouseListener m) {
         current = null;
+        listenerList.remove(MouseListener.class, m);
+    }
+
+    public void removePermMouseListener(MouseListener m){
         listenerList.remove(MouseListener.class, m);
     }
 
