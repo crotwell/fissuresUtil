@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.iris.Fissures.model.UnitImpl;
 
 /**
  * AmpEvent.java
@@ -24,7 +25,9 @@ public class AmpEvent {
     
     public UnitRangeImpl getAmp(){
 	if(genericAmp == null){
-	    if(amps.length == 1){
+	    if(amps.length == 0){
+                genericAmp = new UnitRangeImpl(-1, 1, UnitImpl.COUNT);
+	    } else if(amps.length == 1){
 		genericAmp = amps[0];
 	    }else{
 		boolean equal = true;
