@@ -6,6 +6,7 @@ import edu.iris.Fissures.display.TimePlotConfig;
 import edu.iris.Fissures.IfTimeSeries.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.codec.CodecException;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.IfParameterMgr.*;
@@ -38,7 +39,7 @@ public class SeisPlotUtil  {
 					     UnitRangeImpl a,
 					     MicroSecondTimeRange t,
                                              Dimension size) 
-    throws UnsupportedDataEncoding {
+    throws CodecException {
 
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 
@@ -59,7 +60,7 @@ public class SeisPlotUtil  {
                                                UnitRangeImpl a,
 					       MicroSecondTimeRange t,
                                                Dimension size) 
-    throws UnsupportedDataEncoding {
+    throws CodecException {
 
 	int[][] uncomp = getPlottableSimple(seismogram, a, t, size);
         if (uncomp[0].length < 3*size.width) {
@@ -108,7 +109,7 @@ public class SeisPlotUtil  {
 					     UnitRangeImpl a, 
 					     MicroSecondTimeRange t,
 					     Dimension size) 
-    throws UnsupportedDataEncoding {
+    throws CodecException {
 
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 
@@ -179,7 +180,7 @@ public class SeisPlotUtil  {
                                              int pixelStartIndex,
                                              int pixelEndIndex,
                                              Dimension size) 
-    throws UnsupportedDataEncoding {
+    throws CodecException {
         double yMin = seis.getMinValue(seisStartIndex,
                                        seisEndIndex).getValue();
         double yMax = seis.getMaxValue(seisStartIndex,
@@ -198,7 +199,7 @@ public class SeisPlotUtil  {
                                              double yMin,
                                              double yMax,
                                              Dimension size) 
-    throws UnsupportedDataEncoding {
+    throws CodecException {
         int[][] out = new int[2][];
 	int seisIndex = 0;
 	int pixelIndex = 0;
@@ -244,7 +245,7 @@ public class SeisPlotUtil  {
                                                  double azimuth,
                                                  MicroSecondDate begin,
                                                  MicroSecondDate end) 
-    throws UnsupportedDataEncoding {
+    throws CodecException {
         Assert.isTrue(hSeis.y_unit.equals(vSeis.y_unit), 
                       "Units must be the same");
         LocalSeismogramImpl[] out = new LocalSeismogramImpl[2];
@@ -617,7 +618,7 @@ public class SeisPlotUtil  {
     protected static int[][] scaleXvalues(LocalSeismogram seismogram, 
 					  TimePlotConfig config,
 					  Dimension size) 
-	throws UnsupportedDataEncoding {
+	throws CodecException {
 
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 
@@ -744,7 +745,7 @@ public class SeisPlotUtil  {
 
     protected static int[][] compressYvalues(LocalSeismogram seismogram, 
 					     TimePlotConfig config,
-					     Dimension size)throws UnsupportedDataEncoding {
+					     Dimension size)throws CodecException {
 	
 
 	int[][] uncomp = scaleXvalues(seismogram, config, size);

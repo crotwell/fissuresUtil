@@ -6,6 +6,7 @@ import edu.iris.Fissures.display.TimePlotConfig;
 import edu.iris.Fissures.IfTimeSeries.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.codec.CodecException;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.IfParameterMgr.*;
@@ -30,7 +31,7 @@ public class SimplePlotUtil  {
 					  MicroSecondTimeRange timeRange,
 					  UnitRangeImpl ampRange,
 					  Dimension size) 
-	throws UnsupportedDataEncoding {
+	throws CodecException {
 
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 
@@ -148,7 +149,7 @@ public class SimplePlotUtil  {
     protected static int[][] compressYvalues(LocalSeismogram seismogram, 
 					     MicroSecondTimeRange tr,
 					     UnitRangeImpl ampRange,
-					     Dimension size)throws UnsupportedDataEncoding {
+					     Dimension size)throws CodecException {
 	LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 	/*double pointsPerPixel = tr.getInterval().divideBy(seis.getSampling().getPeriod()).getValue() / 
 	    size.width;
@@ -207,7 +208,7 @@ public class SimplePlotUtil  {
 					     UnitRangeImpl a, 
 					     MicroSecondTimeRange t,
 					     Dimension size) 
-    throws UnsupportedDataEncoding {
+    throws CodecException {
 
         LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 
@@ -278,7 +279,7 @@ public class SimplePlotUtil  {
                                              double yMin,
                                              double yMax,
                                              Dimension size) 
-    throws UnsupportedDataEncoding {
+    throws CodecException {
         int[][] out = new int[2][];
 	int previousy = 0;
 	int seisIndex = 0;
