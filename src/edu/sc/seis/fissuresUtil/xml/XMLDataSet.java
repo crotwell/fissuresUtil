@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2091 2002-07-09 20:25:56Z telukutl $
+ * @version $Id: XMLDataSet.java 2092 2002-07-09 20:27:09Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -450,7 +450,7 @@ public class XMLDataSet implements DataSet, Serializable {
     }
     
     /**
-     * Assigns names to the seismograms without names based on the channelId and returns the array of assigned names.
+     * Assigns names to the seismograms without names based on the channelId and returns the array of assigned names
      *
      * @return a <code>String[]</code> value
      */
