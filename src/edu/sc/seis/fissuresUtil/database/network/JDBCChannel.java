@@ -77,6 +77,10 @@ public class JDBCChannel extends NetworkTable {
         getAllChansForStation = conn.prepareStatement(getAllQuery + ", site "
                 + "WHERE channel.site_id = site.site_id AND "
                 + "site.sta_id = ?");
+        getByCodes = conn.prepareStatement(getAllQuery + ", site, station "
+                                          + "WHERE channel.site_id = site.site_id AND "
+                                          + "site.sta_id = station.sta_id AND " + "station.net_id = ? AND "
+                                          + " station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ? ");
         getAllChansForNetwork = conn.prepareStatement(getAllQuery
                 + ", site, station "
                 + "WHERE channel.site_id = site.site_id AND "
@@ -151,6 +155,16 @@ public class JDBCChannel extends NetworkTable {
         return extractAllChans(getAllChansForStation);
     }
 
+    public Channel[] getByCode(NetworkId networkId, String station_code, String site_code, String channel_code) throws SQLException, NotFound {
+        int net_id = netTable.getDBId(networkId);
+        int index = 1;
+        getByCodes.setInt(index++, net_id);
+        getByCodes.setString(index++, station_code);
+        getByCodes.setString(index++, site_code);
+        getByCodes.setString(index++, channel_code);
+        return extractAllChans(getByCodes);
+    }
+    
     public int getDBId(ChannelId id) throws SQLException, NotFound {
         int netDbId = netTable.getDBId(id.network_id);
         int[] possibleStaDbIds = stationTable.getDBIds(netDbId, id.station_code);
@@ -177,6 +191,14 @@ public class JDBCChannel extends NetworkTable {
 
     public JDBCSite getSiteTable() {
         return siteTable;
+    }
+    
+    public JDBCNetwork getNetworkTable() {
+        return netTable;
+    }
+    
+    public JDBCStation getStationTable() {
+        return stationTable;
     }
 
     private void insertAdditonalChannelStuff(int chanDbId,
@@ -235,7 +257,7 @@ public class JDBCChannel extends NetworkTable {
 
     private PreparedStatement getAllChans, getAllChansForStation,
             getAllChansForNetwork, getByDBId, putAll, updateNonId, putId,
-            getAllIds, getAllIdsForStation, getAllIdsForNetwork;
+            getAllIds, getAllIdsForStation, getAllIdsForNetwork, getByCodes;
 
     private JDBCNetwork netTable;
 
@@ -354,4 +376,5 @@ public class JDBCChannel extends NetworkTable {
     }
 
     private static final Logger logger = Logger.getLogger(JDBCChannel.class);
+
 } // JDBCChannel
