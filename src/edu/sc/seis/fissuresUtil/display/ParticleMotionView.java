@@ -358,12 +358,12 @@ public class ParticleMotionView extends JComponent{
 	  Font font = new Font("serif", Font.BOLD, (int)fontSize);
 	  graphics2D.setFont(font);
 	  String labelStr = new String();
-	  labelStr = particleMotion.hseis.getName();
+	  labelStr = particleMotion.hseis.toString();
 	  int x = (dimension.width - (int)(labelStr.length()*fontSize)) / 2  - getInsets().left - getInsets().right;
 	  int y = dimension.height  - 4;
 	  graphics2D.drawString(labelStr, x, y);
 	  
-	  labelStr = particleMotion.vseis.getName();
+	  labelStr = particleMotion.vseis.toString();
 	  x = font.getSize();
 	  y = (dimension.height - (int)(labelStr.length()*fontSize)) / 2  -  getInsets().top - getInsets().bottom;
 	   //get the original AffineTransform

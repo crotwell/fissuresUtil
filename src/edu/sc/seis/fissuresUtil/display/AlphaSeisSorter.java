@@ -24,10 +24,10 @@ public class AlphaSeisSorter extends SeismogramSorter{
      */
     public int sort(DataSetSeismogram[] seismograms){
 	int i = 0;
-	while(i < names.size() && ((String)names.get(i)).compareToIgnoreCase(seismograms[i].getName()) < 0){
+	while(i < names.size() && ((String)names.get(i)).compareToIgnoreCase(seismograms[i].toString()) < 0){
 	    i++;
 	}
-	names.add(i, seismograms[i].getName());
+	names.add(i, seismograms[i].toString());
 	return i;
     }
 }// AlphaSeisSorter

@@ -600,8 +600,8 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 	    if(ae.getStateChange() == ItemEvent.SELECTED) {
 		view.addDisplayKey(((AbstractButton)ae.getItem()).getText());
 		
-		setHorizontalTitle(view.getSelectedParticleMotion()[0].hseis.getName());
-		setVerticalTitle(view.getSelectedParticleMotion()[0].vseis.getName());
+		setHorizontalTitle(view.getSelectedParticleMotion()[0].hseis.toString());
+		setVerticalTitle(view.getSelectedParticleMotion()[0].vseis.toString());
 		view.updateTime();
 	
 	    } else if(ae.getStateChange() == ItemEvent.DESELECTED){

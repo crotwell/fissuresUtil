@@ -102,7 +102,7 @@ public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet datas
     public static String[] getSeismogramNames(DataSetSeismogram[] dss){
 	String[] names = new String[dss.length];
 	for(int i = 0; i < dss.length; i++){
-	    names[i] = dss[i].getName();
+	    names[i] = "" + dss[i];
 	}
 	return names;
     }
@@ -126,7 +126,8 @@ public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet datas
     }
     
     /**
-     * performs the same operation as getComponents, but also adds a suffix to each created datasetseismogram
+     * <code>getComponents</code> performs the same operation as getComponents, but also adds a suffix to each created
+     * datasetseismogram
      * @param suffix the string to be appended
      */
     public static DataSetSeismogram[][] getComponents(DataSetSeismogram[] dss, String suffix){
@@ -146,7 +147,7 @@ public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet datas
 		    for(int j = 0; j < newSeismograms.length; j++){
 			DataSetSeismogram current = new DataSetSeismogram((LocalSeismogramImpl)newSeismograms[j], 
 									  dataSet, 
-									  dss[i].getSuffix() + suffix);
+									  ((LocalSeismogramImpl)newSeismograms[i]).getName()+ suffix);
 			if(DisplayUtils.getOrientationName(channelGroup[counter].channel_code).equals("North")){
 			    north.add(current);
 			}else if(DisplayUtils.getOrientationName(channelGroup[counter].channel_code).equals("East")){
@@ -169,7 +170,7 @@ public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet datas
     public static DataSetSeismogram[] addSuffix(DataSetSeismogram[] dss, String suffix){
 	DataSetSeismogram[] suffixedDss = new DataSetSeismogram[dss.length];
 	for(int i = 0; i < dss.length; i++){
-	    suffixedDss[i] = new DataSetSeismogram(dss[i], suffix);
+	    suffixedDss[i] = new DataSetSeismogram(dss[i], dss[i].toString() + suffix);
 	}
 	return suffixedDss;
     }
