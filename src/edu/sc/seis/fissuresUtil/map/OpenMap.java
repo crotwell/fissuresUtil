@@ -44,16 +44,16 @@ public class OpenMap extends OpenMapComponent{
             LayerHandler lh = new LayerHandler();
             mapHandler.add(lh);
 
+            if(etm != null){
+                EventLayer el = new EventLayer(etm, mapBean);
+                mapHandler.add(el);
+                lh.addLayer(el, 1);
+            }
+
             if(chooser != null){
                 StationLayer sl = new StationLayer(chooser);
                 mapHandler.add(sl);
                 lh.addLayer(sl,0);
-            }
-
-            if(etm != null){
-                EventLayer el = new EventLayer(etm);
-                mapHandler.add(el);
-                lh.addLayer(el, 1);
             }
 
             // Create a ShapeLayer to show world political boundaries.
@@ -64,8 +64,8 @@ public class OpenMap extends OpenMapComponent{
             shapeLayerProps.put("prettyName", "Political Solid");
             shapeLayerProps.put("lineColor", "000000");
             shapeLayerProps.put("fillColor", "BDDE83");
-            shapeLayerProps.put("shapeFile", "edu/sc/seis/vsnexplorer/data/maps/dcwpo-browse.shp");
-            shapeLayerProps.put("spatialIndex", "edu/sc/seis/vsnexplorer/data/maps/dcwpo-browse.ssx");
+            shapeLayerProps.put("shapeFile", "edu/sc/seis/fissuresUtil/map/dcwpo-browse.shp");
+            shapeLayerProps.put("spatialIndex", "edu/sc/seis/fissuresUtil/map/dcwpo-browse.ssx");
             shapeLayer.setProperties(shapeLayerProps);
             shapeLayer.setVisible(true);
 
