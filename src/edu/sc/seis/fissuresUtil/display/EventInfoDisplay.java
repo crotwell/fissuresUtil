@@ -6,6 +6,7 @@ import edu.iris.Fissures.model.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
+import java.text.*;
 
 import java.awt.*;              //for layout managers
 import java.awt.event.*;        //for action and window events
@@ -21,13 +22,14 @@ import java.awt.datatransfer.*;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 2156 2002-07-12 01:33:13Z crotwell $
+ * @version $Id: EventInfoDisplay.java 2187 2002-07-12 20:21:38Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay 
     implements DropTargetListener {
 
     public EventInfoDisplay (){
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
     
     public void displayEvent(EventAccessOperations event) {
@@ -91,15 +93,26 @@ public class EventInfoDisplay extends TextInfoDisplay
 	appendLine(doc, "");
 	appendHeader(doc, "Event to Station");
 	double dist = -1;
+	double baz = -1;
+    appendLabelValue(doc, "       ", "Lat Lon  Dist (deg)  Dist (km)  Azimuth to Event (deg)");
 	for (int i=0; i<station.length; i++) {
 	    try {
 	    dist = sph.distance(event.get_preferred_origin().my_location.latitude,
 				event.get_preferred_origin().my_location.longitude,
 				station[i].my_location.latitude,
 				station[i].my_location.longitude);
-	    appendLabelValue(doc, station[i].get_code(), dist+" degrees" );
+	    baz = sph.azimuth(station[i].my_location.latitude,
+                          station[i].my_location.longitude,
+                          event.get_preferred_origin().my_location.latitude,
+                          event.get_preferred_origin().my_location.longitude);
+	    appendLabelValue(doc, station[i].get_code(), 
+                         twoDecimal.format(station[i].my_location.latitude)+
+                   " "+twoDecimal.format(station[i].my_location.longitude)+
+                   twoDecimal.format(dist)+ twoDecimal.format(baz));
 	    } catch (NoPreferredOrigin e) {
-		appendLabelValue(doc, station[i].get_code(), " --- degrees" );
+	    appendLabelValue(doc, station[i].get_code(),
+                         twoDecimal.format(station[i].my_location.latitude)+
+                   " "+twoDecimal.format(station[i].my_location.longitude)+ "--- ,  ---");
 	    } // end of try-catch
 
 	} // end of for (int i=0; i<station.length; i++)
@@ -117,7 +130,13 @@ public class EventInfoDisplay extends TextInfoDisplay
     {
 	appendHeader(doc, "Event");
 	appendLabelValue(doc, "Name", attr.name);
+    if (attr.region.number > 0) {
 	appendLabelValue(doc, "Region", feRegions.getRegionName(attr.region)+" ("+attr.region.number+")");
+    } else {
+	appendLabelValue(doc, "Region", "Unknown ("+attr.region.number+")");
+    } // end of else
+    
+    
 	appendLine(doc, "");
     }
 
@@ -131,14 +150,20 @@ public class EventInfoDisplay extends TextInfoDisplay
 	throws BadLocationException 
     {
 	appendHeader(doc, "Origin");
-	appendLabelValue(doc, "Location", "("+origin.my_location.latitude+
-			 ", "+origin.my_location.longitude+")");
-	appendLabelValue(doc, "Time", origin.origin_time.date_time);
-	appendLabelValue(doc, "Depth", origin.my_location.depth.value+" "+
-			 ((UnitImpl)origin.my_location.depth.the_units).toString());
-	appendLabelValue(doc, "ID", origin.get_id());
-	appendLabelValue(doc, "Catalog", origin.catalog);
-	appendLabelValue(doc, "Contributor", origin.contributor);
+	appendLabelValue(doc, "Location", "  latitude="+
+                     twoDecimal.format(origin.my_location.latitude)+
+                     ",  longitude="+
+                     twoDecimal.format(origin.my_location.longitude));
+    MicroSecondDate oTime = new ISOTime(origin.origin_time.date_time).getDate();
+	appendLabelValue(doc, "Time", dateFormat.format(oTime));
+    QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
+    depth = depth.convertTo(UnitImpl.KILOMETER);
+	appendLabelValue(doc, "Depth", 
+                     twoDecimal.format(depth.value)+" kilometers");
+                     //  ((UnitImpl)depth.the_units).toString());
+    //	appendLabelValue(doc, "ID", origin.get_id());
+	//appendLabelValue(doc, "Catalog", origin.catalog);
+	//appendLabelValue(doc, "Contributor", origin.contributor);
 
 	appendLine(doc, "");
 	for (int i=0; i<origin.magnitudes.length; i++) {
@@ -239,6 +264,7 @@ public class EventInfoDisplay extends TextInfoDisplay
         System.err.println("[Target] dropActionChanged");
     }
 
-
+    DecimalFormat twoDecimal = new DecimalFormat("0.00");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
 
 }// EventInfoDisplay
