@@ -187,10 +187,8 @@ public class SimplePlotUtil  {
                                      tMin,
                                      tMax,
                                      tempdate);
-                                     
- 
-
-       
+                                 
+      
 	int pixels = size.width;
 	out[0] = new int[2*pixels];
 	out[1] = new int[out[0].length];
@@ -286,13 +284,17 @@ public class SimplePlotUtil  {
 	LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 	double yMin = ampRange.getMinValue();
         double yMax = ampRange.getMaxValue();
+	System.out.println("yMin = "+yMin+ " yMax = "+yMax+" height = "+size.height);
 	for( int i =0 ; i < comp[1].length; i++) {
+	    //System.out.println(" before "+comp[1][i]);
 	    comp[1][i] = Math.round((float)(linearInterp(yMin, 0,
-							 yMax, size.height,
+							 yMax, size.height, 
 							 comp[1][i])));
+	    // System.out.println(" after "+comp[1][i]);
+	    
 	}
 	
-	flipArray(comp[1], size.height);
+	//	flipArray(comp[1], size.height);
 
     }
 	
