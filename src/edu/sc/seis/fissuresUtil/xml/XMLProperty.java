@@ -19,23 +19,6 @@ import java.net.*;
 public class XMLProperty {
 
     /**
-     * Describe <code>parse</code> method here.
-     *
-     * @param element an <code>Element</code> value
-     * @return a <code>Property</code> value
-     */
-    public static Property parse(Element element) {
-	try {
-	    String name = XMLUtil.getText(XMLUtil.getElement(element,"name"));
-	    String value = XMLUtil.getText(XMLUtil.getElement(element, "value"));
-	    return new Property(name, value);
-	} catch (Exception e) {
-	    return null;
-	} // end of try-catch
-	
-    }
-
-    /**
      * Describe <code>createElement</code> method here.
      *
      * @param doc a <code>Document</code> value
@@ -43,22 +26,22 @@ public class XMLProperty {
      * @param tagName a <code>String</code> value
      * @return an <code>Element</code> value
      */
-    public static Element createElement(Document doc, 
-					Property prop, 
-					String tagName) {
-	Element element = doc.createElement(tagName);
+    public static void insert(Element element,
+                              Property prop) {
+        insert(element, prop.name, prop.value);
+    }
 
-	Text textNode = doc.createTextNode(prop.name);
-	Element tempElement = doc.createElement("name");
-	tempElement.appendChild(textNode);
-	element.appendChild(tempElement);
+    public static void insert(Element element,
+                              String name,
+                              String value) {
 
-	textNode = doc.createTextNode(prop.value);
-	tempElement = doc.createElement("value");
-	tempElement.appendChild(textNode);
-	element.appendChild(tempElement);
-	
-	return element;
+        Document doc = element.getOwnerDocument();
+        element.appendChild(XMLUtil.createTextElement(doc,
+                                                      "name",
+                                                      name));
+        element.appendChild(XMLUtil.createTextElement(doc,
+                                                      "value",
+                                                      value));
     }
 
     /**
@@ -68,10 +51,9 @@ public class XMLProperty {
      * @return a <code>Property</code> value
      */
     public static Property getProperty(Element base) {
-	String name = XMLUtil.getText(XMLUtil.getElement(base,"name"));
-	String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
-	System.out.println("While getting property name= "+name+" value= "+value);
-	return new Property(name, value);
+    String name = XMLUtil.getText(XMLUtil.getElement(base,"name"));
+    String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
+    return new Property(name, value);
     }
 
 }
