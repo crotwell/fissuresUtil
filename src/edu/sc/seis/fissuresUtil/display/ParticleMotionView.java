@@ -6,7 +6,9 @@ import java.util.*;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.FilteredDataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.RequestFilterChangeListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -43,6 +45,29 @@ public class ParticleMotionView extends JComponent implements TimeListener{
     public synchronized void resize() {
         setSize(super.getSize());
         repaint();
+    }
+    
+    public void add(NamedFilter filter){
+        Iterator it = parMos.iterator();
+        while(it.hasNext()){
+            ((ParticleMotion)it.next()).add(filter);
+        }
+        repaint();
+    }
+    
+    public void remove(NamedFilter filter){
+        Iterator it = parMos.iterator();
+        while(it.hasNext()){
+            ((ParticleMotion)it.next()).remove(filter);
+        }
+        repaint();
+    }
+    
+    public void setOriginal(boolean visible){
+        Iterator it = parMos.iterator();
+        while(it.hasNext()){
+            ((ParticleMotion)it.next()).setVisible(visible);
+        }
     }
     
     public void updateAmps(){
@@ -164,7 +189,12 @@ public class ParticleMotionView extends JComponent implements TimeListener{
                                                       Color color,
                                                       String key,
                                                       boolean horizPlane) {
-        parMos.add(new ParticleMotion(hseis, vseis, tc, color, key,horizPlane));
+        ParticleMotion newParMo = new ParticleMotion(hseis, vseis, tc, color, key,horizPlane);
+        parMos.add(newParMo);
+        Iterator it = SeismogramDisplay.activeFilters.iterator();
+        while(it.hasNext()){
+            newParMo.add((NamedFilter)it.next());
+        }
         updateAmps();
     }
     
@@ -233,27 +263,15 @@ public class ParticleMotionView extends JComponent implements TimeListener{
     private ParticleMotionDisplay pmd;
     
     class ParticleMotion implements TimeListener, AmpListener,
-        SeismogramContainerListener, RequestFilterChangeListener{
+        SeismogramContainerListener{
         public ParticleMotion(DataSetSeismogram hSeis, DataSetSeismogram vSeis,
                               TimeConfig tc, Color color, String key,
                               boolean horizPlane) {
-            //hSeis.addRequestFilterChangeListener(this);
-            //vSeis.addRequestFilterChangeListener(this);
-            DataSetSeismogram[] seis = { hSeis, vSeis};
-            AmpConfig ac = (AmpConfig)keysToAmpConfigs.get(key);
-            if(ac == null){
-                ac = new RMeanAmpConfig();
-                keysToAmpConfigs.put(key, ac);
-            }
-            ac.add(seis);
-            ac.addListener(this);
-            tc.addListener(ac);
-            tc.addListener(this);
-            tc.addListener(ParticleMotionView.this);
-            tc.add(seis);
-            horiz = new SeismogramContainer(this, seis[0]);
-            vert = new SeismogramContainer(this, seis[1]);
+            horiz = new SeismogramContainer(this,hSeis);
+            vert = new SeismogramContainer(this, vSeis);
+            this.tc = tc;
             this.key = key;
+            setUpConfigs();
             this.horizPlane = horizPlane;
             if(horizPlane){
                 pmd.displayBackAzimuth(hSeis.getDataSet(),
@@ -264,51 +282,62 @@ public class ParticleMotionView extends JComponent implements TimeListener{
             tc.fireTimeEvent();
         }
         
-        public void draw(Graphics g, Dimension size) {
-            Graphics2D g2D = (Graphics2D) g;
-            if(horiz.getIterator(tr).numPointsLeft() <= 0
-               || vert.getIterator(tr).numPointsLeft() <= 0){
-                return;
+        private void setUpConfigs(){
+            DataSetSeismogram[] seis = { horiz.getDataSetSeismogram(),
+                    vert.getDataSetSeismogram()};
+            AmpConfig ac = (AmpConfig)keysToAmpConfigs.get(key);
+            if(ac == null){
+                ac = new RMeanAmpConfig();
+                keysToAmpConfigs.put(key, ac);
             }
-            g2D.setColor(color);
-            g2D.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
-            int[]hPixels =  SimplePlotUtil.getPlottableSimple(horiz.getIterator(tr),
-                                                              ae.getAmp(horiz.getDataSetSeismogram()),
-                                                              size);
-            int[] vPixels = SimplePlotUtil.getPlottableSimple(vert.getIterator(tr),
-                                                              ae.getAmp(vert.getDataSetSeismogram()),
-                                                              size);
-            SimplePlotUtil.flipArray(hPixels, size.width);
-            g2D.draw(getParticleMotionPath(hPixels, vPixels));
+            if(!tc.contains(seis[0])){
+                tc.add(seis);
+            }
+            tc.addListener(ac);
+            tc.addListener(this);
+            tc.addListener(ParticleMotionView.this);
+            ac.add(seis);
+            ac.addListener(this);
+        }
+        
+        private void tearDownConfigs(){
+            DataSetSeismogram[] seis = { horiz.getDataSetSeismogram(),
+                    vert.getDataSetSeismogram()};
+            AmpConfig ac = (AmpConfig)keysToAmpConfigs.get(key);
+            tc.removeListener(this);
+            if(ac != null){
+                ac.remove(seis);
+                ac.removeListener(this);
+            }
+        }
+        
+        public void draw(Graphics g, Dimension size) {
+            if(visible){
+                Graphics2D g2D = (Graphics2D) g;
+                if(horiz.getIterator(tr).numPointsLeft() <= 0
+                   || vert.getIterator(tr).numPointsLeft() <= 0){
+                    return;
+                }
+                g2D.setColor(color);
+                g2D.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
+                int[]hPixels =  SimplePlotUtil.getPlottableSimple(horiz.getIterator(tr),
+                                                                  ae.getAmp(horiz.getDataSetSeismogram()),
+                                                                  size);
+                int[] vPixels = SimplePlotUtil.getPlottableSimple(vert.getIterator(tr),
+                                                                  ae.getAmp(vert.getDataSetSeismogram()),
+                                                                  size);
+                SimplePlotUtil.flipArray(hPixels, size.width);
+                g2D.draw(getParticleMotionPath(hPixels, vPixels));
+            }
+            Iterator it = filterToParMo.keySet().iterator();
+            while(it.hasNext()){
+                ((ParticleMotion)filterToParMo.get(it.next())).draw(g, size);
+            }
         }
         
         public void updateData() {
             repaint();
         }
-        
-        //Particle motion view needs to keep the data for both of its data set
-        //seismograms in sync, so it listens on their request filter changing,
-        //and if they don't match, makes them match
-        public void beginTimeChanged() {
-            MicroSecondDate horizBegin = new MicroSecondDate(horiz.getDataSetSeismogram().getRequestFilter().start_time);
-            MicroSecondDate vertBegin = new MicroSecondDate(vert.getDataSetSeismogram().getRequestFilter().start_time);
-            if(horizBegin.before(vertBegin)){
-                vert.getDataSetSeismogram().setBeginTime(horizBegin.getFissuresTime());
-            }else if(vertBegin.before(horizBegin)){
-                horiz.getDataSetSeismogram().setBeginTime(vertBegin.getFissuresTime());
-            }
-        }
-        
-        public void endTimeChanged() {
-            MicroSecondDate horizEnd = new MicroSecondDate(horiz.getDataSetSeismogram().getRequestFilter().end_time);
-            MicroSecondDate vertEnd = new MicroSecondDate(vert.getDataSetSeismogram().getRequestFilter().end_time);
-            if(horizEnd.after(vertEnd)){
-                vert.getDataSetSeismogram().setEndTime(horizEnd.getFissuresTime());
-            }else if(vertEnd.after(horizEnd)){
-                horiz.getDataSetSeismogram().setEndTime(vertEnd.getFissuresTime());
-            }
-        }
-        
         
         public void updateAmp(AmpEvent event) {
             this.ae = event;
@@ -322,17 +351,47 @@ public class ParticleMotionView extends JComponent implements TimeListener{
             return this.horizPlane;
         }
         
-        private SeismogramContainer horiz, vert;
+        public void add(NamedFilter filter){
+            if(!filterToParMo.containsKey(filter))
+                filterToParMo.put(filter, new ParticleMotion(FilteredDataSetSeismogram.getFiltered(horiz.getDataSetSeismogram(), filter),
+                                                             FilteredDataSetSeismogram.getFiltered(vert.getDataSetSeismogram(), filter),
+                                                             tc,
+                                                             SeismogramDisplay.COLORS[filterCount++ % SeismogramDisplay.COLORS.length],
+                                                             key,
+                                                             horizPlane));
+        }
         
+        public void remove(NamedFilter filter){
+            if(filterToParMo.containsKey(filter)){
+                ((ParticleMotion)filterToParMo.get(filter)).tearDownConfigs();
+                filterToParMo.remove(filter);
+            }
+        }
+        
+        public void setVisible(boolean visible){
+            this.visible = visible;
+            if(visible){
+                setUpConfigs();
+            }else{
+                tearDownConfigs();
+            }
+        }
+        
+        Map filterToParMo = new HashMap();
+        
+        private SeismogramContainer horiz, vert;
         public String key = new String();
+        private boolean visible = true;
         private MicroSecondTimeRange tr;
         private Color color;
         private boolean horizPlane = false;
         private AmpEvent ae;
+        private TimeConfig tc;
     }
+    
+    private static int filterCount = SeismogramDisplay.COLORS.length/2;
     
     private static int i = 0;
     
     private static Logger logger = Logger.getLogger(ParticleMotionView.class);
-    
 }// ParticleMotionView
