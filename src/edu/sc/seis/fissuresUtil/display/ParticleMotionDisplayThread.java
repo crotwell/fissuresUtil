@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ChannelGrouperImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
