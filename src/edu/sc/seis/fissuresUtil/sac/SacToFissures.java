@@ -2,6 +2,7 @@
 package edu.sc.seis.fissuresUtil.sac;
 
 import java.text.DecimalFormat;
+import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.IfNetwork.*;
@@ -28,6 +29,52 @@ public class SacToFissures  {
     
     public SacToFissures() {
         
+    }
+
+    /** Gets a LocalSeismogram. The data comes from the sac file, while
+     *  the SeismogramAttr comes from attr. A check is made on the
+     *  beginTime, numPoints and sampling and the sac file is considered
+     *  correct for these three. */
+    public static LocalSeismogramImpl getSeismogram(SacTimeSeries sac, 
+						    SeismogramAttr attr) 
+        throws FissuresException {
+	LocalSeismogramImpl seis = 
+	    new LocalSeismogramImpl(attr, sac.y);
+	if (seis.getNumPoints() != sac.npts) {
+	    seis.num_points = sac.npts;
+	} // end of if (seis.getNumPoints() != sac.npts)
+	Sampling samp = seis.getSampling();
+	TimeInterval period = ((SamplingImpl)samp).getPeriod();
+	if (sac.delta != 0) {
+	    double error = 
+		(period.convertTo(UnitImpl.SECOND).getValue() - sac.delta)
+		/ sac.delta;
+	    if (error > 0.01) {
+		 seis.sampling_info =
+		     new SamplingImpl(1,
+				      new TimeInterval(sac.delta, 
+						       UnitImpl.SECOND));
+	    } // end of if (error > 0.01)
+	} // end of if (samp.getPeriod().getValue() != sac.delta)
+
+	if (sac.b != -12345) {
+	    ISOTime isoTime = new ISOTime(sac.nzyear,
+					  sac.nzjday,
+					  sac.nzhour,
+					  sac.nzmin,
+					  sac.nzsec+sac.nzmsec/1000f);
+	    MicroSecondDate beginTime = isoTime.getDate();
+	    TimeInterval sacBMarker = new TimeInterval(sac.b, UnitImpl.SECOND);
+	    beginTime = beginTime.add(sacBMarker);
+	    double error = 
+		seis.getBeginTime().subtract(beginTime).divideBy(period).getValue();
+	    if (Math.abs(error) > 0.01) {
+		seis.begin_time = 
+		    new edu.iris.Fissures.Time(ISOTime.getISOString(beginTime),
+					       -1);
+	    } // end of if (error > 0.01)
+	} // end of if (sac.b != -12345)
+	return seis;
     }
 
     public static LocalSeismogramImpl getSeismogram(SacTimeSeries sac) 
