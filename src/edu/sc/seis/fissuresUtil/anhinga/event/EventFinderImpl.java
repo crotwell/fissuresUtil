@@ -12,14 +12,21 @@ import edu.iris.Fissures.IfEvent.EventFactory;
 import edu.iris.Fissures.IfEvent.EventFinder;
 import edu.iris.Fissures.IfEvent.EventFinderPOA;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
+import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.event.JDBCCatalog;
+import edu.sc.seis.fissuresUtil.database.event.JDBCContributor;
 import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
 
 public class EventFinderImpl extends EventFinderPOA {
 
     public EventFinderImpl(JDBCEventAccess jdbcEventAccess,
+                           JDBCCatalog jdbcCatalog,
+                           JDBCContributor jdbcContributor,
             org.omg.PortableServer.POA poa) {
         this.poa = poa;
         this.jdbcEventAccess = jdbcEventAccess;
+        this.jdbcCatalog = jdbcCatalog;
+        this.jdbcContributor = jdbcContributor;
     }
 
     public EventAccess[] query_events(edu.iris.Fissures.Area the_area,
@@ -56,14 +63,14 @@ public class EventFinderImpl extends EventFinderPOA {
             maxLat = Float.MAX_VALUE;
             maxLon = Float.MAX_VALUE;
         }
-        Integer[] eventIds;
+        int[] eventIds;
         int counter;
         try {
             logger.debug("The minimum depth is " + min_depth.value);
             logger.debug("The maximum depth is " + max_depth.value);
             logger.debug("The min_magnitude is " + min_magnitude);
             logger.debug("The max_magnitude is " + max_magnitude);
-            eventIds = jdbcEventAccess.getOnConstraint(min_depth.value,
+            eventIds = jdbcEventAccess.query(min_depth.value,
                                                        max_depth.value,
                                                        minLat,
                                                        maxLat,
@@ -79,9 +86,8 @@ public class EventFinderImpl extends EventFinderPOA {
             eventAccess = new EventAccess[eventIds.length];
             for(counter = 0; counter < eventIds.length; counter++) {
                 EventAccessImpl eventImpl = new EventAccessImpl(jdbcEventAccess,
-                                                                eventIds[counter].intValue());
-                org.omg.CORBA.Object obj = poa.create_reference_with_id(eventIds[counter].toString()
-                                                                                .getBytes(),
+                                                                eventIds[counter]);
+                org.omg.CORBA.Object obj = poa.create_reference_with_id((""+eventIds[counter]).getBytes(),
                                                                         EventAccessHelper.id());
                 eventAccess[counter] = EventAccessHelper.narrow(obj);
                 if(eventAccess[counter] == null) logger.debug("The returned reference is null");
@@ -90,10 +96,6 @@ public class EventFinderImpl extends EventFinderPOA {
         } catch(SQLException sqle) {
             logger.error("SQL problem", sqle);
             throw new org.omg.CORBA.UNKNOWN(sqle.toString()); //send exception
-            // back to client.
-        } catch(NotFound nfe) {
-            logger.error("Not found", nfe);
-            throw new org.omg.CORBA.UNKNOWN(nfe.toString()); //send exceptino
             // back to client.
         } catch(Throwable e) {
             logger.error("Generic Exception ", e);
@@ -177,7 +179,7 @@ public class EventFinderImpl extends EventFinderPOA {
 
     public String[] known_contributors() {
         try {
-            return jdbcCatalog.getAllContributors();
+            return jdbcContributor.getAll();
         } catch(SQLException sqle) {
             logger.error("sql problem", sqle);
             throw new org.omg.CORBA.UNKNOWN(sqle.toString()); // send exception back to client
@@ -201,6 +203,10 @@ public class EventFinderImpl extends EventFinderPOA {
     private EventFactory eventFactory = null;
 
     protected JDBCEventAccess jdbcEventAccess;
+    
+    protected JDBCCatalog jdbcCatalog;
+    
+    protected JDBCContributor jdbcContributor;
 
     org.omg.PortableServer.POA poa;
 

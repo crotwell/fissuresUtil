@@ -16,6 +16,8 @@ import edu.iris.Fissures.IfEvent.EventFactory;
 import edu.iris.Fissures.IfEvent.EventFinder;
 import edu.iris.Fissures.model.AllVTFactory;
 import edu.sc.seis.anhinga.database.QuitChecker;
+import edu.sc.seis.fissuresUtil.database.event.JDBCCatalog;
+import edu.sc.seis.fissuresUtil.database.event.JDBCContributor;
 import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
@@ -81,7 +83,11 @@ public class EventStart {
                                                         quitDatabaseName,
                                                         quitDatabasePassword);
             if(dcConn == null) { throw new SQLException("connection is null"); }
+            
             JDBCEventAccess jdbcEventAccess = new JDBCEventAccess(dcConn);
+            JDBCCatalog jdbcCatalog = new JDBCCatalog(dcConn);
+            JDBCContributor jdbcContributor = new JDBCContributor(dcConn);
+            
             orb = (org.omg.CORBA_2_3.ORB)ORB.init(args, props);
             // register valuetype factories
             edu.iris.Fissures.model.AllVTFactory vt = new AllVTFactory();
@@ -112,6 +118,8 @@ public class EventStart {
             EventFactoryImpl factoryImpl = new EventFactoryImpl(jdbcEventAccess,
                                                                 finder_poa);
             EventFinderImpl finderImpl = new EventFinderImpl(jdbcEventAccess,
+                                                             jdbcCatalog,
+                                                             jdbcContributor,
                                                              finder_poa);
             EventFinder finder = finderImpl._this(orb);
             EventFactory factory = factoryImpl._this(orb);

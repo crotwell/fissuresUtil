@@ -18,6 +18,7 @@ import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfEvent.OriginNotFound;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
 import edu.iris.Fissures.event.OriginImpl;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
 
 /**
@@ -39,7 +40,7 @@ public class EventImpl extends EventAccessImpl implements EventOperations {
         } catch(SQLException sqle) {
             logger.error("Problem with SQL ", sqle);
             throw new org.omg.CORBA.INTERNAL(sqle.toString());
-        } catch(edu.sc.seis.anhinga.database.NotFound nfe) {
+        } catch(NotFound nfe) {
             logger.error(" The Event with id " + eventid + " is Not Found", nfe);
             throw new org.omg.CORBA.INTERNAL(nfe.toString());
         }
