@@ -24,10 +24,13 @@ public interface DataSetSeismogramReceptacle {
      * <code>remove</code> removes all of the seismograms in this array
      *
      * @param seismos <code>DataSetSeismogram[]</code> an array of seismograms to be removed
-     * @return true if the seismograms were all contained in the receptacle and removed,
-     * false if it did not contain them
      */
-    public boolean remove(DataSetSeismogram[] seismos);
+    public void remove(DataSetSeismogram[] seismos);
+
+    /**
+     * <code>clear</code> removes all seismograms from this receptacle
+     */
+    public void clear();
 
     /**
      * <code>contains</code> checks the receptacle for the presence of seismo
