@@ -24,12 +24,11 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         super(seismos);
     }
 
-    protected synchronized AmpEvent recalculateAmp(){
-        Iterator e = ampData.keySet().iterator();
+    protected AmpEvent recalculateAmp(){
+        DataSetSeismogram[] seis = getSeismograms();
         double range = Double.NEGATIVE_INFINITY;
-        while(e.hasNext()){
-            UnitRangeImpl current =
-                ((AmpConfigData)ampData.get(e.next())).getRange();
+        for (int i = 0; i < seis.length; i++){
+            UnitRangeImpl current = getAmpData(seis[i]).getRange();
             if(current != null &&
                current.getMaxValue() - current.getMinValue() > range){
                 range = current.getMaxValue() - current.getMinValue();
@@ -38,18 +37,17 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         DataSetSeismogram[] seismos = getSeismograms();
         UnitRangeImpl[] amps = new UnitRangeImpl[seismos.length];
         for(int i = 0; i < seismos.length; i++){
-            amps[i] = setRange(((AmpConfigData)ampData.get(seismos[i])).getRange(),range);
+            amps[i] = setRange(getAmpData(seismos[i]).getRange(),range);
         }
         return new AmpEvent(seismos, amps);
     }
 
     protected boolean setAmpRange(DataSetSeismogram seismo){
-        AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+        AmpConfigData data = getAmpData(seismo);
         SeismogramIterator it = data.getIterator();
         if ( !it.hasNext()) {
             return data.setRange(DisplayUtils.ZERO_RANGE);
         }
-
         double[] minMaxMean = it.minMaxMean();
         double meanDiff;
         double maxToMeanDiff = Math.abs(minMaxMean[2] - minMaxMean[1]);
@@ -72,5 +70,3 @@ public class RMeanAmpConfig extends BasicAmpConfig {
 
     private static final Logger logger = Logger.getLogger(RMeanAmpConfig.class);
 }// RMeanAmpConfig
-
-

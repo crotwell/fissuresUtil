@@ -1,4 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
+import java.util.*;
+
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -6,11 +8,6 @@ import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.apache.log4j.Category;
 
 /**
@@ -38,17 +35,20 @@ public class BasicAmpConfig implements AmpConfig{
      *
      * @param seismo the seismogram to be added
      */
-    public synchronized void add(DataSetSeismogram[] seismos){
+    public void add(DataSetSeismogram[] seismos){
         boolean someAdded = false;
-        for(int i = 0; i < seismos.length; i++){
-            if(!ampData.containsKey(seismos[i])){
-                ampData.put(seismos[i], new AmpConfigData(seismos[i], this));
-                someAdded = true;
+        synchronized(this.seismos){
+            for(int i = 0; i < seismos.length; i++){
+                if(!contains(seismos[i])){
+                    this.seismos.add(seismos[i]);
+                    ampData.put(seismos[i], new AmpConfigData(seismos[i], this));
+                    someAdded = true;
+                }
             }
         }
         if(someAdded){
+            seisArray = null;
             currentAmpEvent = null;
-            this.seismos = null;
             fireAmpEvent();
         }
     }
@@ -60,15 +60,16 @@ public class BasicAmpConfig implements AmpConfig{
      */
     public void remove(DataSetSeismogram[] seismos){
         boolean someRemoved = false;
-        synchronized(this){
+        synchronized(this.seismos){
             for(int i = 0; i < seismos.length; i++){
-                if(ampData.remove(seismos[i]) != null){
+                if(this.seismos.remove(seismos[i])){
+                    ampData.remove(seismos[i]);
                     someRemoved = true;
                 }
             }
         }
         if(someRemoved){
-            this.seismos = null;
+            seisArray = null;
             currentAmpEvent = null;
             fireAmpEvent();
         }
@@ -79,12 +80,13 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public DataSetSeismogram[] getSeismograms(){
-        if(seismos == null){
-            synchronized(this){
-                seismos = (DataSetSeismogram[])ampData.keySet().toArray(new DataSetSeismogram[ampData.size()]);
+        if(seisArray == null){
+            synchronized(seismos){
+                seisArray = new DataSetSeismogram[seismos.size()];
+                seismos.toArray(seisArray);
             }
         }
-        return seismos;
+        return seisArray;
     }
 
     public AmpConfigData getAmpData(DataSetSeismogram seis){
@@ -98,9 +100,11 @@ public class BasicAmpConfig implements AmpConfig{
      * @param seismo the seismogram whose presence is to be tested
      * @return true if the receptacle contains seismo, false otherwise
      */
-    public synchronized boolean contains(DataSetSeismogram seismo){
-        if(ampData.containsKey(seismo)){
-            return true;
+    public boolean contains(DataSetSeismogram seismo){
+        synchronized(seismos){
+            if(seismos.contains(seismo)){
+                return true;
+            }
         }
         return false;
     }
@@ -110,14 +114,16 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public void reset(DataSetSeismogram[] seismos){
-        synchronized(this){
-            for(int i = 0; i < seismos.length; i++){
-                if(ampData.containsKey(seismos[i])){
-                    ((AmpConfigData)ampData.get(seismos[i])).reset();
-                }
+        boolean someReset = false;
+        for(int i = 0; i < seismos.length; i++){
+            if(contains(seismos[i])){
+                getAmpData(seismos[i]).reset();
+                someReset = true;
             }
         }
-        fireAmpEvent();
+        if(someReset){
+            fireAmpEvent();
+        }
     }
 
     public void shaleAmp(double shift, double scale){
@@ -125,10 +131,8 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public void shaleAmp(double shift, double scale, DataSetSeismogram[] seismos){
-        synchronized(this){
-            for(int i = 0; i < seismos.length; i++){
-                ((AmpConfigData)ampData.get(seismos[i])).shale(shift, scale);
-            }
+        for(int i = 0; i < seismos.length; i++){
+            getAmpData(seismos[i]).shale(shift, scale);
         }
         fireAmpEvent();
     }
@@ -138,35 +142,48 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     private AmpEvent fireAmpEvent(AmpEvent event){
-        Iterator e = listeners.iterator();
-        while(e.hasNext()){
-            ((AmpListener)e.next()).updateAmp(event);
+        AmpListener[] al = getAmpListeners();
+        for (int i = 0; i < ampListeners.length; i++){
+            al[i].updateAmp(event);
         }
         return event;
     }
 
     public void addListener(AmpListener listener){
-        listeners.add(listener);
+        synchronized(listeners){
+            listeners.add(listener);
+            ampListeners = null;
+        }
         fireAmpEvent();
     }
 
     public void removeListener(AmpListener listener){
-        listeners.remove(listener);
+        synchronized(listeners){
+            listeners.remove(listener);
+            ampListeners = null;
+        }
+    }
+
+    public AmpListener[] getAmpListeners(){
+        synchronized(listeners){
+            if(ampListeners == null){
+                ampListeners = new AmpListener[listeners.size()];
+                listeners.toArray(ampListeners);
+            }
+        }
+        return ampListeners;
     }
 
     public AmpEvent updateAmpTime(TimeEvent timeEvent){
-        if(listeners.size() > 0){
-            currentTimeEvent = timeEvent;
-            return calculateAmp();
-        }
-        return null;
+        currentTimeEvent = timeEvent;
+        return calculateAmp();
     }
 
-    private synchronized AmpEvent calculateAmp(){
-        Iterator e = ampData.keySet().iterator();
+    private AmpEvent calculateAmp(){
         boolean changed = false;
-        while(e.hasNext()){
-            AmpConfigData current = (AmpConfigData)ampData.get(e.next());
+        DataSetSeismogram[] seis = getSeismograms();
+        for (int i = 0; i < seis.length; i++){
+            AmpConfigData current = getAmpData(seis[i]);
 
             if(current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
                 if(setAmpRange(current.getDSS())){ //checks if the new time changes the amp range
@@ -186,12 +203,12 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
 
-    protected synchronized AmpEvent recalculateAmp(){
-        Iterator e = ampData.keySet().iterator();
+    protected AmpEvent recalculateAmp(){
+        DataSetSeismogram[] seis = getSeismograms();
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
-        while(e.hasNext()){
-            UnitRangeImpl current = ((AmpConfigData)ampData.get(e.next())).getRange();
+        for (int i = 0; i < seis.length; i++){
+            UnitRangeImpl current = getAmpData(seis[i]).getRange();
             if(current != null){
                 if(current.getMaxValue() > max){
                     max = current.getMaxValue();
@@ -202,16 +219,15 @@ public class BasicAmpConfig implements AmpConfig{
             }
         }
         UnitRangeImpl fullRange = new UnitRangeImpl(min, max, UnitImpl.COUNT);
-        DataSetSeismogram[] seismos = getSeismograms();
-        UnitRangeImpl[] amps = new UnitRangeImpl[seismos.length];
-        for(int i = 0; i < seismos.length; i++){
+        UnitRangeImpl[] amps = new UnitRangeImpl[seis.length];
+        for(int i = 0; i < seis.length; i++){
             amps[i] = fullRange;
         }
-        return new AmpEvent(seismos, amps);
+        return new AmpEvent(seis, amps);
     }
 
     protected boolean setAmpRange(DataSetSeismogram seismo){
-        AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+        AmpConfigData data = getAmpData(seismo);
         SeismogramIterator it = data.getIterator();
         if (!it.hasNext()) {//if the iterator on this time range has no next
             return data.setRange(DisplayUtils.ZERO_RANGE);//point, there is
@@ -233,7 +249,7 @@ public class BasicAmpConfig implements AmpConfig{
 
 
     private void checkSeismogramUnits(DataSetSeismogram seismo){
-        AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+        AmpConfigData data = getAmpData(seismo);
         LocalSeismogramImpl[] seismograms = data.getIterator().getSeismograms();
         UnitImpl seisUnit = null;
         for(int i = 0; i < seismograms.length; i++){
@@ -249,11 +265,15 @@ public class BasicAmpConfig implements AmpConfig{
         }
     }
 
-    protected Map ampData = new HashMap();
+    private Map ampData = new HashMap();
 
-    private List listeners = new ArrayList();
+    private List listeners = Collections.synchronizedList(new ArrayList());
 
-    private DataSetSeismogram[] seismos;
+    private List seismos = Collections.synchronizedList(new ArrayList());
+
+    private DataSetSeismogram[] seisArray;
+
+    AmpListener[] ampListeners;
 
     private TimeEvent currentTimeEvent;
 
@@ -261,5 +281,3 @@ public class BasicAmpConfig implements AmpConfig{
 
     private static Category logger = Category.getInstance(BasicAmpConfig.class.getName());
 }//BasicAmpConfig
-
-
