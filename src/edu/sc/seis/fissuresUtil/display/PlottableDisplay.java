@@ -41,8 +41,12 @@ import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
  * @version
  */
 public class PlottableDisplay extends JComponent {
+    
+    public PlottableDisplay(){
+        this(Color.WHITE, Color.BLUE);
+    }
 
-    public PlottableDisplay() {
+    public PlottableDisplay(Color background, Color trace) {
         super();
         dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
         removeAll();
@@ -52,6 +56,8 @@ public class PlottableDisplay extends JComponent {
         tempSelection = new PlottableSelection(this);
         selection = new PlottableSelection(this);
         configChanged();
+        backgroundColor = background;
+        traceColor = trace;
     }
 
     public void setOffset(int offset) {
@@ -148,7 +154,7 @@ public class PlottableDisplay extends JComponent {
     }
 
     int[] drawTitle(int y, String title, String text, Graphics2D g2) {
-        return drawTitle(y, title, text, g2, Color.BLUE);
+        return drawTitle(y, title, text, g2, traceColor);
     }
 
     int[] drawTitle(int y, String title, String text, Graphics2D g2, Color color) {
@@ -233,7 +239,7 @@ public class PlottableDisplay extends JComponent {
             if(currRow % 2 == 0) {
                 g2.setPaint(Color.black);
             } else {
-                g2.setPaint(Color.blue);
+                g2.setPaint(traceColor);
             }
             g2.drawString(hourmin, houroffset, titleHeight + rowOffset
                     * currRow);
@@ -276,7 +282,7 @@ public class PlottableDisplay extends JComponent {
             if(row % 2 == 0) {
                 g2.setPaint(Color.black);
             } else {
-                g2.setPaint(Color.blue);
+                g2.setPaint(traceColor);
             }
             if(plottableShape != null) {
                 g2.draw(plottableShape);
@@ -355,7 +361,7 @@ public class PlottableDisplay extends JComponent {
             public void run() {
                 Graphics2D g = (Graphics2D)offImg.getGraphics();
                 currentImageGraphics = g;
-                g.setBackground(Color.white);
+                g.setBackground(backgroundColor);
                 // clear canvas
                 g.clearRect(0, 0, width, height);
                 drawComponent(g);
@@ -366,12 +372,8 @@ public class PlottableDisplay extends JComponent {
         t.start();
         return offImg;
     }
-
-    public void renderToGraphics(Graphics2D g, Dimension size) {
-        renderToGraphics(g, size, Color.WHITE);
-    }
     
-    public void renderToGraphics(Graphics2D g, Dimension size, Color backgroundColor) {
+    public void renderToGraphics(Graphics2D g, Dimension size) {
         Graphics curGraphics = currentImageGraphics;
         currentImageGraphics = g;
         Dimension curSize = getSize();
@@ -401,16 +403,12 @@ public class PlottableDisplay extends JComponent {
         file.delete();
         temp.renameTo(file);
     }
-    
-    public void outputToPNG(OutputStream out) throws IOException{
-        outputToPNG(out, Color.WHITE);
-    }
 
-    public void outputToPNG(OutputStream out, Color backgroundColor) throws IOException{
+    public void outputToPNG(OutputStream out) throws IOException{
         BufferedImage img = new BufferedImage(getSize().width,
                                               getSize().height,
                                               BufferedImage.TYPE_INT_RGB);
-        renderToGraphics((Graphics2D)img.getGraphics(), getSize(), backgroundColor);
+        renderToGraphics((Graphics2D)img.getGraphics(), getSize());
         ImageIO.write(img, "png", out);
     }
 
@@ -560,6 +558,10 @@ public class PlottableDisplay extends JComponent {
     public int getTotalHours() {
         return totalHours;
     }
+    
+    private Color backgroundColor;
+    
+    private Color traceColor;
 
     private int totalHours = 24;
 
