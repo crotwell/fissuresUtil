@@ -23,12 +23,14 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.time.RangeTool;
+import edu.sc.seis.fissuresUtil.time.SortTool;
 
 /** Takes an array of LocalSeismograms and iterates through them, point by point
  */
 public class SeismogramIterator implements Iterator{
     public SeismogramIterator(String name, LocalSeismogramImpl[] seismograms){
-        this(name, seismograms, DisplayUtils.getFullTime(seismograms));
+        this(name, seismograms, RangeTool.getFullTime(seismograms));
     }
 
     public SeismogramIterator(String name,
@@ -36,7 +38,7 @@ public class SeismogramIterator implements Iterator{
                               MicroSecondTimeRange timeRange){
         this.name = name;
         if(seismograms.length > 0){
-            LocalSeismogramImpl[] seis = this.seismograms = DisplayUtils.sortByDate(seismograms);
+            LocalSeismogramImpl[] seis = this.seismograms = SortTool.sortByDate(seismograms);
             MicroSecondDate startTime = seis[0].getBeginTime();
             MicroSecondDate endTime = seis[seis.length - 1].getEndTime();
             TimeInterval samplingInterval = seis[0].getSampling().getPeriod();
@@ -47,14 +49,14 @@ public class SeismogramIterator implements Iterator{
             for(int i = 1; i < seis.length; i++){
                 LocalSeismogramImpl current = seis[i];
                 LocalSeismogramImpl prev = seis[i-1];
-                if(DisplayUtils.areOverlapping(prev,current)){
+                if(RangeTool.areOverlapping(prev,current)){
                     MicroSecondDate currentStartTime = prev.getEndTime().add(samplingInterval);
                     MicroSecondDate currentEndTime = current.getEndTime();
                     MicroSecondTimeRange currentTR = new MicroSecondTimeRange(currentStartTime,
                                                                               currentEndTime);
                     int[] points = DisplayUtils.getSeisPoints(current, currentTR);
                     addToIterateList(current, points[0], current.getNumPoints());
-                }else if(DisplayUtils.areContiguous(prev, current)){
+                }else if(RangeTool.areContiguous(prev, current)){
                     addToIterateList(current, 0, current.getNumPoints());
                 }else{//are seperated
                     TimeInterval difference = current.getBeginTime().difference(prev.getEndTime());
