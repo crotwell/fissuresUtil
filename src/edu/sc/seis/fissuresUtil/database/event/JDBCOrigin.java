@@ -2,12 +2,17 @@ package edu.sc.seis.fissuresUtil.database.event;
 
 
 import edu.sc.seis.fissuresUtil.database.*;
-import java.sql.*;
 
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.iris.Fissures.Location;
 import edu.iris.Fissures.event.OriginImpl;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -253,11 +258,15 @@ public class JDBCOrigin extends EventTable {
     public Origin extract(ResultSet rs,int originId) throws SQLException,NotFound {
         ParameterRef[] params = getParams(originId);
         Magnitude[] magnitudes = getMags(originId);
+        Location location = jdbcLocation.get(rs.getInt("origin_location_id"));
+        if (location == null) {
+            throw new NullPointerException("Location from database is NULL, originId="+originId);
+        }
         return new OriginImpl(rs.getString("origin_text_id"),
                               jdbcCatalog.get(rs.getInt("origin_catalog_id")),
                               jdbcCatalog.getContributor(rs.getInt("origin_catalog_id")),
                               timeTable.get(rs.getInt("origin_time_id")),
-                              jdbcLocation.get(rs.getInt("origin_location_id")),
+                              location,
                               magnitudes,
                               params);
     }
