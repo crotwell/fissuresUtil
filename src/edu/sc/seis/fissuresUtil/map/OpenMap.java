@@ -63,7 +63,7 @@ public class OpenMap extends OMComponentPanel {
 			//							 mapBean.DEFAULT_HEIGHT);
 			//Proj proj = (Proj)mapBean.getProjection();
 			
-			//proj.setBackgroundColor(WATER);
+			mapBean.setBackgroundColor(WATER);
 			//mapBean.setProjection(proj);
 			
 			mapHandler.add(mapBean);
