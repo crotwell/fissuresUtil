@@ -22,12 +22,13 @@ import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 
 public class UpdateCheckerJob  extends AbstractJob {
-    public UpdateCheckerJob(String displayName, String version, String updateURL, boolean gui) {
-        this(displayName, version, updateURL, gui, false);
+    public UpdateCheckerJob(String displayName, String programName, String version, String updateURL, boolean gui) {
+        this(displayName, programName, version, updateURL, gui, false);
     }
 
-    public UpdateCheckerJob(String displayName, String version, String updateURL, boolean gui, boolean forceCheck) {
+    public UpdateCheckerJob(String displayName, String programName, String version, String updateURL, boolean gui, boolean forceCheck) {
         super(displayName);
+        this.programName = programName;
         this.updateURL = updateURL;
         this.isGui = gui;
         this.forceCheck = forceCheck;
@@ -95,8 +96,8 @@ public class UpdateCheckerJob  extends AbstractJob {
         options[1] = "Remind in a fortnight";
         options[2] = "Remind in a month";
         int n = JOptionPane.showOptionDialog(null,
-                                             "An updated version of GEE is available!\nPlease go to\n"+locationUpdate.getLocation()+"\nto get the latest version.",
-                                             "An updated version of GEE is available!",
+                                             "An updated version of "+programName+" is available!\nPlease go to\n"+locationUpdate.getLocation()+"\nto get the latest version.",
+                                             "An updated version of "+programName+" is available!",
                                              JOptionPane.YES_NO_OPTION,
                                              JOptionPane.QUESTION_MESSAGE,
                                              null,     //don't use a custom Icon
@@ -127,27 +128,34 @@ public class UpdateCheckerJob  extends AbstractJob {
     protected void handleUpdateNonGUI(LocationUpdate locationUpdate) {
         System.out.println("*******************************************************");
         System.out.println();
-        System.out.println("There is a new version available:");
-        System.out.println(locationUpdate.getDescription());
+        System.out.println("An updated version of "+programName+" is available!");
+        System.out.println("Please go to");
         System.out.println();
-        System.out.println("available at:"+locationUpdate.getLocation());
+        System.out.println(locationUpdate.getLocation());
+        System.out.println();
+        System.out.println("to get the latest version.");
+        System.out.println();
+        System.out.println();
+        System.out.println("Description: "+locationUpdate.getDescription());
         System.out.println();
         System.out.println("*******************************************************");
     }
 
-    String version;
+    protected String version;
 
-    boolean forceCheck;
+    protected String programName;
 
-    boolean showNoUpdate = true;
+    protected boolean forceCheck;
 
-    boolean isGui;
+    protected boolean showNoUpdate = true;
+
+    protected boolean isGui;
 
     static boolean checkedYet = false;
 
-    String updateURL;
+    protected String updateURL;
 
-    Preferences prefs;
+    protected Preferences prefs;
 
     static final String NEXT_CHECK_DATE = "nextCheckDate";
 
