@@ -86,19 +86,6 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
         return COLORS[i++%COLORS.length];
     }
 
-    public MicroSecondDate getTime(MouseEvent e){
-        return SimplePlotUtil.getValue(getWidth() - getInsets().left - getInsets().right,
-                                       getTimeConfig().getTime().getBeginTime(),
-                                       getTimeConfig().getTime().getEndTime(),
-                                       e.getX() - getInsets().left);
-    }
-
-    //this may become abstract later
-    //this reaks of HACK!
-    public int countDrawables(){
-        return 0;
-    }
-
     private int i = 0;
 
     public abstract void add(Drawable drawable);
