@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Properties;
 import javax.imageio.ImageIO;
 import javax.swing.ListSelectionModel;
+import org.apache.log4j.Logger;
 
 public class OpenMap extends OpenMapComponent
 {
@@ -46,6 +47,7 @@ public class OpenMap extends OpenMapComponent
     private MapBean mapBean;
     private MouseDelegator mouseDelegator;
     private List tools = new ArrayList();
+    private Logger logger = Logger.getLogger(OpenMap.class);
     
     
     /**Creates a new openmap.  Both the channel chooser and the event table
@@ -91,7 +93,8 @@ public class OpenMap extends OpenMapComponent
             lh.addLayer(gl, 0);
                         
             // Create a ShapeLayer to show world political boundaries.
-            ShapeLayer shapeLayer = new ShapeLayer();
+            //ShapeLayer shapeLayer = new ShapeLayer();
+            ShapeLayer shapeLayer = new InformativeShapeLayer();
             
             //Create shape layer properties
             Properties shapeLayerProps = new Properties();
@@ -237,7 +240,10 @@ public class OpenMap extends OpenMapComponent
         
         try
         {
-            ImageIO.write(bi, "png", new File(filename));
+            File loc = new File(filename);
+            File temp = File.createTempFile(loc.getName(), null);
+            ImageIO.write(bi, "png", temp);
+            temp.renameTo(loc);
         }
         catch(IOException e)
         {
@@ -246,21 +252,10 @@ public class OpenMap extends OpenMapComponent
         }
     }
     
-    //doesn't actually work...unless you want to make svg files, which may
-    //be good for the future
-    public void writeMapToFormat(String filename, ImageFormatter formatter)
-    {
-        byte[] fileBytes = formatter.getImageFromMapBean(mapBean);
-        try
-        {
-            DataOutputStream dos = new DataOutputStream(new FileOutputStream(new File(filename)));
-            dos.write(fileBytes);
-            dos.close();
-        }
-        catch(Exception e)
-        {
-            System.out.println("there was a problem writing the file");
-            e.printStackTrace();
+    private class InformativeShapeLayer extends ShapeLayer{
+        public void renderDataForProjection(Projection p, Graphics g){
+            logger.debug("InformativeShapeLayer: rendering shape layer");
+            super.renderDataForProjection(p,g);
         }
     }
     
@@ -269,7 +264,6 @@ public class OpenMap extends OpenMapComponent
         OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
         
         om.writeMapToPNG("map.png");
-//      om.writeMapToFormat("map.svg", new SVGFormatter()); //needs batik
         System.out.println("done");
         System.exit(0);
     }
