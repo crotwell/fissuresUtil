@@ -3,10 +3,10 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
 
+import edu.sc.seis.fissuresUtil.display.drawable.CurrentTimeFlag;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -292,6 +292,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                         current.draw(g2, size, timeEvent, ampEvent);
                     }
                 }
+                if(getCurrentTimeFlag()){
+                    currentTimeFlag.draw(g2, size, timeEvent, ampEvent);
+                }
             }
         }
 
@@ -323,26 +326,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         if(painter != null) painter.setBounds(newPainterBounds);
         if(timeScaleMap != null) timeScaleMap.setTotalPixels(d.width - scalingSlider.getSize().width);
         if(distanceScaler != null) distanceScaler.setTotalPixels(d.height);
-    }
-
-    public void setCurrentTimeFlag(boolean visible){
-        //TODO
-    }
-
-    public void setOriginalVisibility(boolean visible) {
-        // TODO
-    }
-
-    public boolean getOriginalVisibility() {
-        return true;
-    }
-
-    public void applyFilter(ColoredFilter filter) {
-        // TODO
-    }
-
-    public void removeFilter(ColoredFilter filter){
-        //TODO
     }
 
     public void print() {
@@ -383,8 +366,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
 
     private double scaling;
 
+    private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
+
     private Border etched  = BorderFactory.createEtchedBorder();
 
     private Border loweredBevel = BorderFactory.createLoweredBevelBorder();
 }
-

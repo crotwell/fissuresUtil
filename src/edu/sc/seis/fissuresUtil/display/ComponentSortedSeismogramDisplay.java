@@ -19,22 +19,6 @@ import java.util.Iterator;
  */
 
 public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay {
-    /**
-     * Creates a <code>ComponentSortedSeismogramDisplay</code> without a parent
-     *
-     */
-    public ComponentSortedSeismogramDisplay(){
-        this(null);
-    }
-
-    /**
-     * Creates a <code>ComponentSortedSeismogramDisplay</code> with the passed in parent controlling it
-     *
-     * @param parent the VSD that controls this VSD
-     */
-    public ComponentSortedSeismogramDisplay(VerticalSeismogramDisplay parent){
-        super(parent);
-    }
 
     /**
      * finds all three components of the passed seismograms and adds them to their respective component displays
@@ -118,7 +102,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
             if(display == null){
                 display = new BasicSeismogramDisplay(tc, this);
                 initializeBSD(display, 0, orientation);
-                addTimeBorders();
+                setTimeBorders();
             }
             display.add(seismos);
         }

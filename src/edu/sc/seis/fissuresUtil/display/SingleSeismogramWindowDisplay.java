@@ -18,22 +18,6 @@ import java.util.List;
  */
 
 public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
-    /**
-     * Creates a <code>SingleSeismogramWindowDisplay</code> without a parent
-     *
-     */
-    public SingleSeismogramWindowDisplay(){
-        this(null);
-    }
-
-    /**
-     * Creates a <code>SingleSeismogramWindowDisplay</code> with the passed in parent controlling it
-     *
-     * @param parent the VSD that controls this VSD
-     */
-    public SingleSeismogramWindowDisplay(VerticalSeismogramDisplay parent){
-        super(parent);
-    }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
         return addDisplay(dss, tc, ac);
