@@ -33,7 +33,7 @@ public class BorderedDisplay extends JPanel{
                                                BufferedImage.TYPE_INT_RGB);
         renderToGraphics(bImg.createGraphics(), size);
         loc.getCanonicalFile().getParentFile().mkdirs();
-        File temp = File.createTempFile(loc.getName(), null);
+        File temp = File.createTempFile(loc.getName(), null, loc.getParentFile());
         ImageIO.write(bImg, "png", temp);
         loc.delete();
         temp.renameTo(loc);
