@@ -1,9 +1,8 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
-import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
+import edu.iris.Fissures.IfNetwork.NetworkDC;
 import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 /**
  * BulletproofNetworkAccess combines our four delicious ProxyNetworkAccess
@@ -34,10 +33,13 @@ public class BulletproofVestFactory{
             NetworkId id = cache.get_attributes().get_id();
             NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, netDC);
             retry.setNetworkAccess(nsNetworkAccess);
+            cache.setNetworkAccess(retry);
 
             return cache;
         }
 
     }
+
+
 }
 
