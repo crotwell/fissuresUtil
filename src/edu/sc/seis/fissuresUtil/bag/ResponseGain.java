@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.bag;
 import edu.iris.Fissures.IfNetwork.*;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -34,12 +35,8 @@ public class ResponseGain implements LocalSeismogramFunction {
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis)
         throws ChannelNotFound, NetworkNotFound,  FissuresException {
 
-        Instrumentation inst = getFromCache(seis.channel_id);
-        if (inst == null) {
-            NetworkAccess net = finder.retrieve_by_id(seis.channel_id.network_id);
-            inst = net.retrieve_instrumentation(seis.channel_id, seis.begin_time);
-            addToCache(seis.channel_id, inst);
-        }
+        Instrumentation inst = getInstrumentation(seis.channel_id, seis.begin_time);
+
         Sensitivity sensitivity = inst.the_response.the_sensitivity;
         LocalSeismogramImpl outSeis;
 
@@ -63,14 +60,24 @@ public class ResponseGain implements LocalSeismogramFunction {
         return outSeis;
     }
 
+    public Instrumentation getInstrumentation(ChannelId channel_id, Time begin_time) throws NetworkNotFound, ChannelNotFound {
+        Instrumentation inst = getFromCache(channel_id);
+        if (inst == null) {
+            NetworkAccess net = finder.retrieve_by_id(channel_id.network_id);
+            inst = net.retrieve_instrumentation(channel_id, begin_time);
+            addToCache(channel_id, inst);
+        }
+        return inst;
+    }
+
     private NetworkFinder finder;
 
-    protected void addToCache(ChannelId chan, Instrumentation inst) {
+    public void addToCache(ChannelId chan, Instrumentation inst) {
         instCache.put(ChannelIdUtil.toString(chan),
                       new InstrumentationDater(chan, inst));
     }
 
-    protected Instrumentation getFromCache(ChannelId chan) {
+    public Instrumentation getFromCache(ChannelId chan) {
         InstrumentationDater instD = (InstrumentationDater)instCache.get(ChannelIdUtil.toString(chan));
         if (instD != null) {
             return instD.inst;
