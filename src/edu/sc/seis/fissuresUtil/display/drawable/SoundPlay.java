@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
@@ -25,8 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.swing.Timer;
-
-
 
 public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionListener,
     PlayEventListener{
