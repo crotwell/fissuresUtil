@@ -535,7 +535,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    for(int subcounter = counter+1; subcounter < channelGroup.length; subcounter++) {
 		String labelStr = channelGroup[counter].channel_code+"-"+channelGroup[subcounter].channel_code;
-		JRadioButton radioButton = new JRadioButton(labelStr);
+		JCheckBox radioButton = new JCheckBox(labelStr);
 		radioButton.setActionCommand(labelStr);
 		radioButton.addItemListener(new RadioButtonListener());
 		arrayList.add(radioButton);
