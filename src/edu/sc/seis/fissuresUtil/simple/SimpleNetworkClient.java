@@ -101,9 +101,7 @@ public class SimpleNetworkClient implements TestingClient {
             //}
         } catch(NetworkNotFound e) {
             logger.error("Network " + networkCode + " was not found", e);
-        } catch(org.omg.CORBA.ORBPackage.InvalidName e) {
-            logger.error("Problem with name service: ", e);
-        } catch(org.omg.CosNaming.NamingContextPackage.InvalidName e) {
+        }catch(org.omg.CosNaming.NamingContextPackage.InvalidName e) {
             logger.error("Problem with name service: ", e);
         } catch(NotFound e) {
             logger.error("Problem with name service: ", e);

@@ -11,5 +11,6 @@ public interface ServerNameDNS {
     public String getServerName();
 
     public String getServerDNS();
+    
 }
 

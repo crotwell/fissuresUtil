@@ -8,17 +8,15 @@ import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 /**
- * NSNetworkDC.java
- *
- *
- * Created: Mon Jan 27 13:14:23 2003
- *
- * @author <a href="mailto:crotwell@owl.seis.sc.edu">Philip Crotwell</a>
+ * NSNetworkDC.java Created: Mon Jan 27 13:14:23 2003
+ * 
+ * @author <a href="mailto:crotwell@owl.seis.sc.edu">Philip Crotwell </a>
  * @version 1.0
  */
 public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
+
     public NSNetworkDC(String serverDNS, String serverName,
-                       FissuresNamingService fissuresNamingService) {
+            FissuresNamingService fissuresNamingService) {
         this.serverDNS = serverDNS;
         this.serverName = serverName;
         this.namingService = fissuresNamingService;
@@ -29,21 +27,20 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
     }
 
     public NetworkDCOperations getWrappedDC(Class wrappedClass) {
-        if (this.getClass().isAssignableFrom(wrappedClass)) {
+        if(this.getClass().isAssignableFrom(wrappedClass)) {
             return this;
         } else {
-             NetworkDCOperations tmp = getWrappedDC();
-            if (tmp instanceof ProxyNetworkDC) {
-                return ((ProxyNetworkDC)tmp).getWrappedDC(wrappedClass);
-            }
+            NetworkDCOperations tmp = getWrappedDC();
+            if(tmp instanceof ProxyNetworkDC) { return ((ProxyNetworkDC)tmp).getWrappedDC(wrappedClass); }
         }
-        throw new IllegalArgumentException("Can't find class "+wrappedClass.getName());
+        throw new IllegalArgumentException("Can't find class "
+                + wrappedClass.getName());
     }
 
     public NetworkDC getCorbaObject() {
         // side effect - make sure netDC is loaded
         NetworkDC n = getNetworkDC();
-        if (n instanceof NetworkDC) {
+        if(n instanceof NetworkDC) {
             return (NetworkDC)n;
         } else {
             return ((ProxyNetworkDC)n).getCorbaObject();
@@ -67,21 +64,19 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
     }
 
     public synchronized NetworkDC getNetworkDC() {
-        if ( netDC == null) {
+        if(netDC == null) {
             try {
                 try {
                     netDC = namingService.getNetworkDC(serverDNS, serverName);
-                } catch (Throwable t) {
+                } catch(Throwable t) {
                     namingService.reset();
                     netDC = namingService.getNetworkDC(serverDNS, serverName);
                 }
-            } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
+            } catch(org.omg.CosNaming.NamingContextPackage.NotFound e) {
                 repackageException(e);
-            } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
+            } catch(org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
                 repackageException(e);
-            } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                repackageException(e);
-            } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
+            } catch(org.omg.CosNaming.NamingContextPackage.InvalidName e) {
                 repackageException(e);
             } // end of try-catch
         } // end of if ()
@@ -89,10 +84,14 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
     }
 
     protected void repackageException(org.omg.CORBA.UserException e) {
-        org.omg.CORBA.TRANSIENT t =
-            new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                                        0,
-                                        org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+        org.omg.CORBA.TRANSIENT t = new org.omg.CORBA.TRANSIENT("Unable to resolve "
+                                                                        + serverName
+                                                                        + " "
+                                                                        + serverDNS
+                                                                        + " "
+                                                                        + e.toString(),
+                                                                0,
+                                                                org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         t.initCause(e);
         throw t;
     }
@@ -100,9 +99,10 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
     public NetworkExplorer a_explorer() {
         try {
             return getNetworkDC().a_explorer();
-        } catch (Throwable e) {
+        } catch(Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in a_explorer(), regetting from nameservice to try again.", e);
+            logger.warn("Exception in a_explorer(), regetting from nameservice to try again.",
+                        e);
             reset();
             return getNetworkDC().a_explorer();
         } // end of try-catch
@@ -111,9 +111,10 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
     public NetworkFinder a_finder() {
         try {
             return getNetworkDC().a_finder();
-        } catch (Throwable e) {
+        } catch(Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in a_finder(), regetting from nameservice to try again.", e);
+            logger.warn("Exception in a_finder(), regetting from nameservice to try again.",
+                        e);
             reset();
             return getNetworkDC().a_finder();
         } // end of try-catch
@@ -127,7 +128,5 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
 
     protected FissuresNamingService namingService;
 
-    private static Category logger =
-        Category.getInstance(NSNetworkDC.class.getName());
-
+    private static Category logger = Category.getInstance(NSNetworkDC.class.getName());
 } // NSNetworkDC
