@@ -96,6 +96,7 @@ public class BasicTimeConfig implements TimeConfig{
      * and the rest of the seismograms to be set as if they were just added based on that interval
      */
     public void reset(){ 
+	time = null;
 	shift = 0;
 	scale = 1;
 	reset(getSeismograms());
@@ -107,9 +108,7 @@ public class BasicTimeConfig implements TimeConfig{
      * @param seismo a <code>DataSetSeismogram</code> to be reset
      */
     public void reset(DataSetSeismogram[] seismos){
-	for(int i = 0; i < seismos.length; i++){
-	    seismoTimes.remove(seismos[i]);
-	}
+	remove(seismos);
 	add(seismos);
     }
 
