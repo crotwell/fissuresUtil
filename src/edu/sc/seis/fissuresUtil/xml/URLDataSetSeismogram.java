@@ -51,14 +51,14 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                  String name){
         this(new URL[] { url }, fileType, dataset, name);
     }
-
+    
     public URLDataSetSeismogram (URL[] url,
                                  SeismogramFileTypes fileType,
                                  DataSet dataset,
                                  String name){
         this(url, fileType, dataset, name, null);
     }
-
+    
     public URLDataSetSeismogram (URL[] url,
                                  SeismogramFileTypes fileType,
                                  DataSet dataset,
@@ -67,37 +67,37 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         super(dataset, name, requestFilter);
         this.url = url;
         this.fileType = fileType;
-
+        
     }
-
+    
     public URLDataSetSeismogram (URL url, SeismogramFileTypes fileType, DataSet dataset){
         this(new URL[] { url }, fileType, dataset);
     }
-
+    
     public URLDataSetSeismogram (URL[] url, SeismogramFileTypes fileType, DataSet dataset){
         this(url, fileType, dataset, "");
     }
-
+    
     public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType) {
         this(new URL[] { url }, fileType);
     }
-
+    
     public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType, String name) {
         this(new URL[] { url }, fileType, name);
     }
-
+    
     public URLDataSetSeismogram(URL[] url, SeismogramFileTypes fileType) {
         this(url, fileType, (DataSet)null);
     }
-
+    
     public URLDataSetSeismogram(URL[] url, SeismogramFileTypes fileType, String name) {
         this(url, fileType, null, name);
     }
-
+    
     public URLDataSetSeismogram(URL[] url, SeismogramFileTypes fileType, String name, RequestFilter requestFilter) {
         this(url, fileType, null, name, requestFilter);
     }
-
+    
     public void retrieveData(final SeisDataChangeListener dataListener) {
         logger.debug("before swingUtilities.invokeLater");
         WorkerThreadPool.getDefaultPool().invokeLater(new Runnable() {
@@ -107,7 +107,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                             finished(dataListener);
                             return;
                         }
-
+                        
                         LocalSeismogramImpl[] seismos;
                         for (int i = 0; i < url.length; i++) {
                             try {
@@ -130,8 +130,8 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     }
                 });
     }
-
-
+    
+    
     public RequestFilter getRequestFilter() {
         if(requestFilter == null) {
             for (int i = 0; i < url.length; i++) {
@@ -149,11 +149,11 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         }
         return requestFilter;
     }
-
+    
     public URL[] getURLs() {
         return url;
     }
-
+    
     public static URLDataSetSeismogram localize(DataSetSeismogram dss,
                                                 File directory) throws MalformedURLException {
         URLDataSetSeismogram urlDSS;
@@ -184,7 +184,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         URLDataSetSeismogramSaver saver = new URLDataSetSeismogramSaver(dss,
                                                                         directory);
         URLDataSetSeismogram out = saver.getURLDataSetSeismogram();
-
+        
         while ( ! saver.isFinished()) {
             logger.debug("Waiting for saver to finish");
             try {
@@ -201,10 +201,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                                     dssName+" dataset seismogram.",
                                                 saver.getError());
         }
-
+        
         return out;
     }
-
+    
     public static URLDataSetSeismogram saveLocally(DataSet dataset,
                                                    File directory,
                                                    LocalSeismogramImpl[] seismograms,
@@ -226,7 +226,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         dataset.addParameter(DataSet.CHANNEL+ChannelIdUtil.toString(channel.get_id()),
                              channel,
                              audit);
-
+        
         urlDSS.addAuxillaryData(NETWORK_BEGIN,
                                 channel.get_id().network_id.begin_time.date_time);
         urlDSS.addAuxillaryData(CHANNEL_BEGIN,
@@ -236,7 +236,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         }
         return urlDSS;
     }
-
+    
     public static File saveAsSac(LocalSeismogramImpl seis,
                                  File directory)
         throws IOException, CodecException {
@@ -247,30 +247,30 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         }
         return null;
     }
-
+    
     public static File saveAsSac(LocalSeismogramImpl seis,
                                  File directory,
                                  Channel channel,
                                  EventAccessOperations event)
         throws IOException, NoPreferredOrigin, CodecException {
-
+        
         SacTimeSeries sac;
         String seisFilename = "";
         seisFilename = ChannelIdUtil.toStringNoDates(seis.channel_id);
         seisFilename = seisFilename.replace(' ', '.'); // check for space-space site
         seisFilename += ".sac"; // append .sac to filename
         File seisFile = new File(directory, seisFilename);
-
+        
         int n =0;
         while (seisFile.exists()) {
             n++;
-
+            
             seisFilename =
                 ChannelIdUtil.toStringNoDates(seis.channel_id)+"."+n;
             seisFilename = seisFilename.replace(' ', '.'); // check for space-space site
             seisFile = new File(directory, seisFilename);
         } // end of while (seisFile.exists())
-
+        
         if (channel != null) {
             if (event != null) {
                 sac = FissuresToSac.getSAC(seis,
@@ -291,12 +291,12 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         sac.write(seisFile);
         return seisFile;
     }
-
+    
     private void setRequestFilter(LocalSeismogramImpl seis){
         MicroSecondDate begin = seis.getBeginTime();
         MicroSecondDate end = seis.getEndTime();
         ChannelId chanId = seis.getChannelID();
-
+        
         if (requestFilter != null) {
             MicroSecondDate tmp = new MicroSecondDate(requestFilter.start_time);
             if (tmp.before(begin)) begin = tmp;
@@ -309,10 +309,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                           begin.getFissuresTime(),
                                           end.getFissuresTime());
     }
-
+    
     private LocalSeismogramImpl getSeismogram(URL seisurl)
         throws IOException, FissuresException {
-
+        
         Object obj = urlToLSMap.get(seisurl);
         if (obj instanceof SoftReference) {
             Object ref = ((SoftReference)obj).get();
@@ -326,9 +326,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         if (obj != null) {
             return (LocalSeismogramImpl)obj;
         }
-
+        
         LocalSeismogramImpl seis;
-
+        
         if (isPSN()){
             URL psnURL = getURLfromPSNURL(seisurl);
             PSNDataFile psnDataFile = new PSNDataFile(new DataInputStream(new BufferedInputStream(psnURL.openStream())));
@@ -340,7 +340,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             sacTime.read(new DataInputStream(new BufferedInputStream(seisurl.openStream())));
             seis = SacToFissures.getSeismogram(sacTime);
         }
-
+        
         // set channel id correctly if extra info stored in Aux data
         Object netBegin = getAuxillaryData(NETWORK_BEGIN);
         if (netBegin != null && netBegin instanceof String) {
@@ -350,19 +350,19 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         if (chanBegin != null && chanBegin instanceof String) {
             seis.channel_id.begin_time.date_time = (String)chanBegin;
         }
-
+        
         addToCache(seisurl, seis);
         return seis;
     }
-
+    
     public boolean isSac(){
         return fileType.equals(SeismogramFileTypes.SAC);
     }
-
+    
     public boolean isPSN(){
         return fileType.equals(SeismogramFileTypes.PSN);
     }
-
+    
     public void addToCache(URL seisurl, LocalSeismogramImpl seis) {
         setRequestFilter(seis);
         addToCache(seis);
@@ -382,7 +382,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             url[url.length-1] = seisurl;
         }
     }
-
+    
     /** allows the saving of a URLDataSetSeismogram in XML format. The
      actual waveform data is not saved, just the URLs to it. If local
      saving is needed, localize should be used before calling insertInto. All
@@ -392,11 +392,11 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "name",
                                                       getName()));
-
+        
         Element rf = doc.createElement("requestFilter");
         XMLRequestFilter.insert(rf, getRequestFilter());
         element.appendChild(rf);
-
+        
         logger.debug("Saving "+url.length+" urls for "+getName());
         String baseStr = base.toString();
         String outStr;
@@ -412,22 +412,33 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             urlElement.setAttribute("xlink:role", fileType.getURLValue().toString());
             element.appendChild(urlElement);
         }
-
+        
         Iterator it = getAuxillaryDataKeys().iterator();
         while (it.hasNext()) {
             Object next = it.next();
-            if (next instanceof String && getAuxillaryData(next) instanceof String) {
-                Element prop = doc.createElement("property");
-                XMLProperty.insert(prop, (String)next, (String)getAuxillaryData(next));
+            if (next instanceof String) {
+                if (getAuxillaryData(next) instanceof String) {
+                    Element prop = doc.createElement("property");
+                    XMLProperty.insert(prop, (String)next, (String)getAuxillaryData(next));
+                } else if (getAuxillaryData(next) instanceof Element) {
+                    Element namedValue = doc.createElement("namedValue");
+                    namedValue.appendChild(XMLUtil.createTextElement(doc,
+                                                                     "name",
+                                                                         (String)next));
+                    Element valueElement = doc.createElement("value");
+                    valueElement.appendChild(doc.importNode((Element)getAuxillaryData(next), true));
+                    namedValue.appendChild(valueElement);
+                    element.appendChild(namedValue);
+                }
             } else {
                 logger.warn("try to save aux data "+
-                                       next+" "+
-                                       getAuxillaryData(next).getClass()+": "+getAuxillaryData(next)+
-                                       " but only know how to save strings.");
+                                next+" "+
+                                getAuxillaryData(next).getClass()+": "+getAuxillaryData(next)+
+                                " but don't know how.");
             }
         }
     }
-
+    
     public static URLDataSetSeismogram getURLDataSetSeismogram(URL base,
                                                                Element element) {
         String name = XMLUtil.getText(XMLUtil.getElement(element, "name"));
@@ -450,31 +461,31 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         urls = (URL[])urlList.toArray(urls);
         return new URLDataSetSeismogram(urls, SeismogramFileTypes.SAC, name, request);
     }
-
+    
     public static URL createPSNURL(URL psnUrl, int index) throws MalformedURLException{
         return new URL(psnUrl.toString() + "#edu.sc.seis.fissuresUtil.psn.PSNEventRecord=" + index);
     }
-
+    
     public static URL getURLfromPSNURL(URL psnURL) throws MalformedURLException{
         String urlString = psnURL.toString();
         return new URL(urlString.substring(0,urlString.indexOf('#')));
     }
-
+    
     public static int getIndexFromPSNURL(URL psnURL){
         String urlString = psnURL.toString();
         return Integer.parseInt(urlString.substring(urlString.indexOf('=') + 1));
     }
-
+    
     private URL[] url;
-
+    
     private SeismogramFileTypes fileType;
-
+    
     /** Uses SoftReferences, this allows a map from URL to LocalSeismogram, but
      does not prevent garbage collection. */
     private HashMap urlToLSMap = new HashMap();
-
+    
     private static Logger logger = Logger.getLogger(URLDataSetSeismogram.class);
-
+    
 }// URLDataSetSeismogram
 
 
