@@ -5,6 +5,7 @@ import edu.sc.seis.fissuresUtil.sac.*;
 import edu.iris.Fissures.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
 import org.w3c.dom.*;
@@ -20,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2083 2002-07-09 19:42:16Z crotwell $
+ * @version $Id: XMLDataSet.java 2091 2002-07-09 20:25:56Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -57,6 +58,7 @@ public class XMLDataSet implements DataSet, Serializable {
             if (docElement.getTagName().equals("dataset")) {
 		//System.out.println(" ***********************************************DATASET IS SET FROM THE URL SO IT IS NOT NULL");
 		dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
+	
             }
         } catch (java.io.IOException e) {
             logger.error("Error loading XMLDataSet",e);
@@ -180,6 +182,11 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return the parameter with that name
      */
     public Object getParameter(String name) {
+
+	//ChannelProxy channelProxy = new ChannelProxy();
+	//ChannelId[] channelIds = getChannelIds(); 
+	//channelProxy.retrieve_grouping(channelIds, channelIds[0]);
+	///************************************************	
         if (parameterCache.containsKey(name)) {
             return parameterCache.get(name);
         } // end of if (parameterCache.containsKey(name))
@@ -280,40 +287,7 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return a <code>String[]</code> id
      */
     public String[] getDataSetIds() {
-        String[] internal =  getAllAsStrings("*/@datasetid");
-
-        java.util.LinkedList external = new java.util.LinkedList();
-        NodeList nList = 
-            evalNodeList(config, "datasetRef");
-        if (nList != null && nList.getLength() != 0) {
-            logger.debug("nList size is "+nList.getLength()+" base="+base);
-             for (int i=0; i<nList.getLength(); i++) {
-                 Node n = nList.item(i); 
-                 if (n instanceof Element) {
-                     try {
-                         SimpleXLink sl = 
-                             new SimpleXLink(docBuilder, (Element)n, base);
-                         XMLDataSet dataset = 
-                             new XMLDataSet(docBuilder, base, sl.retrieve());
-                         if (dataset.getId() != null && dataset.getId().length() != 0) {
-                             dataSetCache.put(dataset.getId(), dataset);
-                             external.add(dataset.getId());
-                         } // end of if (tmp.getId().equals(id))
-                     } catch (Exception e) {
-                         logger.error("Couldn't get datasetRef", e);
-                     } // end of try-catch
-                 }
-            } // end of for (int i=0; i<nList.getLength())
-        }
-        String[] all = new String[internal.length+external.size()];
-        System.arraycopy(internal, 0, all, 0, internal.length);
-        java.util.Iterator it = external.iterator();
-        int index = internal.length;
-        while (it.hasNext()) {
-            all[index] = (String)it.next();
-            index++;
-        } // end of while (it.hasNext())
-        return all;
+        return getAllAsStrings("*/@datasetid");
     }
 
     /**
@@ -327,7 +301,6 @@ public class XMLDataSet implements DataSet, Serializable {
         for (int i=0; i<ids.length; i++) {
             DataSet ds = getDataSetById(ids[i]);
             names[i] = ds.getName();
-            logger.debug("GetDataSetNames "+i+" "+names[i]);
         } // end of for (int i=0; i<ids.length; i++)
         return names;
     }
@@ -423,25 +396,18 @@ public class XMLDataSet implements DataSet, Serializable {
 
         // not an embedded dataset, try datasetRef
         nList = 
-            evalNodeList(config, "datasetRef");
+            evalNodeList(config, "datasetRef[@datasetid="+dquote+id+dquote+"]");
         if (nList != null && nList.getLength() != 0) {
-             for (int i=0; i<nList.getLength(); i++) {
-                 Node n = nList.item(1); 
-                 if (n instanceof Element) {
-                     try {
-                         SimpleXLink sl = 
-                             new SimpleXLink(docBuilder, (Element)n, base);
-                         XMLDataSet dataset = 
-                             new XMLDataSet(docBuilder, base, sl.retrieve());
-                         if (dataset.getId().equals(id)) {
-                             dataSetCache.put(id, dataset);
-                             return dataset;
-                         } // end of if (tmp.getId().equals(id))
-                     } catch (Exception e) {
-                         logger.error("Couldn't get datasetRef", e);
-                     } // end of try-catch
-                 }
-            } // end of for (int i=0; i<nList.getLength())
+            Node n = nList.item(0); 
+            if (n instanceof Element) {
+                try {
+                    SimpleXLink sl = new SimpleXLink(docBuilder, (Element)n, base);
+                    return new XMLDataSet(docBuilder, base, sl.retrieve());
+                } catch (Exception e) {
+                    logger.error("Couldn't get datasetRef", e);
+                } // end of try-catch
+		
+            }
         }
 
         // can't find it
@@ -888,6 +854,13 @@ public class XMLDataSet implements DataSet, Serializable {
 	    }
 	}
 	return null;
+    }
+
+    
+    public edu.iris.Fissures.IfNetwork.Channel getChannel(ChannelId channelId) {
+
+	Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
+	return (edu.iris.Fissures.IfNetwork.Channel)obj;
     }
 
     /**
