@@ -6,6 +6,7 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.LocalDataCenterCallBack;
 import java.lang.ref.SoftReference;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -267,6 +268,14 @@ public abstract class DataSetSeismogram
 
     public abstract void retrieveData(SeisDataChangeListener dataListener);
 
+    public void addAuxillaryData(Object key, Object value) {
+        auxillaryData.put(key, value);
+    }
+
+    public Object getAuxillaryData(Object key) {
+        return auxillaryData.get(key);
+    }
+
     private List dssDataListeners;
 
     private List rfChangeListeners;
@@ -278,6 +287,8 @@ public abstract class DataSetSeismogram
     private DataSet dataSet = null;
 
     private String name = null;
+
+    private HashMap auxillaryData = new HashMap();
 
     static Category logger =
         Category.getInstance(DataSetSeismogram.class.getName());
