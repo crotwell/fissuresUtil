@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3245 2003-02-06 01:03:19Z crotwell $
+ * @version $Id: ChannelChooser.java 3247 2003-02-06 03:19:29Z crotwell $
  *
  */
 
@@ -30,22 +30,13 @@ public class ChannelChooser extends JPanel{
 
     public ChannelChooser(NetworkDCOperations[] netdcgiven) {
         this(netdcgiven,
-             false,
-             defaultSelectableOrientations,
-             defaultAutoSelectedOrientation,
-             defaultSelectableBand,
-             defaultAutoSelectBand, 
-	     new String[0]);
+             false);
     }
   
     public ChannelChooser(NetworkDCOperations[] netdcgiven,
 			  boolean showSites) {
         this(netdcgiven,
              showSites,
-             defaultSelectableOrientations,
-             defaultAutoSelectedOrientation,
-             defaultSelectableBand,
-             defaultAutoSelectBand, 
 	     new String[0]);
     }
    
@@ -53,10 +44,6 @@ public class ChannelChooser extends JPanel{
 			  String[] configuredNetworks) {
         this(netdcgiven,
              false,
-             defaultSelectableOrientations,
-             defaultAutoSelectedOrientation,
-             defaultSelectableBand,
-             defaultAutoSelectBand, 
 	     configuredNetworks);
     }
     
@@ -65,55 +52,82 @@ public class ChannelChooser extends JPanel{
 			  String[] configuredNetworks) {
 	this(netdcgiven, 
 	     showSites, 
-	     configuredNetworks, 
-	     true);
+	     true,
+	     configuredNetworks);
     }
 
     public ChannelChooser(NetworkDCOperations[] netdcgiven, 
                           boolean showSites,
-			  String[] configuredNetworks,
-			  boolean showNetworks) {
-        this(netdcgiven,
-	     showSites,
-             defaultSelectableOrientations,
-             defaultAutoSelectedOrientation,
-             defaultSelectableBand,
-             defaultAutoSelectBand, 
-	     configuredNetworks,
-	     showNetworks);
-    }
-
-    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
-                          boolean showSites,
-                          int[] selectableOrientations,
-                          int autoSelectedOrientation,
-                          String[] selectableBandGain,
-                          String[] autoSelectBandGain,
+			  boolean showNetworks,
 			  String[] configuredNetworks) {
         this(netdcgiven,
 	     showSites,
-             selectableOrientations,
-             autoSelectedOrientation,
-             selectableBandGain,
-             autoSelectBandGain, 
+	     showNetworks,
 	     configuredNetworks,
-	     true);
+             defaultSelectableBand,
+             defaultAutoSelectBand);
     }
 
     public ChannelChooser(NetworkDCOperations[] netdcgiven, 
                           boolean showSites,
-                          int[] selectableOrientations,
-                          int autoSelectedOrientation,
-                          String[] selectableBandGain,
-                          String[] autoSelectBandGain,
 			  String[] configuredNetworks,
-			  boolean showNetworks){
+                          String[] selectableBand,
+                          String[] autoSelectBand) {
+        this(netdcgiven,
+	     showSites,
+	     true,
+	     configuredNetworks,
+             selectableBand,
+             autoSelectBand);
+    }
+
+    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
+                          boolean showSites,
+			  boolean showNetworks,
+			  String[] configuredNetworks,
+                          String[] selectableBand,
+                          String[] autoSelectBand){
+        this(netdcgiven,
+	     showSites,
+	     showNetworks,
+	     configuredNetworks,
+             selectableBand,
+             autoSelectBand, 
+	     defaultSelectableOrientations,
+             defaultAutoSelectedOrientation);
+    }
+
+    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
+                          boolean showSites,
+			  String[] configuredNetworks,
+                          String[] selectableBand,
+                          String[] autoSelectBand,
+                          int[] selectableOrientations,
+                          int autoSelectedOrientation) {
+        this(netdcgiven,
+	     showSites,
+	     true,
+	     configuredNetworks,
+             selectableBand,
+             autoSelectBand,
+             selectableOrientations,
+             autoSelectedOrientation);
+    }
+
+    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
+                          boolean showSites,
+			  boolean showNetworks,
+			  String[] configuredNetworks,
+                          String[] selectableBand,
+                          String[] autoSelectBand,
+                          int[] selectableOrientations,
+                          int autoSelectedOrientation) {
         this.showSites = showSites;
         this.showNetworks = showNetworks;
         this.selectableOrientations = selectableOrientations;
         this.autoSelectedOrientation = autoSelectedOrientation;
-        this.selectableBandGain = selectableBandGain;
-        this.autoSelectBandGain = autoSelectBandGain;
+        this.selectableBand = selectableBand;
+        this.autoSelectBand = autoSelectBand;
 	progressBar.setValue(0);
 	progressBar.setStringPainted(true);;
         bundle = ResourceBundle.getBundle(ChannelChooser.class.getName());
@@ -178,8 +192,8 @@ public class ChannelChooser extends JPanel{
         chLabel.setToolTipText(lchatip);
 
 	if ( showNetworks ) {
-        add(netLabel, gbc);
-        gbc.gridx++;
+	    add(netLabel, gbc);
+	    gbc.gridx++;
 	} // end of if ()
 	
         add(staLabel, gbc);
@@ -286,18 +300,24 @@ public class ChannelChooser extends JPanel{
         add(scroller, gbc);
         gbc.gridx++;
 
-        bandListModel.addElement("LONG_PERIOD");
-        bandListModel.addElement("BROAD_BAND");
-        bandListModel.addElement("SHORT_PERIOD");
-        bandListModel.addElement("VERY_LONG_PERIOD");
-        bandListModel.addElement("ULTRA_LONG_PERIOD");
-        bandListModel.addElement("EXTREMELY_LONG_PERIOD");
-        bandListModel.addElement("MID_PERIOD");
-        bandListModel.addElement("EXTREMELY_SHORT_PERIOD");
-        bandListModel.addElement("HIGH_BROAD_BAND");
-        bandListModel.addElement("ADMINISTRATIVE");
-        bandListModel.addElement("WEATHER_ENVIRONMENTAL");
-        bandListModel.addElement("EXPERIMENTAL");
+	if ( selectableBand != null) {
+	    for ( int i=0; i<selectableBand.length; i++) {
+		bandListModel.addElement(selectableBand[i]);		
+	    } // end of for ()
+	} else {
+	    bandListModel.addElement("L");
+	    bandListModel.addElement("B");
+	    bandListModel.addElement("S");
+	    bandListModel.addElement("V");
+	    bandListModel.addElement("U");
+	    bandListModel.addElement("R");
+	    bandListModel.addElement("M");
+	    bandListModel.addElement("E");
+	    bandListModel.addElement("H");
+	    bandListModel.addElement("A");
+	    bandListModel.addElement("W");
+	    bandListModel.addElement("X");
+	} // end of else
 
         if (autoSelectedOrientation == INDIVIDUAL_CHANNELS) {
             channelList = new JList(channels);
@@ -311,16 +331,15 @@ public class ChannelChooser extends JPanel{
         ListModel chanListModel = channelList.getModel();
         ListSelectionModel channelSelctionModel 
             = channelList.getSelectionModel();
-        for (int j=0; j<autoSelectBandGain.length; j++) {
+        for (int j=0; j<autoSelectBand.length; j++) {
             for (int i=0; i<chanListModel.getSize(); i++) {
                 String listElement = (String)chanListModel.getElementAt(i);
-                System.out.println(bundle.getString("CODE_"+listElement)+" = "+autoSelectBandGain[j]);
-                if (bundle.getString("CODE_"+listElement).equals(autoSelectBandGain[j])) {
+                if (listElement.equals(autoSelectBand[j])) {
                     channelSelctionModel.addSelectionInterval(i,i);
                     break;
                 }
             } // end of for (int i=0; i<chanListModel; i++)
-        } // end of for (int j=0; j<autoSelectBandGain.length; j++)
+        } // end of for (int j=0; j<autoSelectBand.length; j++)
 	
         scroller = new JScrollPane(channelList);
         add(scroller, gbc);
@@ -642,8 +661,8 @@ public class ChannelChooser extends JPanel{
 
     protected boolean showSites;
     protected boolean showNetworks;
-    protected String[] selectableBandGain;
-    protected String[] autoSelectBandGain;
+    protected String[] selectableBand;
+    protected String[] autoSelectBand;
     private String[] configuredNetworks;
     protected int[] selectableOrientations;
     protected int autoSelectedOrientation;
@@ -813,7 +832,7 @@ public class ChannelChooser extends JPanel{
             } catch (java.util.MissingResourceException e) {
                 try {
                     // try NAME_value
-                    name = bundle.getString("NAME_"+(String)value);
+                    name = bundle.getString("BANDNAME_"+(String)value);
                     useValue = name;
                 } catch (java.util.MissingResourceException ee) {
                     // use default value???
