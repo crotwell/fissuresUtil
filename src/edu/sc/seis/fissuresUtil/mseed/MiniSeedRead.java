@@ -23,94 +23,55 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class MiniSeedRead  {
-    
+
+    protected MiniSeedRead() {
+
+    }
+
     public MiniSeedRead(DataInput inStream)
         throws IOException {
         this.inStream = inStream;
     }
-    
+
     public void close() throws IOException {
         inStream = null;
     }
-    
+
     /** gets the next logical record int the seed volume. This may not
      exactly correspond to the logical record structure within the
      volume as "continued" records will be concatinated to avoid
      partial blockettes. */
-    public SeedRecord getNextRecord()
+    public DataRecord getNextRecord()
         throws SeedFormatException, IOException {
         ControlHeader header = ControlHeader.read(inStream);
-        
+
         if (header instanceof DataHeader) {
             return readDataRecord((DataHeader)header);
         } else {
             throw new SeedFormatException("Found a control record in miniseed");
             //      return readControlRecord(header);
-            
+
         }
     }
-    
-    
-    
-    /**
-     * Get the value of readData.
-     * @return Value of readData.
-     */
-    public boolean isReadData() {return readData;}
-    
-    /**
-     * Set the value of readData.
-     * @param v  Value to assign to readData.
-     */
-    public void setReadData(boolean  v) {this.readData = v;}
-    
-    /*
-     protected ControlRecord readControlRecord(ControlHeader header)
-     throws IOException {
-     ControlRecord controlRec = new ControlRecord(header);
-    
-     // preload first blockette
-     AsciiBlockette b = nextControlHeaderBlockette();
-    
-    
-    
-     return controlRec;
-     }
-    
-     protected AsciiBlockette nextControlHeaderBlockette()
-     throws IOException {
-     byte[] typeBytes = new byte[3];
-     inStream.readFully(typeBytes);
-     String typeString = new String(typeBytes);
-    
-     byte[] lengthBytes = new byte[4];
-     inStream.readFully(lengthBytes);
-     String lengthString = new String(lengthBytes);
-    
-     byte[] blocketteBytes =
-     new byte[Integer.parseInt(lengthString)-7];
-     inStream.readFully(blocketteBytes);
-    
-     return (AsciiBlockette)
-     Blockette.parseBlockette(Integer.valueOf(typeString
-     ).shortValue(),
-     blocketteBytes);
-     }
-     */
-    
+
+    public int getNumRecordsRead() {
+        return numRead;
+    }
+
     protected DataRecord readDataRecord(DataHeader header)
         throws IOException, SeedFormatException {
+        numRead++;
         Assert.isTrue(header.getDataBlocketteOffset()>= header.getSize(),
                       "Offset to first blockette must be larger than the header size");
         byte[] garbage = new byte[header.getDataBlocketteOffset()-
             header.getSize()];
-        
+
         DataRecord dataRec = new DataRecord(header);
-        
+
         if (garbage.length != 0) {
             inStream.readFully(garbage);
         }
-        
+
         byte[] blocketteBytes;
         int currOffset = header.getDataBlocketteOffset();
         int type, nextOffset;
@@ -120,20 +81,20 @@ public class MiniSeedRead  {
             byte lowbyte = inStream.readByte();
             type = Utility.uBytesToInt(hibyte, lowbyte, false);
             // System.out.println("Blockette type "+type);
-            
+
             hibyte = inStream.readByte();
             lowbyte = inStream.readByte();
             nextOffset = Utility.uBytesToInt(hibyte, lowbyte, false);
-            
+
             // account for the 4 bytes above
             currOffset +=  4;
-            
+
             if (nextOffset != 0) {
                 blocketteBytes = new byte[nextOffset - currOffset];
             } else if (header.getDataOffset() > currOffset) {
                 blocketteBytes = new byte[header.getDataOffset()-
                     currOffset];
-                
+
             } else {
                 blocketteBytes = new byte[0];
             }
@@ -143,7 +104,7 @@ public class MiniSeedRead  {
             } else {
                 currOffset += blocketteBytes.length;
             }
-            
+
             // blockette needs 4 bytes for type and next offset values, even
             // though their values are not used directly
             byte[] fullBytes = new byte[4+blocketteBytes.length];
@@ -152,12 +113,12 @@ public class MiniSeedRead  {
             Blockette b = Blockette.parseBlockette(type,
                                                    fullBytes);
             dataRec.addBlockette(b);
-            
+
             if (nextOffset == 0) {
                 break;
             }
         }
-        
+
         Blockette[] allBs = dataRec.getBlockettes(1000);
         if (allBs.length == 0) {
             // no data
@@ -170,7 +131,7 @@ public class MiniSeedRead  {
         //  System.out.println("allBs.length="+allBs.length);
         Blockette1000 b1000 = (Blockette1000)allBs[0];
         // System.out.println(b1000);
-        
+
         byte[] timeseries;
         if (header.getDataOffset() == 0) {
             // data record with no data, so gobble up the rest of the record
@@ -184,18 +145,20 @@ public class MiniSeedRead  {
         dataRec.setData(timeseries);
         return dataRec;
     }
-    
+
+    protected int numRead = 0;
+
     protected DataInput inStream;
-    
+
     protected int recordSize;
-    
+
     protected boolean readData;
-    
+
     public static void main(String[] args) {
         DataInputStream ls = null;
         try {
             System.out.println("open socket");
-            
+
             if (args.length == 0) {
                 Socket lissConnect = new Socket("anmo.iu.liss.org", 4000);
                 ls = new DataInputStream(
@@ -237,17 +200,17 @@ public class MiniSeedRead  {
                     }
                 }
             }
-            
-            
+
+
         } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();
-            
+
         } finally {
             try {
                 if (ls != null) ls.close();
             } catch (Exception ee) {}
         }
     }
-    
+
 } // MiniSeedRead
