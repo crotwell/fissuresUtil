@@ -197,7 +197,7 @@ useful things already done.</description>
     <dependency>
        <groupId>mockFissures</groupId>
        <artifactId>mockFissures</artifactId>
-       <version>0.2</version>
+       <version>0.3</version>
        <type>test</type>
     </dependency>
 <dependency>
