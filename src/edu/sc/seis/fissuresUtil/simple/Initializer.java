@@ -24,7 +24,7 @@ public abstract class Initializer{
     public static void init(String[] args) {
         synchronized(initLock){
             if(fisName == null){
-                loadProperties(args);
+                props = loadProperties(args);
 
                 /** Configure log4j, not required for DHI, but is useful. */
                 //  BasicConfigurator.configure();
@@ -67,9 +67,9 @@ public abstract class Initializer{
         }
     }
 
-    private static void loadProperties(String[] args) {
+    public static Properties loadProperties(String[] args) {
         String propFilename;
-        props = System.getProperties();
+        Properties props = System.getProperties();
         for (int i=0; i<args.length-1; i++) {
             if (args[i].equals("-props")) {
                 propFilename = args[i+1];
@@ -84,6 +84,7 @@ public abstract class Initializer{
                 }
             }
         }
+        return props;
     }
 
     public static org.omg.CORBA_2_3.ORB getORB(){
