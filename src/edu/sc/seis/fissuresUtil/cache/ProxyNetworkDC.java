@@ -32,4 +32,6 @@ public interface ProxyNetworkDC extends NetworkDCOperations
     /** Gets the real corba DataCenter object for which this is a proxy.
      */
     public NetworkDC getCorbaObject();
+
+    public void setCorbaObject(NetworkDC netDC);
 }
