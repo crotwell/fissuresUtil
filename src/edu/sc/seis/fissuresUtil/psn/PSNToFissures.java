@@ -139,6 +139,9 @@ public class PSNToFissures{
                                     new QuantityImpl(stationElevation, UnitImpl.METER),
                                     new QuantityImpl(0, UnitImpl.METER),
                                     LocationType.GEOGRAPHIC);
+
+        System.out.println("Location of Seismogram: " + header.getSensorLat() + " " + header.getSensorLong());
+
         Orientation orient = new Orientation((float)header.getCompAz(), (float)(header.getCompIncident() - 90));
         SamplingImpl samp = new SamplingImpl(1, new TimeInterval((1/header.getSampleRate()), UnitImpl.SECOND));
         TimeRange effective = new TimeRange(channelId.network_id.begin_time,
@@ -193,6 +196,8 @@ public class PSNToFissures{
                                new QuantityImpl(0, UnitImpl.METER),
                                new QuantityImpl(evInfo.getDepthKM(), UnitImpl.KILOMETER),
                                LocationType.GEOGRAPHIC);
+
+            System.out.println("Location of Event: " + evInfo.getLat() + " " +evInfo.getLon());
 
             origins[0] = new OriginImpl("genid:" +
                                             Math.round(Math.random()*Integer.MAX_VALUE),
