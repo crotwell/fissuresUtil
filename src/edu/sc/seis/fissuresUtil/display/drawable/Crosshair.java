@@ -1,9 +1,3 @@
-/**
- * Crosshair.java
- *
- * @author Created by Omnicore CodeGuide
- */
-
 package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
@@ -13,8 +7,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-
-
 
 public class Crosshair implements Drawable{
     public Crosshair(int x, int y){
@@ -35,30 +27,37 @@ public class Crosshair implements Drawable{
         this.y = y;
     }
 
-    public Color getColor(){
-        return Color.BLACK;
-    }
+    public Color getColor(){ return Color.BLACK; }
 
-    public void setVisibility(boolean b) {
-        visible = b;
-    }
+    public void setVisibility(boolean b) { visible = b; }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         if(visible && !BasicSeismogramDisplay.PRINTING){
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             canvas.setPaint(Color.RED);
-            canvas.draw(topXTriangle);
+            if(topTriangleVisible)canvas.draw(topXTriangle);
             canvas.draw(leftYTriangle);
-            int[] bottomXTriX = {x-5,x,x+5, x+5,x-5};
-            int[] bottomXTriY = {size.height-6, size.height -1 , size.height-6, size.height -12,size.height -12};
-            canvas.draw(new Polygon(bottomXTriX, bottomXTriY, 5));
+            if(bottomTriangleVisible){
+                int[] bottomXTriX = {x-5,x,x+5, x+5,x-5};
+                int[] bottomXTriY = {size.height-6, size.height -1 , size.height-6, size.height -12,size.height -12};
+                canvas.draw(new Polygon(bottomXTriX, bottomXTriY, 5));
+            }
         }
+    }
+
+    public void setBottomTriangleVisible(boolean visible){
+        bottomTriangleVisible = visible;
+    }
+
+    public void setTopTriangleVisible(boolean visible){
+        topTriangleVisible = visible;
     }
 
     private int x, y;
 
     private Polygon leftYTriangle, topXTriangle;
 
-    private boolean visible = true;
+    private boolean visible = true, bottomTriangleVisible = false,
+        topTriangleVisible = false;
 }
 
