@@ -37,10 +37,10 @@ public class DataCenterThread implements Runnable{
 		RequestFilter[] temp = new RequestFilter[1];
 		temp[0] = requestFilters[counter];
 		//System.out.println("Making a request to retrieve seismograms");
-		LocalSeismogramImpl[] seis =
-					(LocalSeismogramImpl[])dbDataCenter.retrieve_seismograms(temp);
+		LocalSeismogram[] seis = dbDataCenter.retrieve_seismograms(temp);
+		LocalSeismogramImpl[] seisImpl = castToLocalSeismogramImplArray(seis);
 		//System.out.println("The length of the seismograms in thread is "+seis.length);
-		a_client.pushData(seis, initiator);
+		a_client.pushData(seisImpl, initiator);
 	    } catch(FissuresException fe) {
 		fe.printStackTrace();
 		continue;
@@ -48,6 +48,14 @@ public class DataCenterThread implements Runnable{
 	}
 	a_client.finished(initiator);
 
+    }
+
+    private LocalSeismogramImpl[] castToLocalSeismogramImplArray(LocalSeismogram[] seismos) {
+	LocalSeismogramImpl[] rtnValues = new LocalSeismogramImpl[seismos.length];
+	for(int counter = 0; counter < seismos.length; counter++) {
+	    rtnValues[counter] = (LocalSeismogramImpl) seismos[counter];
+	}
+	return rtnValues;
     }
 
     private RequestFilter[] requestFilters;
