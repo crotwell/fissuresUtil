@@ -65,12 +65,14 @@ public class ParticleMotionDisplayThread{
 	this.particleMotionDisplay = particleMotionDisplay;
     }
 
-
+    
     public void execute() {
-
-
-	if(dataSetSeismogram.length == 1) {
+	if(dataSetSeismogram.length <= 1) {
 	    dataSetSeismogram = retrieve_seismograms();
+	    if(dataSetSeismogram.length < 3){// in case all the components aren't available, the thread fails
+		completion = false;
+		return;
+	    }
 	} else {
 	    channelGroup = new ChannelId[dataSetSeismogram.length];
 	    for(int counter = 0; counter < dataSetSeismogram.length; counter++) {
@@ -115,6 +117,7 @@ public class ParticleMotionDisplayThread{
 	if(displayButtonPanel) {
 	    particleMotionDisplay.setInitialButton();
 	}
+	completion = true;
 
     }
 
@@ -146,26 +149,25 @@ public class ParticleMotionDisplayThread{
 	Date channelGroupStartTime = Calendar.getInstance().getTime();
 	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
 	logger.debug("the original channel_code from the seismogram is "+seis.getChannelID().channel_code);
-	 channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
-	 Date channelGroupEndTime = Calendar.getInstance().getTime();
-	 logger.debug(" Time for Chan Grouper is "+(channelGroupEndTime.getTime() - channelGroupStartTime.getTime()));
+	channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
+	Date channelGroupEndTime = Calendar.getInstance().getTime();
+	logger.debug(" Time for Chan Grouper is "+(channelGroupEndTime.getTime() - channelGroupStartTime.getTime()));
 	logger.debug("THe length of the channel group is "+channelGroup.length);
-
-
-
-
 	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
 	try {
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		
 		seismograms[counter] = new DataSetSeismogram(dataSetSeismogram[0].getDataSet().
 							     getSeismogram(DisplayUtils.getSeismogramName(channelGroup[counter], 
 													  dataSetSeismogram[0].getDataSet(),
 													  new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), seis.getEndTime().getFissuresTime()))), dataSetSeismogram[0].getDataSet());
+		
 		//ChannelIdUtil.toStringNoDates(channelGroup[counter]));
 		//registrar.addSeismogram(seismograms[counter]);
 		//hAmpRangeConfigRegistrar.addSeismogram(seismograms[counter]);
 		
+	    }
+	    if(channelGroup.length == 0){
+		seismograms = new DataSetSeismogram[0];
 	    }
 	    return seismograms;
 	    
@@ -191,10 +193,13 @@ public class ParticleMotionDisplayThread{
 	return false;
    }	
 
-
-  
+    /**
+     *@returns true if the execution step of the thread finishes correctly.  
+     *
+     */
+    public boolean getCompletion(){ return completion; }
     
-    
+    private boolean completion = false;
 
     private DataSetSeismogram[] dataSetSeismogram = new DataSetSeismogram[0];
     
