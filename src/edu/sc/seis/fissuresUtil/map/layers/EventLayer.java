@@ -13,7 +13,6 @@ import java.util.Set;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import org.apache.log4j.Logger;
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -30,14 +29,15 @@ import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
 import edu.sc.seis.fissuresUtil.display.EventDataListener;
 import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
+import edu.sc.seis.fissuresUtil.map.OpenMap;
 import edu.sc.seis.fissuresUtil.map.colorizer.event.EventColorizer;
 import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
 
 public class EventLayer extends MouseAdapterLayer implements EventDataListener,
 		EventLoadedListener, EQSelectionListener {
 
-	public EventLayer(MapBean mapBean, EventColorizer colorizer) {
-		this.mapBean = mapBean;
+	public EventLayer(OpenMap map, EventColorizer colorizer) {
+		this.map = map;
 		this.colorizer = colorizer;
 		setName("Event Layer");
 		circles.setTraverseMode(OMGraphicList.LAST_ADDED_ON_TOP);
@@ -73,7 +73,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener,
 		try {
 			synchronized (circles) {
 				if (events.add(event)) {
-					circles.add(new OMEvent(event, this, mapBean));
+					circles.add(new OMEvent(event, this, map));
 					colorizer.colorize(circles);
 					repaint();
 				}
@@ -254,7 +254,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener,
 
 	private static Logger logger = Logger.getLogger(EventLayer.class);
 
-	private MapBean mapBean;
+	private OpenMap map;
 
 	private EventColorizer colorizer;
 }
