@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3226 2003-01-29 19:51:12Z crotwell $
+ * @version $Id: ChannelChooser.java 3227 2003-01-29 20:44:05Z crotwell $
  *
  */
 
@@ -60,19 +60,28 @@ public class ChannelChooser extends JPanel{
 	     configuredNetworks);
     }
     
-
     public ChannelChooser(NetworkDCOperations[] netdcgiven, 
                           boolean showSites,
 			  String[] configuredNetworks) {
+	this(netdcgiven, 
+	     showSites, 
+	     configuredNetworks, 
+	     true);
+    }
+
+    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
+                          boolean showSites,
+			  String[] configuredNetworks,
+			  boolean showNetworks) {
         this(netdcgiven,
 	     showSites,
              defaultSelectableOrientations,
              defaultAutoSelectedOrientation,
              defaultSelectableBand,
              defaultAutoSelectBand, 
-	     configuredNetworks);
+	     configuredNetworks,
+	     showNetworks);
     }
-    
 
     public ChannelChooser(NetworkDCOperations[] netdcgiven, 
                           boolean showSites,
@@ -80,8 +89,27 @@ public class ChannelChooser extends JPanel{
                           int autoSelectedOrientation,
                           String[] selectableBandGain,
                           String[] autoSelectBandGain,
-			  String[] configuredNetworks){
+			  String[] configuredNetworks) {
+        this(netdcgiven,
+	     showSites,
+             selectableOrientations,
+             autoSelectedOrientation,
+             selectableBandGain,
+             autoSelectBandGain, 
+	     configuredNetworks,
+	     true);
+    }
+
+    public ChannelChooser(NetworkDCOperations[] netdcgiven, 
+                          boolean showSites,
+                          int[] selectableOrientations,
+                          int autoSelectedOrientation,
+                          String[] selectableBandGain,
+                          String[] autoSelectBandGain,
+			  String[] configuredNetworks,
+			  boolean showNetworks){
         this.showSites = showSites;
+        this.showNetworks = showNetworks;
         this.selectableOrientations = selectableOrientations;
         this.autoSelectedOrientation = autoSelectedOrientation;
         this.selectableBandGain = selectableBandGain;
@@ -118,7 +146,7 @@ public class ChannelChooser extends JPanel{
         networks.clear();
 	for (int i=0; i<netdcgiven.length; i++) {
 	    NetworkLoader networkLoader = new NetworkLoader(netdcgiven[i]);
-	    if (netdcgiven.length == 1) {
+	    if (netdcgiven.length == 1 || ! showNetworks) {
 		networkLoader.setDoSelect(true);
 	    } else {
 		networkLoader.setDoSelect(false);
@@ -148,9 +176,12 @@ public class ChannelChooser extends JPanel{
         staLabel.setToolTipText(lstatip);
         siLabel.setToolTipText(lsittip);
         chLabel.setToolTipText(lchatip);
-	
+
+	if ( showNetworks ) {
         add(netLabel, gbc);
         gbc.gridx++;
+	} // end of if ()
+	
         add(staLabel, gbc);
         gbc.gridx++;
         if (showSites) {
@@ -171,7 +202,6 @@ public class ChannelChooser extends JPanel{
         networkList = new DNDJList(networks);
         networkList.setCellRenderer(renderer);
         networkList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	//        networkList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         networkList.addListSelectionListener(new ListSelectionListener() {
 
                 public void valueChanged(ListSelectionEvent e) {
@@ -184,9 +214,12 @@ public class ChannelChooser extends JPanel{
                 }
             } );
 
-        JScrollPane scroller = new JScrollPane(networkList);
-        add(scroller, gbc);
-        gbc.gridx++;
+	JScrollPane scroller;
+	if ( showNetworks) {
+	    scroller = new JScrollPane(networkList);
+	    add(scroller, gbc);
+	    gbc.gridx++;
+	} // end of if ()
 
         stationList = new DNDJList(stationNames);
         stationList.setCellRenderer(renderer);
@@ -396,6 +429,10 @@ public class ChannelChooser extends JPanel{
     }
 
     public NetworkAccess[] getSelectedNetworks(){
+	if ( ! showNetworks) {
+	    return getNetworks();
+	} // end of if ()
+	
         return castNetworkArray(networkList.getSelectedValues());
     }      
 
@@ -544,7 +581,7 @@ public class ChannelChooser extends JPanel{
 	     
         } // end of for (int staNum=0; staNum<selStation.length; staNum++)
 	
-        System.out.println("Found "+outChannels.size()+" chanels");
+        logger.debug("Found "+outChannels.size()+" chanels");
         return (Channel[])outChannels.toArray(new Channel[0]);
     }
 
@@ -603,6 +640,7 @@ public class ChannelChooser extends JPanel{
     /*================Class Variables===============*/
 
     protected boolean showSites;
+    protected boolean showNetworks;
     protected String[] selectableBandGain;
     protected String[] autoSelectBandGain;
     private String[] configuredNetworks;
@@ -837,9 +875,6 @@ public class ChannelChooser extends JPanel{
 		    setProgressValue(this, progressVal);
                     progressVal++;    
 		}
-		if (doSelect && nets.length == 1) {
-		    networkList.getSelectionModel().setSelectionInterval(0,0);
-		} // end of if (nets.length = 1)
 	    } else {
 		//when the channelChooser is configured with networkCodes....
 		int totalNetworks = 0;
@@ -884,10 +919,11 @@ public class ChannelChooser extends JPanel{
 		    }
 		    setProgressValue(this, counter+1);
 		}//end of outer for counter = 0;
-		if (doSelect && totalNetworks == 1) {
-		    networkList.getSelectionModel().setSelectionInterval(0,0);
-		} // end of if (totalNetworks == 1)
 	    }//end of if else checking for configuredNetworks == null 
+	    if (doSelect) {
+		networkList.getSelectionModel().setSelectionInterval(0,
+								     networkList.getModel().getSize());
+	    } // end of if ()
 	    setProgressValue(this, progressBar.getMaximum());
 	}
     }
