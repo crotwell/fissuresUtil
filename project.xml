@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <pomVersion>3</pomVersion>
-  <name>fissuresUtil</name>
   <id>fissuresUtil</id>
+  <name>fissuresUtil</name>
   <groupId>fissuresUtil</groupId>
+  <currentVersion>1.0.6beta</currentVersion>
   <organization>
     <name>Seismology at the University of South Carolina</name>
     <url>http://www.seis.sc.edu</url>
     <logo>http://www.seis.sc.edu/images/header.gif</logo>
   </organization>
-  <currentVersion>1.0.6beta</currentVersion>
   <inceptionYear>2002</inceptionYear>
   <package>edu.sc.seis.fissuresUtil</package>
-  <shortDescription>Utility functionality for fissures clients and servers.</shortDescription>
   <gumpRepositoryId>fissuresUtil</gumpRepositoryId>
   <description> The Fissures utility implementation has java code that
 implements some utility functionality related to the Fissures framework.
 It does not actually provide an implemenation for any services, but
 those wishing to implement new clients or new services will find many
 useful things already done.</description>
+  <shortDescription>Utility functionality for fissures clients and servers.</shortDescription>
   <url>http://www.seis.sc.edu/software/${pom.artifactId}</url>
   <siteAddress>www.seis.sc.edu</siteAddress>
   <siteDirectory>/seis/raid1/Apache/htdocs/software/${pom.artifactId}</siteDirectory>
   <distributionSite>www.seis.sc.edu</distributionSite>
   <distributionDirectory>/seis/raid1/Apache/htdocs/software/mavenRepository</distributionDirectory>
+  <repository>
+    <connection>scm:cvs:local:anonymous@cvs.seis.sc.edu:/opt/local/Internal/CvsRoot:seis/${pom.artifactId}</connection>
+    <url>http://www.seis.sc.edu/cgi-bin/viewcvs.cgi/seis/${pom.artifactId}</url>
+  </repository>
+  <mailingLists>
   <mailingList>
     <name>fissures-dev</name>
     <subscribe>majordomo@iris.washington.edu</subscribe>
     <unsubscribe>majordomo@iris.washington.edu</unsubscribe>
   </mailingList>
-  <repository>
-    <connection>scm:cvs:local:anonymous@cvs.seis.sc.edu:/opt/local/Internal/CvsRoot:seis/${pom.artifactId}</connection>
-    <url>http://www.seis.sc.edu/cgi-bin/viewcvs.cgi/seis/${pom.artifactId}</url>
-  </repository>
+  </mailingLists>
   <developers>
     <developer>
       <name>Philip Crotwell</name>
@@ -72,6 +74,10 @@ useful things already done.</description>
       </roles>
     </developer>
   </developers>
+  <licenses>
+    <license>
+    </license>
+  </licenses>
   <dependencies>
     <dependency>
       <id>junit-addons</id>
@@ -172,6 +178,7 @@ useful things already done.</description>
   </dependencies>
   <build>
     <nagEmailAddress>crotwell@seis.sc.edu</nagEmailAddress>
+    <sourceDirectory>src</sourceDirectory>
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
 <!-- Unit test cases -->
     <unitTest>
@@ -188,7 +195,6 @@ useful things already done.</description>
         </resource>
       </resources>
     </unitTest>
-    <sourceDirectory>src</sourceDirectory>
     <resources>
       <resource>
 	<directory>src/edu/sc/seis/fissuresUtil/database/props</directory>
