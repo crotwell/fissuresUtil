@@ -105,7 +105,6 @@ public class XMLParameter {
      * @param value an <code>Object</code> value
      */
     public static void write(OutputStream out, Object value) {
-	System.out.println("IN THE WRITE METHOD OF THE XML PARAMETER");
 	try {
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder builder = factory.newDocumentBuilder();
@@ -159,7 +158,6 @@ public class XMLParameter {
 							   value.getClass().getName()));
 	    element.appendChild(typeName);
 	    Element event = doc.createElement("event");
-	    //System.out.println("Writing the event to xml");
 	    XMLEvent.insert(event, (CacheEvent)value);
 	    valueElement.appendChild(event);
 	    element.appendChild(valueElement);
@@ -217,24 +215,8 @@ public class XMLParameter {
 		type = typeNode;
 	}
 	String className = XMLUtil.getText(XMLUtil.getElement(type, "name"));
-	System.out.println("The className is *&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*"+className);
 	
-	//Class objectClass = Class.forName(className);
-	//System.out.println("The class name is "+className);
 	if(className.equals("edu.sc.seis.fissuresUtil.cache.CacheEvent") ) {
-	/*	Class[] constructorArgTypes = new Class[3];
-		NodeList eventNode = XMLUtil.evalNodeList(base, "value/event");
-		Element event = (Element)eventNode.item(0);
-		constuctorArgTypes[0] = XMLEvent.getEvent(event).class;
-		constructorArgTypes[1] = new Origin[0].class;
-		constructorArgTypes[2] = XMLEvent.getPreferredOrigin(event).class;
-		Constructor constructor = objectClass.getConstructor(constructorArgTypes);
-		Object[] constructorArgs = new Object[3];
-		constructorArgs[0] = XMLEvent.getEvent(event);
-		constructorArgs[1] = new Origin[0];
-		constructorArgs[2] = XMLEvent.getPreferredOrigin(event);
-		Object obj = Constructor.newInstance(constructorArgs);
-		return obj;*/
 	        Element eventNode = XMLUtil.getElement(XMLUtil.getElement(base, "value"), "event");
 		Element event = null;
 		if(eventNode != null) {
@@ -242,20 +224,16 @@ public class XMLParameter {
 		}
 		EventAttr eventAttr = XMLEvent.getEvent(event);
 		Origin preferred_origin = XMLEvent.getPreferredOrigin(event);	
-		System.out.println("RETURNING CACHE EVENT");
 		return new CacheEvent(eventAttr,
 				      new Origin[0],
 				      preferred_origin);
 
 	} else if(className.equalsIgnoreCase("edu.iris.fissures.network.ChannelImpl")) {
-	    //System.out.println(" HERE WE GOT THE CHANNEL");
 	    Element channelNode = XMLUtil.getElement(XMLUtil.getElement(base, "value"), "channel");
 	    if(channelNode != null) {
 		Date channelStartTime = Calendar.getInstance().getTime();
 		Channel channel = XMLChannel.getChannel(channelNode);
 		Date channelEndTime = Calendar.getInstance().getTime();
-		System.out.println("TIME FOR GETTING CHANNEL IS "+ (channelEndTime.getTime() - channelStartTime.getTime()));
-		System.out.println("RETURNING CHANNEL");
 		return channel;
 	    }
 	    return null;
@@ -263,7 +241,6 @@ public class XMLParameter {
 	else {
 
 		String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
-		System.out.println("RETURNING PARAMETER REF");
 		return new ParameterRef(name, value);	
 	}
     }
@@ -280,62 +257,6 @@ public class XMLParameter {
 	else return "String";
 
     }
-
-  
-
-//  public static Object getParameter(Element base) {
-// 	String name = XMLUtil.evalString(base, "name");
-// 	NodeList typeNode = XMLUtil.evalNodeList(base, "type");
-// 	Element type = null;
-// 	if(typeNode != null && typeNode.getLength() != 0) {
-// 		type = (Element) typeNode.item(0);
-// 	}
-// 	String className = XMLUtil.evalString(type, "name");
-// 	//Class objectClass = Class.forName(className);
-// 	//System.out.println("The class name is "+className);
-// 	if(className.equals("edu.sc.seis.fissuresUtil.cache.CacheEvent") ) {
-// 	/*	Class[] constructorArgTypes = new Class[3];
-// 		NodeList eventNode = XMLUtil.evalNodeList(base, "value/event");
-// 		Element event = (Element)eventNode.item(0);
-// 		constuctorArgTypes[0] = XMLEvent.getEvent(event).class;
-// 		constructorArgTypes[1] = new Origin[0].class;
-// 		constructorArgTypes[2] = XMLEvent.getPreferredOrigin(event).class;
-// 		Constructor constructor = objectClass.getConstructor(constructorArgTypes);
-// 		Object[] constructorArgs = new Object[3];
-// 		constructorArgs[0] = XMLEvent.getEvent(event);
-// 		constructorArgs[1] = new Origin[0];
-// 		constructorArgs[2] = XMLEvent.getPreferredOrigin(event);
-// 		Object obj = Constructor.newInstance(constructorArgs);
-// 		return obj;*/
-// 	        NodeList eventNode = XMLUtil.evalNodeList(base, "value/event");
-// 		Element event = null;
-// 		if(eventNode != null && eventNode.getLength() != 0) {
-// 			event = (Element)eventNode.item(0);
-// 		}
-// 		EventAttr eventAttr = XMLEvent.getEvent(event);
-// 		Origin preferred_origin = XMLEvent.getPreferredOrigin(event);	
-// 		return new CacheEvent(eventAttr,
-// 				      new Origin[0],
-// 				      preferred_origin);
-
-// 	} else if(className.equalsIgnoreCase("edu.iris.fissures.network.ChannelImpl")) {
-// 	    //System.out.println(" HERE WE GOT THE CHANNEL");
-// 	    NodeList channelNode = XMLUtil.evalNodeList(base, "value/channel");
-// 	    if(channelNode != null && channelNode.getLength() != 0) {
-// 		Date channelStartTime = Calendar.getInstance().getTime();
-// 		Channel channel = XMLChannel.getChannel((Element)channelNode.item(0));
-// 		Date channelEndTime = Calendar.getInstance().getTime();
-// 		System.out.println("TIME FOR GETTING CHANNEL IS "+ (channelEndTime.getTime() - channelStartTime.getTime()));
-// 		return channel;
-// 	    }
-// 	    return null;
-// 	}
-// 	else {
-
-// 		String value = XMLUtil.evalString(base, "value");
-// 		return new ParameterRef(name, value);	
-// 	}
-//     }
 
  private static final String xlinkNS = "http://www.w3.org/1999/xlink";
 
