@@ -81,9 +81,6 @@ public class ParticleMotionDisplayThread{
                                                                          horizPlane);
             }
         }
-        if(displayButtonPanel) {
-            particleMotionDisplay.setInitialButton();
-        }
         completion = true;
 
     }
@@ -114,8 +111,6 @@ public class ParticleMotionDisplayThread{
     private Registrar registrar;
 
     private boolean advancedOption = false;
-
-    private boolean displayButtonPanel = false;
 
     private ParticleMotionDisplay  particleMotionDisplay;
 
