@@ -11,17 +11,17 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.map.colorizer.event.DefaultEventColorizer;
 import java.awt.Color;
+import java.awt.Paint;
 
 public class OMEvent extends OMGraphicList{
+	
     public OMEvent(CacheEvent eao, Layer eventLayer, MapBean mapBean) throws NoPreferredOrigin{
 		super(2);
 		this.mapBean = mapBean;
@@ -35,7 +35,7 @@ public class OMEvent extends OMGraphicList{
 		
 		double scale = 1.8;
 		int lilDiameter = (int)Math.pow(scale, 3.0);
-		OMCircle lilCircle = new OMCircle(lat, lon, lilDiameter, lilDiameter);
+		lilCircle = new OMCircle(lat, lon, lilDiameter, lilDiameter);
 		if (mag <= 3.0){
 			bigCircle = new OMCircle(lat, lon, lilDiameter, lilDiameter);
 		}
@@ -45,12 +45,9 @@ public class OMEvent extends OMGraphicList{
 		}
 		event = eao;
 		
-		Color color = getDepthColor((QuantityImpl)prefOrigin.my_location.depth);
 		lilCircle.setLinePaint(Color.BLACK);
-		lilCircle.setFillPaint(color);
 		bigCircle.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
-		bigCircle.setLinePaint(color);
-		bigCircle.setSelectPaint(color);
+		setPaint(DefaultEventColorizer.DEFAULT_EVENT);
 		add(bigCircle);
 		add(lilCircle);
 		generate(eventLayer.getProjection());
@@ -81,22 +78,16 @@ public class OMEvent extends OMGraphicList{
 	
     public OMCircle getBigCircle(){ return bigCircle; }
 	
-    private Color getDepthColor(QuantityImpl depth){
-		double depthKM = depth.convertTo(UnitImpl.KILOMETER).value;
-		Color color = DisplayUtils.MEDIUM_DEPTH_EVENT;
-		if (depthKM <= 40.0){
-			color = DisplayUtils.SHALLOW_DEPTH_EVENT;
-		}
-		if (depthKM >= 150.0){
-			color = DisplayUtils.DEEP_DEPTH_EVENT;
-		}
-		return color;
-    }
-	
+	public void setPaint(Paint paint){
+		lilCircle.setFillPaint(paint);
+		bigCircle.setLinePaint(paint);
+		bigCircle.setSelectPaint(paint);
+	}
 	
 	private float originalScale;
     private CacheEvent event;
     private MapBean mapBean;
+	private OMCircle lilCircle;
     private OMCircle bigCircle;
 }
 

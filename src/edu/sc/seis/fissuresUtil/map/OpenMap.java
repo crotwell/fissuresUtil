@@ -139,23 +139,6 @@ public class OpenMap extends OpenMapComponent {
         }
     }
 
-    /**
-     * Creates an OpenMap with an EventTableLayer.  Consider this deprecated.
-     */
-    public OpenMap(EventTableModel etm, ListSelectionModel lsm, String shapefile) {
-        this(shapefile);
-        setEventLayer(new EventTableLayer(etm, lsm, mapBean));
-    }
-
-    /**
-     * Deprecated
-     */
-    public void addStationsFromChannelChooser(ChannelChooser chooser) {
-        if(chooser != null) {
-            setStationLayer(new ChannelChooserLayer(chooser));
-        }
-    }
-
     public void setStationLayer(StationLayer staLayer) {
         stl = staLayer;
         mapHandler.add(stl);
