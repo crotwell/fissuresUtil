@@ -11,53 +11,79 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
-import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
+import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import javax.swing.JList;
 import org.apache.log4j.Logger;
 
 public class AvailableDataStationRenderer extends NameListCellRenderer {
-    
+
     public AvailableDataStationRenderer(boolean useNames){
         super(useNames);
     }
-    
+
     public AvailableDataStationRenderer(boolean useNames,
                                         boolean useCodes,
                                         boolean codeIsFirst){
         super(useNames, useCodes, codeIsFirst);
     }
-    
+
     public AvailableDataStationRenderer(boolean useNames,
-                                        DataCenterOperations dc,
+                                        DataCenterRouter dc,
                                         ChannelChooser channelChooser){
         super(useNames);
         this.dc = dc;
+        this.channelChooser = channelChooser;
         startThread(2);
     }
-    
+
     public AvailableDataStationRenderer(boolean useNames,
                                         boolean useCodes,
                                         boolean codeIsFirst,
-                                        DataCenterOperations dc,
+                                        DataCenterRouter dc,
                                         ChannelChooser channelChooser){
         super(useNames, useCodes, codeIsFirst);
         this.dc = dc;
         this.channelChooser = channelChooser;
         startThread(2);
     }
-    
+
     protected void startThread(int numThreads) {
+        logger.debug("start threads for network/station checks");
+        // first start the network checker as it may be more efficient
+        channelChooser.addNetworkDataListener(new NetworkDataListener() {
+                    public void networkDataCleared() {
+                        // TODO
+                    }
+
+                    public void networkDataChanged(NetworkDataEvent s) {
+                        NetworkChecker netCheck = new NetworkChecker(s.getNetwork());
+                        Thread t = new Thread(netCheck,
+                                              "NetworkChecker"+
+                                                  s.getNetwork().get_attributes().get_code());
+                        t.start();
+                    }
+
+                });
+        // in case networks are already loaded
+        NetworkAccess[] nets = channelChooser.getNetworks();
+        for (int i = 0; i < nets.length; i++) {
+            NetworkChecker netCheck = new NetworkChecker(nets[i]);
+            Thread t = new Thread(netCheck,
+                                  "NetworkChecker"+
+                                      nets[i].get_attributes().get_code());
+            t.start();
+        }
         for (int i = 0; i < numThreads; i++) {
             StationChecker checker = new StationChecker();
             Thread t = new Thread(checker, "StationUpChecker"+i);
@@ -65,11 +91,11 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             t.start();
         }
     }
-    
+
     public void setJList(JList jlist) {
         this.jlist = jlist;
     }
-    
+
     public Component getListCellRendererComponent(JList list,
                                                   Object value,
                                                   int index,
@@ -83,7 +109,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         Station station = (Station)value;
         if (stationsUpNow.get(station) != null &&
             stationsUpNow.get(station) instanceof Boolean) {
-            
+
             Boolean val = (Boolean)stationsUpNow.get(station);
 //            logger.debug("Station available found "+
 //                             StationIdUtil.toString(station.get_id())+ val);
@@ -104,10 +130,10 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 }
             }
         }
-        
+
         return c;
     }
-    
+
     /** Creates a request filter with several common channel ids to try
      *  and check for a station existing in a data center.
      */
@@ -123,14 +149,14 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         }
         return request;
     }
-    
+
     public RequestFilter[] createFakeRequest(Channel[] chan) {
         MicroSecondDate now = ClockUtil.now();
         Channel[] nowChan = BestChannelUtil.pruneChannels(chan, now);
         return createFakeRequestBHZ(nowChan);
     }
-    
-    
+
+
     /** Creates a request filter with several common channel ids to try
      *  and check for a station existing in a data center.
      */
@@ -153,12 +179,12 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         }
         return request;
     }
-    
+
     /** Creates a request filter with several common channel ids to try
      *  and check for a station existing in a data center.
      */
     public RequestFilter[] createFakeRequestOld(StationId stationId) {
-        MicroSecondDate now = new MicroSecondDate();
+        MicroSecondDate now = ClockUtil.now();
         TimeRange range = new TimeRange(now.subtract(TEN_MINUTES).getFissuresTime(),
                                         now.getFissuresTime());
         RequestFilter[] request = new RequestFilter[4];
@@ -192,7 +218,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                                        range.end_time);
         return request;
     }
-    
+
     protected synchronized void increasePriority(Station station) {
         if (stationsToCheck.contains(station)) {
             // move to front of array
@@ -200,12 +226,12 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             stationsToCheck.addFirst(station);
         }
     }
-    
+
     protected synchronized void addToCheck(Station station) {
         stationsToCheck.addFirst(station);
         notifyAll();
     }
-    
+
     protected synchronized Station getToCheck() throws InterruptedException {
         while (stationsToCheck.isEmpty()) {
             wait();
@@ -214,7 +240,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         stationsUpNow.put(sta, sta); // put station in as placeholder, means I'm working on it
         return sta;
     }
-    
+
     protected synchronized void finishedCheck(Station station, boolean val) {
         if (val) {
             stationsUpNow.put(station, Boolean.TRUE);
@@ -226,19 +252,99 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             jlist.repaint();
         }
     }
-    
-    
+
+    protected synchronized void finishedError(Station station) {
+        stationsUpNow.remove(station);
+        stationsToCheck.remove(station);
+        logger.warn("Seismogram server not found for "+
+                         StationIdUtil.toString(station.get_id()));
+    }
+
     protected synchronized void finishedError(Station station, Exception e) {
         stationsUpNow.remove(station);
         stationsToCheck.remove(station);
         logger.error("Problem doing available data for "+
                          StationIdUtil.toString(station.get_id()), e);
     }
-    
-    
+
+    class NetworkChecker implements Runnable {
+        NetworkChecker(NetworkAccess net) {
+            logger.debug("NetworkChecker constructor"+net.get_attributes().get_code());
+            this.net = net;
+        }
+
+        NetworkAccess net;
+
+        boolean quitThread = false;
+
+        public void run() {
+            while ( ! quitThread) {
+                checkNet();
+                if (!quitThread) logger.debug("didn't work, sleep to try again");
+                try {
+                    Thread.sleep(1000);
+                }catch(InterruptedException e) {
+                }
+            }
+            logger.debug("network checker thread quitting");
+        }
+
+        void checkNet() {
+            quitThread = true;
+            logger.debug("checking "+net.get_attributes().get_code());
+            MicroSecondDate now = ClockUtil.now();
+            TimeRange range = new TimeRange(now.subtract(TEN_MINUTES).getFissuresTime(),
+                                            now.getFissuresTime());
+            RequestFilter[] request = new RequestFilter[1];
+            request[0] = new RequestFilter(new ChannelId(net.get_attributes().get_id(),
+                                                         "*",
+                                                         "*",
+                                                         "*",
+                                                     range.start_time),
+                                       range.start_time,
+                                       range.end_time);
+            if (dc.getDataCenter(net) != null) {
+                logger.debug("before available_data call");
+                request = dc.available_data(request);
+                logger.debug("after avaiable_data call");
+                if (request.length != 0) {
+                    logger.debug("got response for network wildcard request");
+                    Station[] stations = net.retrieve_stations();
+                    LinkedList allStations = new LinkedList();
+                    for (int i = 0; i < stations.length; i++) {
+                        allStations.add(stations[i]);
+                    }
+                    for (int i = 0; i < request.length; i++) {
+                        Iterator it = allStations.iterator();
+                        while (it.hasNext()) {
+                            Station station = (Station)it.next();
+                            if (station.get_code().equals(request[i].channel_id.station_code)) {
+                                finishedCheck(station, true);
+                                it.remove();
+                            }
+                        }
+                        it = null;
+                    }
+                    Iterator it = allStations.iterator();
+                    while (it.hasNext()) {
+                        Station station = (Station)it.next();
+                        finishedCheck(station, false);
+                    }
+
+                } else {
+                    logger.debug("got nothing from available_data for "+net.get_attributes().get_code());
+
+                }
+            } else {
+                logger.debug("no datacenter for network");
+                quitThread = false;
+            }
+        }
+    }
+
     class StationChecker implements Runnable {
         boolean quitThread = false;
-        
+
         public void run() {
             Station station;
             while ( ! quitThread) {
@@ -252,42 +358,47 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                         chans =
                             net.retrieve_for_station(station.get_id());
                     }
-                    
+
                     RequestFilter[] request = createFakeRequest(chans);
-                    
+
                     if (request.length == 0) {
                         logger.warn("No channels active now for "+
                                         StationIdUtil.toString(station.get_id()));
-                    }
-                    if (dc.available_data(request).length != 0) {
-                        finishedCheck(station, true);
-                    } else {
                         finishedCheck(station, false);
+                    }
+                    if (dc.getDataCenter(net) != null) {
+                        if (dc.available_data(request).length != 0) {
+                            finishedCheck(station, true);
+                        } else {
+                            finishedCheck(station, false);
+                        }
+                    } else {
+                        finishedError(station);
                     }
                 } catch (InterruptedException e) {
                 } catch (Exception e) {
                     logger.warn("Trouble checkng on the available data for "+
                                     StationIdUtil.toString(station.get_id()), e);
                     finishedError(station, e);
-                    
+
                 }
             }
         }
-        
+
     }
-    
+
     protected LinkedList stationsToCheck = new LinkedList();
-    
+
     protected HashMap stationsUpNow = new HashMap();
-    
-    protected DataCenterOperations dc;
-    
+
+    protected DataCenterRouter dc;
+
     protected TimeInterval TEN_MINUTES = new TimeInterval(60, UnitImpl.MINUTE);
-    
+
     protected ChannelChooser channelChooser = null;
-    
+
     protected JList jlist = null;
-    
+
     static Logger logger = Logger.getLogger(AvailableDataStationRenderer.class);
 }
 
