@@ -72,9 +72,11 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 											scaleBorder,
 											BorderFactory.createLoweredBevelBorder())));
 	Dimension d = getSize();
-	int w = d.width * 5, h = d.height;
+	Insets insets = this.getInsets();
+	int w = (d.width - insets.left - insets.right) * 5, h = d.height - insets.top - insets.bottom;
 	overSize = new Dimension(w, h);
-	this.add(new ImagePainter());
+	imagePainter = new ImagePainter();
+	this.add(imagePainter);
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
     }
@@ -105,6 +107,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	   timeConfig.removeSeismogram(current);
 	   ampConfig.removeSeismogram(current);
        }
+       imageMaker.remove(imagePainter);
        timeConfig.removeTimeSyncListener(this);
        ampConfig.removeAmpSyncListener(this);
    }
@@ -162,7 +165,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     }
 
     public void redraw(){
-	overSizedImage = null;
+	redo = true;
 	repaint();
     }
 
@@ -177,34 +180,34 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	repaint();
     }
 
+    public void stopImageCreation(){
+	synchronized(imageMaker){ imageMaker.remove(imagePainter); }
+    }
+
     protected class ImagePainter extends JComponent{
 	public ImagePainter(){
-	   displayInterval = timeConfig.getTimeRange().getInterval();
+	    displayInterval = timeConfig.getTimeRange().getInterval();
 	}
 
 	public void paint(Graphics g){
 	    if(overSizedImage == null || overSizedImage.get() == null){
 		logger.debug("the image is null and is being recreated");
+		synchronized(this){ displayInterval = timeConfig.getTimeRange().getInterval();}
 		this.createImage();
 		return;
 	    }
 	    long endTime = timeConfig.getTimeRange().getEndTime().getMicroSecondTime();
 	    long beginTime = timeConfig.getTimeRange().getBeginTime().getMicroSecondTime();
-	    long overEndTime = overTimeRange.getEndTime().getMicroSecondTime();
-	    long overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
 	    Graphics2D g2 = (Graphics2D)g;
 	    if(displayTime == timeConfig.getTimeRange().getInterval().getValue()){
-		if(endTime >= overEndTime || beginTime <= overBeginTime){
-		    logger.debug("the image has been dragged past its edge and is being recreated");
+		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * overSize.getWidth();
+		g2.drawImage(((Image)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
+		if(redo)
 		    this.createImage();
-		    return;
-		}
-		double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * overSize.getWidth();
-		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
-		g2.drawImage(((Image)overSizedImage.get()), tx, null);
+		redo = false;
 	    } else{
 		double scale = displayTime/timeConfig.getTimeRange().getInterval().getValue(); 
-		double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * (overSize.getWidth() * scale);
+		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * (overSize.getWidth() * scale);
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		tx.scale(scale, 1);
 		g2.drawImage(((Image)overSizedImage.get()), tx, null);
@@ -219,6 +222,9 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
 	public synchronized void setImage(Image newImage){
 	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(2);
+	    overEndTime = overTimeRange.getEndTime().getMicroSecondTime();
+	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
+	    overTimeInterval = overEndTime - overBeginTime;
 	    displayTime = displayInterval.getValue();
 	    overSizedImage = new SoftReference(newImage); 
 	    repaint();	
@@ -226,7 +232,11 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
 	public TimeRangeConfig getTimeConfig(){ return timeConfig; }
 	
-	double displayTime;
+	protected long overEndTime, overBeginTime;
+
+	protected long overTimeInterval;
+
+	protected double displayTime;
 	
 	protected MicroSecondTimeRange overTimeRange;
 	
@@ -256,5 +266,9 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     protected SoftReference overSizedImage;
 
     static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
+
+    protected ImagePainter imagePainter;
+
+    protected boolean redo;
 
 }// BasicSeismogramDisplay

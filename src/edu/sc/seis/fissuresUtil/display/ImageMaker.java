@@ -29,6 +29,7 @@ public class ImageMaker implements Runnable  {
 	if(!requests.contains(patron))
 	    requests.add(patron);
 	if(!imageCreation.isAlive()){
+	    logger.debug("Starting image creation thread");
 	    imageCreation = new Thread(this, "Image Maker");
 	    imageCreation.start();
 	}
@@ -41,6 +42,8 @@ public class ImageMaker implements Runnable  {
 	PlotInfo currentRequirements;
 	BasicSeismogramDisplay.ImagePainter currentPatron;
 	int numLeft;
+	Graphics2D graphic;
+	Image currentImage; 
 	numLeft = requests.size();
 	while(numLeft > 0){
 	    synchronized(this){ 
@@ -49,25 +52,40 @@ public class ImageMaker implements Runnable  {
 	    }
 	    HashMap plotters = currentRequirements.getPlotters();
 	    Dimension size = currentRequirements.getSize();
-	    if(size.height == 0)
+	    if(size.height <= 0 || size.width <= 0){
+		numLeft = requests.size();
 		break;
-	    Image currentImage = currentPatron.createImage(size.width, size.height);
-	    Graphics2D graphic = (Graphics2D)currentImage.getGraphics();
+	    }	    
+	    synchronized(this){
+		if(requests.contains(currentPatron)){
+		    currentImage = currentPatron.createImage(size.width, size.height);
+		    graphic = (Graphics2D)currentImage.getGraphics();
+		}else{
+		    numLeft = requests.size();
+		    break;
+		}
+	    }
 	    Iterator e = plotters.keySet().iterator();
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
 		graphic.setColor((Color)plotters.get(current));
 		graphic.draw(current.draw(size));
 	    }
-	    synchronized(currentPatron){
+	    synchronized(this){
 		if(currentRequirements.getDisplayInterval().getValue() == 
-		   currentPatron.getTimeConfig().getTimeRange().getInterval().getValue()){
+		   currentPatron.getTimeConfig().getTimeRange().getInterval().getValue() &&
+		   requests.contains(currentPatron)){
 		    requests.removeFirst();
 		    currentPatron.setImage(currentImage);
 		}
 	    }
 	    numLeft = requests.size();
 	}
+    }
+
+    public synchronized void remove(BasicSeismogramDisplay.ImagePainter imagePainter){
+	requests.remove(imagePainter);	
+	patrons.remove(imagePainter);
     }
     
     protected Thread imageCreation;

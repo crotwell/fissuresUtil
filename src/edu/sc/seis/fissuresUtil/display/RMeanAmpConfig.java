@@ -105,7 +105,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 		double max = seis.getMaxValue(beginIndex, endIndex).getValue();
 		double mean = seis.getMeanValue(beginIndex, endIndex).getValue();
 		double meanDiff = (Math.abs(mean - min) > Math.abs(mean - max) ? Math.abs(mean - min) : Math.abs(mean - max));
-		if(meanDiff ==  this.ampRange.getMaxValue())
+		if(meanDiff >=  this.ampRange.getMaxValue() - 1)
 		    this.ampRange = null;
 	    } 
 	    catch (Exception e) {
@@ -114,6 +114,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    seismos.remove(aSeis);
 	    if(ampRange == null){
 		Iterator e = seismos.iterator();
+		logger.debug("recalculating amp range as defining seismogram was removed");
 		while(e.hasNext())
 		    this.getAmpRange(((LocalSeismogram)e.next()), calcIntv);
 		this.updateAmpSyncListeners();

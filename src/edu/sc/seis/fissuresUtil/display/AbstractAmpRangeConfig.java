@@ -3,7 +3,7 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.*;
-
+import org.apache.log4j.*;
 import java.util.*;
 /**
  * AbstractAmpRangeConfig.java
@@ -108,4 +108,6 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
     protected LinkedList seismos = new LinkedList();
     
     protected LinkedList ampListeners = new LinkedList();
+
+    protected Category logger = Category.getInstance(AbstractAmpRangeConfig.class.getName());
 }// AbstractAmpRangeConfig

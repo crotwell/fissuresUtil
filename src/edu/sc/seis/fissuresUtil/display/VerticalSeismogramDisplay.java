@@ -85,6 +85,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    ((SeismogramDisplay)e.next()).redraw();
     }
 
+    public void stopImageCreation(){
+	Iterator e = basicDisplays.iterator();
+	while(e.hasNext())
+	    ((BasicSeismogramDisplay)e.next()).stopImageCreation();
+    }
+
     public void removeAll(){
 	seismograms.removeAll();
 	remove(seismograms);
@@ -98,6 +104,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.remove(clicked);
 	basicDisplays.remove(clicked);
 	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
+	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
 	this.redraw();
 	seismograms.revalidate();
     }
