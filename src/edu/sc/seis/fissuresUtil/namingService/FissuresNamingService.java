@@ -450,13 +450,17 @@ public class FissuresNamingService {
     }
 
     public List getAllObjects(String interfaceName) {
-        return getAllObjects(interfaceName, new FissBranch(getNameService(),
-                                                           "/"));
+        return getAllObjects(interfaceName, getRootNamingContextWithPath());
     }
 
-    public List getAllObjects(String interfaceName, FissBranch startingBranch) {
+    public NamingContextWithPath getRootNamingContextWithPath() {
+        return new NamingContextWithPath(getNameService(), "/");
+    }
+
+    public List getAllObjects(String interfaceName,
+                              NamingContextWithPath startingBranch) {
         List leaves = new ArrayList();
-        NamingContext namingContext = startingBranch.namingContext;
+        NamingContext namingContext = startingBranch.getNamingContext();
         BindingListHolder bindings = new BindingListHolder();
         BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
         namingContext.list(0, bindings, bindingIteratorHolder);
@@ -470,10 +474,10 @@ public class FissuresNamingService {
                         || binding.binding_name[0].kind.equals(DNS)) {
                     String newPath;
                     if(binding.binding_name[0].kind.equals(DNS)) {
-                        newPath = startingBranch.path
+                        newPath = startingBranch.getPath()
                                 + binding.binding_name[0].id + "/";
                     } else {
-                        newPath = startingBranch.path;
+                        newPath = startingBranch.getPath();
                     }
                     NamingContext newNC = null;
                     try {
@@ -483,7 +487,8 @@ public class FissuresNamingService {
                                                    e);
                     }
                     leaves.addAll(getAllObjects(interfaceName,
-                                                new FissBranch(newNC, newPath)));
+                                                new NamingContextWithPath(newNC,
+                                                                          newPath)));
                 }
             } else if(binding.binding_name[0].kind.equals(OBJECT)) {
                 Object o = null;
@@ -505,7 +510,8 @@ public class FissuresNamingService {
                                           this);
                 } else {
                     try {
-                        o = startingBranch.namingContext.resolve(binding.binding_name);
+                        o = startingBranch.getNamingContext()
+                                .resolve(binding.binding_name);
                     } catch(UserException e) {
                         throw new RuntimeException("This should not happen as the naming context should have come from the server.  This probably indicates a programming error.",
                                                    e);
@@ -522,7 +528,11 @@ public class FissuresNamingService {
      * naming Service.
      */
     public NSNetworkDC[] getAllNetworkDC() {
-        return (NSNetworkDC[])getAllObjects(NETWORKDC).toArray(new NSNetworkDC[0]);
+        return getAllNetworkDC(getRootNamingContextWithPath());
+    }
+
+    public NSNetworkDC[] getAllNetworkDC(NamingContextWithPath nc) {
+        return (NSNetworkDC[])getAllObjects(NETWORKDC, nc).toArray(new NSNetworkDC[0]);
     }
 
     /**
@@ -530,7 +540,11 @@ public class FissuresNamingService {
      * naming service.
      */
     public NSEventDC[] getAllEventDC() {
-        return (NSEventDC[])getAllObjects(EVENTDC).toArray(new NSEventDC[0]);
+        return getAllEventDC(getRootNamingContextWithPath());
+    }
+
+    public NSEventDC[] getAllEventDC(NamingContextWithPath nc) {
+        return (NSEventDC[])getAllObjects(EVENTDC, nc).toArray(new NSEventDC[0]);
     }
 
     /**
@@ -538,7 +552,11 @@ public class FissuresNamingService {
      * default naming service.
      */
     public NSPlottableDC[] getAllPlottableDC() {
-        return (NSPlottableDC[])getAllObjects(PLOTTABLEDC).toArray(new NSPlottableDC[0]);
+        return getAllPlottableDC(getRootNamingContextWithPath());
+    }
+
+    public NSPlottableDC[] getAllPlottableDC(NamingContextWithPath nc) {
+        return (NSPlottableDC[])getAllObjects(PLOTTABLEDC, nc).toArray(new NSPlottableDC[0]);
     }
 
     /**
@@ -546,7 +564,11 @@ public class FissuresNamingService {
      * default naming service.
      */
     public NSSeismogramDC[] getAllSeismogramDC() {
-        return (NSSeismogramDC[])getAllObjects(SEISDC).toArray(new NSSeismogramDC[0]);
+        return getAllSeismogramDC(getRootNamingContextWithPath());
+    }
+
+    public NSSeismogramDC[] getAllSeismogramDC(NamingContextWithPath nc) {
+        return (NSSeismogramDC[])getAllObjects(SEISDC, nc).toArray(new NSSeismogramDC[0]);
     }
 
     /**
@@ -662,29 +684,6 @@ public class FissuresNamingService {
     protected List otherNS = new LinkedList();
 
     static Category logger = Category.getInstance(FissuresNamingService.class.getName());
-
-    private class FissBranch {
-
-        public FissBranch(NamingContext namingContext, String path) {
-            this.namingContext = namingContext;
-            this.path = path;
-        }
-
-        public String trimFissuresPath() {
-            String tmp = path;
-            if(tmp.endsWith("/")) {
-                tmp = tmp.substring(0, tmp.length() - 1);
-            }
-            if(tmp.startsWith(FISSURES_SLASH)) { return tmp.substring(FISSURES_SLASH.length()); }
-            return tmp;
-        }
-
-        public NamingContext namingContext;
-
-        public String path;
-
-        public static final String FISSURES_SLASH = "/" + FISSURES + "/";
-    }
 
     public static boolean isMock(String dns, String name) {
         return dns.equals("edu/sc/seis")
