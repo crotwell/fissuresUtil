@@ -87,11 +87,11 @@ public class PSNToFissures{
 
     public static MicroSecondDate microSecondDateFromPSN(PSNDateTime time){
         GregorianCalendar gc = new GregorianCalendar((int)time.getYear(),
-                                                (int)time.getMonth() - 1,
-                                            (int)time.getDay(),
-                                            (int)time.getHour(),
-                                            (int)time.getMinute(),
-                                            (int)time.getSecond());
+                                                         (int)time.getMonth() - 1,
+                                                         (int)time.getDay(),
+                                                         (int)time.getHour(),
+                                                         (int)time.getMinute(),
+                                                         (int)time.getSecond());
         Timestamp timeStamp = new Timestamp(gc.getTimeInMillis());
         timeStamp.setNanos(time.getNanosec());
         MicroSecondDate msd = new MicroSecondDate(timeStamp);
@@ -181,36 +181,39 @@ public class PSNToFissures{
     }
 
     public static EventAccessOperations getEvent(PSNDataFile psnData){
-        PSNVariableHeader varHeader = psnData.getEventRecords()[0].getVariableHeader();
-        if (varHeader.hasEventInfo()){
-            PSNEventInfo evInfo = varHeader.getEventInfo()[0];
-            MicroSecondDate originTime = microSecondDateFromPSN(evInfo.getTime());
+        int numRecs = psnData.getEventRecords().length;
+        for (int i = 0; (i < numRecs); i++) {
+            PSNVariableHeader varHeader = psnData.getEventRecords()[i].getVariableHeader();
+            if (varHeader.hasEventInfo()){
+                PSNEventInfo evInfo = varHeader.getEventInfo()[0];
+                MicroSecondDate originTime = microSecondDateFromPSN(evInfo.getTime());
 
-            EventAttr attr = new EventAttrImpl("PSN Event");
-            attr.region = new FlinnEngdahlRegionImpl(FlinnEngdahlType.GEOGRAPHIC_REGION, 0);
-            Origin[] origins = new Origin[1];
-            Location loc;
+                EventAttr attr = new EventAttrImpl("PSN Event");
+                attr.region = new FlinnEngdahlRegionImpl(FlinnEngdahlType.GEOGRAPHIC_REGION, 0);
+                Origin[] origins = new Origin[1];
+                Location loc;
 
-            loc = new Location((float)evInfo.getLat(),
-                                   (float)evInfo.getLon(),
-                               new QuantityImpl(0, UnitImpl.METER),
-                               new QuantityImpl(evInfo.getDepthKM(), UnitImpl.KILOMETER),
-                               LocationType.GEOGRAPHIC);
+                loc = new Location((float)evInfo.getLat(),
+                                       (float)evInfo.getLon(),
+                                   new QuantityImpl(0, UnitImpl.METER),
+                                   new QuantityImpl(evInfo.getDepthKM(), UnitImpl.KILOMETER),
+                                   LocationType.GEOGRAPHIC);
 
-            System.out.println("Location of Event: " + evInfo.getLat() + " " +evInfo.getLon());
+                System.out.println("Location of Event: " + evInfo.getLat() + " " +evInfo.getLon());
 
-            origins[0] = new OriginImpl("genid:" +
-                                            Math.round(Math.random()*Integer.MAX_VALUE),
-                                        "",
-                                        "",
-                                        originTime.getFissuresTime(),
-                                        loc,
-                                        new Magnitude[0],
-                                        new ParameterRef[0]);
-            EventAccessOperations evo = new CacheEvent(attr, origins, origins[0]);
-            return evo;
+                origins[0] = new OriginImpl("genid:" +
+                                                Math.round(Math.random()*Integer.MAX_VALUE),
+                                            "",
+                                            "",
+                                            originTime.getFissuresTime(),
+                                            loc,
+                                            new Magnitude[0],
+                                            new ParameterRef[0]);
+                EventAccessOperations evo = new CacheEvent(attr, origins, origins[0]);
+                return evo;
+            }
         }
-        else return null;
+        return null;
     }
 
 }
