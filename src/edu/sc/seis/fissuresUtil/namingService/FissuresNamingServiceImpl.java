@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.namingService;
 
 
 import edu.iris.Fissures.model.*;
-
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.IfPlottable.*;
@@ -12,6 +11,7 @@ import org.omg.CORBA.*;
 import org.omg.CORBA.portable.*;
 import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
+import org.omg.CORBA.ORBPackage.InvalidName;
 
 import java.util.*;
 
@@ -28,42 +28,35 @@ import org.apache.log4j.*;
  */
 
 public class FissuresNamingServiceImpl implements FissuresNamingService {
-    public FissuresNamingServiceImpl (java.util.Properties props) throws org.omg.CORBA.ORBPackage.InvalidName{
+    public FissuresNamingServiceImpl (java.util.Properties props) throws InvalidName {
 	this.props = props;
 	String[] args = new String[0];
-	try {
-	    orb = 
-                (org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init(args, props);
-            
-            // register valuetype factories
-            AllVTFactory vt = new AllVTFactory();
-            vt.register(orb);
 
-            // get a reference to the Naming Service root_context
-            org.omg.CORBA.Object rootObj = 
-                orb.resolve_initial_references("NameService");
-            if (rootObj == null) {
-                //logger.error
-		logger.info("Name service object is null!");
-		return;
-            }
-	    namingContext = NamingContextExtHelper.narrow(rootObj);
-            //logger.info
-	    logger.info("got Name context");
+	orb = 
+	    (org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init(args, props);
 	
-	} catch(org.omg.CORBA.ORBPackage.InvalidName ine) {
-	    throw new org.omg.CORBA.ORBPackage.InvalidName();
+	// register valuetype factories
+	AllVTFactory vt = new AllVTFactory();
+	vt.register(orb);
+
+	// get a reference to the Naming Service root_context
+	org.omg.CORBA.Object rootObj = 
+	    orb.resolve_initial_references("NameService");
+	if (rootObj == null) {
+	    //logger.error
+	    logger.info("Name service object is null!");
+	    return;
 	}
+	namingContext = NamingContextExtHelper.narrow(rootObj);
+	//logger.info
+	logger.info("got Name context");
+	
     }
 
-    public FissuresNamingServiceImpl(org.omg.CORBA_2_3.ORB orb) throws org.omg.CORBA.ORBPackage.InvalidName {
-	try {
-	    org.omg.CORBA.Object obj = null;
-	    obj = orb.resolve_initial_references("NameService");
-	    namingContext = NamingContextExtHelper.narrow(obj);	
-	} catch(org.omg.CORBA.ORBPackage.InvalidName ine) {
-	    throw new org.omg.CORBA.ORBPackage.InvalidName();
-	}
+    public FissuresNamingServiceImpl(org.omg.CORBA_2_3.ORB orb) throws InvalidName {
+	org.omg.CORBA.Object obj = null;
+	obj = orb.resolve_initial_references("NameService");
+	namingContext = NamingContextExtHelper.narrow(obj);	
     }
 
     public org.omg.CORBA.Object resolve(String dns, String interfacename, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
@@ -93,7 +86,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     }
 
-    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName, Exception {
+    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
 	
 	logger.info("The CLASS Name is "+obj.getClass().getName());
@@ -152,26 +145,26 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 			temp[i] = ncName[i];
 		     
 		    }
-		    try {
-		    	if(subcounter != 0){
-			    logger.info("resolving new naming context");
-			    namingContextTemp = NamingContextExtHelper.narrow(namingContext.resolve(temp));
-			}
 
-			if(ncName1[0].id.equals(interfacename))
-			    ncName1[0].kind = "interface";
-			else if(ncName1[0].id.equals(objectname))
-			    ncName1[0].kind = "object";
-			else ncName1[0].kind = "dns";
-			
-			namingContextTemp.bind_new_context(ncName1);
-		    } catch(Exception ex) {
-
-			logger.info("This Exception must not occur");
-			ex.printStackTrace();
-			throw new Exception();
-		    
+		    if(subcounter != 0){
+			logger.info("resolving new naming context");
+			namingContextTemp = 
+			    NamingContextExtHelper.narrow(namingContext.resolve(temp));
 		    }
+
+		    if(ncName1[0].id.equals(interfacename))
+			ncName1[0].kind = "interface";
+		    else if(ncName1[0].id.equals(objectname))
+			ncName1[0].kind = "object";
+		    else ncName1[0].kind = "dns";
+
+		    try {
+			namingContextTemp.bind_new_context(ncName1);
+		    } catch (AlreadyBound e) {
+			logger.error("Caught AlreadyBound, should not happen, ignoring...",
+				     e);
+		    } // end of try-catch
+		    		    
 		
 		    break;
 		case NotFoundReason._not_context:
