@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfEvent.*;
 
+import edu.iris.Fissures.Location;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.event.EventAttrImpl;
@@ -15,7 +16,8 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
-import javax.swing.text.NumberFormatter;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.FlinnEngdahlRegion;
 
 /**
  * CacheEvent.java
@@ -28,7 +30,6 @@ import javax.swing.text.NumberFormatter;
  */
 
 public class CacheEvent implements EventAccessOperations {
-
     public CacheEvent(EventAttr attr, Origin[] origins, Origin preferred) {
         Assert.isNotNull(attr, "EventAttr cannot be null");
         Assert.isNotNull(origins, "origins cannot be null");
@@ -36,7 +37,7 @@ public class CacheEvent implements EventAccessOperations {
         this.origins = origins;
         this.preferred = preferred;
     }
-
+    
     public CacheEvent(EventAccessOperations event) {
         Assert.isNotNull(event, "EventAccess cannot be null");
         this.event = event;
@@ -44,16 +45,16 @@ public class CacheEvent implements EventAccessOperations {
         this.origins = null;
         this.preferred = null;
     }
-
+    
     public EventAccessOperations getEventAccess() {
         return event;
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventMgr/a_factory:1.0
     //
     /***/
-
+    
     public EventFactory
         a_factory(){
         if (event != null) {
@@ -62,12 +63,12 @@ public class CacheEvent implements EventAccessOperations {
             throw new org.omg.CORBA.NO_IMPLEMENT();
         }
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventDC/a_finder:1.0
     //
     /***/
-
+    
     public EventFinder
         a_finder() {
         if (event != null) {
@@ -80,7 +81,7 @@ public class CacheEvent implements EventAccessOperations {
     // IDL:iris.edu/Fissures/IfEvent/EventDC/a_channel_finder:1.0
     //
     /***/
-
+    
     public EventChannelFinder
         a_channel_finder() {
         if (event != null) {
@@ -89,12 +90,12 @@ public class CacheEvent implements EventAccessOperations {
             throw new org.omg.CORBA.NO_IMPLEMENT();
         }
     }
-
+    
     //
     // IDL:iris.edu/Fissures/AuditSystemAccess/get_audit_trail:1.0
     //
     /***/
-
+    
     public edu.iris.Fissures.AuditElement[] get_audit_trail()
         throws NotImplemented {
         if (event != null) {
@@ -103,13 +104,13 @@ public class CacheEvent implements EventAccessOperations {
             throw new org.omg.CORBA.NO_IMPLEMENT();
         }
     }
-
-
+    
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/a_writeable:1.0
     //
     /***/
-
+    
     public Event a_writeable() {
         if (event != null) {
             return event.a_writeable();
@@ -117,12 +118,12 @@ public class CacheEvent implements EventAccessOperations {
             throw new org.omg.CORBA.NO_IMPLEMENT();
         }
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/parm_svc:1.0
     //
     /** Defines the ParameterMgr where parameters for this Event reside */
-
+    
     public edu.iris.Fissures.IfParameterMgr.ParameterComponent
         parm_svc() {
         if (event != null) {
@@ -131,12 +132,12 @@ public class CacheEvent implements EventAccessOperations {
             throw new org.omg.CORBA.NO_IMPLEMENT();
         }
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/get_attributes:1.0
     //
     /***/
-
+    
     public EventAttr
         get_attributes() {
         if (attr == null) {
@@ -148,24 +149,24 @@ public class CacheEvent implements EventAccessOperations {
         }
         return attr;
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/get_origins:1.0
     //
     /***/
-
+    
     public Origin[] get_origins() {
         if (origins == null) {
             origins = event.get_origins();
         }
         return origins;
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/get_origin:1.0
     //
     /***/
-
+    
     public Origin get_origin(String the_origin)
         throws OriginNotFound {
         if (event != null) {
@@ -179,12 +180,11 @@ public class CacheEvent implements EventAccessOperations {
         }
         throw new OriginNotFound();
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/get_preferred_origin:1.0
     //
     /***/
-
     public Origin get_preferred_origin()
         throws NoPreferredOrigin {
         if (preferred == null) {
@@ -196,12 +196,12 @@ public class CacheEvent implements EventAccessOperations {
         }
         return preferred;
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/get_locators:1.0
     //
     /***/
-
+    
     public Locator[] get_locators(String an_origin)
         throws OriginNotFound, NotImplemented {
         if (event != null) {
@@ -209,12 +209,12 @@ public class CacheEvent implements EventAccessOperations {
         }
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/get_audit_trail_for_origin:1.0
     //
     /***/
-
+    
     public edu.iris.Fissures.AuditElement[]
         get_audit_trail_for_origin(String the_origin)
         throws OriginNotFound,
@@ -223,6 +223,102 @@ public class CacheEvent implements EventAccessOperations {
             return event.get_audit_trail_for_origin(the_origin);
         }
         throw new edu.iris.Fissures.NotImplemented();
+    }
+    
+    public boolean equals(Object o){
+        if(o == this) return true;
+        if(!(o instanceof EventAccessOperations)) return false;
+        EventAccessOperations oEvent = (EventAccessOperations)o;
+        if(!equalAttr(oEvent) || !equalOrigin(oEvent)){
+            return false;
+        }
+        return true;
+    }
+    
+    public int hashCode(){
+        int result = 52;
+        result = 48*result + hashOrigins();
+        //result = 48*result + event.get_attributes().hashCode();
+        return result;
+    }
+    
+    private int hashAttr(){
+        EventAttr attr = event.get_attributes();
+        int result = 87;
+        result = result*34 + attr.name.hashCode();
+        result = result*34 + attr.region.number;
+        return result;
+    }
+    
+    private int hashOrigins(){
+        int result = 29;
+        Origin o = getOrigin();
+        result = 89* result + hashLocation(o.my_location);
+        result = 89*result + o.origin_time.date_time.hashCode();
+        result = 89*result + o.contributor.hashCode();
+        result = 89*result + o.catalog.hashCode();
+        return result;
+    }
+    
+    private int hashLocation(Location l){
+        int result = 47;
+        result = 38*result + l.depth.hashCode();
+        result = 38*result + l.elevation.hashCode();
+        result = 38*result + (int)l.latitude;
+        result = 38*result + (int)l.longitude;
+        return result;
+    }
+    
+    private boolean equalOrigin(EventAccessOperations oEvent) {
+        Origin oOrigin = oEvent.get_origins()[0];
+        Origin thisOrigin = getOrigin();
+        try{
+            oOrigin = oEvent.get_preferred_origin();
+        }catch(NoPreferredOrigin e){}
+        if(!equals(oOrigin.my_location, thisOrigin.my_location)||
+           !oOrigin.catalog.equals(thisOrigin.catalog) ||
+           !oOrigin.contributor.equals(thisOrigin.contributor) ||
+           !equals(oOrigin.origin_time, thisOrigin.origin_time)){
+            return false;
+        }
+        return true;
+    }
+    
+    private Origin getOrigin(){
+        Origin thisOrigin = get_origins()[0];
+        try{
+            thisOrigin = get_preferred_origin();
+        }catch(NoPreferredOrigin e){}
+        return thisOrigin;
+    }
+    
+    private static boolean equals(Time one, Time two) {
+        MicroSecondDate msdOne = new MicroSecondDate(one);
+        MicroSecondDate msdTwo = new MicroSecondDate(two);
+        return msdOne.equals(msdTwo);
+    }
+    
+    private static boolean equals(Location one, Location two){
+        if(one.depth.equals(two.depth) && one.elevation.equals(two.elevation) &&
+           one.latitude == two.latitude && one.longitude == two.longitude){
+            return true;
+        }
+        return false;
+    }
+    
+    private static boolean equals(FlinnEngdahlRegion one, FlinnEngdahlRegion two) {
+        if(one.number == two.number) return true;
+        return false;
+    }
+    
+    private boolean equalAttr(EventAccessOperations event) {
+        EventAttr oAttr = event.get_attributes();
+        EventAttr thisAttr = get_attributes();
+        if(!oAttr.name.equals(thisAttr.name)  ||
+           !equals(oAttr.region, thisAttr.region)){
+            return false;
+        }
+        return true;
     }
     
     /**
@@ -300,11 +396,10 @@ public class CacheEvent implements EventAccessOperations {
     private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH, DEPTH_UNIT};
     
     private static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT;
-
+    
     protected EventAccessOperations event;
     protected EventAttr attr;
     protected Origin[] origins;
     protected Origin preferred;
-
+    
 } // CacheEvent
-
