@@ -55,7 +55,6 @@ public class Selection implements TimeSyncListener{
 					selectionEnd.getMicroSecondTime())/timeWidth;
 	double endDistance = Math.abs(currentInternal.getEndTime().getMicroSecondTime() - 
 				      selectionBegin.getMicroSecondTime())/timeWidth;
-	System.out.println(beginDistance + " " + endDistance);
 	if(beginDistance < endDistance){
 	    internalTimeConfig.setDisplayInterval(new TimeInterval(selectionBegin, 
 								   currentInternal.getBeginTime().add(currentInternal.getInterval())));

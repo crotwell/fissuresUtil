@@ -88,7 +88,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      */
     public void addSeismogram(LocalSeismogram newSeismogram){
 	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram, timeConfig, ampConfig);
+	//FilteredSeismogramPlotter newFilteredPlotter= 
+	//   new FilteredSeismogramPlotter(FilteredSeismogramPlotter.test, newSeismogram, timeConfig, ampConfig);
 	plotters.put(newPlotter, colors[plotters.size()%colors.length]);
+	//plotters.put(newFilteredPlotter, colors[plotters.size()%colors.length]);
 	timeConfig.addSeismogram(newSeismogram);
 	ampConfig.addSeismogram(newSeismogram);
 	redo = true;
@@ -230,7 +233,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    currentSelection = new Selection(selectionBegin, selectionEnd, timeConfig, plotters, this, 
 					     transparentColors[selections.size()%transparentColors.length]);
 	    selections.add(currentSelection);
-	    repaint();
 	    return;
 	}
 	currentSelection.adjustRange(selectionBegin, selectionEnd);		
@@ -282,6 +284,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     protected boolean redo;
 
     protected String name;
+
+    public static final int OVERSIZED_SCALE = 3;
 
     protected class ImagePainter extends JComponent{
 	public void paint(Graphics g){
@@ -350,7 +354,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	}
 
 	public synchronized void setImage(Image newImage){
-	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(3);
+	    overTimeRange = timeConfig.getTimeRange().getOversizedTimeRange(OVERSIZED_SCALE);
 	    displayTime = displayInterval.getValue();
 	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
 	    overTimeInterval = overTimeRange.getEndTime().getMicroSecondTime() - overBeginTime;

@@ -115,7 +115,6 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     }
 
     public void setAllBeginTime(MicroSecondDate b){
-	System.out.println(beginTime.subtract(b).getValue() + " " + b);
 	beginTime = b;
 	Iterator e = seismos.keySet().iterator();
 	while(e.hasNext())
