@@ -112,7 +112,7 @@ public class ParticleMotionDisplayThread{
 							       timeConfigRegistrar, 
 							       hAmpConfigRegistrar, 
 							       vAmpConfigRegistrar, 
-							       null,
+									 selectionColors[particleMotionDisplay.getView().getSelectedParticleMotion().length % selectionColors.length],
 							       getOrientationName(channelGroup[counter].channel_code)+"-"+
 							       getOrientationName(channelGroup[subcounter].channel_code),
 							       horizPlane);
@@ -236,6 +236,12 @@ public class ParticleMotionDisplayThread{
     private ParticleMotionDisplay  particleMotionDisplay;
 
     private ChannelId[] channelGroup;
+
+    private static Color[] selectionColors = { new NamedColor(255, 0, 0, 64, "red"),  
+					       new NamedColor(255, 255, 0, 64, "yellow"), 
+					       new NamedColor(0, 255, 0, 64, "green"),  
+					       new NamedColor(0, 0, 255, 64, "blue")};
+
 
     static Category logger = 
      Category.getInstance(ParticleMotionDisplayThread.class.getName());
