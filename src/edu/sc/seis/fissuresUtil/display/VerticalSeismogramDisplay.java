@@ -213,7 +213,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             }
             super.remove(display);
             basicDisplays.remove(display);
-            remove(display.getSeismograms());
             ((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
             ((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
             super.revalidate();
