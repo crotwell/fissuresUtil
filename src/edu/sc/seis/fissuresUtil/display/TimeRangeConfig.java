@@ -65,4 +65,6 @@ public interface TimeRangeConfig {
     public void setBeginTime(MicroSecondDate b);
     
     public void setAllBeginTime(MicroSecondDate b);
+
+    public TimeRangeConfig getTimeConfig();
 }// TimeRangeConfig

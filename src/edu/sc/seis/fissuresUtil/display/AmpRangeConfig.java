@@ -65,6 +65,8 @@ public interface AmpRangeConfig extends TimeSyncListener {
 
     public void setRegistrar(AmpConfigRegistrar registrar);
 
-    public AmpConfigRegistrar getRegistrar();
+    public AmpRangeConfig getRegistrar();
+
+    public AmpRangeConfig getAmpConfig();
 
 }// AmpRangeConfig

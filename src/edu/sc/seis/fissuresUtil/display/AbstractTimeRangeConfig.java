@@ -18,6 +18,11 @@ import java.util.*;
 
 public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     
+    public AbstractTimeRangeConfig(){}
+
+    public AbstractTimeRangeConfig(TimeConfigRegistrar registrar){
+	this.registrar = registrar;
+    }
 
     public void setRegistrar(TimeConfigRegistrar newRegistrar){ registrar = newRegistrar; }
 
@@ -109,6 +114,8 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	    seismos.put(e.next(), b);
 	this.updateTimeSyncListeners();
     }
+
+    public TimeRangeConfig getTimeConfig(){ return this; } 
     
     protected MicroSecondDate beginTime;
     

@@ -17,19 +17,25 @@ import org.apache.log4j.*;
  * @version
  */
 
-public class TimeConfigRegistrar{
+public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     public TimeConfigRegistrar(){
 	this.timeConfig = new BoundedTimeConfig(this);
     }
 
-    public TimeConfigRegistrar (TimeRangeConfig timeConfig){
+    public TimeConfigRegistrar(TimeRangeConfig timeConfig){
 	this.timeConfig = timeConfig;
+    }
+
+    
+    public TimeConfigRegistrar(TimeConfigRegistrar timeConfig){
+	this.timeConfig = timeConfig;
+	timeConfig.addTimeSyncListener(this);
     }
     
     
     public void setTimeConfig(TimeRangeConfig timeConfig){ this.timeConfig = timeConfig; }
 
-    public TimeRangeConfig getTimeConfig(){ return timeConfig; }
+    public TimeRangeConfig getTimeConfig(){ return timeConfig.getTimeConfig(); }
 
     /**
      * Add the values in this seismogram to the configuration
@@ -80,8 +86,13 @@ public class TimeConfigRegistrar{
      */
     public void updateTimeSyncListeners(){
 	Iterator e = timeListeners.iterator();
-	while(e.hasNext())
+	while(e.hasNext()){
 	    ((TimeSyncListener)e.next()).updateTimeRange();
+	}
+    }
+
+    public void updateTimeRange(){
+	this.updateTimeSyncListeners(); 
     }
 
     public void setDisplayInterval(TimeInterval t){ timeConfig.setDisplayInterval(t); }
@@ -90,7 +101,10 @@ public class TimeConfigRegistrar{
     
     public void setAllBeginTime(MicroSecondDate b){ timeConfig.setAllBeginTime(b); }
 
-    public void fireTimeRangeEvent(TimeSyncEvent event){ timeConfig.fireTimeRangeEvent(event); }
+    public void fireTimeRangeEvent(TimeSyncEvent event){ 
+	logger.debug("firing time event");
+	timeConfig.fireTimeRangeEvent(event); 
+    }
 
     protected TimeRangeConfig timeConfig;
 
