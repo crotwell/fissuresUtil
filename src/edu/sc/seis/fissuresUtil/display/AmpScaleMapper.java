@@ -46,6 +46,9 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
         reg.addListener(this);
     }
 
+    public String getAxisLabel(){
+        return "Amplitude (" + unitDisplayUtil.getNameForUnit(getUnit()) + ")";
+    }
 
     private UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
 
