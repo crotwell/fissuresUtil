@@ -1,10 +1,13 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.*;
-
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.network.ChannelIdUtil;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import javax.swing.border.AbstractBorder;
 
 /**
  * LeftTitleBorder.java
@@ -16,26 +19,16 @@ import java.awt.geom.AffineTransform;
  * @version
  */
 
-public class LeftTitleBorder extends javax.swing.border.AbstractBorder {
-    
+public class LeftTitleBorder extends AbstractBorder {
+
     public LeftTitleBorder(String title) {
         top = 0;
         left = 15;
         right = 0;
         bottom = 0;
-        this.title = title;
-        isChannelTitle = false;
+        setTitle(title);
     }
-        
-    public LeftTitleBorder(ChannelId channelId) {
-        top = 0;
-        left = 50;
-        right = 0;
-        bottom = 0;
-        this.chanId = channelId;
-        isChannelTitle = true;
-    }
-    
+
     public Insets getBorderInsets(Component c) {
         if (title == null || title.equals("")) {
             return new Insets(0,0,0,0);
@@ -60,116 +53,48 @@ public class LeftTitleBorder extends javax.swing.border.AbstractBorder {
         }
     }
 
-    public void paintBorder(Component c, 
-                            Graphics g, 
-                            int x, 
-                            int y, 
-                            int width, 
+    public void paintBorder(Component c,
+                            Graphics g,
+                            int x,
+                            int y,
+                            int width,
                             int height) {
-
-        Graphics copy = g.create();
-	Graphics2D copy2D = (Graphics2D)copy;
-        if (copy2D != null) {
-            try {
-		// copy.translate(x, y);
-                FontMetrics fm = copy2D.getFontMetrics();
-		
-                //int vOffset = top+fm.getAscent();
-		int vOffset = height;
-		Font font = new Font(copy2D.getFont().getName(), Font.PLAIN, copy2D.getFont().getSize()+4);
-		copy2D.setFont(font);
-		AffineTransform oldTransform =copy2D.getTransform();
-	
-		//		copy2D.getFont().setSize(copy2D.getFont().getSize() + 20);
-		int yy = (height - top - title.length() *  font.getSize())/2;
-		AffineTransform ct =  AffineTransform.getTranslateInstance(font.getSize()/2, yy);
-		copy2D.transform(ct);
-		copy2D.transform(AffineTransform.getRotateInstance(Math.PI/2));
-		if(title == null) title = "";
-		copy2D.drawString(title, 0, 0);
-		//restore the original AffineTransform
-		copy2D.setTransform(oldTransform);
-		
-		/*
-                if (isChannelTitle) {
-		    if (4 * fm.getHeight() < height) {
-                        copy.drawString(chanId.network_id.network_code,
-                                        0,
-                                        vOffset);
-                        vOffset += fm.getHeight();
-                    }
-                    if (2 * fm.getHeight() < height) {
-                        copy.drawString(chanId.station_code,
-                                        0,
-                                        vOffset);
-                        vOffset += fm.getHeight();
-                    }
-                    if (3 * fm.getHeight() < height) {
-                        copy.drawString(chanId.site_code,
-                                        0,
-                                        vOffset);
-                        vOffset += fm.getHeight();
-                    }
-                    copy.drawString(chanId.channel_code,
-                                    0,
-                                    vOffset);
-                    vOffset += fm.getHeight();
-		
-                } else {
-                    int prevNewline = -1;
-                    int currNewline = title.indexOf("\n");
-                    if (currNewline == -1) currNewline = title.length();
-                    while (prevNewline < title.length() - 1) {
-                        copy.drawString(title.substring(prevNewline+1,
-                                                        prevNewline+2),
-                                        5,
-                                        vOffset);
-                        
-                        prevNewline += 1;
-                        currNewline = title.indexOf("\n", prevNewline);
-                        if (currNewline == -1) currNewline = title.length();
-                        vOffset += fm.getHeight();
-                    }
-		    }*/
-
-            } finally {
-                copy.dispose();
-            }
+        if(title == null || title.equals("")) return;
+        Graphics2D g2D = (Graphics2D)g;
+        g2D.setFont(DisplayUtils.DEFAULT_FONT);
+        if(titleBounds == null){
+            titleBounds = g2D.getFontMetrics().getStringBounds(title, g2D);
+            left = (int)titleBounds.getHeight();
         }
+        double yTranslate = (height - y - titleBounds.getWidth())/2;
+        double xTranslate = x;
+        g2D.translate(xTranslate, yTranslate);
+        g2D.rotate(Math.PI/2);
+        g2D.drawString(title, 0, 0);
+        g2D.rotate(-Math.PI/2);
+        g2D.translate(-xTranslate, -yTranslate);
     }
 
     /**
-       * Get the value of Title.
-       * @return Value of Title.
-       */
+     * Get the value of Title.
+     * @return Value of Title.
+     */
     public String getTitle() {
-        if (isChannelTitle) {
-            return title;
-        } else {
-            return ChannelIdUtil.toStringNoDates(chanId);
-        }
+        return title;
     }
-    
+
     /**
-       * Set the value of Title.
-       * @param v  Value to assign to Title.
-       */
+     * Set the value of Title.
+     * @param v  Value to assign to Title.
+     */
     public void setTitle(String  v) {
         this.title = v;
-        isChannelTitle = false;
+        titleBounds = null;
     }
 
-    public void setTitle(ChannelId channelId) {
-        chanId = channelId;
-        isChannelTitle = true;
-    }
-    
-    protected String title;
+    private String title;
 
-    protected int top, left, bottom, right;
+    private Rectangle2D titleBounds;
 
-    protected ChannelId chanId = null;
-
-    protected boolean isChannelTitle = false;
-
+    private int top, left, bottom, right;
 } // LeftTitleBorder
