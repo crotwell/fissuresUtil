@@ -27,7 +27,9 @@ public class SimplePhaseStoN {
                            TimeInterval shortOffsetBegin,
                            TimeInterval shortOffsetEnd,
                            TimeInterval longOffsetBegin,
-                           TimeInterval longOffsetEnd) throws TauModelException {
+                           TimeInterval longOffsetEnd,
+                           String modelName,
+                           TauPUtil taup) throws TauModelException {
         this.phase = phase;
         this.shortOffsetBegin = shortOffsetBegin;
         this.shortOffsetEnd = shortOffsetEnd;
@@ -46,9 +48,24 @@ public class SimplePhaseStoN {
         if (longOffsetEnd == null) {
             throw new NullPointerException("shortOffsetBegin cannot be null");
         }
-        taup = new TauPUtil("prem");
+        this.taup = taup;
         shortCut = new PhaseCut(taup, phase, shortOffsetBegin, phase, shortOffsetEnd);
         longCut = new PhaseCut(taup, phase, longOffsetBegin, phase, longOffsetEnd);
+    }
+
+
+    public SimplePhaseStoN(String phase,
+                           TimeInterval shortOffsetBegin,
+                           TimeInterval shortOffsetEnd,
+                           TimeInterval longOffsetBegin,
+                           TimeInterval longOffsetEnd) throws TauModelException {
+        this(phase,
+             shortOffsetBegin,
+             shortOffsetEnd,
+             longOffsetBegin,
+             longOffsetEnd,
+             "prem",
+             new TauPUtil("prem"));
     }
 
     /** Defaults to plus and minues 5 seconds around the phase for the short
