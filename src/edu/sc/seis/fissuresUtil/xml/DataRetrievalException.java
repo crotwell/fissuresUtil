@@ -17,14 +17,11 @@ public class DataRetrievalException extends Exception implements WrappedExceptio
     } // DataRetrievalException constructor
 
     public DataRetrievalException(String s, Exception e) {
-        super(s);
-        this.causalException = e;
+        super(s, e);
     } // DataRetrievalException constructor
 
-    public Exception getCausalException() {
-        return causalException;
+    public Throwable getCausalException() {
+        return getCause();
     }
-
-    Exception causalException;
 
 } // DataRetrievalException
