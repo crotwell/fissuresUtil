@@ -176,10 +176,12 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                         ls =
                             route[i].getDataCenter().retrieve_seismograms(rf);
                     } catch (org.omg.CORBA.SystemException e) {
+                            logger.debug("Caught corba SystemException, retrying once.",e);
                         try {
                             ls =
                                 route[i].getDataCenter().retrieve_seismograms(rf);
                         } catch (org.omg.CORBA.SystemException ee) {
+                            logger.debug("Caught corba SystemException, retryin twice.",ee);
                             route[i].reloadDataCenter();
                             if (route[i].getDataCenter() != null) {
                                 ls =
