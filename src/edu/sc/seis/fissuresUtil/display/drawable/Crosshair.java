@@ -17,12 +17,12 @@ import java.awt.Polygon;
 
 public class Crosshair implements Drawable{
     public Crosshair(int x, int y){
-        int[] xTriX = {x-2,x,x+2};
-        int[] xTriY = {1, 3, 1};
-        topXTriangle = new Polygon(xTriX, xTriY, 3);
-        int[] yTriX = {1, 3, 1};
-        int[] yTriY = {y-2,y,y+2};
-        leftYTriangle = new Polygon(yTriX,yTriY, 3);
+        int[] xTriX =  {x-5,x,x+5, x+5,x-5};
+        int[] xTriY = {6, 1, 6,12,12};
+        topXTriangle = new Polygon(xTriX, xTriY, 5);
+        int[] yTriX = {6, 1, 6,12,12};
+        int[] yTriY = {y-5,y,y+5,y+5,y-5};
+        leftYTriangle = new Polygon(yTriX,yTriY, 5);
         this.x = x;
         this.y = y;
     }
@@ -44,17 +44,13 @@ public class Crosshair implements Drawable{
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         if(visible){
-            canvas.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
-            canvas.setPaint(Color.BLACK);
+            canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
+            canvas.setPaint(Color.RED);
             canvas.draw(topXTriangle);
             canvas.draw(leftYTriangle);
-            int[] bottomXTriX = {x-2,x,x+2};
-            int[] bottomXTriY = {size.height-1, size.height-3, size.height-1};
-            canvas.draw(new Polygon(bottomXTriX, bottomXTriY, 3));
-            int[] rightYTriX = {size.width-1, size.width-3, size.width-1};
-            int[] rightYTriY = {y-2,y,y+2};
-            canvas.draw(new Polygon(rightYTriX, rightYTriY, 3));
-
+            int[] bottomXTriX = {x-5,x,x+5, x+5,x-5};
+            int[] bottomXTriY = {size.height-6, size.height -1 , size.height-6, size.height -12,size.height -12};
+            canvas.draw(new Polygon(bottomXTriX, bottomXTriY, 5));
         }
     }
 
