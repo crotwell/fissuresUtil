@@ -103,9 +103,18 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                             }
                             labelTemp = leftScaleMap.getLabel(i);
                             if (labelTemp != null && labelTemp.length() != 0) {
-                                copy.drawString(labelTemp,
-                                                0,
-                                                pixelLoc);
+				if(i == 0)
+				    copy.drawString(labelTemp,
+						    0,
+						    pixelLoc - 5);
+				else if(i == numTicks - 1)
+				    copy.drawString(labelTemp,
+						    0,
+						    pixelLoc + 5);
+				else
+				    copy.drawString(labelTemp,
+						    0,
+						    pixelLoc);
                             }
                         }
                     }

@@ -46,6 +46,7 @@ public class ImageMaker implements Runnable  {
 	Image currentImage; 
 	numLeft = requests.size();
 	while(numLeft > 0){
+	    Date begin = new Date();
 	    synchronized(this){ 
 		currentPatron = ((BasicSeismogramDisplay.ImagePainter)requests.getFirst()); 
 		currentRequirements = ((PlotInfo)patrons.get(currentPatron)); 

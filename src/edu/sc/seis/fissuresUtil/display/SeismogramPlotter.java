@@ -29,29 +29,21 @@ public class SeismogramPlotter implements Plotter{
     }
 
     public Shape draw(Dimension size){
-	GeneralPath currentShape = new GeneralPath();
-	int scale = 5;
-	int w = size.width, h = size.height;
-	Dimension mySize = new Dimension(w, h);
-	int[] xPixels = null;
-	int[] yPixels = null;
-	int[][] pixels;
-	MicroSecondTimeRange overTimeRange = timeConfig.getTimeRange(seismogram).getOversizedTimeRange((scale -1)/2);
+	MicroSecondTimeRange overTimeRange = timeConfig.getTimeRange(seismogram).getOversizedTimeRange(3);
 	try{
-	    pixels = SeisPlotUtil.calculatePlottable(seismogram, 
-						     ampConfig.getAmpRange(seismogram),
-						     overTimeRange,
-						     mySize);	    
-	    xPixels = pixels[0];
-	    yPixels = pixels[1];
-	    SeisPlotUtil.flipArray(yPixels, mySize.height);
+	    int[][] pixels = SimplePlotUtil.compressYvalues(seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size);
+	    SimplePlotUtil.scaleYvalues(pixels, seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size); 
+	    int[] xPixels = pixels[0];
+	    int[] yPixels = pixels[1];
+	    GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, xPixels.length - 1);
 	    if(xPixels.length >= 1)
 		currentShape.moveTo(xPixels[0], yPixels[0]);
 	    for(int i = 1; i < xPixels.length; i++)
-		    currentShape.lineTo(xPixels[i], yPixels[i]);
+		currentShape.lineTo(xPixels[i], yPixels[i]);
+	    return currentShape;
 	}
 	catch(Exception e){ e.printStackTrace(); }
-	return currentShape;
+	return new GeneralPath();
     }
 
     public LocalSeismogram getSeismogram(){ return seismogram; }
