@@ -1,60 +1,59 @@
 package edu.sc.seis.fissuresUtil.database.plottable;
 
+import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Properties;
+import junit.framework.TestCase;
 import edu.iris.Fissures.Plottable;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
-import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
-import edu.sc.seis.fissuresUtil.mockFissures.MockFERegion;
-import edu.sc.seis.fissuresUtil.mockFissures.MockLocation;
-import junit.framework.TestCase;
-
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannelId;
 
 /**
- * @author crotwell
- * Created on Sep 23, 2004
+ * @author crotwell Created on Sep 23, 2004
  */
 public class JDBCPlottableTest extends TestCase {
 
-    public Plottable createPlottable() throws CodecException {
-        LocalSeismogramImpl seis = SimplePlotUtil.createTestData();
-
-        edu.iris.Fissures.Time time =
-            new edu.iris.Fissures.Time("19991231T235959.000Z",
-                                       -1);
-        MicroSecondDate begin = new MicroSecondDate(time);
-        MicroSecondDate end = begin.add(new TimeInterval(1, UnitImpl.DAY));
-        MicroSecondTimeRange timeRange = new MicroSecondTimeRange(begin, end);
-        int[][] coOrdinates;
-        coOrdinates =
-            SimplePlotUtil.compressXvalues(seis,
-                                           timeRange,
-                                           new java.awt.Dimension(pixel_size_width,pixel_size_height));
-
-
-        Plottable plottable = new Plottable(coOrdinates[0], coOrdinates[1]);
-        return plottable;
-   }
-
-    public void testPut() throws CodecException, SQLException {
-        Plottable plottable = createPlottable();
-        JDBCPlottable jdbcPlot = new JDBCPlottable(ConnMgr.createConnection(),
-                                                   new Properties());
-   //     int dbid = jdbcPlot.put(plottable);
-   //    Plottable out = jdbcPlot.get(dbid);
+    public PlottableChunk createFullDayPlottable() throws CodecException {
+        MicroSecondDate end = START.add(ONE_DAY);
+        LocalSeismogramImpl seis = SimplePlotUtil.createSpike(START, ONE_DAY);
+        MicroSecondTimeRange fullRange = new MicroSecondTimeRange(START, end);
+        int[][] coords = SimplePlotUtil.compressXvalues(seis, fullRange, PIXELS);
+        Plottable plottable = new Plottable(coords[0], coords[1]);
+        return new PlottableChunk(plottable, START, SPS, CHAN_ID);
     }
-    
-    public void testGetStatus() {}
 
-    public void testGet() {}
-    
-    int pixel_size_width=6000;
-    int pixel_size_height=0; // doesn't matter, not used
-    
+    public void testPut() throws SQLException, IOException, CodecException {
+        PlottableChunk data = createFullDayPlottable();
+        JDBCPlottable jdbcPlot = new JDBCPlottable();
+        jdbcPlot.put(new PlottableChunk[] {data});
+        MicroSecondTimeRange range = new MicroSecondTimeRange(data.getStartTime(),
+                                                              data.getStartTime()
+                                                                      .add(ONE_DAY));
+        PlottableChunk[] out = jdbcPlot.get(range,
+                                            data.getChannel(),
+                                            data.getSamplesPerSecond());
+        assertEquals(data, out[0]);
+    }
+
+    public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
+
+    public static final double SECONDS_IN_DAY = ONE_DAY.convertTo(UnitImpl.SECOND)
+            .getValue();
+
+    public static final int PIXELS = 6000;
+
+    public static final double SPS = PIXELS / SECONDS_IN_DAY;
+
+    private static final Time START_TIME = new Time("19991231T235959.000Z", 0);
+
+    private static final MicroSecondDate START = new MicroSecondDate(START_TIME);
+
+    public static final ChannelId CHAN_ID = MockChannelId.createVerticalChanId();
 }
