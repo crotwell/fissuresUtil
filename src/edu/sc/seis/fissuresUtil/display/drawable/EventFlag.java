@@ -65,7 +65,6 @@ public class EventFlag{
     }
     
     public void draw(Graphics g) {
-        top = true;
         // get new graphics to avoid messing up original
         Graphics2D g2 = (Graphics2D)g.create();
         g2.setStroke(new BasicStroke(3));
@@ -73,25 +72,33 @@ public class EventFlag{
         int halfOffset =  display.getRowOffset()/2;
         int x = getOriginX();
         int y = getOriginY();
-        drawStick("Origin", x, y, halfOffset, g2);
+        drawFlagAndPole("Origin", x, y, halfOffset, g2, true);
         for (int i = 0; i < arrivals.length; i++) {
             x = getX(arrivals[i]);
             y = getY(arrivals[i]);
-            drawStick(arrivals[i].getName(), x, y, halfOffset, g2);
+            drawFlagAndPole(arrivals[i].getName(), x, y, halfOffset, g2);
         }
     }
     
-    private boolean top = true;
+    private void drawFlagAndPole(String title, int x, int y, int halfOffset,
+                                 Graphics2D g2){
+        drawFlagAndPole(title, x, y, halfOffset, g2, false);
+    }
     
-    private void drawStick(String title, int x, int y, int halfOffset, Graphics2D g2){
+    //if the wind direction is reversed, the flag appears to the right of the
+    //pole
+    private void drawFlagAndPole(String title, int x, int y, int halfOffset,
+                                 Graphics2D g2, boolean reverseWindDirection){
+        //draw stick the same no matter what
+        g2.setColor(color);
+        g2.drawLine(x, y - halfOffset, x, y + halfOffset);
         FontMetrics fm = g2.getFontMetrics();
         Rectangle2D stringBounds = fm.getStringBounds(title, g2);
         int textY = y - halfOffset;
-        top = !top;
+        if(reverseWindDirection)
+            x -= stringBounds.getWidth();
         stringBounds.setRect(x, textY, stringBounds.getWidth() + 3,
                              stringBounds.getHeight());
-        g2.setColor(color);
-        g2.drawLine(x, y - halfOffset, x, y + halfOffset);
         g2.fill(stringBounds);
         g2.setColor(Color.WHITE);
         g2.drawString(title, x, (int)(textY + stringBounds.getHeight() - 3));
