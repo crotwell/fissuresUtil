@@ -17,7 +17,8 @@ public class SimplePlotUtilTest extends TestCase {
     public void testMakePlottable() throws CodecException {
         LocalSeismogramImpl seis = SimplePlotUtil.createSpike(START_DATE,
                                                               ONE_HOUR,
-                                                              SPS * 60);
+                                                              SPS * 60,
+                                                              SimplePlotUtil.makeChanId(START_TIME));
         int numYSamples = (int)ONE_HOUR.convertTo(UnitImpl.SECOND).getValue() * 2;
         int[] yValues = new int[numYSamples];
         for(int i = 1; i < yValues.length; i += 2) {
@@ -32,14 +33,15 @@ public class SimplePlotUtilTest extends TestCase {
         LocalSeismogramImpl seis = SimplePlotUtil.createRaggedSpike(START_DATE,
                                                                     ONE_HOUR,
                                                                     SPS * 60,
-                                                                    1);
-        int numYSamples = (int)ONE_HOUR.convertTo(UnitImpl.SECOND).getValue() * 2;
-        int[] yValues = new int[numYSamples];
-        for(int i = 3; i < yValues.length; i += 2) {
-            yValues[i] = (i - 1) % 120 == 0 ? 100 : 0;//Spike every minute
+                                                                    1,
+                                                                    SimplePlotUtil.makeChanId(START_TIME));
+        int twiceSecondsInHours = (int)ONE_HOUR.convertTo(UnitImpl.SECOND).getValue() * 2;
+        int[] yValues = new int[twiceSecondsInHours];
+        for(int i = 121; i < yValues.length; i += 120) {
+            yValues[i] = 100;//Spike every minute
         }
         MicroSecondTimeRange tr = new MicroSecondTimeRange(START_DATE, ONE_HOUR);
-        int[][] results = SimplePlotUtil.makePlottable(seis, tr, numYSamples * 24);
+        int[][] results = SimplePlotUtil.makePlottable(seis, tr, twiceSecondsInHours * 24);
         ArrayAssert.assertEquals(yValues, results[1]);
     }
 
