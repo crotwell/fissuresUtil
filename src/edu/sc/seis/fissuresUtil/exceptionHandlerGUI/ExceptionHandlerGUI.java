@@ -29,7 +29,7 @@ public class ExceptionHandlerGUI {
      */
     public ExceptionHandlerGUI (Throwable e){
         this.exception = e;
-        this.message = "A problem Occured";
+        this.message = "A problem Occured:\n"+e.toString();
         createGUI();
     }
 
