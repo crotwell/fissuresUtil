@@ -252,7 +252,7 @@ public class Cmplx {
         return (cdata);
 
     }
-        
+
 
 
 
@@ -283,7 +283,7 @@ public class Cmplx {
 
     }
 
-    public static final float[] convolve(float[] fdata, float[] gdata) {
+    public static final float[] convolve(float[] fdata, float[] gdata, float delta) {
         if (fdata.length != gdata.length) {
             throw new IllegalArgumentException("fdata and gdata must have same length. "+
                                                    fdata.length+" "+gdata.length);
@@ -293,9 +293,14 @@ public class Cmplx {
         for (int i=0; i<fTrans.length; i++) {
             fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i]);
         } // end of for (int i=0; i<gdata.length; i++)
-        return fftInverse(fTrans, fdata.length);
+
+        float[] ans =  fftInverse(fTrans, fdata.length);
+        for (int i = 0; i < ans.length; i++) {
+            ans[i] *= delta;
+        }
+        return ans;
     }
-    
+
     /** Computes the correlation of fdata with gdata. The value of
     the output at index i is the sum over j of fdata[i+j]*gdata[j], although
     using the FFT is much faster than direct sum.

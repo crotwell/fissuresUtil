@@ -22,33 +22,33 @@ extends TestCase
   // JUnitDoclet begin class
     edu.sc.seis.fissuresUtil.freq.Cmplx cmplx = null;
   // JUnitDoclet end class
-  
+
   public CmplxTest(String name) {
     // JUnitDoclet begin method RTrendTest
     super(name);
     // JUnitDoclet end method RTrendTest
   }
-  
+
   public edu.sc.seis.fissuresUtil.freq.Cmplx createInstance() throws Exception {
     // JUnitDoclet begin method testcase.createInstance
       return new edu.sc.seis.fissuresUtil.freq.Cmplx();
     // JUnitDoclet end method testcase.createInstance
   }
-  
+
   protected void setUp() throws Exception {
       // JUnitDoclet begin method testcase.setUp
       super.setUp();
       cmplx = createInstance();
       // JUnitDoclet end method testcase.setUp
   }
-  
+
   protected void tearDown() throws Exception {
     // JUnitDoclet begin method testcase.tearDown
     cmplx = null;
     super.tearDown();
     // JUnitDoclet end method testcase.tearDown
   }
-  
+
   public void testCorrelate() throws Exception {
     // JUnitDoclet begin method apply
       float[] inA = new float[30];
@@ -56,11 +56,11 @@ extends TestCase
       inA[5] = 1;
       inB[3] = 1;
       float[] out = Cmplx.correlate(inA, inB);
-      
+
       assertEquals("float", 1.0f, out[2], 0.0000001);
     // JUnitDoclet end method apply
   }
-  
+
   public void testCorrelateTriangle() throws Exception {
     // JUnitDoclet begin method apply
       float[] inA = new float[30];
@@ -72,23 +72,23 @@ extends TestCase
       inB[3] = .1f;
       inB[4] = .05f;
       float[] out = Cmplx.correlate(inA, inB);
-      
+
       assertEquals("float", .15f, out[3], 0.0000001);
     // JUnitDoclet end method apply
   }
-  
+
   public void testConvolve() throws Exception {
     // JUnitDoclet begin method apply
       float[] inA = new float[30];
       float[] inB = new float[30];
       inA[6] = 1;
       inB[3] = .1f;
-      float[] out = Cmplx.convolve(inA, inB);
-      
+      float[] out = Cmplx.convolve(inA, inB, 1);
+
       assertEquals("float", .1f, out[9], 0.0000001);
     // JUnitDoclet end method apply
   }
-  
+
   public void testConvolveSpike() throws Exception {
     // JUnitDoclet begin method apply
       float[] inA = new float[30];
@@ -97,14 +97,14 @@ extends TestCase
           inA[i] = 2;
       }
       inB[3] = .1f;
-      float[] out = Cmplx.convolve(inA, inB);
-      
+      float[] out = Cmplx.convolve(inA, inB, 1);
+
       assertEquals("float", .2f, out[9], 0.0000001);
       assertEquals("float", .2f, out[8], 0.0000001);
       assertEquals("float", .2f, out[10], 0.0000001);
     // JUnitDoclet end method apply
   }
-  
+
   /**
   * JUnitDoclet moves marker to this method, if there is not match
   * for them in the regenerated code and if the marker is not empty.
@@ -115,7 +115,7 @@ extends TestCase
     // JUnitDoclet begin method testcase.testVault
     // JUnitDoclet end method testcase.testVault
   }
-  
+
   public static void main(String[] args) {
     // JUnitDoclet begin method testcase.main
     junit.textui.TestRunner.run(CmplxTest.class);
