@@ -57,71 +57,49 @@ public class DataCenterThread implements Runnable{
     }
 
     public void run() {
-        int numFailsAllowed = retryNum;
         JobTracker.getTracker().add(job);
         job.incrementRetrievers();
-        //TODO use array of rf in retrieve call
-        List seismograms = new ArrayList();
-        for(int counter = 0; counter <  requestFilters.length; counter++) {
-            try {
-                RequestFilter[] temp = { requestFilters[counter] };
-                LocalSeismogram[] seis = dbDataCenter.retrieve_seismograms(temp);
-                LocalSeismogramImpl[] seisImpl = castToLocalSeismogramImplArray(seis);
-                synchronized(initiators){
-                    Iterator it = initiators.iterator();
-                    while(it.hasNext()){
-                        a_client.pushData(seisImpl, ((SeisDataChangeListener)it.next()));
-                    }
+        try {
+            LocalSeismogram[] seis = retrieveSeis();
+            synchronized(initiators){
+                Iterator it = initiators.iterator();
+                while(it.hasNext()){
+                    SeisDataChangeListener cur = ((SeisDataChangeListener)it.next());
+                    a_client.pushData(castToLocalSeismogramImplArray(seis), cur);
+                    a_client.finished(cur);
                 }
-                for (int i = 0; i < seisImpl.length; i++){
-                    seismograms.add(seisImpl[i]);
-                }
-            } catch(FissuresException fe) {
-                synchronized(initiators){
-                    failed = true;
-                    Iterator it = initiators.iterator();
-                    while(it.hasNext()){
-                        a_client.error(((SeisDataChangeListener)it.next()), fe);
-                    }
-                    continue;
-                }
-            } catch(org.omg.CORBA.SystemException fe) {
-                numFailsAllowed--;
-                if (numFailsAllowed <= 0) {
-                    synchronized(initiators){
-                        failed = true;
-                        Iterator it = initiators.iterator();
-                        while(it.hasNext()){
-                            a_client.error(((SeisDataChangeListener)it.next()), fe);
-                        }
-                        continue;
-                    }
-                } else {
-                    // try it again
-                    counter--;
-                }
-            } catch(Throwable e) {
-                synchronized(initiators){
-                    failed = true;
-                    Iterator it = initiators.iterator();
-                    while(it.hasNext()){
-                        a_client.error(((SeisDataChangeListener)it.next()), e);
-                    }
-                    continue;
-                }
+                finished = true;
             }
-        }
-        synchronized(initiators){
-            LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])seismograms.toArray(new LocalSeismogramImpl[seismograms.size()]);
-            Iterator it = initiators.iterator();
-            while(it.hasNext()){
-                SeisDataChangeListener cur = ((SeisDataChangeListener)it.next());
-                a_client.pushData(seis, cur);
-                a_client.finished(cur);
-            }
-            finished = true;
+        } catch(Throwable e) {
+            passExceptionToListeners(e);
         }
         job.decrementRetrievers();
+    }
+
+    private LocalSeismogram[] retrieveSeis()throws FissuresException{
+        RuntimeException lastException = null;
+        int count = 0;
+        while (count < retryNum) {
+            try {
+                return dbDataCenter.retrieve_seismograms(requestFilters);
+            } catch(org.omg.CORBA.SystemException fe) {
+                lastException = fe;
+            }
+            count++;
+        }
+        throw lastException;
+    }
+
+    private void passExceptionToListeners(Throwable t){
+        synchronized(initiators){
+            failed = true;
+            Iterator it = initiators.iterator();
+            while(it.hasNext()){
+                SeisDataChangeListener cur = (SeisDataChangeListener)it.next();
+                a_client.error(cur, t);
+                a_client.finished(cur);
+            }
+        }
     }
 
     int retryNum = 3;
@@ -144,10 +122,8 @@ public class DataCenterThread implements Runnable{
 
         private synchronized void decrementRetrievers(){
             setStatus(--retrievers + " retrieving data " + waiters + " waiting to retrieve");
-            if(retrievers == 0 && waiters == 0)
-                setFinished();
-            else
-                setFinished(false);
+            if(retrievers == 0 && waiters == 0){setFinished();
+            }else{ setFinished(false); }
         }
 
         private int retrievers = 0, waiters = 0;
@@ -214,4 +190,5 @@ public class DataCenterThread implements Runnable{
     private boolean finished = false, failed = false;
 
 }// DataCenterThread
+
 
