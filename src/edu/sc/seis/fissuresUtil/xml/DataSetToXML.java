@@ -66,7 +66,7 @@ public class DataSetToXML {
             tempFile = outFile;
         }
         BufferedWriter buf = new BufferedWriter(new FileWriter(tempFile));
-        Writer xmlWriter = new Writer();
+        Writer xmlWriter = new Writer(false, true);
         xmlWriter.setOutput(buf);
         xmlWriter.write(datasetElement);
         buf.close();
