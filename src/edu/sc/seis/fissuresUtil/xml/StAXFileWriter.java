@@ -36,7 +36,6 @@ public class StAXFileWriter {
 
     public void close() throws XMLStreamException, IOException{
         if (!isClosed){
-            System.out.println("closing " + outFile.getName());
             xmlWriter.writeEndDocument();
             xmlWriter.flush();
             fileWriter.flush();
@@ -54,7 +53,6 @@ public class StAXFileWriter {
             }
             isClosed = true;
         }
-        else System.out.println(outFile.getName() + " already closed");
     }
 
     private File outFile, tempFile;
