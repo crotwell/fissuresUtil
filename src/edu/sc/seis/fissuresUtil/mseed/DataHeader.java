@@ -398,12 +398,28 @@ public class DataHeader extends ControlHeader {
     }
 
 
-    // return a Btime structure containing the derived end time for this record
+    /** return a Btime structure containing the derived end time for this record
+     *  Note this is not the time of the last sample, but rather the predicted
+     *  begin time of the next record, ie begin + numSample*period instead of
+     *  begin + (numSample-1)*period.
+     */
     private Btime getEndBtime () {
         Btime startBtime = getStartBtime();
         // get the number of ten thousandths of seconds of data
         double numTenThousandths =
             (((double) getNumSamples() / getSampleRate()) * 10000.0);
+        // return the time structure projected by the number of ten thousandths of seconds
+        return projectTime(startBtime,numTenThousandths);
+    }
+
+
+    /** return a Btime structure containing the derived last sample time for this record
+     */
+    private Btime getLastSampleBtime () {
+        Btime startBtime = getStartBtime();
+        // get the number of ten thousandths of seconds of data
+        double numTenThousandths =
+            (((double) (getNumSamples()-1) / getSampleRate()) * 10000.0);
         // return the time structure projected by the number of ten thousandths of seconds
         return projectTime(startBtime,numTenThousandths);
     }
@@ -431,7 +447,9 @@ public class DataHeader extends ControlHeader {
 
     /**
      get the value of end time.  derived from Start time,
-     sample rate, and number of samples.
+     sample rate, and number of samples. Note this is
+     not the time of the last sample, but rather the predicted
+     begin time of the next record.
 
      @return the value of end time
      */
@@ -451,6 +469,27 @@ public class DataHeader extends ControlHeader {
                               fourZero.format(endStruct.tenthMilli) );
     }
 
+    /**
+     get the value of end time.  derived from Start time,
+     sample rate, and number of samples.
+
+     @return the value of end time
+     */
+    public String getLastSampleTime() {
+        // get time structure
+        Btime endStruct = getLastSampleBtime();
+        // zero padding format of output numbers
+        DecimalFormat twoZero = new DecimalFormat("00");
+        DecimalFormat threeZero = new DecimalFormat("000");
+        DecimalFormat fourZero = new DecimalFormat("0000");
+        // return string in standard jday format
+        return new String(fourZero.format(endStruct.year) + "," +
+                              threeZero.format(endStruct.jday) + "," +
+                              twoZero.format(endStruct.hour) + ":" +
+                              twoZero.format(endStruct.min) + ":" +
+                              twoZero.format(endStruct.sec) + "." +
+                              fourZero.format(endStruct.tenthMilli) );
+    }
 
     /**
      get the value of start time in ISO format
@@ -469,7 +508,9 @@ public class DataHeader extends ControlHeader {
     }
 
     /**
-     get the value of start time in ISO format
+     get the value of start time in ISO format.
+     Note this is not the time of the last sample, but rather the predicted
+     begin time of the next record.
 
      @return the value of start time in ISO format
      */
@@ -484,6 +525,21 @@ public class DataHeader extends ControlHeader {
                                                             fSecond);
     }
 
+    /**
+     get the value of start time in ISO format
+
+     @return the value of start time in ISO format
+     */
+    public String getISOLastSampleTime() {
+        // get time structure
+        Btime endStruct = getLastSampleBtime();
+        float fSecond = endStruct.sec + endStruct.tenthMilli / 10000f;
+        return edu.iris.Fissures.model.ISOTime.getISOString(endStruct.year,
+                                                            endStruct.jday,
+                                                            endStruct.hour,
+                                                            endStruct.min,
+                                                            fSecond);
+    }
     /**
      * Set the value of startTime.
      * @param v  Value to assign to startTime.
