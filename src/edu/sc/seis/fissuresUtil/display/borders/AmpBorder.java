@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
@@ -12,6 +11,7 @@ public class AmpBorder extends AbstractUnitRangeBorder{
     public AmpBorder(SeismogramDisplay disp, int side){
         super(side, ASCENDING);
         this.disp = disp;
+        add(new UnchangingTitleProvider("Amplitude"));
     }
 
     public UnitRangeImpl getRange() {
@@ -26,10 +26,9 @@ public class AmpBorder extends AbstractUnitRangeBorder{
     }
 
     public String getTitle(){
-        return "Amplitude (" + UnitDisplayUtil.getNameForUnit(last.getUnit()) + ")";
+        return UnitDisplayUtil.getNameForUnit(last.getUnit());
     }
-
-
+    
     private UnitRangeImpl last;
     private SeismogramDisplay disp;
 }
