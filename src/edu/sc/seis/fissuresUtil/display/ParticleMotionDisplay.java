@@ -60,6 +60,7 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 									true,
 									this);
 	t.execute();
+	initialized = t.getCompletion();
 	displayFrame.dispose();
     }
 
@@ -234,8 +235,8 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     
     public void updateAmp(AmpEvent event){
 	//range = event.getAmp();
-	if(hAmpScaleMap == null) System.out.println("horizontal ampscale mpa is null");
-	else System.out.println("The Horizontal amp scale map is not nULL");
+	//if(hAmpScaleMap == null) System.out.println("horizontal ampscale mpa is null");
+	//else System.out.println("The Horizontal amp scale map is not nULL");
 	this.hAmpScaleMap.setUnitRange(event.getAmp());
 	this.vAmpScaleMap.setUnitRange(event.getAmp());
     }
@@ -560,6 +561,14 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     public void setVerticalTitle(String name) {
 	vTitleBorder.setTitle(name);
   }
+
+
+    /**
+     *@returns true if the ParticleMotionThread has correctly initialized the display
+     */
+    public boolean getInitializationStatus(){ return initialized; }
+    
+    private boolean initialized = false;
   
 
     /**
