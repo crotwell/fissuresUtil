@@ -38,7 +38,6 @@ public class MultiFileMSeedRead extends MiniSeedRead {
             return d;
         } catch (EOFException e) {
             // try next file
-            logger.debug("Loading next mseed file: "+files[currentIndex].getName());
             initNextFile();
             DataRecord d = current.getNextRecord();
             numReadTotal++;
@@ -56,9 +55,11 @@ public class MultiFileMSeedRead extends MiniSeedRead {
                 current.close();
                 current = null;
             }
+            logger.debug("Loading next mseed file: "+files[currentIndex].getName());
             current = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(files[currentIndex]))));
             currentIndex++;
         }
+        logger.debug("Last load");
     }
 
     int numReadTotal = 0;
