@@ -42,9 +42,7 @@ public class JDBCTable {
             String key = tableName + "." + field.getName();
             if(ConnMgr.hasSQL(key)) {
                 String sql = ConnMgr.getSQL(key);
-                if(!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
+                field.setAccessible(true);
                 try {
                     field.set(this, conn.prepareStatement(sql));
                 } catch(IllegalArgumentException e) {
