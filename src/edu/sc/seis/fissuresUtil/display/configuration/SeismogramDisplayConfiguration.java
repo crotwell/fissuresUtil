@@ -78,8 +78,6 @@ public class SeismogramDisplayConfiguration implements Cloneable {
     }
 
     public SeismogramDisplay createDisplay() {
-        AmpConfig ampConfig = acConfig.createAmpConfig();
-        TimeConfig timeConfig = tcConfig.createTimeConfig();
         if(makeDefault) { return new BasicSeismogramDisplay(); }
         SeismogramDisplay disp;
         if(type.equals("recordSection")) {
@@ -111,6 +109,14 @@ public class SeismogramDisplayConfiguration implements Cloneable {
         while(it.hasNext()) {
             ColorClassConfiguration cur = (ColorClassConfiguration)it.next();
             disp.setColors(cur.getColorClass(), cur.getColors());
+        }
+        AmpConfig ampConfig = null;
+        TimeConfig timeConfig = null;
+        if(acConfig != null) {
+            ampConfig = acConfig.createAmpConfig();
+        }
+        if(tcConfig != null) {
+            timeConfig = tcConfig.createTimeConfig();
         }
         if(ampConfig != null) {
             disp.setAmpConfig(ampConfig);
