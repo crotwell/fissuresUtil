@@ -86,9 +86,34 @@ public class EventTableModel
 		q = q.convertTo(UnitImpl.KILOMETER);
 		return depthFormat.format(q.getValue())+" km";
 	    case ORIGINTIME:
-		return cache.get_preferred_origin().origin_time.date_time;
+		edu.iris.Fissures.Time fisDate = 
+		    cache.get_preferred_origin().origin_time;
+		MicroSecondDate msd = new MicroSecondDate(fisDate);
+		return msd.toString();
 	    case MAGTYPE:
-		return cache.get_preferred_origin().magnitudes[0].type;
+		String type =  cache.get_preferred_origin().magnitudes[0].type;
+		if (type.equals(edu.iris.Fissures.MB_MAG_TYPE.value)) {
+		    return "mb";
+		}
+		if (type.equals(edu.iris.Fissures.ML_MAG_TYPE.value)) {
+		    return "ml";
+		}
+		if (type.equals(edu.iris.Fissures.MBMLE_MAG_TYPE.value)) {
+		    return "mbmle";
+		}
+		if (type.equals(edu.iris.Fissures.MO_MAG_TYPE.value)) {
+		    return "MO";
+		}
+		if (type.equals(edu.iris.Fissures.MS_MAG_TYPE.value)) {
+		    return "Ms";
+		}
+		if (type.equals(edu.iris.Fissures.MSMLE_MAG_TYPE.value)) {
+		    return "msmle";
+		}
+		if (type.equals(edu.iris.Fissures.MW_MAG_TYPE.value)) {
+		    return "MW";
+		}
+		return type;
 	    case MAGVALUE:
 		return new Float(cache.get_preferred_origin().magnitudes[0].value);
 	    default:
