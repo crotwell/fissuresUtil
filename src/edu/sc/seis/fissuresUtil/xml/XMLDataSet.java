@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3619 2003-04-02 21:56:29Z groves $
+ * @version $Id: XMLDataSet.java 3633 2003-04-03 21:45:15Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -474,25 +474,31 @@ public class XMLDataSet implements DataSet, Serializable{
      */
     public void addDataSet(edu.sc.seis.fissuresUtil.xml.DataSet dataset,
                            AuditInfo[] audit) {
-        dataSetIdCache = null;
         if (dataset instanceof XMLDataSet) {
             XMLDataSet xds = (XMLDataSet)dataset;
             Element element = xds.getElement();
             if (element.getOwnerDocument().equals(config.getOwnerDocument())) {
                 config.appendChild(element);
-                //logger.debug("dataset append "+config.getChildNodes().getLength());
+                logger.debug("dataset append "+config.getChildNodes().getLength());
             } else {
                 // not from the same document, must clone
                 Node copyNode = config.getOwnerDocument().importNode(element,
                                                                      true);
                 config.appendChild(copyNode);
-                //logger.debug("dataset import "+config.getChildNodes().getLength());
+                logger.debug("dataset import "+config.getChildNodes().getLength());
                 NodeList nl = config.getChildNodes();
                 for (int i=0; i<nl.getLength(); i++) {
                     //logger.debug("node "+nl.item(i).getLocalName());
                 } // end of for (int i=0; i<nl.getLenght(); i++)
 
             } // end of else
+            dataSetCache.put(dataset.getId(), dataset);
+            String[] ids = getDataSetIds();
+            dataSetIdCache = null;
+            String[] tmp = new String[ids.length+1];
+            System.arraycopy(ids, 0, tmp, 0, ids.length);
+            tmp[tmp.length-1] = dataset.getId();
+            dataSetIdCache = tmp;
         } else {
             logger.warn("Attempt to add non-XML dataset");
         } // end of else
@@ -545,7 +551,7 @@ public class XMLDataSet implements DataSet, Serializable{
         dataSetIdCache = null;
         name = XMLUtil.getUniqueName(getDataSetNames(), name);
         XMLDataSet dataset = new XMLDataSet(docBuilder, base, id, name, owner);
-        //addDataSet(dataset, audit);
+        addDataSet(dataset, audit);
         return dataset;
     }
 
