@@ -1,10 +1,12 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.*;
 import edu.iris.Fissures.IfEvent.*;
 
+import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.IfParameterMgr.ParameterComponent;
+import edu.iris.Fissures.NotImplemented;
+import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.event.EventAttrImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
@@ -44,9 +46,6 @@ public class CacheEvent implements EventAccessOperations {
             throw new IllegalArgumentException("EventAccess cannot be null");
         }
         this.event = event;
-        this.attr = null;
-        this.origins = null;
-        this.preferred = null;
     }
 
     public EventAccessOperations getEventAccess() { return event; }
@@ -158,28 +157,30 @@ public class CacheEvent implements EventAccessOperations {
     }
 
     public boolean equals(Object o){
-        if (getEventAccess() != null && o instanceof CacheEvent &&
-                ((CacheEvent)o).getEventAccess() != null) {
+        if(o == this){ return true; }
+        else if (getEventAccess() != null &&
+                 o instanceof CacheEvent &&
+                     ((CacheEvent)o).getEventAccess() != null) {
             return getEventAccess().equals(((CacheEvent)o).getEventAccess());
+        }else if(o instanceof EventAccessOperations){
+            EventAccessOperations oEvent = (EventAccessOperations)o;
+            if(get_attributes().equals(oEvent.get_attributes())){
+                Origin thisOrigin = getOrigin();
+                if(thisOrigin == null && thisOrigin == getOrigin(oEvent)){
+                    return true;
+                }else if(thisOrigin.equals(getOrigin(oEvent))){
+                    return true;
+                }
+            }
         }
-
-        // must be local only event (ie no corba)
-        if(o == this) return true;
-        if(!(o instanceof EventAccessOperations)) return false;
-        EventAccessOperations oEvent = (EventAccessOperations)o;
-        if(!equalAttr(oEvent)){
-            return false;
-        }else if(!equalOrigin(oEvent)){
-            return false;
-        }
-        return true;
+        return false;
     }
 
     public int hashCode(){
         if(!hashSet){
             int result = 52;
-            result = 48*result + hashOrigins();
-            //result = 48*result + event.get_attributes().hashCode();
+            result = 48*result + getOrigin().hashCode();
+            result = 48*result + get_attributes().hashCode();
             hashValue = result;
             hashSet = true;
         }
@@ -189,93 +190,17 @@ public class CacheEvent implements EventAccessOperations {
     private boolean hashSet = false;
     private int hashValue;
 
-    private int hashAttr(){
-        EventAttr attr = event.get_attributes();
-        int result = 87;
-        result = result*34 + attr.name.hashCode();
-        result = result*34 + attr.region.number;
-        return result;
-    }
+    private Origin getOrigin(){ return getOrigin(this); }
 
-    private int hashOrigins(){
-        int result = 29;
-        Origin o = getOrigin();
-        result = 89* result + hashLocation(o.my_location);
-        result = 89*result + new MicroSecondDate(o.origin_time).hashCode();
-        result = 89*result + o.contributor.hashCode();
-        result = 89*result + o.catalog.hashCode();
-        return result;
-    }
-
-    private int hashLocation(Location l){
-        int result = 47;
-        result = 38*result + l.depth.hashCode();
-        result = 38*result + l.elevation.hashCode();
-        result = 38*result + (int)l.latitude;
-        result = 38*result + (int)l.longitude;
-        return result;
-    }
-
-    private boolean equalOrigin(EventAccessOperations oEvent) {
-        Origin oOrigin = null;
-        Origin thisOrigin = getOrigin();
+    private static Origin getOrigin(EventAccessOperations ev){
+        Origin o = null;
         try{
-            oOrigin = oEvent.get_preferred_origin();
+            o = ev.get_preferred_origin();
         }catch(NoPreferredOrigin e){
-            Origin[] oArray = oEvent.get_origins();
-            if (oArray.length> 0) {
-                oOrigin = oArray[0];
-            }
+            Origin[] oArray = ev.get_origins();
+            if (oArray.length> 0) {  o = oArray[0]; }
         }
-        if(!equals(oOrigin.my_location, thisOrigin.my_location)||
-           !oOrigin.catalog.equals(thisOrigin.catalog) ||
-           !oOrigin.contributor.equals(thisOrigin.contributor) ||
-           !equals(oOrigin.origin_time, thisOrigin.origin_time)){
-            return false;
-        }
-        return true;
-    }
-
-    private Origin getOrigin(){
-        Origin thisOrigin = null;
-        try{
-            thisOrigin = get_preferred_origin();
-        }catch(NoPreferredOrigin e){
-            Origin[] oArray = get_origins();
-            if (oArray.length> 0) {
-                thisOrigin = oArray[0];
-            }
-        }
-        return thisOrigin;
-    }
-
-    private static boolean equals(Time one, Time two) {
-        MicroSecondDate msdOne = new MicroSecondDate(one);
-        MicroSecondDate msdTwo = new MicroSecondDate(two);
-        return msdOne.equals(msdTwo);
-    }
-
-    private static boolean equals(Location one, Location two){
-        if(one.depth.equals(two.depth) && one.elevation.equals(two.elevation) &&
-           one.latitude == two.latitude && one.longitude == two.longitude){
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean equals(FlinnEngdahlRegion one, FlinnEngdahlRegion two) {
-        if(one.number == two.number) return true;
-        return false;
-    }
-
-    private boolean equalAttr(EventAccessOperations event) {
-        EventAttr oAttr = event.get_attributes();
-        EventAttr thisAttr = get_attributes();
-        if(!oAttr.name.equals(thisAttr.name)  ||
-           !equals(oAttr.region, thisAttr.region)){
-            return false;
-        }
-        return true;
+        return o;
     }
 
     public String toString(){ return getEventInfo(this); }
