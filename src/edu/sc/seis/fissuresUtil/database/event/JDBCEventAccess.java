@@ -15,7 +15,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JDBCEventAccess extends EventTable{
     public JDBCEventAccess(Connection conn) throws SQLException{
@@ -47,6 +50,8 @@ public class JDBCEventAccess extends EventTable{
     }
 
     public CacheEvent getEvent(int dbid) throws SQLException, NotFound{
+        CacheEvent ev = (CacheEvent)idsToEvents.get(new Integer(dbid));
+        if(ev != null){ return ev; }
         getAttrAndOrigin.setInt(1, dbid);
         ResultSet rs = getAttrAndOrigin.executeQuery();
         rs.next();
@@ -57,7 +62,9 @@ public class JDBCEventAccess extends EventTable{
         Origin preferredOrigin = origins.get(rs.getInt("origin_id"));
         Origin[] allOrigins = origins.getOrigins(dbid);
         EventAttr attr = attrs.get(rs.getInt("eventattr_id"));
-        return new CacheEvent(attr, allOrigins, preferredOrigin);
+        CacheEvent ev = new CacheEvent(attr, allOrigins, preferredOrigin);
+        idsToEvents.put(new Integer(dbid), ev);
+        return ev;
     }
 
     public CacheEvent[] getAllEvents() throws SQLException,SQLException{
@@ -65,7 +72,10 @@ public class JDBCEventAccess extends EventTable{
         ResultSet rs = getEventIds.executeQuery();
         while(rs.next()){
             try {
-                events.add(getEvent(rs, rs.getInt("event_id")));
+                int id = rs.getInt("event_id");
+                CacheEvent ev = (CacheEvent)idsToEvents.get(new Integer(id));
+                if(ev != null){ events.add(ev); }
+                else{ events.add(getEvent(rs, id));}
             } catch (NotFound e) {
                 throw new RuntimeException("This shouldn't happen.  I just got that id", e);
             }
@@ -110,6 +120,7 @@ public class JDBCEventAccess extends EventTable{
      */
     public int put(EventAccessOperations eao, String IOR,
                    String server, String dns) throws SQLException{
+        if(!(eao instanceof CacheEvent)){ eao = new CacheEvent(eao); }
         try {
             return getDBId(eao);
         } catch (NotFound e) {
@@ -133,11 +144,16 @@ public class JDBCEventAccess extends EventTable{
             put.setString(5, server);
             put.setString(6, dns);
             put.executeUpdate();
+            eventsToIds.put(eao, new Integer(id));
+            idsToEvents.put(new Integer(id), eao);
             return id;
         }
     }
 
     public int getDBId(EventAccessOperations eao) throws SQLException, NotFound{
+        if(!(eao instanceof CacheEvent)){ eao = new CacheEvent(eao); }
+        Integer id = (Integer)eventsToIds.get(eao);
+       if(id != null){ return id.intValue(); }
         getDBIdStmt.setInt(1, attrs.getDBId(eao.get_attributes()));
         try {
             getDBIdStmt.setInt(2, origins.getDBId(eao.get_preferred_origin()));
@@ -145,7 +161,11 @@ public class JDBCEventAccess extends EventTable{
             throw new IllegalArgumentException("The event access passed into getDBId must have a preferred origin");
         }
         ResultSet rs = getDBIdStmt.executeQuery();
-        if(rs.next())return rs.getInt("event_id");
+        if(rs.next()){
+            int dbid = rs.getInt("event_id");
+            eventsToIds.put(eao, new Integer(dbid));
+            return dbid;
+        }
         throw new NotFound("The event wasn't found in the db!");
     }
 
@@ -154,6 +174,10 @@ public class JDBCEventAccess extends EventTable{
     private JDBCEventAttr attrs;
 
     private JDBCSequence seq;
+
+    private static Map idsToEvents = Collections.synchronizedMap(new HashMap());
+
+    private static Map eventsToIds = Collections.synchronizedMap(new HashMap());
 
     private PreparedStatement put, getDBIdStmt, getCorbaStrings, getAttrAndOrigin,
         getEventIds;
