@@ -18,7 +18,7 @@ public class JDBCSiteTest extends TestCase{
         Site site = MockSite.createSite();
         int dbidA = siteTable.put(site);
         int dbidB = siteTable.put(site);
-        int gottenId = siteTable.getDBId(site.get_id(), site.my_station.get_id());
+        int gottenId = siteTable.getDBId(site.get_id(), site.my_station);
         assertEquals(dbidA, dbidB);
         assertEquals(dbidB, gottenId);
     }
