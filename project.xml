@@ -249,7 +249,7 @@
     <build>
         <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>
         <sourceDirectory>src</sourceDirectory>
-        <unitTestSourceDirectory>tests/database</unitTestSourceDirectory>
+        <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
         <unitTest>
             <includes>
                 <include>edu/**/*Test.java</include>
