@@ -69,8 +69,14 @@ public interface TimeRangeConfig {
     public void setBeginTime(MicroSecondDate b);
 
     public void setBeginTime(DataSetSeismogram seis, MicroSecondDate b);
+
+    public void set(MicroSecondDate b, TimeInterval t);
     
     public void setAllBeginTime(MicroSecondDate b);
+
+    public TimeFinder getTimeFinder();
+
+    public void setTimeFinder(TimeFinder tf);
 
     public TimeSnapshot takeSnapshot();
 }// TimeRangeConfig

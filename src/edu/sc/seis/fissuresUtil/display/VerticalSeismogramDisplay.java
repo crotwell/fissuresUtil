@@ -66,7 +66,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(sorter.contains(name)){
 	    return null;
 	}
-	BasicSeismogramDisplay disp = new BasicSeismogramDisplay(dss, tr, ar, name, this);
+	BasicSeismogramDisplay disp = new BasicSeismogramDisplay(dss, (TimeRangeConfig)tr, ar, name, this);
 	int i = sorter.sort(dss, name);
 	seismograms.add(disp, i);
 	disp.addMouseMotionListener(motionForwarder);
@@ -363,11 +363,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
-	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange(first)));
+	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig());
+	    ar.visibleAmpCalc(tr);
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    creator.addDisplay(selectionDisplay.addDisplay(first, tr, ar, 
 							   creator.getParent().getName() + "." + creator.getColor()));
-	    ar.visibleAmpCalc(tr);
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
 	    }

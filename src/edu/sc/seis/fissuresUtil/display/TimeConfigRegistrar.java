@@ -18,13 +18,14 @@ import org.apache.log4j.*;
  */
 
 public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
-    public TimeConfigRegistrar(){
-	this.timeConfig = new BoundedTimeConfig(this);
+    public TimeConfigRegistrar(){ 
+	this(new BoundedTimeConfig()); 
     }
 
     public TimeConfigRegistrar(TimeRangeConfig timeConfig){
 	this.timeConfig = timeConfig;
 	timeConfig.addTimeSyncListener(this);
+	timeFinder = timeConfig.getTimeFinder();
     }
     
     public void setTimeConfig(TimeRangeConfig newTimeConfig){ 
@@ -38,6 +39,7 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	}
 	timeConfig = newTimeConfig;
 	timeConfig.addTimeSyncListener(this);
+	timeFinder = timeConfig.getTimeFinder();
     }
 
     /**
@@ -122,18 +124,22 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	}
     }
 
-    public void fireTimeRangeEvent(TimeSyncEvent event){ 
-	logger.debug("firing time event");
-	timeConfig.fireTimeRangeEvent(event); 
-    }
+    public void set(MicroSecondDate begin, TimeInterval displayInterval){ timeConfig.set(begin, displayInterval); }
+    
 
-    protected TimeFinder timeFinder = new EdgeTimeFinder();
+    public void fireTimeRangeEvent(TimeSyncEvent event){ timeConfig.fireTimeRangeEvent(event);  }
 
+    public TimeFinder getTimeFinder(){ return timeFinder; }
+
+    public void setTimeFinder(TimeFinder tf){ timeFinder = tf; }
+ 
     protected HashMap seismos = new HashMap();
 
     protected TimeRangeConfig timeConfig;
 
     protected LinkedList timeListeners = new LinkedList();
+
+    protected TimeFinder timeFinder;
 
     protected Category logger = Category.getInstance(TimeConfigRegistrar.class.getName());
 }// TimeConfigRegistrar

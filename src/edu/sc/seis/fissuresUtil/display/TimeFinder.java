@@ -12,7 +12,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
  * @version 0.1
  */
 
-public interface TimeFinder {
+public interface TimeFinder extends TimeSyncListener{
     
     public MicroSecondDate getBeginTime(DataSetSeismogram seismo);
 
