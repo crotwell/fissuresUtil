@@ -124,7 +124,6 @@ public class LongShortStoN {
             }
             ratio = sta/lta ;
 
-                if (ratio > 2.8) System.out.println("lta = "+lta+" sta="+sta+" ratio="+ratio);
             if (ratio >= threshold) {
                 LongShortTrigger trigger = new LongShortTrigger(seis,
                                                                 i,
