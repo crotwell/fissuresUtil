@@ -60,6 +60,10 @@ public  class PlottableDisplay extends JComponent {
         repaint();
     }
 
+    public EventAccessOperations getEvent(){
+        return eventAccess[0];
+    }
+
     public void setAmpScale(float ampScalePercent) {
         if (this.ampScalePercent != ampScalePercent) {
             this.ampScalePercent = ampScalePercent;
@@ -168,13 +172,7 @@ public  class PlottableDisplay extends JComponent {
         Iterator it = eventPlotterList.iterator();
         while(it.hasNext()){
             EventFlag cur = (EventFlag)it.next();
-            JButton curButton = cur.getButton();
-            drawTitle(titleYPos, LABEL_X_SHIFT + curButton.getPreferredSize().width, "Event: ", cur.getName(), g2, cur.getColor());
-            curButton.setBounds(LABEL_X_SHIFT,
-                                titleYPos - curButton.getPreferredSize().height/2,
-                                curButton.getPreferredSize().width,
-                                curButton.getPreferredSize().height);
-            titleYPos += cur.getButton().getHeight();
+            drawTitle(titleYPos, LABEL_X_SHIFT, "Event: ", cur.getName(), g2, cur.getColor());
         }
         String myt = "Time";
         String mygmt = "GMT";
@@ -393,11 +391,16 @@ public  class PlottableDisplay extends JComponent {
         selection.draw(g);
     }
 
+    public void removeSelection(){
+        selection = new PlottableSelection(this);
+        repaint();
+    }
+
     private void drawEventFlags(Graphics g) {
         Iterator iterator = eventPlotterList.iterator();
         while(iterator.hasNext()) {
             EventFlag plotter = (EventFlag) iterator.next();
-            plotter.draw((Graphics2D)g, null, null, null);
+            plotter.drawEvents(g);
         }
     }
 
