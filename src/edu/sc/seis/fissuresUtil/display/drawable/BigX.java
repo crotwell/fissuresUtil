@@ -18,7 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
-public abstract class BigX extends MouseAdapter implements Plotter, MouseMotionListener {
+public abstract class BigX extends MouseAdapter implements Drawable, MouseMotionListener {
     public BigX(SeismogramDisplay display){
         this.display = display;
         SeismogramDisplay.getMouseForwarder().addPermMouseListener(this);

@@ -29,7 +29,7 @@ import javax.swing.Timer;
 
 
 
-public class SoundPlay extends MouseAdapter implements Plotter, MouseMotionListener,
+public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionListener,
     PlayEventListener{
 
     private Color drawColor = Color.BLACK;

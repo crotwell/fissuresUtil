@@ -29,7 +29,7 @@ import org.apache.log4j.Category;
  * @version
  */
 
-public class Selection implements TimeListener, Plotter{
+public class Selection implements TimeListener, Drawable{
     public Selection (MicroSecondTimeRange range, SeismogramDisplay parent, Color color){
         seismos = parent.getSeismograms();
         this.parent = parent;
