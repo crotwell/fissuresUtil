@@ -44,11 +44,15 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     }
 
     public void paint(java.awt.Graphics g) {
-        omgraphics.render(g);
+        synchronized(omgraphics){
+            omgraphics.render(g);
+        }
     }
 
     public void projectionChanged(ProjectionEvent e) {
-        LayerProjectionUpdater.update(e, omgraphics, this);
+        synchronized(omgraphics){
+            LayerProjectionUpdater.update(e, omgraphics, this);
+        }
     }
 
     /*This adds each of these stations to the layer
@@ -72,31 +76,35 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     }
 
     public void stationDataCleared() {
-        stationMap.clear();
-        omgraphics.clear();
-        repaint();
+        synchronized(omgraphics){
+            stationMap.clear();
+            omgraphics.clear();
+            repaint();
+        }
     }
 
     /*takes all of the selected stations in this list, and if they're in the
      *StationLayer changes their line color to RED.
      */
     public void stationSelectionChanged(StationSelectionEvent s) {
-        Station[] stations = s.getSelectedStations();
-        Iterator it = omgraphics.iterator();
-        while(it.hasNext()){
-            OMStation current = (OMStation)it.next();
-            boolean selected = false;
-            for (int i = 0; i < stations.length && !selected; i++){
-                if(current.getStation().equals(stations[i])){
-                    current.select();
-                    selected = true;
+        synchronized(omgraphics){
+            Station[] stations = s.getSelectedStations();
+            Iterator it = omgraphics.iterator();
+            while(it.hasNext()){
+                OMStation current = (OMStation)it.next();
+                boolean selected = false;
+                for (int i = 0; i < stations.length && !selected; i++){
+                    if(current.getStation().equals(stations[i])){
+                        current.select();
+                        selected = true;
+                    }
+                }
+                if(!selected){
+                    current.deselect();
                 }
             }
-            if(!selected){
-                current.deselect();
-            }
+            repaint();
         }
-        repaint();
     }
 
 
@@ -110,15 +118,17 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         Station station = e.getStation();
         boolean isUp = e.stationIsUp();
 
-        Iterator it = omgraphics.iterator();
-        boolean found = false;
-        while (it.hasNext() && !found){
-            OMStation current = (OMStation)it.next();
-            if (current.getStation() == station){
-                current.setIsUp(isUp);
+        synchronized(omgraphics){
+            Iterator it = omgraphics.iterator();
+            boolean found = false;
+            while (it.hasNext() && !found){
+                OMStation current = (OMStation)it.next();
+                if (current.getStation() == station){
+                    current.setIsUp(isUp);
+                }
             }
+            repaint();
         }
-        repaint();
     }
 
 
@@ -252,51 +262,53 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
             currentPopup = null;
         }
 
-        Iterator it = omgraphics.iterator();
-        List stationsUnderMouse = new ArrayList();
-        while(it.hasNext()){
-            OMStation current = (OMStation)it.next();
-            if(current.contains(e.getX(), e.getY())){
-                stationsUnderMouse.add(current.getStation());
-            }
-        }
-        if (stationsUnderMouse.size() > 0){
-            if (stationsUnderMouse.size() == 1){
-                chooser.toggleStationSelected((Station)stationsUnderMouse.get(0));
-            }
-            else{
-                final JPopupMenu popup = new JPopupMenu();
-                it = stationsUnderMouse.iterator();
-                while (it.hasNext()){
-                    final Station current = (Station)it.next();
-                    final JMenuItem menuItem = new JMenuItem(getStationInfo(current, currentEvent));
-                    menuItem.addActionListener(new ActionListener(){
-                                public void actionPerformed(ActionEvent e) {
-                                    chooser.toggleStationSelected(current);
-                                    popup.setVisible(false);
-                                }
-                            });
-
-                    menuItem.addMouseListener(new MouseAdapter(){
-
-                                public void mouseEntered(MouseEvent e) {
-                                    menuItem.setArmed(true);
-                                }
-
-                                public void mouseExited(MouseEvent e) {
-                                    menuItem.setArmed(false);
-                                }
-
-                            });
-                    popup.add(menuItem);
+        synchronized(omgraphics){
+            Iterator it = omgraphics.iterator();
+            List stationsUnderMouse = new ArrayList();
+            while(it.hasNext()){
+                OMStation current = (OMStation)it.next();
+                if(current.contains(e.getX(), e.getY())){
+                    stationsUnderMouse.add(current.getStation());
                 }
-                Point compLocation = e.getComponent().getLocationOnScreen();
-                double[] popupLoc = {compLocation.getX(), compLocation.getY()};
-                popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
-                popup.setVisible(true);
-                currentPopup = popup;
             }
-            return true;
+            if (stationsUnderMouse.size() > 0){
+                if (stationsUnderMouse.size() == 1){
+                    chooser.toggleStationSelected((Station)stationsUnderMouse.get(0));
+                }
+                else{
+                    final JPopupMenu popup = new JPopupMenu();
+                    it = stationsUnderMouse.iterator();
+                    while (it.hasNext()){
+                        final Station current = (Station)it.next();
+                        final JMenuItem menuItem = new JMenuItem(getStationInfo(current, currentEvent));
+                        menuItem.addActionListener(new ActionListener(){
+                                    public void actionPerformed(ActionEvent e) {
+                                        chooser.toggleStationSelected(current);
+                                        popup.setVisible(false);
+                                    }
+                                });
+
+                        menuItem.addMouseListener(new MouseAdapter(){
+
+                                    public void mouseEntered(MouseEvent e) {
+                                        menuItem.setArmed(true);
+                                    }
+
+                                    public void mouseExited(MouseEvent e) {
+                                        menuItem.setArmed(false);
+                                    }
+
+                                });
+                        popup.add(menuItem);
+                    }
+                    Point compLocation = e.getComponent().getLocationOnScreen();
+                    double[] popupLoc = {compLocation.getX(), compLocation.getY()};
+                    popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
+                    popup.setVisible(true);
+                    currentPopup = popup;
+                }
+                return true;
+            }
         }
 
         return false;
