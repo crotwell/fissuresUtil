@@ -305,7 +305,7 @@ public abstract class DataSetSeismogram
         fireDataFinishedEvent(event);
     }
 
-    public void error(SeisDataChangeListener initiator, Exception e) {
+    public void error(SeisDataChangeListener initiator, Throwable e) {
         SeisDataErrorEvent event = new SeisDataErrorEvent(e,
                                                           this,
                                                           initiator);
