@@ -166,6 +166,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.removeAll();
 	remove(seismograms);
 	basicDisplays.clear();
+
 	sorter = new SeismogramSorter();
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
@@ -178,7 +179,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    selectionDisplay = null;
 	}
 	if(threeSelectionDisplay != null){
-	    threeSelectionDisplay.removeAll();
+	     threeSelectionDisplay.removeAll();
 	    threeSelectionWindow.dispose();
 	    //selectionDisplays -= threeSelectionWindow.getSize().height;
 	    selectionDisplay = null;
