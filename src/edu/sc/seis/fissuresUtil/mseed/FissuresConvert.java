@@ -28,8 +28,7 @@ public class FissuresConvert  {
     }
 
     public DataRecord[] toMSeed(LocalSeismogram seis)
-        throws SeedFormatException
-    {
+        throws SeedFormatException {
         return toMSeed(seis, 1);
     }
 
@@ -56,6 +55,7 @@ public class FissuresConvert  {
                         ((SamplingImpl)seis.sampling_info).getPeriod();
                     header.setStartTime(start);
                     header.setNumSamples((short)eData[i].num_points);
+                    start = start.add((TimeInterval)sampPeriod.multiplyBy(eData[i].num_points));
 
                     // >0 so samples/second
                     // mul by 500 to preserve more digits, 20 sps => 10000
@@ -143,7 +143,7 @@ public class FissuresConvert  {
             } else {
                 timeInterval =
                     (TimeInterval)timeInterval.multiplyBy(-1 *
-                                                          header.getSampleRateMultiplier());
+                                                              header.getSampleRateMultiplier());
             }
         } else {
             numPerSampling = 1;
@@ -155,7 +155,7 @@ public class FissuresConvert  {
             } else {
                 timeInterval =
                     (TimeInterval)timeInterval.multiplyBy(-1 *
-                                                          header.getSampleRateMultiplier());
+                                                              header.getSampleRateMultiplier());
             }
         }
 
@@ -184,8 +184,8 @@ public class FissuresConvert  {
             throw new SeedFormatException("No blockette 1000s in the volume.");
         } else if (allBs.length > 1) {
             throw new SeedFormatException(
-                                          "Multiple blockette 1000s in the volume. "+
-                                          allBs.length);
+                "Multiple blockette 1000s in the volume. "+
+                    allBs.length);
         }
         Blockette1000 b1000 = (Blockette1000)allBs[0];
 
