@@ -163,6 +163,6 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 
     protected HashMap seismos = new HashMap();
     
-    protected LinkedList timeListeners = new LinkedList();
+    protected Set timeListeners = new HashSet();
 
 }// AbstractTimeRangeConfig
