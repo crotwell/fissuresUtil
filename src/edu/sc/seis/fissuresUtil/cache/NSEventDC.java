@@ -61,7 +61,7 @@ public class NSEventDC implements EventDCOperations {
     public EventChannelFinder a_channel_finder() {
         try {
             return getEventDC().a_channel_finder();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // retry in case regetting from name service helps
             logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
             eventDC = null;
@@ -72,7 +72,7 @@ public class NSEventDC implements EventDCOperations {
     public EventFinder a_finder() {
         try {
             return getEventDC().a_finder();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // retry in case regetting from name service helps
             logger.warn("Exception in a_finder(), regetting from nameservice to try again.", e);
             eventDC = null;

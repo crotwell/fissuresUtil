@@ -12,7 +12,7 @@ import org.apache.log4j.*;
  * protocol is known, ie  URLConnection can be gotten from Java.
  *
  * @author Philip Crotwell
- * @version $Id: SimpleXLink.java 5618 2003-09-11 19:38:33Z crotwell $
+ * @version $Id: SimpleXLink.java 6861 2004-01-21 21:52:30Z crotwell $
 */
 public class SimpleXLink {
 
@@ -103,7 +103,6 @@ public class SimpleXLink {
     }
 
     public static void main (String[] args) throws Exception {
-    try {
         //System.out.println("Starting..");
         DocumentBuilderFactory factory
         = DocumentBuilderFactory.newInstance();
@@ -132,9 +131,6 @@ public class SimpleXLink {
 
     } // end of for (int i=0; i<nList.getLength(); i++)
     }
-    } catch (Exception e) {
-        e.printStackTrace();
-    } // end of try-catch
 
     } // end of main ()
 

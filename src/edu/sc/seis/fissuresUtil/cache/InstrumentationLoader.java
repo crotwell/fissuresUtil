@@ -47,7 +47,7 @@ public class InstrumentationLoader extends Thread
                 if (nextWork.numTries < 10) {
                     addToQueue(nextWork);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 GlobalExceptionHandler.handle("A problem occured loading the instrumentation for channel "+
                                 ChannelIdUtil.toString(nextWork.seis.getRequestFilter().channel_id),
                             e);

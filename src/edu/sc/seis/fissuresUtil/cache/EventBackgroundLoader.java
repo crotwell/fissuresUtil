@@ -26,7 +26,7 @@ public class EventBackgroundLoader {
             public void run() {
                 try {
                     runWork();
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     GlobalExceptionHandler.handle(e);
                 }
             }

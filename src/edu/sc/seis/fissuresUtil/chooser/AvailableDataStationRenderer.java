@@ -256,7 +256,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                         StationIdUtil.toString(station.get_id()));
     }
 
-    protected synchronized void finishedError(Station station, Exception e) {
+    protected synchronized void finishedError(Station station, Throwable e) {
         stationsUpNow.remove(station);
         stationsToCheck.remove(station);
         logger.error("Problem doing available data for "+
@@ -423,7 +423,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                     } else {
                         finishedError(station);
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     logger.warn("Trouble checkng on the available data for "+
                                     StationIdUtil.toString(station.get_id()), e);
                     finishedError(station, e);
