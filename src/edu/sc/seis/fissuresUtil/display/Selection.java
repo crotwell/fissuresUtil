@@ -5,6 +5,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
@@ -18,19 +19,22 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * @version
  */
 
-public class Selection {
-    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeRangeConfig tr, HashMap plotters){
+public class Selection implements TimeSyncListener{
+    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeRangeConfig tr, HashMap plotters, BasicSeismogramDisplay parent){
 	this.begin = begin;
 	this.end = end;
 	this.timeConfig = tr;
 	this.plotters = plotters;
+	this.parent = parent;
 	internalTimeConfig = new BoundedTimeConfig();
 	Iterator e = plotters.keySet().iterator();
 	while(e.hasNext()){
-	    added = ((SeismogramPlotter)e.next()).getSeismogram();
-	    internalTimeConfig.addSeismogram(added, begin);
+	    Plotter current = ((Plotter)e.next());
+	    if(current instanceof SeismogramPlotter)
+		internalTimeConfig.addSeismogram(((SeismogramPlotter)current).getSeismogram(), begin);
 	}
 	internalTimeConfig.setDisplayInterval(begin.difference(end));
+	internalTimeConfig.addTimeSyncListener(this);
     }
 
     public boolean isVisible(){
@@ -65,8 +69,8 @@ public class Selection {
 	
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
 	double timeWidth = timeConfig.getTimeRange().getInterval().getValue();
-	if(Math.abs(end.getMicroSecondTime() - selectionBegin.getMicroSecondTime())/timeWidth <.03 ||
-	   Math.abs(begin.getMicroSecondTime() - selectionEnd.getMicroSecondTime())/timeWidth < .03)
+	if(Math.abs(end.getMicroSecondTime() - selectionBegin.getMicroSecondTime())/timeWidth <.02 ||
+	   Math.abs(begin.getMicroSecondTime() - selectionEnd.getMicroSecondTime())/timeWidth < .02)
 	    return true;
 	return false;
     }
@@ -95,18 +99,32 @@ public class Selection {
 	this.end = newEnd; 
     }
 
-    public LocalSeismogramImpl getSeismogram(){ 
+    public LinkedList getSeismograms(){ 
+	LinkedList seismos = new LinkedList();
 	Iterator e = plotters.keySet().iterator();
-	return ((LocalSeismogramImpl)((SeismogramPlotter)e.next()).getSeismogram());
+	while(e.hasNext()){
+	    Plotter current = ((Plotter)e.next());
+	    if(current instanceof SeismogramPlotter){
+		seismos.add(((SeismogramPlotter)current).getSeismogram());
+	    }
+	}
+	return seismos;
     }
 
     public TimeRangeConfig getInternalConfig(){ return internalTimeConfig; }
+
+    public void updateTimeRange(){
+	MicroSecondDate newBeginTime = internalTimeConfig.getTimeRange().getBeginTime();
+	begin = newBeginTime;
+	end = newBeginTime.add(internalTimeConfig.getTimeRange().getInterval());
+	parent.repaint();
+    }
+
+    protected BasicSeismogramDisplay parent;
 
     protected MicroSecondDate begin, end;
 
     protected TimeRangeConfig timeConfig, internalTimeConfig;
 
     protected HashMap plotters;
-    
-    LocalSeismogram added;
 }// Selection

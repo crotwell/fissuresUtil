@@ -69,7 +69,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    scaleBorder.setBottomScaleMapper(timeScaleMap);
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
 	setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
-											new LeftTitleBorder(name)),
+											new LeftTitleBorder("")),
 						     BorderFactory.createCompoundBorder(scaleBorder,
 											BorderFactory.createLoweredBevelBorder())));
 	Dimension d = getSize();
@@ -217,7 +217,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 								    current.getMicroSecondTime()));
 	MicroSecondDate selectionEnd = new MicroSecondDate((long)(imagePainter.displayInterval.getValue() * x2percent + 
 								  current.getMicroSecondTime()));
-	if(currentSelection == null || !selections.contains(currentSelection)){
+	if(currentSelection == null){
 	    Iterator e = selections.iterator();
 	    while(e.hasNext()){
 		Selection curr = ((Selection)e.next());
@@ -227,7 +227,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		    return;
 		}
 	    }
-	    currentSelection = new Selection(selectionBegin, selectionEnd, timeConfig, plotters);
+	    currentSelection = new Selection(selectionBegin, selectionEnd, timeConfig, plotters, this);
 	    selections.add(currentSelection);
 	    repaint();
 	    return;
@@ -244,6 +244,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    currentSelection = null;
 	    return previousSelection;
 	}
+	currentSelection = null;
 	return null;
     }
 
@@ -337,7 +338,11 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		    } 
 		    i++;
 		}
-	    }	
+	    }
+	    if(name != null){
+		g2.setPaint(new Color(0, 0, 0, 64));
+		g2.drawString(name, 5, 10);
+	    }
 	}
 	
 	public synchronized void createImage(){
