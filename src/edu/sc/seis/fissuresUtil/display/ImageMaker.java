@@ -49,7 +49,6 @@ public class ImageMaker implements Runnable  {
 	int numLeft;
 	Graphics2D graphic;
 	Image currentImage = null;
-	BufferedImage buffCurrentImage = null;
 	Dimension size; 
 	HashMap plotters;
 	numLeft = requests.size();
@@ -62,13 +61,8 @@ public class ImageMaker implements Runnable  {
 		size = currentRequirements.getSize();
 		plotters = ((HashMap)currentRequirements.getPlotters().clone());
 	    	if(requests.contains(currentPatron) && size.width > 0){
-		    if(bufferedImage){
-			buffCurrentImage = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_BGR);
-			graphic = buffCurrentImage.createGraphics();
-		    }else{
-			currentImage = currentPatron.createImage(size.width, size.height);
-			graphic = (Graphics2D)currentImage.getGraphics();
-		    }
+		    currentImage = currentPatron.createImage(size.width, size.height);
+		    graphic = (Graphics2D)currentImage.getGraphics();
 		}
 		else{
 		    numLeft = requests.size();
@@ -78,10 +72,8 @@ public class ImageMaker implements Runnable  {
 	    Iterator e = plotters.keySet().iterator();
 	    LinkedList afterSeismograms = new LinkedList();
 	    LinkedList flags = new LinkedList();
-	    if(bufferedImage){
-		graphic.setColor(Color.white);
-		graphic.fill(new Rectangle(0, 0, size.width, size.height));
-	    }
+	    graphic.setColor(Color.white);
+	    graphic.fill(new Rectangle(0, 0, size.width, size.height));
 	    Date beginPlotting = new Date();
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
@@ -110,27 +102,23 @@ public class ImageMaker implements Runnable  {
 	    }
 	    Date endPlotting = new Date();
 	    long interval = (endPlotting.getTime() - beginPlotting.getTime());
-	    logger.debug("plotting: " + interval + "ms");
+	    //logger.debug("plotting: " + interval + "ms");
 	    plottingTotals += interval;
 	    synchronized(this){
 		if(currentRequirements.getDisplayInterval().getValue() == 
 		   currentPatron.getTimeConfig().getTimeRange().getInterval().getValue() &&
 		   requests.contains(currentPatron)){
 		    requests.removeFirst();
-		    if(bufferedImage)
-			currentPatron.setImage(buffCurrentImage);
-		    else
-			currentPatron.setImage(currentImage);
+		    currentPatron.setImage(currentImage);
 		}
 		numLeft = requests.size();
 	    }
 	    end = new Date();
 	    interval = end.getTime() - begin.getTime();
-	    logger.debug("image creation: " + interval + "ms");
+	    //logger.debug("image creation: " + interval + "ms");
 	    imageTotals += interval;
 	}
-	//logger.debug("image creation thread is finished");
-	logger.debug("image total " + imageTotals + " plot total " + plottingTotals);
+	logger.debug("image creation thread is finished. image total " + imageTotals + " plot total " + plottingTotals);
     }
 
     public synchronized void remove(BasicSeismogramDisplay.ImagePainter imagePainter){
@@ -149,15 +137,4 @@ public class ImageMaker implements Runnable  {
     protected HashMap patrons = new HashMap();
 
     protected Category logger = Category.getInstance(ImageMaker.class.getName());
-
-    public static long getImageSize(BufferedImage image){
-	if(image == null)
-	    return 7l;
-	DataBuffer db = image.getRaster().getDataBuffer();
-	int dataType = db.getDataType();
-	int elementSizeInBits = DataBuffer.getDataTypeSize(dataType);
-	return db.getNumBanks() * db.getSize() * elementSizeInBits / 8;
-    }
-
-    protected static boolean bufferedImage = false;
 }// ImageMaker

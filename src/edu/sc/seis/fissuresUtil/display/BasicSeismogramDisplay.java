@@ -32,69 +32,41 @@ import java.awt.print.*;
  */
 
 public class BasicSeismogramDisplay extends JComponent implements SeismogramDisplay, GlobalToolbarActions{
-    
-    /**
-     * Creates a new <code>BasicSeismogramDisplay</code> instance.
-     *
-     * @param seis a <code>LocalSeismogram</code> value
-     * @param timeBorder a <code>boolean</code> value
-     */
-    public BasicSeismogramDisplay(LocalSeismogram seis){
-	this(seis, new TimeConfigRegistrar(), new AmpConfigRegistrar());
-    }
-   
-    /**
-     * Creates a new <code>BasicSeismogramDisplay</code> instance.
-     *
-     * @param seis a <code>LocalSeismogram</code> value
-     * @param tr a <code>TimeConfigRegistrar</code> value
-     * @param timeBorder a <code>boolean</code> value
-     */
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr){
-	this(seis, tr, new AmpConfigRegistrar());
+ 
+    public BasicSeismogramDisplay(LocalSeismogram seis, String name, VerticalSeismogramDisplay parent){
+	timeRegistrar = new TimeConfigRegistrar();
+	ampRegistrar = new AmpConfigRegistrar();
+	initializeDisplay(seis, name, parent);
     }
     
-    /**
-     * Creates a new <code>BasicSeismogramDisplay</code> instance.
-     *
-     * @param seis a <code>LocalSeismogram</code> value
-     * @param ar an <code>AmpConfigRegistrar</code> value
-     * @param timeBorder a <code>boolean</code> value
-     */
-    public BasicSeismogramDisplay(LocalSeismogram seis, AmpConfigRegistrar ar){
-	this(seis, new TimeConfigRegistrar(), ar);
+    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, String name, VerticalSeismogramDisplay parent){
+	timeRegistrar = new TimeConfigRegistrar(tr);
+	ampRegistrar = new AmpConfigRegistrar();
+	initializeDisplay(seis, name, parent);
     }
-
-    /**
-     * Creates a new <code>BasicSeismogramDisplay</code> instance.
-     *
-     * @param seis a <code>LocalSeismogram</code> value
-     * @param tr a <code>TimeConfigRegistrar</code> value
-     * @param ar an <code>AmpConfigRegistrar</code> value
-     * @param timeBorder a <code>boolean</code> value
-     */
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar){
-	this(seis, tr, ar, "");
+    
+    public BasicSeismogramDisplay(LocalSeismogram seis, AmpConfigRegistrar ar, String name, VerticalSeismogramDisplay parent){
+	timeRegistrar = new TimeConfigRegistrar();
+	ampRegistrar = new AmpConfigRegistrar(ar);
+	initializeDisplay(seis, name, parent);
     }
-
-    /**
-     * Creates a new <code>BasicSeismogramDisplay</code> instance.
-     *
-     * @param seis a <code>LocalSeismogram</code> value
-     * @param tr a <code>TimeConfigRegistrar</code> value
-     * @param ar an <code>AmpConfigRegistrar</code> value
-     * @param timeBorder a <code>boolean</code> value
-     * @param name a <code>String</code> value
-     */
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name){
-	this(seis, tr, ar, name, null);
+    
+    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name, 
+				  VerticalSeismogramDisplay parent){
+	timeRegistrar = new TimeConfigRegistrar(tr);
+	ampRegistrar = new AmpConfigRegistrar(ar);
+	initializeDisplay(seis, name, parent);
     }
-
-   BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name, 
-			  VerticalSeismogramDisplay parent){
-	super();
-	this.setLayout(new OverlayLayout(this));
-	this.addComponentListener(new ComponentAdapter() {
+    
+    public void initializeDisplay(LocalSeismogram seis, String name, VerticalSeismogramDisplay parent){
+	this.name = name;
+	this.parent = parent;
+	timeRegistrar.addTimeSyncListener(this);
+	ampRegistrar.addAmpSyncListener(this);
+	filters = parent.getCurrentFilters();
+	addSeismogram(seis);
+	setLayout(new OverlayLayout(this));
+	addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
 		    resize();
 		}
@@ -103,14 +75,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		}
 	    });
 	setMinimumSize(new Dimension(100, 50));
-	this.parent = parent;
-	this.name = name;
-	this.timeRegistrar = tr;
-	this.ampRegistrar = ar;
-	this.timeRegistrar.addTimeSyncListener(this);
-	this.ampRegistrar.addAmpSyncListener(this);
-	this.filters = parent.getCurrentFilters();
-	this.addSeismogram(seis);
 	scaleBorder = new ScaleBorder();
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
 	setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
@@ -122,10 +86,9 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	int w = (d.width - insets.left - insets.right) * 5, h = d.height - insets.top - insets.bottom;
 	overSize = new Dimension(w, h);
 	imagePainter = new ImagePainter();
-	this.add(imagePainter);
+	add(imagePainter);
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
-	//plotters.put(new FlagPlotter(timeRegistrar.getTimeRange().getBeginTime(), timeRegistrar, "TEST"), colors[plotters.size()%colors.length]);
     }
 
     /**
@@ -144,6 +107,16 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	timeRegistrar.addSeismogram(newSeismogram);
 	ampRegistrar.addSeismogram(newSeismogram);
 	redo = true;
+    }
+
+    public LocalSeismogramImpl getSeismogram(){
+	Iterator e = plotters.keySet().iterator();
+	while(e.hasNext()){
+	    Plotter current = ((Plotter)e.next());
+	    if(current instanceof SeismogramPlotter)
+		return ((LocalSeismogramImpl)((SeismogramPlotter)current).getSeismogram());
+	}
+	return null;
     }
     
     /**
@@ -364,9 +337,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     }
 
     public void zoomIn(MouseEvent me) {
-	PrinterJob pj = PrinterJob.getPrinterJob();
-	pj.setPrintable(new ComponentPrintable(this));
-	try{pj.print();} catch(Exception e){ }
 	Insets insets = this.getInsets();
 	Dimension dim = this.getSize();
 	if (me.getX() < insets.left ||
@@ -502,6 +472,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	ampRegistrar.individualizeAmpConfig(timeRegistrar);
     }
 
+    public void createParticleDisplay(MouseEvent me){
+	parent.createParticleDisplay(this);
+    }
+
     protected class ImagePainter extends JComponent{
 	public void paint(Graphics g){
 	    Date begin = new Date();
@@ -526,10 +500,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		    imageCache.remove(overSizedImage.get());
 		    imageCache.addFirst(overSizedImage.get());
 		}
-		if(ImageMaker.bufferedImage)
-		    g2.drawImage(((BufferedImage)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
-		else
-		    g2.drawImage(((Image)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
+		g2.drawImage(((Image)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
 		if(redo){
 		    logger.debug("the image is being redone");
 		    this.createImage();
@@ -544,10 +515,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		    imageCache.remove(overSizedImage.get());
 		    imageCache.addFirst(overSizedImage.get());
 		}
-		if(ImageMaker.bufferedImage)
-		    g2.drawImage(((BufferedImage)overSizedImage.get()), tx, null);
-		else
-		    g2.drawImage(((Image)overSizedImage.get()), tx, null);
+		g2.drawImage(((Image)overSizedImage.get()), tx, null);
 		synchronized(this){ displayInterval = timeRegistrar.getTimeRange().getInterval();	}
 		this.createImage();
 	    }
@@ -573,8 +541,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		g2.setPaint(new Color(0, 0, 0, 128));
 		g2.drawString(name, 5, getSize().height - 3);
 	    }
-	    //logger.debug(imageCache.size() + " images in the cache");
-	    //logger.debug("the image size is: " + ImageMaker.getImageSize(((BufferedImage)overSizedImage.get())));
 	    Date end = new Date();
 	    //logger.debug("painting: " + (end.getTime() - begin.getTime()) + "ms");
 	}
@@ -582,21 +548,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	public synchronized void createImage(){
 	    imageMaker.createImage(this, new PlotInfo(overSize, plotters, displayInterval));
 	}
-
-	public synchronized void setImage(BufferedImage newImage){
-	    overTimeRange = timeRegistrar.getTimeRange().getOversizedTimeRange(OVERSIZED_SCALE);
-	    displayTime = displayInterval.getValue();
-	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
-	    overTimeInterval = overTimeRange.getEndTime().getMicroSecondTime() - overBeginTime;
-	    if(overSizedImage != null && imageCache.contains(overSizedImage.get())){
-		imageCache.remove(overSizedImage.get());
-	    }
-	    imageCache.addFirst(newImage);
-	    overSizedImage = new SoftReference(newImage);
-	    if(imageCache.size() > 5)
-		imageCache.removeLast();
-	    repaint();	
- 	}
 
 	public synchronized void setImage(Image newImage){
 	    overTimeRange = timeRegistrar.getTimeRange().getOversizedTimeRange(OVERSIZED_SCALE);

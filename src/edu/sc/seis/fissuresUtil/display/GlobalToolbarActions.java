@@ -28,4 +28,6 @@ public interface GlobalToolbarActions {
     public void zoomIn(MouseEvent meOne, MouseEvent meTwo);
 
     public void zoomOut(MouseEvent me);
+
+    public void createParticleDisplay(MouseEvent me);
 }// GlobalToolbarActions
