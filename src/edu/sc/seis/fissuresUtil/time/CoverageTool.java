@@ -36,16 +36,12 @@ public class CoverageTool {
         for(int i = 0; i < filters.length; i++) {
             MicroSecondDate rfStart = new MicroSecondDate(filters[i].start_time);
             MicroSecondDate rfEnd = new MicroSecondDate(filters[i].end_time);
-            System.out.println("testing rf " + rfStart + " " + rfEnd);
             for(int j = 0; j < timeRanges.length; j++) {
                 MicroSecondDate trStart = timeRanges[j].getBeginTime();
                 MicroSecondDate trEnd = timeRanges[j].getEndTime();
-                System.out.println("testing tr " + trStart + " " + trEnd);
                 if(trStart.before(rfEnd)) {
                     if(trEnd.after(rfStart)) {
-                        System.out.println("RIGHT ON");
                         if(ReduceTool.equalsOrBefore(trStart, rfStart)) {
-                            System.out.println("MOVING RFSTART UP");
                             rfStart = trEnd;
                         } else {
                             unsatisfied.add(new RequestFilter(filters[i].channel_id,
