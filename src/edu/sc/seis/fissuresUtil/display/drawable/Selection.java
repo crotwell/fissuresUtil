@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import org.apache.log4j.Category;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
 
 
 /**
@@ -31,6 +32,17 @@ import org.apache.log4j.Category;
 
 public class Selection implements TimeListener, Drawable{
     public Selection (MicroSecondTimeRange range, SeismogramDisplay parent, Color color){
+
+        // tc needs to be the same class as the parents time config incase it is a relative time config
+        Class dispTimeConfigClass = parent.getTimeConfig().getClass();
+        try {
+            tc = (TimeConfig)dispTimeConfigClass.newInstance();
+        } catch (IllegalAccessException e) {
+            GlobalExceptionHandler.handleStatic("Problem trying to create new TimeCongig for pick zone", e);
+        } catch (InstantiationException e) {
+            GlobalExceptionHandler.handleStatic("Problem trying to create new TimeCongig for pick zone", e);
+        }
+
         seismos = parent.getSeismograms();
         this.parent = parent;
         this.color = color;
