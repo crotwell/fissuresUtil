@@ -90,5 +90,5 @@ public class FilteredSeismogramShape extends SeismogramShape {
     
     protected static SeisGramText localeText = new SeisGramText(null);
     
-    static Category logger = Category.getInstance(FilteredSeismogramPlotter.class.getName());
+    static Category logger = Category.getInstance(FilteredSeismogramShape.class.getName());
 }// FilteredSeismogramShape
