@@ -107,6 +107,8 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 	this.updateTimeSyncListeners(); 
     }
 
+    public void unregister(){ timeConfig.removeTimeSyncListener(this); }
+
     public TimeSnapshot takeSnapshot(){
 	return timeConfig.takeSnapshot();
     }

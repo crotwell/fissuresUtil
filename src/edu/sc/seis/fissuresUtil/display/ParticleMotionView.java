@@ -763,6 +763,13 @@ public class ParticleMotionView extends JComponent{
 	private boolean horizPlane = false;
     }
 
+    public void removeAll(){
+	Iterator e = displays.iterator();
+	while (e.hasNext()) {
+	    ((ParticleMotion)e.next()).timeRegistrar.unregister();
+	} // end of while (e.hasNext())
+    }
+
     static Category logger = 
         Category.getInstance(ParticleMotionView.class.getName());
 

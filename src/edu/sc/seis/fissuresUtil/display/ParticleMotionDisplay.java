@@ -655,8 +655,13 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	    radioPanel.add(radioButtons[counter]);
 	}
     }
-
-  
+    
+    public void removeAll(){
+	logger.debug("removing all");
+	hAmpConfigRegistrar.unregister();
+	vAmpConfigRegistrar.unregister();
+	view.removeAll();
+    }
 
     /**
      * Describe constant <code>PARTICLE_MOTION_LAYER</code> here.
