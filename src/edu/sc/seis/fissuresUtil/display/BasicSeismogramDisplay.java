@@ -418,7 +418,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
         JPanel comp = new JPanel();
         comp.setSize(twidth,theight);
-
         int topBorder = scale.paintTopTimeBorder(comp,g2,0,0,twidth,theight);
 
         // reset the scales
@@ -459,7 +458,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
         JPanel comp = new JPanel();
 
-        comp.setSize(size.width,size.height);
+        comp.setSize(width,height);
 
         int leftBorder = scale.paintLeftAmpBorder(comp,g2,0,0,width,height);
 
