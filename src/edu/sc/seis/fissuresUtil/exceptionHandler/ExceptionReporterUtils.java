@@ -19,13 +19,8 @@ public class ExceptionReporterUtils{
             traceString += "Description: "+((FissuresException)exception).the_error.error_description+"\n";
             traceString += "Error Code= "+((FissuresException)exception).the_error.error_code+"\n";
         }
-        if (exception instanceof WrappedException) {
-            WrappedException we = (WrappedException)exception;
-            if (we.getCausalException() != null) {
-                traceString += extractTrace(we.getCausalException())+"\n";
-            } // end of if (we.getCausalException() != null)
-        } else if (exception.getCause() != null) {
-            traceString += extractTrace(exception.getCause())+"\n";
+        if (exception.getCause() != null) {
+            traceString += getTrace(exception.getCause())+"\n";
         }
         traceString += extractTrace(exception);
         return traceString;
