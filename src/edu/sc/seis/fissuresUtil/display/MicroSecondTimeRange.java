@@ -8,6 +8,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * MicroSecondTimeRanges are objects to set the time range for a seismogram and
@@ -18,6 +19,9 @@ import edu.iris.Fissures.model.UnitRangeImpl;
  * @version
  */
 public class MicroSecondTimeRange {
+    public MicroSecondTimeRange(LocalSeismogramImpl ls){
+        this(ls.getBeginTime(), ls.getEndTime());
+    }
 
     public MicroSecondTimeRange(RequestFilter rf) {
         this(rf.start_time, rf.end_time);
