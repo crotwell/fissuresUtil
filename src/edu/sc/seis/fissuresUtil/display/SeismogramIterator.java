@@ -37,6 +37,7 @@ public class SeismogramIterator implements Iterator{
             MicroSecondDate endTime = seis[seis.length - 1].getEndTime();
             TimeInterval samplingInterval = seis[0].getSampling().getPeriod();
             sampling = seis[0].getSampling();
+            unit = seis[0].getUnit();
             seisTimeRange = new MicroSecondTimeRange(startTime, endTime);
             addToIterateList(seis[0], 0, seis[0].getNumPoints());
             for(int i = 1; i < seis.length; i++){
@@ -278,6 +279,10 @@ public class SeismogramIterator implements Iterator{
         return stat;
     }
 
+    public UnitImpl getUnit() {
+        return unit;
+    }
+
     private Map statisticsMap = new HashMap();
 
     private static Logger logger = Logger.getLogger(SeismogramIterator.class);
@@ -297,6 +302,8 @@ public class SeismogramIterator implements Iterator{
     private String name;
 
     private SamplingImpl sampling;
+
+    private UnitImpl unit;
 
     public static final QuantityImpl NOT_A_NUMBER = new QuantityImpl(Double.NaN,
                                                                      UnitImpl.COUNT);
