@@ -1,15 +1,13 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.sc.seis.fissuresUtil.xml.*;
 import java.util.*;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.RequestFilterChangeListener;
-import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
-import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
-import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
+import edu.sc.seis.fissuresUtil.database.DBDataCenter;
 import java.lang.ref.SoftReference;
 import org.apache.log4j.Logger;
 
@@ -103,35 +101,44 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
     }
     
     public void endTimeChanged() {
-        if(debug)
-            System.out.println("END TIME CHANGED for " + this);
-        seismogram.retrieveData(this);
+        synchronized(softSeis){
+            synchronized(threadToIterator){
+                softSeis.clear();
+                threadToIterator.clear();
+            }
+        }
     }
     
     public void beginTimeChanged() {
-        if(debug)
-            System.out.println("BEGIN TIME CHANGED for " + this);
-        seismogram.retrieveData(this);
+        synchronized(softSeis){
+            synchronized(threadToIterator){
+                softSeis.clear();
+                threadToIterator.clear();
+            }
+        }
     }
     
     private void addSeismograms(LocalSeismogramImpl[] seismograms){
         boolean newData = false;
-        LocalSeismogramImpl[] currentSeis = getSeismograms(false);
         synchronized(softSeis){
             for (int j = 0; j < seismograms.length; j++) {
-                boolean found = false;
-                for (int i = 0; i < currentSeis.length; i++){
-                    //As I don't know how to tell which seismogram is right if
-                    //they have exactly the same times, I just keep the first one
-                    //TODO fix inability to tell between local seismograms
-                    if(seismograms[j].get_id().equals(currentSeis[i].get_id()) ||
-                           (seismograms[j].getBeginTime().equals(currentSeis[i].getBeginTime()) &&
-                                seismograms[j].getEndTime().equals(currentSeis[i].getEndTime()))){
-                        found = true;
-                        break;
+                LocalSeismogramImpl[] curSeis = getSeismograms(false);
+                RequestFilter[] needed = { seismogram.getRequestFilter() };
+                RequestFilter[] uncovered = DBDataCenter.notCovered(needed, curSeis);
+                boolean satisfiesUncovered = false;
+                for (int i = 0; i < uncovered.length; i++) {
+                    if(DCDataSetSeismogram.intersects(uncovered[i], seismograms[j])){
+                        satisfiesUncovered = true;
                     }
                 }
-                if(!found){
+                if(satisfiesUncovered){
+                    Iterator it = softSeis.iterator();
+                    while(it.hasNext()){
+                        LocalSeismogramImpl cur = (LocalSeismogramImpl)((SoftReference)it.next()).get();
+                        if(cur != null &&
+                           DataSetSeismogram.equalOrContains(cur, seismograms[j]))
+                            it.remove();
+                    }
                     softSeis.add(new SoftReference(seismograms[j]));
                     newData = true;
                 }
