@@ -44,6 +44,7 @@ public class TimeBorder extends Border implements TitleProvider{
         borderFormats.add(new TimeBorderFormat("mm:ss.SSS",
                                                new TimeInterval(10, UnitImpl.MILLISECOND)));
         createSecondFormats(secDivs, borderFormats);
+        createMinuteSecondFormats(minSecDivs, borderFormats);
         createMinuteFormats(minDivs, borderFormats);
         createHourFormats(hourDivs, borderFormats);
         return borderFormats;
@@ -51,17 +52,22 @@ public class TimeBorder extends Border implements TitleProvider{
 
     //this is used to create formats with the given number of seconds between
     //labelled ticks and 10 ticks between each labelled tick
-    private static double[] secDivs = { .1, .25, .5, 1, 3, 5, 10, 20, 30 };
+    private static double[] secDivs = {.01, .02, .05, .1, .25, .5, 1, 2.5};
+
+    //this is used to create foramts with the first number used to determine how
+    //many seconds between each major tick, and the second to determine how many
+    //ticks for each major tick
+    private static double[][] minSecDivs = { {5, 5}, {10, 5}, {20, 4}, {30, 6} };
 
     //this is used to create foramts with the first number used to determine how
     //many minutes between each major tick, and the second to determine how many
     //ticks for each major tick
-    private static double[][] minDivs = {{1, 6},{2, 6},{5, 5},{10,10},{20,10},{30,10}};
+    private static double[][] minDivs = { {1, 6},{2, 6},{5, 5},{10,10},{20,10},{30,10}};
 
     //this is used to create foramts with the first number used to determine how
     //many hours between each major tick, and the second to determine how many
     //ticks for each major tick
-    private static double[][] hourDivs = {{1, 6},{2, 6},{6, 6},{12,6},{24,4},{48,4}};
+    private static double[][] hourDivs = {{1, 6},{2, 4},{6, 6},{12,6},{24,4},{48,4}, {96, 4}, };
 
     private void createSecondFormats(double[] secondsPerDivision, List recip){
         for (int i = 0; i < secondsPerDivision.length; i++) {
@@ -74,14 +80,19 @@ public class TimeBorder extends Border implements TitleProvider{
         recip.add(new TimeBorderFormat("mm:ss.SSS", inter));
     }
 
-    private void createMinuteFormats(double[][] minDivs, List recip){
-        for (int i = 0; i < minDivs.length; i++) {
-            createHourFormat(minDivs[i][0], (int)minDivs[i][1], recip);
+    private void createMinuteSecondFormats(double[][] divs, List recip){
+        for (int i = 0; i < divs.length; i++) {
+            createHourFormat(divs[i][0], (int)divs[i][1], recip, UnitImpl.SECOND);
         }
     }
 
-    private void createHourFormat(double minutesPerDivision, int divPerLabel, List recip){
-        TimeInterval inter = new TimeInterval(minutesPerDivision, UnitImpl.MINUTE);
+    private void createMinuteFormats(double[][] minDivs, List recip){
+        for (int i = 0; i < minDivs.length; i++) {
+            createHourFormat(minDivs[i][0], (int)minDivs[i][1], recip, UnitImpl.MINUTE);
+        }
+    }
+    private void createHourFormat(double minutesPerDivision, int divPerLabel, List recip, UnitImpl unit){
+        TimeInterval inter = new TimeInterval(minutesPerDivision, unit);
         recip.add(new TimeBorderFormat("HH:mm:ss", inter, divPerLabel));
     }
 
