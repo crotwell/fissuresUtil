@@ -23,7 +23,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 11568 2005-01-05 20:09:57Z groves $
+ * @version $Id: SimplePlotUtil.java 11639 2005-01-12 16:49:53Z groves $
  */
 public class SimplePlotUtil {
 
@@ -40,12 +40,6 @@ public class SimplePlotUtil {
                                           MicroSecondTimeRange tr,
                                           int pixelsPerDay)
             throws CodecException {
-        logger.debug("Making plottable for seis starting at "
-                + seis.getBeginTime() + " lasting for "
-                + seis.getTimeInterval() + " with " + seis.getNumPoints()
-                + " points");
-        logger.debug("The plottable is supposed to cover " + tr + " at "
-                + pixelsPerDay);
         if(tr.getEndTime().before(seis.getEndTime())
                 || tr.getBeginTime().after(seis.getEndTime())) {
             int[] empty = new int[0];
