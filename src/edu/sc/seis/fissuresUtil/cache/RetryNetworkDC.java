@@ -42,7 +42,9 @@ public class RetryNetworkDC implements ProxyNetworkDC {
     }
 
     public void reset() {
-        // nothing
+        if(netDC instanceof ProxyNetworkDC) {
+            ((ProxyNetworkDC)netDC).reset();
+        }
     }
 
     public NetworkDC getCorbaObject() {
