@@ -2,11 +2,10 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
-import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
+import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -177,6 +176,7 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
         boolean changed = false;
         while(e.hasNext()){
             AmpConfigData current = (AmpConfigData)ampData.get(e.next());
+
             if(current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
                 if(setAmpRange(current.getDSS())){ //checks if the new time changes the amp range
                     current.setNewData(false);
@@ -191,8 +191,28 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
         if(changed || currentAmpEvent == null){
             recalculateAmp();
         }
+
         return currentAmpEvent;
     }
+
+    protected void checkSeismogramUnits(DataSetSeismogram seismo){
+        AmpConfigData data = (AmpConfigData)ampData.get(seismo);
+        LocalSeismogramImpl[] seismograms = data.getSeismograms();
+        UnitImpl seisUnit = null;
+        for(int i = 0; i < seismograms.length; i++){
+            LocalSeismogramImpl seis = seismograms[i];
+            if (seisUnit == null) {
+                seisUnit = seis.getUnit();
+            }
+            if ( ! seis.getUnit().equals(seisUnit)) {
+
+                // very unusuall for seismograms not to have the same unit
+                // recorded from the same channel
+                throw new IllegalArgumentException("Seismograms in the same DataSetSeismogram do not have the same units!");
+            }
+        }
+    }
+
 
     protected synchronized AmpEvent recalculateAmp(){
         Iterator e = ampData.keySet().iterator();
@@ -285,3 +305,4 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
 
     private static Category logger = Category.getInstance(BasicAmpConfig.class.getName());
 }//BasicAmpConfig
+
