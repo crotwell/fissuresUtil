@@ -94,7 +94,6 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener,
 	}
 
 	public void addEQSelectionListener(EQSelectionListener listener) {
-		System.out.println(listener);
 		listenerList.add(EQSelectionListener.class, listener);
 		EventAccessOperations[] selectedEvents = getSelectedEvents();
 		if (selectedEvents.length > 0) {
@@ -121,11 +120,9 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener,
 		OMEvent selected = null;
 		List deselected = new ArrayList();
 		synchronized (circles) {
-			System.out.println(eqSelectionEvent.getEvents());
 			Iterator it = circles.iterator();
 			while (it.hasNext()) {
 				OMEvent current = (OMEvent) it.next();
-				System.out.println(current.getEvent());
 				if (current.getEvent().equals(eqSelectionEvent.getEvents()[0])) {
 					selected = current;
 				} else {
