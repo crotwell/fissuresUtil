@@ -3,7 +3,7 @@ package edu.sc.seis.fissuresUtil.exceptionHandlerGUI;
 import java.awt.*;
 import javax.swing.*;
 import java.lang.*;
-
+import java.io.*;
 
 /**
  * ExceptionHandlerGUI.java
@@ -36,11 +36,12 @@ public class ExceptionHandlerGUI {
 	tabbedPane.addTab("information", messagePanel);
 
 	JPanel stackTracePanel = new JPanel();
+	JScrollPane scrollPane = new JScrollPane(stackTracePanel);
 	JLabel stackTraceLabel = new JLabel();
-	stackTraceLabel.setText(exception.getMessage());
+	stackTraceLabel.setText(getStackTrace(exception));
 	stackTracePanel.setLayout(new BorderLayout());
 	stackTracePanel.add(stackTraceLabel);
-	tabbedPane.addTab("stackTrace", stackTracePanel);
+	tabbedPane.addTab("stackTrace", scrollPane);
 
 	java.awt.Dimension dimension = new java.awt.Dimension(400, 400);
 	tabbedPane.setPreferredSize(dimension);
@@ -55,14 +56,12 @@ public class ExceptionHandlerGUI {
 
     private static String getStackTrace(Exception e) {
 
-	/*String returnValue = new String();
-	java.lang.StackTraceElement[] stackTraceElements = e.getStackTrace();
-	for(int counter = 0; counter < stactTraceElements.length; counter++) {
 
-	    returnValue = returnValue + stackTraceElements[counter].toString();
-
-	    }*/
-	return null;
+	StringWriter  stringWriter = new StringWriter();
+	PrintWriter printWriter = new PrintWriter(stringWriter);
+	e.printStackTrace(printWriter);
+	
+	return  stringWriter.toString();
 
     }
 
