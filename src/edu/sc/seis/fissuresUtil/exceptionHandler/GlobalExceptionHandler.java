@@ -36,14 +36,16 @@ public class GlobalExceptionHandler {
                 if(showSysInfo){
                     parsedContents.add(new Section("System Information", ExceptionReporterUtils.getSysInfo()));
                 }
-                it = reporters.iterator();
                 List reporterExceptions = new ArrayList();
-                while(it.hasNext()){
-                    try {
-                        ((ExceptionReporter)it.next()).report(message, thrown, parsedContents);
-                    } catch (Throwable e) {
-                        it.remove();
-                        reporterExceptions.add(e);
+                synchronized(reporters){
+                    it = reporters.iterator();
+                    while(it.hasNext()){
+                        try {
+                            ((ExceptionReporter)it.next()).report(message, thrown, parsedContents);
+                        } catch (Throwable e) {
+                            it.remove();
+                            reporterExceptions.add(e);
+                        }
                     }
                 }
                 it = reporterExceptions.iterator();
@@ -126,7 +128,7 @@ public class GlobalExceptionHandler {
 
     private static Logger logger = Logger.getLogger(GlobalExceptionHandler.class);
 
-    private static List reporters = new ArrayList();
+    private static List reporters = Collections.synchronizedList(new ArrayList());
 
     private static boolean showSysInfo = true;
 
