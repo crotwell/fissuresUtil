@@ -11,7 +11,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: Statistics.java 10896 2004-10-14 20:10:28Z crotwell $
  */
 
 public class Statistics  {
@@ -327,7 +327,7 @@ public class Statistics  {
     }
 
     /**
-     * Calualates the variance.
+     * Calualates the unbiased variance, ie 1/(n-1) SUM{(x-mean)^2}.
      *
      * @return variance
      */
@@ -341,7 +341,7 @@ public class Statistics  {
 
     /**
      * Calulates the standard deviation. This is a shortcut for Math.sqrt(var());
-     *
+     * Note this uses the unbiased variance.
      * @return the Standard deviation
      */
     public double stddev() {
