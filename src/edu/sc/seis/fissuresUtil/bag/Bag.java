@@ -13,8 +13,13 @@ import edu.sc.seis.fissuresUtil.xml.*;
 import java.io.*;
 
 import edu.iris.Fissures.AuditInfo;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.Location;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
+import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,6 +67,10 @@ public class Bag {
                             dssAudit[0] = new AuditInfo(System.getProperty("user.name"),
                                                         "Load from sac file "+file.getName());
                             dataSet.addDataSetSeismogram(urlSeis, dssAudit);
+                            SacTimeSeries sac = new SacTimeSeries();
+                            sac.read(file.getAbsolutePath());
+                            Channel chan = SacToFissures.getChannel(sac);
+                            dataSet.addParameter(dataSet.CHANNEL+ChannelIdUtil.toString(chan.get_id()), chan, dssAudit);
                         } else {
                             System.err.println("File "+file.getName()+" doesn't exist");
                         }
@@ -72,6 +81,14 @@ public class Bag {
                         URLDataSetSeismogram dss = (URLDataSetSeismogram)dataSet.getDataSetSeismogram(names[i]);
                         out.write("NAME:"+names[i]);
                         out.newLine();
+                        out.write("CHANNEL ID:"+ChannelIdUtil.toStringNoDates(dss.getRequestFilter().channel_id));
+                        out.newLine();
+                        Channel chan = dataSet.getChannel(dss.getRequestFilter().channel_id);
+                        if (chan != null) {
+                            Location loc = chan.my_site.my_station.my_location;
+                            out.write("Station Loc: "+loc.latitude+" / "+loc.longitude);
+                            out.newLine();
+                        }
                         dss.retrieveData(new PrintSeisDataChangeListener(out));
 
                     }
