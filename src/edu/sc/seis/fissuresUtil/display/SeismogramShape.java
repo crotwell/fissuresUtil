@@ -27,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2789 2002-10-21 14:49:46Z groves $
+ * @version $Id: SeismogramShape.java 2817 2002-10-24 18:08:20Z groves $
  */
 
 public class SeismogramShape implements Shape, Plotter {
@@ -105,19 +105,24 @@ public class SeismogramShape implements Shape, Plotter {
     } 
 
     private void plotAll(Dimension size) throws UnsupportedDataEncoding{
-	for(int i = 0; i < seisEnd - seisStart; i++){
-	    points[i][0] = (int)(i/samplesPerPixel);
-	    points[i][1] = (int)((seis.getValueAt(i + seisStart).getValue()  - minAmp)/range * size.height);
+	if(seisEnd <= seis.getNumPoints() && seisStart >= 0){
+	    if(seisStart != 0){
+		startPixel = 0;
+	    }
+	    if(seisEnd < seis.getNumPoints()){
+		endPixel = size.width;
+		seisEnd++;		
+	    }
+	    points = new int[seisEnd - seisStart][2];
+	    samplesPerPixel = (seisEnd - seisStart - 1)/(double)(endPixel - startPixel);
+	    for(int i = 0; i < points.length; i++){
+		points[i][0] = (int)(i/samplesPerPixel) + startPixel;
+		System.out.println(points[i][0]);
+		points[i][1] = (int)((seis.getValueAt(i + seisStart).getValue()  - minAmp)/range * size.height);
+	    }
 	}
-	if(points.length < 2){
-	    points = new int[2][2];
-	    points[0][1] = (int)((seis.getValueAt(seisStart).getValue()  - minAmp)/range * size.height);
-	    points[1][1] = (int)((seis.getValueAt(seisEnd).getValue()  - minAmp)/range * size.height);
-	}
-	points[0][0] = 0;
-	if(seisStart != seisEnd){
-	    points[seisEnd - seisStart - 1][0] = size.width;
-	}
+	
+	
     }
     
     private void plotCompress(int height) throws UnsupportedDataEncoding{
@@ -185,6 +190,7 @@ public class SeismogramShape implements Shape, Plotter {
 	    return;
 	}
 	int[] points = DisplayUtils.getSeisPoints(seis, time);
+	System.out.println("calculation points for seismogram  shape: " + points[0] + ", " + points[1]);
 	seisStart = points[0];
 	seisEnd = points[1];
 	MicroSecondDate temp = getValue(seis.getNumPoints(), seis.getBeginTime(), seis.getEndTime(), seisStart);
@@ -197,6 +203,7 @@ public class SeismogramShape implements Shape, Plotter {
 	    temp = time.getEndTime();
 	}
 	endPixel = getPixel(size.width, time.getBeginTime(), time.getEndTime(), temp);
+	System.out.println("pixels to be drawn by seismogram shape: " + startPixel + ", " + endPixel);
 	samplesPerPixel = (seisEnd - seisStart)/(double)(endPixel - startPixel);
     }
     
