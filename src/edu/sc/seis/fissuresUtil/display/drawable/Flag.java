@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
@@ -7,14 +8,22 @@ import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import javax.swing.JToolTip;
+import javax.swing.ToolTipManager;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Category;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * FlagPlotter.java
@@ -26,7 +35,7 @@ import org.apache.log4j.Category;
  * @version
  */
 
-public class Flag implements Drawable {
+public class Flag implements Drawable{
     
     public Flag(MicroSecondDate flagTime, String name) {
         this(flagTime, name, null);
@@ -83,7 +92,25 @@ public class Flag implements Drawable {
             canvas.drawString(name, location + PADDING/2, stringBounds.height - PADDING/2);
         }
     }
-    
+	
+	public static Flag getFlagFromElement(Element el){
+		String name = el.getAttribute("name");
+		logger.debug("Flag name: " + name);
+		logger.debug("Flag time from element: " + el.getAttribute("time"));
+		MicroSecondDate time = new MicroSecondDate(new Time(el.getAttribute("time"), 0));
+		logger.debug("Flag time: " + time.getFissuresTime().date_time);
+		
+		return new Flag(time, name);
+	}
+	
+	public static Element createFlagElement(String name, MicroSecondDate time) throws ParserConfigurationException{
+		Document doc = XMLDataSet.getDocumentBuilder().newDocument();
+		Element el = doc.createElement("pickFlag");
+		el.setAttribute("name", name);
+		el.setAttribute("time", time.getFissuresTime().date_time);
+		return el;
+	}
+	
     private Area flag;
     
     private int prevLocation;
@@ -114,5 +141,7 @@ public class Flag implements Drawable {
     private static final int PADDING = 4;
     
     private static Category logger = Category.getInstance(Flag.class.getName());
+	
+	private ToolTipManager tipManager = ToolTipManager.sharedInstance();
     
 }// FlagPlotter
