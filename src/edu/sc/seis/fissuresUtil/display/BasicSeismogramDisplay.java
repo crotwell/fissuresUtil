@@ -223,17 +223,17 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		Selection curr = ((Selection)e.next());
 		if(curr.borders(selectionBegin, selectionEnd)){
 		    currentSelection = curr;
-		    repaint();
+		    currentSelection.adjustRange(selectionBegin, selectionEnd);		
 		    return;
 		}
 	    }
-	    currentSelection = new Selection(selectionBegin, selectionEnd, timeConfig, plotters, this);
+	    currentSelection = new Selection(selectionBegin, selectionEnd, timeConfig, plotters, this, 
+					     transparentColors[selections.size()%transparentColors.length]);
 	    selections.add(currentSelection);
 	    repaint();
 	    return;
 	}
 	currentSelection.adjustRange(selectionBegin, selectionEnd);		
-    	repaint();
     }
 
     public Selection releaseCurrentSelection(){
@@ -331,7 +331,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 			Rectangle2D current = new Rectangle2D.Float(currentSelection.getX(getSize().width), 0, 
 								    (float)(currentSelection.getWidth() * getSize().width), 
 								    getSize().height);
-			g2.setPaint(transparentColors[i%transparentColors.length]);
+			g2.setPaint(currentSelection.getColor());
 			g2.fill(current);
 			g2.draw(current);
 			
