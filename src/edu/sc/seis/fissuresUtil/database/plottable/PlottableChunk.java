@@ -16,11 +16,24 @@ import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 public class PlottableChunk {
 
     public PlottableChunk(Plottable data, MicroSecondDate startTime,
+            PlottableChunk otherStuff) {
+        this(data,
+             startTime,
+             otherStuff.getSamplesPerSecond(),
+             otherStuff.getChannel());
+    }
+
+    public PlottableChunk(Plottable data, MicroSecondDate startTime,
             double samplesPerSecond, ChannelId channel) {
         this.data = data;
         this.startTime = startTime;
         this.samplesPerSecond = samplesPerSecond;
         this.channel = channel;
+        range = new MicroSecondTimeRange(startTime,
+                                         new TimeInterval(data.y_coor.length
+                                                                  / samplesPerSecond,
+                                                          UnitImpl.SECOND));
+        endTime = range.getEndTime();
     }
 
     public boolean equals(Object o) {
@@ -56,15 +69,16 @@ public class PlottableChunk {
         return samplesPerSecond;
     }
 
-    public MicroSecondDate getStartTime() {
+    public MicroSecondDate getBeginTime() {
         return startTime;
     }
 
+    public MicroSecondDate getEndTime() {
+        return endTime;
+    }
+
     public MicroSecondTimeRange getTimeRange() {
-        return new MicroSecondTimeRange(startTime,
-                                        new TimeInterval(samplesPerSecond
-                                                                 * data.x_coor.length,
-                                                         UnitImpl.SECOND));
+        return range;
     }
 
     public int hashCode() {
@@ -73,13 +87,13 @@ public class PlottableChunk {
         int longHash = (int)(spsBits ^ (spsBits >>> 32));
         hashCode = 37 * hashCode + longHash;
         hashCode = 37 * hashCode + startTime.hashCode();
-        return 37 * hashCode + data.x_coor.length;
+        return 37 * hashCode + data.y_coor.length;
     }
 
     public String toString() {
-        return "PlottableChunk " + data.x_coor.length + " points on "
+        return data.y_coor.length + " point chunk from "
                 + ChannelIdUtil.toStringNoDates(channel) + " at "
-                + nf.format(samplesPerSecond) + " sps starting at " + startTime;
+                + nf.format(samplesPerSecond) + " sps at " + getBeginTime();
     }
 
     private ChannelId channel;
@@ -90,5 +104,7 @@ public class PlottableChunk {
 
     private double samplesPerSecond;
 
-    private MicroSecondDate startTime;
+    private MicroSecondDate startTime, endTime;
+
+    private MicroSecondTimeRange range;
 }
