@@ -39,6 +39,7 @@ import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockDC;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.TimeoutDC;
 
 /**
  * Description: FissuresNamingService is a wrapper around CORBA Naming service.
@@ -464,7 +465,10 @@ public class FissuresNamingService {
     public DataCenter getSeismogramDC(String dns, String objectname)
             throws NotFound, CannotProceed, InvalidName,
             org.omg.CORBA.ORBPackage.InvalidName {
-        if(isMock(dns, objectname)) { return new MockDC(); }
+        if(isMock(dns, objectname)) {
+            if(objectname.equals("Timeout")) { return new TimeoutDC(); }
+            return new MockDC();
+        }
         logger.debug("before get SeismogramDC Object");
         org.omg.CORBA.Object obj = getSeismogramDCObject(dns, objectname);
         logger.debug("before narrow");
@@ -875,6 +879,7 @@ public class FissuresNamingService {
     }
 
     public static boolean isMock(String dns, String name) {
-        return dns.equals("edu/sc/seis") && name.equals("Mock");
+        return dns.equals("edu/sc/seis")
+                && (name.equals("Mock") || name.equals("Timeout"));
     }
 }// FissuresNamingService
