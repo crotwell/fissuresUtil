@@ -28,7 +28,6 @@ public class SQLLoader {
         String velOutput = velWriter.toString();
         InputStream sqlInput = new ByteArrayInputStream(velOutput.getBytes());
         sqlProps.load(sqlInput);
-        sqlProps.list(System.out);
     }
     
     public boolean has(String propName){
