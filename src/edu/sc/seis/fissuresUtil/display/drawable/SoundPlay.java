@@ -38,7 +38,6 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
     private SeismogramContainer container;
     private TimeEvent timeEvent;
     private FissuresToWAV seisWAV;
-    private boolean isPlaying;
     private PlayEvent playEvent;
 
     private TimeInterval timeInterval;
@@ -48,11 +47,9 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
     private double positionMultiplier;
     private MicroSecondDate clickTime;
 
-
     public SoundPlay(SeismogramDisplay display, SeismogramContainer container){
         this.display = display;
         this.container = container;
-        isPlaying = false;
         seisWAV = new FissuresToWAV(container, 1200);
         seisWAV.addPlayEventListener(this);
         SeismogramDisplay.getMouseForwarder().addPermMouseListener(this);
@@ -140,17 +137,14 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
             canvas.drawLine(x3, yMinB, x3 + 1, yMid);
             canvas.drawLine(x3 + 1, yMid, x3, yMaxB);
 
-            if (isPlaying){
+            if (playEvent != null && playEvent.getClip().isRunning()){
                 long elapsedTime = playEvent.getClip().getMicrosecondPosition();
+                long clipLength = playEvent.getClip().getMicrosecondLength();
                 canvas.setColor(Color.RED);
                 canvas.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
-                playCursor = (int)((elapsedTime/timeInterval.convertTo(UnitImpl.MICROSECOND).get_value())*sizeOfDisplay);
+                playCursor = (int)(((double)elapsedTime/(double)clipLength)*sizeOfDisplay);
                 canvas.drawLine(playCursor, 0, playCursor, display.getHeight());
                 display.repaint();
-                if (playCursor >= sizeOfDisplay){
-                    isPlaying = false;
-                }
-
             }
         }
     }
@@ -195,7 +189,6 @@ public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionList
     public void eventPlayed(PlayEvent e){
         playEvent = e;
         timeInterval = e.getTimeInterval();
-        isPlaying = true;
         display.repaint();
     }
 }
