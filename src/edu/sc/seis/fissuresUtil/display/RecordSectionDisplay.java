@@ -34,25 +34,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                         resize();
                     }
                 });
-        int min = 10;
-        int max = 100;
-        scalingSlider = new JSlider(JSlider.VERTICAL, min, max, (max - min)/2);
-        scaling = (max - min)/2;
-        scalingSlider.setMajorTickSpacing(10);
-        scalingSlider.setPaintTicks(true);
-        scalingSlider.setBorder(BorderFactory.createRaisedBevelBorder());
-
-        //Create the label table
-        Hashtable labelTable = new Hashtable();
-        labelTable.put(new Integer(min), new JLabel("Normal"));
-        labelTable.put(new Integer(max), new JLabel("Huge"));
-        scalingSlider.setLabelTable(labelTable);
-        scalingSlider.setPaintLabels(true);
-        scalingSlider.addChangeListener(new ChangeListener() {
-                    public void stateChanged(ChangeEvent ce) {
-                        scalingChanged(((JSlider)ce.getSource()).getValue());
-                    }
-                });
     }
 
     public RecordSectionDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
@@ -63,7 +44,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         add(seismos);
     }
 
-    private void scalingChanged(double newScaling){
+    public void scalingChanged(double newScaling){
         scaling = newScaling;
         if(layout != null){
             layout.setScale(newScaling/10);
@@ -99,8 +80,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
             setBorder(BorderFactory.createCompoundBorder(etchedRemoval,
                                                          lowerScaleBorder));
             painter = new DrawablePainter();
-            add(painter, BorderLayout.CENTER);
-            add(scalingSlider, BorderLayout.EAST);
+            add(painter);
             resize();
         }
         repaint();
@@ -131,6 +111,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         tc.add(getSeismograms());
         tc.addListener(this);
         tc.addListener(ac);
+        resize();
         this.tc = tc;
     }
 
@@ -343,10 +324,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         if(d.height <= 0 || d.width <= 0){
             return;
         }
-        Rectangle newPainterBounds = new Rectangle(insets.left, insets.right,
-                                                   d.width, d.height);
-        if(painter != null) painter.setBounds(newPainterBounds);
-        if(timeScaleMap != null) timeScaleMap.setTotalPixels(d.width - scalingSlider.getSize().width);
+        if(timeScaleMap != null) timeScaleMap.setTotalPixels(d.width);
         if(distanceScaler != null) distanceScaler.setTotalPixels(d.height);
     }
 
@@ -384,9 +362,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
 
     private DrawablePainter painter;
 
-    private JSlider scalingSlider;
-
-    private double scaling;
+    private double scaling = LayoutScaler.INITIAL_SCALE;
 
     private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
 
