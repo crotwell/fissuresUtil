@@ -70,7 +70,7 @@ public class LongShortTrigger implements Serializable {
 
     public float getLTA() { return lta; }
 
-    private LocalSeismogramImpl seis;
+    private transient LocalSeismogramImpl seis;
 
     private MicroSecondDate when;
 
