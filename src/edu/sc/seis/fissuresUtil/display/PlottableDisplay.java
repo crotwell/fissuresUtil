@@ -4,6 +4,7 @@ import java.awt.*;
 
 import com.sun.media.jai.codec.PNGEncodeParam;
 import edu.iris.Fissures.IfEvent.EventAccess;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.Plottable;
@@ -86,7 +87,7 @@ public  class PlottableDisplay extends JComponent {
         configChanged();
     }
 
-    public void setEvents(EventAccess[] eventAccess) {
+    public void setEvents(EventAccessOperations[] eventAccess) {
         this.eventAccess = eventAccess;
         eventPlotterList = new LinkedList();
         addEventPlotterInfo(eventAccess);
@@ -617,7 +618,7 @@ public  class PlottableDisplay extends JComponent {
     }
 
 
-    public void addEventPlotterInfo(EventAccess[] eventAccessArray) {
+    public void addEventPlotterInfo(EventAccessOperations[] eventAccessArray) {
 
         for(int counter = 0; counter < eventAccessArray.length; counter++) {
             eventPlotterList.add(new EventFlagPlotter(this, eventAccess[counter]));
@@ -637,7 +638,7 @@ public  class PlottableDisplay extends JComponent {
 
     private Graphics2D currentImageGraphics = null;
 
-    private EventAccess[] eventAccess = new EventAccess[0];
+    private EventAccessOperations[] eventAccess = new EventAccess[0];
 
     protected JLabel imagePanel = new JLabel("no image");
 

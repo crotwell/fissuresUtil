@@ -18,25 +18,25 @@ import edu.iris.Fissures.utility.*;
  */
 
 public class CacheEvent implements EventAccessOperations {
-    
+
     public CacheEvent(EventAttr attr, Origin[] origins, Origin preferred) {
-	Assert.isNotNull(attr, "EventAttr cannot be null");
-	Assert.isNotNull(origins, "origins cannot be null");
-	this.attr = attr;
-	this.origins = origins;
-	this.preferred = preferred;
+        Assert.isNotNull(attr, "EventAttr cannot be null");
+        Assert.isNotNull(origins, "origins cannot be null");
+        this.attr = attr;
+        this.origins = origins;
+        this.preferred = preferred;
     }
 
     public CacheEvent(EventAccessOperations event) {
-	Assert.isNotNull(event, "EventAccess cannot be null");
-	this.event = event;
-	this.attr = null;
-	this.origins = null;
-	this.preferred = null;
+        Assert.isNotNull(event, "EventAccess cannot be null");
+        this.event = event;
+        this.attr = null;
+        this.origins = null;
+        this.preferred = null;
     }
 
     public EventAccessOperations getEventAccess() {
-	return event;
+        return event;
     }
 
     //
@@ -45,26 +45,26 @@ public class CacheEvent implements EventAccessOperations {
     /***/
 
     public EventFactory
-	a_factory(){
-	if (event != null) {
-	    return event.a_factory();
-	} else {
-	    throw new org.omg.CORBA.NO_IMPLEMENT();
-	}
+        a_factory(){
+        if (event != null) {
+            return event.a_factory();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
     }
 
-   //
+    //
     // IDL:iris.edu/Fissures/IfEvent/EventDC/a_finder:1.0
     //
     /***/
 
     public EventFinder
-	a_finder() {
-	if (event != null) {
-	    return event.a_finder();
-	} else {
-	    throw new org.omg.CORBA.NO_IMPLEMENT();
-	}
+        a_finder() {
+        if (event != null) {
+            return event.a_finder();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
     }
     //
     // IDL:iris.edu/Fissures/IfEvent/EventDC/a_channel_finder:1.0
@@ -72,12 +72,12 @@ public class CacheEvent implements EventAccessOperations {
     /***/
 
     public EventChannelFinder
-	a_channel_finder() {
-	if (event != null) {
-	    return event.a_channel_finder();
-	} else {
-	    throw new org.omg.CORBA.NO_IMPLEMENT();
-	}
+        a_channel_finder() {
+        if (event != null) {
+            return event.a_channel_finder();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
     }
 
     //
@@ -87,11 +87,11 @@ public class CacheEvent implements EventAccessOperations {
 
     public edu.iris.Fissures.AuditElement[] get_audit_trail()
         throws NotImplemented {
-	if (event != null) {
-	    return event.get_audit_trail();
-	} else {
-	    throw new org.omg.CORBA.NO_IMPLEMENT();
-	}
+        if (event != null) {
+            return event.get_audit_trail();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
     }
 
 
@@ -101,11 +101,11 @@ public class CacheEvent implements EventAccessOperations {
     /***/
 
     public Event a_writeable() {
-	if (event != null) {
-	    return event.a_writeable();
-	} else {
-	    throw new org.omg.CORBA.NO_IMPLEMENT();
-	}
+        if (event != null) {
+            return event.a_writeable();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
     }
 
     //
@@ -114,12 +114,12 @@ public class CacheEvent implements EventAccessOperations {
     /** Defines the ParameterMgr where parameters for this Event reside */
 
     public edu.iris.Fissures.IfParameterMgr.ParameterComponent
-	parm_svc() {
-	if (event != null) {
-	    return event.parm_svc();
-	} else {
-	    throw new org.omg.CORBA.NO_IMPLEMENT();
-	}
+        parm_svc() {
+        if (event != null) {
+            return event.parm_svc();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
     }
 
     //
@@ -127,17 +127,17 @@ public class CacheEvent implements EventAccessOperations {
     //
     /***/
 
-   public EventAttr
-       get_attributes() {
-       if (attr == null) {
-	   this.attr = event.get_attributes();
-	   if (attr == null) {
-	       // remote doesn't implement
-	       attr = EventAttrImpl.createEmpty();
-	   }
-       }
-       return attr;
-   }
+    public EventAttr
+        get_attributes() {
+        if (attr == null) {
+            this.attr = event.get_attributes();
+            if (attr == null) {
+                // remote doesn't implement
+                attr = EventAttrImpl.createEmpty();
+            }
+        }
+        return attr;
+    }
 
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/get_origins:1.0
@@ -145,10 +145,10 @@ public class CacheEvent implements EventAccessOperations {
     /***/
 
     public Origin[] get_origins() {
-	if (origins == null) {
-	    origins = event.get_origins();
-	}
-	return origins;
+        if (origins == null) {
+            origins = event.get_origins();
+        }
+        return origins;
     }
 
     //
@@ -158,16 +158,16 @@ public class CacheEvent implements EventAccessOperations {
 
     public Origin get_origin(String the_origin)
         throws OriginNotFound {
-	if (event != null) {
-	    return event.get_origin(the_origin);
-	} else {
-	    for (int i=0; i<origins.length; i++) {
-		if (origins[i].get_id().equals(the_origin)) {
-		    return origins[i];
-		}
-	    }
-	}
-	throw new OriginNotFound();
+        if (event != null) {
+            return event.get_origin(the_origin);
+        } else {
+            for (int i=0; i<origins.length; i++) {
+                if (origins[i].get_id().equals(the_origin)) {
+                    return origins[i];
+                }
+            }
+        }
+        throw new OriginNotFound();
     }
 
     //
@@ -177,14 +177,14 @@ public class CacheEvent implements EventAccessOperations {
 
     public Origin get_preferred_origin()
         throws NoPreferredOrigin {
-	if (preferred == null) {
-	    if (event != null) {
-		preferred = event.get_preferred_origin();
-	    } else {
-		throw new NoPreferredOrigin();
-	    }
-	}
-	return preferred;
+        if (preferred == null) {
+            if (event != null) {
+                preferred = event.get_preferred_origin();
+            } else {
+                throw new NoPreferredOrigin();
+            }
+        }
+        return preferred;
     }
 
     //
@@ -194,28 +194,57 @@ public class CacheEvent implements EventAccessOperations {
 
     public Locator[] get_locators(String an_origin)
         throws OriginNotFound, NotImplemented {
-	    if (event != null) {
-		return event.get_locators(an_origin);
-	    }
-	    throw new org.omg.CORBA.NO_IMPLEMENT();
-	}
-    
+        if (event != null) {
+            return event.get_locators(an_origin);
+        }
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
     //
     // IDL:iris.edu/Fissures/IfEvent/EventAccess/get_audit_trail_for_origin:1.0
     //
     /***/
 
     public edu.iris.Fissures.AuditElement[]
-    get_audit_trail_for_origin(String the_origin)
+        get_audit_trail_for_origin(String the_origin)
         throws OriginNotFound,
-	edu.iris.Fissures.NotImplemented {
-	    if (event != null) {
-		return event.get_audit_trail_for_origin(the_origin);
-	    }
-	    throw new edu.iris.Fissures.NotImplemented();
-	}
+        edu.iris.Fissures.NotImplemented {
+        if (event != null) {
+            return event.get_audit_trail_for_origin(the_origin);
+        }
+        throw new edu.iris.Fissures.NotImplemented();
+    }
 
-    protected EventAccessOperations event;    
+//    public boolean equals(Object obj) {
+//        EventAccessOperations test = (EventAccessOperations)obj;
+//        boolean isEqual = true;
+//        if (event != null){
+//            System.out.println(event.get_attributes());
+//            System.out.println(test.get_attributes());
+//            if (event.get_attributes() != test.get_attributes()) isEqual = false;
+//            if (event.get_origins() != test.get_origins()) isEqual = false;
+//            try{
+//                if (event.get_preferred_origin() != test.get_preferred_origin()) isEqual = false;
+//            }
+//            catch(NoPreferredOrigin n){
+//                isEqual = false;
+//            }
+//            return isEqual;
+//        }
+//        else{
+//            if (attr != test.get_attributes()) isEqual = false;
+//            if (origins != test.get_origins()) isEqual = false;
+//            try{
+//                if (isEqual && preferred != test.get_preferred_origin()) isEqual = false;
+//            }
+//            catch(NoPreferredOrigin n){
+//                isEqual = false;
+//            }
+//            return isEqual;
+//        }
+//    }
+
+    protected EventAccessOperations event;
     protected EventAttr attr;
     protected Origin[] origins;
     protected Origin preferred;
