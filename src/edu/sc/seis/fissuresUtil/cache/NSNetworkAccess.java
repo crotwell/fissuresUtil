@@ -20,7 +20,7 @@ public class NSNetworkAccess extends ProxyNetworkAccess{
      * NetworkAccess returned by the netDC.
      */
     public NSNetworkAccess(NetworkId id, NetworkDCOperations netDC) throws NetworkNotFound{
-        this(netDC.a_finder().retrieve_by_id(id), id, netDC);
+        this(getFromDC(id, netDC), id, netDC);
     }
 
     public NSNetworkAccess(NetworkAccess na, NetworkId id, NetworkDCOperations netDC){
@@ -34,11 +34,17 @@ public class NSNetworkAccess extends ProxyNetworkAccess{
      */
     public void reset(){
         try {
-            net = netDC.a_finder().retrieve_by_id(id);
+            net = getFromDC(id, netDC);
         } catch (NetworkNotFound e) {
             TRANSIENT t = new TRANSIENT("Unable to find the network to reset it");
             t.initCause(e);
             throw t;
+        }
+    }
+
+    private static NetworkAccess getFromDC(NetworkId id, NetworkDCOperations netDC) throws NetworkNotFound{
+        synchronized(netDC){
+            return netDC.a_finder().retrieve_by_id(id);
         }
     }
 
