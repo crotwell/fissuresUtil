@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import java.util.*;
+
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
@@ -18,9 +20,6 @@ import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Stroke;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
 /**
  * DisplayUtils.java
  *
@@ -162,36 +161,59 @@ public class DisplayUtils {
      * @returns the seismograms in order of begin time
      */
     public static LocalSeismogramImpl[] sortByDate(LocalSeismogramImpl[] seis){
-        List sortedSeis = new ArrayList();
-        for(int i = 0; i < seis.length; i++){
-            MicroSecondDate timeToBeAdded = seis[i].getBeginTime();
-            ListIterator it = sortedSeis.listIterator();
+        Map seisTimes = new HashMap();
+        for (int i = 0; i < seis.length; i++){
+            seisTimes.put(seis[i], new MicroSecondTimeRange(seis[i].getBeginTime(),
+                                                            seis[i].getEndTime()));
+        }
+        List seisList = sortByDate(seisTimes);
+        seis = new LocalSeismogramImpl[seisList.size()];
+        return (LocalSeismogramImpl[])seisList.toArray(seis);
+    }
+
+    public static RequestFilter[] sortByDate(RequestFilter[] rf){
+        Map rfTimes = new HashMap();
+        for (int i = 0; i < rf.length; i++){
+            rfTimes.put(rf[i], new MicroSecondTimeRange(rf[i]));
+        }
+        List rfList = sortByDate(rfTimes);
+        rf = new RequestFilter[rfList.size()];
+        return (RequestFilter[])rfList.toArray(rf);
+    }
+
+    private static List sortByDate(Map objectTimes){
+        List sortedObj = new ArrayList();
+        Iterator objIt = objectTimes.keySet().iterator();
+        while(objIt.hasNext()){
+            Object currentObj = objIt.next();
+            MicroSecondDate timeToBeAdded = ((MicroSecondTimeRange)objectTimes.get(currentObj)).getBeginTime();
+            ListIterator it = sortedObj.listIterator();
             boolean added = false;
             while(it.hasNext()){
-                LocalSeismogramImpl current = (LocalSeismogramImpl)it.next();
-                MicroSecondDate currentTime = current.getBeginTime();
+                Object current = it.next();
+                MicroSecondDate currentTime = ((MicroSecondTimeRange)objectTimes.get(current)).getBeginTime();
                 if(timeToBeAdded.before(currentTime)){
                     it.previous();
-                    it.add(seis[i]);
+                    it.add(currentObj);
                     added = true;
                     break;
                 }
             }
             if(!added){
-                sortedSeis.add(seis[i]);
+                sortedObj.add(currentObj);
             }
         }
-        LocalSeismogramImpl prev = null;
-        ListIterator it = sortedSeis.listIterator();
+        MicroSecondTimeRange prev = null;
+        ListIterator it = sortedObj.listIterator();
         while(it.hasNext()){
-            LocalSeismogramImpl cur = (LocalSeismogramImpl)it.next();
+            MicroSecondTimeRange cur = (MicroSecondTimeRange)objectTimes.get(it.next());
             if(prev != null && prev.getEndTime().after(cur.getEndTime())){
                 it.remove();
             }else{
                 prev = cur;
             }
         }
-        return (LocalSeismogramImpl[])sortedSeis.toArray(new LocalSeismogramImpl[sortedSeis.size()]);
+        return sortedObj;
     }
 
     /**
