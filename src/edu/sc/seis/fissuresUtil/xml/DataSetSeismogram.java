@@ -274,9 +274,9 @@ public abstract class DataSetSeismogram
                 if(current == null){
                     it.remove();
                 }else if(current.get_id().equals(seismogram.get_id()) ||
-                         equalOrContained(current, seismogram)){
+                         equalOrContains(current, seismogram)){
                     return true;
-                }else if(equalOrContained(seismogram, current)){
+                }else if(equalOrContains(seismogram, current)){
                     it.remove();
                     return false;
                 }
@@ -286,7 +286,7 @@ public abstract class DataSetSeismogram
     }
     
     //returns true if one is equal to or contains two in time
-    private boolean equalOrContained(LocalSeismogramImpl one, LocalSeismogramImpl two){
+    public static boolean equalOrContains(LocalSeismogramImpl one, LocalSeismogramImpl two){
         if(one.getBeginTime().equals(two.getBeginTime()) || one.getBeginTime().before(two.getBeginTime())){
             if(one.getEndTime().equals(two.getEndTime()) || one.getEndTime().after(two.getEndTime())){
                 return true;
