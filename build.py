@@ -16,7 +16,7 @@ class simpleScriptParameters(scriptBuilder.jacorbParameters):
 
 def buildSACDirScripts(proj):
     return __buildScripts(proj,
-                   [('edu.sc.seis.fissuresUtil.sac.SacDirToDataSet', 'sacDirToDSML')])
+                          [('edu.sc.seis.fissuresUtil.sac.SacDirToDataSet', 'sacDirToDSML')])
 
 def buildAllScripts(proj):
     scripts = buildNetScripts(proj)
@@ -42,20 +42,25 @@ def buildSeisScripts(proj):
     return __buildScripts(proj, mainclasses)
 
 def buildNSCopyScripts(proj):
-    return __buildScripts(proj,
-                   [('edu.sc.seis.fissuresUtil.namingService.NameServiceCopy',
-                           'nsCopy')],
-                   'nsCopy.prop')
+    files = []
+    for prop in ['CalTechToUSC','BerkeleyToUSC','USCToDmc','DmcToUSC']:
+        files.extend(__buildScript(proj, 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy',
+                                   prop, prop+'.prop'))
+    return files
 
 def __buildScripts(proj, mainclasses, propFile='simpleClient.prop'):
     filenames = []
     for mainclass, name in mainclasses:
-        scriptBuilder.setVarSh()
-        shParams = simpleScriptParameters([], mainclass, name, propFile)
-        filenames.append(scriptBuilder.build(shParams, proj))
-        scriptBuilder.setVarWindows()
-        winParams = simpleScriptParameters([scriptBuilder.windowsParameters()], mainclass, name, propFile)
-        filenames.append(scriptBuilder.build(winParams, proj))
+        filenames.extend(__buildScript(proj, mainclass, name, propFile))
+    return filenames
+
+def __buildScript(proj, mainclass, name, propFile):
+    scriptBuilder.setVarSh()
+    shParams = simpleScriptParameters([], mainclass, name, propFile)
+    filenames = [ scriptBuilder.build(shParams, proj) ]
+    scriptBuilder.setVarWindows()
+    winParams = simpleScriptParameters([scriptBuilder.windowsParameters()], mainclass, name, propFile)
+    filenames.append(scriptBuilder.build(winParams, proj))
     return filenames
 
 def buildJars(fisProj, clean=False):
