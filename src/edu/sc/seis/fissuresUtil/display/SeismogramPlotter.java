@@ -5,6 +5,8 @@ import java.awt.Shape;
 import java.awt.Dimension;
 import java.lang.ref.SoftReference;
 
+import org.apache.log4j.*;
+
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 
 //import edu.iris.Fissures.model.*;
@@ -27,7 +29,8 @@ public class SeismogramPlotter implements Plotter{
     }
 
     public Shape draw(Dimension size){
-	System.out.println("drawing a seismogram");
+	logger.debug("drawing a seismogram");
+	GeneralPath currentShape = new GeneralPath();
 	int scale = 5;
 	int w = size.width, h = size.height;
 	Dimension mySize = new Dimension(w, h);
@@ -43,11 +46,8 @@ public class SeismogramPlotter implements Plotter{
 	    xPixels = pixels[0];
 	    yPixels = pixels[1];
 	    SeisPlotUtil.flipArray(yPixels, mySize.height);
-	    // create cache
-	    SoftReference xPixelRef = new SoftReference(xPixels);
-	    SoftReference yPixelRef = new SoftReference(yPixels);
-	    currentShape = new GeneralPath();
-	    currentShape.moveTo(xPixels[0], yPixels[0]);
+	    if(xPixels.length >= 1)
+		currentShape.moveTo(xPixels[0], yPixels[0]);
 	    for(int i = 1; i < xPixels.length; i++)
 		    currentShape.lineTo(xPixels[i], yPixels[i]);
 	}
@@ -59,9 +59,9 @@ public class SeismogramPlotter implements Plotter{
     
     protected LocalSeismogram seismogram;
 
-    protected GeneralPath currentShape;
-
     protected TimeRangeConfig timeConfig;
     
     protected AmpRangeConfig ampConfig;
+
+    static Category logger = Category.getInstance(SeismogramPlotter.class.getName());
 }// SeismogramPlotter
