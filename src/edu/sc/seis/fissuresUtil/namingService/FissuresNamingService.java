@@ -466,7 +466,6 @@ public class FissuresNamingService {
             throws NotFound, CannotProceed, InvalidName,
             org.omg.CORBA.ORBPackage.InvalidName {
         if(isMock(dns, objectname)) {
-            if(objectname.equals("Timeout")) { return new TimeoutDC(); }
             return new MockDC();
         }
         logger.debug("before get SeismogramDC Object");
