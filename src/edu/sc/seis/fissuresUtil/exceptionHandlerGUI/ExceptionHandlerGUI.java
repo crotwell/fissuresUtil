@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.exceptionHandlerGUI;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import java.lang.*;
 import java.io.*;
@@ -26,45 +27,66 @@ public class ExceptionHandlerGUI {
      * @param e an <code>Throwable</code> value
      */
     public ExceptionHandlerGUI (Throwable e){
-	
 	this.exception = e;
-	
+	this.message = "A problem Occured";
+	createGUI();
     }
 
-    /**
-     * displays a GUI showing the stackTrace in one tabbedPane and a brief description
-     * of the exception in a separate tabbed pane.
-     *
-     * @return a <code>JPanel</code> value
-     */
-    public static  JPanel handleException(Throwable exception) {
-	return handleException("A Problem has occured.", exception);
+    public ExceptionHandlerGUI(String message, Throwable e) {
+	this.exception = e;
+	this.message = message;
+	createGUI();
     }
 
-    public static  JPanel handleException(String message,
-					  Throwable exception) {
+    public static ExceptionHandlerGUI getExceptionHandlerGUI(String message, Throwable e) {
+	ExceptionHandlerGUI exceptionHandlerGUI = new ExceptionHandlerGUI(message, e);
+	return exceptionHandlerGUI;
+    }
+    
+    public void addToButtonPanel(JButton button) {
+	buttonPanel.add(button);
+    }
+
+    public JFrame display() {
+	createFrame();
+	return displayFrame;
+    }
+
+    private void createGUI() {
 	
-	JPanel mainPanel = new JPanel();
 	JTabbedPane tabbedPane = new JTabbedPane();
-	JPanel messagePanel = new JPanel();
+	tabbedPane.addTab("information", getMessagePanel());
+	tabbedPane.addTab("stackTrace", getStackTracePanel());
+	java.awt.Dimension dimension = new java.awt.Dimension(800, 300);
+	tabbedPane.setPreferredSize(dimension);
+	tabbedPane.setMinimumSize(dimension);
+	mainPanel.setPreferredSize(dimension);
+	mainPanel.setMinimumSize(dimension);
+	mainPanel.add(tabbedPane);
+    }
+   
+
+    private JPanel getMessagePanel() {
+	JPanel messagePanel = new JPanel();	
 	JTextArea exceptionMessageLabel = new JTextArea();
 	exceptionMessageLabel.setLineWrap(true);
 	exceptionMessageLabel.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
 	exceptionMessageLabel.setWrapStyleWord(true);
 	exceptionMessageLabel.setEditable(false);
+	exceptionMessageLabel.setText(message);
+	messagePanel.setLayout(new BorderLayout());
+	messagePanel.add(exceptionMessageLabel);
+	return messagePanel;
+    }
+    
+    
+    private JScrollPane getStackTracePanel() {
 	JTextArea messageArea = new JTextArea();
 	messageArea.setLineWrap(true);
 	messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
 	messageArea.setWrapStyleWord(true);
 	messageArea.setEditable(false);
 	
-	
-	exceptionMessageLabel.setText(message);
-	
-	messagePanel.setLayout(new BorderLayout());
-	messagePanel.add(exceptionMessageLabel);
-	tabbedPane.addTab("information", messagePanel);
-
 	JPanel stackTracePanel = new JPanel();
 	JScrollPane scrollPane = new JScrollPane(stackTracePanel);
 	String traceString = "";
@@ -82,17 +104,10 @@ public class ExceptionHandlerGUI {
 	messageArea.setText(traceString);
 	stackTracePanel.setLayout(new BorderLayout());
 	stackTracePanel.add(messageArea);
-	tabbedPane.addTab("stackTrace", scrollPane);
-
-	java.awt.Dimension dimension = new java.awt.Dimension(800, 300);
-	tabbedPane.setPreferredSize(dimension);
-	tabbedPane.setMinimumSize(dimension);
-	mainPanel.setPreferredSize(dimension);
-	mainPanel.setMinimumSize(dimension);
-	mainPanel.add(tabbedPane);
-	return mainPanel;
-
+	return scrollPane;
     }
+    
+
 
     public static String getSystemInformation() {
 
@@ -108,6 +123,64 @@ public class ExceptionHandlerGUI {
 	rtnValue += "user.region : "+System.getProperty("user.region")+"\n";
 	return rtnValue;
     }
+
+    public void createFrame() {
+	
+
+	JPanel displayPanel = new JPanel();
+
+	JButton closeButton = new JButton("Close");
+
+	JButton saveToFile = new JButton("save");
+	buttonPanel.add(closeButton);
+	buttonPanel.add(saveToFile);
+	
+	displayPanel.setLayout(new BorderLayout());
+	displayPanel.add(mainPanel, 
+			 BorderLayout.CENTER);
+	displayPanel.add(buttonPanel, BorderLayout.SOUTH);
+	
+	java.awt.Dimension dimension = new java.awt.Dimension(800, 400);
+	displayPanel.setPreferredSize(dimension);
+	displayPanel.setMinimumSize(dimension);
+	
+	closeButton.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+
+		    displayFrame.dispose();
+
+		}
+	    });
+
+	saveToFile.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent ex) {
+		    
+		    JFileChooser fileChooser = new JFileChooser();
+		    int rtnVal = fileChooser.showSaveDialog(null);
+		    if(rtnVal == JFileChooser.APPROVE_OPTION) {
+			try {
+			    FileWriter fw = new FileWriter(fileChooser.getSelectedFile().getAbsolutePath());
+			  
+			    BufferedWriter bw = new BufferedWriter(fw);
+			    String str = getSystemInformation();
+			    bw.write(str, 0, str.length());
+			    str = getStackTrace(exception);
+			    bw.write(str, 0, str.length());
+			    
+			    // fw.close();
+			    bw.close();
+			    fw.close();
+			} catch(Exception e) {}
+		    }
+		}
+	    });
+		
+	displayFrame.getContentPane().add(displayPanel);
+	displayFrame.setSize(dimension);
+	displayFrame.pack();
+	displayFrame.show();
+  }
+
 
     /**
      * retuns the stackTrace of the exception as a string.
@@ -127,4 +200,12 @@ public class ExceptionHandlerGUI {
     }
 
     private Throwable exception;
+
+    private String message;
+
+    private JPanel buttonPanel = new JPanel();
+
+    private JPanel mainPanel = new JPanel();
+
+    private JFrame displayFrame = new JFrame();
 }// ExceptionHandlerGUI
