@@ -4,6 +4,8 @@ import java.util.*;
 
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.cache.AbstractJob;
+import edu.sc.seis.fissuresUtil.cache.JobTracker;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
@@ -30,12 +32,12 @@ public class SeismogramContainer implements SeisDataChangeListener{
         }
         this.seismogram = seismogram;
         seismogram.addSeisDataChangeListener(this);
-        //seismogram.retrieveData(this);
     }
 
     public void finished(SeisDataChangeEvent sdce) {
         finished = true;
         addSeismograms(sdce.getSeismograms());
+        //loadStatus.decrementDataRetrievers();
     }
 
     public SeismogramIterator getIterator(){
@@ -121,6 +123,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
             }
             time = null;
             noData = false;
+
             SeismogramContainerListener[] listArray;
             synchronized(listeners){
                 listArray = new SeismogramContainerListener[listeners.size()];
@@ -162,6 +165,8 @@ public class SeismogramContainer implements SeisDataChangeListener{
         if(callRetrieve){
             time = null;
             seismogram.retrieveData(this);
+            //JobTracker.getTracker().add(loadStatus);
+            //loadStatus.incrementDataRetrievers();
         }
         return seis;
     }
@@ -184,7 +189,7 @@ public class SeismogramContainer implements SeisDataChangeListener{
         }else if(noData){
             return GETTING_DATA;
         }else{
-            return EMPTY;
+            return HAVE_DATA;
         }
     }
 
@@ -206,13 +211,46 @@ public class SeismogramContainer implements SeisDataChangeListener{
 
     private boolean noData = true;
 
-    private static final String NO_DATA = "No data available";
+    public static final String NO_DATA = "No data available";
 
-    private static final String GETTING_DATA = "Trying to get data";
+    public static final String GETTING_DATA = "Trying to get data";
 
-    private static final String EMPTY = "";
+    public static final String HAVE_DATA = "";
 
     private MicroSecondTimeRange time;
+
+    // private static LoaderJob loadStatus = new LoaderJob();
+
+    private static class LoaderJob extends AbstractJob{
+
+        public LoaderJob(){
+            super("Seismic Data Loader");
+            setFinished();
+            //JobTracker.getTracker().add(this);
+        }
+
+        public synchronized void incrementDataRetrievers(){
+            outRetrieving++;
+            updateStatus();
+        }
+
+        public synchronized void decrementDataRetrievers(){
+            if(--outRetrieving <= 0){
+                outRetrieving = 0;
+                setFinished();
+            }else{
+                updateStatus();
+            }
+        }
+
+        private void updateStatus(){
+            setStatus(outRetrieving + " seismograms are attempting to get data");
+        }
+
+        public void run() {}
+
+        private int outRetrieving = 0;
+    }
 }
 
 
