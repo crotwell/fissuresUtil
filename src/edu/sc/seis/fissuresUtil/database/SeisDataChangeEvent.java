@@ -14,30 +14,30 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  */
 
 public class SeisDataChangeEvent {
-    public SeisDataChangeEvent (LocalSeismogramImpl[] seismos,
-				DataSetSeismogram source,
-				Object initiator){
-	this.seismos = seismos;
-	this.source = source;
-	this.initiator = initiator;
-    }
-
-    private LocalSeismogramImpl[] seismos;
-
-    private LocalSeismogramImpl[] getSeismos() {
-	return seismos;
-    }
-    
-    private DataSetSeismogram source;
-
-    public DataSetSeismogram getSource() {
-	return source;
-    }
-    
-    private Object initiator;
-
-    public Object getInitiator() {
-	return initiator;
-    }
-    
+ public SeisDataChangeEvent (LocalSeismogramImpl[] seismos,
+                             DataSetSeismogram source,
+                             Object initiator){
+  this.seismos = seismos;
+  this.source = source;
+  this.initiator = initiator;
+ }
+ 
+ private LocalSeismogramImpl[] seismos;
+ 
+ public LocalSeismogramImpl[] getSeismos() {
+  return seismos;
+ }
+ 
+ private DataSetSeismogram source;
+ 
+ public DataSetSeismogram getSource() {
+  return source;
+ }
+ 
+ private Object initiator;
+ 
+ public Object getInitiator() {
+  return initiator;
+ }
+ 
 }// SeisDataChangeEvent
