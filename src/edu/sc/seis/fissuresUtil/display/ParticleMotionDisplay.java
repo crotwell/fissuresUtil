@@ -141,13 +141,13 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				 TimeConfigRegistrar timeConfigRegistrar,
 				 AmpConfigRegistrar hAmpConfigRegistrar,
 				 AmpConfigRegistrar vAmpConfigRegistrar,
-				 org.omg.CORBA_2_3.ORB orb,
-				 ChannelId[] channelIds) {
+				 edu.sc.seis.fissuresUtil.xml.DataSet dataSet
+				 ) {
 	
+	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSet).getChannelIds();
 	ChannelProxy channelProxy = new ChannelProxy();
 	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, ((LocalSeismogram)hseis).channel_id);
 	System.out.println("THe length of the channel group is "+channelGroup.length);
-	FissuresNamingServiceImpl fissuresNamingServiceImpl = null;
 	edu.iris.Fissures.Time startTime;
 	edu.iris.Fissures.Time endTime;
 	LocalSeismogram[] seismograms = new LocalSeismogram[3];
@@ -161,19 +161,9 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	System.out.println("Start Time is "+new MicroSecondDate(startTime));
 	System.out.println("end Time is "+new MicroSecondDate(endTime));
 	try {
-	    fissuresNamingServiceImpl = new FissuresNamingServiceImpl(orb);
-	    DataCenter dataCenter = fissuresNamingServiceImpl.getSeismogramDC("edu/sc/seis", "SCEPPSeismogramDC");
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		System.out.println("The channel that is considered is "+ChannelIdUtil.toString(channelGroup[counter]));
-		LocalSeismogram[] localSeismograms = retreiveSeismograms(startTime,
-									 endTime,
-									 channelGroup[counter],
-									 dataCenter);
-		System.out.println(" channelid is "+ channelGroup[counter].channel_code);
-		System.out.println(" the length of seismogram is "+localSeismograms.length);
-		if(localSeismograms[0] == null) System.out.println("The seismogram is null");
-		else System.out.println("The seismogram is not null");
-		seismograms[counter] = localSeismograms[0];
+		
+		seismograms[counter] = dataSet.getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter]));
 	    }
 								     
 	 } catch(Exception e) {
