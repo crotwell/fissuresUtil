@@ -503,6 +503,17 @@ public class SeisPlotUtil  {
         return createTestData("Sine Wave, phase "+phase+" hertz "+hertz,
                               dataBits);
     }
+
+    public static LocalSeismogram createSpike(MicroSecondDate spikeTime) {
+        String name = "spike at "+spikeTime.toString();
+        int[] dataBits = new int[1000];
+        dataBits[0] = 100;
+        // assume 20 sps
+        //        dataBits[5*20] = 100;
+        MicroSecondDate begin = spikeTime;
+        //            spikeTime.subtract(new TimeInterval(5, UnitImpl.SECOND));
+        return createTestData(name, dataBits, begin.getFissuresTime());
+    }
     
     /*
     public static ChannelGroup createChannelGroup() {
