@@ -7,6 +7,7 @@ package edu.sc.seis.fissuresUtil.display;
  */
 
 import edu.sc.seis.fissuresUtil.display.registrar.BasicLayoutConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.LayoutConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutData;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutListener;
@@ -49,7 +50,7 @@ public class DistanceSeisSorter extends SeismogramSorter implements LayoutListen
         layoutConfig.clear();
     }
 
-    private BasicLayoutConfig layoutConfig = new BasicLayoutConfig();
+    protected LayoutConfig layoutConfig = new BasicLayoutConfig();
 
 }
 
