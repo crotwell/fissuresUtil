@@ -8,6 +8,6 @@ package edu.sc.seis.fissuresUtil.cache;
 
 
 public interface StatusListener{
-    public void statusUpdated(Process updated);
+    public void statusUpdated(Job updated);
 }
 
