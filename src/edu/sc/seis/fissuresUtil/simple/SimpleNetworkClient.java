@@ -24,6 +24,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.OrientationRangeImpl;
 import edu.iris.Fissures.network.SamplingRangeImpl;
+import edu.iris.Fissures.network.StationIdUtil;
 
 public class SimpleNetworkClient implements TestingClient {
 
@@ -152,6 +153,8 @@ public class SimpleNetworkClient implements TestingClient {
                         + stations[i].my_location.longitude + ")");
             }
         }
+        Channel[] chan = net.retrieve_for_station(stations[0].get_id());
+        logger.info("retrieve_for_station("+StationIdUtil.toString(stations[0].get_id())+")");
         return stations;
     }
 
