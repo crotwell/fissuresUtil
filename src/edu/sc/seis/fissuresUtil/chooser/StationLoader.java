@@ -23,6 +23,7 @@ public class StationLoader extends Thread
     {
         this.chooser = chooser;
         this.nets = n;
+        logger.debug("StationLoader constructor");
     }
 
     public void addStationAcceptor(StationAcceptor acceptor)
@@ -42,7 +43,7 @@ public class StationLoader extends Thread
 
         chooser.setProgressOwner(this);
         chooser.setProgressMax(this, 100);
-        System.out.println("There are "+nets.length+" selected networks.");
+        logger.debug("Begin StationLoader.run, there are "+nets.length+" selected networks.");
         try
         {
 //          synchronized (chooser)
