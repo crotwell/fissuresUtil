@@ -63,6 +63,25 @@ useful things already done.</description>
     </developers>
 
   <dependencies>
+<!-- hopefully temporary Java3D support -->
+    <dependency>
+      <id>j3dcore</id>
+      <version>1.0</version>
+      <jar>j3dcore.jar</jar>
+    </dependency>
+<!-- hopefully temporary Java3D support -->
+    <dependency>
+      <id>j3dutils</id>
+      <version>1.0</version>
+      <jar>j3dutils.jar</jar>
+    </dependency>
+<!-- hopefully temporary Java3D support -->
+    <dependency>
+      <id>vecmath</id>
+      <version>1.0</version>
+      <jar>vecmath.jar</jar>
+    </dependency>
+
     <dependency>
       <id>FissuresImpl</id>
       <version>1.1</version>
@@ -72,8 +91,8 @@ useful things already done.</description>
       <version>1.0</version>
     </dependency>
     <dependency>
-      <id>Codec</id>
-      <version>1.0BetaNov22</version>
+      <id>SeedCodec</id>
+      <version>1.0BetaNov26</version>
     </dependency>
     <dependency>
       <id>TauP</id>
