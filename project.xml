@@ -122,7 +122,7 @@ oot:${pom.artifactId}</connection>
     </dependency>
     <dependency>
       <id>fissuresImpl</id>
-      <version>1.1.1beta</version>
+      <version>1.1.2beta</version>
     </dependency>
     <dependency>
       <id>fissuresIDL</id>
