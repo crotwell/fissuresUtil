@@ -13,8 +13,8 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
 import edu.sc.seis.fissuresUtil.cache.RetryNetworkDC;
-import edu.sc.seis.mockFissures.IfNetwork.MockNetworkDC;
-import edu.sc.seis.mockFissures.IfNetwork.MockNetworkId;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkDC;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
 
 /**
  * @author Charlie Groves
