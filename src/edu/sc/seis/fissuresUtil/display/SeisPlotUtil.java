@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.utility.*;
 import edu.iris.Fissures.model.*;
+import edu.iris.Fissures.display.TimePlotConfig;
 import edu.iris.Fissures.IfTimeSeries.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
@@ -11,6 +12,7 @@ import edu.iris.Fissures.IfParameterMgr.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import java.awt.Dimension;
 import java.util.Date;
+import org.apache.log4j.*;
 
 /**
  * SeisPlotUtil.java
@@ -546,5 +548,206 @@ public class SeisPlotUtil  {
 	width = (TimeInterval)width.multiplyBy(index);
 	return beginTime.add(width);
     }
+
+
+    protected static int[][] scaleXvalues(LocalSeismogram seismogram, 
+					  TimePlotConfig config,
+					  Dimension size) 
+	throws UnsupportedDataEncoding {
+
+        LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
+
+	int[][] out = new int[2][];
+	int seisIndex = 0;
+	int pixelIndex = 0;
+	int numAdded = 0;
+	  
+      
+	if ( seis.getEndTime().before(config.getBeginTime()) ||
+	     seis.getBeginTime().after(config.getEndTime()) ) {
+	    
+	    out[0] = new int[0];
+	    out[1] = new int[0];
+            logger.info("The end time is before the beginTime in simple seismogram");
+	    return out;
+	}
+	   
+	    
+
+        MicroSecondDate tMin = config.getBeginTime();
+        MicroSecondDate tMax = config.getEndTime();
+	UnitRangeImpl ampRange = config.getAmpRange().convertTo(seis.getUnit());
+        double yMin = ampRange.getMinValue();
+        double yMax = ampRange.getMaxValue();
+
+
+	int seisStartIndex = getPixel(seis.getNumPoints(),
+				      seis.getBeginTime(),
+				      seis.getEndTime(),
+				      config.getBeginTime());
+	int seisEndIndex = getPixel(seis.getNumPoints(),
+				    seis.getBeginTime(),
+				    seis.getEndTime(),
+				    config.getEndTime());
+	seisStartIndex--;
+	seisEndIndex++;
+	if (seisStartIndex < 0) {
+	    seisStartIndex = 0;
+	}
+	if (seisEndIndex >= seis.getNumPoints()) {
+	    seisEndIndex = seis.getNumPoints()-1;
+	}
+
+	MicroSecondDate tempdate = getValue(seis.getNumPoints(),
+					    seis.getBeginTime(),
+					    seis.getEndTime(),
+					    seisStartIndex);
+	int pixelStartIndex = getPixel(size.width, 
+				       config.getBeginTime(),
+				       config.getEndTime(),
+				       tempdate);
+        
+	  
+
+	tempdate = getValue(seis.getNumPoints(),
+			    seis.getBeginTime(),
+			    seis.getEndTime(),
+			    seisEndIndex);
+      
+        int pixelEndIndex = getPixel(size.width,
+                                     config.getBeginTime(),
+                                     config.getEndTime(),
+                                     tempdate);
+                                     
+ 
+
+       
+	int pixels = size.width;
+	out[0] = new int[2*pixels];
+	out[1] = new int[out[0].length];
+	int tempYvalues[] = new int [out[0].length];
+
+	seisIndex = seisStartIndex;
+	numAdded = 0;
+	int xvalue = 0;
+	int tempValue;
+	xvalue =  Math.round((float)(linearInterp(seisStartIndex,
+						  pixelStartIndex,
+						  seisEndIndex,
+						  pixelEndIndex,
+						  seisIndex)));
+	seisIndex++;
+	int j;
+	j = 0;
+	while (seisIndex <= seisEndIndex) {
+	    
+	    tempValue = 
+		Math.round((float)(linearInterp(seisStartIndex,
+						pixelStartIndex,
+						seisEndIndex,
+						pixelEndIndex,
+						seisIndex)));
+	    
+	    tempYvalues[j++] = (int)seis.getValueAt(seisIndex).getValue();
+	    if(tempValue != xvalue) {
+		out[0][numAdded] = xvalue;
+		out[0][numAdded+1] = xvalue;
+		out[1][numAdded] = getMinValue(tempYvalues, 0, j-1);
+		out[1][numAdded+1] = (int)getMaxValue(tempYvalues, 0, j-1);
+		j = 0;
+		xvalue = tempValue;
+		numAdded = numAdded+2;
+
+	    }
+	    seisIndex++;
+	}
+	
+	int temp[][] = new int[2][];
+	temp[0] = new int[numAdded];
+	temp[1] = new int[numAdded];
+	System.arraycopy(out[0], 0, temp[0], 0, numAdded);
+	System.arraycopy(out[1], 0, temp[1], 0, numAdded);
+
+	return temp;
+
+    }
+
+    protected static int[][] compressYvalues(LocalSeismogram seismogram, 
+					     TimePlotConfig config,
+					     Dimension size)throws UnsupportedDataEncoding {
+	
+
+	int[][] uncomp = scaleXvalues(seismogram, config, size);
+	
+
+        // enough points to take the extra time to compress the line
+        int[][] comp = new int[2][];
+        int pixels = size.width;
+	int numValuesperPixel = uncomp[0].length/size.width;
+	comp[0] = new int[2*pixels];
+        comp[1] = new int[2*pixels];
+	
+	
+	
+        int j=0, i, startIndex, endIndex;
+	int xvalue;
+	startIndex = 0; 
+	xvalue = 0;
+	for(i = 0, j = 0; i < uncomp[0].length; i++) {
+	  
+	    if(uncomp[0][i] != xvalue) {
+		endIndex = i-1;
+		comp[1][j] = getMinValue(uncomp[1], startIndex, endIndex);
+		comp[1][j+1] = (int)getMaxValue(uncomp[1], startIndex, endIndex);
+		comp[0][j] = uncomp[0][i];
+		comp[0][j+1] = uncomp[0][i];
+		j = j + 2;
+	   
+		startIndex = endIndex + 1;
+		xvalue = uncomp[0][i];
+	    }  
+	   
+	}
+      
+	return comp;
+    }
+   
+    protected static void  scaleYvalues(int[][] comp, LocalSeismogram seismogram, TimePlotConfig config, Dimension size) {
+	LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
+	UnitRangeImpl ampRange = config.getAmpRange().convertTo(seis.getUnit());
+        double yMin = ampRange.getMinValue();
+        double yMax = ampRange.getMaxValue();
+	for( int i =0 ; i < comp[1].length; i++) {
+	    comp[1][i] = Math.round((float)(linearInterp(yMin, 0,
+							 yMax, size.height,
+							 comp[1][i])));
+	}
+	
+	flipArray(comp[1], size.height);
+
+    }
+	
+    private static int getMinValue(int[] yValues, int startIndex, int endIndex) {
+
+	int minValue = java.lang.Integer.MAX_VALUE;
+	for( int i = startIndex; i <= endIndex; i++) {
+	    if(yValues[i] < minValue) minValue = yValues[i];
+
+	}
+	return minValue;
+
+    }
+
+    private static int getMaxValue(int[] yValues, int startIndex, int endIndex) {
+
+	int maxValue = java.lang.Integer.MIN_VALUE;
+	for( int i = startIndex; i <= endIndex; i++) {
+	    if(yValues[i] > maxValue) maxValue = yValues[i];
+	}
+	return maxValue;
+
+    }
+
+    static Category logger = Category.getInstance(SeisPlotUtil.class.getName());
 
 } // SeisPlotUtil
