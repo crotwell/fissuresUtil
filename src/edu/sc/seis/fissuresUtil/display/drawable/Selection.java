@@ -5,6 +5,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
@@ -32,14 +33,14 @@ import org.apache.log4j.Category;
 
 public abstract class Selection implements TimeListener, Plotter{
     public Selection (MicroSecondDate begin, MicroSecondDate end, Registrar reg, DataSetSeismogram[] seismograms,
-                      BasicSeismogramDisplay parent, Color color){
+                      SeismogramDisplay parent, Color color){
         if ( end.equals(begin)) {
             throw new IllegalArgumentException("Selection must not have zero width, begin and end are the same.");
         } // end of if ()
 
         externalRegistrar = reg;
         seismos = seismograms;
-        parents.add(parent);
+        this.parent = parent;
         this.color = color;
         internalRegistrar = new Registrar(seismos);
         internalRegistrar.addListener(this);
@@ -50,7 +51,7 @@ public abstract class Selection implements TimeListener, Plotter{
 
     public void updateTime(TimeEvent event){
         latestTime = event;
-        repaintParents();
+        repaintParent();
     }
 
     public void toggleVisibility(){ visible = !visible; }
@@ -90,33 +91,23 @@ public abstract class Selection implements TimeListener, Plotter{
     }
 
     public void remove(){
-        ListIterator e = parents.listIterator();
-        while(e.hasNext()){
-            BasicSeismogramDisplay current = (BasicSeismogramDisplay)e.next();
-            e.remove();
-            current.removeSelection(this);
+        System.out.println("Calling parent remove");
+        parent.remove(this);
+        if(child != null){
+            child.remove(getSeismograms());
         }
-        removeFromAllChildren();
     }
-
     //used only by basic seismogram display so that the removal types of both selection and bsd
     //don't clash
     public void removeParent(BasicSeismogramDisplay disowner){
-        if(parents.contains(disowner)){
-            parents.remove(disowner);
-        }
+        //TODO
+        //if(parents.contains(disowner)){
+        //  parents.remove(disowner);
+        //}
     }
 
     private void removeFromAllChildren(){
-        ListIterator e = displays.listIterator();
-        while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).remove();
-            e.remove();
-        }
-    }
-
-    public boolean removeChild(BasicSeismogramDisplay child){
-        return displays.remove(child);
+        child.remove(getSeismograms());
     }
 
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
@@ -128,20 +119,16 @@ public abstract class Selection implements TimeListener, Plotter{
         return false;
     }
 
-    public void addParent(BasicSeismogramDisplay newParent){
-        if(!parents.contains(newParent))
-            parents.add(newParent);
-    }
+    public void setParent(SeismogramDisplay parent){ this.parent = parent; }
 
-    public BasicSeismogramDisplay getParent(){ return (BasicSeismogramDisplay)parents.getFirst(); }
+    public SeismogramDisplay getParent(){ return parent; }
 
-    public LinkedList getParents(){ return parents; }
+    public void setChild(SeismogramDisplay child){ this.child = child; }
 
-    public void repaintParents(){
-        Iterator e = parents.iterator();
-        while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).repaint();
-        }
+    public SeismogramDisplay getChild(){ return child; }
+
+    public void repaintParent(){
+        parent.repaint();
     }
 
     public float getX(int width, TimeEvent currentExternalState){
@@ -162,8 +149,6 @@ public abstract class Selection implements TimeListener, Plotter{
     public void setColor(Color color){ this.color = color; }
 
     public DataSetSeismogram[] getSeismograms(){ return seismos; }
-
-    public void addDisplay(BasicSeismogramDisplay display){ displays.add(display); }
 
     public Registrar getInternalRegistrar(){ return internalRegistrar; }
 
@@ -217,9 +202,7 @@ public abstract class Selection implements TimeListener, Plotter{
         internalRegistrar.shaleTime(0, scale);
     }
 
-    private LinkedList  displays = new LinkedList();
-
-    private LinkedList parents = new LinkedList();
+    private SeismogramDisplay parent, child;
 
     private Registrar externalRegistrar, internalRegistrar;
 
@@ -232,5 +215,4 @@ public abstract class Selection implements TimeListener, Plotter{
     private TimeEvent latestTime;
 
     private static Category logger = Category.getInstance(Selection.class.getName());
-
 }// Selection
