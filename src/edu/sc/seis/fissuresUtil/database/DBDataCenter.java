@@ -150,14 +150,31 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
      * end.
      *
      */
-    public static RequestFilter[] notCovered(RequestFilter[] filters,
-                                      LocalSeismogramImpl[] seismograms){
-        if(seismograms.length == 0){
-            return filters;
+    public static RequestFilter[] notCovered(RequestFilter[] neededFilters,
+                                             LocalSeismogramImpl[] existingFilters){
+        if(existingFilters.length == 0){
+            return neededFilters;
         }
-        LocalSeismogramImpl[] sorted = DisplayUtils.sortByDate(seismograms);
-        MicroSecondTimeRange timeRange = new MicroSecondTimeRange(sorted[0].getBeginTime(),
-                                                                  sorted[sorted.length -1].getEndTime());
+        LocalSeismogramImpl[] sorted = DisplayUtils.sortByDate(existingFilters);
+        return notCovered(neededFilters, new MicroSecondTimeRange(sorted[0].getBeginTime(),
+                                                                  sorted[sorted.length -1].getEndTime()));
+    }
+
+    public static RequestFilter[] notCovered(RequestFilter[] existingFilters,
+                                             RequestFilter[] neededFilters){
+        if(existingFilters.length == 0){
+            return neededFilters;
+        }
+        RequestFilter[] sorted = DisplayUtils.sortByDate(existingFilters);
+        RequestFilter totalFilter = new RequestFilter(sorted[0].channel_id,
+                                                      sorted[0].start_time,
+                                                      sorted[0].end_time);
+        return notCovered(neededFilters, new MicroSecondTimeRange(totalFilter));
+
+    }
+
+    public static RequestFilter[] notCovered(RequestFilter[] filters,
+                                             MicroSecondTimeRange timeRange){
         MicroSecondDate timeBegin = timeRange.getBeginTime();
         MicroSecondDate timeEnd = timeRange.getEndTime();
         List unsatisfied = new ArrayList();
