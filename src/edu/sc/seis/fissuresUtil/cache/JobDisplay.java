@@ -67,8 +67,10 @@ public class JobDisplay extends JTable implements TrackerListener{
             Job rowProcess;
             if(tracker.getActiveJobs().size() > rowIndex){
                 rowProcess = (Job)tracker.getActiveJobs().get(rowIndex);
-            }else{
+            }else if(getRowCount() > rowIndex){
                 rowProcess = (Job)tracker.getFinishedJobs().get(rowIndex - tracker.getActiveJobs().size());
+            }else{
+                return null;
             }
             if(columnIndex == 0){
                 return rowProcess.getName();
