@@ -17,6 +17,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import javax.swing.BoxLayout;
 import org.apache.log4j.Category;
+import java.awt.event.MouseEvent;
 
 /**
  * VerticalSeismogramDisplay(VSD) is a JComponent that can contain multiple
@@ -107,6 +108,11 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         if(disp != null){
             disp.remove(drawable);
         }
+    }
+
+    public DrawableIterator getDrawables(MouseEvent e) {
+        // TODO
+        return null;
     }
 
     public DataSetSeismogram[] getSeismograms(){

@@ -18,6 +18,7 @@ import javax.swing.JComponent;
 import javax.swing.OverlayLayout;
 import javax.swing.border.Border;
 import org.apache.log4j.Category;
+import java.awt.event.MouseEvent;
 
 /**
  * BasicSeismogramDisplay.java
@@ -103,6 +104,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public void add(Drawable drawable) {
         drawables.add(drawable);
     }
+
+    public DrawableIterator getDrawables(MouseEvent e) {
+        // TODO
+        return new DrawableIterator(Drawable.class, EMPTY_LIST);
+    }
+    private static List EMPTY_LIST = new ArrayList();
 
     public DataSetSeismogram[] getSeismograms(){
         if(seismogramArray == null){
