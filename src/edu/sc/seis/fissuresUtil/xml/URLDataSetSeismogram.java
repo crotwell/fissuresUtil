@@ -260,7 +260,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         seisFilename = seisFilename.replace(' ', '.'); // check for space-space site
         seisFilename += ".sac"; // append .sac to filename
         File seisFile = new File(directory, seisFilename);
-        
+
         int n =0;
         while (seisFile.exists()) {
             n++;
@@ -330,8 +330,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         LocalSeismogramImpl seis;
 
         if (isPSN()){
-            psnDataFile = new PSNDataFile(seisurl.getFile());
-            seis = PSNToFissures.getSeismograms(psnDataFile)[0];
+            URL psnURL = getURLfromPSNURL(seisurl);
+            psnDataFile = new PSNDataFile(new DataInputStream(new BufferedInputStream(psnURL.openStream())));
+            int evRecIndex = getIndexFromPSNURL(seisurl);
+            seis = PSNToFissures.getSeismograms(psnDataFile)[evRecIndex];
         }
         else{
             sacTime = new SacTimeSeries();
@@ -447,6 +449,20 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         URL[] urls = new URL[children.getLength()];
         urls = (URL[])urlList.toArray(urls);
         return new URLDataSetSeismogram(urls, SeismogramFileTypes.SAC, name, request);
+    }
+
+    public static URL createPSNURL(URL psnUrl, int index) throws MalformedURLException{
+        return new URL(psnUrl.toString() + "#edu.sc.seis.fissuresUtil.psn.PSNEventRecord=" + index);
+    }
+
+    public static URL getURLfromPSNURL(URL psnURL) throws MalformedURLException{
+        String urlString = psnURL.toString();
+        return new URL(urlString.substring(0,urlString.indexOf('#')));
+    }
+
+    public static int getIndexFromPSNURL(URL psnURL){
+        String urlString = psnURL.toString();
+        return Integer.parseInt(urlString.substring(urlString.indexOf('=') + 1));
     }
 
     private URL[] url;
