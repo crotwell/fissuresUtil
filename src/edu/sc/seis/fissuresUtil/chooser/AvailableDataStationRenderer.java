@@ -86,12 +86,12 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 });
         // in case networks are already loaded
         recheckNetworks();
-        for (int i = 0; i < numThreads; i++) {
-            StationChecker checker = new StationChecker();
-            Thread t = new Thread(checker, "StationUpChecker"+i);
-            t.setPriority(t.getPriority()-1);
-            t.start();
-        }
+//        for (int i = 0; i < numThreads; i++) {
+//            StationChecker checker = new StationChecker();
+//            Thread t = new Thread(checker, "StationUpChecker"+i);
+//            t.setPriority(t.getPriority()-1);
+//            t.start();
+//        }
     }
     protected void recheckNetworks() {
         stationsUpNow.clear();
