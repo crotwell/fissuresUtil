@@ -61,6 +61,10 @@ public class AmpEvent {
         return genericAmp;
     }
 
+    public void setAmp(UnitRangeImpl amp){
+        genericAmp = amp;
+    }
+
     public DataSetSeismogram[] getSeismograms() {
         return seismos;
     }
