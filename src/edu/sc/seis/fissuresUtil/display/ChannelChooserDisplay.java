@@ -76,6 +76,10 @@ public class ChannelChooserDisplay extends JPanel implements  ChannelChooserInte
 
     }
 
+    public ChannelChooser getChannelChooser() {
+	return channelChooser.getChannelChooser();
+    }
+
     ChannelChooserGUI channelChooser;
 
     NetworkDC netDC;
