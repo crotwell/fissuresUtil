@@ -23,8 +23,10 @@ public class DataSetToXML {
         throws IOException, ParserConfigurationException, MalformedURLException {
         Element doc = createDocument(dataset, saveDirectory);
         Writer xmlWriter = new Writer();
-        String filename =  saveDirectory.getName()+".dsml";
+        String filename =  dataset.getName()+".dsml";
         filename = filename.replaceAll(" ","_");
+        logger.debug("save to "+filename+" in "+saveDirectory.toString());
+        saveDirectory.mkdirs();
         BufferedWriter buf =
             new BufferedWriter(new FileWriter(new File(saveDirectory, filename)));
         xmlWriter.setOutput(buf);
@@ -77,6 +79,7 @@ public class DataSetToXML {
 
         String[] childDSS = dataset.getDataSetSeismogramNames();
         File dataDir = new File(directory, "data");
+        dataDir.mkdirs();
         for (int i = 0; i < childDSS.length; i++) {
             DataSetSeismogram dss = dataset.getDataSetSeismogram(childDSS[i]);
             URLDataSetSeismogram urlDSS;
