@@ -1,6 +1,6 @@
 /**
  * GlobalExceptionHandler.java
- * 
+ *
  * @author Created by Omnicore CodeGuide
  */
 package edu.sc.seis.fissuresUtil.exceptionHandler;
@@ -85,6 +85,10 @@ public class GlobalExceptionHandler {
         reporters.add(reporter);
     }
 
+    public static void remove(ExceptionReporter reporter) {
+        reporters.remove(reporter);
+    }
+
     public static void add(String sectionName, File file) {
         sectionToContents.put(sectionName, file);
     }
@@ -152,7 +156,7 @@ public class GlobalExceptionHandler {
             logger.error("Caught an exception in the exception handler: ", e);
             logger.error("Original exception was:", thrown);
         } catch(Throwable loggerException) {
-            //well, lets hope System.err is good enough.  
+            //well, lets hope System.err is good enough.
         }
     }
 
