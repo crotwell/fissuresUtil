@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3555 2003-03-25 18:57:52Z crotwell $
+ * @version $Id: XMLDataSet.java 3586 2003-03-28 19:39:29Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -686,15 +686,14 @@ public class XMLDataSet implements DataSet, Serializable{
     private void updateParameterNameCache(String paramName) {
 	String[] temp = parameterNameCache;
 	if(temp == null) {
-	    temp = new String[0];
+	    temp = new String[1];
 	    temp[0] = paramName;
 	} else {
 	    temp = new String[parameterNameCache.length + 1];
 	    System.arraycopy(parameterNameCache,0, temp, 0, parameterNameCache.length);
 	    temp[parameterNameCache.length] = paramName;
 	}
-	parameterNameCache = new String[temp.length];
-	System.arraycopy(temp, 0, parameterNameCache, 0, temp.length);
+	parameterNameCache = temp;
     }
 
     private URL getSeismogramURL(String name) {
