@@ -87,6 +87,10 @@ public class BasicAmpConfig implements AmpConfig{
         return seismos;
     }
 
+    public AmpConfigData getAmpData(DataSetSeismogram seis){
+        return (AmpConfigData)ampData.get(seis);
+    }
+
 
     /**
      * <code>contains</code> checks the receptacle for the presence of seismo

@@ -68,4 +68,6 @@ public interface AmpConfig extends DataSetSeismogramReceptacle{
      * @return true if the amp has changed, false if not
      */
     public AmpEvent updateAmpTime(TimeEvent event);
+
+    public AmpConfigData getAmpData(DataSetSeismogram seis);
 }// AmpConfig

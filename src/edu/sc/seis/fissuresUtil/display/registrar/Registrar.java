@@ -195,7 +195,9 @@ public class Registrar implements TimeConfig, AmpConfig, AmpListener, TimeListen
         return ((DataSetSeismogram[])seismos.toArray(new DataSetSeismogram[seismos.size()]));
     }
 
-
+    public synchronized AmpConfigData getAmpData(DataSetSeismogram seis){
+        return ampConfig.getAmpData(seis);
+    }
 
     /**
      * <code>reset</code> calls reset() on this registrar's configs.
