@@ -10,8 +10,6 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -22,10 +20,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.imageio.ImageIO;
-import javax.swing.JComponent;
+import javax.swing.JFrame;
 import org.apache.log4j.Category;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeListener,
     AmpListener{
@@ -60,7 +57,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         setAmpConfig(ac);
     }
 
-    public SeismogramDisplayProvider getCenterPanel() {
+    public SeismogramDisplayProvider createCenter() {
         if(plotPainter == null){
             plotPainter = new PlotPainter();
             plotPainter.setPreferredSize(new Dimension(PREFERRED_WIDTH,
@@ -350,39 +347,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                 it.remove();
             }
         }
-    }
-
-    public void outputToPNG(String filename) throws IOException{
-        Dimension size = getPreferredSize();
-        BufferedImage bImg = new BufferedImage(size.width, size.height,
-                                               BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = bImg.createGraphics();
-        boolean notAllHere = true;
-        int wait = 0;
-        while(notAllHere && wait < 10000){
-            Iterator seisIt = iterator(DrawableSeismogram.class);
-            while(seisIt.hasNext()){
-                DrawableSeismogram cur = (DrawableSeismogram)seisIt.next();
-                String status = cur.getDataStatus();
-                if(status == SeismogramContainer.GETTING_DATA){
-                    cur.getData();
-                    try {
-                        wait += 100;
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {}
-                    break;
-                }
-            }
-            notAllHere = false;
-        }
-        paint(g2d);
-
-        File loc = new File(filename);
-        loc.getCanonicalFile().getParentFile().mkdirs();
-        File temp = File.createTempFile(loc.getName(), null);
-        ImageIO.write(bImg, "png", temp);
-        loc.delete();
-        temp.renameTo(loc);
     }
 
     public void addDrawablesFromAuxData(DataSetSeismogram seis){
