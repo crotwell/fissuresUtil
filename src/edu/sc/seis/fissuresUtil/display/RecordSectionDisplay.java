@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
+import java.util.*;
 
 import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemove;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
@@ -10,10 +11,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -52,7 +50,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                         scalingChanged(((JSlider)ce.getSource()).getValue());
                     }
                 });
-        add(scalingSlider, BorderLayout.EAST);
 
     }
 
@@ -88,14 +85,17 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
             dssPlotter.put(seismos[i], new DrawableSeismogram(this, seismos[i]));
         }
         updating = false;
-        if(displayRemove == null){
-            displayRemove = new DisplayRemove(this);
+        if(displayRemover == null){
+            displayRemover = new SeismogramDisplayRemovalBorder(this);
+            Border etchedRemoval = BorderFactory.createCompoundBorder(etched,
+                                                                      displayRemover);
             Border lowerScaleBorder = BorderFactory.createCompoundBorder(border,
                                                                          loweredBevel);
-            setBorder(BorderFactory.createCompoundBorder(raisedBevel,
+            setBorder(BorderFactory.createCompoundBorder(etchedRemoval,
                                                          lowerScaleBorder));
             painter = new PlotPainter();
             add(painter, BorderLayout.CENTER);
+            add(scalingSlider, BorderLayout.EAST);
             resize();
         }
         repaint();
@@ -170,29 +170,39 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
     }
 
     public synchronized void clear() {
+        removeAll();
+    }
+
+    public synchronized void removeAll(){
         layout = null;
         registrar = null;
         dssPlotter.clear();
-        displayRemove = null;
+        displayRemover = null;
         setBorder(BorderFactory.createEmptyBorder());
-        remove(painter);
         painter = null;
-    }
-
-    public void removeAll(){
-        clear();
         super.removeAll();
     }
 
     public synchronized void remove(DataSetSeismogram[] seismos) {
+        List removed = new ArrayList();
         for (int i = 0; i < seismos.length; i++){
             Iterator it = dssPlotter.keySet().iterator();
             while(it.hasNext()){
-                if(it.next().equals(seismos[i])){
-                    it.remove();
+                DataSetSeismogram current = (DataSetSeismogram)it.next();
+                if(current.equals(seismos[i])){
+                    System.out.println("removing " + current);
+                    removed.add(current);
                 }
             }
         }
+        Iterator it = removed.iterator();
+        while(it.hasNext()){
+            dssPlotter.remove(it.next());
+        }
+        DataSetSeismogram[] removedSeis = new DataSetSeismogram[removed.size()];
+        removed.toArray(removedSeis);
+        registrar.remove(removedSeis);
+        layout.remove(removedSeis);
     }
 
     public synchronized boolean contains(DataSetSeismogram seismo) {
@@ -235,25 +245,22 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 Dimension size = getSize();
                 int width = size.width;
                 int height = size.height;
-                if(displayRemove != null){
+                if(displayRemover != null){
                     g2.setColor(Color.WHITE);
                     g2.fill(new Rectangle2D.Float(0,0, width, height));
-                    displayRemove.draw(g2, size, curTimeEvent, curAmpEvent);
                 }
                 Iterator it = curLayoutEvent.iterator();
-                double curYPos = 0;
                 while(it.hasNext()){
                     LayoutData current = (LayoutData)it.next();
                     double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
                     int drawHeight = (int)((current.getEnd() - current.getStart())*height * scaling);
                     double neededYPos = midPoint - drawHeight/2;
-                    double translate = neededYPos - curYPos;
-                    g2.translate(0, translate);
-                    curYPos = neededYPos;
+                    g2.translate(0, neededYPos);
                     Dimension drawSize = new Dimension(width, drawHeight);
                     DrawableSeismogram cur = (DrawableSeismogram)dssPlotter.get(current.getSeis());
                     cur.draw(g2, drawSize, curTimeEvent, curAmpEvent);
-                    cur.drawName(g2, 0, drawHeight/2);
+                    g2.translate(0, -neededYPos);
+                    cur.drawName(g2, 5, (int)(neededYPos + drawHeight/2));
                 }
             }
         }
@@ -286,6 +293,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         // TODO
     }
 
+    public void removeFilter(ColoredFilter filter){
+        //TODO
+    }
+
     public void print() {
         // TODO
     }
@@ -294,7 +305,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         // TODO
     }
 
-    private DisplayRemove displayRemove;
+    private SeismogramDisplayRemovalBorder displayRemover;
 
     private Map dssPlotter = new HashMap();
 
@@ -322,7 +333,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
 
     private JSlider scalingSlider;
 
-    private Border raisedBevel  = BorderFactory.createRaisedBevelBorder();
+    private Border etched  = BorderFactory.createEtchedBorder();
 
     private Border loweredBevel = BorderFactory.createLoweredBevelBorder();
 }
