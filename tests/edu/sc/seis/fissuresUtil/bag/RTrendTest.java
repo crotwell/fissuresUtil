@@ -20,7 +20,12 @@ extends TestCase
 // JUnitDoclet end extends_implements
 {
   // JUnitDoclet begin class
-  edu.sc.seis.fissuresUtil.bag.RTrend rtrend = null;
+    edu.sc.seis.fissuresUtil.bag.RTrend rtrend = null;
+    int[] intTestData;
+    short[] shortTestData;
+    float[] floatTestData;
+    double[] doubleTestData;
+
   // JUnitDoclet end class
   
   public RTrendTest(String name) {
@@ -38,7 +43,18 @@ extends TestCase
   protected void setUp() throws Exception {
     // JUnitDoclet begin method testcase.setUp
     super.setUp();
-    rtrend = createInstance();
+      short size = 4;
+      intTestData = new int[size];
+      shortTestData = new short[size];
+      floatTestData = new float[size];
+      doubleTestData = new double[size];
+      for (short i=0; i<size; i++) {
+	  shortTestData[i] = i;
+	  intTestData[i] = i;
+	  floatTestData[i] = i;
+	  doubleTestData[i] = i;
+      } // end of for (int i=0; i<intTestData.length; i++)
+      rtrend = createInstance();
     // JUnitDoclet end method testcase.setUp
   }
   
@@ -51,6 +67,14 @@ extends TestCase
   
   public void testApply() throws Exception {
     // JUnitDoclet begin method apply
+      short[] sOut = rtrend.apply(shortTestData);
+      assertEquals("short", 0, sOut[0]);
+      int[] iOut = rtrend.apply(intTestData);
+      assertEquals("int", 0, iOut[0]);
+      float[] fOut = rtrend.apply(floatTestData);
+      assertEquals("float", 0, fOut[0], 0.0000001);
+      double[] dOut = rtrend.apply(doubleTestData);
+      assertEquals("double", 0, dOut[0], 0.000001);
     // JUnitDoclet end method apply
   }
   
