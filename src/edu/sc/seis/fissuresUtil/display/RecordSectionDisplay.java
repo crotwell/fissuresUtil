@@ -4,7 +4,7 @@ import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
 import java.util.*;
 
-import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemove;
+import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemover;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
