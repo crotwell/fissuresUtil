@@ -162,6 +162,7 @@ logger.debug("In run for URLDSS,retrieveData");
         URLDataSetSeismogramSaver saver = new URLDataSetSeismogramSaver(dss,
                                                                         directory);
         URLDataSetSeismogram out = saver.getURLDataSetSeismogram();
+
         while ( ! saver.isFinished()) {
             logger.debug("Waiting for saver to finish");
             try {
@@ -178,6 +179,7 @@ logger.debug("In run for URLDSS,retrieveData");
                                                     dssName+" dataset seismogram.",
                                                 saver.getError());
         }
+
         return out;
     }
 
@@ -308,6 +310,10 @@ logger.debug("In run for URLDSS,retrieveData");
         setRequestFilter(seis);
         addToCache(seis);
         urlToLSMap.put(seisurl, seis);
+        URL[] tmp = new URL[url.length+1];
+        System.arraycopy(url, 0, tmp, 0, url.length);
+        url = tmp;
+        url[url.length-1] = seisurl;
     }
 
     /** allows the saving of a URLDataSetSeismogram in XML format. The
@@ -322,6 +328,15 @@ logger.debug("In run for URLDSS,retrieveData");
         Element rf = doc.createElement("requestFilter");
         XMLRequestFilter.insert(rf, getRequestFilter());
         element.appendChild(rf);
+
+        logger.debug("Saving "+url.length+" urls for "+getName());
+        for (int i = 0; i < url.length; i++) {
+            Element urlElement = doc.createElement("url");
+            urlElement.setAttribute("xlink:type", "simple");
+            urlElement.setAttribute("xlink:href", url[i].toString());
+            urlElement.setAttribute("xlink:role", fileType.getURLValue().toString());
+            element.appendChild(urlElement);
+        }
 
         Iterator it = getAuxillaryDataKeys().iterator();
         while (it.hasNext()) {
