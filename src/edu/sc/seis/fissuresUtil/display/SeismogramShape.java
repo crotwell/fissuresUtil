@@ -18,7 +18,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3324 2003-02-21 19:21:43Z groves $
+ * @version $Id: SeismogramShape.java 3326 2003-02-21 20:42:30Z groves $
  */
 
 public class SeismogramShape implements Shape{
@@ -85,7 +85,7 @@ public class SeismogramShape implements Shape{
         double shiftPercentage =  getShiftPercentage(currentIterator.getTime(),
                                                      iterator.getTime());
         double pixels = currentIterator.getSize().width * shiftPercentage +
-        currentIterator.getLeftoverPixels();
+            currentIterator.getLeftoverPixels();
         //checks if the pixel shift is within 1/1000 of being an even pixel
         pixels *= 1000;
         pixels = Math.round(pixels);
@@ -113,7 +113,7 @@ public class SeismogramShape implements Shape{
         double pointsPerPixel = iterator.getPointsPerPixel();
         int[] seisPoints = currentIterator.getSeisPoints();
         seisPoints[0] =(int)-(iterator.getTotalShift() * pointsPerPixel) +
-        iterator.getBaseSeisPoint();
+            iterator.getBaseSeisPoint();
         seisPoints[1] = seisPoints[0] +
             (int)(iterator.getSize().width * pointsPerPixel);
         iterator.setSeisPoints(seisPoints);
@@ -224,7 +224,7 @@ public class SeismogramShape implements Shape{
         }else{
             displayPixels[1] =
                 (int)Math.round((dss.getSeismogram().getNumPoints() - seisPoints[0])/
-                                seisPointRange * displayWidth);
+                                    seisPointRange * displayWidth);
         }
         iterator.setDrawnPixels(displayPixels);
         return displayPixels;
@@ -239,32 +239,50 @@ public class SeismogramShape implements Shape{
     // SHAPE IMPL
     
     public PathIterator getPathIterator(AffineTransform at){
+        logger.debug("calling getPathIterator(AffineTransform)");
+        
         return getPathIterator(at, 0);
     }
     
     public PathIterator getPathIterator(AffineTransform at, double flatness){
+        logger.debug("calling getPathIterator(AffineTransform, double)");
+        
         currentIterator.setAT(at);
         return currentIterator;
     }
     
     public boolean intersects(double x, double y, double w, double h){
+        logger.debug("calling intersects(double, double, double, double)");
         return false;
     }
     
-    public boolean intersects(Rectangle2D r){ return false; }
+    public boolean intersects(Rectangle2D r){ 
+        logger.debug("calling intersects(Rectangle2D)");
+        return false; }
     public boolean contains(double x, double y, double w, double h){
+        logger.debug("calling contains(double, double, double, double)");
         return false;
     }
     
-    public boolean contains(Rectangle2D r){  return false; }
+    public boolean contains(Rectangle2D r){  
+        logger.debug("calling contains(Rectangle2D)");
+        return false; }
     
-    public boolean contains(double x, double y){ return false; }
+    public boolean contains(double x, double y){ 
+        logger.debug("calling contains(double, double)");
+        return false; }
     
-    public boolean contains(Point2D p){ return false; }
+    public boolean contains(Point2D p){ 
+        logger.debug("calling contains(Point2D)");
+        return false; }
     
-    public Rectangle getBounds(){ return null;  }
+    public Rectangle getBounds(){ 
+        logger.debug("calling getBounds");
+        return null;  }
     
-    public Rectangle2D getBounds2D(){ return null; }
+    public Rectangle2D getBounds2D(){ 
+        logger.debug("calling getBounds2D");
+        return null; }
     
     public DataSetSeismogram getSeismogram() { return dss; }
     
@@ -275,8 +293,9 @@ public class SeismogramShape implements Shape{
     protected Statistics stat;
     
     private static Category logger =
-    Category.getInstance(SeismogramShape.class.getName());
+        Category.getInstance(SeismogramShape.class.getName());
 }// SeismogramShape
+
 
 
 
