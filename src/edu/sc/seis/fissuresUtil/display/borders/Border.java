@@ -174,22 +174,31 @@ public abstract class Border extends JComponent {
                 GeneralPath labelTickShape = new GeneralPath();
                 GeneralPath minorTickShape = new GeneralPath();
                 float[] nextLabelPoint = getFirstPoint();
+                double labelValue = getFirstLabelValue(range);
+                double labelMaxVal = getLastLabelValue(range);
                 for(int i = 0; i < numLabelTicks; i++) {
-                    labelTickShape.moveTo(nextLabelPoint[0], nextLabelPoint[1]);
-                    labelTickShape.lineTo(nextLabelPoint[0] + labelTickWidth,
-                                          nextLabelPoint[1] + labelTickHeight);
-                    float[] nextMinorPoint = getNextPoint((float)pixelsPerMinorTick,
-                                                          nextLabelPoint);
-                    for(int j = 0; j < ticksPerDiv - 1; j++) {
-                        minorTickShape.moveTo(nextMinorPoint[0],
-                                              nextMinorPoint[1]);
-                        minorTickShape.lineTo(nextMinorPoint[0] + tickWidth,
-                                              nextMinorPoint[1] + tickHeight);
-                        nextMinorPoint = getNextPoint((float)pixelsPerMinorTick,
-                                                      nextMinorPoint);
+                    if(displayNegatives
+                            || (labelValue >= 0 && labelValue <= labelMaxVal)) {
+                        labelTickShape.moveTo(nextLabelPoint[0],
+                                              nextLabelPoint[1]);
+                        labelTickShape.lineTo(nextLabelPoint[0]
+                                + labelTickWidth, nextLabelPoint[1]
+                                + labelTickHeight);
+                        float[] nextMinorPoint = getNextPoint((float)pixelsPerMinorTick,
+                                                              nextLabelPoint);
+                        for(int j = 0; j < ticksPerDiv - 1; j++) {
+                            minorTickShape.moveTo(nextMinorPoint[0],
+                                                  nextMinorPoint[1]);
+                            minorTickShape.lineTo(nextMinorPoint[0] + tickWidth,
+                                                  nextMinorPoint[1]
+                                                          + tickHeight);
+                            nextMinorPoint = getNextPoint((float)pixelsPerMinorTick,
+                                                          nextMinorPoint);
+                        }
                     }
                     nextLabelPoint = getNextPoint((float)pixelsPerLabelTick,
                                                   nextLabelPoint);
+                    labelValue += divSize;
                 }
                 //Figure out how much to translate this generic tick shape to
                 // match
@@ -297,6 +306,12 @@ public abstract class Border extends JComponent {
         private double getFirstLabelValue(UnitRangeImpl r) {
             double min = r.min_value;
             double divisions = Math.floor(min / divSize);
+            return divisions * divSize;
+        }
+
+        private double getLastLabelValue(UnitRangeImpl r) {
+            double max = r.max_value;
+            double divisions = Math.floor(max / divSize);
             return divisions * divSize;
         }
 
