@@ -22,18 +22,18 @@ import edu.iris.Fissures.IfTimeSeries.TimeSeriesType;
  */
 
 public class FissuresConvert  {
-    
+
     public FissuresConvert() {
-        
+
     }
 
-    public DataRecord[] toMSeed(LocalSeismogram seis) 
+    public DataRecord[] toMSeed(LocalSeismogram seis)
         throws SeedFormatException
     {
         return toMSeed(seis, 1);
     }
 
-    public DataRecord[] toMSeed(LocalSeismogram seis, int seqStart) 
+    public DataRecord[] toMSeed(LocalSeismogram seis, int seqStart)
         throws SeedFormatException {
         LinkedList outRecords = new LinkedList();
         MicroSecondDate start = new MicroSecondDate(seis.begin_time);
@@ -52,8 +52,8 @@ public class FissuresConvert  {
                     header.setLocationIdentifier(chan.site_code);
                     header.setChannelIdentifier(chan.channel_code);
                     header.setNetworkCode(chan.network_id.network_code);
-                    TimeInterval sampPeriod = 
-                        ((SamplingImpl)seis.sampling_info).getPeriod(); 
+                    TimeInterval sampPeriod =
+                        ((SamplingImpl)seis.sampling_info).getPeriod();
                     header.setStartTime(start);
                     header.setNumSamples((short)eData[i].num_points);
 
@@ -61,7 +61,7 @@ public class FissuresConvert  {
                     // mul by 500 to preserve more digits, 20 sps => 10000
                     // 100
                     // this may not be the best in all cases, but is a
-                    // reasonable guess 
+                    // reasonable guess
                     header.setSampleRateFactor((short)(1/sampPeriod.convertTo(UnitImpl.SECOND).getValue()*100));
                     header.setSampleRateMultiplier((short) -100);
 
@@ -72,7 +72,7 @@ public class FissuresConvert  {
                     } else {
                         b1000.setWordOrder( (byte)1 );
                     } // end of else
-                    
+
                     b1000.setDataRecordLength( RECORD_SIZE_POWER);
                     DataRecord dr = new DataRecord(header);
                     dr.addBlockette(b1000);
@@ -81,9 +81,9 @@ public class FissuresConvert  {
                 } else {
                     throw new SeedFormatException("Can't fit data into record");
                 } // end of else
-                
+
             } // end of for ()
-            
+
         } else {
             // not encoded
             int samples = seis.num_points;
@@ -95,28 +95,28 @@ public class FissuresConvert  {
                 header.setChannelIdentifier(chan.channel_code);
                 header.setNetworkCode(chan.network_id.network_code);
                 header.setStartTime(start);
-                
+
                 Blockette1000 b1000 = new Blockette1000();
-                
+
                 //  b1000.setEncodeingFormat((byte)seis.);
                 DataRecord dr = new DataRecord(header);
             } // end of while ()
         }
-        return null;
+        return (DataRecord[])outRecords.toArray(new DataRecord[0]);
     }
 
     public static LocalSeismogram toFissures(DataRecord seed)
         throws SeedFormatException {
 
-            
+
         DataHeader header = seed.getHeader();
 
-        edu.iris.Fissures.Time time = 
-            new edu.iris.Fissures.Time(header.getISOStartTime(), 
+        edu.iris.Fissures.Time time =
+            new edu.iris.Fissures.Time(header.getISOStartTime(),
                                        -1);
-	    // the network id isn't correct, but network start is not stored
-	    // in miniseed
-        ChannelId channelId  = 
+        // the network id isn't correct, but network start is not stored
+        // in miniseed
+        ChannelId channelId  =
             new ChannelId(new NetworkId(header.getNetworkCode().trim(),
                                         time),
                           header.getStationIdentifier().trim(),
@@ -129,7 +129,7 @@ public class FissuresConvert  {
             +channelId.channel_code+":"
             +header.getISOStartTime();
         Property[] props = new Property[1];
-        props[0] = new Property("Name", seisId);           
+        props[0] = new Property("Name", seisId);
 
         int numPerSampling;
         TimeInterval timeInterval;
@@ -139,25 +139,25 @@ public class FissuresConvert  {
             if (header.getSampleRateMultiplier() > 0) {
                 numPerSampling *= header.getSampleRateMultiplier();
             } else {
-                timeInterval = 
-                    (TimeInterval)timeInterval.multiplyBy(-1 * 
+                timeInterval =
+                    (TimeInterval)timeInterval.multiplyBy(-1 *
                                                           header.getSampleRateMultiplier());
             }
         } else {
             numPerSampling = 1;
-            timeInterval = 
-                new TimeInterval(-1 * header.getSampleRateFactor(), 
+            timeInterval =
+                new TimeInterval(-1 * header.getSampleRateFactor(),
                                  UnitImpl.SECOND);
             if (header.getSampleRateMultiplier() > 0) {
                 numPerSampling *= header.getSampleRateMultiplier();
             } else {
-                timeInterval = 
-                    (TimeInterval)timeInterval.multiplyBy(-1 * 
+                timeInterval =
+                    (TimeInterval)timeInterval.multiplyBy(-1 *
                                                           header.getSampleRateMultiplier());
             }
         }
- 
-        SamplingImpl sampling = 
+
+        SamplingImpl sampling =
             new SamplingImpl(numPerSampling,
                              timeInterval);
         TimeSeriesDataSel bits = convertData(seed);
@@ -168,14 +168,14 @@ public class FissuresConvert  {
                                        header.getNumSamples(),
                                        sampling,
                                        UnitImpl.COUNT,
-                                       channelId, 
+                                       channelId,
                                        new edu.iris.Fissures.IfParameterMgr.ParameterRef[0],
                                        new QuantityImpl[0],
                                        new SamplingImpl[0],
                                        bits);
     }
 
-    public static TimeSeriesDataSel convertData(DataRecord seed) 
+    public static TimeSeriesDataSel convertData(DataRecord seed)
         throws SeedFormatException {
         Blockette[] allBs = seed.getBlockettes(1000);
         if (allBs.length == 0) {
@@ -186,8 +186,8 @@ public class FissuresConvert  {
                                           allBs.length);
         }
         Blockette1000 b1000 = (Blockette1000)allBs[0];
-        
-        EncodedData eData = 
+
+        EncodedData eData =
             new EncodedData(b1000.getEncodingFormat(),
                             seed.getData(),
                             seed.getHeader().getNumSamples(),
@@ -199,7 +199,7 @@ public class FissuresConvert  {
         return bits;
     }
 
-    public static SeismogramAttrImpl convertAttributes(DataRecord seed) 
+    public static SeismogramAttrImpl convertAttributes(DataRecord seed)
         throws SeedFormatException {
         // wasteful as this does the data as well...
         return (SeismogramAttrImpl)toFissures(seed);
