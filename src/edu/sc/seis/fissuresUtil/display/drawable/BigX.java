@@ -40,6 +40,7 @@ public abstract class BigX extends MouseAdapter implements Plotter, MouseMotionL
             canvas.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
             canvas.drawLine(xMin, yMin, xMax, yMax);
             canvas.drawLine(xMin, yMax, xMax, yMin);
+            canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
         }
     }
 
@@ -79,7 +80,7 @@ public abstract class BigX extends MouseAdapter implements Plotter, MouseMotionL
         }
     }
 
-    private boolean intersects(MouseEvent e){
+    protected boolean intersects(MouseEvent e){
         if(e.getSource() == display){
             int clickX = e.getX();
             if(inside){
