@@ -37,8 +37,8 @@ public class JDBCEventAccess extends EventTable {
     public JDBCEventAccess(Connection conn, JDBCOrigin origins,
             JDBCEventAttr attrs) throws SQLException {
         super("eventaccess", conn);
-        this.origins = origins;
-        this.attrs = attrs;
+        this.jdbcOrigin = origins;
+        this.jdbcAttr = attrs;
         seq = new JDBCSequence(conn, "EventAccessSeq");
         Statement stmt = conn.createStatement();
         if(!DBUtil.tableExists("eventaccess", conn)) {
@@ -54,23 +54,20 @@ public class JDBCEventAccess extends EventTable {
         getAttrAndOrigin = conn.prepareStatement(" SELECT eventattr_id, origin_id FROM eventaccess "
                 + " WHERE event_id = ?");
         getEventIds = conn.prepareStatement(" SELECT eventattr_id, event_id, origin_id FROM eventaccess");
-        //        queryStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM
-        // eventaccess,
-        // origin, location WHERE "+
-        //                                          "eventaccess.event_id = origin.origin_event_id AND "+
-        //                                          "origin_location_id = location.loc_id AND "+
-        //                                          "origin.origin_id = magnitude.originid AND "+
-        //                                          "origin.origin_time_id = time.time_id AND "+
-        //                                          "location.loc_lat >= ? AND location.loc_lat <= ? AND "+
-        //                                          "location.loc_lon >= ? AND location.loc_lon <= ? AND "+
-        //                                          "magnitude.magnitudevalue >= ? AND magnitude.magnitudevalue <= ? AND
-        // "+
-        //                                          "time.time_stamp >= ? AND time.time_stamp <= ? AND "+
-        //                                          "");
-        //        getByNameStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM
-        // eventaccess, eventattr WHERE "+
-        //                                              "eventattr.name = ? AND "+
-        //                                              "eventaccess.eventattr_id = eventattr.eventattr_id");
+        queryStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM "+
+                                          "eventaccess, origin, location, magnitude, time WHERE "+
+                                          "eventaccess.event_id = origin.origin_event_id AND "+
+                                          "origin_location_id = location.loc_id AND "+
+                                          "origin.origin_id = magnitude.originid AND "+
+                                          "origin.origin_time_id = time.time_id AND "+
+                                          "location.loc_lat >= ? AND location.loc_lat <= ? AND "+
+                                          "location.loc_lon >= ? AND location.loc_lon <= ? AND "+
+                                          "magnitude.magnitudevalue >= ? AND magnitude.magnitudevalue <= ? AND "+
+                                          "time.time_stamp >= ? AND time.time_stamp <= ? "+
+                                          "");
+        getByNameStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, eventattr WHERE "+
+                                              "eventattr.eventattr_name = ? AND "+
+                                              "eventaccess.eventattr_id = eventattr.eventattr_id");
     }
 
     public CacheEvent getEvent(int dbid) throws SQLException, NotFound {
@@ -84,9 +81,9 @@ public class JDBCEventAccess extends EventTable {
 
     private CacheEvent getEvent(ResultSet rs, int dbid) throws NotFound,
             SQLException {
-        Origin preferredOrigin = origins.get(rs.getInt("origin_id"));
-        Origin[] allOrigins = origins.getOrigins(dbid);
-        EventAttr attr = attrs.get(rs.getInt("eventattr_id"));
+        Origin preferredOrigin = jdbcOrigin.get(rs.getInt("origin_id"));
+        Origin[] allOrigins = jdbcOrigin.getOrigins(dbid);
+        EventAttr attr = jdbcAttr.get(rs.getInt("eventattr_id"));
         CacheEvent ev = new CacheEvent(attr, allOrigins, preferredOrigin);
         idsToEvents.put(new Integer(dbid), ev);
         return ev;
@@ -161,13 +158,13 @@ public class JDBCEventAccess extends EventTable {
             return getDBId(eao);
         } catch(NotFound e) {
             int id = seq.next();
-            int attrId = attrs.put(eao.get_attributes());
+            int attrId = jdbcAttr.put(eao.get_attributes());
             int originId;
             for(int i = 0; i < eao.get_origins().length; i++) {
-                origins.put(eao.get_origins()[i], id);
+                jdbcOrigin.put(eao.get_origins()[i], id);
             }
             try {
-                originId = origins.getDBId(eao.get_preferred_origin());
+                originId = jdbcOrigin.getDBId(eao.get_preferred_origin());
             } catch(NotFound ex) {
                 throw new RuntimeException("The preferred origin wasn't found right after all origins were inserted.  This shouldn't ever happen.  If you're seeing this, I imagine very bad things are happening to the database right now");
             } catch(NoPreferredOrigin ee) {
@@ -192,9 +189,9 @@ public class JDBCEventAccess extends EventTable {
         }
         Integer id = (Integer)eventsToIds.get(eao);
         if(id != null) { return id.intValue(); }
-        getDBIdStmt.setInt(1, attrs.getDBId(eao.get_attributes()));
+        getDBIdStmt.setInt(1, jdbcAttr.getDBId(eao.get_attributes()));
         try {
-            getDBIdStmt.setInt(2, origins.getDBId(eao.get_preferred_origin()));
+            getDBIdStmt.setInt(2, jdbcOrigin.getDBId(eao.get_preferred_origin()));
         } catch(NoPreferredOrigin e) {
             throw new IllegalArgumentException("The event access passed into getDBId must have a preferred origin");
         }
@@ -231,6 +228,7 @@ public class JDBCEventAccess extends EventTable {
                                new MicroSecondDate(start_time).getTimestamp());
         queryStmt.setTimestamp(index++,
                                new MicroSecondDate(end_time).getTimestamp());
+        logger.debug(queryStmt);
         ResultSet rs = queryStmt.executeQuery();
         ArrayList out = new ArrayList();
         while(rs.next()) {
@@ -260,15 +258,18 @@ public class JDBCEventAccess extends EventTable {
     }
 
     public JDBCEventAttr getAttributeTable() {
-        return attrs;
+        return jdbcAttr;
     }
 
-    private JDBCOrigin origins;
+    private JDBCOrigin jdbcOrigin;
 
-    private JDBCEventAttr attrs;
+    private JDBCEventAttr jdbcAttr;
 
     private JDBCSequence seq;
 
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(JDBCEventAccess.class);
+    
     public static void emptyCache() {
         idsToEvents.clear();
         eventsToIds.clear();
@@ -284,5 +285,13 @@ public class JDBCEventAccess extends EventTable {
     public void updateFlinnEngdahlRegion(int eventid, FlinnEngdahlRegion region)
             throws NotFound, SQLException {
     // TODO Auto-generated method stub
+    }
+    
+    public JDBCEventAttr getJDBCAttr() {
+        return jdbcAttr;
+    }
+    
+    public JDBCOrigin getJDBCOrigin() {
+        return jdbcOrigin;
     }
 }
