@@ -51,7 +51,7 @@ public class JDBCSite extends NetworkTable {
         this.stationTable = stationTable;
         this.time = time;
         seq = new JDBCSequence(conn, "SiteSeq");
-        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
+        TableSetup.setup(this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     public Site get(int dbid) throws SQLException, NotFound {

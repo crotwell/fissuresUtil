@@ -17,6 +17,7 @@ import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 /**
  * JDBCNetwork.java
@@ -45,9 +46,7 @@ public class JDBCNetwork extends NetworkTable{
         super("network", conn);
         this.time = time;
         seq = new JDBCSequence(conn, "NetworkSeq");
-        if(!DBUtil.tableExists("network", conn)){
-            conn.createStatement().executeUpdate(ConnMgr.getSQL("network.create"));
-        }
+        TableSetup.setup(this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
         putAll = conn.prepareStatement("INSERT INTO network (net_id, net_code, "+
                                            "net_begin_id, net_end_id,"+
                                            "net_name, net_owner, net_description) " +
