@@ -32,7 +32,11 @@ public class NSEventDC implements EventDCOperations {
         return serverName;
     }
 
-    public EventDC getEventDC() {
+    public synchronized void reset() {
+        eventDC = null;
+    }
+
+    public synchronized EventDC getEventDC() {
         if ( eventDC == null) {
             try {
                 eventDC = fissuresNamingService.getEventDC(serverDNS,
@@ -64,7 +68,7 @@ public class NSEventDC implements EventDCOperations {
         } catch (Throwable e) {
             // retry in case regetting from name service helps
             logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
-            eventDC = null;
+            reset();
             return getEventDC().a_channel_finder();
         } // end of try-catch
     }
@@ -75,7 +79,7 @@ public class NSEventDC implements EventDCOperations {
         } catch (Throwable e) {
             // retry in case regetting from name service helps
             logger.warn("Exception in a_finder(), regetting from nameservice to try again.", e);
-            eventDC = null;
+            reset();
             return getEventDC().a_finder();
         } // end of try-catch
     }
@@ -88,7 +92,7 @@ public class NSEventDC implements EventDCOperations {
 
     protected FissuresNamingService fissuresNamingService;
 
-    static Logger logger =
+    private static Logger logger =
         Logger.getLogger(NSEventDC.class);
 }
 

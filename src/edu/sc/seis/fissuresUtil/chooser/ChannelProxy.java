@@ -27,7 +27,7 @@ public class ChannelProxy implements ChannelGrouper{
     Channel[] group;
     try {
         FissuresNamingService fissuresNamingService = new FissuresNamingService(orb);
-        NetworkDC[] networkReferences = fissuresNamingService.getAllNetworkDC();
+        NetworkDCOperations[] networkReferences = fissuresNamingService.getAllNetworkDC();
         // ChannelId channelId = channel.get_id();
         for(int counter = 0; counter < networkReferences.length; counter++) {
         try {

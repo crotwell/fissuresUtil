@@ -7,11 +7,11 @@
 package edu.sc.seis.fissuresUtil.simple;
 
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfEvent.EventDC;
-import edu.iris.Fissures.IfNetwork.NetworkDC;
-import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.sc.seis.fissuresUtil.cache.NSEventDC;
+import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
+import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import org.apache.log4j.Logger;
 
@@ -19,18 +19,18 @@ public class NameServiceWalker {
 
     public NameServiceWalker() {
         FissuresNamingService fisName = Initializer.getNS();
-        NetworkDC[] nets = fisName.getAllNetworkDC();
+        NSNetworkDC[] nets = fisName.getAllNetworkDC();
         System.out.println("Got "+nets.length+" net dcs");
-        EventDC[] eventdcs = fisName.getAllEventDC();
+        NSEventDC[] eventdcs = fisName.getAllEventDC();
         System.out.println("Got "+eventdcs.length+" event dcs");
-        DataCenter[] seisdcs = fisName.getAllSeismogramDC();
+        NSSeismogramDC[] seisdcs = fisName.getAllSeismogramDC();
         System.out.println("Got "+seisdcs.length+" seis dcs");
         RequestFilter[] rf = SimpleSeismogramClient.createRF();
         rf[0].channel_id = Initializer.AMNOChannel;
         for (int i = 0; i < seisdcs.length; i++) {
             try {
                 LocalSeismogram[] seis = seisdcs[i].retrieve_seismograms(rf);
-                System.out.println("Got "+seis.length+" seismograms from "+i+"th server");
+                System.out.println("Got "+seis.length+" seismograms from "+seisdcs[i].getServerName()+" server");
             } catch (FissuresException e) {
                 logger.error("FissuresException with "+i+" server: "+e.the_error.error_description, e);
             } catch (Throwable e) {
