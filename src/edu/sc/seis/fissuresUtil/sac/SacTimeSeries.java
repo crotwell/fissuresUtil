@@ -560,9 +560,16 @@ public class SacTimeSeries {
     /** writes this object out as a sac file. */
     public void write(String filename) 
 	throws FileNotFoundException, IOException {
+	File f = new File(filename);
+	write(f);
+    }
+
+    /** writes this object out as a sac file. */
+    public void write(File file) 
+	throws FileNotFoundException, IOException {	
 	DataOutputStream dos = new DataOutputStream(
 						    new BufferedOutputStream(
-									     new FileOutputStream(filename)));
+									     new FileOutputStream(file)));
         writeHeader(dos);
         writeData(dos);
 	dos.close();
