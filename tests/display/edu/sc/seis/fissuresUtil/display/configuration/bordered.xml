@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<seismogramDisplay>
+    <borderBackground>
+        <red>255</red>
+        <green>0</green>
+        <blue>255</blue>
+        <alpha>255</alpha>
+    </borderBackground>
+    <borderColor>
+        <red>0</red>
+        <green>255</green>
+        <blue>255</blue>
+        <alpha>255</alpha>
+    </borderColor>
+    <border>
+        <type>time</type>
+        <position>bottom</position>
+        <title>
+            <text>Basic Seismogram Display</text>
+            <font>
+                <size>20</size>
+                <name>MS-Trebuchet</name>
+            </font>
+        </title>
+    </border>
+    <border>
+        <type>amp</type>
+        <position>right</position>
+        <unitFont>
+            <size>10</size>
+            <name>MS-Trebuchet</name>
+        </unitFont>
+        <titleFont>
+            <size>16</size>
+            <name>MS-Trebuchet</name>
+        </titleFont>
+        <title>
+            <text>Amplitude</text>
+            <font>
+                <size>20</size>
+                <name>MS-Trebuchet</name>
+            </font>
+        </title>
+    </border>
+    <border>
+        <type>title</type>
+        <position>top</position>
+        <title>
+            <text>I'm the top border</text>
+            <font>
+                <size>12</size>
+                <name>Sans-seif</name>
+            </font>
+        </title>
+    </border>
+</seismogramDisplay>
