@@ -106,7 +106,7 @@ public class ParticleMotionView extends JComponent{
 	    centery = (int)((vmax - vmin) / 4);
 	} else {
 	    centerx = (int)((hmax - hmin) / 4);
-	    centery = (int)((hmax - hmin) /4);
+	    centery = (int)((hmax - hmin) / 4);
 	}
 	int xone = (int)(((hmax - hmin)/width * mx) + hmin);
 	int yone = (int)(((vmin - vmax)/height * my) + vmax);
@@ -137,7 +137,8 @@ public class ParticleMotionView extends JComponent{
 	    xs = (int)hmax + centerx;
 	    ya = (int)vmin - centery;
 	    ys = (int)vmax + centery;
-	    
+	    if((xs - xa) < 50){ xs = xs + 50; xa = xa - 50;}
+	    if((ys - ya) < 50) { ys = ys + 50; ya = ya - 50;}
 	}
 	if(xa > xs) { int temp = xs; xs = xa; xa = temp;}
 	if(ya > ys) {int temp = ys; ys = ya; ya = temp;}
@@ -148,7 +149,7 @@ public class ParticleMotionView extends JComponent{
 	//int ytwo = (int)(((vmin - vmax)/height * endPoint.getY()) + vmax);
 	startPoint = null;
 	endPoint = null;
-	if(xa < xs && ya < ys) {
+	if(xa < xs && ya < ys || clickCount != 1) {
 	    particleMotionDisplay.updateHorizontalAmpScale(new UnitRangeImpl(xa, xs, UnitImpl.COUNT));
 	    particleMotionDisplay.updateVerticalAmpScale(new UnitRangeImpl(ya, ys, UnitImpl.COUNT));
 	    vunitRangeImpl = new UnitRangeImpl(ya, ys, UnitImpl.COUNT);
