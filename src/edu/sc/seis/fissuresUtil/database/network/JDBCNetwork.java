@@ -1,7 +1,5 @@
 package edu.sc.seis.fissuresUtil.database.network;
 
-import java.sql.*;
-
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.TimeRange;
@@ -11,7 +9,12 @@ import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -62,6 +65,20 @@ public class JDBCNetwork extends NetworkTable{
         getIfNameExists = conn.prepareStatement("SELECT net_id FROM network " +
                                                     "WHERE net_id = ? AND " +
                                                     "net_name IS NOT NULL");
+    }
+
+    public int[] getAllNetworkDBIds() throws SQLException {
+        ResultSet rs = getAll.executeQuery();
+        List aList = new ArrayList();
+        while (rs.next()) aList.add(new Integer(rs.getInt("net_id")));
+        int[] out = new int[aList.size()];
+        int i=0;
+        Iterator it = aList.iterator();
+        while (it.hasNext()) {
+            out[i] = ((Integer)it.next()).intValue();
+            i++;
+        }
+        return out;
     }
 
     public NetworkId[] getAllNetworkIds() throws SQLException, NotFound {
