@@ -51,7 +51,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     public VerticalSeismogramDisplay(VerticalSeismogramDisplay parent){
         output.setTimeZone(TimeZone.getTimeZone("GMT"));
         super.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        sorter = new SeismogramSorter();
         if(parent != null){
             this.originalVisible = parent.getOriginalVisibility();
             this.parent = parent;
@@ -199,7 +198,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         logger.debug("removing all displays");
         super.removeAll();
         basicDisplays.clear();
-        sorter = new SeismogramSorter();
         globalRegistrar = null;
         timeLabel.setText("   Time: ");
         ampLabel.setText("   Amplitude: ");
@@ -220,7 +218,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             }
             super.remove(display);
             basicDisplays.remove(display);
-            sorter.remove(display.getSeismograms()[0].toString());
+            remove(display.getSeismograms());
             ((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
             ((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
             super.revalidate();
@@ -447,8 +445,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
     protected String suffix = "";
 
     protected boolean originalVisible, currentTimeFlag = false;
-
-    protected SeismogramSorter sorter;
 
     protected Registrar globalRegistrar;
 
