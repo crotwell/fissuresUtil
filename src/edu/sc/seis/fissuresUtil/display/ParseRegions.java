@@ -32,16 +32,20 @@ public class ParseRegions {
     }
 
     public String getGeographicRegionName(int geoNum) {
-	if (geoNum > 0 && geoNum <= 729) {
-	    return feProps.getProperty("GeogRegion"+geoNum);
-	} // end of if (geoNum > 0 && geoNum <= 729)
+        String propValue = 
+	    feProps.getProperty("GeogRegion"+geoNum);
+	if (propValue != null && propValue.length > 1) {
+            return propValue;
+	}
 	return "GeoRegion"+geoNum;
     }
 
     public String getSeismicRegionName(int seisNum) {
-	if (seisNum > 0 && seisNum <= 50) {
-	    return feProps.getProperty("SeismicRegion"+seisNum);
-	} // end of if (seisNum > 0 && seisNum <= 50)
+        String propValue =
+           feProps.getProperty("SeismicRegion"+seisNum);
+	if (propValue != null && propValue.length > 1) {
+            return propValue;
+	}
 	return "SeisRegion"+seisNum;
     }
 
