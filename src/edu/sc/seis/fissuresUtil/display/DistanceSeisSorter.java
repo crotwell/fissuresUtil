@@ -7,6 +7,7 @@ package edu.sc.seis.fissuresUtil.display;
  */
 
 import edu.sc.seis.fissuresUtil.display.registrar.BasicLayoutConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.LayoutData;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutListener;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -25,7 +26,8 @@ public class DistanceSeisSorter extends SeismogramSorter implements LayoutListen
         Iterator it = layoutConfig.generateLayoutEvent().iterator();
         int i = 0;
         while(it.hasNext()){
-            if(it.next().toString().equals(seismogram.toString())){
+            DataSetSeismogram current = ((LayoutData)it.next()).getSeis();
+            if(current.equals(seismogram)){
                 return i;
             }
             i++;
