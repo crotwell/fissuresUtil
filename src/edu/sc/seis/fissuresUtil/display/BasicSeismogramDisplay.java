@@ -242,7 +242,6 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     }
 
     public void stopImageCreation(){
-	synchronized(plotMaker){ plotMaker.remove(plotPainter); }
     }
 
     public void clearSelections(){
@@ -467,8 +466,6 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     protected boolean autoColor = true;
 
     public static final int OVERSIZED_SCALE = 3;
-
-    protected static PlotMaker plotMaker = PlotMaker.getPlotMaker();
 
     private static Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
 
