@@ -36,6 +36,9 @@ public class SeismogramDisplayConfiguration {
         if(DOMHelper.hasElement(el, "dontDrawNamedDrawableNames")) {
             drawNamesForNamedDrawables = false;
         }
+        if(DOMHelper.hasElement(el, "swapAxes")) {
+            swapAxes = true;
+        }
     }
 
     private void checkForColorClass(Element el, String tagName) {
@@ -86,7 +89,7 @@ public class SeismogramDisplayConfiguration {
 
     private List colorClasses = new ArrayList();
 
-    private boolean swapAxes = true;
+    private boolean swapAxes = false;
 
     private boolean drawNamesForNamedDrawables = true, makeDefault = false;
 
