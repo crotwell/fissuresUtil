@@ -4,7 +4,9 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
@@ -165,9 +167,15 @@ public class Flag implements Drawable{
 					else if (template[i].equals(EVENT_LON)){ //Event Longitude
 						dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.LON));
 					}else if (template[i].equals(ORIGIN_DIFF)){ //flagTime-originTime
-						dataCells.add(formatTimeInterval(getTimeDifferenceFromOrigin(flag, event)));
+						TimeInterval interval = getTimeDifferenceFromOrigin(flag, event);
+						QuantityImpl timeInSeconds = interval.convertTo(UnitImpl.SECOND);
+						dataCells.add(DisplayUtils.formatQuantityImpl(timeInSeconds));
 					}else if (template[i].equals(DISTANCE_FROM_ORIG)){ //Distance from Origin, if that wasn't obvious
-						//dataCells.add();
+						QuantityImpl distance = DisplayUtils.calculateDistance(dss);
+						dataCells.add(DisplayUtils.formatQuantityImpl(distance));
+					}else if (template[i].equals(BACK_AZIMUTH)){
+						QuantityImpl backAz = DisplayUtils.calculateBackAzimuth(dss);
+						dataCells.add(DisplayUtils.formatQuantityImpl(backAz));
 					}
 				}
 				table.addRow(((String[])dataCells.toArray(new String[0])));
@@ -177,7 +185,7 @@ public class Flag implements Drawable{
 	}
 	
 	private static String getEventInfo(EventAccessOperations event, String format){
-		if (event.get_origins().length > 0){
+		if (DisplayUtils.hasSomeSortOfOrigin(event)){
 			return CacheEvent.getEventInfo(event, format);
 		}
 		return "...";
@@ -218,21 +226,16 @@ public class Flag implements Drawable{
 			}else if (template[i].equals(ORIGIN_DIFF)){ //flagTime-originTime
 				dataCells.add(ORIGIN_DIFF);
 			}else if (template[i].equals(DISTANCE_FROM_ORIG)){ //Distance from Origin, if that wasn't obvious
-				//dataCells.add(DISTANCE_FROM_ORIG);
+				dataCells.add(DISTANCE_FROM_ORIG);
+			}else if (template[i].equals(BACK_AZIMUTH)){
+				dataCells.add(BACK_AZIMUTH);
 			}
 		}
 		return (String[])dataCells.toArray(new String[0]);
 	}
 	
-	public static String formatTimeInterval(TimeInterval interval){
-		if (interval != null){
-			return interval.toString() + " " + interval.the_units.name;
-		}
-		return "...";
-	}
-	
 	public static TimeInterval getTimeDifferenceFromOrigin(Flag flag, EventAccessOperations event){
-		if (event.get_origins().length > 0){
+		if (DisplayUtils.hasSomeSortOfOrigin(event)){
 			MicroSecondDate originTime = new MicroSecondDate(event.get_origins()[0].origin_time);
 			MicroSecondDate flagTime = flag.getFlagTime();
 			return originTime.difference(flagTime);
@@ -280,8 +283,8 @@ public class Flag implements Drawable{
 	public static final String ORIGIN_DIFF = "Time from Origin"; //flag time minus origin time
 	public static final String TAUP_P = "TauP P Wave"; //todo
 	public static final String TIME_DIFF_ORIG_P = "FLAG_TIME_DIFF_ORIG_PWAVE"; //todo
-	public static final String DISTANCE_FROM_ORIG = "Distance From Origin"; //todo
-	public static final String BACK_AZIMUTH = "Back Azimuth"; //todo
+	public static final String DISTANCE_FROM_ORIG = "Distance From Origin";
+	public static final String BACK_AZIMUTH = "Back Azimuth";
 	public static final String CHANNEL = "Channel";
 	public static final String EVENT_NAME = "Event Name";
 	public static final String EVENT_LAT = "Event Latitude";
