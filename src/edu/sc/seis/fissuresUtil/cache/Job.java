@@ -34,7 +34,7 @@ public interface Job extends Runnable{
      * Process that will be notified whenver the status changes
      *
      */
-    public void addStatusListener(StatusListener listener);
+    public void add(StatusListener listener);
 
     /**
      * Method finished allows a process monitor to know if the process is
