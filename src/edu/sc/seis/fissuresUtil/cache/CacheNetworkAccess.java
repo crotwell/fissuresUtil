@@ -19,6 +19,10 @@ public class CacheNetworkAccess implements NetworkAccess {
         this.net = net;
     }
 
+    public NetworkAccess getNetworkAccess() {
+        return net;
+    }
+
         //
     // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/get_attributes:1.0
     //
