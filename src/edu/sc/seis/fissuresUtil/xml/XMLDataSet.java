@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 4051 2003-05-26 20:36:49Z crotwell $
+ * @version $Id: XMLDataSet.java 4106 2003-05-27 17:49:03Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -997,8 +997,6 @@ public class XMLDataSet implements DataSet, Serializable{
      * @exception Exception if an error occurs
      */
     public void write(OutputStream out) throws Exception {
-        org.w3c.dom.Document outNode = getDocumentBuilder().newDocument();
-
         javax.xml.transform.TransformerFactory tfactory =
             javax.xml.transform.TransformerFactory.newInstance();
 
