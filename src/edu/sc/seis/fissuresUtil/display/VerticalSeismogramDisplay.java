@@ -10,6 +10,7 @@ import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.BorderLayout;
@@ -432,6 +433,28 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
             globalRegistrar = new Registrar(getSeismograms(),
                                             new BasicTimeConfig(),
                                             ac);
+        }
+    }
+
+    public void setGlobalizedAmpConfig(AmpConfig ac){
+        setAmpConfig(ac);
+        Iterator it = basicDisplays.iterator();
+        while(it.hasNext()){
+            ((BasicSeismogramDisplay)it.next()).setAmpConfig(ac);
+        }
+    }
+
+    public void setIndividualizedAmpConfig(AmpConfig ac){
+        Iterator it = basicDisplays.iterator();
+        Class configClass = ac.getClass();
+        while(it.hasNext()){
+            try{
+                ((BasicSeismogramDisplay)it.next()).setAmpConfig((AmpConfig)configClass.newInstance());
+            }catch(IllegalAccessException e){
+                ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
+            }catch(InstantiationException e){
+                ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
+            }
         }
     }
 

@@ -29,6 +29,10 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     public abstract void setAmpConfig(AmpConfig ampConfig);
 
+    public abstract void setGlobalizedAmpConfig(AmpConfig ampConfig);
+
+    public abstract void setIndividualizedAmpConfig(AmpConfig ampConfig);
+
     public abstract AmpConfig getAmpConfig();
 
     public abstract DataSetSeismogram[] getSeismograms();
