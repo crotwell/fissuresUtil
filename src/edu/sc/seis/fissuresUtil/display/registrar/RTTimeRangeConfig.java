@@ -124,6 +124,15 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
         internalTimeConfig.remove(seismos);
     }
 
+    public double getShift() {
+        return internalTimeConfig.getShift();
+    }
+
+    public double getScale() {
+        return internalTimeConfig.getScale();
+    }
+
+
     public void reset(DataSetSeismogram[] seismos) {
         internalTimeConfig.reset(seismos);
     }
