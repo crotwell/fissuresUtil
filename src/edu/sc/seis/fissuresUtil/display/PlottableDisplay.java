@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.*;
 
-import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -10,6 +9,9 @@ import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.utility.Logger;
 import edu.sc.seis.fissuresUtil.display.drawable.EventFlag;
 import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
@@ -17,8 +19,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.TimeZone;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 
 /**
@@ -38,11 +40,46 @@ public  class PlottableDisplay extends JComponent {
 
     public PlottableDisplay() {
         super();
+        dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
         removeAll();
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
                                                      BorderFactory.createLoweredBevelBorder()));
         setLayout(new BorderLayout());
+        tempSelection = new PlottableSelection(this);
         selection = new PlottableSelection(this);
+        addMouseMotionListener(new MouseMotionListener(){
+                    public void mouseDragged(MouseEvent e) {}
+
+                    public void mouseMoved(MouseEvent e) {
+                        Iterator it = eventPlotterList.iterator();
+                        while(it.hasNext()){
+                            EventFlag cur = (EventFlag)it.next();
+                            if(cur.getTitleLoc().contains(e.getX(), e.getY())){
+                                tempSelection.setXY(cur.getX(), cur.getY(), 50);
+                                repaint();
+                                return;
+                            }
+                        }
+                        tempSelection.setXY(-1,-1, 0);
+                        repaint();
+                    }
+                });
+        addMouseListener(new MouseAdapter(){
+                    public void mouseClicked(MouseEvent e){
+                        Iterator it = eventPlotterList.iterator();
+                        while(it.hasNext()){
+                            EventFlag cur = (EventFlag)it.next();
+                            if(cur.getTitleLoc().contains(e.getX(), e.getY())){
+                                selection = tempSelection;
+                                tempSelection = new PlottableSelection(PlottableDisplay.this);
+                                selection.setPlaced(true);
+                                repaint();
+                                return;
+                            }
+                        }
+                    }
+                });
+
         configChanged();
     }
 
@@ -51,17 +88,6 @@ public  class PlottableDisplay extends JComponent {
             rowOffset = offset;
             configChanged();
         }
-    }
-
-    public void setEvents(EventAccessOperations[] eventAccess) {
-        this.eventAccess = eventAccess;
-        eventPlotterList = new LinkedList();
-        addEventPlotterInfo(eventAccess);
-        repaint();
-    }
-
-    public EventAccessOperations getEvent(){
-        return eventAccess[0];
     }
 
     public void setAmpScale(float ampScalePercent) {
@@ -91,7 +117,6 @@ public  class PlottableDisplay extends JComponent {
                              String orientationName,
                              Date date,
                              ChannelId channelId) {
-        eventPlotterList = new LinkedList();
         removeAll();
         this.arrayplottable = clientPlott;
         int[] minmax = findMinMax(arrayplottable);
@@ -107,6 +132,17 @@ public  class PlottableDisplay extends JComponent {
         this.channelId = channelId;
         plottableShape = makeShape(clientPlott);
         configChanged();
+    }
+
+    public void setPlottable(Plottable[] clientPlott,
+                             String nameofstation,
+                             String orientationName,
+                             Date date,
+                             ChannelId channelId,
+                             EventAccessOperations[] events) {
+        eventPlotterList = new LinkedList();
+        addEventPlotterInfo(events);
+        setPlottable(clientPlott, nameofstation, orientationName, date, channelId);
     }
 
     public void paintComponent(Graphics g) {
@@ -152,7 +188,6 @@ public  class PlottableDisplay extends JComponent {
         g2.setFont(DisplayUtils.DEFAULT_FONT);
         g2.drawString(text, x + titleWidth,y);
         stringBounds = fm.getStringBounds(text, g2);
-
         int[] heightWidth = { titleHeight, titleWidth + (int)stringBounds.getWidth()};
         return heightWidth;
     }
@@ -172,7 +207,9 @@ public  class PlottableDisplay extends JComponent {
         Iterator it = eventPlotterList.iterator();
         while(it.hasNext()){
             EventFlag cur = (EventFlag)it.next();
-            drawTitle(titleYPos, LABEL_X_SHIFT, "Event: ", cur.getName(), g2, cur.getColor());
+            int[] size = drawTitle(titleYPos, LABEL_X_SHIFT, "Event: ", cur.getTitle(), g2, cur.getColor());
+            cur.setTitleLoc(LABEL_X_SHIFT, titleYPos - size[0], size[1], size[0]);
+            titleYPos += size[0];
         }
         String myt = "Time";
         String mygmt = "GMT";
@@ -389,6 +426,7 @@ public  class PlottableDisplay extends JComponent {
 
     private void drawSelection(Graphics g) {
         selection.draw(g);
+        tempSelection.draw(g);
     }
 
     public void removeSelection(){
@@ -409,9 +447,21 @@ public  class PlottableDisplay extends JComponent {
         return null;
     }
 
+    public EventAccessOperations getSelectedEvent(){
+        int[][] selectedArea = selection.getSelectedArea();
+        Iterator it = eventPlotterList.iterator();
+        while(it.hasNext()){
+            EventFlag cur = (EventFlag)it.next();
+            if(cur.isSelected(selectedArea)){
+                return cur.getEvent();
+            }
+        }
+        return null;
+    }
+
     public void addEventPlotterInfo(EventAccessOperations[] eventAccessArray) {
         for(int counter = 0; counter < eventAccessArray.length; counter++) {
-            eventPlotterList.add(new EventFlag(this, eventAccess[counter]));
+            eventPlotterList.add(new EventFlag(this, eventAccessArray[counter]));
         }
     }
 
@@ -463,11 +513,9 @@ public  class PlottableDisplay extends JComponent {
 
     private static ColorFactory colorFactory = new ColorFactory();
 
-    private PlottableSelection selection;
+    private PlottableSelection selection, tempSelection;
 
     private LinkedList eventPlotterList = new LinkedList();
-
-    private EventAccessOperations[] eventAccess = new EventAccess[0];
 
     private Plottable[] arrayplottable = new Plottable[0];
 
