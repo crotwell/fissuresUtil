@@ -12,6 +12,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import javax.swing.JOptionPane;
 
 
 
@@ -47,21 +48,43 @@ public class BasicLayoutConfig implements LayoutConfig{
      *adds them and fires a new LayoutEvent with them
      */
     public synchronized void add(DataSetSeismogram[] seismos) {
-        for (int i = 0; i < seismos.length; i++){
-            if(!(distanceMap.containsKey(seismos[i]))){
-                distanceMap.put(seismos[i], calculateDistance(seismos[i]));
-            }
-        }
+        List noDist = new ArrayList();
         boolean someAdded = false;
         for (int i = 0; i < seismos.length; i++){
-            if(!contains(seismos[i])){
-                seis.add(seismos[i]);
-                someAdded = true;
+            if(!(distanceMap.containsKey(seismos[i]))){
+                QuantityImpl dist = calculateDistance(seismos[i]);
+                if(dist == null){
+                    noDist.add(seismos[i]);
+                }else{
+                    seis.add(seismos[i]);
+                    distanceMap.put(seismos[i], dist);
+                    someAdded = true;
+                }
             }
         }
         if(someAdded){
             fireLayoutEvent();
         }
+        if(seis.size() > 0){
+            noDistDialog();
+        }else{
+            unableToDisplayDialog();
+        }
+
+    }
+
+    private void noDistDialog(){
+        JOptionPane.showMessageDialog(null,
+                                      "Some of the seismograms added to the record section have no distances in their data set so they will not be displayed",
+                                      "Unable to Display some Seismograms",
+                                      JOptionPane.WARNING_MESSAGE);
+    }
+
+    public void unableToDisplayDialog(){
+        JOptionPane.showMessageDialog(null,
+                                      "All of the seismograms added to the record section have no distances in their data set so it can not be displayed",
+                                      "Unable to display any seismograms",
+                                      JOptionPane.WARNING_MESSAGE);
     }
 
     /**
@@ -193,17 +216,20 @@ public class BasicLayoutConfig implements LayoutConfig{
         EventAccessOperations event = seis.getDataSet().getEvent();
         ChannelId chanId = seis.getRequestFilter().channel_id;
         Channel seismoChannel = seis.getDataSet().getChannel(chanId);
-        Site seisSite = seismoChannel.my_site;
-        Location seisLoc =  seisSite.my_location;
-        Location eventLoc;
-        try{
-            eventLoc = event.get_preferred_origin().my_location;
-        }catch(NoPreferredOrigin e){//if no preferred origin, just use the first
-            eventLoc = event.get_origins()[0].my_location;
+        if(seismoChannel != null){
+            Site seisSite = seismoChannel.my_site;
+            Location seisLoc =  seisSite.my_location;
+            Location eventLoc;
+            try{
+                eventLoc = event.get_preferred_origin().my_location;
+            }catch(NoPreferredOrigin e){//if no preferred origin, just use the first
+                eventLoc = event.get_origins()[0].my_location;
+            }
+            DistAz distAz = new DistAz(seisLoc.latitude, seisLoc.longitude,
+                                       eventLoc.latitude, eventLoc.longitude);
+            return new QuantityImpl(distAz.delta, UnitImpl.DEGREE);
         }
-        DistAz distAz = new DistAz(seisLoc.latitude, seisLoc.longitude,
-                                   eventLoc.latitude, eventLoc.longitude);
-        return new QuantityImpl(distAz.delta, UnitImpl.DEGREE);
+        return null;
     }
 
     private Map distanceMap = new HashMap();
