@@ -19,11 +19,11 @@ public class NSNetworkAccess extends ProxyNetworkAccess{
      * netDC and the behaviour will change back to whatever is provided by the
      * NetworkAccess returned by the netDC.
      */
-    public NSNetworkAccess(NetworkId id, NetworkDCOperations netDC) throws NetworkNotFound{
+    public NSNetworkAccess(NetworkId id, ProxyNetworkDC netDC) throws NetworkNotFound{
         this(getFromDC(id, netDC), id, netDC);
     }
 
-    public NSNetworkAccess(NetworkAccess na, NetworkId id, NetworkDCOperations netDC){
+    public NSNetworkAccess(NetworkAccess na, NetworkId id, ProxyNetworkDC netDC){
         super(na);
         this.id = id;
         this.netDC = netDC;
@@ -48,6 +48,6 @@ public class NSNetworkAccess extends ProxyNetworkAccess{
         }
     }
 
-    private NetworkDCOperations netDC;
+    private ProxyNetworkDC netDC;
     private NetworkId id;
 }

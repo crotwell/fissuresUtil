@@ -14,6 +14,7 @@ import edu.sc.seis.fissuresUtil.cache.BulletproofNetworkAccessFactory;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
+import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -26,26 +27,26 @@ import org.apache.log4j.Category;
 /**
  * ChannelChooser.java
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 9385 2004-06-29 14:49:36Z groves $
+ * @version $Id: ChannelChooser.java 9551 2004-07-09 19:13:00Z crotwell $
  *
  */
 
 
 public class ChannelChooser extends JPanel {
-    public ChannelChooser(NetworkDCOperations[] netDC) {
+    public ChannelChooser(ProxyNetworkDC[] netDC) {
         this(netDC, false);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netDC, boolean showSites) {
+    public ChannelChooser(ProxyNetworkDC[] netDC, boolean showSites) {
         this(netDC, showSites, new String[0]);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netdcgiven,
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
                           String[] configuredNetworks) {
         this(netdcgiven, false, configuredNetworks);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netdcgiven,
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
                           boolean showSites,
                           String[] configuredNetworks) {
         this(netdcgiven,
@@ -54,7 +55,7 @@ public class ChannelChooser extends JPanel {
              configuredNetworks);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netdcgiven,
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
                           boolean showSites,
                           boolean showNetworks,
                           String[] configuredNetworks) {
@@ -66,7 +67,7 @@ public class ChannelChooser extends JPanel {
              defaultAutoSelectBand);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netdcgiven,
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
                           boolean showSites,
                           String[] configuredNetworks,
                           String[] selectableBand,
@@ -79,7 +80,7 @@ public class ChannelChooser extends JPanel {
              autoSelectBand);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netdcgiven,
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
                           boolean showSites,
                           boolean showNetworks,
                           String[] configuredNetworks,
@@ -95,7 +96,7 @@ public class ChannelChooser extends JPanel {
              defaultAutoSelectedOrientation);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netdcgiven,
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
                           boolean showSites,
                           String[] configuredNetworks,
                           String[] selectableBand,
@@ -112,7 +113,7 @@ public class ChannelChooser extends JPanel {
              autoSelectedOrientation);
     }
 
-    public ChannelChooser(NetworkDCOperations[] netdcgiven,
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
                           boolean showSites,
                           boolean showNetworks,
                           String[] configuredNetworks,
@@ -223,7 +224,7 @@ public class ChannelChooser extends JPanel {
         return (networkLoaderList.size() == 0);
     }
 
-    public void setNetworkDCs(NetworkDCOperations[] netdcgiven) {
+    public void setNetworkDCs(ProxyNetworkDC[] netdcgiven) {
         netdc = netdcgiven;
         channels.clear();
         sites.clear();
@@ -1105,9 +1106,9 @@ public class ChannelChooser extends JPanel {
     private List networkLoaderList = Collections.synchronizedList(new LinkedList());
 
     class NetworkLoader extends Thread {
-        NetworkDCOperations netdc;
+        ProxyNetworkDC netdc;
         boolean doSelect = true;
-        public NetworkLoader(NetworkDCOperations netdc) {
+        public NetworkLoader(ProxyNetworkDC netdc) {
             this.netdc = netdc;
             networkLoaderList.add(this);
         }
@@ -1133,7 +1134,8 @@ public class ChannelChooser extends JPanel {
                     // skip null networks...probably a bug on the server
                     if (nets[i] != null) {
                         //  cache = new CacheNetworkAccess(nets[i]);
-                        NetworkAccess net = BulletproofNetworkAccessFactory.vest(nets[i], netdc);
+                        NetworkAccess net = BulletproofNetworkAccessFactory.vest(nets[i],
+                                                                                 netdc);
                         NetworkAttr attr = net.get_attributes();
                         logger.debug("Got attributes "+attr.get_code());
                         // preload attributes
@@ -1152,9 +1154,10 @@ public class ChannelChooser extends JPanel {
                 setProgressMax(this, configuredNetworks.length);
                 for(int counter = 0; counter < configuredNetworks.length; counter++) {
                     try {
-                        NSNetworkDC nsNetDC = (NSNetworkDC)netdc;
+                        NSNetworkDC nsNetDC = (NSNetworkDC)netdc.getWrappedDC(NSNetworkDC.class);
+
                         // hack to avoid SP at IRIS
-                        if (configuredNetworks[counter].equals("SP") && netdc instanceof NSNetworkDC) {
+                        if (configuredNetworks[counter].equals("SP")) {
                             if (nsNetDC.getServerDNS().equals("edu/iris/dmc")) {
                                 logger.debug("HPC Skipping SP network "+configuredNetworks[counter]+" at "+nsNetDC.getServerDNS());
                                 continue;
@@ -1169,7 +1172,8 @@ public class ChannelChooser extends JPanel {
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if (nets[subCounter] != null) {
                                 // preload attributes
-                                NetworkAccess net = BulletproofNetworkAccessFactory.vest(nets[subCounter], netdc);
+                                NetworkAccess net = BulletproofNetworkAccessFactory.vest(nets[subCounter],
+                                                                                         netdc);
                                 NetworkAttr attr = net.get_attributes();
 
                                 // this is BAD CODE, but prevents the scepp
