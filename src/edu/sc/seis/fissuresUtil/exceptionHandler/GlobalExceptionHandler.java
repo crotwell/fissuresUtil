@@ -57,14 +57,7 @@ public class GlobalExceptionHandler {
                 }
             }
         } catch (Throwable e) {
-            // this is for paranoid coders
-            System.err.println("Caught an exception in the exception handler: "+e.toString());
-            e.printStackTrace(System.err);
-            System.err.println("Original exception was:" +thrown.toString());
-            thrown.printStackTrace(System.err);
-
-            logger.error("Caught an exception in the exception handler: ",e);
-            logger.error("Original exception was:" ,thrown);
+            paranoid(e, thrown);
         }
     }
 
@@ -111,7 +104,7 @@ public class GlobalExceptionHandler {
 
     }
 
-    private static String parse(Object item) {
+    private static String parse(Object item) throws IOException {
         if(item instanceof List)
             return createString((List)item);
         else if(item instanceof File)
@@ -120,24 +113,15 @@ public class GlobalExceptionHandler {
             throw new IllegalArgumentException();
     }
 
-    private static String createString(File file){
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            StringBuffer message = new StringBuffer();
-            try {
-                String line = reader.readLine();
-                while(line != null){
-                    message.append(line + "\n");
-                    line = reader.readLine();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return message.toString();
-        } catch (FileNotFoundException e) {
-            GlobalExceptionHandler.handle("File to be displayed in Exceptionhandler not found", e);
+    private static String createString(File file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        StringBuffer message = new StringBuffer();
+        String line = reader.readLine();
+        while(line != null){
+            message.append(line + "\n");
+            line = reader.readLine();
         }
-        return "";
+        return message.toString();
     }
 
     private static String createString(List stringList) {
@@ -148,6 +132,18 @@ public class GlobalExceptionHandler {
         }
         return message.toString();
     }
+
+    private static void paranoid(Throwable e, Throwable thrown) {
+        // this is for paranoid coders
+        System.err.println("Caught an exception in the exception handler: "+e.toString());
+        e.printStackTrace(System.err);
+        System.err.println("Original exception was:" +thrown.toString());
+        thrown.printStackTrace(System.err);
+
+        logger.error("Caught an exception in the exception handler: ",e);
+        logger.error("Original exception was:" ,thrown);
+    }
+
     private static Map sectionToContents = new HashMap();
 
     private static Logger logger = Logger.getLogger(GlobalExceptionHandler.class);
