@@ -9,7 +9,9 @@ import java.util.EventListener;
  * @author Philip Oliver-Paull
  **/
 public interface StationDataListener extends EventListener{
-	
-	public void stationDataChanged(StationDataEvent s);
-	
+
+    public void stationDataChanged(StationDataEvent s);
+
+    public void stationDataCleared();
+
 }
