@@ -24,26 +24,24 @@ import java.util.List;
 
 public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListener{
     public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis){
-        this(parent, seis, Color.blue);
-    }
-
-    public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis, Color color){
-        this(parent, seis, color, seis.toString());
+        this(parent, new SeismogramShape(parent, seis), seis.getName());
     }
 
     public DrawableSeismogram(SeismogramDisplay parent,
                               DataSetSeismogram seis,
-                              Color color,
                               String name){
-        this(parent, new SeismogramShape(parent, seis), color, name);
+        this(parent, new SeismogramShape(parent, seis), name);
+    }
+
+    protected DrawableSeismogram(SeismogramDisplay parent, SeismogramShape shape){
+        this(parent, shape, shape.getSeismogram().getName());
     }
 
     protected DrawableSeismogram(SeismogramDisplay parent,
                                  SeismogramShape shape,
-                                 Color color,
                                  String name){
         this.parent = parent;
-        this.color = color;
+        this.color = parent.getNextColor(DrawableSeismogram.class);
         this.name = name;
         this.shape = shape;
         setRemover(new SeismogramRemover(shape.getSeismogram(), parent));
@@ -76,9 +74,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
 
     public boolean getVisiblity(){ return visible; }
 
-    public void toggleVisibility(){
-        setVisibility(!visible);
-    }
+    public Color getColor(){ return color; }
 
     public void draw(Graphics2D canvas,
                      Dimension size,

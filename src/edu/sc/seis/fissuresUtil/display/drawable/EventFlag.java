@@ -180,6 +180,8 @@ public class EventFlag implements Drawable{
         return -1;
 
     }
+    public Color getColor(){ return currentColor; }
+
 
     private int curreventrow;
 

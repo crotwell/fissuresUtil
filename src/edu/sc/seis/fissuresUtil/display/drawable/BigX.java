@@ -44,9 +44,7 @@ public abstract class BigX extends MouseAdapter implements Drawable, MouseMotion
         }
     }
 
-    public void toggleVisibility() {
-        visible = !visible;
-    }
+    public Color getColor(){ return drawColor; }
 
     public void setVisibility(boolean b) {
         visible = b;
