@@ -102,18 +102,21 @@ public class DataCenterThread implements Runnable{
         }
         
         private synchronized void incrementWaiters(){
+            setFinished(false);
             setStatus(retrievers + " retrieving data " + ++waiters + " waiting to retreive");
         }
         
         private synchronized void incrementRetrievers(){
+            setFinished(false);
             setStatus(++retrievers + " retrieving data " + --waiters + " waiting to retrieve");
         }
         
         private synchronized void decrementRetrievers(){
             setStatus(--retrievers + " retrieving data " + waiters + " waiting to retrieve");
-            if(retrievers == 0 && waiters == 0){
+            if(retrievers == 0 && waiters == 0)
                 setFinished();
-            }
+            else
+                setFinished(false);
         }
         
         private int retrievers = 0, waiters = 0;
