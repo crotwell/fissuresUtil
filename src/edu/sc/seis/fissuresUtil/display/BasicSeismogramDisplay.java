@@ -155,38 +155,47 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public VerticalSeismogramDisplay getVerticalParent(){ return parent; } 
     
-    public LinkedList getAllSelections(){ 
-	return (LinkedList)plotters.subList(plotters.size() - selectionCount - selection3CCount, plotters.size()); 
+    public java.util.List getAllSelections(){ 
+	return plotters.subList(plotters.size() - selectionCount - selection3CCount, plotters.size()); 
     }
     
-    public LinkedList getSelections(){ 
-	return (LinkedList)plotters.subList(plotters.size() - selectionCount - selection3CCount, plotters.size()); 
+    public java.util.List getSelections(){ 
+	return plotters.subList(plotters.size() - selectionCount - selection3CCount, plotters.size() - selection3CCount); 
     }
 
     public void addSelection(Selection newSelection){ 
-	if(!getSelections().contains(newSelection))
+	if(!getSelections().contains(newSelection)){
 	    getSelections().add(newSelection);
-	repaint();
+	    selectionCount++;
+	    repaint();
+	}
+	
     }
     
     public void removeSelection(Selection oldSelection){ 
-	getSelections().remove(oldSelection); 
-	repaint();
+	if(getSelections().remove(oldSelection)){
+	    selectionCount--; 
+	    repaint();
+	}
     }
 
-    public LinkedList get3CSelections(){ 
-	return (LinkedList)plotters.subList(plotters.size() - selection3CCount, plotters.size());
+    public java.util.List get3CSelections(){ 
+	return plotters.subList(plotters.size() - selection3CCount, plotters.size());
     }
 
     public void add3CSelection(Selection newSelection){ 
-	if(!get3CSelections().contains(newSelection))
+	if(!get3CSelections().contains(newSelection)){
 	    get3CSelections().add(newSelection);
-	repaint();
+	    selection3CCount++;
+	    repaint();
+	}
     }
     
     public void remove3CSelection(Selection oldSelection){ 
-	get3CSelections().remove(oldSelection); 
-	repaint();
+	if(get3CSelections().remove(oldSelection));{ 
+	    selection3CCount--;
+	    repaint();
+	}
     }
 
     public Dimension getDisplaySize(){ return displaySize; }
@@ -419,6 +428,7 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		((Plotter)e.next()).draw(g2, size, timeState, ampState);
 	    }
 	    Date plotEnd = new Date();
+	    timeRegistrar.returnSnapshot();
 	    if(name != null){
 		g2.setPaint(new Color(0, 0, 0, 128));
 		g2.drawString(name, 5, getSize().height - 3);
@@ -428,9 +438,9 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    nameTime += end.getTime() - plotEnd.getTime();
 	    paintTime += end.getTime() - begin.getTime();
 	    plotTime += plotEnd.getTime() - plotBegin.getTime();
-	    //System.out.println("total paint time: " + (paintTime/count) + 
-	    //	       " plot time: " + (plotTime/count) + 
-	    //	       " name time: " + (nameTime/count));	    
+	    System.out.println("total paint(Graphics g) time: " + (paintTime/count) + 
+	    	       " plotter iteration time: " + (plotTime/count) + 
+	    	       " name paint time: " + (nameTime/count));	    
 	}
     }
     protected long nameTime, plotTime, paintTime, count;
