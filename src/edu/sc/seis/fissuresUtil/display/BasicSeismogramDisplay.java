@@ -390,6 +390,13 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	}
 	if (filter.getVisibility()) {
 	    registrar.add(seismos);
+	    java.util.List filterList = plotters.subList(seisCount, seisCount + filterCount);
+	    if(filterList.size() > 1){
+		for(int j = 0; j < filteredShapes.length; j++){
+		    filterList.remove(filteredShapes[j]);
+		    filterList.add(filterList.size(),filteredShapes[j]);
+		}
+	    }
 	}else {
 	    registrar.remove(seismos);
 	}
