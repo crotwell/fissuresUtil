@@ -37,7 +37,7 @@ public class StreamPump extends Thread {
         this.out = out;
     }
 
-    public void run() {
+    public synchronized void run() {
         try {
             String s;
 
