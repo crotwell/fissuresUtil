@@ -271,6 +271,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     public HashMap getPixelMap() {
         return seisToPixelMap;
     }
+    
+    public boolean getSwapAxes(){
+        return this.swapAxes;
+    }
 
     public void drawSeismograms(Graphics2D g2, Dimension size) {
         synchronized(this) {
@@ -279,8 +283,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
             if(swapAxes) {
                 AffineTransform at = new AffineTransform();
                 at.translate(width / 2, height / 2);
-                at.rotate(-Math.PI / 2);
-                at.translate(-height / 2, -width / 2);
+                at.rotate(-Math.PI/2);
+                at.translate(-height / 2,  -width / 2);
                 g2.transform(at);
                 int temp = width;
                 width = height;
