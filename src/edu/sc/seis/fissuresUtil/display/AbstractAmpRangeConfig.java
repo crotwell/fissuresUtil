@@ -42,7 +42,11 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      * in the TimeRangeConfig object passed
      *
      */
-    public abstract void visibleAmpCalc(TimeRangeConfig timeConfig);
+    public void visibleAmpCalc(TimeRangeConfig timeConfig){
+	this.timeConfig = timeConfig;
+	timeConfig.addTimeSyncListener(this);
+	this.updateTimeRange();
+    }
 
     /**
      * Adds a seismogram to the current amplitude configurator
@@ -78,6 +82,21 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	Iterator e = ampListeners.iterator();
 	while(e.hasNext())
 	    ((AmpSyncListener)e.next()).updateAmpRange();
+    }
+
+    public void updateTimeRange(){
+	UnitRangeImpl tempRange = ampRange;
+	ampRange = null;
+	Iterator e = seismos.iterator();
+	while(e.hasNext()){
+	    LocalSeismogram current = (LocalSeismogram)e.next();
+	    this.getAmpRange(current, timeConfig.getTimeRange(current));
+	}
+	if(ampRange == null){
+	    ampRange = tempRange;
+	    return;
+	}
+	this.updateAmpSyncListeners();
     }
     
     protected boolean intvCalc = false;

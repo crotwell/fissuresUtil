@@ -13,7 +13,7 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
  * @version 0.1
  */
 
-public interface AmpRangeConfig {
+public interface AmpRangeConfig extends TimeSyncListener {
         
     /**
      * Returns the amplitude range for a given seismogram
