@@ -15,6 +15,7 @@ import edu.sc.seis.fissuresUtil.cache.NSEventDC;
 import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 import edu.sc.seis.fissuresUtil.cache.NSPlottableDC;
 import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
+import edu.sc.seis.fissuresUtil.cache.ServerNameDNS;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class NameServiceCopy {
@@ -25,11 +26,85 @@ public class NameServiceCopy {
         System.exit(1);
     }
 
+    private static void copy(ServerNameDNS[] from, ServerNameDNS[] to)
+            throws NotFound, CannotProceed, InvalidName {
+        for(int i = 0; i < from.length; i++) {
+            String dns = from[i].getServerDNS();
+            String name = from[i].getServerName();
+            logger.info("Checking on" + name);
+            if(skipServerPing || !from[i].getRealCorbaObject()._non_existent()) {
+                boolean rebind = true;
+                org.omg.CORBA.Object fromObj = from[i].getRealCorbaObject();
+                for(int j = 0; j < to.length; j++) {
+                    if(to[j].getServerName().equals(name)) {
+                        logger.info("Copy to name service contains " + name
+                                + " as well");
+                        try {
+                            org.omg.CORBA.Object toObj = to[j].getRealCorbaObject();
+                            if(!toObj._non_existent() && fromObj.equals(toObj)) {
+                                logger.info("Copy to name service copy of "
+                                        + name
+                                        + " is the same as the one in copy from name service");
+                                rebind = false;
+                            }
+                        } catch(RuntimeException e) {
+                            //This exception came from the copy to obj, rebind
+                        }
+                        break;//Only one match per name possible
+                    }
+                }
+                if(rebind) {
+                    logger.info("Rebinding " + name);
+                    copyFromNS.rebind(dns, name, fromObj, copyToNameContext);
+                }
+            } else {
+                logger.info("Couldn't ping " + dns + " " + name + ", skipping");
+            }
+        }
+    }
+
+    private static void copyEventDC(NamingContextWithPath context)
+            throws NotFound, CannotProceed, InvalidName {
+        NSEventDC[] copyFromPlotDC = copyFromNS.getAllEventDC(context);
+        NSEventDC[] copyToPlotDC = copyToNS.getAllEventDC(context);
+        logger.info("Got " + copyFromPlotDC.length + " event datacenters");
+        copy(copyFromPlotDC, copyToPlotDC);
+    }
+
+    private static void copyPlotDC(NamingContextWithPath context)
+            throws NotFound, CannotProceed, InvalidName {
+        NSPlottableDC[] copyFromPlotDC = copyFromNS.getAllPlottableDC(context);
+        NSPlottableDC[] copyToPlotDC = copyToNS.getAllPlottableDC(context);
+        logger.info("Got " + copyFromPlotDC.length + " plot datacenters");
+        copy(copyFromPlotDC, copyToPlotDC);
+    }
+
+    private static void copyNetDC(NamingContextWithPath context)
+            throws NotFound, CannotProceed, InvalidName {
+        NSNetworkDC[] copyFromNetDC = copyFromNS.getAllNetworkDC(context);
+        NSNetworkDC[] copyToNetDC = copyToNS.getAllNetworkDC(context);
+        logger.info("Got " + copyToNetDC.length + " net datacenters");
+        copy(copyFromNetDC, copyToNetDC);
+    }
+
+    private static void copySeisDC(NamingContextWithPath context)
+            throws NotFound, CannotProceed, InvalidName {
+        NSSeismogramDC[] copyFromSeisDC = copyFromNS.getAllSeismogramDC(context);
+        NSSeismogramDC[] copyToSeisDC = copyToNS.getAllSeismogramDC(context);
+        logger.info("Got " + copyFromSeisDC.length + " seis datacenters");
+        copy(copyFromSeisDC, copyToSeisDC);
+    }
+
+    private static boolean skipServerPing = false;
+
+    private static FissuresNamingService copyFromNS, copyToNS;
+
+    private static NamingContextExt copyToNameContext;
+
     public static void main(String[] args) throws CannotProceed, InvalidName,
             NotFound {
         // this parse the args, reads properties, and inits the orb
         Initializer.init(args);
-        boolean skipServerPing = false;
         for(int i = 0; i < args.length; i++) {
             if(args[i].equals("--noping")) {
                 logger.info("Skipping server ping");
@@ -45,104 +120,27 @@ public class NameServiceCopy {
         if(dnsToCopy == null) {
             logErrExit("System property nameServiceCopy.dns must be set");
         }
-        String copyToNS = System.getProperty("nameServiceCopy.copyTo");
-        if(copyToNS == null) {
+        String copyToNSLoc = System.getProperty("nameServiceCopy.copyTo");
+        if(copyToNSLoc == null) {
             logErrExit("System property nameServiceCopy.copyTo must be set");
         }
-        logger.info("Copying all from " + dnsToCopy + " to " + copyToNS);
-        FissuresNamingService fisNS = Initializer.getNS();
-        if(fisNS.getNameService() == null) {
-            logErrExit("Problem, ns is null");
+        logger.info("Copying all from " + dnsToCopy + " to " + copyToNSLoc);
+        copyFromNS = Initializer.getNS();
+        if(copyFromNS.getNameService() == null) {
+            logErrExit("Copy from ns is null!");
         }
-        fisNS.addOtherNameServiceCorbaLoc(copyToNS);
+        copyFromNS.addOtherNameServiceCorbaLoc(copyToNSLoc);
         ORB orb = Initializer.getORB();
-        org.omg.CORBA.Object ncObj = orb.string_to_object(copyToNS);
-        NamingContextExt copyToNameContext = NamingContextExtHelper.narrow(ncObj);
-        NSSeismogramDC[] seisDC = fisNS.getAllSeismogramDC();
-        logger.info("Got " + seisDC.length + " seis datacenters");
-        for(int i = 0; i < seisDC.length; i++) {
-            String dns = seisDC[i].getServerDNS();
-            String name = seisDC[i].getServerName();
-            if(dns.equals(dnsToCopy)) {
-                if(skipServerPing
-                        || !seisDC[i].getCorbaObject()._non_existent()) {
-                    fisNS.rebind(dns,
-                                 name,
-                                 seisDC[i].getCorbaObject(),
-                                 copyToNameContext);
-                } else {
-                    logger.info("Couldn't ping " + dns + " " + name
-                            + ", skipping");
-                }
-            } else {
-                logger.info("Doesn't match " + dns + ", " + name);
-            }
-        }
-        NSNetworkDC[] networkDC = fisNS.getAllNetworkDC();
-        logger.info("Got " + networkDC.length + " network datacenters");
-        for(int i = 0; i < networkDC.length; i++) {
-            String dns = networkDC[i].getServerDNS();
-            String name = networkDC[i].getServerName();
-            if(dns.equals(dnsToCopy)) {
-                if(skipServerPing
-                        || !networkDC[i].getCorbaObject()._non_existent()) {
-                    logger.info("Rebind " + dns + ", " + name);
-                    fisNS.rebind(dns,
-                                 name,
-                                 networkDC[i].getNetworkDC(),
-                                 copyToNameContext);
-                } else {
-                    logger.info("Couldn't ping " + dns + " " + name
-                            + ", skipping");
-                }
-            } else {
-                logger.info("Doesn't match " + dns + ", " + name);
-            }
-        }
-        NSEventDC[] eventDC = fisNS.getAllEventDC();
-        logger.info("Got " + eventDC.length + " event datacenters");
-        for(int i = 0; i < eventDC.length; i++) {
-            String dns = eventDC[i].getServerDNS();
-            String name = eventDC[i].getServerName();
-            if(dns.equals(dnsToCopy)) {
-                // only copy if can ping orginal
-                if(skipServerPing
-                        || !eventDC[i].getCorbaObject()._non_existent()) {
-                    logger.info("Rebind " + dns + ", " + name);
-                    fisNS.rebind(dns,
-                                 name,
-                                 eventDC[i].getCorbaObject(),
-                                 copyToNameContext);
-                } else {
-                    logger.info("Couldn't ping " + dns + " " + name
-                            + ", skipping");
-                }
-            } else {
-                logger.info("Doesn't match " + dns + ", " + name);
-            }
-        }
-        NSPlottableDC[] plotDC = fisNS.getAllPlottableDC();
-        logger.info("Got " + plotDC.length + " seis datacenters");
-        for(int i = 0; i < plotDC.length; i++) {
-            String dns = plotDC[i].getServerDNS();
-            String name = plotDC[i].getServerName();
-            if(dns.equals(dnsToCopy)) {
-                // only copy if can ping orginal
-                if(skipServerPing
-                        || !plotDC[i].getCorbaObject()._non_existent()) {
-                    logger.info("Rebind " + dns + ", " + name);
-                    fisNS.rebind(dns,
-                                 name,
-                                 plotDC[i].getPlottableDC(),
-                                 copyToNameContext);
-                } else {
-                    logger.info("Couldn't ping " + dns + " " + name
-                            + ", skipping");
-                }
-            } else {
-                logger.info("Doesn't match " + dns + ", " + name);
-            }
-        }
+        copyToNS = new FissuresNamingService(orb);
+        copyToNS.setNameServiceCorbaLoc(copyToNSLoc);
+        org.omg.CORBA.Object ncObj = orb.string_to_object(copyToNSLoc);
+        copyToNameContext = NamingContextExtHelper.narrow(ncObj);
+        NamingContextWithPath copyToContextWithPath = new NamingContextWithPath(copyToNameContext,
+                                                                                copyToNSLoc);
+        copySeisDC(copyToContextWithPath);
+        copyNetDC(copyToContextWithPath);
+        copyEventDC(copyToContextWithPath);
+        copyPlotDC(copyToContextWithPath);
         logger.info("Done");
     }
 
