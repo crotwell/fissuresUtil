@@ -286,12 +286,14 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         topol = topoLayer;
         topol.addLayerStatusListener(this);
         mapHandler.add(topol);
-        lh.addLayer(topol, 2);
-        FissuresShapeLayer globalShapeLayer = (FissuresShapeLayer)shapeLayers.get(0);
-        Properties props = globalShapeLayer.getProperties(null);
-        props.remove("fillColor");
-        globalShapeLayer.setProperties(props);
-        globalShapeLayer.repaint();
+        lh.addLayer(topol, lh.getLayers().length);
+        for(int i = 0; i < shapeLayers.size(); i++) {
+            Layer cur =  (FissuresShapeLayer)shapeLayers.get(i);
+            Properties props = cur.getProperties(null);
+            props.remove("fillColor");
+            cur.setProperties(props);
+            cur.repaint();
+        }
     }
 
     public void setEtopoLayer(String etopoDir) {
@@ -320,8 +322,8 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         etopoProps.put("path", etopoDir);
         etopoProps.put("prettyName", "ETOPO Layer");
         etopoProps.put("number.colors", "216");
-        etopoProps.put("opaque", "100");
-        etopoProps.put("view.type", "0");
+        etopoProps.put("opaque", "255");
+        etopoProps.put("view.type", "1");
         etopoProps.put("minute.spacing", Integer.toString(minuteSpacing));
         etopoProps.put("contrast", "5");
         topoLayer.setProperties(etopoProps);
@@ -504,14 +506,14 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         BasicConfigurator.configure();
         final OpenMap om = new OpenMap();
         om.setActiveMouseMode(new PanTool(om));
-        System.out.println("before if statement");
-        if(args.length > 2) {
-            System.out.println("if!");
-            om.setEtopoLayer("edu/sc/seis/mapData", args[2]);
-        } else {
-            System.out.println("else!");
-            //om.setEtopoLayer("edu/sc/seis/mapData");
-        }
+//        System.out.println("before if statement");
+//        if(args.length > 2) {
+//            System.out.println("if!");
+//            om.setEtopoLayer("edu/sc/seis/mapData", args[2]);
+//        } else {
+//            System.out.println("else!");
+            om.setEtopoLayer("edu/sc/seis/mapData");
+        //}
         //        om.getEventLayer()
         //                .eventDataChanged(new
         // EQDataEvent(MockEventAccessOperations.createEvents()));
