@@ -20,7 +20,7 @@ public class LegendPanel extends JPanel{
 
     private void initComponents(){
         setLayout(new GridLayout(1,2));
-        String imgPath = "fissuresUtil/data/maps/";
+        String imgPath = "edu/sc/seis/fissuresUtil/data/maps/";
 
         //Deep Events
         URL imgURL = getClass().getClassLoader().getResource(imgPath + "deep-event.png");
