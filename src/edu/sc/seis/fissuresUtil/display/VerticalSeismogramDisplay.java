@@ -278,7 +278,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    ((BasicSeismogramDisplay)e.next()).getRegistrar().setAmpConfig(globalRegistrar);
     }
     
-    /*public void createParticleDisplay(BasicSeismogramDisplay creator, boolean advancedOption){
+    public void createParticleDisplay(BasicSeismogramDisplay creator, boolean advancedOption){
 	if(particleAllowed){
 	    if(particleDisplay == null){
 		logger.debug("creating particle display");
@@ -347,7 +347,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 					  "Particle Motion Display Creation",
 					  JOptionPane.ERROR_MESSAGE);
 	}
-	}*/
+    }
     
     
 
@@ -458,7 +458,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected Registrar globalRegistrar;
 
-    //protected ParticleMotionDisplay particleDisplay;
+    protected ParticleMotionDisplay particleDisplay;
     
     protected LinkedList basicDisplays = new LinkedList();
 
