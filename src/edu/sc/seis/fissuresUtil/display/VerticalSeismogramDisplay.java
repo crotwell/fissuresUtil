@@ -31,8 +31,12 @@ import org.apache.log4j.*;
  */
 
 public class VerticalSeismogramDisplay extends JScrollPane{
-    
     public VerticalSeismogramDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder){
+	this(mouseForwarder, motionForwarder, null);
+    }
+
+    public VerticalSeismogramDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder, 
+				     VerticalSeismogramDisplay parent){
 	output.setTimeZone(TimeZone.getTimeZone("GMT"));
 	this.mouseForwarder = mouseForwarder;
 	this.motionForwarder = motionForwarder;
@@ -42,6 +46,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	sorter = new AlphaSeisSorter();
+	if(parent != null)
+	    this.parent = parent;
     }
     
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram dss, String name){
@@ -114,6 +120,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(selectionDisplay != null){
 	    selectionDisplay.getAllBasicDisplays(target);
 	}
+	if(threeSelectionDisplay != null){
+	    threeSelectionDisplay.getAllBasicDisplays(target);
+	}
 	return target;
     }
 
@@ -129,8 +138,23 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    ((BasicSeismogramDisplay)e.next()).stopImageCreation();
     }
 
+    public void removeSelectionDisplay(VerticalSeismogramDisplay display){
+	if(display == selectionDisplay){
+	    selectionWindow.dispose();
+	    selectionDisplays -= 220;
+	    selectionDisplay = null;
+	}else{
+	    threeSelectionWindow.dispose();
+	    selectionDisplays -= 400;
+	    threeSelectionDisplay = null;
+	}
+    }
+    
     public void removeAll(){
 	logger.debug("removing all displays");
+	if(parent != null){
+	    parent.removeSelectionDisplay(this);
+	}
 	this.stopImageCreation();
 	seismograms.removeAll();
 	remove(seismograms);
@@ -143,7 +167,13 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(selectionDisplay != null){
 	    selectionDisplay.removeAll();
 	    selectionWindow.dispose();
-	    selectionDisplays--;
+	    selectionDisplays -= 220;
+	    selectionDisplay = null;
+	}
+	if(threeSelectionDisplay != null){
+	    threeSelectionDisplay.removeAll();
+	    threeSelectionWindow.dispose();
+	    selectionDisplays -= 400;
 	    selectionDisplay = null;
 	}
 	if(particleDisplay != null){
@@ -232,6 +262,9 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(selectionDisplay != null){
 	    selectionDisplay.applyFilter(filter);
 	}
+	if(threeSelectionDisplay != null){
+	    threeSelectionDisplay.applyFilter(filter);
+	}
 	((BasicSeismogramDisplay)basicDisplays.getFirst()).getFilters().add(filter);
     }
 
@@ -310,7 +343,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(((LocalSeismogramImpl)first.getSeismogram()), 
 										   tr.getTimeRange(first.getSeismogram())));
-	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
+	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, creator.getParent().getName() + "." + creator.getColor()));
 	    ar.visibleAmpCalc(tr);
 	    while(e.hasNext()){
@@ -345,7 +378,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    logger.debug("creating 3C selection display");
 	    threeSelectionWindow = new JFrame();
 	    threeSelectionWindow.setSize(400, 400);
-	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
+	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
@@ -420,7 +453,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     protected Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    protected VerticalSeismogramDisplay selectionDisplay, threeSelectionDisplay;
+    protected VerticalSeismogramDisplay selectionDisplay, threeSelectionDisplay, parent;
 
     private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
 }// VerticalSeismogramDisplay
