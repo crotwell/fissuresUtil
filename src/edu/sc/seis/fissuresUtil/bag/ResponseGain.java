@@ -3,10 +3,15 @@ package edu.sc.seis.fissuresUtil.bag;
 import edu.iris.Fissures.IfNetwork.*;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import java.util.HashMap;
 
 /**
- * ResponseGain.java
+ * Applys the overall sensitivity to a seismogram. This is purely a scale
+ * factor, no frequency change is done.
  *
  *
  * Created: Wed Nov  6 18:37:15 2002
@@ -16,6 +21,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  */
 
 public class ResponseGain implements LocalSeismogramFunction {
+
     public ResponseGain (NetworkDC netdc){ this(netdc.a_finder()); }
 
     public ResponseGain(NetworkFinder netFinder){
@@ -24,9 +30,13 @@ public class ResponseGain implements LocalSeismogramFunction {
 
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis)
         throws ChannelNotFound, NetworkNotFound,  FissuresException {
-        NetworkAccess net = finder.retrieve_by_id(seis.channel_id.network_id);
-        Instrumentation inst =
-            net.retrieve_instrumentation(seis.channel_id, seis.begin_time);
+
+        Instrumentation inst = getFromCache(seis.channel_id);
+        if (inst == null) {
+            NetworkAccess net = finder.retrieve_by_id(seis.channel_id.network_id);
+            inst = net.retrieve_instrumentation(seis.channel_id, seis.begin_time);
+            addToCache(seis.channel_id, inst);
+        }
         Sensitivity sensitivity = inst.the_response.the_sensitivity;
         LocalSeismogramImpl outSeis;
 
@@ -64,4 +74,30 @@ public class ResponseGain implements LocalSeismogramFunction {
     }
 
     private NetworkFinder finder;
+
+    protected void addToCache(ChannelId chan, Instrumentation inst) {
+        instCache.put(ChannelIdUtil.toString(chan),
+                      new InstrumentationDater(chan, inst));
+    }
+
+    protected Instrumentation getFromCache(ChannelId chan) {
+        InstrumentationDater instD = (InstrumentationDater)instCache.get(ChannelIdUtil.toString(chan));
+        if (instD != null) {
+            return instD.inst;
+        }
+        return null;
+    }
+
+    private HashMap instCache = new HashMap();
+
+    class InstrumentationDater {
+        InstrumentationDater(ChannelId chan, Instrumentation inst) {
+            this.chan = chan;
+            this.inst = inst;
+            this.date = ClockUtil.now();
+        }
+        ChannelId chan;
+        Instrumentation inst;
+        MicroSecondDate date;
+    }
 }// ResponseGain
