@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2235 2002-07-16 16:02:08Z crotwell $
+ * @version $Id: XMLDataSet.java 2241 2002-07-16 17:36:12Z telukutl $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -611,9 +611,14 @@ public class XMLDataSet implements DataSet, Serializable {
                     LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
 		    //get the Seismogram Attributes from the xml .. only the data must 
 		    // must be obtained fromt the SAC.
-		    NodeList seisAttrNode = XMLUtil.evalNodeList(e, "seismogramAttr");
+		    NodeList seisAttrNode = XMLUtil.evalNodeList(e, "../seismogramAttr");
 		    if(seisAttrNode != null && seisAttrNode.getLength() != 0) {
-			seis.setAttributes(XMLSeismogramAttr.getSeismogramAttr((Element)seisAttrNode.item(0)));
+			SeismogramAttr seisAttr = XMLSeismogramAttr.getSeismogramAttr((Element)seisAttrNode.item(0));
+			logger.debug("The &&&&&&&&&&&&&&&&&&&  chan_cdoe from dsml file is "+
+				     ((SeismogramAttrImpl)seisAttr).getChannelID().channel_code);
+			seis.setAttributes(seisAttr);
+			logger.debug("The &&&&&&&&&&&&&&&&&&& chan_code after setting is "+
+				     seis.getChannelID().channel_code);
 		    }
 		       
                     NodeList propList = evalNodeList(e, "property");
