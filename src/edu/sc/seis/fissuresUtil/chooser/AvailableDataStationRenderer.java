@@ -6,6 +6,8 @@
 
 package edu.sc.seis.fissuresUtil.chooser;
 
+import java.util.*;
+
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
@@ -20,10 +22,6 @@ import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import java.awt.Color;
 import java.awt.Component;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
 import javax.swing.JList;
 import org.apache.log4j.Logger;
 
@@ -95,14 +93,16 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
 	protected void addAvailableStationDataListener(AvailableStationDataListener listener){
 		listenerList.add(AvailableStationDataListener.class, listener);
-		Set keySet = stationsUpNow.keySet();
-		Iterator it = keySet.iterator();
-		while (it.hasNext()){
-			Station station = (Station)it.next();
-			Object obj = stationsUpNow.get(station);
-			if (!(obj instanceof Station)){
-				boolean b = ((Boolean)obj).booleanValue();
-				listener.stationAvailabiltyChanged(new AvailableStationDataEvent(this, station, b));
+		synchronized(stationsUpNow){
+			Set keySet = stationsUpNow.keySet();
+			Iterator it = keySet.iterator();
+			while (it.hasNext()){
+				Station station = (Station)it.next();
+				Object obj = stationsUpNow.get(station);
+				if (!(obj instanceof Station)){
+					boolean b = ((Boolean)obj).booleanValue();
+					listener.stationAvailabiltyChanged(new AvailableStationDataEvent(this, station, b));
+				}
 			}
 		}
 	}
@@ -130,32 +130,35 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 												  int index,
 												  boolean isSelected,
 												  boolean cellHasFocus) {
+
 		Component c = super.getListCellRendererComponent(list,
 														 value,
 														 index,
 														 isSelected,
 														 cellHasFocus);
 		Station station = (Station)value;
-		if (stationsUpNow.get(station) != null &&
-			stationsUpNow.get(station) instanceof Boolean) {
+		synchronized(stationsUpNow){
+			if (stationsUpNow.get(station) != null &&
+				stationsUpNow.get(station) instanceof Boolean) {
 
-			Boolean val = (Boolean)stationsUpNow.get(station);
-			//            logger.debug("Station available found "+
-			//                             StationIdUtil.toString(station.get_id())+ val);
-			if (val.booleanValue()) {
-				c.setForeground(STATION_AVAILABLE);
-			} else {
-				c.setForeground(STATION_UNAVAILABLE);
-			}
-		} else {
-			//            logger.debug("Station available NOT found "+
-			//                             StationIdUtil.toString(station.get_id()));
-			if (stationsUpNow.get(station) == null) {
-				// only add if we are not already "working on it"
-				if (stationsToCheck.contains(station)) {
-					increasePriority(station);
+				Boolean val = (Boolean)stationsUpNow.get(station);
+				//            logger.debug("Station available found "+
+				//                             StationIdUtil.toString(station.get_id())+ val);
+				if (val.booleanValue()) {
+					c.setForeground(STATION_AVAILABLE);
 				} else {
-					addToCheck(station);
+					c.setForeground(STATION_UNAVAILABLE);
+				}
+			} else {
+				//            logger.debug("Station available NOT found "+
+				//                             StationIdUtil.toString(station.get_id()));
+				if (stationsUpNow.get(station) == null) {
+					// only add if we are not already "working on it"
+					if (stationsToCheck.contains(station)) {
+						increasePriority(station);
+					} else {
+						addToCheck(station);
+					}
 				}
 			}
 		}
@@ -266,15 +269,19 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 			wait();
 		}
 		Station sta =  (Station)stationsToCheck.removeFirst();
-		stationsUpNow.put(sta, sta); // put station in as placeholder, means I'm working on it
+		synchronized(stationsUpNow){
+			stationsUpNow.put(sta, sta); // put station in as placeholder, means I'm working on it
+		}
 		return sta;
     }
 
     protected synchronized void finishedCheck(Station station, boolean val) {
-		if (val) {
-			stationsUpNow.put(station, Boolean.TRUE);
-		} else {
-			stationsUpNow.put(station, Boolean.FALSE);
+		synchronized(stationsUpNow){
+			if (val) {
+				stationsUpNow.put(station, Boolean.TRUE);
+			} else {
+				stationsUpNow.put(station, Boolean.FALSE);
+			}
 		}
 		fireStationAvailabilityChanged(station, val);
 		stationsToCheck.remove(station);
@@ -284,14 +291,18 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
     }
 
     protected synchronized void finishedError(Station station) {
-		stationsUpNow.remove(station);
+		synchronized(stationsUpNow){
+			stationsUpNow.remove(station);
+		}
 		stationsToCheck.remove(station);
 		logger.warn("Seismogram server not found for "+
 						StationIdUtil.toString(station.get_id()));
     }
 
     protected synchronized void finishedError(Station station, Exception e) {
-		stationsUpNow.remove(station);
+		synchronized(stationsUpNow){
+			stationsUpNow.remove(station);
+		}
 		stationsToCheck.remove(station);
 		logger.error("Problem doing available data for "+
 						 StationIdUtil.toString(station.get_id()), e);
@@ -423,7 +434,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
     protected LinkedList stationsToCheck = new LinkedList();
 
-    protected HashMap stationsUpNow = new HashMap();
+    protected Map stationsUpNow = Collections.synchronizedMap(new HashMap());
 
     protected DataCenterRouter dc;
 
