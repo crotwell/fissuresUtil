@@ -8,12 +8,12 @@ import java.sql.SQLException;
 public class JDBCSequence{
     
     public JDBCSequence(Connection conn, String name)throws SQLException{
-        this(conn, name, ConnMgr.getSQL(name + ".create"), ConnMgr.getSQL(name + ".nextVal"));
+        this(conn, name, initCreateStmt(conn, name), initNextValStmt(conn, name));
     }
 
     public JDBCSequence(Connection conn, String name, String creationSQL, String nextValSQL)throws SQLException{
         try{
-            if(!DBUtil.tableExists(name, conn)){
+            if(!DBUtil.sequenceExists(name, conn)){
                 conn.createStatement().executeUpdate(creationSQL);
             }
         }catch(SQLException e){
@@ -28,6 +28,29 @@ public class JDBCSequence{
         return rs.getInt(1);
     }
 
+    private static String initNextValStmt(Connection conn, String seqName) throws SQLException {
+        if (conn.getMetaData().getURL().startsWith("jdbc:postgresql:")) {
+            // assume postgres style nextval stmt
+            return "SELECT NEXTVAL ('"+seqName+"')";
+        } else if (conn.getMetaData().getURL().startsWith("jdbc:hsqldb:")) {
+            // assume hsqldb style nextval stmt
+            return "CALL NEXT VALUE FOR "+seqName;
+        } else {
+            // try from props
+            return ConnMgr.getSQL(seqName + ".nextVal");
+        }
+    }
+    
+    private static String initCreateStmt(Connection conn, String seqName) throws SQLException {
+        if (conn.getMetaData().getURL().startsWith("jdbc:postgresql:") || conn.getMetaData().getURL().startsWith("jdbc:hsqldb:")) {
+            // assume postgres/hsqldb style create stmt
+            return "CREATE SEQUENCE "+seqName;
+        } else {
+            // try from props
+            return ConnMgr.getSQL(seqName + ".create");
+        }
+    }
+    
     private PreparedStatement nextVal;
     
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(JDBCSequence.class);

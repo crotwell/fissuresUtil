@@ -11,9 +11,6 @@ network.create=CREATE TABLE network (net_id int NOT NULL, \
                                        FOREIGN KEY(net_end_id) \
                                        REFERENCES time (time_id))
 
-NetworkSeq.create=CREATE SEQUENCE NetworkSeq
-NetworkSeq.nextVal=SELECT NEXTVAL ('NetworkSeq')
-
 station.create = CREATE TABLE station ( sta_id int NOT NULL, \
                                         net_id int NOT NULL, \
                                         sta_code varchar(5), \
@@ -33,9 +30,6 @@ station.create = CREATE TABLE station ( sta_id int NOT NULL, \
                                         FOREIGN KEY(loc_id) \
                                         REFERENCES location(loc_id), \
                                         PRIMARY KEY(sta_id))
-
-StationSeq.create=CREATE SEQUENCE StationSeq
-StationSeq.nextVal=SELECT NEXTVAL ('StationSeq')
                                         
 station.getDBIdsForNetAndCode = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ?
 
@@ -72,9 +66,6 @@ site.create = CREATE TABLE site ( site_id int, \
                                   FOREIGN KEY (site_end_id) \
                                   REFERENCES time (time_id), \
                                   PRIMARY KEY(site_id))
-
-SiteSeq.create=CREATE SEQUENCE SiteSeq
-SiteSeq.nextVal=SELECT NEXTVAL ('SiteSeq')
 
 site.getDBIdsForStaAndCode = SELECT site_id FROM site WHERE sta_id = ? and site_code = ?
 
@@ -129,5 +120,3 @@ channel.putId = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id)
 
 channel.getByDBId = SELECT * FROM channel WHERE chan_id = ?
 
-ChannelSeq.create=CREATE SEQUENCE ChannelSeq
-ChannelSeq.nextVal=SELECT NEXTVAL ('ChannelSeq')

@@ -8,9 +8,6 @@ unit.create=CREATE TABLE unit ( unit_id int, \
                                 unit_power int, \
                                 PRIMARY KEY (unit_id) )
 
-unit_seq.create=CREATE SEQUENCE unit_seq
-unit_seq.nextVal=SELECT NEXTVAL ('unit_seq')
-
 location.create=CREATE TABLE location (loc_id int, \
                                        loc_lat float, \
                                        loc_lon float, \
@@ -23,9 +20,6 @@ location.create=CREATE TABLE location (loc_id int, \
                                        FOREIGN KEY (loc_depth_id) \
                                        REFERENCES quantity (quantity_id))
 
-LocationSeq.create=CREATE SEQUENCE LocationSeq
-LocationSeq.nextVal=SELECT NEXTVAL ('LocationSeq')
-
 quantity.create=CREATE TABLE quantity (quantity_id int, \
                                        quantity_unit_id int, \
                                        quantity_value double, \
@@ -33,17 +27,9 @@ quantity.create=CREATE TABLE quantity (quantity_id int, \
                                        REFERENCES unit (unit_id), \
                                        PRIMARY KEY (quantity_id))
 
-QuantitySeq.create=CREATE SEQUENCE QuantitySeq
-QuantitySeq.nextVal=SELECT NEXTVAL ('QuantitySeq')
-
 time.create=CREATE TABLE time (time_id int, \
                                time_stamp timestamp, \
                                time_nanos int, \
                                time_leapsec int, \
                                PRIMARY KEY (time_id))
 
-TimeSeq.create=CREATE SEQUENCE TimeSeq
-TimeSeq.nextVal=SELECT NEXTVAL ('TimeSeq')
-
-ParameterRefSeq.create=CREATE SEQUENCE ParameterRefSeq
-ParameterRefSeq.nextVal=SELECT NEXTVAL ('ParameterRefSeq')

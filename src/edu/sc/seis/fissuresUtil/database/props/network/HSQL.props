@@ -1,7 +1,0 @@
-NetworkSeq.nextVal=CALL NEXT VALUE FOR NetworkSeq
-
-StationSeq.nextVal=CALL NEXT VALUE FOR StationSeq
-
-SiteSeq.nextVal=CALL NEXT VALUE FOR SiteSeq
-
-ChannelSeq.nextVal=CALL NEXT VALUE FOR ChannelSeq

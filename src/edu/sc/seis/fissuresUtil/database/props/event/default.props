@@ -61,21 +61,3 @@ eventparameterreference.create=CREATE TABLE eventparameterreference ( \
                                     REFERENCES eventattr ( eventattr_id ), \
                                     FOREIGN KEY (parameterid ) \
                                     REFERENCES parameterref ( parameterid ))
-
-EventAttrSeq.create=CREATE SEQUENCE EventAttrSeq
-EventAttrSeq.nextVal=SELECT NEXTVAL ('EventAttrSeq')
-
-FlinnEngdahlSeq.create=CREATE SEQUENCE FlinnEngdahlSeq
-FlinnEngdahlSeq.nextVal=SELECT NEXTVAL ('FlinnEngdahlSeq')
-
-ContributorSeq.create=CREATE SEQUENCE ContributorSeq
-ContributorSeq.nextVal=SELECT NEXTVAL ('ContributorSeq')
-
-CatalogSeq.create=CREATE SEQUENCE CatalogSeq
-CatalogSeq.nextVal=SELECT NEXTVAL ('CatalogSeq')
-
-OriginSeq.create=CREATE SEQUENCE OriginSeq
-OriginSeq.nextVal=SELECT NEXTVAL ('OriginSeq')
-
-EventAccessSeq.create=CREATE SEQUENCE EventAccessSeq
-EventAccessSeq.nextVal=SELECT NEXTVAL ('EventAccessSeq')
