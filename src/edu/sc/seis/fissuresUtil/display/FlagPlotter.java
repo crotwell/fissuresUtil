@@ -59,4 +59,7 @@ public class FlagPlotter implements Plotter{
     protected String name;
 
     protected int location;
+
+    private static Category logger = Category.getInstance(FlagPlotter.class.getName());
+
 }// FlagPlotter
