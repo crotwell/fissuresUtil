@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.database;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.time.CoverageTool;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
@@ -113,35 +115,43 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
         //if the seismogram is already in the cache.
         //if it is the case .. return it..
         //else use the dataCenter Router to get the seismograms.
+        LocalSeismogramImpl[] localSeismograms = new LocalSeismogramImpl[0];
         try {
-            LocalSeismogramImpl[] localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
-            RequestFilter[] uncovered = CoverageTool.notCovered(a_filterseq,
-                                                                localSeismograms);
-            if(uncovered.length == 0) return localSeismograms;
-            List seisToReturn = new ArrayList(localSeismograms.length);
-            insertIntoList(seisToReturn, localSeismograms);
-            if(dataCenter != null) {
-                localSeismograms = (LocalSeismogramImpl[])dataCenter.retrieve_seismograms(uncovered);
-                hsqlRequestFilterDb.addSeismogram(localSeismograms);
-            }
-            if(localSeismograms.length > 0) insertIntoList(seisToReturn,
-                                                           localSeismograms);
-            LocalSeismogram[] rtnValues = new LocalSeismogram[seisToReturn.size()];
-            rtnValues = (LocalSeismogram[])seisToReturn.toArray(rtnValues);
-            return rtnValues;
+            localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
         } catch(SQLException e) {
-            logger.error("logged here because causal exception cannot be passed up the stack: request is:\n"+requestToString(a_filterseq), e);
-            throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,
-                                                                                      e.toString()));
+            logger.error("Problem retriieving from DBDataCenter, using remote datacenter instead: request is:\n"
+                                 + requestToString(a_filterseq),
+                         e);
         } catch(java.io.IOException e) {
-            logger.error("logged here because causal exception cannot be passed up the stack: request is:\n"+requestToString(a_filterseq), e);
-            throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,
-                                                                                      e.toString()));
-        } catch(edu.iris.dmc.seedcodec.CodecException e) {
-            logger.error("logged here because causal exception cannot be passed up the stack: request is:\n"+requestToString(a_filterseq), e);
-            throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,
-                                                                                      e.toString()));
+            logger.error("Problem retriieving from DBDataCenter, using remote datacenter instead: request is:\n"
+                                 + requestToString(a_filterseq),
+                         e);
         } // end of catch
+        RequestFilter[] uncovered = CoverageTool.notCovered(a_filterseq,
+                                                            localSeismograms);
+        if(uncovered.length == 0) return localSeismograms;
+        List seisToReturn = new ArrayList(localSeismograms.length);
+        insertIntoList(seisToReturn, localSeismograms);
+        if(dataCenter != null) {
+            localSeismograms = (LocalSeismogramImpl[])dataCenter.retrieve_seismograms(uncovered);
+            try {
+                hsqlRequestFilterDb.addSeismogram(localSeismograms);
+            } catch(SQLException e) {
+                logger.error("Problem storing seismograms in local cache database.",
+                             e);
+            } catch(CodecException e) {
+                logger.error("Problem storing seismograms in local cache database.",
+                             e);
+            } catch(IOException e) {
+                logger.error("Problem storing seismograms in local cache database.",
+                             e);
+            }
+        }
+        if(localSeismograms.length > 0) insertIntoList(seisToReturn,
+                                                       localSeismograms);
+        LocalSeismogram[] rtnValues = new LocalSeismogram[seisToReturn.size()];
+        rtnValues = (LocalSeismogram[])seisToReturn.toArray(rtnValues);
+        return rtnValues;
     }
     
     public static String requestToString(RequestFilter[] a_filterseq) {
