@@ -47,9 +47,11 @@ public class EventTableLayer extends EventLayer{
     }
 
     public void selectEvent(EventAccessOperations evo){
+        synchronized(tableModel.getAllEvents()) {
         int rowToSelect = tableModel.getRowForEvent(evo);
         if (rowToSelect != -1){
             selectionModel.setSelectionInterval(rowToSelect, rowToSelect);
+        }
         }
     }
 

@@ -28,7 +28,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Mon Jan 8 15:59:05 2001
  * 
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: EventTableModel.java 11327 2004-12-03 20:26:54Z crotwell $
  */
 
 public class EventTableModel extends AbstractTableModel implements
@@ -63,7 +63,7 @@ public class EventTableModel extends AbstractTableModel implements
 	}
 
 	public int getRowCount() {
-		return events.length;
+		return getAllEvents().length;
 	}
 
 	public String getColumnName(int col) {
@@ -157,6 +157,7 @@ public class EventTableModel extends AbstractTableModel implements
 	}
 
 	public EventAccessOperations getEventForRow(int row) {
+        synchronized(events) {
 		if (isRowCached(row)) {
 			return (EventAccessOperations)cachedEvents.get(events[row]);
 		} else {
@@ -166,9 +167,11 @@ public class EventTableModel extends AbstractTableModel implements
 			}
 			return cache;
 		}
+        }
 	}
 
 	public boolean isRowCached(int row) {
+        synchronized(events) {
 		if (backgrounded.containsKey(events[row])) {
 			return false;
 		}
@@ -183,23 +186,34 @@ public class EventTableModel extends AbstractTableModel implements
 		} else {
 			return true;
 		}
+        }
 	}
 
 	public void updateEvents(EventAccessOperations[] events) {
-		this.events = events;
-		cachedEvents.clear();
-		rowNumber.clear();
-		fireEventDataCleared();
-		fireTableDataChanged();
-		fireEventDataChanged(events);
+	    synchronized(events) {
+            this.events = events;
+            cachedEvents.clear();
+            rowNumber.clear();
+            for (int i = 0; i < events.length; i++) {
+                events[i] = BulletproofVestFactory.vestEventAccess(events[i]);
+            }
+	    }
+	    fireEventDataCleared();
+	    fireTableDataChanged();
+	    fireEventDataChanged(events);
 	}
 
 	public void appendEvents(EventAccessOperations[] appendEvents) {
+        synchronized(events) {
+            for (int i = 0; i < appendEvents.length; i++) {
+                appendEvents[i] = BulletproofVestFactory.vestEventAccess(appendEvents[i]);
+            }
 		ProxyEventAccessOperations[] tmp = new ProxyEventAccessOperations[events.length + appendEvents.length];
 		System.arraycopy(events, 0, tmp, 0, events.length);
 		System.arraycopy(appendEvents, 0, tmp, events.length,
 				appendEvents.length);
 		this.events = tmp;
+        }
 		fireTableDataChanged();
 		fireEventDataAppended(events);
 	}
@@ -265,26 +279,26 @@ public class EventTableModel extends AbstractTableModel implements
 	}
 
 	public EventAccessOperations[] getAllEvents() {
-		ProxyEventAccessOperations[] eaos = new ProxyEventAccessOperations[getRowCount()];
-		for (int i = 0; i < getRowCount(); i++) {
-			eaos[i] = BulletproofVestFactory.vestEventAccess(getEventForRow(i));
-		}
-		return eaos;
+        synchronized(events) {
+            return events;
+        }
 	}
 
 	public int getRowForEvent(EventAccessOperations event) {
-		for (int i = 0; i < getRowCount(); i++) {
-			EventAccessOperations eao = getEventForRow(i);
-			if (eao.equals(event)) {
-				return i;
-			}
-		}
+	    synchronized(events) {
+	        EventAccessOperations[] copyEvents = getAllEvents();
+	        for (int i = 0; i < copyEvents.length; i++) {
+	            if (event.equals(copyEvents[i])) {
+	                return i;
+	            }
+	        }
+	    }
 		return -1;
 	}
 
 	protected static ParseRegions FERegions = ParseRegions.getInstance();
 
-	protected EventAccessOperations[] events;
+	protected EventAccessOperations[] events = new EventAccessOperations[0];
 
 	protected WeakHashMap cachedEvents = new WeakHashMap();
 
