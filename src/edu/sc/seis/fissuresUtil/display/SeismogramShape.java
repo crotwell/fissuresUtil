@@ -27,10 +27,14 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 2974 2002-11-27 03:56:34Z crotwell $
+ * @version $Id: SeismogramShape.java 3025 2002-12-19 14:57:41Z groves $
  */
 
 public class SeismogramShape implements Shape, NamedPlotter {
+    public SeismogramShape(DataSetSeismogram seis, Color color){
+	this(seis, color, seis.toString());
+    }
+
     /**
      * 
      * @param color the color of the seismogram
@@ -91,6 +95,10 @@ public class SeismogramShape implements Shape, NamedPlotter {
 		range = maxAmp - minAmp;
 		offset = 0;
 		seisOffset = 0;
+		if(samplesPerPixel < 0){
+		    plotAll = true;
+		    return null;
+		}
 		if(samplesPerPixel < 1){
 		    points = new int[seisEnd - seisStart][2];
 		    plotAll(size);
@@ -214,6 +222,7 @@ public class SeismogramShape implements Shape, NamedPlotter {
 	}
 	endPixel = getPixel(size.width, time.getBeginTime(), time.getEndTime(), temp);
 	samplesPerPixel = (seisEnd - seisStart)/(double)(endPixel - startPixel);
+	//System.out.println("Samples: " + (seisEnd - seisStart) + " Pixels: " + (endPixel - startPixel) + " SPP: " + samplesPerPixel);
     }
     
     private void calculatePixel(int pixel, int height)throws CodecException{

@@ -39,7 +39,7 @@ public class SeismogramInfoDisplay extends TextInfoDisplay {
 	try{
 	    appendLine(doc, "");
 	    LocalSeismogramImpl seis = dss.getSeismogram();
-	    appendHeader(doc, seis.getName());
+	    appendHeader(doc, dss.getName());
 	    values.put("Number of Points", twoDecimal.format(seis.getNumPoints()));
 	    values.put("ID", seis.get_id());
 	    values.put("Sampling", "" + seis.getSampling());

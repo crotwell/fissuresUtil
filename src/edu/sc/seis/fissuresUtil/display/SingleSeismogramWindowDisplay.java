@@ -35,19 +35,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     }
     
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-	return addDisplay(dss, DisplayUtils.getSeismogramNames(dss));
-    }
-
-    /**
-     * adds the seismograms to the main display with an individual RMeanAmpConfig and the global time registrar for
-     * BSDs in this VSD and adds it to the the VSD
-     *
-     * @param dss the seismograms for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
-     */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, String[] names){
-	return addDisplay(dss, globalRegistrar, globalRegistrar, names);
+	return addDisplay(dss, globalRegistrar, globalRegistrar);
     }
 
     /**
@@ -56,11 +44,10 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      *
      * @param dss the seismograms for the new BSD
      * @param tc the time config for the new BSD
-     * @param name the BSD's name
      * @return the created BSD
      */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, String[] names){
-	return addDisplay(dss, tc, globalRegistrar, names);
+    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc){
+	return addDisplay(dss, tc, globalRegistrar);
     }
     
      /**
@@ -69,11 +56,10 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      *
      * @param dss the seismograms for the new BSD
      * @param ac the amp config for the new BSD
-     * @param name the BSD's name
      * @return the created BSD
      */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac, String[] names){
-	return addDisplay(dss, globalRegistrar, ac, names);
+    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
+	return addDisplay(dss, globalRegistrar, ac);
     }
     
      /**
@@ -83,11 +69,11 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @param dss the seismograms for the new BSD
      * @param tc the time config for the new BSD
      * @param ac the amp config for the new BSD
-     * @param name the BSD's name
      * @return the created BSD
      * @return a <code>BasicSeismogramDisplay</code> value
      */
-    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac, String[] names){
+    public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
+	dss = DisplayUtils.addSuffix(dss, suffix);
 	if(tc == globalRegistrar && globalRegistrar == null){
 	    System.out.println("THE GLOBAL REGISTRAR WAS NULL, BUT NOW IT IS BEING CREATED");
 	    boolean setAC = false;
@@ -100,12 +86,12 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
 	    }
 	    tc = globalRegistrar;
 	}		
-	if(sorter.contains(names)){
+	if(sorter.contains(dss)){
 	    return null;
 	}
 	BasicSeismogramDisplay disp;
 	if(basicDisplays.size() == 0){
-	    disp = new BasicSeismogramDisplay(dss, tc, ac, names, this);
+	    disp = new BasicSeismogramDisplay(dss, tc, ac, this);
 	    super.add(disp);
 	    disp.addMouseMotionListener(motionForwarder);
 	    disp.addMouseListener(mouseForwarder);
@@ -115,7 +101,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
 	}
 	else{
 	    disp = (BasicSeismogramDisplay)basicDisplays.getFirst();
-	    disp.add(dss, names);
+	    disp.add(dss);
 	}
 	return disp;
     }

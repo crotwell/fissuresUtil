@@ -30,7 +30,7 @@ public class TestBSD extends JFrame{
     DataSetSeismogram[] seismos = {new DataSetSeismogram(((LocalSeismogramImpl)SimplePlotUtil.
 								createSineWave()),null)};
     String[] names = {"FIRST"};
-    bsd = new BasicSeismogramDisplay(seismos, names, null);
+    bsd = new BasicSeismogramDisplay(seismos, null);
     bsd.addBottomTimeBorder();
 	bsd.setSize(500, 500);
 	getContentPane().add(bsd, BorderLayout.CENTER);
@@ -50,7 +50,7 @@ public class TestBSD extends JFrame{
 	    seismos[i] = new DataSetSeismogram(((LocalSeismogramImpl)SimplePlotUtil.createTestData()), null);
 	    names[i] = "SINE" + 1;
 	}
-	bsd.add(seismos, names);
+	bsd.add(seismos);
 
     }
     
