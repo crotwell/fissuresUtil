@@ -146,15 +146,11 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     public void setTimeFinder(TimeFinder tf){ timeFinder = tf; }
 
     public synchronized TimeSnapshot takeSnapshot(){
-	HashMap seismoDisplayTime = new HashMap();
-	Iterator e = seismos.keySet().iterator();
-	while(e.hasNext()){
-	    DataSetSeismogram current = (DataSetSeismogram)e.next();
-	    seismoDisplayTime.put(current, this.getTimeRange(current));
-	}
-	return new TimeSnapshot(seismoDisplayTime, this.getTimeRange());
+	return new TimeSnapshot((HashMap)seismoDisplayTime.clone(), this.getTimeRange());
     }
 	
+    protected HashMap seismoDisplayTime = new HashMap();
+
     protected TimeFinder timeFinder;
 
     protected MicroSecondDate beginTime;

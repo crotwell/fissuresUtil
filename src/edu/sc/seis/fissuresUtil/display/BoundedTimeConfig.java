@@ -21,7 +21,10 @@ import java.util.*;
 public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 
     public synchronized MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){
-	return new MicroSecondTimeRange(((MicroSecondDate)seismos.get(seis)), ((MicroSecondDate)seismos.get(seis)).add(displayInterval));
+	MicroSecondTimeRange current = new MicroSecondTimeRange(((MicroSecondDate)seismos.get(seis)), 
+								((MicroSecondDate)seismos.get(seis)).add(displayInterval));
+	seismoDisplayTime.put(seis, current);
+	return current;
     }
 
     public synchronized MicroSecondTimeRange getTimeRange(){
@@ -36,7 +39,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	    seismos.put(seis, this.beginTime);
 	if(displayInterval == null)
 	    displayInterval = timeFinder.getDisplayInterval(seis);
-	
+	getTimeRange(seis);
 	super.updateTimeSyncListeners();
     }	
 
@@ -46,6 +49,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	if(displayInterval == null || displayInterval.getValue() == 0)
 	    displayInterval = timeFinder.getDisplayInterval(seis);
 	seismos.put(seis, time);
+	getTimeRange(seis);
 	super.updateTimeSyncListeners();
     }
     
