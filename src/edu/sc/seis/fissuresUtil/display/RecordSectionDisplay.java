@@ -48,7 +48,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
     public synchronized void add(DataSetSeismogram[] seismos){
         updating = true;
         if(registrar == null){
-            setRegistrar(new Registrar(seismos, new BasicTimeConfig(), new RMeanAmpConfig()));
+            setRegistrar(new Registrar(seismos,
+                                       new BasicTimeConfig(),
+                                       new IndividualizedAmpConfig(new RMeanAmpConfig())));
         }else{
             registrar.add(seismos);
         }
@@ -96,6 +98,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
         }else{
             setRegistrar(new Registrar(getSeismograms(), new BasicTimeConfig(), ac));
         }
+    }
+
+    public void setGlobalizedAmpConfig(AmpConfig ac){
+        setAmpConfig(ac);
+    }
+
+    public void setIndividualizedAmpConfig(AmpConfig ac){
+        setAmpConfig(new IndividualizedAmpConfig(ac));
     }
 
     public AmpConfig getAmpConfig(){ return registrar.getAmpConfig(); }

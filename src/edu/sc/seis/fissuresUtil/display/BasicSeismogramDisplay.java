@@ -211,6 +211,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     public void setAmpConfig(AmpConfig ac){ registrar.setAmpConfig(ac); }
 
+    public void setGlobalizedAmpConfig(AmpConfig ac){ setAmpConfig(ac); }
+
+    public void setIndividualizedAmpConfig(AmpConfig ac){
+        setAmpConfig(new IndividualizedAmpConfig(ac));
+    }
+
     public AmpConfig getAmpConfig(){ return registrar.getAmpConfig(); }
 
     public void updateTime(TimeEvent event){
