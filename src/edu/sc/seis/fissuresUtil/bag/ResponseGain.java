@@ -34,6 +34,9 @@ public class ResponseGain{
      * and overflow problems. */
     public static LocalSeismogramImpl apply(LocalSeismogramImpl seis, Instrumentation inst) throws FissuresException{
 
+        if(inst.the_response.stages.length == 0) {
+            throw new IllegalArgumentException("Stage array is of size 0 " + ChannelIdUtil.toString(seis.channel_id));
+        }
         /* Sensitivity is COUNTs per Groung Motion, so should divide in order
          * to convert COUNT seismogram into Ground Motion. */
         Sensitivity sensitivity = inst.the_response.the_sensitivity;
