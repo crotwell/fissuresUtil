@@ -22,17 +22,6 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      *
      */
     public MultiSeismogramWindowDisplay(SeismogramSorter sorter){
-        this(null, sorter);
-    }
-
-    /**
-     * Creates a <code>MultiSeismogramWindowDisplay</code> with a parent
-     *
-     * @param parent the VSD that controls this VSD
-     */
-    public MultiSeismogramWindowDisplay(VerticalSeismogramDisplay parent,
-                                        SeismogramSorter sorter){
-        super(parent);
         this.sorter = sorter;
     }
 
@@ -87,14 +76,10 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             DataSetSeismogram[] seismos = { dss[i] };
             disp = new BasicSeismogramDisplay(tc, ac, this);
             disp.add(seismos);
-            if(currentTimeFlag){
-                disp.setCurrentTimeFlag(currentTimeFlag);
-            }
             int j = sorter.sort(dss[i]);
             super.add(disp, j);
             basicDisplays.add(j, disp);
-            addTimeBorders();
-
+            setTimeBorders();
             disp.addSoundPlay();
         }
         return disp;

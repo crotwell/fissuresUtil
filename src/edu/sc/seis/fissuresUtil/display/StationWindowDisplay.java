@@ -20,11 +20,6 @@ import java.util.Map;
  */
 
 public class StationWindowDisplay extends VerticalSeismogramDisplay{
-    public StationWindowDisplay(){ this(null); }
-
-    public StationWindowDisplay(VerticalSeismogramDisplay parent){
-        super(parent);
-    }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss) {
         return addDisplay(dss, tc, ac);
@@ -64,7 +59,7 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
                 super.add(current);
                 basicDisplays.add(current);
                 stationDisplay.put(stationCode, current);
-                addTimeBorders();
+                setTimeBorders();
             }
             current.add(curSeis);
         }

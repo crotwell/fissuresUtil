@@ -46,11 +46,7 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     public abstract void remove(Drawable drawable);
 
-    public static Set getActiveFilters(){ return activeFilters; }
-
     public abstract DrawableIterator iterator(Class drawableClass);
-
-    public abstract void setCurrentTimeFlag(boolean visible);
 
     public abstract void setTimeConfig(TimeConfig timeConfig);
 
@@ -65,10 +61,6 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
     public abstract AmpConfig getAmpConfig();
 
     public abstract DataSetSeismogram[] getSeismograms();
-
-    public abstract void setOriginalVisibility(boolean visible);
-
-    public abstract boolean getOriginalVisibility();
 
     public abstract void print();
 
@@ -88,12 +80,21 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
 
     public static MouseForwarder getMouseForwarder(){ return mouseForwarder; }
 
+    public static Set getActiveFilters(){ return activeFilters; }
+
+    public static void setCurrentTimeFlag(boolean visible){
+        currentTimeFlag = visible;
+    }
+
+    public static boolean getCurrentTimeFlag(){ return currentTimeFlag; }
+
     private static MouseMotionForwarder motionForwarder;
 
     private static MouseForwarder mouseForwarder;
 
     private List listeners = new ArrayList();
 
+    private static boolean currentTimeFlag = false;
+
     protected static Set activeFilters = new HashSet();
 }
-
