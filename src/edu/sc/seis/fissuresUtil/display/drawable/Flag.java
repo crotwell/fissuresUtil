@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import org.apache.log4j.Category;
@@ -55,13 +56,24 @@ public class Flag implements Drawable {
             canvas.setFont(DisplayUtils.BOLD_FONT);
             double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();
             int location = (int)(offset * (double)size.width);
-            Area pole = new Area(new Rectangle(location, 0, 1, size.height));
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(canvas.getFontMetrics().getStringBounds(name, canvas));
-            Area flag = new Area(new Rectangle(location, 0,
-                                                   (int)(stringBounds.width + PADDING),
-                                                   (int)(stringBounds.height + PADDING)));
-            flag.add(pole);
+            if(flag == null){
+                synchronized(this){
+                    Area pole = new Area(new Rectangle(location, 0, 1, size.height));
+                    flag = new Area(new Rectangle(location, 0,
+                                                      (int)(stringBounds.width + PADDING),
+                                                      (int)(stringBounds.height + PADDING)));
+                    flag.add(pole);
+                    prevLocation = location;
+                }
+            }else{
+                synchronized(flag){
+                    double xShift = location - prevLocation;
+                    flag.transform(AffineTransform.getTranslateInstance(xShift, 0));
+                    prevLocation = location;
+                }
+            }
             canvas.setColor(color);
             canvas.fill(flag);
             canvas.setColor(Color.BLACK);
@@ -71,6 +83,10 @@ public class Flag implements Drawable {
             canvas.drawString(name, location + PADDING/2, stringBounds.height - PADDING/2);
         }
     }
+    
+    private Area flag;
+    
+    private int prevLocation;
     
     public Color getColor(){ return color; }
     
