@@ -1,11 +1,16 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import javax.swing.JComponent;
 
 public abstract class SeismogramDisplay extends JComponent implements DataSetSeismogramReceptacle{
@@ -20,6 +25,25 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
             throw new IllegalStateException("The mouse forwarders on SeismogramDisplay must be set before any seismogram displays are invoked");
         }
     }
+
+    public void add(SeismogramDisplayListener listener){
+        listeners.add(listener);
+    }
+
+    public void remove(SeismogramDisplayListener listener){
+        listeners.remove(listener);
+    }
+
+    public void switchDisplay(SeismogramDisplay to){
+        Iterator it = listeners.iterator();
+        while(it.hasNext()){
+            ((SeismogramDisplayListener)it.next()).switching(this, to);
+        }
+    }
+
+    public static Set getActiveFilters(){ return activeFilters; }
+
+    public abstract DrawableIterator iterator(Class drawableClass);
 
     public abstract void setCurrentTimeFlag(boolean visible);
 
@@ -36,10 +60,6 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
     public abstract AmpConfig getAmpConfig();
 
     public abstract DataSetSeismogram[] getSeismograms();
-
-    public abstract void applyFilter(ColoredFilter filter);
-
-    public abstract void removeFilter(ColoredFilter filter);
 
     public abstract void setOriginalVisibility(boolean visible);
 
@@ -66,5 +86,9 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
     private static MouseMotionForwarder motionForwarder;
 
     private static MouseForwarder mouseForwarder;
+
+    private List listeners = new ArrayList();
+
+    protected static Set activeFilters = new HashSet();
 }
 
