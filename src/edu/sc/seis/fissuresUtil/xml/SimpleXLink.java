@@ -6,12 +6,13 @@ import org.apache.xpath.*;
 import org.apache.xpath.objects.*;
 import java.io.*;
 import java.net.*;
+import org.apache.log4j.*;
 
 /** Represents a simple XLink. Provides methods for following the link if the
  * protocol is known, ie  URLConnection can be gotten from Java.
  *
  * @author Philip Crotwell
- * @version $Id: SimpleXLink.java 2065 2002-07-08 20:17:02Z telukutl $
+ * @version $Id: SimpleXLink.java 2081 2002-07-09 19:39:56Z crotwell $
 */
 public class SimpleXLink {
 
@@ -43,9 +44,13 @@ public class SimpleXLink {
     {
 	String xlink = element.getAttribute("xlink:href");
 	int sharpIndex = xlink.indexOf("#");
-	String fragment = xlink.substring(sharpIndex+1, xlink.length());
+	String fragment = "";
+    if (sharpIndex != -1) {
+        fragment = xlink.substring(sharpIndex+1, xlink.length());
+    } // end of if (sharpIndex != -1)
+    
 	int index;
-	//System.out.println("fragment "+fragment);
+	System.out.println("fragment "+fragment);
 
 	// check for escaped quotes, ASCII 22 (hex) is quote
 	while ((index = fragment.indexOf("%22")) != -1) {
@@ -53,16 +58,24 @@ public class SimpleXLink {
 	    //System.out.println(fragment);
 	} // end of while (fragment.indexOf("%22") != -1)
 	
+    URL url = null;
 	if (xlink.startsWith("http") || xlink.startsWith("ftp")) {
-	    URL url = new URL(base, xlink);
-	    InputStream conn = url.openStream();
-	    BufferedInputStream inStream = new BufferedInputStream(conn);
-	    Document doc = docBuilder.parse(inStream);
-	    return retrieve(doc, fragment);
-	} // end of if (link.startsWith("http") || link.startsWith("ftp"))
-	
-	// assume it is a relative path, within current document
-	return retrieve(element, fragment);
+        // assume absolute
+	    url = new URL(xlink);
+    } else if (base != null) {
+        // assume relative
+	    url = new URL(base, xlink);
+    } // end of else
+
+    if (url != null) {
+        InputStream conn = url.openStream();
+        BufferedInputStream inStream = new BufferedInputStream(conn);
+        Document doc = docBuilder.parse(inStream);
+        return retrieve(doc, fragment);
+    } else {
+        // assume it is a relative path, within current document
+        return retrieve(element, fragment);
+    } // end of else
     }
 
     public Element retrieve(Node context, String path) 
@@ -71,10 +84,17 @@ public class SimpleXLink {
 	org.xml.sax.SAXException, 
 	javax.xml.transform.TransformerException 
     {
+        logger.debug("path="+path);
+        if (context instanceof Document && 
+            (path == null || path.length() == 0)) {
+            // no path so get document element
+            return ((Document)context).getDocumentElement();
+        } // end of if (path == null || path.length() == 0)
+        
 	XObject xobj = XPathAPI.eval(context, path);
 	if (xobj.getType() == XObject.CLASS_NODESET) {
 	    NodeList nList = xobj.nodelist();
-	    //System.out.println("got "+nList.getLength());
+	    System.out.println("got "+nList.getLength());
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
 		return (Element)n;
@@ -126,4 +146,7 @@ public class SimpleXLink {
     protected DocumentBuilder docBuilder;
 
     protected URL base;
+
+    static Category logger = Category.getInstance(SimpleXLink.class.getName());
+
 }
