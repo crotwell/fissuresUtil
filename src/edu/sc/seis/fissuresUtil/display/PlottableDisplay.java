@@ -116,6 +116,8 @@ public  class PlottableDisplay extends JComponent {
 	}
 	//	g.fillRect(beginx, beginy, (endx - beginx), (endy - beginy));
 	g.drawImage(image, 0, 0, this);
+	System.out.println("Repaiting high light region");
+	drawHighlightRegion(g);
     }
 
     protected void drawComponent(Graphics g) {
@@ -136,6 +138,7 @@ public  class PlottableDisplay extends JComponent {
 		      plot_x/plotrows, 
 		      plot_y +(plotoffset * (plotrows-1)));
 	drawPlottableNew(g, arrayplottable);
+	drawHighlightRegion(g);
     }
 
 
@@ -223,41 +226,6 @@ public  class PlottableDisplay extends JComponent {
 	    AlphaComposite originalComposite = (AlphaComposite)newG.getComposite();
 	    AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
 								     .4f);
-	    Point2D.Float beginPoint = new Point2D.Float(beginx, endx);
-	    newG.setPaint(Color.green);
-	    newG.setComposite(newComposite);
-	    if(isRowSelected(selectedRows, currRow)) {
-		int bx = 0;
-		int by = 0;
-		int ex = 0;
-		int ey = 0;
-		if(currRow == selectedRows[0] ) {
-		    System.out.println("Calculating values for start row");
-		    bx =  beginx + xShift*currRow ;//-labelXShift + beginx;
-		    if(selectedRows.length  != 1) {
-			ex = 6000;
-		    } else {
-			ex = endx - beginx;
-		    }
-		    by = -10;
-		    ey = 20;
-		} else if(currRow == selectedRows[selectedRows.length -1 ]) {
-		    System.out.println("Caculating values for end row "+currRow);
-		    bx = xShift*currRow;
-		    ex = (endx);
-		    by = -10;
-		    ey = 20;
-		} else {
-		    bx = 0;
-		    ex = 6000;
-		    by = -10;
-		    ey = 20;
-		}
-		System.out.println("NOW DRAW THE rectangle for row "+currRow);
-		newG.drawRect(bx, by, ex, ey);
-		newG.fillRect(bx, by, ex, ey);
-	    }
-	   
 	    newG.setComposite(originalComposite);
 	    affine.concatenate(affine.getScaleInstance(1, ampScale));
 	    affine.concatenate(affine.getScaleInstance(1, ampScalePercent));
@@ -509,9 +477,9 @@ public  class PlottableDisplay extends JComponent {
 	System.out.println("beginx = "+beginx+" endx = "+endx);
 	System.out.println("beginy = "+beginy+" endy = "+endy);
 	System.out.println("NOW call repaint");
-	configChanged();
+	//	configChanged();
 	
-	//	repaint();
+	repaint();
     }
     
     private int[] getSelectedRows(int beginy, int endy) {
@@ -538,6 +506,82 @@ public  class PlottableDisplay extends JComponent {
 	return false;
     }
 
+    private void drawHighlightRegion(Graphics g) {
+	// get new graphics to avoid messing up original
+	Graphics2D newG = (Graphics2D)g.create(); 
+	
+	if(g != currentImageGraphics) {
+	    newG.translate(labelXShift,
+			   titleYShift);
+	    newG.clipRect(0, 0, 
+			  plot_x/plotrows, 
+			  plot_y +(plotoffset * (plotrows-1)));
+	}
+
+	int xShift = plot_x/plotrows;
+
+	int[] selectedRows = getSelectedRows(beginy, endy);
+
+	for (int currRow = 0; currRow < plotrows; currRow++) {
+
+	    // shift for row (left so time is in window, 
+	    //down to correct row on screen, plus
+	    //	    newG.translate(xShift*currRow, plot_y/2 + plotoffset*currRow);
+	    java.awt.geom.AffineTransform original = newG.getTransform();
+	    java.awt.geom.AffineTransform affine = newG.getTransform();
+	  
+	    affine.concatenate(affine.getTranslateInstance(-1*xShift*currRow,
+						 plot_y/2+plotoffset*currRow));
+	    // account for graphics y positive down
+	    affine.concatenate(affine.getScaleInstance(1, -1));
+
+	    newG.setTransform(affine);
+ 	    newG.setPaint(Color.red);
+
+	    AlphaComposite originalComposite = (AlphaComposite)newG.getComposite();
+	    AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
+								     .4f);
+	    Point2D.Float beginPoint = new Point2D.Float(beginx, endx);
+	    newG.setPaint(Color.green);
+	    newG.setComposite(newComposite);
+	    if(isRowSelected(selectedRows, currRow)) {
+		int bx = 0;
+		int by = 0;
+		int ex = 0;
+		int ey = 0;
+		if(currRow == selectedRows[0] ) {
+		    System.out.println("Calculating values for start row");
+		    bx =  beginx + xShift*currRow ;//-labelXShift + beginx;
+		    if(selectedRows.length  != 1) {
+			ex = 6000;
+		    } else {
+			ex = endx - beginx;
+		    }
+		    by = -10;
+		    ey = 20;
+		} else if(currRow == selectedRows[selectedRows.length -1 ]) {
+		    System.out.println("Caculating values for end row "+currRow);
+		    bx = xShift*currRow;
+		    ex = (endx);
+		    by = -10;
+		    ey = 20;
+		} else {
+		    bx = 0;
+		    ex = 6000;
+		    by = -10;
+		    ey = 20;
+		}
+		System.out.println("NOW DRAW THE rectangle for row "+currRow);
+		newG.drawRect(bx, by, ex, ey);
+		newG.fillRect(bx, by, ex, ey);
+		
+	    }//end of if
+	    newG.setTransform(original);
+	}//end of for
+	    
+	    newG.dispose();
+	   
+    }
 
     protected JLabel imagePanel = new JLabel("no image");
 
