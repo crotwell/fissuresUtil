@@ -17,10 +17,19 @@ import java.util.Properties;
  */
 
 public class ParseRegions {
-    public ParseRegions (){
+    private ParseRegions (){
         load();
     }
-    
+
+    public static ParseRegions getInstance() {
+        if (singleton == null) {
+            singleton = new ParseRegions();
+        }
+        return singleton;
+    }
+
+    private static ParseRegions singleton = null;
+
     /** Gets the Geographic region number for a name. Returns 0 if the
      name cannot be found. */
     public int getRegionValue(String region) {
@@ -31,7 +40,7 @@ public class ParseRegions {
         } // end of if (feProps.get(region.replace(' ','_')))
         return 0;
     }
-    
+
     public String getGeographicRegionName(int geoNum) {
         String propValue =
             feProps.getProperty("GeogRegion"+geoNum);
@@ -40,7 +49,7 @@ public class ParseRegions {
         }
         return "GeoRegion"+geoNum;
     }
-    
+
     public String getSeismicRegionName(int seisNum) {
         String propValue =
             feProps.getProperty("SeismicRegion"+seisNum);
@@ -49,7 +58,7 @@ public class ParseRegions {
         }
         return "SeisRegion"+seisNum;
     }
-    
+
     public String getRegionName(FlinnEngdahlRegion region){
         if (region != null && region.type != null) {
             if (region.type.equals(FlinnEngdahlType.SEISMIC_REGION)) {
@@ -61,7 +70,7 @@ public class ParseRegions {
         }
         return "Unknown";
     }
-    
+
     protected void load() {
         try {
             ClassLoader loader = getClass().getClassLoader();
@@ -74,7 +83,7 @@ public class ParseRegions {
             e.printStackTrace();
         } // end of catch
     }
-    
+
     protected Properties feProps;
-    
+
 }// parseRegions
