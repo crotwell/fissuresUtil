@@ -84,7 +84,11 @@ public class NSSeismogramDC implements ProxySeismogramDC {
             return getDataCenter().available_data(a_filterseq);
         } catch (Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in available_data(), regetting from nameservice to try again.", e);
+            String msg = "Exception in available_data(), regetting from nameservice to try again. ";
+            if (e instanceof FissuresException) {
+                msg += ((FissuresException)e).the_error;
+            }
+            logger.warn(msg, e);
             reset();
             return getDataCenter().available_data(a_filterseq);
         } // end of try-catch
@@ -95,7 +99,11 @@ public class NSSeismogramDC implements ProxySeismogramDC {
             getDataCenter().cancel_request(a_request);
         } catch (Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in cancel_request(), regetting from nameservice to try again.", e);
+            String msg = "Exception in cancel_request(), regetting from nameservice to try again. ";
+            if (e instanceof FissuresException) {
+                msg += ((FissuresException)e).the_error;
+            }
+            logger.warn(msg, e);
             reset();
             getDataCenter().cancel_request(a_request);
         } // end of try-catch
@@ -134,7 +142,11 @@ public class NSSeismogramDC implements ProxySeismogramDC {
             return getDataCenter().retrieve_seismograms(a_filterseq);
         } catch (Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in retrieve_seismograms(), regetting from nameservice to try again.", e);
+            String msg = "Exception in retrieve_seismograms(), regetting from nameservice to try again. ";
+            if (e instanceof FissuresException) {
+                msg += ((FissuresException)e).the_error;
+            }
+            logger.warn(msg, e);
             reset();
             return getDataCenter().retrieve_seismograms(a_filterseq);
         } // end of try-catch
