@@ -44,14 +44,16 @@ public class ImageMaker implements Runnable  {
 	int numLeft;
 	Graphics2D graphic;
 	Image currentImage; 
+	Dimension size; 
 	numLeft = requests.size();
 	while(numLeft > 0){
+	    logger.debug("creating an image with " + numLeft + " in the queue");
 	    synchronized(this){ 
 		currentPatron = ((BasicSeismogramDisplay.ImagePainter)requests.getFirst()); 
 		currentRequirements = ((PlotInfo)patrons.get(currentPatron)); 
+		size = currentRequirements.getSize();
 	    }
 	    HashMap plotters = currentRequirements.getPlotters();
-	    Dimension size = currentRequirements.getSize();
 	    if(size.height <= 0 || size.width <= 0){
 		numLeft = requests.size();
 		break;

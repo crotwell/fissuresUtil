@@ -197,6 +197,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    }
 	    if(overSizedImage.get() == null){
 		logger.debug("image was garbage collected, and is being recreated");
+		synchronized(this){ displayInterval = timeConfig.getTimeRange().getInterval(); }
 		this.createImage();
 		return;
 	    }
