@@ -21,19 +21,19 @@ import java.awt.event.MouseMotionListener;
 public abstract class BigX extends MouseAdapter implements Drawable, MouseMotionListener {
     public BigX(SeismogramDisplay display){
         this.display = display;
-        SeismogramDisplay.getMouseForwarder().addPermMouseListener(this);
-        SeismogramDisplay.getMouseMotionForwarder().addMouseMotionListener(this);
+        display.addMouseListener(this);
+        display.addMouseMotionListener(this);
     }
-
+    
     public abstract void clicked();
-
+    
     public void setXY(int x, int y){
         xMin = x;
         xMax = x + 5;
         yMin = y;
         yMax = y + 5;
     }
-
+    
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         if(visible && !BasicSeismogramDisplay.PRINTING){
             canvas.setColor(drawColor);
@@ -43,21 +43,19 @@ public abstract class BigX extends MouseAdapter implements Drawable, MouseMotion
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
         }
     }
-
+    
     public Color getColor(){ return drawColor; }
-
+    
     public void setVisibility(boolean b) {
         visible = b;
     }
-
+    
     public void mouseClicked(MouseEvent e){
         if(intersects(e)){
             clicked();
-            SeismogramDisplay.getMouseForwarder().removePermMouseListener(this);
-            SeismogramDisplay.getMouseMotionForwarder().removeMouseMotionListener(this);
         }
     }
-
+    
     public void mouseMoved(MouseEvent e) {
         if(intersects(e)){
             setDrawColor(Color.RED);
@@ -65,11 +63,11 @@ public abstract class BigX extends MouseAdapter implements Drawable, MouseMotion
             setDrawColor(Color.BLACK);
         }
     }
-
+    
     public void useInsets(boolean insideInsets){
         inside = insideInsets;
     }
-
+    
     public void mouseDragged(MouseEvent e) {
         if(intersects(e)){
             setDrawColor(Color.RED);
@@ -77,7 +75,7 @@ public abstract class BigX extends MouseAdapter implements Drawable, MouseMotion
             setDrawColor(Color.BLACK);
         }
     }
-
+    
     protected boolean intersects(MouseEvent e){
         if(e.getSource() == display){
             int clickX = e.getX();
@@ -95,7 +93,7 @@ public abstract class BigX extends MouseAdapter implements Drawable, MouseMotion
         }
         return false;
     }
-
+    
     private void setDrawColor(Color newColor){
         Color prevColor = drawColor;
         drawColor = newColor;
@@ -103,15 +101,15 @@ public abstract class BigX extends MouseAdapter implements Drawable, MouseMotion
             display.repaint();
         }
     }
-
+    
     public Color getDrawColor(){ return drawColor; }
-
+    
     private Color drawColor = Color.BLACK;
-
+    
     private int xMax = 10, xMin = 5, yMax = 10, yMin = 5;
-
+    
     private boolean visible = true, inside = true;
-
+    
     private SeismogramDisplay display;
 }
 
