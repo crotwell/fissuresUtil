@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2153 2002-07-11 21:42:39Z crotwell $
+ * @version $Id: XMLDataSet.java 2155 2002-07-12 01:31:29Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -206,10 +206,9 @@ public class XMLDataSet implements DataSet, Serializable {
 	    logger.debug("getting the parameter "+name);
             Node n = nList.item(0); 
             if (n instanceof Element) {
-		return XMLParameter.getParameter((Element)n);
-		//System.out.println("THe tag name is "+((Element)n).getTagName());
-		// parameterCache.put(name, n);
-		//                return (Element)n;
+		Object r = XMLParameter.getParameter((Element)n);
+		parameterCache.put(name, r);
+		return r;
             }
         } else {
 	    logger.debug("THE NODE LIST IS NULL for parameter "+name);
