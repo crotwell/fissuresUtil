@@ -76,8 +76,11 @@ public class UpdateCheckerJob  extends AbstractJob {
             logger.info("our version is "+VersionTask.getVersion()+", update version is "+updates[updates.length-1].getVersion());
             UpdateAction[] actions = updates[updates.length-1].getUpdateActions();
             LocationUpdate locationUpdate = (LocationUpdate)actions[0];
-            handleUpdateGUI(locationUpdate);
-
+            if (isGui) {
+                handleUpdateGUI(locationUpdate);
+            } else {
+                handleUpdateNonGUI(locationUpdate);
+            }
         }else if(showNoUpdate) {
             JOptionPane.showMessageDialog(FrameManager.getManager().getCurrentFrame(),
                                           "No update is available",
