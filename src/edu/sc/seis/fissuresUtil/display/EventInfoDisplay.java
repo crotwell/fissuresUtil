@@ -25,10 +25,7 @@ import java.util.LinkedList;
 import java.util.TimeZone;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import java.util.Vector;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  * EventInfoDisplay.java
@@ -37,7 +34,7 @@ import java.util.List;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 4829 2003-07-18 20:24:26Z oliverpa $
+ * @version $Id: EventInfoDisplay.java 5618 2003-09-11 19:38:33Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay
@@ -251,7 +248,7 @@ public class EventInfoDisplay extends TextInfoDisplay
             return temp;
         }
         catch(NoPreferredOrigin n){
-            System.out.println("Stations not sorted because event has no origin.");
+            logger.warn("Stations not sorted because event has no origin.");
             return stations;
         }
     }
@@ -294,7 +291,6 @@ public class EventInfoDisplay extends TextInfoDisplay
                 index = i;
             }
         }
-        System.out.println("Size of stations: " + stations.length);
         return index;
     }
 
@@ -381,5 +377,7 @@ public class EventInfoDisplay extends TextInfoDisplay
     DecimalFormat twoDecimal = new DecimalFormat("0.00");
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
 
+    static Logger logger = Logger.getLogger(EventInfoDisplay.class);
+    
 }// EventInfoDisplay
 

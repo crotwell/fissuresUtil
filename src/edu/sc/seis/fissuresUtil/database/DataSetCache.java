@@ -40,7 +40,6 @@ public class DataSetCache {
     //System.out.println("The name of the seismogram queried is "+name);
     String fileids = SeisInfoDb.getSeisInfoDb(directoryName, databaseName).getFileIds(name);
     if(fileids == null) return null;
-    System.out.println("The value of the fileids is "+fileids);
     return (LocalSeismogramImpl)DBDataCenter.getDataCenter(directoryName, databaseName).getSeismogram(fileids);
 
     }

@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 4804 2003-07-18 17:05:36Z groves $
+ * @version $Id: EventTableModel.java 5618 2003-09-11 19:38:33Z crotwell $
  */
 
 public class EventTableModel
@@ -184,7 +184,6 @@ public class EventTableModel
         cachedEvents.clear();
         rowNumber.clear();
         fireEventDataCleared();
-        System.out.println("TableModel Got new events "+events.length);
         fireTableDataChanged();
         fireEventDataChanged(events);
     }

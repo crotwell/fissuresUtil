@@ -154,7 +154,6 @@ public class PlottableSelection{
 
     public int[][] getSelectedArea(){
         int[][] selectedArea = new int[endRow - startRow + 1][3];
-        System.out.println(endRow - startRow + 1);
         if(visible && endRow != -1){
             for (int i = 0; i < selectedArea.length; i++) {
                 selectedArea[i][0] = startRow + i;

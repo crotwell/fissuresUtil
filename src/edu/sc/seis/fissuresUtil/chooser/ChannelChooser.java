@@ -26,7 +26,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 5280 2003-09-02 17:51:14Z crotwell $
+ * @version $Id: ChannelChooser.java 5618 2003-09-11 19:38:33Z crotwell $
  *
  */
 
@@ -203,7 +203,6 @@ public class ChannelChooser extends JPanel {
     }
 
     public void setConfiguredNetworks(String[] configuredNetworks) {
-        System.out.println("ChannelChooser: setConfiguredNetworks() called");
         this.configuredNetworks = new String[configuredNetworks.length];
         System.arraycopy(configuredNetworks, 0,
                          this.configuredNetworks, 0,
@@ -220,7 +219,6 @@ public class ChannelChooser extends JPanel {
     }
 
     public void setNetworkDCs(NetworkDCOperations[] netdcgiven) {
-        System.out.println("ChannelChooser: setNetworkDCs() called");
         netdc = netdcgiven;
         channels.clear();
         sites.clear();
@@ -244,7 +242,6 @@ public class ChannelChooser extends JPanel {
     }
 
     public void initFrame() {
-        System.out.println("ChannelChooser: initFrame() called.");
         initWidgets();
         layoutWidgets();
     }
@@ -363,9 +360,7 @@ public class ChannelChooser extends JPanel {
                         t.start();
                     }
                 } );
-        System.out.println("ChannelChooser: stationList is about to be populated.");
         stationList = new DNDJList(stationNames);
-        System.out.println("ChannelChooser: stationList has been populated.");
         // set a default cell renederer, but this can be overridden
         // with the setStationListCellRenderer method
         stationList.setCellRenderer(renderer);
@@ -622,7 +617,6 @@ public class ChannelChooser extends JPanel {
                 logger.warn("no stations for name="+name);
             } else {
                 out.addAll(staList);
-                logger.debug("staList size" + staList.size());
             }
         } // end of for ()
 

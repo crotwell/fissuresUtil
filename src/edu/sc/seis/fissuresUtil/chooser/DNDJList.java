@@ -2,14 +2,14 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
 /**
- * This is an example of a component, which serves as a DragSource as 
+ * This is an example of a component, which serves as a DragSource as
  * well as Drop Target.
  * To illustrate the concept, JList has been used as a droppable target
  * and a draggable source.
  * Any component can be used instead of a JList.
- * The code also contains debugging messages which can be used for 
+ * The code also contains debugging messages which can be used for
  * diagnostics and understanding the flow of events.
- * 
+ *
  * @version 1.0
  */
 
@@ -58,13 +58,12 @@ public class DNDJList extends JList
 
   /**
    * is invoked when you are dragging over the DropSite
-   * 
+   *
    */
 
   public void dragEnter (DropTargetDragEvent event) {
     
-    // debug messages for diagnostics 
-    System.out.println( "dragEnter");
+    // debug messages for diagnostics
     event.acceptDrag (DnDConstants.ACTION_COPY);
   }
 
@@ -74,22 +73,22 @@ public class DNDJList extends JList
    */
 
   public void dragExit (DropTargetEvent event) {
-    System.out.println( "dragExit");
+
     
   }
 
   /**
    * is invoked when a drag operation is going on
-   * 
+   *
    */
 
   public void dragOver (DropTargetDragEvent event) {
-    System.out.println( "dragOver");
+
   }
 
   /**
    * a drop has occurred
-   * 
+   *
    */
 
  
@@ -98,15 +97,15 @@ public class DNDJList extends JList
     try {
         Transferable transferable = event.getTransferable();
                    
-        // we accept only Strings      
+        // we accept only Strings
         if (transferable.isDataFlavorSupported (DataFlavor.stringFlavor)){
         
             event.acceptDrop(DnDConstants.ACTION_COPY);
             String s = (String)transferable.getTransferData ( DataFlavor.stringFlavor);
-	    System.out.println("Drop "+s);
-	    // addElement( s );
+
+        // addElement( s );
             event.getDropTargetContext().dropComplete(true);
-        } 
+        }
         else{
             event.rejectDrop();
         }
@@ -115,7 +114,7 @@ public class DNDJList extends JList
         exception.printStackTrace();
         System.err.println( "Exception" + exception.getMessage());
         event.rejectDrop();
-    } 
+    }
     catch (UnsupportedFlavorException ufException ) {
       ufException.printStackTrace();
       System.err.println( "Exception" + ufException.getMessage());
@@ -125,7 +124,7 @@ public class DNDJList extends JList
 
   /**
    * is invoked if the use modifies the current drop gesture
-   * 
+   *
    */
     
 
@@ -134,80 +133,80 @@ public class DNDJList extends JList
 
   /**
    * a drag gesture has been initiated
-   * 
+   *
    */
   
   public void dragGestureRecognized( DragGestureEvent event) {
       if (getSelectionMode() == javax.swing.ListSelectionModel.SINGLE_SELECTION) {
-	  Object selected = getSelectedValue();
-	  if ( selected != null ){
-	      DNDNetworkAccess dndNet = (DNDNetworkAccess)selected;
-	      //  StringSelection text = new StringSelection( selected.toString()); 
-	      
-	      // as the name suggests, starts the dragging
-	      dragSource.startDrag (event, DragSource.DefaultCopyDrop, dndNet, this);
-	  } else {
-	      System.out.println( "nothing was selected");   
-	  }
+      Object selected = getSelectedValue();
+      if ( selected != null ){
+          DNDNetworkAccess dndNet = (DNDNetworkAccess)selected;
+          //  StringSelection text = new StringSelection( selected.toString());
+          
+          // as the name suggests, starts the dragging
+          dragSource.startDrag (event, DragSource.DefaultCopyDrop, dndNet, this);
       } else {
-	  Object[] selected = getSelectedValues();
-	  DNDLinkedList list = new DNDLinkedList();
-	  for (int i=0; i<selected.length; i++) {
-	      list.add(selected[i]);
-	  } // end of for (int i=0; i<selected.length; i++)
-	  dragSource.startDrag(event, DragSource.DefaultCopyDrop, list, this);
+
+      }
+      } else {
+      Object[] selected = getSelectedValues();
+      DNDLinkedList list = new DNDLinkedList();
+      for (int i=0; i<selected.length; i++) {
+          list.add(selected[i]);
+      } // end of for (int i=0; i<selected.length; i++)
+      dragSource.startDrag(event, DragSource.DefaultCopyDrop, list, this);
       } // end of else
   }
 
   /**
-   * this message goes to DragSourceListener, informing it that the dragging 
+   * this message goes to DragSourceListener, informing it that the dragging
    * has ended
-   * 
+   *
    */
 
-  public void dragDropEnd (DragSourceDropEvent event) {   
-    System.out.println( " dragDropSuccess="+event.getDropSuccess());
+  public void dragDropEnd (DragSourceDropEvent event) {
+
   }
 
   /**
-   * this message goes to DragSourceListener, informing it that the dragging 
+   * this message goes to DragSourceListener, informing it that the dragging
    * has entered the DropSite
-   * 
+   *
    */
 
   public void dragEnter (DragSourceDragEvent event) {
-    System.out.println( " dragEnter");
+
   }
 
   /**
-   * this message goes to DragSourceListener, informing it that the dragging 
+   * this message goes to DragSourceListener, informing it that the dragging
    * has exited the DropSite
-   * 
+   *
    */
 
   public void dragExit (DragSourceEvent event) {
-    System.out.println( "dragExit");
+
     
   }
 
   /**
-   * this message goes to DragSourceListener, informing it that the dragging is currently 
+   * this message goes to DragSourceListener, informing it that the dragging is currently
    * ocurring over the DropSite
-   * 
+   *
    */
 
   public void dragOver (DragSourceDragEvent event) {
-    System.out.println( "dragExit");
+
     
   }
 
   /**
    * is invoked when the user changes the dropAction
-   * 
+   *
    */
    
   public void dropActionChanged ( DragSourceDragEvent event) {
-    System.out.println( "dropActionChanged"); 
+
   }
 
 }

@@ -68,7 +68,7 @@ public class DateChooser extends JPanel {
                 case 3:  hourOption(); break;
                 case 4:  minuteOption(); break;
                 case 5:  secondOption(); break;
-                case 6:  millisOption(); break;
+                //case 6:  millisOption(); break;
                 case 7:  julianOption(); break;
                 case 8:  todayOption(); break;
                 case 9:  radioButtonOption(); break;
@@ -289,10 +289,6 @@ public class DateChooser extends JPanel {
         subPane.add(secondBox, gbc);
     }
 
-    private void millisOption(){
-        System.out.println("Millis option is not implemented.");
-    }
-
     private void julianOption() {
         Integer dayint = new Integer(calendar.get(Calendar.DAY_OF_YEAR));
         String dayString= dayint.toString();
@@ -449,7 +445,6 @@ public class DateChooser extends JPanel {
                     public void actionPerformed(ActionEvent e) {
                         JComboBox cb = (JComboBox)e.getSource();
                         String newSelection = (String)cb.getSelectedItem();
-                        System.out.println("The new value selected is "+newSelection);
                         //min = Integer.parseInt(newSelection);
                         //calendar.set(Calendar.MINUTE, min);
                         //dateChanged();

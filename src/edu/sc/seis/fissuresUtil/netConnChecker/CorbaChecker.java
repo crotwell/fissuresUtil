@@ -23,7 +23,7 @@ import org.omg.CosNaming.NamingContextPackage.*;
  * CorbaChecker.java
  *
  * @author <a href="mailto:">Srinivasa Telukutla</a>
- * $Id: CorbaChecker.java 2375 2002-07-24 13:55:21Z telukutl $
+ * $Id: CorbaChecker.java 5618 2003-09-11 19:38:33Z crotwell $
  * @version 1.0
  */
 public class CorbaChecker extends ConcreteConnChecker  {
@@ -36,8 +36,8 @@ public class CorbaChecker extends ConcreteConnChecker  {
      * @param description a <code>String</code> value
      */
     public CorbaChecker(org.omg.CORBA.Object obj, String description){
-	super(description);
-	this.obj = obj;
+    super(description);
+    this.obj = obj;
     }
 
     /**
@@ -50,81 +50,75 @@ public class CorbaChecker extends ConcreteConnChecker  {
      * @param fissuresNamingService a <code>FissuresNamingService</code> value
      */
     public CorbaChecker(String dns, Class interfaceName, String objectName, String description, FissuresNamingService fissuresNamingService) {
-	super(description);
-	this.dns = dns;
-	this.interfaceClass = interfaceName;
-	this.objectName = objectName;
-	this.fissuresNamingServiceImpl = (FissuresNamingServiceImpl)fissuresNamingService;
-	this.obj = null;
+    super(description);
+    this.dns = dns;
+    this.interfaceClass = interfaceName;
+    this.objectName = objectName;
+    this.fissuresNamingServiceImpl = (FissuresNamingServiceImpl)fissuresNamingService;
+    this.obj = null;
 
     }
 
    /** Pre: A Runnable thread calls run()
-    *  Post: Attempt to make a Corba connection  
+    *  Post: Attempt to make a Corba connection
     */
    public void run()  {
-       long begintime = System.currentTimeMillis();	
-	       
-       System.out.println("running the corbaChecker for "+getDescription());
+       long begintime = System.currentTimeMillis();
        
         try {
-	    if(obj == null) {
-		try {
-		    this.obj = fissuresNamingServiceImpl.resolve(dns, getInterfaceName(), objectName);
-		} catch(Exception e) {
-		    this.obj = null;
-		    setFinished(true);
-		    setTrying(false);
-		    setUnknown(true);
-		    System.out.println("CORBA UnKnown");
-		    fireStatusChanged(getDescription(), ConnStatus.UNKNOWN);
-		    return;
-		}    
-	    }
+        if(obj == null) {
+        try {
+            this.obj = fissuresNamingServiceImpl.resolve(dns, getInterfaceName(), objectName);
+        } catch(Exception e) {
+            this.obj = null;
+            setFinished(true);
+            setTrying(false);
+            setUnknown(true);
+            fireStatusChanged(getDescription(), ConnStatus.UNKNOWN);
+            return;
+        }
+        }
 
             if(obj._non_existent() == true){
-		setFinished(true);
-		setTrying(false);
-		setSuccessful(false);
-		System.out.println("Failed");
-		fireStatusChanged(getDescription(), ConnStatus.FAILED);
-	    }else {
-		setFinished(true);
-		setTrying(false);
-		setSuccessful(true);
-		System.out.println("successful");
-		fireStatusChanged(getDescription(), ConnStatus.SUCCESSFUL);
-	       
-	    }
+        setFinished(true);
+        setTrying(false);
+        setSuccessful(false);
+        fireStatusChanged(getDescription(), ConnStatus.FAILED);
+        }else {
+        setFinished(true);
+        setTrying(false);
+        setSuccessful(true);
+        fireStatusChanged(getDescription(), ConnStatus.SUCCESSFUL);
+           
+        }
             long endtime = System.currentTimeMillis();
             long duration = endtime-begintime;
             //conncheckerobject.setTime(duration);
             //logger.debug
-	    //System.out.println("Corba connection: "+ conncheckerobject.getName()+" "+conncheckerobject.getTime()+" milliseconds"); 
-		return;
+        //System.out.println("Corba connection: "+ conncheckerobject.getName()+" "+conncheckerobject.getTime()+" milliseconds");
+        return;
          } catch(COMM_FAILURE cf){
-	     //logger.warn
-	     setFinished(true);
-	     setTrying(false);
-	     setSuccessful(false);
-	     System.out.println("!!!!! CORBA CONNECTION FAILURE.");
-	     fireStatusChanged(getDescription(), ConnStatus.FAILED);
+         //logger.warn
+         setFinished(true);
+         setTrying(false);
+         setSuccessful(false);
+         fireStatusChanged(getDescription(), ConnStatus.FAILED);
              
-	 } catch(Exception e) {
-	     setFinished(true);
-	     setTrying(false);
-	     setSuccessful(false);
-	     e.printStackTrace();
-	     fireStatusChanged(getDescription(), ConnStatus.FAILED);
-	 }
-	//conncheckerobject.setFinished(true);
+     } catch(Exception e) {
+         setFinished(true);
+         setTrying(false);
+         setSuccessful(false);
+         e.printStackTrace();
+         fireStatusChanged(getDescription(), ConnStatus.FAILED);
+     }
+    //conncheckerobject.setFinished(true);
     }// close run
 
   
     private String getInterfaceName() {
 
-	Class[] interfacenames = interfaceClass.getInterfaces();
-	String temp = "";
+    Class[] interfacenames = interfaceClass.getInterfaces();
+    String temp = "";
         for(int counter = 0; counter < interfacenames.length; counter++) {
       
             if(interfacenames[counter].getName().startsWith("edu.iris.Fissures")) {
@@ -139,11 +133,11 @@ public class CorbaChecker extends ConcreteConnChecker  {
 
             rtnValue = (String) tokenizer.nextElement();
         }
-	if(rtnValue.indexOf("Operations") == -1) {
-	    return rtnValue.substring(0, rtnValue.length());
-	} else {
-	    return rtnValue.substring(0, rtnValue.length() - "Operations".length());
-	}
+    if(rtnValue.indexOf("Operations") == -1) {
+        return rtnValue.substring(0, rtnValue.length());
+    } else {
+        return rtnValue.substring(0, rtnValue.length() - "Operations".length());
+    }
 
     }
     org.omg.CORBA.Object obj;

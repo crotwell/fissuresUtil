@@ -2,7 +2,7 @@ package edu.sc.seis.fissuresUtil.netConnChecker;
 
 import java.util.*;
 /**
- * Description: This class implements the interface ConnChecker. 
+ * Description: This class implements the interface ConnChecker.
  *
  *
  * Created: Fri May 10 13:41:34 2002
@@ -18,8 +18,8 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @param description a <code>String</code> value
      */
     public ConcreteConnChecker (String description){
-	statusChangeListeners = new Vector();
-	this.description = description;
+    statusChangeListeners = new Vector();
+    this.description = description;
     }
     /**
      * returns true if the ConnectionStatus is FINISHED else false.
@@ -27,7 +27,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @return a <code>boolean</code> value
      */
     public boolean isFinished() {
-	return finished;
+    return finished;
     }
     /**
      * returns true if the ConnectionStatus is SUCCESSFUL else false.
@@ -35,7 +35,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @return a <code>boolean</code> value
      */
     public boolean isSuccessful() {
-	return successful;
+    return successful;
     }
 
     /**
@@ -44,7 +44,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @return a <code>boolean</code> value
      */
     public boolean isUnknown() {
-	return unknown;
+    return unknown;
     }
 
     /**
@@ -54,7 +54,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      */
     public boolean isTrying() {
 
-	return trying;
+    return trying;
     }
     
     /**
@@ -63,7 +63,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @param value a <code>boolean</code> value
      */
     public void setFinished(boolean value) {
-	this.finished = value;
+    this.finished = value;
     }
 
     /**
@@ -73,7 +73,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      */
     public void setSuccessful(boolean value) {
 
-	this.successful = value;
+    this.successful = value;
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      */
     public void setUnknown(boolean value) {
 
-	this.unknown = value;
+    this.unknown = value;
     }
     
     /**
@@ -93,7 +93,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      */
     public void setTrying(boolean value) {
 
-	this.trying = value;
+    this.trying = value;
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      */
     public ConnStatus getStatus() {
 
-	return null;
+    return null;
     }
 
     /**
@@ -112,7 +112,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @return a <code>String</code> value
      */
     public String getDescription() {
-	return this.description;
+    return this.description;
     }
 
     /**
@@ -121,8 +121,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @param listener a <code>ConnStatusChangedListener</code> value
      */
     public void addConnStatusChangedListener(ConnStatusChangedListener listener) {
-	statusChangeListeners.add(listener);
-	System.out.println("The size of Listeners is after Adding is ************************** "+statusChangeListeners.size());
+    statusChangeListeners.add(listener);
     }
 
     /**
@@ -131,7 +130,7 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @param listener a <code>ConnStatusChangedListener</code> value
      */
     public void removeConnStatusChangedListener(ConnStatusChangedListener listener) {
-	statusChangeListeners.remove(listener);
+    statusChangeListeners.remove(listener);
     }
 
     /**
@@ -141,14 +140,10 @@ public abstract class ConcreteConnChecker implements ConnChecker{
      * @param connectionStatus a <code>ConnStatus</code> value
      */
     public synchronized void fireStatusChanged(String urlStr, ConnStatus connectionStatus) {
-	System.out.println("The size of Listeners is "+statusChangeListeners.size());
-	for(int counter = 0; counter < statusChangeListeners.size(); counter++) {
-
-	    System.out.println("Function fireStatusChanged is invoked by "+urlStr+" ----> "+connectionStatus);
-
-	    ConnStatusChangedListener listener = (ConnStatusChangedListener) statusChangeListeners.elementAt(counter);
-	    listener.statusChanged(new StatusChangedEvent(this, urlStr, connectionStatus));
-	}
+    for(int counter = 0; counter < statusChangeListeners.size(); counter++) {
+        ConnStatusChangedListener listener = (ConnStatusChangedListener) statusChangeListeners.elementAt(counter);
+        listener.statusChanged(new StatusChangedEvent(this, urlStr, connectionStatus));
+    }
     }
     
     private  String description;

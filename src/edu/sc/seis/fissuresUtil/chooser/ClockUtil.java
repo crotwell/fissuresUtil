@@ -76,13 +76,10 @@ public class ClockUtil {
             serverTime = new edu.iris.Fissures.Time(timeStr, -1);
         }
         MicroSecondDate serverDate = new MicroSecondDate(serverTime);
-        //System.out.println("server Date is "+serverDate);
-        //System.out.println("the lastDate is "+this.lastDate);
         TimeInterval offset = new TimeInterval(localTime, serverDate);
 
         // assume small time
         //if(java.lang.Math.abs(offset.value) <  2000000) offset = new TimeInterval(serverDate, serverDate);
-        //System.out.println("The offset is "+offset.value);
         return offset;
     }
 

@@ -14,18 +14,17 @@ import java.lang.*;
 
 public class TestExceptionHandler {
     public TestExceptionHandler (){
-	
+    
     }
     public static void main(String args[]) {
-	String num = "abcd";
-	
-	try {
-	    
-	    int no = Integer.parseInt(num);
-	} catch(Exception e) {
+    String num = "abcd";
+    
+    try {
+        
+        int no = Integer.parseInt(num);
+    } catch(Exception e) {
 
-	    ExceptionHandlerGUI.handleException("Number Format Exception", e);
-	    System.out.println("Number Format Exception");
-	}
+        ExceptionHandlerGUI.handleException("Number Format Exception", e);
+    }
     }
 }// TestExceptionHandler
