@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Dimension;
 import org.apache.log4j.Category;
-import org.omg.RTCORBA.minPriority;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
@@ -24,7 +23,7 @@ import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 11103 2004-11-08 16:21:23Z groves $
+ * @version $Id: SimplePlotUtil.java 11147 2004-11-12 21:14:58Z groves $
  */
 public class SimplePlotUtil {
 
@@ -48,9 +47,9 @@ public class SimplePlotUtil {
         if(seis.getEndTime().before(stopTime)) {
             stopTime = seis.getEndTime();
         }
-        int startSample = PlottableChunk.getSample(startTime, samplesPerDay);
+        int startSample = PlottableChunk.getPixel(startTime, samplesPerDay);
         startTime = getTime(startTime, startSample, samplesPerDay);
-        int stopSample = PlottableChunk.getSample(stopTime, samplesPerDay);
+        int stopSample = PlottableChunk.getPixel(stopTime, samplesPerDay);
         stopTime = getTime(stopTime, stopSample, samplesPerDay);
         double lengthInDays = stopTime.difference(startTime)
                 .getValue(UnitImpl.DAY);
@@ -321,17 +320,27 @@ public class SimplePlotUtil {
         return seis;
     }
 
+    public static ChannelId makeChanId(edu.iris.Fissures.Time time) {
+        return new ChannelId(new NetworkId("XX", time),
+                             "FAKE",
+                             "00",
+                             "BHZ",
+                             time);
+    }
+
     public static LocalSeismogramImpl createTestData(String name,
                                                      int[] dataBits,
                                                      edu.iris.Fissures.Time time) {
+        return createTestData(name, dataBits, time, makeChanId(time));
+    }
+
+    public static LocalSeismogramImpl createTestData(String name,
+                                                     int[] dataBits,
+                                                     edu.iris.Fissures.Time time,
+                                                     ChannelId channelID) {
         String id = "Nowhere: " + name;
         TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
         SamplingImpl sampling = new SamplingImpl(20, timeInterval);
-        ChannelId channelID = new ChannelId(new NetworkId("XX", time),
-                                            "FAKE",
-                                            "00",
-                                            "BHZ",
-                                            time);
         TimeSeriesDataSel bits = new TimeSeriesDataSel();
         bits.int_values(dataBits);
         Property[] props = new Property[1];
@@ -422,19 +431,21 @@ public class SimplePlotUtil {
     }
 
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
-        return createSpike(spikeTime, new TimeInterval(50, UnitImpl.SECOND), 20);
+        return createSpike(spikeTime, new TimeInterval(50, UnitImpl.SECOND), 20, makeChanId(spikeTime.getFissuresTime()));
     }
 
     public static LocalSeismogramImpl createSpike(MicroSecondDate time,
                                                   TimeInterval traceLength,
-                                                  int samplesPerSpike) {
-        return createRaggedSpike(time, traceLength, samplesPerSpike, 0);
+                                                  int samplesPerSpike,
+                                                  ChannelId id) {
+        return createRaggedSpike(time, traceLength, samplesPerSpike, 0, id);
     }
 
     public static LocalSeismogramImpl createRaggedSpike(MicroSecondDate time,
                                                         TimeInterval traceLength,
                                                         int samplesPerSpike,
-                                                        int missingSamples) {
+                                                        int missingSamples,
+                                                        ChannelId id) {
         double secondShift = missingSamples / (double)SPIKE_SAMPLES_PER_SECOND;
         TimeInterval shiftInt = new TimeInterval(secondShift, UnitImpl.SECOND);
         time = time.add(shiftInt);
@@ -448,7 +459,7 @@ public class SimplePlotUtil {
                 dataBits[i] = 100;
             }
         }
-        return createTestData(name, dataBits, time.getFissuresTime());
+        return createTestData(name, dataBits, time.getFissuresTime(), id);
     }
 
     public static final int SPIKE_SAMPLES_PER_SECOND = 20;
