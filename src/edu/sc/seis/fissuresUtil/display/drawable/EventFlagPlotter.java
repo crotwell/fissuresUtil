@@ -65,28 +65,24 @@ public class EventFlagPlotter implements Plotter{
         if(g != plottableDisplay.getCurrentImageGraphics()) {
             newG.translate(PlottableDisplay.LABEL_X_SHIFT,
                            PlottableDisplay.TITLE_Y_SHIFT);
-            newG.clipRect(0, 0,
-                          plottableDisplay.plot_x/plottableDisplay.plotrows,
-                          plottableDisplay.plot_y +(plottableDisplay.plotoffset * (plottableDisplay.plotrows-1)));
         }
 
-        int xShift = plottableDisplay.plot_x/plottableDisplay.plotrows;
+        int xShift = plottableDisplay.getRowWidth();
         int eventrow = getEventRow(eventAccess);
         int eventcolumn = getEventColumn(eventAccess);
 
-        java.awt.geom.AffineTransform original = newG.getTransform();
         java.awt.geom.AffineTransform affine = newG.getTransform();
 
+        double yTrans = plottableDisplay.getRowHeight()/2+
+            plottableDisplay.getOffset()*eventrow;
         affine.concatenate(affine.getTranslateInstance(-1*xShift*eventrow,
-                                                       plottableDisplay.plot_y/2+plottableDisplay.plotoffset*eventrow));
+                                                       yTrans));
 
         java.awt.geom.AffineTransform tempAffine = newG.getTransform();
         tempAffine.concatenate(tempAffine.getTranslateInstance(-1*xShift*eventrow,
-                                                               plottableDisplay.plot_y/2+plottableDisplay.plotoffset*eventrow));
+                                                               yTrans));
         curreventrow = eventrow;
         curreventcolumn = eventcolumn;
-        //tempAffine.concatenate(tempAffine.getScaleInstance(1, -1));
-        //tempAffine.concatenate(tempAffine.getRotateInstance(-Math.PI, xShift*eventrow + eventcolumn, - 20));
         newG.setTransform(tempAffine);
         newG.setPaint(Color.black);
 
@@ -98,11 +94,8 @@ public class EventFlagPlotter implements Plotter{
         newG.setTransform(affine);
         newG.setPaint(this.currentColor);
 
-        AlphaComposite originalComposite = (AlphaComposite)newG.getComposite();
-        AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                                                           .4f);
-
-        newG.setComposite(newComposite);
+        newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                                                     .4f));
 
         newG.drawRect( xShift*eventrow + eventcolumn - 5, 20, eventName.length() * 8, 20);
         newG.fillRect( xShift*eventrow + eventcolumn - 5, 20, eventName.length() * 8,20);
@@ -112,18 +105,13 @@ public class EventFlagPlotter implements Plotter{
 
 
     public boolean isSelected(int x, int y) {
-        System.out.println("called the method isSelected on event "+this.eventName);
-        System.out.println("** x = "+x+" y= "+y);
-         int rx = curreventcolumn + PlottableDisplay.LABEL_X_SHIFT;
-        int ry = plottableDisplay.plot_y/2+plottableDisplay.plotoffset*curreventrow;
-        System.out.println(" rx = "+rx+" ry = "+ry);
+        int rx = curreventcolumn + PlottableDisplay.LABEL_X_SHIFT;
+        int ry = plottableDisplay.getRowHeight()/2+plottableDisplay.getOffset()*curreventrow;
 
         if(x >= rx && x <= (rx + eventName.length() * 8) &&
            y >= ry && y <= (ry + 20)) {
-            System.out.println("** true");
             return true;
         }
-        System.out.println("** false");
         return false;
     }
 
@@ -137,65 +125,65 @@ public class EventFlagPlotter implements Plotter{
     }
 
 
-     private int getEventRow(EventAccessOperations eventAccess) {
-    try {
-        if(eventOrigin == null) {
-            eventOrigin = eventAccess.get_preferred_origin();
+    private int getEventRow(EventAccessOperations eventAccess) {
+        try {
+            if(eventOrigin == null) {
+                eventOrigin = eventAccess.get_preferred_origin();
+            }
+            edu.iris.Fissures.Time time = eventOrigin.origin_time;
+
+            long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
+            Calendar calendar = Calendar.getInstance();
+            Date date = new Date(microSeconds/1000);
+            calendar.setTime(date);
+            calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+            int hours = calendar.get(Calendar.HOUR_OF_DAY);
+            return hours/2;
+
+        } catch(Exception e) {
+
         }
-        edu.iris.Fissures.Time time = eventOrigin.origin_time;
-
-        long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
-        Calendar calendar = Calendar.getInstance();
-        Date date = new Date(microSeconds/1000);
-        calendar.setTime(date);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        return hours/2;
-
-    } catch(Exception e) {
-
-    }
-    return -1;
+        return -1;
 
     }
 
 
-     private int getEventColumn(EventAccessOperations eventAccess) {
-    try {
-        if(eventOrigin == null) {
-            eventOrigin = eventAccess.get_preferred_origin();
+    private int getEventColumn(EventAccessOperations eventAccess) {
+        try {
+            if(eventOrigin == null) {
+                eventOrigin = eventAccess.get_preferred_origin();
+            }
+
+            edu.iris.Fissures.Time time = eventOrigin.origin_time;
+            if(this.eventName == null) {
+                this.eventName = eventAccess.get_attributes().name;
+            }
+            long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
+            Calendar calendar = Calendar.getInstance();
+            Date date = new Date(microSeconds/1000);
+            calendar.setTime(date);
+            calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+            int minutes = calendar.get(Calendar.MINUTE);
+            int seconds = calendar.get(Calendar.SECOND);
+
+            float colhours = (minutes * 60 + seconds) / (float) (60 * 60);
+
+            int rowvalue = 24/plottableDisplay.getRows();
+            int rowWidth = plottableDisplay.getRowWidth();
+            int  rtnvalue = (int)(((float)rowWidth/rowvalue) * colhours);
+
+            return rtnvalue;
+
+        } catch(Exception e) {
+
         }
-
-        edu.iris.Fissures.Time time = eventOrigin.origin_time;
-        if(this.eventName == null) {
-            this.eventName = eventAccess.get_attributes().name;
-        }
-        long microSeconds =  ( new MicroSecondDate(time)).getMicroSecondTime();
-        Calendar calendar = Calendar.getInstance();
-        Date date = new Date(microSeconds/1000);
-        calendar.setTime(date);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int minutes = calendar.get(Calendar.MINUTE);
-        int seconds = calendar.get(Calendar.SECOND);
-
-        float colhours = (minutes * 60 + seconds) / (float) (60 * 60);
-
-        int rowvalue = 24/plottableDisplay.plotrows;
-        int plotwidth = plottableDisplay.plot_x/plottableDisplay.plotrows;
-        int  rtnvalue = (int)(((float)plotwidth/rowvalue) * colhours);
-
-        return rtnvalue;
-
-    } catch(Exception e) {
-
-    }
-    return -1;
+        return -1;
 
     }
 
-     private int curreventrow;
+    private int curreventrow;
 
-     private int curreventcolumn;
+    private int curreventcolumn;
 
     private String eventName;
 
