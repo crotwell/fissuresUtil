@@ -7,6 +7,7 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
 import java.io.*;
+import org.apache.log4j.Logger;
 
 public class MultiFileMSeedRead extends MiniSeedRead {
 
@@ -37,6 +38,7 @@ public class MultiFileMSeedRead extends MiniSeedRead {
             return d;
         } catch (EOFException e) {
             // try next file
+            logger.debug("Loading next mseed file: "+files[currentIndex].getName());
             initNextFile();
             DataRecord d = current.getNextRecord();
             numReadTotal++;
@@ -68,5 +70,8 @@ public class MultiFileMSeedRead extends MiniSeedRead {
     MiniSeedRead current;
 
     int current_record = 0;
+
+    private static final Logger logger = Logger.getLogger(MultiFileMSeedRead.class);
+
 }
 
