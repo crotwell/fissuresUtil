@@ -12,7 +12,7 @@ public class CacheNetworkAccess implements NetworkAccess {
         if (net == null) {
             throw new NullPointerException("network is null");
         } // end of if (net == null)
-        
+
         this.net = net;
     }
 
@@ -23,10 +23,10 @@ public class CacheNetworkAccess implements NetworkAccess {
 
     public NetworkAttr
     get_attributes() {
-	if (attr == null) {
-	    attr = net.get_attributes();
-	}
-	return attr;
+    if (attr == null) {
+        attr = net.get_attributes();
+    }
+    return attr;
     }
 
     //
@@ -35,11 +35,11 @@ public class CacheNetworkAccess implements NetworkAccess {
     /***/
 
     public Station[]
-	retrieve_stations() {
-	if (stations == null) {
-	    stations = net.retrieve_stations();
-	}
-	return stations;
+    retrieve_stations() {
+    if (stations == null) {
+        stations = net.retrieve_stations();
+    }
+    return stations;
     }
 
     //
@@ -48,12 +48,12 @@ public class CacheNetworkAccess implements NetworkAccess {
     /***/
 
     public Channel[]
-	retrieve_for_station(StationId id) {
-	String idStr = StationIdUtil.toString(id);
-	if ( ! channelMap.containsKey(idStr)) {
-	    channelMap.put(idStr, net.retrieve_for_station(id));
-	}
-	return (Channel[])channelMap.get(idStr);
+    retrieve_for_station(StationId id) {
+    String idStr = StationIdUtil.toString(id);
+    if ( ! channelMap.containsKey(idStr)) {
+        channelMap.put(idStr, net.retrieve_for_station(id));
+    }
+    return (Channel[])channelMap.get(idStr);
     }
 
     //
@@ -64,7 +64,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     public ChannelId[]
     retrieve_grouping(ChannelId id)
         throws ChannelNotFound {
-	return net.retrieve_grouping(id);
+    return net.retrieve_grouping(id);
     }
 
     //
@@ -74,7 +74,7 @@ public class CacheNetworkAccess implements NetworkAccess {
 
     public ChannelId[][]
     retrieve_groupings() {
-	return net.retrieve_groupings();
+    return net.retrieve_groupings();
     }
 
     //
@@ -85,7 +85,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     public Channel
     retrieve_channel(ChannelId id)
         throws ChannelNotFound {
-	return net.retrieve_channel(id);
+    return net.retrieve_channel(id);
     }
 
     //
@@ -98,7 +98,7 @@ public class CacheNetworkAccess implements NetworkAccess {
                               String site_code,
                               String channel_code)
         throws ChannelNotFound {
-	return net.retrieve_channels_by_code(station_code, site_code, channel_code);
+    return net.retrieve_channels_by_code(station_code, site_code, channel_code);
     }
 
     //
@@ -110,7 +110,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     locate_channels(edu.iris.Fissures.Area the_area,
                     SamplingRange sampling,
                     OrientationRange orientation) {
-	return locate_channels(the_area, sampling, orientation);
+    return net.locate_channels(the_area, sampling, orientation);
     }
 
     //
@@ -122,7 +122,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     retrieve_instrumentation(ChannelId id,
                              edu.iris.Fissures.Time the_time)
         throws ChannelNotFound {
-	return retrieve_instrumentation(id, the_time);
+    return net.retrieve_instrumentation(id, the_time);
     }
 
     //
@@ -135,7 +135,7 @@ public class CacheNetworkAccess implements NetworkAccess {
                           edu.iris.Fissures.TimeRange the_time)
         throws ChannelNotFound,
                edu.iris.Fissures.NotImplemented {
-	return net.retrieve_calibrations(id, the_time);
+    return net.retrieve_calibrations(id, the_time);
     }
 
     //
@@ -148,7 +148,7 @@ public class CacheNetworkAccess implements NetworkAccess {
                               edu.iris.Fissures.TimeRange time_range)
         throws ChannelNotFound,
                edu.iris.Fissures.NotImplemented {
-	return retrieve_time_corrections(id, time_range);
+    return net.retrieve_time_corrections(id, time_range);
     }
 
     //
@@ -159,7 +159,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     public ChannelId[]
     retrieve_all_channels(int seq_max,
                           ChannelIdIterHolder iter) {
-	return retrieve_all_channels(seq_max, iter);
+    return net.retrieve_all_channels(seq_max, iter);
     }
 
     //
@@ -171,7 +171,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     get_audit_trail_for_channel(ChannelId id)
         throws ChannelNotFound,
                edu.iris.Fissures.NotImplemented {
-	return get_audit_trail_for_channel(id);
+    return net.get_audit_trail_for_channel(id);
     }
 
     //
@@ -182,7 +182,7 @@ public class CacheNetworkAccess implements NetworkAccess {
     public AuditElement[]
     get_audit_trail()
         throws NotImplemented {
-	return net.get_audit_trail();
+    return net.get_audit_trail();
     }
 
     NetworkAccess net;
