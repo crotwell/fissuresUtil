@@ -75,19 +75,18 @@ public class Selection implements TimeSyncListener{
 	return false; 
     }
 
-    public void remove(){ 
-	if(displays.size() > 0){
+    public void removeParent(BasicSeismogramDisplay disowner){ 
+	parents.remove(disowner);
+	if(parents.isEmpty()){
 	    Iterator e = displays.iterator();
 	    while(e.hasNext()){
 		((BasicSeismogramDisplay)e.next()).remove(); 
 	    }
 	}
-	if(parents.size() > 0){
-	    Iterator e = parents.iterator();
-	    while(e.hasNext()){
-		((BasicSeismogramDisplay)e.next()).removeSelection(this);
-	    }
-	}
+    }    
+
+    public boolean removeChild(BasicSeismogramDisplay child){
+	return displays.remove(child);
     }
 	
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
@@ -99,7 +98,10 @@ public class Selection implements TimeSyncListener{
 	return false;
     }
     
-    public void addParent(BasicSeismogramDisplay newParent){ parents.add(newParent); }
+    public void addParent(BasicSeismogramDisplay newParent){ 
+	if(!parents.contains(newParent))
+	    parents.add(newParent);
+    }
 
     public BasicSeismogramDisplay getParent(){ return (BasicSeismogramDisplay)parents.getFirst(); }
 

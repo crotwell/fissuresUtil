@@ -151,16 +151,35 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     public void removeSelectionDisplay(VerticalSeismogramDisplay display){
 	if(display == selectionDisplay){
-	    selectionWindow.dispose();
-	    selectionDisplays -= selectionWindow.getSize().height;
-	    selectionDisplay = null;
+	    removeSelectionDisplay();
 	}else{
-	    threeSelectionWindow.dispose();
-	    selectionDisplays -= threeSelectionWindow.getSize().height;
-	    threeSelectionDisplay = null;
+	    remove3CSelectionDisplay();
 	}
     }
     
+    public void removeSelectionDisplay(){
+	if(selectionDisplay != null){
+	    Iterator e = basicDisplays.iterator();
+	    while(e.hasNext()){
+		((BasicSeismogramDisplay)e.next()).clearRegSelections();
+	    }
+	    selectionWindow.dispose();
+	    //selectionDisplays -= selectionWindow.getSize().height;
+	    selectionDisplay = null;
+	}
+    }
+    public void remove3CSelectionDisplay(){
+	if(threeSelectionDisplay != null){
+	    Iterator e = basicDisplays.iterator();
+	    while(e.hasNext()){
+		((BasicSeismogramDisplay)e.next()).clear3CSelections();
+	    }
+	    threeSelectionWindow.dispose();
+	    //selectionDisplays -= threeSelectionWindow.getSize().height;
+	    threeSelectionDisplay = null;
+	}
+    }
+
     public void removeAll(){
 	logger.debug("removing all displays");
 	if(parent != null){
@@ -178,13 +197,13 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(selectionDisplay != null){
 	    selectionDisplay.removeAll();
 	    selectionWindow.dispose();
-	    selectionDisplays -= selectionWindow.getSize().height;
+	    //selectionDisplays -= selectionWindow.getSize().height;
 	    selectionDisplay = null;
 	}
 	if(threeSelectionDisplay != null){
 	    threeSelectionDisplay.removeAll();
 	    threeSelectionWindow.dispose();
-	    selectionDisplays -= threeSelectionWindow.getSize().height;
+	    //selectionDisplays -= threeSelectionWindow.getSize().height;
 	    selectionDisplay = null;
 	}
 	if(particleDisplay != null){
@@ -345,7 +364,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	}else{
 	    particleWindow.setLocation(tk.getScreenSize().width - particleWindow.getSize().width, 
 				       tk.getScreenSize().height - particleWindow.getSize().height);
-	}
+				       }
 	particleDisplays++;
 	particleWindow.setVisible(true);
 	}
@@ -358,11 +377,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    logger.debug("creating selection display");
 	    selectionWindow = new JFrame();
 	    selectionWindow.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-			    selectionDisplay.removeAll();
-			}
-		    });
-		selectionWindow.setSize(400, 200);
+		    public void windowClosing(WindowEvent e) {
+			selectionDisplay.removeAll();
+		    }
+		});
+	    selectionWindow.setSize(400, 200);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
@@ -376,13 +395,15 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    }
 	    selectionWindow.getContentPane().add(selectionDisplay);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
-	    if(selectionDisplays + selectionWindow.getSize().height < tk.getScreenSize().height){
+	    selectionWindow.setLocation((tk.getScreenSize().width - selectionWindow.getSize().width)/2,
+					 (tk.getScreenSize().height - selectionWindow.getSize().height)/2);
+	    /*if(selectionDisplays + selectionWindow.getSize().height < tk.getScreenSize().height){
 		selectionWindow.setLocation(tk.getScreenSize().width - selectionWindow.getSize().width, tk.getScreenSize().height - 
 					    (selectionDisplays + selectionWindow.getSize().height));
 	    }else{
 		selectionWindow.setLocation(tk.getScreenSize().width - selectionWindow.getSize().width, 0);
 	    }
-	    selectionDisplays += selectionWindow.getSize().height;
+	    selectionDisplays += selectionWindow.getSize().height;*/
 	    selectionWindow.setVisible(true);	
 	}else{
 	    logger.debug("adding another selection");
@@ -403,6 +424,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(threeSelectionDisplay == null){
 	    logger.debug("creating 3C selection display");
 	    threeSelectionWindow = new JFrame();
+	    threeSelectionWindow.addWindowListener(new WindowAdapter() {
+		    public void windowClosing(WindowEvent e) {
+			threeSelectionDisplay.removeAll();
+		    }
+		});
 	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
@@ -427,7 +453,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 			    Iterator h = current.getSeismograms().iterator();
 			    while(h.hasNext()){
 				if(((DataSetSeismogram)h.next()).getSeismogram() == seismograms[counter].getSeismogram()){
-				    current.addSelection(creator);
+				    current.add3CSelection(creator);
 				    creator.addParent(current);
 				}
 			    }
@@ -444,16 +470,19 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    threeSelectionWindow.getContentPane().add(threeSelectionDisplay);
 	    threeSelectionWindow.setSize(400, 400);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
-	    if((selectionDisplays + threeSelectionWindow.getSize().height) < tk.getScreenSize().height){
-		threeSelectionWindow.setLocation(tk.getScreenSize().width - threeSelectionWindow.getSize().width, 
-						 tk.getScreenSize().height - 
-						 (selectionDisplays + threeSelectionWindow.getSize().height));
-	    }else{
-		threeSelectionWindow.setLocation(tk.getScreenSize().width - threeSelectionWindow.getSize().width, 0);
-	    }
-	    selectionDisplays+= threeSelectionWindow.getSize().height;
+	    threeSelectionWindow.setLocation((tk.getScreenSize().width - threeSelectionWindow.getSize().width)/2,
+					     (tk.getScreenSize().height - threeSelectionWindow.getSize().height)/2);
 	    threeSelectionWindow.setVisible(true);	
-	}else{
+	    /*if((selectionDisplays + threeSelectionWindow.getSize().height) < tk.getScreenSize().height){
+	      threeSelectionWindow.setLocation(tk.getScreenSize().width - threeSelectionWindow.getSize().width, 
+	      tk.getScreenSize().height - 
+	      (selectionDisplays + threeSelectionWindow.getSize().height));
+	      }else{
+	      threeSelectionWindow.setLocation(tk.getScreenSize().width - threeSelectionWindow.getSize().width, 0);
+	      }
+	      selectionDisplays+= threeSelectionWindow.getSize().height;*/
+			    
+			    }else{
 	    logger.debug("adding another selection");
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();

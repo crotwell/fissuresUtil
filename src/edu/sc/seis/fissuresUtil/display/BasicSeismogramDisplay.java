@@ -163,15 +163,37 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public VerticalSeismogramDisplay getVerticalParent(){ return parent; } 
     
+    public LinkedList getAllSelections(){ 
+	LinkedList combo = new LinkedList(selections);
+	combo.addAll(selections3C);
+	return combo; 
+    }
+    
     public LinkedList getSelections(){ return selections; }
 
     public void addSelection(Selection newSelection){ 
 	if(!selections.contains(newSelection))
 	    selections.add(newSelection);
+	repaint();
     }
     
     public void removeSelection(Selection oldSelection){ 
-	selections.remove(oldSelection); 
+	if(selections.contains(oldSelection))
+	    selections.remove(oldSelection); 
+	repaint();
+    }
+
+    public LinkedList get3CSelections(){ return selections3C; }
+
+    public void add3CSelection(Selection newSelection){ 
+	if(!selections3C.contains(newSelection))
+	    selections3C.add(newSelection);
+	repaint();
+    }
+    
+    public void remove3CSelection(Selection oldSelection){ 
+	if(selections3C.contains(oldSelection))
+	    selections3C.remove(oldSelection); 
 	repaint();
     }
 
@@ -236,10 +258,27 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public void clearSelections(){
 	Iterator e = selections.iterator();
+	/*while(e.hasNext()){
+	    ((Selection)e.next()).removeParent(this);
+	}
+	e = selections3C.iterator();
 	while(e.hasNext()){
-	    ((Selection)e.next()).remove();
+	    ((Selection)e.next()).removeParent(this);
 	}
 	selections.clear();
+	selections3C.clear();*/
+	parent.removeSelectionDisplay();
+	parent.remove3CSelectionDisplay();
+	repaint();
+    }
+    
+    public void clearRegSelections(){
+	selections.clear();
+	repaint();
+    }
+
+    public void clear3CSelections(){
+	selections3C.clear();
 	repaint();
     }
 
@@ -247,13 +286,10 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
        logger.debug(name + " being removed");
        this.stopImageCreation();
        parent.removeDisplay(this);
-       Iterator e = selections.iterator();
-       while(e.hasNext()){
-	   ((Selection)e.next()).remove();
-       }
+       clearSelections();
        timeRegistrar.removeTimeSyncListener(this);
        ampRegistrar.removeAmpSyncListener(this); 
-       e = seismos.iterator();
+       Iterator e = seismos.iterator();
        while(e.hasNext()){
 	   DataSetSeismogram current = ((DataSetSeismogram)e.next());
 	   timeRegistrar.removeSeismogram(current);
@@ -468,6 +504,24 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		    i++;
 		}
 	    }
+	    if(selections3C.size() > 0){
+		Iterator e = selections3C.iterator();
+		int i = 0;
+		while(e.hasNext()){
+		    Selection currentSelection = (Selection)(e.next());
+		    
+		    if(currentSelection.isVisible()){
+			Rectangle2D current = new Rectangle2D.Float(currentSelection.getX(getSize().width), 0, 
+								    (float)(currentSelection.getWidth() * getSize().width), 
+								    getSize().height);
+			g2.setPaint(currentSelection.getColor());
+			g2.fill(current);
+			g2.draw(current);
+			
+		    } 
+		    i++;
+		}
+	    }
 	    if(name != null){
 		g2.setPaint(new Color(0, 0, 0, 128));
 		g2.drawString(name, 5, getSize().height - 3);
@@ -521,6 +575,8 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     protected LinkedList seismos = new LinkedList();
     
     protected LinkedList selections = new LinkedList();
+
+    protected LinkedList selections3C = new LinkedList();
     
     protected static HashMap filters = new HashMap();
 
