@@ -42,6 +42,8 @@ public class SeismogramFileTypes {
 
     public static final SeismogramFileTypes MSEED = new SeismogramFileTypes("mseed");
 
+    public static final SeismogramFileTypes PSN = new SeismogramFileTypes("psn");
+
     public static final String URL_PREFIX = "http://www.seis.sc.edu/xml/SeismogramFileTypes/";
 
     private String val;
