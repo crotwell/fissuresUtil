@@ -145,7 +145,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				 ) {
 	
 	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSet).getChannelIds();
-	ChannelProxy channelProxy = new ChannelProxy();
+	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
 	ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, ((LocalSeismogram)hseis).channel_id);
 	System.out.println("THe length of the channel group is "+channelGroup.length);
 	edu.iris.Fissures.Time startTime;
