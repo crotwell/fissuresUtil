@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import java.awt.geom.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -68,12 +69,29 @@ public class LeftTitleBorder extends javax.swing.border.AbstractBorder {
                             int height) {
 
         Graphics copy = g.create();
-        if (copy != null) {
+	Graphics2D copy2D = (Graphics2D)copy;
+        if (copy2D != null) {
             try {
-                copy.translate(x, y);
-                FontMetrics fm = copy.getFontMetrics();
-
-                int vOffset = top+fm.getAscent();
+		// copy.translate(x, y);
+                FontMetrics fm = copy2D.getFontMetrics();
+		
+                //int vOffset = top+fm.getAscent();
+		int vOffset = height;
+		Font font = new Font(copy2D.getFont().getName(), Font.PLAIN, copy2D.getFont().getSize()+4);
+		copy2D.setFont(font);
+		AffineTransform oldTransform =copy2D.getTransform();
+	
+		//		copy2D.getFont().setSize(copy2D.getFont().getSize() + 20);
+		int yy = (height - top - title.length() *  font.getSize())/2;
+		AffineTransform ct =  AffineTransform.getTranslateInstance(font.getSize()/2, yy);
+		copy2D.transform(ct);
+		copy2D.transform(AffineTransform.getRotateInstance(Math.PI/2));
+		if(title == null) title = "";
+		copy2D.drawString(title, 0, 0);
+		//restore the original AffineTransform
+		copy2D.setTransform(oldTransform);
+		
+		/*
                 if (isChannelTitle) {
 		    if (4 * fm.getHeight() < height) {
                         copy.drawString(chanId.network_id.network_code,
@@ -97,6 +115,7 @@ public class LeftTitleBorder extends javax.swing.border.AbstractBorder {
                                     0,
                                     vOffset);
                     vOffset += fm.getHeight();
+		
                 } else {
                     int prevNewline = -1;
                     int currNewline = title.indexOf("\n");
@@ -112,7 +131,7 @@ public class LeftTitleBorder extends javax.swing.border.AbstractBorder {
                         if (currNewline == -1) currNewline = title.length();
                         vOffset += fm.getHeight();
                     }
-                }
+		    }*/
 
             } finally {
                 copy.dispose();
