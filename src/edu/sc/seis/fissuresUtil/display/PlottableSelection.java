@@ -1,5 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.iris.Fissures.*;
+import edu.iris.Fissures.model.*;
+import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.IfSeismogramDC.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -28,7 +33,7 @@ public class PlottableSelection implements Plotter{
     }
     
 
-    public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
+    public void draw(Graphics2D canvas, java.awt.Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         //in this draw of PlottableSelection the following are not used
         //currentTime , currentAmp, size.
         //actually this extends the interface Plotter just to be consistent
@@ -150,11 +155,25 @@ public class PlottableSelection implements Plotter{
      }
 
    
+     public RequestFilter getRequestFilter() {
+         if(endx == -1) return null;
+         int[] selectedRows = getSelectedRows(beginy, endy);
+         if(selectedRows.length == 0) return null;
+         int rowvalue = 24/plottableDisplay.plotrows;
+         int plotwidth = plottableDisplay.plot_x/plottableDisplay.plotrows;
+         float beginvalue = ((beginx/(float)plotwidth)) * rowvalue + selectedRows[0] * rowvalue;
+         float endvalue = (endx/(float)plotwidth) * rowvalue + selectedRows[selectedRows.length - 1] * rowvalue;
+         return new RequestFilter(plottableDisplay.channelId, 
+                                  getTime(beginvalue).getFissuresTime(),
+                                  getTime(endvalue).getFissuresTime());
+     }
+
 
     public void setSelectedRectangle(int beginx, int beginy, int endx, int endy) {
         if(getSelectedRows(beginy, endy).length == 1) {
-            this.beginx = Math.min(beginx, endx);
-            this.endx = Math.max(beginx, endx);
+            this.beginx = Math.min(beginx, this.beginx);
+            //this.endx = Math.max(beginx, endx);
+            this.endx = endx;
         } else {
             this.beginx = beginx;
             this.endx = endx;
@@ -171,6 +190,32 @@ public class PlottableSelection implements Plotter{
     public void startXY(int beginx, int beginy) {
         this.beginx = beginx;
         this.beginy = beginy;
+    }
+
+    
+    private MicroSecondDate getTime(float rowoffsetvalue) {
+	
+        int tempmilliseconds =(int) (rowoffsetvalue * 60 * 60 * 1000);
+        int hours = tempmilliseconds / (60 * 60 * 1000);
+        tempmilliseconds = tempmilliseconds - hours * 60 * 60 * 1000;
+        int minutes = tempmilliseconds / (60 * 1000);
+        tempmilliseconds = tempmilliseconds - minutes * 60 * 1000;
+        int seconds = tempmilliseconds / 1000;
+        tempmilliseconds = tempmilliseconds - seconds * 1000;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(plottableDisplay.date);
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        GregorianCalendar gregorianCalendar = new GregorianCalendar(calendar.get(Calendar.YEAR),
+                                                                    calendar.get(Calendar.MONTH),
+                                                                    calendar.get(Calendar.DATE),
+                                                                    hours,
+                                                                    minutes,
+                                                                    seconds);
+								    
+								    
+
+        gregorianCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return new MicroSecondDate(gregorianCalendar.getTime());
     }
 
     private boolean isRowSelected(int[] rows, int currrow) {
