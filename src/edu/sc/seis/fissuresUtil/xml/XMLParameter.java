@@ -6,6 +6,7 @@ import edu.iris.Fissures.IfNetwork.*;
 import  edu.sc.seis.fissuresUtil.cache.*;
 import edu.iris.Fissures.IfParameterMgr.*;
 import java.util.*;
+import java.io.*;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import org.apache.log4j.*;
@@ -22,6 +23,13 @@ import org.apache.log4j.*;
 
 public class XMLParameter {
 
+    /**
+     * Describe <code>insert</code> method here.
+     *
+     * @param element an <code>Element</code> value
+     * @param name a <code>String</code> value
+     * @param value an <code>Element</code> value
+     */
     public static void insert(Element element, String name, Element value){
         Document doc = element.getOwnerDocument();
         element.appendChild(XMLUtil.createTextElement(doc, 
@@ -32,6 +40,13 @@ public class XMLParameter {
 	element.appendChild(valueElement);
     }
 
+    /**
+     * Describe <code>insert</code> method here.
+     *
+     * @param element an <code>Element</code> value
+     * @param name a <code>String</code> value
+     * @param value a <code>String</code> value
+     */
     public static void insert(Element element, String name, String value){
         Document doc = element.getOwnerDocument();
         element.appendChild(XMLUtil.createTextElement(doc, 
@@ -49,13 +64,84 @@ public class XMLParameter {
 	element.appendChild(XMLUtil.createTextElement(doc, 
                                                       "value", 
                                                       value));
+   }
+
+    /**
+     * Describe <code>insertParameterRef</code> method here.
+     *
+     * @param paramRef an <code>Element</code> value
+     * @param name a <code>String</code> value
+     * @param href a <code>String</code> value
+     * @param value an <code>Object</code> value
+     */
+    public static void insertParameterRef(Element paramRef, String name, String href, Object value) {
+	//	write(href, value);
+	//Element paramRef = doc.createElement("parameterRef");
+	paramRef.setAttribute("name", name);
+	paramRef.setAttributeNS(xlinkNS,"xlink:type", "type/xml");
+	paramRef.setAttributeNS(xlinkNS, "xlink:href", href);
+	if(!(value instanceof String)) {
+		paramRef.setAttribute("objectType", getObjectType(value));
+	}
+	
+	/*	try {
+	    DocumentBuilderFactory factory = DocumentBuilderFactory.getInstance();
+	    DocumentBuilder builder = factory.newDocumentBuilder();
+		
+	} catch(Exception e) {
+
+	    e.printStackTrace();
+	    }*/
+    }
+
+    /**
+     * Describe <code>write</code> method here.
+     *
+     * @param out an <code>OutputStream</code> value
+     * @param value an <code>Object</code> value
+     */
+    public static void write(OutputStream out, Object value) {
+	System.out.println("IN THE WRITE METHOD OF THE XML PARAMETER");
+	try {
+	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder builder = factory.newDocumentBuilder();
+	    Document doc = builder.newDocument();
+	    javax.xml.transform.TransformerFactory tfactory = 
+		javax.xml.transform.TransformerFactory.newInstance(); 
+    
+	    // This creates a transformer that does a simple identity transform, 
+	    // and thus can be used for all intents and purposes as a serializer.
+	    javax.xml.transform.Transformer serializer = tfactory.newTransformer();
+	    java.util.Properties oprops = new java.util.Properties();
+	    oprops.put("method", "xml");
+	    oprops.put("indent", "yes");
+	    oprops.put("xalan:indent-amount", "4");
+	    serializer.setOutputProperties(oprops);
+	    Element element = doc.createElement("parameter");
+	    insert(element, "notused", value);
+	    
+ 	    serializer.transform(new javax.xml.transform.dom.DOMSource(element),
+				 new javax.xml.transform.stream.StreamResult(out));
+	     
+	     
+	} catch(Exception e) {
+	    e.printStackTrace();
+	}
+
     }
     
+    /**
+     * Describe <code>insert</code> method here.
+     *
+     * @param element an <code>Element</code> value
+     * @param name a <code>String</code> value
+     * @param value an <code>Object</code> value
+     */
     public static void insert(Element element, String name, Object value) {
 	Document doc = element.getOwnerDocument();
 	element.appendChild(XMLUtil.createTextElement(doc, 
-						      "name",
-						      name));
+ 						      "name",
+ 						      name));
 	Element typeName = doc.createElement("type");
 	
 	Element valueElement = doc.createElement("value");
@@ -113,6 +199,12 @@ public class XMLParameter {
 
     }
 
+    /**
+     * Describe <code>getParameter</code> method here.
+     *
+     * @param base an <code>Element</code> value
+     * @return an <code>Object</code> value
+     */
     public static Object getParameter(Element base) {
 	String name = XMLUtil.getText(XMLUtil.getElement(base, "name"));
 	Element typeNode = XMLUtil.getElement(base, "type");
@@ -121,6 +213,8 @@ public class XMLParameter {
 		type = typeNode;
 	}
 	String className = XMLUtil.getText(XMLUtil.getElement(type, "name"));
+	System.out.println("The className is *&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*"+className);
+	
 	//Class objectClass = Class.forName(className);
 	//System.out.println("The class name is "+className);
 	if(className.equals("edu.sc.seis.fissuresUtil.cache.CacheEvent") ) {
@@ -144,6 +238,7 @@ public class XMLParameter {
 		}
 		EventAttr eventAttr = XMLEvent.getEvent(event);
 		Origin preferred_origin = XMLEvent.getPreferredOrigin(event);	
+		System.out.println("RETURNING CACHE EVENT");
 		return new CacheEvent(eventAttr,
 				      new Origin[0],
 				      preferred_origin);
@@ -156,6 +251,7 @@ public class XMLParameter {
 		Channel channel = XMLChannel.getChannel(channelNode);
 		Date channelEndTime = Calendar.getInstance().getTime();
 		System.out.println("TIME FOR GETTING CHANNEL IS "+ (channelEndTime.getTime() - channelStartTime.getTime()));
+		System.out.println("RETURNING CHANNEL");
 		return channel;
 	    }
 	    return null;
@@ -163,9 +259,25 @@ public class XMLParameter {
 	else {
 
 		String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
+		System.out.println("RETURNING PARAMETER REF");
 		return new ParameterRef(name, value);	
 	}
     }
+
+    /**
+     * Describe <code>getObjectType</code> method here.
+     *
+     * @param object an <code>Object</code> value
+     * @return a <code>String</code> value
+     */
+    public static String getObjectType(Object object) {
+	if(object instanceof Channel) return "edu.sc.seis.fissuresUtil.xml.XMLChannel";
+	else if(object instanceof CacheEvent) return "edu.sc.seis.fissuresUtil.xml.XMLEvent";
+	else return "String";
+
+    }
+
+  
 
 //  public static Object getParameter(Element base) {
 // 	String name = XMLUtil.evalString(base, "name");
@@ -220,5 +332,7 @@ public class XMLParameter {
 // 		return new ParameterRef(name, value);	
 // 	}
 //     }
+
+ private static final String xlinkNS = "http://www.w3.org/1999/xlink";
 
 }// XMLParameter
