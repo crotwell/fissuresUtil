@@ -40,11 +40,11 @@ public class CacheNetworkAccess implements NetworkAccess {
         return attr;
     }
 
-    //
-    // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_stations:1.0
-    //
-    /***/
-
+    /** retreives the stations for the network, but uses the cached copy
+     *  if it has been previously retrieved. The stations are also cleaned
+     *  of duplicate networkAttr objects to free memory.
+     *  @see clean(Station[])
+     */
     public Station[]
         retrieve_stations() {
         if (stations == null) {
@@ -54,11 +54,12 @@ public class CacheNetworkAccess implements NetworkAccess {
         return stations;
     }
 
-    //
-    // IDL:iris.edu/Fissures/IfNetwork/NetworkAccess/retrieve_for_station:1.0
-    //
-    /***/
 
+    /** retreives the channels for the stations, but uses the cached copy
+     *  if it has been previously retrieved. The channels are also cleaned
+     *  of duplicate site objects to free memory.
+     *  @see clean(Channel[])
+     */
     public Channel[]
         retrieve_for_station(StationId id) {
         String idStr = StationIdUtil.toString(id);
@@ -70,6 +71,9 @@ public class CacheNetworkAccess implements NetworkAccess {
         return (Channel[])channelMap.get(idStr);
     }
 
+    /** Cleans the array of channels so that the sites are shared
+     *  if they are identical. This frees memory that is otherwise wasted on
+     *  identical copies of the same objects. */
     public static void clean(Channel[] chans) {
         ArrayList knownSites = new ArrayList();
         knownSites.add(chans[0].my_site);
@@ -90,6 +94,9 @@ public class CacheNetworkAccess implements NetworkAccess {
         clean((Site[])knownSites.toArray(new Site[0]));
     }
 
+    /** Cleans the array of sites so that the stations are shared
+     *  if they are identical. This frees memory that is otherwise wasted on
+     *  identical copies of the same objects. */
     public static void clean(Site[] sites) {
         ArrayList knownStations = new ArrayList();
         knownStations.add(sites[0].my_station);
@@ -110,6 +117,9 @@ public class CacheNetworkAccess implements NetworkAccess {
         clean((Station[])knownStations.toArray(new Station[0]));
     }
 
+    /** Cleans the array of stations so that the Network Attributes are shared
+     *  if they are identical. This frees memory that is otherwise wasted on
+     *  identical copies of the same objects. */
     public static void clean(Station[] stations) {
         ArrayList knownNets = new ArrayList();
         knownNets.add(stations[0].my_network);
