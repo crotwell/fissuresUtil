@@ -1,9 +1,3 @@
-/**
- * TimeAmpPlotter.java
- *
- * @author Created by Omnicore CodeGuide
- */
-
 package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
@@ -15,14 +9,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
-
-
 public class TimeAmpLabel implements NamedDrawable{
-
-    public TimeAmpLabel(BasicSeismogramDisplay display){
-        this.display = display;
-    }
-
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
         if(visible && !BasicSeismogramDisplay.PRINTING){
             canvas.setPaint(Color.BLACK);
@@ -40,36 +27,22 @@ public class TimeAmpLabel implements NamedDrawable{
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
         // Does nothing
     }
-    public void setVisibility(boolean b) {
-        if(visible != b){
-            visible = b;
-            display.repaint();
-        }
-    }
+    public void setVisibility(boolean b) { visible = b; }
 
     public Color getColor(){ return Color.BLACK; }
-
-    public String getTimeText(){ return timeText; }
-
-    public String getAmpText(){ return ampText; }
 
     public String getText(){ return timeText + ampText; }
 
     public void setText(String[] timeAmp){
         timeText = timeAmp[0];
         ampText = timeAmp[1];
-        display.repaint();
     }
 
-    public BasicSeismogramDisplay getDisplay(){ return display; }
-
-    private boolean visible = false;
+    private boolean visible = true;
 
     private String timeText = "";
 
     private String ampText = "";
-
-    private BasicSeismogramDisplay display;
 }
 
 
