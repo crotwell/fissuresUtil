@@ -104,8 +104,10 @@ public class ParticleMotionView extends JComponent{
     }
 
     public void resize() {
+	
 	setSize(super.getSize());
 	//particleMotionDisplay.resize();
+	recalculateValues = true;
 	repaint();
     }
 
@@ -216,7 +218,7 @@ public class ParticleMotionView extends JComponent{
 	//	if(setSelected == 1) g.setColor(Color.red);
 	//else if(setSelected == 2) g.setColor(getBackground());
 	Graphics2D graphics2D = (Graphics2D)g;
-
+	logger.debug("IN PAINT COMPONENT");
    
 	if(startPoint != null && endPoint != null) {
 	    graphics2D.setColor(Color.yellow);
@@ -238,6 +240,7 @@ public class ParticleMotionView extends JComponent{
 		if(!displayKeys.contains(particleMotion.key)) continue;
 		drawAzimuth(particleMotion, graphics2D);	
 	}
+	Date startTime = Calendar.getInstance().getTime();
 	for(int counter = 0; counter < displays.size(); counter++) {
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
@@ -256,9 +259,13 @@ public class ParticleMotionView extends JComponent{
 		drawParticleMotion(particleMotion, g);
 	    }
 	}
+	Date endTime = Calendar.getInstance().getTime();
+	System.out.println("THE TIME TAKEN IS ********** "+ (endTime.getTime() - startTime.getTime()));
+	
     }
 
     public void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
+	logger.debug("IN DRAW AZIMUTH");
 	 if(!particleMotion.isHorizontalPlane()) return;
 	 Shape sector = getSectorShape();
 	 graphics2D.setColor(Color.blue);
@@ -272,7 +279,7 @@ public class ParticleMotionView extends JComponent{
    }
 
     public void drawLabels(ParticleMotion particleMotion, Graphics2D graphics2D) {
-
+	logger.debug("IN DRAW LABELS");
 	  Color color = new Color(0, 0, 0, 128);
 	  graphics2D.setColor(color);
 	  java.awt.Dimension dimension = getSize();
@@ -303,14 +310,20 @@ public class ParticleMotionView extends JComponent{
     }
 
     public void drawParticleMotion(ParticleMotion particleMotion, Graphics g) {
-
+	if(!recalculateValues) {
+	    recalculateValues = false;
+	    System.out.println(" DRAWING THE PARTICLE MOTION WITHOUT RECALCULATING THE VALUES");
+	    ((Graphics2D)g).draw(particleMotion.getShape());
+	    return;
+	}
+	logger.debug("IN DRAW PARTICLE MOTION");
 	Graphics2D graphics2D = (Graphics2D) g;
 	Dimension dimension = super.getSize();
 	LocalSeismogramImpl hseis = particleMotion.hseis.getSeismogram();
 	LocalSeismogramImpl vseis = particleMotion.vseis.getSeismogram();
-	    AmpConfigRegistrar vAmpConfigRegistrar = particleMotion.vAmpConfigRegistrar;
-	    AmpConfigRegistrar hAmpConfigRegistrar = particleMotion.hAmpConfigRegistrar;
-	    
+	AmpConfigRegistrar vAmpConfigRegistrar = particleMotion.vAmpConfigRegistrar;
+	AmpConfigRegistrar hAmpConfigRegistrar = particleMotion.hAmpConfigRegistrar;
+	
 	    Color color = particleMotion.getColor();
 	    if(color == null) {
 
@@ -344,8 +357,21 @@ public class ParticleMotionView extends JComponent{
 
 		    microSecondTimeRange = particleMotion.getTimeRange();
 		} 
+	
+		System.out.println("*************** Beofore getting PlottableSimple");
+		Date utilStartTime = Calendar.getInstance().getTime();
 		
-		int[][] hPixels = SimplePlotUtil.compressYvalues(hseis, 
+		int[][] hPixels =  SimplePlotUtil.getPlottableSimple(hseis,
+						      hunitRangeImpl,
+						      microSecondTimeRange,
+						      dimension);
+		/*SimplePlotUtil.scaleYvalues(hPixels,
+					    hseis,
+					    microSecondTimeRange,
+					    hunitRangeImpl,
+					    dimension);*/
+		
+		/*SimplePlotUtil.compressYvalues(hseis, 
 								 microSecondTimeRange,
 								 hunitRangeImpl,					
 								 dimension);
@@ -357,9 +383,23 @@ public class ParticleMotionView extends JComponent{
 					    microSecondTimeRange,
 					    hunitRangeImpl,							
 					    dimension);
-	
+	*/	
 
-		int[][] vPixels = SimplePlotUtil.compressYvalues(vseis, 
+		int[][] vPixels = SimplePlotUtil.getPlottableSimple(vseis,
+					 	     vunitRangeImpl,
+						     microSecondTimeRange,
+						     dimension);
+		/*SimplePlotUtil.scaleYvalues(vPixels,
+					    vseis,
+					    microSecondTimeRange,
+					    vunitRangeImpl,
+					    dimension);*/
+		SimplePlotUtil.flipArray(vPixels[1], dimension.height);
+		Date utilEndTime = Calendar.getInstance().getTime();
+
+		System.out.println("The UTIL TIME is *******    "+ (utilEndTime.getTime() - utilStartTime.getTime()));
+		
+	/*	SimplePlotUtil.compressYvalues(vseis, 
 								 microSecondTimeRange,
 								 vunitRangeImpl,			
 								 dimension);
@@ -373,6 +413,7 @@ public class ParticleMotionView extends JComponent{
 					    dimension);
 
 		SimplePlotUtil.flipArray(vPixels[1], dimension.height);
+		*/
 
 		int len = vPixels[1].length;
 		int[] x, y;
@@ -381,11 +422,16 @@ public class ParticleMotionView extends JComponent{
 		x = hPixels[1];
 		y = vPixels[1];
 		if (hPixels[1].length < len) { len = hPixels.length; }
+		
+		Date drawStartTime = Calendar.getInstance().getTime();
 		Shape shape = getParticleMotionPath(hPixels[1], vPixels[1]);
+		Date drawEndTime = Calendar.getInstance().getTime();
+		System.out.println("The PATH TIME is *********** "+(drawEndTime.getTime() - drawStartTime.getTime()));
 		particleMotion.setShape(shape);
 		System.out.println("After setting the shape");
 		if(shape == null) System.out.println("The shape is null");
 		graphics2D.draw(shape);
+	       
 		System.out.println("The shape is drawn");
 	    } catch(Exception e) {
 		e.printStackTrace();
@@ -403,9 +449,9 @@ public class ParticleMotionView extends JComponent{
 	      generalPath.lineTo(x[counter], y[counter]);
 	    
 	}
-	for(int counter = 0; counter < len; counter++) {
+	/*for(int counter = 0; counter < len; counter++) {
 	    generalPath.append(new Rectangle2D.Float(x[counter]-2, y[counter]-2, 4, 4), false);
-	}
+	    }*/
 	System.out.println("Before returning from the getParticleMotionPath");
 	return (Shape)generalPath;
     }
@@ -524,6 +570,8 @@ public class ParticleMotionView extends JComponent{
 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
 					   getMaxHorizontalAmplitude(),
 					   UnitImpl.COUNT);
+	System.out.println("THe e NEW AMPLITUDE is Min = "+getMinHorizontalAmplitude()+
+			   " Max = "+getMaxHorizontalAmplitude());
 	vunitRangeImpl = new UnitRangeImpl(getMinVerticalAmplitude(),
 					   getMaxVerticalAmplitude(),
 					   UnitImpl.COUNT);
@@ -670,6 +718,7 @@ public class ParticleMotionView extends JComponent{
     private String displayKey =  new String();
     private boolean zoomIn = false;
     private boolean zoomOut = false;
+    private boolean recalculateValues = true;
     
     LinkedList displays = new LinkedList();
     LinkedList azimuths = new LinkedList();
