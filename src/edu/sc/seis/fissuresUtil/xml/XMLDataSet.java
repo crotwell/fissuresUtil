@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 4009 2003-05-22 21:38:28Z crotwell $
+ * @version $Id: XMLDataSet.java 4051 2003-05-26 20:36:49Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -61,9 +61,8 @@ public class XMLDataSet implements DataSet, Serializable{
     public static XMLDataSet load(URL datasetURL) {
         XMLDataSet dataset = null;
         try {
-            DocumentBuilderFactory factory
-                = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = factory.newDocumentBuilder();
+
+            DocumentBuilder docBuilder = getDocumentBuilder();
 
             Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
             Element docElement = doc.getDocumentElement();
@@ -998,9 +997,7 @@ public class XMLDataSet implements DataSet, Serializable{
      * @exception Exception if an error occurs
      */
     public void write(OutputStream out) throws Exception {
-        DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = dfactory.newDocumentBuilder();
-        org.w3c.dom.Document outNode = docBuilder.newDocument();
+        org.w3c.dom.Document outNode = getDocumentBuilder().newDocument();
 
         javax.xml.transform.TransformerFactory tfactory =
             javax.xml.transform.TransformerFactory.newInstance();
@@ -1018,6 +1015,25 @@ public class XMLDataSet implements DataSet, Serializable{
                              new javax.xml.transform.stream.StreamResult(out));
 
     }
+
+    public static DocumentBuilderFactory getDocumentBuilderFactory() {
+        if (factory == null) {
+            factory = DocumentBuilderFactory.newInstance();
+        }
+        return factory;
+    }
+
+    public static DocumentBuilder getDocumentBuilder()
+        throws ParserConfigurationException {
+        if (staticDocBuilder == null) {
+            staticDocBuilder = getDocumentBuilderFactory().newDocumentBuilder();
+        }
+        return staticDocBuilder;
+    }
+
+
+    static DocumentBuilderFactory factory = null;
+    static DocumentBuilder staticDocBuilder = null;
 
     private Map dataSetSeismograms = new HashMap();
 
@@ -1044,6 +1060,7 @@ public class XMLDataSet implements DataSet, Serializable{
      *
      */
     protected DocumentBuilder docBuilder;
+
 
     /**
      * Describe variable <code>parameterCache</code> here.
