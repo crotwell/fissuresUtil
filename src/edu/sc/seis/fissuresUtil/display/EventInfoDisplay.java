@@ -10,6 +10,13 @@ import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.TauP.NoSuchLayerException;
+import edu.sc.seis.TauP.NoSuchMatPropException;
+import edu.sc.seis.TauP.TauModelException;
+import edu.sc.seis.TauP.VelocityModel;
+import edu.sc.seis.fissuresUtil.bag.TauPUtil;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -34,7 +41,7 @@ import org.apache.log4j.Logger;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 6837 2004-01-20 19:13:26Z crotwell $
+ * @version $Id: EventInfoDisplay.java 8162 2004-04-15 19:17:30Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay
@@ -42,6 +49,13 @@ public class EventInfoDisplay extends TextInfoDisplay
 
     public EventInfoDisplay (){
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        try {
+            taup = new TauPUtil("prem");
+        } catch (TauModelException e) {
+            // shouldn't happen unless there is a bad taup install
+            GlobalExceptionHandler.handle("Couldn't load the prem model for TauP", e);
+            return;
+        }
     }
 
     public void displayEvent(EventAccessOperations event) {
@@ -108,7 +122,7 @@ public class EventInfoDisplay extends TextInfoDisplay
             station = sortStationsByDistance(station, event, sph);
         }
         catch(Exception e){
-            e.printStackTrace();
+            GlobalExceptionHandler.handle("Problem sorting stations by distance", e);
         }
 
         String[] stationNames = new String[station.length + 1];
@@ -126,31 +140,62 @@ public class EventInfoDisplay extends TextInfoDisplay
         appendHeader(doc, "Event to Station");
         double dist = -1;
         double baz = -1;
-        appendLabelValue(doc, printTextLine(' ', longest), "\t\t\t\t\tAzimuth");
+        double az = -1;
+        appendLabelValue(doc, printTextLine(' ', longest), "\t\t\t\t\tAzimuth\tAzimuth\tFirst P\tFirst P\t");
         appendLabelValue(doc,
                          stationNames[0] + printTextLine(' ', longest - stationNames[0].length()),
-                         "\t Lat\tLong\tDist\t Dist\t  to");
-        appendLabelValue(doc, printTextLine(' ', longest), "\t\t\t\t\t Event");
-        appendLabelValue(doc, printTextLine(' ', longest), "\t(deg)\t(deg)\t(deg)\t (km)\t (deg)");
-        appendLabelValue(doc, printTextLine('-', longest), "-------------------------------------------------------");
+                         "\t Lat\tLong\tDist\t Dist\t  to\t from\ttakeoff\tray");
+        appendLabelValue(doc, printTextLine(' ', longest), "\t\t\t\t\t Event\t Event\tangle\tparam");
+        appendLabelValue(doc, printTextLine(' ', longest), "\t(deg)\t(deg)\t(deg)\t (km)\t (deg)\t (deg)\t(deg)\t(s/deg)");
+        appendLabelValue(doc, printTextLine('-', longest), "---------------------------------------------------------------------------------");
 
         for (int i=0; i<station.length; i++) {
             try {
                 if ( event != null) {
-                    dist = sph.distance(event.get_preferred_origin().my_location.latitude,
-                                        event.get_preferred_origin().my_location.longitude,
+                    Origin origin = event.get_preferred_origin();
+                    dist = sph.distance(origin.my_location.latitude,
+                                        origin.my_location.longitude,
                                         station[i].my_location.latitude,
                                         station[i].my_location.longitude);
                     baz = sph.azimuth(station[i].my_location.latitude,
                                       station[i].my_location.longitude,
-                                      event.get_preferred_origin().my_location.latitude,
-                                      event.get_preferred_origin().my_location.longitude);
+                                      origin.my_location.latitude,
+                                      origin.my_location.longitude);
+                    az = sph.azimuth(origin.my_location.latitude,
+                                     origin.my_location.longitude,
+                                     station[i].my_location.latitude,
+                                     station[i].my_location.longitude);
+                    String firstPTakeoff = "";
+                    String firstPRayParam = "";
+                    try {
+                        Arrival[] a = taup.calcTravelTimes(station[i], origin, new String[] { "ttp" } );
+                        if (a.length > 0) {
+                            firstPRayParam = twoDecimal.format((a[0].getRayParam()*Math.PI/180));
+                            double originDepth = QuantityImpl.createQuantityImpl(origin.my_location.depth).convertTo(UnitImpl.KILOMETER).get_value();
+                            VelocityModel vmod = taup.getTauModel().getVelocityModel();
+                            firstPTakeoff = twoDecimal.format((180/Math.PI)*Math.asin((a[0].getRayParam()*vmod.evaluateBelow(originDepth, 'P'))/(vmod.getRadiusOfEarth()-originDepth)));
+                        }
+                    } catch (TauModelException e) {
+                        // oh well, just use blank strings
+                        GlobalExceptionHandler.handle("Trouble calculating travel times for "+station[i].get_code()+" "+event.get_attributes().name, e);
+                    } catch (NoSuchLayerException e) {
+                        // oh well, just use blank strings
+                        GlobalExceptionHandler.handle("Trouble calculating travel times for "+station[i].get_code()+" "+event.get_attributes().name, e);
+                    } catch (NoSuchMatPropException e) {
+                        // oh well, just use blank strings
+                        GlobalExceptionHandler.handle("Trouble calculating travel times for "+station[i].get_code()+" "+event.get_attributes().name, e);
+
+                    }
                     appendLabelValue(doc, stationNames[i+1] + printTextLine(' ', longest - stationNames[i+1].length()),
                                      '\t' + twoDecimal.format(station[i].my_location.latitude)+'\t'+
                                          twoDecimal.format(station[i].my_location.longitude)+ '\t'+
                                          twoDecimal.format(dist)+ '\t'+
                                          twoDecimal.format(dist*111.19)+ '\t'+
-                                         twoDecimal.format(baz));
+                                         twoDecimal.format(baz)+ '\t'+
+                                         twoDecimal.format(az)+ '\t'+
+                                         firstPTakeoff+ '\t'+
+                                         firstPRayParam+ '\t'
+                                    );
                 } else {
                     appendLabelValue(doc, stationNames[i+1] + printTextLine(' ', longest - stationNames[i+1].length()),
                                      twoDecimal.format(station[i].my_location.latitude)+
@@ -374,6 +419,7 @@ public class EventInfoDisplay extends TextInfoDisplay
         System.err.println("[Target] dropActionChanged");
     }
 
+    TauPUtil taup;
     DecimalFormat twoDecimal = new DecimalFormat("0.00");
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
 
