@@ -56,7 +56,9 @@ public class DataCenterRouter implements DataCenterOperations {
             netToDCMap.put(network_code, dcList);
         } // end of if ()
 
-        dcList.add(dc);
+        if ( ! dcList.contains(dc)) {
+            dcList.add(dc);
+        }
 
         Iterator it = netToDCMap.keySet().iterator();
         while (it.hasNext()) {
