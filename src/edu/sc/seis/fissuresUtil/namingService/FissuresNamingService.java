@@ -695,7 +695,6 @@ public class FissuresNamingService {
         String fissuresInterfaceName = null;
         Class[] interfaces = getAllInterfaces(obj.getClass());
         for(int counter = 0; counter < interfaces.length; counter++) {
-            System.out.println(interfaces[counter].getName());
             if(interfaces[counter].getName().startsWith("edu.iris.Fissures")) {
                 fissuresInterfaceName = interfaces[counter].getName();
                 StringTokenizer tokenizer = new StringTokenizer(fissuresInterfaceName,
