@@ -13,7 +13,7 @@ public class MockNetworkId{
 
     public static NetworkId createOtherNetworkID(){
         NetworkId mockId = new NetworkId();
-        mockId.network_code = "OTHERCODE";
+        mockId.network_code = "SS";
         mockId.begin_time = Defaults.WALL_FALL.getFissuresTime();
         return mockId;
     }
