@@ -46,6 +46,10 @@ public abstract class AbstractUnitRangeBorder extends Border implements TitlePro
 
         public String getLabel(double value) { return df.format(value); }
 
+        public String toString() {
+            return "UnitRange "+getDivSize();
+        }
+
         private DecimalFormat df;
     }
 }
