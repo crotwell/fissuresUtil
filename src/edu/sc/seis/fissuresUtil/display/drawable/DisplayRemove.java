@@ -56,25 +56,16 @@ public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionL
     public void mouseMoved(MouseEvent e) {
         if(intersects(e)){
             setDrawColor(Color.RED);
-        }else if(e.getSource() == display){
+        }else{
            setDrawColor(Color.BLACK);
-        }else {
-            setDrawColor(Color.BLUE);
         }
     }
+
     public void mouseDragged(MouseEvent e) {
         if(intersects(e)){
             setDrawColor(Color.RED);
         }else if(e.getSource() == display){
             setDrawColor(Color.BLACK);
-        }
-    }
-
-    public void mouseEntered(MouseEvent e){
-        if(e.getSource() == display) {
-           setDrawColor(Color.BLACK);
-        } else {
-            setDrawColor(Color.BLUE);
         }
     }
 
@@ -98,7 +89,7 @@ public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionL
         }
     }
 
-    private Color drawColor = Color.BLUE;
+    private Color drawColor = Color.BLACK;
 
     private int xMax = 10, xMin = 5, yMax = 10, yMin = 5;
 
