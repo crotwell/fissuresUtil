@@ -15,9 +15,9 @@ public class BasicAmpEvent implements AmpEvent{
         if ( seismos.length != amps.length) {
             throw new IllegalArgumentException("seismogram and amp arrays must have equal length "+seismos.length+" != "+amps.length);
         } // end of if ()
-
         this.seismos = seismos;
         this.amps = amps;
+        generateGenericAmp();
     }
 
     public UnitRangeImpl getAmp(DataSetSeismogram seismo){
@@ -34,28 +34,29 @@ public class BasicAmpEvent implements AmpEvent{
     }
 
     public UnitRangeImpl getAmp(){
-        if(genericAmp == null){
-            if(amps.length == 0){
-                genericAmp = DisplayUtils.ONE_RANGE;
-            } else if(amps.length == 1){
-                genericAmp = amps[0];
-            }else{
-                boolean equal = true;
-                for(int i = 1; i < amps.length; i++){
-                    if(!amps[i].equals(amps[i-1])){
-                        equal = false;
-                        i = amps.length;
-                    }
-                }
-                if(equal){
-                    genericAmp = amps[0];
-                }else{
-                    double halfRange = (amps[0].getMaxValue() - amps[0].getMinValue())/2;
-                    genericAmp = new UnitRangeImpl(-halfRange, halfRange, amps[0].getUnit());
+        return genericAmp;
+    }
+
+    private void generateGenericAmp(){
+        if(amps.length == 0){
+            genericAmp = DisplayUtils.ONE_RANGE;
+        } else if(amps.length == 1){
+            genericAmp = amps[0];
+        }else{
+            boolean equal = true;
+            for(int i = 1; i < amps.length; i++){
+                if(!amps[i].equals(amps[i-1])){
+                    equal = false;
+                    i = amps.length;
                 }
             }
+            if(equal){
+                genericAmp = amps[0];
+            }else{
+                double halfRange = (amps[0].getMaxValue() - amps[0].getMinValue())/2;
+                genericAmp = new UnitRangeImpl(-halfRange, halfRange, amps[0].getUnit());
+            }
         }
-        return genericAmp;
     }
 
     public void setAmp(UnitRangeImpl amp){
