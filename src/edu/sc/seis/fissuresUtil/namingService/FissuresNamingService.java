@@ -420,9 +420,8 @@ public class FissuresNamingService {
      * @exception CannotProceed if an error occurs
      * @exception InvalidName if an error occurs
      */
-    public EventDC getEventDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
-
-
+    public EventDC getEventDC(String dns, String objectname)
+        throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
         EventDC eventdc = EventDCHelper.narrow(getEventDCObject(dns, objectname));
         return eventdc;
 
