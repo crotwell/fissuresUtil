@@ -55,6 +55,10 @@ public interface AmpRangeConfig extends TimeSyncListener {
      */
     public void removeSeismogram(DataSetSeismogram seis);
     
+    public void addAmpSyncListener(AmpSyncListener a);
+
+    public void removeAmpSyncListener(AmpSyncListener a);
+
     /**
      * Sends a message to all AmpSyncListeners held by the configurator that the amplitude range has changed
      *
@@ -63,10 +67,6 @@ public interface AmpRangeConfig extends TimeSyncListener {
 
     public void fireAmpRangeEvent(AmpSyncEvent e);
 
-    public void setRegistrar(AmpConfigRegistrar registrar);
-
-    public AmpRangeConfig getRegistrar();
-
-    public AmpRangeConfig getAmpConfig();
+    public AmpSnapshot takeSnapshot();
 
 }// AmpRangeConfig
