@@ -82,8 +82,8 @@ public class SeismogramPDFBuilder {
             int pixelsPerDisplayH;
             int pixelsPerDisplayW;
             if (landscape) {
-                pixelsPerDisplayH = (int)Math.floor((pageW - horizMargins)/(double)dispPerPage);
-                pixelsPerDisplayW = (int)Math.floor(pageH - vertMargins);///(double)dispPerPage);
+                pixelsPerDisplayH = (int)Math.floor(pageW - horizMargins);///(double)dispPerPage);
+                pixelsPerDisplayW = (int)Math.floor((pageH - vertMargins)/(double)dispPerPage);
             } else {
                 pixelsPerDisplayH = (int)Math.floor((pageH - vertMargins)/(double)dispPerPage);
                 pixelsPerDisplayW = (int)Math.floor(pageW - horizMargins);///(double)dispPerPage);
