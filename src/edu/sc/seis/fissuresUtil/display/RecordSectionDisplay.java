@@ -52,9 +52,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     }
 
     public synchronized void add(DataSetSeismogram[] seismos){
-        updating = true;
         if(tc == null){
-            setTimeConfig(new BasicTimeConfig());
+            setTimeConfig(new RelativeTimeConfig());
         }
         tc.add(seismos);
         if(ac == null){
@@ -70,7 +69,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                 drawables.add(new DrawableSeismogram(this, seismos[i]));
             }
         }
-        updating = false;
         if(displayRemover == null){
             displayRemover = new SeismogramDisplayRemovalBorder(this);
             Border etchedRemoval = BorderFactory.createCompoundBorder(etched,
@@ -249,9 +247,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     }
     private class DrawablePainter extends JComponent{
         public void paintComponent(Graphics g){
-            if(updating){
-                return;
-            }
             Graphics2D g2 = (Graphics2D)g;
             synchronized(this){
                 Dimension size = getSize();
@@ -366,8 +361,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     private DistanceScaleMapper distanceScaler;
 
     private ScaleBorder border;
-
-    private boolean updating;
 
     private DrawablePainter painter;
 
