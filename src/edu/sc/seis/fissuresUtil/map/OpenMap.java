@@ -1,23 +1,6 @@
 package edu.sc.seis.fissuresUtil.map;
 
 
-import com.bbn.openmap.*;
-
-import com.bbn.openmap.event.LayerStatusEvent;
-import com.bbn.openmap.event.LayerStatusListener;
-import com.bbn.openmap.event.MapMouseMode;
-import com.bbn.openmap.event.ZoomEvent;
-import com.bbn.openmap.gui.OMComponentPanel;
-import com.bbn.openmap.layer.GraticuleLayer;
-import com.bbn.openmap.layer.shape.ShapeLayer;
-import com.bbn.openmap.proj.Projection;
-import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
-import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
-import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
-import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
-import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -30,8 +13,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.imageio.ImageIO;
+
 import org.apache.log4j.Logger;
+
+import com.bbn.openmap.BufferedMapBean;
+import com.bbn.openmap.InformationDelegator;
+import com.bbn.openmap.LatLonPoint;
+import com.bbn.openmap.Layer;
+import com.bbn.openmap.LayerHandler;
+import com.bbn.openmap.MapBean;
+import com.bbn.openmap.MapHandler;
+import com.bbn.openmap.MouseDelegator;
+import com.bbn.openmap.MultipleSoloMapComponentException;
+import com.bbn.openmap.event.LayerStatusEvent;
+import com.bbn.openmap.event.LayerStatusListener;
+import com.bbn.openmap.event.MapMouseMode;
+import com.bbn.openmap.event.ZoomEvent;
+import com.bbn.openmap.gui.OMComponentPanel;
+import com.bbn.openmap.layer.GraticuleLayer;
+import com.bbn.openmap.layer.etopo.ETOPOJarLayer;
+import com.bbn.openmap.layer.etopo.ETOPOLayer;
+import com.bbn.openmap.layer.shape.ShapeLayer;
+import com.bbn.openmap.proj.Orthographic;
+import com.bbn.openmap.proj.Projection;
+
+import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
+import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
+import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
+import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
+import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 
 public class OpenMap extends OMComponentPanel implements LayerStatusListener{
 
@@ -50,12 +64,18 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener{
     private static Logger logger = Logger.getLogger(OpenMap.class);
 
     private ShapeLayer shapeLayer;
+    
+    private String etopoDir;
+    private ETOPOLayer etopoLayer;
 
-
+    public OpenMap(String shapefile){
+    		this(shapefile, null);
+    }
+    
     /**Creates a new openmap.  Both the channel chooser and the event table
      * model can be null.  If so, channels and events just won't get drawn
      */
-    public OpenMap(String shapefile) {
+    public OpenMap(String shapefile, String etopoLoc) {
         try {
             setLayout(new BorderLayout());
             mapHandler = new MapHandler();
@@ -64,13 +84,13 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener{
             mapBean = getMapBean();
 
             //get the projection and set its background color and center point
-            //Proj proj = new Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT, mapBean.DEFAULT_CENTER_LON),
-            //                           DEFAULT_SCALE,
-            //                           mapBean.DEFAULT_WIDTH,
-            //                           mapBean.DEFAULT_HEIGHT);
-            //Proj proj = (Proj)mapBean.getProjection();
+            /*Projection proj = new Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT, mapBean.DEFAULT_CENTER_LON),
+                                       DEFAULT_SCALE,
+                                       mapBean.DEFAULT_WIDTH,
+                                       mapBean.DEFAULT_HEIGHT);
+            //Projection proj = (Projection)mapBean.getProjection();*/
 
-            mapBean.setBackgroundColor(WATER);
+            //mapBean.setBackgroundColor(WATER);
             //mapBean.setProjection(proj);
 
             mapHandler.add(mapBean);
@@ -85,7 +105,9 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener{
 
             GraticuleLayer gl = new GraticuleLayer();
             Properties graticuleLayerProps = gl.getProperties(new Properties());
+            graticuleLayerProps.setProperty("show1And5Lines", "true");
             graticuleLayerProps.setProperty("10DegreeColor", "FF888888");
+            graticuleLayerProps.setProperty("1DegreeColor", "C7003300");
             gl.setProperties(graticuleLayerProps);
 
             gl.setShowRuler(true);
@@ -102,14 +124,34 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener{
             //Create shape layer properties
             Properties shapeLayerProps = new Properties();
             shapeLayerProps.put("prettyName", "Political Solid");
-            shapeLayerProps.put("lineColor", "000000");
-            shapeLayerProps.put("fillColor", "39DA87");
+            shapeLayerProps.put("lineColor", "FF000000");
+            //shapeLayerProps.put("fillColor", "5539DA87");
             shapeLayerProps.put("shapeFile", shapefile + ".shp");
             shapeLayerProps.put("spatialIndex", shapefile + ".ssx");
             shapeLayer.setProperties(shapeLayerProps);
             shapeLayer.setVisible(true);
             mapHandler.add(shapeLayer);
             lh.addLayer(shapeLayer);
+            
+            if (etopoLoc != null){
+	            //create ETOPO Layer
+	            etopoLayer = new ETOPOJarLayer();
+	            etopoLayer.addLayerStatusListener(this);
+	            
+	            //create ETOPO layer properties
+	            Properties etopoProps = new Properties();
+	            etopoProps.put("path", etopoLoc);
+	            etopoProps.put("prettyName", "World Terrain Elevation / Ocean Depth");
+	            etopoProps.put("number.colors", "216");
+	            etopoProps.put("opaque", "255");
+	            etopoProps.put("view.type", "1");
+	            etopoProps.put("minute.spacing", "10");
+	            etopoProps.put("contrast", "5");
+	            etopoLayer.setProperties(etopoProps);
+	            etopoLayer.setVisible(true);
+	            mapHandler.add(etopoLayer);
+	            lh.addLayer(etopoLayer);        
+            }
 
             // Create the directional and zoom control tool
             //OMToolSet omts = new OMToolSet();
