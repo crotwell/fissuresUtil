@@ -417,18 +417,15 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
 
         JPanel comp = new JPanel();
-        comp.setSize(dsize.width,dsize.height);
         comp.setSize(twidth,theight);
 
         int topBorder = scale.paintTopTimeBorder(comp,g2,0,0,twidth,theight);
-        int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
 
         // reset the scales
         timeScaleMap.setTotalPixels(timeSizeSave);
 
         dsize = new Dimension(twidth,topBorder);
         return dsize;
-
     }
 
     public Dimension drawBottomTimeBorders(Graphics2D g2, int twidth, int theight){
@@ -475,13 +472,14 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     public void drawSeismograms(Graphics2D g2, Dimension size){
         g2.setColor(Color.WHITE);
         g2.fill(new Rectangle2D.Float(0,0, size.width, size.height));
+        g2.setFont(DisplayUtils.DEFAULT_FONT);
         FontMetrics fm = g2.getFontMetrics();
         Rectangle2D stringBounds = fm.getStringBounds("test", g2);
         Rectangle2D topLeftFilled = new Rectangle2D.Float(0,0,0,(float)stringBounds.getHeight());
         for (int i = 0; i < drawables.size(); i++){
             Drawable current = (Drawable)drawables.get(i);
             current.draw(g2, size, currentTimeEvent, currentAmpEvent);
-            if(current instanceof TimeAmpLabel){
+            if(current instanceof TimeAmpLabel && !PRINTING){
                 TimeAmpLabel taPlotter = (TimeAmpLabel)current;
                 g2.setFont(DisplayUtils.MONOSPACED_FONT);
                 FontMetrics monoMetrics = g2.getFontMetrics();
@@ -491,9 +489,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                 g2.setFont(DisplayUtils.DEFAULT_FONT);
             }else if(current instanceof NamedDrawable){
                 Rectangle2D drawnSize = ((NamedDrawable)current).drawName(g2, 5, (int)topLeftFilled.getHeight());
-                topLeftFilled.setRect(0,0,
-                                      drawnSize.getWidth(),
-                                      topLeftFilled.getHeight() + drawnSize.getHeight());
+                topLeftFilled.setRect(0,0, drawnSize.getWidth(),
+                                      topLeftFilled.getHeight() +
+                                          drawnSize.getHeight());
             }
         }
         if(getCurrentTimeFlag()){
@@ -563,6 +561,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
 
     private Color color;
+
+    public static boolean PRINTING = false;
 
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay
