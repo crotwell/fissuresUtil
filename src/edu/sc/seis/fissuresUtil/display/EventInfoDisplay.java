@@ -37,327 +37,349 @@ import java.util.List;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 4355 2003-06-10 22:26:25Z oliverpa $
+ * @version $Id: EventInfoDisplay.java 4829 2003-07-18 20:24:26Z oliverpa $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay
     implements DropTargetListener {
 
     public EventInfoDisplay (){
-		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     public void displayEvent(EventAccessOperations event) {
-		displayEventStation(event, null);
+        displayEventStation(event, null);
     }
 
     public void displayEventStation(EventAccessOperations event, Station[] station) {
-		Document doc = textPane.getDocument();
-		try {
-			doc.remove(0, doc.getLength());
-			appendEvent(event, doc);
-			if (station != null) {
-				appendEventStation(event, station, doc);
-			} // end of if (station != null)
+        Document doc = textPane.getDocument();
+        try {
+            doc.remove(0, doc.getLength());
+            appendEvent(event, doc);
+            if (station != null) {
+                appendEventStation(event, station, doc);
+            } // end of if (station != null)
 
-			toTop();
-		} catch (BadLocationException ble) {
-			System.err.println("Couldn't insert message.");
-		}
+            toTop();
+        } catch (BadLocationException ble) {
+            System.err.println("Couldn't insert message.");
+        }
     }
 
     public void appendEvent(EventAccessOperations event) {
-		try {
-			appendEvent(event, getDocument());
-		} catch (BadLocationException ble) {
-			System.err.println("Couldn't insert message.");
-		}
+        try {
+            appendEvent(event, getDocument());
+        } catch (BadLocationException ble) {
+            System.err.println("Couldn't insert message.");
+        }
     }
 
     public void appendEventStation(EventAccessOperations event, Station[] station) {
-		try {
-			Document doc = getDocument();
-			appendEvent(event, doc);
-			appendEventStation(event, station, getDocument());
-		} catch (BadLocationException ble) {
-			System.err.println("Couldn't insert message.");
-		}
+        try {
+            Document doc = getDocument();
+            appendEvent(event, doc);
+            appendEventStation(event, station, getDocument());
+        } catch (BadLocationException ble) {
+            System.err.println("Couldn't insert message.");
+        }
     }
 
     protected void appendEvent(EventAccessOperations event, Document doc)
-		throws BadLocationException {
-		if ( event != null) {
-			appendEventAttr(event.get_attributes(), doc);
-			try {
-				appendOrigin(event.get_preferred_origin(), doc);
-			} catch (NoPreferredOrigin e) {
+        throws BadLocationException {
+        if ( event != null) {
+            appendEventAttr(event.get_attributes(), doc);
+            try {
+                appendOrigin(event.get_preferred_origin(), doc);
+            } catch (NoPreferredOrigin e) {
 
-			} // end of try-catch
-		} else {
-			appendLine(doc, "No earthquake to display.");
-		} // end of else
+            } // end of try-catch
+        } else {
+            appendLine(doc, "No earthquake to display.");
+        } // end of else
 
 
     }
 
     protected void appendEventStation(EventAccessOperations event,
-									  Station[] station,
-									  Document doc)
-		throws BadLocationException {
-		edu.sc.seis.TauP.SphericalCoords sph =
-			new edu.sc.seis.TauP.SphericalCoords();
-		appendLine(doc, "");
-		appendHeader(doc, "Event to Station");
-		double dist = -1;
-		double baz = -1;
-		appendLabelValue(doc, "    ", "\t\t\t\t\tAzimuth");
-		appendLabelValue(doc, "    ", "\t Lat\tLong\tDist\t Dist\t  to");
-		appendLabelValue(doc, "    ", "\t\t\t\t\t Event");
-		appendLabelValue(doc, "    ", "\t(deg)\t(deg)\t(deg)\t (km)\t (deg)");
-		appendLabelValue(doc, "----", "-------------------------------------------------------");
+                                      Station[] station,
+                                      Document doc)
+        throws BadLocationException {
 
-		try{
-			station = sortStationsByDistance(station, event, sph);
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
+        edu.sc.seis.TauP.SphericalCoords sph =
+            new edu.sc.seis.TauP.SphericalCoords();
+        try{
+            station = sortStationsByDistance(station, event, sph);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
 
-		for (int i=0; i<station.length; i++) {
-			try {
-				if ( event != null) {
-					dist = sph.distance(event.get_preferred_origin().my_location.latitude,
-										event.get_preferred_origin().my_location.longitude,
-										station[i].my_location.latitude,
-										station[i].my_location.longitude);
-					baz = sph.azimuth(station[i].my_location.latitude,
-									  station[i].my_location.longitude,
-									  event.get_preferred_origin().my_location.latitude,
-									  event.get_preferred_origin().my_location.longitude);
-					appendLabelValue(doc, station[i].get_code(),
-									 '\t' + twoDecimal.format(station[i].my_location.latitude)+'\t'+
-										 twoDecimal.format(station[i].my_location.longitude)+ '\t'+
-										 twoDecimal.format(dist)+ '\t'+
-										 twoDecimal.format(dist*111.19)+ '\t'+
-										 twoDecimal.format(baz));
-				} else {
-					appendLabelValue(doc, station[i].get_code(),
-									 twoDecimal.format(station[i].my_location.latitude)+
-										 " "+twoDecimal.format(station[i].my_location.longitude)+
-										 "--- ,  ---");
-
-				} // end of else
-
-			} catch (NoPreferredOrigin e) {
-				appendLabelValue(doc, station[i].get_code(),
-								 twoDecimal.format(station[i].my_location.latitude)+
-									 " "+twoDecimal.format(station[i].my_location.longitude)+
-									 "--- ,  ---");
-			} // end of try-catch
-
-		} // end of for (int i=0; i<station.length; i++)
-		appendLine(doc, "");
-	}
+        String[] stationNames = new String[station.length + 1];
+        stationNames[0] = "Station Name";
+        int longest = stationNames[0].length();
+        for (int i = 0; i < station.length; i++) {
+            stationNames[i + 1] = station[i].name;
+            if (stationNames[i + 1].length() > longest){
+                longest = stationNames[i + 1].length();
+            }
+        }
 
 
-	protected void appendEventAttr(EventAttr attr)
-		throws BadLocationException {
-		appendEventAttr(attr, getDocument());
-	}
+        appendLine(doc, "");
+        appendHeader(doc, "Event to Station");
+        double dist = -1;
+        double baz = -1;
+        appendLabelValue(doc, printTextLine(' ', longest), "\t\t\t\t\tAzimuth");
+        appendLabelValue(doc,
+                         stationNames[0] + printTextLine(' ', longest - stationNames[0].length()),
+                         "\t Lat\tLong\tDist\t Dist\t  to");
+        appendLabelValue(doc, printTextLine(' ', longest), "\t\t\t\t\t Event");
+        appendLabelValue(doc, printTextLine(' ', longest), "\t(deg)\t(deg)\t(deg)\t (km)\t (deg)");
+        appendLabelValue(doc, printTextLine('-', longest), "-------------------------------------------------------");
 
-	protected void appendEventAttr(EventAttr attr, Document doc)
-		throws BadLocationException {
-		appendHeader(doc, "Event");
-		appendLabelValue(doc, "Name\t", attr.name);
-		if (attr.region.number > 0) {
-			appendLabelValue(doc, "Region\t", feRegions.getRegionName(attr.region)+" ("+attr.region.number+")");
-		} else {
-			appendLabelValue(doc, "Region\t", "Unknown ("+attr.region.number+")");
-		} // end of else
+        for (int i=0; i<station.length; i++) {
+            try {
+                if ( event != null) {
+                    dist = sph.distance(event.get_preferred_origin().my_location.latitude,
+                                        event.get_preferred_origin().my_location.longitude,
+                                        station[i].my_location.latitude,
+                                        station[i].my_location.longitude);
+                    baz = sph.azimuth(station[i].my_location.latitude,
+                                      station[i].my_location.longitude,
+                                      event.get_preferred_origin().my_location.latitude,
+                                      event.get_preferred_origin().my_location.longitude);
+                    appendLabelValue(doc, stationNames[i+1] + printTextLine(' ', longest - stationNames[i+1].length()),
+                                     '\t' + twoDecimal.format(station[i].my_location.latitude)+'\t'+
+                                         twoDecimal.format(station[i].my_location.longitude)+ '\t'+
+                                         twoDecimal.format(dist)+ '\t'+
+                                         twoDecimal.format(dist*111.19)+ '\t'+
+                                         twoDecimal.format(baz));
+                } else {
+                    appendLabelValue(doc, stationNames[i+1] + printTextLine(' ', longest - stationNames[i+1].length()),
+                                     twoDecimal.format(station[i].my_location.latitude)+
+                                         " "+twoDecimal.format(station[i].my_location.longitude)+
+                                         "--- ,  ---");
 
+                } // end of else
 
-		appendLine(doc, "");
-	}
+            } catch (NoPreferredOrigin e) {
+                appendLabelValue(doc, station[i].get_code(),
+                                 twoDecimal.format(station[i].my_location.latitude)+
+                                     " "+twoDecimal.format(station[i].my_location.longitude)+
+                                     "--- ,  ---");
+            } // end of try-catch
 
-	protected void appendOrigin(Origin origin)
-		throws BadLocationException {
-		appendOrigin(origin, getDocument());
-	}
-
-	protected void appendOrigin(Origin origin, Document doc)
-		throws BadLocationException {
-		appendHeader(doc, "Origin");
-		appendLabelValue(doc, "Location\t", "latitude="+
-							 twoDecimal.format(origin.my_location.latitude)+
-							 ",  longitude="+
-							 twoDecimal.format(origin.my_location.longitude));
-		MicroSecondDate oTime = new ISOTime(origin.origin_time.date_time).getDate();
-		appendLabelValue(doc, "Time\t", dateFormat.format(oTime));
-		QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
-		depth = depth.convertTo(UnitImpl.KILOMETER);
-		appendLabelValue(doc, "Depth\t",
-						 twoDecimal.format(depth.value)+" kilometers");
-		//  ((UnitImpl)depth.the_units).toString());
-		//	appendLabelValue(doc, "ID", origin.get_id());
-		//appendLabelValue(doc, "Catalog", origin.catalog);
-		//appendLabelValue(doc, "Contributor", origin.contributor);
-
-		appendLine(doc, "");
-		for (int i=0; i<origin.magnitudes.length; i++) {
-			appendMagnitude(origin.magnitudes[i], doc);
-		} // end of for (int i=0; i<origin.magnitudes.length; i++)
-
-	}
-
-	protected void appendMagnitude(Magnitude mag)
-		throws BadLocationException {
-		appendMagnitude(mag, getDocument());
-	}
-
-	protected void appendMagnitude(Magnitude mag, Document doc)
-		throws BadLocationException {
-		appendLabelValue(doc, "Magnitude\t", mag.value+" "+mag.type+"  "+mag.contributor);
-	}
-
-	public static Station[] sortStationsByDistance(Station[] stations,
-												   EventAccessOperations event,
-												   edu.sc.seis.TauP.SphericalCoords sph)
-		throws NoPreferredOrigin{
-		try{
-			Station[] temp = new Station[stations.length];
-			System.arraycopy(stations, 0, temp, 0, stations.length);
-
-			int indexOfNextSmallest;
-
-			for (int i = 0; i < temp.length - 1; i++) {
-				indexOfNextSmallest = indexOfClosestStation(temp, i, event, sph);
-				interchange(i, indexOfNextSmallest, temp);
-			}
-
-			return temp;
-		}
-		catch(NoPreferredOrigin n){
-			System.out.println("Stations not sorted because event has no origin.");
-			return stations;
-		}
-	}
-
-	public static void interchange(int i, int j, Station[] s){
-		Station temp;
-
-		temp = s[i];
-		s[i] = s[j];
-		s[j] = temp;
-	}
-
-	public static int indexOfClosestStation(Station[] stations, int startIndex,
-											EventAccessOperations event,
-											edu.sc.seis.TauP.SphericalCoords sph)
-		throws NoPreferredOrigin{
-
-		int index = startIndex;
-		double currentDistance = Double.POSITIVE_INFINITY;
-		double closestDistance = Double.POSITIVE_INFINITY;
-		Station currentStation;
+        } // end of for (int i=0; i<station.length; i++)
+        appendLine(doc, "");
+    }
 
 
-		for (int i = startIndex; i < stations.length; i++){
-			currentStation = stations[i];
-			currentDistance = sph.distance(event.get_preferred_origin().my_location.latitude,
-										   event.get_preferred_origin().my_location.longitude,
-										   currentStation.my_location.latitude,
-										   currentStation.my_location.longitude);
-			if (currentDistance < closestDistance){
-				closestDistance = currentDistance;
-				index = i;
-			}
-		}
-		System.out.println("Size of stations: " + stations.length);
-		return index;
-	}
+    protected void appendEventAttr(EventAttr attr)
+        throws BadLocationException {
+        appendEventAttr(attr, getDocument());
+    }
 
-	static ParseRegions feRegions = new ParseRegions();
+    protected void appendEventAttr(EventAttr attr, Document doc)
+        throws BadLocationException {
+        appendHeader(doc, "Event");
+        appendLabelValue(doc, "Name\t", attr.name);
+        if (attr.region.number > 0) {
+            appendLabelValue(doc, "Region\t", feRegions.getRegionName(attr.region)+" ("+attr.region.number+")");
+        } else {
+            appendLabelValue(doc, "Region\t", "Unknown ("+attr.region.number+")");
+        } // end of else
 
 
-	// Drag and Drop...
+        appendLine(doc, "");
+    }
 
-	public void drop(DropTargetDropEvent e) {
-		//System.err.println("[Target] drop");
-		DropTargetContext targetContext = e.getDropTargetContext();
+    protected void appendOrigin(Origin origin)
+        throws BadLocationException {
+        appendOrigin(origin, getDocument());
+    }
 
-		boolean outcome = false;
+    protected void appendOrigin(Origin origin, Document doc)
+        throws BadLocationException {
+        appendHeader(doc, "Origin");
+        appendLabelValue(doc, "Location\t", "latitude="+
+                             twoDecimal.format(origin.my_location.latitude)+
+                             ",  longitude="+
+                             twoDecimal.format(origin.my_location.longitude));
+        MicroSecondDate oTime = new ISOTime(origin.origin_time.date_time).getDate();
+        appendLabelValue(doc, "Time\t", dateFormat.format(oTime));
+        QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
+        depth = depth.convertTo(UnitImpl.KILOMETER);
+        appendLabelValue(doc, "Depth\t",
+                         twoDecimal.format(depth.value)+" kilometers");
+        //  ((UnitImpl)depth.the_units).toString());
+        //  appendLabelValue(doc, "ID", origin.get_id());
+        //appendLabelValue(doc, "Catalog", origin.catalog);
+        //appendLabelValue(doc, "Contributor", origin.contributor);
 
-		//         if ((e.getSourceActions() & DnDConstants.ACTION_COPY) != 0) {
-		// 	    System.out.println("Action.COPY & was ok");
-		//             e.acceptDrop(DnDConstants.ACTION_COPY);
-		//         } else {
-		// 	    System.out.println("Action.COPY & didn't");
-		//             e.rejectDrop();
-		//             return;
-		//         }
+        appendLine(doc, "");
+        for (int i=0; i<origin.magnitudes.length; i++) {
+            appendMagnitude(origin.magnitudes[i], doc);
+        } // end of for (int i=0; i<origin.magnitudes.length; i++)
 
-		e.acceptDrop(DnDConstants.ACTION_COPY);
+    }
+
+    protected void appendMagnitude(Magnitude mag)
+        throws BadLocationException {
+        appendMagnitude(mag, getDocument());
+    }
+
+    protected void appendMagnitude(Magnitude mag, Document doc)
+        throws BadLocationException {
+        appendLabelValue(doc, "Magnitude\t", mag.value+" "+mag.type+"  "+mag.contributor);
+    }
+
+    public static Station[] sortStationsByDistance(Station[] stations,
+                                                   EventAccessOperations event,
+                                                   edu.sc.seis.TauP.SphericalCoords sph)
+        throws NoPreferredOrigin{
+        try{
+            Station[] temp = new Station[stations.length];
+            System.arraycopy(stations, 0, temp, 0, stations.length);
+
+            int indexOfNextSmallest;
+
+            for (int i = 0; i < temp.length - 1; i++) {
+                indexOfNextSmallest = indexOfClosestStation(temp, i, event, sph);
+                interchange(i, indexOfNextSmallest, temp);
+            }
+
+            return temp;
+        }
+        catch(NoPreferredOrigin n){
+            System.out.println("Stations not sorted because event has no origin.");
+            return stations;
+        }
+    }
+
+    public static String printTextLine(char c, int length){
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            buf.append(c);
+        }
+        return buf.toString();
+    }
+
+    public static void interchange(int i, int j, Station[] s){
+        Station temp;
+
+        temp = s[i];
+        s[i] = s[j];
+        s[j] = temp;
+    }
+
+    public static int indexOfClosestStation(Station[] stations, int startIndex,
+                                            EventAccessOperations event,
+                                            edu.sc.seis.TauP.SphericalCoords sph)
+        throws NoPreferredOrigin{
+
+        int index = startIndex;
+        double currentDistance = Double.POSITIVE_INFINITY;
+        double closestDistance = Double.POSITIVE_INFINITY;
+        Station currentStation;
 
 
-		DataFlavor[] dataFlavors = e.getCurrentDataFlavors();
-		DataFlavor   transferDataFlavor = null;
-		try {
-			for (int i = 0; i < dataFlavors.length; i++) {
-				System.err.println(dataFlavors[i].getMimeType());
-				clear();
-				if (edu.sc.seis.fissuresUtil.chooser.DNDLinkedList.listDataFlavor.equals(dataFlavors[i])) {
-					System.err.println("matched list");
-					transferDataFlavor = dataFlavors[i];
-					Transferable t  = e.getTransferable();
-					LinkedList list =
-						(LinkedList)t.getTransferData(transferDataFlavor);
-					Iterator it = list.iterator();
-					Object obj;
-					while (it.hasNext()) {
-						obj = it.next();
-						if (obj instanceof Origin) {
-							appendOrigin((Origin)obj);
-							outcome = true;
-						} else if (obj instanceof EventAccessOperations) {
-							appendEvent((EventAccessOperations)obj);
-							outcome = true;
-						} // end of else
+        for (int i = startIndex; i < stations.length; i++){
+            currentStation = stations[i];
+            currentDistance = sph.distance(event.get_preferred_origin().my_location.latitude,
+                                           event.get_preferred_origin().my_location.longitude,
+                                           currentStation.my_location.latitude,
+                                           currentStation.my_location.longitude);
+            if (currentDistance < closestDistance){
+                closestDistance = currentDistance;
+                index = i;
+            }
+        }
+        System.out.println("Size of stations: " + stations.length);
+        return index;
+    }
 
-					} // end of while (it.hasNext())
-					break;
-				}
+    static ParseRegions feRegions = new ParseRegions();
 
-			}
 
-		} catch (BadLocationException bl) {
-			bl.printStackTrace();
-			System.err.println(bl.getMessage());
-			targetContext.dropComplete(false);
-			return;
-		} catch (java.io.IOException ioe) {
-			ioe.printStackTrace();
-			System.err.println(ioe.getMessage());
-			targetContext.dropComplete(false);
-			return;
-		} catch (UnsupportedFlavorException ufe) {
-			ufe.printStackTrace();
-			System.err.println(ufe.getMessage());
-			targetContext.dropComplete(false);
-			return;
-		} // end of try-catch
-		targetContext.dropComplete(outcome);
-	}
+    // Drag and Drop...
 
-	public void dragScroll(DropTargetDragEvent e) {
-		System.err.println("[Target] dropScroll");
-	}
+    public void drop(DropTargetDropEvent e) {
+        //System.err.println("[Target] drop");
+        DropTargetContext targetContext = e.getDropTargetContext();
 
-	public void dropActionChanged(DropTargetDragEvent e) {
-		System.err.println("[Target] dropActionChanged");
-	}
+        boolean outcome = false;
 
-	DecimalFormat twoDecimal = new DecimalFormat("0.00");
-	SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
+        //         if ((e.getSourceActions() & DnDConstants.ACTION_COPY) != 0) {
+        //      System.out.println("Action.COPY & was ok");
+        //             e.acceptDrop(DnDConstants.ACTION_COPY);
+        //         } else {
+        //      System.out.println("Action.COPY & didn't");
+        //             e.rejectDrop();
+        //             return;
+        //         }
+
+        e.acceptDrop(DnDConstants.ACTION_COPY);
+
+
+        DataFlavor[] dataFlavors = e.getCurrentDataFlavors();
+        DataFlavor   transferDataFlavor = null;
+        try {
+            for (int i = 0; i < dataFlavors.length; i++) {
+                System.err.println(dataFlavors[i].getMimeType());
+                clear();
+                if (edu.sc.seis.fissuresUtil.chooser.DNDLinkedList.listDataFlavor.equals(dataFlavors[i])) {
+                    System.err.println("matched list");
+                    transferDataFlavor = dataFlavors[i];
+                    Transferable t  = e.getTransferable();
+                    LinkedList list =
+                        (LinkedList)t.getTransferData(transferDataFlavor);
+                    Iterator it = list.iterator();
+                    Object obj;
+                    while (it.hasNext()) {
+                        obj = it.next();
+                        if (obj instanceof Origin) {
+                            appendOrigin((Origin)obj);
+                            outcome = true;
+                        } else if (obj instanceof EventAccessOperations) {
+                            appendEvent((EventAccessOperations)obj);
+                            outcome = true;
+                        } // end of else
+
+                    } // end of while (it.hasNext())
+                    break;
+                }
+
+            }
+
+        } catch (BadLocationException bl) {
+            bl.printStackTrace();
+            System.err.println(bl.getMessage());
+            targetContext.dropComplete(false);
+            return;
+        } catch (java.io.IOException ioe) {
+            ioe.printStackTrace();
+            System.err.println(ioe.getMessage());
+            targetContext.dropComplete(false);
+            return;
+        } catch (UnsupportedFlavorException ufe) {
+            ufe.printStackTrace();
+            System.err.println(ufe.getMessage());
+            targetContext.dropComplete(false);
+            return;
+        } // end of try-catch
+        targetContext.dropComplete(outcome);
+    }
+
+    public void dragScroll(DropTargetDragEvent e) {
+        System.err.println("[Target] dropScroll");
+    }
+
+    public void dropActionChanged(DropTargetDragEvent e) {
+        System.err.println("[Target] dropActionChanged");
+    }
+
+    DecimalFormat twoDecimal = new DecimalFormat("0.00");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
 
 }// EventInfoDisplay
 
