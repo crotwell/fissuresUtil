@@ -608,30 +608,23 @@ public class DateChooser extends JPanel {
 			 
 		     }
 		     if(value == -1) return;
-		    int totalDays = 0;
-		     
+		     Calendar tempCalendar = Calendar.getInstance();
+		     tempCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
 		    if( weekButton.isSelected()) {
-			
-			totalDays = value * 7;
-		   }
+			tempCalendar.add(Calendar.WEEK_OF_YEAR, -value);
+		    }
 		    else if( monthButton.isSelected()) {
 
-
-			totalDays = value * (7 * 5 - 5);
-		  }
+			tempCalendar.add(Calendar.MONTH, -value);
+		    }
 		    else if( yearButton.isSelected()) {
 
-			totalDays = value * ( 7 * 5 - 5) * 12;
+			tempCalendar.add(Calendar.YEAR, -value);
+
 		   }
 		   
-		    Calendar tempCalendar = Calendar.getInstance();
-		    tempCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-		    java.util.Date tempDate = new java.util.Date();
-		    System.out.println("THe total days are "+totalDays);
-		    //tempDate = tempCalendar.getTime();
-		    tempDate.setTime( tempCalendar.getTime().getTime() - totalDays * 24 * 60 * 60 * 1000);
-		    System.out.println("THe resultant date is "+tempDate.toString());
-		    calendar.setTime( tempDate);
+		    
+		   	    calendar = tempCalendar;
 		}
 
 	    });
