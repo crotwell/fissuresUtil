@@ -51,8 +51,6 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		}
 	    });
         setMinimumSize(new Dimension(100, 50));
-        setPreferredSize(new Dimension(200, 100));
-	
 	tr.addTimeSyncListener(this);
 	ar.addAmpSyncListener(this);
 	this.timeConfig = tr;
@@ -73,22 +71,33 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 											BorderFactory.createLoweredBevelBorder())));
 	plot = new ImageMaker();
 	this.add(plot);
+	Insets current = this.getInsets();
+	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
     }
 
     class ImageMaker extends JComponent{
 	public void paint(Graphics g){
-	    if(redo ||timeConfig.getTimeRange().getEndTime().getMicroSecondTime() >= overTimeRange.getEndTime().getMicroSecondTime() || 
-	       timeConfig.getTimeRange().getBeginTime().getMicroSecondTime() <= overTimeRange.getBeginTime().getMicroSecondTime()|| 
-	       displayInterval.getValue() != timeConfig.getTimeRange().getInterval().getValue())
+	    if(redo)
+		this.createOversizedImage();
+	    long endTime = timeConfig.getTimeRange().getEndTime().getMicroSecondTime();
+	    long beginTime = timeConfig.getTimeRange().getBeginTime().getMicroSecondTime();
+	    long overEndTime = overTimeRange.getEndTime().getMicroSecondTime();
+	    long overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
+	    if(endTime >= overEndTime || beginTime <= overBeginTime || 
+	       displayInterval.getValue() != timeConfig.getTimeRange().getInterval().getValue()) 
 		this.createOversizedImage();
 	    Graphics2D g2 = (Graphics2D)g;
-	    double offset = ((timeConfig.getTimeRange().getBeginTime().getMicroSecondTime() - 
-			      overTimeRange.getBeginTime().getMicroSecondTime())/
-			     (double)(overTimeRange.getEndTime().getMicroSecondTime() -
-				      overTimeRange.getBeginTime().getMicroSecondTime()) * 
-			     overSize.getWidth());
-	    g2.drawImage(overSizedImage, AffineTransform.getTranslateInstance(-offset, 0.0), null);
-	}   
+	    double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * overSize.getWidth();
+	    AffineTransform tx;
+	//if(displayInterval.getValue() == timeConfig.getTimeRange().getInterval().getValue())
+		tx = AffineTransform.getTranslateInstance(-offset, 0.0);
+	/*    else{
+		double scale = displayInterval.getValue()/timeConfig.getTimeRange().getInterval().getValue();
+		tx = AffineTransform.getTranslateInstance(-offset * scale, 0.0);
+		tx.scale(scale, 1);
+		}*/
+	    g2.drawImage(overSizedImage, tx, null);
+	} 
 
 	public void createOversizedImage(){
 	    System.out.println("Creating image");
@@ -100,7 +109,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    overSize = new Dimension(w, h);
 	    overSizedImage = createImage(w, h);
 	    displayInterval = timeConfig.getTimeRange().getInterval();
-	    overSizedGraphic = (Graphics2D)overSizedImage.getGraphics();
+	    Graphics2D overSizedGraphic = (Graphics2D)overSizedImage.getGraphics();
 	    Iterator e = plotters.keySet().iterator();
 	    while(e.hasNext()){
 		Plotter current = ((Plotter)e.next());
@@ -128,7 +137,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      * 
      */
     public void removeSeismogram(LocalSeismogram oldSeis){}
-    
+
     /**
      * Returns the amp range configurator the display is using
      *
@@ -155,13 +164,30 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	repaint();
     }
 
-    public void addBottomTimeBorder(){	scaleBorder.setBottomScaleMapper(timeScaleMap); }
+    public void addBottomTimeBorder(){	
+	scaleBorder.setBottomScaleMapper(timeScaleMap); 
+	Insets current = this.getInsets();
+	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+    }
 
-    public void removeBottomTimeBorder(){ scaleBorder.clearBottomScaleMapper(); }
+    public void removeBottomTimeBorder(){ 
+	scaleBorder.clearBottomScaleMapper(); 
+	Insets current = this.getInsets();
+	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+    }
 
-    public void addTopTimeBorder(){ scaleBorder.setTopScaleMapper(timeScaleMap); }
 
-    public void removeTopTimeBorder(){ scaleBorder.clearTopScaleMapper(); }
+    public void addTopTimeBorder(){ 
+	scaleBorder.setTopScaleMapper(timeScaleMap);
+	Insets current = this.getInsets();
+	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+    }
+
+    public void removeTopTimeBorder(){ 
+	scaleBorder.clearTopScaleMapper();
+	Insets current = this.getInsets();
+	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+    }
 
     public void redraw(){
 	redo = true;
@@ -201,29 +227,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
     protected TimeInterval displayInterval;
     
-    protected Graphics2D overSizedGraphic;
-    
     protected Image overSizedImage;
 
     protected Dimension overSize;
-
-    public static void main(String[] args){
-	try{
-	    JFrame jf = new JFrame("Test Seismogram View");
-	    LocalSeismogram test1 = SeisPlotUtil.createSineWave();
-	    BasicSeismogramDisplay sv = new BasicSeismogramDisplay(test1, true);
-	    Dimension size = new Dimension(400, 400);
-	    sv.setPreferredSize(size);
-	    jf.getContentPane().add(sv);
-	    jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    jf.setSize(size);
-	    jf.setVisible(true);
-	    jf.addWindowListener(new WindowAdapter() {
-		    public void windowClosed(WindowEvent e) {
-			System.exit(0);
-		    }
-		});
-	}
-	catch(Exception e){ e.printStackTrace(); }
-    }
-}// BasicSeismogramDisplay
+    }// BasicSeismogramDisplay
