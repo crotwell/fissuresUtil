@@ -4,12 +4,8 @@ import java.awt.geom.GeneralPath;
 import java.awt.Shape;
 import java.awt.Dimension;
 import java.lang.ref.SoftReference;
-
 import org.apache.log4j.*;
-
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-
-//import edu.iris.Fissures.model.*;
 
 /**
  * SeismogramPlotter creates a seismogram shape from a local seismogram, time range config and an amplitude range config.
@@ -29,7 +25,8 @@ public class SeismogramPlotter implements Plotter{
     }
 
     public Shape draw(Dimension size){
-	MicroSecondTimeRange overTimeRange = timeConfig.getTimeRange(seismogram).getOversizedTimeRange(3);
+	MicroSecondTimeRange overTimeRange = timeConfig.getTimeRange(seismogram).
+	    getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
 	try{
 	    int[][] pixels = SimplePlotUtil.compressYvalues(seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size);
 	    SimplePlotUtil.scaleYvalues(pixels, seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size); 
