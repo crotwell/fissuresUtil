@@ -280,8 +280,11 @@ public class ParticleMotionView extends JComponent{
                                        hSeis.getRequestFilter().channel_id,
                                        color);
             }
-            tc.fireTimeEvent();
-        }
+			//forces a time event through the amp config to make everything look
+			//decent
+			tc.shaleTime(.1, 1);
+			tc.shaleTime(-.1, 1);
+		}
         
         private void setUpConfigs(){
             DataSetSeismogram[] seis = { horiz.getDataSetSeismogram(),
@@ -370,6 +373,7 @@ public class ParticleMotionView extends JComponent{
         
         public void updateAmp(AmpEvent event) {
             this.ae = event;
+            repaint();
         }
         
         public void updateTime(TimeEvent timeEvent) {
