@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
 import junit.framework.TestCase;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 /**
@@ -16,24 +17,26 @@ public class BasicSeismogramDisplayTest extends TestCase
     }
     
     public void setUp(){
-        twoSineSeismos[0] = null;/*new DataSetSeismogram(simpleSineWave,
-                                                  null,
-                                                  "Simple");*/
-        twoSineSeismos[1] = null;/*new DataSetSeismogram(customSineWave,
-                                                  null,
-                                                  "Custom");*/
+        twoSineSeismos[0] = new MemoryDataSetSeismogram(simpleSineWave,
+						    "Simple");
+        twoSineSeismos[1] = new MemoryDataSetSeismogram(customSineWave,
+							"Custom");
         twoSineDisplay = new BasicSeismogramDisplay(twoSineSeismos, null);
         
         complexSeismos[0] = twoSineSeismos[0];
         complexSeismos[1] = twoSineSeismos[1];
-        complexSeismos[2] = null;/*new DataSetSeismogram(spike,
-                                                  null,
-                                                  "spike");*/
+        complexSeismos[2] = new MemoryDataSetSeismogram(spike,
+							"spike");
         complexDisplay = new BasicSeismogramDisplay(complexSeismos, null);
         
         spikeSeismos[0] = complexSeismos[2];
         spikeDisplay = new BasicSeismogramDisplay(spikeSeismos, null);
     }
+
+    public void testSetup() {
+
+    }
+
     public void testRemoveSeismogramArray(){
         assertEquals(twoSineDisplay.getSeismogramList().size(), 2);
         twoSineDisplay.remove(spikeSeismos);
