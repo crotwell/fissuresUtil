@@ -589,18 +589,23 @@ public class DateChooser extends JPanel {
 	}
 
         month =	calendar.get(Calendar.MONTH);
-        monthbox.setSelectedIndex(month);
+	if(monthbox != null)
+	    monthbox.setSelectedIndex(month);
 	      
         day = calendar.get(Calendar.DAY_OF_MONTH);
-        daybox.setSelectedIndex(--day);
+	if(daybox != null)
+	    daybox.setSelectedIndex(--day);
 
 	
 	hour = calendar.get(Calendar.HOUR_OF_DAY);
-	hourbox.setSelectedIndex(hour);
+	if(hourbox != null)
+	    hourbox.setSelectedIndex(hour);
 	min = calendar.get(Calendar.MINUTE); 
-	minbox.setSelectedIndex(min);
+	if(minbox != null)
+	    minbox.setSelectedIndex(min);
 	sec = calendar.get(Calendar.SECOND);
-	secbox.setSelectedIndex(sec);
+	if(secbox != null)
+	    secbox.setSelectedIndex(sec);
 	     
 	//int monthtemp = month+1;
         //System.out.println("Date changed: "+monthtemp+"/"+day+"/"+year);
