@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,13 +41,19 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
         TimeListener, AmpListener, LayoutListener {
 
     public RecordSectionDisplay() {
+        this(false);
+    }
+
+    public RecordSectionDisplay(boolean swapAxes) {
         distBorder = new DistanceBorder(this);
-        add(new TimeBorder(this, TimeBorder.BOTTOM), BOTTOM_CENTER);
+        timeBorder = new TimeBorder(this, TimeBorder.BOTTOM);
+        add(timeBorder, BOTTOM_CENTER);
         add(distBorder, CENTER_LEFT);
         setLayout(new BasicLayoutConfig());
         setTimeConfig(new RelativeTimeConfig());
         setAmpConfig(new RMeanAmpConfig());
         seisToPixelMap = new HashMap();
+        this.swapAxes = swapAxes;
     }
 
     public SeismogramDisplayProvider createCenter() {
@@ -78,12 +85,20 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
         revalidate();
     }
 
-    public void setDistBorder(DistanceBorder distanceBorder) {
+    public void setDistBorder(DistanceBorder distanceBorder, int position) {
         if(this.distBorder != null) {
             this.remove(distBorder);
         }
         this.distBorder = distanceBorder;
-        add(distBorder, CENTER_LEFT);
+        add(distBorder, position);
+    }
+
+    public void setTimeBorder(TimeBorder timeBorder, int position) {
+        if(this.timeBorder != null) {
+            this.remove(this.timeBorder);
+        }
+        this.timeBorder = timeBorder;
+        add(timeBorder, position);
     }
 
     public void add(Drawable drawable) {
@@ -256,6 +271,16 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
         synchronized(this) {
             int width = size.width;
             int height = size.height;
+            if(swapAxes) {
+                AffineTransform at = new AffineTransform();
+                at.translate(width / 2, height / 2);
+                at.rotate(-Math.PI / 2);
+                at.translate(-height / 2, -width / 2);
+                g2.transform(at);
+                int temp = width;
+                width = height;
+                height = temp;
+            }
             g2.setColor(Color.WHITE);
             g2.fill(new Rectangle2D.Float(0, 0, width, height));
             Iterator it = curLayoutEvent.iterator();
@@ -285,11 +310,24 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
                 if(neededYPos < 0) {
                     neededYPos = 0;
                 }
-                g2.translate(0, neededYPos);
+                double translatePoint = midPoint + drawHeight / 2;
+                if(swapAxes) {
+                    g2.translate(0, translatePoint);
+                    g2.scale(-1, 1);
+                    g2.rotate(Math.PI);
+                } else {
+                    g2.translate(0, neededYPos);
+                }
                 Dimension drawSize = new Dimension(width, (int)drawHeight);
                 DrawableSeismogram cur = toDrawable(current.getSeis());
                 cur.draw(g2, drawSize, timeEvent, ampEvent);
-                g2.translate(0, -neededYPos);
+                if(swapAxes) {
+                    g2.rotate(Math.PI);
+                    g2.scale(-1, 1);
+                    g2.translate(0, -translatePoint);
+                } else {
+                    g2.translate(0, -neededYPos);
+                }
                 cur.drawName(g2, 5, (int)(neededYPos + drawHeight / 2));
                 int[] yPos = {(int)neededYPos, (int)(neededYPos + drawHeight)};
                 drawablePositions.put(cur, yPos);
@@ -359,6 +397,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
         this.scaler = scaler;
     }
 
+    private boolean swapAxes = false;
+
     private List drawables = new ArrayList();
 
     private TimeConfig tc;
@@ -366,6 +406,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     private AmpConfig ac;
 
     private DistanceBorder distBorder;
+
+    private TimeBorder timeBorder;
 
     private HashMap seisToPixelMap;
 
