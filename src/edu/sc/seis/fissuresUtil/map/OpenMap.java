@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.map;
+import edu.sc.seis.fissuresUtil.map.layers.*;
 
 /**
  * Map.java
