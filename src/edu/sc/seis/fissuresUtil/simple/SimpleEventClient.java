@@ -14,6 +14,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
@@ -53,7 +54,7 @@ public class SimpleEventClient extends AbstractClient {
             EventFinder finder = eventDC.a_finder();
             logger.info("got EventFinder");
 
-            MicroSecondDate now = new MicroSecondDate();
+            MicroSecondDate now = ClockUtil.now();
             MicroSecondDate yesterday = now.subtract(new TimeInterval(7, UnitImpl.DAY));
             TimeRange timeRange = new TimeRange(yesterday.getFissuresTime(),
                                                 now.getFissuresTime());

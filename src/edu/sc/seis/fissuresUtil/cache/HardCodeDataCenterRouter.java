@@ -243,7 +243,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
     protected DataCenterOperations getSceppDC() {
             logger.debug("Resolving Scepp DataCenter");
         while (sceppDC == null) {
-            TimeInterval delay = sceppDCLoadTime.difference(new MicroSecondDate());
+            TimeInterval delay = sceppDCLoadTime.difference(ClockUtil.now());
             delay.convertTo(UnitImpl.SECOND);
             logger.debug("Resolving Scepp DataCenter "+delay);
             if (delay.getValue() > 10) {
@@ -280,7 +280,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
     protected DataCenterOperations getBudDC() {
         while (budDC == null) {
             logger.debug("Resolving Bud DataCenter");
-            TimeInterval delay = budDCLoadTime.difference(new MicroSecondDate());
+            TimeInterval delay = budDCLoadTime.difference(ClockUtil.now());
             delay.convertTo(UnitImpl.SECOND);
             logger.debug("Resolving Bud DataCenter "+delay);
             if (delay.getValue() > 10) {
@@ -317,7 +317,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
     protected DataCenterOperations getPondDC() {
         while (pondDC == null) {
             logger.debug("Resolving Pond DataCenter");
-            TimeInterval delay = pondDCLoadTime.difference(new MicroSecondDate());
+            TimeInterval delay = pondDCLoadTime.difference(ClockUtil.now());
             delay.convertTo(UnitImpl.SECOND);
             logger.debug("Resolving Pond DataCenter "+delay);
             if (delay.getValue() > 10) {
@@ -388,11 +388,11 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
             super("DCResolver"+serverName);
             this.serverName = serverName;
             if (serverName.equals("SCEPP")) {
-                sceppDCLoadTime = new MicroSecondDate();
+                sceppDCLoadTime = ClockUtil.now();
             } else if (serverName.equals("BUD")) {
-                budDCLoadTime = new MicroSecondDate();
+                budDCLoadTime = ClockUtil.now();
             } else if (serverName.equals("POND")) {
-                pondDCLoadTime = new MicroSecondDate();
+                pondDCLoadTime = ClockUtil.now();
             }
         }
 
