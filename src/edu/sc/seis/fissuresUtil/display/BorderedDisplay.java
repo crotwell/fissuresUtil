@@ -23,22 +23,29 @@ public class BorderedDisplay extends JPanel{
     public JComponent get(int position){ return comps[position]; }
 
     public void outputToPNG(String filename) throws IOException{
-        if(getRootPane() == null){//This won't display if it's not in a root pane
-            JFrame frame = new JFrame();//so this plan that is so crazy it might
-            frame.getContentPane().add(this);//actually work will actually work
-            frame.pack();
+        JFrame frame = null;
+        try {
+            if(getRootPane() == null){//This won't display if it's not in a root pane
+                frame = new JFrame();//so this plan that is so crazy it might
+                frame.getContentPane().add(this);//actually work will actually work
+                frame.pack();
+            }
+            Dimension size = getSize();
+            BufferedImage bImg = new BufferedImage(size.width, size.height,
+                                                   BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = bImg.createGraphics();
+            print(g2d);
+            File loc = new File(filename);
+            loc.getCanonicalFile().getParentFile().mkdirs();
+            File temp = File.createTempFile(loc.getName(), null);
+            ImageIO.write(bImg, "png", temp);
+            loc.delete();
+            temp.renameTo(loc);
+        } finally {
+            if (frame != null) {
+                frame.dispose();
+            }
         }
-        Dimension size = getSize();
-        BufferedImage bImg = new BufferedImage(size.width, size.height,
-                                               BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = bImg.createGraphics();
-        print(g2d);
-        File loc = new File(filename);
-        loc.getCanonicalFile().getParentFile().mkdirs();
-        File temp = File.createTempFile(loc.getName(), null);
-        ImageIO.write(bImg, "png", temp);
-        loc.delete();
-        temp.renameTo(loc);
     }
 
     protected void add(JComponent comp, int position){
