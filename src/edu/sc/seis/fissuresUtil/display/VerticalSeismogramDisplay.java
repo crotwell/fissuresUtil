@@ -221,7 +221,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     public void removeSelectionDisplay(){
 	 Iterator e = basicDisplays.iterator();
 	 while(e.hasNext()){
-	     ((BasicSeismogramDisplay)e.next()).clearRegSelections();
+	     ((BasicSeismogramDisplay)e.next()).clearSingleSelections();
 	 }
 	 if(selectionWindow != null){
 	     selectionWindow.dispose();
@@ -239,7 +239,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
     public void remove3CSelectionDisplay(){
 	Iterator e = basicDisplays.iterator();
 	while(e.hasNext()){
-	    ((BasicSeismogramDisplay)e.next()).clear3CSelections();
+	    ((BasicSeismogramDisplay)e.next()).clearThreeCSelections();
 	}
 	if(threeSelectionWindow != null){
 	    threeSelectionWindow.dispose();
@@ -622,7 +622,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 		for(int j = 0; j < basicDisplaySeismos.length; j++){
 		    for(int k = 0; k < componentSorted[i].length; k++){
 			if(componentSorted[i][k].getSeismogram() == basicDisplaySeismos[j].getSeismogram()){
-			    current.add3CSelection(creator);
+			    current.addSelection(creator);
 			    creator.addParent(current);
 			}
 		    }
