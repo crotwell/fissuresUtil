@@ -125,6 +125,22 @@ public abstract class Initializer {
                                                               new Time("19981026200000.0000GMT",
                                                                        0));
 
+    public static final NetworkId SP = new NetworkId("SP",
+                                                     new Time("20001209T01:00:00.000Z",
+                                                              22));
+
+    public static final StationId ANDY = new StationId(SP,
+                                                       "ANDY",
+                                                       new Time("20001209T01:00:00.000Z",
+                                                                22));
+
+    public static final ChannelId ANDYChannel = new ChannelId(SP,
+                                                              "ANDY",
+                                                              "00",
+                                                              "BHE",
+                                                              new Time("20001209T01:00:00.000Z",
+                                                                       22));
+
     public static final NetworkId fakeNet;
 
     public static StationId fakeStation;
@@ -141,11 +157,5 @@ public abstract class Initializer {
                                  "00",
                                  "BHE",
                                  new Time("19901012000000.0000GMT", 0));
-        //SCEPP
-        //fakeNet = new NetworkId("SP", new Time("20001209T01:00:00.000Z", 0));
-        //fakeStation = new StationId(fakeNet, "ACFLR", new
-        // Time("20001209T01:00:00.000Z", 0));
-        //fakeChan = new ChannelId(fakeNet, "ACFLR", " ", "BHE", new
-        // Time("20001209T01:00:00.000Z", 0));
     }
 }
