@@ -39,7 +39,6 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
     public void finished(SeisDataChangeEvent sdce) {
         finished = true;
         addSeismograms(sdce.getSeismograms());
-        //loadStatus.decrementDataRetrievers();
     }
 
     public SeismogramIterator getIterator(){
@@ -197,8 +196,6 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
         if(callRetrieve){
             time = null;
             seismogram.retrieveData(this);
-            //JobTracker.getTracker().add(loadStatus);
-            //loadStatus.incrementDataRetrievers();
         }
         return seis;
     }
