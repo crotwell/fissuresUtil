@@ -6,13 +6,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JDBCSequence{
+    
     public JDBCSequence(Connection conn, String name)throws SQLException{
+        this(conn, name, ConnMgr.getSQL(name + ".create"), ConnMgr.getSQL(name + ".nextVal"));
+    }
+
+    public JDBCSequence(Connection conn, String name, String creationSQL, String nextValSQL)throws SQLException{
         try{
             if(!DBUtil.tableExists(name, conn)){
-                conn.createStatement().executeUpdate(ConnMgr.getSQL(name + ".create"));
+                conn.createStatement().executeUpdate(creationSQL);
             }
-        }catch(SQLException e){}//Database must already exist
-        nextVal = conn.prepareStatement(ConnMgr.getSQL(name + ".nextVal"));
+        }catch(SQLException e){
+            logger.info("Database must already exist for "+name, e);
+        }
+        nextVal = conn.prepareStatement(nextValSQL);
     }
 
     public int next() throws SQLException {
@@ -22,4 +29,6 @@ public class JDBCSequence{
     }
 
     private PreparedStatement nextVal;
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(JDBCSequence.class);
 }
