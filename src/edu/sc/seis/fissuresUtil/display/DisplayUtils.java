@@ -344,7 +344,7 @@ public class DisplayUtils {
 
     public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
 
-    public static final UnitRangeImpl ONE_RANGE = new UnitRangeImpl(1, 1, UnitImpl.COUNT);
+    public static final UnitRangeImpl ONE_RANGE = new UnitRangeImpl(-1, 1, UnitImpl.COUNT);
 
     public static final MicroSecondTimeRange ZERO_TIME = new MicroSecondTimeRange(new MicroSecondDate(0), new MicroSecondDate(0));
 
