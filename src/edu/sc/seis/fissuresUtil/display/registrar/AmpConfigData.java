@@ -113,7 +113,7 @@ public class AmpConfigData implements SeismogramContainerListener{
      * @return true if the new time is different than the old one
      */
     public boolean setTime(MicroSecondTimeRange newRange){
-        if(newRange.equals(timeRange)){
+        if(newRange.equals(timeRange) || newRange == DisplayUtils.ONE_TIME){
             return false;
         }
         timeRange = newRange;
