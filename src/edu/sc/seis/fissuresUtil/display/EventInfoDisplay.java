@@ -22,7 +22,7 @@ import java.awt.datatransfer.*;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 2187 2002-07-12 20:21:38Z crotwell $
+ * @version $Id: EventInfoDisplay.java 2257 2002-07-17 16:52:14Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay 
@@ -94,7 +94,8 @@ public class EventInfoDisplay extends TextInfoDisplay
 	appendHeader(doc, "Event to Station");
 	double dist = -1;
 	double baz = -1;
-    appendLabelValue(doc, "       ", "Lat Lon  Dist (deg)  Dist (km)  Azimuth to Event (deg)");
+    appendLabelValue(doc, "    ", "Lat   Lon   Dist      Dist    Azimuth to Event");
+    appendLabelValue(doc, "    ", "deg   deg   deg        km      deg");
 	for (int i=0; i<station.length; i++) {
 	    try {
 	    dist = sph.distance(event.get_preferred_origin().my_location.latitude,
@@ -106,9 +107,11 @@ public class EventInfoDisplay extends TextInfoDisplay
                           event.get_preferred_origin().my_location.latitude,
                           event.get_preferred_origin().my_location.longitude);
 	    appendLabelValue(doc, station[i].get_code(), 
-                         twoDecimal.format(station[i].my_location.latitude)+
-                   " "+twoDecimal.format(station[i].my_location.longitude)+
-                   twoDecimal.format(dist)+ twoDecimal.format(baz));
+                   twoDecimal.format(station[i].my_location.latitude)+" "+
+                   twoDecimal.format(station[i].my_location.longitude)+ " "+
+                   twoDecimal.format(dist)+ "   "+
+                   twoDecimal.format(dist*111.19)+ "   "+ 
+                   twoDecimal.format(baz));
 	    } catch (NoPreferredOrigin e) {
 	    appendLabelValue(doc, station[i].get_code(),
                          twoDecimal.format(station[i].my_location.latitude)+
