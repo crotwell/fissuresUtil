@@ -45,7 +45,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                             int width, 
                             int height) {
 
-        Graphics2D copy = (Graphics2D)g;
+        Graphics2D copy = (Graphics2D)g.create();
         if (copy != null) {
             try {
 		Font f = new Font("SansSerif", Font.PLAIN, 9);
