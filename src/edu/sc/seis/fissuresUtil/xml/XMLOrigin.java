@@ -40,16 +40,16 @@ public class XMLOrigin {
 
         writer.writeStartElement("origin_time");
         XMLTime.insert(writer, origin.origin_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("my_location");
         XMLLocation.insert(writer, origin.my_location);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         for (int i = 0; i < origin.magnitudes.length; i++) {
             writer.writeStartElement("magnitude");
             XMLMagnitude.insert(writer, origin.magnitudes[i]);
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
     }
 

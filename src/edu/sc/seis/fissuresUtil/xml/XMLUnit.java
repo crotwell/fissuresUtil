@@ -28,12 +28,12 @@ public class XMLUnit {
 
         writer.writeStartElement("the_unit_base");
         XMLUnitBase.insert(writer, unit.the_unit_base);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         for (int i = 0; i < unit.elements.length; i++) {
             writer.writeStartElement("elements");
             XMLUnit.insert(writer, unit.elements[i]);
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
 
         XMLUtil.writeTextElement(writer, "power", ""+unit.power);

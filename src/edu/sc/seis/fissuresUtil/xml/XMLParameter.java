@@ -46,7 +46,7 @@ public class XMLParameter {
         writer.writeStartElement("type");
         XMLUtil.writeTextElement(writer, "definition", typeDef);
         XMLUtil.writeTextElement(writer, "name", typeName);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "value", value);
     }
@@ -68,7 +68,7 @@ public class XMLParameter {
             XMLUtil.writeTextElement(writer, "definition", "http://www.w3.org/2002/XMLSchema/");
             XMLUtil.writeTextElement(writer, "name", "xsd:string");
         }
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
 
         if (value instanceof CacheEvent || value instanceof Channel){
@@ -81,8 +81,8 @@ public class XMLParameter {
                 writer.writeStartElement("channel");
                 XMLChannel.insert(writer, (Channel)value);
             }
-            writer.writeEndElement();
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
         else {
             String valString;

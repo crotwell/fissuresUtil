@@ -31,17 +31,17 @@ public class XMLStation {
 
         writer.writeStartElement("id");
         XMLStationId.insert(writer, station.get_id());
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "name", station.name);
 
         writer.writeStartElement("my_location");
         XMLLocation.insert(writer, station.my_location);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("effective_time");
         XMLTimeRange.insert(writer, station.effective_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "operator", station.operator);
         XMLUtil.writeTextElement(writer, "description", station.description);
@@ -49,7 +49,7 @@ public class XMLStation {
 
         writer.writeStartElement("my_network");
         XMLNetworkAttr.insert(writer, station.my_network);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**

@@ -27,13 +27,13 @@ public class XMLStationId {
 
         writer.writeStartElement("network_id");
         XMLNetworkId.insert(writer, stationId.network_id);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "station_code", stationId.station_code);
 
         writer.writeStartElement("begin_time");
         XMLTime.insert(writer, stationId.begin_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**

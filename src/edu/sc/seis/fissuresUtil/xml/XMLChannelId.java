@@ -25,7 +25,7 @@ public class XMLChannelId {
     public static void insert(XMLStreamWriter writer, ChannelId channelId) throws XMLStreamException{
         writer.writeStartElement("network_id");
         XMLNetworkId.insert(writer, channelId.network_id);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "station_code", channelId.station_code);
         XMLUtil.writeTextElement(writer, "site_code", channelId.site_code);
@@ -33,7 +33,7 @@ public class XMLChannelId {
 
         writer.writeStartElement("begin_time");
         XMLTime.insert(writer, channelId.begin_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**

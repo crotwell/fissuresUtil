@@ -31,11 +31,11 @@ public class XMLLocation {
 
         writer.writeStartElement("elevation");
         XMLQuantity.insert(writer, loc.elevation);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("depth");
         XMLQuantity.insert(writer, loc.depth);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         if (loc.type.equals(LocationType.GEOGRAPHIC)){
             XMLUtil.writeTextElement(writer, "type", "GEOGRAPHIC");

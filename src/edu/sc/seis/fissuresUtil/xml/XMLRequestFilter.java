@@ -24,15 +24,15 @@ public class XMLRequestFilter {
 
         writer.writeStartElement("channelId");
         XMLChannelId.insert(writer, filter.channel_id);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("start_time");
         XMLTime.insert(writer, filter.start_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("end_time");
         XMLTime.insert(writer, filter.end_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**

@@ -461,7 +461,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         XMLUtil.writeTextElement(writer, "name", getName());
         writer.writeStartElement("requestFilter");
         XMLRequestFilter.insert(writer, getRequestFilter());
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         logger.debug("Saving "+url.length+" urls for "+getName());
         String baseStr = base.toString();
@@ -476,7 +476,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             writer.writeAttribute("xlink:type", "simple");
             writer.writeAttribute("xlink:href", outStr);
             writer.writeAttribute("xlink:role", fileType[i].getURLValue().toString());
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
 
         Iterator it = getAuxillaryDataKeys().iterator();
@@ -486,7 +486,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                 if (getAuxillaryData(next) instanceof String){
                     writer.writeStartElement(PROPERTY);
                     XMLProperty.insert(writer, (String)next, (String)getAuxillaryData(next));
-                    writer.writeEndElement();
+                    XMLUtil.writeEndElementWithNewLine(writer);
                 }
                 else if (getAuxillaryData(next) instanceof Element){
                     logger.debug(NAMED_VALUE + " insert placeholder");
@@ -494,8 +494,8 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     //XMLUtil.writeTextElement(writer, "name", (String)next);
                     //writer.writeStartElement("value");
                     //XMLUtil.writeNode(writer, (Element)getAuxillaryData(next));
-                    //writer.writeEndElement();
-                    //writer.writeEndElement();
+                    //XMLUtil.writeEndElementWithNewLine(writer);
+                    //XMLUtil.writeEndElementWithNewLine(writer);
                 }
             }
             else {

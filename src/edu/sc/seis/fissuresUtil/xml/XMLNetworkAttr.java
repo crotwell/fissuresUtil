@@ -33,11 +33,11 @@ public class XMLNetworkAttr {
 
         writer.writeStartElement("id");
         XMLNetworkId.insert(writer, networkAttr.get_id());
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("effective_time");
         XMLTimeRange.insert(writer, networkAttr.effective_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**
