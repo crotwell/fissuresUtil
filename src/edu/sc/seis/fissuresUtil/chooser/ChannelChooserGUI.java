@@ -198,6 +198,7 @@ public class ChannelChooserGUI extends JPanel{
    public void popChannels(String networkchosen, String station){
        mychannelchooser.setChannels(networkchosen, station);   
        populateList(mychannelchooser.getChannels(), chalist);
+       chalist.setSelectedIndex(chalist.getModel().getSize() - 1);
     }
 
 
