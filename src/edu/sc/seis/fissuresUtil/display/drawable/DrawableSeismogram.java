@@ -1,12 +1,12 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import javax.swing.JComponent;
 
 /**
  * DrawableSeismogram.java
@@ -16,29 +16,35 @@ import javax.swing.JComponent;
 
 
 public class DrawableSeismogram implements NamedPlotter{
-    public DrawableSeismogram(JComponent parent, DataSetSeismogram seis){
+    public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis){
         this(parent, seis, Color.blue);
     }
 
-    public DrawableSeismogram(JComponent parent, DataSetSeismogram seis, Color color){
+    public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis, Color color){
         this(parent, seis, color, seis.toString());
     }
 
-    public DrawableSeismogram(JComponent parent,
+    public DrawableSeismogram(SeismogramDisplay parent,
                               DataSetSeismogram seis,
                               Color color,
                               String name){
-        this(parent, new SeismogramShape(parent, seis), color, name);
+        this(parent, new SeismogramShape(parent, seis), color, name,
+             new SeismogramRemove(seis, parent));
     }
 
-    public DrawableSeismogram(JComponent parent, SeismogramShape shape, Color color, String name){
+    protected DrawableSeismogram(SeismogramDisplay parent,
+                                 SeismogramShape shape,
+                                 Color color,
+                                 String name,
+                                 SeismogramRemove remover){
         this.parent = parent;
         this.color = color;
         this.name = name;
         this.shape = shape;
+        this.remover = remover;
     }
 
-    public JComponent getParent() {
+    public SeismogramDisplay getParent() {
         return parent;
     }
 
@@ -69,8 +75,9 @@ public class DrawableSeismogram implements NamedPlotter{
 
     public boolean drawName(Graphics2D canvas, int xPosition, int yPosition){
         if(visible){
+            remover.draw(canvas, xPosition, yPosition - 7);
             canvas.setPaint(color);
-            canvas.drawString(getName() + " " + shape.getDataStatus(), xPosition, yPosition);
+            canvas.drawString(getName() + " " + shape.getDataStatus(), xPosition + 10, yPosition);
             return true;
         }
         return false;
@@ -82,7 +89,7 @@ public class DrawableSeismogram implements NamedPlotter{
 
     public DataSetSeismogram getSeismogram(){ return shape.getSeismogram(); }
 
-    private JComponent parent;
+    private SeismogramDisplay parent;
 
     private Color color;
 
@@ -91,5 +98,7 @@ public class DrawableSeismogram implements NamedPlotter{
     protected SeismogramShape shape;
 
     private boolean visible = true;
+
+    private SeismogramRemove remover;
 }
 
