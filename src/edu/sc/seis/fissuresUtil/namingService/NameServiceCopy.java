@@ -32,15 +32,15 @@ public class NameServiceCopy {
             String dns = from[i].getServerDNS();
             String name = from[i].getServerName();
             logger.info("Checking on" + name);
-            if(skipServerPing || !from[i].getRealCorbaObject()._non_existent()) {
+            if(skipServerPing || !from[i].getCorbaObject()._non_existent()) {
                 boolean rebind = true;
-                org.omg.CORBA.Object fromObj = from[i].getRealCorbaObject();
+                org.omg.CORBA.Object fromObj = from[i].getCorbaObject();
                 for(int j = 0; j < to.length; j++) {
                     if(to[j].getServerName().equals(name)) {
                         logger.info("Copy to name service contains " + name
                                 + " as well");
                         try {
-                            org.omg.CORBA.Object toObj = to[j].getRealCorbaObject();
+                            org.omg.CORBA.Object toObj = to[j].getCorbaObject();
                             if(!toObj._non_existent() && fromObj.equals(toObj)) {
                                 logger.info("Copy to name service copy of "
                                         + name

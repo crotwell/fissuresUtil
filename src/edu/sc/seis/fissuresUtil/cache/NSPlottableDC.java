@@ -43,7 +43,7 @@ public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
         return getCorbaObject();
     }
 
-    public synchronized PlottableDC getCorbaObject() {
+    public synchronized org.omg.CORBA.Object getCorbaObject() {
         return getPlottableDC();
     }
 

@@ -44,11 +44,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         dc = null;
     }
 
-    public org.omg.CORBA.Object getRealCorbaObject() {
-        return getCorbaObject();
-    }
-
-    public DataCenter getCorbaObject() {
+    public org.omg.CORBA.Object getCorbaObject() {
         return getDataCenter();
     }
 

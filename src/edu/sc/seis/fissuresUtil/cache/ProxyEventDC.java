@@ -15,7 +15,7 @@ public abstract class ProxyEventDC implements EventDCOperations {
 		this.eventDC = eventDC;
 	}
 	
-	public EventDC getCorbaObject(){
+	public org.omg.CORBA.Object getCorbaObject(){
 		if (eventDC instanceof ProxyEventDC){
 			return ((ProxyEventDC)eventDC).getCorbaObject();
 		} else {
@@ -29,16 +29,16 @@ public abstract class ProxyEventDC implements EventDCOperations {
 		}
 	}
 	
-    public EventDCOperations getWrappedDC() { return eventDC; }
+    public EventDCOperations getEventDC() { return eventDC; }
 	
     public EventDCOperations getWrappedDC(Class wrappedClass) {
     		if(getClass().equals(wrappedClass)){
     			return this;
     		}
-        if(getWrappedDC().getClass().equals(wrappedClass)){
-            return getWrappedDC();
-        }else if(getWrappedDC().getClass().equals(ProxyEventDC.class)){
-            return ((ProxyEventDC)getWrappedDC()).getWrappedDC(wrappedClass);
+        if(getEventDC().getClass().equals(wrappedClass)){
+            return getEventDC();
+        }else if(getEventDC().getClass().equals(ProxyEventDC.class)){
+            return ((ProxyEventDC)getEventDC()).getWrappedDC(wrappedClass);
         }
         throw new IllegalArgumentException("This doesn't contain a DC of class " + wrappedClass);
     }
