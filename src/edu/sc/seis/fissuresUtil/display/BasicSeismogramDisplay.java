@@ -16,9 +16,14 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.OverlayLayout;
 import javax.swing.border.Border;
 import org.apache.log4j.Category;
+
+//import java.awt.print.*;
+
+
 
 /**
  * BasicSeismogramDisplay.java
@@ -359,6 +364,98 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         tc.removeListener(timeScaleMap);
     }
 
+    public int getAmplitudeLabelWidth() {
+      return scale.getLabelWidth();
+    }
+    public int getAmplitudeLabelHeight() {
+          return scale.getLabelHeight();
+    }
+
+    public Dimension drawTimeBorders(Graphics2D g2, int twidth, int theight){
+
+      int timeSizeSave = timeScaleMap.getTotalPixels();
+      int ampSizeSave = ampScaleMap.getTotalPixels();
+
+      Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
+
+      JPanel comp = new JPanel();
+      comp.setSize(dsize.width,dsize.height);
+      comp.setSize(twidth,theight);
+
+      int topBorder = scale.paintTopTimeBorder(comp,g2,0,0,twidth,theight);
+      int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
+
+      // reset the scales
+      timeScaleMap.setTotalPixels(timeSizeSave);
+
+      dsize = new Dimension(twidth,topBorder);
+      return dsize;
+
+    }
+
+    public Dimension drawTopTimeBorders(Graphics2D g2, int twidth, int theight){
+
+      int timeSizeSave = timeScaleMap.getTotalPixels();
+      int ampSizeSave = ampScaleMap.getTotalPixels();
+
+      Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
+
+      JPanel comp = new JPanel();
+      comp.setSize(dsize.width,dsize.height);
+      comp.setSize(twidth,theight);
+
+      int topBorder = scale.paintTopTimeBorder(comp,g2,0,0,twidth,theight);
+      int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
+
+      // reset the scales
+      timeScaleMap.setTotalPixels(timeSizeSave);
+
+      dsize = new Dimension(twidth,topBorder);
+      return dsize;
+
+    }
+
+    public Dimension drawBottomTimeBorders(Graphics2D g2, int twidth, int theight){
+
+      int timeSizeSave = timeScaleMap.getTotalPixels();
+      int ampSizeSave = ampScaleMap.getTotalPixels();
+
+      Dimension dsize = new Dimension(timeSizeSave,ampSizeSave);
+
+      JPanel comp = new JPanel();
+      comp.setSize(dsize.width,dsize.height);
+      comp.setSize(twidth,theight);
+
+      int bottomBorder = scale.paintBottomTimeBorder(comp,g2,0,0,twidth,theight);
+
+      // reset the scales
+      timeScaleMap.setTotalPixels(timeSizeSave);
+
+      dsize = new Dimension(bottomBorder, theight);
+      return dsize;
+
+    }
+
+    public Dimension drawAmpBorders(Graphics2D g2, int width, int height){
+
+      int timeSizeSave = timeScaleMap.getTotalPixels();
+      int ampSizeSave = ampScaleMap.getTotalPixels();
+
+      Dimension size = new Dimension(timeSizeSave,ampSizeSave);
+
+
+      JPanel comp = new JPanel();
+
+      comp.setSize(size.width,size.height);
+
+      int leftBorder = scale.paintLeftAmpBorder(comp,g2,0,0,width,height);
+
+      size = new Dimension(leftBorder,height);
+
+      return size;
+
+    }
+
     public void drawSeismograms(Graphics2D g2, Dimension size){
         g2.setColor(Color.WHITE);
         g2.fill(new Rectangle2D.Float(0,0, size.width, size.height));
@@ -387,6 +484,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
             currentTimeFlag.draw(g2, size, currentTimeEvent, currentAmpEvent);
         }
     }
+
+
 
     private class PlotPainter extends JComponent{
         public void paintComponent(Graphics g){
