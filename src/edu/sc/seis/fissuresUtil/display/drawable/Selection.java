@@ -31,12 +31,16 @@ public class Selection implements TimeListener, Drawable{
     public Selection (MicroSecondTimeRange range, SeismogramDisplay parent, Color color){
         
         // tc needs to be the same class as the parents time config incase it is a relative time config
-        Class dispTimeConfigClass = parent.getTimeConfig().getClass();
-        if(parent.getTimeConfig() instanceof RTTimeRangeConfig){
-            dispTimeConfigClass = ((RTTimeRangeConfig)parent.getTimeConfig()).getInternalConfig().getClass();
+        TimeConfig parentConfig = parent.getTimeConfig();
+        if(parentConfig instanceof RTTimeRangeConfig){
+            parentConfig = ((RTTimeRangeConfig)parentConfig).getInternalConfig();
         }
+        Class dispTimeConfigClass = parentConfig.getClass();
         try {
             tc = (TimeConfig)dispTimeConfigClass.newInstance();
+            if(parentConfig instanceof PhaseAlignedTimeConfig){
+                ((PhaseAlignedTimeConfig)tc).setTauP(((PhaseAlignedTimeConfig)parentConfig).getTauP());
+            }
         } catch (IllegalAccessException e) {
             GlobalExceptionHandler.handleStatic("Problem trying to create new TimeCongig for pick zone", e);
         } catch (InstantiationException e) {
