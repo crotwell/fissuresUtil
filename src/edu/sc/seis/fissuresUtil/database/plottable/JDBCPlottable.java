@@ -162,6 +162,8 @@ public class JDBCPlottable extends JDBCTable{
      **************************************************************************/
     
     public int put( edu.iris.Fissures.Plottable plottable[], 
+                    MicroSecondDate[] begin,
+                    MicroSecondDate[] end, 
                     edu.iris.Fissures.IfNetwork.ChannelId channel_id,
                     edu.iris.Fissures.Dimension pixel_size, int year, int jday, String status) throws SQLException, IOException{
         int dbid = 0;
@@ -218,7 +220,7 @@ public class JDBCPlottable extends JDBCTable{
             os.flush();
             os.close();
             byte[] data = baos.toByteArray();
-            insertSubEntry(putSubEntryStmt, localSeismograms[counter],  1, dbid, data);
+            insertSubEntry(putSubEntryStmt, begin[counter], end[counter],  1, dbid, data);
             putSubEntryStmt.executeUpdate();
             conn.commit();
             
@@ -314,11 +316,11 @@ public class JDBCPlottable extends JDBCTable{
      * @return int - the resultant index.
      **************************************************************************/
     
-    public int insertSubEntry(PreparedStatement stmt, LocalSeismogram localSeismogram, int index,int dbid,byte[] data) throws SQLException {
+    public int insertSubEntry(PreparedStatement stmt, MicroSecondDate begin, MicroSecondDate end, int index,int dbid,byte[] data) throws SQLException {
         stmt.setInt(index++, dbid);
         stmt.setBytes(index++, data);
-        stmt.setTimestamp(index++, ((edu.iris.Fissures.seismogramDC.LocalSeismogramImpl)localSeismogram).getBeginTime().getTimestamp());
-        stmt.setTimestamp(index++, ((edu.iris.Fissures.seismogramDC.LocalSeismogramImpl)localSeismogram).getEndTime().getTimestamp());
+        stmt.setTimestamp(index++, begin.getTimestamp());
+        stmt.setTimestamp(index++, end.getTimestamp());
         return index;
     }
     
