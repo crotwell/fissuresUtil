@@ -28,20 +28,19 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
     
     public void addDisplay(LocalSeismogram seis){
-
-	if(basicDisplays.size() > 0)
-	    this.addDisplay((LocalSeismogramImpl)seis,((SeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
-			    ((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
-	else	    
-	    this.addDisplay((LocalSeismogramImpl)seis, new BoundedTimeConfig(), new RMeanAmpConfig());
+	this.addDisplay((LocalSeismogramImpl)seis);
     }
     
     public void addDisplay(LocalSeismogramImpl seis){
 	if(basicDisplays.size() > 0)
 	    this.addDisplay(seis,((SeismogramDisplay)basicDisplays.getFirst()).getTimeConfig(), 
 			((SeismogramDisplay)basicDisplays.getFirst()).getAmpConfig());
-	else	    
-	    this.addDisplay(seis, new BoundedTimeConfig(), new RMeanAmpConfig());
+	else{	    
+	    AmpRangeConfig ar = new RMeanAmpConfig();
+	    TimeRangeConfig tr = new BoundedTimeConfig();
+	    ar.visibleAmpCalc(tr);
+	    this.addDisplay(seis, tr, ar);
+	}	    
     }
     
     public void addDisplay(LocalSeismogramImpl seis, TimeRangeConfig tr, AmpRangeConfig ar){
@@ -90,14 +89,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.removeAll();
 	remove(seismograms);
 	basicDisplays = new LinkedList();
+	repaint();
     }
 
     public void removeSeismogram(MouseEvent me){
-	if(basicDisplays.size() == 1){
-	    this.removeAll();
-	    return;
-	}
 	BasicSeismogramDisplay clicked = ((BasicSeismogramDisplay)me.getComponent());
+	clicked.removeAllSeismograms();
 	seismograms.remove(clicked);
 	basicDisplays.remove(clicked);
 	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();

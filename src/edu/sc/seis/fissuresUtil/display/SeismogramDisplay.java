@@ -29,6 +29,12 @@ public interface SeismogramDisplay extends TimeSyncListener, AmpSyncListener {
     public void removeSeismogram(LocalSeismogram oldSeis);
     
     /**
+     * Removes all seismograms from this display
+     *
+     *
+     */
+    
+    /**
      * Returns the amp range configurator the display is using
      *
      * 
