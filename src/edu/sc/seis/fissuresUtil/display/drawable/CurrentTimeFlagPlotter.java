@@ -19,12 +19,12 @@ import java.awt.Graphics2D;
 
 public class CurrentTimeFlagPlotter extends FlagPlotter {
     public CurrentTimeFlagPlotter (){
-    super(new MicroSecondDate().add(RTTimeRangeConfig.serverTimeOffset), "Current Time");
+        super(new MicroSecondDate().add(RTTimeRangeConfig.serverTimeOffset), "Current Time");
     }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
-    super.flagTime = new MicroSecondDate().add(RTTimeRangeConfig.serverTimeOffset);
-    super.draw(canvas, size, timeEvent, ampEvent);
+        setFlagTime(new MicroSecondDate().add(RTTimeRangeConfig.serverTimeOffset));
+        super.draw(canvas, size, timeEvent, ampEvent);
     }
 
 }// CurrentTimeFlagPlotter
