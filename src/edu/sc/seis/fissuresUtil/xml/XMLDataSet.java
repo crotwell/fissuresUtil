@@ -19,12 +19,13 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.*;
 import org.apache.log4j.*;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 
 /**
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3736 2003-04-23 18:30:55Z crotwell $
+ * @version $Id: XMLDataSet.java 3820 2003-05-05 17:07:22Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -973,7 +974,7 @@ public class XMLDataSet implements DataSet, Serializable{
      *
      * @return an <code>edu.sc.seis.fissuresUtil.cache.CacheEvent</code> value
      */
-    public edu.sc.seis.fissuresUtil.cache.CacheEvent getEvent() {
+    public EventAccessOperations getEvent() {
         return (edu.sc.seis.fissuresUtil.cache.CacheEvent)getParameter(StdDataSetParamNames.EVENT);
     }
 
@@ -984,7 +985,7 @@ public class XMLDataSet implements DataSet, Serializable{
      * @param channelId a <code>ChannelId</code> value
      * @return an <code>edu.iris.Fissures.IfNetwork.Channel</code> value
      */
-    public edu.iris.Fissures.IfNetwork.Channel getChannel(ChannelId channelId) {
+    public Channel getChannel(ChannelId channelId) {
         Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
         return (edu.iris.Fissures.IfNetwork.Channel)obj;
     }
