@@ -30,6 +30,7 @@ import org.apache.log4j.*;
 public class VerticalSeismogramDisplay extends JScrollPane{
     
     public VerticalSeismogramDisplay(MouseForwarder mouseForwarder, MouseMotionForwarder motionForwarder){
+	output.setTimeZone(TimeZone.getTimeZone("GMT"));
 	this.mouseForwarder = mouseForwarder;
 	this.motionForwarder = motionForwarder;
 	seismograms = new JLayeredPane();
@@ -49,7 +50,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    return null;
 	}
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay(dss, tr, name, this);
-	int i = sorter.sort(((LocalSeismogramImpl)dss.getSeismogram()), name);
+	int i = sorter.sort(dss, name);
 	seismograms.add(disp, i);
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
@@ -70,6 +71,14 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 
     public LinkedList getDisplays(){ return basicDisplays; }
     
+    public LinkedList  getAllBasicDisplays(LinkedList target){ 
+	target.addAll(basicDisplays);
+	if(selectionDisplay != null){
+	    selectionDisplay.getAllBasicDisplays(target);
+	}
+	return target;
+    }
+
     public void redraw(){
 	Iterator e = basicDisplays.iterator();
 	while(e.hasNext())
@@ -187,10 +196,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void createParticleDisplay(BasicSeismogramDisplay creator){
 	if(particleDisplay == null){
 	    logger.debug("creating particle display");
-	    particleWindow = new JDialog();
+	    particleWindow = new JFrame();
 	    LocalSeismogramImpl seis = (((LocalSeismogramImpl)((DataSetSeismogram)creator.getSeismograms().getFirst()).getSeismogram()));
-	    particleDisplay = new ParticleMotionDisplay(seis, seis, creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
-							creator.getAmpRegistrar(), Color.blue);
+	    particleDisplay = new ParticleMotionDisplay(seis, creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
+							creator.getAmpRegistrar(), 
+							((DataSetSeismogram)creator.getSeismograms().getFirst()).getDataSet());
 	    particleDisplay.addAzimuthLine(15);
 	particleDisplay.addSector(10, 20);
 	JPanel displayPanel = new JPanel();
@@ -232,7 +242,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     public void createSelectionDisplay(BasicSeismogramDisplay creator){
 	if(selectionDisplay == null){
 	    logger.debug("creating selection display");
-	    selectionWindow = new JDialog();
+	    selectionWindow = new JFrame();
 	    //selectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    selectionWindow.setSize(400, 220);
 	    JToolBar infoBar = new JToolBar();
@@ -275,7 +285,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     protected static int particleDisplays = 0, selectionDisplays = 0;
     
-    protected JDialog selectionWindow, particleWindow;
+    protected JFrame selectionWindow, particleWindow;
 
     protected SeismogramSorter sorter;
 
