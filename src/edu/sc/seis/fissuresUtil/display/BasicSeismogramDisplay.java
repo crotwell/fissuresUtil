@@ -190,8 +190,13 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	}
 
 	public void paint(Graphics g){
-	    if(overSizedImage == null || overSizedImage.get() == null){
-		logger.debug("the image is null and is being recreated");
+	    if(overSizedImage == null){
+		logger.debug("the image is null and is being created");
+		this.createImage();
+		return;
+	    }
+	    if(overSizedImage.get() == null){
+		logger.debug("image was garbage collected, and is being recreated");
 		this.createImage();
 		return;
 	    }

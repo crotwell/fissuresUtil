@@ -81,6 +81,7 @@ public class ImageMaker implements Runnable  {
 	    }
 	    numLeft = requests.size();
 	}
+	logger.debug("image creation thread is finished");
     }
 
     public synchronized void remove(BasicSeismogramDisplay.ImagePainter imagePainter){
