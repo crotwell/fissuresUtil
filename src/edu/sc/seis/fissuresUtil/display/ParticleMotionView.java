@@ -34,6 +34,8 @@ public class ParticleMotionView extends JComponent{
 			       String key,
 			       boolean horizPlane){
 	
+	this.setBackground(Color.white);
+	this.setForeground(Color.white);
 	this.particleMotionDisplay = particleMotionDisplay;
 	
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
@@ -262,26 +264,29 @@ public class ParticleMotionView extends JComponent{
 
     public void drawLabels(ParticleMotion particleMotion, Graphics2D graphics2D) {
 
-	  Color color = particleMotion.getColor();
-	  if(color == null) color = COLORS[0];
+	  Color color = new Color(0, 0, 0, 128);
 	  graphics2D.setColor(color);
 	  java.awt.Dimension dimension = getSize();
-	  float fontSize = dimension.width / 10;
+	  float fontSize = dimension.width / 20;
 	  if(fontSize < 4) fontSize = 4;
 	  else if(fontSize > 32) fontSize = 32;
 	  Font font = new Font("serif", Font.BOLD, (int)fontSize);
 	  graphics2D.setFont(font);
-	  int x = (dimension.width - font.getSize() * 3) / 2;
+	  String labelStr = new String();
+	  labelStr = particleMotion.hseis.getSeismogram().getName();
+	  int x = (dimension.width - (int)(labelStr.length()*fontSize)) / 2  - getInsets().left - getInsets().right;
 	  int y = dimension.height  - 4;
-	  graphics2D.drawString(particleMotion.key.substring(0, 3), x, y);
+	  graphics2D.drawString(labelStr, x, y);
+	  
+	  labelStr = particleMotion.vseis.getSeismogram().getName();
 	  x = font.getSize();
-	  y = (dimension.height) / 2;
+	  y = (dimension.height - (int)(labelStr.length()*fontSize)) / 2  -  getInsets().top - getInsets().bottom;
 	   //get the original AffineTransform
 	  AffineTransform oldTransform = graphics2D.getTransform();
 	  AffineTransform ct =  AffineTransform.getTranslateInstance(x, y);
 	  graphics2D.transform(ct);
-	  graphics2D.transform(AffineTransform.getRotateInstance((Math.PI/2)*3));
-	  graphics2D.drawString(particleMotion.key.substring(4, particleMotion.key.length()), 0, 0);
+	  graphics2D.transform(AffineTransform.getRotateInstance(Math.PI/2));
+	  graphics2D.drawString(labelStr, 0, 0);
 
 	  //restore the original AffineTransform
 	  graphics2D.setTransform(oldTransform);
