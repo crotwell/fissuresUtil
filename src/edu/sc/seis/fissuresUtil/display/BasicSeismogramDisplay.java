@@ -503,6 +503,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    Graphics2D g2 = (Graphics2D)g;
 	    if(displayTime == timeConfig.getTimeRange().getInterval().getValue()){
 		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * overSize.getWidth();
+		if(imageCache.contains(overSizedImage.get())){
+		    imageCache.addFirst(overSizedImage.get());
+		    imageCache.remove(overSizedImage.get());
+		}
 		if(ImageMaker.bufferedImage)
 		    g2.drawImage(((BufferedImage)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
 		else
@@ -517,6 +521,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		double offset = (beginTime - overBeginTime)/ (double)(overTimeInterval) * (overSize.getWidth() * scale);
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		tx.scale(scale, 1);
+		if(imageCache.contains(overSizedImage.get())){
+		    imageCache.addFirst(overSizedImage.get());
+		    imageCache.remove(overSizedImage.get());
+		}
 		if(ImageMaker.bufferedImage)
 		    g2.drawImage(((BufferedImage)overSizedImage.get()), tx, null);
 		else
@@ -546,6 +554,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		g2.setPaint(new Color(0, 0, 0, 128));
 		g2.drawString(name, 5, 10);
 	    }
+	    logger.debug(imageCache.size() + " images in the cache");
 	    //System.out.println(ImageMaker.getImageSize(((BufferedImage)overSizedImage.get())));
 	}
 	
@@ -558,7 +567,13 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    displayTime = displayInterval.getValue();
 	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
 	    overTimeInterval = overTimeRange.getEndTime().getMicroSecondTime() - overBeginTime;
-	    overSizedImage = new SoftReference(newImage); 
+	    if(overSizedImage != null && imageCache.contains(overSizedImage.get())){
+		imageCache.remove(overSizedImage.get());
+	    }
+	    imageCache.addFirst(newImage);
+	    overSizedImage = new SoftReference(newImage);
+	    if(imageCache.size() > 5)
+		imageCache.removeLast();
 	    repaint();	
  	}
 
@@ -567,7 +582,13 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    displayTime = displayInterval.getValue();
 	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
 	    overTimeInterval = overTimeRange.getEndTime().getMicroSecondTime() - overBeginTime;
-	    overSizedImage = new SoftReference(newImage); 
+	    if(overSizedImage != null && imageCache.contains(overSizedImage.get())){
+		imageCache.remove(overSizedImage.get());
+	    }
+	    imageCache.addFirst(newImage);
+	    overSizedImage = new SoftReference(newImage);
+	    if(imageCache.size() > 5)
+		imageCache.removeLast();
 	    repaint();	
  	}
 
@@ -586,7 +607,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	protected SoftReference overSizedImage;
 
     }
-
+    protected static LinkedList imageCache = new LinkedList();
+    
     protected VerticalSeismogramDisplay parent; 
     
     protected Selection currentSelection, previousSelection; 
