@@ -57,7 +57,7 @@ public class JDBCChannel extends NetworkTable {
                                            "chan_name, chan_orientation_az, "+
                                            "chan_orientation_dip, chan_sampling_interval_id, chan_sampling_numpoints) " +
                                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        String getAllIdsQuery = "SELECT chan_id, site_id, chan_code, chan_begin_id FROM channel";
+        String getAllIdsQuery = "SELECT "+ getNeededForChanId() + " FROM channel";
         getAllIds = conn.prepareStatement(getAllIdsQuery);
         getAllIdsForStation = conn.prepareStatement(getAllIdsQuery + ", site " +
                                                         "WHERE channel.site_id = ? AND " +
@@ -66,10 +66,7 @@ public class JDBCChannel extends NetworkTable {
                                                         "WHERE channel.site_id = site.site_id AND " +
                                                         "site.sta_id = station.sta_id AND " +
                                                         "station.net_id = ?");
-        String getAllQuery = "SELECT chan_code, site_id, chan_begin_id, " +
-            "chan_end_id, chan_name, chan_sampling_numpoints, " +
-            "chan_sampling_interval_id, chan_orientation_dip, chan_orientation_az " +
-            "FROM channel";
+        String getAllQuery = "SELECT " + getNeededForChannel()  + "FROM channel";
         getAllChans = conn.prepareStatement(getAllQuery);
         getAllChansForStation = conn.prepareStatement(getAllQuery + ", site " +
                                                           "WHERE channel.site_id = site.site_id AND " +
@@ -133,7 +130,7 @@ public class JDBCChannel extends NetworkTable {
         return extractAllChans(getAllChansForNetwork);
     }
 
-    private Channel[] extractAllChans(PreparedStatement query) throws SQLException, NotFound{
+    public Channel[] extractAllChans(PreparedStatement query) throws SQLException, NotFound{
         ResultSet rs = query.executeQuery();
         List aList = new ArrayList();
         while(rs.next()){ aList.add(extract(rs, siteTable, time, quantityTable)); }
@@ -220,6 +217,15 @@ public class JDBCChannel extends NetworkTable {
         stmt.setInt(index++, time.put(id.begin_time));
         return index;
 
+    }
+
+    public static String getNeededForChanId(){
+        return "chan_id, site_id, chan_code, chan_begin_id";
+    }
+
+    public static String getNeededForChannel(){
+        return getNeededForChanId() + ", chan_end_id, chan_name, chan_sampling_numpoints, " +
+            "chan_sampling_interval_id, chan_orientation_dip, chan_orientation_az ";
     }
 
     public JDBCSite getSiteTable(){ return siteTable; }
