@@ -35,12 +35,23 @@ public interface DataSet {
     public String getName();
 
     /**
+     * Sets the owner of the dataset.
+     *
+     * @param name a <code>String</code> value
+     */
+    public void setOwner(String owner);
+
+    /**
+     *  Gets the owner of the dataset.
+     */
+    public String getOwner();
+
+    /**
      * Describe <code>setName</code> method here.
      *
      * @param name a <code>String</code> value
      */
     public void setName(String name);
-
     /**
      * Describe <code>getParameterNames</code> method here.
      *
@@ -123,7 +134,7 @@ public interface DataSet {
 
 
     public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit);
-    
+
     public DataSetSeismogram getDataSetSeismogram(String name);
 
     public String[] getDataSetSeismogramNames();
