@@ -56,44 +56,44 @@ public class XMLStation {
     
     public static Station getStation(Element base) {
 	//get the station id
-	NodeList id_node = XMLUtil.evalNodeList(base, "id");
+	Element id_node = XMLUtil.getElement(base, "id");
 	StationId id = null;
-	if(id_node != null && id_node.getLength() != 0) {
-	    id = XMLStationId.getStationId((Element)id_node.item(0));
+	if(id_node != null) {
+	    id = XMLStationId.getStationId(id_node);
 	}
 	
 	//get the name
-	String name = XMLUtil.evalString(base, "name");
+	String name = XMLUtil.getText(XMLUtil.getElement(base, "name"));
 	
 	//get my_location
-	NodeList my_location_node = XMLUtil.evalNodeList(base, "my_location");
+	Element my_location_node = XMLUtil.getElement(base, "my_location");
 	Location my_location = null;
-	if(my_location_node !=  null && my_location_node.getLength() != 0) {
-	    my_location = XMLLocation.getLocation((Element)my_location_node.item(0));
+	if(my_location_node !=  null) {
+	    my_location = XMLLocation.getLocation(my_location_node);
 	}
 
 	//get effective_time range
-	NodeList effective_time_node = XMLUtil.evalNodeList(base, "effective_time");
+	Element effective_time_node = XMLUtil.getElement(base, "effective_time");
 	TimeRange effective_time = new TimeRange();
-	if(effective_time_node != null && effective_time_node.getLength() != 0) {
-	    effective_time = XMLTimeRange.getTimeRange((Element)effective_time_node.item(0));
+	if(effective_time_node != null) {
+	    effective_time = XMLTimeRange.getTimeRange(effective_time_node);
 	}
 	
 	//get the operator
-	String operator = XMLUtil.evalString(base, "operator");
+	String operator = XMLUtil.getText(XMLUtil.getElement(base, "operator"));
 
 	//get the description
-	String description = XMLUtil.evalString(base, "description");
+	String description = XMLUtil.getText(XMLUtil.getElement(base, "description"));
 
 	//get the comment
-	String comment = XMLUtil.evalString(base, "comment");
+	String comment = XMLUtil.getText(XMLUtil.getElement(base, "comment"));
 	
 	//get the my_network
-	NodeList my_network_node = XMLUtil.evalNodeList(base, "my_network");
+	Element my_network_node = XMLUtil.getElement(base, "my_network");
 	NetworkAttr my_network = null;
-	if(my_network_node != null && my_network_node.getLength() != 0) {
+	if(my_network_node != null) {
 
-	    my_network = XMLNetworkAttr.getNetworkAttr((Element)my_network_node.item(0));
+	    my_network = XMLNetworkAttr.getNetworkAttr(my_network_node);
 	}
 
 	return new StationImpl(id,
@@ -106,4 +106,59 @@ public class XMLStation {
 			       my_network);
 	
     }
+
+
+
+//   public static Station getStation(Element base) {
+// 	//get the station id
+// 	NodeList id_node = XMLUtil.evalNodeList(base, "id");
+// 	StationId id = null;
+// 	if(id_node != null && id_node.getLength() != 0) {
+// 	    id = XMLStationId.getStationId((Element)id_node.item(0));
+// 	}
+	
+// 	//get the name
+// 	String name = XMLUtil.evalString(base, "name");
+	
+// 	//get my_location
+// 	NodeList my_location_node = XMLUtil.evalNodeList(base, "my_location");
+// 	Location my_location = null;
+// 	if(my_location_node !=  null && my_location_node.getLength() != 0) {
+// 	    my_location = XMLLocation.getLocation((Element)my_location_node.item(0));
+// 	}
+
+// 	//get effective_time range
+// 	NodeList effective_time_node = XMLUtil.evalNodeList(base, "effective_time");
+// 	TimeRange effective_time = new TimeRange();
+// 	if(effective_time_node != null && effective_time_node.getLength() != 0) {
+// 	    effective_time = XMLTimeRange.getTimeRange((Element)effective_time_node.item(0));
+// 	}
+	
+// 	//get the operator
+// 	String operator = XMLUtil.evalString(base, "operator");
+
+// 	//get the description
+// 	String description = XMLUtil.evalString(base, "description");
+
+// 	//get the comment
+// 	String comment = XMLUtil.evalString(base, "comment");
+	
+// 	//get the my_network
+// 	NodeList my_network_node = XMLUtil.evalNodeList(base, "my_network");
+// 	NetworkAttr my_network = null;
+// 	if(my_network_node != null && my_network_node.getLength() != 0) {
+
+// 	    my_network = XMLNetworkAttr.getNetworkAttr((Element)my_network_node.item(0));
+// 	}
+
+// 	return new StationImpl(id,
+// 			       name,
+// 			       my_location,
+// 			       effective_time,
+// 			       operator,
+// 			       description,
+// 			       comment,
+// 			       my_network);
+	
+//     }
 }// XMLStation

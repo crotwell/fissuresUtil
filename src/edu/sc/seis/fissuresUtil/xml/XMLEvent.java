@@ -41,11 +41,11 @@ public class XMLEvent {
     }
 
     public static EventAttr getEvent(Element base) {
-	String name = XMLUtil.evalString(base, "name");
-	NodeList regionNode = XMLUtil.evalNodeList(base, "region");
+	String name = XMLUtil.getText(XMLUtil.getElement(base, "name"));
+	Element regionNode = XMLUtil.getElement(base, "region");
 	Element regionElement = null;
-	if(regionNode != null && regionNode.getLength() != 0) {
-		regionElement = (Element)regionNode.item(0);
+	if(regionNode != null) {
+		regionElement = regionNode;
 	}
 	FlinnEngdahlRegion flinnEngdahlRegion =
 		XMLFlinnEngdahlRegion.getRegion(regionElement);
@@ -54,11 +54,11 @@ public class XMLEvent {
     }
 
     public static Origin getPreferredOrigin(Element base) {
-	  NodeList preferred_originNode = XMLUtil.evalNodeList(base,"preferred_origin");
+	  Element preferred_originNode = XMLUtil.getElement(base,"preferred_origin");
 	  Element preferred_originElement = null;
 	  Origin preferred_origin;
-	  if(preferred_originNode != null && preferred_originNode.getLength() != 0 ) {
-		  preferred_originElement = (Element) preferred_originNode.item(0);
+	  if(preferred_originNode != null) {
+		  preferred_originElement = preferred_originNode;
           	  preferred_origin =
 		 	XMLOrigin.getOrigin(preferred_originElement);
 	  }  else preferred_origin = null;

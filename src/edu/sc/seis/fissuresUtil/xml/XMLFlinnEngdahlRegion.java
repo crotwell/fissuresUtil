@@ -46,8 +46,8 @@ public class XMLFlinnEngdahlRegion {
 
  public static FlinnEngdahlRegion getRegion(Element base) {
 
-	String type = XMLUtil.evalString(base, "type");
-	int value = Integer.parseInt(XMLUtil.evalString(base, "number"));
+	String type = XMLUtil.getText(XMLUtil.getElement(base, "type"));
+	int value = Integer.parseInt(XMLUtil.getText(XMLUtil.getElement(base, "number")));
 	FlinnEngdahlRegion flinnEngdahlRegion = null;
 	if(type.equals("SEISMIC_REGION")) {
 		flinnEngdahlRegion = new FlinnEngdahlRegionImpl(FlinnEngdahlType.SEISMIC_REGION,
@@ -58,5 +58,20 @@ public class XMLFlinnEngdahlRegion {
 	}
 	return flinnEngdahlRegion;
  }
+
+//  public static FlinnEngdahlRegion getRegion(Element base) {
+
+// 	String type = XMLUtil.evalString(base, "type");
+// 	int value = Integer.parseInt(XMLUtil.evalString(base, "number"));
+// 	FlinnEngdahlRegion flinnEngdahlRegion = null;
+// 	if(type.equals("SEISMIC_REGION")) {
+// 		flinnEngdahlRegion = new FlinnEngdahlRegionImpl(FlinnEngdahlType.SEISMIC_REGION,
+// 								value);
+// 	} else if(type.equals("GEOGRAPHIC_REGION")) {
+// 		flinnEngdahlRegion = new FlinnEngdahlRegionImpl(FlinnEngdahlType.GEOGRAPHIC_REGION,
+// 								value);
+// 	}
+// 	return flinnEngdahlRegion;
+//  }
     
 }// XMLFlinnEngdahlRegion

@@ -33,13 +33,13 @@ public class XMLMagnitude {
     }
     
 
-public static Magnitude getMagnitude(Element base) {
-	String type = XMLUtil.evalString(base, "type");
-	float value = Float.parseFloat(XMLUtil.evalString(base, "value"));
-	String contributor = XMLUtil.evalString(base, "contributor");
+    public static Magnitude getMagnitude(Element base) {
+	String type = XMLUtil.getText(XMLUtil.getElement(base, "type"));
+	float value = Float.parseFloat(XMLUtil.getText(XMLUtil.getElement(base, "value")));
+	String contributor = XMLUtil.getText(XMLUtil.getElement(base, "contributor"));
 	return new Magnitude(type,
 			     value,
 			     contributor);
-
-}
+				       
+    }
 }//XMLMagnitude
