@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
@@ -44,29 +45,30 @@ import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 
-public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeListener,
-    AmpListener{
+public class BasicSeismogramDisplay extends SeismogramDisplay implements
+        TimeListener, AmpListener {
 
-    public BasicSeismogramDisplay(){
+    public BasicSeismogramDisplay() {
         this(new BasicTimeConfig(), new RMeanAmpConfig());
     }
 
-    public BasicSeismogramDisplay(TimeConfig tc){
+    public BasicSeismogramDisplay(TimeConfig tc) {
         this(tc, new RMeanAmpConfig());
     }
-    public BasicSeismogramDisplay(AmpConfig ac){
+
+    public BasicSeismogramDisplay(AmpConfig ac) {
         this(new BasicTimeConfig(), ac);
     }
 
-    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac){
+    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac) {
         this(tc, ac, null);
     }
 
-    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac, Color borderColor){
-        if(borderColor != null){
+    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac, Color borderColor) {
+        if(borderColor != null) {
             color = borderColor;
             setBorder(new LineBorder(color));
-        }else setBorder(BorderFactory.createEtchedBorder());
+        } else setBorder(BorderFactory.createEtchedBorder());
         add(new AmpBorder(this), CENTER_LEFT);
         add(new TimeBorder(this), TOP_CENTER);
         add(new DisplayRemover(this));
@@ -82,29 +84,37 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         return pp;
     }
 
-    public void add(DataSetSeismogram[] seismos){ add(seismos, null); }
+    public void add(DataSetSeismogram[] seismos) {
+        add(seismos, null);
+    }
 
-    public void add(DataSetSeismogram[] seismos, Color seisColor){
-        logger.debug("add seismo "+seismos.length+" name0="+seismos[0].getName());
-        for(int i = 0; i < seismos.length; i++){
-            if(seismos[i] != null){
+    public void add(DataSetSeismogram[] seismos, Color seisColor) {
+        logger.debug("add seismo " + seismos.length + " name0="
+                + seismos[0].getName());
+        for(int i = 0; i < seismos.length; i++) {
+            if(seismos[i] != null) {
                 seismograms.add(seismos[i]);
-                drawables.add(new DrawableSeismogram(this, seismos[i], seisColor));
+                drawables.add(new DrawableSeismogram(this,
+                                                     seismos[i],
+                                                     seisColor));
                 addDrawablesFromAuxData(seismos[i]);
             }
         }
         Iterator e = activeFilters.iterator();
-        while(e.hasNext()){
-            DisplayUtils.applyFilter((NamedFilter)e.next(), new DrawableIterator(DrawableSeismogram.class,
-                                                                                 drawables));
+        while(e.hasNext()) {
+            DisplayUtils.applyFilter((NamedFilter)e.next(),
+                                     new DrawableIterator(DrawableSeismogram.class,
+                                                          drawables));
         }
         seismogramArray = null;
     }
 
-    public void remove(Drawable drawable) { drawables.remove(drawable); }
+    public void remove(Drawable drawable) {
+        drawables.remove(drawable);
+    }
 
     public void add(Drawable drawable) {
-        if(!drawables.contains(drawable)){
+        if(!drawables.contains(drawable)) {
             drawables.add(drawable);
             repaint();
         }
@@ -114,47 +124,56 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         // TODO
         return new DrawableIterator(Drawable.class, EMPTY_LIST);
     }
+
     private static List EMPTY_LIST = new ArrayList();
 
-    public DataSetSeismogram[] getSeismograms(){
-        if(seismogramArray == null){
+    public DataSetSeismogram[] getSeismograms() {
+        if(seismogramArray == null) {
             seismogramArray = (DataSetSeismogram[])seismograms.toArray(new DataSetSeismogram[seismograms.size()]);
         }
         return seismogramArray;
     }
 
-    public List getSeismogramList(){ return seismograms; }
+    public List getSeismogramList() {
+        return seismograms;
+    }
 
-    public void reset(){
+    public void reset() {
         tc.reset();
         ac.reset();
     }
 
-    public void reset(DataSetSeismogram[] seisToReset){
+    public void reset(DataSetSeismogram[] seisToReset) {
         tc.reset(seisToReset);
         ac.reset(seisToReset);
     }
 
-    public static MicroSecondDate getTime(int x, Insets insets, Dimension dim,
-                                          MicroSecondTimeRange timeRange){
+    public static MicroSecondDate getTime(int x,
+                                          Insets insets,
+                                          Dimension dim,
+                                          MicroSecondTimeRange timeRange) {
         int insetsX = insets.right + insets.left;
-        double xPercent = (x - insets.left)/(dim.getWidth() - insetsX);
+        double xPercent = (x - insets.left) / (dim.getWidth() - insetsX);
         long beginTime = timeRange.getBeginTime().getMicroSecondTime();
-        double interval =  timeRange.getInterval().getValue();
+        double interval = timeRange.getInterval().getValue();
         return new MicroSecondDate((long)(beginTime + (interval * xPercent)));
     }
 
-    public VerticalSeismogramDisplay getParentDisplay(){ return parent; }
+    public VerticalSeismogramDisplay getParentDisplay() {
+        return parent;
+    }
 
-    public void setParentDisplay(VerticalSeismogramDisplay disp){ parent = disp; }
+    public void setParentDisplay(VerticalSeismogramDisplay disp) {
+        parent = disp;
+    }
 
-    public void updateAmp(AmpEvent event){
+    public void updateAmp(AmpEvent event) {
         currentAmpEvent = event;
         repaint();
     }
 
-    public void setAmpConfig(AmpConfig ac){
-        if(this.ac != null){
+    public void setAmpConfig(AmpConfig ac) {
+        if(this.ac != null) {
             this.ac.removeListener(this);
             tc.removeListener(this.ac);
             this.ac.remove(getSeismograms());
@@ -165,21 +184,25 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         ac.add(getSeismograms());
     }
 
-    public void setGlobalizedAmpConfig(AmpConfig ac){ setAmpConfig(ac); }
+    public void setGlobalizedAmpConfig(AmpConfig ac) {
+        setAmpConfig(ac);
+    }
 
-    public void setIndividualizedAmpConfig(AmpConfig ac){
+    public void setIndividualizedAmpConfig(AmpConfig ac) {
         setAmpConfig(new IndividualizedAmpConfig(ac));
     }
 
-    public AmpConfig getAmpConfig(){ return ac; }
+    public AmpConfig getAmpConfig() {
+        return ac;
+    }
 
-    public void updateTime(TimeEvent event){
+    public void updateTime(TimeEvent event) {
         currentTimeEvent = event;
         repaint();
     }
 
-    public void setTimeConfig(TimeConfig tc){
-        if(this.tc != null){
+    public void setTimeConfig(TimeConfig tc) {
+        if(this.tc != null) {
             this.tc.removeListener(this);
             this.tc.removeListener(ac);
             this.tc.add(getSeismograms());
@@ -189,9 +212,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         tc.addListener(ac);
         tc.add(getSeismograms());
     }
-    public TimeConfig getTimeConfig(){ return tc; }
 
-    public MicroSecondTimeRange getTime(){
+    public TimeConfig getTimeConfig() {
+        return tc;
+    }
+
+    public MicroSecondTimeRange getTime() {
         return currentTimeEvent.getTime();
     }
 
@@ -199,79 +225,80 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
      * @returns the time for the given pixel value.
      */
     public MicroSecondDate getTime(int pixel) {
-        return SimplePlotUtil.getValue(getWidth()-getInsets().left-getInsets().right,
+        return SimplePlotUtil.getValue(getWidth() - getInsets().left
+                                               - getInsets().right,
                                        getTime().getBeginTime(),
                                        getTime().getEndTime(),
-                                       pixel-getInsets().left);
+                                       pixel - getInsets().left);
     }
 
     /**
      * @returns the pixel for the given time.
      */
     public int getPixel(MicroSecondDate date) {
-        return SimplePlotUtil.getPixel(getWidth()-getInsets().left-getInsets().right,
+        return SimplePlotUtil.getPixel(getWidth() - getInsets().left
+                                               - getInsets().right,
                                        getTime().getBeginTime(),
                                        getTime().getEndTime(),
                                        date);
     }
 
     public DrawableIterator iterator(Class drawableClass) {
-        return  new DrawableIterator(drawableClass, drawables);
+        return new DrawableIterator(drawableClass, drawables);
     }
 
-    public TimeAmpLabel getTimeAmpLabel(){
-        DrawableIterator pi = new DrawableIterator(TimeAmpLabel.class, drawables);
+    public TimeAmpLabel getTimeAmpLabel() {
+        DrawableIterator pi = new DrawableIterator(TimeAmpLabel.class,
+                                                   drawables);
         return (TimeAmpLabel)pi.next();
     }
 
-    public void clearSelections(){
+    public void clearSelections() {
         Iterator it = drawables.iterator();
-        while(it.hasNext()){
+        while(it.hasNext()) {
             Drawable current = (Drawable)it.next();
-            if(current instanceof Selection){
+            if(current instanceof Selection) {
                 it.remove();
             }
         }
         repaint();
     }
 
-    public void addSelection(Selection newSelection){
-        if(!drawables.contains(newSelection)){
+    public void addSelection(Selection newSelection) {
+        if(!drawables.contains(newSelection)) {
             drawables.add(newSelection);
             repaint();
         }
     }
 
-    public void remove(Selection old){
-        if(drawables.remove(old)){
+    public void remove(Selection old) {
+        if(drawables.remove(old)) {
             repaint();
         }
     }
-
-    public void print(){
+    
+    public void print() {
         parent.print();
     }
 
-    public boolean contains(DataSetSeismogram seismo){
-        if(seismograms.contains(seismo)){
-            return true;
-        }
+    public boolean contains(DataSetSeismogram seismo) {
+        if(seismograms.contains(seismo)) { return true; }
         return false;
     }
 
-    public void clear(){
+    public void clear() {
         remove();
     }
 
-    public void remove(DataSetSeismogram[] seismos){
-        for(int i = 0; i < seismos.length; i++){
-            if(seismograms.contains(seismos[i])){
+    public void remove(DataSetSeismogram[] seismos) {
+        for(int i = 0; i < seismos.length; i++) {
+            if(seismograms.contains(seismos[i])) {
                 seismograms.remove(seismos[i]);
                 Iterator it = drawables.iterator();
-                while(it.hasNext()){
+                while(it.hasNext()) {
                     Drawable current = (Drawable)it.next();
-                    if(current instanceof DrawableSeismogram){
-                        if(((DrawableSeismogram)current).getSeismogram() == seismos[i]){
+                    if(current instanceof DrawableSeismogram) {
+                        if(((DrawableSeismogram)current).getSeismogram() == seismos[i]) {
                             it.remove();
                             repaint();
                         }
@@ -279,7 +306,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                 }
             }
         }
-        if(seismograms.size() == 0){
+        if(seismograms.size() == 0) {
             clear();
         }
         tc.remove(seismos);
@@ -287,12 +314,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     /** removes this Basic SeismogramDisplay from the parent. */
-    public void remove(){
+    public void remove() {
         parent.removeDisplay(this);
         destroy();
     }
 
-    void destroy(){
+    void destroy() {
         clearSelections();
         tc.removeListener(this);
         ac.removeListener(this);
@@ -300,32 +327,41 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         ac.remove(getSeismograms());
     }
 
-    public void drawSeismograms(Graphics2D g2, Dimension size){
+    public void drawSeismograms(Graphics2D g2, Dimension size) {
         g2.setColor(Color.WHITE);
-        g2.fill(new Rectangle2D.Float(0,0, size.width, size.height));
+        g2.fill(new Rectangle2D.Float(0, 0, size.width, size.height));
         g2.setFont(DisplayUtils.DEFAULT_FONT);
         FontMetrics fm = g2.getFontMetrics();
         Rectangle2D stringBounds = fm.getStringBounds("test", g2);
-        Rectangle2D topLeftFilled = new Rectangle2D.Float(0,0,0,(float)stringBounds.getHeight());
-        for (int i = 0; i < drawables.size(); i++){
+        Rectangle2D topLeftFilled = new Rectangle2D.Float(0,
+                                                          0,
+                                                          0,
+                                                          (float)stringBounds.getHeight());
+        for(int i = 0; i < drawables.size(); i++) {
             Drawable current = (Drawable)drawables.get(i);
             current.draw(g2, size, currentTimeEvent, currentAmpEvent);
-            if(current instanceof TimeAmpLabel && !PRINTING){
+            if(current instanceof TimeAmpLabel && !PRINTING) {
                 TimeAmpLabel taPlotter = (TimeAmpLabel)current;
                 g2.setFont(DisplayUtils.MONOSPACED_FONT);
                 FontMetrics monoMetrics = g2.getFontMetrics();
-                stringBounds = monoMetrics.getStringBounds(taPlotter.getText(), g2);
-                taPlotter.drawName(g2,(int)(size.width - stringBounds.getWidth()),
+                stringBounds = monoMetrics.getStringBounds(taPlotter.getText(),
+                                                           g2);
+                taPlotter.drawName(g2,
+                                   (int)(size.width - stringBounds.getWidth()),
                                    size.height - 3);
                 g2.setFont(DisplayUtils.DEFAULT_FONT);
-            }else if(current instanceof NamedDrawable){
-                Rectangle2D drawnSize = ((NamedDrawable)current).drawName(g2, 5, (int)topLeftFilled.getHeight());
-                topLeftFilled.setRect(0,0, drawnSize.getWidth(),
-                                      topLeftFilled.getHeight() +
-                                          drawnSize.getHeight());
+            } else if(current instanceof NamedDrawable) {
+                Rectangle2D drawnSize = ((NamedDrawable)current).drawName(g2,
+                                                                          5,
+                                                                          (int)topLeftFilled.getHeight());
+                topLeftFilled.setRect(0,
+                                      0,
+                                      drawnSize.getWidth(),
+                                      topLeftFilled.getHeight()
+                                              + drawnSize.getHeight());
             }
         }
-        if(getCurrentTimeFlag()){
+        if(getCurrentTimeFlag()) {
             currentTimeFlag.draw(g2, size, currentTimeEvent, currentAmpEvent);
         }
     }
@@ -338,39 +374,42 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         SeismogramPDFBuilder.createPDF(this, f, 1, true);
     }
 
-    private class PlotPainter extends SeismogramDisplayProvider{
-        public SeismogramDisplay provide() {return BasicSeismogramDisplay.this;}
+    private class PlotPainter extends SeismogramDisplayProvider {
 
-        public void paintComponent(Graphics g){
+        public SeismogramDisplay provide() {
+            return BasicSeismogramDisplay.this;
+        }
+        
+        public void paintComponent(Graphics g) {
             drawSeismograms((Graphics2D)g, getSize());
         }
     }
 
-
-    public void addSoundPlay(){
-        try{
-            //drawables.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
-        }
-        catch(NullPointerException e){
-            GlobalExceptionHandler.handle("Sample Rate cannot be calculated, so sound is not permitted.", e);
+    public void addSoundPlay() {
+        try {
+            //drawables.add(new SoundPlay(this, new
+            // SeismogramContainer(getSeismograms()[0])));
+        } catch(NullPointerException e) {
+            GlobalExceptionHandler.handle("Sample Rate cannot be calculated, so sound is not permitted.",
+                                          e);
         }
     }
 
-    public void removeSoundPlay(){
+    public void removeSoundPlay() {
         Iterator it = drawables.iterator();
-        while(it.hasNext()){
+        while(it.hasNext()) {
             Drawable current = (Drawable)it.next();
-            if(current instanceof SoundPlay){
+            if(current instanceof SoundPlay) {
                 it.remove();
             }
         }
     }
 
-    public void addDrawablesFromAuxData(DataSetSeismogram seis){
+    public void addDrawablesFromAuxData(DataSetSeismogram seis) {
         Iterator it = seis.getAuxillaryDataKeys().iterator();
-        while (it.hasNext()){
+        while(it.hasNext()) {
             Object cur = it.next();
-            if (cur.toString().startsWith(StdAuxillaryDataNames.PICK_FLAG)){
+            if(cur.toString().startsWith(StdAuxillaryDataNames.PICK_FLAG)) {
                 logger.debug("aux data pick_flag: " + cur.toString());
                 Element auxDatEl = (Element)seis.getAuxillaryData(cur);
                 logger.debug(auxDatEl.getTagName());
@@ -381,11 +420,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         }
     }
 
-    public int countDrawables(){
+    public int countDrawables() {
         return drawables.size();
     }
 
-    public Color getColor(){ return color; }
+    public Color getColor() {
+        return color;
+    }
 
     public final static int PREFERRED_HEIGHT = 150;
 
@@ -395,7 +436,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     private LinkedList seismograms = new LinkedList();
 
-    private LinkedList drawables =new LinkedList();
+    private LinkedList drawables = new LinkedList();
 
     private TimeConfig tc;
 
@@ -413,4 +454,3 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay
-
