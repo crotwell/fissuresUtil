@@ -87,16 +87,10 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
 
     public String toString(){ return seismogram.getName() + " Container"; }
 
-    /**
-     * ignore in the hopes someone else is handling this
-     */
     public void error(SeisDataErrorEvent sdce) {
-        if (sdce.getCausalException() instanceof FissuresException) {
-            FissuresException fe = (FissuresException)sdce.getCausalException();
-            logger.warn("Error retrieving seismograms, "+fe.the_error.error_code+" "+fe.the_error.error_description, sdce.getCausalException());
-        } else {
-            logger.warn("Error retrieving seismograms", sdce.getCausalException());
-        }
+        GlobalExceptionHandler.handle("Trouble getting data for " + sdce.getSource(),
+                                      sdce.getCausalException());
+        error = true;
     }
 
     public void pushData(SeisDataChangeEvent sdce) {
@@ -226,7 +220,9 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
     }
 
     public String getDataStatus(){
-        if(noData && finished){
+        if(error){
+            return ERROR;
+        }else if(noData && finished){
             return NO_DATA;
         }else if(noData){
             return GETTING_DATA;
@@ -253,11 +249,15 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
 
     private boolean noData = true;
 
+    private boolean error = false;
+
     public static final String NO_DATA = "No data available";
 
     public static final String GETTING_DATA = "Trying to get data";
 
     public static final String HAVE_DATA = "";
+
+    public static final String ERROR = "Error encountered getting data";
 
     private MicroSecondTimeRange time;
 
