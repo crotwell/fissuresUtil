@@ -65,7 +65,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         this.channelChooser = channelChooser;
         startThread();
     }
-
+    
     public void setOrigin(Origin origin) {
         this.origin = origin;
         recheckNetworks();
@@ -89,6 +89,14 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         NetworkAccess[] nets = channelChooser.getNetworks();
         for (int i = 0; i < nets.length; i++) {
             startNetworkChecker(nets[i]);
+        }
+    }
+    
+    public void stopChecking(){
+
+        Iterator it = netCheckers.iterator();
+        while(it.hasNext()){
+            ((NetworkChecker)it.next()).stop();
         }
     }
 
@@ -147,6 +155,9 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
     public void setJList(JList jlist) {
         this.jlist = jlist;
+        if(jlist instanceof SortedStationJList){
+            ((SortedStationJList)jlist).setNamer(this);
+        }
     }
 
     public Component getListCellRendererComponent(JList list,
@@ -273,6 +284,10 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             JobTracker.getTracker().add(this);
         }
 
+        public void stop(){
+            quitThread = true;
+        }
+        
         public NetworkAccess getNetwork(){ return net; }
 
         NetworkAccess net;
