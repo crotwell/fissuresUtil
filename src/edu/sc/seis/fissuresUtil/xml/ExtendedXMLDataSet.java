@@ -45,7 +45,7 @@ public class ExtendedXMLDataSet extends XMLDataSet{
 	String[] rtnValues = new String[names.length];
 	for(int counter = 0; counter < names.length; counter++) {
 	    rtnValues[counter] = (String) names[counter];
-	    System.out.println("The name of the seismogram is "+rtnValues[counter]);
+	    //System.out.println("The name of the seismogram is "+rtnValues[counter]);
 	}
 	return rtnValues;
       }
@@ -53,8 +53,9 @@ public class ExtendedXMLDataSet extends XMLDataSet{
     public void addDataSetSeismogram(DataSetSeismogram dss) {
 	//	System.out.println("In add dataset seismogram method");
 	dssNames.add(ChannelIdUtil.toStringNoDates(dss.getRequestFilter().channel_id));
-	
-	dataSetSeismograms.put(ChannelIdUtil.toStringNoDates(dss.getRequestFilter().channel_id),
+	String name = ChannelIdUtil.toStringNoDates(dss.getRequestFilter().channel_id);
+	name = getUniqueName(getDataSetSeismogramNames(), name);
+	dataSetSeismograms.put(name,
 			       dss);
     }
     
