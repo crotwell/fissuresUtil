@@ -11,6 +11,7 @@ import edu.iris.Fissures.TimeRange;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.chooser.DataSetChannelGrouper;
 import java.awt.*;
+import java.awt.print.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.text.SimpleDateFormat;
@@ -103,6 +104,19 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	return target;
     }
 
+    public void print(){
+	PrinterJob pj = PrinterJob.getPrinterJob();
+	pj.setPrintable(new SeismogramPrinter(getDisplayArray(),3));
+	if(pj.printDialog()){
+	    try { pj.print(); } 
+	    catch(Exception e){ e.printStackTrace(); }
+	}
+    }
+    
+    public BasicSeismogramDisplay[] getDisplayArray(){
+	return ((BasicSeismogramDisplay[])basicDisplays.toArray(new BasicSeismogramDisplay[basicDisplays.size()]));
+    }
+	
     public void setSort(SeismogramSorter sorter){
 	/*LinkedList newOrder = new LinkedList();
 	BasicSeismogramDisplay[] disps = basicDisplays.toArray();
@@ -182,12 +196,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
 
     public void removeSeismogram(MouseEvent me){
-	BasicSeismogramDisplay clicked = ((BasicSeismogramDisplay)me.getComponent());
-	clicked.remove();
-	seismograms.remove(clicked);
-	basicDisplays.remove(clicked);
-	((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
-	((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
+	removeDisplay(((BasicSeismogramDisplay)me.getComponent()));
     }
 
     public void removeDisplay(BasicSeismogramDisplay display){
@@ -198,13 +207,10 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.remove(display);
 	basicDisplays.remove(display);
 	sorter.remove(display.getName());
-	if(basicDisplays.size() > 1){
-	    ((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
-	    ((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-	}else if(basicDisplays.size() == 1){
-	    ((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-	}
+	((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
+	((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
 	seismograms.revalidate();
+	display.destroy();
 	repaint();
     }
     
