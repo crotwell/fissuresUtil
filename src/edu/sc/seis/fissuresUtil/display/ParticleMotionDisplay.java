@@ -65,16 +65,16 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	scaleBorder.setBottomScaleMapper(hAmpScaleMap);
 	scaleBorder.setLeftScaleMapper(vAmpScaleMap);        
         hTitleBorder = 
-            new BottomTitleBorder(hseis.getSeismogram().getName());
+            new BottomTitleBorder("X - axis Title");
         vTitleBorder = 
-            new CenterTitleBorder(hseis.getSeismogram().getName());
+            new LeftTitleBorder("Y - axis Title");
 	particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(
 									  BorderFactory.createCompoundBorder(
 													     BorderFactory.createRaisedBevelBorder(),
-													          hTitleBorder),
+													     //  hTitleBorder),
 									  
-									  // BorderFactory.createCompoundBorder(hTitleBorder,
-									  // vTitleBorder)),
+													     BorderFactory.createCompoundBorder(hTitleBorder,
+																		vTitleBorder)),
 									  BorderFactory.createCompoundBorder(
 								scaleBorder,
 								BorderFactory.createLoweredBevelBorder()))
@@ -297,7 +297,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
      * Describe <code>resize</code> method here.
      *
      */
-    public void resize() {
+    public synchronized void resize() {
 	    
 	Dimension dim = view.getSize();
 	logger.debug("view coordinates before width = "+view.getSize().width+" height = "+view.getSize().height);
@@ -307,16 +307,23 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	width = width - particleDisplayPanel.getInsets().left - particleDisplayPanel.getInsets().right;
 	height = height - particleDisplayPanel.getInsets().top - particleDisplayPanel.getInsets().bottom;
 	if(width < height) {
-	    
+	    logger.debug("Before particleDisplayPanel.setSize() ");
+	    //particleDisplayPanel = null;
+	    //particleDisplayPanel.getSize();
 	    particleDisplayPanel.setSize(new Dimension(particleDisplayPanel.getSize().width,
-				       width + particleDisplayPanel.getInsets().top + particleDisplayPanel.getInsets().bottom));
-	   
+	 			       width + particleDisplayPanel.getInsets().top + particleDisplayPanel.getInsets().bottom));
+	    
+	    logger.debug("After particleDisplayPanel. setSize()");
 	    
 	} else {
+	    logger.debug("Before particleDisplayPanel.setSize() ");
 	    particleDisplayPanel.setSize(new Dimension(height  + particleDisplayPanel.getInsets().left + particleDisplayPanel.getInsets().right,
 				       particleDisplayPanel.getSize().height));
 
+	    logger.debug("After particleDiplayPanel. setSize()");
+
 	}
+	logger.debug("Before view .resize()##############################");
 	view.resize();
 	logger.debug("view coordinates are  width = "+view.getSize().width+" height = "+view.getSize().height);
 	logger.debug("view insets left = "+insets.left+" right = "+insets.right);
@@ -329,26 +336,29 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	repaint();
     }//
     
-    public void addParticleMotionDisplay(DataSetSeismogram hseis,
+    public synchronized void addParticleMotionDisplay(DataSetSeismogram hseis,
 					  TimeConfigRegistrar timeConfigRegistrar,
 					  AmpConfigRegistrar hAmpConfigRegistrar,
 					  AmpConfigRegistrar vAmpConfigRegistrar) {
 
 	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
 	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	boolean buttonPanel = this.displayButtonPanel;
+	this.displayButtonPanel = false;
 	Thread t = new Thread(new ParticleMotionDisplayThread(hseis,
 							      timeConfigRegistrar,
 							      hAmpConfigRegistrar,
 							      vAmpConfigRegistrar,
-							      false, 
+							      buttonPanel, 
 							      false,
 							      this));
-	
+
+	logger.debug("############################### Starting the Thread");
 	t.start();
 
     }
 
-    public void displayBackAzimuth(edu.sc.seis.fissuresUtil.xml.DataSet dataset, ChannelId chanId) {
+    public synchronized void displayBackAzimuth(edu.sc.seis.fissuresUtil.xml.DataSet dataset, ChannelId chanId) {
 	edu.sc.seis.fissuresUtil.cache.CacheEvent cacheEvent = 
 	    ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getEvent();
 	Channel channel = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getChannel(chanId);
@@ -377,34 +387,34 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
      *
      * @param amplitudeRange an <code>AmpConfigRegistrar</code> value
      */
-    public void setAmplitudeRange(AmpConfigRegistrar amplitudeRange) {
+    public synchronized void setAmplitudeRange(AmpConfigRegistrar amplitudeRange) {
 	
 	this.hAmpConfigRegistrar = amplitudeRange;
 	this.vAmpConfigRegistrar = amplitudeRange;
     }
 
-    public void addAzimuthLine(double degrees) {
+    public synchronized void addAzimuthLine(double degrees) {
 
 	view.addAzimuthLine(degrees);
     }
 
-    public void addSector(double degreeone, double degreetwo) {
+    public synchronized void addSector(double degreeone, double degreetwo) {
 
 	view.addSector(degreeone, degreetwo);
     }
 
-    public void setZoomIn(boolean value) {
+    public synchronized void setZoomIn(boolean value) {
 
 	view.setZoomIn(value);
     }
 
-    public void setZoomOut(boolean value) {
+    public synchronized void setZoomOut(boolean value) {
 
 	view.setZoomOut(value);
     }
 
 
-    public ParticleMotionView getView() {
+    public synchronized ParticleMotionView getView() {
 	return this.view;
     }
 
@@ -413,7 +423,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	this.hAmpConfigRegistrar.fireAmpRangeEvent(event);
     }
 
-    public void updateTimeRange() {
+    public synchronized void updateTimeRange() {
 
 	view.updateTimeRange();
     }
@@ -433,14 +443,16 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	}
 	JCheckBox[] checkBoxes = new JCheckBox[arrayList.size()];
 	checkBoxes = (JCheckBox[])arrayList.toArray(checkBoxes);
-	checkBoxes[0].setSelected(true);
-	
+	//	checkBoxes[0].setSelected(true);
+	initialButton = checkBoxes[0];
 	view.setDisplayKey(checkBoxes[0].getText());
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    radioPanel.add(checkBoxes[counter]);
 	}
 	radioPanel.setVisible(true);
-    }
+	
+	//	view.repaint();
+   }
 
     public void formRadioSetPanel(ChannelId[] channelGroup) {
 	//radioPanel.removeAll();
@@ -458,16 +470,22 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 	JRadioButton[] radioButtons = new JRadioButton[arrayList.size()];
 	radioButtons = (JRadioButton[])arrayList.toArray(radioButtons);
-	radioButtons[0].setSelected(true);
+	//	radioButtons[0].setSelected(true);
+	initialButton = radioButtons[0];
 	
 	ButtonGroup buttonGroup = new ButtonGroup();
-	
 	view.setDisplayKey(radioButtons[0].getText());
 	for(int counter = 0; counter < channelGroup.length; counter++) {
 	    buttonGroup.add(radioButtons[counter]);
 	    radioPanel.add(radioButtons[counter]);
 	}
 	radioPanel.setVisible(true);
+	
+	//view.repaint();
+  }
+
+    public void setInitialButton() {
+	initialButton.setSelected(true);
     }
 
 
@@ -478,8 +496,14 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
 	else return "Up";
     }
+
+    public void setHorizontalTitle(String name) {
+	hTitleBorder.setTitle(name);
+   }
     
-  
+    public void setVerticalTitle(String name) {
+	vTitleBorder.setTitle(name);
+  }
   
 
     /**
@@ -492,7 +516,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
     protected ScaleBorder scaleBorder;
 
-    protected CenterTitleBorder vTitleBorder;
+    protected LeftTitleBorder vTitleBorder;
 
     protected BottomTitleBorder hTitleBorder;
     
@@ -503,6 +527,8 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
     private JLayeredPane particleDisplayPanel;
     private JPanel radioPanel;
+    private boolean displayButtonPanel = true;
+    private AbstractButton initialButton;
 
     static Category logger = 
         Category.getInstance(ParticleMotionDisplay.class.getName());
@@ -512,8 +538,13 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 	public void itemStateChanged(ItemEvent ae) {
 	    if(ae.getStateChange() == ItemEvent.SELECTED) {
-		System.out.println("The radiobutton selected is "+ ((AbstractButton)ae.getItem()).getText());
+		System.out.println("$$&$&%$&%$&$&&$$&$&$&$&%^&$%&$^$&%&$^&$^%&$%^&$The radiobutton selected is "+ ((AbstractButton)ae.getItem()).getText());
 		view.addDisplayKey(((AbstractButton)ae.getItem()).getText());
+		
+		setHorizontalTitle(view.getSelectedParticleMotion()[0].hseis.getSeismogram().getName());
+		setVerticalTitle(view.getSelectedParticleMotion()[0].vseis.getSeismogram().getName());
+		view.updateTimeRange();
+	
 	    } else if(ae.getStateChange() == ItemEvent.DESELECTED){
 		System.out.println("The radiobutton UN SELECTED is "+ ((AbstractButton)ae.getItem()).getText());
 		view.removeDisplaykey(((AbstractButton)ae.getItem()).getText());

@@ -103,7 +103,7 @@ public class ParticleMotionView extends JComponent{
 	    });
     }
 
-    public void resize() {
+    public synchronized void resize() {
 	
 	setSize(super.getSize());
 	//particleMotionDisplay.resize();
@@ -111,7 +111,7 @@ public class ParticleMotionView extends JComponent{
 	repaint();
     }
 
-    public void zoomInParticleMotionDisplay(int clickCount, int mx, int my) {
+    public synchronized void zoomInParticleMotionDisplay(int clickCount, int mx, int my) {
 	
 	double hmin = hunitRangeImpl.getMinValue();
 	double hmax = hunitRangeImpl.getMaxValue();
@@ -182,7 +182,7 @@ public class ParticleMotionView extends JComponent{
 	} else  System.out.println("NO ZOOMING");
     }
   
-    public boolean findPoint(int count, int newx, int newy) {
+    public synchronized boolean findPoint(int count, int newx, int newy) {
 	
 	 
 	  boolean rtn = false;
@@ -213,13 +213,21 @@ public class ParticleMotionView extends JComponent{
 	paintComponent(g);
 	}*/
 
-    public void paintComponent(Graphics g) {
+    public synchronized void paintComponent(Graphics g) {
 
 	//	if(setSelected == 1) g.setColor(Color.red);
 	//else if(setSelected == 2) g.setColor(getBackground());
+	if(displayKeys.size() == 0) return;
 	Graphics2D graphics2D = (Graphics2D)g;
 	logger.debug("IN PAINT COMPONENT");
-   
+// 	vunitRangeImpl = new UnitRangeImpl(getMinVerticalAmplitude(),
+// 					   getMaxVerticalAmplitude(),
+// 					   UnitImpl.COUNT);
+// 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
+// 					   getMaxHorizontalAmplitude(),
+// 					   UnitImpl.COUNT);
+	 // particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
+	 // particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
 	if(startPoint != null && endPoint != null) {
 	    graphics2D.setColor(Color.yellow);
 	    //logger.debug("Start Point "+startPoint.getX()+"  "+startPoint.getY());
@@ -264,7 +272,7 @@ public class ParticleMotionView extends JComponent{
 	
     }
 
-    public void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
+    public synchronized void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
 	logger.debug("IN DRAW AZIMUTH");
 	 if(!particleMotion.isHorizontalPlane()) return;
 	 Shape sector = getSectorShape();
@@ -278,7 +286,7 @@ public class ParticleMotionView extends JComponent{
 	 graphics2D.setStroke(new BasicStroke(1.0f));
    }
 
-    public void drawLabels(ParticleMotion particleMotion, Graphics2D graphics2D) {
+    public synchronized void drawLabels(ParticleMotion particleMotion, Graphics2D graphics2D) {
 	logger.debug("IN DRAW LABELS");
 	  Color color = new Color(0, 0, 0, 128);
 	  graphics2D.setColor(color);
@@ -309,7 +317,13 @@ public class ParticleMotionView extends JComponent{
 	  
     }
 
-    public void drawParticleMotion(ParticleMotion particleMotion, Graphics g) {
+    public void drawTitles(LocalSeismogramImpl hseis, LocalSeismogramImpl vseis) {
+	particleMotionDisplay.setHorizontalTitle(hseis.getName());
+	particleMotionDisplay.setVerticalTitle(vseis.getName());
+	
+    }
+
+    public synchronized void drawParticleMotion(ParticleMotion particleMotion, Graphics g) {
 	if(!recalculateValues) {
 	    recalculateValues = false;
 	    System.out.println(" DRAWING THE PARTICLE MOTION WITHOUT RECALCULATING THE VALUES");
@@ -321,6 +335,7 @@ public class ParticleMotionView extends JComponent{
 	Dimension dimension = super.getSize();
 	LocalSeismogramImpl hseis = particleMotion.hseis.getSeismogram();
 	LocalSeismogramImpl vseis = particleMotion.vseis.getSeismogram();
+
 	AmpConfigRegistrar vAmpConfigRegistrar = particleMotion.vAmpConfigRegistrar;
 	AmpConfigRegistrar hAmpConfigRegistrar = particleMotion.hAmpConfigRegistrar;
 	
@@ -438,7 +453,7 @@ public class ParticleMotionView extends JComponent{
 	    }
     }
 
-    public Shape getParticleMotionPath(int[] x, int[] y) {
+    public synchronized Shape getParticleMotionPath(int[] x, int[] y) {
 	int len = x.length;
 	if(y.length < len) { len = y.length;}
 	GeneralPath generalPath = new GeneralPath(GeneralPath.WIND_EVEN_ODD); 
@@ -503,7 +518,7 @@ public class ParticleMotionView extends JComponent{
 	//logger.debug("-----------------------------------------------------------");
 	return (Shape)generalPath;
     }
-    public Shape getSectorShape() {
+    public synchronized Shape getSectorShape() {
 
 	ParticleMotion particleMotion = (ParticleMotion)displays.get(0);
 	AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
@@ -567,6 +582,7 @@ public class ParticleMotionView extends JComponent{
 							   horizPlane);
 	displays.add(particleMotion);
 
+	logger.debug("Added the display to the ParticleMOTION VIEW");
 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
 					   getMaxHorizontalAmplitude(),
 					   UnitImpl.COUNT);
@@ -590,6 +606,11 @@ public class ParticleMotionView extends JComponent{
     public double getMinHorizontalAmplitude() {
 	
 	int size = displays.size();
+
+        logger.debug("^^^^^^^^^^^^^^^ The size of the displays in MIn is "+displayKeys.size());	
+	if(displayKeys.size() != 0)
+	    logger.debug("****** The display key i s"+displayKeys.get(0));
+
 	double min = Double.POSITIVE_INFINITY;
 	for(int counter = 0; counter < size; counter++) {
 	    
@@ -686,7 +707,7 @@ public class ParticleMotionView extends JComponent{
     }
 
     /*** updates the timeRange****/
-    public void updateTimeRange() {
+    public synchronized void updateTimeRange() {
 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
 					   getMaxHorizontalAmplitude(),
 					   UnitImpl.COUNT);
@@ -714,6 +735,22 @@ public class ParticleMotionView extends JComponent{
     public String getDisplayKey() {
 	return this.displayKey;
     }
+
+    public ParticleMotion[] getSelectedParticleMotion() {
+	
+	ArrayList arrayList = new ArrayList();
+	for(int counter = 0; counter < displays.size(); counter++) {
+	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
+	    if(displayKeys.contains(particleMotion.key)) {
+		arrayList.add(particleMotion);
+	    }
+	}//end of for
+	ParticleMotion[] rtnValues = new ParticleMotion[arrayList.size()];
+	rtnValues = (ParticleMotion[])arrayList.toArray(rtnValues);
+	return rtnValues;
+    }
+
     private Vector displayKeys = new Vector();
     private String displayKey =  new String();
     private boolean zoomIn = false;

@@ -73,6 +73,7 @@ public class ParticleMotionDisplayThread implements Runnable{
 
     public void run() {
 
+
 	if(dataSetSeismogram.length == 1) {
 	    dataSetSeismogram = retrieve_seismograms();
 	}
@@ -101,24 +102,30 @@ public class ParticleMotionDisplayThread implements Runnable{
 		
 	    }
 	}
+	if(displayButtonPanel) {
+	    particleMotionDisplay.setInitialButton();
+	}
+
     }
 
     public DataSetSeismogram[] retrieve_seismograms() {
-
 	LocalSeismogramImpl seis = dataSetSeismogram[0].getSeismogram();
 	ChannelId[] channelIds = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataSetSeismogram[0].getDataSet()).getChannelIds();
 	ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
 	logger.debug("the original channel_code from the seismogram is "+seis.getChannelID().channel_code);
 	 channelGroup = channelProxy.retrieve_grouping(channelIds, seis.getChannelID());
 	logger.debug("THe length of the channel group is "+channelGroup.length);
-	
-	//decide whether to form the radioSetPanel or the checkBoxPanel.
-	if(!advancedOption) {
-	    particleMotionDisplay.formRadioSetPanel(channelGroup);
-	} else {
-	    particleMotionDisplay.formCheckBoxPanel(channelGroup);
+
+		//decide whether to form the radioSetPanel or the checkBoxPanel.
+	if(displayButtonPanel) {
+	    if(!advancedOption) {
+		particleMotionDisplay.formRadioSetPanel(channelGroup);
+	    } else {
+		particleMotionDisplay.formCheckBoxPanel(channelGroup);
+	    }
 	}
-	
+
+
 	edu.iris.Fissures.Time startTime;
 	edu.iris.Fissures.Time endTime;
 	DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
