@@ -14,6 +14,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 
 /**
  * DrawableSeismogram.java
@@ -134,6 +136,9 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     }
 
     public void add(Drawable child){
+        if(child instanceof Event){
+            ((Event)child).setColor(color);
+        }
         children.add(child);
         parent.repaint();
     }
@@ -173,6 +178,15 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         this.parent = to;
         setVisibility(visible);
     }
+
+    public void switching(AmpConfig from, AmpConfig to) {
+        // TODO
+    }
+
+    public void switching(TimeConfig from, TimeConfig to) {
+        // TODO
+    }
+
 
     public String getName(){ return getSeismogram().getName(); }
 
