@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
+import edu.sc.seis.fissuresUtil.display.registrar.*;
 
 import edu.sc.seis.TauP.Arrival;
 import java.util.List;
