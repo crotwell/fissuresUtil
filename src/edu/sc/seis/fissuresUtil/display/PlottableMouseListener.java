@@ -14,7 +14,7 @@ import java.awt.event.*;
  * @version
  */
 
-public class PlottableMouseListener extends MouseAdapter {
+public class PlottableMouseListener extends MouseAdapter implements MouseMotionListener{
     public PlottableMouseListener (PlottableDisplay plottableDisplay){
 	this.plottableDisplay = plottableDisplay;
     }
@@ -27,9 +27,18 @@ public class PlottableMouseListener extends MouseAdapter {
     } 
 
     public void mouseReleased(MouseEvent me) {
+
+    }
+    
+    public void mouseDragged(MouseEvent me) {
 	plottableDisplay.setSelectedRectangle(prevx, prevy, me.getX(), me.getY());
     }
     
+    public void mouseMoved(MouseEvent me) {
+
+    }
+    
+   
     private int prevx = 0;
 
     private int prevy = -1;
