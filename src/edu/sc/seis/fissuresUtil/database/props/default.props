@@ -1,103 +1,49 @@
 #Default queries for the anhinga database calls
-eventattr.create=CREATE TABLE eventattr ( eventid int, \
-                                          eventname varchar, \
-                                          eventflinnengdahlid int,  \
-                                          preferredorigin int, \
-                                          FOREIGN KEY ( eventflinnengdahlid ) \
-                                          REFERENCES flinnengdahl ( flinnengdahlid ), \
-                                          PRIMARY KEY (eventid))
-
-eventparameterreference.create=CREATE TABLE eventparameterreference ( \
-                                    eventparameterreferenceid int, \
-                                    parameterid int , \
-                                    FOREIGN KEY (eventparameterreferenceid ) \
-                                    REFERENCES eventattr ( eventid ), \
-                                    FOREIGN KEY (parameterid ) \
-                                    REFERENCES parameterref ( parameterid ))
-
-unit.create=CREATE TABLE unit ( dbid int, \
-                                name varchar, \
-                                base varchar(10), \
-                                subunit_dbid varchar, \
-                                exponent int, \
-                                multFactor double, \
-                                power int, \
-                                PRIMARY KEY (dbid) )
-
-location.create=CREATE TABLE location (locationid int, \
-                                       locationlatitude float, \
-                                       locationlongitude float, \
-                                       locationelevationvalue float, \
-                                       locationelevationunitid int, \
-                                       locationdepthvalue float, \
-                                       locationdepthunitid int, \
-                                       locationtype int, \
-                                       PRIMARY KEY (locationid), \
-                                       FOREIGN KEY (locationelevationunitid) \
-                                       REFERENCES unit (dbid), \
-                                       FOREIGN KEY (locationdepthunitid) \
-                                       REFERENCES unit (dbid))
-
-contributor.create=CREATE TABLE contributor (contributorid int, \
-                                             contributor varchar, \
-                                             PRIMARY KEY (contributorid) )
-
-magnitude.create=CREATE TABLE magnitude ( magnitudetype varchar, \
-                                          magnitudevalue float, \
-                                          magnitudecontributorid int, \
-                                          originid int)
-
-catalog.create=CREATE TABLE catalog (catalogid int, \
-                                     catalogcontributorid int, \
-                                     catalog varchar, \
-                                     PRIMARY KEY (catalogid), \
-                                     FOREIGN KEY (catalogcontributorid ) \
-                                     REFERENCES contributor (contributorid))
-
-origin.create=CREATE TABLE origin (originid int, origincatalogid int, \
-                                   origineventid int, origin_time timestamp, \
-                                   originnanoseconds int, originleapseconds int, \
-                                   originlocationid int, \
-                                   origintextid varchar, \
-                                   PRIMARY KEY (originid), \
-                                   FOREIGN KEY (originlocationid) \
-                                   REFERENCES location (locationid))
-
-originparamref.create=CREATE TABLE originparamref (originparamrefid int, \
-                                                   originparameterid int, \
-                                                   FOREIGN KEY (originparamrefid) \
-                                                   REFERENCES origin (originid), \
-                                                   FOREIGN KEY (originparameterid) \
-                                                   REFERENCES parameterref (parameterid))
-
-EventAccess.create=CREATE TABLE eventaccess (eventid int, IOR varchar, originid int, \
-                                             eventattrid int, server varchar, \
-                                             dns varchar, PRIMARY KEY (eventid))
-
-
-EventAttrSeq.create=CREATE SEQUENCE EventAttrSeq
-EventAttrSeq.nextVal=SELECT NEXTVAL ('EventAttrSeq')
-
-FlinnEngdahlSeq.create=CREATE SEQUENCE FlinnEngdahlSeq
-FlinnEngdahlSeq.nextVal=SELECT NEXTVAL ('FlinnEngdahlSeq')
-
-ParameterRefSeq.create=CREATE SEQUENCE ParameterRefSeq
-ParameterRefSeq.nextVal=SELECT NEXTVAL ('ParameterRefSeq')
+unit.create=CREATE TABLE unit ( unit_id int, \
+                                unit_name varchar, \
+                                unit_base varchar(10), \
+                                unit_subunit_id varchar, \
+                                unit_exponent int, \
+                                unit_multFactor double, \
+                                unit_power int, \
+                                PRIMARY KEY (unit_id) )
 
 unit_seq.create=CREATE SEQUENCE unit_seq
 unit_seq.nextVal=SELECT NEXTVAL ('unit_seq')
 
+location.create=CREATE TABLE location (loc_id int, \
+                                       loc_lat float, \
+                                       loc_lon float, \
+                                       loc_elev_id int, \
+                                       loc_depth_id int, \
+                                       loc_type int, \
+                                       PRIMARY KEY (loc_id), \
+                                       FOREIGN KEY (loc_elev_id) \
+                                       REFERENCES quantity (quantity_id), \
+                                       FOREIGN KEY (loc_depth_id) \
+                                       REFERENCES quantity (quantity_id))
+
 LocationSeq.create=CREATE SEQUENCE LocationSeq
 LocationSeq.nextVal=SELECT NEXTVAL ('LocationSeq')
 
-ContributorSeq.create=CREATE SEQUENCE ContributorSeq
-ContributorSeq.nextVal=SELECT NEXTVAL ('ContributorSeq')
+quantity.create=CREATE TABLE quantity (quantity_id int, \
+                                       quantity_unit_id int, \
+                                       quantity_value double, \
+                                       FOREIGN KEY (quantity_unit_id) \
+                                       REFERENCES unit (unit_id), \
+                                       PRIMARY KEY (quantity_id))
 
-CatalogSeq.create=CREATE SEQUENCE CatalogSeq
-CatalogSeq.nextVal=SELECT NEXTVAL ('CatalogSeq')
+QuantitySeq.create=CREATE SEQUENCE QuantitySeq
+QuantitySeq.nextVal=SELECT NEXTVAL ('QuantitySeq')
 
-OriginSeq.create=CREATE SEQUENCE OriginSeq
-OriginSeq.nextVal=SELECT NEXTVAL ('OriginSeq')
+time.create=CREATE TABLE time (time_id int, \
+                               time_stamp timestamp, \
+                               time_nanos int, \
+                               time_leapsec int, \
+                               PRIMARY KEY (time_id))
 
-EventAccessSeq.create=CREATE SEQUENCE EventAccessSeq
-EventAccessSeq.nextVal=SELECT NEXTVAL ('EventAccessSeq')
+TimeSeq.create=CREATE SEQUENCE TimeSeq
+TimeSeq.nextVal=SELECT NEXTVAL ('TimeSeq')
+
+ParameterRefSeq.create=CREATE SEQUENCE ParameterRefSeq
+ParameterRefSeq.nextVal=SELECT NEXTVAL ('ParameterRefSeq')

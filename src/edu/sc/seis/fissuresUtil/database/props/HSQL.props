@@ -3,22 +3,12 @@ URL=jdbc:hsqldb:.
 user=sa
 password=
 
-EventAttrSeq.nextVal=CALL NEXT VALUE FOR EventAttrSeq
-
-FlinnEngdahlSeq.nextVal=CALL NEXT VALUE FOR FlinnEngdahlSeq
-
 ParameterRefSeq.nextVal=CALL NEXT VALUE FOR ParameterRefSeq
 
 unit_seq.nextVal=CALL NEXT VALUE FOR unit_seq
 
 LocationSeq.nextVal=CALL NEXT VALUE FOR LocationSeq
 
-ContributorSeq.nextVal=CALL NEXT VALUE FOR ContributorSeq
+QuantitySeq.nextVal=CALL NEXT VALUE FOR QuantitySeq
 
-MagnitudeSeq.nextVal=CALL NEXT VALUE FOR MagnitudeSeq
-
-CatalogSeq.nextVal=CALL NEXT VALUE FOR CatalogSeq
-
-OriginSeq.nextVal=CALL NEXT VALUE FOR OriginSeq
-
-EventAccessSeq.nextVal=CALL NEXT VALUE FOR EventAccessSeq
+TimeSeq.nextVal=CALL NEXT VALUE FOR TimeSeq
