@@ -22,7 +22,7 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
      * @return the BSD the seismograms were added to
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac) {
-        throw new UnsupportedOperationException("only add is supported on PickZoneDisplay");
+        return addDisplay(dss);
     }
 
     /**
@@ -33,7 +33,10 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
      * @return the BSD the seismograms were added to
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss) {
-        throw new UnsupportedOperationException("only add is supported on PickZoneDisplay");
+        for (int i = 0; i < dss.length; i++) {
+            add(dss[i]);
+        }
+        return (BasicSeismogramDisplay)basicDisplays.getFirst();
     }
 
     /**
@@ -44,7 +47,7 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
      * @return the BSD the seismograms were added to
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc) {
-        return addDisplay(dss, tc, new RMeanAmpConfig());
+        return addDisplay(dss);
     }
 
     /**
@@ -57,23 +60,17 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
      *
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac) {
-        throw new UnsupportedOperationException("only add is supported on PickZoneDisplay");
+        return addDisplay(dss);
     }
 
     public BasicSeismogramDisplay add(DataSetSeismogram[] seis, TimeConfig tc, Color color){
-        Color untransparent = new Color(color.getRed(),
-                                       color.getGreen(),
-                                       color.getBlue());
+        Color untransparent = new NamedColor(color.getRed(),
+                                             color.getBlue(),
+                                             color.getGreen(),
+                                             255,
+                                             color.toString());
         BasicSeismogramDisplay newDisplay = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(), this, untransparent);
         newDisplay.add(seis, untransparent);
-        DataSetSeismogram[] componentSorted = DisplayUtils.getComponents(seis[0]);
-        for (int i = 0; i < componentSorted.length; i++) {
-            if(!componentSorted[i].equals(seis[0])){
-                DataSetSeismogram[] adder = { componentSorted[i] };
-                newDisplay.add(adder);
-            }
-        }
-        seis[0].setName(seis[0].getName() + "." + color);
         newDisplay.removeTopTimeBorder();
         newDisplay.addBottomTimeBorder();
         add(newDisplay);
@@ -82,5 +79,22 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
         return newDisplay;
     }
 
+    public BasicSeismogramDisplay add(DataSetSeismogram seis){
+        BasicSeismogramDisplay[] displays = getDisplayArray();
+        for (int i = 0; i < displays.length; i++) {
+            if(displays[i].contains(seis)) {
+                continue;
+            }else{
+                DataSetSeismogram[] contained = displays[i].getSeismograms();
+                for (int j = 0; j < contained.length; j++) {
+                    if(DisplayUtils.areFriends(contained[j], seis)){
+                        DataSetSeismogram[] newSeis = { seis};
+                        displays[i].add(newSeis);
+                        return displays[i];
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }
-
