@@ -244,7 +244,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements ConfigLis
                 double curYPos = 0;
                 while(it.hasNext()){
                     LayoutData current = (LayoutData)it.next();
-                    System.out.println(current.getStart());
                     double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
                     int drawHeight = (int)((current.getEnd() - current.getStart())*height * scaling);
                     double neededYPos = midPoint - drawHeight/2;
