@@ -6,17 +6,15 @@ package edu.sc.seis.fissuresUtil.map;
  * @author Created by Charlie Groves
  */
 
-import com.bbn.openmap.LayerHandler;
-import com.bbn.openmap.MapBean;
-import com.bbn.openmap.MapHandler;
-import com.bbn.openmap.MouseDelegator;
-import com.bbn.openmap.MultipleSoloMapComponentException;
+import com.bbn.openmap.*;
+
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.gui.OMToolSet;
 import com.bbn.openmap.gui.ToolPanel;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
+import java.awt.Color;
 import java.util.Properties;
 import javax.swing.ListSelectionModel;
 
@@ -27,6 +25,7 @@ public class OpenMap extends OpenMapComponent{
      */
     public OpenMap(ChannelChooser chooser, EventTableModel etm, ListSelectionModel lsm){
         try{
+            Environment.set(Environment.BackgroundColor,"36B3DD");
             MapHandler mapHandler = new MapHandler();
             mapHandler.add(this);
             // Create a MapBean
@@ -64,12 +63,11 @@ public class OpenMap extends OpenMapComponent{
             Properties shapeLayerProps = new Properties();
             shapeLayerProps.put("prettyName", "Political Solid");
             shapeLayerProps.put("lineColor", "000000");
-            shapeLayerProps.put("fillColor", "BDDE83");
-            shapeLayerProps.put("shapeFile", "edu/sc/seis/fissuresUtil/map/dcwpo-browse.shp");
-            shapeLayerProps.put("spatialIndex", "edu/sc/seis/fissuresUtil/map/dcwpo-browse.ssx");
+            shapeLayerProps.put("fillColor", "39DA87");
+            shapeLayerProps.put("shapeFile", "edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse.shp");
+            shapeLayerProps.put("spatialIndex", "edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse.ssx");
             shapeLayer.setProperties(shapeLayerProps);
             shapeLayer.setVisible(true);
-
             mapHandler.add(shapeLayer);
 
             // Create the directional and zoom control tool
