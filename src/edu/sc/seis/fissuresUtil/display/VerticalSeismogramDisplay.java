@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.IOException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelIdUtil;

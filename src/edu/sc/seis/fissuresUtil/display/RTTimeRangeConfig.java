@@ -4,6 +4,7 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.*;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 import java.util.*;
 import java.net.*;

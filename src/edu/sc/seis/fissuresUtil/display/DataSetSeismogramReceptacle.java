@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.util.List;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * DataSetSeismogramReceptacle defines an interface for objects wishing to hold

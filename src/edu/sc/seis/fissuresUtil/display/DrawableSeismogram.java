@@ -3,8 +3,10 @@ package edu.sc.seis.fissuresUtil.display;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Dimension;
+import javax.swing.JComponent;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Rectangle;
-
 
 /**
  * DrawableSeismogram.java
@@ -14,24 +16,30 @@ import java.awt.Rectangle;
 
 
 public class DrawableSeismogram implements NamedPlotter{
-    public DrawableSeismogram(DataSetSeismogram seis){
-        this(seis, Color.blue, seis.toString());
+    public DrawableSeismogram(JComponent parent, DataSetSeismogram seis){
+        this(parent, seis, Color.blue);
     }
     
-    public DrawableSeismogram(DataSetSeismogram seis, Color color){
-        this(seis, color, seis.toString());
+    public DrawableSeismogram(JComponent parent, DataSetSeismogram seis, Color color){
+        this(parent, seis, color, seis.toString());
     }
     
-    public DrawableSeismogram(DataSetSeismogram seis, Color color, String name){
-        this.color = color;
-        this.name = name;
-        shape = new SeismogramShape(seis);
+    public DrawableSeismogram(JComponent parent, 
+			      DataSetSeismogram seis, 
+			      Color color, 
+			      String name){
+        this(parent, new SeismogramShape(parent, seis), color, name);
     }
     
-    public DrawableSeismogram(SeismogramShape shape, Color color, String name){
+    public DrawableSeismogram(JComponent parent, SeismogramShape shape, Color color, String name){
+	this.parent = parent;
         this.color = color;
         this.name = name;
         this.shape = shape;
+    }
+
+    public JComponent getParent() {
+	return parent;
     }
     
     public void setVisibility(boolean b){

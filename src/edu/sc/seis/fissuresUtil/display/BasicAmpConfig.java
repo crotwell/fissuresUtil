@@ -5,6 +5,9 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
+import edu.sc.seis.fissuresUtil.database.SeisDataChangeEvent;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,12 +38,25 @@ public class BasicAmpConfig implements AmpConfig{
     public void add(DataSetSeismogram[] seismos){
         for(int i = 0; i < seismos.length; i++){
             ampData.put(seismos[i], new AmpConfigData(seismos[i], null, null, shift, scale));
-            DisplayUtils.statCache.put(seismos[i], new Statistics(seismos[i].getSeismogram()));
         }
         this.seismos = null;
         calculateAmp();
         recalculateAmp();
         fireAmpEvent();
+    }
+
+    public synchronized void pushData(SeisDataChangeEvent sdce) {
+        for(int i = 0; i < sdce.seismos.length; i++){
+            DisplayUtils.statCache.put(sdce.source, 
+				       new Statistics(sdce.seismos[i]));
+        }
+        this.seismos = null;
+        calculateAmp();
+        recalculateAmp();
+        fireAmpEvent();
+    }
+
+    public void finished(SeisDataChangeEvent sdce) {
     }
     
     /**

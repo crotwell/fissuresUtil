@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * BeginAlignedTimeConfig synchronizes all the seismograms it holds around their initial times. It gets the first added 
