@@ -138,13 +138,6 @@ public class SeismogramPDFBuilder {
         }
     }
 
-    private Graphics2D createAndConf(PdfContentByte cb, int w, int h){
-        PdfTemplate tpTraces = cb.createTemplate(w, h);
-        Graphics2D g2Traces = tpTraces.createGraphics(w, h);
-        g2Traces.translate(rightMargin, topMargin);
-        return g2Traces;
-    }
-
     private static int leftMargin = 50, rightMargin = 50,
         topMargin = 50, bottomMargin = 50;
 
