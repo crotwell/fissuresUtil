@@ -98,7 +98,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		seismograms.add(seismos[i]);	
 		SeismogramShape newPlotter;
 		if (autoColor) {
-		    newPlotter = new SeismogramShape(seismos[i], seisColors[seisCount%seisColors.length]);
+		    newPlotter = new SeismogramShape(seismos[i], 
+						     seisColors[(seismograms.size() -1) % seisColors.length]);
 		}else {
 		    newPlotter = new SeismogramShape(seismos[i], Color.blue);
 		} // end of else
@@ -106,7 +107,6 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		    newPlotter.setVisibility(parent.getOriginalVisibility());
 		}
 		plotters.add(newPlotter);
-		seisCount++;
 	    }
 	}
 	Iterator e = globalFilters.iterator();
@@ -269,7 +269,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public void clearSingleSelections(){
 	Iterator e = new PlotterIterator(SingleSelection.class);
 	while(e.hasNext()){
-	    removeSelection((Selection)e.next());
+	    Selection old = (Selection)e.next();
+	    e.remove();
+	    old.removeParent(this);
 	}
 	repaint();
     }
@@ -278,7 +280,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	return getPlotters(ThreeCSelection.class);
     }
 
-    public void add3CSelection(ThreeCSelection newSelection){ 
+    public void addThreeCSelection(ThreeCSelection newSelection){ 
 	if( ! plotters.contains(newSelection)){
 	    plotters.add(newSelection);
 	    repaint();
@@ -295,7 +297,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public void clearThreeCSelections(){
 	Iterator e = new PlotterIterator(ThreeCSelection.class);
 	while(e.hasNext()){
-	    removeThreeCSelection((ThreeCSelection)e.next());
+	    Selection old = (Selection)e.next();
+	    e.remove();
+	    old.removeParent(this);
 	}
 	repaint();
     }
@@ -371,15 +375,16 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	ampScaleMap.setTotalPixels(displaySize.height);
     }
 
-    public void remove(DataSetSeismogram[] seismos){}
+    // public void remove(DataSetSeismogram[] seismos){}
 
+    /** removes this Basic SeismogramDisplay from the parent. */
     public void remove(){
 	logger.debug("bsd being removed");
 	parent.removeDisplay(this);
 	destroy();
     }
 
-    public void destroy(){
+    void destroy(){
 	clearSelections();
 	registrar.removeListener(this);
 	registrar.remove(getSeismograms());
@@ -390,8 +395,10 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	java.util.LinkedList seismoList = new java.util.LinkedList();
 	while(e.hasNext()){
 	    SeismogramShape current = (SeismogramShape)e.next();
-	    current.setVisibility(visible);
-	    seismoList.addLast(current.getSeismogram());
+	    if ( current.getClass().equals(SeismogramShape.class)) {
+		current.setVisibility(visible);
+		seismoList.addLast(current.getSeismogram());
+	    } // end of if ()
 	} 
 	DataSetSeismogram[] seismos = 
 	    new DataSetSeismogram[seismoList.size()];
@@ -406,18 +413,22 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 
     public void applyFilter(ColoredFilter filter){
 	DataSetSeismogram[] seismos = new DataSetSeismogram[seismograms.size()];
-	Plotter[] filteredShapes = new Plotter[seismograms.size()];
 	int i = 0;
 	if(filters.contains(filter)){
+	    LinkedList filterShapes = new LinkedList();
 	    Iterator e = new PlotterIterator(FilteredSeismogramShape.class);
 	    while(e.hasNext()){
+		logger.debug("contains filter");
 		FilteredSeismogramShape current = ((FilteredSeismogramShape)e.next());
 		if(current.getFilter() == filter){
+		    current.setVisibility(filter.getVisibility());
+		    e.remove();
+		    filterShapes.addLast(current);
 		    seismos[i] = current.getFilteredSeismogram();
-		    filteredShapes[i] = current;
 		    i++;
 		}
 	    }
+	    plotters.addAll(filterShapes);
 	}else{
 	    filters.add(filter);
 	    Iterator e = seismograms.iterator();
@@ -426,25 +437,13 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		FilteredSeismogramShape filteredShape = new FilteredSeismogramShape(filter, current);
 		seismos[i] = filteredShape.getFilteredSeismogram();
 		plotters.add(filteredShape);
-		filteredShapes[i] = filteredShape;
 		i++;		
 	    }
 	}
 	if (filter.getVisibility()) {
 	    registrar.add(seismos);
-	    java.util.List filterList = 
-		getPlotters(FilteredSeismogramShape.class);
-	    if(filterList.size() > 1){
-		for(int j = 0; j < filteredShapes.length; j++){
-		    filterList.remove(filteredShapes[j]);
-		    filterList.add(filterList.size(),filteredShapes[j]);
-		}
-	    }
 	}else {
 	    registrar.remove(seismos);
-	}
-	for(i = 0; i < seismos.length; i++){
-	    filteredShapes[i].setVisibility(filter.getVisibility());
 	}
 	repaint();
     }
@@ -502,7 +501,9 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 		return null;
 	    } // end of if ()
 	    // hasNext will populate nextObj if it returned true
-	    return nextObj;
+	    Object out = nextObj;
+	    nextObj=null;
+	    return out;
 	}
 
 	public void remove() {
@@ -536,8 +537,6 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     
     private LinkedList plotters = new LinkedList();
     
-    private int seisCount = 0, filterCount = 0, flagCount = 0, selectionCount = 0, selection3CCount = 0;
-
     private Registrar registrar;
 
     private TimeEvent currentTimeEvent;
