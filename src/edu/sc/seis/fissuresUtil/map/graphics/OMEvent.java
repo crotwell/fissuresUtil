@@ -59,13 +59,11 @@ public class OMEvent extends OMGraphicList implements FissuresGraphic{
     }
 
     public void select() {
-        System.out.println("select called");
         super.select();
         bigCircle.setFillPaint(new Color(0, 0, 0, 64));
         if (mapBean.getScale() == originalScale){
             logger.debug("mapBean.getScale() == originalScale");
             try{
-                System.out.println("trying to center on event");
                 mapBean.center(new CenterEvent(this,
                                                0.0f,
                                                event.get_preferred_origin().my_location.longitude));
@@ -76,7 +74,6 @@ public class OMEvent extends OMGraphicList implements FissuresGraphic{
     }
 
     public void deselect(){
-    		System.out.println("deselect called");
         super.deselect();
         bigCircle.setFillPaint(OMGraphicList.clear);
     }
