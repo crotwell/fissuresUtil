@@ -213,7 +213,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         NoPreferredOrigin {
         URL[] seisURL = new URL[seismograms.length];
         for (int i=0; i<seismograms.length; i++) {
-            seisURL[i] = saveAsSac(seismograms[i], directory, channel, event);
+            seisURL[i] = saveAsSac(seismograms[i], directory, channel, event).toURI().toURL();
             logger.debug("Save as SAC for "+seisURL[i]);
         }
         URLDataSetSeismogram urlDSS = new URLDataSetSeismogram(seisURL,
@@ -234,7 +234,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         return urlDSS;
     }
     
-    public static URL saveAsSac(LocalSeismogramImpl seis,
+    public static File saveAsSac(LocalSeismogramImpl seis,
                                 File directory)
         throws IOException, CodecException {
         try {
@@ -245,7 +245,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         return null;
     }
     
-    public static URL saveAsSac(LocalSeismogramImpl seis,
+    public static File saveAsSac(LocalSeismogramImpl seis,
                                 File directory,
                                 Channel channel,
                                 EventAccessOperations event)
@@ -284,7 +284,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             }
         }
         sac.write(seisFile);
-        return seisFile.toURL();
+        return seisFile;
     }
     
     private void setRequestFilter(LocalSeismogramImpl seis){
@@ -352,8 +352,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     
     /** allows the saving of a URLDataSetSeismogram in XML format. The
      actual waveform data is not saved, just the URLs to it. If local
-     saving is needed, localize should be used before calling insertInto. */
-    public void insertInto(Element element) {
+     saving is needed, localize should be used before calling insertInto. All
+     URLs are saved realtive to the base. */
+    public void insertInto(Element element, URL base) {
         Document doc = element.getOwnerDocument();
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "name",
@@ -364,10 +365,17 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         element.appendChild(rf);
         
         logger.debug("Saving "+url.length+" urls for "+getName());
+        String baseStr = base.toString();
+        String outStr;
         for (int i = 0; i < url.length; i++) {
+            outStr = url[i].toString();
+            logger.debug("base="+baseStr+" outStr="+outStr);
+            if (outStr.startsWith(baseStr)) {
+                outStr = outStr.substring(baseStr.length());
+            }
             Element urlElement = doc.createElement("url");
             urlElement.setAttribute("xlink:type", "simple");
-            urlElement.setAttribute("xlink:href", url[i].toString());
+            urlElement.setAttribute("xlink:href", outStr);
             urlElement.setAttribute("xlink:role", fileType.getURLValue().toString());
             element.appendChild(urlElement);
         }

@@ -84,11 +84,11 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
 
         for (int i = 0; i < seis.length; i++) {
             try {
-                URL url = URLDataSetSeismogram.saveAsSac(seis[i],
+                File seisFile = URLDataSetSeismogram.saveAsSac(seis[i],
                                     directory,
                                     inDSS.getDataSet().getChannel(inDSS.getRequestFilter().channel_id),
                                     inDSS.getDataSet().getEvent());
-                urlDSS.addToCache(url,
+                urlDSS.addToCache(seisFile.toURI().toURL(),
                                   seis[i]);
             } catch (NoPreferredOrigin e) {
                 setError(e);
