@@ -6,6 +6,7 @@ import org.hsqldb.*;
 import org.apache.log4j.*;
 
 /**
+ * This class acts an abstract class for database Operations. 
  * AbstractDb.java
  *
  *
@@ -21,17 +22,17 @@ public abstract class AbstractDb {
     }
 
     public Connection getConnection() {
-	try {
-	    if(connection == null) {
-		String driverName = new String("org.hsqldb.jdbcDriver");
-		Class.forName(driverName).newInstance();
-		connection = DriverManager.getConnection("jdbc:hsqldb:testhsqldb", "sa", "");
-	    } 
-	    return connection;
-	} catch(Exception sqle) {
-	    sqle.printStackTrace();
-	    return null;
-	}
+        try {
+            if(connection == null) {
+                String driverName = new String("org.hsqldb.jdbcDriver");
+                Class.forName(driverName).newInstance();
+                connection = DriverManager.getConnection("jdbc:hsqldb:testhsqldb", "sa", "");
+            } 
+            return connection;
+        } catch(Exception sqle) {
+            sqle.printStackTrace();
+            return null;
+        }
 	
     }
 

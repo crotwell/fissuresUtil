@@ -6,6 +6,9 @@ import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.model.*;
 
 /**
+ * This class is Similar to DCOperations. This class differs from the DCOperations in the signature of the method
+ * request_seismograms which takes a callback Object. This interface makes use of a LocalDataCenterCallBack object for
+ * callback whereas DCOperations uses CORBA Object as a CallBackObject.
  * LocalDCOperations.java
  *
  *
@@ -40,7 +43,7 @@ public interface LocalDCOperations {
     String
     request_seismograms(RequestFilter[] a_filterseq,
                         LocalDataCenterCallBack a_client,
-			SeisDataChangeListener initiator,
+                        SeisDataChangeListener initiator,
                         boolean long_lived,
                         edu.iris.Fissures.Time expiration_time)
         throws edu.iris.Fissures.FissuresException;

@@ -4,6 +4,10 @@ import java.sql.*;
 import org.hsqldb.*;
 import org.apache.log4j.*;
 /**
+ * This class is used to create a UniqueIdentifier when the method
+ * getUniqueIdentifier is called. It makes use of database for returning
+ * an uniqueIdentifier.
+ * 
  * UniqueNumberGenerator.java
  *
  *
