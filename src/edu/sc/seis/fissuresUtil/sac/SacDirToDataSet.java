@@ -5,14 +5,9 @@ import edu.sc.seis.fissuresUtil.xml.*;
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.Channel;
-import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -20,7 +15,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Element;
 
@@ -31,7 +25,7 @@ import org.w3c.dom.Element;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 8093 2004-04-09 20:54:21Z crotwell $
+ * @version $Id: SacDirToDataSet.java 9748 2004-07-22 20:21:30Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -77,7 +71,12 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         File[] files = directory.listFiles();
         for (int i=0; i<files.length; i++) {
             try {
+                if (files[i].isDirectory()) {
+                    // skip
+                    continue;
+                }
                 String filename = files[i].getName();
+                System.out.println("Process "+filename);
                 // maybe an image?
                 if (filename.endsWith(".gif") ||
                     filename.endsWith(".GIF") ||
@@ -193,17 +192,15 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         if (seisName.endsWith(".SAC")) {
             seisName = seisName.substring(0,seisName.length()-4);
         } // end of if (seisName.endsWith(".SAC"))
-        seis.setName(seisName);
-        URLDataSetSeismogram urlDSS = new URLDataSetSeismogram(seisURL,
-                                                               SeismogramFileTypes.SAC,
-                                                               dataset);
-        urlDSS.addToCache(seisURL, SeismogramFileTypes.SAC, seis);
+        System.out.println("seis name="+seisName+" url="+seisURL);
+        MemoryDataSetSeismogram memDSS = new MemoryDataSetSeismogram(seis, dataset, seisName);
+
         AuditInfo[] seisAudit = new AuditInfo[1];
         seisAudit[0] = new AuditInfo(System.getProperty("user.name"),
                                      "seismogram loaded from sac file.");
 
-        dataset.addDataSetSeismogram(urlDSS, seisAudit);
-
+        dataset.addDataSetSeismogram(memDSS, seisAudit);
+        System.out.println("Done with "+seisName);
     }
 
     String userName = System.getProperty("user.name");
@@ -265,12 +262,15 @@ public class SacDirToDataSet implements StdDataSetParamNames {
             base = new URL(baseStr);
             System.out.println("base is "+base.toString());
             File f = new File(dirName);
-            if (dirName != null && f.isDirectory()) {
-                SacDirToDataSet sdir = new SacDirToDataSet(base, f, dsName, excludes, params);
-                sdir.process();
-            } else {
-                System.err.println("Not a directory: "+args[1]);
-            } // end of else
+            if (dirName != null) {
+                if ( ! f.exists()) { f.mkdirs(); }
+                if ( f.isDirectory()) {
+                    SacDirToDataSet sdir = new SacDirToDataSet(base, f, dsName, excludes, params);
+                    sdir.process();
+                } else {
+                    System.err.println("Not a directory: "+args[1]);
+                } // end of else
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } // end of try-catch
