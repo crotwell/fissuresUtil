@@ -52,12 +52,32 @@ public class Cmplx {
 
 	/* class methods */
 
+	public static final Cmplx add(double a, Cmplx b)
+	{
+	    return add(new Cmplx(a, 0), b);
+	}
+
+	public static final Cmplx add(Cmplx a, double b)
+	{
+	    return add(a, new Cmplx(b, 0));
+	}
+
 	public static final Cmplx add(Cmplx a, Cmplx b)
 	{
 		Cmplx c = new Cmplx();
 		c.r = a.r + b.r;
 		c.i = a.i + b.i;
 		return c;
+	}
+
+	public static final Cmplx sub(double a, Cmplx b)
+	{
+	    return Cmplx.sub(new Cmplx(a, 0), b);
+	}
+
+	public static final Cmplx sub(Cmplx a, double b)
+	{
+	    return Cmplx.sub(a, new Cmplx(b, 0));
 	}
 
 	public static final Cmplx sub(Cmplx a, Cmplx b)
@@ -68,12 +88,32 @@ public class Cmplx {
 		return c;
 	}
 
+	public static final Cmplx mul(double a, Cmplx b)
+	{
+	    return Cmplx.mul(new Cmplx(a,0), b);
+	}
+
+	public static final Cmplx mul(Cmplx a, double b)
+	{
+	    return Cmplx.mul(a, new Cmplx(b, 0));
+	}
+
 	public static final Cmplx mul(Cmplx a, Cmplx b)
 	{
 		Cmplx c = new Cmplx();
 		c.r = a.r * b.r - a.i * b.i;
 		c.i = a.i * b.r + a.r * b.i;
 		return c;
+	}
+
+	public static final Cmplx div(double a, Cmplx b)
+	{
+	    return div(new Cmplx(a, 0), b);
+	}
+
+	public static final Cmplx div(Cmplx a, double b)
+	{
+	    return div(a, new Cmplx(b, 0));
 	}
 
 	public static final Cmplx div(Cmplx a, Cmplx b)
