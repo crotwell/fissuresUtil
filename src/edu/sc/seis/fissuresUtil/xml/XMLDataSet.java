@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 2200 2002-07-15 14:07:57Z crotwell $
+ * @version $Id: XMLDataSet.java 2235 2002-07-16 16:02:08Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -463,7 +463,7 @@ public class XMLDataSet implements DataSet, Serializable {
 			 i++;
 			 } // end of while (it.hasNext())*/
 	String[] noNames = getNoNameSeismogramNames();
-	String[] rtnValues = new String[noNames.length + outNames.length];
+   	String[] rtnValues = new String[noNames.length + outNames.length];
 	//System.out.println("The length of noNames is "+noNames.length);
 	//System.out.println("The length of nameed siesmograms is "+outNames.length);
 	System.arraycopy(outNames, 0, rtnValues, 0, outNames.length);
@@ -761,7 +761,10 @@ public class XMLDataSet implements DataSet, Serializable {
 	
         String name =seis.getProperty(seisNameKey);
         if (name == null || name.length() == 0) {
-	    name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
+	    name = seis.channel_id.network_id.network_code+"."+
+            seis.channel_id.station_code+"."+
+            seis.channel_id.channel_code;
+        //edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
 	
 	}
 	name = getUniqueName(name);
@@ -799,6 +802,8 @@ public class XMLDataSet implements DataSet, Serializable {
         seismogramCache.put(name, seis);
 
 	logger.debug("added seis now "+getSeismogramNames().length+" seisnogram names.");
+	seismogramNameCache = null;
+    //xpath = new XPathAPI();
 	//xpath = new CachedXPathAPI(xpath);
 	logger.debug("2 added seis now "+getSeismogramNames().length+" seisnogram names.");
     }
