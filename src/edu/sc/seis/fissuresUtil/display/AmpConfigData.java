@@ -37,6 +37,10 @@ public class AmpConfigData {
 		this.scale = scale;
 		needShale = true;
     }
+
+    public LocalSeismogramImpl[] getSeismograms() {
+	return (LocalSeismogramImpl[])seismograms.toArray(new LocalSeismogramImpl[0]);
+    }
 	
     public void addSeismograms(LocalSeismogramImpl[] seismos){
 		for(int i = 0; i < seismos.length; i++){
