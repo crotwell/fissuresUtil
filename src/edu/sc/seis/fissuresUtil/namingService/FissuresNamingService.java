@@ -108,7 +108,6 @@ public class FissuresNamingService {
             logger.debug("now trying narrow ");
             namingContext = NamingContextExtHelper.narrow(rootObj);
         }
-        logger.debug("returning name service");
         return namingContext;
     }
 
@@ -370,7 +369,6 @@ public class FissuresNamingService {
 
     }
 
-
     /**
      * returns the reference to the SeismogramDC inthe naming service.
      *
@@ -513,38 +511,36 @@ public class FissuresNamingService {
 
         ArrayList arrayList = new ArrayList();
         try {
-            if(path == null) {
+            if(path == null || path.equals("/")) {
                 obj = getRoot();
             } else {
                 obj =  getNameService().resolve(getNameService().to_name(path));
             }
-            NamingContextExt namingContextTemp = NamingContextExtHelper.narrow(obj);
-            BindingListHolder bindingList = new BindingListHolder();
+            NamingContextExt namingContext = NamingContextExtHelper.narrow(obj);
+            BindingListHolder bindings = new BindingListHolder();
             BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
 
-            namingContextTemp.list(0, bindingList, bindingIteratorHolder);
+            namingContext.list(0, bindings, bindingIteratorHolder);
 
             BindingIterator bindingIterator = bindingIteratorHolder.value;
             BindingHolder bindingHolder = new BindingHolder();
 
-            while( bindingIterator.next_one(bindingHolder)) {
+            while( bindingIterator != null && bindingIterator.next_one(bindingHolder)) {
                 Binding binding = bindingHolder.value;
-                String tempPath = new String();
-
+                String bindingPath = new String();
                 if(binding.binding_type == BindingType.ncontext) {
-
-                    if(path == null) tempPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
-                    else tempPath = path + "/"+binding.binding_name[0].id+"."+binding.binding_name[0].kind;
-                    org.omg.CORBA.Object[] str;
+                    if(path == null) bindingPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
+                    else bindingPath = path + "/"+binding.binding_name[0].id+"."+binding.binding_name[0].kind;
+                    org.omg.CORBA.Object[] objs;
                     if(binding.binding_name[0].kind.equals("interface") &&
                        binding.binding_name[0].id.equals(interfaceName)) {
-                        str = getAllObjects("__END__RECURSION__", tempPath);
+                        objs = getAllObjects("__END__RECURSION__", bindingPath);
                     } else {
-                        str = getAllObjects(interfaceName, tempPath);
+                        objs = getAllObjects(interfaceName, bindingPath);
                     }
-                    if(str != null) {
-                        for(int i = 0; i < str.length; i++)
-                            arrayList.add(str[i]);
+                    if(objs != null) {
+                        for(int i = 0; i < objs.length; i++)
+                            arrayList.add(objs[i]);
                     }
                 } else {
                     if(interfaceName.equals("__END__RECURSION__")) {
@@ -565,7 +561,7 @@ public class FissuresNamingService {
 
         } catch(Exception e) {
 
-            logger.debug("caught Exception "+e);
+            logger.debug("caught Exception ",e);
         }
         return null;
 
@@ -576,7 +572,7 @@ public class FissuresNamingService {
      *
      * @return a <code>NetworkDC[]</code> value
      */
-    public NetworkDC[] getNetworkDCObjects() {
+    public NetworkDC[] getAllNetworkDC() {
         org.omg.CORBA.Object[] objects = getAllObjects("NetworkDC", null);
         NetworkDC[] networkDCObjects = new NetworkDC[objects.length];
         for(int counter = 0; counter < objects.length; counter++) {
@@ -590,7 +586,7 @@ public class FissuresNamingService {
      *
      * @return an <code>EventDC[]</code> value
      */
-    public EventDC[] getEventDCObjects() {
+    public EventDC[] getAllEventDC() {
         org.omg.CORBA.Object[] objects = getAllObjects("EventDC", null);
         EventDC[] eventDCObjects = new EventDC[objects.length];
         for(int counter = 0; counter < objects.length; counter++) {
@@ -604,7 +600,7 @@ public class FissuresNamingService {
      *
      * @return a <code>DataCenter[]</code> value
      */
-    public DataCenter[] getDataCenterObjects() {
+    public DataCenter[] getAllSeismogramDC() {
         org.omg.CORBA.Object[] objects = getAllObjects("DataCenter", null);
         DataCenter[] dataCenterObjects = new DataCenter[objects.length];
         for(int counter = 0; counter < objects.length; counter++) {
