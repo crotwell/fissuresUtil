@@ -12,7 +12,7 @@ import edu.iris.Fissures.dataSetMgr.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version
+ * @version $Id: SacDirToDataSet.java 1709 2002-05-27 21:00:47Z crotwell $
  */
 
 public class SacDirToDataSet {

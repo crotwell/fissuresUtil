@@ -22,20 +22,20 @@ public interface DataSet {
 
     public Object getParamter(String name);
 
-    public void addParameter(String name, Object param);
+    public void addParameter(String name, Object param, AuditInfo[] audit);
 
     public String[] getDataSetNames();
 
     public DataSet getDataSet(String name);
 
-    public void addDataSet(DataSet dataset);
+    public void addDataSet(DataSet dataset, AuditInfo[] audit);
 
-    public DataSet createChildDataSet(String id, String name, String owner);
+    public DataSet createChildDataSet(String id, String name, String owner, AuditInfo[] audit);
 
     public String[] getSeismogramNames();
 
     public LocalSeismogramImpl getSeismogram(String name);
 
-    public void addSeismogram(LocalSeismogramImpl seis);
+    public void addSeismogram(LocalSeismogramImpl seis, AuditInfo[] audit);
 
 }

@@ -6,6 +6,7 @@ import edu.sc.seis.fissuresUtil.sac.*;
 import edu.iris.Fissures.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import org.apache.xpath.*;
@@ -18,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1701 2002-05-24 21:08:55Z crotwell $
+ * @version $Id: XMLDataSet.java 1709 2002-05-27 21:00:47Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -129,7 +130,9 @@ public class XMLDataSet implements DataSet, Serializable {
 	return null;
     }
 
-    public void addParameter(String name, Object param) {
+    public void addParameter(String name, 
+			     Object param,
+			     AuditInfo[] audit) {
 	parameterCache.put(name, param);
 	if (param instanceof Element) {
 	    config.appendChild((Element)param);
@@ -164,15 +167,17 @@ public class XMLDataSet implements DataSet, Serializable {
 	return null;
     }
 
-    public void addDataSet(DataSet dataset) {
+    public void addDataSet(DataSet dataset,
+			   AuditInfo[] audit) {
 	if (dataset instanceof XMLDataSet) {
 	    config.appendChild(((XMLDataSet)dataset).config);
 	} // end of if (dataset instanceof XMLDataSet)
     }
 
-    public DataSet createChildDataSet(String id, String name, String owner) {
+    public DataSet createChildDataSet(String id, String name, String owner,
+				      AuditInfo[] audit) {
 	XMLDataSet dataset = new XMLDataSet(docBuilder, id, name, owner);
-	addDataSet(dataset);
+	addDataSet(dataset, audit);
 	return dataset;
     }
 
@@ -263,16 +268,21 @@ public class XMLDataSet implements DataSet, Serializable {
 	return null;
     }
 
-    public void addSeismogram(LocalSeismogramImpl seis) {
+    public void addSeismogram(LocalSeismogramImpl seis,
+			      AuditInfo[] audit) {
 
 	// Note this does not set the xlink, as the seis has not been saved anywhere yet.
 
 	Document doc = config.getOwnerDocument();
 	Element sac = doc.createElement("SacSeismogram");
-	Element nameE = doc.createElement("name");
-	nameE.setNodeValue(seis.getProperty("name"));
-	config.appendChild(nameE);
 
+	String name =seis.getProperty("name");
+	if (name != null && name.length() != 0) {
+	    Element nameE = doc.createElement("name");
+	    nameE.setNodeValue(seis.getProperty("name"));
+	    sac.appendChild(nameE);
+	}
+	
 	Property[] props = seis.getProperties();
 	Element propE, propNameE, propValueE;
 	for (int i=0; i<props.length; i++) {
@@ -284,11 +294,64 @@ public class XMLDataSet implements DataSet, Serializable {
 		propValueE.setNodeValue(props[i].value);
 		propE.appendChild(propNameE);
 		propE.appendChild(propValueE);
+		sac.appendChild(propE);
 	    }
 	}
 	config.appendChild(sac);
 
 	seismogramCache.put(seis.getProperty("name"), seis);
+    }
+
+    public void addSeismogramRef(URL seisURL, 
+				 String name, 
+				 Property[] props, 
+				 ParameterRef[] parm_ids,
+				 AuditInfo[] audit) {
+
+	// Note this does not set the xlink, as the seis has not been saved anywhere yet.
+
+	Document doc = config.getOwnerDocument();
+	Element sac = doc.createElement("SacSeismogram");
+	Element nameE = doc.createElement("name");
+	nameE.setNodeValue(name);
+	sac.appendChild(nameE);
+
+	Element propE, propNameE, propValueE;
+	for (int i=0; i<props.length; i++) {
+	    if (props[i].name != "name") {
+		propE = doc.createElement("property");
+		propNameE = doc.createElement("name");
+		propNameE.setNodeValue(props[i].name);
+		propValueE = doc.createElement("value");
+		propValueE.setNodeValue(props[i].value);
+		propE.appendChild(propNameE);
+		propE.appendChild(propValueE);
+		sac.appendChild(propE);
+	    }
+	}
+	config.appendChild(sac);
+    }
+
+    public void write(OutputStream out) throws Exception {
+    DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder docBuilder = dfactory.newDocumentBuilder();
+    org.w3c.dom.Document outNode = docBuilder.newDocument();
+
+
+    javax.xml.transform.TransformerFactory tfactory = 
+	javax.xml.transform.TransformerFactory.newInstance(); 
+    
+    // This creates a transformer that does a simple identity transform, 
+    // and thus can be used for all intents and purposes as a serializer.
+    javax.xml.transform.Transformer serializer = tfactory.newTransformer();
+    
+    java.util.Properties oprops = new java.util.Properties();
+    oprops.put("method", "html");
+    oprops.put("indent-amount", "2");
+    serializer.setOutputProperties(oprops);
+    serializer.transform(new javax.xml.transform.dom.DOMSource(config), 
+                         new javax.xml.transform.stream.StreamResult(System.out));
+
     }
 
     protected String[] getAllAsStrings(String path) {
@@ -374,7 +437,10 @@ public class XMLDataSet implements DataSet, Serializable {
 
 	    testDataSet(dataset, " ");
 
-
+	    FileOutputStream out = new FileOutputStream("test");
+	    dataset.write(out);
+	    out.flush();
+	    out.close();
 	} catch (Exception e) {
 	    e.printStackTrace();	    
 	} // end of try-catch
