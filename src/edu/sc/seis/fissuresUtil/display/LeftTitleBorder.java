@@ -20,7 +20,7 @@ public class LeftTitleBorder extends javax.swing.border.AbstractBorder {
     
     public LeftTitleBorder(String title) {
         top = 0;
-        left = 10;
+        left = 15;
         right = 0;
         bottom = 0;
         this.title = title;

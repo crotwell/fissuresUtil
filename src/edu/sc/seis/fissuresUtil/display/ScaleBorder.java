@@ -48,26 +48,22 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
         Graphics2D copy = (Graphics2D)g;
         if (copy != null) {
             try {
-                AffineTransform insetMove = AffineTransform.getTranslateInstance(x, y);
-		copy.transform(insetMove);
 		Font f = new Font("SansSerif", Font.PLAIN, 9);
                 copy.setFont(f);
                 // in case there are borders inside of this one
                 Insets insets = ((JComponent)c).getInsets();
-                insets.left -= x+left;
-                insets.top -= y+top;
-                insets.right -= right + c.getSize().width - x - left;
-                insets.bottom -= bottom + c.getSize().height - y - top;
+		insets.top -= y+top;
+		insets.bottom -= bottom + y;
                 FontMetrics fm = copy.getFontMetrics();
-
-                String labelTemp;
+		System.out.println(x + " " +  y + " " + insets.left + " " + insets.right + " " + insets.top + " " + insets.bottom + " " + top +  " " + left + " " + bottom + " " + right);
+		 String labelTemp;
 		// top
 		int numTicks;
 		int pixelLoc;
 		if (topScaleMap != null) {
 		    numTicks = topScaleMap.getNumTicks();
 		    for (int i=0; i<numTicks; i++) {
-			pixelLoc = insets.left + left + topScaleMap.getPixelLocation(i);
+			pixelLoc = insets.left + topScaleMap.getPixelLocation(i);
 			if(topScaleMap.isMajorTick(i))
 			    copy.draw(new Line2D.Float(pixelLoc, top, pixelLoc, top - majorTickLength));
 			else
@@ -86,49 +82,42 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 		if (leftScaleMap != null) {
 		    numTicks = leftScaleMap.getNumTicks();
 		    for (int i=0; i<numTicks; i++) {
-			pixelLoc = insets.top+top+
-                            leftScaleMap.getPixelLocation(i);
-                        if (pixelLoc >=insets.top+top &&
-                            pixelLoc <=height-insets.bottom-bottom) {
-                            if (leftScaleMap.isMajorTick(i)) {
-                                copy.draw(new Line2D.Float(left-majorTickLength,
-							   pixelLoc,
-							   left,
-							   pixelLoc));
-                            } else {
-                                copy.draw(new Line2D.Float(left-minorTickLength,
-							   pixelLoc,
-							   left,
-							   pixelLoc));
-                            }
-                            labelTemp = leftScaleMap.getLabel(i);
-                            if (labelTemp != null && labelTemp.length() != 0) {
-				if(i == 0)
-				    copy.drawString(labelTemp,
-						    0,
-						    pixelLoc - 5);
-				else if(i == numTicks - 1)
-				    copy.drawString(labelTemp,
-						    0,
-						    pixelLoc + 5);
-				else
-				    copy.drawString(labelTemp,
-						    0,
-						    pixelLoc);
-                            }
-                        }
-                    }
+			pixelLoc = height - leftScaleMap.getPixelLocation(i) - bottom;
+			if (leftScaleMap.isMajorTick(i)) {
+			    copy.draw(new Line2D.Float(insets.left -majorTickLength - insets.right,
+						       pixelLoc,
+						       insets.left - insets.right,
+						       pixelLoc));
+			} else {
+			    copy.draw(new Line2D.Float(insets.left - insets.right  - minorTickLength,
+						       pixelLoc,
+						       insets.left - insets.right,
+						       pixelLoc));
+			}
+			labelTemp = leftScaleMap.getLabel(i);
+			if (labelTemp != null && labelTemp.length() != 0) {
+			    if(i == 0)
+				copy.drawString(labelTemp,
+						insets.left - insets.right - 45,
+						pixelLoc + 5);
+			    else if(i == numTicks - 1)
+				copy.drawString(labelTemp,
+						insets.left - insets.right - 45,
+						pixelLoc - 5);
+			    else
+				copy.drawString(labelTemp,
+						insets.left - insets.right - 45,
+						pixelLoc);
+			}
+		    }
 		}
-
+		
 		// bottom
 		if (bottomScaleMap != null) {
 		    numTicks = bottomScaleMap.getNumTicks();
 		    for (int i=0; i<numTicks; i++) {
-			pixelLoc = insets.left + left+
-                            bottomScaleMap.getPixelLocation(i);
-                        if (pixelLoc >=insets.left + left &&
-                            pixelLoc <= width - insets.right) {
-                            if (bottomScaleMap.isMajorTick(i)) {
+			pixelLoc = insets.left + bottomScaleMap.getPixelLocation(i);
+			if (bottomScaleMap.isMajorTick(i)) {
                                 copy.draw(new Line2D.Float(pixelLoc,
                                            height-bottom,
                                            pixelLoc,
@@ -145,7 +134,6 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                                          pixelLoc,
                                          height-fm.getLeading());
                             }
-                        }
 		    }
 		}
 
@@ -153,8 +141,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 		if (rightScaleMap != null) {
 		    numTicks = rightScaleMap.getNumTicks();
 		    for (int i=0; i<numTicks; i++) {
-			pixelLoc = insets.top + top+
-                            rightScaleMap.getPixelLocation(i);
+			pixelLoc = height - rightScaleMap.getPixelLocation(i) - bottom;
 			System.out.println("HScaleBorder pixelLoc="+pixelLoc);
 			copy.draw(new Line2D.Float(pixelLoc,
 				   c.getSize().height-bottom,
