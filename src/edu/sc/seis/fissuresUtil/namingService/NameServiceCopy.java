@@ -61,7 +61,7 @@ public class NameServiceCopy
         }
 
         NSNetworkDC[] networkDC = fisNS.getAllNetworkDC();
-        System.out.println("Got "+networkDC.length+" seis datacenters");
+        System.out.println("Got "+networkDC.length+" network datacenters");
         for (int i = 0; i < networkDC.length; i++) {
             if (networkDC[i].getServerDNS().equals(dnsToCopy)) {
                 System.out.println("Rebind "+networkDC[i].getServerDNS()+", "+networkDC[i].getServerName());
@@ -76,7 +76,7 @@ public class NameServiceCopy
         for (int i = 0; i < eventDC.length; i++) {
             if (eventDC[i].getServerDNS().equals(dnsToCopy)) {
                 System.out.println("Rebind "+eventDC[i].getServerDNS()+", "+eventDC[i].getServerName());
-                //fisNS.rebind(eventDC[i].getServerDNS(), eventDC[i].getServerName(), eventDC[i].getEventDC());
+                fisNS.rebind(eventDC[i].getServerDNS(), eventDC[i].getServerName(), eventDC[i].getCorbaObject());
             } else {
                 System.out.println("Doesn't match "+eventDC[i].getServerDNS()+", "+eventDC[i].getServerName());
             }
