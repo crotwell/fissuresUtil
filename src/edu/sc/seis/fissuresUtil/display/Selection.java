@@ -88,8 +88,9 @@ public abstract class Selection implements TimeListener, Plotter{
     public void remove(){
 	ListIterator e = parents.listIterator();
 	while(e.hasNext()){
-	    ((BasicSeismogramDisplay)e.next()).removeSelection(this);
+	    BasicSeismogramDisplay current = (BasicSeismogramDisplay)e.next();
 	    e.remove();
+	    current.removeSelection(this);
 	}
 	removeFromAllChildren();
     }
@@ -97,8 +98,10 @@ public abstract class Selection implements TimeListener, Plotter{
     //used only by basic seismogram display so that the removal types of both selection and bsd
     //don't clash
     public void removeParent(BasicSeismogramDisplay disowner){ 
-	parents.remove(disowner);
-    }  
+	if(parents.contains(disowner)){
+	    parents.remove(disowner);
+	}  
+    }
 
     private void removeFromAllChildren(){
 	ListIterator e = displays.listIterator();
