@@ -43,13 +43,13 @@ import javax.swing.JComponent;
  */
 
 public class DisplayUtils {
-
+    
     public static DataSetSeismogram[] getComponents(DataSetSeismogram seismogram){
         DataSet dataSet = seismogram.getDataSet();
         RequestFilter rf = seismogram.getRequestFilter();
         return getComponents(dataSet, rf);
     }
-
+    
     public static DataSetSeismogram[] getComponents(DataSet dataSet, RequestFilter rf) {
         Set componentSeismograms = new HashSet();
         MicroSecondTimeRange tr = new MicroSecondTimeRange(rf);
@@ -62,7 +62,7 @@ public class DisplayUtils {
             if(areFriends(chanId,currentRF.channel_id) && tr.equals(curTr))
                 componentSeismograms.add(currentSeis);
         }
-
+        
         //If we didn't find three with the same channel id and begin and end
         //times, look for some with the same channel id and overlapping times
         if(componentSeismograms.size() < 3)
@@ -78,12 +78,12 @@ public class DisplayUtils {
         componentSeismograms.toArray(components);
         return components;
     }
-
+    
     public static boolean areFriends(DataSetSeismogram seis, DataSetSeismogram otherSeis){
         return areFriends(seis.getRequestFilter().channel_id,
                           otherSeis.getRequestFilter().channel_id);
     }
-
+    
     public static boolean areFriends(ChannelId a, ChannelId b) {
         MicroSecondDate aBeginMSD = new MicroSecondDate(a.begin_time);
         MicroSecondDate bBeginMSD = new MicroSecondDate(b.begin_time);
@@ -92,7 +92,7 @@ public class DisplayUtils {
             a.site_code.equals(b.site_code) &&
             aBeginMSD.equals(bBeginMSD);
     }
-
+    
     public static void applyFilter(NamedFilter filter, DrawableIterator it){
         while(it.hasNext()){
             DrawableSeismogram seis =  (DrawableSeismogram)it.next();
@@ -114,8 +114,8 @@ public class DisplayUtils {
             }
         }
     }
-
-
+    
+    
     public static UnitRangeImpl getShaledRange(UnitRangeImpl ampRange, double shift, double scale){
         if(shift == 0 && scale == 1.0){
             return ampRange;
@@ -124,7 +124,7 @@ public class DisplayUtils {
         double minValue = ampRange.getMinValue() + range * shift;
         return new UnitRangeImpl(minValue, minValue + range * scale, ampRange.getUnit());
     }
-
+    
     /** Calculates the indexes within the seismogram data points,
      correspoding to the begin and end time of the given range.
      The amplitude of the
@@ -149,7 +149,7 @@ public class DisplayUtils {
                                time.getEndTime().getMicroSecondTime()));
         return values;
     }
-
+    
     /** Calculates the indexes within the seismogram data points,
      correspoding to the begin and end time of the given range.
      The amplitude of the
@@ -174,7 +174,7 @@ public class DisplayUtils {
                                time.getEndTime().getMicroSecondTime()));
         return values;
     }
-
+    
     public static String[] getSeismogramNames(DataSetSeismogram[] dss){
         String[] names = new String[dss.length];
         for(int i = 0; i < dss.length; i++){
@@ -182,7 +182,7 @@ public class DisplayUtils {
         }
         return names;
     }
-
+    
     /**
      * Sorts the passed array of seismograms by begin time. If a seismogram is
      * completely enveloped by another seismogram in terms of time, it is not
@@ -200,7 +200,7 @@ public class DisplayUtils {
         seis = new LocalSeismogramImpl[seisList.size()];
         return (LocalSeismogramImpl[])seisList.toArray(seis);
     }
-
+    
     public static RequestFilter[] sortByDate(RequestFilter[] rf){
         Map rfTimes = new HashMap();
         for (int i = 0; i < rf.length; i++){
@@ -210,7 +210,7 @@ public class DisplayUtils {
         rf = new RequestFilter[rfList.size()];
         return (RequestFilter[])rfList.toArray(rf);
     }
-
+    
     private static List sortByDate(Map objectTimes){
         List sortedObj = new ArrayList();
         Iterator objIt = objectTimes.keySet().iterator();
@@ -245,7 +245,7 @@ public class DisplayUtils {
         }
         return sortedObj;
     }
-
+    
     /**
      *@returns A time range encompassing the earliest begin time of the passed
      * in seismograms to the latest end time
@@ -263,7 +263,7 @@ public class DisplayUtils {
         }
         return new MicroSecondTimeRange(beginTime, endTime);
     }
-
+    
     public static boolean areOverlapping(LocalSeismogramImpl one,
                                          LocalSeismogramImpl two){
         MicroSecondTimeRange oneTr = new MicroSecondTimeRange(one.getBeginTime(),
@@ -272,7 +272,7 @@ public class DisplayUtils {
                                                               two.getEndTime());
         return areOverlapping(oneTr, twoTr);
     }
-
+    
     public static boolean areOverlapping(MicroSecondTimeRange one,
                                          MicroSecondTimeRange two){
         if((one.getBeginTime().before(two.getEndTime()) &&
@@ -283,7 +283,7 @@ public class DisplayUtils {
         }
         return false;
     }
-
+    
     public static boolean areContiguous(LocalSeismogramImpl one,
                                         LocalSeismogramImpl two){
         if(!areOverlapping(one, two)){
@@ -299,7 +299,7 @@ public class DisplayUtils {
         }
         return false;
     }
-
+    
     private static boolean areContiguous(MicroSecondDate one,
                                          MicroSecondDate two,
                                          TimeInterval interval){
@@ -309,20 +309,19 @@ public class DisplayUtils {
         }
         return false;
     }
-
+    
     public static String getOrientationName(DataSetSeismogram dss){
         return getOrientationName(dss.getRequestFilter().channel_id.channel_code);
     }
-
+    
     public static String getOrientationName(String orientation) {
-
         char ch = orientation.charAt(2);
         if(ch == 'E' || ch == '1' || ch == 'U') return EAST;
         else if(ch == 'N' || ch == '2' || ch == 'V') return NORTH;
         else return UP;
     }
-
-
+    
+    
     public static DataSetSeismogram[][] sortByComponents(DataSetSeismogram[] seismos){
         List north = new ArrayList();
         List east = new ArrayList();
@@ -342,7 +341,7 @@ public class DisplayUtils {
         sortedSeismos[2] = ((DataSetSeismogram[])z.toArray(new DataSetSeismogram[z.size()]));
         return sortedSeismos;
     }
-
+    
     /**
      * <code>getComponents</code> sorts the passed in seismograms in by their east-west, north-south or z
      * component and finds all available components in their data sets for each component
@@ -370,14 +369,14 @@ public class DisplayUtils {
                 }
             }
         }
-
+        
         DataSetSeismogram[][] sortedSeismos = new DataSetSeismogram[3][];
         sortedSeismos[0] = ((DataSetSeismogram[])north.toArray(new DataSetSeismogram[north.size()]));
         sortedSeismos[1] = ((DataSetSeismogram[])east.toArray(new DataSetSeismogram[east.size()]));
         sortedSeismos[2] = ((DataSetSeismogram[])z.toArray(new DataSetSeismogram[z.size()]));
         return sortedSeismos;
     }
-
+    
     public static boolean allNull(Object[] array){
         for (int i = 0; i < array.length; i++ ) {
             if(array[i] != null){
@@ -386,7 +385,7 @@ public class DisplayUtils {
         }
         return true;
     }
-
+    
     public static boolean inInsets(MouseEvent me){
         JComponent comp = (JComponent)me.getComponent();
         Insets insets = comp.getInsets();
@@ -398,28 +397,28 @@ public class DisplayUtils {
         }
         return false;
     }
-
+    
     public static final double linearInterp(long firstPoint, long lastPoint,
                                             int numValues, long currentPoint){
         return
             (currentPoint-firstPoint)/(double)(lastPoint-firstPoint)*(numValues-1);
     }
-
+    
     public static boolean originIsEqual(EventAccessOperations eventA, EventAccessOperations eventB)
         throws NoPreferredOrigin{
         Origin originA = eventA.get_preferred_origin();
         Origin originB = eventB.get_preferred_origin();
-
+        
         if (!originA.get_id().equals(originB.get_id())) return false;
         if (!originA.origin_time.date_time.equals(originB.origin_time.date_time)) return false;
         if (originA.magnitudes[0].value != originB.magnitudes[0].value) return false;
         if (originA.my_location.latitude != originB.my_location.latitude) return false;
         if (originA.my_location.longitude != originB.my_location.longitude) return false;
         if (originA.my_location.depth.value != originB.my_location.depth.value) return false;
-
+        
         return true;
     }
-
+    
     public static DistAz calculateDistAz(DataSetSeismogram seis) {
         EventAccessOperations event = seis.getDataSet().getEvent();
         ChannelId chanId = seis.getRequestFilter().channel_id;
@@ -442,7 +441,7 @@ public class DisplayUtils {
         }
         return null;
     }
-
+    
     public static QuantityImpl calculateBackAzimuth(DataSetSeismogram seis) {
         DistAz distAz = calculateDistAz(seis);
         if (distAz != null) {
@@ -450,7 +449,7 @@ public class DisplayUtils {
         }
         return null;
     }
-
+    
     public static QuantityImpl calculateAzimuth(DataSetSeismogram seis) {
         DistAz distAz = calculateDistAz(seis);
         if (distAz != null) {
@@ -458,7 +457,7 @@ public class DisplayUtils {
         }
         return null;
     }
-
+    
     public static QuantityImpl calculateDistance(DataSetSeismogram seis){
         DistAz distAz = calculateDistAz(seis);
         if (distAz != null) {
@@ -485,56 +484,56 @@ public class DisplayUtils {
         }
         return null;
     }
-
+    
     public static final String UP = "Up";
-
+    
     public static final String EAST = "East";
-
+    
     public static final String NORTH = "North";
-
+    
     public static final String NORTHEAST = NORTH + "-" + EAST;
-
+    
     public static final String UPEAST = UP + "-" + EAST;
-
+    
     public static final String UPNORTH = UP + "-" + NORTH;
-
+    
     public static Font DEFAULT_FONT = new Font("Serif", Font.PLAIN, 12);
-
+    
     public static Font MONOSPACED_FONT = new Font("Monospaced", Font.PLAIN, 12);
-
+    
     public static final Font BORDER_FONT = new Font("Serif", Font.PLAIN, 11);
-
+    
     public static Font BOLD_FONT = new Font("Serif", Font.BOLD, 12);
-
+    
     public static Font BIG_BOLD_FONT = new Font("Serif", Font.BOLD, 16);
-
+    
     public static final Stroke ONE_PIXEL_STROKE = new BasicStroke(1);
-
+    
     public static final Stroke TWO_PIXEL_STROKE = new BasicStroke(2);
-
+    
     public static final Stroke THREE_PIXEL_STROKE = new BasicStroke(3);
-
+    
     public static final UnitRangeImpl ZERO_RANGE = new UnitRangeImpl(0, 0, UnitImpl.COUNT);
-
+    
     public static final UnitRangeImpl ONE_RANGE = new UnitRangeImpl(-1, 1, UnitImpl.COUNT);
-
+    
     public static final MicroSecondTimeRange ZERO_TIME = new MicroSecondTimeRange(new MicroSecondDate(0), new MicroSecondDate(0));
-
+    
     public static final MicroSecondTimeRange ONE_TIME = new MicroSecondTimeRange(new MicroSecondDate(0), new MicroSecondDate(1));
-
+    
     public static final Rectangle2D EMPTY_RECTANGLE = new Rectangle2D.Float(0,0,0,0);
-
+    
     public static final Color SHALLOW_DEPTH_EVENT = new Color(243, 33, 78);
-
+    
     public static final Color MEDIUM_DEPTH_EVENT = new Color(246, 185, 42);
-
+    
     public static final Color DEEP_DEPTH_EVENT = new Color(245, 249, 27);
-
+    
     public static final Color STATION = new Color(43, 33, 243);
-
+    
     public static final Color NO_STATUS_STATION = Color.WHITE;
-
+    
     public static final Color DOWN_STATION = new Color(183, 183, 183);
-
+    
 }// DisplayUtils
 

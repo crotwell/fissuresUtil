@@ -1,20 +1,13 @@
 package edu.sc.seis.fissuresUtil.display;
-import javax.swing.*;
-
-import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.IfSeismogramDC.DataCenter;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.Time;
-import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.TauP.SphericalCoords;
-import edu.sc.seis.fissuresUtil.chooser.SeisTimeFilterSelector;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
@@ -28,6 +21,11 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.border.Border;
 import org.apache.log4j.Logger;
 
@@ -52,8 +50,8 @@ public class ParticleMotionDisplay extends JPanel{
         view.setSize(new Dimension(300, 300));
         particleDisplayPanel.add(view);
         
-        hAmpScaleMap = new AmpScaleMapper(50, 4);
-        vAmpScaleMap = new AmpScaleMapper(50, 4);
+        hAmpScaleMap = new UpdatingAmpScaleMapper(50, 4);
+        vAmpScaleMap = new UpdatingAmpScaleMapper(50, 4);
         
         ScaleBorder scaleBorder = new ScaleBorder();
         scaleBorder.setBottomScaleMapper(hAmpScaleMap);
@@ -93,25 +91,22 @@ public class ParticleMotionDisplay extends JPanel{
         add(radioPanel, BorderLayout.SOUTH);
     }
     
+    private class UpdatingAmpScaleMapper extends AmpScaleMapper{
+        public UpdatingAmpScaleMapper(int totalPixels, int hintPixels){
+            super(totalPixels, hintPixels);
+        }
+        
+        public void updateAmp(AmpEvent e){
+            setUnitRange(e.getAmp());
+            repaint();}
+    }
+    
+    public void setActiveAmpConfig(AmpConfig ac) {
+        hAmpScaleMap.setAmpConfig(ac);
+        vAmpScaleMap.setAmpConfig(ac);
+    }
+    
     public ParticleMotionView getView(){ return view; }
-    
-    /**
-     * udpates the amplitude of the verticalScale.
-     * @param r an <code>UnitRangeImpl</code> value
-     */
-    public void updateHorizontalAmpScale(UnitRangeImpl r) {
-        hAmpScaleMap.setUnitRange(r);
-        resize();
-    }
-    
-    /**
-     * sets the amplitude of he verticalScale to the given value.
-     * @param r an <code>UnitRangeImpl</code> value
-     */
-    public void updateVerticalAmpScale(UnitRangeImpl r) {
-        vAmpScaleMap.setUnitRange(r);
-        resize();
-    }
     
     /**
      * the method resize() is overridden so that the view of the
@@ -120,7 +115,6 @@ public class ParticleMotionDisplay extends JPanel{
     public synchronized void resize() {
         if(getSize().width == 0 || getSize().height == 0) return;
         Dimension dim = view.getSize();
-        
         Insets insets = view.getInsets();
         int width = particleDisplayPanel.getSize().width;
         int height = particleDisplayPanel.getSize().height;
@@ -268,14 +262,14 @@ public class ParticleMotionDisplay extends JPanel{
                 String orientation = ((AbstractButton)ae.getItem()).getText();
                 view.setDisplayKey(orientation);
                 if(orientation.equals(labelStrings[0])){
-                    setHorizontalTitle("North-South");
-                    setVerticalTitle("East-West");
-                }else if(orientation.equals(labelStrings[1])){
-                    setHorizontalTitle("Up-Down");
                     setVerticalTitle("North-South");
+                    setHorizontalTitle("East-West");
+                }else if(orientation.equals(labelStrings[1])){
+                    setVerticalTitle("Up-Down");
+                    setHorizontalTitle("North-South");
                 }else{
-                    setHorizontalTitle("Up-Down");
-                    setVerticalTitle("East-West");
+                    setVerticalTitle("Up-Down");
+                    setHorizontalTitle("East-West");
                 }
                 repaint();
             }
