@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.IfEvent.*;
+import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.model.*;
 import java.util.*;
 import javax.swing.*;
@@ -20,7 +21,7 @@ import java.awt.datatransfer.*;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 1786 2002-06-04 20:22:04Z crotwell $
+ * @version $Id: EventInfoDisplay.java 2143 2002-07-11 19:33:01Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay 
@@ -30,20 +31,36 @@ public class EventInfoDisplay extends TextInfoDisplay
     }
     
     public void displayEvent(EventAccessOperations event) {
+	displayEventStation(event, null);
+    }
+
+    public void displayEventStation(EventAccessOperations event, Station[] station) {
 	Document doc = textPane.getDocument();
         try {
 	    doc.remove(0, doc.getLength());
 	    appendEvent(event, doc);
+	    if (station != null) {
+		appendEventStation(event, station, doc);
+	    } // end of if (station != null)
+	    
             toTop();
         } catch (BadLocationException ble) {
             System.err.println("Couldn't insert message.");
         }
     }
 
-    protected void appendEvent(EventAccessOperations event)
+    public void appendEvent(EventAccessOperations event)
 	throws BadLocationException 
     {
 	appendEvent(event, getDocument());
+    }
+
+    public void appendEventStation(EventAccessOperations event, Station[] station)
+	throws BadLocationException 
+    {
+	Document doc = getDocument();
+	appendEvent(event, doc);
+	appendEventStation(event, station, getDocument());
     }
 
     protected void appendEvent(EventAccessOperations event, Document doc)
@@ -56,6 +73,30 @@ public class EventInfoDisplay extends TextInfoDisplay
 		
 	    } // end of try-catch
 	    
+    }
+
+    protected void appendEventStation(EventAccessOperations event, 
+				      Station[] station, 
+				      Document doc)
+	throws BadLocationException 
+    {
+	edu.sc.seis.TauP.SphericalCoords sph = 
+	    new edu.sc.seis.TauP.SphericalCoords();
+	appendLine(doc, "");
+	appendHeader(doc, "Event to Station");
+	double dist = -1;
+	for (int i=0; i<station.length; i++) {
+	    try {
+	    dist = sph.distance(event.get_preferred_origin().my_location.latitude,
+				event.get_preferred_origin().my_location.longitude,
+				station[i].my_location.latitude,
+				station[i].my_location.longitude);
+	    } catch (NoPreferredOrigin e) {
+		appendLabelValue(doc, station[i].get_code(), " --- degrees" );
+	    } // end of try-catch
+	    appendLabelValue(doc, station[i].get_code(), dist+" degrees" );
+	} // end of for (int i=0; i<station.length; i++)
+	appendLine(doc, "");
     }
 
     protected void appendEventAttr(EventAttr attr)
