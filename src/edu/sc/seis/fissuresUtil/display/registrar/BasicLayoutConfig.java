@@ -60,48 +60,6 @@ public class BasicLayoutConfig implements LayoutConfig{
         if(someAdded){
             fireLayoutEvent();
         }
-        if(noDist.size() > 0){
-            noDistDialog(noDist);
-        }else if(seis.size() <= 0){
-            unableToDisplayDialog(noDist);
-        }
-        
-    }
-    
-    private String getNoDistString(List noDist) {
-        String s = "";
-        Iterator it = noDist.iterator();
-        while (it.hasNext()) {
-            DataSetSeismogram dss = (DataSetSeismogram)it.next();
-            s += dss.getName()+" has ";
-            if (dss.getDataSet().getEvent() == null) {
-                s += "no event, ";
-            } else {
-                s += "an event, ";
-            }
-            
-            if (dss.getDataSet().getChannel(dss.getRequestFilter().channel_id) == null) {
-                s += "no channel for "+ChannelIdUtil.toString(dss.getRequestFilter().channel_id);
-            } else {
-                s += "a channel";
-            }
-            s += "\n";
-        }
-        return s;
-    }
-    
-    private void noDistDialog(List noDist){
-        JOptionPane.showMessageDialog(null,
-                                      "Some of the seismograms added to the record section have no distances in their data set so they will not be displayed.\n"+getNoDistString(noDist),
-                                      "Unable to Display some Seismograms",
-                                      JOptionPane.WARNING_MESSAGE);
-    }
-    
-    public void unableToDisplayDialog(List noDist){
-        JOptionPane.showMessageDialog(null,
-                                      "All of the seismograms added to the record section have no distances in their data set so it can not be displayed.\n"+getNoDistString(noDist),
-                                      "Unable to display any seismograms",
-                                      JOptionPane.WARNING_MESSAGE);
     }
     
     /**
