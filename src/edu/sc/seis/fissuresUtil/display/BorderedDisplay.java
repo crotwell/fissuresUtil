@@ -21,42 +21,42 @@ public class BorderedDisplay extends JPanel{
     public JComponent get(int position){ return comps[position]; }
 
     public void outputToPNG(String filename) throws IOException{
-        JFrame frame = null;
-        try {
-            if(getRootPane() == null){//This won't display if it's not in a root pane
-                frame = new JFrame();//so this plan that is so crazy it might
-                frame.getContentPane().add(this);//actually work will actually work
-                frame.pack();
-            }
-            Dimension size = getSize();
-            BufferedImage bImg = new BufferedImage(size.width, size.height,
-                                                   BufferedImage.TYPE_INT_RGB);
-            renderToGraphics(bImg.createGraphics(), size);
-            File loc = new File(filename);
-            loc.getCanonicalFile().getParentFile().mkdirs();
-            File temp = File.createTempFile(loc.getName(), null);
-            ImageIO.write(bImg, "png", temp);
-            loc.delete();
-            temp.renameTo(loc);
-        } finally {
-            if (frame != null) {
-                frame.dispose();
-            }
-        }
+        outputToPNG(filename, getPreferredSize());
+    }
+
+    public void outputToPNG(String filename, Dimension size) throws IOException{
+        BufferedImage bImg = new BufferedImage(size.width, size.height,
+                                               BufferedImage.TYPE_INT_RGB);
+        renderToGraphics(bImg.createGraphics(), size);
+        File loc = new File(filename);
+        loc.getCanonicalFile().getParentFile().mkdirs();
+        File temp = File.createTempFile(loc.getName(), null);
+        ImageIO.write(bImg, "png", temp);
+        loc.delete();
+        temp.renameTo(loc);
+    }
+
+    public void renderToGraphics(Graphics g){
+        renderToGraphics(g, getPreferredSize());
     }
 
     public void renderToGraphics(Graphics g, Dimension size){
-        if(getRootPane() == null){//This won't display if it's not in a root pane
-            JFrame frame = new JFrame();//so this plan that is so crazy it might
-            frame.getContentPane().add(this);//actually work will actually work
-            frame.pack();
+        JFrame frame = null;
+        try {
+            if(getRootPane() == null){
+                frame = new JFrame();
+                frame.getContentPane().add(this);
+                frame.pack();
+            }
+            Dimension curSize = getSize();
+            setSize(size);
+            validate();
+            print(g);
+            setSize(curSize);
+            validate();
+        } finally {
+            if (frame != null) frame.dispose();
         }
-        Dimension curSize = getSize();
-        setSize(size);
-        validate();
-        print(g);
-        setSize(curSize);
-        validate();
     }
 
     public Component add(Component comp){
