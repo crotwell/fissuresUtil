@@ -32,9 +32,9 @@ public abstract class ProxyNetworkAccess implements NetworkAccess{
         }
     }
 
-    public NetworkAccess getNetworkAccess(){
+    public NetworkAccess getCorbaObject(){
         if(net instanceof ProxyNetworkAccess){
-            return ((ProxyNetworkAccess)net).getNetworkAccess();
+            return ((ProxyNetworkAccess)net).getCorbaObject();
         }else{
             return net;
         }
