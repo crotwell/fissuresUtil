@@ -19,6 +19,36 @@ import java.util.*;
  */
 
 public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
+    public OffsetMeanAmpConfig(LocalSeismogram aSeis, MicroSecondTimeRange range){
+	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
+	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
+                                               seis.getBeginTime(),
+                                               seis.getEndTime(),
+					       range.getBeginTime());
+	if (beginIndex < 0) beginIndex = 0;
+	if (beginIndex > seis.getNumPoints()) beginIndex = seis.getNumPoints();
+	int endIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
+                                               seis.getBeginTime(),
+                                               seis.getEndTime(),
+                                               range.getEndTime());
+        if (endIndex < 0) endIndex = 0;
+        if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
+
+	if (endIndex == beginIndex) {
+	   ampRange =  new UnitRangeImpl(-500, 500, UnitImpl.COUNT);
+        }
+        try {
+	    double min = seis.getMinValue(beginIndex, endIndex).getValue();
+	    double max = seis.getMaxValue(beginIndex, endIndex).getValue();
+	    if(min > max)
+		ampRange = new UnitRangeImpl(min, -min, seis.getAmplitudeRange().getUnit());
+	    else
+		ampRange = new UnitRangeImpl(-max, max, seis.getAmplitudeRange().getUnit());
+	}catch (Exception e) {
+	    ampRange = new UnitRangeImpl(-500, 500, UnitImpl.COUNT);
+        }
+    }
+
     public OffsetMeanAmpConfig(){
 	ampRange = new UnitRangeImpl(-500, 500, UnitImpl.COUNT);
     }
@@ -95,8 +125,6 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	this.offset = i;
 	ampRange = new UnitRangeImpl(-offset, offset, UnitImpl.COUNT);
     }
-
-    public void fireAmpRangeEvent(AmpSyncEvent event) {};
 
     protected int offset;
     

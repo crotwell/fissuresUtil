@@ -26,7 +26,7 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
     public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){
 	if(timeConfig == null)
 	    return this.getAmpRange(aSeis,new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), 
-							((LocalSeismogramImpl)aSeis).getEndTime()));
+								   ((LocalSeismogramImpl)aSeis).getEndTime()));
 	else
 	    return this.getAmpRange(aSeis, this.timeConfig.getTimeRange(aSeis));
     }
@@ -42,9 +42,9 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 	if (beginIndex < 0) beginIndex = 0;
 	if (beginIndex > seis.getNumPoints()) beginIndex = seis.getNumPoints();
 	int endIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
-                                               seis.getBeginTime(),
-                                               seis.getEndTime(),
-                                               calcIntv.getEndTime());
+					     seis.getBeginTime(),
+					     seis.getEndTime(),
+					     calcIntv.getEndTime());
         if (endIndex < 0) endIndex = 0;
         if (endIndex > seis.getNumPoints()) endIndex = seis.getNumPoints();
 
@@ -145,6 +145,6 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 	    }
 	}
     }
-    public void fireAmpRangeEvent(AmpSyncEvent event) {};
     
     }// RMedianAmpConfig
+
