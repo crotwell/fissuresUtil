@@ -1,20 +1,16 @@
 package edu.sc.seis.fissuresUtil.map;
-import edu.sc.seis.fissuresUtil.map.layers.*;
-
-/**
- * Map.java
- *
- * @author Created by Charlie Groves
- */
-
 import com.bbn.openmap.*;
 
 import com.bbn.openmap.event.MapMouseMode;
+import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.layer.GraticuleLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
+import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
+import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
+import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -55,7 +51,6 @@ public class OpenMap extends OpenMapComponent{
 
             proj.setBackgroundColor(WATER);
             //mapBean.setProjection(proj);
-            mapBean.setCenter(20, 200);
 
             mapHandler.add(mapBean);
 
@@ -150,6 +145,10 @@ public class OpenMap extends OpenMapComponent{
             mapBean = new MapBean();
         }
         return mapBean;
+    }
+
+    public void setZoom(float zoomFactor){
+        mapBean.zoom(new ZoomEvent(this, ZoomEvent.ABSOLUTE, zoomFactor));
     }
 
     public void addMouseMode(MapMouseMode mode){
