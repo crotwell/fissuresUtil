@@ -21,7 +21,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
-import edu.sc.seis.fissuresUtil.cache.JobDisplay;
+import edu.sc.seis.fissuresUtil.cache.JobTracker;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import java.awt.Color;
 import java.awt.Component;
@@ -258,7 +258,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             super("Available Data for " + net.get_attributes().get_code());
             logger.debug("NetworkChecker constructor"+net.get_attributes().get_code());
             this.net = net;
-            JobDisplay.getDisplay().add(this);
+            JobTracker.getTracker().add(this);
         }
 
         public NetworkAccess getNetwork(){ return net; }
