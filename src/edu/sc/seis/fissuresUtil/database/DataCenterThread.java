@@ -43,6 +43,9 @@ public class DataCenterThread implements Runnable{
             } catch(FissuresException fe) {
                 a_client.error(initiator, fe);
                 continue;
+            } catch(org.omg.CORBA.SystemException fe) {
+                a_client.error(initiator, fe);
+                continue;
             }
         }
         a_client.finished(initiator);
