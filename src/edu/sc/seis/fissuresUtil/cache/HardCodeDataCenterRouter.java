@@ -92,22 +92,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
                             + " from " + rf[0].start_time.date_time + " to "
                             + rf[0].end_time.date_time);
                     RequestFilter[] ls = null;
-                    try {
-                        ls = route[i].getDataCenter().available_data(rf);
-                    } catch(org.omg.CORBA.SystemException e) {
-                        try {
-                            ls = route[i].getDataCenter().available_data(rf);
-                        } catch(org.omg.CORBA.SystemException ee) {
-                            route[i].reloadDataCenter();
-                            if(route[i].getDataCenter() != null) {
-                                ls = route[i].getDataCenter()
-                                        .available_data(rf);
-                            } else {
-                                throw new NullPointerException("No route to DataCenter "
-                                        + route[i].getServerName());
-                            }
-                        }
-                    }
+                    ls = route[i].getDataCenter().available_data(rf);
                     String mesg = "Got " + ls.length + " req filter from " + i;
                     if(ls.length != 0) {
                         mesg += " for "
@@ -140,28 +125,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
             RequestFilter[] rf = route[i].getRequestFilters();
             if(rf.length != 0 && route[i].getDataCenter() != null) {
                 try {
-                    LocalSeismogram[] ls = null;
-                    try {
-                        ls = route[i].getDataCenter().retrieve_seismograms(rf);
-                    } catch(org.omg.CORBA.SystemException e) {
-                        logger.debug("Caught corba SystemException, retrying once.",
-                                     e);
-                        try {
-                            ls = route[i].getDataCenter()
-                                    .retrieve_seismograms(rf);
-                        } catch(org.omg.CORBA.SystemException ee) {
-                            logger.debug("Caught corba SystemException, retryin twice.",
-                                         ee);
-                            route[i].reloadDataCenter();
-                            if(route[i].getDataCenter() != null) {
-                                ls = route[i].getDataCenter()
-                                        .retrieve_seismograms(rf);
-                            } else {
-                                throw new NullPointerException("No route to DataCenter "
-                                        + route[i].getServerName());
-                            }
-                        }
-                    }
+                    LocalSeismogram[] ls = route[i].getDataCenter().retrieve_seismograms(rf);
                     logger.debug("Got " + ls.length + " lseis from " + i
                             + " for "
                             + ChannelIdUtil.toString(rf[0].channel_id)
@@ -256,11 +220,11 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
     }
 
     protected DataCenterOperations loadSceppDC() {
-        String dsname = SCEPP;
         if(sceppDC == null) {
             sceppDC = BulletproofVestFactory.vestSeismogramDC("edu/sc/seis",
                                                               "SCEPPSeismogramDC",
-                                                              fissuresNamingService);
+                                                              fissuresNamingService, 
+                                                              1);
         }
         return sceppDC;
     }
@@ -283,11 +247,11 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
     }
 
     protected DataCenterOperations loadBudDC() {
-        String dsname = BUD;
         if(budDC == null) {
             budDC = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
                                                             "IRIS_BudDataCenter",
-                                                            fissuresNamingService);
+                                                            fissuresNamingService, 
+                                                            1);
         }
         return budDC;
     }
@@ -313,7 +277,8 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         if(pondDC == null) {
             pondDC = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
                                                              "IRIS_PondDataCenter",
-                                                             fissuresNamingService);
+                                                             fissuresNamingService,
+                                                             1);
         }
         return pondDC;
     }
