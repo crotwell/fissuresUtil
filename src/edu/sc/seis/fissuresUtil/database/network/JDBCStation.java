@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -254,7 +253,7 @@ public class JDBCStation extends NetworkTable {
 
     private PreparedStatement getAll, getAllForNet, getIfNameExists, getByDBId,
             getStationIdByDBId, getDBId, updateSta, putAll, putId,
-            putChanIdBits, getDBIdsForNetAndCode;
+            putChanIdBits, getDBIdsForNetAndCode, deleteStation;
 
     private JDBCLocation locTable;
 
@@ -359,4 +358,9 @@ public class JDBCStation extends NetworkTable {
     private static final Logger logger = Logger.getLogger(JDBCStation.class);
 
     private static Map stationIdsToDbIds = Collections.synchronizedMap(new HashMap());
+
+    public void cleanupVestigesOfLonelyChannelId(int sta_id) throws SQLException {
+        deleteStation.setInt(1, sta_id);
+        deleteStation.executeUpdate();
+    }
 }// JDBCStation
