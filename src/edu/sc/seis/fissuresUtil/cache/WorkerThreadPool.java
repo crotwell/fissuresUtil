@@ -57,6 +57,7 @@ public class WorkerThreadPool
         protected BackgroundWorker(String name, int priority) {
             super(name);
             setPriority(priority);
+            setDaemon(true);
         }
 
         public void run() {
