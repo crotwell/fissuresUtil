@@ -81,7 +81,7 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 	rfChangeListeners.remove(listener);
     }
 
-    public void fireEndTimeChangedEvent() {
+    protected void fireEndTimeChangedEvent() {
 	Iterator iterator = rfChangeListeners.iterator();
 	while(iterator.hasNext()) {
 	    RequestFilterChangeListener listener = (RequestFilterChangeListener) iterator.next();
@@ -89,7 +89,7 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 	}
     }
     
-    public void fireBeginTimeChangedEvent() {
+    protected void fireBeginTimeChangedEvent() {
 	Iterator iterator = rfChangeListeners.iterator();
 	while(iterator.hasNext()) {
 	    RequestFilterChangeListener listener = (RequestFilterChangeListener) iterator.next();
@@ -106,7 +106,7 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 	dssDataListeners.remove(dataListener);
     }
 
-    public void fireNewDataEvent(SeisDataChangeEvent event) {
+    protected void fireNewDataEvent(SeisDataChangeEvent event) {
 	Iterator iterator = dssDataListeners.iterator();
 	while(iterator.hasNext()) {
 	    SeisDataChangeListener dssDataListener = (SeisDataChangeListener) iterator.next();
@@ -114,7 +114,7 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 	}
     }
 
-    public void fireDataFinishedEvent(SeisDataChangeEvent event) {
+    protected void fireDataFinishedEvent(SeisDataChangeEvent event) {
 
 	Iterator iterator = dssDataListeners.iterator();
 	while(iterator.hasNext()) {
@@ -123,12 +123,12 @@ public class DataSetSeismogram implements LocalDataCenterCallBack {
 	}
     }
 
-     public void pushData(LocalSeismogramImpl[] seismograms, SeisDataChangeListener initiator) {
-	 SeisDataChangeEvent event = new SeisDataChangeEvent(seismograms,
-							     this, 
-							     initiator);
-	 fireNewDataEvent(event);
-     }
+    public void pushData(LocalSeismogramImpl[] seismograms, SeisDataChangeListener initiator) {
+	SeisDataChangeEvent event = new SeisDataChangeEvent(seismograms,
+							    this, 
+							    initiator);
+	fireNewDataEvent(event);
+    }
 
     public void finished(SeisDataChangeListener initiator) {
 	SeisDataChangeEvent event = new SeisDataChangeEvent(new LocalSeismogramImpl[0],
