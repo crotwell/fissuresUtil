@@ -65,6 +65,7 @@ public class JDBCNetwork extends NetworkTable{
         getIfNameExists = conn.prepareStatement("SELECT net_id FROM network " +
                                                     "WHERE net_id = ? AND " +
                                                     "net_name IS NOT NULL");
+        getNetIdByDBId = conn.prepareStatement("SELECT net_id, net_code, net_begin_id FROM network WHERE net_id = ?");
     }
 
     public int[] getAllNetworkDBIds() throws SQLException {
@@ -131,6 +132,13 @@ public class JDBCNetwork extends NetworkTable{
         throw new NotFound("No Network found for database id = "+dbid);
     }
 
+    public NetworkId getNetworkId(int dbid)  throws SQLException, NotFound {
+        getNetIdByDBId.setInt(1, dbid);
+        ResultSet rs = getNetIdByDBId.executeQuery();
+        if (rs.next()){ return extractId(rs, time);}
+        throw new NotFound("No Network found for database id = "+dbid);
+    }
+    
     public NetworkAttr get(NetworkId id)throws SQLException, NotFound {
         return get(getDBId(id));
     }
@@ -186,7 +194,7 @@ public class JDBCNetwork extends NetworkTable{
     private JDBCTime time;
 
     protected PreparedStatement putAll, putId, getAll, getIfNameExists,
-        getByDBId, getDBId, updateAttr;
+        getByDBId, getDBId, updateAttr, getNetIdByDBId;
 
     private static final Logger logger = Logger.getLogger(JDBCNetwork.class);
 }// JDBCNetwork

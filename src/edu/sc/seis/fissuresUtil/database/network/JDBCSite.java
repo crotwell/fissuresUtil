@@ -76,6 +76,7 @@ public class JDBCSite extends NetworkTable {
                                                        "WHERE site_id = ? AND " +
                                                        "site_comment IS NOT NULL");
         getByDBId = conn.prepareStatement("SELECT * FROM site WHERE site_id = ?");
+        getSiteIdByDBId = conn.prepareStatement("SELECT site_id, sta_id, site_code, site_begin_id FROM site WHERE site_id = ?");
         getDBId = conn.prepareStatement("SELECT site_id FROM site WHERE sta_id = ? AND " +
                                             "site_code = ? AND site_begin_id = ?");
         updateSite = conn.prepareStatement("UPDATE site SET site_end_id = ?, " +
@@ -166,9 +167,16 @@ public class JDBCSite extends NetworkTable {
         getByDBId.setInt(1, dbid);
         ResultSet rs = getByDBId.executeQuery();
         if (rs.next()){ return extract(rs, locTable, stationTable, time);}
-        throw new NotFound("No Station found for database id = "+dbid);
+        throw new NotFound("No Site found for database id = "+dbid);
     }
 
+    public SiteId getSiteId(int dbid)  throws SQLException, NotFound {
+        getSiteIdByDBId.setInt(1, dbid);
+        ResultSet rs = getSiteIdByDBId.executeQuery();
+        if (rs.next()){ return extractId(rs, stationTable, time);}
+        throw new NotFound("No SiteId found for database id = "+dbid);
+    }
+    
     public Site get(SiteId id, Station staId)throws SQLException, NotFound {
         return get(getDBId(id, staId));
     }
@@ -177,7 +185,7 @@ public class JDBCSite extends NetworkTable {
         insertId(id, staId, getDBId, 1, stationTable, time);
         ResultSet rs = getDBId.executeQuery();
         if(rs.next()){ return rs.getInt("site_id"); }
-        throw new NotFound("No such station id in the db");
+        throw new NotFound("No such Site id in the db");
     }
 
     public static Site extract(ResultSet rs, JDBCLocation locTable,
@@ -193,12 +201,12 @@ public class JDBCSite extends NetworkTable {
     public static SiteId extractId(ResultSet rs, JDBCStation staTable,
                                    JDBCTime time) throws SQLException{
         try {
-            StationId staId = staTable.get(rs.getInt("sta_id")).get_id();
+            StationId staId = staTable.getStationId(rs.getInt("sta_id"));
             return new SiteId(staId.network_id, staId.station_code,
                               rs.getString("site_code"),
                               time.get(rs.getInt("site_begin_id")));
         }catch (NotFound e) {
-            throw new RuntimeException("There is a foreign key constraint requiring that a net_id be in the network table, but it just returned a not found for one such key.  This probably indicates a db problem!",
+            throw new RuntimeException("There is a foreign key constraint requiring that a sta_id be in the station table, but it just returned a not found for one such key.  This probably indicates a db problem!",
                                        e);
         }
     }
@@ -232,7 +240,7 @@ public class JDBCSite extends NetworkTable {
 
     public JDBCStation getStationTable(){ return stationTable; }
 
-    private PreparedStatement getAllIds, getAllIdsForSta, getIfCommentExists, getByDBId,
+    private PreparedStatement getAllIds, getAllIdsForSta, getIfCommentExists, getByDBId, getSiteIdByDBId,
         getDBId, updateSite, putAll, putId, getAllIdsForNet, getAllSites, getAllSitesForSta,
         getAllSitesForNet;
     private JDBCSequence seq;
