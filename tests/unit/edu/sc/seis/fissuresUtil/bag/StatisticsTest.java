@@ -231,15 +231,15 @@ public class StatisticsTest
         testSeries[8] = 14;
         testSeries[9] = 12;
         Statistics s = new Statistics(testSeries);
-        System.out.println("Mean = "+s.mean());
-        System.out.println("Variance = "+s.var());
+        //System.out.println("Mean = "+s.mean());
+        //System.out.println("Variance = "+s.var());
         double[] testACF = s.acf(5);
         for (int i=0; i<testACF.length; i++) {
-            System.out.println("acf "+i+" = "+testACF[i]);
+           // System.out.println("acf "+i+" = "+testACF[i]);
         }
         double[] testPACF = s.pacf(5);
         for (int i=0; i<testPACF.length; i++) {
-            System.out.println("pacf "+i+" = "+testPACF[i]);
+        //    System.out.println("pacf "+i+" = "+testPACF[i]);
         }
     }
 

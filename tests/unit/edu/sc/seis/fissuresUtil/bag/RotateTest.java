@@ -116,9 +116,9 @@ public class RotateTest
         Location evtLoc = new Location(0f, 10f, Defaults.ZERO_K, Defaults.ZERO_K, null);
         float[][] ans = rotate.rotateGCP(xSeis, ySeis, staLoc, evtLoc);
         DistAz distAz = new DistAz(staLoc, evtLoc);
-        System.out.println("x y "+
-                          100*Math.sqrt(2)*Math.sin((distAz.getBaz()-45)*Math.PI/180.0)+" "+
-                          -100*Math.sqrt(2)*Math.cos((distAz.getBaz()-45)*Math.PI/180.0));
+        //System.out.println("x y "+
+        //                  100*Math.sqrt(2)*Math.sin((distAz.getBaz()-45)*Math.PI/180.0)+" "+
+        //                  -100*Math.sqrt(2)*Math.cos((distAz.getBaz()-45)*Math.PI/180.0));
         assertEquals(" transverse ", 100, ans[0][0],0.001f);
         assertEquals(" radial ",  -100, ans[1][0],0.001f);
 
