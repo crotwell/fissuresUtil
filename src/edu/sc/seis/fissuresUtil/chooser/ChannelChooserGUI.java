@@ -51,14 +51,14 @@ public class ChannelChooserGUI extends JPanel{
     public void initFrame(){
 
       //Initialize drawing colors, border, opacity.
-         this.setBackground(bg);
+         //this.setBackground(bg);
          this.setForeground(fg);
 	
-         subPane.setBackground(bg);
+         //subPane.setBackground(bg);
          subPane.setForeground(fg);	
-         subPane.setBorder(BorderFactory.createCompoundBorder(
+         /*subPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createRaisedBevelBorder(),
-                BorderFactory.createLoweredBevelBorder()));         
+                BorderFactory.createLoweredBevelBorder())); */        
          subPane.setSize(new java.awt.Dimension (mywidth, myheight));
 	 subPane.setPreferredSize(new java.awt.Dimension (mywidth, myheight));
    
