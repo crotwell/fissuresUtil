@@ -418,6 +418,28 @@ public class DisplayUtils {
         
         return true;
     }
+    public static QuantityImpl calculateBackAzimuth(DataSetSeismogram seis) {
+        EventAccessOperations event = seis.getDataSet().getEvent();
+        ChannelId chanId = seis.getRequestFilter().channel_id;
+        Channel channel = seis.getDataSet().getChannel(chanId);
+        if(channel != null && event != null){
+            Site seisSite = channel.my_site;
+            Location seisLoc =  seisSite.my_location;
+            Location eventLoc = null;
+            try{
+                eventLoc = event.get_preferred_origin().my_location;
+            }catch(NoPreferredOrigin e){//if no preferred origin, just use the first
+                if (event.get_origins().length > 0) {
+                    eventLoc = event.get_origins()[0].my_location;
+                }
+            }
+            if (eventLoc == null) { return null; }
+            DistAz distAz = new DistAz(seisLoc.latitude, seisLoc.longitude,
+                                       eventLoc.latitude, eventLoc.longitude);
+            return new QuantityImpl(distAz.baz, UnitImpl.DEGREE);
+        }
+        return null;
+    }
     
     public static QuantityImpl calculateDistance(DataSetSeismogram seis){
         EventAccessOperations event = seis.getDataSet().getEvent();
