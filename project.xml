@@ -21,9 +21,9 @@ It does not actually provide an implemenation for any services, but
 those wishing to implement new clients or new services will find many 
 useful things already done.</description>
   
-  <url>http://www.seis.sc.edu/software/${pom.id}</url>
+  <url>http://www.seis.sc.edu/software/${pom.artifactId}</url>
   <siteAddress>www.seis.sc.edu</siteAddress>
-  <siteDirectory>/seis/raid1/Apache/htdocs/software/${pom.id}</siteDirectory>
+  <siteDirectory>/seis/raid1/Apache/htdocs/software/${pom.artifactId}</siteDirectory>
   <distributionSite>www.seis.sc.edu</distributionSite>
   <distributionDirectory>/seis/raid1/Apache/htdocs/software/mavenRepository</distributionDirectory>
   <mailingList>
@@ -34,8 +34,8 @@ useful things already done.</description>
 
   <repository>
     <connection>scm:cvs:local:anonymous@cvs.seis.sc.edu:/opt/local/Internal/CvsR
-oot:${pom.id}</connection>
-        <url>http://www.seis.sc.edu/cgi-bin/viewcvs.cgi/${pom.id}</url>
+oot:${pom.artifactId}</connection>
+        <url>http://www.seis.sc.edu/cgi-bin/viewcvs.cgi/${pom.artifactId}</url>
     </repository>
 
 
