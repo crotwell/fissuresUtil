@@ -16,6 +16,11 @@ import java.util.*;
 public interface  ConnStatusChangedListener extends EventListener {
 
     
+    /**
+     * All the ConnStatusChangedListeners must implement this method.
+     *
+     * @param e a <code>StatusChangedEvent</code> value
+     */
     public void statusChanged(StatusChangedEvent e);
     
     
