@@ -36,6 +36,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
      * If a station is selected, the triangle turns red.
      */
     public StationLayer() {
+        setName("Seismogram Station Layer");
     }
 
     public void paint(java.awt.Graphics g) {

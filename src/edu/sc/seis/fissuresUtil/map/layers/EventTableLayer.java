@@ -28,14 +28,19 @@ public class EventTableLayer extends EventLayer{
                            MapBean mapBean,
                            EventColorizer colorizer){
         super(mapBean, colorizer);
+        setName("Event Table Layer");
         this.tableModel = tableModel;
         selectionModel = lsm;
+        System.out.println("eventTableLayer adding itself as eqSelectionListener");
         addEQSelectionListener(this);
+        System.out.println("eventTableLayer adding itself to tableModel as an eventDataListener");
         tableModel.addEventDataListener(this);
+        System.out.println("adding all events from tableModel to eventTableLayer");
         eventDataChanged(new EQDataEvent(tableModel.getAllEvents()));
 
         selectionModel.addListSelectionListener(new ListSelectionListener(){
                     public void valueChanged(ListSelectionEvent e) {
+                    		System.out.println("event selection changed in tableModel");
                         EventAccessOperations[] selectedEvents = getSelectedEvents();
                         if(selectedEvents.length > 0){
                             fireEQSelectionChanged(new EQSelectionEvent(this, selectedEvents));

@@ -11,17 +11,49 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
+import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.etopo.ETOPOJarLayer;
+import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Projection;
 
 /**
  * @author oliverpa Created on Aug 17, 2004
  */
-public class ColorMapEtopoLayer extends ETOPOJarLayer {
+public class ColorMapEtopoLayer extends ETOPOJarLayer implements OverriddenOMLayer{
+
+    public ColorMapEtopoLayer() throws FileNotFoundException, IOException {
+        this("edu/sc/seis/fissuresUtil/data/maps/ETOPOColorTable");
+    }
 
     public ColorMapEtopoLayer(String colorMapFilename)
             throws FileNotFoundException, IOException {
         super();
+        setName("ColorMap ETOPO Layer");
         setColorTable(colorMapFilename);
+    }
+
+    public void setOverrideProjectionChanged(boolean override) {
+        overrideProjectionChanged = override;
+    }
+
+    public void projectionChanged(ProjectionEvent e) {
+        if(overrideProjectionChanged) {
+            //this is a hack to get the layer to
+            //show up when rendered to a png
+            doPrepare();
+            repaint();
+        } else {
+            super.projectionChanged(e);
+        }
+    }
+
+    public synchronized OMGraphicList prepare() {
+        //this is a hack to get the etopoLayer
+        //to shut up about it not being added
+        //to the mapBean.
+        Projection projection = getProjection();
+        if(projection == null) { return new OMGraphicList(); }
+        return super.prepare();
     }
 
     public void setColorTable(String colorMapFilename)
@@ -50,10 +82,8 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer {
                 // positive slope
                 for(int j = 4; j < 8; j++) {
                     // set
-                    if(j == 4)
-                        slopeColors[i][j] = base;
-                    else
-                        slopeColors[i][j] = slopeColors[i][j - 1].brighter();
+                    if(j == 4) slopeColors[i][j] = base;
+                    else slopeColors[i][j] = slopeColors[i][j - 1].brighter();
                 }
                 // call the "darker" method on the base color for negative
                 // slopes
@@ -70,12 +100,11 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer {
         // return color
         return slopeColors[elIdx][slopeIdx];
     }
-    
+
     /* returns the color lookup index based on elevation */
     protected int getElevIndex(short el) {
         for(int i = 0; i < elevationLimit.length - 1; i++)
-            if(el < elevationLimit[i + 1])
-                return i;
+            if(el < elevationLimit[i + 1]) return i;
         return elevationLimit.length - 1;
     }
 
@@ -85,7 +114,7 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(filename)));
-        } catch(Exception e){
+        } catch(Exception e) {
             logger.debug("reading from jar failed. checking to see if path is a valid non-jarred file");
             File cMapFile = new File(filename);
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(cMapFile)));
@@ -116,9 +145,11 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer {
         return new int[][] {elevationLimit, redValues, greenValues, blueValues};
     }
 
+    private boolean overrideProjectionChanged = false;
+
     private int[] elevationLimit;
 
     private int[] redValues, greenValues, blueValues;
-    
+
     private static Logger logger = Logger.getLogger(ColorMapEtopoLayer.class);
 }
