@@ -1,14 +1,9 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.*;
-
-import java.util.*;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import javax.swing.SwingUtilities;
-import org.apache.log4j.*;
 
 /**
  * MemoryDataSetSeismogram.java
@@ -22,49 +17,45 @@ import org.apache.log4j.*;
 public class MemoryDataSetSeismogram extends DataSetSeismogram implements Cloneable {
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl seis,
-				   String name) {
-	this(makeSeisArray(seis), null, name);
+                                   String name) {
+        this(makeSeisArray(seis), null, name);
     }
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl seis) {
-	this(makeSeisArray(seis), null);
+        this(makeSeisArray(seis), null);
     }
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl seis,
-				   DataSet ds) {
-	this(makeSeisArray(seis), ds);
+                                   DataSet ds) {
+        this(makeSeisArray(seis), ds);
     }
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl seis,
-				   DataSet ds,
-				   String name) {
-	this(makeSeisArray(seis), ds, name);
+                                   DataSet ds,
+                                   String name) {
+        this(makeSeisArray(seis), ds, name);
     }
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl[] seis,
-				   DataSet ds) {
-	this(seis, ds, null);
+                                   DataSet ds) {
+        this(seis, ds, null);
     }
 
     public MemoryDataSetSeismogram(LocalSeismogramImpl[] seis,
-				   DataSet ds,
-				   String name) {
+                                   DataSet ds,
+                                   String name) {
         super(ds, name);
         requestFilter = makeRequestFilter(seis);
         seisCache = seis;
     }
 
     public void retrieveData(final SeisDataChangeListener dataListener) {
-	SwingUtilities.invokeLater(new Runnable() {
-		public void run() {
-		    pushData(seisCache, dataListener);
-		    finished(dataListener);
-		}
-	    });
-    }
-
-    public LocalSeismogramImpl[] getSeismograms() {
-	return seisCache;
+        SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        pushData(seisCache, dataListener);
+                        finished(dataListener);
+                    }
+                });
     }
 
     protected LocalSeismogramImpl[] seisCache;
@@ -88,8 +79,7 @@ public class MemoryDataSetSeismogram extends DataSetSeismogram implements Clonea
     }
 
     static final LocalSeismogramImpl[] makeSeisArray(LocalSeismogramImpl seis) {
-        LocalSeismogramImpl[] tmp = new LocalSeismogramImpl[1];
-        tmp[0] = seis;
+        LocalSeismogramImpl[] tmp = { seis };
         return tmp;
     }
 }
