@@ -4,6 +4,7 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.Station;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
@@ -70,7 +71,7 @@ public class NameListCellRenderer extends DefaultListCellRenderer {
                     getDisplayString(((NetworkAccess)value).get_attributes().name,
                                      netCode);
             } catch (Throwable e) {
-                logger.warn("in renderer for network "+name, e);
+                GlobalExceptionHandler.handle("in renderer for network "+name, e);
             }
         }
         if (value instanceof Station) {
@@ -91,13 +92,12 @@ public class NameListCellRenderer extends DefaultListCellRenderer {
             name = (String)value;
         } // end of if (value instanceof String)
 
-        logger.debug("render "+name);
+        //logger.debug("render "+name);
         Component c = super.getListCellRendererComponent(list,
                                                          name,
                                                          index,
                                                          isSelected,
                                                          cellHasFocus);
-        logger.debug("component for "+name+" is "+c.getClass().getName());
         return c;
     }
 
