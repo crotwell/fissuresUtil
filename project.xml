@@ -365,6 +365,15 @@
                 </includes>
                 <filtering>false</filtering>
             </resource>
+            <resource>
+                <directory>src/edu/sc/seis/fissuresUtil/map</directory>
+                <targetPath>edu/sc/seis/fissuresUtil/map</targetPath>
+                <includes>
+                    <include>**/*.prop</include>
+                    <include>**/*.props</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
         </resources>
     </build>
     <reports>
