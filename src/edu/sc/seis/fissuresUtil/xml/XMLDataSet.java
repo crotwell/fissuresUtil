@@ -19,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1709 2002-05-27 21:00:47Z crotwell $
+ * @version $Id: XMLDataSet.java 1711 2002-05-28 13:33:10Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -333,24 +333,23 @@ public class XMLDataSet implements DataSet, Serializable {
     }
 
     public void write(OutputStream out) throws Exception {
-    DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder docBuilder = dfactory.newDocumentBuilder();
-    org.w3c.dom.Document outNode = docBuilder.newDocument();
+	DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+	DocumentBuilder docBuilder = dfactory.newDocumentBuilder();
+	org.w3c.dom.Document outNode = docBuilder.newDocument();
 
-
-    javax.xml.transform.TransformerFactory tfactory = 
-	javax.xml.transform.TransformerFactory.newInstance(); 
+	javax.xml.transform.TransformerFactory tfactory = 
+	    javax.xml.transform.TransformerFactory.newInstance(); 
     
-    // This creates a transformer that does a simple identity transform, 
-    // and thus can be used for all intents and purposes as a serializer.
-    javax.xml.transform.Transformer serializer = tfactory.newTransformer();
+	// This creates a transformer that does a simple identity transform, 
+	// and thus can be used for all intents and purposes as a serializer.
+	javax.xml.transform.Transformer serializer = tfactory.newTransformer();
     
-    java.util.Properties oprops = new java.util.Properties();
-    oprops.put("method", "html");
-    oprops.put("indent-amount", "2");
-    serializer.setOutputProperties(oprops);
-    serializer.transform(new javax.xml.transform.dom.DOMSource(config), 
-                         new javax.xml.transform.stream.StreamResult(System.out));
+	java.util.Properties oprops = new java.util.Properties();
+	oprops.put("method", "xml");
+	oprops.put("indent-amount", "2");
+	serializer.setOutputProperties(oprops);
+	serializer.transform(new javax.xml.transform.dom.DOMSource(config), 
+			     new javax.xml.transform.stream.StreamResult(out));
 
     }
 
@@ -434,13 +433,18 @@ public class XMLDataSet implements DataSet, Serializable {
 
 	    System.out.println("Starting..");
 	    XMLDataSet dataset = load(new BufferedInputStream(new FileInputStream(args[0])));
+	    String[] names = dataset.getDataSetNames();
+	    for (int i=0; i<names.length; i++) {
+		FileOutputStream out = new FileOutputStream("test_"+names[i]);
+		XMLDataSet sub = (XMLDataSet)dataset.getDataSet(names[i]);
+		sub.write(out);
+		out.flush();
+		out.close();
+	    } // end of for (int i=0; i<names.length; i++)
+	    
 
-	    testDataSet(dataset, " ");
+	    // testDataSet(dataset, " ");
 
-	    FileOutputStream out = new FileOutputStream("test");
-	    dataset.write(out);
-	    out.flush();
-	    out.close();
 	} catch (Exception e) {
 	    e.printStackTrace();	    
 	} // end of try-catch
