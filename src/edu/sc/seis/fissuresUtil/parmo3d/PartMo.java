@@ -30,6 +30,7 @@ import com.sun.j3d.utils.geometry.ColorCube;
 import com.sun.j3d.utils.geometry.Sphere;
 import com.sun.j3d.utils.geometry.Box;
 import com.sun.j3d.utils.universe.*;
+import java.awt.GraphicsConfiguration;
 import javax.swing.*;
 import javax.media.j3d.*;
 import javax.vecmath.*;
@@ -220,7 +221,7 @@ public class PartMo extends JPanel  {
           Point3f point = new Point3f();
           zPointArray.getCoordinate(jj,point);
 
-          System.out.println("Point " + jj + " " + point);
+          //System.out.println("Point " + jj + " " + point);
           jj++;
 
        } 
@@ -292,7 +293,7 @@ public class PartMo extends JPanel  {
 
        Shaker3D shaker = new Shaker3D(Shaker3D.SINE, backAzimuth, angleOfIncidence);
        shaker.getWaveLineArray(GroundMotion);
-
+       //System.out.println("After callt o shaker#D");
 
        jj = 0;
        while (jj < 82) {
@@ -307,10 +308,11 @@ public class PartMo extends JPanel  {
           GroundMotion.setColor(jj, new Color3f(0.6f,0.9f,0.9f));
 
           }
-//          System.out.println("MV: Point " + jj + " " + point);
+//          //System.out.println("MV: Point " + jj + " " + point);
           jj++;
 
        } 
+       //System.out.println("After the while loop after shaker3D");
 
 
        }
@@ -329,7 +331,7 @@ public class PartMo extends JPanel  {
            while (i < 41) {
               Point3f point = new Point3f();
               GroundMotion.getCoordinate(count,point);
-//              System.out.println("Index: " + count + " " + i + " " + point);
+//              //System.out.println("Index: " + count + " " + i + " " + point);
               pointsGM[i]=point;
               i++; 
               count=i*2;
@@ -488,18 +490,26 @@ public class PartMo extends JPanel  {
 
         new Traces(baz,ang).getSingAlongPoints(zSing,nSing,eSing);
 
+	//System.out.println("before tjo interpolator");
         tjoInterpolator nSinger 
              = new tjoInterpolator(alpha, NsingAlong, NaxisOfPos, knots, nSing); 
+	//System.out.println("after tjo interpolator");	
         nSinger.setSchedulingBounds(new BoundingSphere());
+	//System.out.println("after set scheduling bounds");
 
+	//System.out.println("before tjo interpolator");
         tjoInterpolator eSinger 
              = new tjoInterpolator(alpha, EsingAlong, EaxisOfPos, knots, eSing); 
+	//System.out.println("after tjo interpolator");	
         eSinger.setSchedulingBounds(new BoundingSphere());
+	//System.out.println("after set scheduling bounds");
 
+	//System.out.println("before tjo interpolator");
         tjoInterpolator zSinger 
              = new tjoInterpolator(alpha, ZsingAlong, ZaxisOfPos, knots, zSing); 
+	//System.out.println("after tjo interpolator");	
         zSinger.setSchedulingBounds(new BoundingSphere());
-
+	//System.out.println("after set scheduling bounds");
 
         int GMknots = 41;
         Point3f GMpoints[] = new Point3f[41];
@@ -514,7 +524,7 @@ public class PartMo extends JPanel  {
         i = 0;
         while (i < GMknots) {
            gknots[i] = i*gnotInc;
-//           System.out.println("GM " + i + " " + GMpoints[i]);
+//           //System.out.println("GM " + i + " " + GMpoints[i]);
            float t[] = new float[3];
            GMpoints[i].get(t);
            GMzOnly[i]=new Point3f(t[0],0.0f,0.0f);
@@ -635,7 +645,7 @@ public class PartMo extends JPanel  {
 	// Let Java 3D perform optimizations on this scene graph.
 
         objRoot.compile();
-
+	//System.out.println("returning from CreaetScene Graph");
 	return objRoot;
 
     } // end of CreateSceneGraph method 
@@ -646,21 +656,32 @@ public class PartMo extends JPanel  {
 
 
         setLayout(new BorderLayout());
-        Canvas3D canvas3D = new Canvas3D(null);
+	// Create Canvas3D
+	GraphicsConfiguration config =
+	    SimpleUniverse.getPreferredConfiguration();
+	//	if(config == null) System.out.println("The configuration is NULL");
+	//else System.out.println("Teh confiugraion is NOT NULL");
+        Canvas3D canvas3D = new Canvas3D(config);
         add("Center", canvas3D);
 
         BranchGroup scene = createSceneGraph(baz,ang);
-
+	//System.out.println("after createing scenGraph");
         // SimpleUniverse is a Convenience Utility class
 
         SimpleUniverse simpleU = new SimpleUniverse(canvas3D);
+	//stem.out.println("formed the simpeUniverse");
+	//add(canvas3D, BorderLayout.CENTER);
+	//stem.out.println("added the canvas3D  to the panel");
 
 	// This will move the ViewPlatform back a bit so the
 	// objects in the scene can be viewed.
 
         simpleU.getViewingPlatform().setNominalViewingTransform();
+	//stem.out.println("after setting the nominalViewing transform");
 
         simpleU.addBranchGraph(scene);
+	//stem.out.println("&&&after addBranchGraph(scene)");
+	//throw new IllegalArgumentException("not important");
 
     } // end of constructor
 

@@ -21,7 +21,7 @@ public class tjoInterpolator extends PositionPathInterpolator {
                            float[] knots, Point3f[] positions) {
 
            super(alpha, target, axisOfTranslation, knots, positions);
-
+	   //System.out.println("after the call to the super class");
     }
     public void processStimulus(Enumeration criteria) {
            super.processStimulus(criteria);
