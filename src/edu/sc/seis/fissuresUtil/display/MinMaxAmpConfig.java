@@ -21,10 +21,11 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
    
     /** Returns the amp range for a particular seismogram over its complete time.
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){
+    public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis){
 	if(timeRegistrar == null)
 	    return this.getAmpRange(aSeis,
-				    new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime()));
+				    new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis.getSeismogram()).getBeginTime(), 
+							     ((LocalSeismogramImpl)aSeis.getSeismogram()).getEndTime()));
 	else
 	    return this.getAmpRange(aSeis, timeRegistrar.getTimeRange(aSeis));
     }
@@ -32,10 +33,10 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
     /** Returns the amp range for a particular seismogram over a particular time range.  If it is already in the config and a new time 
      *  range has not been set, the current ampRange is returned.  If not, then it is calculated and checked against the current ampRange
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram aSeis, MicroSecondTimeRange calcIntv){
+    public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis, MicroSecondTimeRange calcIntv){
 	if(seismos.contains(aSeis) && !intvCalc && ampRange != null)
 	    return ampRange;
-	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
+	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
                                                seis.getEndTime(),
@@ -83,7 +84,7 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 	intvCalc = true;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
-	    LocalSeismogram current = (LocalSeismogram)e.next();
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	intvCalc = false;
@@ -94,7 +95,7 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 
     /** Adds a seismogram to the current config and adjusts the ranges if it defined the minimum or maximum amplitude
      */
-    public void addSeismogram(LocalSeismogram aSeis){
+    public void addSeismogram(DataSetSeismogram aSeis){
 	this.getAmpRange(aSeis);
 	seismos.add(aSeis);
 	this.updateAmpSyncListeners();
@@ -102,9 +103,9 @@ public class MinMaxAmpConfig extends AbstractAmpRangeConfig{
 
     /** Removes a seismogram from the current config
      */
-    public void removeSeismogram(LocalSeismogram aSeis){ 
+    public void removeSeismogram(DataSetSeismogram aSeis){ 
 	if(seismos.contains(aSeis)){
-	    LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
+	    LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis.getSeismogram();
 	    MicroSecondTimeRange calcIntv;
 	    if(timeRegistrar == null)
 		calcIntv = new MicroSecondTimeRange(seis.getBeginTime(), seis.getEndTime());

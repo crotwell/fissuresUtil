@@ -37,7 +37,7 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 	    ((AmpConfigRegistrar)ampConfig).removeAmpSyncListener(this);
 	Iterator e = seismograms.iterator();
 	while(e.hasNext())
-	    ampRegistrar.addSeismogram(((LocalSeismogram)e.next()));
+	    ampRegistrar.addSeismogram(((DataSetSeismogram)e.next()));
 	ampRegistrar.addAmpSyncListener(this);
 	ampConfig = ampRegistrar;
 	updateAmpSyncListeners();
@@ -50,7 +50,7 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      *
      * @param seis the seismogram to be added
      */
-    public void addSeismogram(LocalSeismogram seis){
+    public void addSeismogram(DataSetSeismogram seis){
 	if(seismograms.contains(seis))
 	    return;
 	seismograms.add(seis);
@@ -62,19 +62,19 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      *
      * @param seis the seismogram to be removed
      */
-    public void removeSeismogram(LocalSeismogram seis){ 
+    public void removeSeismogram(DataSetSeismogram seis){ 
 	seismograms.remove(seis);
 	ampConfig.removeSeismogram(seis);
     }
 
-    public UnitRangeImpl getAmpRange(LocalSeismogram seis){ return ampConfig.getAmpRange(seis); }
+    public UnitRangeImpl getAmpRange(DataSetSeismogram seis){ return ampConfig.getAmpRange(seis); }
 
     /**
      * Returns the amplitude range for a given seismogram over a time range
      *
      * 
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram seis, MicroSecondTimeRange calcIntv){ 
+    public UnitRangeImpl getAmpRange(DataSetSeismogram seis, MicroSecondTimeRange calcIntv){ 
 	return ampConfig.getAmpRange(seis, calcIntv); 
     }
     
@@ -120,12 +120,12 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 	AmpRangeConfig newConfig = new RMeanAmpConfig(this);
 	Iterator e = seismograms.iterator();
 	while(e.hasNext())
-	    newConfig.addSeismogram(((LocalSeismogram)e.next()));
+	    newConfig.addSeismogram(((DataSetSeismogram)e.next()));
 	AmpRangeConfig oldConfig = ampConfig;
 	this.ampConfig = newConfig;
 	e = seismograms.iterator();
 	while(e.hasNext())
-	    oldConfig.removeSeismogram(((LocalSeismogram)e.next()));
+	    oldConfig.removeSeismogram(((DataSetSeismogram)e.next()));
 	if(oldConfig instanceof AmpConfigRegistrar)
 	    ((AmpConfigRegistrar)oldConfig).removeAmpSyncListener(this);
 	this.ampConfig.visibleAmpCalc(timeRegistrar);

@@ -23,18 +23,18 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
     
     /** Returns the median centered amp range for a seismogram for its complete time range
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){
+    public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis){
 	if(timeRegistrar == null)
-	    return this.getAmpRange(aSeis,new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), 
-								   ((LocalSeismogramImpl)aSeis).getEndTime()));
+	    return this.getAmpRange(aSeis,new MicroSecondTimeRange(aSeis.getSeismogram().getBeginTime(), 
+								   aSeis.getSeismogram().getEndTime()));
 	else
 	    return this.getAmpRange(aSeis, this.timeRegistrar.getTimeRange(aSeis));
     }
 
     /** Returns the median centered amp range for a seismogram over a given time interval
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram aSeis, MicroSecondTimeRange calcIntv){
-	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
+    public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis, MicroSecondTimeRange calcIntv){
+	LocalSeismogramImpl seis = aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
                                                seis.getEndTime(),
@@ -90,7 +90,7 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 	this.timeRegistrar = timeRegistrar;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
-	    LocalSeismogram current = (LocalSeismogram)e.next();
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	if(ampRange == null){
@@ -100,20 +100,20 @@ public class RMedianAmpConfig extends AbstractAmpRangeConfig{
 	this.updateAmpSyncListeners();
     }
     
-    public void addSeismogram(LocalSeismogram seis){
+    public void addSeismogram(DataSetSeismogram seis){
 	this.getAmpRange(seis);
 	seismos.add(seis);
 	this.updateAmpSyncListeners();
     }
 
-    public void removeSeismogram(LocalSeismogram aSeis){ 
+    public void removeSeismogram(DataSetSeismogram aSeis){ 
 	if(seismos.contains(aSeis)){
 	    MicroSecondTimeRange calcIntv;
 	    if(this.timeRegistrar == null)
-		calcIntv = new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime());
+		calcIntv = new MicroSecondTimeRange(aSeis.getSeismogram().getBeginTime(), aSeis.getSeismogram().getEndTime());
 	    else
 		calcIntv = timeRegistrar.getTimeRange(aSeis);
-	    LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
+	    LocalSeismogramImpl seis = aSeis.getSeismogram();
 	    int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
 						   seis.getBeginTime(),
 						   seis.getEndTime(),

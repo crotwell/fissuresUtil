@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
-
 import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.Iterator;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -24,40 +24,34 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 
     public TimeConfigRegistrar(TimeRangeConfig timeConfig){
 	this.timeConfig = timeConfig;
-    }
-
-    
-    public TimeConfigRegistrar(TimeConfigRegistrar timeConfig){
-	this.timeConfig = timeConfig;
 	timeConfig.addTimeSyncListener(this);
     }
     
-    
-    public void setRegistrar(TimeConfigRegistrar tr){
-	if(timeConfig instanceof TimeConfigRegistrar){
-	    ((TimeConfigRegistrar)timeConfig).removeTimeSyncListener(this);
+    public void setTimeConfig(TimeRangeConfig newTimeConfig){ 
+	timeConfig.removeTimeSyncListener(this);
+	Iterator e = seismos.keySet().iterator();
+	while(e.hasNext()){
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    timeConfig.removeSeismogram(current);
+	    this.addSeismogram(current);
+	    newTimeConfig.addSeismogram(current, (MicroSecondDate)seismos.get(current));
 	}
-	tr.addTimeSyncListener(this);
-	timeConfig = tr;
-	updateTimeSyncListeners();
+	timeConfig = newTimeConfig;
+	timeConfig.addTimeSyncListener(this);
     }
-    
-    public void setTimeConfig(TimeRangeConfig timeConfig){ 
-	this.timeConfig = timeConfig; 
-    }
-
-    public TimeRangeConfig getTimeConfig(){ return timeConfig.getTimeConfig(); }
 
     /**
      * Add the values in this seismogram to the configuration
      *
      * @param seis the seismogram to be added
      */
-    public void addSeismogram(LocalSeismogram seis){
-	timeConfig.addSeismogram(seis);
+    public void addSeismogram(DataSetSeismogram seis){
+	seismos.put(seis, timeFinder.getBeginTime(seis));
+	timeConfig.addSeismogram(seis, timeFinder.getBeginTime(seis));
     }
 
-    public void addSeismogram(LocalSeismogram seis, MicroSecondDate b){
+    public void addSeismogram(DataSetSeismogram seis, MicroSecondDate b){
+	seismos.put(seis, b);
 	timeConfig.addSeismogram(seis, b);
     }
 
@@ -66,16 +60,16 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
      *
      * @param seis the seismogram to be removed
      */
-    public void removeSeismogram(LocalSeismogram seis){ 
+    public void removeSeismogram(DataSetSeismogram seis){ 
 	timeConfig.removeSeismogram(seis);
     }
 
-    public MicroSecondTimeRange getTimeRange(LocalSeismogram seis){
+    public MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){
 	return timeConfig.getTimeRange(seis);
     }
 
     public MicroSecondTimeRange getTimeRange(){ return timeConfig.getTimeRange(); }
-
+    
     /**
      * Adds a time sync listener to the list to be informed when a time sync event occurs
      * 
@@ -114,12 +108,28 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
 
     public void setBeginTime(MicroSecondDate b){ timeConfig.setBeginTime(b); }
     
-    public void setAllBeginTime(MicroSecondDate b){ timeConfig.setAllBeginTime(b); }
+    public void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
+	timeConfig.setBeginTime(seismo, b);
+	seismos.put(seismo, b);
+    }
+    
+    public void setAllBeginTime(MicroSecondDate b){ 
+	Iterator e = seismos.keySet().iterator();
+	while(e.hasNext()){
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
+	    timeConfig.setBeginTime(current, b);
+	    seismos.put(current, b);
+	}
+    }
 
     public void fireTimeRangeEvent(TimeSyncEvent event){ 
 	logger.debug("firing time event");
 	timeConfig.fireTimeRangeEvent(event); 
     }
+
+    protected TimeFinder timeFinder = new EdgeTimeFinder();
+
+    protected HashMap seismos = new HashMap();
 
     protected TimeRangeConfig timeConfig;
 

@@ -19,9 +19,9 @@ import java.util.*;
  */
 
 public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
-    public OffsetMeanAmpConfig(LocalSeismogram aSeis, MicroSecondTimeRange range){
+    public OffsetMeanAmpConfig(DataSetSeismogram aSeis, MicroSecondTimeRange range){
 	//this.ampRegistrar = registrar;
-	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
+	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
                                                seis.getEndTime(),
@@ -55,15 +55,16 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 
 /** Returns the OffsetMean amplitude for a given seismogram over its full time range
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){
+    public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis){
 	return this.getAmpRange(aSeis,
-				new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime()));
+				new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis.getSeismogram()).getBeginTime(), 
+							 ((LocalSeismogramImpl)aSeis.getSeismogram()).getEndTime()));
     }
 
     /** Returns the OffsetMean amplitude for a given seismogram over a set time range
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram aSeis, MicroSecondTimeRange calcIntv){
-	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
+    public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis, MicroSecondTimeRange calcIntv){
+	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
                                                seis.getEndTime(),
@@ -104,7 +105,7 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	intvCalc = true;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
-	    LocalSeismogram current = (LocalSeismogram)e.next();
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    this.getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	intvCalc = false;
@@ -113,7 +114,7 @@ public class OffsetMeanAmpConfig extends AbstractAmpRangeConfig{
 	this.updateAmpSyncListeners();
     }
     
-    public void addSeismogram(LocalSeismogram seis){
+    public void addSeismogram(DataSetSeismogram seis){
 	this.getAmpRange(seis);
 	seismos.add(seis);
 	this.updateAmpSyncListeners();

@@ -21,7 +21,7 @@ public interface SeismogramDisplay extends TimeSyncListener, AmpSyncListener {
      *
      * 
      */
-    public void removeSeismogram(LocalSeismogram oldSeis);
+    public void removeSeismogram(DataSetSeismogram oldSeis);
     
     /**
      * Removes all seismograms from this display
@@ -41,7 +41,7 @@ public interface SeismogramDisplay extends TimeSyncListener, AmpSyncListener {
      *
      * 
      */
-    public TimeRangeConfig getTimeConfig();
+    public TimeConfigRegistrar getTimeConfig();
 
     public void addBottomTimeBorder();
 

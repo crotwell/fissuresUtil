@@ -21,7 +21,7 @@ public class TimeSnapshot {
 
     public MicroSecondTimeRange getTimeRange(){ return tr; }
 
-    public MicroSecondTimeRange getTimeRange(LocalSeismogram seis){ return (MicroSecondTimeRange)seismoDisplayTime.get(seis); }
+    public MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){ return (MicroSecondTimeRange)seismoDisplayTime.get(seis); }
     
     private MicroSecondTimeRange tr;
 

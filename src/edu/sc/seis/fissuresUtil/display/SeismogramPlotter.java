@@ -18,7 +18,7 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
  */
 
 public class SeismogramPlotter extends AbstractSeismogramPlotter{
-    public SeismogramPlotter(LocalSeismogram seis,  AmpConfigRegistrar arc){
+    public SeismogramPlotter(DataSetSeismogram seis,  AmpConfigRegistrar arc){
 	this.seismogram = seis;
 	this.ampConfig = arc;
     }
@@ -28,8 +28,9 @@ public class SeismogramPlotter extends AbstractSeismogramPlotter{
 	    MicroSecondTimeRange overTimeRange = imageState.getTimeRange(seismogram).
 		getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
 	    try{
-		int[][] pixels = SimplePlotUtil.compressYvalues(seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size);
-		SimplePlotUtil.scaleYvalues(pixels, seismogram, overTimeRange, ampConfig.getAmpRange(seismogram), size); 
+		int[][] pixels = SimplePlotUtil.compressYvalues(seismogram.getSeismogram(), overTimeRange, 
+								ampConfig.getAmpRange(seismogram), size);
+		SimplePlotUtil.scaleYvalues(pixels, seismogram.getSeismogram(), overTimeRange, ampConfig.getAmpRange(seismogram), size); 
 		SimplePlotUtil.flipArray(pixels[1], size.height);
 		int[] xPixels = pixels[0];
 		int[] yPixels = pixels[1];

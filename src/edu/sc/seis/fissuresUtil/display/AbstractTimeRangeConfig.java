@@ -35,7 +35,7 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      * @param seis the seismogram to be displayed
      * @return the time it will be displayed
      */
-    public abstract MicroSecondTimeRange getTimeRange(LocalSeismogram seis);
+    public abstract MicroSecondTimeRange getTimeRange(DataSetSeismogram seis);
 
     /**
      * Get the total display time regardless of a particular seismogram, for things such as axes
@@ -49,11 +49,13 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      *
      * @param seis the seismogram to be added
      */
-    public synchronized void addSeismogram(LocalSeismogram seis){ seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime()); }
+    public synchronized void addSeismogram(DataSetSeismogram seis){ 
+	seismos.put(seis, ((LocalSeismogramImpl)seis.getSeismogram()).getBeginTime()); 
+    }
 
     /** Adds a seismogram that has a reference set by the user
      */
-    public synchronized void addSeismogram(LocalSeismogram seis, MicroSecondDate time){ 
+    public synchronized void addSeismogram(DataSetSeismogram seis, MicroSecondDate time){ 
 	seismos.put(seis, time);
 	registrar.updateTimeSyncListeners();
     }
@@ -63,7 +65,7 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
      *
      * @param seis the seismogram to be removed
      */
-    public void removeSeismogram(LocalSeismogram seis){ seismos.remove(seis); }
+    public void removeSeismogram(DataSetSeismogram seis){ seismos.remove(seis); }
     
     
     /**
@@ -73,6 +75,15 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     public synchronized void updateTimeSyncListeners(){
 	registrar.updateTimeSyncListeners();
     }
+
+    public void addTimeSyncListener(TimeSyncListener t){
+	registrar = (TimeConfigRegistrar)t;
+    }
+    
+    public void removeTimeSyncListener(TimeSyncListener tr){
+	registrar = null;
+    }
+	
 
     /**
      * Takes the information from the TimeSyncEvent, adjusts the MicroSecondTimeRange, and updates according to the information in the 
@@ -86,13 +97,15 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     public void setData(HashMap newData){ 
 	Iterator e = newData.keySet().iterator();
 	while(e.hasNext()){
-	    LocalSeismogram curr = ((LocalSeismogram)e.next());
+	    DataSetSeismogram curr = ((DataSetSeismogram)e.next());
 	    this.addSeismogram(curr, ((MicroSecondDate)newData.get(curr)));
 	}
 	registrar.updateTimeSyncListeners();
     } 
     
-    public synchronized void setRelativeTime(LocalSeismogram seis, MicroSecondDate time){
+    public void setTimeFinder(TimeFinder tf){ timeFinder = tf; }
+
+    public synchronized void setRelativeTime(DataSetSeismogram seis, MicroSecondDate time){
 	seismos.put(seis, time);
 	registrar.updateTimeSyncListeners();
     }
@@ -107,6 +120,11 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	registrar.updateTimeSyncListeners();
     }
 
+    public synchronized void setBeginTime(DataSetSeismogram seismo, MicroSecondDate b){
+	if(seismos.containsKey(seismo))
+	    seismos.put(seismo, b);
+    }
+
     public synchronized void setAllBeginTime(MicroSecondDate b){
 	beginTime = b;
 	Iterator e = seismos.keySet().iterator();
@@ -115,18 +133,18 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 	registrar.updateTimeSyncListeners();
     }
 
-    public TimeRangeConfig getTimeConfig(){ return this; } 
-
     public synchronized TimeSnapshot takeSnapshot(){
 	HashMap seismoDisplayTime = new HashMap();
 	Iterator e = seismos.keySet().iterator();
 	while(e.hasNext()){
-	    LocalSeismogram current = (LocalSeismogram)e.next();
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    seismoDisplayTime.put(current, this.getTimeRange(current));
 	}
 	return new TimeSnapshot(seismoDisplayTime, this.getTimeRange());
     }
 	
+    protected TimeFinder timeFinder = new EdgeTimeFinder();
+
     protected MicroSecondDate beginTime;
     
     protected TimeInterval displayInterval;

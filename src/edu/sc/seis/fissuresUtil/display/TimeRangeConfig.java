@@ -22,7 +22,7 @@ public interface TimeRangeConfig {
      * @param seis the seismogram to be displayed
      * @return the time it will be displayed
      */
-    public MicroSecondTimeRange getTimeRange(LocalSeismogram seis);
+    public MicroSecondTimeRange getTimeRange(DataSetSeismogram seis);
 
     /**
      * Get the total display time regardless of a particular seismogram, for things such as axes
@@ -36,16 +36,16 @@ public interface TimeRangeConfig {
      *
      * @param seis the seismogram to be added
      */
-    public void addSeismogram(LocalSeismogram seis);
+    public void addSeismogram(DataSetSeismogram seis);
 
-    public void addSeismogram(LocalSeismogram seis, MicroSecondDate b);
+    public void addSeismogram(DataSetSeismogram seis, MicroSecondDate b);
 
     /**
      * Remove the values from this seismogram from the configuration
      *
      * @param seis the seismogram to be removed
      */
-    public void removeSeismogram(LocalSeismogram seis);
+    public void removeSeismogram(DataSetSeismogram seis);
     
     
     /**
@@ -53,6 +53,10 @@ public interface TimeRangeConfig {
      *
      */
     public void updateTimeSyncListeners();
+
+    public void addTimeSyncListener(TimeSyncListener t);
+
+    public void removeTimeSyncListener(TimeSyncListener t);
 
     /**
      * Takes the information from the TimeSyncEvent, adjusts the time, and updates according to the information in the event
@@ -63,10 +67,10 @@ public interface TimeRangeConfig {
     public void setDisplayInterval(TimeInterval t);
 
     public void setBeginTime(MicroSecondDate b);
+
+    public void setBeginTime(DataSetSeismogram seis, MicroSecondDate b);
     
     public void setAllBeginTime(MicroSecondDate b);
-
-    public TimeRangeConfig getTimeConfig();
 
     public TimeSnapshot takeSnapshot();
 }// TimeRangeConfig

@@ -24,7 +24,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	this.registrar = registrar;
     }
 
-    public synchronized MicroSecondTimeRange getTimeRange(LocalSeismogram seis){
+    public synchronized MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){
 	return new MicroSecondTimeRange(((MicroSecondDate)seismos.get(seis)), ((MicroSecondDate)seismos.get(seis)).add(displayInterval));
     }
 
@@ -32,24 +32,24 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	return new MicroSecondTimeRange(this.beginTime, this.beginTime.add(displayInterval));
     }
 
-    public synchronized void addSeismogram(LocalSeismogram seis){
+    public synchronized void addSeismogram(DataSetSeismogram seis){
 	if(beginTime == null){
-	    this.beginTime = ((LocalSeismogramImpl)seis).getBeginTime();
-	    seismos.put(seis, ((LocalSeismogramImpl)seis).getBeginTime());
+	    this.beginTime = ((LocalSeismogramImpl)seis.getSeismogram()).getBeginTime();
+	    seismos.put(seis, ((LocalSeismogramImpl)seis.getSeismogram()).getBeginTime());
 	}else
 	    seismos.put(seis, this.beginTime);
 	if(displayInterval == null)
-	    this.displayInterval = new TimeInterval(((LocalSeismogramImpl)seis).getBeginTime(), 
-						    ((LocalSeismogramImpl)seis).getEndTime());
+	    this.displayInterval = new TimeInterval(((LocalSeismogramImpl)seis.getSeismogram()).getBeginTime(), 
+						    ((LocalSeismogramImpl)seis.getSeismogram()).getEndTime());
 	
 	registrar.updateTimeSyncListeners();
     }	
 
-    public synchronized void addSeismogram(LocalSeismogram seis, MicroSecondDate time){
+    public synchronized void addSeismogram(DataSetSeismogram seis, MicroSecondDate time){
 	if(beginTime == null)
 	    this.beginTime = time;
 	if(displayInterval == null)
-	    this.displayInterval = new TimeInterval(time, ((LocalSeismogramImpl)seis).getEndTime());
+	    this.displayInterval = new TimeInterval(time, ((LocalSeismogramImpl)seis.getSeismogram()).getEndTime());
 	seismos.put(seis, time);
 	registrar.updateTimeSyncListeners();
     }
@@ -72,7 +72,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	}
 	Iterator f = seismos.keySet().iterator();
 	while(f.hasNext()){
-	    LocalSeismogram current = ((LocalSeismogram)f.next());
+	    DataSetSeismogram current = ((DataSetSeismogram)f.next());
 	    seismos.put(current, new MicroSecondDate((long)(((MicroSecondDate)seismos.get(current)).getMicroSecondTime() + difference)));
 	}
 	displayInterval = new TimeInterval(beginTime, endTime);
