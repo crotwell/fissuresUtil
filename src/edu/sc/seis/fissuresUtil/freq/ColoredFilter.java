@@ -21,5 +21,16 @@ public class ColoredFilter extends ButterworthFilter{
     
     public Color getColor(){ return filterColor; }
     
+    public void setVisibility(boolean b){ visible = b; }
+
+    public boolean toggleVisibility(){ 
+	visible = !visible;
+	return visible;
+    }
+
+    public boolean getVisibility(){ return visible; }
+
+    private boolean visible = false;
+
     private Color filterColor;
 }// ColoredFilter
