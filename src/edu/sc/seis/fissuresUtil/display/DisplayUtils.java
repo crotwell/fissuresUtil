@@ -327,7 +327,7 @@ public class DisplayUtils {
 
     public static Font MONOSPACED_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
-    public static final Font BORDER_FONT = new Font("Serif", Font.PLAIN, 10);
+    public static final Font BORDER_FONT = new Font("Serif", Font.PLAIN, 11);
 
     public static Font BOLD_FONT = new Font("Serif", Font.BOLD, 12);
 
