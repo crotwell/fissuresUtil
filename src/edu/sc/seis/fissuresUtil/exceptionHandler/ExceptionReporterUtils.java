@@ -23,7 +23,7 @@ public class ExceptionReporterUtils{
         traceString += extractTrace(exception);
         return traceString;
     }
-    
+
     public static String getSysInfo() {
         String sysInfo = "";
         sysInfo += "Date : "+new java.util.Date().toString()+"\n";
@@ -42,7 +42,7 @@ public class ExceptionReporterUtils{
         sysInfo += "user.name : "+System.getProperty("user.name")+"\n";
         sysInfo += "user.timeZone : "+System.getProperty("user.timeZone")+"\n";
         sysInfo += "user.region : "+System.getProperty("user.region")+"\n";
-        
+
         sysInfo += "\n\n\n Other Properties:\n";
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -52,14 +52,14 @@ public class ExceptionReporterUtils{
         sysInfo += stringWriter.getBuffer();
         return sysInfo;
     }
-    
+
     private static String extractTrace(Throwable e) {
         StringWriter  stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         e.printStackTrace(printWriter);
         return stringWriter.toString();
     }
-    
+
     public static String getExceptionClassName(Throwable e){
         String defaultName = e.toString();
         int colonIndex = defaultName.indexOf(":");
@@ -67,6 +67,12 @@ public class ExceptionReporterUtils{
         int lastPeriod = defaultName.lastIndexOf(".");
         defaultName = defaultName.substring(++lastPeriod);
         return defaultName;
+    }
+
+    public static String getMemoryUsage() {
+        return ((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())/1024/1024)+"/"+
+            (Runtime.getRuntime().totalMemory()/1024/1024)+"/"+
+            (Runtime.getRuntime().maxMemory()/1024/1024);
     }
 }
 
