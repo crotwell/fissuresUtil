@@ -3,6 +3,7 @@
 
 <!-- set global properties for this build -->
        <property name="src" value="src" />
+       <property name="test" value="tests" />
        <property name="build" value="build" />
        <property name="dist" value="dist" />
        <property name="doc" value="${dist}/doc" />
@@ -17,9 +18,9 @@
        <property name="jai_core" value="../jars/jai_core.jar" />
        <property name="jai_codec" value="../jars/jai_codec.jar" />
        <property name="taup" value="../TauP/taup.jar" />
-       <property name="xalan" value="../xalan-j_2_3_1/bin/xalan.jar" />
-       <property name="xerces" value="../xalan-j_2_3_1/bin/xercesImpl.jar" />
-       <property name="xmlAPI" value="../xalan-j_2_3_1/bin/xml-apis.jar" />
+       <property name="xalan" value="../xalan-j_2_4_0/bin/xalan.jar" />
+       <property name="xerces" value="../xalan-j_2_4_0/bin/xercesImpl.jar" />
+       <property name="xmlAPI" value="../xalan-j_2_4_0/bin/xml-apis.jar" />
 
               <path id="myclasspath" >
                 <pathelement location="${junit_jar}"/>
@@ -55,17 +56,18 @@
             <classpath refid="myclasspath" />
             <src path="${src}" />
             <include name="**/*.java" />
+<exclude name="**/parmo3d/*.java" />
          </javac>
          <copy todir="${build}/edu/sc/seis/fissuresUtil/chooser" file="${src}/edu/sc/seis/fissuresUtil/chooser/ChannelChooser.properties" />
          <copy todir="${build}/edu/sc/seis/fissuresUtil/display" file="${src}/edu/sc/seis/fissuresUtil/display/FERegions.prop" />
        </target>
 
        <target name="testcompile" depends="javacompile">
-         <!-- Compile the java code from ${src}/test into ${build} -->
+         <!-- Compile the java code from ${test} into ${build} -->
          <javac destdir="${build}" >
             <classpath refid="myclasspath" />
-            <src path="${src}" />
-            <include name="test/**/*.java" />
+            <src path="${test}" />
+            <include name="**/*.java" />
 <!--
 -->
          </javac>
@@ -74,7 +76,7 @@
        <target name="test" depends="testcompile">
            <java fork="yes" classname="junit.swingui.TestRunner"
                  taskname="junit" failonerror="true" >
-              <arg value="test.edu.sc.seis.anhinga.database.AllJUnitTests"/>
+              <arg value="edu.sc.seis.fissuresUtil.bag.BagSuite"/>
             <classpath refid="myclasspath" />
            </java>
        </target>
