@@ -11,10 +11,10 @@ package edu.sc.seis.fissuresUtil.netConnChecker;
  */
 
 public class ConnStatus {
-    String status;
+    private String status;
     
     private  ConnStatus (String status){
-	this.status = status;
+        this.status = status;
     }
     
     /**
@@ -22,41 +22,17 @@ public class ConnStatus {
      *
      * @return a <code>String</code> value
      */
-    public String toString() {
-
-	return status;
-    }
+    public String toString() { return status; }
     
-    /**
-     * constant <code>SUCCESSFUL</code>.
-     *
-     */
     public static final ConnStatus SUCCESSFUL = new ConnStatus("SUCCESSFUL");
     
-    /**
-     * constant <code>UNFINISHED</code>.
-     *
-     */
     public static final ConnStatus UNFINISHED = new ConnStatus("UNFINISHED");
-
-    /**
-     * constant <code>FAILED</code>.
-     *
-     */
+    
     public static final ConnStatus FAILED = new ConnStatus("FAILED");
-
-    /**
-     * constant <code>UNKNOWN</code>.
-     *
-     */
+    
     public static final ConnStatus UNKNOWN = new ConnStatus("UNKNOWN");
-
-    /**
-     * constant <code>TRYING</code>.
-     *
-     */
-    public static final ConnStatus TRYING = new
-    ConnStatus("TRYING");
-
+    
+    public static final ConnStatus TRYING = new ConnStatus("TRYING");
+    
     
 }// ConnectionStatus
