@@ -84,12 +84,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     public void add(DataSetSeismogram[] seismos){ add(seismos, null); }
 
-    public void add(DataSetSeismogram[] seismos, Color color){
+    public void add(DataSetSeismogram[] seismos, Color seisColor){
         logger.debug("add seismo "+seismos.length+" name0="+seismos[0].getName());
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] != null){
                 seismograms.add(seismos[i]);
-                drawables.add(new DrawableSeismogram(this, seismos[i], color));
+                drawables.add(new DrawableSeismogram(this, seismos[i], seisColor));
                 addDrawablesFromAuxData(seismos[i]);
             }
         }
@@ -130,9 +130,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         ac.reset();
     }
 
-    public void reset(DataSetSeismogram[] seismograms){
-        tc.reset(seismograms);
-        ac.reset(seismograms);
+    public void reset(DataSetSeismogram[] seisToReset){
+        tc.reset(seisToReset);
+        ac.reset(seisToReset);
     }
 
     public static MicroSecondDate getTime(int x, Insets insets, Dimension dim,
@@ -404,8 +404,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     private TimeEvent currentTimeEvent;
 
     private AmpEvent currentAmpEvent;
-
-    private ScaleBorder scale;
 
     private DataSetSeismogram[] seismogramArray;
 
