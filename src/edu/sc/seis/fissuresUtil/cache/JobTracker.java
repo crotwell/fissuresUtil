@@ -49,15 +49,15 @@ public class JobTracker implements StatusListener{
     }
 
 
-    public void add(TrackerListener listener){
+    public synchronized void add(TrackerListener listener){
         listeners.add(listener);
     }
 
-    public void remove(TrackerListener listener){
+    public synchronized void remove(TrackerListener listener){
         listeners.remove(listener);
     }
 
-    private void fireTrackerUpdated(){
+    private synchronized void fireTrackerUpdated(){
         Iterator it = listeners.iterator();
         while(it.hasNext()){
             ((TrackerListener)it.next()).trackerUpdated(this);
