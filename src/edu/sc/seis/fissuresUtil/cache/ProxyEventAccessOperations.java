@@ -1,6 +1,5 @@
 /*
  * Created on Jul 20, 2004
- *
  */
 package edu.sc.seis.fissuresUtil.cache;
 
@@ -22,181 +21,170 @@ import edu.iris.Fissures.IfParameterMgr.ParameterComponent;
 
 /**
  * @author oliverpa
- *  
  */
 public abstract class ProxyEventAccessOperations implements
-		EventAccessOperations {
+        EventAccessOperations {
 
-	public EventAccess getCorbaObject(){
-		if (event instanceof ProxyEventAccessOperations){
-			return ((ProxyEventAccessOperations)event).getCorbaObject();
-		} else {
-			return (EventAccess)event;
-		}
-	}
-	
-	public EventAccessOperations getWrappedEventAccess(){
-		return event;
-	}
-	
-	public EventAccessOperations getWrappedEventAccess(Class wrappedClass){
-		if(getClass().equals(wrappedClass)) {
-			return this;
-		}
-        if(getWrappedEventAccess().getClass().equals(wrappedClass)){
-            return getWrappedEventAccess();
-        }else if(getWrappedEventAccess().getClass().equals(ProxyEventAccessOperations.class)){
-            return ((ProxyEventAccessOperations)getWrappedEventAccess()).getWrappedEventAccess(wrappedClass);
+    public EventAccess getCorbaObject() {
+        if(event instanceof ProxyEventAccessOperations) {
+            return ((ProxyEventAccessOperations)event).getCorbaObject();
+        } else {
+            return (EventAccess)event;
         }
-        throw new IllegalArgumentException("This doesn't contain an Event of class " + wrappedClass);
-	}
-	
-	public void reset() {
-		if (event instanceof ProxyEventAccessOperations) {
-			((ProxyEventAccessOperations) event).reset();
-		}
-	}
+    }
 
-	public EventAccessOperations getEventAccess() {
-		if (event instanceof ProxyEventAccessOperations) {
-			logger
-					.debug("ProxyEventAccessOperations nested inside of ProxyEventAccessOperations! NO! NO!");
-			return ((ProxyEventAccessOperations) event).getEventAccess();
-		} else {
-			return event;
-		}
-	}
+    public EventAccessOperations getWrappedEventAccess() {
+        return event;
+    }
 
-	protected void setEventAccess(EventAccessOperations evo) {
-		event = evo;
-	}
+    public EventAccessOperations getWrappedEventAccess(Class wrappedClass) {
+        if(getClass().equals(wrappedClass)) { return this; }
+        if(getWrappedEventAccess().getClass().equals(wrappedClass)) {
+            return getWrappedEventAccess();
+        } else if(getWrappedEventAccess().getClass()
+                .equals(ProxyEventAccessOperations.class)) { return ((ProxyEventAccessOperations)getWrappedEventAccess()).getWrappedEventAccess(wrappedClass); }
+        throw new IllegalArgumentException("This doesn't contain an Event of class "
+                + wrappedClass);
+    }
 
-	public Event a_writeable() {
-		if (event != null) {
-			return event.a_writeable();
-		} else {
-			throw new org.omg.CORBA.NO_IMPLEMENT();
-		}
-	}
+    public void reset() {
+        if(event instanceof ProxyEventAccessOperations) {
+            ((ProxyEventAccessOperations)event).reset();
+        }
+    }
 
-	public ParameterComponent parm_svc() {
-		if (event != null) {
-			return event.parm_svc();
-		} else {
-			throw new org.omg.CORBA.NO_IMPLEMENT();
-		}
-	}
+    public EventAccessOperations getEventAccess() {
+        if(event instanceof ProxyEventAccessOperations) {
+            return ((ProxyEventAccessOperations)event).getEventAccess();
+        } else {
+            return event;
+        }
+    }
 
-	public EventAttr get_attributes() {
-		return event.get_attributes();
-	}
+    protected void setEventAccess(EventAccessOperations evo) {
+        event = evo;
+    }
 
-	public Origin[] get_origins() {
-		return event.get_origins();
-	}
+    public Event a_writeable() {
+        if(event != null) {
+            return event.a_writeable();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
+    }
 
-	public Origin get_origin(String the_origin) throws OriginNotFound {
-		return event.get_origin(the_origin);
-	}
+    public ParameterComponent parm_svc() {
+        if(event != null) {
+            return event.parm_svc();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
+    }
 
-	public Origin get_preferred_origin() throws NoPreferredOrigin {
-		return event.get_preferred_origin();
-	}
+    public EventAttr get_attributes() {
+        return event.get_attributes();
+    }
 
-	public Locator[] get_locators(String an_origin) throws OriginNotFound,
-			NotImplemented {
-		if (event != null) {
-			return event.get_locators(an_origin);
-		}
-		throw new org.omg.CORBA.NO_IMPLEMENT();
-	}
+    public Origin[] get_origins() {
+        return event.get_origins();
+    }
 
-	public AuditElement[] get_audit_trail_for_origin(String the_origin)
-			throws OriginNotFound, NotImplemented {
-		if (event != null) {
-			return event.get_audit_trail_for_origin(the_origin);
-		}
-		throw new NotImplemented();
-	}
+    public Origin get_origin(String the_origin) throws OriginNotFound {
+        return event.get_origin(the_origin);
+    }
 
-	public AuditElement[] get_audit_trail() throws NotImplemented {
-		if (event != null) {
-			return event.get_audit_trail();
-		} else {
-			throw new org.omg.CORBA.NO_IMPLEMENT();
-		}
-	}
+    public Origin get_preferred_origin() throws NoPreferredOrigin {
+        return event.get_preferred_origin();
+    }
 
-	public EventFactory a_factory() {
-		if (event != null) {
-			return event.a_factory();
-		} else {
-			throw new org.omg.CORBA.NO_IMPLEMENT();
-		}
-	}
+    public Locator[] get_locators(String an_origin) throws OriginNotFound,
+            NotImplemented {
+        if(event != null) { return event.get_locators(an_origin); }
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
 
-	public EventFinder a_finder() {
-		if (event != null) {
-			return event.a_finder();
-		} else {
-			throw new org.omg.CORBA.NO_IMPLEMENT();
-		}
-	}
+    public AuditElement[] get_audit_trail_for_origin(String the_origin)
+            throws OriginNotFound, NotImplemented {
+        if(event != null) { return event.get_audit_trail_for_origin(the_origin); }
+        throw new NotImplemented();
+    }
 
-	public EventChannelFinder a_channel_finder() {
-		if (event != null) {
-			return event.a_channel_finder();
-		} else {
-			throw new org.omg.CORBA.NO_IMPLEMENT();
-		}
-	}
+    public AuditElement[] get_audit_trail() throws NotImplemented {
+        if(event != null) {
+            return event.get_audit_trail();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
+    }
 
-	public boolean equals(Object o) {
-		if (o == this) {
-			return true;
-		} else if (getEventAccess() != null && o instanceof CacheEvent
-				&& ((CacheEvent) o).getEventAccess() != null
-				&& getEventAccess().equals(((CacheEvent) o).getEventAccess())) {
-			return true;
-		} else if (o instanceof EventAccessOperations) {
-			EventAccessOperations oEvent = (EventAccessOperations) o;
-			if (get_attributes().equals(oEvent.get_attributes())) {
-				Origin thisOrigin = getOrigin();
-				if (thisOrigin == null && thisOrigin == EventUtil.extractOrigin(oEvent)) {
-					return true;
-				} else if (thisOrigin.equals(EventUtil.extractOrigin(oEvent))) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+    public EventFactory a_factory() {
+        if(event != null) {
+            return event.a_factory();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
+    }
 
-	public int hashCode() {
-		if (!hashSet) {
-			int result = 52;
-			result = 48 * result + getOrigin().hashCode();
-			result = 48 * result + get_attributes().hashCode();
-			hashValue = result;
-			hashSet = true;
-		}
-		return hashValue;
-	}
+    public EventFinder a_finder() {
+        if(event != null) {
+            return event.a_finder();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
+    }
 
-	public Origin getOrigin() {
-		return EventUtil.extractOrigin(this);
-	}
+    public EventChannelFinder a_channel_finder() {
+        if(event != null) {
+            return event.a_channel_finder();
+        } else {
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+        }
+    }
 
-	public String toString() {
-		return EventUtil.getEventInfo(this);
-	}
+    public boolean equals(Object o) {
+        if(o == this) {
+            return true;
+        } else if(getEventAccess() != null && o instanceof CacheEvent
+                && ((CacheEvent)o).getEventAccess() != null
+                && getEventAccess().equals(((CacheEvent)o).getEventAccess())) {
+            return true;
+        } else if(o instanceof EventAccessOperations) {
+            EventAccessOperations oEvent = (EventAccessOperations)o;
+            if(get_attributes().equals(oEvent.get_attributes())) {
+                Origin thisOrigin = getOrigin();
+                if(thisOrigin == null
+                        && thisOrigin == EventUtil.extractOrigin(oEvent)) {
+                    return true;
+                } else if(thisOrigin.equals(EventUtil.extractOrigin(oEvent))) { return true; }
+            }
+        }
+        return false;
+    }
 
-	private boolean hashSet = false;
+    public int hashCode() {
+        if(!hashSet) {
+            int result = 52;
+            result = 48 * result + getOrigin().hashCode();
+            result = 48 * result + get_attributes().hashCode();
+            hashValue = result;
+            hashSet = true;
+        }
+        return hashValue;
+    }
 
-	private int hashValue;
+    public Origin getOrigin() {
+        return EventUtil.extractOrigin(this);
+    }
 
-	protected EventAccessOperations event;
+    public String toString() {
+        return EventUtil.getEventInfo(this);
+    }
 
-	private static final Logger logger = Logger
-			.getLogger(ProxyEventAccessOperations.class);
+    private boolean hashSet = false;
+
+    private int hashValue;
+
+    protected EventAccessOperations event;
+
+    private static final Logger logger = Logger.getLogger(ProxyEventAccessOperations.class);
 }
