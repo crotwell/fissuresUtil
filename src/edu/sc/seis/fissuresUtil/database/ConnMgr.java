@@ -123,9 +123,11 @@ public class ConnMgr {
 
     private static String MCKOI_PROPS = "MCKOI.props";
 
-    private static String DB_NAME = HSQL;
+    public static final String POSTGRES = "POSTGRES";
 
-    public static final String POSTGRES = "";//TODO
+    public static final String POSTGRES_PROPS = "Postgres.props";
+    
+    private static String DB_NAME = HSQL;
 
     private static Properties props;
 
