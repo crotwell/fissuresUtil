@@ -34,6 +34,9 @@ public class PSNEventRecord {
                 throw new IOException("CRC-16 check has wrong value!");
             }
         }
+        else{
+            dis.skipBytes(2);
+        }
     }
 
     private void readSampleData() throws IOException{

@@ -49,6 +49,7 @@ public class PSNDataFile {
             PSNDataFile psnData = new PSNDataFile(args[0]);
             PSNEventRecord[] records = psnData.getEventRecords();
 
+            System.out.println("Number of Records: " + records.length);
             for (int i = 0; i < records.length; i++) {
                 System.out.println("****** Event Record " + i + " ******");
                 System.out.println(records[i].toString());

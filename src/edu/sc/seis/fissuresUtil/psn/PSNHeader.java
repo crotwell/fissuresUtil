@@ -41,18 +41,19 @@ public class PSNHeader {
         /**FileID and Version**/
         dis.readFully(eightBytes);
         String fileFormat = new String(eightBytes);
-        System.out.println("File Format: " + fileFormat);
+        //System.out.println("File Format: " + fileFormat);
         if (fileFormat.equals("PSNVOLUM")){
             dis.readFully(twoBytes);
             if ((new String(twoBytes)).equals("E1")){
                 isVolume = true;
-                numRecords = dis.readUnsignedShort();
+                numRecords = SacTimeSeries.swapBytes(dis.readShort());
+                //System.out.println("Number of records: " + numRecords);
             }
             else throw new FileNotFoundException("File is not of type PSNVOLUME1");
         }
         else if (!fileFormat.equals("PSNTYPE4")){
-            System.out.println(fileFormat);
-            throw new FileNotFoundException("File is not of type PSNTYPE4");
+            //System.out.println(fileFormat);
+            throw new FileNotFoundException("File is not of type PSNTYPE4: " + fileFormat);
         }
 
         if (!isVolume){
@@ -73,7 +74,7 @@ public class PSNHeader {
         /**Variable Header Length**/
         //varHeadLength = dis.readInt();
         varHeadLength = SacTimeSeries.swapBytes(dis.readInt());
-        System.out.println("varHeadLength = " + Integer.toHexString(varHeadLength)  + " or " + varHeadLength);
+        //System.out.println("varHeadLength = " + Integer.toHexString(varHeadLength)  + " or " + varHeadLength);
 
         dateTime = new PSNDateTime(dis);
 
