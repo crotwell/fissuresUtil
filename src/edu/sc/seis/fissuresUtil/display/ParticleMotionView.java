@@ -31,7 +31,8 @@ public class ParticleMotionView extends JComponent{
 			       AmpConfigRegistrar vAmpConfigRegistrar, 
 			       ParticleMotionDisplay particleMotionDisplay,
 			       Color color,
-			       String key){
+			       String key,
+			       boolean horizPlane){
 	
 	this.particleMotionDisplay = particleMotionDisplay;
 	
@@ -41,7 +42,8 @@ public class ParticleMotionView extends JComponent{
 							   hAmpConfigRegistrar,
 							   vAmpConfigRegistrar,
 							   color, 
-							   key);
+							   key,
+							   horizPlane);
 	displays.add(particleMotion);
 	    
 	vunitRangeImpl = vAmpConfigRegistrar.getAmpRange(vseis);
@@ -218,20 +220,12 @@ public class ParticleMotionView extends JComponent{
 	}
 
 	int size = displays.size();
-	Shape sector = getSectorShape();
-	graphics2D.setColor(Color.blue);
-	graphics2D.fill(sector);
-	graphics2D.draw(sector);
-	graphics2D.setStroke(new BasicStroke(2.0f));
-	graphics2D.setColor(Color.green);
-	Shape azimuth = getAzimuthPath();
-	graphics2D.draw(azimuth);
-	graphics2D.setStroke(new BasicStroke(1.0f));
 	for(int counter = 0; counter < displays.size(); counter++) {
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
 	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    if(particleMotion.isSelected()) continue;
+	    drawAzimuth(particleMotion, graphics2D); 
 	    drawParticleMotion(particleMotion, graphics2D);
 	}//end of for
 	System.out.println("ENd of the for");
@@ -239,12 +233,26 @@ public class ParticleMotionView extends JComponent{
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
 	    if(!displayKeys.contains(particleMotion.key)) continue;
+	    drawAzimuth(particleMotion, graphics2D);
 	    if(particleMotion.isSelected()) {
 		particleMotion.setSelected(false);
 		drawParticleMotion(particleMotion, g);
 	    }
 	}
     }
+
+    public void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
+	 if(!particleMotion.isHorizontalPlane()) return;
+	 Shape sector = getSectorShape();
+	 graphics2D.setColor(Color.blue);
+	 graphics2D.fill(sector);
+         graphics2D.draw(sector);
+	 graphics2D.setStroke(new BasicStroke(2.0f));
+         graphics2D.setColor(Color.green);
+	 Shape azimuth = getAzimuthPath();
+	 graphics2D.draw(azimuth);
+	 graphics2D.setStroke(new BasicStroke(1.0f));
+   }
 
     public void drawParticleMotion(ParticleMotion particleMotion, Graphics g) {
 
@@ -323,12 +331,6 @@ public class ParticleMotionView extends JComponent{
 		x = hPixels[1];
 		y = vPixels[1];
 		if (hPixels[1].length < len) { len = hPixels.length; }
-		System.out.println("-----------------------------------------");
-		for(int c = 0;  c < len; c++) {
-
-		    // logger.debug("x = "+hPixels[1][c]+" y = "+vPixels[1][c]);
-		  
-		}
 		Shape shape = getParticleMotionPath(hPixels[1], vPixels[1]);
 		particleMotion.setShape(shape);
 		System.out.println("After setting the shape");
@@ -458,13 +460,15 @@ public class ParticleMotionView extends JComponent{
 					 AmpConfigRegistrar hAmpConfigRegistrar,
 					 AmpConfigRegistrar vAmpConfigRegistrar, 
 					 Color color, 
-					 String key) {
+					 String key,
+					 boolean horizPlane) {
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
 							   timeRegistrar,
 							   hAmpConfigRegistrar,
 							   vAmpConfigRegistrar,
-							   color, key);
+							   color, key,
+							   horizPlane);
 	displays.add(particleMotion);
 
 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
@@ -490,8 +494,9 @@ public class ParticleMotionView extends JComponent{
 	int size = displays.size();
 	double min = Double.POSITIVE_INFINITY;
 	for(int counter = 0; counter < size; counter++) {
-
+	    
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    AmpConfigRegistrar ampRangeConfig = particleMotion.hAmpConfigRegistrar;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.hseis);
 	    if(min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
@@ -506,6 +511,7 @@ public class ParticleMotionView extends JComponent{
 	for(int counter = 0; counter < size; counter++) {
 
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    AmpConfigRegistrar ampRangeConfig = particleMotion.hAmpConfigRegistrar;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.hseis);
 	    if(max < unitRangeImpl.getMaxValue()) { max = unitRangeImpl.getMaxValue();}
@@ -517,9 +523,11 @@ public class ParticleMotionView extends JComponent{
 	
 	int size = displays.size();
 	double min = Double.POSITIVE_INFINITY;
+
 	for(int counter = 0; counter < size; counter++) {
-	    
+
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.vseis);
 	    if( min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
@@ -531,9 +539,11 @@ public class ParticleMotionView extends JComponent{
 	
 	int size = displays.size();
 	double max = Double.NEGATIVE_INFINITY;
+
 	for(int counter = 0; counter < size; counter++) {
 
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
 	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.vseis);
 	    if(max < unitRangeImpl.getMaxValue()) { max = unitRangeImpl.getMaxValue();}
@@ -638,7 +648,8 @@ public class ParticleMotionView extends JComponent{
 			      final AmpConfigRegistrar hAmpConfigRegistrar,
 			      AmpConfigRegistrar vAmpConfigRegistrar, 
 			      Color color,
-			      String key) {
+			      String key,
+			      boolean horizPlane) {
 
 	    this.hseis = hseis;
 	    this.vseis = vseis;
@@ -646,6 +657,7 @@ public class ParticleMotionView extends JComponent{
 	    this.hAmpConfigRegistrar = hAmpConfigRegistrar;
 	    this.vAmpConfigRegistrar = vAmpConfigRegistrar;
 	    this.key = key;
+	    this.horizPlane = horizPlane;
 	    setColor(color);
 	    if(this.timeRegistrar != null) {
 		this.timeRegistrar.addTimeSyncListener(this);
@@ -666,6 +678,9 @@ public class ParticleMotionView extends JComponent{
 	public MicroSecondTimeRange getTimeRange() {
 
 	    return this.microSecondTimeRange;
+	}
+	public boolean isHorizontalPlane() {
+		return this.horizPlane;
 	}
 	public void setShape(Shape shape) {
 	    this.shape = shape;
@@ -702,6 +717,7 @@ public class ParticleMotionView extends JComponent{
 	private Shape shape;
 	private Color color = null;
 	private boolean selected = false;
+	private boolean horizPlane = false;
     }
 
     static Category logger = 
