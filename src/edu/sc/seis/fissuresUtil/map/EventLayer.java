@@ -141,6 +141,11 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     }
 
     public boolean mouseClicked(MouseEvent e){
+		if (currentPopup != null){
+			currentPopup.setVisible(false);
+			currentPopup = null;
+		}
+
 		synchronized(circles){
 			Iterator it = circles.iterator();
 			List eventsUnderMouse = new ArrayList();
@@ -181,10 +186,12 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 					double[] popupLoc = {compLocation.getX(), compLocation.getY()};
 					popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
 					popup.setVisible(true);
+					currentPopup = popup;
 				}
 				return true;
 			}
 		}
+
 		return false;
     }
 
@@ -315,6 +322,8 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     private ListSelectionModel selectionModel;
 
     private MapBean mapBean;
+
+	private JPopupMenu currentPopup;
 
 	public static final Color SHALLOW_DEPTH_EVENT = new Color(243, 33, 78);
 
