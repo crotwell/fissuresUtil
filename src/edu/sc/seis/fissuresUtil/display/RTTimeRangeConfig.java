@@ -74,7 +74,7 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
 				 TimeInterval timeInterval = new TimeInterval(lastDate, now);
 				 width = (TimeInterval)timeInterval.multiplyBy(speed);
 				 lastDate = now;
-				 shaleTime(timeInterval.getValue()/time.getInterval().getValue() * 10 * speed, 1);
+				 shaleTime(timeInterval.getValue()/time.getInterval().getValue() * speed, 1);
 				 System.out.println("Timer: updateTimeSyncListeners()  speed="+speed);
 			     } // end of if (beginTime != null)
 			 }
@@ -92,7 +92,8 @@ public class RTTimeRangeConfig extends BasicTimeConfig{
     }
 
     public void reset(){
-	speed = 2;
+	speed = 1;
+	stopTimer();
 	super.reset();
     }
     
