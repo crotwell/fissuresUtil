@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.bag.StreamPump;
 
 /**
@@ -24,7 +24,7 @@ public class PSXYExecute {
         Runtime rt = Runtime.getRuntime();
         String command = "psxy -V -J" + projection + " -R" + region + " -S"
                 + symbol + " -G" + fill + " -O -K";
-        logger.debug("executing gmt command: " + command);
+        System.out.println("executing gmt command: " + command);
         Process proc = rt.exec(command);
         BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(psFilename,
@@ -44,7 +44,7 @@ public class PSXYExecute {
         //waiting for finish of StreamPump runs
         synchronized(pump) {}
         synchronized(errPump) {}
-        logger.debug("command returned exit value " + exitVal);
+        System.out.println("command returned exit value " + exitVal);
     }
 
     public static void main(String[] args) {
@@ -69,5 +69,5 @@ public class PSXYExecute {
         }
     }
 
-    private static Logger logger = Logger.getLogger(PSXYExecute.class);
+    //private static Logger logger = Logger.getLogger(PSXYExecute.class);
 }
