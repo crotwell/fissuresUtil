@@ -18,7 +18,7 @@ public abstract class AbstractSeismogramPlotter implements Plotter{
     
     public abstract Shape draw(Dimension size, TimeSnapshot imageState);
 
-    public LocalSeismogram getSeismogram(){ return seismogram; }
+    public DataSetSeismogram getSeismogram(){ return seismogram; }
 
     public  AmpConfigRegistrar getAmpConfig(){ return ampConfig; }
     
@@ -26,7 +26,7 @@ public abstract class AbstractSeismogramPlotter implements Plotter{
 
     public void toggleVisibility(){ visible = !visible; } 
 
-    protected LocalSeismogram seismogram;
+    protected DataSetSeismogram seismogram;
 
     protected AmpConfigRegistrar ampConfig;
 

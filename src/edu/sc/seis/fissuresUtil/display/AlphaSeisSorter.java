@@ -3,7 +3,6 @@ package edu.sc.seis.fissuresUtil.display;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Comparator;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * AlphaSeisSorter.java

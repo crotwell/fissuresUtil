@@ -20,14 +20,14 @@ public interface AmpRangeConfig extends TimeSyncListener {
      *
      * 
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram seis);
+    public UnitRangeImpl getAmpRange(DataSetSeismogram seis);
 
     /**
      * Returns the amplitude range for a given seismogram over a time range
      *
      * 
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram seis, MicroSecondTimeRange calcIntv);
+    public UnitRangeImpl getAmpRange(DataSetSeismogram seis, MicroSecondTimeRange calcIntv);
     
     /**
      * Returns the amplitude range for the whole area being displayed.
@@ -46,14 +46,14 @@ public interface AmpRangeConfig extends TimeSyncListener {
      * Adds a seismogram to the current amplitude configurator
      *
      */
-    public void addSeismogram(LocalSeismogram seis);
+    public void addSeismogram(DataSetSeismogram seis);
 
     /**
      * Removes a seismogram from this amplitude configurator
      *
-     * @param seis a <code>LocalSeismogram</code> value
+     * @param seis a <code>DataSetSeismogram</code> value
      */
-    public void removeSeismogram(LocalSeismogram seis);
+    public void removeSeismogram(DataSetSeismogram seis);
     
     /**
      * Sends a message to all AmpSyncListeners held by the configurator that the amplitude range has changed

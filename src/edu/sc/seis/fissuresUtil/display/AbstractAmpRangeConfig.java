@@ -1,8 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.seismogramDC.*;
 import org.apache.log4j.*;
 import java.util.*;
 /**
@@ -23,7 +21,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	this.seismos = seismos;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
-	    this.addSeismogram(((LocalSeismogram)e.next()));
+	    this.addSeismogram(((DataSetSeismogram)e.next()));
 	}
     }
 
@@ -32,14 +30,14 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      *
      * 
      */
-    public abstract UnitRangeImpl getAmpRange(LocalSeismogram seis);
+    public abstract UnitRangeImpl getAmpRange(DataSetSeismogram seis);
 
     /**
      * Returns the amplitude range for a given seismogram over a time range
      *
      * 
      */
-    public abstract UnitRangeImpl getAmpRange(LocalSeismogram seis, MicroSecondTimeRange calcIntv);
+    public abstract UnitRangeImpl getAmpRange(DataSetSeismogram seis, MicroSecondTimeRange calcIntv);
     
     /**
      * Returns the amplitude range for the whole area being displayed.
@@ -62,14 +60,14 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
      * Adds a seismogram to the current amplitude configurator
      *
      */
-    public void addSeismogram(LocalSeismogram seis){ seismos.add(seis); }
+    public void addSeismogram(DataSetSeismogram seis){ seismos.add(seis); }
 
     /**
      * Removes a seismogram from this amplitude configurator
      *
-     * @param seis a <code>LocalSeismogram</code> value
+     * @param seis a <code>DataSetSeismogram</code> value
      */
-    public void removeSeismogram(LocalSeismogram seis){ 
+    public void removeSeismogram(DataSetSeismogram seis){ 
 	if(seismos.size() == 1)
 	    if(timeRegistrar != null)
 		timeRegistrar.removeTimeSyncListener(this);
@@ -89,7 +87,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
 	ampRange = null;
 	Iterator e = seismos.iterator();
 	while(e.hasNext()){
-	    LocalSeismogram current = (LocalSeismogram)e.next();
+	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    getAmpRange(current, timeRegistrar.getTimeRange(current));
 	}
 	if(ampRange == null){
@@ -120,7 +118,7 @@ public abstract class AbstractAmpRangeConfig implements AmpRangeConfig{
     public void addSeismograms(LinkedList newSeismos){
 	Iterator e = newSeismos.iterator();
 	while(e.hasNext())
-	    this.addSeismogram((LocalSeismogram)e.next());
+	    this.addSeismogram((DataSetSeismogram)e.next());
     }
 
     public AmpRangeConfig getAmpConfig(){ return this; }

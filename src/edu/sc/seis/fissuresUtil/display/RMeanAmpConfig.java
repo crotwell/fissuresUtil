@@ -31,21 +31,20 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	super.ampRegistrar = registrar;
 	super.timeRegistrar = tr;
     }
-
-
-	/** if this Amp Config has a TimeRangeConfig, this returns the ampRange over the timerange for that object.  Otherwise, it uses the 
+    
+    /** if this Amp Config has a TimeRangeConfig, this returns the ampRange over the timerange for that object.  Otherwise, it uses the 
      *  full time range for this seismogram.
      */
-    public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){
+    public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis){
 	if(timeRegistrar == null)
-	    return this.getAmpRange(aSeis,new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), 
-							((LocalSeismogramImpl)aSeis).getEndTime()));
+	    return this.getAmpRange(aSeis,new MicroSecondTimeRange(aSeis.getSeismogram().getBeginTime(), 
+								   aSeis.getSeismogram().getEndTime()));
 	else
 	    return this.getAmpRange(aSeis, this.timeRegistrar.getTimeRange(aSeis));
     }
     
-    public UnitRangeImpl getAmpRange(LocalSeismogram aSeis, MicroSecondTimeRange calcIntv){
-	LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
+    public UnitRangeImpl getAmpRange(DataSetSeismogram aSeis, MicroSecondTimeRange calcIntv){
+	LocalSeismogramImpl seis = aSeis.getSeismogram();
 	int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
                                                seis.getBeginTime(),
                                                seis.getEndTime(),
@@ -80,13 +79,13 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	return ampRange;
     }
 
-    public void addSeismogram(LocalSeismogram seis){
+    public void addSeismogram(DataSetSeismogram seis){
 	this.getAmpRange(seis);
 	seismos.add(seis);
 	this.updateAmpSyncListeners();
     }
     
-    public void removeSeismogram(LocalSeismogram aSeis){ 
+    public void removeSeismogram(DataSetSeismogram aSeis){ 
 	if(seismos.size() <= 1){
 	    if(timeRegistrar != null){
 		timeRegistrar.removeTimeSyncListener(this);
@@ -94,12 +93,12 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	    return;
 	}
 	MicroSecondTimeRange calcIntv;
+	LocalSeismogramImpl seis = aSeis.getSeismogram();
 	if(this.timeRegistrar == null)
-	    calcIntv = new MicroSecondTimeRange(((LocalSeismogramImpl)aSeis).getBeginTime(), ((LocalSeismogramImpl)aSeis).getEndTime());
+	    calcIntv = new MicroSecondTimeRange(seis.getBeginTime(), seis.getEndTime());
 	else
 	    calcIntv = timeRegistrar.getTimeRange(aSeis);
 	if(seismos.contains(aSeis)){
-	    LocalSeismogramImpl seis = (LocalSeismogramImpl)aSeis;
 	    int beginIndex = SeisPlotUtil.getPixel(seis.getNumPoints(),
 						   seis.getBeginTime(),
 						   seis.getEndTime(),
@@ -133,7 +132,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 		Iterator e = seismos.iterator();
 		logger.debug("recalculating amp range as defining seismogram was removed");
 		while(e.hasNext())
-		    this.getAmpRange(((LocalSeismogram)e.next()), calcIntv);
+		    this.getAmpRange(((DataSetSeismogram)e.next()), calcIntv);
 		this.updateAmpSyncListeners();
 	    }
 	}

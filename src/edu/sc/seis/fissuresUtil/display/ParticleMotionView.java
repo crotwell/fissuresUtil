@@ -24,8 +24,8 @@ import org.apache.log4j.*;
  */
 
 public class ParticleMotionView extends JComponent{
-    public ParticleMotionView (final LocalSeismogramImpl hseis, 
-			       LocalSeismogramImpl vseis,
+    public ParticleMotionView (final DataSetSeismogram hseis, 
+			       DataSetSeismogram vseis,
 			       TimeConfigRegistrar timeRegistrar,
 			       final AmpConfigRegistrar hAmpConfigRegistrar,
 			       AmpConfigRegistrar vAmpConfigRegistrar, 
@@ -258,8 +258,8 @@ public class ParticleMotionView extends JComponent{
 
 	Graphics2D graphics2D = (Graphics2D) g;
 	Dimension dimension = super.getSize();
-	    LocalSeismogramImpl hseis = particleMotion.hseis;
-	    LocalSeismogramImpl vseis = particleMotion.vseis;
+	LocalSeismogramImpl hseis = particleMotion.hseis.getSeismogram();
+	LocalSeismogramImpl vseis = particleMotion.vseis.getSeismogram();
 	    AmpConfigRegistrar vAmpConfigRegistrar = particleMotion.vAmpConfigRegistrar;
 	    AmpConfigRegistrar hAmpConfigRegistrar = particleMotion.hAmpConfigRegistrar;
 	    
@@ -454,8 +454,8 @@ public class ParticleMotionView extends JComponent{
 	return (Shape)generalPath;
     }
     
-    public void addParticleMotionDisplay(LocalSeismogramImpl hseis,
-					 LocalSeismogramImpl vseis,
+    public void addParticleMotionDisplay(DataSetSeismogram hseis,
+					 DataSetSeismogram vseis,
 					 TimeConfigRegistrar timeRegistrar,
 					 AmpConfigRegistrar hAmpConfigRegistrar,
 					 AmpConfigRegistrar vAmpConfigRegistrar, 
@@ -642,8 +642,8 @@ public class ParticleMotionView extends JComponent{
 					   Color.black};
 
     class ParticleMotion implements TimeSyncListener{
-	public ParticleMotion(final LocalSeismogramImpl hseis, 
-			      LocalSeismogramImpl vseis,
+	public ParticleMotion(final DataSetSeismogram hseis, 
+			      DataSetSeismogram vseis,
 			      TimeConfigRegistrar timeRegistrar,
 			      final AmpConfigRegistrar hAmpConfigRegistrar,
 			      AmpConfigRegistrar vAmpConfigRegistrar, 
@@ -707,8 +707,8 @@ public class ParticleMotionView extends JComponent{
 	    this.selected = value;
 	}
 
-	public LocalSeismogramImpl hseis;
-	public LocalSeismogramImpl vseis;
+	public DataSetSeismogram hseis;
+	public DataSetSeismogram vseis;
 	public AmpConfigRegistrar hAmpConfigRegistrar;
 	public AmpConfigRegistrar vAmpConfigRegistrar;
 	public TimeConfigRegistrar timeRegistrar;

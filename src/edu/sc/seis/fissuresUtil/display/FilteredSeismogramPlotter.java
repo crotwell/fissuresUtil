@@ -24,8 +24,8 @@ import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
  */
 
 public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
-    public FilteredSeismogramPlotter(ColoredFilter filter, LocalSeismogram seis, AmpConfigRegistrar ar){
-	this.seis = (LocalSeismogramImpl)seis;
+    public FilteredSeismogramPlotter(ColoredFilter filter, DataSetSeismogram seis, AmpConfigRegistrar ar){
+	this.seis = seis;
 	this.ampConfig = ar;
 	this.filter = filter;
 	filterData();
@@ -36,8 +36,8 @@ public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
 	    try{
 		MicroSecondTimeRange overTimeRange = imageState.getTimeRange(seis).
 		    getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
-		int[][] pixels = SimplePlotUtil.compressYvalues(filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size);
-		SimplePlotUtil.scaleYvalues(pixels, filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size); 
+		int[][] pixels = SimplePlotUtil.compressYvalues(filteredSeis.getSeismogram(), overTimeRange, ampConfig.getAmpRange(seis), size);
+		SimplePlotUtil.scaleYvalues(pixels, filteredSeis.getSeismogram(), overTimeRange, ampConfig.getAmpRange(seis), size); 
 		SimplePlotUtil.flipArray(pixels[1], size.height);
 		int[] xPixels = pixels[0];
 		int[] yPixels = pixels[1];
@@ -60,10 +60,10 @@ public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
 
     public void filterData(){
 	float[] fdata;
-	if(seis.can_convert_to_float())
-	    fdata = seis.get_as_floats();
+	if(seis.getSeismogram().can_convert_to_float())
+	    fdata = seis.getSeismogram().get_as_floats();
 	else{
-	    int[] idata = seis.get_as_longs();
+	    int[] idata = seis.getSeismogram().get_as_longs();
 	    fdata = new float[idata.length];
 	    for(int i = 0; i < idata.length; i++)
 		fdata[i] = idata[i];
@@ -79,24 +79,24 @@ public class FilteredSeismogramPlotter extends AbstractSeismogramPlotter{
 	Cmplx[] fftdata = Cmplx.fft(fdata);
 	//save memory
 	fdata = null;
-	double dt = seis.getSampling().getPeriod().convertTo(UnitImpl.SECOND).getValue();
+	double dt = seis.getSeismogram().getSampling().getPeriod().convertTo(UnitImpl.SECOND).getValue();
 	Cmplx[] filtered = filter.apply(dt, fftdata);
 	// save memory
 	fftdata = null;
-	float[] outData = Cmplx.fftInverse(filtered, seis.getNumPoints());
+	float[] outData = Cmplx.fftInverse(filtered, seis.getSeismogram().getNumPoints());
 	for (int i=0; i<outData.length; i++) {
 	    outData[i] += fmean;
 	} // end of for (int i=0; i<fdata.length; i++)
 	TimeSeriesDataSel sel = new TimeSeriesDataSel();
 	sel.flt_values(outData);
-	filteredSeis = new LocalSeismogramImpl(seis, sel);
+	filteredSeis = new DataSetSeismogram(new LocalSeismogramImpl(seis.getSeismogram(), sel), seis.getDataSet());;
     }
 
     public ColoredFilter getFilter(){ return filter; }
 
-    public LocalSeismogramImpl getUnfilteredSeismogram(){ return seis; }
+    public DataSetSeismogram getUnfilteredSeismogram(){ return seis; }
 
-    protected LocalSeismogramImpl seis, filteredSeis;
+    protected DataSetSeismogram seis, filteredSeis;
 
     protected ColoredFilter filter;
     
