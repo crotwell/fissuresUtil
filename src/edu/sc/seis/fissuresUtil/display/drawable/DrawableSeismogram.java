@@ -102,6 +102,10 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
                 canvas.setPaint(color);
                 canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
                 canvas.draw(shape);
+                if(firstPaint){
+                    parent.repaint();
+                    firstPaint = false;
+                }
             }
         }
         Iterator it = children.iterator();
@@ -110,6 +114,8 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
             cur.draw(canvas, size, currentTime, currentAmp);
         }
     }
+
+    private boolean firstPaint = true;
 
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition){
         remover.draw(canvas, xPosition, yPosition - 7);
