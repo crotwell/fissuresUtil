@@ -41,7 +41,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-        return addDisplay(dss, globalRegistrar, new RMeanAmpConfig(dss));
+        return addDisplay(dss, registrar, new RMeanAmpConfig(dss));
     }
 
     /**
@@ -65,7 +65,7 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
-        return addDisplay(dss, globalRegistrar, ac);
+        return addDisplay(dss, registrar, ac);
     }
 
     /**
@@ -78,9 +78,9 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
-        if(tc == globalRegistrar && globalRegistrar == null){
-            globalRegistrar = new Registrar(dss);
-            tc = globalRegistrar;
+        if(tc == registrar && registrar == null){
+            registrar = new Registrar(dss);
+            tc = registrar;
         }
         DataSetSeismogram[][] componentSorted = DisplayUtils.getComponents(dss);
         addNorth(componentSorted[0], tc, new RMeanAmpConfig(componentSorted[0]));

@@ -37,7 +37,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-        return addDisplay(dss, globalRegistrar, globalRegistrar);
+        return addDisplay(dss, registrar, registrar);
     }
 
     /**
@@ -49,7 +49,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc){
-        return addDisplay(dss, tc, globalRegistrar);
+        return addDisplay(dss, tc, registrar);
     }
 
     /**
@@ -61,7 +61,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return the created BSD
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
-        return addDisplay(dss, globalRegistrar, ac);
+        return addDisplay(dss, registrar, ac);
     }
 
     /**
@@ -75,20 +75,20 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
      * @return a <code>BasicSeismogramDisplay</code> value
      */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
-        if(tc == globalRegistrar && globalRegistrar == null){
+        if(tc == registrar && registrar == null){
             boolean setAC = false;
-            if(ac == globalRegistrar){
+            if(ac == registrar){
                 setAC = true;
             }
-            globalRegistrar = new Registrar(dss);
+            registrar = new Registrar(dss);
             if(setAC){
                 if(ampConfig != null){
                     ac = ampConfig;
                 }else{
-                    ac = globalRegistrar;
+                    ac = registrar;
                 }
             }
-            tc = globalRegistrar;
+            tc = registrar;
         }
         List toAdd = new ArrayList();
         for (int i = 0; i < dss.length; i++){
