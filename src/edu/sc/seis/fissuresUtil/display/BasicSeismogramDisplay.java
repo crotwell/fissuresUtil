@@ -192,13 +192,13 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	    long beginTime = timeConfig.getTimeRange().getBeginTime().getMicroSecondTime();
 	    long overEndTime = overTimeRange.getEndTime().getMicroSecondTime();
 	    long overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
-	    if(endTime >= overEndTime || beginTime <= overBeginTime){
-		logger.debug("the image has been dragged past its edge and is being recreated");
-		this.createImage();
-		return;
-	    }
 	    Graphics2D g2 = (Graphics2D)g;
 	    if(displayTime == timeConfig.getTimeRange().getInterval().getValue()){
+		if(endTime >= overEndTime || beginTime <= overBeginTime){
+		    logger.debug("the image has been dragged past its edge and is being recreated");
+		    this.createImage();
+		    return;
+		}
 		double offset = (beginTime - overBeginTime)/ (double)(overEndTime - overBeginTime) * overSize.getWidth();
 		AffineTransform tx = AffineTransform.getTranslateInstance(-offset, 0.0);
 		g2.drawImage(((Image)overSizedImage.get()), tx, null);
