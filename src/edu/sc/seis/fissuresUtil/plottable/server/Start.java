@@ -34,9 +34,7 @@ public class Start {
             PlottableDC pl = new PlottableImpl()._this(orb);
             fisName.rebind(dns, name, pl);
             logger.info("Bound to Name Service");
-            //
             // Resolve Root POA
-            //
             POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             // Get a reference to the POA manager
             logger.info("NOW RUN THE ORB");

@@ -39,6 +39,7 @@ public class PlottableImpl extends PlottableDCPOA {
 
     public Plottable[] get_plottable(RequestFilter request, Dimension pixel_size) {
         try {
+            
             RequestFilter[] filters = {request};
             MicroSecondTimeRange requestRange = new MicroSecondTimeRange(request);
             LocalSeismogram[] seis = dataCenter.retrieve_seismograms(filters);
