@@ -70,41 +70,51 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
         namingContext = null;
     }
 
-    public NamingContextExt getNameService() throws org.omg.CORBA.ORBPackage.InvalidName{
-        if (namingContext == null && nameServiceCorbaLoc != null) {
+    /**
+     * returns the reference to the root Naming Service.
+     *
+     * @return an <code>org.omg.CORBA.Object</code> value
+     */
+    public org.omg.CORBA.Object getRoot() {
+        org.omg.CORBA.Object rootObj = null;
+        if (nameServiceCorbaLoc != null) {
             logger.debug("context and corbaloc are null");
-            org.omg.CORBA.Object rootObj =
-                orb.string_to_object(nameServiceCorbaLoc);
+            rootObj = orb.string_to_object(nameServiceCorbaLoc);
             logger.debug("got root object");
-            if (rootObj != null) {
-                logger.debug("root object is not null");
-                namingContext = NamingContextExtHelper.narrow(rootObj);
-                logger.info("got Name context from nameServiceCorbaLoc property");
-            }
-        }
-
-        if  (namingContext == null) {
+        } else {
             logger.debug("name context is still null after attempt to load, resolve initial references");
             // get a reference to the Naming Service root_context
-            org.omg.CORBA.Object rootObj =
-                orb.resolve_initial_references("NameService");
+            try {
+                rootObj = orb.resolve_initial_references("NameService");
+            } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
+                // do nothing, return null in this case
+            }
+            if (rootObj == null) {
+                //logger.error
+                logger.info("Name service object is null!");
+            }
+        }
+        return rootObj;
+    }
+
+    public NamingContextExt getNameService() {
+        if (namingContext == null) {
+            org.omg.CORBA.Object rootObj = getRoot();
             if (rootObj == null) {
                 //logger.error
                 logger.info("Name service object is null!");
                 return null;
             }
-            //logger.debug(rootObj.toString());
-            logger.debug("got initial ref, now trying narrow "+rootObj._non_existent());
+            logger.debug("now trying narrow ");
             namingContext = NamingContextExtHelper.narrow(rootObj);
-            logger.info("got Name context from initial_references");
-        } // end of if (namingContext == null)
+        }
         logger.debug("returning name service");
         return namingContext;
     }
 
-public void reset() {
-namingContext = null;
-}
+    public void reset() {
+        namingContext = null;
+    }
 
     public org.omg.CORBA.Object resolveBySteps(NameComponent[] names)
         throws NotFound,CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
@@ -604,15 +614,6 @@ namingContext = null;
         return dataCenterObjects;
     }
 
-    /**
-     * returns the reference to the root Naming Service.
-     *
-     * @return an <code>org.omg.CORBA.Object</code> value
-     */
-    public org.omg.CORBA.Object getRoot() throws org.omg.CORBA.ORBPackage.InvalidName{
-
-        return getNameService();
-    }
 
     /**
      * returns all the interfaceNames(these are namingContexts) registered with the naming Service
