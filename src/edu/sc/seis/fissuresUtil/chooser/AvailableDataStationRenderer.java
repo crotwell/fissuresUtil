@@ -336,6 +336,10 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                     setStatus(consecutiveFailures+" ReRequesting available data status");
                 }
                 request = dc.available_data(request);
+                setStatus(request.length+" items returned");
+                if (request.length == 0) {
+                    logger.warn("there is no available data "+net.get_attributes().get_code());
+                }
                 Station[] stations = net.retrieve_stations();
                 LinkedList allStations = new LinkedList();
                 for (int i = 0; i < stations.length; i++) {
