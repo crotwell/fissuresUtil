@@ -29,7 +29,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3400 2003-03-07 19:11:22Z crotwell $
+ * @version $Id: ChannelChooser.java 3651 2003-04-08 15:26:27Z crotwell $
  *
  */
 
@@ -183,9 +183,11 @@ public class ChannelChooser extends JPanel{
     }
 	
     public void initFrame(){
-		//	setSize(new java.awt.Dimension (mywidth, myheight));
-		//setPreferredSize(new java.awt.Dimension (mywidth, myheight));
-		
+        initWidgets();
+        layoutWidgets();
+    }
+
+    private void layoutWidgets() {
 		setLayout(new GridBagLayout());
 		gbc = new GridBagConstraints();
 		gbc.fill = gbc.BOTH;
@@ -194,35 +196,84 @@ public class ChannelChooser extends JPanel{
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		
-		JLabel netLabel = new JLabel(bundle.getString("LABEL_NETWORKS"));
-		JLabel staLabel = new JLabel(bundle.getString("LABEL_STATIONS"));
-		JLabel siLabel = new JLabel(bundle.getString("LABEL_SITES"));
-		JLabel orientationLabel = new JLabel(bundle.getString("LABEL_ORIENTATIONS"));
-		JLabel chLabel = new JLabel(bundle.getString("LABEL_CHANNELS"));
+		
+		JScrollPane scroller;
+		if ( showNetworks) {
+            gbc.gridwidth = 2;
+			add(netLabel, gbc);
+			gbc.gridy++;
+		
+			scroller = new JScrollPane(networkList);
+            gbc.weighty = 1.0;
+			add(scroller, gbc);
+			gbc.gridy++;
+            gbc.gridwidth = 1;
+            gbc.weighty = 0;
+		} // end of if ()
+		
+        gbc.gridwidth = 2;
+		add(staLabel, gbc);
+		gbc.gridy++;
+		scroller = new JScrollPane(stationList);
+        gbc.weighty = 1.0;
+		add(scroller, gbc);
+		gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.weighty = 0;
+		
+		if (showSites) {
+			add(siLabel, gbc);
+			gbc.gridy++;
+
+            scroller = new JScrollPane(siteList);
+            gbc.weighty = 1.0;
+            add(scroller, gbc);
+			gbc.gridx++;
+			gbc.gridy--;
+            gbc.weighty = 0;
+		}
+
+		add(orientationLabel, gbc);
+		gbc.gridy++;
+		scroller = new JScrollPane(orientationList);
+        gbc.weighty = 1.0;
+		add(scroller, gbc);
+		gbc.gridx++;
+		gbc.gridy--;
+        gbc.weighty = 0;
+		
+		add(chLabel, gbc);
+		gbc.gridy++;
+		scroller = new JScrollPane(channelList);
+        gbc.weighty = 1.0;
+		add(scroller, gbc);
+		gbc.gridx++;
+		gbc.gridy--;
+        gbc.weighty = 0;
+		
+		gbc.gridy++;
+		gbc.gridy++;
+		gbc.gridx = 0;
+		gbc.weighty = 0.1;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		add(progressBar, gbc);
+
+    }
+
+    private void initWidgets(){
+		//	setSize(new java.awt.Dimension (mywidth, myheight));
+		//setPreferredSize(new java.awt.Dimension (mywidth, myheight));
+		
+		netLabel = new JLabel(bundle.getString("LABEL_NETWORKS"));
+		staLabel = new JLabel(bundle.getString("LABEL_STATIONS"));
+		siLabel = new JLabel(bundle.getString("LABEL_SITES"));
+		orientationLabel = new JLabel(bundle.getString("LABEL_ORIENTATIONS"));
+		chLabel = new JLabel(bundle.getString("LABEL_CHANNELS"));
+
 		netLabel.setToolTipText(lnettip);
 		staLabel.setToolTipText(lstatip);
 		siLabel.setToolTipText(lsittip);
 		chLabel.setToolTipText(lchatip);
-		
-		if ( showNetworks ) {
-			add(netLabel, gbc);
-			gbc.gridx++;
-		} // end of if ()
-		
-		add(staLabel, gbc);
-		gbc.gridx++;
-		if (showSites) {
-			add(siLabel, gbc);
-			gbc.gridx++;
-		} // end of if (showSites)
-		add(orientationLabel, gbc);
-		gbc.gridx++;
-		add(chLabel, gbc);
-		gbc.gridx++;
-		
-		gbc.gridy++;
-		gbc.gridx = 0;
-		gbc.weighty = 1.0;
 		
 		//networkList = new JList(networks);
 		networkList = new DNDJList(networks);
@@ -241,13 +292,6 @@ public class ChannelChooser extends JPanel{
 					}
 				} );
 		
-		JScrollPane scroller;
-		if ( showNetworks) {
-			scroller = new JScrollPane(networkList);
-			add(scroller, gbc);
-			gbc.gridx++;
-		} // end of if ()
-		
 		stationList = new DNDJList(stationNames);
 		// set a default cell renederer, but this can be overridden
 		// with the setStationListCellRenderer method
@@ -255,28 +299,19 @@ public class ChannelChooser extends JPanel{
 		stationList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		stationList.addListSelectionListener(new ListSelectionListener() {
 					
-					public void valueChanged(ListSelectionEvent e) {
-						if(e.getValueIsAdjusting()){
-							return;
-						}
-						ChannelLoader t = new ChannelLoader(e);
-						setChannelLoader(t);
-						t.start();
-					}
-				}
-											);
-		scroller = new JScrollPane(stationList);
-		add(scroller, gbc);
-		gbc.gridx++;
-		
+                public void valueChanged(ListSelectionEvent e) {
+                    if(e.getValueIsAdjusting()){
+                        return;
+                    }
+                    ChannelLoader t = new ChannelLoader(e);
+                    setChannelLoader(t);
+                    t.start();
+                }
+            });
+
 		siteList = new JList(sites);
 		siteList.setCellRenderer(renderer);
 		siteList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		scroller = new JScrollPane(siteList);
-		if (showSites) {
-			add(scroller, gbc);
-			gbc.gridx++;
-		}
 		
 		final ListCellRenderer bundleRenderer = new BundleListCellRenderer();
 		
@@ -310,10 +345,7 @@ public class ChannelChooser extends JPanel{
 						}
 					}
 				});
-		scroller = new JScrollPane(orientationList);
-		add(scroller, gbc);
-		gbc.gridx++;
-		
+
 		if ( selectableBand != null) {
 			for ( int i=0; i<selectableBand.length; i++) {
 				bandListModel.addElement(selectableBand[i]);
@@ -355,15 +387,6 @@ public class ChannelChooser extends JPanel{
 			} // end of for (int i=0; i<chanListModel; i++)
 		} // end of for (int j=0; j<autoSelectBand.length; j++)
 		
-		scroller = new JScrollPane(channelList);
-		add(scroller, gbc);
-		gbc.gridx++;
-		
-		gbc.gridy++;
-		gbc.gridx = 0;
-		gbc.weighty = 0.1;
-		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		add(progressBar, gbc);
     }
 	
     public NetworkAccess[] getNetworks(){
@@ -731,6 +754,12 @@ public class ChannelChooser extends JPanel{
 			INDIVIDUAL_CHANNELS };
     private static final int defaultAutoSelectedOrientation = THREE_COMPONENT;
 	
+    private JLabel netLabel;
+    private JLabel staLabel;
+    private JLabel siLabel;
+    private JLabel orientationLabel;
+    private JLabel chLabel;
+
     protected JList networkList;
     protected JList stationList;
     protected JList siteList;
