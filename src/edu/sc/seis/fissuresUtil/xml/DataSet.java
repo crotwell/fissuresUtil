@@ -9,6 +9,9 @@ import org.apache.xpath.*;
 import org.apache.xpath.objects.*;
 import java.io.*;
 import java.net.*;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfNetwork.Channel;
 
 /**
  * Describe interface <code>DataSet</code> here.
@@ -16,7 +19,7 @@ import java.net.*;
  * @author <a href="mailto:">Srinivasa Telukutla</a>
  * @version 1.0
  */
-public interface DataSet {
+public interface DataSet extends StdDataSetParamNames {
 
 
 
@@ -139,4 +142,18 @@ public interface DataSet {
 
     public String[] getDataSetSeismogramNames();
 
+    /** Optional method to get channel id of all Channel parameters.
+     *  @see StdDataSetParamNames for the prefix for these parameters. */
+    public ChannelId[] getChannelIds();
+
+    /** Optional method to get the channel from the parameters, if it exists.
+     *  Should return null otherwise.
+     *  @see StdDataSetParamNames for the prefix for these parameters.*/
+    public Channel getChannel(ChannelId channelId);
+
+    /** Optional method to get the event associated with this dataset. Not all
+     *  datasets will have an event, return null in this case.
+     *  @see StdDataSetParamNames for the prefix for these parameters.
+     */
+    public EventAccessOperations getEvent();
 }
