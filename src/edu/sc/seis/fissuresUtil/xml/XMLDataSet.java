@@ -19,7 +19,7 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSet.java 1735 2002-05-29 19:13:34Z crotwell $
+ * @version $Id: XMLDataSet.java 1736 2002-05-29 19:29:34Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -97,7 +97,9 @@ public class XMLDataSet implements DataSet, Serializable {
 
     public void setName(String name) {
 	Element nameElement = evalElement(config, "name");
-	nameElement.setNodeValue(name);
+	Text text = config.getOwnerDocument().createTextNode(name);
+	nameElement.appendChild(text);
+	config.appendChild(nameElement);
     }
 
     public String[] getParameterNames() {
@@ -396,6 +398,10 @@ public class XMLDataSet implements DataSet, Serializable {
 	    }
 	}
 	config.appendChild(sac);
+    }
+
+    public String toString() {
+	return getName();
     }
 
     /** returns a DOM Element that represents this dataset.
