@@ -18,7 +18,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3275 2003-02-18 19:36:03Z groves $
+ * @version $Id: SeismogramShape.java 3276 2003-02-19 01:05:00Z groves $
  */
 
 public class SeismogramShape implements Shape{
@@ -56,29 +56,30 @@ public class SeismogramShape implements Shape{
 		iterator.copyBasicInfo(currentIterator);
 		double shiftPercentage =  getShiftPercentage(currentIterator.getTime(),
 													 iterator.getTime());
-		double pixelShift = currentIterator.getSize().width * shiftPercentage;
+		double pixels = currentIterator.getSize().width * shiftPercentage +
+			currentIterator.getLeftoverPixels();
 		//checks if the pixel shift is within 1/1000 of being an even pixel
-		pixelShift = Math.round(pixelShift*1000)/1000;
-		if(pixelShift%1 == 0){//if the shift is an even pixel, it gets shifted
-			int shift = (int)pixelShift;
-			if(shift >= 1){
-				iterator.setTotalShift(currentIterator.getTotalShift() + shift);
-				drag(shift, 0, iterator);
-			}else if(shift <= -1){
-				iterator.setTotalShift(currentIterator.getTotalShift() + shift);
-				drag(shift, -shift, iterator);
-			}else{
-				iterator.setSeisPoints(currentIterator.getSeisPoints());
-				iterator.setDrawnPixels(currentIterator.getDrawnPixels());
-			}
-			currentIterator = iterator;
-		}else{//else redraw the whole thing
-			plot(iterator);
+		pixels *= 1000;
+		pixels = Math.round(pixels);
+		pixels /= 1000;
+		int shift = 0;
+		if(pixels >= 1){
+			shift = (int)Math.floor(pixels);
+			drag(shift, 0, iterator);
+		}else if(pixels <= -1){
+			shift = (int)Math.ceil(pixels);
+			drag(shift, -shift, iterator);
+		}else{
+			iterator.setSeisPoints(currentIterator.getSeisPoints());
+			iterator.setDrawnPixels(currentIterator.getDrawnPixels());
 		}
-    }
+		iterator.setLeftoverPixels(pixels - shift);
+		currentIterator = iterator;
+	}
 	
     private void drag(int dragAmount, int dragFrom,
 					  SeismogramShapeIterator iterator){
+		iterator.setTotalShift(currentIterator.getTotalShift() + dragAmount);
 		double pointsPerPixel = iterator.getPointsPerPixel();
 		int[] seisPoints = currentIterator.getSeisPoints();
 		seisPoints[0] =(int)-(iterator.getTotalShift() * pointsPerPixel) + 
@@ -96,7 +97,7 @@ public class SeismogramShape implements Shape{
 		int drawStart, drawEnd;
 		if(dragAmount < 0){
 			drawStart = drawnPixels[1] + dragAmount;
-			drawEnd = drawnPixels[1] - 1;
+			drawEnd = drawnPixels[1];
 		}else{
 			drawStart = drawnPixels[0];
 			drawEnd = dragAmount--;
@@ -214,3 +215,4 @@ public class SeismogramShape implements Shape{
     private static Category logger =
 		Category.getInstance(SeismogramShape.class.getName());
 }// SeismogramShape
+
