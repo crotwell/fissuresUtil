@@ -557,6 +557,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         drawSeismograms(g2d, new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
         
         File loc = new File(filename);
+		loc.getCanonicalFile().getParentFile().mkdirs();
         File temp = File.createTempFile(loc.getName(), null);
         ImageIO.write(bImg, "png", temp);
         loc.delete();
