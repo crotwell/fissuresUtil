@@ -9,7 +9,7 @@
     <url>http://www.seis.sc.edu</url>
     <logo>http://www.seis.sc.edu/images/header.gif</logo>
   </organization>
-  <currentVersion>1.0</currentVersion>
+  <currentVersion>1.0Beta</currentVersion>
   <inceptionYear>2002</inceptionYear>
 
   <package>edu.sc.seis.fissuresUtil</package>
@@ -21,15 +21,22 @@ It does not actually provide an implemenation for any services, but
 those wishing to implement new clients or new services will find many 
 useful things already done.</description>
   
-  <url>http://www.seis.sc.edu/software/Fissures</url>
-  <siteAddress>http://www.seis.sc.edu</siteAddress>
-  <siteDirectory>/seis/raid1/Apache/htdocs/software/mavenTEST/fissuresUtil</siteDirectory>
-  <distributionDirectory>/seis/raid1/Apache/htdocs/software/mavenTEST/Dist</distributionDirectory>
+  <url>http://www.seis.sc.edu/software/${pom.id}</url>
+  <siteAddress>www.seis.sc.edu</siteAddress>
+  <siteDirectory>/seis/raid1/Apache/htdocs/software/mavenTEST/${pom.id}</siteDirectory>
+  <distributionDirectory>/seis/raid1/Apache/htdocs/software/dist/${pom.id}</distributionDirectory>
   <mailingList>
     <name>fissures-dev</name>
     <subscribe>majordomo@iris.washington.edu</subscribe>
     <unsubscribe>majordomo@iris.washington.edu</unsubscribe>
   </mailingList>
+
+  <repository>
+    <connection>scm:cvs:local:anonymous@cvs.seis.sc.edu:/opt/local/Internal/CvsR
+oot:${pom.id}</connection>
+        <url>http://www.seis.sc.edu/cgi-bin/viewcvs.cgi/${pom.id}</url>
+    </repository>
+
 
   <developers>
     <developer>
