@@ -4,7 +4,6 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
-import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventFinder;
 
 /**
@@ -12,13 +11,14 @@ import edu.iris.Fissures.IfEvent.EventFinder;
  */
 public class CacheEventDC extends ProxyEventDC {
 
-	public CacheEventDC(EventDC eventDC) {
+	public CacheEventDC(ProxyEventDC eventDC) {
 		setEventDC(eventDC);
 	}
 
 	public void reset() {
 		evFinder = null;
 		evChanFinder = null;
+		super.reset();
 	}
 
 	public EventFinder a_finder() {

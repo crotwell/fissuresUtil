@@ -1,9 +1,9 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
-
+import edu.sc.seis.fissuresUtil.namingService.*;
 
 public class BulletproofVestFactory{
 
@@ -43,6 +43,25 @@ public class BulletproofVestFactory{
 
     }
 
+	public static ProxyEventAccessOperations vestEventAccess(
+			EventAccessOperations eventAccess) {
+		if (eventAccess instanceof CacheEvent){
+			return (ProxyEventAccessOperations)eventAccess;
+		} else {
+			RetryEventAccessOperations retry = new RetryEventAccessOperations(eventAccess, 3);
+			CacheEvent cache = new CacheEvent(retry);
+			return cache;
+		}
+	}
+	
+	public static ProxyEventDC vestEventDC(String serverDNS, String serverName, FissuresNamingService fisName){
+
+			NSEventDC ns = new NSEventDC(serverDNS, serverName, fisName);
+			RetryEventDC retry = new RetryEventDC(ns, 3);
+			CacheEventDC cache = new CacheEventDC(retry);
+			return cache;
+	}
+    
     public static ProxyNetworkDC vestNetworkDC(String serverDNS, String serverName, FissuresNamingService fisName) {
         return new RetryNetworkDC(new NSNetworkDC(serverDNS, serverName, fisName), 2);
     }

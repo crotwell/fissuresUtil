@@ -3,18 +3,24 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventDCOperations;
-import edu.iris.Fissures.IfEvent.EventFinder;
 
 /**
  * @author oliverpa
  */
 public abstract class ProxyEventDC implements EventDCOperations {
 	
-	public void setEventDC(EventDC eventDC){
+	public void setEventDC(EventDCOperations eventDC){
 		this.eventDC = eventDC;
+	}
+	
+	public EventDC getCorbaObject(){
+		if (eventDC instanceof ProxyEventDC){
+			return ((ProxyEventDC)eventDC).getCorbaObject();
+		} else {
+			return (EventDC)eventDC;
+		}
 	}
 	
 	public void reset(){
@@ -23,23 +29,16 @@ public abstract class ProxyEventDC implements EventDCOperations {
 		}
 	}
 	
-	public EventFinder a_finder() {
-		if (eventDC != null){
-			return eventDC.a_finder();
-		}
-		else {
-			throw new org.omg.CORBA.NO_IMPLEMENT();
-		}
-	}
-
-	public EventChannelFinder a_channel_finder() {
-		if (eventDC != null){
-			return eventDC.a_channel_finder();
-		}
-		else {
-			throw new org.omg.CORBA.NO_IMPLEMENT();
-		}
-	}
-
-	protected EventDC eventDC = null;
+    public EventDCOperations getWrappedDC() { return eventDC; }
+	
+    public EventDCOperations getWrappedDC(Class wrappedClass) {
+        if(getWrappedDC().getClass().equals(wrappedClass)){
+            return getWrappedDC();
+        }else if(getWrappedDC().getClass().equals(ProxyEventDC.class)){
+            ((ProxyEventDC)getWrappedDC()).getWrappedDC(wrappedClass);
+        }
+        throw new IllegalArgumentException("This doesn't contain a DC of class " + wrappedClass);
+    }
+	
+	protected EventDCOperations eventDC = null;
 }
