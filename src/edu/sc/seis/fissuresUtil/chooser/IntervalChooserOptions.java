@@ -16,7 +16,6 @@ public class IntervalChooserOptions {
 	option = i;
 	this.minimumValue = 0;
 	this.maximumValue = 10;
-
     }
 
     public void setMinimumValue(int value) {
