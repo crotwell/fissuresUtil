@@ -109,13 +109,13 @@ public class ChannelChooserGUI extends JPanel{
 	 gbc.gridx++;
 
          stalist = new JList(stations);
-	 stalist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	 stalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
          JScrollPane scroller2 = new JScrollPane(stalist);
          subPane.add(scroller2, gbc);
 	 gbc.gridx++;
  
          sitlist = new JList(sites);
-	 sitlist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	 sitlist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
          JScrollPane scroller3 = new JScrollPane(sitlist);
          subPane.add(scroller3, gbc);
 	 gbc.gridx++;
@@ -196,7 +196,9 @@ public class ChannelChooserGUI extends JPanel{
     }
 
    public void popChannels(String networkchosen, String station){
-       mychannelchooser.setChannels(networkchosen, station);   
+
+       System.out.println("The network chosen is "+networkchosen);
+       mychannelchooser.setChannels(networkchosen, getStations());   
        populateList(mychannelchooser.getChannels(), chalist);
        chalist.setSelectedIndex(chalist.getModel().getSize() - 1);
     }
@@ -326,8 +328,24 @@ public class ChannelChooserGUI extends JPanel{
     public String  getStation(){
         String stationchosen = (String)stalist.getSelectedValue();
 	return stationchosen;
-    }  
+    }
+
+    /**
+       The below function is added by Srinivasa Reddy Telukutla
+    ****/
+    public String[] getStations() {
    
+	java.lang.Object[] objects = stalist.getSelectedValues();
+	String[] channelsChosen = new String[objects.length];
+	for(int counter = 0; counter < objects.length; counter++) {
+
+	    channelsChosen[counter] = (String)objects[counter];
+	    System.out.println("The station is "+channelsChosen[counter]);
+	}
+	return channelsChosen;
+
+    }
+
     public String  getChannel(){
 	String channelchosen = (String)chalist.getSelectedValue();
 	return channelchosen;
@@ -408,14 +426,16 @@ public class ChannelChooserGUI extends JPanel{
 	String keyStr = new String();
 	ArrayList arrayList = new ArrayList();
 	String[] channels = getChannels();
-
-	for(int counter = 0; counter < channels.length; counter++) {
+	String[] stations = getStations();
+	for(int stationCounter = 0; stationCounter < stations.length; stationCounter++) {
 	    
-	    keyStr = getNet() + "." + getStation() + "." + getSite() + "." + channels[counter];
-	    arrayList.add(mychannelchooser.getChannelId(keyStr));
+	    for(int counter = 0; counter < channels.length; counter++) {
 	    
+		keyStr = getNet() + "." + stations[stationCounter] + "." + getSite() + "." + channels[counter];
+		arrayList.add(mychannelchooser.getChannelId(keyStr));
+	    
+	    }
 	}
-	
 	ChannelId[] returnValue = new ChannelId[arrayList.size()];
 	returnValue = (ChannelId[]) arrayList.toArray(returnValue);
 	return returnValue;

@@ -175,6 +175,37 @@ System.out.println("8 netSet.add ");
 
     }
 
+    /** The below method is written by SrinivasaReddy Telukutla
+     **/
+
+    public void setChannels(String netCode, String[] stationCode) {
+
+	channelsMap = new HashMap();
+	
+	for(int i = 0; i < stationCode.length; i++) {
+	    
+	    setChannels(netCode, stationCode[i]);
+	    String[] channelsStr = getChannels();
+	    for(int counter = 0; counter < channelsStr.length; counter++) {
+
+		channelsMap.put(channelsStr[counter], "notused");
+		System.out.println("The channel is "+channelsStr[counter]);
+		
+	    }
+	}
+	Set keySet = channelsMap.keySet();
+	Iterator iter = keySet.iterator();
+	ArrayList arrayList = new ArrayList();
+	while(iter.hasNext()) {
+	    String key = (String) iter.next();
+	    System.out.println("The key is "+key);
+	    arrayList.add(key);
+	}
+	channels = new String[arrayList.size()];
+	channels = (String[]) arrayList.toArray(channels);
+	    
+
+    }
     public void setChannels(String netCode, String stationCode) {
 
 	
@@ -253,7 +284,7 @@ System.out.println("8 netSet.add ");
 	} // end of while (it.hasNext())
 
    if(foundChannelId==null) 
-        System.out.println(keyStr + "'s ChannelId could not be found.");
+        System.out.println(keyStr + "ChannelId could not be found.");
     return foundChannelId;
 
     }
@@ -272,6 +303,9 @@ System.out.println("8 netSet.add ");
     protected String[] stations;
     protected String[] sites;
     protected String[] channels;
+
+
+    private HashMap channelsMap;
 
     protected TreeMap netMap = new TreeMap();
     protected TreeMap staMap = new TreeMap();
