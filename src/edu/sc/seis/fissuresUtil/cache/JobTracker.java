@@ -15,11 +15,6 @@ public class JobTracker implements StatusListener{
 
     private JobTracker(){}
 
-
-    public void add(TrackerListener listener){
-        listeners.add(listener);
-    }
-
     public void add(Job addend){
         addend.add(this);
         statusUpdated(addend);
@@ -51,6 +46,15 @@ public class JobTracker implements StatusListener{
     public synchronized void clearFinished(){
         finished.clear();
         fireTrackerUpdated();
+    }
+
+
+    public void add(TrackerListener listener){
+        listeners.add(listener);
+    }
+
+    public void remove(TrackerListener listener){
+        listeners.remove(listener);
     }
 
     private void fireTrackerUpdated(){
