@@ -44,16 +44,13 @@ public class ParticleMotionDisplay extends JPanel{
     
     public ParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
                                  TimeConfig tc, Color color) {
-        particleDisplayPanel = new JLayeredPane();
-        OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
-        radioPanel = new JPanel();
-        this.setLayout(new BorderLayout());
-        particleDisplayPanel.setLayout(overlayLayout);
-        radioPanel.setLayout(new GridLayout(1, 0));
+        particleDisplayPanel = new JPanel(new BorderLayout());
+        radioPanel = new JPanel(new GridLayout(1, 0));
+        setLayout(new BorderLayout());
         
         view = new ParticleMotionView(this);
-        view.setSize(new java.awt.Dimension(300, 300));
-        particleDisplayPanel.add(view, PARTICLE_MOTION_LAYER);
+        view.setSize(new Dimension(300, 300));
+        particleDisplayPanel.add(view);
         
         hAmpScaleMap = new AmpScaleMapper(50, 4);
         vAmpScaleMap = new AmpScaleMapper(50, 4);
@@ -73,9 +70,8 @@ public class ParticleMotionDisplay extends JPanel{
                                                                      lowBevelBorder);
         particleDisplayPanel.setBorder(BorderFactory.createCompoundBorder(bevelTitleBorder,
                                                                           scaleBevelBorder));
-        add(particleDisplayPanel, BorderLayout.CENTER);
+        add(particleDisplayPanel);
         radioPanel.setVisible(false);
-        add(radioPanel, BorderLayout.SOUTH);
         addComponentListener(new ComponentAdapter() {
                     public void componentResized(ComponentEvent e) {
                         resize();
@@ -93,29 +89,11 @@ public class ParticleMotionDisplay extends JPanel{
         if(initialized){
             setInitialButton();
         }
+        
+        add(radioPanel, BorderLayout.SOUTH);
     }
     
-    /**
-     * returns an array of seismograms for the given ChannelId, startTime, endTime and dataCenter
-     * @param startTime an <code>edu.iris.Fissures.Time</code> value
-     * @param endTime an <code>edu.iris.Fissures.Time</code> value
-     * @param channelId a <code>ChannelId</code> value
-     * @param dataCenter a <code>DataCenter</code> value
-     * @return a <code>LocalSeismogram[]</code> value
-     * @exception edu.iris.Fissures.FissuresException if an error occurs
-     */
-    public LocalSeismogram[] retreiveSeismograms(Time startTime,
-                                                 Time endTime,
-                                                 ChannelId channelId,
-                                                 DataCenter dataCenter) throws FissuresException {
-        RequestFilter[] filters = {new RequestFilter(channelId,
-                                                     startTime,
-                                                     endTime
-                                                    )};
-        
-        SeisTimeFilterSelector selector = new SeisTimeFilterSelector();
-        return selector.getFromGivenFilters(dataCenter, filters);
-    }
+    public ParticleMotionView getView(){ return view; }
     
     /**
      * udpates the amplitude of the verticalScale.
@@ -199,19 +177,11 @@ public class ParticleMotionDisplay extends JPanel{
     }
     
     /**
-     * returns the ParticleMotionView corresponding to this ParticleMotionDisplay
-     * @return a <code>ParticleMotionView</code> value
-     */
-    public synchronized ParticleMotionView getView() {
-        return view;
-    }
-    
-    /**
      * builds a radioButtonPanel. using the radioButton Panel only one of the
      * particleMotions among all the three planes can be viewed at a time.
      * @param channelGroup a <code>ChannelId[]</code> value
      */
-    public void formRadioSetPanel() {
+    private void formRadioSetPanel() {
         JRadioButton[] radioButtons = new JRadioButton[3];
         for(int i = 0; i < radioButtons.length; i++) {
             radioButtons[i] = new JRadioButton(labelStrings[i]);
@@ -230,7 +200,7 @@ public class ParticleMotionDisplay extends JPanel{
     /**
      * sets the initialRadioButton or checkBox checked.
      */
-    public void setInitialButton() {
+    private void setInitialButton() {
         initialButton.setSelected(true);
     }
     
@@ -280,7 +250,7 @@ public class ParticleMotionDisplay extends JPanel{
     
     protected ParticleMotionView view;
     
-    private JLayeredPane particleDisplayPanel;
+    private JPanel particleDisplayPanel;
     
     private JPanel radioPanel;
     
