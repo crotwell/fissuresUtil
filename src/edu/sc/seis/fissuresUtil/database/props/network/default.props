@@ -32,6 +32,8 @@ station.create = CREATE TABLE station ( sta_id int NOT NULL, \
                                         FOREIGN KEY(loc_id) \
                                         REFERENCES location(loc_id), \
                                         PRIMARY KEY(sta_id))
+
+station.index_station_net_id=create index station_net_id_idx on station (net_id)
                                         
 #set ( $station_neededForStationId = "sta_id, station.net_id, sta_code, sta_begin_id" )
 
@@ -86,6 +88,8 @@ site.create = CREATE TABLE site ( site_id int, \
                                   REFERENCES time (time_id), \
                                   PRIMARY KEY(site_id))
 
+site.index_site_sta_id=create index site_sta_id_idx on site (sta_id)
+
 site.getDBIdsForStaAndCode = SELECT site_id FROM site WHERE sta_id = ? and site_code = ?
 
 site.putAll = INSERT INTO site (site_id, sta_id, site_code, site_begin_id, site_end_id, site_comment, loc_id) \
@@ -125,6 +129,8 @@ channel.create = CREATE TABLE channel (chan_id int, \
                                        REFERENCES time (time_id), \
                                        FOREIGN KEY (chan_end_id) \
                                        REFERENCES time (time_id))
+
+channel.index_channel_site_id=create index channel_site_id_idx on channel (site_id)
 
 #set ( $channel_neededForChanId = "chan_id, channel.site_id, chan_code, chan_begin_id" )
 
