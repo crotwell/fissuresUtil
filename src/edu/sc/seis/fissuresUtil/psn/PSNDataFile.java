@@ -20,13 +20,22 @@ public class PSNDataFile {
 
     private PSNEventRecord[] eventRecs;
 
+    /**
+     * Old constructor that takes file name
+     */
     public PSNDataFile(String filename) throws FileNotFoundException, IOException{
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
+        this(new DataInputStream(new BufferedInputStream(new FileInputStream(filename))));
+    }
+
+    /**
+     * New constructor that takes DataInputStream.
+     */
+    public PSNDataFile(DataInputStream dis) throws FileNotFoundException, IOException{
         readFile(dis);
         dis.close();
     }
 
-    public void readFile(DataInputStream dis) throws IOException, FileNotFoundException{
+    private void readFile(DataInputStream dis) throws IOException, FileNotFoundException{
         PSNHeader header = new PSNHeader(dis);
         if (!header.isVolumeFile()){
             eventRecs = new PSNEventRecord[]{new PSNEventRecord(header, dis)};
