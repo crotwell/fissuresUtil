@@ -12,6 +12,7 @@ import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.TextTable;
+import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -24,9 +25,11 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import javax.swing.ToolTipManager;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Category;
@@ -135,7 +138,9 @@ public class Flag implements Drawable{
 						dataCells.add(flag.getName());
 					}
 					else if (template[i].equals(TIME)){ //Flag Time
-						dataCells.add(flag.getFlagTime().toString());
+						SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
+						sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+						dataCells.add(sdf.format(flag.getFlagTime()));
 					}
 					else if (template[i].equals(CHANNEL)){ //Channel Id
 						ChannelId chanId = dss.getRequestFilter().channel_id;
@@ -169,13 +174,13 @@ public class Flag implements Drawable{
 					}else if (template[i].equals(ORIGIN_DIFF)){ //flagTime-originTime
 						TimeInterval interval = getTimeDifferenceFromOrigin(flag, event);
 						QuantityImpl timeInSeconds = interval.convertTo(UnitImpl.SECOND);
-						dataCells.add(DisplayUtils.formatQuantityImpl(timeInSeconds));
+						dataCells.add(UnitDisplayUtil.formatQuantityImpl(timeInSeconds));
 					}else if (template[i].equals(DISTANCE_FROM_ORIG)){ //Distance from Origin, if that wasn't obvious
 						QuantityImpl distance = DisplayUtils.calculateDistance(dss);
-						dataCells.add(DisplayUtils.formatQuantityImpl(distance));
+						dataCells.add(UnitDisplayUtil.formatQuantityImpl(distance));
 					}else if (template[i].equals(BACK_AZIMUTH)){
 						QuantityImpl backAz = DisplayUtils.calculateBackAzimuth(dss);
-						dataCells.add(DisplayUtils.formatQuantityImpl(backAz));
+						dataCells.add(UnitDisplayUtil.formatQuantityImpl(backAz));
 					}
 				}
 				table.addRow(((String[])dataCells.toArray(new String[0])));
