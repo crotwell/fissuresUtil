@@ -46,12 +46,13 @@ public class OpenMap extends OpenMapComponent{
 			mapBean = getMapBean();
 
 			//get the projection and set its background color and center point
-			Proj proj = new CADRG(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT, mapBean.DEFAULT_CENTER_LON),
-								  DEFAULT_SCALE,
-								  mapBean.DEFAULT_WIDTH,
-								  mapBean.DEFAULT_HEIGHT);
+//			Proj proj = new CADRG(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT, mapBean.DEFAULT_CENTER_LON),
+//								  DEFAULT_SCALE,
+//								  mapBean.DEFAULT_WIDTH,
+//								  mapBean.DEFAULT_HEIGHT);
+			Proj proj = (Proj)mapBean.getProjection();
 			proj.setBackgroundColor(WATER);
-			mapBean.setProjection(proj);
+//			mapBean.setProjection(proj);
 			mapBean.setCenter(20, 200);
 
 			mapHandler.add(mapBean);
