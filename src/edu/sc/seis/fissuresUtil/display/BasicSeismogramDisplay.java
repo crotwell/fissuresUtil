@@ -12,12 +12,13 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.BorderFactory;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import org.apache.log4j.Category;
 import org.w3c.dom.Element;
@@ -307,7 +308,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         }
     }
 
+    public void outputToPDF(String filename) throws FileNotFoundException {
+        outputToPDF(new File(filename));
+    }
 
+    public void outputToPDF(File f) throws FileNotFoundException {
+        SeismogramPDFBuilder.createPDF(this, f, 1, false);
+    }
 
     private class PlotPainter extends SeismogramDisplayProvider{
         public SeismogramDisplay provide() {return BasicSeismogramDisplay.this;}
@@ -345,8 +352,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                 logger.debug("aux data pick_flag: " + cur.toString());
                 Element auxDatEl = (Element)seis.getAuxillaryData(cur);
                 logger.debug(auxDatEl.getTagName());
-				Flag flag = Flag.getFlagFromElement(auxDatEl);
-				flag.setColor(Color.YELLOW);
+                Flag flag = Flag.getFlagFromElement(auxDatEl);
+                flag.setColor(Color.YELLOW);
                 add(flag);
             }
         }
