@@ -220,12 +220,18 @@ public class ParticleMotionView extends JComponent{
 	}
 
 	int size = displays.size();
+
+	//first draw the azimuth if one of the display is horizontal plane
+	for(int counter = 0; counter < displays.size(); counter++) {
+		ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+		if(!displayKeys.contains(particleMotion.key)) continue;
+		drawAzimuth(particleMotion, graphics2D);	
+	}
 	for(int counter = 0; counter < displays.size(); counter++) {
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
 	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    if(particleMotion.isSelected()) continue;
-	    drawAzimuth(particleMotion, graphics2D); 
 	    drawParticleMotion(particleMotion, graphics2D);
 	}//end of for
 	System.out.println("ENd of the for");
@@ -233,7 +239,7 @@ public class ParticleMotionView extends JComponent{
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
 	    if(!displayKeys.contains(particleMotion.key)) continue;
-	    drawAzimuth(particleMotion, graphics2D);
+	    //drawAzimuth(particleMotion, graphics2D);
 	    if(particleMotion.isSelected()) {
 		particleMotion.setSelected(false);
 		drawParticleMotion(particleMotion, g);
