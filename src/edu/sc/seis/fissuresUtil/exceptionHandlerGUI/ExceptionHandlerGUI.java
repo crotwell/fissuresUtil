@@ -85,7 +85,7 @@ public class ExceptionHandlerGUI {
 
     }
 
-    private static String getSystemInformation() {
+    public static String getSystemInformation() {
 
 	String rtnValue = new String();
 	rtnValue += "os.name : "+System.getProperty("os.name")+"\n";
