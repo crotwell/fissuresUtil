@@ -347,7 +347,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	particleWindow.setVisible(true);
 	}
     }
-
+    
     
 
     public void createSelectionDisplay(Selection creator){
@@ -365,7 +365,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange(first)));
 	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
-	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, ar, 
+	    creator.addDisplay(selectionDisplay.addDisplay(first, tr, ar, 
 							   creator.getParent().getName() + "." + creator.getColor()));
 	    ar.visibleAmpCalc(tr);
 	    while(e.hasNext()){
@@ -388,7 +388,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange(first)));
 	    ar.visibleAmpCalc(tr);
-	    creator.setDisplay(selectionDisplay.addDisplay(first, tr, ar, 
+	    creator.addDisplay(selectionDisplay.addDisplay(first, tr, ar, 
 							   creator.getParent().getName() + "." + creator.getColor()));
 	    while(e.hasNext()){
 		selectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
@@ -400,20 +400,38 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	if(threeSelectionDisplay == null){
 	    logger.debug("creating 3C selection display");
 	    threeSelectionWindow = new JFrame();
-	    threeSelectionWindow.setSize(400, 400);
 	    threeSelectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder, this);
 	    Iterator e = creator.getSeismograms().iterator();
 	    TimeConfigRegistrar tr = creator.getInternalConfig();
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    XMLDataSet dataSet = (XMLDataSet)first.getDataSet();
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange(first)));
-	    creator.setDisplay(threeSelectionDisplay.addDisplay(first, tr, ar, 
+	    creator.addDisplay(threeSelectionDisplay.addDisplay(first, tr, ar, 
 								creator.getParent().getName() + "." + creator.getColor()));
+	    ChannelId[] channelIds = dataSet.getChannelIds();
+	    ChannelGrouperImpl channelProxy = new ChannelGrouperImpl();
+	    ChannelId[] channelGroup = channelProxy.retrieve_grouping(channelIds, 
+								      first.getSeismogram().getChannelID());
+	    DataSetSeismogram[] seismograms = new DataSetSeismogram[3];
+	    System.out.println(channelGroup.length);
+	    try{
+		for(int counter = 0; counter < channelGroup.length; counter++) {
+		    seismograms[counter] = new DataSetSeismogram(dataSet.
+								 getSeismogram(ChannelIdUtil.toStringNoDates(channelGroup[counter])),
+								 dataSet);
+		    if(seismograms[counter].getSeismogram() != null && first.getSeismogram() != seismograms[counter].getSeismogram()){
+			creator.addDisplay(threeSelectionDisplay.addDisplay(seismograms[counter], tr, ar, 
+									    "." 
+									    + creator.getColor()));
+		    }
+			
+		}
+	    }catch(Exception f){ 
+		f.printStackTrace();
+	    }	
 	    ar.visibleAmpCalc(tr);
-	    while(e.hasNext()){
-		threeSelectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
-	    }
 	    threeSelectionWindow.getContentPane().add(threeSelectionDisplay);
+	    threeSelectionWindow.setSize(400, 400);
 	    Toolkit tk = Toolkit.getDefaultToolkit();
 	    if((selectionDisplays + threeSelectionWindow.getSize().height) < tk.getScreenSize().height){
 		threeSelectionWindow.setLocation(tk.getScreenSize().width - threeSelectionWindow.getSize().width, 
@@ -431,7 +449,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    DataSetSeismogram first = ((DataSetSeismogram)e.next());
 	    AmpConfigRegistrar ar = new AmpConfigRegistrar(new OffsetMeanAmpConfig(first, tr.getTimeRange(first)));
 	    ar.visibleAmpCalc(tr);
-	    creator.setDisplay(threeSelectionDisplay.addDisplay(first, tr, ar, 
+	    creator.addDisplay(threeSelectionDisplay.addDisplay(first, tr, ar, 
 								creator.getParent().getName() + "." + creator.getColor()));
 	    while(e.hasNext()){
 		threeSelectionDisplay.addSeismogram(((DataSetSeismogram)e.next()), 0);
