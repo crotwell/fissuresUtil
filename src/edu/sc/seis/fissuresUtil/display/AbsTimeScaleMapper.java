@@ -15,7 +15,7 @@ import java.util.*;
  */
 
 public class AbsTimeScaleMapper extends TimeScaleMapper {
-    
+
     public AbsTimeScaleMapper(int totalPixels,
                               int hintPixels,
                               MicroSecondDate beginTime,
@@ -37,21 +37,21 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
     }
 
     public int getPixelLocation(int i) {
-        return SimplePlotUtil.getPixel(totalPixels, beginTime, endTime, 
+        return SimplePlotUtil.getPixel(totalPixels, beginTime, endTime,
 				     new MicroSecondDate(Math.round(minTick.getMicroSecondTime() +
 								    i * tickInc)));
     }
 
     public String getLabel(int i) {
         if (isLabelTick(i)) {
-            MicroSecondDate date = 
-                new MicroSecondDate(Math.round(minTick.getMicroSecondTime() 
+            MicroSecondDate date =
+                new MicroSecondDate(Math.round(minTick.getMicroSecondTime()
                                                + i * tickInc));
             calendar.setTime(date);
             if(i== firstMajorTick){
 		return longTimeFormat.format(calendar.getTime());
 	    }
-	    else 
+	    else
 		return shortTimeFormat.format(calendar.getTime());
 	    //            return dateTimeFormat.format(calendar.getTime());
         } else {
@@ -61,8 +61,12 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
 
     public int getNumTicks() { return numTicks;}
 
+    public int getTotalPixels() {
+      return totalPixels;
+    }
+
     protected void calculateTicks() {
-	
+
         if (totalPixels == 0) {
             numTicks = 0;
             return;
@@ -75,7 +79,7 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
         // find power of ten just smaller than width
         long microSecWidth = endTime.getMicroSecondTime() -
             beginTime.getMicroSecondTime();
-        tickInc = Math.pow(10, 
+        tickInc = Math.pow(10,
 			   Math.floor(Math.log(microSecWidth) /
 				      Math.log(10.0)));
         double goalTickInc = microSecWidth / totalPixels * hintPixels;
@@ -93,7 +97,7 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
         // this sets the minTick to the first major tick time,
         // we then move backwards to find the first minor tick before
         // the begin time
-        minTick = retValue.minTick; 
+        minTick = retValue.minTick;
 
         long beginMicros = beginTime.getMicroSecondTime();
         long endMicros = endTime.getMicroSecondTime();
@@ -118,7 +122,7 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
 //                             " numTicks="+numTicks);
         numTicks = 1;
 	while (minMicros + numTicks * tickInc < endMicros ) {
-            numTicks++; 
+            numTicks++;
         }
     }
 
@@ -129,7 +133,7 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
 
 	if (goalTickInc < 500000L) {
 	// less than .5 second, use decimal seconds
-	    retValue.tickInc =  Math.pow(10,Math.floor(Math.log(goalTickInc)*Math.log(10.0))); 
+	    retValue.tickInc =  Math.pow(10,Math.floor(Math.log(goalTickInc)*Math.log(10.0)));
 	    //if (goalTickInc > retValue.tickInc*4) {
 		retValue.tickInc*=2;
 		retValue.majorTickStep = 5;
@@ -218,7 +222,7 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
     protected java.text.SimpleDateFormat shortTimeFormat;
     protected Calendar calendar;
     protected int firstMajorTick;
-    
+
     protected final class StartTickReturn {
         MicroSecondDate minTick;
         double tickInc;
@@ -227,4 +231,4 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
 
 } // AbsTimeScaleMapper
 
-        
+
