@@ -22,34 +22,16 @@ import org.apache.log4j.Category;
  */
 
 public class BasicTimeConfig implements TimeConfig{
-    public BasicTimeConfig(){}
-
     /**
      * Creates a new <code>BasicTimeConfig</code> instance.  The display interval is initialized to be the same as the seismogram
      * being passed
      * @param seismo the initial seismogram
      */
     public BasicTimeConfig(DataSetSeismogram[] seismos){
-        if(seismos == null){
+        if(seismos == null || DisplayUtils.allNull(seismos)){
             throw new IllegalArgumentException("Seismograms passed into a time config must not be null");
         }
-        boolean nonNullSeismo = false;
-        for(int i = 0; i < seismos.length && !nonNullSeismo; i++){
-            if(seismos[i] != null){
-                nonNullSeismo = true;
-            }
-        }
-                add(seismos);
-    }
-
-    public boolean allNull(Object[] array){
-        boolean nonNull = false;
-        for (int i = 0; i < array.length && !nonNull; i++ ) {
-            if(array[i] != null){
-                nonNull = true;
-            }
-        }
-        return nonNull;
+        add(seismos);
     }
 
     /**
