@@ -15,7 +15,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class ConfigEvent{
     public ConfigEvent(DataSetSeismogram[] seismos, MicroSecondTimeRange[] times, UnitRangeImpl[] amps){
-        this(seismos, new TimeEvent(seismos, times), new AmpEvent(seismos, amps));
+        this(seismos, new TimeEvent(seismos, times), new BasicAmpEvent(seismos, amps));
     }
 
     public ConfigEvent(DataSetSeismogram[] seismos, TimeEvent time, AmpEvent amp){
