@@ -15,5 +15,7 @@ public interface StdAuxillaryDataNames
     public static final String NETWORK_BEGIN = prefix+"/NETWORK_BEGIN";
     
     public static final String CHANNEL_BEGIN = prefix+"/CHANNEL_BEGIN";
+	
+	public static final String PICK_FLAG = prefix+"/PICK_FLAG";
 }
 
