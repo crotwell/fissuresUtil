@@ -11,7 +11,7 @@ import edu.iris.Fissures.FissuresException;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 8578 2004-05-07 15:23:27Z crotwell $
+ * @version $Id: Statistics.java 8832 2004-05-21 02:13:37Z crotwell $
  */
 
 public class Statistics  {
@@ -363,11 +363,11 @@ public class Statistics  {
 
         double sumValues = binarySum(0, getLength());
         double indexSumValues = binaryIndexSum(0, getLength());
-        double d = n*sumSqrToN - sumToN*sumToN;
+        double d = (n+1)*sumSqrToN - sumToN*sumToN;
 
         double[] out = new double[2];
         out[0] = (sumSqrToN * sumValues - sumToN * indexSumValues)/d;
-        out[1] = (n * indexSumValues - sumValues * sumValues)/d;
+        out[1] = ((n+1) * indexSumValues - sumToN * sumValues)/d;
         return out;
     }
 
