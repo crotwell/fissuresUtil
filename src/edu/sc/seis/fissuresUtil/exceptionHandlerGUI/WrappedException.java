@@ -12,6 +12,11 @@ package edu.sc.seis.fissuresUtil.exceptionHandlerGUI;
 
 public interface WrappedException {
     
+    /**
+     * returns an Exception.
+     *
+     * @return an <code>Exception</code> value
+     */
     public Exception getCausalException();
 
 }// WrappedException
