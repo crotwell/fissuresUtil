@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 3250 2003-02-06 19:30:50Z crotwell $
+ * @version $Id: ChannelChooser.java 3271 2003-02-17 20:19:24Z crotwell $
  *
  */
 
@@ -377,6 +377,18 @@ public class ChannelChooser extends JPanel{
 	    stationMap.put(sta.name, staList);
 	} // end of if ()
 	staList.add(sta);
+    }
+
+    /** Adds a stations, but using SwingUtilities.invokeLater. This allows
+	threads beside the event dispatch thread to interact with the
+	swing widgets.
+    */
+    protected void addStationFromThread(final Station sta) {
+	SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    addStation(sta);
+		}
+	    });
     }
 
     public Station[] getStations(){
@@ -990,11 +1002,11 @@ public class ChannelChooser extends JPanel{
 			synchronized (ChannelChooser.this) {
 			    if (this.equals(getStationLoader())) {
 				stationAdd(newStations[j]);
-				try {
-				    sleep((int)(.01*1000)); 
-				} catch (InterruptedException e) {
+// 				try {
+// 				    sleep((int)(.01*1000)); 
+// 				} catch (InterruptedException e) {
 				    
-				} // end of try-catch
+// 				} // end of try-catch
 			    } else {
 				// no longer the active station loader
 				return;
@@ -1006,11 +1018,11 @@ public class ChannelChooser extends JPanel{
 		    }
 		    setProgressValue(this, 100);
 		    logger.debug("finished adding stations");
-		    try {
-			sleep((int)(.01*1000)); 
-		    } catch (InterruptedException e) {
+// 		    try {
+// 			sleep((int)(.01*1000)); 
+// 		    } catch (InterruptedException e) {
 						
-		    } // end of try-catch
+// 		    } // end of try-catch
 					    
 		} // end of for ((int i=0; i<nets.length; i++)
 		logger.debug("There are "+stationNames.getSize()+" items in the station list model");
