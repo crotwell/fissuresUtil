@@ -313,7 +313,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public void outputToPDF(File f) throws FileNotFoundException {
-        SeismogramPDFBuilder.createPDF(this, f, 1, false);
+        SeismogramPDFBuilder.createPDF(this, f, 1, true);
     }
 
     private class PlotPainter extends SeismogramDisplayProvider{
