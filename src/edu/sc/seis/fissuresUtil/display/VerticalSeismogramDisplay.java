@@ -243,7 +243,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         else
             time.setText("Time: " + output.format(calendar.getTime()));
         double newAmpVal = newAmp.getValue();
-        String ampString = " Amp:";
+        String ampString = amplitude;
         if(Math.abs(newAmpVal) < .001) {
             ampString += ampFormatExp.format(newAmpVal);
         } else {
@@ -253,6 +253,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
                         unitDisplayUtil.getNameForUnit(newAmp.getUnit()));
     }
 
+    private String amplitude = new String("Amplitude:");
 
     /**
      *<code>getLabelText</code> gets the text held by the time and amp labels
