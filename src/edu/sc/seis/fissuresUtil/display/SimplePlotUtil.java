@@ -20,8 +20,8 @@ import org.apache.log4j.*;
  *
  * Created: Thu Jul  8 11:22:02 1999
  *
- * @author Philip Crotwell
- * @version
+ * @author Philip Crotwell, Charlie Groves
+ * @version $Id: SimplePlotUtil.java 3051 2003-01-07 18:00:27Z crotwell $
  */
 
 public class SimplePlotUtil  {
@@ -486,6 +486,7 @@ public class SimplePlotUtil  {
 				    bits);
         return seis;
     }
+
    public static LocalSeismogramImpl createTestData(String name, int[] dataBits, edu.iris.Fissures.Time time) {
         String id = "Nowhere: "+name;
 	TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
