@@ -21,25 +21,22 @@ import java.util.*;
 public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 
     public synchronized MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){
-	MicroSecondTimeRange current = new MicroSecondTimeRange(((MicroSecondDate)seismos.get(seis)), 
-								((MicroSecondDate)seismos.get(seis)).add(displayInterval));
-	seismoDisplayTime.put(seis, current);
-	return current;
+	return (MicroSecondTimeRange)seismos.get(seis);
     }
 
     public synchronized MicroSecondTimeRange getTimeRange(){
-	return new MicroSecondTimeRange(this.beginTime, this.beginTime.add(displayInterval));
+	return new MicroSecondTimeRange(beginTime, beginTime.add(displayInterval));
     }
 
     public synchronized void addSeismogram(DataSetSeismogram seis){
 	if(beginTime == null){
 	    beginTime = timeFinder.getBeginTime(seis);
-	    seismos.put(seis, beginTime);
-	}else
-	    seismos.put(seis, this.beginTime);
-	if(displayInterval == null)
+	   
+	}
+ 	if(displayInterval == null){
 	    displayInterval = timeFinder.getDisplayInterval(seis);
-	getTimeRange(seis);
+	}
+	seismos.put(seis, new MicroSecondTimeRange(beginTime, beginTime.add(displayInterval)));
 	super.updateTimeSyncListeners();
     }	
 
@@ -48,8 +45,7 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	    beginTime = time;
 	if(displayInterval == null || displayInterval.getValue() == 0)
 	    displayInterval = timeFinder.getDisplayInterval(seis);
-	seismos.put(seis, time);
-	getTimeRange(seis);
+	seismos.put(seis, new MicroSecondTimeRange(beginTime, beginTime.add(displayInterval)));
 	super.updateTimeSyncListeners();
     }
     
@@ -69,12 +65,13 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
 	    difference = -beginTime.getMicroSecondTime();
 	    beginTime = new MicroSecondDate(0);
 	}
+	displayInterval = new TimeInterval(beginTime, endTime);
 	Iterator f = seismos.keySet().iterator();
 	while(f.hasNext()){
-	    DataSetSeismogram current = ((DataSetSeismogram)f.next());
-	    seismos.put(current, new MicroSecondDate((long)(((MicroSecondDate)seismos.get(current)).getMicroSecondTime() + difference)));
+	    MicroSecondTimeRange currTime = (MicroSecondTimeRange)seismos.get(f.next());
+	    currTime.setBeginTime(new MicroSecondDate((long)(currTime.getBeginTime().getMicroSecondTime() + difference))); 
+	    currTime.setEndTime(currTime.getBeginTime().add(displayInterval));
 	}
-	displayInterval = new TimeInterval(beginTime, endTime);
 	super.updateTimeSyncListeners();
     }
     
