@@ -256,6 +256,10 @@ public class SacTimeSeries {
     
     
     public static final int  data_offset = 632;
+
+    public boolean byteOrder = SunByteOrder;
+    public static final boolean SunByteOrder = true;
+    public static final boolean IntelByteOrder = false;
     
     /** reads the sac file specified by the filename. Only a very simple
      * check is made
@@ -271,10 +275,29 @@ public class SacTimeSeries {
 	DataInputStream dis = new DataInputStream( buf);
         readHeader(dis);
 	if (sacFile.length() != npts*4+data_offset) {
-	    throw new IOException(filename+" does not appear to be a sac file!");
+	    if (sacFile.length() == swapBytes(npts)*4+data_offset ) {
+		// must be little endian
+		byteOrder = IntelByteOrder;
+		swapHeader();
+	    } else {
+		throw new IOException(filename+
+				      " does not appear to be a sac file!");
+	    } // end of else
 	}
 	readData(dis);
 	dis.close();
+    }
+
+    final static float swapBytes(float val) {
+	return Float.intBitsToFloat(swapBytes(Float.floatToRawIntBits(val)));
+    }
+
+    final static int swapBytes(int val) {
+	return ((val & 0xff000000) >> 24 ) +
+	    ((val & 0x00ff0000) >> 8 ) +
+	    ((val & 0x0000ff00) << 8 ) +
+	    ((val & 0x000000ff) << 24);
+	
     }
 
     public void read(DataInputStream dis) 
@@ -295,6 +318,141 @@ public class SacTimeSeries {
 	dis.close();
     }
 
+    /** Swaps the byte order of the header values. */
+    protected  void swapHeader() {
+	delta = swapBytes(delta);
+	depmin = swapBytes(depmin);
+	depmax = swapBytes(depmax);
+	scale = swapBytes(scale);
+	odelta = swapBytes(odelta);
+      
+	b = swapBytes(b);
+	e = swapBytes(e);
+	o = swapBytes(o);
+	a = swapBytes(a);
+	fmt = swapBytes(fmt);
+      
+	t0 = swapBytes(t0);
+	t1 = swapBytes(t1);
+	t2 = swapBytes(t2);
+	t3 = swapBytes(t3);
+	t4 = swapBytes(t4);
+      
+	t5 = swapBytes(t5);
+	t6 = swapBytes(t6);
+	t7 = swapBytes(t7);
+	t8 = swapBytes(t8);
+	t9 = swapBytes(t9);
+      
+	f = swapBytes(f);
+	resp0 = swapBytes(resp0);
+	resp1 = swapBytes(resp1);
+	resp2 = swapBytes(resp2);
+	resp3 = swapBytes(resp3);
+      
+	resp4 = swapBytes(resp4);
+	resp5 = swapBytes(resp5);
+	resp6 = swapBytes(resp6);
+	resp7 = swapBytes(resp7);
+	resp8 = swapBytes(resp8);
+      
+	resp9 = swapBytes(resp9);
+	stla = swapBytes(stla);
+	stlo = swapBytes(stlo);
+	stel = swapBytes(stel);
+	stdp = swapBytes(stdp);
+      
+	evla = swapBytes(evla);
+	evlo = swapBytes(evlo);
+	evel = swapBytes(evel);
+	evdp = swapBytes(evdp);
+	mag = swapBytes(mag);
+      
+	user0 = swapBytes(user0);
+	user1 = swapBytes(user1);
+	user2 = swapBytes(user2);
+	user3 = swapBytes(user3);
+	user4 = swapBytes(user4);
+      
+	user5 = swapBytes(user5);
+	user6 = swapBytes(user6);
+	user7 = swapBytes(user7);
+	user8 = swapBytes(user8);
+	user9 = swapBytes(user9);
+      
+	dist = swapBytes(dist);
+	az = swapBytes(az);
+	baz = swapBytes(baz);
+	gcarc = swapBytes(gcarc);
+	sb = swapBytes(sb);
+      
+	sdelta = swapBytes(sdelta);
+	depmen = swapBytes(depmen);
+	cmpaz = swapBytes(cmpaz);
+	cmpinc = swapBytes(cmpinc);
+	xminimum = swapBytes(xminimum);
+      
+	xmaximum = swapBytes(xmaximum);
+	yminimum = swapBytes(yminimum);
+	ymaximum = swapBytes(ymaximum);
+	unused6 = swapBytes(unused6);
+	unused7 = swapBytes(unused7);
+      
+	unused8 = swapBytes(unused8);
+	unused9 = swapBytes(unused9);
+	unused10 = swapBytes(unused10);
+	unused11 = swapBytes(unused11);
+	unused12 = swapBytes(unused12);
+      
+	nzyear = swapBytes(nzyear);
+	nzjday = swapBytes(nzjday);
+	nzhour = swapBytes(nzhour);
+	nzmin = swapBytes(nzmin);
+	nzsec = swapBytes(nzsec);
+      
+	nzmsec = swapBytes(nzmsec);
+	nvhdr = swapBytes(nvhdr);
+	norid = swapBytes(norid);
+	nevid = swapBytes(nevid);
+	npts = swapBytes(npts);
+      
+	nsnpts = swapBytes(nsnpts);
+	nwfid = swapBytes(nwfid);
+	nxsize = swapBytes(nxsize);
+	nysize = swapBytes(nysize);
+	unused15 = swapBytes(unused15);
+      
+	iftype = swapBytes(iftype);
+	idep = swapBytes(idep);
+	iztype = swapBytes(iztype);
+	unused16 = swapBytes(unused16);
+	iinst = swapBytes(iinst);
+      
+	istreg = swapBytes(istreg);
+	ievreg = swapBytes(ievreg);
+	ievtyp = swapBytes(ievtyp);
+	iqual = swapBytes(iqual);
+	isynth = swapBytes(isynth);
+      
+	imagtyp = swapBytes(imagtyp);
+	imagsrc = swapBytes(imagsrc);
+	unused19 = swapBytes(unused19);
+	unused20 = swapBytes(unused20);
+	unused21 = swapBytes(unused21);
+      
+	unused22 = swapBytes(unused22);
+	unused23 = swapBytes(unused23);
+	unused24 = swapBytes(unused24);
+	unused25 = swapBytes(unused25);
+	unused26 = swapBytes(unused26);
+      
+	leven = swapBytes(leven);
+	lpspol = swapBytes(lpspol);
+	lovrok = swapBytes(lovrok);
+	lcalda = swapBytes(lcalda);
+	unused27 = swapBytes(unused27);
+    }
+      
     /** reads the header from the given stream. */
     public void readHeader(DataInputStream dis) 
 	throws FileNotFoundException, IOException {
@@ -510,6 +668,7 @@ public class SacTimeSeries {
                     temp += (buf[i] & 0xff);
                 }
                 y[numAdded] = Float.intBitsToFloat(temp);
+		
                 numAdded++;
             }
             // i is now set to first unused byte in buf
@@ -525,6 +684,14 @@ public class SacTimeSeries {
                              overflowBytes);
             prevoverflowBytes = overflowBytes;
 	}
+
+	if ( byteOrder == IntelByteOrder) {
+	    for ( int j=0; j<y.length; j++) {
+		y[j] = swapBytes(y[j]);
+	    } // end of for ()
+	    
+	} // end of if ()
+
     }
 
     /** reads the data portion from the given stream. 
@@ -575,139 +742,158 @@ public class SacTimeSeries {
 	dos.close();
     }
 
+    /** write the float to the stream, swapping bytes if needed. */
+    private final void writeFloat(DataOutputStream dos, float val) {
+	if ( byteOrder == IntelByteOrder) {
+	    dos.writeFloat(swapBytes(val));
+	} else {
+	    dos.writeFloat(val);
+	} // end of else
+    }
+
+
+    /** write the float to the stream, swapping bytes if needed. */
+    private final void writeInt(DataOutputStream dos, int val) {
+	if ( byteOrder == IntelByteOrder) {
+	    dos.writeInt(swapBytes(val));
+	} else {
+	    dos.writeInt(val);
+	} // end of else
+    }
+
     public void writeHeader(DataOutputStream dos) 
 	throws IOException {
-	dos.writeFloat(delta);
-	dos.writeFloat(depmin);
-	dos.writeFloat(depmax);
-	dos.writeFloat(scale);
-	dos.writeFloat(odelta);
+	writeFloat(dos, delta);
+	writeFloat(dos, depmin);
+	writeFloat(dos, depmax);
+	writeFloat(dos, scale);
+	writeFloat(dos, odelta);
  
-	dos.writeFloat(b);
-	dos.writeFloat(e);
-	dos.writeFloat(o);
-	dos.writeFloat(a);
-	dos.writeFloat(fmt);
+	writeFloat(dos, b);
+	writeFloat(dos, e);
+	writeFloat(dos, o);
+	writeFloat(dos, a);
+	writeFloat(dos, fmt);
  
-	dos.writeFloat(t0);
-	dos.writeFloat(t1);
-	dos.writeFloat(t2);
-	dos.writeFloat(t3);
-	dos.writeFloat(t4);
+	writeFloat(dos, t0);
+	writeFloat(dos, t1);
+	writeFloat(dos, t2);
+	writeFloat(dos, t3);
+	writeFloat(dos, t4);
 
-	dos.writeFloat(t5);
-	dos.writeFloat(t6);
-	dos.writeFloat(t7);
-	dos.writeFloat(t8);
-	dos.writeFloat(t9);
+	writeFloat(dos, t5);
+	writeFloat(dos, t6);
+	writeFloat(dos, t7);
+	writeFloat(dos, t8);
+	writeFloat(dos, t9);
 
-	dos.writeFloat(f);
-	dos.writeFloat(resp0);
-	dos.writeFloat(resp1);
-	dos.writeFloat(resp2);
-	dos.writeFloat(resp3);
+	writeFloat(dos, f);
+	writeFloat(dos, resp0);
+	writeFloat(dos, resp1);
+	writeFloat(dos, resp2);
+	writeFloat(dos, resp3);
 
-	dos.writeFloat(resp4);
-	dos.writeFloat(resp5);
-	dos.writeFloat(resp6);
-	dos.writeFloat(resp7);
-	dos.writeFloat(resp8);
+	writeFloat(dos, resp4);
+	writeFloat(dos, resp5);
+	writeFloat(dos, resp6);
+	writeFloat(dos, resp7);
+	writeFloat(dos, resp8);
 
-	dos.writeFloat(resp9);
-	dos.writeFloat(stla);
-	dos.writeFloat(stlo);
-	dos.writeFloat(stel);
-	dos.writeFloat(stdp);
+	writeFloat(dos, resp9);
+	writeFloat(dos, stla);
+	writeFloat(dos, stlo);
+	writeFloat(dos, stel);
+	writeFloat(dos, stdp);
       
-	dos.writeFloat(evla);
-	dos.writeFloat(evlo);
-	dos.writeFloat(evel);
-	dos.writeFloat(evdp);
-	dos.writeFloat(mag);
+	writeFloat(dos, evla);
+	writeFloat(dos, evlo);
+	writeFloat(dos, evel);
+	writeFloat(dos, evdp);
+	writeFloat(dos, mag);
       
-	dos.writeFloat(user0);
-	dos.writeFloat(user1);
-	dos.writeFloat(user2);
-	dos.writeFloat(user3);
-	dos.writeFloat(user4);
+	writeFloat(dos, user0);
+	writeFloat(dos, user1);
+	writeFloat(dos, user2);
+	writeFloat(dos, user3);
+	writeFloat(dos, user4);
       
-	dos.writeFloat(user5);
-	dos.writeFloat(user6);
-	dos.writeFloat(user7);
-	dos.writeFloat(user8);
-	dos.writeFloat(user9);
+	writeFloat(dos, user5);
+	writeFloat(dos, user6);
+	writeFloat(dos, user7);
+	writeFloat(dos, user8);
+	writeFloat(dos, user9);
       
-	dos.writeFloat(dist);
-	dos.writeFloat(az);
-	dos.writeFloat(baz);
-	dos.writeFloat(gcarc);
-	dos.writeFloat(sb);
+	writeFloat(dos, dist);
+	writeFloat(dos, az);
+	writeFloat(dos, baz);
+	writeFloat(dos, gcarc);
+	writeFloat(dos, sb);
       
-	dos.writeFloat(sdelta);
-	dos.writeFloat(depmen);
-	dos.writeFloat(cmpaz);
-	dos.writeFloat(cmpinc);
-	dos.writeFloat(xminimum);
+	writeFloat(dos, sdelta);
+	writeFloat(dos, depmen);
+	writeFloat(dos, cmpaz);
+	writeFloat(dos, cmpinc);
+	writeFloat(dos, xminimum);
       
-	dos.writeFloat(xmaximum);
-	dos.writeFloat(yminimum);
-	dos.writeFloat(ymaximum);
-	dos.writeFloat(unused6);
-	dos.writeFloat(unused7);
+	writeFloat(dos, xmaximum);
+	writeFloat(dos, yminimum);
+	writeFloat(dos, ymaximum);
+	writeFloat(dos, unused6);
+	writeFloat(dos, unused7);
       
-	dos.writeFloat(unused8);
-	dos.writeFloat(unused9);
-	dos.writeFloat(unused10);
-	dos.writeFloat(unused11);
-	dos.writeFloat(unused12);
+	writeFloat(dos, unused8);
+	writeFloat(dos, unused9);
+	writeFloat(dos, unused10);
+	writeFloat(dos, unused11);
+	writeFloat(dos, unused12);
       
-	dos.writeInt(nzyear);
-	dos.writeInt(nzjday);
-	dos.writeInt(nzhour);
-	dos.writeInt(nzmin);
-	dos.writeInt(nzsec);
+	writeInt(dos, nzyear);
+	writeInt(dos, nzjday);
+	writeInt(dos, nzhour);
+	writeInt(dos, nzmin);
+	writeInt(dos, nzsec);
       
-	dos.writeInt(nzmsec);
-	dos.writeInt(nvhdr);
-	dos.writeInt(norid);
-	dos.writeInt(nevid);
-	dos.writeInt(npts);
+	writeInt(dos, nzmsec);
+	writeInt(dos, nvhdr);
+	writeInt(dos, norid);
+	writeInt(dos, nevid);
+	writeInt(dos, npts);
       
-	dos.writeInt(nsnpts);
-	dos.writeInt(nwfid);
-	dos.writeInt(nxsize);
-	dos.writeInt(nysize);
-	dos.writeInt(unused15);
+	writeInt(dos, nsnpts);
+	writeInt(dos, nwfid);
+	writeInt(dos, nxsize);
+	writeInt(dos, nysize);
+	writeInt(dos, unused15);
       
-	dos.writeInt(iftype);
-	dos.writeInt(idep);
-	dos.writeInt(iztype);
-	dos.writeInt(unused16);
-	dos.writeInt(iinst);
+	writeInt(dos, iftype);
+	writeInt(dos, idep);
+	writeInt(dos, iztype);
+	writeInt(dos, unused16);
+	writeInt(dos, iinst);
       
-	dos.writeInt(istreg);
-	dos.writeInt(ievreg);
-	dos.writeInt(ievtyp);
-	dos.writeInt(iqual);
-	dos.writeInt(isynth);
+	writeInt(dos, istreg);
+	writeInt(dos, ievreg);
+	writeInt(dos, ievtyp);
+	writeInt(dos, iqual);
+	writeInt(dos, isynth);
       
-	dos.writeInt(imagtyp);
-	dos.writeInt(imagsrc);
-	dos.writeInt(unused19);
-	dos.writeInt(unused20);
-	dos.writeInt(unused21);
+	writeInt(dos, imagtyp);
+	writeInt(dos, imagsrc);
+	writeInt(dos, unused19);
+	writeInt(dos, unused20);
+	writeInt(dos, unused21);
       
-	dos.writeInt(unused22);
-	dos.writeInt(unused23);
-	dos.writeInt(unused24);
-	dos.writeInt(unused25);
-	dos.writeInt(unused26);
+	writeInt(dos, unused22);
+	writeInt(dos, unused23);
+	writeInt(dos, unused24);
+	writeInt(dos, unused25);
+	writeInt(dos, unused26);
       
-	dos.writeInt(leven);
-	dos.writeInt(lpspol);
-	dos.writeInt(lovrok);
-	dos.writeInt(lcalda);
-	dos.writeInt(unused27);
+	writeInt(dos, leven);
+	writeInt(dos, lpspol);
+	writeInt(dos, lovrok);
+	writeInt(dos, lcalda);
+	writeInt(dos, unused27);
       
 	if (kstnm.length() > 8) {kstnm = kstnm.substring(0,7); }
 	while (kstnm.length() < 8) {kstnm += " "; }
@@ -792,7 +978,7 @@ public class SacTimeSeries {
 	throws IOException {
 
 	for (int i=0; i<npts; i++) {
-	    dos.writeFloat(y[i]);
+	    writeFloat(dos, y[i]);
 	}
  
  
@@ -800,175 +986,175 @@ public class SacTimeSeries {
 	    iftype == SacTimeSeries.IRLIM ||
 	    iftype == SacTimeSeries.IAMPH) {
 	    for (int i=0; i<npts; i++) {
-		dos.writeFloat(x[i]);
+		writeFloat(dos, x[i]);
 	    }
 	}
     }
 
     public void printHeader() {
 	System.out.println("delta = "+delta+ 
-	" depmin = "+depmin+ 
-	" depmax = "+depmax+ 
-	" scale = "+scale+ 
-	" odelta = "+odelta);
+			   " depmin = "+depmin+ 
+			   " depmax = "+depmax+ 
+			   " scale = "+scale+ 
+			   " odelta = "+odelta);
 	
 	System.out.println("b = "+b+ 
-	" e = "+e+ 
-	" o = "+o+ 
-	" a = "+a+ 
-	" fmt = "+fmt);
+			   " e = "+e+ 
+			   " o = "+o+ 
+			   " a = "+a+ 
+			   " fmt = "+fmt);
       
 	System.out.println("t0 = "+t0+ 
-	" t1 = "+t1+ 
-	" t2 = "+t2+ 
-	" t3 = "+t3+ 
-	" t4 = "+t4);
+			   " t1 = "+t1+ 
+			   " t2 = "+t2+ 
+			   " t3 = "+t3+ 
+			   " t4 = "+t4);
       
 	System.out.println("t5 = "+t5+ 
-	" t6 = "+t6+ 
-	" t7 = "+t7+ 
-	" t8 = "+t8+ 
-	" t9 = "+t9);
+			   " t6 = "+t6+ 
+			   " t7 = "+t7+ 
+			   " t8 = "+t8+ 
+			   " t9 = "+t9);
       
 	System.out.println("f = "+f+ 
-	" resp0 = "+resp0+ 
-	" resp1 = "+resp1+ 
-	" resp2 = "+resp2+ 
-	" resp3 = "+resp3);
+			   " resp0 = "+resp0+ 
+			   " resp1 = "+resp1+ 
+			   " resp2 = "+resp2+ 
+			   " resp3 = "+resp3);
       
 	System.out.println("resp4 = "+resp4+ 
-	" resp5 = "+resp5+ 
-	" resp6 = "+resp6+ 
-	" resp7 = "+resp7+ 
-	" resp8 = "+resp8);
+			   " resp5 = "+resp5+ 
+			   " resp6 = "+resp6+ 
+			   " resp7 = "+resp7+ 
+			   " resp8 = "+resp8);
       
 	System.out.println("resp9 = "+resp9+ 
-	" stla = "+stla+ 
-	" stlo = "+stlo+ 
-	" stel = "+stel+ 
-	" stdp = "+stdp);
+			   " stla = "+stla+ 
+			   " stlo = "+stlo+ 
+			   " stel = "+stel+ 
+			   " stdp = "+stdp);
       
 	System.out.println("evla = "+evla+ 
-	" evlo = "+evlo+ 
-	" evel = "+evel+ 
-	" evdp = "+evdp+ 
-	" mag = "+mag);
+			   " evlo = "+evlo+ 
+			   " evel = "+evel+ 
+			   " evdp = "+evdp+ 
+			   " mag = "+mag);
       
 	System.out.println("user0 = "+user0+ 
-	" user1 = "+user1+ 
-	" user2 = "+user2+ 
-	" user3 = "+user3+ 
-	" user4 = "+user4);
+			   " user1 = "+user1+ 
+			   " user2 = "+user2+ 
+			   " user3 = "+user3+ 
+			   " user4 = "+user4);
       
 	System.out.println("user5 = "+user5+ 
-	" user6 = "+user6+ 
-	" user7 = "+user7+ 
-	" user8 = "+user8+ 
-	" user9 = "+user9);
+			   " user6 = "+user6+ 
+			   " user7 = "+user7+ 
+			   " user8 = "+user8+ 
+			   " user9 = "+user9);
       
 	System.out.println("dist = "+dist+ 
-	" az = "+az+ 
-	" baz = "+baz+ 
-	" gcarc = "+gcarc+ 
-	" sb = "+sb);
+			   " az = "+az+ 
+			   " baz = "+baz+ 
+			   " gcarc = "+gcarc+ 
+			   " sb = "+sb);
       
 	System.out.println("sdelta = "+sdelta+ 
-	" depmen = "+depmen+ 
-	" cmpaz = "+cmpaz+ 
-	" cmpinc = "+cmpinc+ 
-	" xminimum = "+xminimum);
+			   " depmen = "+depmen+ 
+			   " cmpaz = "+cmpaz+ 
+			   " cmpinc = "+cmpinc+ 
+			   " xminimum = "+xminimum);
       
 	System.out.println("xmaximum = "+xmaximum+ 
-	" yminimum = "+yminimum+ 
-	" ymaximum = "+ymaximum+ 
-	" unused6 = "+unused6+ 
-	" unused7 = "+unused7);
+			   " yminimum = "+yminimum+ 
+			   " ymaximum = "+ymaximum+ 
+			   " unused6 = "+unused6+ 
+			   " unused7 = "+unused7);
       
 	System.out.println("unused8 = "+unused8+ 
-	" unused9 = "+unused9+ 
-	" unused10 = "+unused10+ 
-	" unused11 = "+unused11+ 
-	" unused12 = "+unused12);
+			   " unused9 = "+unused9+ 
+			   " unused10 = "+unused10+ 
+			   " unused11 = "+unused11+ 
+			   " unused12 = "+unused12);
       
 	System.out.println("nzyear = "+nzyear+ 
-	" nzjday = "+nzjday+ 
-	" nzhour = "+nzhour+ 
-	" nzmin = "+nzmin+ 
-	" nzsec = "+nzsec);
+			   " nzjday = "+nzjday+ 
+			   " nzhour = "+nzhour+ 
+			   " nzmin = "+nzmin+ 
+			   " nzsec = "+nzsec);
       
 	System.out.println("nzmsec = "+nzmsec+ 
-	" nvhdr = "+nvhdr+ 
-	" norid = "+norid+ 
-	" nevid = "+nevid+ 
-	" npts = "+npts);
+			   " nvhdr = "+nvhdr+ 
+			   " norid = "+norid+ 
+			   " nevid = "+nevid+ 
+			   " npts = "+npts);
       
 	System.out.println("nsnpts = "+nsnpts+ 
-	" nwfid = "+nwfid+ 
-	" nxsize = "+nxsize+ 
-	" nysize = "+nysize+ 
-	" unused15 = "+unused15);
+			   " nwfid = "+nwfid+ 
+			   " nxsize = "+nxsize+ 
+			   " nysize = "+nysize+ 
+			   " unused15 = "+unused15);
       
 	System.out.println("iftype = "+iftype+ 
-	" idep = "+idep+ 
-	" iztype = "+iztype+ 
-	" unused16 = "+unused16+ 
-	" iinst = "+iinst);
+			   " idep = "+idep+ 
+			   " iztype = "+iztype+ 
+			   " unused16 = "+unused16+ 
+			   " iinst = "+iinst);
       
 	System.out.println("istreg = "+istreg+ 
-	" ievreg = "+ievreg+ 
-	" ievtyp = "+ievtyp+ 
-	" iqual = "+iqual+ 
-	" isynth = "+isynth);
+			   " ievreg = "+ievreg+ 
+			   " ievtyp = "+ievtyp+ 
+			   " iqual = "+iqual+ 
+			   " isynth = "+isynth);
       
 	System.out.println("imagtyp = "+imagtyp+ 
-	" imagsrc = "+imagsrc+ 
-	" unused19 = "+unused19+ 
-	" unused20 = "+unused20+ 
-	" unused21 = "+unused21);
+			   " imagsrc = "+imagsrc+ 
+			   " unused19 = "+unused19+ 
+			   " unused20 = "+unused20+ 
+			   " unused21 = "+unused21);
       
 	System.out.println("unused22 = "+unused22+ 
-	" unused23 = "+unused23+ 
-	" unused24 = "+unused24+ 
-	" unused25 = "+unused25+ 
-	" unused26 = "+unused26);
+			   " unused23 = "+unused23+ 
+			   " unused24 = "+unused24+ 
+			   " unused25 = "+unused25+ 
+			   " unused26 = "+unused26);
       
 	System.out.println("leven = "+leven+ 
-	" lpspol = "+lpspol+ 
-	" lovrok = "+lovrok+ 
-	" lcalda = "+lcalda+ 
-	" unused27 = "+unused27);
+			   " lpspol = "+lpspol+ 
+			   " lovrok = "+lovrok+ 
+			   " lcalda = "+lcalda+ 
+			   " unused27 = "+unused27);
 
 	System.out.println(
-	" kstnm = "+kstnm+
-	" kevnm = "+kevnm+
-	" khole = "+khole+
-	" ko = "+ko);
+			   " kstnm = "+kstnm+
+			   " kevnm = "+kevnm+
+			   " khole = "+khole+
+			   " ko = "+ko);
 
 	System.out.println(
-	" ka = "+ka+
-	" kt0 = "+kt0+
-	" kt1 = "+kt1+
-	" kt2 = "+kt2);
+			   " ka = "+ka+
+			   " kt0 = "+kt0+
+			   " kt1 = "+kt1+
+			   " kt2 = "+kt2);
 	System.out.println(
-	" kt3 = "+kt3+
-	" kt4 = "+kt4+
-	" kt5 = "+kt5+
-	" kt6 = "+kt6);
+			   " kt3 = "+kt3+
+			   " kt4 = "+kt4+
+			   " kt5 = "+kt5+
+			   " kt6 = "+kt6);
 	System.out.println(
-	" kt7 = "+kt7+
-	" kt8 = "+kt8+
-	" kt9 = "+kt9+
+			   " kt7 = "+kt7+
+			   " kt8 = "+kt8+
+			   " kt9 = "+kt9+
 
-	" kf = "+kf);
+			   " kf = "+kf);
 	System.out.println(
-	" kuser0 = "+kuser0+
-	" kuser1 = "+kuser1+
-	" kuser2 = "+kuser2+
-	" kcmpnm = "+kcmpnm);
+			   " kuser0 = "+kuser0+
+			   " kuser1 = "+kuser1+
+			   " kuser2 = "+kuser2+
+			   " kcmpnm = "+kcmpnm);
 	System.out.println(
-	" knetwk = "+knetwk+
-	" kdatrd = "+kdatrd+
-	" kinst = "+kinst);
+			   " knetwk = "+knetwk+
+			   " kdatrd = "+kdatrd+
+			   " kinst = "+kinst);
     }
       
     /** just for testing. Reads the filename given as the argument,
