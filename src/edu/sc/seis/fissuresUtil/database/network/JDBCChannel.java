@@ -67,7 +67,8 @@ public class JDBCChannel extends NetworkTable {
                 + " FROM channel";
         getAllIds = conn.prepareStatement(getAllIdsQuery);
         getAllIdsForStation = conn.prepareStatement(getAllIdsQuery + ", site "
-                + "WHERE channel.site_id = site.site_id AND " + "site.sta_id = ?");
+                + "WHERE channel.site_id = site.site_id AND "
+                + "site.sta_id = ?");
         getAllIdsForNetwork = conn.prepareStatement(getAllIdsQuery
                 + ", site, station "
                 + "WHERE channel.site_id = site.site_id AND "
@@ -77,14 +78,17 @@ public class JDBCChannel extends NetworkTable {
         getAllChansForStation = conn.prepareStatement(getAllQuery + ", site "
                 + "WHERE channel.site_id = site.site_id AND "
                 + "site.sta_id = ?");
-        getByCodes = conn.prepareStatement(getAllQuery + ", site, station "
-                                          + "WHERE channel.site_id = site.site_id AND "
-                                          + "site.sta_id = station.sta_id AND " + "station.net_id = ? AND "
-                                          + " station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ? ");
+        getByCodes = conn.prepareStatement(getAllQuery
+                + ", site, station "
+                + "WHERE channel.site_id = site.site_id AND "
+                + "site.sta_id = station.sta_id AND "
+                + "station.net_id = ? AND "
+                + " station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ? ");
         getAllChansForNetwork = conn.prepareStatement(getAllQuery
                 + ", site, station "
                 + "WHERE channel.site_id = site.site_id AND "
                 + "site.sta_id = station.sta_id AND " + "station.net_id = ?");
+        getStationDbId = conn.prepareStatement("SELECT sta_id FROM channel, site where Channel.site_id = site.site_id AND chan_id = ?");
         prepareStatements();
     }
 
@@ -117,6 +121,13 @@ public class JDBCChannel extends NetworkTable {
         ResultSet rs = getByDBId.executeQuery();
         if(rs.next()) { return extract(rs, siteTable, time, quantityTable); }
         throw new NotFound("No Channel found for database id = " + dbid);
+    }
+
+    public int getStationDbId(int channelDbId) throws SQLException, NotFound {
+        getStationDbId.setInt(1, channelDbId);
+        ResultSet rs = getStationDbId.executeQuery();
+        if(rs.next()) { return rs.getInt("sta_id"); }
+        throw new NotFound("No such channel " + channelDbId);
     }
 
     public ChannelId[] getAllChannelIds() throws SQLException {
@@ -155,7 +166,11 @@ public class JDBCChannel extends NetworkTable {
         return extractAllChans(getAllChansForStation);
     }
 
-    public Channel[] getByCode(NetworkId networkId, String station_code, String site_code, String channel_code) throws SQLException, NotFound {
+    public Channel[] getByCode(NetworkId networkId,
+                               String station_code,
+                               String site_code,
+                               String channel_code) throws SQLException,
+            NotFound {
         int net_id = netTable.getDBId(networkId);
         int index = 1;
         getByCodes.setInt(index++, net_id);
@@ -164,7 +179,7 @@ public class JDBCChannel extends NetworkTable {
         getByCodes.setString(index++, channel_code);
         return extractAllChans(getByCodes);
     }
-    
+
     public int getDBId(ChannelId id) throws SQLException, NotFound {
         int netDbId = netTable.getDBId(id.network_id);
         int[] possibleStaDbIds = stationTable.getDBIds(netDbId, id.station_code);
@@ -177,13 +192,13 @@ public class JDBCChannel extends NetworkTable {
         for(int i = 0; i < possibleSiteIds.length - 1; i++) {
             query += possibleSiteIds[i] + ", ";
         }
-        try{
-        query += possibleSiteIds[possibleSiteIds.length - 1] + ")";
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        if(rs.next()) { return rs.getInt("chan_id"); }
-        throw new NotFound("No such channel id in the db");
-        }catch(NotFound ne){
+        try {
+            query += possibleSiteIds[possibleSiteIds.length - 1] + ")";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            if(rs.next()) { return rs.getInt("chan_id"); }
+            throw new NotFound("No such channel id in the db");
+        } catch(NotFound ne) {
             logger.info("SQL statement causing the exception -" + query);
             throw ne;
         }
@@ -192,11 +207,11 @@ public class JDBCChannel extends NetworkTable {
     public JDBCSite getSiteTable() {
         return siteTable;
     }
-    
+
     public JDBCNetwork getNetworkTable() {
         return netTable;
     }
-    
+
     public JDBCStation getStationTable() {
         return stationTable;
     }
@@ -257,7 +272,8 @@ public class JDBCChannel extends NetworkTable {
 
     private PreparedStatement getAllChans, getAllChansForStation,
             getAllChansForNetwork, getByDBId, putAll, updateNonId, putId,
-            getAllIds, getAllIdsForStation, getAllIdsForNetwork, getByCodes;
+            getAllIds, getAllIdsForStation, getAllIdsForNetwork, getByCodes,
+            getStationDbId;
 
     private JDBCNetwork netTable;
 
@@ -384,6 +400,4 @@ public class JDBCChannel extends NetworkTable {
     public JDBCTime getTimeTable() {
         return time;
     }
-
-    
 } // JDBCChannel
