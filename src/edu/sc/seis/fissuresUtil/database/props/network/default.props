@@ -11,10 +11,13 @@ network.create=CREATE TABLE network (net_id int NOT NULL, \
                                        FOREIGN KEY(net_end_id) \
                                        REFERENCES time (time_id))
 
+NetworkSeq.create=CREATE SEQUENCE NetworkSeq
+NetworkSeq.nextVal=SELECT NEXTVAL ('NetworkSeq')
+
 station.create = CREATE TABLE station ( sta_id int NOT NULL, \
                                         net_id int NOT NULL, \
-                                        sta_code varchar(5) NOT NULL, \
-                                        sta_begin_id int NOT NULL, \
+                                        sta_code varchar(5), \
+                                        sta_begin_id int, \
                                         sta_end_id int, \
                                         sta_name varchar, \
                                         sta_operator varchar, \
@@ -30,6 +33,24 @@ station.create = CREATE TABLE station ( sta_id int NOT NULL, \
                                         FOREIGN KEY(loc_id) \
                                         REFERENCES location(loc_id), \
                                         PRIMARY KEY(sta_id))
+
+StationSeq.create=CREATE SEQUENCE StationSeq
+StationSeq.nextVal=SELECT NEXTVAL ('StationSeq')
+                                        
+station.getDBIdsForNetAndCode = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ?
+
+station.putAll = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id, sta_end_id, \
+                                      sta_name, sta_operator, sta_description, loc_id) \
+                                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                      
+station.putId = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id) VALUES (?, ?, ?, ?)
+
+station.getIfNameExists = SELECT sta_id FROM station WHERE sta_id = ? AND sta_name IS NOT NULL
+
+station.getDBId = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ? AND sta_begin_id = ?
+
+station.updateSta = UPDATE station SET sta_end_id = ?, sta_name = ?, sta_operator = ?, \
+                    sta_description = ? , loc_id = ? WHERE sta_id = ?
 
 site.create = CREATE TABLE site ( site_id int, \
                                   sta_id int, \
@@ -47,6 +68,24 @@ site.create = CREATE TABLE site ( site_id int, \
                                   FOREIGN KEY (site_end_id) \
                                   REFERENCES time (time_id), \
                                   PRIMARY KEY(site_id))
+
+SiteSeq.create=CREATE SEQUENCE SiteSeq
+SiteSeq.nextVal=SELECT NEXTVAL ('SiteSeq')
+
+site.getDBIdsForStaAndCode = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ?
+
+site.putAll = INSERT INTO site (site_id, sta_id, site_code, site_begin_id, site_end_id, site_comment, loc_id) \
+                               VALUES (?, ?, ?, ?, ?, ?, ?)
+                               
+site.getIfCommentExists = SELECT site_id FROM site WHERE site_id = ? AND site_comment IS NOT NULL
+
+site.getByDBId = SELECT * FROM site WHERE site_id = ?
+
+site.getSiteIdByDBId = SELECT site_id, sta_id, site_code, site_begin_id FROM site WHERE site_id = ?
+
+site.getDBId = SELECT site_id FROM site WHERE sta_id = ? AND site_code = ? AND site_begin_id = ?
+
+site.updateSite = UPDATE site SET site_end_id = ?, site_comment = ?, loc_id = ? WHERE site_id = ?
 
 channel.create = CREATE TABLE channel (chan_id int, \
                                        site_id int, \
@@ -67,16 +106,6 @@ channel.create = CREATE TABLE channel (chan_id int, \
                                        REFERENCES time (time_id), \
                                        FOREIGN KEY (chan_end_id) \
                                        REFERENCES time (time_id))
-
-
-NetworkSeq.create=CREATE SEQUENCE NetworkSeq
-NetworkSeq.nextVal=SELECT NEXTVAL ('NetworkSeq')
-
-StationSeq.create=CREATE SEQUENCE StationSeq
-StationSeq.nextVal=SELECT NEXTVAL ('StationSeq')
-
-SiteSeq.create=CREATE SEQUENCE SiteSeq
-SiteSeq.nextVal=SELECT NEXTVAL ('SiteSeq')
 
 ChannelSeq.create=CREATE SEQUENCE ChannelSeq
 ChannelSeq.nextVal=SELECT NEXTVAL ('ChannelSeq')
