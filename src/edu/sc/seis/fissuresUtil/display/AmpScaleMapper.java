@@ -1,13 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.registrar.*;
-
-import edu.iris.Fissures.IfNetwork.Response;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
+import edu.sc.seis.fissuresUtil.display.registrar.LazyAmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
-import java.text.DecimalFormat;
-import org.apache.log4j.Logger;
 
 /**
  * AmpScaleMapper.java
@@ -31,11 +27,15 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
     }
 
     public void updateAmp(AmpEvent event){
-        if (event.getSeismograms().length != 0) {
-            setUnitRange(unitDisplayUtil.getRealWorldUnitRange(event.getAmp(),
-                                                               event.getSeismograms()[0]));
-        } else {
-            setUnitRange(event.getAmp());
+        if(event instanceof LazyAmpEvent){
+            ((LazyAmpEvent)event).addCalculateListener(this);
+        }else{
+            DataSetSeismogram seis = event.getSeismograms()[0];
+            if(seis != null){
+                setUnitRange(unitDisplayUtil.getBestForDisplay(event.getAmp(seis)));
+            }else{
+                setUnitRange(event.getAmp());
+            }
         }
     }
 
@@ -53,3 +53,4 @@ public class AmpScaleMapper extends UnitRangeMapper implements AmpListener {
 
     private Registrar reg;
 } // AmpScaleMapper
+
