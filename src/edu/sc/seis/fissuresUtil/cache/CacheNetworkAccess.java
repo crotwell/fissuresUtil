@@ -193,5 +193,5 @@ public class CacheNetworkAccess implements NetworkAccess {
     Station[] stations;
     HashMap channelMap = new HashMap();
 
-    Logger logger = Logger.getLogger(CacheNetworkAccess.class);
+    static Logger logger = Logger.getLogger(CacheNetworkAccess.class);
 }
