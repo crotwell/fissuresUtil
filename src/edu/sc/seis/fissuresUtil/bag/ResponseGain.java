@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  * Applys the overall sensitivity to a seismogram. This is purely a scale
@@ -41,6 +42,8 @@ public class ResponseGain implements LocalSeismogramFunction {
 
         Instrumentation inst = getInstrumentation(seis.channel_id, seis.begin_time);
 
+        /* Sensitivity is COUNTs per Groung Motion, so should divide in order
+         * to convert COUNT seismogram into Ground Motion. */
         Sensitivity sensitivity = inst.the_response.the_sensitivity;
         LocalSeismogramImpl outSeis;
 
@@ -49,18 +52,19 @@ public class ResponseGain implements LocalSeismogramFunction {
             float[] fSeries = seis.get_as_floats();
             float[] out = new float[fSeries.length];
             for (int i=0; i<fSeries.length; i++) {
-                out[i] = fSeries[i] * sensitivity.sensitivity_factor;
+                out[i] = fSeries[i] / sensitivity.sensitivity_factor;
             }
             outSeis = new LocalSeismogramImpl(seis, out);
         } else {
             double[] dSeries = seis.get_as_doubles();
             double[] out = new double[dSeries.length];
             for (int i=0; i<dSeries.length; i++) {
-                out[i] = dSeries[i] * sensitivity.sensitivity_factor;
+                out[i] = dSeries[i] / sensitivity.sensitivity_factor;
             }
             outSeis = new LocalSeismogramImpl(seis, out);
         } // end of else
         outSeis.y_unit = inst.the_response.stages[0].input_units;
+        logger.debug("NOAMP seis units are "+outSeis.y_unit);
         return outSeis;
     }
 
@@ -111,4 +115,8 @@ public class ResponseGain implements LocalSeismogramFunction {
         Instrumentation inst;
         MicroSecondDate date;
     }
+
+
+    private static final Logger logger = Logger.getLogger(ResponseGain.class);
+
 }// ResponseGain
