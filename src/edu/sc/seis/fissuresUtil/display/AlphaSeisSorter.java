@@ -19,12 +19,12 @@ public class AlphaSeisSorter extends SeismogramSorter{
      * @param name the name to be sorted
      * @return the names alphabetical position in the list, numbered from 0
      */
-    public int sort(DataSetSeismogram[] seismograms){
-	int i = 0;
-	while(i < names.size() && ((String)names.get(i)).compareToIgnoreCase(seismograms[i].toString()) < 0){
-	    i++;
-	}
-	names.add(i, seismograms[i].toString());
-	return i;
+    public int sort(DataSetSeismogram seismogram){
+        int i = 0;
+        while(i < names.size() && ((String)names.get(i)).compareToIgnoreCase(seismogram.toString()) < 0){
+            i++;
+        }
+        names.add(i, seismogram.toString());
+        return i;
     }
 }// AlphaSeisSorter

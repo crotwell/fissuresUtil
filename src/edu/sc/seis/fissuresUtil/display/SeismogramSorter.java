@@ -14,29 +14,17 @@ import java.util.LinkedList;
  */
 
 public class SeismogramSorter {
-      
-    public int sort(DataSetSeismogram[] seismograms){
-	for(int i = 0; i < seismograms.length; i++){
-	    names.add(seismograms[i].toString());
-	}
-	return this.names.size() - 1;
+
+    public int sort(DataSetSeismogram seismogram){
+        names.add(seismogram.toString());
+        return names.size() - 1;
     }
-    
-    public boolean contains(DataSetSeismogram[] seismos){
-	for(int i = 0; i < seismos.length; i++){
-	    if(names.contains(seismos[i].toString())){
-		return true;
-	    }
-	}
-	return false;
+
+    public boolean remove(DataSetSeismogram seismogram){
+        return names.remove(seismogram.toString());
     }
-    
-    public boolean remove(String name){
-	return names.remove(name);
-    }
-	 
-    
+
+    public void clear(){ names.clear(); }
+
     protected LinkedList names = new LinkedList();
-    
-    protected HashMap seismos = new HashMap();
 }// SeismogramSorter
