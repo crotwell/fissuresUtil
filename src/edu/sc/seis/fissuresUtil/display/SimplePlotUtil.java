@@ -26,11 +26,6 @@ import org.apache.log4j.*;
 
 public class SimplePlotUtil  {
     
-    public SimplePlotUtil() {
-	
-    }  
-
-
     /** flips an array of ints to be inArray[i] = maxValue -
         inArray[i]. This is mainly useful when displaying as
         calculations are generally done in the traditional y positive
@@ -259,7 +254,6 @@ public class SimplePlotUtil  {
 		j = j + 2;
 		startIndex = endIndex + 1;
 		xvalue = uncomp[0][i];
-		//System.out.println(xvalue);
 	    }  
 	}
 
@@ -284,13 +278,10 @@ public class SimplePlotUtil  {
 	LocalSeismogramImpl seis = (LocalSeismogramImpl)seismogram;
 	double yMin = ampRange.getMinValue();
         double yMax = ampRange.getMaxValue();
-	System.out.println("yMin = "+yMin+ " yMax = "+yMax+" height = "+size.height);
 	for( int i =0 ; i < comp[1].length; i++) {
-	    //System.out.println(" before "+comp[1][i]);
 	    comp[1][i] = Math.round((float)(linearInterp(yMin, 0,
 							 yMax, size.height, 
 							 comp[1][i])));
-	    // System.out.println(" after "+comp[1][i]);
 	    
 	}
 	

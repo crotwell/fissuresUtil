@@ -13,7 +13,7 @@ import java.util.*;
  * Created: Thu May 16 13:36:24 2002
  *
  * @author Charlie Groves
- * @version 0.1
+ * @version 0.2
  */
 
 public class TimeScaleCalc implements ScaleMapper {
@@ -37,15 +37,19 @@ public class TimeScaleCalc implements ScaleMapper {
 	int majTickNum = totalPixels/50;
 	majTickTime = timeIntv/majTickNum;
 	majTickRatio = 10;
-	if(majTickTime <= 30000000){
+	if(majTickTime <= 100000){
+	    timeFormat = new SimpleDateFormat("ss.S");
+	       if(majTickTime <= 1000){
+		majTickTime = 1000;
+	    }else if(majTickTime <= 10000){
+		majTickTime = 10000;
+	    }else if(majTickTime <= 100000){
+		majTickTime = 100000;	
+	    }
+	}else if(majTickTime <= 30000000){
 	    majTickRatio = 10;
 	    timeFormat = new SimpleDateFormat("mm:ss");
-	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	    if(majTickTime <= 100000){
-		timeFormat = new SimpleDateFormat("ss.S");
-		timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-		majTickTime = 100000;
-	    }else if(majTickTime <= 1000000){
+	       if(majTickTime <= 1000000){
 		majTickTime = 1000000;
 	    }else if(majTickTime <= 5000000){
 		majTickTime = 5000000;
@@ -57,8 +61,7 @@ public class TimeScaleCalc implements ScaleMapper {
 	else if(majTickTime <= 180000000){
 	    majTickRatio = 6;
 	    timeFormat = new SimpleDateFormat("HH:mm");
-	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	    if(majTickTime <= 60000000){
+	       if(majTickTime <= 60000000){
 		majTickTime = 60000000;
 	    }else if(majTickTime <= 120000000){
 		majTickTime = 120000000;
@@ -68,8 +71,7 @@ public class TimeScaleCalc implements ScaleMapper {
 	else if(majTickTime <= 1800000000){
 	    majTickRatio = 10;
 	    timeFormat = new SimpleDateFormat("HH:mm");
-	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	    if(majTickTime <= 300000000)
+	       if(majTickTime <= 300000000)
 		majTickTime = 300000000;
 	    else if(majTickTime <= 600000000)
 		majTickTime = 600000000;
@@ -81,8 +83,7 @@ public class TimeScaleCalc implements ScaleMapper {
 	else if(majTickTime <= 43200000000l){
 	    majTickRatio = 6;
 	    timeFormat = new SimpleDateFormat("MM/dd HH:mm");
-	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	    if(majTickTime <= 3600000000l){
+	       if(majTickTime <= 3600000000l){
 		majTickTime = 3600000000l;
 	    }else if(majTickTime <= 7200000000l){
 		majTickTime = 7200000000l;
@@ -96,9 +97,9 @@ public class TimeScaleCalc implements ScaleMapper {
 	else{
 	    majTickRatio = 6;
 	    timeFormat = new SimpleDateFormat("MM/dd");
-	    timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	    majTickTime = 86400000000l;
+	       majTickTime = 86400000000l;
 	}
+	timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 	numTicks = (int)((timeIntv/(double)majTickTime) * majTickRatio);
 	firstLabelTime = (beginTime/majTickTime + 1) * majTickTime;
 	majTickOffset = (int)((firstLabelTime - beginTime)/(double)timeIntv * numTicks);

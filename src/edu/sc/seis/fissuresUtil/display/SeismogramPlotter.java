@@ -41,6 +41,11 @@ public class SeismogramPlotter implements Plotter{
 		for(int i = 1; i < xPixels.length; i++)
 		    currentShape.lineTo(xPixels[i], yPixels[i]);
 		return currentShape;
+	    }else if(xPixels.length == 1){
+		GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD, 2);
+		currentShape.moveTo(0, yPixels[0]);
+		currentShape.lineTo(size.width, yPixels[0]);
+		return currentShape;		
 	    }
 	}
 	catch(Exception e){ e.printStackTrace(); }

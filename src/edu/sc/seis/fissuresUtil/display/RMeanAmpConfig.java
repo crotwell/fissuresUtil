@@ -21,7 +21,14 @@ import java.util.*;
 
 public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     
-    /** if this Amp Config has a TimeRangeConfig, this returns the ampRange over the timerange for that object.  Otherwise, it uses the 
+    public RMeanAmpConfig(){}
+
+    public RMeanAmpConfig(TimeRangeConfig tr){
+	timeConfig = tr;
+    }
+
+
+	/** if this Amp Config has a TimeRangeConfig, this returns the ampRange over the timerange for that object.  Otherwise, it uses the 
      *  full time range for this seismogram.
      */
     public UnitRangeImpl getAmpRange(LocalSeismogram aSeis){
