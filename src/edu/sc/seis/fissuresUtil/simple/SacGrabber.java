@@ -52,11 +52,11 @@ public class SacGrabber {
             seis = seisDC[seisNum].retrieve_seismograms(rf);
             for (int i = 0; i < seis.length; i++) {
                 SacTimeSeries sac = FissuresToSac.getSAC((LocalSeismogramImpl)seis[i]);
-                File out = new File(ChannelIdUtil.toString(channelId));
+                File out = new File(ChannelIdUtil.toStringNoDates(channelId));
                 int fNum = 1;
                 while (out.exists()) {
                     fNum++;
-                    out = new File(ChannelIdUtil.toString(channelId)+"."+fNum);
+                    out = new File(ChannelIdUtil.toStringNoDates(channelId)+"."+fNum);
                 }
                 sac.write(out);
             }
