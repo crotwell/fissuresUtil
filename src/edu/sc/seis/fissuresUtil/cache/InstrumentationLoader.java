@@ -39,7 +39,8 @@ public class InstrumentationLoader extends Thread
                                  ChannelIdUtil.toStringNoDates(nextWork.seis.getRequestFilter().channel_id));
             } catch (ChannelNotFound e) {
                 GlobalExceptionHandler.handle("Could not load instrumentation for channel "+
-                                ChannelIdUtil.toString(nextWork.seis.getRequestFilter().channel_id),
+                                ChannelIdUtil.toString(nextWork.seis.getRequestFilter().channel_id)+
+                                " at "+nextWork.seis.getBeginTime().date_time,
                             e);
             } catch (org.omg.CORBA.SystemException e) {
                 // might be a transient??? Try again if not too many tries
