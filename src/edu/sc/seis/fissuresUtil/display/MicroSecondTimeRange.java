@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import org.apache.log4j.Category;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -19,13 +20,15 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 public class MicroSecondTimeRange {
 
     public MicroSecondTimeRange(RequestFilter rf) {
-        this(new MicroSecondDate(rf.start_time),
-             new MicroSecondDate(rf.end_time));
+        this(rf.start_time, rf.end_time);
     }
 
     public MicroSecondTimeRange(TimeRange timeRange) {
-        this(new MicroSecondDate(timeRange.start_time),
-             new MicroSecondDate(timeRange.end_time));
+        this(timeRange.start_time, timeRange.end_time);
+    }
+
+    public MicroSecondTimeRange(Time time, Time anotherTime) {
+        this(new MicroSecondDate(time), new MicroSecondDate(anotherTime));
     }
 
     /**
@@ -50,22 +53,17 @@ public class MicroSecondTimeRange {
 
     public boolean intersects(MicroSecondDate newTime) {
         if((beginTime.before(newTime) || beginTime.equals(newTime))
-                && (endTime.after(newTime) || endTime.equals(newTime)))
-            return true;
+                && (endTime.after(newTime) || endTime.equals(newTime))) return true;
         return false;
     }
 
     public boolean intersects(MicroSecondTimeRange time) {
-        if(endTime.after(time.getBeginTime())
-                && beginTime.before(time.getEndTime()))
-            return true;
-        return false;
+        return endTime.after(time.getBeginTime())
+                && beginTime.before(time.getEndTime());
     }
 
     public MicroSecondTimeRange shale(double shift, double scale) {
-        if(shift == 0 && scale == 1) {
-            return this;
-        }
+        if(shift == 0 && scale == 1) { return this; }
         TimeInterval timeShift = (TimeInterval)interval.multiplyBy(Math.abs(shift));
         MicroSecondDate newBeginTime;
         if(shift < 0) {
@@ -83,9 +81,7 @@ public class MicroSecondTimeRange {
     }
 
     public MicroSecondTimeRange shift(double percentage) {
-        if(percentage == 0) {
-            return this;
-        }
+        if(percentage == 0) { return this; }
         TimeInterval shift = (TimeInterval)interval.multiplyBy(Math.abs(percentage));
         if(percentage < 0) {
             return new MicroSecondTimeRange(beginTime.subtract(shift),
@@ -124,15 +120,11 @@ public class MicroSecondTimeRange {
     }
 
     public boolean equals(Object other) {
-        if(this == other)
-            return true;
-        if(getClass() != other.getClass())
-            return false;
+        if(this == other) return true;
+        if(getClass() != other.getClass()) return false;
         MicroSecondTimeRange mstrTime = (MicroSecondTimeRange)other;
         if(beginTime.equals(mstrTime.getBeginTime())
-                && endTime.equals(mstrTime.getEndTime())) {
-            return true;
-        }
+                && endTime.equals(mstrTime.getEndTime())) { return true; }
         return false;
     }
 
