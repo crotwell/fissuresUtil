@@ -47,7 +47,6 @@ public class DrawableSeismogram implements NamedPlotter{
                      Dimension size,
                      TimeEvent currentTime,
                      AmpEvent currentAmp){
-        canvas.draw(new Rectangle(100, 100));
         if(visible && size.width > 0 && size.height > 0){
             canvas.setPaint(color);
             shape.update(currentTime.getTime(shape.getSeismogram()),
