@@ -11,7 +11,6 @@ import edu.sc.seis.fissuresUtil.display.*;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.CenterEvent;
-import com.bbn.openmap.event.InfoDisplayEvent;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMCircle;
@@ -19,6 +18,8 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
@@ -26,9 +27,11 @@ import edu.sc.seis.fissuresUtil.cache.EventBackgroundLoaderPool;
 import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -157,15 +160,36 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 					if(current.getBigCircle().contains(e.getX(), e.getY())){
 						EventAccessOperations event = current.getEvent();
 						StringBuffer buf = new StringBuffer();
-						buf.append(event.get_preferred_origin().origin_time.date_time);
-						fireRequestToolTip(e, buf.toString());
+
+						//Get geographic name of origin
+						ParseRegions regions = new ParseRegions();
+						String location = regions.getGeographicRegionName(event.get_attributes().region.number);
+
+						//Get Date and format it accordingly
+						MicroSecondDate msd = new MicroSecondDate(event.get_preferred_origin().origin_time);
+						SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
+						sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+						sdf.format(msd);
+
+						//Get Magnitude
+						float mag = event.get_preferred_origin().magnitudes[0].value;
+
+						//get depth
+						Quantity depth = event.get_preferred_origin().my_location.depth;
+
+						buf.append("Event: ");
+						buf.append(location + " | ");
+						buf.append(sdf.format(msd) + " | ");
+						buf.append("Mag " + mag + " | ");
+						buf.append("Depth " + depth.value + " " + depth.the_units);
+						fireRequestInfoLine(buf.toString());
 						return true;
 					}
 				}
 				catch(Exception ex){}
 			}
 		}
-		fireHideToolTip(e);
+		fireRequestInfoLine("");
 		return false;
 	}
 
