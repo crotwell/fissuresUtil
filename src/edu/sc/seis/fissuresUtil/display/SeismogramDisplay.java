@@ -48,6 +48,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
     public abstract SeismogramDisplayProvider createCenter();
 
     public void renderToGraphics(Graphics g, Dimension size) {
+        PRINTING = true;
         boolean notAllHere = true;
         long totalWait = 0;
         while(notAllHere && totalWait < 2 * 60 * 1000){
@@ -74,6 +75,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
             logger.debug("GAVE UP WAITING ON DATA TO RENDER TO GRAPHICS!  SOMEONE IS LYING OR REALLY REALLY SLOW! OR BOTH!!");
         }
         super.renderToGraphics(g, size);
+        PRINTING = false;
     }
 
     private static final long TWO_MIN = 2 * 60 * 1000;
@@ -168,4 +170,6 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
     public static final Color[] COLORS = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
 
     private static final Logger logger = Logger.getLogger(SeismogramDisplay.class);
+
+    public static boolean PRINTING = false;
 }
