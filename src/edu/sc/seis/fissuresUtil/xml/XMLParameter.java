@@ -79,6 +79,10 @@ public class XMLParameter {
 	//Element paramRef = doc.createElement("parameterRef");
 	paramRef.setAttribute("name", name);
 	paramRef.setAttributeNS(xlinkNS,"xlink:type", "type/xml");
+	if(href.startsWith("file:")) {
+	    href = href.substring(href.indexOf("file:")+1);
+	}
+	href.replace(' ', '_');
 	paramRef.setAttributeNS(xlinkNS, "xlink:href", href);
 	if(!(value instanceof String)) {
 		paramRef.setAttribute("objectType", getObjectType(value));
