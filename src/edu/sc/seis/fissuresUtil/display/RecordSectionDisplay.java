@@ -63,13 +63,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         if(layout == null){
             setLayout(getNewLayoutConfig());
         }
-        layout.add(seismos);
-        checkDrawHeight = true;
         for (int i = 0; i < seismos.length; i++){
             if(!contains(seismos[i])){
                 drawables.add(new DrawableSeismogram(this, seismos[i], (Color)null));
             }
         }
+        layout.add(seismos);
+        checkDrawHeight = true;
         if(displayRemover == null){
             displayRemover = new SeismogramDisplayRemovalBorder(this);
             Border etchedRemoval = BorderFactory.createCompoundBorder(etched,
