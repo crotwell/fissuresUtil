@@ -13,8 +13,7 @@ import java.awt.*;
  */
 
 public interface Plotter {
-
-    public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState);
+    public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp);
 
     public void toggleVisibility();
 

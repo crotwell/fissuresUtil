@@ -15,10 +15,9 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  */
 
 public class SeismogramSorter {
-    public int sort(DataSetSeismogram seismo, String name){
+    public int sort(DataSetSeismogram[] seismograms, String name){
 	names.add(name);
-	int rtnValue = seismos.size();
-	seismos.put(name, seismo);
+	int rtnValue = names.size();
 	return rtnValue;
     }
 
@@ -29,7 +28,6 @@ public class SeismogramSorter {
     }
 
     public boolean remove(String name){
-	seismos.remove(name);
 	return names.remove(name);
     }
 	 

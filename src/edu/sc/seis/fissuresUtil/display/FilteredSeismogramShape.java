@@ -41,8 +41,10 @@ public class FilteredSeismogramShape extends SeismogramShape {
 	this.seismogram = seismogram;
 	this.filter = filter;
 	filterData();
-	this.dss = filteredSeis;
-	this.seis = filteredSeis.getSeismogram();
+	super.dss = filteredSeis;
+	super.seis = filteredSeis.getSeismogram();
+	super.stat = new Statistics(seis);
+	visible = false;
     }
 
 

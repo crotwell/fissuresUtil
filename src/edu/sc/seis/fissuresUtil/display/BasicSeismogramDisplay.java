@@ -29,40 +29,27 @@ import java.awt.print.*;
  * @version 0.1
  */
 
-public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarActions, TimeSyncListener, AmpSyncListener{
+public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarActions, ConfigListener{
  
-    public BasicSeismogramDisplay(DataSetSeismogram seis, String name, VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar(this);
-	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(), this);
-	initializeDisplay(seis, name, parent);
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, String name, VerticalSeismogramDisplay parent){
+	this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), name, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram seis, TimeRangeConfig tr, String name, VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar(tr, this);
-	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(), this);
-	initializeDisplay(seis, name, parent);
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, String name, VerticalSeismogramDisplay parent){
+	this(seismos, tc, new RMeanAmpConfig(seismos), name, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram seis, AmpConfigRegistrar ar, String name, VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar(this);
-	ampRegistrar = new AmpConfigRegistrar(ar, this);
-	initializeDisplay(seis, name, parent);
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, AmpConfig ac, String name, VerticalSeismogramDisplay parent){
+	this(seismos, new BasicTimeConfig(seismos), ac, name, parent);
     }
     
-    public BasicSeismogramDisplay(DataSetSeismogram seis, TimeRangeConfig tr, AmpConfigRegistrar ar, String name, 
+    public BasicSeismogramDisplay(DataSetSeismogram[] seismos, TimeConfig tc, AmpConfig ac, String name, 
 				  VerticalSeismogramDisplay parent){
-	timeRegistrar = new TimeConfigRegistrar(tr, this);
-	ampRegistrar = new AmpConfigRegistrar(ar, this);
-	initializeDisplay(seis, name, parent);
-    }
-    
-    public void initializeDisplay(DataSetSeismogram seis, String name, VerticalSeismogramDisplay parent){
+	registrar = new Registrar(seismos, tc, ac);
 	this.name = name;
 	this.parent = parent;
-	plotPainter = new PlotPainter();
-	add(plotPainter);
-	ampRegistrar.visibleAmpCalc(timeRegistrar);
-	addSeismogram(seis);
+	registrar.addListener(this);
+	add(seismos);
 	setLayout(new OverlayLayout(this));
 	addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -71,11 +58,10 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 		public void componentShown(ComponentEvent e) {
 		    resize();
 		}
-	    });
-	
-	timeScaleMap = new TimeScaleCalc(200, timeRegistrar);
-	ampScaleMap = new AmpScaleMapper(50, 4, ampRegistrar);
+		});
 	setMinimumSize(new Dimension(100, 50));
+	timeScaleMap = new TimeScaleCalc(200, registrar);
+	ampScaleMap = new AmpScaleMapper(50, 4, registrar);
 	scaleBorder = new ScaleBorder();
 	scaleBorder.setLeftScaleMapper(ampScaleMap);        
 	setBorder(BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
@@ -83,36 +69,44 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 						     BorderFactory.createCompoundBorder(scaleBorder,
 											BorderFactory.createLoweredBevelBorder())));
 	Dimension d = getSize();
-	Insets insets = this.getInsets();
-	Insets current = this.getInsets();
-	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+	Insets insets = getInsets();
+	setPreferredSize(new Dimension(200 + insets.left + insets.right, 100 + insets.top + insets.bottom));
+	plotPainter = new PlotPainter();
+	add(plotPainter);
     }
 
-    public void addSeismogram(DataSetSeismogram newSeismogram){
-	seismos.add(newSeismogram);	
-	SeismogramShape newPlotter;
-	if (autoColor) {
-	     newPlotter = new SeismogramShape(newSeismogram, seisColors[seisCount%seisColors.length]);
-	}else {
-	      newPlotter = new SeismogramShape(newSeismogram, Color.blue);
-	} // end of else
-	if(parent != null)
-	    newPlotter.setVisibility(parent.getOriginalVisibility());
-	plotters.add(seisCount, newPlotter);
-	seisCount++;
-	timeRegistrar.addSeismogram(newSeismogram);
-	ampRegistrar.addSeismogram(newSeismogram);
+    public void add(DataSetSeismogram[] seismos){
+	registrar.add(seismos);
+	for(int i = 0; i < seismos.length; i++){
+	    seismograms.add(seismos[i]);	
+	    SeismogramShape newPlotter;
+	    if (autoColor) {
+		newPlotter = new SeismogramShape(seismos[i], seisColors[seisCount%seisColors.length]);
+	    }else {
+		newPlotter = new SeismogramShape(seismos[i], Color.blue);
+	    } // end of else
+	    if(parent != null){
+		newPlotter.setVisibility(parent.getOriginalVisibility());
+	    }
+	    plotters.add(seisCount, newPlotter);
+	    seisCount++;
+	}
 	Iterator e = globalFilters.iterator();
 	while(e.hasNext()){
 	    applyFilter((ColoredFilter)e.next());
 	}
-	timeRegistrar.addSeismogram(newSeismogram);
-	ampRegistrar.addSeismogram(newSeismogram);
     }
     
+    public void remove(DataSetSeismogram[] oldSeismos){
+    } 
+
+    public DataSetSeismogram[] getSeismograms(){ 
+	return (DataSetSeismogram[])seismograms.toArray(new DataSetSeismogram[seismograms.size()]); 
+    }
+  
     public void addFlags(Arrival[] arrivals) {
 	try{
-	    MicroSecondDate originTime = new MicroSecondDate(((XMLDataSet)((DataSetSeismogram)seismos.getFirst()).getDataSet()).
+	    MicroSecondDate originTime = new MicroSecondDate(((XMLDataSet)((DataSetSeismogram)seismograms.getFirst()).getDataSet()).
 							     getEvent().get_preferred_origin().origin_time);
 	
 	    for(int i = 0; i < arrivals.length; i++){
@@ -131,27 +125,37 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	flagCount = 0;
 	repaint();
     }
-    public LinkedList getSeismograms(){ return seismos; }
-  
-    public void removeSeismogram(DataSetSeismogram oldSeis){}
 
     public String getName(){ return name; }
     
     public void setName(String name){ this.name = name; } 
-
-    public AmpConfigRegistrar getAmpRegistrar(){ return ampRegistrar; } 
-
-    public void updateAmpRange(){
-	repaint();
-    }
-
-    public TimeConfigRegistrar getTimeConfig(){ return timeRegistrar; }
-
-    public void setTimeConfig(TimeRangeConfig tc){ timeRegistrar.setTimeConfig(tc); }
     
-    public void updateTimeRange(){
+    public Registrar getRegistrar(){ return registrar; }
+
+    public void updateAmp(AmpEvent event){
+	update++;
+	currentAmpEvent = event;
 	repaint();
     }
+
+    public void updateTime(TimeEvent event){
+	update++;
+	currentTimeEvent = event;
+	repaint();
+    }
+
+    public MicroSecondTimeRange getTime(){
+	return currentTimeEvent.getTime();
+    }
+
+    public void update(ConfigEvent event){
+	update++;
+	currentTimeEvent = event.getTimeEvent();
+	currentAmpEvent = event.getAmpEvent();
+	repaint();
+    }
+
+    private int update;
 
     public VerticalSeismogramDisplay getVerticalParent(){ return parent; } 
     
@@ -178,6 +182,11 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    repaint();
 	}
     }
+    
+    public void removeAllSelections(){
+	getSelections().clear();
+	selectionCount = 0;
+    }
 
     public java.util.List get3CSelections(){ 
 	return plotters.subList(plotters.size() - selection3CCount, plotters.size());
@@ -198,12 +207,25 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	}
     }
 
-    public Dimension getDisplaySize(){ return displaySize; }
-
-    public TimeInterval getDisplayInterval(){ 
-	return new TimeInterval(timeRegistrar.getTimeRange().getBeginTime(), 
-				timeRegistrar.getTimeRange().getEndTime());
+    public void clearSelections(){
+	parent.removeSelectionDisplay();
+	parent.remove3CSelectionDisplay();
+	repaint();
     }
+    
+    public void clearRegSelections(){
+	getSelections().clear();
+	selectionCount = 0;
+	repaint();
+    }
+
+    public void clear3CSelections(){
+	get3CSelections().clear();
+	selection3CCount = 0;
+	repaint();
+    }
+
+    public Dimension getDisplaySize(){ return displaySize; }
 
     public static Set getGlobalFilters(){ return globalFilters; }
 
@@ -236,56 +258,22 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
     }
-
-    public void redraw(){
-	repaint();
-    }
-
+    
     protected void resize() {
 	Insets insets = getInsets();
 	Dimension d = getSize();
 	displaySize = new Dimension(d.width - insets.left - insets.right, d.height - insets.top - insets.bottom);
-	timeScaleMap.setTotalPixels(d.width-insets.left-insets.right);
-	ampScaleMap.setTotalPixels(d.height-insets.top-insets.bottom);
+	timeScaleMap.setTotalPixels(displaySize.width);
+	ampScaleMap.setTotalPixels(displaySize.height);
     	repaint();
-    }
-
-    public void stopImageCreation(){
-    }
-
-    public void clearSelections(){
-	parent.removeSelectionDisplay();
-	parent.remove3CSelectionDisplay();
-	selectionCount = 0;
-	selection3CCount = 0;
-	repaint();
-    }
-    
-    public void clearRegSelections(){
-	getSelections().clear();
-	selectionCount = 0;
-	repaint();
-    }
-
-    public void clear3CSelections(){
-	get3CSelections().clear();
-	selection3CCount = 0;
-	repaint();
     }
 
     public void remove(){
        logger.debug(name + " being removed");
-       this.stopImageCreation();
        parent.removeDisplay(this);
        clearSelections();
-       timeRegistrar.removeTimeSyncListener(this);
-       ampRegistrar.removeAmpSyncListener(this); 
-       Iterator e = seismos.iterator();
-       while(e.hasNext()){
-	   DataSetSeismogram current = ((DataSetSeismogram)e.next());
-	   timeRegistrar.removeSeismogram(current);
-	   ampRegistrar.removeSeismogram(current);
-       }
+       registrar.removeListener(this);
+       registrar.remove((DataSetSeismogram[])seismograms.toArray(new DataSetSeismogram[seismograms.size()]));
     }
 
     public void removeAll(MouseEvent me){
@@ -301,59 +289,48 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 	    me.getY() > dim.height-insets.bottom) {
 	    return;
 	}
-	int x = me.getX()-insets.left;
-	int center = (dim.width-insets.left-insets.right)/2;
-	float centerPercent = (x - center)/2/(float)center;
-	timeRegistrar.fireTimeRangeEvent(new TimeSyncEvent(.25 + centerPercent, -.25 + centerPercent, false));
+	int x = me.getX()-insets.left - insets.right;
+	double center = (dim.width-insets.left-insets.right);
+	double centerPercent = x/center;
+	registrar.shaleTime(centerPercent - .25, .5);
     }
 
     public void zoomIn(MouseEvent begin, MouseEvent end){}
 
     public void zoomOut(MouseEvent me){
-	Insets insets = this.getInsets();
-	Dimension dim = this.getSize();
+	Insets insets = getInsets();
+	Dimension dim = getSize();
 	if (me.getX() < insets.left ||
 	    me.getX() > dim.width-insets.right ||
 	    me.getY() < insets.top ||
 	    me.getY() > dim.height-insets.bottom) {
 	    return;
 	} 
-	int x = me.getX()-insets.left;
-	int center = (dim.width-insets.left-insets.right)/2;
-	float centerPercent = (x - center)/2/(float)center;
-	timeRegistrar.fireTimeRangeEvent(new TimeSyncEvent(-.25 + centerPercent, .25 + centerPercent, false));
+	int x = me.getX()-insets.left - insets.right;
+	double center = (dim.width-insets.left-insets.right);
+	double centerPercent = x/center;
+	registrar.shaleTime(centerPercent - 1, 2);
     }
 
     public void drag(MouseEvent meone, MouseEvent metwo) {
-	parent.stopImageCreation();
 	if(meone == null) return;
-	Dimension dim = this.getSize();
-	double xDiff = -(metwo.getX() - meone.getX())/(double)(dim.width);// - (insets.right+insets.left));
-	timeRegistrar.fireTimeRangeEvent(new TimeSyncEvent(xDiff, xDiff, false));
-    }
-
-    public void print(){
-	PrinterJob pj = PrinterJob.getPrinterJob();
-	pj.setPrintable(new ComponentPrintable(this));
-	if(pj.printDialog()){
-	    try { pj.print(); } 
-	    catch(Exception e){ e.printStackTrace(); }
-	}
+	int insets = getInsets().right + getInsets().left;
+	double xDiff = -((metwo.getX() - insets) - (meone.getX() - insets))/(double)(getSize().width - insets);
+	registrar.shaleTime(xDiff, 1);
     }
 
     public void mouseReleased(MouseEvent me){
-	parent.redraw();
     }
 
     public void mouseMoved(MouseEvent me){
 	Insets insets = this.getInsets();
 	Dimension dim = this.getSize();
 	double xPercent = (me.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
-	MicroSecondTimeRange currRange = timeRegistrar.getTimeRange();
+	MicroSecondTimeRange currRange = currentTimeEvent.getTime();
 	MicroSecondDate time = new MicroSecondDate((long)(currRange.getBeginTime().getMicroSecondTime() + 
 							  currRange.getInterval().getValue() * xPercent));	
 	double amp;
-	UnitRangeImpl current = ampRegistrar.getAmpRange();
+	UnitRangeImpl current = currentAmpEvent.getAmp();
 	if(current == null)
 	    amp = 0;
 	else{
@@ -365,122 +342,126 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
 
     public void setUnfilteredDisplay(boolean visible){
 	Iterator e = plotters.subList(0, seisCount).iterator();
+	DataSetSeismogram[] seismos = new DataSetSeismogram[seisCount];
+	int i = 0;
 	while(e.hasNext()){
 	    SeismogramShape current = (SeismogramShape)e.next();
 	    current.setVisibility(visible);
-	    if (visible) {
-		ampRegistrar.addSeismogram(current.getSeismogram());
-	    }else {
-		ampRegistrar.removeSeismogram(current.getSeismogram());
-	    } // end of else
-	} // end of if (visible)
- 	repaint();
+	    seismos[i] = current.getSeismogram();
+	    i++;
+	} 
+ 	if (visible) {
+	    registrar.add(seismos);
+	}else {
+	    registrar.remove(seismos);
+	} // end of else
+	repaint();
     }
 
     public void applyFilter(ColoredFilter filter){
-	System.out.println("applying filter");
+	logger.debug("applying filter on " + name);
+	DataSetSeismogram[] seismos = new DataSetSeismogram[seismograms.size()];
+	Plotter[] filteredShapes = new Plotter[seismograms.size()];
+	int i = 0;
 	if(filters.contains(filter)){
 	    Iterator e = plotters.subList(seisCount, seisCount + filterCount).iterator();
 	    while(e.hasNext()){
 		FilteredSeismogramShape current = ((FilteredSeismogramShape)e.next());
 		if(current.getFilter() == filter){
-		    current.setVisibility(current.getFilter().getVisibility());
-		    if (current.getVisibility()) {
-			ampRegistrar.addSeismogram(current.getFilteredSeismogram());
-		    } // end of if (current.getVisibility())
-		    else {
-			ampRegistrar.removeSeismogram(current.getFilteredSeismogram());
-		    } // end of else
-		    
+		    seismos[i] = current.getFilteredSeismogram();
+		    filteredShapes[i] = current;
+		    i++;
 		}
 	    }
 	}else{
 	    filters.add(filter);
-	    Iterator e = seismos.iterator();
+	    Iterator e = seismograms.iterator();
 	    while(e.hasNext()){
 		DataSetSeismogram current = (DataSetSeismogram)e.next();
-		//logger.debug
-		System.out.println("creating a new filter for " + name);
 		FilteredSeismogramShape filteredShape = new FilteredSeismogramShape(filter, current);
-		filteredShape.setVisibility(filteredShape.getFilter().getVisibility());
-		plotters.add(filterCount + seisCount, filteredShape);
+		seismos[i] = filteredShape.getFilteredSeismogram();
+		filteredShapes[i] = filteredShape;
+		i++;		
 		filterCount++;
-		ampRegistrar.addSeismogram(filteredShape.getFilteredSeismogram());
 	    }
+	    addToPlotters(seisCount, filteredShapes);
+	}
+	if (filter.getVisibility()) {
+	    registrar.add(seismos);
+	}else {
+	    registrar.remove(seismos);
+	}
+	for(i = 0; i < seismos.length; i++){
+	    filteredShapes[i].setVisibility(filter.getVisibility());
 	}
 	repaint();
     }
-    
-    public void ampFillWindow(){
-	ampRegistrar.individualizeAmpConfig(timeRegistrar);
+   
+    private void addToPlotters(int startingPosition, Plotter[] newPlotters){
+	for(int i = 0; i < newPlotters.length; i++){
+	    plotters.add(startingPosition + i, newPlotters[i]);
+	}
     }
 
-    public void createParticleDisplay(MouseEvent me, boolean advancedOption){
-	parent.createParticleDisplay(this, advancedOption);
-    }
-
-    protected class PlotPainter extends JComponent{
+    private class PlotPainter extends JComponent{
 	public void paint(Graphics g){
-	    Date begin = new Date();
+	    //Date begin = new Date();
 	    Graphics2D g2 = (Graphics2D)g;
 	    Dimension size = getSize();
-	    TimeSnapshot timeState = timeRegistrar.takeSnapshot();
-	    AmpSnapshot	ampState = ampRegistrar.takeSnapshot();
 	    Iterator e = plotters.iterator();
-	    Date plotBegin = new Date();
+	    //Date plotBegin = new Date();
 	    while(e.hasNext()){
-		((Plotter)e.next()).draw(g2, size, timeState, ampState);
+		((Plotter)e.next()).draw(g2, size, currentTimeEvent, currentAmpEvent);
 	    }
-	    Date plotEnd = new Date();
-	    timeRegistrar.returnSnapshot();
-	    ampRegistrar.returnSnapshot();
+	    //Date plotEnd = new Date();
 	    if(name != null){
 		g2.setPaint(new Color(0, 0, 0, 128));
 		g2.drawString(name, 5, getSize().height - 3);
-	    }
-	    Date end = new Date();
+		}
+	    /*Date end = new Date();
 	    count++;
-	    nameTime += end.getTime() - plotEnd.getTime();
-	    paintTime += end.getTime() - begin.getTime();
-	    plotTime += plotEnd.getTime() - plotBegin.getTime();
-	    System.out.println("total paint(Graphics g) time: " + (paintTime/count) + 
-	    	       " plotter iteration time: " + (plotTime/count) + 
-	    	       " name paint time: " + (nameTime/count));	    
+	    nameTime = end.getTime() - plotEnd.getTime();
+	    paintTime = end.getTime() - begin.getTime();
+	    plotTime = plotEnd.getTime() - plotBegin.getTime();
+	    System.out.println("total paint(Graphics g) time: " + (paintTime) + 
+	    	       " plotter iteration time: " + (plotTime) + 
+	    	       " name paint time: " + (nameTime));*/   
 	}
+	private long nameTime, plotTime, paintTime, count;
     }
-    protected long nameTime, plotTime, paintTime, count;
+   
     
-    protected static Set globalFilters = new HashSet();
+    private static Set globalFilters = new HashSet();
 
     public ArrayList filters = new ArrayList();
 
-    protected Dimension displaySize;
+    private Dimension displaySize;
 
-    protected VerticalSeismogramDisplay parent; 
+    private VerticalSeismogramDisplay parent; 
     
-    protected LinkedList seismos = new LinkedList();
+    private LinkedList seismograms = new LinkedList();
     
-    protected LinkedList plotters = new LinkedList();
+    private LinkedList plotters = new LinkedList();
     
-    protected int seisCount = 0, filterCount = 0, flagCount = 0, selectionCount = 0, selection3CCount = 0;
+    private int seisCount = 0, filterCount = 0, flagCount = 0, selectionCount = 0, selection3CCount = 0;
 
-    protected String name;
+    private String name;
 
-    protected AmpConfigRegistrar ampRegistrar;
+    private Registrar registrar;
+
+    private TimeEvent currentTimeEvent;
+
+    private AmpEvent currentAmpEvent;
     
-    protected TimeConfigRegistrar timeRegistrar;
+    private ScaleBorder scaleBorder;
 
-    protected ScaleBorder scaleBorder;
-
-    protected TimeScaleCalc timeScaleMap;
+    private TimeScaleCalc timeScaleMap;
     
-    protected AmpScaleMapper ampScaleMap;
+    private AmpScaleMapper ampScaleMap;
    
-    protected PlotPainter plotPainter;
+    private PlotPainter plotPainter;
 
-    protected boolean autoColor = true;
-
-    public static final int OVERSIZED_SCALE = 3;
+    private boolean autoColor = true;
 
     private static Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
 

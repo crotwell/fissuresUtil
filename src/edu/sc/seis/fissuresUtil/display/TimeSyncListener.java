@@ -18,4 +18,10 @@ public interface TimeSyncListener extends EventListener{
      */
     public void updateTimeRange();
     
+    /**
+     *  Tells the object that the time range has changed so that it may update
+     *  accordingly.
+     */
+    public void updateTimeRange(ConfigEvent event);
+    
 }// TimeSyncListener

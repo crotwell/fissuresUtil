@@ -22,36 +22,42 @@ import java.awt.geom.*;
  * @version
  */
 
-public class Selection implements TimeSyncListener, Plotter{
-    public Selection (MicroSecondDate begin, MicroSecondDate end, TimeConfigRegistrar tr, LinkedList seismograms, 
+public class Selection implements TimeListener, Plotter{
+    public Selection (MicroSecondDate begin, MicroSecondDate end, Registrar reg, DataSetSeismogram[] seismograms, 
 		      BasicSeismogramDisplay parent, Color color){
-	this.externalTimeConfig = tr;
-	this.seismograms = seismograms;
+	externalRegistrar = reg;
+	seismos = seismograms;
 	parents.add(parent);
 	this.color = color;
-	internalTimeConfig = new TimeConfigRegistrar();
-	internalTimeConfig.set(begin, begin.difference(end));
-	internalTimeConfig.addTimeSyncListener(this);
+	internalRegistrar = new Registrar(seismos);
+	internalRegistrar.addListener(this);
+	setBegin(begin);
+	setInterval(new TimeInterval(begin, end));
 	parent.repaint();
+    }
+
+    public void updateTime(TimeEvent event){
+	latestTime = event;
+	repaintParents();
     }
 
     public void toggleVisibility(){ visible = !visible; }
     
     public void setVisibility(boolean b){ visible = b; }
     
-    public boolean isVisible(){
-	MicroSecondTimeRange currentExternal = externalTimeConfig.getTimeRange();
-	MicroSecondTimeRange currentInternal = internalTimeConfig.getTimeRange();
+    public boolean isVisible(TimeEvent externalTime){
+	MicroSecondTimeRange currentExternal = externalTime.getTime();
+	MicroSecondTimeRange currentInternal = latestTime.getTime();
 	if(!visible || currentExternal.getBeginTime().getMicroSecondTime() >= currentInternal.getEndTime().getMicroSecondTime() || 
 	   currentExternal.getEndTime().getMicroSecondTime() <= currentInternal.getBeginTime().getMicroSecondTime())
 	    return false;
 	return true;
     }
 
-    public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState){
-	if(isVisible()){
-	    Rectangle2D selection = new Rectangle2D.Float(getX(size.width), 0, 
-							  (float)(getWidth() * size.width), 
+    public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
+	if(isVisible(timeEvent)){
+	    Rectangle2D selection = new Rectangle2D.Float(getX(size.width, timeEvent), 0, 
+							  (float)(getWidth(timeEvent) * size.width), 
 							  size.height);
 	    canvas.setPaint(color); 
 	    canvas.fill(selection); 
@@ -60,8 +66,8 @@ public class Selection implements TimeSyncListener, Plotter{
     }
     
     public void adjustRange(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
-	MicroSecondTimeRange currentInternal = internalTimeConfig.getTimeRange();
-	double timeWidth = externalTimeConfig.getTimeRange().getInterval().getValue();
+	MicroSecondTimeRange currentInternal = latestTime.getTime();
+	double timeWidth = externalRegistrar.getLatestTime().getTime().getInterval().getValue();
 	if(released == true){
 	    double beginDistance = Math.abs(currentInternal.getBeginTime().getMicroSecondTime() - 
 					    selectionEnd.getMicroSecondTime())/timeWidth;
@@ -77,16 +83,17 @@ public class Selection implements TimeSyncListener, Plotter{
 	    selectedBegin = !selectedBegin;
 	}
 	if(selectedBegin){
-	    internalTimeConfig.set(selectionBegin, new TimeInterval(selectionBegin, currentInternal.getEndTime()));
+	    setBegin(selectionBegin);
 	    repaintParents();
 	}else{
-	    internalTimeConfig.setDisplayInterval(new TimeInterval(currentInternal.getBeginTime(), selectionEnd));
 	    repaintParents();
+	    setEnd(selectionEnd);
 	}
     }
     
     public boolean isRemoveable(){
-	if(internalTimeConfig.getTimeRange().getInterval().getValue()/externalTimeConfig.getTimeRange().getInterval().getValue() < .01){
+	if(latestTime.getTime().getInterval().getValue()/
+	   externalRegistrar.getLatestTime().getTime().getInterval().getValue() < .01){
 	    return true;
 	}
 	return false; 
@@ -107,8 +114,8 @@ public class Selection implements TimeSyncListener, Plotter{
     }
 	
     public boolean borders(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
-	double timeWidth = externalTimeConfig.getTimeRange().getInterval().getValue();
-	MicroSecondTimeRange currentInternal = internalTimeConfig.getTimeRange();
+	double timeWidth = externalRegistrar.getLatestTime().getTime().getInterval().getValue();
+	MicroSecondTimeRange currentInternal = latestTime.getTime();
 	if(Math.abs(currentInternal.getEndTime().getMicroSecondTime() - selectionBegin.getMicroSecondTime())/timeWidth <.03 ||
 	   Math.abs(currentInternal.getBeginTime().getMicroSecondTime() - selectionEnd.getMicroSecondTime())/timeWidth < .03)
 	    return true;
@@ -131,42 +138,64 @@ public class Selection implements TimeSyncListener, Plotter{
 	}
     }
 
-    public float getX(int width){
-	MicroSecondTimeRange currentExternal = externalTimeConfig.getTimeRange();
-	float offset = (internalTimeConfig.getTimeRange().getBeginTime().getMicroSecondTime() - 
+    public float getX(int width, TimeEvent currentExternalState){
+	MicroSecondTimeRange currentExternal = currentExternalState.getTime();
+	float offset = (latestTime.getTime().getBeginTime().getMicroSecondTime() - 
 			currentExternal.getBeginTime().getMicroSecondTime())/(float)currentExternal.getInterval().getValue();
 	return offset * width;	
     }
 
-    public double getWidth(){ 
-	MicroSecondTimeRange currentInternal = internalTimeConfig.getTimeRange();
+    public double getWidth(TimeEvent currentExternalState){ 
+	MicroSecondTimeRange currentInternal = latestTime.getTime();
 	return ((currentInternal.getEndTime().getMicroSecondTime() - currentInternal.getBeginTime().getMicroSecondTime())/
-		externalTimeConfig.getTimeRange().getInterval().getValue());
+		currentExternalState.getTime().getInterval().getValue());
     }
 
     public Color getColor(){ return color; }
 
     public void setColor(Color color){ this.color = color; }
 
-    public LinkedList getSeismograms(){ return seismograms; }
+    public DataSetSeismogram[] getSeismograms(){ return seismos; }
 
     public void addDisplay(BasicSeismogramDisplay display){ displays.add(display); }
 
     public void release(){ released = true; }
 
-    public TimeConfigRegistrar getInternalConfig(){ return internalTimeConfig; }
+    public Registrar getInternalRegistrar(){ return internalRegistrar; }
 
-    public void updateTimeRange(){ repaintParents(); }
+    private void setBegin(MicroSecondDate newBegin){
+	MicroSecondDate currentBegin = latestTime.getTime().getBeginTime();
+	double currentInterval = latestTime.getTime().getInterval().getValue();
+	double shift = (newBegin.getMicroSecondTime() - currentBegin.getMicroSecondTime())/currentInterval;
+	double scale = (currentInterval + currentBegin.subtract(newBegin).getValue())/currentInterval;
+	internalRegistrar.shaleTime(shift, scale);
+    }
 
-    protected LinkedList  displays = new LinkedList();
+    private void setEnd(MicroSecondDate newEnd){
+	MicroSecondDate currentEnd = latestTime.getTime().getEndTime();
+	double currentInterval = latestTime.getTime().getInterval().getValue();
+	double scale = (currentInterval + newEnd.subtract(currentEnd).getValue())/currentInterval;
+	internalRegistrar.shaleTime(0, scale);
+    }
 
-    protected LinkedList parents = new LinkedList();
+    private void setInterval(TimeInterval newInterval){
+	double currentInterval = latestTime.getTime().getInterval().getValue();
+	System.out.println(newInterval);
+	double scale = newInterval.getValue()/currentInterval;
+	internalRegistrar.shaleTime(0, scale);
+    }
 
-    protected TimeConfigRegistrar externalTimeConfig, internalTimeConfig;
+    private LinkedList  displays = new LinkedList();
+
+    private LinkedList parents = new LinkedList();
+
+    private Registrar externalRegistrar, internalRegistrar;
     
-    protected LinkedList seismograms;
+    private DataSetSeismogram[] seismos;
 
-    protected Color color;
+    private Color color;
 
-    protected boolean selectedBegin, released = true, visible = true;
+    private boolean selectedBegin, released = true, visible = true;
+
+    private TimeEvent latestTime;
 }// Selection

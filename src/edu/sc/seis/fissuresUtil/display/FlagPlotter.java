@@ -29,9 +29,9 @@ public class FlagPlotter implements Plotter{
 	this.name = name;
     }
 
-    public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState){
+    public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
 	if(visible){
-	    MicroSecondTimeRange timeRange = timeState.getTimeRange();
+	    MicroSecondTimeRange timeRange = timeEvent.getTime();
 	    if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
 		return;
 	    double offset = flagTime.difference(timeRange.getBeginTime()).getValue()/timeRange.getInterval().getValue();

@@ -25,14 +25,15 @@ import edu.iris.Fissures.model.MicroSecondDate;
 public class TestBSD extends JFrame{
     public TestBSD(){
 	super("TestBSD");
-    edu.iris.Fissures.Time begin = 
+	edu.iris.Fissures.Time begin = 
         new edu.iris.Fissures.Time("19911015T163000.000Z", -1);
-	bsd = new BasicSeismogramDisplay(new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.
-								createSpike( new MicroSecondDate(begin))),
-							       null), "TEST", null);
+    DataSetSeismogram[] seismos = {new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.
+								createSineWave()),null)};
+    bsd = new BasicSeismogramDisplay(seismos, "TEST", null);
 	bsd.addBottomTimeBorder();
 	bsd.setSize(500, 500);
 	getContentPane().add(bsd, BorderLayout.CENTER);
+	//bsd.addSeismogram(new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.createSineWave()),null));
 	addFilterButton();
 	addScrollLeftButton();
 	addScrollRightButton();
@@ -43,9 +44,12 @@ public class TestBSD extends JFrame{
     }
 
     public void addTestData(int numSeis){
+	DataSetSeismogram[] seismos = new DataSetSeismogram[numSeis];
 	for(int i = 0; i < numSeis; i++){
-	    bsd.addSeismogram(new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.createTestData()), null));
+	    seismos[i] = new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.createTestData()), null);
 	}
+	bsd.add(seismos);
+
     }
     
     public void addFilterButton(){
@@ -68,7 +72,7 @@ public class TestBSD extends JFrame{
 			scrollLeftTimer = new java.util.Timer();
 			scrollLeftTimer.scheduleAtFixedRate(new TimerTask(){
 				public void run(){
-				    bsd.getTimeConfig().fireTimeRangeEvent(new TimeSyncEvent(.001, .001, true));
+				    bsd.getRegistrar().shaleTime(.0005, 1);
 				}
 			    }, new Date(), 10);
 			scrollLeft = true;
@@ -92,9 +96,9 @@ public class TestBSD extends JFrame{
 			scrollRightTimer = new java.util.Timer();
 			scrollRightTimer.scheduleAtFixedRate(new TimerTask(){
 				public void run(){
-				    bsd.getTimeConfig().fireTimeRangeEvent(new TimeSyncEvent(-.001, -.001, true));
+				    bsd.getRegistrar().shaleTime(-.0005, 1);
 				}
-			    }, new Date(), 10);
+			    }, new Date(), 25);
 			scrollRight = true;
 		    }else{
 			scrollRight = false;
@@ -112,7 +116,7 @@ public class TestBSD extends JFrame{
 	JButton zoomButton = new JButton("Zoom In");
 	zoomButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){
-		    bsd.getTimeConfig().fireTimeRangeEvent(new TimeSyncEvent(.125, -.125, false));
+		    bsd.getRegistrar().shaleTime(.25, .5);
 		}
 	    });
 	panel.add(zoomButton);
@@ -123,7 +127,7 @@ public class TestBSD extends JFrame{
 	JButton zoomButton = new JButton("Zoom Out");
 	zoomButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){
-		    bsd.getTimeConfig().fireTimeRangeEvent(new TimeSyncEvent(-.125, .125, false));
+		    bsd.getRegistrar().shaleTime(-.5, 2);
 		}
 	    });
 	panel.add(zoomButton);

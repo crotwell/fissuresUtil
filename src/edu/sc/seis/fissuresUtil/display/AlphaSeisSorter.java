@@ -15,7 +15,7 @@ import java.util.Comparator;
  */
 
 public class AlphaSeisSorter extends SeismogramSorter{
-    public int sort(DataSetSeismogram seismo, String name){
+    public int sort(DataSetSeismogram[] seismograms, String name){
 	int i = 0;
 	while(i < names.size() && ((String)names.get(i)).compareToIgnoreCase(name) < 0){
 	    i++;

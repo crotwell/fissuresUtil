@@ -14,23 +14,12 @@ import java.text.DecimalFormat;
  * @version
  */
 
-public class AmpScaleMapper implements ScaleMapper, AmpSyncListener {
-    
-    public AmpScaleMapper(int totalPixels,
-                          int hintPixels,
-                          UnitRangeImpl range) {
+public class AmpScaleMapper implements ScaleMapper, AmpListener {
+    public AmpScaleMapper(int totalPixels, int hintPixels, Registrar reg){
 	this.totalPixels = totalPixels;
         this.hintPixels = hintPixels;
-	this.range = range;
-        calculateTicks();
-    }
-
-    public AmpScaleMapper(int totalPixels, int hintPixels, AmpRangeConfig ar){
-	this.totalPixels = totalPixels;
-        this.hintPixels = hintPixels;
-	ampRegistrar = new AmpConfigRegistrar(ar);
-	ampRegistrar.addAmpSyncListener(this);
-	setRange();
+	this.reg = reg;
+	reg.addListener(this);
     } 
   
     public int getPixelLocation(int i) {
@@ -128,31 +117,33 @@ public class AmpScaleMapper implements ScaleMapper, AmpSyncListener {
         calculateTicks();
     }
 
-    public void setRange(){
-	range = ampRegistrar.getAmpRange();
+    public void updateAmp(AmpEvent event){
+	range = event.getAmp();
 	calculateTicks();
     }
 
-    public void updateAmpRange(){
-	setRange();
+    public void setRegistrar(Registrar reg){
+	this.reg.removeListener(this);
+	this.reg = reg;
+	reg.addListener(this);
     }
 
-    protected int firstMajorTick = 0;
+    private int firstMajorTick = 0;
 
-    protected int majorTickStep = 10;
+    private int majorTickStep = 10;
 
-    protected double tickInc;
+    private double tickInc;
 
-    protected double minTick;
+    private double minTick;
 
-    protected int numTicks = 0;
+    private int numTicks = 0;
 
-    protected int totalPixels;
+    private int totalPixels;
 
-    protected int hintPixels;
+    private int hintPixels;
 
-    protected UnitRangeImpl range;
+    private UnitRangeImpl range;
 
-    protected AmpConfigRegistrar ampRegistrar;
+    private Registrar reg;
 
 } // AmpScaleMapper
