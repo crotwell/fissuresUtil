@@ -8,6 +8,8 @@ import edu.iris.Fissures.IfEvent.*;
 
 import org.omg.CORBA.*;
 import org.omg.CosNaming.NamingContextPackage.*;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
 
 /**
  * FissuresNamingService.java
@@ -22,37 +24,37 @@ import org.omg.CosNaming.NamingContextPackage.*;
 
 
 public interface FissuresNamingService {
-    org.omg.CORBA.Object resolve(String dns, String interfacename, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    org.omg.CORBA.Object resolve(String dns, String interfacename, String objectname) throws NotFound, CannotProceed, InvalidName;
 
-    void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName, Exception;
+    void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName, Exception;
 
-    void unbind(String dns, String interfacename, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    void unbind(String dns, String interfacename, String objectname) throws NotFound, CannotProceed, InvalidName;
 
 
-    NetworkDC getNetworkDC(String dns, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    NetworkDC getNetworkDC(String dns, String objectname) throws NotFound, CannotProceed, InvalidName;
 
-    DataCenter getSeismogramDC(String dns, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    DataCenter getSeismogramDC(String dns, String objectname) throws NotFound, CannotProceed, InvalidName;
     
-    PlottableDC getPlottableDC(String dns, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    PlottableDC getPlottableDC(String dns, String objectname) throws NotFound, CannotProceed, InvalidName;
     
     org.omg.CORBA.Object getRoot();
 
-    EventDC getEventDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    EventDC getEventDC(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName;
 
-    String[] getInterfaceNames(String dns) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    String[] getInterfaceNames(String dns) throws NotFound, CannotProceed, InvalidName;
     
-    String[] getInstanceNames(String dns, String interfacename) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    String[] getInstanceNames(String dns, String interfacename) throws NotFound, CannotProceed, InvalidName;
   
-    String[] getDNSNames(String dns) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    String[] getDNSNames(String dns) throws NotFound, CannotProceed, InvalidName;
 
-    org.omg.CORBA.Object getNetworkDCObject(String dns, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    org.omg.CORBA.Object getNetworkDCObject(String dns, String objectname) throws NotFound, CannotProceed, InvalidName;
 
-    org.omg.CORBA.Object getSeismogramDCObject(String dns, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    org.omg.CORBA.Object getSeismogramDCObject(String dns, String objectname) throws NotFound, CannotProceed, InvalidName;
     
-    org.omg.CORBA.Object getPlottableDCObject(String dns, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    org.omg.CORBA.Object getPlottableDCObject(String dns, String objectname) throws NotFound, CannotProceed, InvalidName;
     
   
-    org.omg.CORBA.Object getEventDCObject(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName;
+    org.omg.CORBA.Object getEventDCObject(String dns, String objectname)  throws NotFound, CannotProceed, InvalidName;
 
     
   
