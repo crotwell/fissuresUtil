@@ -122,17 +122,20 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
         //if it is the case .. return it..
         //else use the dataCenter Router to get the seismograms.
         try {
-            ArrayList arrayList = new ArrayList();
             LocalSeismogramImpl[] localSeismograms = hsqlRequestFilterDb.getSeismograms(a_filterseq);
             RequestFilter[] uncovered = notCovered(a_filterseq, localSeismograms);
-            if(uncovered.length != 0 && dataCenter != null)  {
+            if(uncovered.length == 0)
+                return localSeismograms;
+            List seisToReturn = new ArrayList(localSeismograms.length);
+            insertIntoList(seisToReturn, localSeismograms);
+            if(dataCenter != null)  {
                 localSeismograms = (LocalSeismogramImpl[])dataCenter.retrieve_seismograms(uncovered);
                 hsqlRequestFilterDb.addSeismogram(localSeismograms);
             }
-            insertIntoArrayList(arrayList, localSeismograms);
-            //}
-            LocalSeismogram[] rtnValues = new LocalSeismogram[arrayList.size()];
-            rtnValues = (LocalSeismogram[]) arrayList.toArray(rtnValues);
+            if(localSeismograms.length > 0)
+                insertIntoList(seisToReturn, localSeismograms);
+            LocalSeismogram[] rtnValues = new LocalSeismogram[seisToReturn.size()];
+            rtnValues = (LocalSeismogram[]) seisToReturn.toArray(rtnValues);
             return rtnValues;
         } catch ( SQLException e) {
             throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,e.toString()));
@@ -213,9 +216,9 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
         return (RequestFilter[])unsatisfied.toArray(new RequestFilter[unsatisfied.size()]);
     }
     
-    private void insertIntoArrayList(ArrayList arrayList, LocalSeismogram[] localSeismograms) {
+    private void insertIntoList(List list, LocalSeismogram[] localSeismograms) {
         for(int counter = 0; counter < localSeismograms.length; counter++) {
-            arrayList.add(localSeismograms[counter]);
+            list.add(localSeismograms[counter]);
         }
     }
     
