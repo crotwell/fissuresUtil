@@ -166,7 +166,7 @@ public class BasicAmpConfig implements AmpConfig{
     }
 
     public AmpEvent fireAmpEvent(){
-        return  fireAmpEvent(calculateAmp());//new LazyAmpEvent(this));
+        return  fireAmpEvent(new LazyAmpEvent(this));
     }
 
     private AmpEvent fireAmpEvent(AmpEvent event){
@@ -204,7 +204,7 @@ public class BasicAmpConfig implements AmpConfig{
 
     public AmpEvent updateAmpTime(TimeEvent timeEvent){
         currentTimeEvent = timeEvent;
-        return calculateAmp();//LazyAmpEvent(this);
+        return new LazyAmpEvent(this);
     }
 
     public AmpEvent calculateAmp(){
@@ -306,4 +306,5 @@ public class BasicAmpConfig implements AmpConfig{
 
     private static Category logger = Category.getInstance(BasicAmpConfig.class.getName());
 }//BasicAmpConfig
+
 
