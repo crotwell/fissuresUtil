@@ -54,6 +54,7 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 	    while((str = bufferedReader.readLine()) != null) {
 		timeStr = str;
 	    }
+        this.lastDate = new MicroSecondDate();
 	    //	    System.out.println("*** serverTime is "+ timeStr);
 	    edu.iris.Fissures.Time serverTime = new edu.iris.Fissures.Time();
 	    if(timeStr != null) {
@@ -76,9 +77,8 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
 			     if (beginTime != null && speed != 0) {
-				 MicroSecondDate now = new MicroSecondDate();
+				 MicroSecondDate now = new MicroSecondDate().add(offset);
 				 TimeInterval timeInterval = new TimeInterval(lastDate, now);
-				 timeInterval = timeInterval.add(offset);
 				 width = 
 				     (TimeInterval)timeInterval.multiplyBy(speed);
 				 lastDate = now;
