@@ -56,9 +56,10 @@ public interface AmpConfig extends DataSetSeismogramReceptacle, TimeListener{
     /**
      * <code>fireAmpEvent</code> makes the AmpConfig create a new AmpEvent
      * reflecting its current internal state and send it to all AmpListeners
-     * @return a <code>ConfigEvent</code> value
      */
-    public AmpEvent fireAmpEvent();
+    public void fireAmpEvent();
+
+    public AmpEvent calculate();
 
     public AmpConfigData getAmpData(DataSetSeismogram seis);
 
