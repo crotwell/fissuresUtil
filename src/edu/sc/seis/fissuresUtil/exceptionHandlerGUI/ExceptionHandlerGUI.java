@@ -66,9 +66,12 @@ public class ExceptionHandlerGUI {
     private void createGUI() {
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("information", getMessagePanel());
-        tabbedPane.addTab("stack Trace", getStackTracePanel());
-        tabbedPane.addTab("system info", getSystemInfoPanel());
+        if (greeting != null) {
+            tabbedPane.addTab("Information", getGreetingPanel());
+        }
+        tabbedPane.addTab("Details", getMessagePanel());
+        tabbedPane.addTab("Stack Trace", getStackTracePanel());
+        tabbedPane.addTab("System Info", getSystemInfoPanel());
         java.awt.Dimension dimension = new java.awt.Dimension(800, 300);
         tabbedPane.setPreferredSize(dimension);
         tabbedPane.setMinimumSize(dimension);
@@ -92,6 +95,20 @@ public class ExceptionHandlerGUI {
         messagePanel.setLayout(new BorderLayout());
         messagePanel.add(exceptionMessageLabel);
         return messagePanel;
+    }
+
+
+    private JPanel getGreetingPanel() {
+        JPanel greetingPanel = new JPanel();
+        JTextArea greetingArea = new JTextArea();
+        greetingArea.setLineWrap(true);
+        greetingArea.setFont(new Font("BookManOldSytle", Font.BOLD, 12));
+        greetingArea.setWrapStyleWord(true);
+        greetingArea.setEditable(false);
+        greetingArea.setText(greeting);
+        greetingPanel.setLayout(new BorderLayout());
+        greetingPanel.add(greetingArea);
+        return greetingPanel;
     }
 
 
@@ -287,9 +304,18 @@ public class ExceptionHandlerGUI {
 
     }
 
+    /** Sets a message to appear in the first tab. This is a generic message
+    that is used by all exceptions. If the initial message is null, then this
+     tab does not appear. */
+    public static void setGreeting(String message) {
+        greeting = message;
+    }
+
     private Throwable exception;
 
     private String message;
+
+    private static String greeting = null;
 
     private JPanel buttonPanel = new JPanel();
 
