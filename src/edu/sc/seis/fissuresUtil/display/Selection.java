@@ -26,6 +26,10 @@ import java.awt.geom.*;
 public class Selection implements TimeListener, Plotter{
     public Selection (MicroSecondDate begin, MicroSecondDate end, Registrar reg, DataSetSeismogram[] seismograms, 
 		      BasicSeismogramDisplay parent, Color color){
+	if ( end.equals(begin)) {
+	    throw new IllegalArgumentException("Selection must not have zero width, begin and end are the same.");
+	} // end of if ()
+	
 	externalRegistrar = reg;
 	seismos = seismograms;
 	parents.add(parent);
@@ -57,12 +61,16 @@ public class Selection implements TimeListener, Plotter{
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
 	if(isVisible(timeEvent)){
-	    Rectangle2D selection = new Rectangle2D.Float(getX(size.width, timeEvent), 0, 
-							  (float)(getWidth(timeEvent) * size.width), 
-							  size.height);
+	    Rectangle2D selection = 
+		new Rectangle2D.Float(getX(size.width, timeEvent),
+				      -1, 
+				      (float)(getWidth(timeEvent) *size.width),
+				      size.height+1);
 	    canvas.setPaint(color); 
 	    canvas.fill(selection); 
-	    canvas.draw(selection); 
+	    canvas.draw(selection);
+	    canvas.setPaint(color.darker());
+	    canvas.draw(selection);
 	} 
     }
     
@@ -178,6 +186,10 @@ public class Selection implements TimeListener, Plotter{
     public Registrar getInternalRegistrar(){ return internalRegistrar; }
 
     private void setBegin(MicroSecondDate newBegin){
+	if ( latestTime.getTime().getEndTime().equals(newBegin)) {
+	    throw new IllegalArgumentException("Selection must not have zero width, newBegin and end are the same.");
+	} // end of if ()
+	
 	MicroSecondDate currentBegin = latestTime.getTime().getBeginTime();
 	double currentInterval = latestTime.getTime().getInterval().getValue();
 	double shift = (newBegin.getMicroSecondTime() - currentBegin.getMicroSecondTime())/currentInterval;
@@ -186,6 +198,10 @@ public class Selection implements TimeListener, Plotter{
     }
 
     private void setEnd(MicroSecondDate newEnd){
+	if ( latestTime.getTime().getBeginTime().equals(newEnd)) {
+	    throw new IllegalArgumentException("Selection must not have zero width, newBegin and end are the same.");
+	} // end of if ()
+
 	MicroSecondDate currentEnd = latestTime.getTime().getEndTime();
 	double currentInterval = latestTime.getTime().getInterval().getValue();
 	double scale = (currentInterval + newEnd.subtract(currentEnd).getValue())/currentInterval;
