@@ -48,8 +48,9 @@ public class RTTimeRangeConfig extends BoundedTimeConfig{
 		new javax.swing.Timer((int)update.convertTo(UnitImpl.MILLISECOND).value,
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
-			     width = (TimeInterval)update.multiplyBy(speed);
-			     if (beginTime != null) {
+			     if (beginTime != null && speed != 0) {
+				 width = 
+				     (TimeInterval)update.multiplyBy(speed);
 				 setAllBeginTime(beginTime.add(width));
 				 getRegistrar().updateTimeSyncListeners();
 				 System.out.println("Timer: updateTimeSyncListeners()  speed="+speed);
