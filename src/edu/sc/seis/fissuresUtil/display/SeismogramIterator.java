@@ -30,16 +30,16 @@ public class SeismogramIterator implements Iterator{
                               MicroSecondTimeRange timeRange){
         this.name = name;
         if(seismograms.length > 0){
-            this.seismograms = DisplayUtils.sortByDate(seismograms);
-            MicroSecondDate startTime = this.seismograms[0].getBeginTime();
-            MicroSecondDate endTime = this.seismograms[seismograms.length - 1].getEndTime();
-            TimeInterval sampling = this.seismograms[0].getSampling().getPeriod();
+            LocalSeismogramImpl[] seis = this.seismograms = DisplayUtils.sortByDate(seismograms);
+            MicroSecondDate startTime = seis[0].getBeginTime();
+            MicroSecondDate endTime = seis[seis.length - 1].getEndTime();
+            TimeInterval sampling = seis[0].getSampling().getPeriod();
             seisTimeRange = new MicroSecondTimeRange(startTime,
                                                      endTime);
-            addToIterateList(this.seismograms[0], 0, this.seismograms[0].getNumPoints());
-            for(int i = 1; i < this.seismograms.length; i++){
-                LocalSeismogramImpl current = this.seismograms[i];
-                LocalSeismogramImpl prev = this.seismograms[i-1];
+            addToIterateList(seis[0], 0, seis[0].getNumPoints());
+            for(int i = 1; i < seis.length; i++){
+                LocalSeismogramImpl current = seis[i];
+                LocalSeismogramImpl prev = seis[i-1];
                 if(DisplayUtils.areOverlapping(prev,current)){
                     MicroSecondDate currentStartTime = prev.getEndTime().add(sampling);
                     MicroSecondDate currentEndTime = current.getEndTime();
@@ -143,6 +143,7 @@ public class SeismogramIterator implements Iterator{
 
     public double[] minMaxMean(int startPoint, int endPoint){
         double[] minMaxMean ={Double.POSITIVE_INFINITY,Double.NEGATIVE_INFINITY,0};
+        int coveredPoints = 0;
         if(startPoint < numPoints && endPoint > 0){
             for(int i = startPoint; i < endPoint; i++){
                 Object[] array = getSeisAtWithInternal(startPoint);
@@ -167,11 +168,12 @@ public class SeismogramIterator implements Iterator{
                     if(curMinMaxMean[1] > minMaxMean[1]){
                         minMaxMean[1] = curMinMaxMean[1];
                     }
-                    minMaxMean[2] += curMinMaxMean[2]*(lastPoint-i);
+                    minMaxMean[2] += curMinMaxMean[2]*(lastPoint-internalStartPoint);
+                    coveredPoints += lastPoint - internalStartPoint;
                     i +=lastPoint - internalStartPoint + shift;
                 }
             }
-            minMaxMean[2] = minMaxMean[2]/(endPoint - startPoint);
+            minMaxMean[2] = minMaxMean[2]/coveredPoints;
         }
         return minMaxMean;
     }
