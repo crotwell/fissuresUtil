@@ -1,9 +1,8 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import java.sql.*;
-
-import org.hsqldb.*;
-import org.apache.log4j.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 /**
  * This class acts an abstract class for database Operations.
