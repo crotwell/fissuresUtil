@@ -122,8 +122,8 @@ public class PlottableChunk {
         double pixel = SimplePlotUtil.getPixel(pixelsPerDay, tr, time);
         return (int)Math.floor(pixel);
     }
-    
-    public static MicroSecondDate stripToDay(Date d){
+
+    public static MicroSecondDate stripToDay(Date d) {
         Calendar cal = JDBCPlottable.makeCal();
         cal.setTime(d);
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -135,8 +135,7 @@ public class PlottableChunk {
 
     private static final int MILLIS_IN_DAY = 24 * 60 * 60 * 1000;
 
-    public static final TimeInterval ONE_DAY = new TimeInterval(1,
-                                                                 UnitImpl.DAY);
+    public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 
     public ChannelId getChannel() {
         return channel;
@@ -191,7 +190,7 @@ public class PlottableChunk {
     }
 
     public String toString() {
-        return data.y_coor.length + " point chunk from "
+        return getNumPixels() + " pixel chunk from "
                 + ChannelIdUtil.toStringNoDates(channel) + " at "
                 + pixelsPerDay + " ppd from " + getTimeRange();
     }
