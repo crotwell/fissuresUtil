@@ -36,6 +36,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
             motionForwarder = new SDMouseMotionForwarder();
         }
         add(createCenter(), CENTER);
+        colors = COLORS;
     }
 
     public void add(SeismogramDisplayListener listener) {
@@ -97,30 +98,33 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     public Color getColor() {
         return null;
     }
+    public void setColors(Color[] colors){
+        this.colors = colors;
+    }
 
     public Color getNextColor(Class colorGroupClass) {
-        int[] usages = new int[COLORS.length];
-        for(int i = 0; i < COLORS.length; i++) {
+        int[] usages = new int[colors.length];
+        for(int i = 0; i < colors.length; i++) {
             Iterator it = iterator(colorGroupClass);
             while(it.hasNext()) {
                 Drawable cur = (Drawable)it.next();
-                if(cur.getColor().equals(COLORS[i])) usages[i]++;
+                if(cur.getColor().equals(colors[i])) usages[i]++;
                 if(cur instanceof DrawableSeismogram) {
                     DrawableSeismogram curSeis = (DrawableSeismogram)cur;
                     Iterator childIterator = curSeis.iterator(colorGroupClass);
                     while(childIterator.hasNext()) {
                         Drawable curChild = (Drawable)childIterator.next();
-                        if(curChild.getColor().equals(COLORS[i])) usages[i]++;
+                        if(curChild.getColor().equals(colors[i])) usages[i]++;
                     }
                 }
             }
         }
         for(int minUsage = 0; minUsage >= 0; minUsage++) {
             for(int i = 0; i < usages.length; i++) {
-                if(usages[i] == minUsage) return COLORS[i];
+                if(usages[i] == minUsage) return colors[i];
             }
         }
-        return COLORS[i++ % COLORS.length];
+        return colors[i++ % colors.length];
     }
 
     private int i = 0;
@@ -188,6 +192,8 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     private static boolean currentTimeFlag = false;
 
     protected static Set activeFilters = new HashSet();
+    
+    public Color[] colors;
 
     public static final Color[] COLORS = {Color.BLUE,
                                           new Color(217, 91, 23),
