@@ -14,25 +14,17 @@ import java.io.*;
 import java.net.*;
 import org.apache.log4j.*;
 
-
+/**
+ * Access to a dataset stored as an XML file.
+ *
+ * @version $Id: XMLDataSetAccess.java 1681 2002-05-23 23:01:27Z crotwell $
+ */
 public class XMLDataSetAccess implements DataSetAccess, Serializable {
 
     public XMLDataSetAccess(DocumentBuilder docBuilder, Element config) {
 	this.docBuilder = docBuilder;
 	this.config = config;
     }
-
-// 	XObject xobj = xpath.eval(context, path);
-// 	if (xobj.getType() == XObject.CLASS_NODESET) {
-// 	    NodeList nList = xobj.nodelist();
-// 	    System.out.println("got "+nList.getLength());
-// 	    Node n = nList.item(0); 
-// 	    if (n instanceof Element) {
-// 		return (Element)n;
-// 	    }
-// 	}
-// 	// not a Element???
-// 	return null;
 
     public String getId() {
 	return evalString(config, "@datasetid");
