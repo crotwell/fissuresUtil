@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
+import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
@@ -13,6 +14,9 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  */
 public class TableSetup {
 
+    public static void setup(JDBCTable table, String propFile) throws SQLException {
+        setup(table.getTableName(), table.getConnection(), table, propFile);
+    }
     
     public static void setup(String tableName,
                              Connection conn,
