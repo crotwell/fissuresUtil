@@ -160,7 +160,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                     Rectangle2D labelBounds = fm.getStringBounds(label, copy);
                     copy.drawString(label,
                                         (int)(insets.left + (width - insets.left - insets.right - labelBounds.getWidth())/2),
-                                    height);
+                                    height - 5);
                 }
 
                 // right
@@ -228,7 +228,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
     public void setBottomScaleMapper(ScaleMapper scaleMap) {
         this.bottomScaleMap = scaleMap;
         if(scaleMap.getAxisLabel() != null && !scaleMap.getAxisLabel().equals("")){
-            bottom = 20 + getFontHeight(scaleMap.getAxisLabel());
+            bottom = majorTickLength + 2 * getFontHeight(scaleMap.getAxisLabel()) + 5;
         }else{
             bottom = 20;
         }
