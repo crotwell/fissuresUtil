@@ -14,7 +14,6 @@ public class EventTable extends JDBCTable{
     public EventTable(String name, Connection conn){ super(name, conn); }
 
     static{
-        System.out.println("LOADING EVENT PROPS");
         ConnMgr.addPropsLocation("edu/sc/seis/fissuresUtil/database/props/event/");
     }
 }
