@@ -38,6 +38,11 @@ public class ExceptionHandlerGUI {
      * @return a <code>JPanel</code> value
      */
     public static  JPanel handleException(Throwable exception) {
+	return handleException("A Problem has occured.", exception);
+    }
+
+    public static  JPanel handleException(String message,
+					  Throwable exception) {
 	
 	JPanel mainPanel = new JPanel();
 	JTabbedPane tabbedPane = new JTabbedPane();
@@ -54,7 +59,7 @@ public class ExceptionHandlerGUI {
 	messageArea.setEditable(false);
 	
 	
-	exceptionMessageLabel.setText(exception.toString());
+	exceptionMessageLabel.setText(message);
 	
 	messagePanel.setLayout(new BorderLayout());
 	messagePanel.add(exceptionMessageLabel);
