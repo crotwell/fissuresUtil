@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 2409 2002-07-28 15:30:40Z crotwell $
+ * @version $Id: ChannelChooser.java 2435 2002-08-01 16:30:58Z crotwell $
  *
  */
 
@@ -87,6 +87,8 @@ public class ChannelChooser extends JPanel{
         this.autoSelectedOrientation = autoSelectedOrientation;
         this.selectableBandGain = selectableBandGain;
         this.autoSelectBandGain = autoSelectBandGain;
+	progressBar.setValue(0);
+	progressBar.setStringPainted(true);;
         bundle = ResourceBundle.getBundle(ChannelChooser.class.getName());
         initFrame();
 	setConfiguredNetworks(configuredNetworks);
@@ -167,42 +169,9 @@ public class ChannelChooser extends JPanel{
                     if(e.getValueIsAdjusting()){
                         return;
                     }
-                    final NetworkAccess[] nets = getSelectedNetworks();
-                    Thread stationLoader = new Thread() {
-                            public void run() {
-                                try {
-                                    stations.clear();
-                                    for (int i=0; i<nets.length; i++) {
-                                        logger.debug("Before get stations");
-                                        Station[] newStations = nets[i].retrieve_stations();
-                                        logger.debug("got "+newStations.length+" stations");
-                                        stations.clear();
-                                        for (int j=0; j<newStations.length; j++) {
-                                            stations.addElement(newStations[j]);
-                                            try {
-                                                sleep((int)(.1*1000)); 
-                                            } catch (InterruptedException e) {
-						
-                                            } // end of try-catch
-					    
-                                        }
-                                        logger.debug("finished adding stations");
-                                        try {
-                                            sleep((int)(.1*1000)); 
-                                        } catch (InterruptedException e) {
-						
-                                        } // end of try-catch
-					    
-                                    } // end of for ((int i=0; i<nets.length; i++)
-                                    logger.debug("There are "+stations.getSize()+" items in the station list model");
-                                    // stationList.validate();
-                                    //stationList.repaint();
-                                } catch (Exception e) {
-                                    edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI.handleException(e);
-                                } // end of try-catch
-                            }
-                        };
-                    stationLoader.start();
+                    StationLoader t = new StationLoader();
+		    setStationLoader(t);
+		    t.start();
                 }
             } );
 
@@ -219,43 +188,9 @@ public class ChannelChooser extends JPanel{
                     if(e.getValueIsAdjusting()){
                         return;
                     }
-                    ListSelectionModel selModel = stationList.getSelectionModel();
-                    // assume only one selected network at at time...
-                    NetworkAccess[] nets = getSelectedNetworks();
-                    NetworkAccess net = nets[0];
-                    for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
-                        if (stationList.isSelectedIndex(i)) {
-                            Station selectedStation = 
-                                (Station)stations.getElementAt(i);
-                            Channel[] chans =
-                                net.retrieve_for_station(selectedStation.get_id());
-                            for (int j=0; j<chans.length; j++) {
-                                String chanKey = ChannelIdUtil.toString(chans[j].get_id());
-                                if ( ! channelMap.containsKey(chanKey)) {
-                                    channelMap.put(chanKey, chans[j]);
-                                    if ( ! sites.contains(chans[j].my_site.get_code())) {
-                                        sites.addElement(chans[j].my_site.get_code());
-                                    }
-                                    if ( ! channels.contains(chans[j].get_code())) {
-                                        channels.addElement(chans[j].get_code());
-                                    }
-                                }
-                            } // end of for (int j=0; j<chans.length; j++)
-			    
-                        } else {
-                            Station selectedStation = 
-                                (Station)stations.getElementAt(i);
-                            Channel[] chans =
-                                net.retrieve_for_station(selectedStation.get_id());
-                            for (int j=0; j<chans.length; j++) {
-                                String chanKey = ChannelIdUtil.toString(chans[j].get_id());
-                                if ( channelMap.containsKey(chanKey)) {
-                                    channelMap.remove(chanKey);
-                                }
-                            }
-                        }
-			
-                    } // end of for (int i=e.getFirstIndex(); i<e.getLastIndex(); i++)
+		    ChannelLoader t = new ChannelLoader(e);
+		    setChannelLoader(t);
+		    t.start();
                 }
             }
                                              );
@@ -347,6 +282,12 @@ public class ChannelChooser extends JPanel{
         scroller = new JScrollPane(channelList);
         add(scroller, gbc);
         gbc.gridx++;
+
+	gbc.gridy++;
+	gbc.gridx = 0;
+	gbc.weighty = 0.1;
+	gbc.gridwidth = GridBagConstraints.REMAINDER;
+	add(progressBar, gbc);
     }
 
     public NetworkAccess[] getNetworks(){
@@ -534,6 +475,58 @@ public class ChannelChooser extends JPanel{
         return (Channel[])outChannels.toArray(new Channel[0]);
     }
 
+    /**
+     * Get the value of stationLoader.
+     * @return value of stationLoader.
+     */
+    protected synchronized StationLoader getStationLoader() {
+	return stationLoader;
+    }
+    
+    /**
+     * Set the value of stationLoader.
+     * @param v  Value to assign to stationLoader.
+     */
+    protected synchronized void setStationLoader(StationLoader  v) {
+	this.stationLoader = v;
+    }
+    
+    /**
+     * Get the value of channelLoader.
+     * @return value of channelLoader.
+     */
+    protected  synchronized ChannelLoader getChannelLoader() {
+	return channelLoader;
+    }
+    
+    /**
+     * Set the value of channelLoader.
+     * @param v  Value to assign to channelLoader.
+     */
+    protected  synchronized void setChannelLoader(ChannelLoader  v) {
+	this.channelLoader = v;
+    }
+
+    /** sets this thread as the owner of the progress bar. It is the only
+	thread that can update the progress bar. Also resets the value to 0;
+    */
+    protected synchronized void setProgressOwner(Thread t) {
+	progressBar.setValue(0);
+	progressOwner = t;
+    }
+    
+    protected synchronized void setProgressValue(Thread t, int value) {
+	if (t.equals(progressOwner)) {
+	    progressBar.setValue(value);
+	}
+    }
+
+    protected synchronized void setProgressMax(Thread t, int max) {
+	if (t.equals(progressOwner)) {
+	    progressBar.setMaximum(max);
+	}
+    }
+
     /*================Class Variables===============*/
 
     protected boolean showSites;
@@ -590,6 +583,7 @@ public class ChannelChooser extends JPanel{
     protected JList bandList;
     protected JList orientationList;
     protected JList channelList;
+    protected JProgressBar progressBar = new JProgressBar(0, 100);
 
     protected DefaultListModel networks = new DefaultListModel();
     protected DefaultListModel stations = new DefaultListModel();
@@ -599,6 +593,10 @@ public class ChannelChooser extends JPanel{
     protected HashMap channelMap = new HashMap();
 
     private NetworkDC[] netdc;
+
+    private StationLoader stationLoader = null;
+    private ChannelLoader channelLoader = null;
+    private Thread progressOwner = null;
 
     private GridBagConstraints gbc;
     int x_leftcorner=0;
@@ -732,11 +730,16 @@ public class ChannelChooser extends JPanel{
 	}
 		
 	public void run() {
+	    setProgressOwner(this);
 	    CacheNetworkAccess cache;
 	    logger.debug("Before networks");
 	    if(configuredNetworks == null || configuredNetworks.length == 0) {
 		NetworkAccess[] nets = 
 		    netdc.a_finder().retrieve_all();
+		setProgressMax(this, nets.length+1);
+		int progressVal = 1;
+		setProgressValue(this, progressVal);
+		progressVal++;
 		logger.debug("Got networks");
 		for (int i=0; i<nets.length; i++) {
 		    // skip null networks...probably a bug on the server
@@ -750,7 +753,8 @@ public class ChannelChooser extends JPanel{
 		    } else {
 			logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
 		    } // end of else
-                        
+		    setProgressValue(this, progressVal);
+                    progressVal++;    
 		}
 		if (doSelect && nets.length == 1) {
 		    networkList.getSelectionModel().setSelectionInterval(0,0);
@@ -758,6 +762,7 @@ public class ChannelChooser extends JPanel{
 	    } else {
 		//when the channelChooser is configured with networkCodes....
 		int totalNetworks = 0;
+		setProgressMax(this, configuredNetworks.length);
 		for(int counter = 0; counter < configuredNetworks.length; counter++) {
 		    try {
 			NetworkAccess[] nets = 
@@ -778,11 +783,138 @@ public class ChannelChooser extends JPanel{
 		    }catch(NetworkNotFound nnfe) {
 			logger.warn("Network "+configuredNetworks[counter]+" not found while getting network access uding NetworkFinder.retrieve_by_code");
 		    }
+		    setProgressValue(this, counter);
 		}//end of outer for counter = 0;
 		if (doSelect && totalNetworks == 1) {
 		    networkList.getSelectionModel().setSelectionInterval(0,0);
 		} // end of if (totalNetworks == 1)
 	    }//end of if else checking for configuredNetworks == null 
+	}
+    }
+
+    class StationLoader extends Thread {
+
+	public void run() {
+	    setProgressOwner(this);
+	    setProgressMax(this, 100);
+	    NetworkAccess[] nets = getSelectedNetworks();
+	    try {
+		stations.clear();
+		setProgressValue(this, 10);
+		for (int i=0; i<nets.length; i++) {
+		    logger.debug("Before get stations");
+		    Station[] newStations = nets[i].retrieve_stations();
+		    logger.debug("got "+newStations.length+" stations");
+		    setProgressValue(this, 60);
+		    stations.clear();
+		    for (int j=0; j<newStations.length; j++) {
+			synchronized (ChannelChooser.this) {
+			    if (this.equals(getStationLoader())) {
+				stations.addElement(newStations[j]);
+				try {
+				    sleep((int)(.1*1000)); 
+				} catch (InterruptedException e) {
+				    
+				} // end of try-catch
+			    } else {
+				// no longer the active station loader
+				return;
+			    } // end of else
+			    
+			}
+		    }
+		    setProgressValue(this, 100);
+		    logger.debug("finished adding stations");
+		    try {
+			sleep((int)(.1*1000)); 
+		    } catch (InterruptedException e) {
+						
+		    } // end of try-catch
+					    
+		} // end of for ((int i=0; i<nets.length; i++)
+		logger.debug("There are "+stations.getSize()+" items in the station list model");
+		// stationList.validate();
+		//stationList.repaint();
+	    } catch (Exception e) {
+		edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI.handleException(e);
+	    } // end of try-catch	}
+	}
+    }
+
+
+    class ChannelLoader extends Thread {
+	public ChannelLoader(ListSelectionEvent e) {
+	    this.e = e;
+	}
+
+	ListSelectionEvent e;
+
+	public void run() {
+	    setProgressOwner(this);
+	    ListSelectionModel selModel = stationList.getSelectionModel();
+	    // assume only one selected network at at time...
+	    NetworkAccess[] nets = getSelectedNetworks();
+	    NetworkAccess net = nets[0];
+	    setProgressMax(this, e.getLastIndex());
+	    for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
+		if (stationList.isSelectedIndex(i)) {
+		    Station selectedStation = 
+			(Station)stations.getElementAt(i);
+		    Channel[] chans =
+			net.retrieve_for_station(selectedStation.get_id());
+
+		    synchronized (ChannelChooser.this) {
+			if (this.equals(getChannelLoader())) {
+			    addChannels(chans);
+			} else {
+			    // no loner active channel loader
+			    return;
+			} // end of else
+			
+		    }
+		} else {
+		    Station selectedStation = 
+			(Station)stations.getElementAt(i);
+		    Channel[] chans =
+			net.retrieve_for_station(selectedStation.get_id());
+		    synchronized (ChannelChooser.this) {
+			if (this.equals(getChannelLoader())) {
+			    removeChannels(chans);
+			} else {
+			    // no loner active channel loader
+			    return;
+			} // end of else
+			
+		    }
+		}
+		setProgressValue(this, i);
+	    } // end of for (int i=e.getFirstIndex(); i<e.getLastIndex(); i++)
+	    progressBar.setValue(progressBar.getMaximum());
+	}
+
+	void addChannels(Channel[] chans) {
+	    for (int j=0; j<chans.length; j++) {
+		String chanKey = ChannelIdUtil.toString(chans[j].get_id());
+		if ( ! channelMap.containsKey(chanKey)) {
+		    channelMap.put(chanKey, chans[j]);
+		    if ( ! sites.contains(chans[j].my_site.get_code())) {
+			sites.addElement(chans[j].my_site.get_code());
+		    }
+		    if ( ! channels.contains(chans[j].get_code())) {
+			channels.addElement(chans[j].get_code());
+		    }
+		}
+	    } // end of for (int j=0; j<chans.length; j++)
+	}
+
+	void removeChannels(Channel[] chans) {
+
+	    for (int j=0; j<chans.length; j++) {
+		String chanKey = ChannelIdUtil.toString(chans[j].get_id());
+		if ( channelMap.containsKey(chanKey)) {
+		    channelMap.remove(chanKey);
+		}
+	    }
 	}
     }
 
