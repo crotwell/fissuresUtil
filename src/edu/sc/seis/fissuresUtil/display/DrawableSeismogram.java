@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+
 
 /**
  * DrawableSeismogram.java
@@ -45,6 +47,7 @@ public class DrawableSeismogram implements NamedPlotter{
                      Dimension size,
                      TimeEvent currentTime,
                      AmpEvent currentAmp){
+        canvas.draw(new Rectangle(100, 100));
         if(visible && size.width > 0 && size.height > 0){
             canvas.setPaint(color);
             shape.update(currentTime.getTime(shape.getSeismogram()),
