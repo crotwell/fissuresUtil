@@ -19,85 +19,66 @@ import java.awt.event.*;
  * @version
  */
 
- public class RTTimeRangeConfig extends AbstractTimeRangeConfig{
+public class RTTimeRangeConfig extends BoundedTimeConfig{
     public RTTimeRangeConfig (){
-	super();
-	setDisplayInterval(width);
-	beginTime = new MicroSecondDate(0);
-   }
+	this(new TimeConfigRegistrar());
+    }
 
-    /**
-     * Takes the information from the passed seismogram and uses it along with the information already taken from other seismograms 
-     * along with an internal set of calculations to determine the amount of time the passed seismogram will be displayed
-     *
-     * @param seis the seismogram to be displayed
-     * @return the time it will be displayed
-     */
-     public MicroSecondTimeRange getTimeRange(LocalSeismogram seis) {
-	 /* MicroSecondDate curr = (MicroSecondDate)(seismos.get(seis));
-	 MicroSecondDate tempTime = curr.add(displayInterval);
-	 MicroSecondDate endTime = tempTime.add(displayInterval);
-	 beginTime = tempTime;*/
-	 MicroSecondDate endTime = beginTime.add(displayInterval);
-	 MicroSecondDate tempTime = beginTime;
-	 return new MicroSecondTimeRange(beginTime, endTime);
-     }
+    public RTTimeRangeConfig (TimeConfigRegistrar reg){
+	this(reg, new TimeInterval(1, UnitImpl.SECOND));
+    }
 
-    /**
-     * Get the total display time regardless of a particular seismogram, for things such as axes
-     *
-     * @return the time range being displayed
-     */
-     public MicroSecondTimeRange getTimeRange() {
+    public RTTimeRangeConfig (TimeConfigRegistrar reg, TimeInterval update){
+	this(reg, update, 1);
+    }
 
-	 MicroSecondDate endTime = beginTime.add(displayInterval);
-	 MicroSecondDate tempTime = beginTime;
-	 //this.beginTime = endTime;
-	 System.out.println("The function getTimeRange is Called "+tempTime+" end Time is "+beginTime);
- 
-	 return new MicroSecondTimeRange(tempTime, endTime);
-     }
+    public RTTimeRangeConfig (TimeConfigRegistrar reg, 
+			      TimeInterval update, 
+			      float speed){
+	super(reg);
+	reg.setTimeConfig(this);
+	this.update = update;
+	this.speed = speed;
+    }
 
-    
-    /**
-     * Takes the information from the TimeSyncEvent, adjusts the MicroSecondTimeRange, and updates according to the information in the 
-     * event
-     *
-     */
-     public  void fireTimeRangeEvent(TimeSyncEvent e) {
-
-     }
-
-     public void startTimer() {
+    public void startTimer() {
 	 
-	 if (timer == null) {
-	     timer = 
-		new javax.swing.Timer(1000,
-			  new ActionListener() {
-			      public void actionPerformed(ActionEvent e) {
-				  width = new TimeInterval(speed, UnitImpl.SECOND);
-				  setBeginTime(beginTime.add(width));
-				  // updateTimeSyncListeners();
-			      }
-			  });//20000
-	     timer.setCoalesce(true); 
-	     timer.start();
-	 }
-     }
+	if (timer == null) {
+	    timer = 
+		new javax.swing.Timer((int)update.convertTo(UnitImpl.MILLISECOND).value,
+		     new ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+			     width = (TimeInterval)update.multiplyBy(speed);
+			     if (beginTime != null) {
+				 setAllBeginTime(beginTime.add(width));
+				 getRegistrar().updateTimeSyncListeners();
+				 System.out.println("Timer: updateTimeSyncListeners()  speed="+speed);
+			     } // end of if (beginTime != null)
+			 }
+		     });
+	    timer.setCoalesce(true); 
+	    timer.start();
+	}
+    }
 
-     public void setSpeed(float speed) {
+    public void setSpeed(float speed) {
+	this.speed = speed;
+    }
 
-	 this.speed = speed;
-     }
+    public float getSpeed() {
+	return speed;
+    }
 
-     private float speed = 1;
+    private TimeInterval update;
 
-     /** Timers are used for realTime update of the Seismograms **/
-     protected javax.swing.Timer timer;
+    private float speed = 1;
 
-     protected javax.swing.Timer reloadTimer;
+    /** Timers are used for realTime update of the Seismograms **/
+    protected javax.swing.Timer timer;
 
-     protected TimeInterval width = new TimeInterval(1, UnitImpl.SECOND);
+    protected javax.swing.Timer reloadTimer;
+
+    protected TimeInterval width = new TimeInterval(1, UnitImpl.SECOND);
 
            
 }// RTTimeRangeConfig
