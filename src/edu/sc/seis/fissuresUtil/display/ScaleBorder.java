@@ -52,13 +52,12 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                 copy.setFont(f);
                 // in case there are borders inside of this one
                 Insets insets = ((JComponent)c).getInsets();
-		/*System.out.println();
-		System.out.println("x:     " + x +           " y:       " + y +             " itop:   " + insets.top);
-		System.out.println("ileft: " + insets.left + " ibottom: " + insets.bottom + " iright: " + insets.right);
-		System.out.println("top:   " + top +         " right:   " + right         + " bottom: " + bottom);
-		System.out.println("left:  " + left);*/
+		/*System.out.println("x:     " + x + " y:       " + y);
+		System.out.println("itop:   " + insets.top + " ibottom: " + insets.bottom + "ileft: " + insets.left +  " iright: " + 
+				   insets.right);
+				   System.out.println("top:   " + top + " bottom: " + bottom + " right:   " + right +  "left:  " + left);*/
 		FontMetrics fm = copy.getFontMetrics();
-		String labelTemp;
+		String label;
 		// top
 		int numTicks;
 		int pixelLoc;
@@ -70,12 +69,13 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 			    copy.draw(new Line2D.Float(pixelLoc, top, pixelLoc, top - majorTickLength));
 			else
 			    copy.draw(new Line2D.Float(pixelLoc, top, pixelLoc, top - minorTickLength));
-			labelTemp = topScaleMap.getLabel(i);
-                        if (labelTemp != null && labelTemp.length() != 0) {
-                            copy.drawString(labelTemp,
-                                            pixelLoc - (labelTemp.length() * 2),
-					    top - majorTickLength-
-                                            fm.getLeading());
+			label = topScaleMap.getLabel(i);
+                        int labelWidth = (int)fm.getStringBounds(label, copy).getWidth();
+			    if (label != null && label.length() != 0 && pixelLoc + labelWidth < width) {
+				copy.drawString(label,
+						pixelLoc - labelWidth/2,
+						top - majorTickLength-
+						fm.getLeading());
                         }
 		    }
 		}
@@ -96,18 +96,18 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 						       insets.left - insets.right,
 						       pixelLoc));
 			}
-			labelTemp = leftScaleMap.getLabel(i);
-			if (labelTemp != null && labelTemp.length() != 0) {
+			label = leftScaleMap.getLabel(i);
+			if (label != null && label.length() != 0) {
 			    if(i == 0)
-				copy.drawString(labelTemp,
+				copy.drawString(label,
 						insets.left - insets.right - 45,
 						pixelLoc + 5);
 			    else if(i == numTicks - 1)
-				copy.drawString(labelTemp,
+				copy.drawString(label,
 						insets.left - insets.right - 45,
 						pixelLoc + 5);
 			    else
-				copy.drawString(labelTemp,
+				copy.drawString(label,
 						insets.left - insets.right - 45,
 						pixelLoc);
 			}
@@ -130,10 +130,11 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 							   pixelLoc,
 							   height-bottom+minorTickLength));
 			    }
-                            labelTemp = bottomScaleMap.getLabel(i);
-                            if (labelTemp != null && labelTemp.length() != 0) {
-                                copy.drawString(labelTemp,
-                                         pixelLoc,
+                            label = bottomScaleMap.getLabel(i);
+			    int labelWidth = (int)fm.getStringBounds(label, copy).getWidth();
+			    if (label != null && label.length() != 0 && pixelLoc + labelWidth < width) {
+				copy.drawString(label,
+                                         pixelLoc - labelWidth/2,
                                          height-fm.getLeading());
                             }
 		    }
@@ -144,14 +145,13 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
 		    numTicks = rightScaleMap.getNumTicks();
 		    for (int i=0; i<numTicks; i++) {
 			pixelLoc = height - rightScaleMap.getPixelLocation(i) - bottom;
-			System.out.println("HScaleBorder pixelLoc="+pixelLoc);
 			copy.draw(new Line2D.Float(pixelLoc,
 				   c.getSize().height-bottom,
 				   pixelLoc,
 				   c.getSize().height-bottom/2));
-                        labelTemp = rightScaleMap.getLabel(i);
-                        if (labelTemp != null && labelTemp.length() != 0) {
-                            copy.drawString(labelTemp,
+                        label = rightScaleMap.getLabel(i);
+                        if (label != null && label.length() != 0) {
+                            copy.drawString(label,
                                             pixelLoc,
                                             c.getSize().height-fm.getLeading());
                         }
