@@ -92,8 +92,12 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
      * graticule layer, an empty event layer with depth based colorizationand an
      * empty station layer
      */
-    public OpenMap() {
-        this("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
+    public OpenMap(){
+        this(true);
+    }
+    
+    public OpenMap(boolean graticule) {
+        this("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse", graticule);
         setEventLayer(new EventLayer(getMapBean(), new DepthEventColorizer()));
         setStationLayer(new StationLayer());
     }
@@ -104,7 +108,11 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
      * @param shapefile -
      *            the file to be used in the shapelayer
      */
-    public OpenMap(String shapefile) {
+    public OpenMap(String shapefile){
+        this(shapefile, true);
+    }
+    
+    public OpenMap(String shapefile, boolean graticule) {
         try {
             setLayout(new BorderLayout());
             mapHandler = new MapHandler();
@@ -119,16 +127,18 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             // LayerHandler will find the MapBean in the MapHandler.
             lh = new LayerHandler();
             mapHandler.add(lh);
-            GraticuleLayer gl = new FissuresGraticuleLayer();
-            Properties graticuleLayerProps = gl.getProperties(new Properties());
-            graticuleLayerProps.setProperty("prettyName", "Graticule Layer");
-            graticuleLayerProps.setProperty("show1And5Lines", "true");
-            graticuleLayerProps.setProperty("10DegreeColor", "FF888888");
-            graticuleLayerProps.setProperty("1DegreeColor", "C7003300");
-            gl.setProperties(graticuleLayerProps);
-            gl.setShowRuler(true);
-            mapHandler.add(gl);
-            lh.addLayer(gl, 0);
+            if(graticule) {
+                GraticuleLayer gl = new FissuresGraticuleLayer();
+                Properties graticuleLayerProps = gl.getProperties(new Properties());
+                graticuleLayerProps.setProperty("prettyName", "Graticule Layer");
+                graticuleLayerProps.setProperty("show1And5Lines", "true");
+                graticuleLayerProps.setProperty("10DegreeColor", "FF888888");
+                graticuleLayerProps.setProperty("1DegreeColor", "C7003300");
+                gl.setProperties(graticuleLayerProps);
+                gl.setShowRuler(true);
+                mapHandler.add(gl);
+                lh.addLayer(gl, 0);
+            }
             // Create a ShapeLayer to show world political boundaries.
             shapeLayer = new FissuresShapeLayer();
             shapeLayer.addLayerStatusListener(this);
@@ -143,7 +153,6 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             shapeLayer.setVisible(true);
             mapHandler.add(shapeLayer);
             lh.addLayer(shapeLayer);
-
             InformationDelegator infoDel = new InformationDelegator();
             infoDel.setShowLights(false);
             mouseDelegator = new MouseDelegator();
