@@ -21,7 +21,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3647 2003-04-07 20:59:03Z groves $
+ * @version $Id: SeismogramShape.java 3657 2003-04-09 21:14:19Z groves $
  */
 
 public class SeismogramShape implements Shape, SeisDataChangeListener{
@@ -125,7 +125,10 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
             return;
         }
         int drawStart, drawEnd;
-        if(dragAmount < 0){
+        if(pointsPerPixel <= 2){ //if there are less than 2 points per pixel,
+            drawStart = drawnPixels[0];//just replot the whole thing
+            drawEnd = drawnPixels[1];
+        }else if(dragAmount < 0){
             drawStart = drawnPixels[1] + dragAmount;
             drawEnd = drawnPixels[1];
         }else{
@@ -133,11 +136,6 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
             drawEnd = dragAmount--;
             ++dragAmount;
         }
-        /* System.out.println("DragAmount: " + dragAmount + " reDrawStart: " + drawStart +
-         " reDrawEnd: " + drawEnd + " DragFrom: " + dragFrom +
-         " DrawStart: " + drawnPixels[0] + " DrawEnd: " + drawnPixels[1]+
-         " totalShift: " + iterator.getTotalShift() +
-         " SeismogramPoints: " + seisPoints[0] + ", " + seisPoints[1]);*/
         plotPixels(drawStart, drawEnd, iterator);
     }
 
@@ -184,14 +182,6 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
         if(start >= end || start < 0){
             return;
         }
-        if(iterator.getPointsPerPixel() <= 2){
-            plotExpansion(start, end, iterator);
-        }else{
-            plotCompression(start, end, iterator);
-        }
-    }
-
-    private void plotExpansion(int start, int end, SeismogramShapeIterator iterator){
         int[][] points = iterator.getPoints();
         double pointsPerPixel = iterator.getPointsPerPixel();
         double minAmp = iterator.getAmp().getMinValue();
@@ -202,49 +192,49 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
         for(int i = start; i < end; i++){
             double shift = (i-totalShift)*pointsPerPixel;
             double unroundStartPoint = iterator.getBaseSeisPoint() + shift;
-            int startPoint = (int)Math.floor(unroundStartPoint);
-            int endPoint = startPoint + 1;
-            double firstPoint = 0;
-            double lastPoint = 0;
-            try{
-                firstPoint = seis[0].getValueAt(startPoint).getValue();
-                lastPoint = seis[0].getValueAt(endPoint).getValue();
-            }catch(CodecException e){
-                logger.debug("Error getting a point from a local seismogram");
-                e.printStackTrace();
+            if(iterator.getPointsPerPixel() <= 2){
+                plotExpansion(unroundStartPoint, points, minAmp, range, height, i);
+            }else{
+                plotCompression(unroundStartPoint, points, minAmp, range, height,
+                               i, pointsPerPixel);
             }
-            double difference = unroundStartPoint - startPoint;
-            double value = firstPoint * (1 - difference) + (lastPoint * difference);
-            points[0][i] = (int)((value  - minAmp)/range * height);
-            points[1][i] = points[0][i];
-           // System.out.println("Difference" + difference + " X: " + i + " Point: " + (int)firstPoint + " Point++: " + (int)lastPoint + " Value: " + (int)value);
         }
     }
 
-    private void plotCompression(int start, int end, SeismogramShapeIterator iterator){
-        int[][] points = iterator.getPoints();
-        double pointsPerPixel = iterator.getPointsPerPixel();
-        double minAmp = iterator.getAmp().getMinValue();
-        double maxAmp = iterator.getAmp().getMaxValue();
-        double range = maxAmp - minAmp;
-        int height = iterator.getSize().height;
-        int totalShift = iterator.getTotalShift();
-        for(int i = start; i < end; i++){
-            double shift = (i-totalShift)*pointsPerPixel;
-            double unroundStartPoint = iterator.getBaseSeisPoint() + shift;
-            int startPoint = (int)Math.floor(unroundStartPoint);
-            int endPoint = (int)Math.ceil(unroundStartPoint + pointsPerPixel);
-            if(startPoint < 0){
-                startPoint = 0;
-            }
-            if(endPoint > seis[0].getNumPoints()){
-                endPoint = seis[0].getNumPoints();
-            }
-            double[] minMax = stat[0].minMaxMean(startPoint,
-                                                 endPoint);
-            points[0][i] = (int)((minMax[0]  - minAmp)/range * height);
-            points[1][i] = (int)((minMax[1] - minAmp)/range * height);
+    private void plotExpansion(double unroundStartPoint, int[][] points,
+                               double minAmp, double range, int height, int point){
+        int startPoint = (int)Math.floor(unroundStartPoint);
+        int endPoint = startPoint + 1;
+        double firstPoint = 0;
+        double lastPoint = 0;
+        try{
+            firstPoint = seis[0].getValueAt(startPoint).getValue();
+            lastPoint = seis[0].getValueAt(endPoint).getValue();
+        }catch(CodecException e){
+            logger.debug("Error getting a point from a local seismogram");
+            e.printStackTrace();
         }
+        double difference = unroundStartPoint - startPoint;
+        double value = firstPoint * (1 - difference) + (lastPoint * difference);
+        points[0][point] = (int)((value  - minAmp)/range * height);
+        points[1][point] = points[0][point];
+    }
+
+    private void plotCompression(double unroundStartPoint, int[][] points,
+                                 double minAmp, double range, int height, int point,
+                                 double pointsPerPixel){
+        int startPoint = (int)Math.floor(unroundStartPoint);
+        int endPoint = (int)Math.ceil(unroundStartPoint + pointsPerPixel);
+        if(startPoint < 0){
+            startPoint = 0;
+        }
+        if(endPoint > seis[0].getNumPoints()){
+            endPoint = seis[0].getNumPoints();
+        }
+        double[] minMax = stat[0].minMaxMean(startPoint,
+                                             endPoint);
+        points[0][point] = (int)((minMax[0]  - minAmp)/range * height);
+        points[1][point] = (int)((minMax[1] - minAmp)/range * height);
     }
 
     public static double getShiftPercentage(MicroSecondTimeRange from,
