@@ -247,7 +247,7 @@ public class DataSetToXML {
         throws IOException, ParserConfigurationException, SAXException, UnsupportedFileTypeException {
         DataSet dataset = null;
 
-        DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
+        DocumentBuilder docBuilder = getDocumentBuilder();
 
         Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
         Element docElement = doc.getDocumentElement();
@@ -275,7 +275,6 @@ public class DataSetToXML {
         String name = "";
         String owner = "";
         String id = element.getAttribute("datasetid");
-        Node temp;
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             if (children.item(i) instanceof Element) {

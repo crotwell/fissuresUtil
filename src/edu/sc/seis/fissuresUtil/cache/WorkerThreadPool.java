@@ -17,7 +17,6 @@ public class WorkerThreadPool{
         this(name, numThreads, Thread.NORM_PRIORITY);
     }
 
-
     public WorkerThreadPool(String name, int numThreads, int priority) {
         this.name = name;
         this.priority = priority;
