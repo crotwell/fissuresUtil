@@ -19,5 +19,9 @@ public class GlobalExceptionHandler
         frame.show();
     }
 
+    public static void handleStatic(Throwable thrown) {
+        GlobalExceptionHandler g = new GlobalExceptionHandler();
+        g.handle(thrown);
+    }
 }
 
