@@ -107,7 +107,6 @@ public class PlottableSelection{
         int[] rtnValues = new int[arrayList.size()];
         for(int counter = 0; counter < arrayList.size(); counter++) {
             rtnValues[counter] = ((Integer)arrayList.get(counter)).intValue();
-            //System.out.println("The row selected is "+rtnValues[counter]);
         }
         return rtnValues;
     }
