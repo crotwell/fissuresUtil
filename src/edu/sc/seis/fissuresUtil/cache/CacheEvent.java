@@ -246,10 +246,12 @@ public class CacheEvent implements EventAccessOperations {
         String originTimeString = sdf.format(msd);
 
         //Get Magnitude
-        float mag = origin.magnitudes[0].value;
+		float mag = Float.NaN;
+		if (origin.magnitudes.length > 0){
+        	mag = origin.magnitudes[0].value;
+		}
 
         //get depth
-
         Quantity depth = origin.my_location.depth;
 
         float latitude = origin.my_location.latitude;
@@ -265,7 +267,12 @@ public class CacheEvent implements EventAccessOperations {
                 }else if(magicStrings[i].equals(TIME)){
                     buf.insert(index, originTimeString);
                 }else if(magicStrings[i].equals(MAG)){
-                    buf.insert(index, mag);
+					if (Float.isNaN(mag)){
+						buf.insert(index, "...");
+					}
+					else {
+                    	buf.insert(index, mag);
+					}
                 }else if(magicStrings[i].equals(DEPTH)){
                     buf.insert(index, depthFormatter.format(depth.value));
                 }else if(magicStrings[i].equals(DEPTH_UNIT)){
