@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.print.*;
 import javax.swing.JPanel;
 import javax.swing.JComponent;
+import java.util.HashMap;
 
 /**
  * SeismogramPrinter.java
@@ -16,52 +17,63 @@ import javax.swing.JComponent;
  */
 
 public class SeismogramPrinter implements Printable{
-    public SeismogramPrinter (BasicSeismogramDisplay[] displays, int seisPerPage){
+
+    public SeismogramPrinter(BasicSeismogramDisplay[] displays){
 	this.displays = displays;
-	System.out.println("number of displays: " + displays.length + " number of displays per page: " + seisPerPage);
-	this.seisPerPage = seisPerPage;
+	sizes = new Dimension[displays.length];
+	bottomBorder = new boolean[displays.length];
+	topBorder = new boolean[displays.length];
+	for(int i = 0; i < displays.length; i++){
+	    disableDoubleBuffering(displays[i]);
+	    sizes[i] = displays[i].getSize();
+	    bottomBorder[i] = displays[i].hasBottomTimeBorder();
+	    topBorder[i] = displays[i].hasTopTimeBorder();
+	    displays[i].addBottomTimeBorder();
+	    displays[i].addTopTimeBorder();
+	    
+	}
+    }
+    
+    public void restore(){
+	for(int i = 0; i < displays.length; i++){
+	    restoreDoubleBuffering(displays[i]);
+	    if(!bottomBorder[i]){
+		displays[i].removeBottomTimeBorder();
+	    }
+	    if(!topBorder[i]){
+		displays[i].removeTopTimeBorder();
+	    }
+	    displays[i].setSize(sizes[i]);
+	    displays[i].resize();
+	}
     }
     
     public int print(Graphics g, PageFormat pageFormat, int pageIndex){
-	System.out.println(pageIndex);
-	if (pageIndex >= displays.length/seisPerPage) return NO_SUCH_PAGE;
+	if(pageIndex >= displays.length)  return NO_SUCH_PAGE;
 	Graphics2D g2 = (Graphics2D)g;
 	g2.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-	Paper page = pageFormat.getPaper();
-	double height = page.getHeight();
-	int displayStart = pageIndex * seisPerPage;
-	boolean[] wasBuffered = new boolean[seisPerPage];
-	Dimension[] currentSizes = new Dimension[seisPerPage];
-	for(int i = 0; i < seisPerPage; i++){
-	    System.out.println("adding display " + displays[i + displayStart].getName() + " to the printout");
-	    wasBuffered[i] = disableDoubleBuffering(displays[i + displayStart]);
-	    currentSizes[i] = displays[i + displayStart].getSize();
-	    displays[i+displayStart].setSize(new Dimension((int)page.getWidth(),(int)(height/seisPerPage)));
-	    displays[i+displayStart].paint(g2);
-	    g2.translate(0, (int)(height/seisPerPage));
-	}
-	for(int i = 0; i < wasBuffered.length; i++){
-	    restoreDoubleBuffering(displays[i+ displayStart], wasBuffered[i]);
-	    displays[i+displayStart].setSize(currentSizes[i]);
-	}
+	Dimension imageableSize = new Dimension();
+	imageableSize.setSize(pageFormat.getImageableWidth(), pageFormat.getImageableHeight());
+	displays[pageIndex].setSize(imageableSize);
+	displays[pageIndex].resize();
+	displays[pageIndex].paint(g2);
 	return PAGE_EXISTS;
     }
     
-    private boolean disableDoubleBuffering(Component c){
-	if(c instanceof JComponent == false) return false;
-	JComponent jc = (JComponent)c;
-	boolean wasBuffered = jc.isDoubleBuffered();
+    private void disableDoubleBuffering(JComponent jc){
 	jc.setDoubleBuffered(false);
-	return wasBuffered;
     }
     
-    private void restoreDoubleBuffering(Component c, boolean wasBuffered){
-	if(c instanceof JComponent)
-	    ((JComponent)c).setDoubleBuffered(wasBuffered);
+    private void restoreDoubleBuffering(JComponent jc){
+	jc.setDoubleBuffered(true);
     }
 
+    private Dimension[] sizes;
+
+    private boolean[] topBorder;
+
+    private boolean[] bottomBorder;
+ 
     private BasicSeismogramDisplay[] displays;
-
-    private int seisPerPage;
-    
+ 
 }// SeismogramPrinter

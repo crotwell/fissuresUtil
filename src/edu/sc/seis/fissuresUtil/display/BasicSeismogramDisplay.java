@@ -69,9 +69,11 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
 		    resize();
+		    repaint();
 		}
 		public void componentShown(ComponentEvent e) {
 		    resize();
+		    repaint();
 		}
 		});
 	setMinimumSize(new Dimension(100, 50));
@@ -87,6 +89,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	Insets insets = getInsets();
 	setPreferredSize(new Dimension(200 + insets.left + insets.right, 100 + insets.top + insets.bottom));
 	resize();
+	repaint();
 	plotPainter = new PlotPainter();
 	add(plotPainter);
     }
@@ -265,6 +268,13 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 
     public boolean getAutoColor(){ return autoColor; }
 
+    public boolean hasBottomTimeBorder(){
+	if(scaleBorder.getBottomScaleMapper() != null){
+	    return true;
+	}
+	return false;
+    }
+
     public void addBottomTimeBorder(){	
 	scaleBorder.setBottomScaleMapper(timeScaleMap); 
 	Insets current = this.getInsets();
@@ -276,6 +286,13 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	scaleBorder.clearBottomScaleMapper(); 
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
+    }
+
+    public boolean hasTopTimeBorder(){
+	if(scaleBorder.getTopScaleMapper() != null){
+	    return true;
+	}
+	return false;
     }
 
     public void addTopTimeBorder(){ 
@@ -298,9 +315,12 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 	if(displaySize.height < 0 || displaySize.width < 0){
 	    return; 
 	}
+	Rectangle plotPainterBounds = plotPainter.getBounds();
+	Rectangle newPlotPainterBounds = new Rectangle(plotPainterBounds);
+	newPlotPainterBounds.setSize(displaySize);
+	plotPainter.setBounds(newPlotPainterBounds);
 	timeScaleMap.setTotalPixels(displaySize.width);
 	ampScaleMap.setTotalPixels(displaySize.height);
-	repaint();
     }
 
     public void remove(){
