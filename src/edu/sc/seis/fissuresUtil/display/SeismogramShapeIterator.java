@@ -90,15 +90,19 @@ public class SeismogramShapeIterator implements PathIterator {
         this.pointsPerPixel = pointsPerPixel;
     }
 
-    public double getPointsPerPixel()
-    {
+    public double getPointsPerPixel() {
         return pointsPerPixel;
     }
 
     public void setDrawnPixels(int[] drawnPixels){
-        this.drawnPixels = drawnPixels;
-        startIndex = drawnPixels[0];
-        endIndex = drawnPixels[1];
+        if(drawnPixels != null){
+            this.drawnPixels = drawnPixels;
+        }else{
+            int[] pixels = { -1, -1};
+            this.drawnPixels =  pixels;
+        }
+        startIndex = this.drawnPixels[0];
+        endIndex = this.drawnPixels[1];
         currentIndex = startIndex;
     }
 
