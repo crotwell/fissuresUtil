@@ -3,6 +3,8 @@ package edu.sc.seis.fissuresUtil.map;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import com.bbn.openmap.BufferedMapBean;
 import com.bbn.openmap.InformationDelegator;
@@ -32,13 +36,20 @@ import com.bbn.openmap.layer.etopo.ETOPOJarLayer;
 import com.bbn.openmap.layer.etopo.ETOPOLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Projection;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.sc.seis.fissuresUtil.chooser.AvailableStationDataEvent;
+import edu.sc.seis.fissuresUtil.chooser.StationDataEvent;
+import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.map.colorizer.event.DepthEventColorizer;
 import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
 import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
+import edu.sc.seis.mockFissures.IfEvent.MockEventAccessOperations;
+import edu.sc.seis.mockFissures.IfNetwork.MockStation;
 
 public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
@@ -305,6 +316,13 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     SoftReference imgRef = new SoftReference(null);
 
+    private static final class Closer extends WindowAdapter {
+
+        public void windowClosed(WindowEvent e) {
+            System.exit(0);
+        }
+    }
+
     private class InformativeShapeLayer extends ShapeLayer {
 
         public void renderDataForProjection(Projection p, Graphics g) {
@@ -329,35 +347,29 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
     }
 
     public static void main(String[] args) {
-    //      OpenMap om = new
-    // OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
-    //      //om.addMouseMode(new PanTool(om));
-    //      om.addMouseMode(new SelectMouseMode());
-    //      EventLayer evLayer = new EventLayer(om.getMapBean(), new
-    // DefaultEventColorizer());
-    //      om.setEventLayer(evLayer);
-    //      evLayer.eventDataChanged(new EQDataEvent(om,
-    // MockEventAccessOperations.createEvents()));
-    //      StationLayer staLayer = new StationLayer();
-    //      om.setStationLayer(staLayer);
-    //      ShapeLayer sLayer = om.getShapeLayer();
-    //      ProjectionChangePolicy pcPolicy = sLayer.getProjectionChangePolicy();
-    //      System.out.println("working");
-    //      while(sLayer.isWorking()){
-    //          System.out.print(".");
-    //      }
-    //      System.out.println("\ndone");
-    //      // try {
-    //      // om.writeMapToPNG("testMap.png");
-    //      // } catch (IOException e) {
-    //      // e.printStackTrace();
-    //      // }
-    //      staLayer.stationDataChanged(new StationDataEvent(om, new
-    // Station[]{MockStation.createStation()}));
-    //      JFrame frame = new JFrame("OpenMap Test");
-    //      frame.getContentPane().add(om);
-    //      frame.setSize(640, 480);
-    //      frame.show();
+        BasicConfigurator.configure();
+        OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse",
+                                 "edu/sc/seis/mapData");
+        EventLayer evLayer = new EventLayer(om.getMapBean(),
+                                            new DepthEventColorizer());
+        om.setEventLayer(evLayer);
+        evLayer.eventDataChanged(new EQDataEvent(MockEventAccessOperations.createEvents()));
+        StationLayer staLayer = new StationLayer();
+        om.setStationLayer(staLayer);
+        Station sta = MockStation.createStation();
+        Station other = MockStation.createOtherStation();
+        staLayer.stationDataChanged(new StationDataEvent(new Station[] {sta}));
+        staLayer.stationAvailabiltyChanged(new AvailableStationDataEvent(sta,
+                                                                         AvailableStationDataEvent.UP));
+        staLayer.stationDataChanged(new StationDataEvent(new Station[] {other}));
+        staLayer.stationAvailabiltyChanged(new AvailableStationDataEvent(other,
+                                                                         AvailableStationDataEvent.DOWN));
+        JFrame frame = new JFrame("OpenMap Test");
+        frame.addWindowListener(new Closer());
+        frame.getContentPane().setLayout(new BorderLayout());
+        frame.getContentPane().add(om);
+        frame.setSize(640, 480);
+        frame.show();
     }
 
     public void findAndInit(Object obj) {
