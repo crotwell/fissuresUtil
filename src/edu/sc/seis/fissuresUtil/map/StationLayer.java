@@ -84,6 +84,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         repaint();
     }
 
+
+
     private class OMStation extends OMPoly{
         public OMStation(Station stat){
             super(stat.my_location.latitude,
@@ -152,4 +154,24 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         }
         return false;
     }
+
+		public boolean mouseMoved(MouseEvent e){
+		synchronized(omgraphics){
+			Iterator it = omgraphics.iterator();
+			while(it.hasNext()){
+				OMStation current = (OMStation)it.next();
+				if(current.contains(e.getX(), e.getY())){
+					Station station = current.getStation();
+					StringBuffer buf = new StringBuffer();
+					buf.append("Station: ");
+					buf.append(station.get_code() + "-");
+					buf.append(station.name);
+					fireRequestInfoLine(buf.toString());
+					return true;
+				}
+			}
+			fireRequestInfoLine("");
+			return false;
+		}
+	}
 }
