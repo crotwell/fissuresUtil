@@ -108,7 +108,7 @@ public abstract class Border extends JComponent {
             setMinimumSize(new Dimension(0, height));
             setPreferredSize(new Dimension(100, height));
         } else {
-            int width = 55 + labelTickLength + tpHeight;
+            int width = 50 + labelTickLength + tpHeight;
             if(labelTickLength == 0) {
                 width = tpHeight + 10;
             }
