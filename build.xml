@@ -11,7 +11,7 @@
        <property name="junit_jar" value="../junit3.7/junit.jar" />
        <property name="fissuresImpljar" value="../fissures/dist/lib/FissuresImpl.jar" />
        <property name="fissuresIDLjar" value="../fissures/dist/lib/FissuresIDL.jar" />
-       <property name="log4j" value="../log4j" />
+       <property name="log4j" value="../log4j/log4j.jar" />
        <property name="objar" value="../OrbacusSignedJars/dist/OB.jar" />
        <property name="obnamingjar" value="../OrbacusSignedJars/dist/OBNaming.jar" />
 
