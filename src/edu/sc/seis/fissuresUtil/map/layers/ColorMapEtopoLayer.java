@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
 import com.bbn.openmap.layer.etopo.ETOPOJarLayer;
 
 /**
@@ -67,7 +68,7 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer {
         // compute slope idx
         int slopeIdx = ((int)slopeVal + 127) >> 5;
         // return color
-        return slopeColors[elIdx][4];
+        return slopeColors[elIdx][slopeIdx];
     }
     
     /* returns the color lookup index based on elevation */
@@ -81,13 +82,19 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer {
     private static int[][] readInColorTable(String filename)
             throws IOException, FileNotFoundException {
         //read lines of file into a list
-        File cMapFile = new File(filename);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(cMapFile)));
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(filename)));
+        } catch(Exception e){
+            logger.debug("reading from jar failed. checking to see if path is a valid non-jarred file");
+            File cMapFile = new File(filename);
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(cMapFile)));
+            logger.debug("it was indeed!");
+        }
         List colorRangeList = new ArrayList();
         String line = null;
         while((line = reader.readLine()) != null) {
             colorRangeList.add(line);
-            System.out.println(line);
         }
         reader.close();
         int numValues = colorRangeList.size() + 1;
@@ -112,4 +119,6 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer {
     private int[] elevationLimit;
 
     private int[] redValues, greenValues, blueValues;
+    
+    private static Logger logger = Logger.getLogger(ColorMapEtopoLayer.class);
 }
