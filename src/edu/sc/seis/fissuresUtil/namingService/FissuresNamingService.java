@@ -27,6 +27,7 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
 import java.util.LinkedList;
 import java.util.Iterator;
+import edu.sc.seis.fissuresUtil.cache.NSPlottableDC;
 
 /**
  * Description: FissuresNamingService is a wrapper around CORBA Naming service. This class
@@ -509,7 +510,7 @@ public class FissuresNamingService {
 
     public List getAllObjects(String interfaceName){
         return getAllObjects(interfaceName,
-                             new FissBranch(rootNamingContext, "/"));
+                             new FissBranch(getNameService(), "/"));
     }
 
     public List getAllObjects(String interfaceName, FissBranch startingBranch){
@@ -548,11 +549,13 @@ public class FissuresNamingService {
             }else if(binding.binding_name[0].kind.equals(OBJECT)){
                 Object o = null;
                 if (interfaceName.equals(NETWORKDC)) {
-                    o = new NSNetworkDC(startingBranch.path, binding.binding_name[0].id, this);
+                    o = new NSNetworkDC(startingBranch.trimFissuresPath(), binding.binding_name[0].id, this);
                 } else if (interfaceName.equals(EVENTDC)) {
-                    o = new NSEventDC(startingBranch.path, binding.binding_name[0].id, this);
+                    o = new NSEventDC(startingBranch.trimFissuresPath(), binding.binding_name[0].id, this);
                 }else if (interfaceName.equals(SEISDC)) {
-                    o = new NSSeismogramDC(startingBranch.path, binding.binding_name[0].id, this);
+                    o = new NSSeismogramDC(startingBranch.trimFissuresPath(), binding.binding_name[0].id, this);
+                }else if (interfaceName.equals(PLOTTABLEDC)) {
+                    o = new NSPlottableDC(startingBranch.trimFissuresPath(), binding.binding_name[0].id, this);
                 } else {
                     try{
                         o = startingBranch.namingContext.resolve(binding.binding_name);
@@ -568,8 +571,10 @@ public class FissuresNamingService {
         return leaves;
     }
 
+    public static final String FISSURES = "Fissures";
     public static final String NETWORKDC = "NetworkDC";
     public static final String EVENTDC = "EventDC";
+    public static final String PLOTTABLEDC = "PlottableDC";
     public static final String SEISDC = "DataCenter";
     public static final String INTERFACE = "interface";
     public static final String DNS = "dns";
@@ -590,7 +595,16 @@ public class FissuresNamingService {
      * @return an <code>EventDC[]</code> value
      */
     public NSEventDC[] getAllEventDC() {
-        return (NSEventDC[])getAllObjects(NETWORKDC).toArray(new NSEventDC[0]);
+        return (NSEventDC[])getAllObjects(EVENTDC).toArray(new NSEventDC[0]);
+    }
+
+    /**
+     * returns an array of all the EventDC objects registered with the naming service.
+     *
+     * @return an <code>EventDC[]</code> value
+     */
+    public NSPlottableDC[] getAllPlottableDC() {
+        return (NSPlottableDC[])getAllObjects(PLOTTABLEDC).toArray(new NSPlottableDC[0]);
     }
 
     /**
@@ -700,7 +714,7 @@ public class FissuresNamingService {
 
     private String appendKindNames(String dns) {
 
-        dns = "Fissures/" + dns+"/";
+        dns = FISSURES+"/" + dns+"/";
 
         StringTokenizer tokenizer = new StringTokenizer(dns, "/");
         String rtnValue = new String();
@@ -708,7 +722,7 @@ public class FissuresNamingService {
         while( tokenizer.hasMoreElements() ) {
 
             String temp = (String) tokenizer.nextElement();
-            temp = temp + ".dns/";
+            temp = temp + "."+DNS+"/";
             rtnValue = rtnValue + temp;
         }
 
@@ -778,8 +792,21 @@ public class FissuresNamingService {
             this.path = path;
         }
 
+
+        public String trimFissuresPath() {
+            String tmp = path;
+            if (tmp.endsWith("/")) {
+                tmp = tmp.substring(0, tmp.length()-1);
+            }
+            if (tmp.startsWith(FISSURES_SLASH)) {
+                return tmp.substring(FISSURES_SLASH.length());
+            }
+            return tmp;
+        }
+
         public NamingContext namingContext;
         public String path;
+        public static final String FISSURES_SLASH = "/"+FISSURES+"/";
     }
 
 
