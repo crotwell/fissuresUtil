@@ -70,9 +70,8 @@ public class LongShortStoN {
         int nsta=(int)(shortTime.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
         int ntdly=(int)(delay.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
 
-        if (seis.getEndTime().subtract(seis.getBeginTime()).lessThan(delay) || nsta > ntdly) {
+        if (seis.getEndTime().subtract(seis.getBeginTime()).lessThan(delay) || nsta > ntdly || ntdly > seis.getNumPoints()) {
             // seis is too short, so no trigger possible
-            System.out.println("seis is too short, so no trigger possible");
             return new LongShortTrigger[0];
         }
 
@@ -103,7 +102,7 @@ public class LongShortStoN {
         }
         int nmean = 0;
         for (nmean = 0; nmean < n100 && nmean < ntdly; nmean++) {
-            xmean += seisData[nlta-nmean-1];
+            xmean += seisData[ntdly-nmean-1];
         }
 
         //    start the triggering process
@@ -138,7 +137,6 @@ public class LongShortStoN {
                     ratio = 0;
                 }
             }
-            System.out.println("i="+i+" xmean="+xmean+" nmean="+nmean+" ylta="+ylta+" ysta="+ysta+" ratio="+ratio);
             if (ratio >= threshold) {
                 LongShortTrigger trigger = new LongShortTrigger(seis,
                                                                 i,
