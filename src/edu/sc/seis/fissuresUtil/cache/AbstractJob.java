@@ -52,7 +52,8 @@ public abstract class AbstractJob implements Job{
      *
      */
     public void add(StatusListener listener){
-        listeners.add(listener);
+        if(!listeners.contains(listener))
+           listeners.add(listener);
     }
 
     private void fireStatusUpdate(){
