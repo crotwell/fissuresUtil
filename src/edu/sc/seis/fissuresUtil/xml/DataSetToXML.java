@@ -6,16 +6,22 @@
 
 package edu.sc.seis.fissuresUtil.xml;
 
+import edu.iris.Fissures.AuditInfo;
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class DataSetToXML {
     
@@ -132,6 +138,74 @@ public class DataSetToXML {
         element.setAttribute("xlink:href", dsFile.getPath());
         element.setAttribute("xlink:type", "simple");
         element.setAttribute("xlink:title", dataset.getName());
+    }
+    /**
+     * Load a xml dataset from a URL.
+     *
+     * @param datasetURL an <code>URL</code> to an xml dataset
+     * @return a <code>XMLDataSet</code> populated form the URL
+     */
+    public static DataSet load(URL datasetURL)
+        throws IOException, ParserConfigurationException, SAXException {
+        DataSet dataset = null;
+        
+        DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
+        
+        Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
+        Element docElement = doc.getDocumentElement();
+        
+        if (docElement.getTagName().equals("dataset")) {
+            DataSetToXML dataSetToXML = new DataSetToXML();
+            dataset = dataSetToXML.extract(datasetURL, docElement);
+        }
+        
+        return dataset;
+        
+    }
+    
+    /** Extracts the dataset from the element, which is assumed to be a
+     &lt;dataset&gt; element. */
+    public DataSet extract(URL base, Element element) throws MalformedURLException{
+        String name = "";
+        String owner = "";
+        String id = "";
+        Node temp;
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if (child.getNodeName().equals("name")) {
+                name = child.getNodeValue();
+            } else if (child.getNodeName().equals("id")) {
+                name = child.getNodeValue();
+            } else if (child.getNodeName().equals("owner")) {
+                name = child.getNodeValue();
+            }
+        }
+        // all 3 should be populated now
+        AuditInfo[] audit = new AuditInfo[1];
+        audit[0] = new AuditInfo("loaded from "+base.toString(),
+                                 System.getProperty("user.name"));
+        MemoryDataSet dataset = new MemoryDataSet(id, name, owner, audit);
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            
+            if (child.getNodeName().equals("dataset")) {
+                dataset.addDataSet(extract(base, (Element)child), audit);
+            } else if (child.getNodeName().equals("datasetRef")) {
+                Element childElement = (Element)child;
+                dataset.addDataSet(new URLDataSet(childElement.getAttribute("xlink:title)"),
+                                   new URL(base, childElement.getAttribute("xlink:href"))),
+                                   audit);
+            } else if (child.getNodeName().equals("urlDataSetSeismogram")) {
+                dataset.addDataSetSeismogram(URLDataSetSeismogram.getURLDataSetSeismogram(base, (Element)child), audit);
+            } else if (child.getNodeName().equals("parameter")) {
+                String paramName =
+                    XMLUtil.getText(XMLUtil.getElement((Element)child, "name"));
+                Object o = XMLParameter.getParameter((Element)child);
+                dataset.addParameter(paramName, o, audit);
+            }
+        }
+        return dataset;
     }
     
     protected boolean saveLocally = true;

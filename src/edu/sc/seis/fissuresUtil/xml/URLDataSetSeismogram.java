@@ -364,7 +364,8 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         }
     }
     
-    public static URLDataSetSeismogram getURLDataSetSeismogram(Element element) {
+    public static URLDataSetSeismogram getURLDataSetSeismogram(URL base,
+                                                               Element element) {
         String name = XMLUtil.getText(XMLUtil.getElement(element, "name"));
         NodeList children = element.getElementsByTagName("url");
         LinkedList urlList = new LinkedList();
@@ -373,7 +374,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             Node urlNode = attrList.getNamedItem("xlink:href");
             if (urlNode != null) {
                 try {
-                    urlList.add(new URL(urlNode.getNodeValue()));
+                    urlList.add(new URL(base, urlNode.getNodeValue()));
                 } catch (MalformedURLException e) {
                     // should never happen in a valid dataset xml doc
                 }

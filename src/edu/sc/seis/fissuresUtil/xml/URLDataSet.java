@@ -6,12 +6,16 @@
 
 package edu.sc.seis.fissuresUtil.xml;
 
-import java.net.URL;
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.AuditInfo;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
+import java.io.IOException;
+import java.net.URL;
+import javax.xml.parsers.ParserConfigurationException;
+import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
 public class URLDataSet implements DataSet {
     public URLDataSet(String name, URL url) {
@@ -109,7 +113,7 @@ public class URLDataSet implements DataSet {
     public void remove(DataSetSeismogram dss) {
         getCache().remove(dss);
     }
-
+    
     /**
      * Describe <code>addDataSet</code> method here.
      *
@@ -203,7 +207,15 @@ public class URLDataSet implements DataSet {
     
     protected DataSet getCache() {
         if (cache == null) {
-
+            try {
+                cache = DataSetToXML.load(url);
+            } catch (IOException e) {
+                GlobalExceptionHandler.handleStatic(e);
+            } catch (SAXException e) {
+                GlobalExceptionHandler.handleStatic(e);
+            } catch (ParserConfigurationException e) {
+                GlobalExceptionHandler.handleStatic(e);
+            }
         }
         return cache;
     }
@@ -213,5 +225,7 @@ public class URLDataSet implements DataSet {
     URL url;
     
     DataSet cache = null;
+    
+    static Logger logger = Logger.getLogger(URLDataSet.class);
 }
 
