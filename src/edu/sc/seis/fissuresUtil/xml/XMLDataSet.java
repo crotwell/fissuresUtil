@@ -1,7 +1,5 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.sc.seis.fissuresUtil.chooser.ChannelProxy; //needed only for testing
-import edu.sc.seis.fissuresUtil.database.DataSetCache;
 import edu.sc.seis.fissuresUtil.sac.*;
 import edu.iris.Fissures.*;
 import edu.iris.Fissures.IfSeismogramDC.*;
@@ -9,6 +7,7 @@ import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import org.apache.xpath.*;
@@ -25,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3490 2003-03-18 20:33:22Z telukutl $
+ * @version $Id: XMLDataSet.java 3514 2003-03-20 23:34:40Z telukutl $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -33,8 +32,10 @@ import org.apache.log4j.*;
  * @author <a href="mailto:">Srinivasa Telukutla</a>
  * @version 1.0
  */
-public class XMLDataSet implements DataSet, Serializable {
 
+public class XMLDataSet implements DataSet, Serializable{
+    
+   
     /**
      * Creates a new <code>XMLDataSet</code> instance.
      *
@@ -67,10 +68,8 @@ public class XMLDataSet implements DataSet, Serializable {
             Element docElement = doc.getDocumentElement();
 
             if (docElement.getTagName().equals("dataset")) {
-		//logger.debug(" ***********************************************DATASET IS SET FROM THE URL SO IT IS NOT NULL");
 		dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
-	
-            }
+	    }
         } catch (java.io.IOException e) {
             logger.error("Error loading XMLDataSet",e);
         } catch (org.xml.sax.SAXException e) {
@@ -82,15 +81,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	
     }
 
-    /**
-     * Creates an empty dataset.
-     * @param docBuilder a <code>DocumentBuilder</code> to use to create the 
-     *      document.
-     * @param base the <code>URL</code> other urls should be made relative to.
-     * @param id a unique id
-     * @param name the display name of this dataset
-     * @param owner the owner/creator of this dataset
-     */
+  
     /**
      * Creates a new <code>XMLDataSet</code> instance.
      *
@@ -131,14 +122,15 @@ public class XMLDataSet implements DataSet, Serializable {
         this.config = config;
     }
 
-    /**
+
+     /**
      * Gets the dataset Id. This should be unique.
      *
      * @return a <code>String</code> id
      */
     public String getId() {
 	//logger.debug("In the method getId");
-        return evalString(config, "@datasetid");
+        return XMLUtil.evalString(config, "@datasetid");
     }
 
     /**
@@ -164,13 +156,14 @@ public class XMLDataSet implements DataSet, Serializable {
         this.base = base;
     }
 
+    
     /**
      * Gets the displayable name.
      *
      * @return a <code>String</code> name
      */
     public String getName() {
-        return evalString(config, "name/text()");
+        return XMLUtil.evalString(config, "name/text()");
     }
 
     /**
@@ -179,13 +172,13 @@ public class XMLDataSet implements DataSet, Serializable {
      * @param name a <code>String</code> name
      */
     public void setName(String name) {
-        Element nameElement = evalElement(config, "name");
+        Element nameElement = XMLUtil.evalElement(config, "name");
         Text text = config.getOwnerDocument().createTextNode(name);
         nameElement.appendChild(text);
         config.appendChild(nameElement);
     }
 
-    /**
+ /**
      * Gets the names of all parameters within this dataset.
      *
      * @return an array of names.
@@ -204,9 +197,9 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     public String[] cacheParameterNames() { 
 
-        String[] params = getAllAsStrings("parameter/name/text()");
+        String[] params = XMLUtil.getAllAsStrings(this.config, "parameter/name/text()");
 	ArrayList referenceNames = new ArrayList();
-	NodeList  paramRefsList = evalNodeList(config, "parameterRef");
+	NodeList  paramRefsList = XMLUtil.evalNodeList(config, "parameterRef");
 	if(paramRefsList != null && paramRefsList.getLength() != 0) {
 	    for(int counter = 0; counter < paramRefsList.getLength(); counter++) {
 
@@ -223,7 +216,7 @@ public class XMLDataSet implements DataSet, Serializable {
         System.arraycopy(params, 0, all, 0, params.length);
         System.arraycopy(paramRefs, 0, all, params.length, paramRefs.length);
         return all;
-    }
+    } 
 
     /**
      * Gets the parameter with the given name. The returns null if the 
@@ -244,7 +237,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	    } else return obj;
 	} // end of if (parameterCache.containsKey(name))
 	
-        NodeList nList = evalNodeList(config, 
+        NodeList nList = XMLUtil.evalNodeList(config, 
                                       "parameter[name/text()="+
                                       dquote+name+dquote+"]");
         if (nList != null && nList.getLength() != 0) {
@@ -260,7 +253,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	}
 	
         // not a parameter, try parameterRef
-        nList = evalNodeList(config, 
+        nList = XMLUtil.evalNodeList(config, 
                              "parameterRef");//[text()="+dquote+name+dquote+"]");
         if (nList != null && nList.getLength() != 0) {
 	    for(int counter = 0 ; counter < nList.getLength() ; counter++) {
@@ -268,7 +261,7 @@ public class XMLDataSet implements DataSet, Serializable {
 		if (n instanceof Element) {
 		    if(!((Element)n).getAttribute("name").equals(name)) continue;
 		    SimpleXLink sl = new SimpleXLink(docBuilder, (Element)n, getBase());
-
+		    
 		    try {
 			Element e = sl.retrieve();
 		       	//parameterCache.put(name, e);
@@ -282,7 +275,7 @@ public class XMLDataSet implements DataSet, Serializable {
 	    }
         }
 	logger.warn("can't find paramter for "+name);
-
+	
         //can't find that name???
         return null;
     }
@@ -298,22 +291,13 @@ public class XMLDataSet implements DataSet, Serializable {
     public void addParameter(String name, 
                              Object value,
                              AuditInfo[] audit) {
-	parameterNameCache = null;
+
 	parameterCache.put(name, value);
-        //if (value instanceof Element) {
-	    Element parameter = 
-		config.getOwnerDocument().createElement("parameter");
-	    XMLParameter.insert(parameter, name, value);	   //  Object cacheEvent = XMLParameter.getParameter(parameter);
-// 	    if(cacheEvent instanceof edu.sc.seis.fissuresUtil.cache.CacheEvent) {
-// 		logger.debug("Instance of CaCHE EVENT -----------");			
-// 	    } else {
-// 		logger.debug(" NOt an Instance of CACHE EVENT ------");
-// 	    }
-            config.appendChild(parameter);
-        //} else {
-        //    logger.warn("Parameter is only stored in memory.");
-        //} // end of else
-	
+	Element parameter = 
+	    config.getOwnerDocument().createElement("parameter");
+	XMLParameter.insert(parameter, name, value);	  
+	config.appendChild(parameter);
+	updateParameterNameCache(name);
     }
 
     /**
@@ -335,7 +319,7 @@ public class XMLDataSet implements DataSet, Serializable {
                                 String name,
 				Object object,
                                 AuditInfo[] audit) {
-	parameterNameCache = null;
+
 	String baseStr = base.toString();
 
 	String paramStr = paramURL.toString();
@@ -343,37 +327,27 @@ public class XMLDataSet implements DataSet, Serializable {
             // use relative URL
             paramStr = paramStr.substring(baseStr.length());
         } // end of if (paramStr.startsWith(baseStr))
-	//logger.debug("inside the addParameterRef");
-        Document doc = config.getOwnerDocument();
+	Document doc = config.getOwnerDocument();
         Element param = doc.createElement("parameterRef");
-/*	param.setAttribute("name", name);
-        param.setAttributeNS(xlinkNS, "xlink:type", "simple");
-        param.setAttributeNS(xlinkNS, "xlink:href", paramStr);
-	param.setAttribute("type","text/xml");
-	param.setAttribute("objectType", "object");
-	//        Text text = doc.createTextNode(name);
-	// param.appendChild(text);
-
-        config.appendChild(param);*/
+	
 	XMLParameter.insertParameterRef(param,
 					name,
 					paramStr,
 					object);
 	config.appendChild(param);
+	updateParameterNameCache(name);
+	
     }
 
-    /**
+      /**
      * Gets the Ids for all child datasets of this dataset.
      *
      * @return a <code>String[]</code> id
      */
     public String[] getDataSetIds() {
         if (dataSetIdCache == null) {
-            String[] internal = getAllAsStrings("*/@datasetid"); 
+            String[] internal = XMLUtil.getAllAsStrings(this.config, "*/@datasetid"); 
             String[] external = getDataSetRefIds();
-            for (int i=0; i<external.length; i++) {
-                //logger.debug("External Dataset Id cache :'"+external[i]+"'");
-            } // end of for (int i=0; i<tmp.length; i++)
             String[] tmp = new String[internal.length+external.length];
             System.arraycopy(internal, 0, 
                              tmp, 0, 
@@ -381,23 +355,18 @@ public class XMLDataSet implements DataSet, Serializable {
             System.arraycopy(external, 0, 
                              tmp, internal.length, 
                              external.length);
-            for (int i=0; i<tmp.length; i++) {
-                //logger.debug("Dataset Id cache :'"+tmp[i]+"'");
-            } // end of for (int i=0; i<tmp.length; i++)
-            
-            dataSetIdCache = tmp;
+	    dataSetIdCache = tmp;
         } // end of if (dataSetIdCache == null) 
         return dataSetIdCache;  
     }
 
     String[] getDataSetRefIds() {
-        String[] xlinktmps = getAllAsStrings("datasetRef");
+        String[] xlinktmps = XMLUtil.getAllAsStrings(this.config, "datasetRef");
         String xlinkNS= "http://www.w3.org/1999/xlink";
-        NodeList nodes = evalNodeList(config, "datasetRef");
+        NodeList nodes = XMLUtil.evalNodeList(config, "datasetRef");
         if (nodes == null) {
             return new String[0];
         } // end of if (nodes == null)
-	//logger.debug("the length of the nodes is "+nodes.getLength());
 
         String[] xlinks = new String[nodes.getLength()];
         String[] ids = new String[nodes.getLength()];
@@ -443,6 +412,9 @@ public class XMLDataSet implements DataSet, Serializable {
         String[] names = new String[ids.length];
         for (int i=0; i<ids.length; i++) {
             DataSet ds = getDataSetById(ids[i]);
+	    //caching here so that further caching wont be necessary when we call
+	    //getDataSet.added by srinivasa.
+	    dataSetCache.put(ds.getId(), ds);
             names[i] = ds.getName();
         } // end of for (int i=0; i<ids.length; i++)
         return names;
@@ -506,7 +478,7 @@ public class XMLDataSet implements DataSet, Serializable {
                 } // end of for (int i=0; i<nl.getLenght(); i++)
 		
             } // end of else
-        } else {
+     } else {
             logger.warn("Attempt to add non-XML dataset");
         } // end of else
 	
@@ -556,7 +528,7 @@ public class XMLDataSet implements DataSet, Serializable {
     public DataSet createChildDataSet(String id, String name, String owner,
                                       AuditInfo[] audit) {
 	dataSetIdCache = null;
-	name = getUniqueName(getDataSetNames(), name);
+	name = XMLUtil.getUniqueName(getDataSetNames(), name);
         XMLDataSet dataset = new XMLDataSet(docBuilder, base, id, name, owner);
         //addDataSet(dataset, audit);
         return dataset;
@@ -581,7 +553,7 @@ public class XMLDataSet implements DataSet, Serializable {
         }
 
         NodeList nList = 
-            evalNodeList(config, "//dataset[@datasetid="+dquote+id+dquote+"]");
+            XMLUtil.evalNodeList(config, "//dataset[@datasetid="+dquote+id+dquote+"]");
         if (nList != null && nList.getLength() != 0) {
             Node n = nList.item(0); 
             if (n instanceof Element) {
@@ -595,7 +567,7 @@ public class XMLDataSet implements DataSet, Serializable {
 
 	//try to get the dataset from the datasetRefs.
 	//added by srinivasa
-	NodeList nodes = evalNodeList(config, "datasetRef");
+	NodeList nodes = XMLUtil.evalNodeList(config, "datasetRef");
         if (nodes == null) {
 	    //logger.debug("returning null as the nodes is null");
             return null;
@@ -645,7 +617,7 @@ public class XMLDataSet implements DataSet, Serializable {
         return null;
     }
 
-    /**
+ /**
      * Gets the names of the seismograms in this dataset.
      *
      * @return the names.
@@ -664,102 +636,13 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return a <code>String[]</code> value
      */
     protected String[] cacheSeismogramNames() {
-	String[] names = getAllAsStrings("localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
-					 "]"+"/value/text()");
-        //String[] names = getAllAsStrings("SacSeismogram/name/text()");
-	//logger.debug("found "+names.length+" names in xml");
-	//logger.debug("cache has "+seismogramCache.keySet().size());
-	String outNames[] = 
-	    new String[names.length];//+seismogramCache.keySet().size()];
-	System.arraycopy(names, 0, outNames, 0, names.length);
-	/*java.util.Iterator it = seismogramCache.keySet().iterator();
-	int i=names.length;
-	while (it.hasNext()) {
-	    outNames[i] = (String)it.next();
-	    logger.debug("outNames "+outNames[i]);
-			 i++;
-			 } // end of while (it.hasNext())*/
-	String[] noNames = getNoNameSeismogramNames();
-   	String[] rtnValues = new String[noNames.length + outNames.length];
-	//logger.debug("The length of noNames is "+noNames.length);
-	//logger.debug("The length of nameed siesmograms is "+outNames.length);
-	System.arraycopy(outNames, 0, rtnValues, 0, outNames.length);
-	if(outNames.length != 0) {
-	    System.arraycopy(noNames, 0, rtnValues, rtnValues.length - 1, noNames.length);
-	}
-	else {
-	    System.arraycopy(noNames, 0, rtnValues, 0, noNames.length);
-	}
-        return rtnValues;
+	String[] names = XMLUtil.getAllAsStrings(this.config, 
+						 "localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+"]"+"/value/text()");
+	return names;
     }
+
     
-    /**
-     * Assigns names to the seismograms without names based on the channelId and returns the array of assigned names
-     *
-     * @return a <code>String[]</code> value
-     */
-    /**
-     * Describe <code>getNoNameSeismogramNames</code> method here.
-     *
-     * @return a <code>String[]</code> value
-     */
-    public String[] getNoNameSeismogramNames() {
-
-	NodeList nList;
-	
-	nList = evalNodeList(config, "localSeismogram/seismogramAttr/property");
-	if(nList == null || (nList != null && nList.getLength() == 0)) {
-	    nList = evalNodeList(config, "localSeismogram/seismogramAttr");
-	    //logger.debug("ONLY SEIS ATTR EXISTS");
-	} else {
-	   nList  = evalNodeList(config, "localSeismogram/seismogramAttr/property[name!="+dquote+"Name"+dquote+
-					 "]"+"/..");
-	   //logger.debug("PROPERTY TAG EXISTS");
-	}
-
-	String[] rtn;
-	if(nList != null) {
-	    rtn = new String[nList.getLength()];
-	} else {
-	    rtn = new String[0];
-	}
-	if(nList != null &&  nList.getLength() != 0) {
-
-	    int size = nList.getLength();
-	  //   for( int counter = 0; counter < size; counter++) {
-		
-// 		Node n = nList.item(counter);
-// 		if(n instanceof Element) {
-
-// 		    Element subElement = (Element)n;
-// 		    String name = getAsString(subElement, "channel_id/network_id/network_code/text()");
-// 		    name = name + getAsString(subElement, "channel_id/station_code/text()"); 
-// 		    name = name + getAsString(subElement, "channel_id/site_code/text()"); 
-// 		    name = name + getAsString(subElement, "channel_id/channel_code/text()"); 
-// 		    rtn[counter] = name;
-// 		}
-// 	    }
-	   
-	    for(int counter = 0; counter < size; counter++) {
-
-		Node n = nList.item(counter);
-		if(n instanceof Element) {
-		    NodeList channelIdNode = evalNodeList((Element)n, "channel_id");
-		    Element subElement = (Element)channelIdNode.item(0);
-		    //   SeismogramAttr seismogramAttr = XMLSeismogramAttr.getSeismogramAttr(subElement);
-		    ChannelId channel_id = XMLChannelId.getChannelId(subElement);
-		    String name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(channel_id);
-		    rtn[counter] = name;
-		}
-	    }
-	    
-	}
-	//logger.debug("The length of the no Name SeismogramNames is "+rtn.length);
-	return rtn;
-    }
-
-
-    /**
+/**
      * Describe <code>getSeismogramAttrs</code> method here.
      *
      * @return a <code>SeismogramAttr[]</code> value
@@ -767,7 +650,7 @@ public class XMLDataSet implements DataSet, Serializable {
     public SeismogramAttr[] getSeismogramAttrs() {
 
 	NodeList nList;
-	nList = evalNodeList(config, "localSeismogram/seismogramAttr");
+	nList = XMLUtil.evalNodeList(config, "localSeismogram/seismogramAttr");
 	SeismogramAttr[] seismogramAttrs = new SeismogramAttr[0];
 	if(nList != null && nList.getLength() != 0) {
 	    seismogramAttrs = new SeismogramAttr[nList.getLength()];
@@ -797,73 +680,30 @@ public class XMLDataSet implements DataSet, Serializable {
 	ChannelId[] channelIds = new ChannelId[arrayList.size()];
 	channelIds = (ChannelId[]) arrayList.toArray(channelIds);
 	Date endTime = Calendar.getInstance().getTime();
-	logger.debug("The time Taken for getting the channelIDs is ------------------------------------------------------->>>>"+(endTime.getTime() - startTime.getTime()));
 	return channelIds;
-	
-	/*SeismogramAttr[] seismogramAttrs = getSeismogramAttrs();
-
-	for(int counter = 0; counter < seismogramAttrs.length; counter++) {
-	    channelIds[counter] = ((SeismogramAttrImpl)seismogramAttrs[counter]).getChannelID();
-	    }*/
-		}
-
-    /**
-     * Describe <code>getAsString</code> method here.
-     *
-     * @param base an <code>Element</code> value
-     * @param path a <code>String</code> value
-     * @return a <code>String</code> value
-     */
-    public String getAsString(Element base, String path) {
-	
-	NodeList nodes = evalNodeList(base, path);
-	String out = new String();
-
-	if(nodes != null && nodes.getLength() != 0) {
-	    out = nodes.item(0).getNodeValue();
-	}
-	return out;
     }
 
+    private void updateParameterNameCache(String paramName) {
+	String[] temp = parameterNameCache;
+	if(temp == null) {
+	    temp = new String[0];
+	    temp[0] = paramName;
+	} else {
+	    temp = new String[parameterNameCache.length + 1];
+	    System.arraycopy(parameterNameCache,0, temp, 0, parameterNameCache.length);
+	    temp[parameterNameCache.length] = paramName;
+	}
+	parameterNameCache = new String[temp.length];
+	System.arraycopy(temp, 0, parameterNameCache, 0, temp.length);
+    }
 
-
-    /**
-     * Gets the seismogram for the given name, Null if it cannot be found.
-     *
-     * @param name a <code>String</code> name
-     * @return a <code>LocalSeismogramImpl</code>
-     */
-    public LocalSeismogramImpl getSeismogram(String name) {
-       //  if (seismogramCache.containsKey(name)) {
-// 	    logger.debug("getting the seismogram from the cache");
-// 	    Object obj = seismogramCache.get(name);
-// 	    if(obj instanceof SoftReference) {
-// 		SoftReference softReference = (SoftReference)obj;
-// 		LocalSeismogramImpl seis = (LocalSeismogramImpl)softReference.get();
-// 		if(seis != null) {
-// 		    logger.debug("**********NO NULL WHILE GETTING FROM RHT CACHE");
-// 		    return seis;
-// 		}
-// 		else {
-// 		    logger.debug("********** GARBAGE COLLECTED SO SEISMOGRAM NOT IN MEWMOERY");
-// 		    seismogramCache.remove(name);
-// 		}
-		
-// 	    } else return (LocalSeismogramImpl)obj;
-//         } // end of if (seismogramCache.containsKey(name))
-	
-	//logger.debug("The name of the data set is "+getName());
-	//logger.debug("The name of the seismogram is "+name);
-	LocalSeismogramImpl seisd = datasetCache.getSeismogram(name);
-	if(seisd != null) return seisd;
-	
-        String urlString = "NONE";
+    private URL getSeismogramURL(String name) {
+	String urlString = "NONE";
         NodeList nList = 
-            evalNodeList(config, "localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
+            XMLUtil.evalNodeList(config, "localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
 			 "]"+"[value="+dquote+name+dquote+"]"+"/../../data");
 	if(nList == null || (nList != null && nList.getLength() == 0)) {
-	    
-	    nList =  getNoNameSeismogram(name);
+	    //    nList =  getNoNameSeismogram(name);
 	}
         if (nList != null && nList.getLength() != 0) {
             try {
@@ -877,169 +717,76 @@ public class XMLDataSet implements DataSet, Serializable {
                     } // end of if (urlString == null || urlString == "")
 		    //logger.debug("IN GET SEISMOGRAM   The base str is "+base.toString());
 		    
+		    
+		  
 
-		    //get the Seismogram Attributes from the xml .. only the data must 
-		    // must be obtained fromt the SAC.
-		    NodeList seisAttrNode = XMLUtil.evalNodeList(e, "../seismogramAttr");
-		    SeismogramAttr seisAttr = null;
-		    if(seisAttrNode != null && seisAttrNode.getLength() != 0) {
-			seisAttr = XMLSeismogramAttr.getSeismogramAttr((Element)seisAttrNode.item(0));
-		    }
-		       
-                    NodeList propList = evalNodeList(e, "property");
-                    int numDSProps = 0;
-                    if (propList != null && propList.getLength() != 0) {
-                        numDSProps = nList.getLength();
-                    } else {
-                        // no properties in dataset
-                        numDSProps = 0;
-                    } // end of else
-
-                  //   Property[] props = seis.getProperties();
-//                     Property[] newProps = 
-//                         new Property[1+props.length+numDSProps];
-//                     System.arraycopy(props, 0, newProps, 0, props.length);
-//                     for (int i=0; i<propList.getLength(); i++) {
-//                         Element propElement = (Element)propList.item(i);
-//                         newProps[props.length+i] = 
-//                             new Property(xpath.eval(propElement, "name/text()").str(),
-//                                          xpath.eval(propElement, "value/text()").str());
-//                     } // end of for
-//                     newProps[newProps.length-1] = new Property(seisNameKey,
-//                                                                name);
-//                     seis.setProperties(newProps);
-
+           
 		    URL sacURL = new URL(base, urlString);
-		    //logger.debug("The sacUrl is "+sacURL.toString());
-                    DataInputStream dis = new DataInputStream(new BufferedInputStream(sacURL.openStream())); 
-                    SacTimeSeries sac = new SacTimeSeries();
-                    sac.read(dis);
-                    LocalSeismogramImpl seis;
-		    if (seisAttr != null) {
-			seis = SacToFissures.getSeismogram(sac, seisAttr);
-		    } else {
-			seis = SacToFissures.getSeismogram(sac);
-		    } // end of else
-		    
-                    if (seis != null) {
-			//seismogramCache.put(name, new SoftReference(seis));
-			datasetCache.addSeismogram(seis, name, new AuditInfo[0]);
-                    } // end of if (seis != null)
-		    
-                    return seis;
-                }
-		
-            } catch (MalformedURLException e) {
-                logger.error("Couldn't get seismogram "+name, e);
-                logger.error(urlString);
-            } catch (Exception e) {
-                logger.error("Couldn't get seismogram "+name, e);
-                logger.error(urlString);
-            } // end of try-catch
-	    
-        }
-        return null;
-    }
-
-    /**
-     * Describe <code>getNoNameSeismogram</code> method here.
-     *
-     * @param name a <code>String</code> value
-     * @return a <code>NodeList</code> value
-     */
-    public NodeList getNoNameSeismogram(String name) {
-	/*String[] names = getNoNameSeismogramNames();
-	////logger.debug("the Length of the no Name seismograms when actually getting the seeismogram "+names.length);
-	
-	boolean found = false;
-	for(int counter = 0; counter < names.length; counter++) {
-	    if(names[counter].equals(name)) { found = true; break;}
-	}
-	if(found) {
-	    //logger.debug("found the equivalent name");
-	    */
-	    Node n = getNoNameSeismogramNode(name);
-
-	    if( n == null) return null;
-	    else {
-		if(n instanceof Element) {
-		    Element subElement = (Element)n;
-		    NodeList nodeList =   evalNodeList(subElement, "../data");
-		    return nodeList;
-		} else return null;
-	    }
-	    /*
-	} else {
-	    return null;
-	    }*/
-	
-    }
-
-    /**
-     * Describe <code>getNoNameSeismogramNode</code> method here.
-     *
-     * @param paramName a <code>String</code> value
-     * @return a <code>Node</code> value
-     */
-    public Node getNoNameSeismogramNode(String paramName) {
-
-	//	NodeList nList = evalNodeList(config, "localSeismogram/seismogramAttr/property[name!="+dquote+"Name"+dquote+
-	//		      "]"+"/../");
-	NodeList nList;
-	
-	nList = evalNodeList(config, "localSeismogram/seismogramAttr/property");
-	if(nList == null || (nList != null && nList.getLength() == 0)) {
-	    nList = evalNodeList(config, "localSeismogram/seismogramAttr");
-	} else {
-	   nList  = evalNodeList(config, "localSeismogram/seismogramAttr/property[name!="+dquote+"Name"+dquote+
-					 "]"+"/../");
-	}
-		if(nList != null &&  nList.getLength() != 0) {
-
-	    int size = nList.getLength();
-	 //    for( int counter = 0; counter < size; counter++) {
-		
-// 		Node n = nList.item(counter);
-// 		if(n instanceof Element) {
-
-// 		    Element subElement = (Element)n;
-// 		    String name = getAsString(subElement, "channel_id/network_id/network_code/text()");
-// 		    name = name + getAsString(subElement, "channel_id/station_code/text()"); 
-// 		    name = name + getAsString(subElement, "channel_id/site_code/text()"); 
-// 		    name = name + getAsString(subElement, "channel_id/channel_code/text()"); 
-// 		    if(name.equals(paramName)) return n;
-// 		}
-// 		}
-	    /*for(int counter = 0; counter < size; counter++) {
-
-		Node n = nList.item(counter);
-		if(n instanceof Element) {
-		    Element subElement = (Element) n;
-		    SeismogramAttr seismogramAttr = XMLSeismogramAttr.getSeismogramAttr(subElement);
-		    ChannelId channel_id = ((SeismogramAttrImpl)seismogramAttr).getChannelID();
-		    String name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(channel_id);
-		    if(name.equals(paramName)) return n;
+		    return sacURL;
 		}
-		}*/
-
-	     for(int counter = 0; counter < size; counter++) {
-
-		Node n = nList.item(counter);
-		if(n instanceof Element) {
-		    NodeList channelIdNode = evalNodeList((Element)n, "channel_id");
-		    Element subElement = (Element)channelIdNode.item(0);
-		    //   SeismogramAttr seismogramAttr = XMLSeismogramAttr.getSeismogramAttr(subElement);
-		    ChannelId channel_id = XMLChannelId.getChannelId(subElement);
-		    String name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(channel_id);
-		    if(name.equals(paramName)) return n;
-		}
-	    }
-	     
+	    } catch (MalformedURLException e) {
+		logger.error("Couldn't get seismogram "+name, e);
+		logger.error(urlString);
+	    } catch (Exception e) {
+		logger.error("Couldn't get seismogram "+name, e);
+		logger.error(urlString);
+	    } // end of try-catch
+	
 	}
 	return null;
     }
+   /**
+     * Gets the seismogram for the given name, Null if it cannot be found.
+     *
+     * @param name a <code>String</code> name
+     * @return a <code>LocalSeismogramImpl</code>
+     */
+    public LocalSeismogramImpl getSeismogram(String name) {
+	
+	URL sacURL = getSeismogramURL(name);
+        if(sacURL != null) {
+	    NodeList nList = 
+		XMLUtil.evalNodeList(config, "localSeismogram/seismogramAttr/property[name="+dquote+"Name"+dquote+
+				     "]"+"[value="+dquote+name+dquote+"]"+"/../../data");
+	    Node n = nList.item(0); 
+	    Element e = (Element)n;
+	    //logger.debug("The sacUrl is "+sacURL.toString());
+	    try {
+		DataInputStream dis = new DataInputStream(new BufferedInputStream(sacURL.openStream())); 
+		SacTimeSeries sac = new SacTimeSeries();
+		sac.read(dis);
+		LocalSeismogramImpl seis;
+		//get the Seismogram Attributes from the xml .. only the data must 
+		// must be obtained fromt the SAC.
+		NodeList seisAttrNode = XMLUtil.evalNodeList(e, "../seismogramAttr");
+		SeismogramAttr seisAttr = null;
+		if(seisAttrNode != null && seisAttrNode.getLength() != 0) {
+		    seisAttr = XMLSeismogramAttr.getSeismogramAttr((Element)seisAttrNode.item(0));
+		}
+		
+		NodeList propList = XMLUtil.evalNodeList(e, "property");
+		int numDSProps = 0;
+		if (propList != null && propList.getLength() != 0) {
+		    numDSProps = nList.getLength();
+		} else {
+		    // no properties in dataset
+		    numDSProps = 0;
+		} // end of else
+		if (seisAttr != null) {
+		    seis = SacToFissures.getSeismogram(sac, seisAttr);
+		} else {
+		    seis = SacToFissures.getSeismogram(sac);
+		} // end of else
+		return seis;
+	    } catch (Exception ex) {
+		logger.error("Couldn't get seismogram "+name, ex);
+	 } // end of try-catch
 
-    /**
+	}
+        return null;
+    }
+
+     /**
      * Adds a seismogram.
      *
      * @param seis a <code>LocalSeismogramImpl</code> seismogram
@@ -1063,50 +810,20 @@ public class XMLDataSet implements DataSet, Serializable {
         //edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
 	
 	}
-	name = getUniqueName(getSeismogramNames(), name);
+	name = XMLUtil.getUniqueName(getSeismogramNames(), name);
 	seis.setName(name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
-	//localSeismogram.appendChild(seismogramAttr);
 
-// 	Element propertyElement = doc.createElement("property");
-// 	propertyElement.appendChild(XMLUtil.createTextElement(doc, "name",
-// 							      "Name"));
-// 	propertyElement.appendChild(XMLUtil.createTextElement(doc, "value",
-// 							      name));
-	///seismogramAttr.appendChild(propertyElement);
 	localSeismogram.appendChild(seismogramAttr);
-	
 
-	
-        /*Property[] props = seis.getProperties();
-	//logger.debug("the length of the Properties of the seismogram are "+props.length);
-        Element propE, propNameE, propValueE;
-        for (int i=0; i<props.length; i++) {
-
-            if (props[i] != null && props[i].name != seisNameKey) {
-                propE = doc.createElement("property");
-                propNameE = doc.createElement("name");
-                propNameE.setNodeValue(props[i].name);
-                propValueE = doc.createElement("value");
-                propValueE.setNodeValue(props[i].value);
-                propE.appendChild(propNameE);
-                propE.appendChild(propValueE);
-                localSeismogram.appendChild(propE);
-            }
-	    }*/
         config.appendChild(localSeismogram);
 	//	seismogramCache.put(name, seis);
-	datasetCache.addSeismogram(seis, name, audit);
-
-	//logger.debug("added seis now "+getSeismogramNames().length+" seisnogram names.");
-       	seismogramNameCache = null;
-    //xpath = new XPathAPI();
-	//xpath = new CachedXPathAPI(xpath);
-	//logger.debug("2 added seis now "+getSeismogramNames().length+" seisnogram names.");
+    	seismogramNameCache = null;
+    
     }
-
-    /**
+    
+     /**
      * Adds a reference to a remote seismogram.
      *
      * @param seisURL an <code>URL</code> to the seismogram
@@ -1140,56 +857,65 @@ public class XMLDataSet implements DataSet, Serializable {
 	    name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
 	
 	}
-	name = getUniqueName(getSeismogramNames(), name);
+	name = XMLUtil.getUniqueName(getSeismogramNames(), name);
 	seis.setName(name);
 	Element seismogramAttr = doc.createElement("seismogramAttr");	
 	XMLSeismogramAttr.insert(seismogramAttr, (LocalSeismogram)seis);
-	//localSeismogram.appendChild(seismogramAttr);
-	
-// 	Element propertyElement = doc.createElement("property");
-// 	propertyElement.appendChild(XMLUtil.createTextElement(doc,
-// 							      "name",
-// 							      "Name"));
-// 	propertyElement.appendChild(XMLUtil.createTextElement(doc,
-// 							      "value",
-// 							      name));
-	//seismogramAttr.appendChild(propertyElement);
+
 	localSeismogram.appendChild(seismogramAttr);	
 
 	Element data = doc.createElement("data");
         data.setAttributeNS(xlinkNS, "xlink:type", "simple");
         data.setAttributeNS(xlinkNS, "xlink:href", seisStr);
 	data.setAttribute("seisType", "sac");
-
-
-
-	
-	//Element nameE = doc.createElement("name");
-	// Text text = doc.createTextNode(name);
-        //nameE.appendChild(text);
-        //localSeismogram.appendChild(nameE);
-
 	localSeismogram.appendChild(data);
-
-	/*  Element propE, propNameE, propValueE;
-        for (int i=0; i<props.length; i++) {
-            if (props[i].name != seisNameKey) {
-                propE = doc.createElement("property");
-                propNameE = doc.createElement("name");
-                text = doc.createTextNode(props[i].name);
-                propNameE.appendChild(text);
-
-                propValueE = doc.createElement("value");
-                text = doc.createTextNode(props[i].value);
-                propValueE.appendChild(text);
-
-                propE.appendChild(propNameE);
-                propE.appendChild(propValueE);
-                sac.appendChild(propE);
-            }
-	    }*/
-        config.appendChild(localSeismogram);
+	config.appendChild(localSeismogram);
     }
+
+    public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit) {
+	String name;
+	name = dss.getName();
+	if ( name == null || name.length() == 0) {
+	    name = ChannelIdUtil.toStringNoDates(dss.getRequestFilter().channel_id);
+	} // end of if ()
+		
+	name = XMLUtil.getUniqueName(getDataSetSeismogramNames(), name);
+	
+	if ( ! name.equals(dss.getName()) ) {
+		    dss.setName(name);
+	} // end of if ()
+		
+	dssNames.add(name);
+	dataSetSeismograms.put(name,
+			       dss);
+    }
+    
+    public DataSetSeismogram getDataSetSeismogram(String name) {
+	DataSetSeismogram dss = (DataSetSeismogram)dataSetSeismograms.get(name);
+	if(dss != null) {
+	    System.out.println("The dataset seismogram returned is not null");
+	    return dss;
+	}
+	URL sacURL = getSeismogramURL(name);
+
+	if(sacURL != null) {
+	    DataSetSeismogram dsstemp =  new URLDataSetSeismogram(sacURL,
+								  SeismogramFileTypes.SAC,
+								  ((DataSet)this));
+	    addDataSetSeismogram(dsstemp, new AuditInfo[0]);
+	    System.out.println("The dataset seismogram returned is not null");
+	    return dsstemp;
+	}
+	System.out.println("The dataset seismogram returned is null");
+	return null;
+    }
+    
+    public String[] getDataSetSeismogramNames() {
+	return (String[])dssNames.toArray(new String[0]);
+    }
+    
+
+
 
     /**
      * Describe <code>toString</code> method here.
@@ -1214,17 +940,6 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return an <code>edu.sc.seis.fissuresUtil.cache.CacheEvent</code> value
      */
     public edu.sc.seis.fissuresUtil.cache.CacheEvent getEvent() {
-	/*boolean found;
-	NodeList paramList = evalNodeList(config, "parameter");
-	if(paramList != null && paramList.getLength() != 0) {
-	    for(int counter = 0; counter < paramList.getLength(); counter++) {
-		Object object = XMLParameter.getParameter((Element)paramList.item(counter));
-		if(object instanceof edu.sc.seis.fissuresUtil.cache.CacheEvent){
-		    return (edu.sc.seis.fissuresUtil.cache.CacheEvent)object;
-		}
-	    }
-	}
-	return null;*/
 	return (edu.sc.seis.fissuresUtil.cache.CacheEvent)getParameter(StdDataSetParamNames.EVENT);
     }
 
@@ -1236,27 +951,8 @@ public class XMLDataSet implements DataSet, Serializable {
      * @return an <code>edu.iris.Fissures.IfNetwork.Channel</code> value
      */
     public edu.iris.Fissures.IfNetwork.Channel getChannel(ChannelId channelId) {
-	//logger.debug("-------- "+StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
-
 	Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
-	
 	return (edu.iris.Fissures.IfNetwork.Channel)obj;
-    }
-
-    /**
-     * Describe <code>getUniqueName</code> method here.
-     *
-     * @param nameList a <code>String[]</code> value
-     * @param name a <code>String</code> value
-     * @return a <code>String</code> value
-     */
-    public String getUniqueName(String[] nameList, String name) {
-	int counter = 0;
-	for(int i = 0; i < nameList.length; i++) {
-		if(nameList[i].indexOf(name) != -1) counter++;
-	}
-	if(counter == 0) return name;
-	return name+"_"+(counter+1);
     }
 
     /**
@@ -1287,118 +983,10 @@ public class XMLDataSet implements DataSet, Serializable {
 
     }
 
-    /**
-     * Describe <code>getAllAsStrings</code> method here.
-     *
-     * @param path a <code>String</code> value
-     * @return a <code>String[]</code> value
-     */
-    /**
-     * Describe <code>getAllAsStrings</code> method here.
-     *
-     * @param path a <code>String</code> value
-     * @return a <code>String[]</code> value
-     */
-    protected String[] getAllAsStrings(String path) {
-	//logger.debug("The path that is passed to GetALLASStrings is "+path);
-	
-        NodeList nodes = evalNodeList(config, path);
-        if (nodes == null) {
-            return new String[0];
-        } // end of if (nodes == null)
-        
-	String[] out = new String[nodes.getLength()];
-	//logger.debug("the length of the nodes is "+nodes.getLength());
-        for (int i=0; i<out.length; i++) {
-            out[i] = nodes.item(i).getNodeValue();
-        } // end of for (int i=0; i++; i<out.length)
-        return out;
-    }
-
-    /**
-     * Describe <code>evalNodeList</code> method here.
-     *
-     * @param context a <code>Node</code> value
-     * @param path a <code>String</code> value
-     * @return a <code>NodeList</code> value
-     */
-    /**
-     * Describe <code>evalNodeList</code> method here.
-     *
-     * @param context a <code>Node</code> value
-     * @param path a <code>String</code> value
-     * @return a <code>NodeList</code> value
-     */
-    protected NodeList evalNodeList(Node context, String path) {
-        try {
-            XObject xobj = xpath.eval(context, path, prefixResolver);
-            if (xobj != null && xobj.getType() == XObject.CLASS_NODESET) {
-                return xobj.nodelist();
-            }
-        } catch (javax.xml.transform.TransformerException e) {
-            logger.error("Couldn't get NodeList", e);
-        } // end of try-catch
-        return null;
-    }
-
-    /**
-     * Describe <code>evalElement</code> method here.
-     *
-     * @param context a <code>Node</code> value
-     * @param path a <code>String</code> value
-     * @return an <code>Element</code> value
-     */
-    protected Element evalElement(Node context, String path) {
-        NodeList nList = evalNodeList(context, path);
-        if (nList != null && nList.getLength() != 0) {
-            return (Element)nList.item(0);
-        }
-        logger.error("Couldn't get NodeList "+path);
-        return null;
-    }
-
-    /**
-     * Describe <code>evalString</code> method here.
-     *
-     * @param context a <code>Node</code> value
-     * @param path a <code>String</code> value
-     * @return a <code>String</code> value
-     */
-    protected String evalString(Node context, String path) {
-        try {
-            return xpath.eval(config, path).str();
-        } catch (javax.xml.transform.TransformerException e) {
-            logger.error("Couldn't get String", e);
-        } // end of try-catch
-        return null;
-    }
-
-    public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit) {
-
-    }
+    private Map dataSetSeismograms = new HashMap();
     
-    public DataSetSeismogram getDataSetSeismogram(String name) {
-	
-	LocalSeismogramImpl seis = getSeismogram(name);
-	if(seis != null) {
-	    RequestFilter rf = new RequestFilter(seis.getChannelID(),
-						 seis.getBeginTime().getFissuresTime(),
-						 seis.getEndTime().getFissuresTime());
-	    return new DataSetSeismogram(rf, null);
-	}
-	return null;
-    }
+    private List dssNames = new LinkedList();
     
-    public String[] getDataSetSeismogramNames() {
-
-	return new String[0];
-    }
-    
-
-
-
-    private DataSetCache datasetCache = new DataSetCache();
-
     private XPathAPI xpath = new XPathAPI();
 
     private org.apache.xml.utils.PrefixResolver prefixResolver;
@@ -1420,12 +1008,19 @@ public class XMLDataSet implements DataSet, Serializable {
      *
      */
     protected DocumentBuilder docBuilder;
-
+    
     /**
-     * Describe variable <code>dataSetCache</code> here.
+     * Describe variable <code>parameterCache</code> here.
      *
      */
-    protected HashMap dataSetCache = new HashMap();
+    protected HashMap parameterCache = new HashMap();
+
+
+    /**
+     * Describe variable <code>parameterNameCache</code> here.
+     *
+     */
+    protected String[] parameterNameCache = null;
 
     /**
      * Describe variable <code>dataSetIdCache</code> here.
@@ -1433,7 +1028,13 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     protected String[] dataSetIdCache = null;
 
-    /**
+     /**
+     * Describe variable <code>dataSetCache</code> here.
+     *
+     */
+    protected HashMap dataSetCache = new HashMap();
+
+ /**
      * Describe variable <code>seismogramCache</code> here.
      *
      */
@@ -1445,74 +1046,13 @@ public class XMLDataSet implements DataSet, Serializable {
      */
     protected String[] seismogramNameCache = null;
 
-    /**
-     * Describe variable <code>parameterCache</code> here.
-     *
-     */
-    protected HashMap parameterCache = new HashMap();
-
-    /**
-     * Describe variable <code>parameterNameCache</code> here.
-     *
-     */
-    protected String[] parameterNameCache = null;
 
     private static final String dquote = ""+'"';
     private static final String xlinkNS = "http://www.w3.org/1999/xlink";
     private static final String seisNameKey = "Name";
-
     static Category logger = 
         Category.getInstance(XMLDataSet.class.getName());
-
-    static void testDataSet(DataSet dataset, String indent) {
-        indent = indent+"  ";
-        String[] names = dataset.getSeismogramNames();
-        //logger.debug(indent+" has "+names.length+" seismograms.");
-        for (int num=0; num<names.length; num++) {
-	    // logger.debug(indent+" Seismogram name="+names[num]);
-            LocalSeismogramImpl seis = dataset.getSeismogram(names[num]);
-            //logger.debug(seis.getNumPoints());
-
-        }
-        names = dataset.getDataSetNames();
-        //logger.debug(indent+" has "+names.length+" datasets.");
-        for (int num=0; num<names.length; num++) {
-	    // logger.debug(indent+" Dataset name="+names[num]);
-            testDataSet(dataset.getDataSet(names[num]), indent);
-        }
-    }
-
-    /**
-     * Describe <code>main</code> method here.
-     *
-     * @param args a <code>String[]</code> value
-     */
-    public static void main (String[] args) {
-        try {
-            BasicConfigurator.configure();
-
-            //logger.debug("Starting..");
-            File file = new File(args[0]);
-            URL base = file.toURL();
-
-            XMLDataSet dataset = load(base);
-
-            String[] names = dataset.getDataSetNames();
-            for (int i=0; i<names.length; i++) {
-                FileOutputStream out = new FileOutputStream("test_"+names[i]);
-                XMLDataSet sub = (XMLDataSet)dataset.getDataSet(names[i]);
-                sub.write(out);
-                out.flush();
-                out.close();
-            } // end of for (int i=0; i<names.length; i++)
-	    
-
-            // testDataSet(dataset, " ");
-
-        } catch (Exception e) {
-            e.printStackTrace();	    
-        } // end of try-catch
-    } // end of main ()
     
-}
+
+} // XMLDataSet
 
