@@ -81,10 +81,10 @@ public class RotateTest
         rotate.rotate(x, y, Math.PI/2); // 90 degrees
         assertEquals(0, x[0], 0.0001);
         assertEquals(0, y[0], 0.0001);
-        assertEquals(-1, x[1], 0.0001);
-        assertEquals(1, y[1], 0.0001);
-        assertEquals(.5, x[2], 0.0001);
-        assertEquals(.5, y[2], 0.0001);
+        assertEquals(1, x[1], 0.0001);
+        assertEquals(-1, y[1], 0.0001);
+        assertEquals(" x from (.5, -.5)", -.5, x[2], 0.0001);
+        assertEquals(" y from (.5, -.5)", -.5, y[2], 0.0001);
         rotate.rotate(x, y, -Math.PI/2); // inverse transform
         ArrayAssert.assertEquals(origx, x, 0.0001f);
         // JUnitDoclet end method rotate
@@ -93,6 +93,7 @@ public class RotateTest
     public void testRotateGCP() throws Exception {
         // JUnitDoclet begin method rotate
         MicroSecondDate now = new MicroSecondDate();
+        // both spikes are same, so 45 degree part motion e and n
         LocalSeismogramImpl xSeis = SimplePlotUtil.createSpike(now);
         LocalSeismogramImpl ySeis = SimplePlotUtil.createSpike(now);
         Location staLoc = new Location(55.3f, -3.2f, Defaults.ZERO_K, Defaults.ZERO_K, null);
@@ -100,8 +101,32 @@ public class RotateTest
         float[][] ans = rotate.rotateGCP(xSeis, ySeis, staLoc, evtLoc);
         DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
                                    evtLoc.latitude, evtLoc.longitude);
-        assertEquals( -100*Math.sqrt(2)*Math.cos((distAz.baz-45)*Math.PI/180.0), ans[0][0],0.001f);
-        assertEquals( 100*Math.sqrt(2)*Math.sin((distAz.baz-45)*Math.PI/180.0), ans[1][0],0.001f);
+        System.out.println("x y "+
+                          100*Math.sqrt(2)*Math.sin((distAz.baz-45)*Math.PI/180.0)+" "+
+                          -100*Math.sqrt(2)*Math.cos((distAz.baz-45)*Math.PI/180.0));
+        assertEquals( 100*Math.sqrt(2)*Math.sin(rotate.dtor(distAz.baz-45)), ans[0][0],0.001f);
+        assertEquals( -100*Math.sqrt(2)*Math.cos(rotate.dtor(distAz.baz-45)), ans[1][0],0.001f);
+
+        // JUnitDoclet end method rotate
+    }
+
+    public void testRotateGCPXAxis() throws Exception {
+        // JUnitDoclet begin method rotate
+        MicroSecondDate now = new MicroSecondDate();
+        // both spikes are same, so 45 degree part motion e and n
+        LocalSeismogramImpl xSeis = SimplePlotUtil.createSpike(now);
+        LocalSeismogramImpl ySeis = SimplePlotUtil.createSpike(now);
+        Location staLoc = new Location(0f, 0f, Defaults.ZERO_K, Defaults.ZERO_K, null);
+        Location evtLoc = new Location(0f, 10f, Defaults.ZERO_K, Defaults.ZERO_K, null);
+        float[][] ans = rotate.rotateGCP(xSeis, ySeis, staLoc, evtLoc);
+        DistAz distAz = new DistAz(staLoc.latitude, staLoc.longitude,
+                                   evtLoc.latitude, evtLoc.longitude);
+        System.out.println("x y "+
+                          100*Math.sqrt(2)*Math.sin((distAz.baz-45)*Math.PI/180.0)+" "+
+                          -100*Math.sqrt(2)*Math.cos((distAz.baz-45)*Math.PI/180.0));
+        assertEquals( 100, ans[0][0],0.001f);
+        assertEquals( -100, ans[1][0],0.001f);
+
         // JUnitDoclet end method rotate
     }
 
