@@ -153,7 +153,7 @@ public class DisplayUtils {
         List east = new ArrayList();
         List z = new ArrayList();
         for(int i = 0; i < dss.length; i++){
-            if(!names.contains(dss[i].getSeismogram().getName())){
+            if(!names.contains(dss[i].getName())){
                 LocalSeismogramImpl seis = dss[i].getSeismogram();
                 XMLDataSet dataSet = (XMLDataSet)dss[i].getDataSet();
                 ChannelId[] channelGroup = DataSetChannelGrouper.retrieveGrouping(dataSet, seis.getChannelID());
@@ -172,7 +172,7 @@ public class DisplayUtils {
                         }else{
                             z.add(current);
                         }
-                        names.add(current.getSeismogram().getName());
+                        names.add(current.getName());
                     }
                 }
             }
@@ -187,9 +187,9 @@ public class DisplayUtils {
     public static DataSetSeismogram[] addSuffix(DataSetSeismogram[] dss, String suffix){
         DataSetSeismogram[] suffixedDss = new DataSetSeismogram[dss.length];
         for(int i = 0; i < dss.length; i++){
-            suffixedDss[i] = new DataSetSeismogram(dss[i], dss[i].toString() + suffix);
+            dss[i].setName(dss[i].getName() + suffix);
         }
-        return suffixedDss;
+        return dss;
     }
     
     private static final double linearInterp(long xa, long xb, int y,
