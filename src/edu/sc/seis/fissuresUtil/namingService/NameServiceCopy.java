@@ -32,33 +32,43 @@ public class NameServiceCopy {
             String dns = from[i].getServerDNS();
             String name = from[i].getServerName();
             logger.info("Checking on" + name);
-            if(skipServerPing || !from[i].getCorbaObject()._non_existent()) {
-                boolean rebind = true;
-                org.omg.CORBA.Object fromObj = from[i].getCorbaObject();
-                for(int j = 0; j < to.length; j++) {
-                    if(to[j].getServerName().equals(name)) {
-                        logger.info("Copy to name service contains " + name
-                                + " as well");
-                        try {
-                            org.omg.CORBA.Object toObj = to[j].getCorbaObject();
-                            if(!toObj._non_existent() && fromObj.equals(toObj)) {
-                                logger.info("Copy to name service copy of "
-                                        + name
-                                        + " is the same as the one in copy from name service");
-                                rebind = false;
-                            }
-                        } catch(RuntimeException e) {
-                            //This exception came from the copy to obj, rebind
+            org.omg.CORBA.Object fromObj;
+            try {
+                fromObj = from[i].getCorbaObject();
+                if(from[i].getCorbaObject()._non_existent()) {
+                    logger.info("Couldn't ping " + dns + " " + name
+                            + ", skipping");
+                    continue;
+                }
+            } catch(RuntimeException e) {
+                logger.warn("Exception thrown while getting "
+                                    + name
+                                    + " from from name service.  Not being rebound to to nameservice",
+                            e);
+                continue;
+            }
+            boolean rebind = true;
+            for(int j = 0; j < to.length; j++) {
+                if(to[j].getServerName().equals(name)) {
+                    logger.info("Copy to name service contains " + name
+                            + " as well");
+                    try {
+                        org.omg.CORBA.Object toObj = to[j].getCorbaObject();
+                        if(!toObj._non_existent() && fromObj.equals(toObj)) {
+                            logger.info("Copy to name service copy of "
+                                    + name
+                                    + " is the same as the one in copy from name service");
+                            rebind = false;
                         }
-                        break;//Only one match per name possible
+                    } catch(RuntimeException e) {
+                        //This exception came from the copy to obj, rebind
                     }
+                    break;//Only one match per name possible
                 }
-                if(rebind) {
-                    logger.info("Rebinding " + name);
-                    copyFromNS.rebind(dns, name, fromObj, copyToNameContext);
-                }
-            } else {
-                logger.info("Couldn't ping " + dns + " " + name + ", skipping");
+            }
+            if(rebind) {
+                logger.info("Rebinding " + name);
+                copyFromNS.rebind(dns, name, fromObj, copyToNameContext);
             }
         }
     }
@@ -95,8 +105,6 @@ public class NameServiceCopy {
         copy(copyFromSeisDC, copyToSeisDC);
     }
 
-    private static boolean skipServerPing = false;
-
     private static FissuresNamingService copyFromNS, copyToNS;
 
     private static NamingContextExt copyToNameContext;
@@ -106,10 +114,7 @@ public class NameServiceCopy {
         // this parse the args, reads properties, and inits the orb
         Initializer.init(args);
         for(int i = 0; i < args.length; i++) {
-            if(args[i].equals("--noping")) {
-                logger.info("Skipping server ping");
-                skipServerPing = true;
-            } else if(args[i].equals("-h") || args[i].equals("--help")) {
+            if(args[i].equals("-h") || args[i].equals("--help")) {
                 System.out.println("-props propfile  Connfiguration properties");
                 System.out.println("--noping         Do not ping servers before copy");
                 System.out.println("-h --help        Print this help message");
