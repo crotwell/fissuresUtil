@@ -18,7 +18,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 2185 2002-07-12 20:18:53Z crotwell $
+ * @version $Id: SacDirToDataSet.java 2259 2002-07-17 17:32:22Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {
@@ -38,7 +38,6 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 	DocumentBuilderFactory factory
 	    = DocumentBuilderFactory.newInstance();
 	DocumentBuilder docBuilder = factory.newDocumentBuilder();
-	String userName = System.getProperty("user.name");
 	URL dirURL = base;
 	System.out.println(" dirURL is "+dirURL.toString());
 	try {
@@ -59,40 +58,71 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 	Iterator it = paramRefs.keySet().iterator();
 	while (it.hasNext()) {
 	    String key = (String)it.next();
+        loadParameterRef(key, (String)paramRefs.get(key));
+	    
+	} // end of while (it.hasNext())
+	
+	    
+	File[] files = directory.listFiles();
+	for (int i=0; i<files.length; i++) {
+	    try {
+            String filename = files[i].getName();
+            // maybe an image?
+            if (filename.endsWith(".gif") ||
+                filename.endsWith(".GIF") ||
+                filename.endsWith(".png") ||
+                filename.endsWith(".PNG") ||
+                filename.endsWith(".jpeg") ||
+                filename.endsWith(".JPEG") ||
+                filename.endsWith(".jpg") ||
+                filename.endsWith(".JPG") ) {
+                String name = filename.substring(0, filename.lastIndexOf('.'));
+                loadParameterRef(name, filename);
+            } else {
+                // try as a sac file
+                loadSacFile(files[i]);
+            } // end of else
+
+	    } catch (Exception e) {
+		e.printStackTrace();
+		System.err.println("Caught exception on "
+				   +files[i].getName()+", continuing...");
+	    } // end of try-catch
+	} // end of for (int i=0; i<sacFiles.length; i++)
+
+    }
+
+    void loadParameterRef(String paramName, String paramFile) {
 	    AuditInfo[] audit = new AuditInfo[1];
 	    audit[0] = new AuditInfo(userName,
-				     "Added parameter "+key);
+				     "Added parameter "+paramName+" for "+paramFile);
 	    try {
-		dataset.addParameter(key,new URL(dirURL,
-						(String)paramRefs.get(key)).toString(),
-				     audit);
+		dataset.addParameter(paramName,new URL(base,
+                                         paramFile).toString(),
+                             audit);
 		
 	    } catch (MalformedURLException e) {
 		//can't happen?
 		e.printStackTrace();
 		System.err.println("Caught exception on parameterRef "
-				   +key+", continuing...");
+				   +paramName+", continuing...");
 	    } // end of try-catch
-	    
-	} // end of while (it.hasNext())
-	
-	    
-	File[] sacFiles = directory.listFiles();
-	for (int i=0; i<sacFiles.length; i++) {
-	    if (excludes.contains(sacFiles[i].getName())) {
-		continue;
-	    } // end of if (excludes.contains(sacFiles[i].getName()))
-	    if (paramRefs.containsValue(sacFiles[i].getName())) {
-		continue;
-	    } // end of if (excludes.contains(sacFiles[i].getName()))
+    }
 
-	    try {
+    void loadSacFile(File sacFile) throws IOException, FissuresException {
+	    if (excludes.contains(sacFile.getName())) {
+		return;
+	    } // end of if (excludes.contains(sacFile.getName()))
+	    if (paramRefs.containsValue(sacFile.getName())) {
+		return;
+	    } // end of if (excludes.contains(sacFile.getName()))
+
             SacTimeSeries sac = new SacTimeSeries();
-		sac.read(sacFiles[i].getCanonicalPath());
+		sac.read(sacFile.getCanonicalPath());
 		AuditInfo[] audit = new AuditInfo[1];
 		audit[0] = new AuditInfo(userName+" via SacDirToDataSet",
-					 "seismogram loaded from "+sacFiles[i].getCanonicalPath());
-		URL seisURL = new URL(dirURL, sacFiles[i].getName());
+					 "seismogram loaded from "+sacFile.getCanonicalPath());
+		URL seisURL = new URL(base, sacFile.getName());
         //		System.out.println(" the seisURL is "+seisURL.toString());
         //		DataInputStream dis = new DataInputStream(new BufferedInputStream(seisURL.openStream())); 
         //		SacTimeSeries sac = new SacTimeSeries();
@@ -123,7 +153,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
         }
         
 
-        String seisName = sacFiles[i].getName();
+        String seisName = sacFile.getName();
         if (seisName.endsWith(".SAC")) {
             seisName = seisName.substring(0,seisName.length()-4);
         } // end of if (seisName.endsWith(".SAC"))
@@ -134,13 +164,6 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 					 new Property[0], 
 					 new ParameterRef[0],
 					 audit);
-
-	    } catch (Exception e) {
-		e.printStackTrace();
-		System.err.println("Caught exception on "
-				   +sacFiles[i].getName()+", continuing...");
-	    } // end of try-catch
-	} // end of for (int i=0; i<sacFiles.length; i++)
 
     }
 
@@ -159,6 +182,7 @@ public class SacDirToDataSet implements StdDataSetParamNames {
 	}
     }
 
+	String userName = System.getProperty("user.name");
     URL base;
     File directory;
     String dsName;
