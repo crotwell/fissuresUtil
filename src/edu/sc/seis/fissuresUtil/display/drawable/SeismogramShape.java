@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 5869 2003-09-30 15:56:31Z groves $
+ * @version $Id: SeismogramShape.java 9060 2004-06-04 15:16:11Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -30,7 +30,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         this.container = new SeismogramContainer(seis);
         container.addListener(this);
     }
-    
+
     public void updateData(){
         synchronized(this){
             newData = true;

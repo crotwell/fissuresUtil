@@ -35,7 +35,7 @@ public abstract class BigX extends MouseAdapter implements Drawable, MouseMotion
     }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
-        if(visible && !BasicSeismogramDisplay.PRINTING){
+        if(visible && !SeismogramDisplay.PRINTING){
             canvas.setColor(drawColor);
             canvas.setStroke(DisplayUtils.THREE_PIXEL_STROKE);
             canvas.drawLine(xMin, yMin, xMax, yMax);

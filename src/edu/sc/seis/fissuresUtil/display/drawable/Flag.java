@@ -13,9 +13,9 @@ import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.TextTable;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
@@ -106,7 +106,7 @@ public class Flag implements Drawable{
             canvas.setColor(Color.BLACK);
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             canvas.draw(flag);
-            if(BasicSeismogramDisplay.PRINTING) canvas.setColor(Color.WHITE);
+            if(SeismogramDisplay.PRINTING) canvas.setColor(Color.WHITE);
             canvas.drawString(name, location + PADDING/2, stringBounds.height - PADDING/2);
         }
     }

@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
-import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.Color;
@@ -32,7 +32,7 @@ public class Crosshair implements MovableDrawable{
     public void setVisibility(boolean b) { visible = b; }
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp) {
-        if(visible && !BasicSeismogramDisplay.PRINTING){
+        if(visible && !SeismogramDisplay.PRINTING){
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             canvas.setPaint(Color.RED);
             if(topTriangleVisible)canvas.draw(topXTriangle);
