@@ -201,8 +201,8 @@ public class SeismogramPDFBuilder {
                     }
 
                     boolean notAllHere = true;
-
-                    while(notAllHere){
+                    int wait = 0;
+                    while(notAllHere && wait < 10000){
                         Iterator seisIt = bsd.iterator(DrawableSeismogram.class);
                         while(seisIt.hasNext()){
                             DrawableSeismogram cur = (DrawableSeismogram)seisIt.next();
@@ -210,6 +210,7 @@ public class SeismogramPDFBuilder {
                             if(status == SeismogramContainer.GETTING_DATA){
                                 cur.getData();
                                 try {
+                                    wait += 100;
                                     Thread.sleep(100);
                                 } catch (InterruptedException e) {}
                                 break;
