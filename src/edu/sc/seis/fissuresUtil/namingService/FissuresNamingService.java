@@ -96,12 +96,13 @@ public class FissuresNamingService {
     public org.omg.CORBA.Object getRoot() {
         org.omg.CORBA.Object rootObj = null;
         if(nameServiceCorbaLoc != null) {
-            logger.debug("context and corbaloc are null");
+            logger.debug("corbaloc not null");
+            logger.info("Using name service corba loc="+nameServiceCorbaLoc);
             rootObj = orb.string_to_object(nameServiceCorbaLoc);
             logger.debug("got root object");
         } else {
             logger.debug(nameServiceCorbaLoc);
-            logger.debug("name context is still null after attempt to load, resolve initial references");
+            logger.debug("corbaloc is  null, resolve initial references");
             // get a reference to the Naming Service root_context
             try {
                 rootObj = orb.resolve_initial_references("NameService");
@@ -109,8 +110,7 @@ public class FissuresNamingService {
                 // do nothing, return null in this case
             }
             if(rootObj == null) {
-                //logger.error
-                logger.info("Name service object is null!");
+                logger.info("Name service object is null! Resolve initial references gave null.");
             }
         }
         return rootObj;
@@ -192,7 +192,8 @@ public class FissuresNamingService {
                 logger.info("retry="
                         + i
                         + "NOT FOUND Exception caught while resolving name context and the name not found is "
-                        + nfe.rest_of_name[0].id);
+                        + nfe.rest_of_name[0].id+
+                        " from "+nameServiceCorbaLoc);
                 if(i == maxTry) { throw nfe; }
             } catch(InvalidName ine) {
                 logger.info("retry="
