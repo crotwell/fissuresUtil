@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.mockFissures.IfEvent;
 
+import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
@@ -50,40 +51,25 @@ public class MockEventAccessOperations {
         MicroSecondTimeRange tr = new MicroSecondTimeRange(new MicroSecondDate(t),
                                                            new TimeInterval(30,
                                                                             UnitImpl.DAY));
-        return createEvents(tr, 120);
+        return createEvents(tr, 3, 6);
     }
 
     public static CacheEvent[] createEvents(MicroSecondTimeRange timeRange,
-                                            int numEvents) {
+                                            int rows,
+                                            int cols) {
+        int numEvents = rows * cols;
         TimeInterval timeBetweenEvents = (TimeInterval)timeRange.getInterval()
                 .divideBy(numEvents);
-        float latStep = 180 / (float)(numEvents/2);
-        float lonStep = 360 / (float)(numEvents/2);
         CacheEvent[] events = new CacheEvent[numEvents];
-        for(int i = 0; i < numEvents/2; i++) {
+        Location[] locs = MockLocation.create(rows, cols);
+        for(int i = 0; i < numEvents; i++) {
             MicroSecondDate eventBegin = timeRange.getBeginTime()
                     .add((TimeInterval)timeBetweenEvents.multiplyBy(i));
             Origin o = new OriginImpl("Mock Event " + i,
                                       "Mockalog",
                                       "Charlie Groves",
                                       eventBegin.getFissuresTime(),
-                                      MockLocation.create(90 - i * latStep,
-                                                          -180 + i * lonStep),
-                                      MockMagnitude.MAGS,
-                                      MockParameterRef.params);
-            EventAttr ea = MockEventAttr.create();
-            events[i] = new CacheEvent(ea, o);
-        }
-        for(int i =numEvents/2; i < numEvents; i++) {
-            MicroSecondDate eventBegin = timeRange.getBeginTime()
-                    .add((TimeInterval)timeBetweenEvents.multiplyBy(i));
-            int shift = i - numEvents/2;
-            Origin o = new OriginImpl("Mock Event " + i,
-                                      "Mockalog",
-                                      "Charlie Groves",
-                                      eventBegin.getFissuresTime(),
-                                      MockLocation.create(90 - shift * latStep,
-                                                          180 - shift * lonStep),
+                                      locs[i],
                                       MockMagnitude.MAGS,
                                       MockParameterRef.params);
             EventAttr ea = MockEventAttr.create();
