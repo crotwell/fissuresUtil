@@ -138,7 +138,7 @@ public class MemoryDataSet implements DataSet {
         if (datasetSeismogramNames.contains(dss.getName())) {
             int n = 1;
             String tmpName = dss.getName();
-            while(datasetSeismogramNames.contains(dss.getName())) {
+            while(datasetSeismogramNames.contains(tmpName)) {
                 n++;
                 tmpName = dss.getName()+"."+n;
             }
