@@ -7,6 +7,7 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
@@ -33,36 +34,36 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
         this.dataCenter = dataCenterRouter;
         hsqlRequestFilterDb = new HSQLRequestFilterDb(directoryName, databaseName, dataCenterRouter);
     }
-
+    
     private DBDataCenter (String directoryName, String databaseName) throws SQLException {
-
+        
         hsqlRequestFilterDb = new HSQLRequestFilterDb(directoryName, databaseName);
     }
-
+    
     public static DBDataCenter getDataCenter(String directoryName, String databaseName, DataCenterOperations dataCenterRouter) throws SQLException {
         if(dbDataCenter == null) {
             dbDataCenter = new DBDataCenter(directoryName, databaseName, dataCenterRouter);
         }
         return dbDataCenter;
     }
-
+    
     public static DBDataCenter getDataCenter(String directoryName, String databaseName) throws SQLException {
         if(dbDataCenter == null) {
             dbDataCenter = new DBDataCenter(directoryName, databaseName);
         }
         return dbDataCenter;
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/available_data:1.0
     //
     /***/
-
+    
     public RequestFilter[]
         available_data(RequestFilter[] a_filterseq) {
         return dataCenter.available_data(a_filterseq);
     }
-
+    
     public String
         request_seismograms(RequestFilter[] a_filterseq,
                             DataCenterCallBack a_client,
@@ -71,7 +72,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
         throws edu.iris.Fissures.FissuresException {
         return getNextRequestId();
     }
-
+    
     //
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/request_seismograms:1.0
     //
@@ -84,14 +85,13 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
      *recent earthquake, even thought the data center does not yet
      *have the data. Note that expiration_time is ignored if long_lived
      *is false.*/
-
+    
     public String
         request_seismograms(RequestFilter[] a_filterseq,
                             LocalDataCenterCallBack a_client,
                             SeisDataChangeListener initiator,
                             boolean long_lived,
-                            edu.iris.Fissures.Time expiration_time)
-        throws edu.iris.Fissures.FissuresException {
+                            edu.iris.Fissures.Time expiration_time){
         DataCenterThread dcThread = (DataCenterThread)clientToThread.get(a_client);
         if(dcThread == null || !dcThread.getData(initiator, a_filterseq)){
             dcThread = new DataCenterThread(a_filterseq,//missing_seq,
@@ -99,24 +99,24 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
                                             initiator,
                                             this);
             clientToThread.put(a_client, dcThread);
-            Thread thread = new Thread(dbThreadGroup,
-                                       dcThread,
-                                       "DBDataCenter"+getThreadNum());
-            thread.start();
+            dcThreadPool.invokeLater(dcThread);
+            DataCenterThread.incrementWaiters();
         }
         return getNextRequestId();
     }
-
+    
+    private WorkerThreadPool dcThreadPool = new WorkerThreadPool("DBDataCenter", 5);
+    
     private Map clientToThread = new HashMap();
-
-    //
+    
+//
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/retrieve_seismograms:1.0
-    //
+//
     /***/
-
+    
     public synchronized LocalSeismogram[] retrieve_seismograms(RequestFilter[] a_filterseq)
         throws edu.iris.Fissures.FissuresException {
-
+        
         //here first check with the database to see if
         //if the seismogram is already in the cache.
         //if it is the case .. return it..
@@ -141,9 +141,9 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
         } catch ( edu.iris.dmc.seedcodec.CodecException e) {
             throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,e.toString()));
         } // end of catch
-
+        
     }
-
+    
     /**
      *@returns an array containing the request filters taken from the <code>filters</code>
      * array that are not completely covered by the given seismograms begin and
@@ -156,106 +156,117 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
             return neededFilters;
         }
         LocalSeismogramImpl[] sorted = DisplayUtils.sortByDate(existingFilters);
-        return notCovered(neededFilters, new MicroSecondTimeRange(sorted[0].getBeginTime(),
-                                                                  sorted[sorted.length -1].getEndTime()));
+        MicroSecondTimeRange[] ranges = new MicroSecondTimeRange[sorted.length];
+        for (int i = 0; i < sorted.length; i++) {
+            ranges[i] = new MicroSecondTimeRange(sorted[i].getBeginTime(),
+                                                 sorted[i].getEndTime());
+        }
+        return notCovered(neededFilters, ranges);
     }
-
+    
     public static RequestFilter[] notCovered(RequestFilter[] existingFilters,
                                              RequestFilter[] neededFilters){
         if(existingFilters.length == 0){
             return neededFilters;
         }
         RequestFilter[] sorted = DisplayUtils.sortByDate(existingFilters);
-        RequestFilter totalFilter = new RequestFilter(sorted[0].channel_id,
-                                                      sorted[0].start_time,
-                                                      sorted[0].end_time);
-        return notCovered(neededFilters, new MicroSecondTimeRange(totalFilter));
-
+        MicroSecondTimeRange[] ranges = new MicroSecondTimeRange[sorted.length];
+        for (int i = 0; i < sorted.length; i++) {
+            ranges[i] = new MicroSecondTimeRange(sorted[i]);
+        }
+        return notCovered(neededFilters, ranges);
+        
     }
-
+    
     public static RequestFilter[] notCovered(RequestFilter[] filters,
-                                             MicroSecondTimeRange timeRange){
-        MicroSecondDate timeBegin = timeRange.getBeginTime();
-        MicroSecondDate timeEnd = timeRange.getEndTime();
+                                             MicroSecondTimeRange[] timeRanges){
         List unsatisfied = new ArrayList();
         for (int i = 0; i < filters.length; i++){
+            boolean beginCovered = false;
+            boolean endCovered = false;
             MicroSecondDate filterBegin = new MicroSecondDate(filters[i].start_time);
             MicroSecondDate filterEnd = new MicroSecondDate(filters[i].end_time);
-            if(filterBegin.after(timeEnd) ||
-               filterEnd.before(timeBegin)){
+            for (int j = 0; j < timeRanges.length && !(beginCovered && endCovered); j++) {
+                MicroSecondDate timeBegin = timeRanges[j].getBeginTime();
+                MicroSecondDate timeEnd = timeRanges[j].getEndTime();
+                if((filterBegin.after(timeBegin)  && filterBegin.before(timeEnd))
+                   || filterBegin.equals(timeBegin)){
+                    beginCovered = true;
+                }
+                if((filterEnd.before(timeEnd) && timeBegin.before(filterEnd))
+                   ||filterEnd.equals(timeEnd)){
+                    endCovered = true;
+                }
+            }
+            if(!beginCovered && !endCovered){
                 unsatisfied.add(filters[i]);
-            }else{
-                if(filterEnd.after(timeEnd)){
-                    unsatisfied.add(new RequestFilter(filters[i].channel_id,
-                                                      timeEnd.getFissuresTime(),
-                                                      filterEnd.getFissuresTime()));
-                    logger.debug("Requesting data past the end of current data");
-                }
-                if(filterBegin.before(timeBegin)){
-                    unsatisfied.add(new RequestFilter(filters[i].channel_id,
-                                                      filterBegin.getFissuresTime(),
-                                                      timeBegin.getFissuresTime()));
-                    logger.debug("Requesting data before the begin of current data");
-                }
+            }else if(!beginCovered){
+                unsatisfied.add(new RequestFilter(filters[i].channel_id,
+                                                  filters[i].start_time,
+                                                  timeRanges[0].getBeginTime().getFissuresTime()));
+            }else if(!endCovered){
+                unsatisfied.add(new RequestFilter(filters[i].channel_id,
+                                                  timeRanges[timeRanges.length -1].getEndTime().getFissuresTime(),
+                                                  filters[i].end_time));
             }
         }
         return (RequestFilter[])unsatisfied.toArray(new RequestFilter[unsatisfied.size()]);
     }
-
+    
     private void insertIntoArrayList(ArrayList arrayList, LocalSeismogram[] localSeismograms) {
         for(int counter = 0; counter < localSeismograms.length; counter++) {
             arrayList.add(localSeismograms[counter]);
         }
     }
-
-
-    //
+    
+    
+//
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/queue_seismograms:1.0
-    //
+//
     /***/
-
+    
     public String
         queue_seismograms(RequestFilter[] a_filterseq)
         throws edu.iris.Fissures.FissuresException {
         return getNextRequestId();
     }
-
-    //
+    
+//
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/retrieve_queue:1.0
-    //
+//
     /***/
-
+    
     public LocalSeismogram[]
         retrieve_queue(String a_request)
         throws edu.iris.Fissures.FissuresException {
-
+        
         return new LocalSeismogram[0];
     }
-
-    //
+    
+//
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/cancel_request:1.0
-    //
+//
     /***/
-
+    
     public void
         cancel_request(String a_request)
         throws edu.iris.Fissures.FissuresException {
-
-
+        
+        
     }
-
-    //
+    
+//
     // IDL:iris.edu/Fissures/IfSeismogramDC/DataCenter/request_status:1.0
-    //
+//
     /***/
-
+    
     public String
         request_status(String a_request)
         throws edu.iris.Fissures.FissuresException {
-
+        
         return new String();
     }
-
+    
     public String getFileIds(ChannelId channelId,
                              MicroSecondDate beginDate,
                              MicroSecondDate endDate) throws SQLException {
@@ -263,35 +274,25 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
                                               beginDate,
                                               endDate);
     }
-
+    
     public LocalSeismogram getSeismogram(String fileIds)
         throws SQLException, java.io.IOException, edu.iris.Fissures.FissuresException {
         return hsqlRequestFilterDb.getSeismogram(fileIds);
     }
-
+    
     private DataCenterOperations dataCenter;
-
+    
     private HSQLRequestFilterDb hsqlRequestFilterDb;
-
+    
     private static DBDataCenter dbDataCenter;
-
+    
     /** used to generate unique return ids for requests. May not be used yet,
      but at least the strings will be unique. */
     String getNextRequestId() {
         return "requestId"+requestNumber;
     }
-
+    
     private int requestNumber = 1;
-
-    private static int threadNum = 0;
-
-    private synchronized static int getThreadNum() {
-        return threadNum++;
-    }
-
-    private ThreadGroup dbThreadGroup = new ThreadGroup("DBDataCenter");
-
+    
     private static Logger logger = Logger.getLogger(DBDataCenter.class);
-
 }// DBDataCenter
-
