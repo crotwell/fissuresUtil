@@ -19,23 +19,12 @@ import java.util.*;
 public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
     /**
        @param totalPixels the width of the axis being used in pixels
-       @param beginTime the start time of the axis
-       @param endTime the end time of the axis
+
     */
-    TimeScaleCalc (int totalPixels, MicroSecondDate beginTime, MicroSecondDate endTime, TimeConfigRegistrar tr){
-	if (endTime.before(beginTime)) {
-	    throw new IllegalArgumentException("endTime must be after beginTime, "+beginTime.toString()+"  "+endTime.toString());
-	} 
-	this.totalPixels = totalPixels;
-	setTimes();
-	calculateTicks();
-    }
-    
     TimeScaleCalc (int totalPixels, TimeConfigRegistrar tr){
 	this.totalPixels = totalPixels;
 	this.timeRegistrar = new TimeConfigRegistrar(tr, this);
 	setTimes();
-	calculateTicks();
     }
 
     public void calculateTicks(){
@@ -51,7 +40,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
 	    }else if(majTickTime <= 100000){
 		majTickTime = 100000;	
 	    }
-	}else if(majTickTime <= 30000000){
+	}else if(majTickTime <= 30 * 1000000){
 	    majTickRatio = 10;
 	    timeFormat = new SimpleDateFormat("HH:mm:ss");
 	       if(majTickTime <= 1000000){
@@ -105,11 +94,12 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
 	       majTickTime = 86400000000l;
 	}
 	timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	numTicks = ((int)(timeIntv/(double)majTickTime) * majTickRatio);
+	double numTicksDbl = ((timeIntv/(double)majTickTime) * majTickRatio);
+    numTicks = (int)numTicksDbl;
 	firstLabelTime = (beginTime/majTickTime + 1) * majTickTime;
 	majTickOffset = (int)((firstLabelTime - beginTime)/(double)timeIntv * numTicks);
 	tickOffset = (firstLabelTime - beginTime)/(double)timeIntv/majTickRatio * totalPixels;
-	tickSpacing = totalPixels/(double)numTicks;
+	tickSpacing = totalPixels/numTicksDbl;
     }
 
     public void  setTotalPixels(int totalPixels) {
@@ -126,10 +116,8 @@ public class TimeScaleCalc implements ScaleMapper, TimeSyncListener {
     }
 
     public void setTimes(){
-	this.beginTime = timeRegistrar.getTimeRange().getBeginTime().getMicroSecondTime();
-	this.endTime = timeRegistrar.getTimeRange().getEndTime().getMicroSecondTime();
-	timeIntv = (this.endTime - this.beginTime);
-	calculateTicks();
+        setTimes(timeRegistrar.getTimeRange().getBeginTime(),
+                 timeRegistrar.getTimeRange().getEndTime());
     }
     
     /**
