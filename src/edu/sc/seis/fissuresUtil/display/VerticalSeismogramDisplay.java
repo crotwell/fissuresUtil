@@ -446,25 +446,8 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 			    }
 			});
 		    JPanel displayPanel = new JPanel();
-		    JButton zoomIn = new JButton("Zoom In");
+		    /*JButton zoomIn = new JButton("Zoom In");
 		    JButton zoomOut = new JButton("Zoom Out");
-		    JPanel buttonPanel = new JPanel();
-		    buttonPanel.setLayout(new FlowLayout());
-		    buttonPanel.add(zoomIn);
-		    buttonPanel.add(zoomOut);
-		    displayPanel.setLayout(new BorderLayout());
-		    displayPanel.add(particleDisplay, java.awt.BorderLayout.CENTER);
-		    displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
-		    java.awt.Dimension size = new java.awt.Dimension(400, 400);
-		    displayPanel.setSize(size);
-		    particleWindow.getContentPane().add(displayPanel);
-		    particleWindow.addWindowListener(new WindowAdapter() {
-			    public void windowClosing(WindowEvent e) {
-				particleWindow.dispose();
-				particleDisplay = null;
-			    }
-			});
-		    particleWindow.setSize(size);
 		    zoomIn.addActionListener(new ActionListener() {
 			    public void actionPerformed(ActionEvent ae) {
 				
@@ -479,6 +462,23 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 				// particleDisplay.setZoomIn(false);
 			    }
 			});
+			JPanel buttonPanel = new JPanel();
+		    buttonPanel.setLayout(new FlowLayout());
+		    buttonPanel.add(zoomIn);
+		    buttonPanel.add(zoomOut);*/
+		    displayPanel.setLayout(new BorderLayout());
+		    displayPanel.add(particleDisplay, java.awt.BorderLayout.CENTER);
+		    //displayPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+		    java.awt.Dimension size = new java.awt.Dimension(400, 400);
+		    displayPanel.setSize(size);
+		    particleWindow.getContentPane().add(displayPanel);
+		    particleWindow.addWindowListener(new WindowAdapter() {
+			    public void windowClosing(WindowEvent e) {
+				particleWindow.dispose();
+				particleDisplay = null;
+			    }
+			});
+		    particleWindow.setSize(size);
 		    Toolkit tk = Toolkit.getDefaultToolkit();
 		    if(particleWindow.getSize().width*particleDisplays < tk.getScreenSize().width){
 			particleWindow.setLocation(particleWindow.getSize().width * particleDisplays, tk.getScreenSize().height - 
