@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 4838 2003-07-21 17:28:28Z groves $
+ * @version $Id: SeismogramShape.java 4951 2003-07-29 17:15:50Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -31,18 +31,15 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
         container.addListener(this);
     }
 
-    public synchronized void updateData() {
-        newData = true;
+    public void updateData(){
+        synchronized(this){
+            newData = true;
+        }
         parent.repaint();
-        /*      if(currentIterator != null){
-            SeismogramShapeIterator newIt = new SeismogramShapeIterator(currentIterator.getTime(),
-                                                                        currentIterator.getAmp(),
-                                                                        currentIterator.getSize());
-            plot(newIt);
-         }*/
     }
 
     private boolean newData = false;
+
     /**
      * Method update changes the current plot for the seismogram held by this
      * object to be over the passed in variables
@@ -50,25 +47,24 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
      * @param    time specifies the time range for the plot
      * @param    amp specifies the amp range for the plot
      * @param    size specifies the dimension of the plot
-     *
      */
-    public synchronized boolean update(MicroSecondTimeRange time,
-                                       UnitRangeImpl amp,
-                                       Dimension size){
+    public boolean update(MicroSecondTimeRange time, UnitRangeImpl amp,
+                          Dimension size){
         if(container.getSeismograms().length <= 0){
             return false;
         }else{
-            SeismogramShapeIterator newIterator = new SeismogramShapeIterator(time,
-                                                                              amp,
-                                                                              size);
-            if(newIterator.isDraggedFrom(currentIterator) &&
-               newIterator.hasSimilarAmp(currentIterator) &&
-              !newData){
-                dragPlot(newIterator);
-            }else{
-                plot(newIterator);
+            synchronized(this){
+                SeismogramShapeIterator newIterator = new SeismogramShapeIterator(time,
+                                                                                  amp,
+                                                                                  size);
+                if(newIterator.isDraggedFrom(currentIterator) &&
+                   newIterator.hasSimilarAmp(currentIterator) && !newData){
+                    dragPlot(newIterator);
+                }else{
+                    plot(newIterator);
+                }
+                return true;
             }
-            return true;
         }
     }
 
@@ -86,9 +82,17 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
      *
      */
     private void plot(SeismogramShapeIterator iterator){
+        boolean plotNewData = false;
+        synchronized(this){
+            plotNewData= newData;
+        }
         iterator.setSeisPoints(DisplayUtils.getPoints(container.getIterator(),
                                                       iterator.getTime()));
-        newData = false;
+        if(plotNewData){
+            synchronized(this){
+                newData = false;
+            }
+        }
         iterator.setBaseSeisPoint();
         iterator.setPointsPerPixel();
         iterator.setPoints(new int[2][iterator.getSize().width]);
