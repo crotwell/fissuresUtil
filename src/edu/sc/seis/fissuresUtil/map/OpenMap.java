@@ -236,6 +236,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener{
             ImageIO.write(bufImg, "png", temp);
             loc.delete();
             temp.renameTo(loc);
+            logger.debug(ExceptionReporterUtils.getMemoryUsage()+" after write image to file");
         }
     }
 
