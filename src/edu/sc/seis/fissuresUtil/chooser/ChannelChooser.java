@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4156 2003-06-03 04:19:41Z crotwell $
+ * @version $Id: ChannelChooser.java 4170 2003-06-03 21:18:43Z crotwell $
  *
  */
 
@@ -205,7 +205,7 @@ public class ChannelChooser extends JPanel {
     public boolean isNetworkLoadingFinished() {
         return (networkLoaderList.size() == 0);
     }
-    
+
     public void setNetworkDCs(NetworkDCOperations[] netdcgiven) {
         System.out.println("ChannelChooser: setNetworkDCs() called");
         netdc = netdcgiven;
@@ -467,6 +467,29 @@ public class ChannelChooser extends JPanel {
             nets[i] = (NetworkAccess)objArray[i];
         }
         return nets;
+    }
+
+    public void addNetworkDataListener(NetworkDataListener s) {
+        listenerList.add(NetworkDataListener.class, s);
+    }
+
+    protected void fireNetworkDataChangedEvent(NetworkAccess net) {
+        NetworkDataEvent networkDataEvent = null;
+        //logger.debug("fireStationDataEvent called");
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i]==NetworkDataListener.class) {
+                // Lazily create the event:
+                if (networkDataEvent == null)
+                    networkDataEvent = new NetworkDataEvent(this, net);
+                ((NetworkDataListener)listeners[i+1]).networkDataChanged(networkDataEvent);
+
+                //logger.debug("fireStationDataEvent!");
+            }
+        }
     }
 
     private void addStation(Station sta) {
@@ -1004,7 +1027,7 @@ public class ChannelChooser extends JPanel {
 
 
     }
-    
+
     private List networkLoaderList = Collections.synchronizedList(new LinkedList());
 
     class NetworkLoader extends Thread {
@@ -1117,6 +1140,7 @@ public class ChannelChooser extends JPanel {
             SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             networks.addElement(n);
+                            fireNetworkDataChangedEvent(n);
                         }
                     });
         }
