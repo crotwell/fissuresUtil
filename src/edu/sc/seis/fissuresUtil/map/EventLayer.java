@@ -7,10 +7,8 @@ package edu.sc.seis.fissuresUtil.map;
  */
 
 
-import com.bbn.openmap.Layer;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.omGraphics.OMCircle;
-import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
@@ -22,7 +20,7 @@ import edu.sc.seis.fissuresUtil.display.EventTableModel;
 import java.awt.Color;
 import org.apache.log4j.Logger;
 
-public class EventLayer extends Layer implements EventDataListener{
+public class EventLayer extends MouseAdapterLayer implements EventDataListener{
     public EventLayer(EventTableModel tableModel){
         tableModel.addEventDataListener(this);
     }
@@ -75,4 +73,10 @@ public class EventLayer extends Layer implements EventDataListener{
     private OMGraphicList circles = new OMGraphicList();
 
     private Logger logger = Logger.getLogger(EventLayer.class);
+
+    public String[] getMouseModeServiceList() {
+        // TODO
+        return null;
+    }
+
 }
