@@ -206,16 +206,6 @@ public class VerticalSeismogramDisplay extends JComponent{
      * @param sorter the new sorter
      */
     public void setSort(SeismogramSorter sorter){
-	/*LinkedList newOrder = new LinkedList();
-	BasicSeismogramDisplay[] disps = basicDisplays.toArray();
-	for (int i = 0; i < disps.length; i++;) {
-	    int j = sorter.sort((DataSetSeismogram)disps[i].getSeismograms().getFirst(), disps[i].getName()); 
-	    seismograms.add(disp[i], j)
-	} // end of for (int i = 0; i < disps.length; i++;)
-	
-	seismograms.add(disp, i);	
-	((BasicSeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-	((BasicSeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();*/
     } 
 
     /**
@@ -690,6 +680,9 @@ protected static int particleDisplays = 0, selectionDisplays = 0;
 
     private static String particleWindowName = "Particle Motion";
 
+    /**  a factory constructor for a VSD with 6 identical sine waves
+     *@returns a vsd containing 6 identical sine waves
+     */
     public static VerticalSeismogramDisplay create6SineDisplay(){
 	DataSetSeismogram[] seismos = {new DataSetSeismogram(((LocalSeismogramImpl)SeisPlotUtil.
 							      createSineWave()),null)};
