@@ -64,7 +64,14 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
             });
     }
 
-    
+    public String getName() {
+        if(super.getName() == null) {
+            String name = url.getFile();
+            int index = name.lastIndexOf(File.separatorChar);
+            setName(name.substring(index)+1);
+        }
+        return super.getName();
+    }
     
 
     private URL url;
