@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
-import edu.sc.seis.fissuresUtil.cache.ExpandingThreadPool;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +77,7 @@ public class Checker {
 
     static Category logger = Category.getInstance(Checker.class);
 
-    private WorkerThreadPool pool = new ExpandingThreadPool("Connection Checker Pool", 20);
+    private WorkerThreadPool pool = new WorkerThreadPool("Connection Checker Pool", 20);
 
     private ThreadGroup checkerThreadGroup = new ThreadGroup("Connection Checker");
 }// Checker class
