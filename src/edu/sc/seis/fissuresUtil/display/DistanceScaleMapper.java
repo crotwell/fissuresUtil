@@ -24,7 +24,7 @@ public class DistanceScaleMapper extends UnitRangeMapper implements LayoutListen
     }
 
     public String getAxisLabel() {
-        return "Distance (Degrees)";
+        return config.getLabel();
     }
 
     private LayoutConfig config;
