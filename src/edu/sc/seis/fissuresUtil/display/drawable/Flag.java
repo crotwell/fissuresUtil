@@ -1,10 +1,10 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
-import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
@@ -117,40 +117,57 @@ public class Flag implements Drawable{
 		return el;
 	}
 	
-	public static TextTable getFlagData(DataSetSeismogram dss, EventAccessOperations event){
-		int headerLength = getFlagDataHeader().length;
-		TextTable table = new TextTable(headerLength);
+	public static TextTable getFlagData(DataSetSeismogram dss,
+										EventAccessOperations event,
+										String[] template){
+		String[] header = getFlagDataHeader(template);
+		TextTable table = new TextTable(header.length, true);
 		Iterator it = dss.getAuxillaryDataKeys().iterator();
 		while (it.hasNext()){
 			String cur = (String)it.next();
+			List dataCells = new ArrayList();
 			if (cur.startsWith(StdAuxillaryDataNames.PICK_FLAG)){
-				List dataCells = new ArrayList();
 				Flag flag = getFlagFromElement((Element)dss.getAuxillaryData(cur));
-				dataCells.add(flag.getName());
-				dataCells.add(flag.getFlagTime().toString());
-				ChannelId chanId = dss.getRequestFilter().channel_id;
-				dataCells.add(chanId.network_id.network_code
-								  + '.'
-								  + chanId.station_code
-								  + '.'
-								  + chanId.site_code
-								  + '.'
-								  + chanId.channel_code);
-				if (event.get_origins().length > 0) {
-					dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.LOC));
-					dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.MAG));
-					dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.TIME));
-					dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.DEPTH
-															  + ' '
-															  + CacheEvent.DEPTH_UNIT));
-					Origin origin = event.get_origins()[0];
-					dataCells.add(Float.toString(origin.my_location.latitude));
-					dataCells.add(Float.toString(origin.my_location.longitude));
-				} else {
-					logger.debug("no origin");
-					dataCells.add(event.get_attributes().name);
-					for (int i = 0; i < 5; i++) {
-						dataCells.add("...");
+				for (int i = 0; i < template.length; i++) {
+					if (template[i].equals(NAME)){ //Flag Name
+						dataCells.add(flag.getName());
+					}
+					else if (template[i].equals(TIME)){ //Flag Time
+						dataCells.add(flag.getFlagTime().toString());
+					}
+					else if (template[i].equals(CHANNEL)){ //Channel Id
+						ChannelId chanId = dss.getRequestFilter().channel_id;
+						dataCells.add(chanId.network_id.network_code
+										  + '.'
+										  + chanId.station_code
+										  + '.'
+										  + chanId.site_code
+										  + '.'
+										  + chanId.channel_code);
+					}
+					else if (template[i].equals(EVENT_NAME)){ //Event Name
+						dataCells.add(getEventInfo(event, CacheEvent.LOC));
+					}
+					else if (template[i].equals(EVENT_MAG)){ //Event Magnitude
+						dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.MAG));
+					}
+					else if (template[i].equals(EVENT_ORIG)){ //Event Origin Time
+						dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.TIME));
+					}
+					else if (template[i].equals(EVENT_DEPTH)){ //Event Depth
+						dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.DEPTH
+																  + ' '
+																  + CacheEvent.DEPTH_UNIT));
+					}
+					else if (template[i].equals(EVENT_LAT)){ //Event Latitude
+						dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.LAT));
+					}
+					else if (template[i].equals(EVENT_LON)){ //Event Longitude
+						dataCells.add(CacheEvent.getEventInfo(event, CacheEvent.LON));
+					}else if (template[i].equals(ORIGIN_DIFF)){ //flagTime-originTime
+						dataCells.add(formatTimeInterval(getTimeDifferenceFromOrigin(flag, event)));
+					}else if (template[i].equals(DISTANCE_FROM_ORIG)){ //Distance from Origin, if that wasn't obvious
+						//dataCells.add();
 					}
 				}
 				table.addRow(((String[])dataCells.toArray(new String[0])));
@@ -159,10 +176,68 @@ public class Flag implements Drawable{
 		return table;
 	}
 	
-	public static String[] getFlagDataHeader(){
-		String[] columnNames = new String[]{"Flag Name", "Flag Time", "Channel",
-				"Event", "Magnitude", "Origin Time", "Depth", "Lat", "Lon"};
-		return columnNames;
+	private static String getEventInfo(EventAccessOperations event, String format){
+		if (event.get_origins().length > 0){
+			return CacheEvent.getEventInfo(event, format);
+		}
+		return "...";
+	}
+	
+	//There definitely won't be a great need for this method once
+	//possible data options are implemented, but until then, this
+	//is here to weed out the weirdness.
+	public static String[] getFlagDataHeader(String[] template){
+		List dataCells = new ArrayList();
+		for (int i = 0; i < template.length; i++) {
+			if (template[i].equals(NAME)){ //Flag Name
+				dataCells.add(NAME);
+			}
+			else if (template[i].equals(TIME)){ //Flag Time
+				dataCells.add(TIME);
+			}
+			else if (template[i].equals(CHANNEL)){ //Channel Id
+				dataCells.add(CHANNEL);
+			}
+			else if (template[i].equals(EVENT_NAME)){ //Event Name
+				dataCells.add(EVENT_NAME);
+			}
+			else if (template[i].equals(EVENT_MAG)){ //Event Magnitude
+				dataCells.add(EVENT_MAG);
+			}
+			else if (template[i].equals(EVENT_ORIG)){ //Event Origin Time
+				dataCells.add(EVENT_ORIG);
+			}
+			else if (template[i].equals(EVENT_DEPTH)){ //Event Depth
+				dataCells.add(EVENT_DEPTH);
+			}
+			else if (template[i].equals(EVENT_LAT)){ //Event Latitude
+				dataCells.add(EVENT_LAT);
+			}
+			else if (template[i].equals(EVENT_LON)){ //Event Longitude
+				dataCells.add(EVENT_LON);
+			}else if (template[i].equals(ORIGIN_DIFF)){ //flagTime-originTime
+				dataCells.add(ORIGIN_DIFF);
+			}else if (template[i].equals(DISTANCE_FROM_ORIG)){ //Distance from Origin, if that wasn't obvious
+				//dataCells.add(DISTANCE_FROM_ORIG);
+			}
+		}
+		return (String[])dataCells.toArray(new String[0]);
+	}
+	
+	public static String formatTimeInterval(TimeInterval interval){
+		if (interval != null){
+			return interval.toString() + " " + interval.the_units.name;
+		}
+		return "...";
+	}
+	
+	public static TimeInterval getTimeDifferenceFromOrigin(Flag flag, EventAccessOperations event){
+		if (event.get_origins().length > 0){
+			MicroSecondDate originTime = new MicroSecondDate(event.get_origins()[0].origin_time);
+			MicroSecondDate flagTime = flag.getFlagTime();
+			return originTime.difference(flagTime);
+		}
+		return null;
 	}
 	
     public String getName(){ return name; }
@@ -199,6 +274,23 @@ public class Flag implements Drawable{
     private static Category logger = Category.getInstance(Flag.class.getName());
 	
     private ToolTipManager tipManager = ToolTipManager.sharedInstance();
+	
+	//names for the data template
+	public static final String NAME = "Flag Name";
+	public static final String ORIGIN_DIFF = "Time from Origin"; //flag time minus origin time
+	public static final String TAUP_P = "TauP P Wave"; //todo
+	public static final String TIME_DIFF_ORIG_P = "FLAG_TIME_DIFF_ORIG_PWAVE"; //todo
+	public static final String DISTANCE_FROM_ORIG = "Distance From Origin"; //todo
+	public static final String BACK_AZIMUTH = "Back Azimuth"; //todo
+	public static final String CHANNEL = "Channel";
+	public static final String EVENT_NAME = "Event Name";
+	public static final String EVENT_LAT = "Event Latitude";
+	public static final String EVENT_LON = "Event Longitude";
+	public static final String EVENT_DEPTH = "Event Depth";
+	public static final String EVENT_MAG = "Magnitude";
+	public static final String EVENT_ORIG = "Origin Time";
+	public static final String TIME = "Flag Time";
+	
 	
 }// FlagPlotter
 
