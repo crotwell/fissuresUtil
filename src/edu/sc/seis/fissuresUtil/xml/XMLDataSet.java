@@ -40,7 +40,7 @@ import edu.sc.seis.fissuresUtil.sac.SacToFissures;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: XMLDataSet.java 12080 2005-02-15 18:07:10Z groves $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -551,22 +551,7 @@ public class XMLDataSet implements DataSet, Serializable{
         config.appendChild(datasetElement);
     }
     /**
-     * Creates a new Child DataSet.
-     *
-     * @param id a <code>String</code> id
-     * @param name a <code>String</code> name
-     * @param owner a <code>String</code> owner/creator
-     * @param audit the audit
-     * @return a <code>DataSet</code>
-     */
-    /**
-     * Describe <code>createChildDataSet</code> method here.
-     *
-     * @param id a <code>String</code> value
-     * @param name a <code>String</code> value
-     * @param owner a <code>String</code> value
-     * @param audit an <code>AuditInfo[]</code> value
-     * @return a <code>DataSet</code> value
+     * Creates a new DataSet as a child of this one.
      */
     public DataSet createChildDataSet(String id, String name, String owner,
                                       AuditInfo[] audit) {
