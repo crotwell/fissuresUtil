@@ -51,7 +51,6 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     public synchronized void pushData(SeisDataChangeEvent sdce) {
-        //System.out.println("Amp config pushing data for " + sdce.getSource());
         AmpConfigData dssData = (AmpConfigData)ampData.get(sdce.getSource());
         if ( dssData == null) {
             // must not be a DataSetSeismogram registered with us, ignore
@@ -60,9 +59,11 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
 
         dssData.addSeismograms(sdce.getSeismograms());
         this.seismos = null;
-        calculateAmp();
-        recalculateAmp();
-        fireAmpEvent();
+        if(listeners.size() > 0){
+            calculateAmp();
+            recalculateAmp();
+            fireAmpEvent();
+        }
     }
 
     public void finished(SeisDataChangeEvent sdce) {
@@ -70,8 +71,8 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
 
     public void error(SeisDataErrorEvent sdce) {
         //do nothing as someone else should handle error notification to user
-            logger.warn("Error with data retrieval.",
-                        sdce.getCausalException());
+        logger.warn("Error with data retrieval.",
+                    sdce.getCausalException());
     }
 
     /**
@@ -156,8 +157,11 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     public AmpEvent updateAmpTime(TimeEvent timeEvent){
-        currentTimeEvent = timeEvent;
-        return calculateAmp();
+        if(listeners.size() > 0){
+            currentTimeEvent = timeEvent;
+            return calculateAmp();
+        }
+        return null;
     }
 
     protected AmpEvent calculateAmp(){
@@ -212,23 +216,40 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
             return data.setCleanRange(DisplayUtils.ZERO_RANGE);
         } // end of if ()
 
-        LocalSeismogramImpl seismogram = data.getSeismograms()[0];
-        int[] seisIndex = DisplayUtils.getSeisPoints(seismogram, data.getTime());
-        if(seisIndex[1] < 0 || seisIndex[0] >= seismogram.getNumPoints()) {
-            //no data points in window, set range to 0
-            data.setCalcIndex(seisIndex);
+        LocalSeismogramImpl[] seismograms = data.getSeismograms();
+        double[] minMaxAll = new double[2];
+        minMaxAll[0] = Double.POSITIVE_INFINITY;
+        minMaxAll[1] = Double.NEGATIVE_INFINITY;
+        boolean dataInTimeRange = false;//set to true if one of the seismograms
+        //has data in the current time range
+        for(int i = 0; i< seismograms.length; i++){
+            LocalSeismogramImpl seismogram = seismograms[i];
+            int[] seisIndex = DisplayUtils.getSeisPoints(seismogram, data.getTime());
+            if(seisIndex[1] < 0 || seisIndex[0] >= seismogram.getNumPoints()) {
+                //no data points in window, set range to 0
+                break;
+            }
+            if(seisIndex[0] < 0){
+                seisIndex[0] = 0;
+            }
+            if(seisIndex[1] >= seismogram.getNumPoints()){
+                seisIndex[1] = seismogram.getNumPoints() -1;
+            }
+            double[] minMax =
+                data.getStatistics(seismogram).minMaxMean(seisIndex[0], seisIndex[1]);
+            if(minMax[0] < minMaxAll[0]){
+                minMaxAll[0] = minMax[0];
+            }
+            if(minMax[1] > minMaxAll[1]){
+                minMaxAll[1] = minMax[1];
+            }
+            dataInTimeRange = true;
+        }
+        if(dataInTimeRange){
+            return data.setCleanRange(new UnitRangeImpl(minMaxAll[0], minMaxAll[1], UnitImpl.COUNT));
+        }else{
             return data.setCleanRange(DisplayUtils.ZERO_RANGE);
         }
-        if(seisIndex[0] < 0){
-            seisIndex[0] = 0;
-        }
-        if(seisIndex[1] >= seismogram.getNumPoints()){
-            seisIndex[1] = seismogram.getNumPoints() -1;
-        }
-        double[] minMax =
-            data.getStatistics(seismogram).minMaxMean(seisIndex[0], seisIndex[1]);
-        data.setCalcIndex(seisIndex);
-        return data.setCleanRange(new UnitRangeImpl(minMax[0], minMax[1], UnitImpl.COUNT));
     }
 
     protected MicroSecondTimeRange getTime(DataSetSeismogram seismo){
