@@ -209,7 +209,7 @@ public class ParticleMotionView extends JComponent{
 	    vunitRangeImpl = new UnitRangeImpl(ya, ys, UnitImpl.COUNT);
 	    hunitRangeImpl = new UnitRangeImpl(xa, xs, UnitImpl.COUNT);
 	    particleMotionDisplay.shaleAmp(0, (ys-ya));
-		//fireAmpRangeEvent(new AmpSyncEvent(ya, ys, true));
+	    //fireAmpRangeEvent(new AmpSyncEvent(ya, ys, true));
 	} else  System.out.println("NO ZOOMING");
     }
   
@@ -303,7 +303,7 @@ public class ParticleMotionView extends JComponent{
 
 	    drawParticleMotion(particleMotion, graphics2D);
 	}//end of for
-	System.out.println("ENd of the for");
+	//System.out.println("ENd of the for");
 	for(int counter = 0; counter < displays.size(); counter++) {
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
@@ -317,7 +317,7 @@ public class ParticleMotionView extends JComponent{
 	}
 	graphics2D.setStroke(new BasicStroke(1.0f));
 	Date endTime = Calendar.getInstance().getTime();
-	System.out.println("THE TIME TAKEN IS ********** "+ (endTime.getTime() - startTime.getTime()));
+	//System.out.println("THE TIME TAKEN IS ********** "+ (endTime.getTime() - startTime.getTime()));
 	
     }
 
@@ -432,10 +432,10 @@ public class ParticleMotionView extends JComponent{
 	    try {
 
 		
-		System.out.println("In PaintSeismogram hmax = "+hunitRangeImpl.getMaxValue()+
-				   " hmin = "+hunitRangeImpl.getMinValue());
-		System.out.println("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
-				   " vmin = "+vunitRangeImpl.getMinValue());
+		//System.out.println("In PaintSeismogram hmax = "+hunitRangeImpl.getMaxValue()+
+		//		   " hmin = "+hunitRangeImpl.getMinValue());
+		//System.out.println("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
+		//		   " vmin = "+vunitRangeImpl.getMinValue());
 		MicroSecondTimeRange microSecondTimeRange = null;		   
 		if(particleMotion.registrar == null) {
 		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
@@ -447,7 +447,7 @@ public class ParticleMotionView extends JComponent{
 		    microSecondTimeRange = particleMotion.getTimeRange();
 		} 
 	
-		System.out.println("*************** Beofore getting PlottableSimple");
+		//System.out.println("*************** Beofore getting PlottableSimple");
 		Date utilStartTime = Calendar.getInstance().getTime();
 		
 		int[][] hPixels =  SimplePlotUtil.getPlottableSimple(hseis,
@@ -486,7 +486,7 @@ public class ParticleMotionView extends JComponent{
 		SimplePlotUtil.flipArray(vPixels[1], dimension.height);
 		Date utilEndTime = Calendar.getInstance().getTime();
 
-		System.out.println("The UTIL TIME is *******    "+ (utilEndTime.getTime() - utilStartTime.getTime()));
+		//System.out.println("The UTIL TIME is *******    "+ (utilEndTime.getTime() - utilStartTime.getTime()));
 		
 	/*	SimplePlotUtil.compressYvalues(vseis, 
 								 microSecondTimeRange,
@@ -515,9 +515,9 @@ public class ParticleMotionView extends JComponent{
 		Date drawStartTime = Calendar.getInstance().getTime();
 		Shape shape = getParticleMotionPath(hPixels[1], vPixels[1]);
 		Date drawEndTime = Calendar.getInstance().getTime();
-		System.out.println("The PATH TIME is *********** "+(drawEndTime.getTime() - drawStartTime.getTime()));
+		//System.out.println("The PATH TIME is *********** "+(drawEndTime.getTime() - drawStartTime.getTime()));
 		particleMotion.setShape(shape);
-		System.out.println("After setting the shape");
+		//System.out.println("After setting the shape");
 		if(shape == null) System.out.println("The shape is null");
 		graphics2D.draw(shape);
 		//	System.out.println("The shape is drawn");
@@ -547,7 +547,7 @@ public class ParticleMotionView extends JComponent{
 	/*for(int counter = 0; counter < len; counter++) {
 	    generalPath.append(new Rectangle2D.Float(x[counter]-2, y[counter]-2, 4, 4), false);
 	    }*/
-	System.out.println("Before returning from the getParticleMotionPath");
+	//System.out.println("Before returning from the getParticleMotionPath");
 	return (Shape)generalPath;
     }
     
