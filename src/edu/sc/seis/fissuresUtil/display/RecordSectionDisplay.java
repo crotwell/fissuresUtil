@@ -38,11 +38,13 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class RecordSectionDisplay extends SeismogramDisplay implements TimeListener, AmpListener, LayoutListener{
     public RecordSectionDisplay(){
+        distBorder=new DistanceBorder(this);
         add(new TimeBorder(this, TimeBorder.BOTTOM), BOTTOM_CENTER);
-        add(new DistanceBorder(this), CENTER_LEFT);
+        add(distBorder, CENTER_LEFT);
         setLayout(getNewLayoutConfig());
         setTimeConfig(new RelativeTimeConfig());
         setAmpConfig(new RMeanAmpConfig());
+        seisToPixelMap = new HashMap();
     }
 
     public RecordSectionDisplay(DataSetSeismogram[] seismos, TimeConfig tc,
@@ -158,7 +160,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         return drawableToDataSet(drawables);
     }
 
-
     public DrawableIterator iterator(Class drawableClass) {
         return new DrawableIterator(drawableClass, drawables);
     }
@@ -233,7 +234,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         curLayoutEvent = event;
         repaint();
     }
-
+    public void storePixels(LayoutData layoutData, double topLeftX,double topLeftY,double bottomRightX,double bottomRightY){
+        double[] pixelArray={topLeftX,topLeftY,bottomRightX,bottomRightY};
+        seisToPixelMap.put(layoutData.getSeis().getRequestFilter().channel_id,pixelArray);
+    }
+    public HashMap getPixelMap() {
+        return seisToPixelMap;
+    }
     public void drawSeismograms(Graphics2D g2, Dimension size){
         synchronized(this){
             int width = size.width;
@@ -245,6 +252,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                 LayoutData current = (LayoutData)it.next();
                 double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
                 double drawHeight = (current.getEnd() - current.getStart())*height;
+                double topLeftY=Math.abs(current.getStart()*height);
+                double bottomRightY=current.getEnd()*height;
+                double distBorderWidth=distBorder.getWidth();
+                storePixels(current,distBorderWidth,topLeftY,width+distBorderWidth,bottomRightY);
                 //If the draw height is less than 40, change the scale so that
                 //it is
                 if(drawHeight < 40 && checkDrawHeight){
@@ -337,6 +348,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     private TimeConfig tc;
 
     private AmpConfig ac;
+    
+    private DistanceBorder distBorder;
+    
+    private HashMap seisToPixelMap;
 
     private LayoutConfig layout;
 
