@@ -104,7 +104,7 @@ public class JDBCChannel extends NetworkTable {
         return (Channel[])aList.toArray(new Channel[aList.size()]);
     }
 
-    public Channel get(ChannelId id, Site site) throws SQLException, NotFound {
+    public Channel get(ChannelId id) throws SQLException, NotFound {
         return get(getDBId(id));
     }
 
@@ -174,13 +174,23 @@ public class JDBCChannel extends NetworkTable {
         return siteTable;
     }
 
+    private void insertAdditonalChannelStuff(int chanDbId,
+                                             int newSiteId,
+                                             Channel chan) throws SQLException {
+        int index = 1;
+        updateNonId.setInt(index++, newSiteId);
+        index = insertOnlyChannel(chan, updateNonId, index, quantityTable, time);
+        updateNonId.setInt(index++, chanDbId);
+        updateNonId.executeUpdate();
+    }
+
     public int put(Channel chan) throws SQLException {
         int dbid;
         try {
+            // If no NotFound exception, the channelId exists in the db
             dbid = getDBId(chan.get_id());
-            // No NotFound exception, so already added the channel
+            reuniteChannelAndIdIfIdIsLonely(chan, dbid);
         } catch(NotFound notFound) {
-            // no id found so ok to add the whole thing
             dbid = seq.next();
             putAll.setInt(1, dbid);
             insertAll(chan, putAll, 2, siteTable, quantityTable, time);
@@ -205,12 +215,22 @@ public class JDBCChannel extends NetworkTable {
         return dbid;
     }
 
-    private PreparedStatement getAllChans, getAllChansForStation,
-            getAllChansForNetwork, getByDBId, putAll,
-            putId;
+    private void reuniteChannelAndIdIfIdIsLonely(Channel chan, int dbid)
+            throws SQLException {
+        int siteDbIdForChannel = siteTable.put(chan.my_site);
+        getByDBId.setInt(1, dbid);
+        ResultSet rs = getByDBId.executeQuery();
+        rs.next();
+        int currentSiteId = rs.getInt("site_id");
+        if(siteDbIdForChannel != currentSiteId) {
+            insertAdditonalChannelStuff(dbid, siteDbIdForChannel, chan);
+            siteTable.cleanupVestigesOfLonelyChannelId(currentSiteId);
+        }
+    }
 
-    private PreparedStatement getAllIds, getAllIdsForStation,
-            getAllIdsForNetwork;
+    private PreparedStatement getAllChans, getAllChansForStation,
+            getAllChansForNetwork, getByDBId, putAll, updateNonId, putId,
+            getAllIds, getAllIdsForStation, getAllIdsForNetwork;
 
     private JDBCNetwork netTable;
 

@@ -112,7 +112,6 @@ public class JDBCSite extends NetworkTable {
         putChanIdBits.setString(3, id.site_code);
         putChanIdBits.executeUpdate();
         return dbid;
-        
     }
 
     public int put(Site site) throws SQLException {
@@ -139,7 +138,8 @@ public class JDBCSite extends NetworkTable {
     }
 
     private PreparedStatement getIfCommentExists, getByDBId, getSiteIdByDBId,
-            getDBId, updateSite, putAll, getDBIdsForStaAndCode, putChanIdBits;
+            getDBId, updateSite, putAll, getDBIdsForStaAndCode, putChanIdBits,
+            deleteSite;
 
     private JDBCLocation locTable;
 
@@ -199,8 +199,8 @@ public class JDBCSite extends NetworkTable {
                                int index,
                                JDBCStation stationTable,
                                JDBCTime time) throws SQLException {
-        int sta_id =  stationTable.put(sta);
-        stmt.setInt(index++,sta_id);
+        int sta_id = stationTable.put(sta);
+        stmt.setInt(index++, sta_id);
         stmt.setString(index++, id.site_code);
         stmt.setInt(index++, time.put(id.begin_time));
         return index;
@@ -218,4 +218,15 @@ public class JDBCSite extends NetworkTable {
     }
 
     private static final Logger logger = Logger.getLogger(JDBCSite.class);
+
+    public void cleanupVestigesOfLonelyChannelId(int currentSiteId)
+            throws SQLException {
+        getByDBId.setInt(1, currentSiteId);
+        ResultSet rs = getByDBId.executeQuery();
+        rs.next();
+        int sta_id = rs.getInt("sta_id");
+        deleteSite.setInt(1, currentSiteId);
+        deleteSite.executeUpdate();
+        stationTable.cleanupVestigesOfLonelyChannelId(sta_id);
+    }
 } // JDBCSite
