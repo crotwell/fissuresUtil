@@ -1,9 +1,13 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.registrar.*;
-
 import edu.sc.seis.TauP.Arrival;
-import java.util.List;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.Iterator;
 
 /**
  * ComponentSortedSeismogramDisplay.java
@@ -131,6 +135,20 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
         super.add(disp, position);
         disp.addLeftTitleBorder(new LeftTitleBorder(orientation));
         basicDisplays.add(disp);
+    }
+
+    public void setIndividualizedAmpConfig(AmpConfig ac){
+        Iterator it = basicDisplays.iterator();
+        Class configClass = ac.getClass();
+        while(it.hasNext()){
+            try{
+                ((BasicSeismogramDisplay)it.next()).setAmpConfig(new IndividualizedAmpConfig((AmpConfig)configClass.newInstance()));
+            }catch(IllegalAccessException e){
+                ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
+            }catch(InstantiationException e){
+                ExceptionHandlerGUI.handleException("Problem creating ampConfig from class", e);
+            }
+        }
     }
 
     public boolean removeDisplay(BasicSeismogramDisplay display){
