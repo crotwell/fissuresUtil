@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3934 2003-05-19 18:36:12Z groves $
+ * @version $Id: SeismogramShape.java 3998 2003-05-22 15:32:00Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{
@@ -31,14 +31,12 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
 
     }
 
-    public void updateData() {
+    public synchronized void updateData() {
         if(currentIterator != null){
-            updatingData = true;
             SeismogramShapeIterator newIt = new SeismogramShapeIterator(currentIterator.getTime(),
                                                                         currentIterator.getAmp(),
                                                                         currentIterator.getSize());
             plot(newIt);
-            updatingData = false;
             parent.repaint();
         }
     }
@@ -51,10 +49,10 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
      * @param    size specifies the dimension of the plot
      *
      */
-    public boolean update(MicroSecondTimeRange time,
+    public synchronized boolean update(MicroSecondTimeRange time,
                           UnitRangeImpl amp,
                           Dimension size){
-        if(container.getSeismograms().length <= 0 || updatingData){
+        if(container.getSeismograms().length <= 0){
             return false;
         }else{
             SeismogramShapeIterator newIterator = new SeismogramShapeIterator(time,
@@ -314,8 +312,6 @@ public class SeismogramShape implements Shape, SeismogramContainerListener{
     public DataSetSeismogram getSeismogram() {
         return container.getDataSetSeismogram();
     }
-
-    private boolean updatingData = false;
 
     private JComponent parent;
 
