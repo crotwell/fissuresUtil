@@ -17,6 +17,10 @@ public class NamedColor extends Color {
         this(color.getRed(), color.getBlue(), color.getGreen(), color.getAlpha(), name);
     }
 
+    public NamedColor(Color color, int alpha, String name){
+        this(color.getRed(), color.getBlue(), color.getGreen(), alpha, name);
+    }
+
     public NamedColor(int r, int b, int g, int a, String name){
         super(r, g, b, a);
         this.name = name;
