@@ -13,7 +13,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.WrappedException;
  */
 public class SeisDataErrorEvent extends SeisDataChangeEvent implements WrappedException {
 
-    public SeisDataErrorEvent(Exception e,
+    public SeisDataErrorEvent(Throwable e,
                              DataSetSeismogram source,
                              Object initiator){
         super(source, initiator);
@@ -24,5 +24,5 @@ public class SeisDataErrorEvent extends SeisDataChangeEvent implements WrappedEx
         return causalException;
     }
 
-    Exception causalException;
+    Throwable causalException;
 }
