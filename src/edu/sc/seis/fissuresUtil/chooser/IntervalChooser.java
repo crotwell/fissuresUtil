@@ -129,7 +129,7 @@ public class IntervalChooser extends JPanel{
 		    JComboBox cb = (JComboBox)e.getSource();
 		     IntervalChooserOptions newSelection = (IntervalChooserOptions)cb.getSelectedItem();
 		     System.out.println("The new value selected is "+newSelection.getIntervalChooserValue());
-		    populateValues(newSelection);
+		     populateValues(newSelection);
               
 		}
 
@@ -140,6 +140,13 @@ public class IntervalChooser extends JPanel{
 
 
 	valueBox.setEditable(bool);
+
+    }
+
+    public void setDefault(int index, IntervalChooserOptions option) {
+	
+	unitBox.setSelectedItem(option);
+	valueBox.setSelectedIndex(index + 1);
 
     }
 
