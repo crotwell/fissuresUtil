@@ -26,7 +26,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 5171 2003-08-20 18:28:53Z groves $
+ * @version $Id: ChannelChooser.java 5279 2003-09-02 17:43:13Z crotwell $
  *
  */
 
@@ -743,14 +743,11 @@ public class ChannelChooser extends JPanel {
     /** Gets the selected channels, but only if they overlap the given time.
      */
     public Channel[]  getSelectedChannels(MicroSecondDate when) {
-        Channel[] inChannels = getChannels();
-        inChannels = BestChannelUtil.pruneChannels(inChannels, when);
-        return getSelectedChannels(inChannels, when);
+        return getSelectedChannels(when, true);
     }
 
     public Channel[]  getSelectedChannels() {
-        Channel[] inChannels = getChannels();
-        return getSelectedChannels(inChannels, ClockUtil.now());
+        return getSelectedChannels(ClockUtil.now(), true);
     }
 
     public NetworkAccess getNetworkAccess(NetworkId netid) {
@@ -775,10 +772,32 @@ public class ChannelChooser extends JPanel {
 
     /** Gets the best selected channels from the given list
      */
-    protected  Channel[]  getSelectedChannels(Channel[] inChannels,
-                                              MicroSecondDate when) {
+    protected  Channel[]  getSelectedChannels(MicroSecondDate when,
+                                             boolean pruneStations) {
         LinkedList outChannels = new LinkedList();
         Station[] selectedStations = getSelectedStations();
+        if (pruneStations) {
+            LinkedList outStations = new LinkedList();
+            for (int i = 0; i < selectedStations.length-1; i++) {
+                boolean foundDup = false;
+                for (int j = i+1; j < selectedStations.length; j++) {
+                    if ( selectedStations[i].name.equals(selectedStations[j].name) &&
+                        selectedStations[i].my_location.latitude == selectedStations[j].my_location.latitude &&
+                        selectedStations[i].my_location.longitude == selectedStations[j].my_location.longitude) {
+                        foundDup=true;
+                        break;
+                    }
+                }
+                if (! foundDup) {
+                    outStations.add(selectedStations[i]);
+                }
+            }
+            if (selectedStations.length > 0) {
+                outStations.add(selectedStations[selectedStations.length-1]);
+            }
+            selectedStations = (Station[])outStations.toArray(new Station[outStations.size()]);
+        }
+
         Object[] selectedChannelCodes = channelList.getSelectedValues();
 
         // assume only one selected network
@@ -795,7 +814,6 @@ public class ChannelChooser extends JPanel {
                 continue;
             } // end of if ()
 
-            logger.debug("Checking station "+StationIdUtil.toString(selectedStations[staNum].get_id()));
             Channel[] staChans =
                 net.retrieve_for_station(selectedStations[staNum].get_id());
             if ( ! showSites) {
@@ -871,6 +889,8 @@ public class ChannelChooser extends JPanel {
             }
             else {
                 // pay attention to selected Sites
+                Channel[] inChannels = getChannels();
+                inChannels = BestChannelUtil.pruneChannels(inChannels, when);
                 Object[] selectedSiteCodes = siteList.getSelectedValues();
                 search:
                 for (int i=0; i<inChannels.length; i++) {
@@ -891,12 +911,6 @@ public class ChannelChooser extends JPanel {
         } // end of for (int staNum=0; staNum<selStation.length; staNum++)
 
         logger.debug("Found "+outChannels.size()+" chanels");
-        Iterator it = outChannels.iterator();
-        while (it.hasNext()) {
-            Channel temp = (Channel)it.next();
-            logger.debug("Found channel "+ChannelIdUtil.toString(temp.get_id()));
-            logger.debug("Station is "+StationIdUtil.toString(temp.my_site.my_station.get_id()));
-        }
         return (Channel[])outChannels.toArray(new Channel[0]);
     }
 
