@@ -61,6 +61,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
         }
         while(!allHere && totalWait < TWO_MIN){
             seisIt = iterator(DrawableSeismogram.class);
+            allHere = true;
             while(seisIt.hasNext()){
                 DrawableSeismogram cur = (DrawableSeismogram)seisIt.next();
                 if(cur.getDataStatus() == SeismogramContainer.GETTING_DATA){
@@ -71,12 +72,11 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
                             logger.debug("Waiting for data to show before rendering.  We've waited " + totalWait + " millis");
                         }
                     } catch (InterruptedException e) {}
-                    break;
+                    allHere = false;
                 }
             }
-            logger.debug("Rendering to graphics after waiting " + totalWait + " millis for data to arrive");
-            allHere = true;
         }
+        logger.debug("Rendering to graphics after waiting " + totalWait + " millis for data to arrive");
         if(totalWait >= TWO_MIN){
             logger.debug("GAVE UP WAITING ON DATA TO RENDER TO GRAPHICS!  SOMEONE IS LYING OR REALLY REALLY SLOW! OR BOTH!!");
         }
