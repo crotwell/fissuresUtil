@@ -315,6 +315,9 @@ public class CacheEvent implements EventAccessOperations {
         //get depth
 
         Quantity depth = origin.my_location.depth;
+		
+		float latitude = origin.my_location.latitude;
+		float longitude = origin.my_location.longitude;
 
         StringBuffer buf = new StringBuffer(format);
         for (int i = 0; i < magicStrings.length; i++) {
@@ -331,7 +334,11 @@ public class CacheEvent implements EventAccessOperations {
                     buf.insert(index, depthFormatter.format(depth.value));
                 }else if(magicStrings[i].equals(DEPTH_UNIT)){
                     buf.insert(index, UnitDisplayUtil.getNameForUnit((UnitImpl)depth.the_units));
-                }
+                }else if(magicStrings[i].equals(LAT)){
+					buf.insert(index, latitude);
+				}else if(magicStrings[i].equals(LON)){
+					buf.insert(index, longitude);
+				}
             }
         }
         return buf.toString();
@@ -339,9 +346,9 @@ public class CacheEvent implements EventAccessOperations {
 
     private static DecimalFormat depthFormatter = new DecimalFormat("###0.00");
 
-    public static final String LOC = "LOC", TIME = "TIME", MAG = "MAG", DEPTH = "DEPTH", DEPTH_UNIT = "DEPTH_UNIT";
+    public static final String LOC = "LOC", TIME = "TIME", MAG = "MAG", DEPTH = "DEPTH", DEPTH_UNIT = "DEPTH_UNIT", LAT = "LAT", LON = "LON";
 
-    private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH, DEPTH_UNIT};
+    private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH, DEPTH_UNIT, LAT, LON};
 
     private static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT;
 
