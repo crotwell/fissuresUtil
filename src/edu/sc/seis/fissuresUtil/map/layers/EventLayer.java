@@ -176,7 +176,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                     it = eventsUnderMouse.iterator();
                     while (it.hasNext()){
                         final EventAccessOperations current = (EventAccessOperations)it.next();
-                        final JMenuItem menuItem = new JMenuItem(DisplayUtils.getEventInfo(current));
+                        final JMenuItem menuItem = new JMenuItem(CacheEvent.getEventInfo(current));
                         menuItem.addActionListener(new ActionListener(){
                                     public void actionPerformed(ActionEvent e) {
                                         int rowToSelect = tableModel.getRowForEvent(current);
@@ -221,7 +221,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                 try{
                     if(current.getBigCircle().contains(e.getX(), e.getY())){
                         EventAccessOperations event = current.getEvent();
-                        fireRequestInfoLine(DisplayUtils.getEventInfo(event));
+                        fireRequestInfoLine(CacheEvent.getEventInfo(event));
                         return true;
                     }
                 }

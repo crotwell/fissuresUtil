@@ -1,11 +1,18 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.*;
 import edu.iris.Fissures.IfEvent.*;
-import edu.iris.Fissures.event.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.utility.*;
+
+import edu.iris.Fissures.NotImplemented;
+import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.event.EventAttrImpl;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.utility.Assert;
+import edu.sc.seis.fissuresUtil.display.ParseRegions;
+import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  * CacheEvent.java
@@ -214,35 +221,75 @@ public class CacheEvent implements EventAccessOperations {
         }
         throw new edu.iris.Fissures.NotImplemented();
     }
-
-//    public boolean equals(Object obj) {
-//        EventAccessOperations test = (EventAccessOperations)obj;
-//        boolean isEqual = true;
-//        if (event != null){
-//            System.out.println(event.get_attributes());
-//            System.out.println(test.get_attributes());
-//            if (event.get_attributes() != test.get_attributes()) isEqual = false;
-//            if (event.get_origins() != test.get_origins()) isEqual = false;
-//            try{
-//                if (event.get_preferred_origin() != test.get_preferred_origin()) isEqual = false;
-//            }
-//            catch(NoPreferredOrigin n){
-//                isEqual = false;
-//            }
-//            return isEqual;
-//        }
-//        else{
-//            if (attr != test.get_attributes()) isEqual = false;
-//            if (origins != test.get_origins()) isEqual = false;
-//            try{
-//                if (isEqual && preferred != test.get_preferred_origin()) isEqual = false;
-//            }
-//            catch(NoPreferredOrigin n){
-//                isEqual = false;
-//            }
-//            return isEqual;
-//        }
-//    }
+    
+    /**
+     *@ returns a string for the form "Event: Location | Time | Magnitude | Depth"
+     */
+    public static String getEventInfo(EventAccessOperations event){
+        return getEventInfo(event, NO_ARG_STRING);
+    }
+    
+    /**
+     *@ formats a string for the given event.  To insert information about a
+     * certain item magic strings are used in the format string
+     * Magic Strings
+     * LOC adds the location of the event
+     * TIME adds the event time
+     * MAG adds event magnitude
+     * DEPTH adds the depth
+     *
+     *For example the string
+     *"Event: " + LOC + " | " + TIME + " | " + MAG + " | " + DEPTH
+     *produces the same thing as the no format call to getEventInfo
+     */
+    public static String getEventInfo(EventAccessOperations event, String format){
+        //Get geographic name of origin
+        ParseRegions regions = new ParseRegions();
+        String location = regions.getGeographicRegionName(event.get_attributes().region.number);
+        
+        //Get Date and format it accordingly
+        Origin origin;
+        try{
+            origin = event.get_preferred_origin();
+        }catch(NoPreferredOrigin e){
+            origin = event.get_origins()[0];
+        }
+        MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String originTimeString = sdf.format(msd);
+        
+        //Get Magnitude
+        float mag = origin.magnitudes[0].value;
+        
+        //get depth
+        
+        Quantity depth = origin.my_location.depth;
+        
+        StringBuffer buf = new StringBuffer(format);
+        for (int i = 0; i < magicStrings.length; i++) {
+            int index = buf.indexOf(magicStrings[i]);
+            if(index != -1){
+                buf.delete(index, index + magicStrings[i].length());
+                if(magicStrings[i].equals(LOC)){
+                    buf.insert(index, location);
+                }else if(magicStrings[i].equals(TIME)){
+                    buf.insert(index, originTimeString);
+                }else if(magicStrings[i].equals(MAG)){
+                    buf.insert(index, "Mag " + mag);
+                }else if(magicStrings[i].equals(DEPTH)){
+                    buf.insert(index, "Depth " + depth.value + " " + UnitDisplayUtil.getNameForUnit((UnitImpl)depth.the_units));
+                }
+            }
+        }
+        return buf.toString();
+    }
+    
+    public static final String LOC = "loc", TIME = "time", MAG = "mag", DEPTH = "depth";
+    
+    private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH};
+    
+    private static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME + " | " + MAG + " | " + DEPTH;
 
     protected EventAccessOperations event;
     protected EventAttr attr;
