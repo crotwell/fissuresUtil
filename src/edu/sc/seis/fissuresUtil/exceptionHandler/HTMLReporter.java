@@ -43,6 +43,8 @@ public class HTMLReporter implements ExceptionReporter{
         writeln(out, "      <title>Errors</title>");
         writeln(out, "   </head>");
         writeln(out, "   <body>");
+        writeln(out, "      <h2>Errors found:</h2>");
+        writeln(out, "<br/>");
         out.close();
         // we do not end the body or html tags to allow simple appends to this
         // file. Most browsers are ok with this
