@@ -71,18 +71,19 @@ public class DateChooser extends JPanel {
       for ( int arrayi=0; arrayi<dateformat.length; arrayi++) {
 
           option = dateformat[arrayi].getDateFormatValue();
-
+	  
 	  switch (option) {
-	      case 0:  yearOption(); break;
-              case 1:  monthOption(); break;
-              case 2:  dayOption(); break;
-              case 3:  hourOption(); break;
-              case 4:  minuteOption(); break;
-              case 5:  secondOption(); break;
-              case 6:  millisOption(); break;
-              case 7:  julianOption(); break;
-              case 8:  todayOption(); break;    
-              case 9:  radioButtonOption(); break;       
+	  case 0:  yearOption(); break;
+	  case 1:  monthOption(); break;
+	  case 2:  dayOption(); break;
+	  case 3:  hourOption(); break;
+	  case 4:  minuteOption(); break;
+	  case 5:  secondOption(); break;
+	  case 6:  millisOption(); break;
+	  case 7:  julianOption(); break;
+	  case 8:  todayOption(); break;    
+	  case 9:  radioButtonOption(); break;
+	  case 10: weekagoOption();break;
           }
       }
 
@@ -113,6 +114,7 @@ public class DateChooser extends JPanel {
               case 7:  julianOption(); break;
               case 8:  todayOption(); break;   
 	      case 9:  radioButtonOption(); break;         
+	  case 10: weekagoOption(); break;
           }
       } 
 
@@ -535,6 +537,89 @@ public class DateChooser extends JPanel {
         
     } 
 
+    private void weekagoOption() {
+
+
+	int numberofweeks = 3;
+
+
+	weekagobox= new JComboBox();
+	for(int counter = 1; counter <= numberofweeks; counter++) {
+	    
+	    weekagobox.addItem( new String(new Integer(counter).toString()));
+
+	}
+        weekagobox.setSelectedIndex(0);
+        weekagobox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        weekagobox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                String newSelection = (String)cb.getSelectedItem();
+		System.out.println("The new value selected is "+newSelection);
+                //min = Integer.parseInt(newSelection);
+		//calendar.set(Calendar.MINUTE, min);
+                //dateChanged();
+            }
+        });
+
+	gbc.gridx = ++x_leftcorner;
+	gbc.gridy = y_leftcorner;
+	
+
+	subPane.add(new JLabel("Week  Ago"), gbc);
+        //gbc.gridx++;
+	gbc.gridy++;	
+	subPane.add(weekagobox, gbc);
+
+	return;
+    }
+    /*
+    private void minuteOption() {
+
+	int numberofmins = 60;
+	int addedmin=0;
+	String[] minst = new String[numberofmins];
+
+        for(int i=0; i<numberofmins ; i++) {	   
+            minst[i]= String.valueOf(addedmin);
+            addedmin++;	  
+	}
+
+	minbox= new JComboBox(minst);
+        minbox.setSelectedIndex(calendar.MINUTE);
+        minbox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        minbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                String newSelection = (String)cb.getSelectedItem();
+                min= Integer.parseInt(newSelection);
+		calendar.set(Calendar.MINUTE, min);
+                //dateChanged();
+            }
+        });
+
+	gbc.gridx = ++x_leftcorner;
+	gbc.gridy = y_leftcorner;
+	
+
+	subPane.add(new JLabel("Minute"), gbc);
+        //gbc.gridx++;
+	gbc.gridy++;	
+	subPane.add(minbox, gbc);
+
+	return;
+   
+    }
+    */
+
+    private void monthagoOption() {
+
+
+
+
+
+    }
+
     protected void createComponents() {
 	 
          final Color bg = Color.darkGray;
@@ -745,6 +830,8 @@ public class DateChooser extends JPanel {
     JComboBox hourbox;
     JComboBox minbox;
     JComboBox secbox;
+    
+    JComboBox weekagobox;
 
     JLabel result;
     String currentDate;
