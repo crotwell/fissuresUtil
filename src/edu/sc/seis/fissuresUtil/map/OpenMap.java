@@ -72,7 +72,7 @@ public class OpenMap extends OpenMapComponent{
                 mapHandler.add(el);
                 lh.addLayer(el, 1);
 
-                DistanceLayer dl = new DistanceLayer();
+                DistanceLayer dl = new DistanceLayer(mapBean);
                 el.addEQSelectionListener(dl);
                 mapHandler.add(dl);
                 lh.addLayer(dl);
