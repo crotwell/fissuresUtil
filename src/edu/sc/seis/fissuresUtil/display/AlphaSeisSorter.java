@@ -18,10 +18,10 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 public class AlphaSeisSorter extends SeismogramSorter{
     public int sort(DataSetSeismogram seismo, String name){
 	int i = 0;
-	while(i < seismos.size() && ((String)seismos.get(i)).compareToIgnoreCase(name) < 0){
+	while(i < names.size() && ((String)names.get(i)).compareToIgnoreCase(name) < 0){
 	    i++;
 	}
-	seismos.add(i, name);
+	names.add(i, name);
 	return i;
     }
 }// AlphaSeisSorter
