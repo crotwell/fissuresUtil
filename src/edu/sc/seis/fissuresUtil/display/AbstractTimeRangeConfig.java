@@ -90,10 +90,33 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
 
     public HashMap getData(){ return this.seismos; }
 
-    public void setData(HashMap newData){ this.seismos = newData; } 
-	
+    public void setData(HashMap newData){ 
+	Iterator e = newData.keySet().iterator();
+	while(e.hasNext()){
+	    LocalSeismogram curr = ((LocalSeismogram)e.next());
+	    this.addSeismogram(curr, ((MicroSecondDate)newData.get(curr)));
+	}
+	this.updateTimeSyncListeners();
+    } 
+    
+    public void setRelativeTime(LocalSeismogram seis, MicroSecondDate time){
+	seismos.put(seis, time);
+	this.updateTimeSyncListeners();
+    }
 
-    protected MicroSecondDate beginTime, endTime;
+    public void setDisplayInterval(TimeInterval t){
+	displayInterval = t;
+	this.updateTimeSyncListeners();
+    }
+
+    public void setBeginTime(MicroSecondDate b){ 
+	beginTime = b;
+	this.updateTimeSyncListeners();
+    }
+
+    protected MicroSecondDate beginTime;
+    
+    protected TimeInterval displayInterval;
 
     protected HashMap seismos = new HashMap();
     
