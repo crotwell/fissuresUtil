@@ -10,8 +10,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -30,32 +31,29 @@ import org.apache.log4j.Logger;
 
 public class GUIReporter implements ExceptionReporter{
     
-    public void report(String message, Throwable e, Map parsedContents) {
+    public void report(String message, Throwable e, List sections) {
         this.message = message;
         this.e = e;
-        this.parsedContents = parsedContents;
+        this.sections = sections;
         if(displayPanel == null){
             createFrame();
         }
-        displayPanel.add(createGUI(e, message, parsedContents),
+        displayPanel.add(createGUI(e, message, sections),
                          BorderLayout.CENTER);
         displayPanel.revalidate();
     }
     
-    private JTabbedPane createGUI(Throwable e, String message, Map panelNameToContents) {
+    private JTabbedPane createGUI(Throwable e, String message, List sections) {
         JTabbedPane tabbedPane = new JTabbedPane();
+        if(greeting != null){
+            tabbedPane.addTab(greeting.getName(), createTextArea(greeting.getContents()));
+        }
         tabbedPane.addTab("Details", createTextArea(message));
         tabbedPane.addTab("Stack Trace", createTextArea(ExceptionReporterUtils.getTrace(e)));
-        Iterator it = panelNameToContents.keySet().iterator();
+        Iterator it = sections.iterator();
         while(it.hasNext()){
-            String panelName = (String)it.next();
-            String contents = (String)panelNameToContents.get(panelName);
-            if(panelName.equals("Information")){
-                tabbedPane.add(createTextArea(contents), 0);
-                tabbedPane.setTitleAt(0, panelName);
-            }else{
-                tabbedPane.addTab(panelName, createTextArea(contents));
-            }
+            Section sec = (Section)it.next();
+            tabbedPane.addTab(sec.getName(), createTextArea(sec.getContents()));
         }
         Dimension dimension = new Dimension(800, 300);
         tabbedPane.setPreferredSize(dimension);
@@ -104,22 +102,28 @@ public class GUIReporter implements ExceptionReporter{
         JButton saveToFile = new JButton("Save");
         saveToFile.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent ex) {
-                        JFileChooser fileChooser = new JFileChooser();
-                        fileChooser.setSelectedFile(new File(getDefaultFilename()));
-                        int rtnVal = fileChooser.showSaveDialog(displayPanel);
-                        if(rtnVal == JFileChooser.APPROVE_OPTION) {
-                            FileWriterReporter writer = new FileWriterReporter(fileChooser.getSelectedFile().getAbsoluteFile());
-                            writer.report(message, e, parsedContents);
+                        try{
+                            writeFile();
+                        }catch(IOException e){
+                            int result = JOptionPane.showConfirmDialog(displayPanel,
+                                                                       "We were unable to write to that file. Try again?",
+                                                                       "Trouble writing exception file",
+                                                                       JOptionPane.OK_CANCEL_OPTION,
+                                                                       JOptionPane.WARNING_MESSAGE);
+                            if(result == JOptionPane.OK_OPTION){
+                                actionPerformed(null);
+                            }
                         }
                     }
                     
-                    private String getDefaultFilename(){
-                        String defaultName = e.toString();
-                        int colonIndex = defaultName.indexOf(":");
-                        defaultName = defaultName.substring(0, colonIndex);
-                        int lastPeriod = defaultName.lastIndexOf(".");
-                        defaultName = defaultName.substring(++lastPeriod);
-                        return defaultName + ".txt";
+                    public void writeFile()throws IOException{
+                        JFileChooser fileChooser = new JFileChooser();
+                        fileChooser.setSelectedFile(new File(ExceptionReporterUtils.getExceptionClassName(e) + ".txt"));
+                        int rtnVal = fileChooser.showSaveDialog(displayPanel);
+                        if(rtnVal == JFileChooser.APPROVE_OPTION) {
+                            FileWriterReporter writer = new FileWriterReporter(fileChooser.getSelectedFile().getAbsoluteFile());
+                            writer.report(message, e, sections);
+                        }
                     }
                 });
         
@@ -129,11 +133,20 @@ public class GUIReporter implements ExceptionReporter{
         return buttonPanel;
     }
     
+    public static void setGreeting(String title, String contents) {
+        if(greeting != null){
+            contents = greeting.getContents() + contents;
+        }
+        greeting = new Section(title, contents);
+    }
+    
+    private static Section greeting;
+    
     private String message;
     
     private Throwable e;
     
-    private Map parsedContents;
+    private List sections;
     
     private JPanel displayPanel;
     
