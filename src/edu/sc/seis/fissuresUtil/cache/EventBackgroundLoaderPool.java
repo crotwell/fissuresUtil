@@ -1,9 +1,8 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfEvent.*;
-import edu.iris.Fissures.event.*;
-import java.util.*;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import java.util.LinkedList;
 
 /**
  * EventBackgroundLoaderPool.java
@@ -16,7 +15,6 @@ import java.util.*;
  */
 
 public class EventBackgroundLoaderPool  {
-
 
     private static EventBackgroundLoaderPool singleton = null;
 
