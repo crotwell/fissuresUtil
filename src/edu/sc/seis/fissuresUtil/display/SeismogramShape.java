@@ -21,7 +21,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3657 2003-04-09 21:14:19Z groves $
+ * @version $Id: SeismogramShape.java 3660 2003-04-10 19:06:03Z groves $
  */
 
 public class SeismogramShape implements Shape, SeisDataChangeListener{
@@ -204,6 +204,9 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
     private void plotExpansion(double unroundStartPoint, int[][] points,
                                double minAmp, double range, int height, int point){
         int startPoint = (int)Math.floor(unroundStartPoint);
+        if(startPoint < 0 && startPoint >= -3) {
+            startPoint = 0;//if the base point is off a bit, fudge a little
+         }
         int endPoint = startPoint + 1;
         double firstPoint = 0;
         double lastPoint = 0;
@@ -361,4 +364,5 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
     private static Category logger =
         Category.getInstance(SeismogramShape.class.getName());
 }// SeismogramShape
+
 
