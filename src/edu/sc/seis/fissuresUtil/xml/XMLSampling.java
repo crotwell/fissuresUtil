@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import edu.iris.Fissures.*;
-import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.model.*;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import org.apache.log4j.*;
@@ -26,5 +26,21 @@ public class XMLSampling {
 	XMLQuantity.insert(interval, sampling.interval);
 	element.appendChild(interval);
 						      
+    }
+
+    public static Sampling getSampling(Element base) {
+	
+	//get numPoints
+	int numPoints = Integer.parseInt(XMLUtil.evalString(base, "numPoints"));
+	
+	//get interval
+	Quantity interval = null;
+	NodeList interval_node = XMLUtil.evalNodeList(base, "interval");
+	if(interval_node != null && interval_node.getLength() != 0) {
+
+	    interval = XMLQuantity.getQuantity((Element)interval_node.item(0));
+	}
+	
+	return new SamplingImpl(numPoints, new TimeInterval(interval));
     }
 }// XMLSampling

@@ -26,6 +26,8 @@ public class XMLProperty {
     public static Element createElement(Document doc, 
 					Property prop, 
 					String tagName) {
+	//System.out.println("The name of the property is "+prop.name);
+	//System.out.println("The value of the property is "+prop.value);
 	Element element = doc.createElement(tagName);
 
 	Text textNode = doc.createTextNode(prop.name);
@@ -37,9 +39,14 @@ public class XMLProperty {
 	tempElement = doc.createElement("value");
 	tempElement.appendChild(textNode);
 	element.appendChild(tempElement);
-
+	
 	return element;
     }
 
+    public static Property getProperty(Element base) {
+	String name = XMLUtil.evalString(base,"name");
+	String value = XMLUtil.evalString(base, "value");
+	return new Property(name, value);
+    }
     private static CachedXPathAPI xpath = new CachedXPathAPI();
 }

@@ -32,4 +32,14 @@ public class XMLMagnitude {
                                                       mag.contributor));
     }
     
-}// XMLMagnitude
+
+public static Magnitude getMagnitude(Element base) {
+	String type = XMLUtil.evalString(base, "type");
+	float value = Float.parseFloat(XMLUtil.evalString(base, "value"));
+	String contributor = XMLUtil.evalString(base, "contributor");
+	return new Magnitude(type,
+			     value,
+			     contributor);
+
+}
+}//XMLMagnitude

@@ -25,5 +25,11 @@ public class XMLTime {
                                                      "leap_seconds_version", 
                                                      ""+time.leap_seconds_version));
     }
-    
+
+    public static edu.iris.Fissures.Time  getFissuresTime(Element element) {
+
+	String date_time = XMLUtil.evalString(element, "date_time");
+	int leap_seconds_version = Integer.parseInt(XMLUtil.evalString(element,"leap_seconds_version"));
+	return new edu.iris.Fissures.Time(date_time, leap_seconds_version);
+    }
 }// XMLTime
