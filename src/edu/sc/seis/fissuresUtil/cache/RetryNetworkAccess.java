@@ -81,7 +81,7 @@ public class RetryNetworkAccess implements NetworkAccess {
                 return net.retrieve_for_station(id);
             } catch (RuntimeException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
             }
             count++;
         }
