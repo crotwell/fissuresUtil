@@ -75,7 +75,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                 drawables.add(new DrawableSeismogram(this, seismos[i], (Color)null));
             }
         }
-        layout.add(seismos);
+        layout.add(seismos);      
         checkDrawHeight = true;
         revalidate();
     }
@@ -245,16 +245,15 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                 LayoutData current = (LayoutData)it.next();
                 double midPoint = current.getStart() * height + ((current.getEnd() - current.getStart()) * height)/2;
                 double drawHeight = (current.getEnd() - current.getStart())*height;
-                //If the draw height is less than 20, change the scale so that
+                //If the draw height is less than 40, change the scale so that
                 //it is
                 if(drawHeight < 40 && checkDrawHeight){
                     if(drawHeight == 0) drawHeight = 1;
-                    double percentIncreaseNeeded = 20/drawHeight;
+                    double percentIncreaseNeeded = 40/drawHeight;
                     if(scaler != null){
                         scaler.increaseScale(percentIncreaseNeeded);
                     }
                     checkDrawHeight = false;
-                    return;
                 }
                 double neededYPos = midPoint - drawHeight/2;
                 if(neededYPos < 0){
