@@ -31,15 +31,16 @@ public class TimeConfigRegistrar implements TimeRangeConfig, TimeSyncListener{
     public void setTimeConfig(TimeRangeConfig newTimeConfig){ 
 	timeConfig.removeTimeSyncListener(this);
 	Iterator e = seismos.keySet().iterator();
+	timeFinder = newTimeConfig.getTimeFinder();
+	newTimeConfig.addTimeSyncListener(this);
 	while(e.hasNext()){
+	    System.out.println("switching seismograms");
 	    DataSetSeismogram current = (DataSetSeismogram)e.next();
 	    timeConfig.removeSeismogram(current);
 	    this.addSeismogram(current);
 	    newTimeConfig.addSeismogram(current, (MicroSecondDate)seismos.get(current));
 	}
 	timeConfig = newTimeConfig;
-	timeConfig.addTimeSyncListener(this);
-	timeFinder = timeConfig.getTimeFinder();
     }
 
     /**
