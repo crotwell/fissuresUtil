@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.ListSelectionModel;
+import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.GlobalExceptionHandler;
 
 public class OpenMap extends OpenMapComponent{
 
@@ -127,6 +128,7 @@ public class OpenMap extends OpenMapComponent{
             // In this class, this will never happen, since we are
             // controlling that one MapBean, LayerHandler,
             // MouseDelegator, etc is being added to the MapHandler.
+            GlobalExceptionHandler.handleStatic(msmce);
         }
     }
 
