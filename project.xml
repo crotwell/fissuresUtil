@@ -9,7 +9,7 @@
     <url>http://www.seis.sc.edu</url>
     <logo>http://www.seis.sc.edu/images/header.gif</logo>
   </organization>
-  <currentVersion>1.0Beta</currentVersion>
+  <currentVersion>1.0</currentVersion>
   <inceptionYear>2002</inceptionYear>
 
   <package>edu.sc.seis.fissuresUtil</package>
@@ -68,15 +68,24 @@ oot:${pom.artifactId}</connection>
       <role>Java Developer</role>
       </roles>
     </developer>
+    <developer>
+      <name>Philip Oliver-Paull</name>
+      <id>oliverpa</id>
+      <email>oliverpa@seis.sc.edu</email>
+      <organization>University of South Carolina</organization>
+      <roles>
+      <role>Java Developer</role>
+      </roles>
+    </developer>
     </developers>
 
   <dependencies>
-<!-- hopefully temporary JAI support -->
     <dependency>
       <id>junit-addons</id>
       <version>1.3</version>
     </dependency>
     <dependency>
+<!-- hopefully temporary JAI support -->
       <id>jai_core</id>
       <version>1.0</version>
       <jar>jai_core.jar</jar>
