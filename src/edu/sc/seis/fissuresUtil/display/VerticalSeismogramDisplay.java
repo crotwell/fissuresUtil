@@ -105,7 +105,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	basicDisplays.remove(clicked);
 	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
 	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
-	this.redraw();
 	seismograms.revalidate();
     }
     
