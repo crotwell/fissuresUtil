@@ -25,8 +25,16 @@ public abstract class ConnCheckerConfig  {
     /** Receives the name of the connection and instantiate a
      *  ConnCheckerConfig object 
      */
-    public ConnCheckerConfig(String namegiven) {
+    public ConnCheckerConfig(String namegiven, Checker checker) {
+	this.checker = checker;
         name = namegiven;
+	finished = false;
+	successful=false;
+
+    }
+
+     public ConnCheckerConfig(String namegiven) {
+  name = namegiven;
 	finished = false;
 	successful=false;
 
@@ -86,13 +94,19 @@ public abstract class ConnCheckerConfig  {
     public synchronized  long getTime(){
 	return timetoconnect;
     }
+
+    public void setChecker(Checker checker) {
   
+	this.checker = checker;
+
+    }
+
     protected String name;
     protected boolean finished;
     protected boolean successful;
     protected long timetoconnect;
 
-   
+    protected Checker checker;
 
 }//  ConnCheckerConfig class
 

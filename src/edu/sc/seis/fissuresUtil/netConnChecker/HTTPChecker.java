@@ -27,9 +27,10 @@ public class HTTPChecker implements ConnChecker  {
    /** The constructor receives a ConnCheckerConfig object
     * @param conncheckerobject a ConnCheckerConfig object
     */ 
-   public HTTPChecker(HTTPConfig conncheckerobjectgiven){
+   public HTTPChecker(HTTPConfig conncheckerobjectgiven, Checker checker){
 
        conncheckerobject = conncheckerobjectgiven;
+       this.checker = checker;
 
    }// constructor
 
@@ -44,8 +45,10 @@ public class HTTPChecker implements ConnChecker  {
  
        long begintime;
        long endtime; 
-       try{
 
+     
+       try{
+	   Thread.sleep(2000);
            begintime = System.currentTimeMillis();         
 	   URL seis = conncheckerobject.getURL();
            URLConnection seisConnection = seis.openConnection();
@@ -59,27 +62,44 @@ public class HTTPChecker implements ConnChecker  {
 
 	   conncheckerobject.setTime(duration);
            conncheckerobject.setSuccessful(true);
+	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.SUCCESSFUL);
+	   System.out.println(conncheckerobject.getName()+" is connected." );
 
            logger.debug("Connection to "+ conncheckerobject.getName()+" "+conncheckerobject.getTime()+" milliseconds"); 
 
        } catch (MalformedURLException urle) {
            conncheckerobject.setSuccessful(false);
+	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.FAILED);
+	   System.out.println(conncheckerobject.getName() + " Not connected");
        } catch (IOException ioe) {
-           conncheckerobject.setSuccessful(false);         
+           conncheckerobject.setSuccessful(false);  
+	   System.out.println(conncheckerobject.getName() + " Not connected");
+	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.FAILED);
+       } catch(Exception e) {
+
+	   e.printStackTrace();
+
        }
        
        if(conncheckerobject.getSuccessful() != true){
-           logger.debug(conncheckerobject.getName() + " Not connected");
+	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.FAILED);
+           //logger.debug
+	   System.out.println(conncheckerobject.getName() + " Not connected");
        }else {
-           logger.debug(conncheckerobject.getName()+" is connected." );
+	   checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.SUCCESSFUL);
+           //logger.debug
+	   System.out.println(conncheckerobject.getName()+" is connected." );
        }
 
        conncheckerobject.setFinished(true);
    
    } // run
+    
 
+    
   
    HTTPConfig conncheckerobject;
+    Checker checker;
    static Category logger = Category.getInstance(HTTPChecker.class);
 
 } // HTTPChecker class

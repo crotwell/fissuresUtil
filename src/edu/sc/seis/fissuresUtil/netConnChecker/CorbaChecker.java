@@ -34,8 +34,10 @@ public class CorbaChecker implements ConnChecker  {
     * @param conncheckerobject a ConnCheckerConfig object
     * @return 
     */ 
-    public CorbaChecker(CORBAConfig conncheckerobjectgiven){
+    public CorbaChecker(CORBAConfig conncheckerobjectgiven, Checker checker){
         conncheckerobject = conncheckerobjectgiven;
+
+	this.checker = checker;
       
     }
 
@@ -43,11 +45,13 @@ public class CorbaChecker implements ConnChecker  {
     *  Post: Attempt to make a Corba connection  
     */
    public void run()  {
-
-       long begintime = System.currentTimeMillis();	
+       
+        long begintime = System.currentTimeMillis();	
        logger.debug("***** Testing Corba Connection:*****");	  
        
         try {
+	    Thread.sleep(2000);
+	     
        
             if((conncheckerobject.getrootObj())._non_existent() == true){
 	       logger.warn("No connection to Corba.");
@@ -58,19 +62,28 @@ public class CorbaChecker implements ConnChecker  {
             long endtime = System.currentTimeMillis();
             long duration = endtime-begintime;
             conncheckerobject.setTime(duration);
-            logger.debug("Corba connection: "+ conncheckerobject.getName()+" "+conncheckerobject.getTime()+" milliseconds"); 
+            //logger.debug
+		System.out.println("Corba connection: "+ conncheckerobject.getName()+" "+conncheckerobject.getTime()+" milliseconds"); 
          } catch(COMM_FAILURE cf){
-               logger.warn("!!!!! CORBA CONNECTION FAILURE.");
+	     //logger.warn
+	     System.out.println("!!!!! CORBA CONNECTION FAILURE.");
+	       conncheckerobject.checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.FAILED);
                conncheckerobject.setSuccessful(false);
+	 } catch(Exception e) {
+
+	     e.printStackTrace();
 	 }
        conncheckerobject.setFinished(true);
+       conncheckerobject.checker.fireStatusChanged(conncheckerobject.getName(), ConnStatus.SUCCESSFUL);
   
      }// close run
 
     CORBAConfig conncheckerobject;
+    Checker checker;
     org.omg.CORBA.Object CorbaChecker_rootObj;
     static Category logger = Category.getInstance(CorbaChecker.class);
-
+    
+   
 }// CorbaChecker class
 
 /************************************************************/
