@@ -22,14 +22,14 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 2036 2002-07-05 19:20:21Z crotwell $
+ * @version $Id: ChannelChooser.java 2142 2002-07-11 19:00:12Z crotwell $
  *
  */
 
 
 public class ChannelChooser extends JPanel{
 
-    public ChannelChooser(NetworkDC netdcgiven) {
+    public ChannelChooser(NetworkDC[] netdcgiven) {
         this(netdcgiven,
              false,
              defaultSelectableOrientations,
@@ -39,7 +39,7 @@ public class ChannelChooser extends JPanel{
 	     new String[0]);
     }
     
-    public ChannelChooser(NetworkDC netdcgiven, 
+    public ChannelChooser(NetworkDC[] netdcgiven, 
 			  String[] configuredNetworks) {
         this(netdcgiven,
              false,
@@ -52,7 +52,7 @@ public class ChannelChooser extends JPanel{
     
 
 
-    public ChannelChooser(NetworkDC netdcgiven, 
+    public ChannelChooser(NetworkDC[] netdcgiven, 
                           boolean showSites,
                           int[] selectableOrientations,
                           int autoSelectedOrientation,
@@ -78,68 +78,21 @@ public class ChannelChooser extends JPanel{
 			 configuredNetworks.length);
 			 
     }
-    public void setNetworkDC(NetworkDC netdcgiven) {
+    public void setNetworkDC(NetworkDC[] netdcgiven) {
         netdc = netdcgiven;
         channels.clear();
         sites.clear();
         stations.clear();
         networks.clear();
-        Thread networkLoader = new Thread() {
-                public void run() {
-                    CacheNetworkAccess cache;
-                    logger.debug("Before networks");
-		    if(configuredNetworks == null || configuredNetworks.length == 0) {
-			NetworkAccess[] nets = 
-			    netdc.a_finder().retrieve_all();
-			logger.debug("Got networks");
-			for (int i=0; i<nets.length; i++) {
-			    // skip null networks...probably a bug on the server
-			    if (nets[i] != null) {
-				//  cache = new CacheNetworkAccess(nets[i]);
-				cache = new DNDNetworkAccess(nets[i]);
-				NetworkAttr attr = cache.get_attributes();
-				logger.debug("Got attributes "+attr.get_code());
-				// preload attributes
-				networks.addElement(cache);
-			    } else {
-				logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
-			    } // end of else
-                        
-			}
-			if (nets.length == 1) {
-			    networkList.getSelectionModel().setSelectionInterval(0,0);
-			} // end of if (nets.length = 1)
-		    } else {
-			//when the channelChooser is configured with networkCodes....
-			int totalNetworks = 0;
-			for(int counter = 0; counter < configuredNetworks.length; counter++) {
-			      try {
-				NetworkAccess[] nets = 
-				    netdc.a_finder().retrieve_by_code(configuredNetworks[counter]);
-				for(int subCounter = 0; subCounter < nets.length; subCounter++) {
-				    if (nets[subCounter] != null) {
-					//  cache = new CacheNetworkAccess(nets[subCounter]);
-					cache = new DNDNetworkAccess(nets[subCounter]);
-					NetworkAttr attr = cache.get_attributes();
-					logger.debug("Got attributes "+attr.get_code());
-					// preload attributes
-					networks.addElement(cache);
-					totalNetworks++;
-				    } else {
-					logger.warn("a networkaccess returned from NetworkFinder.retrieve_by_code is null, skipping.");
-				    } // end of else
-				}//end of inner for subCounter = 0;
-			    }catch(NetworkNotFound nnfe) {
-				logger.warn("Network "+configuredNetworks[counter]+" not found while getting network access uding NetworkFinder.retrieve_by_code");
-			    }
-			}//end of outer for counter = 0;
-			if (totalNetworks == 1) {
-			    networkList.getSelectionModel().setSelectionInterval(0,0);
-			} // end of if (totalNetworks == 1)
-		    }//end of if else checking for configuredNetworks == null 
-		}
-	    };
-        networkLoader.start();
+	for (int i=0; i<netdcgiven.length; i++) {
+	    NetworkLoader networkLoader = new NetworkLoader(netdcgiven[i]);
+	    if (netdcgiven.length == 1) {
+		networkLoader.setDoSelect(true);
+	    } else {
+		 networkLoader.setDoSelect(false);
+	    } // end of else
+	    networkLoader.start();
+	} // end of for (int i=0; i<netdcgiven.length; i++)
     }
 
     public void initFrame(){
@@ -623,7 +576,7 @@ public class ChannelChooser extends JPanel{
     protected DefaultListModel bandListModel = new DefaultListModel();
     protected HashMap channelMap = new HashMap();
 
-    private NetworkDC netdc;
+    private NetworkDC[] netdc;
 
     private GridBagConstraints gbc;
     int x_leftcorner=0;
@@ -744,6 +697,71 @@ public class ChannelChooser extends JPanel{
         }
 
 
+    }
+
+    class NetworkLoader extends Thread {
+	NetworkDC netdc;
+	boolean doSelect = true;
+	public NetworkLoader(NetworkDC netdc) {
+	    this.netdc = netdc;
+	}
+	public void setDoSelect(boolean b) {
+	    doSelect = b;
+	}
+		
+	public void run() {
+	    CacheNetworkAccess cache;
+	    logger.debug("Before networks");
+	    if(configuredNetworks == null || configuredNetworks.length == 0) {
+		NetworkAccess[] nets = 
+		    netdc.a_finder().retrieve_all();
+		logger.debug("Got networks");
+		for (int i=0; i<nets.length; i++) {
+		    // skip null networks...probably a bug on the server
+		    if (nets[i] != null) {
+			//  cache = new CacheNetworkAccess(nets[i]);
+			cache = new DNDNetworkAccess(nets[i]);
+			NetworkAttr attr = cache.get_attributes();
+			logger.debug("Got attributes "+attr.get_code());
+			// preload attributes
+			networks.addElement(cache);
+		    } else {
+			logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
+		    } // end of else
+                        
+		}
+		if (doSelect && nets.length == 1) {
+		    networkList.getSelectionModel().setSelectionInterval(0,0);
+		} // end of if (nets.length = 1)
+	    } else {
+		//when the channelChooser is configured with networkCodes....
+		int totalNetworks = 0;
+		for(int counter = 0; counter < configuredNetworks.length; counter++) {
+		    try {
+			NetworkAccess[] nets = 
+			    netdc.a_finder().retrieve_by_code(configuredNetworks[counter]);
+			for(int subCounter = 0; subCounter < nets.length; subCounter++) {
+			    if (nets[subCounter] != null) {
+				//  cache = new CacheNetworkAccess(nets[subCounter]);
+				cache = new DNDNetworkAccess(nets[subCounter]);
+				NetworkAttr attr = cache.get_attributes();
+				logger.debug("Got attributes "+attr.get_code());
+				// preload attributes
+				networks.addElement(cache);
+				totalNetworks++;
+			    } else {
+				logger.warn("a networkaccess returned from NetworkFinder.retrieve_by_code is null, skipping.");
+			    } // end of else
+			}//end of inner for subCounter = 0;
+		    }catch(NetworkNotFound nnfe) {
+			logger.warn("Network "+configuredNetworks[counter]+" not found while getting network access uding NetworkFinder.retrieve_by_code");
+		    }
+		}//end of outer for counter = 0;
+		if (doSelect && totalNetworks == 1) {
+		    networkList.getSelectionModel().setSelectionInterval(0,0);
+		} // end of if (totalNetworks == 1)
+	    }//end of if else checking for configuredNetworks == null 
+	}
     }
 
     static Category logger = 
