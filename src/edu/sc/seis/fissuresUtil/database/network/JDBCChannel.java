@@ -106,7 +106,7 @@ public class JDBCChannel extends NetworkTable {
 
     public ChannelId[] getAllChannelIds(NetworkId network) throws NotFound,
             SQLException {
-        int net_id = netTable.getDBId(network);
+        int net_id = netTable.getDbId(network);
         getAllIdsForNetwork.setInt(1, net_id);
         return extractAllChanIds(getAllIdsForNetwork);
     }
@@ -124,7 +124,7 @@ public class JDBCChannel extends NetworkTable {
 
     public Channel[] getAllChannels(NetworkId network) throws NotFound,
             SQLException {
-        int net_id = netTable.getDBId(network);
+        int net_id = netTable.getDbId(network);
         getAllChansForNetwork.setInt(1, net_id);
         return extractAllChans(getAllChansForNetwork);
     }
@@ -141,7 +141,7 @@ public class JDBCChannel extends NetworkTable {
                                String site_code,
                                String channel_code) throws SQLException,
             NotFound {
-        int net_id = netTable.getDBId(networkId);
+        int net_id = netTable.getDbId(networkId);
         int index = 1;
         getByCodes.setInt(index++, net_id);
         getByCodes.setString(index++, station_code);
@@ -151,7 +151,7 @@ public class JDBCChannel extends NetworkTable {
     }
 
     public int getDBId(ChannelId id) throws SQLException, NotFound {
-        int netDbId = netTable.getDBId(id.network_id);
+        int netDbId = netTable.getDbId(id.network_id);
         int[] possibleStaDbIds = stationTable.getDBIds(netDbId, id.station_code);
         int[] possibleSiteIds = siteTable.getDBIds(possibleStaDbIds,
                                                    id.site_code);

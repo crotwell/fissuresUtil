@@ -115,7 +115,7 @@ public class JDBCStation extends NetworkTable {
      */
     public StationId[] getAllStationIds(NetworkId net) throws SQLException {
         try {
-            return getAllStationIds(netTable.getDBId(net));
+            return getAllStationIds(netTable.getDbId(net));
         } catch(NotFound e) {
             return new StationId[] {};
         }
@@ -176,7 +176,7 @@ public class JDBCStation extends NetworkTable {
 
     public int[] getDBIds(NetworkId net, String stationCode)
             throws SQLException, NotFound {
-        return getDBIds(netTable.getDBId(net), stationCode);
+        return getDBIds(netTable.getDbId(net), stationCode);
     }
 
     public JDBCNetwork getNetTable() {
