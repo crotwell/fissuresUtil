@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.log4j.Logger;
 
 public abstract class SeismogramDisplay extends BorderedDisplay implements DataSetSeismogramReceptacle{
     public SeismogramDisplay(){ this(mouseForwarder, motionForwarder); }
@@ -48,6 +49,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
 
     public void renderToGraphics(Graphics g, Dimension size) {
         boolean notAllHere = true;
+        long totalWait = 0;
         while(notAllHere){
             Iterator seisIt = iterator(DrawableSeismogram.class);
             while(seisIt.hasNext()){
@@ -57,10 +59,15 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
                     cur.getData();
                     try {
                         Thread.sleep(100);
+                        totalWait += 100;
+                        if(totalWait%10000 == 0 && totalWait != 0){
+                            logger.debug("Waiting for data to show before rendering.  We've waited " + totalWait + " millis");
+                        }
                     } catch (InterruptedException e) {}
                     break;
                 }
             }
+            logger.debug("Rendering to graphics after waiting " + totalWait + " millis for data to arrive");
             notAllHere = false;
         }
         super.renderToGraphics(g, size);
@@ -154,5 +161,6 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements DataS
     protected static Set activeFilters = new HashSet();
 
     public static final Color[] COLORS = {Color.BLUE, new Color(217, 91, 23), new Color(179, 182,46), new Color(141, 18, 69),new Color(65,200,115),new Color(27,36,138), new Color(130,145,230), new Color(54,72,21), new Color(119,17,136)};
-}
 
+    private static final Logger logger = Logger.getLogger(SeismogramDisplay.class);
+}
