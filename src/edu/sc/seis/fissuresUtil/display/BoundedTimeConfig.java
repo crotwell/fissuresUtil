@@ -31,7 +31,6 @@ public class BoundedTimeConfig extends AbstractTimeRangeConfig{
     public synchronized void addSeismogram(DataSetSeismogram seis){
 	if(beginTime == null){
 	    beginTime = timeFinder.getBeginTime(seis);
-	   
 	}
  	if(displayInterval == null){
 	    displayInterval = timeFinder.getDisplayInterval(seis);

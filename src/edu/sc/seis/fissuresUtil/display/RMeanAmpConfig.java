@@ -42,6 +42,7 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
 	     return getAmpRange(aSeis, (MicroSecondTimeRange)seismoTimes.get(aSeis));
 	 }else{
 	     if (!timeRegistrar.contains(aSeis)) {
+		 ampRegistrar.getAmpRange(aSeis, timeRegistrar.getTimeRange());
 		 timeRegistrar.addSeismogram(aSeis);
 	     } 
 	     return getAmpRange(aSeis, timeRegistrar.getTimeRange(aSeis));

@@ -34,6 +34,7 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 	    this.addAmpSyncListener(creator);
 	}
 	ampConfig.addAmpSyncListener(this);
+	seismograms = ampConfig.getSeismograms();
 	snapshot = new AmpSnapshot(seismograms, null);
     }	
      
@@ -47,6 +48,7 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 	}
 	ampConfig.addAmpSyncListener(this);
 	this.ampConfig = ampConfig;
+	seismograms = ampConfig.getSeismograms();
 	updateAmpSyncListeners();
     }
 
@@ -59,7 +61,7 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      */
     public void addSeismogram(DataSetSeismogram seis){
 	ampConfig.addSeismogram(seis);
-	seismograms.put(seis, ampConfig.getAmpRange(seis));
+	//	seismograms.put(seis, ampConfig.getAmpRange(seis));
     }
 
     /**
@@ -69,8 +71,10 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      */
     public void removeSeismogram(DataSetSeismogram seis){ 
 	ampConfig.removeSeismogram(seis);
-	seismograms.remove(seis);
+	//seismograms.remove(seis);
     }
+
+    public HashMap getSeismograms(){ return seismograms; }
 
     public void unregister(){
 	seismograms.clear();
@@ -162,7 +166,7 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
 
     protected AmpRangeConfig ampConfig;
 
-    protected HashMap seismograms = new HashMap();
+    protected HashMap seismograms;// = new HashMap();
     
     protected Set ampListeners = new HashSet();
 
