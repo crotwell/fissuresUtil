@@ -21,7 +21,7 @@ import org.apache.log4j.Category;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 5151 2003-08-18 14:55:38Z crotwell $
+ * @version $Id: SimplePlotUtil.java 5418 2003-09-06 23:43:53Z groves $
  */
 
 public class SimplePlotUtil  {
@@ -290,14 +290,14 @@ public class SimplePlotUtil  {
 
 
             out[0][numAdded] =
-                Math.round((float)(linearInterp(seisStartIndex,
+                (int) Math.round((linearInterp(seisStartIndex,
                                                 pixelStartIndex,
                                                 seisEndIndex,
                                                 pixelEndIndex,
                                                 seisIndex)));
 
             out[1][numAdded] =
-                Math.round((float)(linearInterp( yMin, 0,
+                (int)Math.round((linearInterp( yMin, 0,
                                                 yMax, size.height,
                                                 seis.getValueAt(seisIndex).getValue())));
 
