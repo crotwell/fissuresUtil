@@ -18,7 +18,7 @@ public class FilteredSeismogramShape extends SeismogramShape {
     public FilteredSeismogramShape(ColoredFilter filter,
                                    DataSetSeismogram seismogram,
                                    SeismogramDisplay parent){
-        super(parent, new FilteredDataSetSeismogram(seismogram, filter));
+        super(parent, FilteredDataSetSeismogram.getFiltered(seismogram,filter));
     }
 
     public ColoredFilter getFilter(){
