@@ -58,11 +58,11 @@ public class TextTable{
 		if (data.length > columns){
 			String[] tmp = new String[columns];
 			System.arraycopy(data, 0, tmp, 0, columns);
-			logger.debug("truncating data (length " + data.length + ") to number of table columns (" + columns + ")");
+			//logger.debug("truncating data (length " + data.length + ") to number of table columns (" + columns + ")");
 			data = tmp;
 		}
 		else if (data.length < columns){
-			logger.debug("data.length: " + data.length);
+			//logger.debug("data.length: " + data.length);
 			return;
 		}
 		
@@ -81,7 +81,7 @@ public class TextTable{
 	private void updateWidths(String[] data){
 		for (int i = 0; i < columns; i++) {
 			if (data[i].length() > widths[i]){
-				logger.debug("changing width of column " + i + " to " + data.length);
+				//logger.debug("changing width of column " + i + " to " + data.length);
 				widths[i] = data[i].length();
 			}
 		}
@@ -163,8 +163,8 @@ public class TextTable{
 	private String fillInWithSpaces(String cellValue, int column){
 		StringBuffer buf = new StringBuffer();
 		int width = widths[column];
-		logger.debug("width of cell value is " + cellValue.length());
-		logger.debug("width for column " + column + " is " + width);
+		//logger.debug("width of cell value is " + cellValue.length());
+		//logger.debug("width for column " + column + " is " + width);
 		int numSpaces = width - cellValue.length() + 3;
 		for (int i = 0; i < numSpaces; i++) {
 			buf.append(' ');
@@ -182,7 +182,7 @@ public class TextTable{
 		
 		for (int i = 0; i < columns; i++) {
 			if (table.widths[i] > widths[i]){
-				logger.debug("changing width of column " + i + " to " + table.widths.length);
+				//logger.debug("changing width of column " + i + " to " + table.widths.length);
 				widths[i] = table.widths[i];
 			}
 		}
