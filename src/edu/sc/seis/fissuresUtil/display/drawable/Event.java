@@ -33,6 +33,7 @@ public class Event implements NamedDrawable{
                                                            originTime.getMicroSecondTime());
             flags.add(new Flag(time, arrivals[i].getName()));
         }
+        flags.add(new Flag(originTime, "Origin"));
         this.name = name;
     }
 
