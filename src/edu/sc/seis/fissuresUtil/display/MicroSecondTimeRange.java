@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -21,6 +22,11 @@ public class MicroSecondTimeRange extends UnitRangeImpl{
     public MicroSecondTimeRange(RequestFilter rf){
         this(new MicroSecondDate(rf.start_time),
              new MicroSecondDate(rf.end_time));
+    }
+
+    public MicroSecondTimeRange(TimeRange timeRange){
+        this(new MicroSecondDate(timeRange.start_time),
+             new MicroSecondDate(timeRange.end_time));
     }
 
     /**
@@ -45,7 +51,8 @@ public class MicroSecondTimeRange extends UnitRangeImpl{
     }
 
     public boolean intersects(MicroSecondDate newTime) {
-        if(beginTime.before(newTime) && endTime.after(newTime))
+        if((beginTime.before(newTime) || beginTime.equals(newTime) ) &&
+               (endTime.after(newTime) || endTime.equals(newTime)))
             return true;
         return false;
     }
