@@ -349,6 +349,7 @@ public class JDBCStation extends NetworkTable {
         stmt.setString(index++, sta.name);
         stmt.setString(index++, sta.operator);
         stmt.setString(index++, sta.description);
+        stmt.setString(index++, sta.comment);
         stmt.setInt(index++, locTable.put(sta.my_location));
         return index;
     }

@@ -40,8 +40,8 @@ StationSeq.nextVal=SELECT NEXTVAL ('StationSeq')
 station.getDBIdsForNetAndCode = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ?
 
 station.putAll = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id, sta_end_id, \
-                                      sta_name, sta_operator, sta_description, loc_id) \
-                                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                      sta_name, sta_operator, sta_description, sta_comment, loc_id) \
+                                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                                       
 station.putId = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id) VALUES (?, ?, ?, ?)
 
@@ -52,7 +52,7 @@ station.getIfNameExists = SELECT sta_id FROM station WHERE sta_id = ? AND sta_na
 station.getDBId = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ? AND sta_begin_id = ?
 
 station.updateSta = UPDATE station SET sta_end_id = ?, sta_name = ?, sta_operator = ?, \
-                    sta_description = ? , loc_id = ? WHERE sta_id = ?
+                    sta_description = ? , sta_comment = ? , loc_id = ? WHERE sta_id = ?
 
 station.deleteStation = DELETE FROM station WHERE sta_id = ?
 
