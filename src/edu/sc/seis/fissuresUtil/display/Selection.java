@@ -102,8 +102,7 @@ public class Selection {
     }
 
     public TimeRangeConfig getInternalConfig(){ 
-	System.out.println(internalTimeConfig.getTimeRange().getBeginTime());
-	return internalTimeConfig; }
+		return internalTimeConfig; }
 
     protected MicroSecondDate begin, end;
 
