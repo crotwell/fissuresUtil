@@ -20,13 +20,9 @@ import org.apache.log4j.Category;
 public class ParticleMotionDisplayThread{
     public ParticleMotionDisplayThread(DataSetSeismogram dataSetSeismogram,
                                        Registrar registrar,
-                                       boolean advancedOption,
-                                       boolean displayButtonPanel,
                                        ParticleMotionDisplay particleMotionDisplay) {
         this.dataSetSeismogram = dataSetSeismogram;
         this.registrar = registrar;
-        this.advancedOption = advancedOption;
-        this.displayButtonPanel = displayButtonPanel;
         this.particleMotionDisplay = particleMotionDisplay;
     }
 
@@ -41,16 +37,6 @@ public class ParticleMotionDisplayThread{
         ChannelId[] channelGroup = new ChannelId[dssArray.length];
         for(int counter = 0; counter < dssArray.length; counter++) {
             channelGroup[counter] = dssArray[counter].getRequestFilter().channel_id;
-        }
-
-        //decide whether to form the radioSetPanel or the checkBoxPanel.
-        if(displayButtonPanel) {
-            if(!advancedOption) {
-                particleMotionDisplay.formRadioSetPanel();
-            } else {
-                particleMotionDisplay.formCheckBoxPanel();
-            }
-
         }
         Color displayColor = selectionColors[particleMotionDisplay.getView().getSelectedParticleMotion().length % selectionColors.length];
 
@@ -139,7 +125,6 @@ public class ParticleMotionDisplayThread{
             Color.cyan,
             Color.white,
             Color.black};
-
 
     static Category logger =
         Category.getInstance(ParticleMotionDisplayThread.class.getName());
