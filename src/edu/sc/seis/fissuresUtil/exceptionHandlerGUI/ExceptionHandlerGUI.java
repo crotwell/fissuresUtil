@@ -24,10 +24,10 @@ public class ExceptionHandlerGUI {
 	
     }
 
-    public static  void handleException(Exception exception) {
+    public static  JPanel handleException(Exception exception) {
 	
+	JPanel mainPanel = new JPanel();
 	JTabbedPane tabbedPane = new JTabbedPane();
-	JFrame displayFrame = new JFrame("Exception Handler");
 	JPanel messagePanel = new JPanel();
 	JLabel exceptionMessageLabel = new JLabel();
 	JTextArea messageArea = new JTextArea();
@@ -60,14 +60,13 @@ public class ExceptionHandlerGUI {
 	stackTracePanel.add(messageArea);
 	tabbedPane.addTab("stackTrace", scrollPane);
 
-	java.awt.Dimension dimension = new java.awt.Dimension(600, 400);
+	java.awt.Dimension dimension = new java.awt.Dimension(800, 300);
 	tabbedPane.setPreferredSize(dimension);
 	tabbedPane.setMinimumSize(dimension);
-
-	displayFrame.getContentPane().add(tabbedPane);
-	displayFrame.setSize(400,400);
-	displayFrame.pack();
-	displayFrame.show();
+	mainPanel.setPreferredSize(dimension);
+	mainPanel.setMinimumSize(dimension);
+	mainPanel.add(tabbedPane);
+	return mainPanel;
 
     }
 
