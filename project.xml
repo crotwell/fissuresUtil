@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project>
   <pomVersion>3</pomVersion>
   <name>fissuresUtil</name>
@@ -12,7 +11,6 @@
   </organization>
   <currentVersion>1.0.2beta</currentVersion>
   <inceptionYear>2002</inceptionYear>
-
   <package>edu.sc.seis.fissuresUtil</package>
   <shortDescription>Utility functionality for fissures clients and servers.</shortDescription>
   <gumpRepositoryId>fissuresUtil</gumpRepositoryId>
@@ -21,7 +19,6 @@ implements some utility functionality related to the Fissures framework.
 It does not actually provide an implemenation for any services, but
 those wishing to implement new clients or new services will find many
 useful things already done.</description>
-
   <url>http://www.seis.sc.edu/software/${pom.artifactId}</url>
   <siteAddress>www.seis.sc.edu</siteAddress>
   <siteDirectory>/seis/raid1/Apache/htdocs/software/${pom.artifactId}</siteDirectory>
@@ -32,14 +29,11 @@ useful things already done.</description>
     <subscribe>majordomo@iris.washington.edu</subscribe>
     <unsubscribe>majordomo@iris.washington.edu</unsubscribe>
   </mailingList>
-
   <repository>
     <connection>scm:cvs:local:anonymous@cvs.seis.sc.edu:/opt/local/Internal/CvsR
 oot:${pom.artifactId}</connection>
-        <url>http://www.seis.sc.edu/cgi-bin/viewcvs.cgi/${pom.artifactId}</url>
-    </repository>
-
-
+    <url>http://www.seis.sc.edu/cgi-bin/viewcvs.cgi/${pom.artifactId}</url>
+  </repository>
   <developers>
     <developer>
       <name>Philip Crotwell</name>
@@ -47,8 +41,8 @@ oot:${pom.artifactId}</connection>
       <email>crotwell@seis.sc.edu</email>
       <organization>University of South Carolina</organization>
       <roles>
-      <role>Module Maintainer</role>
-      <role>Java Developer</role>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
       </roles>
     </developer>
     <developer>
@@ -57,7 +51,7 @@ oot:${pom.artifactId}</connection>
       <email>telukutl@seis.sc.edu</email>
       <organization>University of South Carolina</organization>
       <roles>
-      <role>Java Developer</role>
+        <role>Java Developer</role>
       </roles>
     </developer>
     <developer>
@@ -66,7 +60,7 @@ oot:${pom.artifactId}</connection>
       <email>groves@seis.sc.edu</email>
       <organization>University of South Carolina</organization>
       <roles>
-      <role>Java Developer</role>
+        <role>Java Developer</role>
       </roles>
     </developer>
     <developer>
@@ -75,11 +69,10 @@ oot:${pom.artifactId}</connection>
       <email>oliverpa@seis.sc.edu</email>
       <organization>University of South Carolina</organization>
       <roles>
-      <role>Java Developer</role>
+        <role>Java Developer</role>
       </roles>
     </developer>
-    </developers>
-
+  </developers>
   <dependencies>
     <dependency>
       <id>junit-addons</id>
@@ -127,11 +120,9 @@ oot:${pom.artifactId}</connection>
       <id>activation</id>
       <version>1.0.2</version>
     </dependency>
-
-
     <dependency>
       <id>fissuresImpl</id>
-      <version>1.1</version>
+      <version>1.1.1beta</version>
     </dependency>
     <dependency>
       <id>fissuresIDL</id>
@@ -179,21 +170,18 @@ oot:${pom.artifactId}</connection>
       <version>4.5.4</version>
       <url>openmap.bbn.com</url>
     </dependency>
-
     <dependency>
-      <id>itext</id>  
-      <version>0.99</version> 
+      <id>itext</id>
+      <version>0.99</version>
       <properties>
         <jnlp.jar>true</jnlp.jar>
       </properties>
     </dependency>
-
   </dependencies>
-
   <build>
     <nagEmailAddress>crotwell@seis.sc.edu</nagEmailAddress>
     <unitTestSourceDirectory>tests</unitTestSourceDirectory>
-    <!-- Unit test cases -->
+<!-- Unit test cases -->
     <unitTest>
       <includes>
         <include>**/*Test.java</include>
@@ -201,46 +189,44 @@ oot:${pom.artifactId}</connection>
     </unitTest>
     <sourceDirectory>src</sourceDirectory>
     <resources>
-       <resource>
-          <directory>src/edu/sc/seis/fissuresUtil/chooser</directory>
-          <targetPath>edu/sc/seis/fissuresUtil/chooser</targetPath>
-          <includes>
-             <include>ChannelChooser.properties</include>
-          </includes>
-       </resource>
-       <resource>
-          <directory>src/edu/sc/seis/fissuresUtil/data</directory>
-          <targetPath>edu/sc/seis/fissuresUtil/data</targetPath>
-          <includes>
-             <include>**</include>
-          </includes>
-       </resource>
-       <resource>
-          <directory>src/edu/sc/seis/fissuresUtil/display</directory>
-          <targetPath>edu/sc/seis/fissuresUtil/display</targetPath>
-          <includes>
-             <include>*.prop</include>
-          </includes>
-       </resource>
+      <resource>
+        <directory>src/edu/sc/seis/fissuresUtil/chooser</directory>
+        <targetPath>edu/sc/seis/fissuresUtil/chooser</targetPath>
+        <includes>
+          <include>ChannelChooser.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/edu/sc/seis/fissuresUtil/data</directory>
+        <targetPath>edu/sc/seis/fissuresUtil/data</targetPath>
+        <includes>
+          <include>**</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/edu/sc/seis/fissuresUtil/display</directory>
+        <targetPath>edu/sc/seis/fissuresUtil/display</targetPath>
+        <includes>
+          <include>*.prop</include>
+        </includes>
+      </resource>
     </resources>
   </build>
-
   <reports>
-     <report>maven-changelog-plugin</report>
-     <report>maven-changes-plugin</report>
-     <report>maven-checkstyle-plugin</report>
-     <report>maven-developer-activity-plugin</report>
-     <report>maven-file-activity-plugin</report>
-     <report>maven-javadoc-plugin</report>
-     <report>maven-jdepend-plugin</report>
-     <report>maven-junit-report-plugin</report>
-     <report>maven-jxr-plugin</report>
-     <report>maven-license-plugin</report>
+    <report>maven-changelog-plugin</report>
+    <report>maven-changes-plugin</report>
+    <report>maven-checkstyle-plugin</report>
+    <report>maven-developer-activity-plugin</report>
+    <report>maven-file-activity-plugin</report>
+    <report>maven-javadoc-plugin</report>
+    <report>maven-jdepend-plugin</report>
+    <report>maven-junit-report-plugin</report>
+    <report>maven-jxr-plugin</report>
+    <report>maven-license-plugin</report>
 <!--
      <report>maven-linkcheck-plugin</report>
 -->
-     <report>maven-pmd-plugin</report>
-     <report>maven-tasklist-plugin</report>
+    <report>maven-pmd-plugin</report>
+    <report>maven-tasklist-plugin</report>
   </reports>
 </project>
-
