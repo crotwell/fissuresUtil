@@ -44,12 +44,16 @@ import javax.swing.JComponent;
 public class DisplayUtils {
 
     public static DataSetSeismogram[] getComponents(DataSetSeismogram seismogram){
-        List componentSeismograms = new ArrayList();
+        DataSet dataSet = seismogram.getDataSet();
         RequestFilter rf = seismogram.getRequestFilter();
+        return getComponents(dataSet, rf);
+    }
+    
+    public static DataSetSeismogram[] getComponents(DataSet dataSet, RequestFilter rf){
+        List componentSeismograms = new ArrayList();
         MicroSecondDate startDate = new MicroSecondDate(rf.start_time);
         MicroSecondDate endDate = new MicroSecondDate(rf.end_time);
         ChannelId chanId = rf.channel_id;
-        DataSet dataSet = seismogram.getDataSet();
         String[] names = dataSet.getDataSetSeismogramNames();
         for (int i = 0; i < names.length; i++ ) {
             DataSetSeismogram currentSeis = dataSet.getDataSetSeismogram(names[i]);
