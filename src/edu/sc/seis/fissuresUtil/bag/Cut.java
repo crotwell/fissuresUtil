@@ -12,7 +12,7 @@ import org.apache.log4j.*;
  * Created: Tue Oct  1 21:23:44 2002
  *
  * @author Philip Crotwell
- * @version $Id: Cut.java 2932 2002-11-18 17:56:43Z crotwell $
+ * @version $Id: Cut.java 3008 2002-12-15 16:54:20Z crotwell $
  */
 
 public class Cut implements LocalSeismogramFunction {
@@ -56,30 +56,31 @@ public class Cut implements LocalSeismogramFunction {
 	}
 	logger.debug("cut is "+beginIndex+" to "+endIndex+" "+seis.getEndTime()+" "+endShift);
 
-	TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
+	LocalSeismogramImpl outSeis;
 	if (seis.can_convert_to_short()) {
 	    short[] outS = new short[endIndex-beginIndex];
 	    short[] inS = seis.get_as_shorts();
 	    System.arraycopy(inS, beginIndex, outS, 0, endIndex-beginIndex);
-	    dataSel.sht_values(outS);
+	    outSeis = new LocalSeismogramImpl(seis, outS);
 	} else if (seis.can_convert_to_long()) {
 	    int[] outI = new int[endIndex-beginIndex];
 	    int[] inI = seis.get_as_longs();
 	    System.arraycopy(inI, beginIndex, outI, 0, endIndex-beginIndex);
-	    dataSel.int_values(outI);
+	    outSeis = new LocalSeismogramImpl(seis, outI);
+	logger.debug("out num_points="+seis.num_points+" out data length="+outI.length);
 	} else if (seis.can_convert_to_float()) {
 	    float[] outF = new float[endIndex-beginIndex];
 	    float[] inF = seis.get_as_floats();
 	    System.arraycopy(inF, beginIndex, outF, 0, endIndex-beginIndex);
-	    dataSel.flt_values(outF);
+	    outSeis = new LocalSeismogramImpl(seis, outF);
 	} else {
 	    double[] outD = new double[endIndex-beginIndex];
 	    double[] inD = seis.get_as_doubles();
 	    System.arraycopy(inD, beginIndex, outD, 0, endIndex-beginIndex);
-	    dataSel.dbl_values(outD);
-	} // end of else	TimeSeriesType dataType = seis.getDataType();
+	    outSeis = new LocalSeismogramImpl(seis, outD);
+	} // end of else
 
-	return new LocalSeismogramImpl(seis, dataSel);
+	return outSeis;
     }
 
     protected MicroSecondDate begin;
