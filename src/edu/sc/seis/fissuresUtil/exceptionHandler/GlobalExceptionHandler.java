@@ -87,6 +87,19 @@ public class GlobalExceptionHandler {
         contentsList.add(contents);
     }
 
+    /** This supposedly sets a global exception handler in the awt thread only,
+     * so that uncaught exceptions
+     * can be processed/saved/viewed. Will not necessarily work for future
+     * releases (> 1.4). Perhaps it will, perhaps not.
+     * NOTE: It does not work for exceptions in other threads. Java1.5 is supposed
+     * to have a mechanism to do this.
+     */
+    public static void registerWithAWTThread() {
+        System.setProperty("sun.awt.exception.handler",
+                           "edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler");
+
+    }
+
     private static String parse(Object item) {
         if(item instanceof List)
             return createString((List)item);
@@ -133,7 +146,9 @@ public class GlobalExceptionHandler {
     private static boolean showSysInfo = true;
 
     static {
+        // always send error to log4j
         add(new Log4jReporter());
+
     }
 }
 
