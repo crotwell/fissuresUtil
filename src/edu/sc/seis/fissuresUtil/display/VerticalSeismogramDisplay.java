@@ -264,7 +264,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
         sorter = new SeismogramSorter();
         globalRegistrar = null;
         time.setText("   Time: ");
-        amp.setText("   Amplitude: ");
+        amp.setText("   Amp: ");
         if(selectionDisplay != null){
             selectionDisplay.removeAll();
             if(selectionWindow != null){
@@ -330,22 +330,22 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
             time.setText("Time: " + output.format(calendar.getTime()));
         if(newAmp < 0)
             if(Math.abs(newAmp) < 10)
-                amp.setText(" Amplitude:-000" + Math.abs(Math.round(newAmp)));
+                amp.setText(" Amp:-000" + Math.abs(Math.round(newAmp)));
             else if(Math.abs(newAmp) < 100)
-                amp.setText(" Amplitude:-00" + Math.abs(Math.round(newAmp)));
+                amp.setText(" Amp:-00" + Math.abs(Math.round(newAmp)));
             else if(Math.abs(newAmp) < 1000)
-                amp.setText(" Amplitude:-0" + Math.abs(Math.round(newAmp)));
+                amp.setText(" Amp:-0" + Math.abs(Math.round(newAmp)));
             else
-                amp.setText(" Amplitude:-" + Math.abs(Math.round(newAmp)));
+                amp.setText(" Amp:-" + Math.abs(Math.round(newAmp)));
         else
             if(Math.abs(newAmp) < 10)
-                amp.setText(" Amplitude: 000" + Math.round(newAmp));
+                amp.setText(" Amp: 000" + Math.round(newAmp));
             else if(Math.abs(newAmp) < 100)
-                amp.setText(" Amplitude: 00" + Math.round(newAmp));
+                amp.setText(" Amp: 00" + Math.round(newAmp));
             else if(Math.abs(newAmp) < 1000)
-                amp.setText(" Amplitude: 0" + Math.round(newAmp));
+                amp.setText(" Amp: 0" + Math.round(newAmp));
             else
-                amp.setText(" Amplitude: " + Math.round(newAmp));
+                amp.setText(" Amp: " + Math.round(newAmp));
     }
 
 
@@ -706,7 +706,7 @@ public abstract class VerticalSeismogramDisplay extends JComponent{
 
     public static JLabel amp = new JLabel("");
 
-    protected SimpleDateFormat output = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
+    protected SimpleDateFormat output = new SimpleDateFormat("HH:mm:ss.SSS");
 
     protected static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
