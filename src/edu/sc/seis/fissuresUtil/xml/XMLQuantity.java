@@ -24,7 +24,7 @@ public class XMLQuantity {
         element.appendChild(XMLUtil.createTextElement(doc, 
                                                       "value", 
                                                       ""+quantity.value));
-        UnitImpl unitImpl = UnitImpl.METER; // just get an instance
+        /*UnitImpl unitImpl = UnitImpl.METER; // just get an instance
         Field[] knownUnits = UnitImpl.class.getDeclaredFields();
         for (int i=0; i<knownUnits.length; i++) {
             try {
@@ -47,7 +47,10 @@ public class XMLQuantity {
                                                       "unit", 
                                                       "UNKNOWN UNIT TYPE "+quantity.the_units.toString()));
 
-        
+	*/
+	Element the_units = doc.createElement("the_units");
+	XMLUnit.insert(the_units, quantity.the_units);
+	element.appendChild(the_units);
      }
 
 }// XMLQuantity
