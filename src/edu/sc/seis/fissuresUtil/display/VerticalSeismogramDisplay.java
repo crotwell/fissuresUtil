@@ -99,11 +99,16 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     }
 
     public void removeDisplay(BasicSeismogramDisplay display){
+	if(basicDisplays.size() == 1){
+	    this.removeAll();
+	    return;
+	}
 	seismograms.remove(display);
 	basicDisplays.remove(display);
 	((SeismogramDisplay)basicDisplays.getFirst()).addTopTimeBorder();
 	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
 	seismograms.revalidate();
+	repaint();
     }
     
     

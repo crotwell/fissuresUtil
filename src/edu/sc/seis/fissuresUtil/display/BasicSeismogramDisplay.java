@@ -160,17 +160,17 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      */
     public void remove(MouseEvent me){
        logger.debug(name + " being removed");
+       this.stopImageCreation();
+       parent.removeDisplay(this);
+       timeRegistrar.removeTimeSyncListener(this);
+       ampRegistrar.removeAmpSyncListener(this); 
        Iterator e = plotters.keySet().iterator();
        while(e.hasNext()){
 	   LocalSeismogram current = ((SeismogramPlotter)e.next()).getSeismogram();
 	   timeRegistrar.removeSeismogram(current);
 	   ampRegistrar.removeSeismogram(current);
        }
-       this.stopImageCreation();
-       timeRegistrar.removeTimeSyncListener(this);
-       ampRegistrar.removeAmpSyncListener(this);
-       parent.removeDisplay(this);
-   }
+    }
 
     /**
      * Returns the amp range configurator the display is using
