@@ -64,12 +64,39 @@ public class EventUtil {
      */
     public static String getEventInfo(EventAccessOperations event,
             String format, DateFormat sdf) {
-        //Get geographic name of origin
-        ParseRegions regions = ParseRegions.getInstance();
-        String location = regions.getGeographicRegionName(event.get_attributes().region.number);
 
-        //Get Date and format it accordingly
         Origin origin = extractOrigin(event);
+
+        StringBuffer buf = new StringBuffer(format);
+        int index = buf.indexOf(LOC);
+        if (index != -1) {
+            //Get geographic name of origin
+            ParseRegions regions = ParseRegions.getInstance();
+            String location = regions.getGeographicRegionName(event.get_attributes().region.number);
+            buf.delete(index, index + LOC.length());
+            buf.insert(index, location);
+        }
+        return getOriginInfo(origin, buf.toString(), sdf);
+    }
+    
+
+    /**
+     * @ returns a string for the form "Event: Location | Time | Magnitude |
+     *   Depth"
+     */
+    public static String getOriginInfo(Origin origin) {
+        return getOriginInfo(origin, NO_ARG_STRING);
+    }
+
+    public static String getOriginInfo(Origin origin, String format) {
+        return getOriginInfo(origin, format, new SimpleDateFormat(
+                "MM/dd/yyyy HH:mm:sss z"));
+    }
+
+
+    public static String getOriginInfo(Origin origin,
+            String format, DateFormat sdf) {
+        //Get Date and format it accordingly
         MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String originTimeString = sdf.format(msd);
@@ -91,9 +118,7 @@ public class EventUtil {
             int index = buf.indexOf(magicStrings[i]);
             if (index != -1) {
                 buf.delete(index, index + magicStrings[i].length());
-                if (magicStrings[i].equals(LOC)) {
-                    buf.insert(index, location);
-                } else if (magicStrings[i].equals(TIME)) {
+                if (magicStrings[i].equals(TIME)) {
                     buf.insert(index, originTimeString);
                 } else if (magicStrings[i].equals(MAG)) {
                     if (Float.isNaN(mag)) {
