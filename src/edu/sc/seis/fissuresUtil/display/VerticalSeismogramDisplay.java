@@ -190,11 +190,14 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     public void print(){
 	PrinterJob pj = PrinterJob.getPrinterJob();
-	pj.setPrintable(new SeismogramPrinter(getDisplayArray(),1));
+	SeismogramPrinter printer = new SeismogramPrinter(getDisplayArray());
+	pj.setPrintable(printer);
 	if(pj.printDialog()){
 	    try { pj.print(); } 
 	    catch(Exception e){ e.printStackTrace(); }
 	}
+	printer.restore();
+	revalidate();
     }
     
     /**
