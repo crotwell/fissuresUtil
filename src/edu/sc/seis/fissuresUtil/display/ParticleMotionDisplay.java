@@ -41,8 +41,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				  AmpConfigRegistrar hAmpConfigRegistrar,
 				  AmpConfigRegistrar vAmpConfigRegistrar, Color color){
 
-	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	this.hAmpConfigRegistrar = new AmpConfigRegistrar(hAmpConfigRegistrar);
+	this.vAmpConfigRegistrar = new AmpConfigRegistrar(vAmpConfigRegistrar);
 	hAmpConfigRegistrar.addAmpSyncListener(this);
 	vAmpConfigRegistrar.addAmpSyncListener(this);
 

@@ -35,27 +35,20 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	this.getViewport().add(seismograms);
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar();
-    }
-    
-    public void addDisplay(LocalSeismogram seis, String name){
-	this.addDisplay((LocalSeismogramImpl)seis, name);
+	sorter = new SeismogramSorter();
     }
     
     public void addDisplay(LocalSeismogramImpl seis, String name){
-	this.addDisplay(seis, new TimeConfigRegistrar(globalTimeRegistrar), new AmpConfigRegistrar(), name);
+	this.addDisplay(seis, globalTimeRegistrar, name);
     }
     
-    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name){
-	if(names.contains(name)){
+    public BasicSeismogramDisplay addDisplay(LocalSeismogramImpl seis, TimeConfigRegistrar tr, String name){
+	if(sorter.contains(name)){
 	    return null;
 	}
 	BasicSeismogramDisplay disp = new BasicSeismogramDisplay((LocalSeismogram)seis, tr,
-								 ar, name, this);
-	int i = 0;
-	while(i < names.size() && ((String)names.get(i)).compareTo(name) < 0){
-		i++;
-	}
-	names.add(i, name);
+								 name, this);
+	int i = sorter.sort(seis);
 	seismograms.add(disp, i);
 	disp.addMouseMotionListener(motionForwarder);
 	disp.addMouseListener(mouseForwarder);
@@ -93,7 +86,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.removeAll();
 	remove(seismograms);
 	basicDisplays = new LinkedList();
-	names = new LinkedList();
+	sorter = new SeismogramSorter();
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar();
 	repaint();
@@ -150,8 +143,6 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 		this.amp.setText("   Amplitude: " + Math.round(amp));
     }
     
-   
-    
     public void removeAllDisplays(){
 	this.removeAll();
 	this.time.setText("   Time: ");
@@ -179,8 +170,18 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	while(e.hasNext())
 	    ((BasicSeismogramDisplay)e.next()).getAmpRegistrar().setRegistrar(globalAmpRegistrar);
     }
+    
+    public void createParticleDisplay(BasicSeismogramDisplay creator){
+	if(particleDisplay == null){
+	    particleDisplay = new ParticleMotionDisplay(creator.getSeismogram(), creator.getSeismogram(), 
+							creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
+							creator.getAmpRegistrar(), Color.blue);
+	}
+    }
 	
     
+    protected SeismogramSorter sorter;
+
     protected TimeConfigRegistrar globalTimeRegistrar;
 
     protected AmpConfigRegistrar globalAmpRegistrar;
