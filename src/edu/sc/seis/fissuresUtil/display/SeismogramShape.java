@@ -1,19 +1,16 @@
 package edu.sc.seis.fissuresUtil.display;
+import java.awt.geom.*;
+
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.JComponent;
 import org.apache.log4j.Category;
 
@@ -24,7 +21,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3510 2003-03-19 20:38:22Z groves $
+ * @version $Id: SeismogramShape.java 3645 2003-04-07 19:04:20Z groves $
  */
 
 public class SeismogramShape implements Shape, SeisDataChangeListener{
@@ -159,6 +156,7 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
         for ( int i=0; i<sdce.getSeismograms().length; i++) {
             tmp[seis.length+i] = sdce.getSeismograms()[i];
             tmpStat[seis.length+i] = new Statistics(tmp[seis.length+i]);
+            noData = false;
         } // end of for ()
         seis = tmp;
         stat = tmpStat;
@@ -169,12 +167,56 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
 
     public void finished(SeisDataChangeEvent sdce) {
         pushData(sdce);
+        finished = true;
+    }
+
+    public String getDataStatus(){
+        if(noData && finished){
+            return NO_DATA;
+        }else if(noData){
+            return GETTING_DATA;
+        }else{
+            return EMPTY;
+        }
     }
 
     private void plotPixels(int start, int end, SeismogramShapeIterator iterator){
         if(start >= end || start < 0){
             return;
         }
+        /*  if(iterator.getPointsPerPixel() <= 1){
+         plotExpansion(start, end, iterator);
+         }else{*/
+        plotCompression(start, end, iterator);
+        //}
+    }
+
+    private void plotExpansion(int start, int end, SeismogramShapeIterator iterator){
+        /*  int[][] points = iterator.getPoints();
+         double pointsPerPixel = iterator.getPointsPerPixel();
+         double minAmp = iterator.getAmp().getMinValue();
+         double maxAmp = iterator.getAmp().getMaxValue();
+         double range = maxAmp - minAmp;
+         int height = iterator.getSize().height;
+         int totalShift = iterator.getTotalShift();
+         for(int i = start; i < end; i++){
+         double shift = (i-totalShift)*pointsPerPixel;
+         double unroundStartPoint = iterator.getBaseSeisPoint() + shift;
+         int startPoint = (int)Math.floor(unroundStartPoint);
+         int endPoint = startPoint + 1;
+         double firstPoint, lastPoint;
+         try{
+         firstPoint = seis[0].getValueAt(startPoint).getValue();
+         lastPoint = seis[0].getValueAt(endPoint).getValue();
+         }catch(CodecException e){
+         logger.debug("Error getting a point from a local seismogram");
+         e.printStackTrace();
+         }
+         double
+         }*/
+    }
+
+    private void plotCompression(int start, int end, SeismogramShapeIterator iterator){
         int[][] points = iterator.getPoints();
         double pointsPerPixel = iterator.getPointsPerPixel();
         double minAmp = iterator.getAmp().getMinValue();
@@ -300,6 +342,16 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
     public Rectangle2D getBounds2D(){ return null; }
 
     public DataSetSeismogram getSeismogram() { return dss; }
+
+    private boolean finished = false;
+
+    private boolean noData = true;
+
+    private static final String NO_DATA = "No data available";
+
+    private static final String GETTING_DATA = "Trying to get data";
+
+    private static final String EMPTY = "";
 
     private JComponent parent;
 
