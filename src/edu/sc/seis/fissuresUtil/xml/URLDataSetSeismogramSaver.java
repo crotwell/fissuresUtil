@@ -7,6 +7,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import java.io.File;
@@ -23,7 +24,9 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
         urlDSS = new URLDataSetSeismogram(new URL[0],
                                           SeismogramFileTypes.SAC,
                                           inDSS.getDataSet(),
-                                          inDSS.getName());
+                                          inDSS.getName(),
+                                          inDSS.getRequestFilter());
+        logger.debug("req filter chanid="+ChannelIdUtil.toString(urlDSS.getRequestFilter().channel_id));
         dss.retrieveData(this);
         Iterator it = inDSS.getAuxillaryDataKeys().iterator();
         while(it.hasNext()) {
@@ -51,17 +54,32 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
     }
 
     public void error(SeisDataErrorEvent sdce) {
+        if (sdce.getInitiator() != this) {
+            // must not have been initiated by us, wait for "real" notifiy
+            // from our request
+            return;
+        }
         logger.debug("Got error "+sdce.getCausalException());
         setError(sdce.getCausalException());
     }
 
     public void finished(SeisDataChangeEvent sdce) {
+        if (sdce.getInitiator() != this) {
+            // must not have been initiated by us, wait for "real" notifiy
+            // from our request
+            return;
+        }
         logger.debug("Got finished");
         finished = true;
     }
 
     public void pushData(SeisDataChangeEvent sdce) {
-        logger.debug("Got pushData");
+        if (sdce.getInitiator() != this) {
+            // must not have been initiated by us, wait for "real" notifiy
+            // from our request
+            return;
+        }
+        logger.debug("Got pushData for "+sdce.getSource().getName());
         LocalSeismogramImpl[] seis = sdce.getSeismograms();
 
         for (int i = 0; i < seis.length; i++) {
