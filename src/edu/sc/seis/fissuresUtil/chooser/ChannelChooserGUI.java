@@ -595,6 +595,9 @@ public class ChannelChooserGUI extends JPanel{
 	
     }
 	
+    public ChannelChooser getChannelChooser() {
+	return mychannelchooser;
+    }
 
 
    /*================Class Variables===============*/
