@@ -18,7 +18,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 1876 2002-06-14 14:10:14Z crotwell $
+ * @version $Id: XMLDataSet.java 1919 2002-06-20 15:38:35Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -460,7 +460,7 @@ public class XMLDataSet implements DataSet, Serializable {
                                 new Property(xpath.eval(propElement, "name/text()").str(),
                                              xpath.eval(propElement, "value/text()").str());
                         } // end of for
-                        newProps[newProps.length-1] = new Property("name",
+                        newProps[newProps.length-1] = new Property(seisNameKey,
                                                                    name);
                         seis.setProperties(newProps);
                     }
@@ -498,7 +498,7 @@ public class XMLDataSet implements DataSet, Serializable {
         Document doc = config.getOwnerDocument();
         Element sac = doc.createElement("SacSeismogram");
 
-        String name =seis.getProperty("name");
+        String name =seis.getProperty(seisNameKey);
         if (name == null || name.length() == 0) {
 	    name = edu.iris.Fissures.network.ChannelIdUtil.toStringNoDates(seis.channel_id);
 	}
@@ -509,7 +509,7 @@ public class XMLDataSet implements DataSet, Serializable {
         Property[] props = seis.getProperties();
         Element propE, propNameE, propValueE;
         for (int i=0; i<props.length; i++) {
-            if (props[i].name != "name") {
+            if (props[i].name != seisNameKey) {
                 propE = doc.createElement("property");
                 propNameE = doc.createElement("name");
                 propNameE.setNodeValue(props[i].name);
@@ -564,7 +564,7 @@ xpath = new CachedXPathAPI();
 
         Element propE, propNameE, propValueE;
         for (int i=0; i<props.length; i++) {
-            if (props[i].name != "name") {
+            if (props[i].name != seisNameKey) {
                 propE = doc.createElement("property");
                 propNameE = doc.createElement("name");
                 text = doc.createTextNode(props[i].name);
@@ -733,6 +733,7 @@ xpath = new CachedXPathAPI();
 
     private static final String dquote = ""+'"';
     private static final String xlinkNS = "http://www.w3.org/1999/xlink";
+    private static final String seisNameKey = "Name";
 
     static Category logger = 
         Category.getInstance(XMLDataSet.class.getName());
