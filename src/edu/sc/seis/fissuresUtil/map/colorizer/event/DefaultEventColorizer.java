@@ -5,9 +5,9 @@
  */
 
 package edu.sc.seis.fissuresUtil.map.colorizer.event;
-import com.bbn.openmap.omGraphics.OMGraphicList;
-import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import java.awt.Color;
+import java.awt.Paint;
 
 
 
@@ -19,8 +19,12 @@ public class DefaultEventColorizer implements EventColorizer{
 	 *	@param eventList can be null
 	 *  @param event cannot be null
 	 */
-	public void colorize(OMGraphicList eventList, OMEvent event) {
-		event.setPaint(DEFAULT_EVENT);
+	public Paint[] colorize(EventAccessOperations[] events) {
+		Paint[] paints = new Color[events.length];
+		for (int i = 0; i < events.length; i++) {
+			paints[i] = DEFAULT_EVENT;
+		}
+		return paints;
 	}
 }
 

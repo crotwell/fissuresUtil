@@ -6,9 +6,9 @@
 
 package edu.sc.seis.fissuresUtil.map.colorizer.event;
 
-import com.bbn.openmap.omGraphics.OMGraphicList;
-import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import java.awt.Color;
+import java.awt.Paint;
 
 public class FreshnessEventColorizer implements EventColorizer{
 	
@@ -20,21 +20,20 @@ public class FreshnessEventColorizer implements EventColorizer{
 	 *	@param eventList can not be null
 	 *  @param event can be null
 	 */
-	public void colorize(OMGraphicList eventList, OMEvent event) {
-		synchronized(eventList){
-			for (int i = 0; i < eventList.size(); i++) {
-				OMEvent ome = (OMEvent)eventList.getOMGraphicAt(i);
-				if (i == eventList.size() - 11){
-					ome.setPaint(REALLY_OLD_EVENT);
-				}
-				else if (i == eventList.size() - 6){
-					ome.setPaint(OLD_EVENT);
-				}
-				else if (i == eventList.size() - 1){
-					ome.setPaint(FRESH_EVENT);
-				}
+	public Paint[] colorize(EventAccessOperations[] events) {
+		Paint[] paints = new Color[events.length];
+		for (int i = 0; i < events.length; i++) {
+			if (i <= events.length - 11){
+				paints[i] = REALLY_OLD_EVENT;
+			}
+			else if (i <= events.length - 6){
+				paints[i] = OLD_EVENT;
+			}
+			else if (i <= events.length - 1){
+				paints[i] = FRESH_EVENT;
 			}
 		}
+		return paints;
 	}
 	
 }

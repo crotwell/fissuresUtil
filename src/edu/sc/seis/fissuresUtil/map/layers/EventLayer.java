@@ -14,7 +14,7 @@ import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
 import edu.sc.seis.fissuresUtil.display.EventDataListener;
 import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
-import edu.sc.seis.fissuresUtil.map.colorizer.event.DefaultEventColorizer;
+import edu.sc.seis.fissuresUtil.map.OMUtil;
 import edu.sc.seis.fissuresUtil.map.colorizer.event.EventColorizer;
 import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
 import java.awt.Point;
@@ -84,7 +84,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 					if(cur.getEvent().equals(event)) return;
 				}
 				circles.add(omEvent);
-				colorizer.colorize(circles, omEvent);
+				OMUtil.setEventColors(circles, colorizer);
 			}
 			repaint();
 		}catch(NoPreferredOrigin e){
