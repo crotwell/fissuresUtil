@@ -21,23 +21,27 @@ public class XMLFlinnEngdahlRegion {
 
     public static void insert(Element element, FlinnEngdahlRegion region){
 	Document doc = element.getOwnerDocument();
-	if (region.type.equals(FlinnEngdahlType.SEISMIC_REGION)) {
-	    //System.out.println("SEISMOGRAHPHIC");      
+    if (region == null) {
 	    element.appendChild(XMLUtil.createTextElement(doc, 
-							  "type", 
-							  "SEISMIC_REGION"));
-	} else {
-	    //System.out.println("GEOGRAPHIC");
-	    element.appendChild(XMLUtil.createTextElement(doc, 
-							  "type", 
-							 "GEOGRAPHIC_REGION"));
-	} // end of else
-	//System.out.println("Insert the region number");
+                                                      "type", 
+                                                      "SEISMIC_REGION"));
+        element.appendChild(XMLUtil.createTextElement(doc, 
+                                                      "number", 
+                                                      ""+0));
+    } else {
+        if (region.type.equals(FlinnEngdahlType.SEISMIC_REGION)) {
+            element.appendChild(XMLUtil.createTextElement(doc, 
+                                                          "type", 
+                                                          "SEISMIC_REGION"));
+        } else {
+            element.appendChild(XMLUtil.createTextElement(doc, 
+                                                          "type", 
+                                                          "GEOGRAPHIC_REGION"));
+        }
         element.appendChild(XMLUtil.createTextElement(doc, 
                                                       "number", 
                                                       ""+region.number));
-	
-	
+    } // end of else
  }
 
  public static FlinnEngdahlRegion getRegion(Element base) {
