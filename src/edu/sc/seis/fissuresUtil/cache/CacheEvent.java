@@ -226,8 +226,8 @@ public class CacheEvent implements EventAccessOperations {
     }
 
     public boolean equals(Object o){
-        if (getEventAccess() != null) {
-            return getEventAccess().equals(o);
+        if (getEventAccess() != null && o instanceof CacheEvent && ((CacheEvent)o).getEventAccess() != null) {
+            return getEventAccess().equals(((CacheEvent)o).getEventAccess());
         }
 
         // must be local only event (ie no corba)
@@ -241,11 +241,6 @@ public class CacheEvent implements EventAccessOperations {
     }
 
     public int hashCode(){
-        if (getEventAccess() != null) {
-            return getEventAccess().hashCode();
-        }
-
-        // must be local only event (ie no corba)
         int result = 52;
         result = 48*result + hashOrigins();
         //result = 48*result + event.get_attributes().hashCode();
@@ -280,11 +275,16 @@ public class CacheEvent implements EventAccessOperations {
     }
 
     private boolean equalOrigin(EventAccessOperations oEvent) {
-        Origin oOrigin = oEvent.get_origins()[0];
+        Origin oOrigin = null;
         Origin thisOrigin = getOrigin();
         try{
             oOrigin = oEvent.get_preferred_origin();
-        }catch(NoPreferredOrigin e){}
+        }catch(NoPreferredOrigin e){
+            Origin[] oArray = oEvent.get_origins();
+            if (oArray.length> 0) {
+                oOrigin = oArray[0];
+            }
+        }
         if(!equals(oOrigin.my_location, thisOrigin.my_location)||
            !oOrigin.catalog.equals(thisOrigin.catalog) ||
            !oOrigin.contributor.equals(thisOrigin.contributor) ||
@@ -295,10 +295,15 @@ public class CacheEvent implements EventAccessOperations {
     }
 
     private Origin getOrigin(){
-        Origin thisOrigin = get_origins()[0];
+        Origin thisOrigin = null;
         try{
             thisOrigin = get_preferred_origin();
-        }catch(NoPreferredOrigin e){}
+        }catch(NoPreferredOrigin e){
+            Origin[] oArray = get_origins();
+            if (oArray.length> 0) {
+                thisOrigin = oArray[0];
+            }
+        }
         return thisOrigin;
     }
 
