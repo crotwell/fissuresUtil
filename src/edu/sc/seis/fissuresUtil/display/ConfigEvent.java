@@ -1,8 +1,4 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import java.util.List;
-import java.util.ArrayList;
-import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 

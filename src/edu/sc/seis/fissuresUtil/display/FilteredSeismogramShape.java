@@ -1,30 +1,11 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
-import edu.sc.seis.fissuresUtil.freq.Cmplx;
-import edu.sc.seis.fissuresUtil.freq.SeisGramText;
+import edu.sc.seis.fissuresUtil.freq.*;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.Dimension;
-import org.apache.log4j.*;
-import java.util.Date;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Point2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.PathIterator;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import org.apache.log4j.Category;
 
 /**
  * FilteredSeismogramShape.java

@@ -1,38 +1,22 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.network.*;
+
+import com.sun.media.jai.codec.PNGEncodeParam;
 import edu.iris.Fissures.Plottable;
-import edu.iris.Fissures.IfPlottable.*;
-//import edu.iris.Fissures.display.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.utility.*;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import java.io.*;
-import java.util.*;
-import javax.swing.*;
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.*;
-import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.*;
-import java.awt.image.*;
-import java.awt.Frame;
-import java.awt.image.renderable.ParameterBlock;
-import java.io.IOException;
-import java.io.*;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
-import com.sun.media.jai.codec.FileSeekableStream;
-import javax.media.jai.widget.ScrollingImagePanel;
-import javax.media.jai.PlanarImage;
-import com.sun.media.jai.codec.*;
+import edu.iris.Fissures.utility.Logger;
 import java.awt.geom.GeneralPath;
-import java.awt.Shape;
+import java.awt.image.renderable.ParameterBlock;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 
 /**
  * PlottableDisplay.java

@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.utility.*;
-import edu.iris.Fissures.model.*;
+import edu.iris.Fissures.model.UnitRangeImpl;
 import java.text.DecimalFormat;
 
 /**

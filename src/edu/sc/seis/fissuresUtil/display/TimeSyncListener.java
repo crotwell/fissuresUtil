@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.util.EventListener;
-import edu.iris.Fissures.model.*;
 
 /**
  * TimeSyncListener is an interface for objects that would like to be made aware

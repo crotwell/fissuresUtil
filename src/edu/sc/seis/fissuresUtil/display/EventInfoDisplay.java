@@ -1,19 +1,30 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.IfEvent.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.model.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import java.text.*;
-
-import java.awt.*;              //for layout managers
-import java.awt.event.*;        //for action and window events
-
-//drag and drop
-import java.awt.dnd.*;
-import java.awt.datatransfer.*;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.EventAttr;
+import edu.iris.Fissures.IfEvent.Magnitude;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.model.ISOTime;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.UnitImpl;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTargetContext;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetListener;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.TimeZone;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 /**
  * EventInfoDisplay.java
@@ -22,7 +33,7 @@ import java.awt.datatransfer.*;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 3348 2003-02-27 15:10:00Z crotwell $
+ * @version $Id: EventInfoDisplay.java 3361 2003-03-03 20:18:06Z groves $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay 

@@ -1,22 +1,16 @@
 package edu.sc.seis.fissuresUtil.display;
-
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.iris.Fissures.model.MicroSecondDate;  
-import edu.iris.Fissures.model.ISOTime;  
-import edu.iris.Fissures.network.ChannelIdUtil;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.TimeZone;
 import javax.swing.text.Document;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import java.text.*;
-
-import java.awt.*;              //for layout managers
-import java.awt.event.*;        //for action and window events
-
-//drag and drop
-import java.awt.dnd.*;
-import java.awt.datatransfer.*;
 
 /**
  * SeismogramInfoDisplay.java

@@ -1,7 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
 
 
-import java.awt.event.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.event.EventListenerList;
 /**
  * MouseForwarder.java

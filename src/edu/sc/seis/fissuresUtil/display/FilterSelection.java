@@ -2,11 +2,13 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.freq.SeisGramText;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Insets;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.LinkedList;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
 
 /**
  * FilterSelection.java

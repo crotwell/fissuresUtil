@@ -1,8 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
-
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-
 import java.awt.Color;
 
 /**

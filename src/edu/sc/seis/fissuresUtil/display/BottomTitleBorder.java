@@ -1,9 +1,11 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.geom.*;
+import java.awt.Component;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.geom.AffineTransform;
 
 /**
  * BottomTitleBorder.java

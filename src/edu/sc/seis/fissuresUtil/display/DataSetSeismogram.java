@@ -1,9 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.xml.*;
+import edu.iris.Fissures.Location;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.TauP.SphericalCoords;
-import edu.iris.Fissures.Location;
+import edu.sc.seis.fissuresUtil.xml.DataSet;
+import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.util.Date;
 
 /**

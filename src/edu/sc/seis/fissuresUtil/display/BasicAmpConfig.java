@@ -1,19 +1,16 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.Fissures.seismogramDC.UnsupportedDataEncoding;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 import edu.sc.seis.fissuresUtil.database.SeisDataChangeEvent;
-import java.util.Map;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import org.apache.log4j.*;
+import java.util.Map;
+import org.apache.log4j.Category;
 
 /**
  * BasicAmpConfig.java

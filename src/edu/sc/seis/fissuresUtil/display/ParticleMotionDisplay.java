@@ -1,23 +1,28 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import edu.sc.seis.TauP.*;
-import edu.sc.seis.fissuresUtil.chooser.*;
-import edu.sc.seis.fissuresUtil.namingService.*;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.IfEvent.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.network.*;
-
-import java.util.ArrayList;
 import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
 
-import org.apache.log4j.*;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.IfSeismogramDC.DataCenter;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.TauP.SphericalCoords;
+import edu.sc.seis.fissuresUtil.chooser.SeisTimeFilterSelector;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import org.apache.log4j.Category;
 
 
 /**

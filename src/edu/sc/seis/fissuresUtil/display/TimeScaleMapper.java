@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.model.*;
+import edu.iris.Fissures.model.MicroSecondDate;
 
 /**
  * Abstract superclass of scale mappers that are for time scales.

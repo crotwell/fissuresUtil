@@ -1,20 +1,16 @@
 package edu.sc.seis.fissuresUtil.display;
-
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.LinkedList;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Dimension;
-import java.awt.geom.*;
-import org.apache.log4j.*;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import org.apache.log4j.Category;
 
 
 /**

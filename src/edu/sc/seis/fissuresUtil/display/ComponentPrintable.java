@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.*;
-import java.awt.print.*;
-
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
 import javax.swing.JComponent;
 
 /**

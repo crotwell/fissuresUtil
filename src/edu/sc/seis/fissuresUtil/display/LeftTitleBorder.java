@@ -1,11 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.geom.*;
 import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
+
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.network.*;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import java.awt.geom.AffineTransform;
 
 /**
  * LeftTitleBorder.java

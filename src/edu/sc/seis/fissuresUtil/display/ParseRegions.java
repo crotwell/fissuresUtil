@@ -1,9 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.io.*;
-import java.util.*;
-import java.lang.*;
-import edu.iris.Fissures.*;
+import edu.iris.Fissures.FlinnEngdahlRegion;
+import edu.iris.Fissures.FlinnEngdahlType;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * ParseRegions.java

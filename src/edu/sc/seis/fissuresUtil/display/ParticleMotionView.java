@@ -1,17 +1,16 @@
 package edu.sc.seis.fissuresUtil.display;
-
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.*;
 
-import java.awt.geom.*;
-import java.awt.event.*;
-import java.util.*;
 import edu.iris.Fissures.model.*;
-import org.apache.log4j.*;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import java.awt.event.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
+import java.util.*;
+import javax.swing.JComponent;
+import org.apache.log4j.Category;
 
 /**
  * ParticleMotionView.java
