@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
-import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
@@ -14,10 +13,11 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  */
 public class TableSetup {
 
+    
     public static void setup(String tableName,
                              Connection conn,
                              Object tableObj,
-                             String propFile) throws Exception {
+                             String propFile) throws SQLException {
         setup(tableName, conn, tableObj, propFile, new VelocityContext());
     }
 
@@ -25,8 +25,8 @@ public class TableSetup {
                              Connection conn,
                              Object tableObj,
                              String propFile,
-                             Context ctx) throws Exception {
-        ctx.put("tablename", tableName);
+                             Context ctx) throws SQLException {
+        ctx.put(TABLE_NAME, tableName);
         SQLLoader sql = new SQLLoader(propFile, ctx);
         TableSetup.customSetup(tableName, conn, tableObj, sql);
     }
@@ -35,6 +35,9 @@ public class TableSetup {
                                    Connection conn,
                                    Object tableObj,
                                    SQLLoader statements) throws SQLException {
+        if ( ! statements.getContext().containsKey(TABLE_NAME)) {
+            statements.getContext().put(TABLE_NAME, tablename);
+        }
         createTable(tablename, conn, statements);
         prepareStatements(tablename, conn, tableObj, statements);
     }
@@ -44,7 +47,8 @@ public class TableSetup {
                                     SQLLoader statements) throws SQLException {
         if(!DBUtil.tableExists(tablename, conn)) {
             String creationStmt = statements.get(tablename + ".create");
-            if(creationStmt == null) { throw new IllegalArgumentException("creation Statement, cannot be null."); }
+            if(creationStmt == null) { 
+                throw new IllegalArgumentException("creation Statement, cannot be null: "+tablename+".create"); }
             try {
                 conn.createStatement().executeUpdate(creationStmt);
             } catch(SQLException e) {
@@ -82,7 +86,7 @@ public class TableSetup {
      * statement is available in statements of the form tablename.fieldname a
      * prepared statement is created for it and assigned to the field
      */
-    public static void prepareStatements(String tableName,
+    private static void prepareStatements(String tableName,
                                          Connection conn,
                                          Object tableObj,
                                          SQLLoader statements)
@@ -107,5 +111,7 @@ public class TableSetup {
         }
     }
 
+    public static final String TABLE_NAME = "tablename";
+    
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TableSetup.class);
 }
