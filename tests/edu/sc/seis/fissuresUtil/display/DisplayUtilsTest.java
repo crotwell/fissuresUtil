@@ -17,25 +17,25 @@ public class DisplayUtilsTest extends TestCase{
     }
 
     public void testSortByDateSorted(){
-        LocalSeismogramImpl[] seisArray = createSortedThreeSeisArray();
+        LocalSeismogramImpl[] seisArray = createThreeSeisArray();
         ArrayAssert.assertEquals(seisArray, DisplayUtils.sortByDate(seisArray));
     }
 
     public void testSortByDateUnsorted(){
-        LocalSeismogramImpl[] originalSeis = createSortedThreeSeisArray();
+        LocalSeismogramImpl[] originalSeis = createThreeSeisArray();
         LocalSeismogramImpl[] unsortedSeis = createUnsortedThreeSeisArray(originalSeis);
         LocalSeismogramImpl[] sortedSeis = DisplayUtils.sortByDate(unsortedSeis);
         ArrayAssert.assertEquals(originalSeis, sortedSeis);
     }
 
     public void testGetFullTimeRange(){
-        LocalSeismogramImpl[] seis = createSortedThreeSeisArray();
+        LocalSeismogramImpl[] seis = createThreeSeisArray();
         MicroSecondTimeRange fullTime = new MicroSecondTimeRange(new MicroSecondDate(0),
                                                                  new MicroSecondDate(seis[2].getEndTime()));
         assertEquals(fullTime,DisplayUtils.getFullTime(createUnsortedThreeSeisArray(seis)));
     }
 
-    private LocalSeismogramImpl[] createSortedThreeSeisArray(){
+    public static LocalSeismogramImpl[] createThreeSeisArray(){
         LocalSeismogramImpl firstSeis = SimplePlotUtil.createSpike(new MicroSecondDate(0));
         LocalSeismogramImpl secondSeis = SimplePlotUtil.createSpike(new MicroSecondDate(5000));
         LocalSeismogramImpl thirdSeis = SimplePlotUtil.createSpike(new MicroSecondDate(100000));
@@ -44,7 +44,7 @@ public class DisplayUtilsTest extends TestCase{
     }
 
     private LocalSeismogramImpl[] createUnsortedThreeSeisArray(){
-        return createUnsortedThreeSeisArray(createSortedThreeSeisArray());
+        return createUnsortedThreeSeisArray(createThreeSeisArray());
     }
 
     private LocalSeismogramImpl[] createUnsortedThreeSeisArray(LocalSeismogramImpl[] seis){
