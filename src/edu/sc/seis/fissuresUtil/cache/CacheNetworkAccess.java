@@ -88,6 +88,8 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
      * of the same objects.
      */
     public static void clean(Channel[] chans) {
+        // check for zero length, in case site has no channels
+        if (chans.length == 0) { return; }
         ArrayList knownSites = new ArrayList();
         knownSites.add(chans[0].my_site);
         for(int i = 0; i < chans.length; i++) {
@@ -136,6 +138,8 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
      * of the same objects.
      */
     public static void clean(Site[] sites) {
+        // check for zero length, can happen if a station has no sites
+        if (sites.length == 0) { return; }
         ArrayList knownStations = new ArrayList();
         knownStations.add(sites[0].my_station);
         for(int i = 0; i < sites.length; i++) {
@@ -163,6 +167,8 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
      * identical copies of the same objects.
      */
     public static void clean(Station[] stations) {
+        // check for zero length, can happen if a networkAccess has no stations
+        if (stations.length == 0) { return; }
         ArrayList knownNets = new ArrayList();
         knownNets.add(stations[0].my_network);
         for(int i = 0; i < stations.length; i++) {
