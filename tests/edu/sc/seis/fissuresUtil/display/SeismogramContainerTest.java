@@ -41,18 +41,21 @@ public class SeismogramContainerTest extends TestCase{
         LocalSeismogramImpl[] nowContains = container.getSeismograms();
         assertEquals("must be exactly 6 seismograms", 6, nowContains.length);
         for (int i = 0; i < nowContains.length; i++){
+            System.out.println("nowContains "+i+" "+nowContains[i]);
             boolean found = false;
-            for (int j = 0; j < alreadyContained.length && !found; j++) {
+            for (int j = 0; j < alreadyContained.length; j++) {
                 if(nowContains[i] == alreadyContained[j]){
                     found = true;
+                    break;
                 }
             }
-            for (int j = 0; j < otherSeis.length && !found; j++) {
+            for (int j = 0; j < otherSeis.length; j++) {
                 if(nowContains[i] == otherSeis[j]){
                     found = true;
+                    break;
                 }
             }
-            assertTrue(found);
+            assertTrue("Found an extra seismogram", found);
         }
     }
 
