@@ -78,6 +78,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
         revalidate();
     }
 
+    public void setDistBorder(DistanceBorder distanceBorder) {
+        if(this.distBorder != null) {
+            this.remove(distBorder);
+        }
+        this.distBorder = distanceBorder;
+        add(distBorder, CENTER_LEFT);
+    }
+
     public void add(Drawable drawable) {
         if(!drawables.contains(drawable)) {
             drawables.add(drawable);
