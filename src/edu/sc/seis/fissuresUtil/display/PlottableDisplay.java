@@ -7,6 +7,7 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.utility.Logger;
+import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.drawable.EventFlag;
 import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
 import java.awt.event.MouseAdapter;
@@ -16,6 +17,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -55,7 +57,10 @@ public  class PlottableDisplay extends JComponent {
                         while(it.hasNext()){
                             EventFlag cur = (EventFlag)it.next();
                             if(cur.getTitleLoc().contains(e.getX(), e.getY())){
-                                tempSelection.setXY(cur.getX(), cur.getY(), 50);
+                                int eventWidth = cur.getEventWidth();
+                                tempSelection.setXY(cur.getEventX() + eventWidth/2,
+                                                    cur.getEventY(),
+                                                    eventWidth + 50);
                                 repaint();
                                 return;
                             }
@@ -139,9 +144,10 @@ public  class PlottableDisplay extends JComponent {
                              String orientationName,
                              Date date,
                              ChannelId channelId,
-                             EventAccessOperations[] events) {
+                             EventAccessOperations[] events,
+                            Arrival[][] arrivals) {
         eventPlotterList = new LinkedList();
-        addEventPlotterInfo(events);
+        addEventPlotterInfo(events, arrivals);
         setPlottable(clientPlott, nameofstation, orientationName, date, channelId);
     }
 
@@ -438,7 +444,7 @@ public  class PlottableDisplay extends JComponent {
         Iterator iterator = eventPlotterList.iterator();
         while(iterator.hasNext()) {
             EventFlag plotter = (EventFlag) iterator.next();
-            plotter.drawEvents(g);
+            plotter.draw(g);
         }
     }
 
@@ -447,21 +453,23 @@ public  class PlottableDisplay extends JComponent {
         return null;
     }
 
-    public EventAccessOperations getSelectedEvent(){
+    public EventAccessOperations[] getSelectedEvents(){
         int[][] selectedArea = selection.getSelectedArea();
         Iterator it = eventPlotterList.iterator();
+        java.util.List selectedEvents = new ArrayList();
         while(it.hasNext()){
             EventFlag cur = (EventFlag)it.next();
             if(cur.isSelected(selectedArea)){
-                return cur.getEvent();
+                selectedEvents.add(cur.getEvent());
             }
         }
-        return null;
+        EventAccessOperations[] eventArray = new EventAccessOperations[selectedEvents.size()];
+        return (EventAccessOperations[])selectedEvents.toArray(eventArray);
     }
 
-    public void addEventPlotterInfo(EventAccessOperations[] eventAccessArray) {
-        for(int counter = 0; counter < eventAccessArray.length; counter++) {
-            eventPlotterList.add(new EventFlag(this, eventAccessArray[counter]));
+    public void addEventPlotterInfo(EventAccessOperations[] eventAccessArray, Arrival[][] arrivals) {
+        for(int i = 0; i < eventAccessArray.length; i++) {
+            eventPlotterList.add(new EventFlag(this, eventAccessArray[i], arrivals[i]));
         }
     }
 
