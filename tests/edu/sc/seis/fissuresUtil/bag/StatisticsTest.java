@@ -21,17 +21,10 @@ extends TestCase
 {
   // JUnitDoclet begin class
   edu.sc.seis.fissuresUtil.bag.Statistics[] stat = null;
+
     int size = 4;
-  // JUnitDoclet end class
-  
-  public StatisticsTest(String name) {
-    // JUnitDoclet begin method StatisticsTest
-    super(name);
-    // JUnitDoclet end method StatisticsTest
-  }
-  
-  public edu.sc.seis.fissuresUtil.bag.Statistics[] createInstance() throws Exception {
-    // JUnitDoclet begin method testcase.createInstance
+
+    public edu.sc.seis.fissuresUtil.bag.Statistics[] createInstanceArray() throws Exception {
       short size = 4;
       int[] intTestData = new int[size];
       short[] shortTestData = new short[size];
@@ -49,13 +42,20 @@ extends TestCase
       out[2] = new Statistics(floatTestData);
       out[3] = new Statistics(doubleTestData);
       return out;
-    // JUnitDoclet end method testcase.createInstance
+  }
+  
+  // JUnitDoclet end class
+  
+  public StatisticsTest(String name) {
+    // JUnitDoclet begin method StatisticsTest
+    super(name);
+    // JUnitDoclet end method StatisticsTest
   }
   
   protected void setUp() throws Exception {
     // JUnitDoclet begin method testcase.setUp
     super.setUp();
-    stat = createInstance();
+    stat = createInstanceArray();
     // JUnitDoclet end method testcase.setUp
   }
   
