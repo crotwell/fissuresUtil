@@ -13,58 +13,58 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.BulletproofVestFactory;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 
+public class SimpleSeismogramClient implements TestingClient {
 
-
-public class SimpleSeismogramClient implements TestingClient{
-    public SimpleSeismogramClient(){
+    public SimpleSeismogramClient() {
         String serverDNS;
         String serverName;
-
         // iris
-        serverDNS="edu/iris/dmc";
-        serverName = "IRIS_BudDataCenter";
+        serverDNS = "edu/iris/dmc";
+        //serverName = "IRIS_BudDataCenter";
         // or
         //serverName = "IRIS_PondDataCenter";
         // or
-        //serverName = "IRIS_ArchiveDataCenter";
-
+        serverName = "IRIS_ArchiveDataCenter";
         // Berkeley
         //serverDNS="edu/berkeley/geo/quake";
         //serverName = "NCEDC_DataCenter";
-
         // South Carolina (SCEPP)
         //serverDNS="edu/sc/seis";
-        //serverName=""; <-- fix name later
+        //serverName="SCEPPSeismogramDC";
         try {
-            /* This step is not required, but sometimes helps to determine if
-             *  a server is down. if this call succedes but the next fails, then
-             *  the nameing service is up and functional, but the network server
-             *  is not reachable for some reason.
+            /*
+             * This step is not required, but sometimes helps to determine if a
+             * server is down. if this call succedes but the next fails, then
+             * the nameing service is up and functional, but the network server
+             * is not reachable for some reason.
              */
             Initializer.getNS().getSeismogramDCObject(serverDNS, serverName);
             logger.info("Got SeisDC as corba object, the name service is ok");
-
-            /* This connects to the actual server, as opposed to just getting
-             *  the reference to it. The naming convention is that the first
-             *  part is the reversed DNS of the organization and the second part
-             *  is the individual server name. The dmc lists their servers under
-             *  the edu/iris/dmc and their main network server is IRIS_EventDC.
+            /*
+             * This connects to the actual server, as opposed to just getting
+             * the reference to it. The naming convention is that the first part
+             * is the reversed DNS of the organization and the second part is
+             * the individual server name. The dmc lists their servers under the
+             * edu/iris/dmc and their main network server is IRIS_EventDC.
              */
-            seisDC =  BulletproofVestFactory.vestSeismogramDC(serverDNS, serverName, Initializer.getNS());
+            seisDC = BulletproofVestFactory.vestSeismogramDC(serverDNS,
+                                                             serverName,
+                                                             Initializer.getNS());
             logger.info("got SeisDC");
-        }catch (org.omg.CORBA.ORBPackage.InvalidName e) {
+        } catch(org.omg.CORBA.ORBPackage.InvalidName e) {
             logger.error("Problem with name service: ", e);
-        }catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
+        } catch(org.omg.CosNaming.NamingContextPackage.InvalidName e) {
             logger.error("Problem with name service: ", e);
-        }catch (NotFound e) {
+        } catch(NotFound e) {
             logger.error("Problem with name service: ", e);
-        }catch (CannotProceed e) {
+        } catch(CannotProceed e) {
             logger.error("Problem with name service: ", e);
         }
     }
 
     public void exercise() {
-        //queuedRetrieve();
+        available_data(true);
+        //queuedRetrieve("Wily Test");
         retrieve_seismograms(true);
     }
 
@@ -73,83 +73,121 @@ public class SimpleSeismogramClient implements TestingClient{
             String id = seisDC.queue_seismograms(createOldRF());
             logger.info("got id " + id + " for " + name);
             String status = seisDC.request_status(id);
-            while(status.equals("Processing")){
+            while(status.equals("Processing")) {
                 status = seisDC.request_status(id);
                 logger.info("Status is " + status + " for " + name);
                 try {
                     Thread.sleep(10000);
-                } catch (InterruptedException e) {}
+                } catch(InterruptedException e) {}
             }
             logger.info("FINISHED " + name);
             logger.info(name + " status is " + status);
-            if(status.equals("Finished")){
+            if(status.equals("Finished")) {
                 LocalSeismogram[] seis = seisDC.retrieve_queue(id);
-                for (int i = 0; i < seis.length; i++) {
-                    System.out.println(name + " of " + i + " is " +seis[i].num_points+
-                                           " points and starts at "+seis[i].begin_time.date_time);
+                for(int i = 0; i < seis.length; i++) {
+                    System.out.println(name + " of " + i + " is "
+                            + seis[i].num_points + " points and starts at "
+                            + seis[i].begin_time.date_time);
                 }
             }
-        } catch (FissuresException e) {
+        } catch(FissuresException e) {
             logger.info(name + " threw exception");
             e.printStackTrace();
         }
     }
 
-    public LocalSeismogram[] retrieve_seismograms(){
+    public LocalSeismogram[] retrieve_seismograms() {
         return retrieve_seismograms(false);
     }
 
-    public LocalSeismogram[] retrieve_seismograms(boolean verbose){
+    public LocalSeismogram[] retrieve_seismograms(boolean verbose) {
         try {
             LocalSeismogram[] seis = seisDC.retrieve_seismograms(createRF());
-            if(verbose){
-                logger.info("Got "+seis.length+" seismograms.");
-                for (int i = 0; i < seis.length; i++) {
-                    logger.info("Seismogram "+i+" has "+seis[i].num_points+
-                                    " points and starts at "+seis[i].begin_time.date_time);
+            if(verbose) {
+                logger.info("Got " + seis.length + " seismograms.");
+                for(int i = 0; i < seis.length; i++) {
+                    logger.info("Seismogram " + i + " has "
+                            + seis[i].num_points + " points and starts at "
+                            + seis[i].begin_time.date_time);
                 }
             }
             return seis;
-        } catch (FissuresException e) {throw new RuntimeException(e);}
+        } catch(FissuresException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static RequestFilter[] createRF(){
+    public RequestFilter[] available_data(boolean verbose) {
+        return available_data(createRF(), verbose);
+    }
+
+    public RequestFilter[] available_data(RequestFilter[] request,
+                                          boolean verbose) {
+        RequestFilter[] rf = seisDC.available_data(request);
+        if(verbose) {
+            logger.info("Got " + rf.length
+                    + " request filters back for available data");
+            logger.info("Requested times:");
+            for(int i = 0; i < request.length; i++) {
+                RequestFilter filter = request[i];
+                logger.info("From " + filter.start_time.date_time + " to "
+                        + filter.end_time.date_time);
+            }
+            logger.info("Available times:");
+            for(int i = 0; i < rf.length; i++) {
+                RequestFilter filter = rf[i];
+                logger.info("From " + filter.start_time.date_time + " to "
+                        + filter.end_time.date_time);
+            }
+        }
+        return rf;
+    }
+
+    public static RequestFilter[] createRF() {
         // we will get data for 1 hour ago until now
         MicroSecondDate now = ClockUtil.now();
         MicroSecondDate hourAgo = now.subtract(ONE_HOUR);
-
         // construct the request filters to send to the server
-        RequestFilter[] request = { new RequestFilter(Initializer.fakeChan,
-                                                      hourAgo.getFissuresTime(),
-                                                      now.getFissuresTime()) };
+        RequestFilter[] request = {new RequestFilter(Initializer.fakeChan,
+                                                     hourAgo.getFissuresTime(),
+                                                     now.getFissuresTime())};
         return request;
     }
 
-    public static RequestFilter[] createOldRF(){
-        MicroSecondDate yearAgo = ClockUtil.now().subtract(ONE_YEAR);
-        MicroSecondDate yearAgoAndADay = yearAgo.add(ONE_DAY);
+    public static RequestFilter[] createOldRF() {
+        TimeInterval twoYears = (TimeInterval)ONE_YEAR.multiplyBy(2);
+        TimeInterval sixtyDays = (TimeInterval)ONE_DAY.multiplyBy(60);
+        MicroSecondDate yearAgo = ClockUtil.now()
+                .subtract(twoYears.subtract(sixtyDays));
         MicroSecondDate yearAgoAndAnHour = yearAgo.add(ONE_HOUR);
         MicroSecondDate usedEnd = yearAgoAndAnHour;
         logger.info("query from " + yearAgo + " to " + usedEnd);
         // construct the request filters to send to the server
-        RequestFilter[] request = { new RequestFilter(Initializer.fakeChan,
-                                                      yearAgo.getFissuresTime(),
-                                                      usedEnd.getFissuresTime()) };
+        RequestFilter[] request = {new RequestFilter(Initializer.fakeChan,
+                                                     yearAgo.getFissuresTime(),
+                                                     usedEnd.getFissuresTime())};
         return request;
     }
 
     protected DataCenterOperations seisDC;
 
-    private static final TimeInterval ONE_YEAR = new TimeInterval(365, UnitImpl.DAY);
-    private static final TimeInterval ONE_HOUR = new TimeInterval(1, UnitImpl.HOUR);
-    private static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
+    private static final TimeInterval ONE_YEAR = new TimeInterval(365,
+                                                                  UnitImpl.DAY);
+
+    private static final TimeInterval ONE_DAY = new TimeInterval(1,
+                                                                 UnitImpl.DAY);
+
+    private static final TimeInterval ONE_HOUR = new TimeInterval(1,
+                                                                  UnitImpl.HOUR);
+
     private static Logger logger = Logger.getLogger(SimpleSeismogramClient.class);
 
     public static void main(String[] args) {
-        /* Initializes the corba orb, finds the naming service and other startup
-         * tasks. See Initializer for the code in this method. */
+        /*
+         * Initializes the corba orb, finds the naming service and other startup
+         * tasks. See Initializer for the code in this method.
+         */
         Initializer.init(args);
         new SimpleSeismogramClient().exercise();
     }
 }
-
