@@ -17,12 +17,17 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableFilteredSeismogram;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
+import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
 import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Stroke;
+import java.awt.geom.Rectangle2D;
 /**
  * DisplayUtils.java
  *
@@ -86,6 +91,26 @@ public class DisplayUtils {
             }
         }
         return null;
+    }
+
+    public static void applyFilter(ColoredFilter filter, DrawableIterator it){
+        while(it.hasNext()){
+            DrawableSeismogram cur =  (DrawableSeismogram)it.next();
+            Iterator filterIt = cur.iterator(DrawableFilteredSeismogram.class);
+            boolean found = false;
+            while(filterIt.hasNext() && !found){
+                DrawableFilteredSeismogram curSeis = (DrawableFilteredSeismogram)filterIt.next();
+                if(curSeis.getFilter().equals(filter)){
+                    curSeis.setVisibility(filter.getVisibility());
+                    found = true;
+                }
+            }
+            if(!found){
+                cur.add(new DrawableFilteredSeismogram(cur.getParent(),
+                                                       cur.getSeismogram(),
+                                                       filter));
+            }
+        }
     }
 
 
@@ -336,20 +361,20 @@ public class DisplayUtils {
             (currentPoint-firstPoint)/(double)(lastPoint-firstPoint)*(numValues-1);
     }
 
-	public static boolean originIsEqual(EventAccessOperations eventA, EventAccessOperations eventB)
-		throws NoPreferredOrigin{
-		Origin originA = eventA.get_preferred_origin();
-		Origin originB = eventB.get_preferred_origin();
+    public static boolean originIsEqual(EventAccessOperations eventA, EventAccessOperations eventB)
+        throws NoPreferredOrigin{
+        Origin originA = eventA.get_preferred_origin();
+        Origin originB = eventB.get_preferred_origin();
 
-		if (!originA.get_id().equals(originB.get_id())) return false;
-		if (!originA.origin_time.date_time.equals(originB.origin_time.date_time)) return false;
-		if (originA.magnitudes[0].value != originB.magnitudes[0].value) return false;
-		if (originA.my_location.latitude != originB.my_location.latitude) return false;
-		if (originA.my_location.longitude != originB.my_location.longitude) return false;
-		if (originA.my_location.depth.value != originB.my_location.depth.value)	return false;
+        if (!originA.get_id().equals(originB.get_id())) return false;
+        if (!originA.origin_time.date_time.equals(originB.origin_time.date_time)) return false;
+        if (originA.magnitudes[0].value != originB.magnitudes[0].value) return false;
+        if (originA.my_location.latitude != originB.my_location.latitude) return false;
+        if (originA.my_location.longitude != originB.my_location.longitude) return false;
+        if (originA.my_location.depth.value != originB.my_location.depth.value) return false;
 
-		return true;
-	}
+        return true;
+    }
 
     public static final String UP = "Up";
 
@@ -386,5 +411,7 @@ public class DisplayUtils {
     public static final MicroSecondTimeRange ZERO_TIME = new MicroSecondTimeRange(new MicroSecondDate(0), new MicroSecondDate(0));
 
     public static final MicroSecondTimeRange ONE_TIME = new MicroSecondTimeRange(new MicroSecondDate(0), new MicroSecondDate(1));
+
+    public static final Rectangle2D EMPTY_RECTANGLE = new Rectangle2D.Float(0,0,0,0);
 
 }// DisplayUtils
