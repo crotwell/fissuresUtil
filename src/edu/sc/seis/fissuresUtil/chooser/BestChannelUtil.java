@@ -1,10 +1,10 @@
 
-
 package edu.sc.seis.fissuresUtil.chooser;
 
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
 import edu.iris.Fissures.model.*;
+import org.apache.log4j.*;
 
 public class BestChannelUtil {
 
@@ -34,14 +34,22 @@ public class BestChannelUtil {
                                            Channel current, 
                                            MicroSecondDate when) {
         for (int i=0; i<inChan.length; i++) {
+	    logger.info("Test inChannel "+ChannelIdUtil.toStringNoDates(inChan[i].get_id()));
             if (ChannelIdUtil.toStringNoDates(inChan[i].get_id()).equals(ChannelIdUtil.toStringNoDates(current.get_id()))) {
                 if (when.before(new MicroSecondDate(inChan[i].effective_time.end_time)) &&
                     when.after(new MicroSecondDate(inChan[i].effective_time.start_time))) {
                     return inChan[i];
-                } // end of if (when.before(inChan.effective_time.end_time))
-                
-            } // end of if (ChannelIdUtil.toStringNoDates(inChan.get_id()).equals(ChannelIdUtil.toStringNoDates(current.get_id()))
-                
+                } else {
+		    logger.info("Channel failed time overlap. "
+				+inChan[i].effective_time.end_time.date_time+" "
+				+new MicroSecondDate(inChan[i].effective_time.end_time)+" "
+				+when+" "
+				+new MicroSecondDate(inChan[i].effective_time.start_time));
+		} // end of else
+            } else {
+		logger.info("Channel failed code match.");
+	    } // end of else
+	    
         } // end of for (int i=0; i<inChan.length; i++)
         
         // no match
@@ -117,7 +125,7 @@ public class BestChannelUtil {
 	}
 
 	// oh well, return null
-	System.out.println("can't find"+ bandCode+orientationCode);
+	logger.debug("can't find"+ bandCode+orientationCode);
 	return null;
     }
 
@@ -150,7 +158,7 @@ public class BestChannelUtil {
 
 	
 	// oh well, return null
-	System.out.println("can't find"+ bandCode+orientationCode+siteCode);
+	logger.debug("can't find"+ bandCode+orientationCode+siteCode);
 	return null;
     }
 
@@ -160,18 +168,21 @@ public class BestChannelUtil {
 				      String siteCode,
 				      String gainCode) {
 	for (int chanNum=0; chanNum<inChan.length; chanNum++) {
-	    System.out.println("trying "+inChan[chanNum].my_site.get_code()+" "+inChan[chanNum].get_code()+" "+siteCode);
+	    logger.debug("trying "+inChan[chanNum].my_site.get_code()+" "+inChan[chanNum].get_code()+" "+siteCode);
 	    if (inChan[chanNum].my_site.get_code().equals(siteCode) 
 		&& inChan[chanNum].get_code().endsWith(orientationCode)
 		&& inChan[chanNum].get_code().startsWith(bandCode)
 		&& inChan[chanNum].get_code().substring(1,2).equals(gainCode)) {
-		System.out.println("returning "+inChan[chanNum].my_site.get_code()+" "+inChan[chanNum].get_code()+" "+siteCode);
+		logger.debug("returning "+inChan[chanNum].my_site.get_code()+" "+inChan[chanNum].get_code()+" "+siteCode);
 		return inChan[chanNum];
 	    }
 	}
 
 	// oh well, return null
-	System.out.println("can't find"+ bandCode+orientationCode+siteCode+gainCode);
+	logger.debug("can't find"+ bandCode+orientationCode+siteCode+gainCode);
 	return null;
     }
+
+    static Category logger = Category.getInstance(BestChannelUtil.class.getName());
+
 }
