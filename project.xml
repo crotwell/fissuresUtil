@@ -232,6 +232,26 @@ useful things already done.</description>
   <artifactId>logkit</artifactId>
   <version>1.2</version>
 </dependency>
+<dependency>
+  <groupId>stax</groupId>
+  <artifactId>jax-qname</artifactId>
+  <version>1.0</version>
+</dependency>
+<dependency>
+  <groupId>stax</groupId>
+  <artifactId>jsr173_api</artifactId>
+  <version>1.0</version>
+</dependency>
+<dependency>
+  <groupId>stax</groupId>
+  <artifactId>jsr173_ri</artifactId>
+  <version>1.0</version>
+</dependency>
+<dependency>
+  <groupId>stax</groupId>
+  <artifactId>namespace</artifactId>
+  <version>1.0</version>
+</dependency>
   </dependencies>
   <build>
     <nagEmailAddress>crotwell@seis.sc.edu</nagEmailAddress>
