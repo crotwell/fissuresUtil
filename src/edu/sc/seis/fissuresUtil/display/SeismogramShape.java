@@ -27,7 +27,7 @@ import java.awt.Graphics2D;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3153 2003-01-22 22:00:45Z groves $
+ * @version $Id: SeismogramShape.java 3163 2003-01-24 22:22:58Z groves $
  */
 
 public class SeismogramShape implements Shape, NamedPlotter {
@@ -99,6 +99,7 @@ public class SeismogramShape implements Shape, NamedPlotter {
 			   !time.getInterval().equals(plotInterval)||
 				   (Math.abs(amp.getMaxValue() - maxAmp)/range) > pixelHeightPercentage ||
 				   (Math.abs(amp.getMinValue() - minAmp)/range) > pixelHeightPercentage){
+				
 				getEdgeValues(time, size);
 				maxAmp = amp.getMaxValue();
 				minAmp = amp.getMinValue();
@@ -141,7 +142,7 @@ public class SeismogramShape implements Shape, NamedPlotter {
     }
 	
     private void plotAll(Dimension size) throws CodecException{
-		if(seisEnd <= seis.getNumPoints() && seisStart >= 0){
+		if(seisEnd <= seis.getNumPoints() && seisStart >= 0 && (startPixel != 0 && endPixel != 0)){
 			if(seisStart != 0){
 				startPixel = 0;
 			}
