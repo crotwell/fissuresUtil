@@ -67,7 +67,7 @@ public class XMLUtil {
     /** returns the first text child within the node.
      */
     public static String getText(Element config) {
-	if(config == null) return null;
+	if(config == null) return new String("");
         NodeList children = config.getChildNodes();
         Node node;
         for (int i=0; i<children.getLength(); i++) {
@@ -77,7 +77,7 @@ public class XMLUtil {
             }
         }
         //nothing found, return null
-        return null;
+        return new String("");
     }
 
     /** returns the element with the given name
