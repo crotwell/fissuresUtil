@@ -26,7 +26,7 @@ import edu.iris.Fissures.IfEvent.EventAccess;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 4136 2003-05-30 16:16:22Z oliverpa $
+ * @version $Id: EventTableModel.java 4138 2003-05-30 18:01:27Z oliverpa $
  */
 
 public class EventTableModel
@@ -236,6 +236,14 @@ public class EventTableModel
         }
     }
 
+    public EventAccessOperations[] getAllEvents(){
+        EventAccessOperations[] eaos = new EventAccessOperations[getRowCount()];
+        for (int i = 0; i < getRowCount(); i++) {
+            eaos[i] = getEventForRow(i);
+        }
+        return eaos;
+    }
+
     protected ParseRegions FERegions = new ParseRegions();
 
     protected EventAccessOperations[] events;
@@ -278,3 +286,4 @@ public class EventTableModel
     static Category logger = Category.getInstance(EventTableModel.class.getName());
 
 } // EventTableModel
+
