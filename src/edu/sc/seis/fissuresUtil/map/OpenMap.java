@@ -3,8 +3,9 @@ package edu.sc.seis.fissuresUtil.map;
 
 import com.bbn.openmap.*;
 
+import com.bbn.openmap.event.LayerStatusEvent;
+import com.bbn.openmap.event.LayerStatusListener;
 import com.bbn.openmap.event.MapMouseMode;
-import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.layer.GraticuleLayer;
@@ -12,7 +13,6 @@ import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Projection;
 import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.fissuresUtil.map.colorizer.event.DefaultEventColorizer;
 import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
@@ -26,13 +26,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
 import org.apache.log4j.Logger;
 
-public class OpenMap extends OMComponentPanel {
+public class OpenMap extends OMComponentPanel implements LayerStatusListener{
 	
     public static final Color WATER = new Color(54, 179, 221);
     public static final float DEFAULT_SCALE = 200000000f;
@@ -45,7 +46,10 @@ public class OpenMap extends OMComponentPanel {
     private MapBean mapBean;
     private MouseDelegator mouseDelegator;
     private List tools = new ArrayList();
+	private Map layerStatusMap = new HashMap();
     private static Logger logger = Logger.getLogger(OpenMap.class);
+	
+	private ShapeLayer shapeLayer;
 	
 	
     /**Creates a new openmap.  Both the channel chooser and the event table
@@ -91,7 +95,9 @@ public class OpenMap extends OMComponentPanel {
 			
 			// Create a ShapeLayer to show world political boundaries.
 			//ShapeLayer shapeLayer = new ShapeLayer();
-			ShapeLayer shapeLayer = new InformativeShapeLayer();
+			//Debug.debugAll = true;
+			shapeLayer = new InformativeShapeLayer();
+			shapeLayer.addLayerStatusListener(this);
 			
 			//Create shape layer properties
 			Properties shapeLayerProps = new Properties();
@@ -141,6 +147,7 @@ public class OpenMap extends OMComponentPanel {
 	
     public void setStationLayer(StationLayer staLayer) {
 		stl = staLayer;
+		staLayer.addLayerStatusListener(this);
 		mapHandler.add(stl);
 		lh.addLayer(stl,0);
 		el.addEQSelectionListener(stl);
@@ -153,6 +160,7 @@ public class OpenMap extends OMComponentPanel {
 	
     public void setEventLayer(EventLayer evl) {
 		el = evl;
+		el.addLayerStatusListener(this);
 		mapHandler.add(el);
 		lh.addLayer(el,0);
 		
@@ -166,6 +174,8 @@ public class OpenMap extends OMComponentPanel {
     }
 	
     public EventLayer getEventLayer(){ return el; }
+	
+	public ShapeLayer getShapeLayer(){ return shapeLayer; };
 	
     public Layer[] getLayers() {
 		return lh.getLayers();
@@ -192,6 +202,17 @@ public class OpenMap extends OMComponentPanel {
     public void setActiveMouseMode(MapMouseMode mode) {
 		mouseDelegator.setActiveMouseMode(mode);
     }
+	
+	public void updateLayerStatus(LayerStatusEvent event){
+		layerStatusMap.put(event.getLayer(), new Integer(event.getStatus()));
+		//System.out.println("Layer " + event.getLayer().getName() + " status: " + translateLayerStatus(event.getStatus()));
+	}
+	
+	//look at LayerStatusEvent in openmap for status translation
+	public int getLayerStatus(Layer layer){
+		Integer statusObj = (Integer)layerStatusMap.get(shapeLayer);
+		return statusObj.intValue();
+	}
 	
 	
     public void writeMapToPNG(String filename) throws IOException {
@@ -234,27 +255,58 @@ public class OpenMap extends OMComponentPanel {
 			logger.debug(ExceptionReporterUtils.getMemoryUsage()+" InformativeShapeLayer: rendering shape layer");
 			super.renderDataForProjection(p,g);
 		}
-    }
+	}
+	
+	public static String translateLayerStatus(int status){
+		switch (status){
+			case LayerStatusEvent.DISTRESS:
+				return "DISTRESS!!!";
+			case LayerStatusEvent.FINISH_WORKING:
+				return "finished";
+			case LayerStatusEvent.START_WORKING:
+				return "started";
+			case LayerStatusEvent.STATUS_UPDATE:
+				return "updating status";
+		}
+		return null;
+	}
 	
     public static void main(String[] args) {
-		OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
-		om.addMouseMode(new SelectMouseMode());
-		EventLayer evLayer = new EventLayer(om.getMapBean(), new DefaultEventColorizer());
-		om.setEventLayer(evLayer);
-		//evLayer.eventDataChanged(new EQDataEvent(om, MockEventAccessOperations.createEvents()));
-		StationLayer staLayer = new StationLayer();
-		om.setStationLayer(staLayer);
-		//staLayer.stationDataChanged(new StationDataEvent(om, new Station[]{MockStation.createStation()}));
-		JFrame frame = new JFrame("OpenMap Test");
-		frame.getContentPane().add(om);
-		frame.setSize(640, 480);
-		frame.show();
-		
+//		OpenMap om = new OpenMap("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
+//		//om.addMouseMode(new PanTool(om));
+//		om.addMouseMode(new SelectMouseMode());
+//		EventLayer evLayer = new EventLayer(om.getMapBean(), new DefaultEventColorizer());
+//		om.setEventLayer(evLayer);
+//		evLayer.eventDataChanged(new EQDataEvent(om, MockEventAccessOperations.createEvents()));
+//		StationLayer staLayer = new StationLayer();
+//		om.setStationLayer(staLayer);
+//		ShapeLayer sLayer = om.getShapeLayer();
+//		ProjectionChangePolicy pcPolicy = sLayer.getProjectionChangePolicy();
+//		System.out.println("working");
+//		while(sLayer.isWorking()){
+//			System.out.print(".");
+//		}
+//		System.out.println("\ndone");
+//		//		try {
+//		//			om.writeMapToPNG("testMap.png");
+//		//		} catch (IOException e) {
+//		//			e.printStackTrace();
+//		//		}
+//		staLayer.stationDataChanged(new StationDataEvent(om, new Station[]{MockStation.createStation()}));
+//		JFrame frame = new JFrame("OpenMap Test");
+//		frame.getContentPane().add(om);
+//		frame.setSize(640, 480);
+//		frame.show();
     }
 	
 	public void findAndInit(Object obj){
 		if (obj instanceof MapBean){
 			add((MapBean)obj, BorderLayout.CENTER);
 		}
+		else if (obj instanceof InformationDelegator){
+			InformationDelegator infoDel = (InformationDelegator)obj;
+			add(infoDel, BorderLayout.SOUTH);
+		}
 	}
 }
+
