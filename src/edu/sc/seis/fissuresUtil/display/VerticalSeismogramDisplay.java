@@ -315,7 +315,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	java.awt.Dimension size = new java.awt.Dimension(400, 400);
 	displayPanel.setSize(size);
 	particleWindow.getContentPane().add(displayPanel);
-	selectionWindow.addWindowListener(new WindowAdapter() {
+	particleWindow.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 			    particleWindow.dispose();
 			    particleDisplay = null;
