@@ -7,8 +7,8 @@ import java.io.IOException;
  */
 public class MapCropper {
 
-    public MapCropper(int width, int height, int leftOffset,
-            int bottomOffset, int top, int right, int bottom, int left) {
+    public MapCropper(int width, int height, int leftOffset, int bottomOffset,
+            int top, int right, int bottom, int left) {
         this.width = width;
         this.height = height;
         this.leftOffset = leftOffset;
@@ -44,14 +44,14 @@ public class MapCropper {
         try {
             String projection = "Kf166/10i", region = "-14/346/-90/90";
             double[][] stationCoords = { {-180, 90},
-                                 {-135, 67.5},
-                                 {-90, 45},
-                                 {-45, 22.5},
-                                 {0, 0}};
+                                        {-135, 67.5},
+                                        {-90, 45},
+                                        {-45, 22.5},
+                                        {0, 0}};
             double[][] eventCoords = { {45, -22.5},
-                                       {90, -45},
-                                       {135, -67.5},
-                                       {180, -90}};
+                                      {90, -45},
+                                      {135, -67.5},
+                                      {180, -90}};
             PSXYExecute.addPoints("world.ps",
                                   projection,
                                   region,
@@ -66,16 +66,30 @@ public class MapCropper {
                                   null,
                                   "12/255/0/0",
                                   eventCoords);
-            int[][] rawStationPoints = MapProjectExecute.forward(projection, region, stationCoords);
-            int[][] rawEventPoints = MapProjectExecute.forward(projection, region, eventCoords);
-            ConvertExecute.convert("world.ps", "world.png", "-antialias -rotate 90");
-            MapCropper cropper = new MapCropper(842, 595, 72, 72, 150, 22, 45, 60);
+            int[][] rawStationPoints = MapProjectExecute.forward(projection,
+                                                                 region,
+                                                                 stationCoords);
+            int[][] rawEventPoints = MapProjectExecute.forward(projection,
+                                                               region,
+                                                               eventCoords);
+            ConvertExecute.convert("world.ps",
+                                   "world.png",
+                                   "-antialias -rotate 90");
+            MapCropper cropper = new MapCropper(842,
+                                                595,
+                                                72,
+                                                72,
+                                                150,
+                                                22,
+                                                45,
+                                                60);
             cropper.crop("world.png");
             int[][] stationPoints = cropper.translatePoints(rawStationPoints);
             int[][] eventPoints = cropper.translatePoints(rawEventPoints);
             System.out.println("calculated station points: ");
             for(int i = 0; i < stationPoints.length; i++) {
-                System.out.println(stationPoints[i][0] + " " + stationPoints[i][1]);
+                System.out.println(stationPoints[i][0] + " "
+                        + stationPoints[i][1]);
             }
             System.out.println("calculated event points: ");
             for(int i = 0; i < eventPoints.length; i++) {
@@ -84,6 +98,38 @@ public class MapCropper {
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public int getBottom() {
+        return bottom;
+    }
+
+    public int getBottomOffset() {
+        return bottomOffset;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getLeft() {
+        return left;
+    }
+
+    public int getLeftOffset() {
+        return leftOffset;
+    }
+
+    public int getRight() {
+        return right;
+    }
+
+    public int getTop() {
+        return top;
+    }
+
+    public int getWidth() {
+        return width;
     }
 
     private int width, height, leftOffset, bottomOffset, top, right, bottom,
