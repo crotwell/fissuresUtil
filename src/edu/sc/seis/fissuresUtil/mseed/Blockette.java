@@ -16,6 +16,14 @@ public abstract class  Blockette {
     public Blockette() {
     }
 
+    /**
+     * Method writeASCII
+     *
+     * @param    out                 a  Writer
+     *
+     */
+    public abstract void writeASCII(Writer out) throws IOException;
+
     public static Blockette parseBlockette(int type, byte[] bytes)
     throws IOException {
 
