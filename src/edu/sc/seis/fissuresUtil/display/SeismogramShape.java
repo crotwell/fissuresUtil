@@ -45,9 +45,11 @@ public class SeismogramShape implements Shape, Plotter {
      *
      */
     public void draw(Graphics2D canvas, Dimension size, TimeSnapshot timeState, AmpSnapshot ampState){
-	setPlot(timeState.getTimeRange(dss), ampState.getAmpRange(dss), size);
-	canvas.setColor(color);
-	canvas.draw(this);
+	if(visible){
+	    setPlot(timeState.getTimeRange(dss), ampState.getAmpRange(dss), size);
+	    canvas.setColor(color);
+	    canvas.draw(this);
+	}
     }
 
     /**
@@ -152,7 +154,7 @@ public class SeismogramShape implements Shape, Plotter {
     }
     
     private void getEdgeValues(MicroSecondTimeRange time, Dimension size){
-	if(seis.getEndTime().before(time.getBeginTime()) || seis.getBeginTime().after(time.getEndTime()) || !visible) {
+	if(seis.getEndTime().before(time.getBeginTime()) || seis.getBeginTime().after(time.getEndTime())) {
 	    startPixel = 0;
 	    endPixel = 0;
 	    return;
