@@ -18,6 +18,11 @@ public class JDBCStationTest extends JDBCTest {
     public void setUp() throws SQLException {
         stationTable = new JDBCStation();
     }
+    
+    public void tearDown() throws SQLException{
+        super.tearDown();
+        JDBCStation.emptyCache();
+    }
 
     public void testDoublePut() throws SQLException, NotFound {
         Station sta = MockStation.createStation();
