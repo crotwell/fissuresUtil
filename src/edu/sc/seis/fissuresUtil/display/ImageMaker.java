@@ -49,6 +49,8 @@ public class ImageMaker implements Runnable  {
 	    }
 	    HashMap plotters = currentRequirements.getPlotters();
 	    Dimension size = currentRequirements.getSize();
+	    if(size.height == 0)
+		break;
 	    Image currentImage = currentPatron.createImage(size.width, size.height);
 	    Graphics2D graphic = (Graphics2D)currentImage.getGraphics();
 	    Iterator e = plotters.keySet().iterator();
