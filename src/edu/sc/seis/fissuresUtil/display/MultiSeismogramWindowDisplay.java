@@ -19,65 +19,65 @@ import edu.sc.seis.fissuresUtil.display.drawable.SoundPlay;
 
 public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     /**
-     * Creates a <code>MultiSeismogramWindowDisplay</code> without a parent
-     *
-     */
+	 * Creates a <code>MultiSeismogramWindowDisplay</code> without a parent
+	 *
+	 */
     public MultiSeismogramWindowDisplay(SeismogramSorter sorter){
-        this(null, sorter);
+		this(null, sorter);
     }
 
     /**
-     * Creates a <code>MultiSeismogramWindowDisplay</code> with a parent
-     *
-     * @param parent the VSD that controls this VSD
-     */
+	 * Creates a <code>MultiSeismogramWindowDisplay</code> with a parent
+	 *
+	 * @param parent the VSD that controls this VSD
+	 */
     public MultiSeismogramWindowDisplay(VerticalSeismogramDisplay parent,
-                                        SeismogramSorter sorter){
-        super(parent);
-        this.sorter = sorter;
+										SeismogramSorter sorter){
+		super(parent);
+		this.sorter = sorter;
     }
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss){
-        return addDisplay(dss, registrar, new RMeanAmpConfig(dss));
+		return addDisplay(dss, registrar, new RMeanAmpConfig(dss));
     }
 
     /**
-     * creates a new BSD with an individual RMeanAmpConfig and the passed in TImeConfig
-     * and adds it to the display
-     *
-     * @param dss the seismograms for the new BSD
-     * @param tc the time config for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
-     */
+	 * creates a new BSD with an individual RMeanAmpConfig and the passed in TImeConfig
+	 * and adds it to the display
+	 *
+	 * @param dss the seismograms for the new BSD
+	 * @param tc the time config for the new BSD
+	 * @param name the BSD's name
+	 * @return the created BSD
+	 */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc){
-        return addDisplay(dss, tc, new RMeanAmpConfig(dss));
+		return addDisplay(dss, tc, new RMeanAmpConfig(dss));
     }
 
     /**
-     * creates a new BSD with the passed in amp config and the global TImeConfig
-     * and adds it to the display
-     *
-     * @param dss the seismograms for the new BSD
-     * @param ac the amp config for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
-     */
+	 * creates a new BSD with the passed in amp config and the global TImeConfig
+	 * and adds it to the display
+	 *
+	 * @param dss the seismograms for the new BSD
+	 * @param ac the amp config for the new BSD
+	 * @param name the BSD's name
+	 * @return the created BSD
+	 */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, AmpConfig ac){
-        return addDisplay(dss, registrar, ac);
+		return addDisplay(dss, registrar, ac);
     }
 
     /**
-     * creates a new BSD with the passed in amp and time configs and adds it to
-     * the display
-     *
-     * @param dss the seismograms for the new BSD
-     * @param tc the time config for the new BSD
-     * @param ac the amp config for the new BSD
-     * @param name the BSD's name
-     * @return the created BSD
-     * @return a <code>BasicSeismogramDisplay</code> value
-     */
+	 * creates a new BSD with the passed in amp and time configs and adds it to
+	 * the display
+	 *
+	 * @param dss the seismograms for the new BSD
+	 * @param tc the time config for the new BSD
+	 * @param ac the amp config for the new BSD
+	 * @param name the BSD's name
+	 * @return the created BSD
+	 * @return a <code>BasicSeismogramDisplay</code> value
+	 */
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac){
         if(tc == registrar && registrar == null){
             registrar = new Registrar(dss);
@@ -98,7 +98,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             basicDisplays.add(j, disp);
             addTimeBorders();
         }
-        //disp.addSoundPlay();
+        disp.addSoundPlay();
         return disp;
     }
 
@@ -117,3 +117,4 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     private SeismogramSorter sorter;
     private SoundPlay soundPlay;
 }// MultiSeismogramWindowDisplay
+

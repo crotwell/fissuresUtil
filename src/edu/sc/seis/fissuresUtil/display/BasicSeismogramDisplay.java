@@ -588,12 +588,20 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     }
 
-    public void addSoundPlay(){
-        plotters.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
-    }
-    public void removeSoundPlay(){
-        new PlotterIterator(SoundPlay.class).clear();
-    }
+	public void addSoundPlay(){
+		try{
+			plotters.add(new SoundPlay(this, new SeismogramContainer(getSeismograms()[0])));
+		}
+		catch(NullPointerException e){
+			System.out.println("Sample Rate cannot be calculated, so sound is not permitted.");
+			e.printStackTrace();
+		}
+	}
+
+	public void removeSoundPlay(){
+		new PlotterIterator(SoundPlay.class).clear();
+	}
+
 
     private static Set globalFilters = new HashSet();
 
@@ -641,3 +649,4 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay
+
