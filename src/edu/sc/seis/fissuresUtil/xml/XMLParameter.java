@@ -145,7 +145,7 @@ public class XMLParameter {
 	else {
 
 		String value = XMLUtil.evalString(base, "value");
-		return new ParameterRef(name, value);	
+		return value;	
 	}
     }
 
