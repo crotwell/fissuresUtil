@@ -18,6 +18,7 @@ import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.dmc.seedcodec.DecompressedData;
 import edu.iris.dmc.seedcodec.Codec;
 import edu.iris.dmc.seedcodec.CodecException;
+import java.util.Iterator;
 
 public class Recompress {
 
@@ -27,6 +28,11 @@ public class Recompress {
     }
 
     public static LocalSeismogramImpl steim1(LocalSeismogramImpl seis, boolean preserveBlocking)
+        throws SteimException, IOException, CodecException {
+        return steim1(seis, preserveBlocking, 63);
+    }
+
+    public static LocalSeismogramImpl steim1(LocalSeismogramImpl seis, boolean preserveBlocking, int maxFrames)
         throws SteimException, IOException, CodecException {
         LinkedList allBlocks = new LinkedList();
         if (preserveBlocking && seis.is_encoded()) {
@@ -39,12 +45,12 @@ public class Recompress {
                                                            data[i].num_points,
                                                            data[i].byte_order);
 
-
-                allBlocks.addAll(steim1(decomp.getAsInt()));
+                LinkedList list = steim1(decomp.getAsInt(), maxFrames);
+                allBlocks.addAll(list);
             }
         } else {
             int[] data = seis.get_as_longs();
-            allBlocks.addAll(steim1(data));
+            allBlocks.addAll(steim1(data, maxFrames));
         }
         EncodedData[] edata = new EncodedData[allBlocks.size()];
         for (int i = 0; i < edata.length; i++) {
@@ -53,7 +59,6 @@ public class Recompress {
                                        block.getEncodedData(),
                                        block.getNumSamples(),
                                        false);
-
         }
         TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
         dataSel.encoded_values(edata);
@@ -62,16 +67,20 @@ public class Recompress {
     }
 
     public static LinkedList steim1(int[] data) throws SteimException {
+        return steim1(data, 63);
+    }
+
+    public static LinkedList steim1(int[] data, int maxFrames) throws SteimException {
         LinkedList allBlocks = new LinkedList();
         SteimFrameBlock block;
-        block = Steim1.encode(data, 63);
+        block = Steim1.encode(data, maxFrames);
         allBlocks.addLast(block);
         while (block.getNumSamples() < data.length) {
             // not all data encoded, make a new block
             int[] tmpData = new int[data.length-block.getNumSamples()];
             System.arraycopy(data, block.getNumSamples(), tmpData, 0, tmpData.length);
             data = tmpData;
-            block = Steim1.encode(data, 63);
+            block = Steim1.encode(data, maxFrames);
             allBlocks.addLast(block);
         }
         return allBlocks;
