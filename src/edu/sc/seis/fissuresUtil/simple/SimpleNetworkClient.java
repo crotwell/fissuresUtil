@@ -10,17 +10,30 @@ import edu.iris.Fissures.network.NetworkIdUtil;
 
 public class SimpleNetworkClient implements TestingClient {
     public SimpleNetworkClient(){
-        // We will try to get data from the II network.
-        String networkCode = "II";
+        String networkCode;
+        String serverDNS;
+        String serverName;
 
+        // iris
+        // We will try to get data from the II network.
+        networkCode = "II";
+        serverDNS="edu/iris/dmc";
+        serverName = "IRIS_NetworkDC";
+
+        // Berkeley
+        //networkCode = "NC";
+        //serverDNS="edu/berkeley/geo/quake";
+        //serverName = "NCEDC_NetworkDC";
+
+        //South Carolina (SCEPP)
+        //
         try {
             /* This step is not required, but sometimes helps to determine if
              *  a server is down. if this call succedes but the next fails, then
              *  the nameing service is up and functional, but the network server
              *  is not reachable for some reason.
              */
-            Initializer.getNS().getNetworkDCObject("edu/iris/dmc",
-                                                   "IRIS_NetworkDC");
+            Initializer.getNS().getNetworkDCObject(serverDNS, serverName);
             logger.info("Got network as corba object, the name service is ok");
 
             /* This connectts to the actual server, as oposed to just getting
@@ -29,8 +42,7 @@ public class SimpleNetworkClient implements TestingClient {
              *  is the individual server name. The dmc lists their servers under
              *  the edu/iris/dmc and their main network server is IRIS_NetworkDC.
              */
-            NetworkDC netDC = Initializer.getNS().getNetworkDC("edu/iris/dmc",
-                                                               "IRIS_NetworkDC");
+            NetworkDC netDC = Initializer.getNS().getNetworkDC(serverDNS, serverName);
             logger.info("got NetworkDC");
 
             /* The NetworkFinder is one of the choices at this point. It
@@ -48,8 +60,8 @@ public class SimpleNetworkClient implements TestingClient {
             net = nets[0];
 
             /** get all stations and print their codes. Note that their might
-                be several stations with the same code, but different effective
-                times*/
+             be several stations with the same code, but different effective
+             times*/
             Station[] stations = net.retrieve_stations();
             logger.info("Threre are "+stations.length+" stations in "+networkCode);
             for (int i = 0; i < stations.length; i++) {

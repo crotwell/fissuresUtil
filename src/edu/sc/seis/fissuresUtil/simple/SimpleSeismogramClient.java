@@ -18,14 +18,29 @@ import edu.iris.Fissures.FissuresException;
 
 public class SimpleSeismogramClient implements TestingClient{
     public SimpleSeismogramClient(){
+        String serverDNS;
+        String serverName;
+
+        // iris
+        serverDNS="edu/iris/dmc";
+        serverName = "IRIS_BudDataCenter";
+        // or
+        //serverName = "IRIS_PondDataCenter";
+
+        // Berkeley
+        //serverDNS="edu/berkeley/geo/quake";
+        //serverName = "NCEDC_DataCenter";
+
+        // South Carolina (SCEPP)
+        //serverDNS="edu/sc/seis";
+        //serverName=""; <-- fix name later
         try {
             /* This step is not required, but sometimes helps to determine if
              *  a server is down. if this call succedes but the next fails, then
              *  the nameing service is up and functional, but the network server
              *  is not reachable for some reason.
              */
-            Initializer.getNS().getSeismogramDCObject("edu/iris/dmc",
-                                                      "IRIS_BudDataCenter");
+            Initializer.getNS().getSeismogramDCObject(serverDNS, serverName);
             logger.info("Got SeisDC as corba object, the name service is ok");
 
             /* This connects to the actual server, as opposed to just getting
@@ -34,8 +49,7 @@ public class SimpleSeismogramClient implements TestingClient{
              *  is the individual server name. The dmc lists their servers under
              *  the edu/iris/dmc and their main network server is IRIS_EventDC.
              */
-            seisDC = Initializer.getNS().getSeismogramDC("edu/iris/dmc",
-                                                         "IRIS_BudDataCenter");
+            seisDC = Initializer.getNS().getSeismogramDC(serverDNS, serverName);
             logger.info("got SeisDC");
         }catch (org.omg.CORBA.ORBPackage.InvalidName e) {
             logger.error("Problem with name service: ", e);

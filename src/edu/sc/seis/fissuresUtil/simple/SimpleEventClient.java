@@ -15,26 +15,40 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 public class SimpleEventClient implements TestingClient{
     public SimpleEventClient(){
+        String serverDNS;
+        String serverName;
+
+        // iris
+        serverDNS="edu/iris/dmc";
+        serverName = "IRIS_EventDC";
+
+        // Berkeley
+        //serverDNS="edu/berkeley/geo/quake";
+        //serverName = "NCEDC_EventDC";
+        // or
+        //serverName = "NCSN_DataCenter";
+
+        // South Carolina (SCEPP)
+
         try{
             /* This step is not required, but sometimes helps to determine if
              *  a server is down. if this call succedes but the next fails, then
              *  the nameing service is up and functional, but the network server
              *  is not reachable for some reason.
              */
-            Initializer.getNS().getEventDCObject("edu/iris/dmc","IRIS_EventDC");
+            Initializer.getNS().getEventDCObject(serverDNS, serverName);
             logger.info("Got EventDC as corba object, the name service is ok");
-            
-            
+
+
             /*This connectts to the actual server, as oposed to just getting
              *  the reference to it. The naming convention is that the first
              *  part is the reversed DNS of the organization and the second part
              *  is the individual server name. The dmc lists their servers under
              *  the edu/iris/dmc and their main network server is IRIS_EventDC.
              */
-            EventDC eventDC = Initializer.getNS().getEventDC("edu/iris/dmc",
-                                                             "IRIS_EventDC");
+            EventDC eventDC = Initializer.getNS().getEventDC(serverDNS, serverName);
             logger.info("got EventDC");
-            
+
             /* The EventFinder is one of the choices at this point. It
              *  allows you to query for individual events, and then retrieve
              *  information about them.
@@ -51,7 +65,7 @@ public class SimpleEventClient implements TestingClient{
             logger.error("Problem with name service: ", e);
         }
     }
-    
+
     public void exercise(){
         EventAccess[] events = query_events(true);
         for (int i = 0; i < events.length; i++) {
@@ -63,12 +77,12 @@ public class SimpleEventClient implements TestingClient{
             }
         }
     }
-    
+
     /** Runs a sample query against the EventFinder that is created in the
      *  constructor of this class
      */
     public EventAccess[] query_events(){ return query_events(false); }
-    
+
     /** Runs a sample query against the EventFinder that is created in the
      *  constructor of this class
      * @verbose - if true, some information about the events is printed
@@ -96,11 +110,11 @@ public class SimpleEventClient implements TestingClient{
         if(verbose) logger.info("Got "+events.length+" events.");
         return events;
     }
-    
+
     public Origin get_preferred_origin(EventAccess ev)throws NoPreferredOrigin{
         return get_preferred_origin(ev, false);
     }
-    
+
     public Origin get_preferred_origin(EventAccess ev, boolean verbose)
         throws NoPreferredOrigin{
         Origin o = ev.get_preferred_origin();
@@ -110,19 +124,19 @@ public class SimpleEventClient implements TestingClient{
                                    "with depth of "+o.my_location.depth.value+" "+o.my_location.depth.the_units);
         return o;
     }
-    
+
     public EventAttr get_attributes(EventAccess ea){return ea.get_attributes();}
-    
+
     protected EventFinder finder;
-    
+
     private static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
     private static Logger logger = Logger.getLogger(SimpleEventClient.class);
-    
+
     public static void main(String[] args) {
         /* Initializes the corba orb, finds the naming service and other startup
          * tasks. See Initializer for the code in this method. */
         Initializer.init(args);
-        
+
         new SimpleEventClient().exercise();
     }
 }
