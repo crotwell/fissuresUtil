@@ -10,6 +10,7 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.mockFissures.IfNetwork.MockChannel;
+import edu.sc.seis.mockFissures.IfNetwork.MockStationId;
 import java.sql.SQLException;
 import junit.framework.TestCase;
 
@@ -25,6 +26,21 @@ public class JDBCChannelTest extends TestCase{
         assertEquals(chan.sampling_info, chanTable.get(dbidA).sampling_info);
         assertTrue(ChannelIdUtil.areEqual(chan.get_id(),
                                           chanTable.get(dbidA).get_id()));
+    }
+
+    public void testGetAll() throws SQLException, NotFound{
+        JDBCChannel chanTable = new JDBCChannel();
+        Channel chan = MockChannel.createChannel();
+        Channel other = MockChannel.createOtherChan();
+        Channel otherNet = MockChannel.createOtherNetChan();
+        chanTable.put(chan);
+        chanTable.put(other);
+        chanTable.put(otherNet);
+        Channel[] chans = chanTable.getAllChannels(MockStationId.createStationId());
+        assertEquals(2, chans.length);
+        Channel[] otherNetChans = chanTable.getAllChannels(MockStationId.createOtherStationId());
+        assertEquals(1, otherNetChans.length);
+        assertTrue(ChannelIdUtil.areEqual(otherNet.get_id(), otherNetChans[0].get_id()));
     }
 }
 
