@@ -5,11 +5,7 @@ import com.bbn.openmap.*;
 
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ZoomEvent;
-import com.bbn.openmap.image.AcmeGifFormatter;
-import com.bbn.openmap.image.AcmeJPEGFormatter;
 import com.bbn.openmap.image.ImageFormatter;
-import com.bbn.openmap.image.SVGFormatter;
-import com.bbn.openmap.image.SunJPEGFormatter;
 import com.bbn.openmap.layer.GraticuleLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
@@ -35,9 +31,6 @@ import java.util.List;
 import java.util.Properties;
 import javax.imageio.ImageIO;
 import javax.swing.ListSelectionModel;
-import org.apache.batik.apps.rasterizer.DestinationType;
-import org.apache.batik.apps.rasterizer.SVGConverter;
-import org.apache.batik.apps.rasterizer.SVGConverterException;
 
 public class OpenMap extends OpenMapComponent
 {
