@@ -18,27 +18,28 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class DataSetToXML {
-    
+
     public void save(DataSet dataset, File saveDirectory)
         throws IOException, ParserConfigurationException, MalformedURLException {
-        File dataDir = new File(saveDirectory, "data");
         Element doc = createDocument(dataset, saveDirectory);
         Writer xmlWriter = new Writer();
+        String filename =  saveDirectory.getName()+".dsml";
+        filename = filename.replaceAll(" ","_");
         BufferedWriter buf =
-            new BufferedWriter(new FileWriter(new File(saveDirectory, dataset.getName()+".dsml")));
+            new BufferedWriter(new FileWriter(new File(saveDirectory, filename)));
         xmlWriter.setOutput(buf);
         xmlWriter.write(doc);
         buf.close();
         logger.debug("Done with save to "+saveDirectory.toString());
     }
-    
+
     public Element createDocument(DataSet dataset, File dataDirectory)
         throws ParserConfigurationException, MalformedURLException {
-        
+
         if(!dataDirectory.exists() ) {
             dataDirectory.mkdirs();
         }
-        
+
         DocumentBuilder docBuilder = XMLDataSet.getDocumentBuilder();
         Document doc = docBuilder.newDocument();
         Element element = doc.createElement("dataset");
@@ -46,7 +47,7 @@ public class DataSetToXML {
         insert(element, dataset, dataDirectory);
         return element;
     }
-    
+
     /** inserts the dataset, and all child datasets recursively, into the
      document, along with dataset seismograms and parameters if they can be
      stored. Note that all dataSetSeismograms are converted to
@@ -64,17 +65,23 @@ public class DataSetToXML {
                                                       dataset.getOwner()));
         String[] childDataSets = dataset.getDataSetNames();
         for (int i = 0; i < childDataSets.length; i++) {
+            String childDirName = childDataSets[i].replace(' ','_');
+            File childDirectory = new File(directory, childDirName);
+            if ( ! childDirectory.exists()) {
+                childDirectory.mkdirs();
+            }
             Element child = doc.createElement("dataset");
-            insert(child, dataset.getDataSet(childDataSets[i]), directory);
+            insert(child, dataset.getDataSet(childDataSets[i]), childDirectory);
             element.appendChild(child);
         }
-        
+
         String[] childDSS = dataset.getDataSetSeismogramNames();
+        File dataDir = new File(directory, "data");
         for (int i = 0; i < childDSS.length; i++) {
             DataSetSeismogram dss = dataset.getDataSetSeismogram(childDSS[i]);
             URLDataSetSeismogram urlDSS;
             if (saveLocally || ! (dss instanceof URLDataSetSeismogram)) {
-                urlDSS = URLDataSetSeismogram.localize(dss, directory);
+                urlDSS = URLDataSetSeismogram.localize(dss, dataDir);
             } else {
                 urlDSS = (URLDataSetSeismogram)dss;
             }
@@ -82,7 +89,7 @@ public class DataSetToXML {
             urlDSS.insertInto(child);
             element.appendChild(child);
         }
-        
+
         String[] paramNames = dataset.getParameterNames();
         for (int i = 0; i < paramNames.length; i++) {
             Element parameter =
@@ -92,18 +99,18 @@ public class DataSetToXML {
                                 dataset.getParameter(paramNames[i]));
             element.appendChild(parameter);
         }
-        
-        
+
+
     }
-    
+
     /** inserts the child dataset as a datasetRef element. The URL is assumed
      *  to be in a subdirectory relative to the current dataset.
      */
     public void insertRef(Element element, DataSet dataset) {
     }
-    
+
     protected boolean saveLocally = true;
-    
+
     Logger logger = Logger.getLogger(DataSetToXML.class);
 }
 
