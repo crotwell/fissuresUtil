@@ -6,7 +6,7 @@ import edu.sc.seis.fissuresUtil.xml.*;
 /**
  * This class is used as a callback object in LocalDCOperations. The class
  * that intends to receive callback calls must implement this interface.
- * 
+ *
  * LocalDataCenterCallBack.java
  *
  *
@@ -24,20 +24,20 @@ public interface LocalDataCenterCallBack {
      * @param initiator - the callback object that initiated the request for seismograms.
      */
     public void pushData(LocalSeismogramImpl[] seis, SeisDataChangeListener initiator);
-    
+
     /**
-     * Informs the callback object that it is done with the processing 
+     * Informs the callback object that it is done with the processing
      * of its request for seismograms.
      * @param dss - the callback object that initiated the request for seismograms.
      */
     public void finished(SeisDataChangeListener dss);
-    
+
     /**
-     * Informs the callback object that it is done with the processing 
+     * Informs the callback object that it is done with the processing
      * of its request for seismograms because it encountered a problem.
      * @param dss - the callback object that initiated the request for seismograms.
      * @param e - the exception explaining the error encountered.
      */
-    public void error(SeisDataChangeListener dss, Exception e);
-    
+    public void error(SeisDataChangeListener dss, Throwable e);
+
 }// LocalDataCenterCallBack
