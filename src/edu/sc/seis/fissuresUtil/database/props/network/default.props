@@ -40,6 +40,8 @@ station.getAllQuery = SELECT $station_neededForStationId FROM station
 station.getAllForNet = SELECT $station_neededForStationId FROM station \
                  WHERE station.net_id = ?
 
+station.getAllStations = SELECT $station_neededForStation FROM station
+
 station.getByDBId = SELECT $station_neededForStation \
                 FROM station WHERE sta_id = ?                 
 
