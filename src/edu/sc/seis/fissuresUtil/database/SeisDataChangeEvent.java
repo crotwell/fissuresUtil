@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * SeisDataChangeEvent.java
@@ -13,20 +14,30 @@ import edu.iris.Fissures.IfSeismogramDC.*;
  */
 
 public class SeisDataChangeEvent {
-    public SeisDataChangeEvent (LocalSeismogram[] seismos,
-				Object source,
+    public SeisDataChangeEvent (LocalSeismogramImpl[] seismos,
+				DataSetSeismogram source,
 				Object initiator){
 	this.seismos = seismos;
 	this.source = source;
 	this.initiator = initiator;
     }
 
-    
+    private LocalSeismogramImpl[] seismos;
 
-    public LocalSeismogram[] seismos;
+    private LocalSeismogramImpl[] getSeismos() {
+	return seismos;
+    }
     
-    public Object source;
+    private DataSetSeismogram source;
+
+    public DataSetSeismogram getSource() {
+	return source;
+    }
     
-    public Object initiator;
+    private Object initiator;
+
+    public Object getInitiator() {
+	return initiator;
+    }
     
 }// SeisDataChangeEvent

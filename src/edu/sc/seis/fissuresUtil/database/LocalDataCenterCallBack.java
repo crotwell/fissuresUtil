@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.xml.*;
 
 /**
@@ -15,7 +15,7 @@ import edu.sc.seis.fissuresUtil.xml.*;
 
 public interface LocalDataCenterCallBack {
 
-    public void pushData(LocalSeismogram[] seis, SeisDataChangeListener initiator);
+    public void pushData(LocalSeismogramImpl[] seis, SeisDataChangeListener initiator);
     
     public void finished(SeisDataChangeListener dss);
     

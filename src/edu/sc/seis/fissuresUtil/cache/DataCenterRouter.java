@@ -45,6 +45,7 @@ public class DataCenterRouter implements DataCenterOperations {
     }
 
     public void addDataCenter(NetworkId networkId, DataCenterOperations dc) {
+	logger.debug("adding "+networkId.network_code);
 	List dcList = (List)netToDCMap.get(NetworkIdUtil.toString(networkId));
 	if ( dcList == null) {
 	    dcList = new LinkedList();

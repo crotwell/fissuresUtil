@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+
 /**
  * SingleSeismogramWindowDisplay displays every seismogram added to it
  * in a single BasicSeismogramDisplay

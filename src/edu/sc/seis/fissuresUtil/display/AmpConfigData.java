@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * AmpConfigData encapsulates the data for a particular seismogram in a particular

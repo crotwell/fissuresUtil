@@ -4,6 +4,7 @@ package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.TauP.*;
 import edu.sc.seis.fissuresUtil.chooser.*;
 import edu.sc.seis.fissuresUtil.namingService.*;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;

@@ -9,6 +9,7 @@ import java.util.ListIterator;
 import java.util.LinkedList;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Dimension;

@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.seismogramDC.*;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;

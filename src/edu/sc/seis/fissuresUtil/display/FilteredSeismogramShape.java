@@ -13,6 +13,7 @@ import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.fissuresUtil.freq.SeisGramText;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Dimension;
 import org.apache.log4j.*;
 import java.util.Date;

@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.iris.Fissures.model.MicroSecondDate;  
 import edu.iris.Fissures.model.ISOTime;  
 import edu.iris.Fissures.network.ChannelIdUtil;

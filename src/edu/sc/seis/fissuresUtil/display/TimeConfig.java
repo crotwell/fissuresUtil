@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.model.TimeInterval;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * TimeConfigs calculate the time ranges for a given set of seismograms 

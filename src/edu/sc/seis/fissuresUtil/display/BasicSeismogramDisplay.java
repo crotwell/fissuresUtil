@@ -8,6 +8,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.XMLDataSet;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.TauP.Arrival;
 import java.util.*;
 import java.lang.ref.SoftReference;
@@ -98,10 +99,10 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
                 seismograms.add(seismos[i]);
                 DrawableSeismogram newPlotter;
                 if (autoColor) {
-                    newPlotter = new DrawableSeismogram(seismos[i],
+                    newPlotter = new DrawableSeismogram(this, seismos[i],
                                                      seisColors[(seismograms.size() -1) % seisColors.length]);
                 }else {
-                    newPlotter = new DrawableSeismogram(seismos[i]);
+                    newPlotter = new DrawableSeismogram(this, seismos[i]);
                 } // end of else
                 if(parent != null){
                     newPlotter.setVisibility(parent.getOriginalVisibility());
