@@ -57,7 +57,9 @@ public class BorderedDisplay extends JPanel{
             Dimension curSize = getSize();
             setSize(size);
             validate();
+            setDoubleBuffered(false);
             print(g);
+            setDoubleBuffered(true);
             setSize(curSize);
             validate();
         } finally {
