@@ -29,7 +29,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4146 2003-05-31 03:12:09Z crotwell $
+ * @version $Id: ChannelChooser.java 4147 2003-06-02 14:38:57Z crotwell $
  *
  */
 
@@ -1066,9 +1066,15 @@ public class ChannelChooser extends JPanel {
                             netdc.a_finder().retrieve_by_code(configuredNetworks[counter]);
                         logger.debug("Got "+nets.length+" networks for "+configuredNetworks[counter]);
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
+                            logger.debug("loop over "+subCounter+" networks for "+configuredNetworks[counter]);
                             if (nets[subCounter] != null) {
+                                logger.debug("before test direct call");
+                                NetworkAttr tmpattr = nets[subCounter].get_attributes();
+                                logger.debug("after test direct call "+tmpattr.get_code());
+
                                 //  cache = new CacheNetworkAccess(nets[subCounter]);
                                 // preload attributes
+                                logger.debug("before create CacheNetworkAccess");
                                 cache = new DNDNetworkAccess(nets[subCounter]);
                                 logger.debug("before get attributes for "+configuredNetworks[counter]);
                                 NetworkAttr attr = cache.get_attributes();
@@ -1110,8 +1116,10 @@ public class ChannelChooser extends JPanel {
                 // up network list before setting selection
                 SwingUtilities.invokeLater(new Runnable() {
                             public void run() {
+                                logger.debug("autoselecting all in network list");
                                 networkList.getSelectionModel().setSelectionInterval(0,
                                                                                      networkList.getModel().getSize()-1);
+                                logger.debug("done autoselecting");
                             }
                         });
             } // end of if ()
