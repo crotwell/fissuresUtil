@@ -49,9 +49,6 @@ public class ParticleMotionDisplayThread{
                 boolean horizPlane = isHorizontalPlane(dssArray[counter].getRequestFilter().channel_id,
                                                        dssArray[subcounter].getRequestFilter().channel_id,
                                                        dssArray[counter].getDataSet());
-                if(horizPlane) {
-                    particleMotionDisplay.displayBackAzimuth(dssArray[counter].getDataSet(), channelGroup[counter]);
-                }
                 String subCounterOrientation = DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code);
                 String orientationString;
                 DataSetSeismogram hSeis,vSeis;
