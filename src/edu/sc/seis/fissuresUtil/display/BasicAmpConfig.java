@@ -56,13 +56,12 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
             // must not be a DataSetSeismogram registered with us, ignore
             return;
         } // end of if ()
+        boolean newData = false;
         synchronized(this){
-            dssData.addSeismograms(sdce.getSeismograms());
+            newData = dssData.addSeismograms(sdce.getSeismograms());
         }
         this.seismos = null;
-        if(listeners.size() > 0){
-            calculateAmp();
-            recalculateAmp();
+        if(listeners.size() > 0 && newData){
             fireAmpEvent();
         }
     }
@@ -83,18 +82,21 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
      */
     public boolean remove(DataSetSeismogram[] seismos){
         boolean allRemoved = true;
+        boolean someRemoved = false;
         synchronized(this){
             for(int i = 0; i < seismos.length; i++){
                 if(!ampData.containsKey(seismos[i])){
                     allRemoved = false;
                 }else{
+                    someRemoved = true;
                     ampData.remove(seismos[i]);
                 }
             }
         }
         this.seismos = null;
-        recalculateAmp();
-        fireAmpEvent();
+        if(someRemoved){
+            fireAmpEvent();
+        }
         return allRemoved;
     }
 
@@ -142,7 +144,10 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     public AmpEvent fireAmpEvent(){
-        AmpEvent event = calculateAmp();
+        return  fireAmpEvent(calculateAmp());
+    }
+
+    private AmpEvent fireAmpEvent(AmpEvent event){
         Iterator e = listeners.iterator();
         while(e.hasNext()){
             ((AmpListener)e.next()).updateAmp(event);
@@ -168,16 +173,17 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     protected synchronized AmpEvent calculateAmp(){
-       //System.out.println("Calculating");
         Iterator e = ampData.keySet().iterator();
         boolean changed = false;
         while(e.hasNext()){
             AmpConfigData current = (AmpConfigData)ampData.get(e.next());
             if(current.setTime(getTime(current.getDSS()))){ //checks for the time update equaling the old time
                 if(setAmpRange(current.getDSS())){ //checks if the new time changes the amp range
+                    current.setNewData(false);
                     changed = true;// only generates a new amp event if the amp ranges have changed
                 }
             }else if(current.hasNewData()){
+                current.setNewData(false);
                 setAmpRange(current.getDSS());
                 changed = true;
             }
@@ -189,7 +195,6 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     protected synchronized AmpEvent recalculateAmp(){
-        //System.out.println("Basic recalculate");
         Iterator e = ampData.keySet().iterator();
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
@@ -215,7 +220,6 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
     }
 
     protected synchronized boolean setAmpRange(DataSetSeismogram seismo){
-        //System.out.println("Basic setAmpRange");
         AmpConfigData data = (AmpConfigData)ampData.get(seismo);
 
         if ( data.getSeismograms().length == 0) {
