@@ -1,13 +1,12 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import junit.framework.TestCase;
+import junitx.framework.ArrayAssert;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.mockFissures.Defaults;
-import junit.framework.TestCase;
-import junitx.framework.ArrayAssert;
-import edu.sc.seis.fissuresUtil.bag.DistAz;
 // JUnitDoclet end import
 
 /**

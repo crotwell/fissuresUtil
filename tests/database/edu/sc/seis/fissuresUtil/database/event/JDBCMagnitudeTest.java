@@ -1,13 +1,13 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import junit.framework.TestCase;
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.mockFissures.IfEvent.MockMagnitude;
-import java.sql.Connection;
-import java.sql.SQLException;
-import junit.framework.TestCase;
 public class JDBCMagnitudeTest extends TestCase {
     public JDBCMagnitudeTest(String testname) { super(testname); }
 

@@ -1,10 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import junitx.extensions.EqualsHashCodeTestCase;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import junitx.extensions.EqualsHashCodeTestCase;
 
 public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
     public SeismogramIteratorTest(String name){

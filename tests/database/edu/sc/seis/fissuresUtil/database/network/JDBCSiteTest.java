@@ -6,15 +6,13 @@
 
 package edu.sc.seis.fissuresUtil.database.network;
 
-import edu.iris.Fissures.IfNetwork.Site;
-import edu.iris.Fissures.IfNetwork.SiteId;
-import edu.iris.Fissures.IfNetwork.StationId;
-import edu.iris.Fissures.network.SiteIdUtil;
-import edu.iris.Fissures.network.StationIdUtil;
-import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfNetwork.MockSite;
 import java.sql.SQLException;
 import junit.framework.TestCase;
+import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.SiteId;
+import edu.iris.Fissures.network.SiteIdUtil;
+import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.mockFissures.IfNetwork.MockSite;
 
 public class JDBCSiteTest extends TestCase{
     public void testDoublePut() throws SQLException, NotFound{

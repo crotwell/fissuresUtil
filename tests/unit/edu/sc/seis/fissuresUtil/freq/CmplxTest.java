@@ -1,8 +1,6 @@
 package edu.sc.seis.fissuresUtil.freq;
 
 import junit.framework.TestCase;
-// JUnitDoclet begin import
-import edu.sc.seis.fissuresUtil.freq.Cmplx;
 // JUnitDoclet end import
 
 /**

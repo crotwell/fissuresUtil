@@ -6,10 +6,10 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import junit.framework.TestCase;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.mockFissures.IfEvent.MockOrigin;
 import edu.sc.seis.mockFissures.IfNetwork.MockStation;
-import junit.framework.TestCase;
 
 public class TauPUtilTest extends TestCase {
 

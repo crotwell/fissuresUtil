@@ -6,17 +6,16 @@
 
 package edu.sc.seis.fissuresUtil.mseed;
 
-import edu.iris.Fissures.model.ISOTime;
-import edu.iris.dmc.seedcodec.Steim1;
-import edu.iris.dmc.seedcodec.SteimFrameBlock;
-import edu.sc.seis.fissuresUtil.mseed.DataRecord;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import junit.framework.TestCase;
-import java.io.File;
+import edu.iris.Fissures.model.ISOTime;
+import edu.iris.dmc.seedcodec.Steim1;
+import edu.iris.dmc.seedcodec.SteimFrameBlock;
 
 public class DataRecordTest extends TestCase {
 

@@ -6,18 +6,14 @@
 
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.SeismogramPDFBuilder;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
-import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
 
 public class BasicSeismogramDisplayTest extends TestCase {
     public BasicSeismogramDisplayTest(String name){

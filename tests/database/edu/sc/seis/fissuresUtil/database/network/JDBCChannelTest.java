@@ -7,11 +7,7 @@
 package edu.sc.seis.fissuresUtil.database.network;
 
 import java.sql.SQLException;
-
 import junit.framework.TestCase;
-
-import org.apache.log4j.BasicConfigurator;
-
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;

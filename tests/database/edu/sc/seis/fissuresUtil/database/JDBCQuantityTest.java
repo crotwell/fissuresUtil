@@ -6,10 +6,10 @@
 
 package edu.sc.seis.fissuresUtil.database;
 
+import java.sql.SQLException;
+import junit.framework.TestCase;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
-import junit.framework.TestCase;
-import java.sql.SQLException;
 
 public class JDBCQuantityTest extends TestCase{
     public void testDoublePut() throws SQLException, NotFound{

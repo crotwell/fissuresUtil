@@ -6,13 +6,11 @@
 
 package edu.sc.seis.fissuresUtil.mseed;
 
-import edu.iris.Fissures.model.ISOTime;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.fissuresUtil.mseed.DataHeader;
-import edu.sc.seis.fissuresUtil.mseed.Utility;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import junit.framework.TestCase;
+import edu.iris.Fissures.model.ISOTime;
+import edu.iris.Fissures.model.MicroSecondDate;
 
 public class DataHeaderTest extends TestCase {
 

@@ -1,15 +1,15 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
 
-import edu.iris.Fissures.IfEvent.EventAttr;
-import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfEvent.MockEventAttr;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import junit.framework.TestCase;
+import edu.iris.Fissures.IfEvent.EventAttr;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.mockFissures.IfEvent.MockEventAttr;
 
 public class JDBCEventAttrTest extends TestCase {
     public JDBCEventAttrTest(String testname)throws SQLException  {

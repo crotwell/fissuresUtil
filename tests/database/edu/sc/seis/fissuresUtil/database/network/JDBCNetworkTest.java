@@ -6,13 +6,11 @@
 
 package edu.sc.seis.fissuresUtil.database.network;
 
-import edu.iris.Fissures.IfNetwork.NetworkAttr;
-import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.mockFissures.IfNetwork.MockNetworkAttr;
-import edu.sc.seis.mockFissures.IfNetwork.MockNetworkId;
 import java.sql.SQLException;
 import junit.framework.TestCase;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.mockFissures.IfNetwork.MockNetworkAttr;
 
 public class JDBCNetworkTest extends TestCase{
 
