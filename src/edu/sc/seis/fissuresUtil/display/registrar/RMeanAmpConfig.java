@@ -1,10 +1,9 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
+import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,8 +56,7 @@ public class RMeanAmpConfig extends BasicAmpConfig {
         }
         double min = minMaxMean[2] - meanDiff;
         double max = minMaxMean[2] + meanDiff;
-        UnitImpl seisUnit = it.getSeismograms()[0].getUnit();
-        return data.setRange(new UnitRangeImpl(min, max, seisUnit));
+        return data.setRange(UnitDisplayUtil.getBestForDisplay(new UnitRangeImpl(min, max, data.getUnit())));
     }
 
     private UnitRangeImpl setRange(UnitRangeImpl currRange, double range){
