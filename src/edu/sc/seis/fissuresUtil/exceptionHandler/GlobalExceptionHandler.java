@@ -20,6 +20,8 @@ public class GlobalExceptionHandler {
         handle("Houston, we have a problem...", thrown);
     }
 
+    public static int getNumHandled(){ return numHandled; }
+
     public static void handle(String message, Throwable thrown) {
         try {
             if(reporters.size() == 0){
@@ -38,6 +40,7 @@ public class GlobalExceptionHandler {
                 }
                 List reporterExceptions = new ArrayList();
                 synchronized(reporters){
+                    numHandled++;
                     it = reporters.iterator();
                     while(it.hasNext()){
                         try {
@@ -144,6 +147,8 @@ public class GlobalExceptionHandler {
     private static List reporters = Collections.synchronizedList(new ArrayList());
 
     private static boolean showSysInfo = true;
+
+    private static int numHandled = 0;
 
     static {
         // always send error to log4j
