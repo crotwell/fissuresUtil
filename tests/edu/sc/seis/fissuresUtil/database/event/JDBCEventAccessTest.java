@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 public class JDBCEventAccessTest extends TestCase{
     public JDBCEventAccessTest(String name) throws SQLException{
         super(name);
-        this.eventTable = new JDBCEventAccess(ConnMgr.getConnection());
+        this.eventTable = new JDBCEventAccess(ConnMgr.createConnection());
     }
     
     public void testGetAll() throws SQLException, NotFound{

@@ -17,7 +17,7 @@ public class JDBCEventAttrTest extends TestCase {
         eventAttrs.add(MockEventAttr.create("name1", 50));
         eventAttrs.add(MockEventAttr.create("name2", 60));
         eventAttrs.add(MockEventAttr.create("name3", 70));
-        jdbcEventAttr = new JDBCEventAttr(ConnMgr.getConnection());
+        jdbcEventAttr = new JDBCEventAttr(ConnMgr.createConnection());
     }
     
     public void testEventInOut() throws SQLException, NotFound {

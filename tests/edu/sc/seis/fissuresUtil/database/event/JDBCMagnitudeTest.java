@@ -12,7 +12,7 @@ public class JDBCMagnitudeTest extends TestCase {
     public JDBCMagnitudeTest(String testname) { super(testname); }
 
     protected void setUp() throws SQLException {
-        Connection conn = ConnMgr.getConnection();
+        Connection conn = ConnMgr.createConnection();
         JDBCContributor jdbcContributor = new JDBCContributor(conn);
         jdbcMagnitude = new JDBCMagnitude(conn, jdbcContributor);
     }

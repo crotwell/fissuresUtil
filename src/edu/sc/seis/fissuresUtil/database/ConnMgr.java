@@ -29,12 +29,12 @@ public class ConnMgr {
             }
         }
     }
-    
+
     /**
      * Sets the ConnMgr to use the default db, which as of now is an in-memory HSQLDb
      */
     public static void setDB() throws IOException{ setDB(DB_NAME); }
-    
+
     /**
      *Sets the DB to be used based on the default values for the name.
      *Names fissuresUtil knows are ConnMgr.MCKOI, ConnMgr.HSQL, and
@@ -50,21 +50,21 @@ public class ConnMgr {
         }
         setDB(props);
     }
-    
+
     private static void load(String loc, Properties existing) throws IOException{
         ClassLoader cl = ConnMgr.class.getClassLoader();
         load(cl, loc + DEFAULT_PROPS, existing);
         if(DB_NAME == HSQL)load(cl, loc + HSQL_PROPS, existing);
         else if(DB_NAME == MCKOI)load(cl, loc + MCKOI_PROPS, existing);
     }
-    
+
     private static void load(ClassLoader cl, String loc, Properties existing) throws IOException{
         InputStream in = cl.getResourceAsStream(loc);
         if(in != null)existing.load(in);
     }
-    
+
     public static void setDB(Properties props){ ConnMgr.props = props; }
-    
+
     public static String getSQL(String key){
         String SQL = props.getProperty(key);
         if(SQL == null){
@@ -72,21 +72,21 @@ public class ConnMgr {
         }
         return props.getProperty(key);
     }
-    
+
     private static String getDriver(){ return props.getProperty("driver"); }
-    
+
     public static void setURL(String url){ ConnMgr.url = url; }
-    
+
     private static String getURL(){
         if(url == null) url =  props.getProperty("URL");
         return url;
     }
-    
+
     private static String getPass() { return props.getProperty("password"); }
-    
+
     private static String getUser() { return props.getProperty("user"); }
-    
-    public static Connection getConnection() throws SQLException {
+
+    public static Connection createConnection() throws SQLException {
         synchronized(ConnMgr.class){
             if(props == null){
                 try {
@@ -102,40 +102,40 @@ public class ConnMgr {
         }
         return DriverManager.getConnection(getURL(), getUser(), getPass());
     }
-    
+
     private static Connection createPSQLConn() throws SQLException{
         return DriverManager.getConnection("jdbc:postgresql:anhingatest",
                                            "anhingatest",
                                            "");
     }
-    
+
     private static final String DEFAULT_LOC = "edu/sc/seis/fissuresUtil/database/props/";
-    
+
     public static final String DEFAULT = "default";
-    
+
     private static String DEFAULT_PROPS = "default.props";
-    
+
     public static final String HSQL = "HSQL";
-    
+
     private static String HSQL_PROPS = "HSQL.props";
-    
+
     public static final String MCKOI = "MCKOI";
-    
+
     private static String MCKOI_PROPS = "MCKOI.props";
-    
+
     private static String DB_NAME = HSQL;
-    
+
     public static final String POSTGRES = "";//TODO
-    
+
     private static Properties props;
-    
+
     private static List propLocs = new ArrayList();
-    
+
     private static String url;
-    
+
     static{
         propLocs.add(DEFAULT_LOC);
     }
-    
+
 }// ConnMgr
 
