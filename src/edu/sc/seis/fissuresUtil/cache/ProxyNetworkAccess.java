@@ -28,6 +28,9 @@ public abstract class ProxyNetworkAccess implements NetworkAccess{
             return net;
         }
     }
+
+    protected void setNetworkAccess(NetworkAccess na){ net = na; }
+
     public NetworkAttr get_attributes() { return net.get_attributes(); }
 
     public Station[] retrieve_stations() { return net.retrieve_stations(); }
