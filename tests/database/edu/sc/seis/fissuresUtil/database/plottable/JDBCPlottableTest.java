@@ -29,29 +29,35 @@ public class JDBCPlottableTest extends JDBCTest {
     }
 
     public static PlottableChunk createFullDayPlottable() {
-        return new PlottableChunk(FULL_DAY, START, SPS, CHAN_ID);
+        return new PlottableChunk(FULL_DAY, 0, 1, 2000, SPD, CHAN_ID);
     }
 
     public void testPutThenGet() throws SQLException, IOException {
         plottDb.put(new PlottableChunk[] {data});
         PlottableChunk[] out = plottDb.get(data.getTimeRange(),
                                            data.getChannel(),
-                                           data.getSamplesPerSecond());
+                                           data.getSamplesPerDay());
+        System.out.println(data);
+        System.out.println(out[0]);
         assertEquals(data, out[0]);
     }
 
     public void testPutTwoDaysGetOne() throws SQLException, IOException {
         PlottableChunk secondDay = new PlottableChunk(data.getData(),
-                                                      START.add(ONE_DAY),
-                                                      SPS,
+                                                      0,
+                                                      2,
+                                                      2000,
+                                                      SPD,
                                                       CHAN_ID);
+        System.out.println(data);
+        System.out.println(secondDay);
         plottDb.put(new PlottableChunk[] {data, secondDay});
         MicroSecondDate halfPastFirstDay = START.add((TimeInterval)ONE_DAY.divideBy(2));
         MicroSecondTimeRange halfFirstToHalfSecond = new MicroSecondTimeRange(halfPastFirstDay,
                                                                               ONE_DAY);
         PlottableChunk[] out = plottDb.get(halfFirstToHalfSecond,
                                            data.getChannel(),
-                                           data.getSamplesPerSecond());
+                                           data.getSamplesPerDay());
         int halfLength = data.getData().x_coor.length / 2;
         int[] x = new int[halfLength];
         int[] y = new int[halfLength];
@@ -61,49 +67,53 @@ public class JDBCPlottableTest extends JDBCTest {
         System.arraycopy(data.getData().y_coor, halfLength, y, 0, halfLength);
         PlottableChunk secondHalfFirstDay = new PlottableChunk(new Plottable(x,
                                                                              y),
-                                                               halfPastFirstDay,
-                                                               SPS,
+                                                               halfLength,
+                                                               1,
+                                                               2000,
+                                                               SPD,
                                                                CHAN_ID);
         assertEquals(secondHalfFirstDay, out[0]);
     }
 
     public void testUpdate() throws SQLException, IOException {
-        for(int i = 1; i < 10; i++) {
+        for(int i = 1; i < 20; i += 3){
             plottDb.put(breakIntoPieces(data, i));
         }
         assertEquals(data, plottDb.get(data.getTimeRange(),
                                        data.getChannel(),
-                                       data.getSamplesPerSecond())[0]);
+                                       data.getSamplesPerDay())[0]);
     }
 
     private static PlottableChunk[] breakIntoPieces(PlottableChunk original,
                                                     int numPieces) {
         PlottableChunk[] pieces = new PlottableChunk[numPieces];
-        TimeInterval pieceSize = (TimeInterval)original.getTimeRange()
-                .getInterval()
-                .divideBy(numPieces);
+        int pieceSize = SPD / numPieces;
         for(int i = 0; i < pieces.length; i++) {
-            pieces[i] = makeSubPlottable(original, original.getBeginTime()
-                    .add((TimeInterval)pieceSize.multiplyBy(i)), pieceSize);
+            int startPoint = i*pieceSize;
+            int stopPoint = (i+1)*pieceSize;
+            if(i == pieces.length - 1){
+                stopPoint = SPD;
+            }
+            pieces[i] = makeSubPlottable(original, startPoint, stopPoint - startPoint);
         }
         return pieces;
     }
 
     private static PlottableChunk makeSubPlottable(PlottableChunk orig,
-                                                   MicroSecondDate startTime,
-                                                   TimeInterval length) {
-        double offset = startTime.subtract(orig.getBeginTime())
-                .convertTo(UnitImpl.SECOND).value;
-        int startSample = (int)Math.floor(offset * SPS);
-        int numPoints = (int)Math.floor(length.convertTo(UnitImpl.SECOND).value
-                * SPS);
+                                                   int startPoint,
+                                                   int numPoints) {
         Plottable subPlott = new Plottable(copy(orig.getData().x_coor,
-                                                startSample,
+                                                startPoint,
                                                 numPoints),
                                            copy(orig.getData().y_coor,
-                                                startSample,
+                                                startPoint,
                                                 numPoints));
-        return new PlottableChunk(subPlott, startTime, SPS, orig.getChannel());
+        return new PlottableChunk(subPlott,
+                                  startPoint,
+                                  1,
+                                  2000,
+                                  SPD,
+                                  orig.getChannel());
     }
 
     private static int[] copy(int[] orig, int startPoint, int numPoints) {
@@ -119,7 +129,7 @@ public class JDBCPlottableTest extends JDBCTest {
 
     public static final int PIXELS = 6000;
 
-    public static final double SPS = PIXELS / SECONDS_IN_DAY * 2;
+    public static final int SPD = PIXELS * 2;
 
     private static final Time START_TIME = new Time("20000101T000000.000Z", 0);
 
@@ -136,9 +146,9 @@ public class JDBCPlottableTest extends JDBCTest {
                                                               757);
         MicroSecondTimeRange fullRange = new MicroSecondTimeRange(START, end);
         try {
-            int[][] coords = SimplePlotUtil.compressXvalues(seis,
+            int[][] coords = SimplePlotUtil.makePlottable(seis,
                                                             fullRange,
-                                                            PIXELS);
+                                                            SPD);
             FULL_DAY = new Plottable(coords[0], coords[1]);
         } catch(CodecException e) {
             e.printStackTrace();
