@@ -125,7 +125,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
             this.ac.remove(getSeismograms());
         }
         this.ac = ac;
+        if(tc != null){
         tc.addListener(ac);
+        }
         ac.addListener(this);
         ac.add(getSeismograms());
     }
