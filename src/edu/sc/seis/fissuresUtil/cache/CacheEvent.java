@@ -19,7 +19,14 @@ import edu.iris.Fissures.event.EventAttrImpl;
  */
 
 public class CacheEvent extends ProxyEventAccessOperations {
-	
+
+    /**
+     * Initializes the origins array to be just the single prefferred origin.
+     */
+    public CacheEvent(EventAttr attr, Origin preferred) {
+        this(attr, new Origin[] { preferred }, preferred);
+    }
+    
     public CacheEvent(EventAttr attr, Origin[] origins, Origin preferred) {
         if (attr == null) { throw new IllegalArgumentException(
                 "EventAttr cannot be null"); }
