@@ -1,83 +1,99 @@
 package edu.sc.seis.fissuresUtil.time;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Comparator;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-
+import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
 
 /**
- * @author groves
- * Created on Oct 28, 2004
+ * @author groves Created on Oct 28, 2004
  */
 public class SortTool {
 
+    public static LocalSeismogramImpl[] byLengthAscending(LocalSeismogramImpl[] seis) {
+        Arrays.sort(seis, st.new SeisSizeSorter());
+        return seis;
+    }
+
     /**
-     * Sorts the passed array of seismograms by begin time. If a seismogram is
-     * completely enveloped by another seismogram in terms of time, it is not
-     * returned
-     * 
      * @returns the seismograms in order of begin time
      */
-    public static LocalSeismogramImpl[] sortByDate(LocalSeismogramImpl[] seis) {
-        Map seisTimes = new HashMap();
-        for(int i = 0; i < seis.length; i++) {
-            seisTimes.put(seis[i],
-                          new MicroSecondTimeRange(seis[i].getBeginTime(),
-                                                   seis[i].getEndTime()));
-        }
-        List seisList = SortTool.sortByDate(seisTimes);
-        seis = new LocalSeismogramImpl[seisList.size()];
-        return (LocalSeismogramImpl[])seisList.toArray(seis);
+    public static LocalSeismogramImpl[] byBeginTimeAscending(LocalSeismogramImpl[] seis) {
+        Arrays.sort(seis, st.new SeisBeginSorter());
+        return seis;
+    }
+    public static PlottableChunk[] byBeginTimeAscending(PlottableChunk[] pc) {
+        Arrays.sort(pc, st.new PCBeginSorter());
+        return pc;
     }
 
-    public static RequestFilter[] sortByDate(RequestFilter[] rf) {
-        Map rfTimes = new HashMap();
-        for(int i = 0; i < rf.length; i++) {
-            rfTimes.put(rf[i], new MicroSecondTimeRange(rf[i]));
-        }
-        List rfList = SortTool.sortByDate(rfTimes);
-        rf = new RequestFilter[rfList.size()];
-        return (RequestFilter[])rfList.toArray(rf);
+    public static RequestFilter[] byBeginTimeAscending(RequestFilter[] rf) {
+        Arrays.sort(rf, st.new RFBeginSorter());
+        return rf;
     }
 
-    public static List sortByDate(Map objectTimes) {
-        List sortedObj = new ArrayList();
-        Iterator objIt = objectTimes.keySet().iterator();
-        while(objIt.hasNext()) {
-            Object currentObj = objIt.next();
-            MicroSecondDate timeToBeAdded = ((MicroSecondTimeRange)objectTimes.get(currentObj)).getBeginTime();
-            ListIterator it = sortedObj.listIterator();
-            boolean added = false;
-            while(it.hasNext()) {
-                Object current = it.next();
-                MicroSecondDate currentTime = ((MicroSecondTimeRange)objectTimes.get(current)).getBeginTime();
-                if(timeToBeAdded.before(currentTime)) {
-                    it.previous();
-                    it.add(currentObj);
-                    added = true;
-                    break;
-                }
-            }
-            if(!added) {
-                sortedObj.add(currentObj);
-            }
+    private class AscendingSizeSorter implements Comparator {
+
+        public int compare(Object o1, Object o2) {
+            TimeInterval int1 = getInterval(o1);
+            TimeInterval int2 = getInterval(o2);
+            if(int1.lessThan(int2)) {
+                return -1;
+            } else if(int1.greaterThan(int2)) { return 1; }
+            return 0;
         }
-        MicroSecondTimeRange prev = null;
-        ListIterator it = sortedObj.listIterator();
-        while(it.hasNext()) {
-            MicroSecondTimeRange cur = (MicroSecondTimeRange)objectTimes.get(it.next());
-            if(prev != null && prev.getEndTime().after(cur.getEndTime())) {
-                it.remove();
-            } else {
-                prev = cur;
-            }
+
+        public TimeInterval getInterval(Object o) {
+            return (TimeInterval)o;
         }
-        return sortedObj;
-    }}
+    }
+
+    public class SeisSizeSorter extends AscendingSizeSorter {
+
+        public TimeInterval getInterval(Object o) {
+            return ((LocalSeismogramImpl)o).getTimeInterval();
+        }
+    }
+
+    private class AscendingTimeSorter implements Comparator {
+
+        public int compare(Object o1, Object o2) {
+            MicroSecondDate o1Begin = getTime(o1);
+            MicroSecondDate o2Begin = getTime(o2);
+            if(o1Begin.before(o2Begin)) {
+                return -1;
+            } else if(o1Begin.after(o2Begin)) { return 1; }
+            return 0;
+        }
+
+        public MicroSecondDate getTime(Object o) {
+            return (MicroSecondDate)o;
+        }
+    }
+
+    private class SeisBeginSorter extends AscendingTimeSorter {
+
+        public MicroSecondDate getTime(Object o) {
+            return ((LocalSeismogramImpl)o).getBeginTime();
+        }
+    }
+
+    private class PCBeginSorter extends AscendingTimeSorter {
+
+        public MicroSecondDate getTime(Object o) {
+            return ((PlottableChunk)o).getBeginTime();
+        }
+    }
+
+    private class RFBeginSorter extends AscendingTimeSorter {
+
+        public MicroSecondDate getTime(Object o) {
+            return new MicroSecondDate(((RequestFilter)o).start_time);
+        }
+    }
+
+    private static final SortTool st = new SortTool();
+}
