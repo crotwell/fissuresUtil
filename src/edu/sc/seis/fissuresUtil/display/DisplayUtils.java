@@ -2,6 +2,9 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.util.*;
 
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
@@ -332,6 +335,21 @@ public class DisplayUtils {
         return
             (currentPoint-firstPoint)/(double)(lastPoint-firstPoint)*(numValues-1);
     }
+
+	public static boolean originIsEqual(EventAccessOperations eventA, EventAccessOperations eventB)
+		throws NoPreferredOrigin{
+		Origin originA = eventA.get_preferred_origin();
+		Origin originB = eventB.get_preferred_origin();
+
+		if (!originA.get_id().equals(originB.get_id())) return false;
+		if (!originA.origin_time.date_time.equals(originB.origin_time.date_time)) return false;
+		if (originA.magnitudes[0].value != originB.magnitudes[0].value) return false;
+		if (originA.my_location.latitude != originB.my_location.latitude) return false;
+		if (originA.my_location.longitude != originB.my_location.longitude) return false;
+		if (originA.my_location.depth.value != originB.my_location.depth.value)	return false;
+
+		return true;
+	}
 
     public static final String UP = "Up";
 
