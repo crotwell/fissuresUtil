@@ -5,6 +5,7 @@ import javax.sound.sampled.*;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.mseed.Utility;
@@ -27,155 +28,160 @@ import org.apache.log4j.Category;
  */
 public class FissuresToWAV {
 
-	private int chunkSize, numChannels, sampleRate, speedUp, bitsPerSample,
-		blockAlign, byteRate, subchunk2Size;
-	private Clip clip;
-	private SeismogramContainer container;
+    private int chunkSize, numChannels, sampleRate, speedUp, bitsPerSample,
+        blockAlign, byteRate, subchunk2Size;
+    private Clip clip;
+    private SeismogramContainer container;
 
     public FissuresToWAV(SeismogramContainer container, int speedUp) {
-		this.container = container;
-		this.speedUp = speedUp;
-		numChannels = 1;
-		bitsPerSample = 16;
-		blockAlign = numChannels * (bitsPerSample/8);
+        this.container = container;
+        this.speedUp = speedUp;
+        numChannels = 1;
+        bitsPerSample = 16;
+        blockAlign = numChannels * (bitsPerSample/8);
     }
 
-	public void writeWAV(DataOutput out) throws IOException {
-		setInfo();
-		writeChunkData(out);
-		writeWAVData(out);
+    public void writeWAV(DataOutput out, MicroSecondTimeRange tr) throws IOException {
+        updateInfo(container.getIterator(tr));
+        writeChunkData(out);
+        writeWAVData(out);
     }
 
-	public void play(){
-		setInfo();
+    public void play(MicroSecondTimeRange tr){
+        updateInfo();
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(baos);
-		try{
-			writeWAVData(dos);
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        try{
+            writeWAVData(dos, container.getIterator(tr));
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
 
-		if (clip != null) clip.close();
-		Clip clip = null;
-		AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, true, false);
-		DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
-		if (!AudioSystem.isLineSupported(info)) {
-			System.out.println("Line not supported, apparently...");
-		}
-		// Obtain and open the line.
-		try {
-			clip = (Clip) AudioSystem.getLine(info);
-			byte[] data = baos.toByteArray();
-			ByteArrayInputStream bais = new ByteArrayInputStream(data);
-			AudioInputStream ais = new AudioInputStream(bais, audioFormat, data.length);
-			//clip.open(audioFormat, data, 0, 100);
-			try{
-				clip.open(ais);
-				clip.start();
-			}
-			catch(IOException e){
-				e.printStackTrace();
-			}
-		} catch (LineUnavailableException ex) {
-			ex.printStackTrace();
-		}
+        if (clip != null) clip.close();
+        Clip clip = null;
+        AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, true, false);
+        DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
+        if (!AudioSystem.isLineSupported(info)) {
+            System.out.println("Line not supported, apparently...");
+        }
+        // Obtain and open the line.
+        try {
+            clip = (Clip) AudioSystem.getLine(info);
+            byte[] data = baos.toByteArray();
+            ByteArrayInputStream bais = new ByteArrayInputStream(data);
+            AudioInputStream ais = new AudioInputStream(bais, audioFormat, data.length);
+            //clip.open(audioFormat, data, 0, 100);
+            try{
+                clip.open(ais);
+                clip.start();
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        } catch (LineUnavailableException ex) {
+            ex.printStackTrace();
+        }
 
-		try{
-			baos.close();
-			dos.close();
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-	}
+        try{
+            baos.close();
+            dos.close();
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+    }
 
-	private void setInfo(){
-		SeismogramIterator iterator = container.getIterator();
-		chunkSize = 36 + 2*iterator.getNumPoints();
-		subchunk2Size = iterator.getNumPoints() * blockAlign;
-		sampleRate = calculateSampleRate(container.getIterator().getSampling(), speedUp);
-		byteRate = sampleRate * blockAlign;
-	}
+    private void updateInfo(){
+        updateInfo(container.getIterator());
+    }
 
-	public void setSpeedUp(int newSpeed){
-		speedUp = newSpeed;
-		setInfo();
-	}
+    private void updateInfo(SeismogramIterator iterator){
+        chunkSize = 36 + 2*iterator.getNumPoints();
+        subchunk2Size = iterator.getNumPoints() * blockAlign;
+        sampleRate = calculateSampleRate(container.getIterator().getSampling(), speedUp);
+        byteRate = sampleRate * blockAlign;
+    }
 
-	private void writeChunkData(DataOutput out) throws IOException{
-		out.writeBytes("RIFF"); //ChunkID
+    public void setSpeedUp(int newSpeed){
+        speedUp = newSpeed;
+        updateInfo();
+    }
 
-		//ChunkSize
-		writeLittleEndian(out, chunkSize);
+    private void writeChunkData(DataOutput out) throws IOException{
+        out.writeBytes("RIFF"); //ChunkID
 
-		out.writeBytes("WAVE"); //Format
+        //ChunkSize
+        writeLittleEndian(out, chunkSize);
 
-		// write fmt subchunk
-		out.writeBytes("fmt "); //Subchunk1ID
-		writeLittleEndian(out, 16); //Subchunk1Size
-		writeLittleEndian(out, (short)1); // Audioformat = linear quantization, PCM
-		writeLittleEndian(out, (short)numChannels); // NumChannels
-		writeLittleEndian(out, sampleRate); // SampleRate
-		writeLittleEndian(out, byteRate); // byte rate
-		writeLittleEndian(out, (short)blockAlign); // block align
-		writeLittleEndian(out, (short)bitsPerSample); // bits per sample
+        out.writeBytes("WAVE"); //Format
 
-		// write data subchunk
-		out.writeBytes("data");
-		writeLittleEndian(out, subchunk2Size); // subchunk2 size
-	}
+        // write fmt subchunk
+        out.writeBytes("fmt "); //Subchunk1ID
+        writeLittleEndian(out, 16); //Subchunk1Size
+        writeLittleEndian(out, (short)1); // Audioformat = linear quantization, PCM
+        writeLittleEndian(out, (short)numChannels); // NumChannels
+        writeLittleEndian(out, sampleRate); // SampleRate
+        writeLittleEndian(out, byteRate); // byte rate
+        writeLittleEndian(out, (short)blockAlign); // block align
+        writeLittleEndian(out, (short)bitsPerSample); // bits per sample
 
-	private void writeWAVData(DataOutput out) throws IOException{
+        // write data subchunk
+        out.writeBytes("data");
+        writeLittleEndian(out, subchunk2Size); // subchunk2 size
+    }
 
-		SeismogramIterator iterator = container.getIterator();
+    private void writeWAVData(DataOutput out)throws IOException{
+        writeWAVData(out, container.getIterator());
+    }
 
-		//calculate maximum amplification factor to avoid either
-		//clipping or dead quiet
-		int amplification = (int)(24000.0/iterator.minMaxMean()[1]);
+    private void writeWAVData(DataOutput out, SeismogramIterator iterator) throws IOException{
 
-		while (iterator.hasNext()){
-			try{
-				QuantityImpl next = (QuantityImpl)iterator.next();
-				writeLittleEndian(out, (short)(amplification * next.getValue()));
-			}
-			catch(NullPointerException e){
-				writeLittleEndian(out, (short)0);
-			}
-			catch(ArrayIndexOutOfBoundsException e){
-				writeLittleEndian(out, (short)0);
-			}
-		}
-	}
+        //calculate maximum amplification factor to avoid either
+        //clipping or dead quiet
+        int amplification = (int)(24000.0/iterator.minMaxMean()[1]);
 
-	public static int calculateSampleRate(SamplingImpl sampling, int speedUp){
-		System.out.println(sampling);
-		QuantityImpl freq = sampling.getFrequency();
-		freq = freq.convertTo(UnitImpl.HERTZ);
-		return (int)(freq.getValue() * speedUp);
-	}
+        while (iterator.hasNext()){
+            try{
+                QuantityImpl next = (QuantityImpl)iterator.next();
+                writeLittleEndian(out, (short)(amplification * next.getValue()));
+            }
+            catch(NullPointerException e){
+                writeLittleEndian(out, (short)0);
+            }
+            catch(ArrayIndexOutOfBoundsException e){
+                writeLittleEndian(out, (short)0);
+            }
+        }
+    }
 
-	protected static void writeLittleEndian(DataOutput out, int value)
-		throws IOException {
-		byte[] tmpBytes;
-		tmpBytes = Utility.intToByteArray(value);
-		out.write(tmpBytes[3]);
-		out.write(tmpBytes[2]);
-		out.write(tmpBytes[1]);
-		out.write(tmpBytes[0]);
-	}
+    public static int calculateSampleRate(SamplingImpl sampling, int speedUp){
+        System.out.println(sampling);
+        QuantityImpl freq = sampling.getFrequency();
+        freq = freq.convertTo(UnitImpl.HERTZ);
+        return (int)(freq.getValue() * speedUp);
+    }
 
-	protected static void writeLittleEndian(DataOutput out, short value)
-		throws IOException {
-		byte[] tmpBytes;
-		tmpBytes = Utility.intToByteArray((int)value);
-		out.write(tmpBytes[3]);
-		out.write(tmpBytes[2]);
-	}
+    protected static void writeLittleEndian(DataOutput out, int value)
+        throws IOException {
+        byte[] tmpBytes;
+        tmpBytes = Utility.intToByteArray(value);
+        out.write(tmpBytes[3]);
+        out.write(tmpBytes[2]);
+        out.write(tmpBytes[1]);
+        out.write(tmpBytes[0]);
+    }
 
-	static Category logger =
-		Category.getInstance(FissuresToWAV.class.getName());
+    protected static void writeLittleEndian(DataOutput out, short value)
+        throws IOException {
+        byte[] tmpBytes;
+        tmpBytes = Utility.intToByteArray((int)value);
+        out.write(tmpBytes[3]);
+        out.write(tmpBytes[2]);
+    }
+
+    static Category logger =
+        Category.getInstance(FissuresToWAV.class.getName());
 
 } // FissuresToWAV
