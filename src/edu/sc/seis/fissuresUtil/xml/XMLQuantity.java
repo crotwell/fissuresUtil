@@ -30,7 +30,7 @@ public class XMLQuantity {
 
         writer.writeStartElement("the_units");
         XMLUnit.insert(writer, quantity.the_units);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**

@@ -81,7 +81,7 @@ public class DataSetToXMLStAX {
         throws XMLStreamException, IOException {
         writer.writeStartElement("dataset");
         insertDSInfo(writer, dataset, directory, fileType);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**
@@ -138,7 +138,7 @@ public class DataSetToXMLStAX {
 
         writer.writeStartElement("urlDataSetSeismogram");
         urlDSS.insertInto(writer, base);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**
@@ -163,7 +163,7 @@ public class DataSetToXMLStAX {
         writer.writeAttribute("xlink:href", datasetURL);
         writer.writeAttribute("xlink:type", "simple");
         writer.writeAttribute("xlink:title", linkTitle);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**
@@ -174,7 +174,7 @@ public class DataSetToXMLStAX {
 
         writer.writeStartElement("parameter");
         XMLParameter.insert(writer, name, parameter);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**
@@ -185,7 +185,7 @@ public class DataSetToXMLStAX {
 
         writer.writeStartElement("parameter");
         XMLParameter.insert(writer, name, typeDef, typeName, value);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
 

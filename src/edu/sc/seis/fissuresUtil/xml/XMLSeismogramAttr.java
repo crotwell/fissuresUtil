@@ -36,45 +36,45 @@ public class XMLSeismogramAttr {
         for (int i = 0; i < seismogramAttr.properties.length; i++) {
             writer.writeStartElement("dataset");
             XMLProperty.insert(writer, seismogramAttr.properties[i]);
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
 
         writer.writeStartElement("begin_time");
         XMLTime.insert(writer, seismogramAttr.begin_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "num_points", ""+seismogramAttr.num_points);
 
         writer.writeStartElement("sampling_info");
         XMLSampling.insert(writer, seismogramAttr.sampling_info);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("y_unit");
         XMLUnit.insert(writer, seismogramAttr.y_unit);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("channel_id");
         XMLChannelId.insert(writer, seismogramAttr.channel_id);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         for (int i = 0; i < seismogramAttr.parm_ids.length; i++) {
             writer.writeStartElement("parameter");
             XMLParameter.insert(writer,
                                 seismogramAttr.parm_ids[i].a_id,
                                 seismogramAttr.parm_ids[i].creator);
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
 
         for (int i = 0; i < seismogramAttr.time_corrections.length; i++) {
             writer.writeStartElement("time_correction");
             XMLQuantity.insert(writer, seismogramAttr.time_corrections[i]);
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
 
         for (int i = 0; i < seismogramAttr.sample_rate_history.length; i++) {
             writer.writeStartElement("sample_rate_history");
             XMLSampling.insert(writer, seismogramAttr.sample_rate_history[i]);
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
     }
 

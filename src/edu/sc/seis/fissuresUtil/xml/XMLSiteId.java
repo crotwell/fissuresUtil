@@ -27,14 +27,14 @@ public class XMLSiteId {
 
         writer.writeStartElement("network_id");
         XMLNetworkId.insert(writer, siteId.network_id);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "station_code", siteId.station_code);
         XMLUtil.writeTextElement(writer, "site_code", siteId.site_code);
 
         writer.writeStartElement("begin_time");
         XMLTime.insert(writer, siteId.begin_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**

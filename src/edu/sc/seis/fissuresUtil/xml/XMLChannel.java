@@ -30,25 +30,25 @@ public class XMLChannel {
     public static void insert(XMLStreamWriter writer, Channel channel) throws XMLStreamException{
         writer.writeStartElement("id");
         XMLChannelId.insert(writer, channel.get_id());
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "name", channel.name);
 
         writer.writeStartElement("an_orientation");
         XMLOrientation.insert(writer, channel.an_orientation);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("sampling_info");
         XMLSampling.insert(writer, channel.sampling_info);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("effective_time");
         XMLTimeRange.insert(writer, channel.effective_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("my_site");
         XMLSite.insert(writer, channel.my_site);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**

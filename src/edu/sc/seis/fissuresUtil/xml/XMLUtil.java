@@ -42,7 +42,12 @@ public class XMLUtil {
                                         String value) throws XMLStreamException{
         writer.writeStartElement(elementName);
         writer.writeCharacters(value);
+        XMLUtil.writeEndElementWithNewLine(writer);
+    }
+
+    public static void writeEndElementWithNewLine(XMLStreamWriter writer) throws XMLStreamException{
         writer.writeEndElement();
+        writer.writeCharacters("\n");
     }
 
     /**
@@ -117,11 +122,13 @@ public class XMLUtil {
                 break;
 
             case XMLStreamConstants.END_ELEMENT:
-                writer.writeEndElement();
+                XMLUtil.writeEndElementWithNewLine(writer);
                 break;
 
             case XMLStreamConstants.CHARACTERS:
-                writer.writeCharacters(reader.getText());
+                if (!reader.getText().equals("\n")){
+                    writer.writeCharacters(reader.getText());
+                }
                 break;
 
             case XMLStreamConstants.COMMENT:
@@ -130,6 +137,7 @@ public class XMLUtil {
         }
     }
 
+    //TODO make this method work again.  I think newlines broke it.
     public static void mergeDocs(File intoFile, File fromFile, QName compareTag, QName rootTag)
         throws FileNotFoundException, XMLStreamException, IOException{
 
@@ -171,6 +179,7 @@ public class XMLUtil {
         }
     }
 
+    //TODO make this work again.  I think newlines broke it
     /**
      * Merges two XML Documents using StAX. The root element of <code>reader1</code>
      * will be used in the new document.  Flushing and closing of the readers and the writer
@@ -217,6 +226,7 @@ public class XMLUtil {
         writer.add(curEvent);
     }
 
+    //TODO make this work again.  I think newlines broke it.
     /**
      * Moves all elements of a particular type.
      * @precondition - reader must be queued up to the first

@@ -33,13 +33,13 @@ public class XMLEvent {
 
         writer.writeStartElement("region");
         XMLFlinnEngdahlRegion.insert(writer, event.get_attributes().region);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         try{
             Origin prefOrigin = event.get_preferred_origin();
             writer.writeStartElement("preferred_origin");
             XMLOrigin.insert(writer, prefOrigin);
-            writer.writeEndElement();
+            XMLUtil.writeEndElementWithNewLine(writer);
         }
         catch (NoPreferredOrigin e){}
     }

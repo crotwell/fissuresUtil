@@ -31,19 +31,19 @@ public class XMLSite {
 
         writer.writeStartElement("id");
         XMLSiteId.insert(writer, site.get_id());
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("my_location");
         XMLLocation.insert(writer, site.my_location);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("effective_time");
         XMLTimeRange.insert(writer, site.effective_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         writer.writeStartElement("my_station");
         XMLStation.insert(writer, site.my_station);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
 
         XMLUtil.writeTextElement(writer, "comment", site.comment);
     }

@@ -32,7 +32,7 @@ public class XMLSampling {
 
         writer.writeStartElement("interval");
         XMLQuantity.insert(writer, sampling.interval);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**

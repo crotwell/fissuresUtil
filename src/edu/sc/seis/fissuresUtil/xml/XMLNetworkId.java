@@ -26,7 +26,7 @@ public class XMLNetworkId {
 
         writer.writeStartElement("begin_time");
         XMLTime.insert(writer, networkId.begin_time);
-        writer.writeEndElement();
+        XMLUtil.writeEndElementWithNewLine(writer);
     }
 
     /**
