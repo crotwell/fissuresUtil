@@ -65,7 +65,7 @@ public class DrawableSeismogram implements NamedPlotter{
     public boolean drawName(Graphics2D canvas, int xPosition, int yPosition){
         if(visible){
             canvas.setPaint(color);
-            canvas.drawString(getName(), xPosition, yPosition);
+            canvas.drawString(getName() + " " + shape.getDataStatus(), xPosition, yPosition);
             return true;
         }
         return false;
