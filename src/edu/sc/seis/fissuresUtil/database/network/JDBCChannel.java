@@ -59,7 +59,7 @@ public class JDBCChannel extends NetworkTable {
         stationTable = siteTable.getStationTable();
         netTable = stationTable.getNetTable();
         seq = new JDBCSequence(conn, "ChannelSeq");
-        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
+        TableSetup.setup(this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     private ChannelId[] extractAllChanIds(PreparedStatement query)

@@ -54,7 +54,7 @@ public class JDBCStation extends NetworkTable {
         this.netTable = jdbcNetwork;
         this.time = time;
         seq = new JDBCSequence(conn, "StationSeq");
-        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
+        TableSetup.setup(this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     private StationId[] extractAll(PreparedStatement query) throws SQLException {
