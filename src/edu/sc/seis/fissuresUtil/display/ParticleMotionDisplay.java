@@ -37,23 +37,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     public ParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
                                  Registrar registrar,
                                  boolean advancedOption) {
-
-        JFrame displayFrame = new JFrame();
-        JPanel informationPanel = new JPanel();
-        String message = " Please Wait ....For the Particle Motion Window";
-        JLabel jLabel = new JLabel(message);
-        JTextArea textArea = new JTextArea("LKJDLKJFDJFLKDJFLKDJFKLDJFLKDJFKLDJLKJDFL", 80,40);
-        textArea.setVisible(true);
-        informationPanel.setLayout(new BorderLayout());
-        informationPanel.add(textArea, BorderLayout.CENTER);
-        informationPanel.setSize(new java.awt.Dimension(500, 300));
-
-        displayFrame.getContentPane().setLayout(new BorderLayout());
-        displayFrame.getContentPane().add(jLabel, BorderLayout.CENTER);
-        displayFrame.setSize(new java.awt.Dimension(500, 300));
-        informationPanel.setVisible(true);
-        displayFrame.pack();
-        displayFrame.setVisible(true);
         this.registrar = registrar;
         particleDisplayPanel = new JLayeredPane();
         OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
@@ -109,7 +92,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
                                                                         this);
         t.execute();
         initialized = t.getCompletion();
-        displayFrame.dispose();
     }
 
     /**
@@ -272,23 +254,16 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
      * all the three planes can be viewed simultaneouly by overlapping.
      * @param channelGroup a <code>ChannelId[]</code> value
      */
-    public void formCheckBoxPanel(ChannelId[] channelGroup) {
-        ArrayList arrayList = new ArrayList();
-        for(int counter = 0; counter < channelGroup.length; counter++) {
-            for(int subcounter = counter+1; subcounter < channelGroup.length; subcounter++) {
-                String labelStr = DisplayUtils.getOrientationName(channelGroup[counter].channel_code)+"-"+
-                    DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code);
-                JCheckBox radioButton = new JCheckBox(labelStr);
-                radioButton.setActionCommand(labelStr);
-                radioButton.addItemListener(new RadioButtonListener());
-                arrayList.add(radioButton);
-            }
+    public void formCheckBoxPanel() {
+        JCheckBox[] checkBoxes  = new JCheckBox[3];
+        for(int i = 0; i < checkBoxes.length; i++) {
+            checkBoxes[i] = new JCheckBox(labelStrings[i]);
+            checkBoxes[i].setActionCommand(labelStrings[i]);
+            checkBoxes[i].addItemListener(new RadioButtonListener());
         }
-        JCheckBox[] checkBoxes = new JCheckBox[arrayList.size()];
-        checkBoxes = (JCheckBox[])arrayList.toArray(checkBoxes);
         initialButton = checkBoxes[0];
         view.setDisplayKey(checkBoxes[0].getText());
-        for(int counter = 0; counter < channelGroup.length; counter++) {
+        for(int counter = 0; counter < checkBoxes.length; counter++) {
             radioPanel.add(checkBoxes[counter]);
         }
         radioPanel.setVisible(true);
@@ -299,26 +274,17 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
      * particleMotions among all the three planes can be viewed at a time.
      * @param channelGroup a <code>ChannelId[]</code> value
      */
-    public void formRadioSetPanel(ChannelId[] channelGroup) {
-        ArrayList arrayList = new ArrayList();
-        for(int counter = 0; counter < channelGroup.length; counter++) {
-            for(int subcounter = counter + 1; subcounter < channelGroup.length; subcounter++) {
-                String labelStr = DisplayUtils.getOrientationName(channelGroup[counter].channel_code)+"-"+
-                    DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code);
-                JRadioButton radioButton = new JRadioButton(labelStr);
-                radioButton.setActionCommand(labelStr);
-                radioButton.addItemListener(new RadioButtonListener());
-                arrayList.add(radioButton);
-            }
+    public void formRadioSetPanel() {
+        JRadioButton[] radioButtons = new JRadioButton[3];
+        for(int i = 0; i < radioButtons.length; i++) {
+            radioButtons[i] = new JRadioButton(labelStrings[i]);
+            radioButtons[i].setActionCommand(labelStrings[i]);
+            radioButtons[i].addItemListener(new RadioButtonListener());
         }
-
-        JRadioButton[] radioButtons = new JRadioButton[arrayList.size()];
-        radioButtons = (JRadioButton[])arrayList.toArray(radioButtons);
         initialButton = radioButtons[0];
-
         ButtonGroup buttonGroup = new ButtonGroup();
         view.setDisplayKey(radioButtons[0].getText());
-        for(int counter = 0; counter < channelGroup.length; counter++) {
+        for(int counter = 0; counter < radioButtons.length; counter++) {
             buttonGroup.add(radioButtons[counter]);
             radioPanel.add(radioButtons[counter]);
         }
@@ -378,6 +344,10 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 
     static Category logger =
         Category.getInstance(ParticleMotionDisplay.class.getName());
+
+    private static final String[] labelStrings = { DisplayUtils.NORTHEAST,
+            DisplayUtils.UPNORTH,
+            DisplayUtils.UPEAST};
 
     private class RadioButtonListener implements ItemListener {
         public void itemStateChanged(ItemEvent ae) {

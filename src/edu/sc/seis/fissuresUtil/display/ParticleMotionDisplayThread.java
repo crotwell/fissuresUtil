@@ -46,32 +46,53 @@ public class ParticleMotionDisplayThread{
         //decide whether to form the radioSetPanel or the checkBoxPanel.
         if(displayButtonPanel) {
             if(!advancedOption) {
-                particleMotionDisplay.formRadioSetPanel(channelGroup);
+                particleMotionDisplay.formRadioSetPanel();
             } else {
-                particleMotionDisplay.formCheckBoxPanel(channelGroup);
+                particleMotionDisplay.formCheckBoxPanel();
             }
 
         }
         Color displayColor = selectionColors[particleMotionDisplay.getView().getSelectedParticleMotion().length % selectionColors.length];
 
         for(int counter = 0; counter < dssArray.length; counter++) {
+            String counterOrientation = DisplayUtils.getOrientationName(channelGroup[counter].channel_code);
             for(int subcounter = counter+1; subcounter < dssArray.length; subcounter++) {
-
                 boolean horizPlane = isHorizontalPlane(dssArray[counter].getRequestFilter().channel_id,
                                                        dssArray[subcounter].getRequestFilter().channel_id,
                                                        dssArray[counter].getDataSet());
                 if(horizPlane) {
                     particleMotionDisplay.displayBackAzimuth(dssArray[counter].getDataSet(), channelGroup[counter]);
                 }
-                particleMotionDisplay.getView().addParticleMotionDisplay(dssArray[counter],
-                                                                         dssArray[subcounter],
+                String subCounterOrientation = DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code);
+                String orientationString;
+                DataSetSeismogram hSeis,vSeis;
+                //From display util determined orientation, lay the seismograms
+                //out in the particle motion view
+                if(counterOrientation.equals(DisplayUtils.UP)){//Up always goes vertical
+                    vSeis = dssArray[counter];
+                    hSeis = dssArray[subcounter];
+                    orientationString = counterOrientation + "-" + subCounterOrientation;
+                }else if(counterOrientation.equals(DisplayUtils.EAST)){//East always goes horizontal
+                    vSeis = dssArray[subcounter];
+                    hSeis = dssArray[counter];
+                    orientationString = subCounterOrientation + "-" + counterOrientation;
+                }else{//counterOrientation must be North
+                    if(subCounterOrientation.equals(DisplayUtils.EAST)){//North goes vertical with East
+                        vSeis = dssArray[counter];
+                        hSeis = dssArray[subcounter];
+                        orientationString = DisplayUtils.NORTHEAST;
+                    }else{//North goes horizontal with Up
+                        vSeis = dssArray[subcounter];
+                        hSeis = dssArray[counter];
+                        orientationString = DisplayUtils.UPNORTH;
+                    }
+                }
+                particleMotionDisplay.getView().addParticleMotionDisplay(hSeis,
+                                                                         vSeis,
                                                                          registrar,
                                                                          displayColor,
-                                                                         DisplayUtils.getOrientationName(channelGroup[counter].channel_code)+"-"+
-                                                                             DisplayUtils.getOrientationName(channelGroup[subcounter].channel_code),
+                                                                         orientationString,
                                                                          horizPlane);
-                //particleMotionDisplay.updateTimeRange();
-
             }
         }
         if(displayButtonPanel) {

@@ -256,9 +256,9 @@ public class DisplayUtils {
     public static String getOrientationName(String orientation) {
 
         char ch = orientation.charAt(2);
-        if(ch == 'E' || ch == '1' || ch == 'U') return "East";
-        else if(ch == 'N' || ch == '2' || ch == 'V') return "North";
-        else return "Up";
+        if(ch == 'E' || ch == '1' || ch == 'U') return EAST;
+        else if(ch == 'N' || ch == '2' || ch == 'V') return NORTH;
+        else return UP;
     }
 
     /**
@@ -310,6 +310,18 @@ public class DisplayUtils {
         return
             (currentPoint-firstPoint)/(double)(lastPoint-firstPoint)*(numValues-1);
     }
+
+    public static final String UP = "Up";
+
+    public static final String EAST = "East";
+
+    public static final String NORTH = "North";
+
+    public static final String NORTHEAST = NORTH + "-" + EAST;
+
+    public static final String UPEAST = UP + "-" + EAST;
+
+    public static final String UPNORTH = UP + "-" + NORTH;
 
     public static Font DEFAULT_FONT = new Font("Arial", Font.PLAIN, 12);
 
