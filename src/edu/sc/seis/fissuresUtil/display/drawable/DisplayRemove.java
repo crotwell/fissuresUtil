@@ -21,7 +21,7 @@ import java.awt.event.MouseMotionListener;
 
 public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionListener{
 
-    public DisplayRemove(BasicSeismogramDisplay display){
+    public DisplayRemove(SeismogramDisplay display){
         this.display = display;
         SeismogramDisplay.getMouseForwarder().addPermMouseListener(this);
         SeismogramDisplay.getMouseMotionForwarder().addMouseMotionListener(this);
@@ -47,7 +47,7 @@ public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionL
 
     public void mouseClicked(MouseEvent e){
         if(intersects(e)){
-            display.remove();
+            display.clear();
             SeismogramDisplay.getMouseForwarder().removePermMouseListener(this);
             SeismogramDisplay.getMouseMotionForwarder().removeMouseMotionListener(this);
         }
@@ -93,7 +93,7 @@ public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionL
 
     private int xMax = 10, xMin = 5, yMax = 10, yMin = 5;
 
-    private BasicSeismogramDisplay display;
+    private SeismogramDisplay display;
 
     private boolean visible = true;
 }
