@@ -17,13 +17,6 @@ import org.apache.log4j.Category;
  * @version 1.0
  */
 public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
-
-
-    public void setCorbaObject(NetworkDC netDC) {
-
-    }
-
-
     public NSNetworkDC(String serverDNS, String serverName,
                        FissuresNamingService fissuresNamingService) {
         this.serverDNS = serverDNS;
