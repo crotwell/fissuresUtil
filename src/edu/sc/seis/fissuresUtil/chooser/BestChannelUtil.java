@@ -4,6 +4,7 @@ package edu.sc.seis.fissuresUtil.chooser;
 
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
+import edu.iris.Fissures.model.*;
 
 public class BestChannelUtil {
 
@@ -21,6 +22,30 @@ public class BestChannelUtil {
 
     public static String[] getBandCodeHeuristic() {
 	return bandCodeHeuristic;
+    }
+
+    /** Trys to find a channel whose effect time overlaps the given time
+        and which has the same network, station, site and channel codes
+        as the given channel id.
+
+        @returns a channel of there is one, or null if not
+    */  
+    public static Channel getActiveChannel(Channel[] inChan, 
+                                           Channel current, 
+                                           MicroSecondDate when) {
+        for (int i=0; i<inChan.length; i++) {
+            if (ChannelIdUtil.toStringNoDates(inChan[i].get_id()).equals(ChannelIdUtil.toStringNoDates(current.get_id()))) {
+                if (when.before(new MicroSecondDate(inChan[i].effective_time.end_time)) &&
+                    when.after(new MicroSecondDate(inChan[i].effective_time.start_time))) {
+                    return inChan[i];
+                } // end of if (when.before(inChan.effective_time.end_time))
+                
+            } // end of if (ChannelIdUtil.toStringNoDates(inChan.get_id()).equals(ChannelIdUtil.toStringNoDates(current.get_id()))
+                
+        } // end of for (int i=0; i<inChan.length; i++)
+        
+        // no match
+        return null;
     }
 
     /** finds the best vertical channel for the band code. All channels are
