@@ -201,9 +201,6 @@ public class SimplePlotUtil  {
 							 comp[1][i])));
 	    
 	}
-	
-		flipArray(comp[1], size.height);
-
     }
 	
         public static int[][] getPlottableSimple(LocalSeismogram seismogram, 

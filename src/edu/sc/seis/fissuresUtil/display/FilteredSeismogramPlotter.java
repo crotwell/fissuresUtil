@@ -38,6 +38,7 @@ public class FilteredSeismogramPlotter implements Plotter{
 		    getOversizedTimeRange(BasicSeismogramDisplay.OVERSIZED_SCALE);
 		int[][] pixels = SimplePlotUtil.compressYvalues(filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size);
 		SimplePlotUtil.scaleYvalues(pixels, filteredSeis, overTimeRange, ampConfig.getAmpRange(seis), size); 
+		SimplePlotUtil.flipArray(pixels[1], size.height);
 		int[] xPixels = pixels[0];
 		int[] yPixels = pixels[1];
 		if(xPixels.length >= 2){
