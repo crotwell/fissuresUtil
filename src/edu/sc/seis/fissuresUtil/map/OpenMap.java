@@ -82,6 +82,7 @@ public class OpenMap extends OpenMapComponent{
 			// Create an OpenMap toolbar
 			ToolPanel toolBar = new ToolPanel();
 
+
 			// Add the ToolPanel and the OMToolSet to the MapHandler.  The
 			// OpenMapFrame will find the ToolPanel and attach it to the
 			// top part of its content pane, and the ToolPanel will find
@@ -91,6 +92,7 @@ public class OpenMap extends OpenMapComponent{
 
 			mapHandler.add(new MouseDelegator());
 			mapHandler.add(new SelectMouseMode());
+			mapHandler.add(new InformationDelegator());
 		} catch (MultipleSoloMapComponentException msmce) {
 			// The MapHandler is only allowed to have one of certain
 			// items.  These items implement the SoloMapComponent
