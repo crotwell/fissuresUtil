@@ -46,6 +46,10 @@ public class DisplayUtils {
     public static DataSetSeismogram[] getComponents(DataSetSeismogram seismogram){
         DataSet dataSet = seismogram.getDataSet();
         RequestFilter rf = seismogram.getRequestFilter();
+        return getComponents(dataSet, rf);
+    }
+    
+    public static DataSetSeismogram[] getComponents(DataSet dataSet, RequestFilter rf) {
         Set componentSeismograms = new HashSet();
         MicroSecondTimeRange tr = new MicroSecondTimeRange(rf);
         ChannelId chanId = rf.channel_id;
