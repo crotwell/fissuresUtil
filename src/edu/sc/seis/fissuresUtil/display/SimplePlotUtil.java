@@ -202,7 +202,7 @@ public class SimplePlotUtil  {
 	    
 	}
 	
-	//	flipArray(comp[1], size.height);
+		flipArray(comp[1], size.height);
 
     }
 	
