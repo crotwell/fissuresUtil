@@ -1,10 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.registrar.*;
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -17,11 +15,22 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.TauP.SphericalCoords;
 import edu.sc.seis.fissuresUtil.chooser.SeisTimeFilterSelector;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
+import edu.sc.seis.fissuresUtil.display.registrar.Registrar;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.ArrayList;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import javax.swing.border.Border;
 import org.apache.log4j.Category;
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
 
 
 /**
@@ -37,7 +46,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
     public ParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
                                  Registrar registrar,
                                  boolean advancedOption) {
-        this.registrar = registrar;
         particleDisplayPanel = new JLayeredPane();
         OverlayLayout overlayLayout = new OverlayLayout(particleDisplayPanel);
 
@@ -59,10 +67,10 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
         hTitleBorder = new BottomTitleBorder("X - axis Title");
         vTitleBorder = new LeftTitleBorder("Y - axis Title");
         Border titleBorder = BorderFactory.createCompoundBorder(hTitleBorder,
-                                                                  vTitleBorder);
+                                                                vTitleBorder);
         Border bevelBorder = BorderFactory.createRaisedBevelBorder();
         Border bevelTitleBorder = BorderFactory.createCompoundBorder(bevelBorder,
-                                                                  titleBorder);
+                                                                     titleBorder);
         Border lowBevelBorder = BorderFactory.createLoweredBevelBorder();
         Border scaleBevelBorder = BorderFactory.createCompoundBorder(scaleBorder,
                                                                      lowBevelBorder);
@@ -87,10 +95,15 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 
         ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
                                                                         registrar,
-                                                                        advancedOption,
-                                                                        true,
                                                                         this);
         t.execute();
+        //decide whether to form the radioSetPanel or the checkBoxPanel.
+        if(!advancedOption) {
+            formRadioSetPanel();
+        } else {
+            formCheckBoxPanel();
+        }
+        setInitialButton();
         initialized = t.getCompletion();
     }
 
@@ -176,16 +189,14 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 
     public synchronized void addParticleMotionDisplay(DataSetSeismogram datasetSeismogram,
                                                       Registrar registrar) {
-        this.registrar = registrar;
-        boolean buttonPanel = this.displayButtonPanel;
-        displayButtonPanel = false;
         ParticleMotionDisplayThread t = new ParticleMotionDisplayThread(datasetSeismogram,
                                                                         registrar,
-                                                                        false,
-                                                                        buttonPanel,
                                                                         this);
+        if(registrar != null) {
+            registrar.addListener((AmpListener)this);
+            registrar.addListener((TimeListener)this);
+        }
         t.execute();
-
     }
 
     /**
@@ -239,14 +250,6 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
      */
     public synchronized ParticleMotionView getView() {
         return view;
-    }
-
-    /**
-     * fires AmpRangeChangeEvent to all the registered Listeners
-     * @param event an <code>AmpSyncEvent</code> value
-     */
-    public void shaleAmp(double shift, double scale) {
-        registrar.shaleAmp(shift, scale);
     }
 
     /**
@@ -332,13 +335,9 @@ public class ParticleMotionDisplay extends JPanel implements TimeListener, AmpLi
 
     protected ParticleMotionView view;
 
-    private Registrar registrar;
-
     private JLayeredPane particleDisplayPanel;
 
     private JPanel radioPanel;
-
-    private boolean displayButtonPanel = true;
 
     private AbstractButton initialButton;
 
