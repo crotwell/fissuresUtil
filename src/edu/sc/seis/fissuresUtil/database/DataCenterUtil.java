@@ -172,7 +172,7 @@ samps+" gap="+gap+" period="+period);
     @returns a local seismogram unless the List is empty, in which
     case it returns null.
     */
-    public static LocalSeismogram getSeismogram(List chunks) {
+    public static LocalSeismogramImpl getSeismogram(List chunks) {
     ArrayList eData = new ArrayList();
     int numPoints = 0;
     DataChunk currChunk = null;
@@ -285,7 +285,7 @@ samps+" gap="+gap+" period="+period);
     } // end of else
 
 
-    LocalSeismogram ls = new LocalSeismogramImpl(ChannelIdUtil.toString(channelId)+":"+begin.getFissuresTime().date_time+"/"+numPoints+"/"+(new Date()).getTime(),
+    LocalSeismogramImpl ls = new LocalSeismogramImpl(ChannelIdUtil.toString(channelId)+":"+begin.getFissuresTime().date_time+"/"+numPoints+"/"+(new Date()).getTime(),
                              begin.getFissuresTime(),
                              numPoints,
                              samps,
