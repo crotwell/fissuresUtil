@@ -46,17 +46,18 @@ public class SeismogramDisplayConfiguration implements Cloneable {
         if(DOMHelper.hasElement(el, "swapAxes")) {
             swapAxes = true;
         }
-        if(DOMHelper.hasElement(el,"timeConfig")){
-            Element timeConfigEl = DOMHelper.getElement(el,"timeConfig");
-            timeConfig = TimeConfigConfiguration.create(timeConfigEl).createTimeConfig();
+        if(DOMHelper.hasElement(el, "timeConfig")) {
+            Element timeConfigEl = DOMHelper.getElement(el, "timeConfig");
+            tcConfig = TimeConfigConfiguration.create(timeConfigEl);
         }
-        if(DOMHelper.hasElement(el,"ampConfig")){
-            Element ampConfigEl = DOMHelper.getElement(el,"ampConfig");
-            ampConfig = AmpConfigConfiguration.create(ampConfigEl).createAmpConfig();
+        if(DOMHelper.hasElement(el, "ampConfig")) {
+            Element ampConfigEl = DOMHelper.getElement(el, "ampConfig");
+            acConfig = AmpConfigConfiguration.create(ampConfigEl);
         }
     }
 
-    public static SeismogramDisplayConfiguration create(Element el) throws NoSuchFieldException {
+    public static SeismogramDisplayConfiguration create(Element el)
+            throws NoSuchFieldException {
         SeismogramDisplayConfiguration c = null;
         if(defs.hasDefinition(el)) {
             SeismogramDisplayConfiguration base = (SeismogramDisplayConfiguration)defs.getDefinition(el);
@@ -77,6 +78,8 @@ public class SeismogramDisplayConfiguration implements Cloneable {
     }
 
     public SeismogramDisplay createDisplay() {
+        AmpConfig ampConfig = acConfig.createAmpConfig();
+        TimeConfig timeConfig = tcConfig.createTimeConfig();
         if(makeDefault) { return new BasicSeismogramDisplay(); }
         SeismogramDisplay disp;
         if(type.equals("recordSection")) {
@@ -109,10 +112,10 @@ public class SeismogramDisplayConfiguration implements Cloneable {
             ColorClassConfiguration cur = (ColorClassConfiguration)it.next();
             disp.setColors(cur.getColorClass(), cur.getColors());
         }
-        if(ampConfig != null){
+        if(ampConfig != null) {
             disp.setAmpConfig(ampConfig);
         }
-        if(timeConfig != null){
+        if(timeConfig != null) {
             disp.setTimeConfig(timeConfig);
         }
         return disp;
@@ -127,8 +130,8 @@ public class SeismogramDisplayConfiguration implements Cloneable {
         clone.drawNamesForNamedDrawables = drawNamesForNamedDrawables;
         clone.borderBackground = borderBackground;
         clone.borderColor = borderColor;
-        clone.ampConfig = ampConfig;
-        clone.timeConfig = timeConfig;
+        clone.acConfig = acConfig;
+        clone.tcConfig = tcConfig;
         return clone;
     }
 
@@ -137,10 +140,10 @@ public class SeismogramDisplayConfiguration implements Cloneable {
     private List borders = new ArrayList();
 
     private List colorClasses = new ArrayList();
-    
-    private TimeConfig timeConfig;
-    
-    private AmpConfig ampConfig;
+
+    private TimeConfigConfiguration tcConfig;
+
+    private AmpConfigConfiguration acConfig;
 
     private boolean swapAxes = false;
 
