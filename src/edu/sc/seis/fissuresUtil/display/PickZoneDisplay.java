@@ -33,6 +33,7 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
                     if(DisplayUtils.areFriends(contained[j], seis)){
                         DataSetSeismogram[] newSeis = { seis};
                         cur.add(newSeis);
+                        break;
                     }
                 }
             }
@@ -52,4 +53,8 @@ public class PickZoneDisplay extends VerticalSeismogramDisplay{
         revalidate();
         setBorders();
     }
+
+
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(PickZoneDisplay.class);
+
 }
