@@ -98,13 +98,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             basicDisplays.add(j, disp);
             addTimeBorders();
         }
-
-		if (numDisps == 0){
-			disp.addSoundPlay();
-			System.out.println("MultiSeis: adding SoundDisplay");
-		}
-		numDisps++;
-
+        //disp.addSoundPlay();
         return disp;
     }
 
@@ -113,16 +107,13 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             sorter.remove(dss[i]);
         }
         super.remove(dss);
-		numDisps--;
     }
 
     public void removeAll(){
         sorter.clear();
         super.removeAll();
-		numDisps = 0;
     }
 
     private SeismogramSorter sorter;
-	private SoundPlay soundPlay;
-	private int numDisps = 0;
+    private SoundPlay soundPlay;
 }// MultiSeismogramWindowDisplay
