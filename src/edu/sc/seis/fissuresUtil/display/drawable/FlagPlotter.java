@@ -33,7 +33,7 @@ public class FlagPlotter implements Plotter{
 
     public void draw(Graphics2D canvas, Dimension size, TimeEvent timeEvent, AmpEvent ampEvent){
         if(visible){
-            canvas.setFont(FLAG_FONT);
+            canvas.setFont(DisplayUtils.BOLD_FONT);
             MicroSecondTimeRange timeRange = timeEvent.getTime();
             if(flagTime.before(timeRange.getBeginTime()) || flagTime.after(timeRange.getEndTime()))
                 return;
@@ -73,8 +73,6 @@ public class FlagPlotter implements Plotter{
 
     //pixels of space of flag around the font
     private static final int PADDING = 4;
-
-    private static Font FLAG_FONT = new Font("Arial", Font.BOLD, 12);
 
     private static Category logger = Category.getInstance(FlagPlotter.class.getName());
 
