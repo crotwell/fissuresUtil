@@ -184,21 +184,29 @@ public class AmpConfigData implements SeismogramContainerListener{
         shaledRange = cleanRange;
     }
 
-    private SeismogramContainer container;
+    public static DataSetSeismogram[] getSeismograms(AmpConfigData[] ampData){
+        DataSetSeismogram[] seisArray = new DataSetSeismogram[ampData.length];
+        for (int i = 0; i < ampData.length; i++){
+            seisArray[i] = ampData[i].getDSS();
+        }
+        return seisArray;
+    }
 
-    private UnitRangeImpl cleanRange = DisplayUtils.ZERO_RANGE;
+        private SeismogramContainer container;
 
-    private UnitRangeImpl shaledRange;
+        private UnitRangeImpl cleanRange = DisplayUtils.ZERO_RANGE;
 
-    private MicroSecondTimeRange timeRange = DisplayUtils.ZERO_TIME;
+        private UnitRangeImpl shaledRange;
 
-    private double shift = 0;
+        private MicroSecondTimeRange timeRange = DisplayUtils.ZERO_TIME;
 
-    private double scale = 1;
+        private double shift = 0;
 
-    private AmpConfig parent;
+        private double scale = 1;
 
-    private boolean newData = false;
+        private AmpConfig parent;
 
-    private static Logger logger = Logger.getLogger(AmpConfigData.class);
-}// AmpConfigData
+        private boolean newData = false;
+
+        private static Logger logger = Logger.getLogger(AmpConfigData.class);
+    }// AmpConfigData
