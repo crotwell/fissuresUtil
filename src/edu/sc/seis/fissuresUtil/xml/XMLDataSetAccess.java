@@ -17,9 +17,23 @@ import org.apache.log4j.*;
 /**
  * Access to a dataset stored as an XML file.
  *
- * @version $Id: XMLDataSetAccess.java 1681 2002-05-23 23:01:27Z crotwell $
+ * @version $Id: XMLDataSetAccess.java 1682 2002-05-24 01:48:06Z crotwell $
  */
 public class XMLDataSetAccess implements DataSetAccess, Serializable {
+
+    /** Creates an empty dataset. */
+    public XMLDataSetAccess(DocumentBuilder docBuilder, 
+			    String id, 
+			    String name,
+			    String Owner) {
+	Document doc = docBuilder.newDocument();
+	config = doc.createElement("dataset");
+	Element nameE = doc.createElement("name");
+	Element ownerE = doc.createElement("owner");
+	config.setAttribute("datasetid", id);
+	config.appendChild(nameE);
+	config.appendChild(ownerE);
+    }
 
     public XMLDataSetAccess(DocumentBuilder docBuilder, Element config) {
 	this.docBuilder = docBuilder;
@@ -43,7 +57,6 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 				      "dataset/parameter[name/text()="+
 				      dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
-	    System.out.println("got "+nList.getLength());
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
 		return (Element)n;
@@ -54,7 +67,6 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	nList = evalNodeList(config, 
 			     "dataset/parameterRef[text()="+dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
-	    System.out.println("got "+nList.getLength());
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
 		SimpleXLink sl = new SimpleXLink(docBuilder, (Element)n);
@@ -71,14 +83,13 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
     }
 
     public String[] getDataSetIds() {
-	return getAllAsStrings("dataset/@datasetid");
+	return getAllAsStrings("*/@datasetid");
     }
 
     public DataSetAccess getDataSet(String id) {
 	NodeList nList = 
-	    evalNodeList(config, "dataset[@datasetid="+dquote+id+dquote+"]");
+	    evalNodeList(config, "//dataset[@datasetid="+dquote+id+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
-	    System.out.println("got "+nList.getLength());
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
 		return new XMLDataSetAccess(docBuilder, (Element)n);
@@ -89,7 +100,6 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	nList = 
 	    evalNodeList(config, "datasetRef[@datasetid="+dquote+id+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
-	    System.out.println("got "+nList.getLength());
 	    Node n = nList.item(0); 
 	    if (n instanceof Element) {
 		try {
@@ -107,15 +117,14 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
     }
 
     public String[] getSeismogramNames() {
-	return getAllAsStrings("dataset/SacSeismogram/name/text()");
+	return getAllAsStrings("SacSeismogram/name/text()");
     }
 
     public LocalSeismogramImpl getSeismogram(String name) {
 	NodeList nList = 
-	    evalNodeList(config, "dataset/SacSeismogram[name="+dquote+name+dquote+"]");
+	    evalNodeList(config, "SacSeismogram[name="+dquote+name+dquote+"]");
 	if (nList != null && nList.getLength() != 0) {
 	    try {
-		System.out.println("got "+nList.getLength());
 		Node n = nList.item(0); 
 		if (n instanceof Element) {
 		    Element e = (Element)n;
@@ -194,6 +203,24 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
     static Category logger = 
 	Category.getInstance(XMLDataSetAccess.class.getName());
 
+    static void testDataSet(DataSetAccess dataset, String indent) {
+	indent = indent+"  ";
+	String[] names = dataset.getSeismogramNames();
+	System.out.println(indent+" has "+names.length+" seismograms.");
+	for (int num=0; num<names.length; num++) {
+	    System.out.println(indent+" Seismogram name="+names[num]);
+	    LocalSeismogramImpl seis = dataset.getSeismogram(names[num]);
+	    System.out.println(seis.getNumPoints());
+
+	}
+	names = dataset.getDataSetIds();
+	System.out.println(indent+" has "+names.length+" datasets.");
+	for (int num=0; num<names.length; num++) {
+	    System.out.println(indent+" Dataset name="+names[num]);
+	    testDataSet(dataset.getDataSet(names[num]), indent);
+	}
+    }
+
     public static void main (String[] args) {
 	try {
 	    BasicConfigurator.configure();
@@ -210,42 +237,14 @@ public class XMLDataSetAccess implements DataSetAccess, Serializable {
 	    NodeList nList = docElement.getChildNodes();
 	    XMLDataSetAccess dataset = null;
 
-	    for (int i=0; i<nList.getLength(); i++) {
-// 		Node m = nList.item(i);
-// 		NodeList mList = m.getChildNodes();
-// 		for (int j=0; j<mList.getLength(); j++) {
-// 		    Node n = mList.item(j);
-		Node n = nList.item(i);
-		    if (n instanceof Element) {
-			Element nodeElement = (Element)n;
-			System.out.println(nodeElement.getTagName()+" {"+nodeElement.getAttribute("xlink:href")+"}");
-			if (nodeElement.getTagName().equals("dataset")) {
-			    System.out.println("######dataset yes");
-			    dataset = new XMLDataSet(docBuilder, nodeElement);
-			    System.out.println(nodeElement.getTagName()+" {"+nodeElement.getAttribute("datasetid")+"}");
-			}
-			if (nodeElement.getTagName().equals("datasetRef")) {
-			    System.out.println("datasetRef yes");
-			    SimpleXLink sxlink = new SimpleXLink(docBuilder, nodeElement);
-			    Element e = sxlink.retrieve();
-			    dataset = new XMLDataSet(docBuilder, e);
-			    System.out.println(e.getTagName()+" {"+e.getAttribute("datasetid")+"}");
-			} // end of if (nodeElement.getTagName().equals("dataset"))
-
-			if (dataset != null) {
-			    String[] names = dataset.getSeismogramNames();
-			    for (int num=0; num<names.length; num++) {
-				System.out.println("Seismogram name="+names[num]);
-				LocalSeismogramImpl seis = dataset.getSeismogram(names[num]);
-				System.out.println(seis.getNumPoints()+" "+seis.getMinValue());
-			    } // end of for (int num=0; num<names.length; num++)
-			    
-			} // end of if (dataset != null)
-			
-		    } // end of if (node instanceof Element)
-		    
-		    //	} // end of for (int i=0; i<nList.getLength(); i++)
+	    if (docElement.getTagName().equals("dataset")) {
+		System.out.println("dataset yes");
+		dataset = new XMLDataSet(docBuilder, docElement);
+		System.out.println(docElement.getTagName()+" {"+docElement.getAttribute("datasetid")+"}");
+		testDataSet(dataset, " ");
 	    }
+
+
 	} catch (Exception e) {
 	    e.printStackTrace();	    
 	} // end of try-catch
