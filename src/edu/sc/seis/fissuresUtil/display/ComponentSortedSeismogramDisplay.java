@@ -1,11 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
+import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
+import edu.sc.seis.fissuresUtil.display.borders.UnchangingTitleProvider;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.Iterator;
+import sun.security.krb5.internal.ab;
 
 /**
  * ComponentSortedSeismogramDisplay.java
@@ -53,6 +54,8 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
 
     private void initializeBSD(BasicSeismogramDisplay disp, int position, String orientation){
         getCenter().add(disp, position);
+        AmpBorder ab = (AmpBorder)disp.get(BorderedDisplay.CENTER_LEFT);
+        ab.add(new UnchangingTitleProvider(orientation));
     }
 
     public void setIndividualizedAmpConfig(AmpConfig ac){
