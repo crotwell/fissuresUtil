@@ -12,9 +12,14 @@ import edu.iris.Fissures.IfPlottable.PlottableDCHelper;
 import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterHelper;
 import edu.iris.Fissures.model.AllVTFactory;
+import edu.sc.seis.fissuresUtil.cache.NSEventDC;
+import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
+import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Category;
+import org.omg.CORBA.UserException;
 import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
@@ -45,14 +50,10 @@ public class FissuresNamingService {
     public FissuresNamingService (java.util.Properties props) {
         this.props = props;
         String[] args = new String[0];
-
-        orb =
-            (org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init(args, props);
-
+        orb = (org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init(args, props);
         // register valuetype factories
         AllVTFactory vt = new AllVTFactory();
         vt.register(orb);
-
     }
 
     /**
@@ -67,7 +68,7 @@ public class FissuresNamingService {
 
     public void setNameServiceCorbaLoc(String nameServiceCorbaLoc) {
         this.nameServiceCorbaLoc = nameServiceCorbaLoc;
-        namingContext = null;
+        rootNamingContext = null;
     }
 
     /**
@@ -82,6 +83,7 @@ public class FissuresNamingService {
             rootObj = orb.string_to_object(nameServiceCorbaLoc);
             logger.debug("got root object");
         } else {
+            logger.debug(nameServiceCorbaLoc);
             logger.debug("name context is still null after attempt to load, resolve initial references");
             // get a reference to the Naming Service root_context
             try {
@@ -98,7 +100,7 @@ public class FissuresNamingService {
     }
 
     public NamingContextExt getNameService() {
-        if (namingContext == null) {
+        if (rootNamingContext == null) {
             org.omg.CORBA.Object rootObj = getRoot();
             if (rootObj == null) {
                 //logger.error
@@ -106,13 +108,13 @@ public class FissuresNamingService {
                 return null;
             }
             logger.debug("now trying narrow ");
-            namingContext = NamingContextExtHelper.narrow(rootObj);
+            rootNamingContext = NamingContextExtHelper.narrow(rootObj);
         }
-        return namingContext;
+        return rootNamingContext;
     }
 
     public void reset() {
-        namingContext = null;
+        rootNamingContext = null;
     }
 
     public org.omg.CORBA.Object resolveBySteps(NameComponent[] names)
@@ -497,88 +499,81 @@ public class FissuresNamingService {
 
     }
 
-    /**
-     * returns an array of all the CORBA objects registered under the interface name given
-     * by interfaceName and path.
-     *
-     * @param interfaceName a <code>String</code> value
-     * @param path a <code>String</code> value
-     * @return an <code>org.omg.CORBA.Object[]</code> value
-     */
-    public org.omg.CORBA.Object[] getAllObjects(String interfaceName, String path) {
-
-        org.omg.CORBA.Object obj;
-
-        ArrayList arrayList = new ArrayList();
-        try {
-            if(path == null || path.equals("/")) {
-                obj = getRoot();
-            } else {
-                obj =  getNameService().resolve(getNameService().to_name(path));
-            }
-            NamingContextExt namingContext = NamingContextExtHelper.narrow(obj);
-            BindingListHolder bindings = new BindingListHolder();
-            BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
-
-            namingContext.list(0, bindings, bindingIteratorHolder);
-
-            BindingIterator bindingIterator = bindingIteratorHolder.value;
-            BindingHolder bindingHolder = new BindingHolder();
-
-            while( bindingIterator != null && bindingIterator.next_one(bindingHolder)) {
-                Binding binding = bindingHolder.value;
-                String bindingPath = new String();
-                if(binding.binding_type == BindingType.ncontext) {
-                    if(path == null) bindingPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
-                    else bindingPath = path + "/"+binding.binding_name[0].id+"."+binding.binding_name[0].kind;
-                    org.omg.CORBA.Object[] objs;
-                    if(binding.binding_name[0].kind.equals("interface") &&
-                       binding.binding_name[0].id.equals(interfaceName)) {
-                        objs = getAllObjects("__END__RECURSION__", bindingPath);
-                    } else {
-                        objs = getAllObjects(interfaceName, bindingPath);
-                    }
-                    if(objs != null) {
-                        for(int i = 0; i < objs.length; i++)
-                            arrayList.add(objs[i]);
-                    }
-                } else {
-                    if(interfaceName.equals("__END__RECURSION__")) {
-                        String objectPath = new String();
-                        if(path == null) objectPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
-                        else objectPath = path + "/"+binding.binding_name[0].id+"."+"object"+getVersion();
-                        org.omg.CORBA.Object object =  getNameService().resolve(getNameService().to_name(objectPath));
-                        arrayList.add(object);
-
-                    }//end of inner if
-                }//end of if else
-            }//end of while
-
-            org.omg.CORBA.Object[] rtnValues = new org.omg.CORBA.Object[arrayList.size()];
-
-            rtnValues = (org.omg.CORBA.Object[])arrayList.toArray(rtnValues);
-            return rtnValues;
-
-        } catch(Exception e) {
-
-            logger.debug("caught Exception ",e);
-        }
-        return null;
-
+    public List getAllObjects(String interfaceName){
+        return getAllObjects(interfaceName,
+                             new FissBranch(rootNamingContext, "/"));
     }
+
+    public List getAllObjects(String interfaceName, FissBranch startingBranch){
+        List leaves = new ArrayList();
+        NamingContext namingContext = startingBranch.namingContext;
+        BindingListHolder bindings = new BindingListHolder();
+        BindingIteratorHolder bindingIteratorHolder = new BindingIteratorHolder();
+
+        namingContext.list(0, bindings, bindingIteratorHolder);
+
+        BindingIterator bindingIterator = bindingIteratorHolder.value;
+        BindingHolder bindingHolder = new BindingHolder();
+
+        while( bindingIterator != null && bindingIterator.next_one(bindingHolder)) {
+            Binding binding = bindingHolder.value;
+            if(binding.binding_type == BindingType.ncontext) {
+                if((binding.binding_name[0].kind.equals(INTERFACE) &&
+                        binding.binding_name[0].id.equals(interfaceName)) ||
+                   binding.binding_name[0].kind.equals(DNS)) {
+                    String newPath;
+                    if (binding.binding_name[0].kind.equals(DNS)) {
+                        newPath = startingBranch.path + binding.binding_name[0].id + "/";
+                    } else {
+                        newPath = startingBranch.path;
+                    }
+                    NamingContext newNC= null;
+                    try{
+                        newNC = NamingContextHelper.narrow(namingContext.resolve(binding.binding_name));
+                    }catch(UserException e){
+                        throw new RuntimeException("This should not happen as the naming context should have come from the server.  This probably indicates a programming error.", e);
+                    }
+                    leaves.addAll(getAllObjects(interfaceName,
+                                                new FissBranch(newNC,
+                                                               newPath)));
+                }
+            }else if(binding.binding_name[0].kind.equals(OBJECT)){
+                Object o = null;
+                if (interfaceName.equals(NETWORKDC)) {
+                    o = new NSNetworkDC(startingBranch.path, binding.binding_name[0].id, this);
+                } else if (interfaceName.equals(EVENTDC)) {
+                    o = new NSEventDC(startingBranch.path, binding.binding_name[0].id, this);
+                }else if (interfaceName.equals(SEISDC)) {
+                    o = new NSSeismogramDC(startingBranch.path, binding.binding_name[0].id, this);
+                } else {
+                    try{
+                        o = startingBranch.namingContext.resolve(binding.binding_name);
+                    }catch(UserException e){
+                        throw new RuntimeException("This should not happen as the naming context should have come from the server.  This probably indicates a programming error.", e);
+                    }
+                }
+
+                leaves.add(o);
+            }
+
+        }
+        return leaves;
+    }
+
+    public static final String NETWORKDC = "NetworkDC";
+    public static final String EVENTDC = "EventDC";
+    public static final String SEISDC = "DataCenter";
+    public static final String INTERFACE = "interface";
+    public static final String DNS = "dns";
+    public static final String OBJECT = "object_FVer"+ edu.iris.Fissures.VERSION.value;
 
     /**
      * returns an array of all the NetworkDC objects registered with the naming Service.
      *
      * @return a <code>NetworkDC[]</code> value
      */
-    public NetworkDC[] getAllNetworkDC() {
-        org.omg.CORBA.Object[] objects = getAllObjects("NetworkDC", null);
-        NetworkDC[] networkDCObjects = new NetworkDC[objects.length];
-        for(int counter = 0; counter < objects.length; counter++) {
-            networkDCObjects[counter] = NetworkDCHelper.narrow(objects[counter]);
-        }
-        return networkDCObjects;
+    public NSNetworkDC[] getAllNetworkDC() {
+        return (NSNetworkDC[])getAllObjects(NETWORKDC).toArray(new NSNetworkDC[0]);
     }
 
     /**
@@ -586,13 +581,8 @@ public class FissuresNamingService {
      *
      * @return an <code>EventDC[]</code> value
      */
-    public EventDC[] getAllEventDC() {
-        org.omg.CORBA.Object[] objects = getAllObjects("EventDC", null);
-        EventDC[] eventDCObjects = new EventDC[objects.length];
-        for(int counter = 0; counter < objects.length; counter++) {
-            eventDCObjects[counter] = EventDCHelper.narrow(objects[counter]);
-        }
-        return eventDCObjects;
+    public NSEventDC[] getAllEventDC() {
+        return (NSEventDC[])getAllObjects(NETWORKDC).toArray(new NSEventDC[0]);
     }
 
     /**
@@ -600,13 +590,8 @@ public class FissuresNamingService {
      *
      * @return a <code>DataCenter[]</code> value
      */
-    public DataCenter[] getAllSeismogramDC() {
-        org.omg.CORBA.Object[] objects = getAllObjects("DataCenter", null);
-        DataCenter[] dataCenterObjects = new DataCenter[objects.length];
-        for(int counter = 0; counter < objects.length; counter++) {
-            dataCenterObjects[counter] = DataCenterHelper.narrow(objects[counter]);
-        }
-        return dataCenterObjects;
+    public NSSeismogramDC[] getAllSeismogramDC() {
+        return (NSSeismogramDC[])getAllObjects(SEISDC).toArray(new NSSeismogramDC[0]);
     }
 
 
@@ -727,8 +712,7 @@ public class FissuresNamingService {
     }
 
 
-    private String getVersion() {
-
+    private static String getVersion() {
         String version = edu.iris.Fissures.VERSION.value;
         String rtnValue = new String();
         String prefix = new String("_FVer");
@@ -774,9 +758,19 @@ public class FissuresNamingService {
 
     private java.util.Properties props;
     private org.omg.CORBA_2_3.ORB orb;
-    private NamingContextExt namingContext;
+    private NamingContextExt rootNamingContext;
 
     static Category logger = Category.getInstance(FissuresNamingService.class.getName());
+
+    private class FissBranch{
+        public FissBranch(NamingContext namingContext, String path){
+            this.namingContext = namingContext;
+            this.path = path;
+        }
+
+        public NamingContext namingContext;
+        public String path;
+    }
 
 
 }// FissuresNamingService

@@ -1,8 +1,11 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfNetwork.*;
-import edu.sc.seis.fissuresUtil.namingService.*;
-import org.apache.log4j.*;
+import edu.iris.Fissures.IfNetwork.NetworkDC;
+import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
+import edu.iris.Fissures.IfNetwork.NetworkExplorer;
+import edu.iris.Fissures.IfNetwork.NetworkFinder;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
+import org.apache.log4j.Category;
 
 /**
  * NSNetworkDC.java
@@ -15,68 +18,71 @@ import org.apache.log4j.*;
  */
 public class NSNetworkDC implements NetworkDCOperations {
 
-    public NSNetworkDC(String serverDNS,
-               String serverName,
-               FissuresNamingService fissuresNamingService) {
-    this.serverDNS = serverDNS;
-    this.serverName = serverName;
-    this.fissuresNamingService = fissuresNamingService;
+    public NSNetworkDC(String serverDNS, String serverName,
+                       FissuresNamingService fissuresNamingService) {
+        this.serverDNS = serverDNS;
+        this.serverName = serverName;
+        this.fissuresNamingService = fissuresNamingService;
     } // NSNetworkDC constructor
 
     public String getServerDNS() {
-    return serverDNS;
+        return serverDNS;
     }
 
     public String getServerName() {
-    return serverName;
+        return serverName;
     }
 
-    public NetworkDC getNetworkDC() {
-    if ( netDC == null) {
-        try {
-        netDC = fissuresNamingService.getNetworkDC(serverDNS,
-                               serverName);
-        } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-        throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                          0,
-                          org.omg.CORBA.CompletionStatus.COMPLETED_NO);
-        } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-        throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                          0,
-                          org.omg.CORBA.CompletionStatus.COMPLETED_NO);
-        } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-        throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                          0,
-                          org.omg.CORBA.CompletionStatus.COMPLETED_NO);
-        } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-        throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
-                          0,
-                          org.omg.CORBA.CompletionStatus.COMPLETED_NO);
-        } // end of try-catch
-    } // end of if ()
-    return netDC;
+    public synchronized void reset() {
+        netDC = null;
+    }
+
+    public synchronized NetworkDC getNetworkDC() {
+        if ( netDC == null) {
+            try {
+                netDC = fissuresNamingService.getNetworkDC(serverDNS,
+                                                           serverName);
+            } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
+                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
+                                                  0,
+                                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+            } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
+                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
+                                                  0,
+                                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+            } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
+                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
+                                                  0,
+                                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+            } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
+                throw new org.omg.CORBA.TRANSIENT("Unable to resolve "+serverName+" "+serverDNS+" "+e.toString(),
+                                                  0,
+                                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+            } // end of try-catch
+        } // end of if ()
+        return netDC;
     }
 
     public NetworkExplorer a_explorer() {
-    try {
-        return getNetworkDC().a_explorer();
-    } catch (Throwable e) {
-        // retry in case regetting from name service helps
-        logger.warn("Exception in a_explorer(), regetting from nameservice to try again.", e);
-        netDC = null;
-        return getNetworkDC().a_explorer();
-    } // end of try-catch
+        try {
+            return getNetworkDC().a_explorer();
+        } catch (Throwable e) {
+            // retry in case regetting from name service helps
+            logger.warn("Exception in a_explorer(), regetting from nameservice to try again.", e);
+            reset();
+            return getNetworkDC().a_explorer();
+        } // end of try-catch
     }
 
     public NetworkFinder a_finder() {
-    try {
-        return getNetworkDC().a_finder();
-    } catch (Throwable e) {
-        // retry in case regetting from name service helps
-        logger.warn("Exception in a_finder(), regetting from nameservice to try again.", e);
-        netDC = null;
-        return getNetworkDC().a_finder();
-    } // end of try-catch
+        try {
+            return getNetworkDC().a_finder();
+        } catch (Throwable e) {
+            // retry in case regetting from name service helps
+            logger.warn("Exception in a_finder(), regetting from nameservice to try again.", e);
+            reset();
+            return getNetworkDC().a_finder();
+        } // end of try-catch
     }
 
     protected NetworkDC netDC = null;
@@ -87,7 +93,7 @@ public class NSNetworkDC implements NetworkDCOperations {
 
     protected FissuresNamingService fissuresNamingService;
 
-    static Category logger =
+    private static Category logger =
         Category.getInstance(NSNetworkDC.class.getName());
 
 } // NSNetworkDC
