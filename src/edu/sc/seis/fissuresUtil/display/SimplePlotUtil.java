@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Dimension;
 import org.apache.log4j.Category;
+import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
@@ -17,83 +18,75 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
 
 /**
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 11147 2004-11-12 21:14:58Z groves $
+ * @version $Id: SimplePlotUtil.java 11561 2005-01-05 18:23:08Z groves $
  */
 public class SimplePlotUtil {
 
-    private static MicroSecondDate getTime(MicroSecondDate time,
-                                           int sample,
-                                           int spd) {
-        int jday = PlottableChunk.getJDay(time);
-        int year = PlottableChunk.getYear(time);
-        return PlottableChunk.getTime(sample, jday, year, spd);
-    }
-
-    public static int[][] makePlottable(LocalSeismogramImpl seis,
-                                        MicroSecondTimeRange tr,
-                                        int samplesPerDay)
+    /**
+     * Creates a plottable with all the data from the seismogram that falls
+     * inside of the time range at samplesPerDay. Each pixel in the plottable is
+     * of 1/samplesPerDay * 2 days long so that two values can be returned for
+     * each x point in the plottable. The first value is the min value over the
+     * time covered in the seismogram, and the second value is the max. The
+     * seismogram points in a plottable pixel consist of the first point at or
+     * after the start time of the pixel to the last point before the start time
+     * of the next pixel.
+     */
+    public static Plottable makePlottable(LocalSeismogramImpl seis,
+                                          MicroSecondTimeRange tr,
+                                          int samplesPerDay)
             throws CodecException {
-        MicroSecondDate startTime = tr.getBeginTime();
-        if(seis.getBeginTime().after(startTime)) {
-            startTime = seis.getBeginTime();
-        }
-        MicroSecondDate stopTime = tr.getEndTime();
-        if(seis.getEndTime().before(stopTime)) {
-            stopTime = seis.getEndTime();
-        }
-        int startSample = PlottableChunk.getPixel(startTime, samplesPerDay);
-        startTime = getTime(startTime, startSample, samplesPerDay);
-        int stopSample = PlottableChunk.getPixel(stopTime, samplesPerDay);
-        stopTime = getTime(stopTime, stopSample, samplesPerDay);
-        double lengthInDays = stopTime.difference(startTime)
-                .getValue(UnitImpl.DAY);
-        int numSamples = (int)Math.ceil(lengthInDays * samplesPerDay);
-        if(numSamples % 2 == 1) {
-            numSamples++;
-        }
-        int[][] out = new int[2][numSamples];
-        TimeInterval startShift = startTime.subtract(tr.getBeginTime());
-        double daysShifted = startShift.getValue(UnitImpl.DAY);
-        int xOffset = (int)Math.floor(daysShifted * samplesPerDay / 2);
-        TimeInterval plottableSampleLength = (TimeInterval)new TimeInterval(1,
-                                                                            UnitImpl.DAY).divideBy(samplesPerDay)
-                .convertTo(UnitImpl.SECOND);
-        double seisSamplesPerSample = plottableSampleLength.divideBy(seis.getSampling()
+        //Calculating the number of plottable pixels to cover the full time
+        // range
+        double pixelPeriod = 1 / (double)samplesPerDay * 2.0d;//in days
+        TimeInterval trInt = (TimeInterval)tr.getInterval()
+                .convertTo(UnitImpl.DAY);
+        double exactNumPixels = trInt.divideBy(pixelPeriod).getValue();
+        //always round up since a partial pixel means the caller requested data
+        // in that pixel
+        int numPixels = (int)Math.ceil(exactNumPixels);
+        TimeInterval pointPeriod = (TimeInterval)seis.getSampling()
                 .getPeriod()
-                .convertTo(UnitImpl.SECOND))
-                .getValue();
-        for(int i = 0; i < numSamples; i += 2) {
-            out[0][i] = xOffset + i / 2;
-            out[0][i + 1] = xOffset + i / 2;
-            int startSeisSample = (int)Math.floor(i * seisSamplesPerSample);
-            if(startSeisSample < 0) {
-                startSeisSample = 0;
-            }
-            int stopSeisSample = (int)Math.ceil((i + 1) * seisSamplesPerSample);
-            if(stopSeisSample > seis.getNumPoints()) {
-                stopSeisSample = seis.getNumPoints();
-            }
-            int min = Integer.MAX_VALUE;
-            int max = Integer.MIN_VALUE;
-            for(int j = startSeisSample; j < stopSeisSample; j++) {
-                int val = (int)seis.getValueAt(j).getValue();
-                if(val < min) {
-                    min = val;
-                }
-                if(val > max) {
-                    max = val;
-                }
-            }
-            out[1][i] = min;
-            out[1][i + 1] = max;
+                .convertTo(UnitImpl.DAY);
+        double pointsPerPixel = pixelPeriod / pointPeriod.getValue();
+        int startPoint = getPoint(seis, tr.getBeginTime());
+        int endPoint = startPoint + (int)(pointsPerPixel * numPixels);
+        int startPixel = 0;
+        if(startPoint < 0) {
+            //Requested time begins before seis, scoot up the start pixel up
+            startPixel = (int)Math.floor((startPoint * -1) / pointsPerPixel);
+            numPixels -= startPixel;
         }
-        return out;
+        if(endPoint > seis.getNumPoints()) {
+            //Requested time ends after seis, scoot the end pixel back
+            int pointShift = endPoint - seis.getNumPoints();
+            numPixels -= (int)Math.floor(pointShift / pointsPerPixel);
+            endPoint = seis.getNumPoints();
+        }
+        int[][] pixels = new int[2][numPixels * 2];
+        int pixelPoint = startPoint < 0 ? 0 : startPoint;
+        for(int i = 0; i < numPixels; i++) {
+            int pos = 2 * i;
+            int nextPos = pos + 1;
+            pixels[0][pos] = startPixel + i;
+            pixels[0][nextPos] = pixels[0][pos];
+            int nextPixelPoint = startPoint
+                    + (int)((pixels[0][pos] + 1) * pointsPerPixel);
+            if(i == numPixels - 1) {
+                nextPixelPoint = endPoint;
+            }
+            QuantityImpl min = seis.getMinValue(pixelPoint, nextPixelPoint);
+            pixels[1][pos] = (int)min.getValue();
+            QuantityImpl max = seis.getMaxValue(pixelPoint, nextPixelPoint);
+            pixels[1][nextPos] = (int)max.getValue();
+            pixelPoint = nextPixelPoint;
+        }
+        return new Plottable(pixels[0], pixels[1]);
     }
 
     public static int[][] compressXvalues(LocalSeismogram seismogram,
@@ -431,7 +424,10 @@ public class SimplePlotUtil {
     }
 
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
-        return createSpike(spikeTime, new TimeInterval(50, UnitImpl.SECOND), 20, makeChanId(spikeTime.getFissuresTime()));
+        return createSpike(spikeTime,
+                           new TimeInterval(50, UnitImpl.SECOND),
+                           20,
+                           makeChanId(spikeTime.getFissuresTime()));
     }
 
     public static LocalSeismogramImpl createSpike(MicroSecondDate time,
@@ -451,16 +447,17 @@ public class SimplePlotUtil {
         time = time.add(shiftInt);
         traceLength = traceLength.subtract(shiftInt);
         String name = "spike at " + time.toString();
-        int seconds = (int)Math.ceil(traceLength.convertTo(UnitImpl.SECOND)
-                .getValue());
-        int[] dataBits = new int[SPIKE_SAMPLES_PER_SECOND * seconds];
+        double traceSecs = traceLength.convertTo(UnitImpl.SECOND).getValue();
+        int[] dataBits = new int[(int)(SPIKE_SAMPLES_PER_SECOND * traceSecs)];
         for(int i = 0; i < dataBits.length; i++) {
-            if(i % samplesPerSpike == 0 && i >= missingSamples) {
+            if((i + missingSamples) % samplesPerSpike == 0) {
                 dataBits[i] = 100;
             }
         }
         return createTestData(name, dataBits, time.getFissuresTime(), id);
     }
+
+    public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 
     public static final int SPIKE_SAMPLES_PER_SECOND = 20;
 
