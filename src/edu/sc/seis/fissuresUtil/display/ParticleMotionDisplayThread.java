@@ -32,18 +32,14 @@ import org.apache.log4j.*;
 
 public class ParticleMotionDisplayThread{
     public ParticleMotionDisplayThread (DataSetSeismogram dataSetSeismogram,
-					TimeConfigRegistrar timeConfigRegistrar,
-					AmpConfigRegistrar hAmpConfigRegistrar,
-					AmpConfigRegistrar vAmpConfigRegistrar,
+					Registrar registrar,
 					boolean advancedOption,
 					boolean displayButtonPanel,
 					ParticleMotionDisplay particleMotionDisplay) {
 
 	this.dataSetSeismogram = new DataSetSeismogram[1];
 	this.dataSetSeismogram[0] = dataSetSeismogram;
-	this.timeConfigRegistrar = timeConfigRegistrar;
-	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	this.registrar = registrar;
 	this.advancedOption = advancedOption;
 	this.displayButtonPanel = displayButtonPanel;
 	this.particleMotionDisplay = particleMotionDisplay;
@@ -51,9 +47,7 @@ public class ParticleMotionDisplayThread{
     }
 
     public ParticleMotionDisplayThread(DataSetSeismogram[] dataSetSeismogram,
-				       TimeConfigRegistrar timeConfigRegistrar,
-				       AmpConfigRegistrar hAmpConfigRegistrar,
-				       AmpConfigRegistrar vAmpConfigRegistrar,
+				       Registrar registrar,
 				       boolean advancedOption,
 				       boolean displayButtonPanel,
 				       ParticleMotionDisplay particleMotionDisplay) {
@@ -65,9 +59,7 @@ public class ParticleMotionDisplayThread{
 			 this.dataSetSeismogram,
 			 0,
 			 dataSetSeismogram.length);
-	this.timeConfigRegistrar = timeConfigRegistrar;
-	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	this.registrar = registrar;
 	this.advancedOption = advancedOption;
 	this.displayButtonPanel = displayButtonPanel;
 	this.particleMotionDisplay = particleMotionDisplay;
@@ -111,14 +103,12 @@ public class ParticleMotionDisplayThread{
 		}
 		particleMotionDisplay.getView().addParticleMotionDisplay(dataSetSeismogram[counter], 
 									 dataSetSeismogram[subcounter], 
-									 timeConfigRegistrar, 
-									 hAmpConfigRegistrar, 
-									 vAmpConfigRegistrar, 
+									 registrar, 
 									 displayColor,
 									 getOrientationName(channelGroup[counter].channel_code)+"-"+
 									 getOrientationName(channelGroup[subcounter].channel_code),
 									 horizPlane);
-		particleMotionDisplay.updateTimeRange();
+		//particleMotionDisplay.updateTimeRange();
 		
 	    }
 	}
@@ -173,7 +163,7 @@ public class ParticleMotionDisplayThread{
 													  dataSetSeismogram[0].getDataSet(),
 													  new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), seis.getEndTime().getFissuresTime()))), dataSetSeismogram[0].getDataSet());
 		//ChannelIdUtil.toStringNoDates(channelGroup[counter]));
-		timeConfigRegistrar.addSeismogram(seismograms[counter]);
+		//registrar.addSeismogram(seismograms[counter]);
 		//hAmpRangeConfigRegistrar.addSeismogram(seismograms[counter]);
 		
 	    }
@@ -216,13 +206,9 @@ public class ParticleMotionDisplayThread{
 
     private DataSetSeismogram[] dataSetSeismogram = new DataSetSeismogram[0];
     
-    private TimeConfigRegistrar timeConfigRegistrar;
+    private Registrar registrar;
 
-    private AmpConfigRegistrar hAmpConfigRegistrar;
-    
-    private  AmpConfigRegistrar vAmpConfigRegistrar;
-
-    private boolean advancedOption = false;
+   private boolean advancedOption = false;
 
     private boolean displayButtonPanel = false;
 

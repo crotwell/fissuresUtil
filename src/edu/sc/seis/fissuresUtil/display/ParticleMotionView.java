@@ -25,16 +25,32 @@ import org.apache.log4j.*;
 
 public class ParticleMotionView extends JComponent{
 
+    /**
+     * Creates a new <code>ParticleMotionView</code> instance.
+     *
+     * @param particleMotionDisplay a <code>ParticleMotionDisplay</code> value
+     */
     public ParticleMotionView(ParticleMotionDisplay particleMotionDisplay) {
 	this.particleMotionDisplay = particleMotionDisplay;
 	addListeners();
 
     }
+    /**
+     * Creates a new <code>ParticleMotionView</code> instance.
+     *
+     * @param hseis a <code>DataSetSeismogram</code> value
+     * @param vseis a <code>DataSetSeismogram</code> value
+     * @param timeRegistrar a <code>TimeConfigRegistrar</code> value
+     * @param hAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+     * @param vAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+     * @param particleMotionDisplay a <code>ParticleMotionDisplay</code> value
+     * @param color a <code>Color</code> value
+     * @param key a <code>String</code> value
+     * @param horizPlane a <code>boolean</code> value
+     */
     public ParticleMotionView (final DataSetSeismogram hseis, 
 			       DataSetSeismogram vseis,
-			       TimeConfigRegistrar timeRegistrar,
-			       final AmpConfigRegistrar hAmpConfigRegistrar,
-			       AmpConfigRegistrar vAmpConfigRegistrar, 
+			       Registrar registrar,
 			       ParticleMotionDisplay particleMotionDisplay,
 			       Color color,
 			       String key,
@@ -46,22 +62,25 @@ public class ParticleMotionView extends JComponent{
 	
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
-							   timeRegistrar,
-							   hAmpConfigRegistrar,
-							   vAmpConfigRegistrar,
+							   registrar,
 							   color, 
 							   key,
 							   horizPlane);
 	displays.add(particleMotion);
 	    
-	vunitRangeImpl = vAmpConfigRegistrar.getAmpRange(vseis);
-	hunitRangeImpl = hAmpConfigRegistrar.getAmpRange(vseis);
-	
+// 	vunitRangeImpl = vAmpConfigRegistrar.getAmpRange(vseis);
+// 	hunitRangeImpl = hAmpConfigRegistrar.getAmpRange(vseis);
+	vunitRangeImpl = registrar.getLatestAmp().getAmp(vseis);
+	hunitRangeImpl = registrar.getLatestAmp().getAmp(hseis);
 	addListeners();
 	
 				    
     }
 
+    /**
+     * Describe <code>addListeners</code> method here.
+     *
+     */
     public void addListeners() {
 		this.addMouseListener(new MouseAdapter() {
 
@@ -104,6 +123,10 @@ public class ParticleMotionView extends JComponent{
 	    });
     }
 
+    /**
+     * Describe <code>resize</code> method here.
+     *
+     */
     public synchronized void resize() {
 	
 	setSize(super.getSize());
@@ -112,6 +135,13 @@ public class ParticleMotionView extends JComponent{
 	repaint();
     }
 
+    /**
+     * Describe <code>zoomInParticleMotionDisplay</code> method here.
+     *
+     * @param clickCount an <code>int</code> value
+     * @param mx an <code>int</code> value
+     * @param my an <code>int</code> value
+     */
     public synchronized void zoomInParticleMotionDisplay(int clickCount, int mx, int my) {
 	
 	double hmin = hunitRangeImpl.getMinValue();
@@ -175,14 +205,23 @@ public class ParticleMotionView extends JComponent{
 	endPoint = null;
 	if(xa < xs && ya < ys || clickCount != 1) {
 	    System.out.println("The Zooming takes place");
-	    particleMotionDisplay.updateHorizontalAmpScale(new UnitRangeImpl(xa, xs, UnitImpl.COUNT));
-	    particleMotionDisplay.updateVerticalAmpScale(new UnitRangeImpl(ya, ys, UnitImpl.COUNT));
+	     particleMotionDisplay.updateHorizontalAmpScale(new UnitRangeImpl(xa, xs, UnitImpl.COUNT));
+	     particleMotionDisplay.updateVerticalAmpScale(new UnitRangeImpl(ya, ys, UnitImpl.COUNT));
 	    vunitRangeImpl = new UnitRangeImpl(ya, ys, UnitImpl.COUNT);
 	    hunitRangeImpl = new UnitRangeImpl(xa, xs, UnitImpl.COUNT);
-	    particleMotionDisplay.fireAmpRangeEvent(new AmpSyncEvent(ya, ys, true));
+	    particleMotionDisplay.shaleAmp(0, (ys-ya));
+		//fireAmpRangeEvent(new AmpSyncEvent(ya, ys, true));
 	} else  System.out.println("NO ZOOMING");
     }
   
+    /**
+     * Describe <code>findPoint</code> method here.
+     *
+     * @param count an <code>int</code> value
+     * @param newx an <code>int</code> value
+     * @param newy an <code>int</code> value
+     * @return a <code>boolean</code> value
+     */
     public synchronized boolean findPoint(int count, int newx, int newy) {
 	
 	 
@@ -214,6 +253,11 @@ public class ParticleMotionView extends JComponent{
 	paintComponent(g);
 	}*/
 
+    /**
+     * Describe <code>paintComponent</code> method here.
+     *
+     * @param g a <code>Graphics</code> value
+     */
     public synchronized void paintComponent(Graphics g) {
 
 	//	if(setSelected == 1) g.setColor(Color.red);
@@ -221,14 +265,14 @@ public class ParticleMotionView extends JComponent{
 	if(displayKeys.size() == 0) return;
 	Graphics2D graphics2D = (Graphics2D)g;
 	logger.debug("IN PAINT COMPONENT");
-// 	vunitRangeImpl = new UnitRangeImpl(getMinVerticalAmplitude(),
-// 					   getMaxVerticalAmplitude(),
-// 					   UnitImpl.COUNT);
-// 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
-// 					   getMaxHorizontalAmplitude(),
-// 					   UnitImpl.COUNT);
-	 // particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
-	 // particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
+ 	vunitRangeImpl = new UnitRangeImpl(getMinVerticalAmplitude(),
+					   getMaxVerticalAmplitude(),
+					   UnitImpl.COUNT);
+	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
+					   getMaxHorizontalAmplitude(),
+					   UnitImpl.COUNT);
+// 	  particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
+// 	  particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
 	if(startPoint != null && endPoint != null) {
 	    graphics2D.setColor(Color.yellow);
 	    //logger.debug("Start Point "+startPoint.getX()+"  "+startPoint.getY());
@@ -250,11 +294,14 @@ public class ParticleMotionView extends JComponent{
 		drawAzimuth(particleMotion, graphics2D);	
 	}
 	Date startTime = Calendar.getInstance().getTime();
+
+	//	graphics2D.setStroke(new BasicStroke(1.5f));
 	for(int counter = 0; counter < displays.size(); counter++) {
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    //if(!getDisplayKey().equals(particleMotion.key)) continue;
 	    if(!displayKeys.contains(particleMotion.key)) continue;
 	    if(particleMotion.isSelected()) continue;
+
 	    drawParticleMotion(particleMotion, graphics2D);
 	}//end of for
 	System.out.println("ENd of the for");
@@ -265,14 +312,22 @@ public class ParticleMotionView extends JComponent{
 	    //drawAzimuth(particleMotion, graphics2D);
 	    if(particleMotion.isSelected()) {
 		particleMotion.setSelected(false);
+		
 		drawParticleMotion(particleMotion, g);
 	    }
 	}
+	graphics2D.setStroke(new BasicStroke(1.0f));
 	Date endTime = Calendar.getInstance().getTime();
 	System.out.println("THE TIME TAKEN IS ********** "+ (endTime.getTime() - startTime.getTime()));
 	
     }
 
+    /**
+     * Describe <code>drawAzimuth</code> method here.
+     *
+     * @param particleMotion a <code>ParticleMotion</code> value
+     * @param graphics2D a <code>Graphics2D</code> value
+     */
     public synchronized void drawAzimuth(ParticleMotion particleMotion, Graphics2D graphics2D) {
 	logger.debug("IN DRAW AZIMUTH");
 	 if(!particleMotion.isHorizontalPlane()) return;
@@ -287,6 +342,12 @@ public class ParticleMotionView extends JComponent{
 	 graphics2D.setStroke(new BasicStroke(1.0f));
    }
 
+    /**
+     * Describe <code>drawLabels</code> method here.
+     *
+     * @param particleMotion a <code>ParticleMotion</code> value
+     * @param graphics2D a <code>Graphics2D</code> value
+     */
     public synchronized void drawLabels(ParticleMotion particleMotion, Graphics2D graphics2D) {
 	logger.debug("IN DRAW LABELS");
 	  Color color = new Color(0, 0, 0, 128);
@@ -318,27 +379,40 @@ public class ParticleMotionView extends JComponent{
 	  
     }
 
+    /**
+     * Describe <code>drawTitles</code> method here.
+     *
+     * @param hseis a <code>LocalSeismogramImpl</code> value
+     * @param vseis a <code>LocalSeismogramImpl</code> value
+     */
     public void drawTitles(LocalSeismogramImpl hseis, LocalSeismogramImpl vseis) {
 	particleMotionDisplay.setHorizontalTitle(hseis.getName());
 	particleMotionDisplay.setVerticalTitle(vseis.getName());
 	
     }
 
+    /**
+     * Describe <code>drawParticleMotion</code> method here.
+     *
+     * @param particleMotion a <code>ParticleMotion</code> value
+     * @param g a <code>Graphics</code> value
+     */
     public synchronized void drawParticleMotion(ParticleMotion particleMotion, Graphics g) {
+	Graphics2D graphics2D = (Graphics2D) g;
 	if(!recalculateValues) {
 	    recalculateValues = false;
 	    System.out.println(" DRAWING THE PARTICLE MOTION WITHOUT RECALCULATING THE VALUES");
-	    ((Graphics2D)g).draw(particleMotion.getShape());
+	    graphics2D.draw(particleMotion.getShape());
 	    return;
 	}
 	logger.debug("IN DRAW PARTICLE MOTION");
-	Graphics2D graphics2D = (Graphics2D) g;
+
 	Dimension dimension = super.getSize();
 	LocalSeismogramImpl hseis = particleMotion.hseis.getSeismogram();
 	LocalSeismogramImpl vseis = particleMotion.vseis.getSeismogram();
 
-	AmpConfigRegistrar vAmpConfigRegistrar = particleMotion.vAmpConfigRegistrar;
-	AmpConfigRegistrar hAmpConfigRegistrar = particleMotion.hAmpConfigRegistrar;
+	//AmpConfigRegistrar vAmpConfigRegistrar = particleMotion.vAmpConfigRegistrar;
+	//AmpConfigRegistrar hAmpConfigRegistrar = particleMotion.hAmpConfigRegistrar;
 	
 	    Color color = particleMotion.getColor();
 	    if(color == null) {
@@ -364,7 +438,7 @@ public class ParticleMotionView extends JComponent{
 		System.out.println("In PaintSeismogram vmax = "+vunitRangeImpl.getMaxValue()+
 				   " vmin = "+vunitRangeImpl.getMinValue());
 		MicroSecondTimeRange microSecondTimeRange = null;		   
-		if(particleMotion.timeRegistrar == null) {
+		if(particleMotion.registrar == null) {
 		    microSecondTimeRange = new MicroSecondTimeRange(new MicroSecondDate(hseis.getBeginTime()),
 								    new MicroSecondDate(hseis.getEndTime()));
 		    //System.out.println("beginTime = "+hseis.getBeginTime());
@@ -447,13 +521,19 @@ public class ParticleMotionView extends JComponent{
 		System.out.println("After setting the shape");
 		if(shape == null) System.out.println("The shape is null");
 		graphics2D.draw(shape);
-	       
-		System.out.println("The shape is drawn");
+		//	System.out.println("The shape is drawn");
 	    } catch(Exception e) {
 		e.printStackTrace();
 	    }
     }
 
+    /**
+     * Describe <code>getParticleMotionPath</code> method here.
+     *
+     * @param x an <code>int[]</code> value
+     * @param y an <code>int[]</code> value
+     * @return a <code>Shape</code> value
+     */
     public synchronized Shape getParticleMotionPath(int[] x, int[] y) {
 	int len = x.length;
 	if(y.length < len) { len = y.length;}
@@ -472,12 +552,17 @@ public class ParticleMotionView extends JComponent{
 	return (Shape)generalPath;
     }
     
+    /**
+     * Describe <code>getAzimuthPath</code> method here.
+     *
+     * @return a <code>Shape</code> value
+     */
     public Shape getAzimuthPath() {
 
 	//logger.debug("*******************************************************");
 	int size = azimuths.size();
 	ParticleMotion particleMotion = (ParticleMotion)displays.get(0);
-	AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
+	//	AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
 	UnitRangeImpl unitRangeImpl = vunitRangeImpl;//ampRangeConfig.getAmpRange(particleMotion.vseis);
 	double vmin = unitRangeImpl.getMinValue();
 	double vmax = unitRangeImpl.getMaxValue();
@@ -519,10 +604,15 @@ public class ParticleMotionView extends JComponent{
 	//logger.debug("-----------------------------------------------------------");
 	return (Shape)generalPath;
     }
+    /**
+     * Describe <code>getSectorShape</code> method here.
+     *
+     * @return a <code>Shape</code> value
+     */
     public synchronized Shape getSectorShape() {
 
 	ParticleMotion particleMotion = (ParticleMotion)displays.get(0);
-	AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
+	//AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
 	UnitRangeImpl unitRangeImpl = vunitRangeImpl;//ampRangeConfig.getAmpRange(particleMotion.vseis);
 	double vmin = unitRangeImpl.getMinValue();
 	double vmax = unitRangeImpl.getMaxValue();
@@ -566,19 +656,27 @@ public class ParticleMotionView extends JComponent{
 	return (Shape)generalPath;
     }//
     
+    /**
+     * Describe <code>addParticleMotionDisplay</code> method here.
+     *
+     * @param hseis a <code>DataSetSeismogram</code> value
+     * @param vseis a <code>DataSetSeismogram</code> value
+     * @param timeRegistrar a <code>TimeConfigRegistrar</code> value
+     * @param hAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+     * @param vAmpConfigRegistrar an <code>AmpConfigRegistrar</code> value
+     * @param color a <code>Color</code> value
+     * @param key a <code>String</code> value
+     * @param horizPlane a <code>boolean</code> value
+     */
     public synchronized void addParticleMotionDisplay(DataSetSeismogram hseis,
-					 DataSetSeismogram vseis,
-					 TimeConfigRegistrar timeRegistrar,
-					 AmpConfigRegistrar hAmpConfigRegistrar,
-					 AmpConfigRegistrar vAmpConfigRegistrar, 
-					 Color color, 
-					 String key,
-					 boolean horizPlane) {
+						      DataSetSeismogram vseis,
+						      Registrar registrar,
+						      Color color, 
+						      String key,
+						      boolean horizPlane) {
 	ParticleMotion particleMotion = new ParticleMotion(hseis,
 							   vseis,
-							   timeRegistrar,
-							   hAmpConfigRegistrar,
-							   vAmpConfigRegistrar,
+							   registrar,
 							   color, key,
 							   horizPlane);
 	displays.add(particleMotion);
@@ -592,18 +690,29 @@ public class ParticleMotionView extends JComponent{
 	vunitRangeImpl = new UnitRangeImpl(getMinVerticalAmplitude(),
 					   getMaxVerticalAmplitude(),
 					   UnitImpl.COUNT);
-	particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
-	particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
+ 	particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
+ 	particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
 					   
     }
 
     
+    /**
+     * Describe <code>addSector</code> method here.
+     *
+     * @param degreeone a <code>double</code> value
+     * @param degreetwo a <code>double</code> value
+     */
     public void addSector(double degreeone, double degreetwo) {
 
 	sectors.add(new java.awt.geom.Point2D.Double(degreeone, degreetwo));
 	
     }
 
+    /**
+     * Describe <code>getMinHorizontalAmplitude</code> method here.
+     *
+     * @return a <code>double</code> value
+     */
     public double getMinHorizontalAmplitude() {
 	
 	int size = displays.size();
@@ -617,13 +726,18 @@ public class ParticleMotionView extends JComponent{
 	    
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    if(!displayKeys.contains(particleMotion.key)) continue;
-	    AmpConfigRegistrar ampRangeConfig = particleMotion.hAmpConfigRegistrar;
-	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.hseis);
+	    Registrar ampRangeConfig = particleMotion.registrar;
+	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getLatestAmp().getAmp(particleMotion.hseis);
 	    if(min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
 	}
 	return min;
     }
 
+    /**
+     * Describe <code>getMaxHorizontalAmplitude</code> method here.
+     *
+     * @return a <code>double</code> value
+     */
     public double getMaxHorizontalAmplitude() {
 	
 	int size = displays.size();
@@ -632,13 +746,18 @@ public class ParticleMotionView extends JComponent{
 
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    if(!displayKeys.contains(particleMotion.key)) continue;
-	    AmpConfigRegistrar ampRangeConfig = particleMotion.hAmpConfigRegistrar;
-	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.hseis);
+	    Registrar ampRangeConfig = particleMotion.registrar;
+	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getLatestAmp().getAmp(particleMotion.hseis);
 	    if(max < unitRangeImpl.getMaxValue()) { max = unitRangeImpl.getMaxValue();}
 	}
 	return max;
     }
 
+    /**
+     * Describe <code>getMinVerticalAmplitude</code> method here.
+     *
+     * @return a <code>double</code> value
+     */
     public double getMinVerticalAmplitude() {
 	
 	int size = displays.size();
@@ -648,13 +767,18 @@ public class ParticleMotionView extends JComponent{
 
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    if(!displayKeys.contains(particleMotion.key)) continue;
-	    AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
-	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.vseis);
+	    Registrar ampRangeConfig = particleMotion.registrar;
+	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getLatestAmp().getAmp(particleMotion.vseis);
 	    if( min > unitRangeImpl.getMinValue()) { min = unitRangeImpl.getMinValue();}
 	}
 	return min;
     }
     
+    /**
+     * Describe <code>getMaxVerticalAmplitude</code> method here.
+     *
+     * @return a <code>double</code> value
+     */
     public double getMaxVerticalAmplitude() {
 	
 	int size = displays.size();
@@ -664,20 +788,28 @@ public class ParticleMotionView extends JComponent{
 
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
 	    if(!displayKeys.contains(particleMotion.key)) continue;
-	    AmpConfigRegistrar ampRangeConfig = particleMotion.vAmpConfigRegistrar;
-	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getAmpRange(particleMotion.vseis);
+	    Registrar ampRangeConfig = particleMotion.registrar;
+	    UnitRangeImpl unitRangeImpl = ampRangeConfig.getLatestAmp().getAmp(particleMotion.vseis);
 	    if(max < unitRangeImpl.getMaxValue()) { max = unitRangeImpl.getMaxValue();}
 	}
 	return max;
     }
     
 
+    /**
+     * Describe <code>addAzimuthLine</code> method here.
+     *
+     * @param degrees a <code>double</code> value
+     */
     public void addAzimuthLine(double degrees) {
 
 	azimuths.add(new Double(degrees));
     }
 
-    /** must be square */
+    /**
+     * must be square
+     * @param d a <code>Dimension</code> value
+     */
     public void setSize(Dimension d) {
 	logger.debug("Setting the size");
 
@@ -694,12 +826,22 @@ public class ParticleMotionView extends JComponent{
     }
 
 
+    /**
+     * Describe <code>setZoomIn</code> method here.
+     *
+     * @param value a <code>boolean</code> value
+     */
     public void setZoomIn(boolean value) {
 
 	this.zoomIn  = true;
 	this.zoomOut = false;
     }
     
+    /**
+     * Describe <code>setZoomOut</code> method here.
+     *
+     * @param value a <code>boolean</code> value
+     */
     public void setZoomOut(boolean value) {
 
 	this.zoomIn = false;
@@ -708,7 +850,9 @@ public class ParticleMotionView extends JComponent{
     }
 
     /*** updates the timeRange****/
-    public synchronized void updateTimeRange() {
+
+    
+    public synchronized void updateTime() {
 	hunitRangeImpl = new UnitRangeImpl(getMinHorizontalAmplitude(),
 					   getMaxHorizontalAmplitude(),
 					   UnitImpl.COUNT);
@@ -718,25 +862,46 @@ public class ParticleMotionView extends JComponent{
 	particleMotionDisplay.updateHorizontalAmpScale(hunitRangeImpl);
 	particleMotionDisplay.updateVerticalAmpScale(vunitRangeImpl);
     }
-    /** sets the display key ***/
+    /**
+     * sets the display key **
+     * @param key a <code>String</code> value
+     */
     public void setDisplayKey(String key) {
 	this.displayKey = key;
     }
+    /**
+     * Describe <code>addDisplayKey</code> method here.
+     *
+     * @param key a <code>String</code> value
+     */
     public void addDisplayKey(String key) {
 	if(!this.displayKeys.contains(key)) {
 	    this.displayKeys.add(key);
 	}
     }
 
+    /**
+     * Describe <code>removeDisplaykey</code> method here.
+     *
+     * @param key a <code>String</code> value
+     */
     public void removeDisplaykey(String key) {
 	this.displayKeys.remove(key);
     }
 
-    /** gets the display key **/
+    /**
+     * gets the display key *
+     * @return a <code>String</code> value
+     */
     public String getDisplayKey() {
 	return this.displayKey;
     }
 
+    /**
+     * Describe <code>getSelectedParticleMotion</code> method here.
+     *
+     * @return a <code>ParticleMotion[]</code> value
+     */
     public ParticleMotion[] getSelectedParticleMotion() {
 	
 	ArrayList arrayList = new ArrayList();
@@ -776,37 +941,36 @@ public class ParticleMotionView extends JComponent{
 					     Color.white,
 					     Color.black};
     
-    class ParticleMotion implements TimeSyncListener{
+    class ParticleMotion implements TimeListener{
 	public ParticleMotion(final DataSetSeismogram hseis, 
 			      DataSetSeismogram vseis,
-			      TimeConfigRegistrar timeRegistrar,
-			      final AmpConfigRegistrar hAmpConfigRegistrar,
-			      AmpConfigRegistrar vAmpConfigRegistrar, 
+			      Registrar registrar,
 			      Color color,
 			      String key,
 			      boolean horizPlane) {
 
 	    this.hseis = hseis;
 	    this.vseis = vseis;
-	    this.timeRegistrar = timeRegistrar;
-	    this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	    this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	    this.registrar = registrar;
 	    this.key = key;
 	    this.horizPlane = horizPlane;
 	    setColor(color);
-	    if(this.timeRegistrar != null) {
-		this.timeRegistrar.addTimeSyncListener(this);
-		this.microSecondTimeRange = timeRegistrar.getTimeRange();
-		this.hAmpConfigRegistrar.visibleAmpCalc(this.timeRegistrar);
-		this.vAmpConfigRegistrar.visibleAmpCalc(this.timeRegistrar);
+	    if(this.registrar != null) {
+		this.registrar.addListener(this);
+		// this.microSecondTimeRange = timeRegistrar.getTimeRange();
+		// this.hAmpConfigRegistrar.visibleAmpCalc(this.timeRegistrar);
+		// this.vAmpConfigRegistrar.visibleAmpCalc(this.timeRegistrar);
 	    }
 	}
 
-	
-	public void updateTimeRange() {
-	    if(timeRegistrar != null) {
-		this.microSecondTimeRange = timeRegistrar.getTimeRange();
-	    }
+	public void updateTime(edu.sc.seis.fissuresUtil.display.TimeEvent timeEvent) {
+	    this.microSecondTimeRange = registrar.getLatestTime().getTime();
+	}
+
+	public void updateTimeRange(edu.sc.seis.fissuresUtil.display.ConfigEvent configEvent) {
+	 //    if(timeRegistrar != null) {
+// 		this.microSecondTimeRange = timeRegistrar.getTimeRange();
+// 	    }
 	    setSelected(true);
 	}
     
@@ -844,9 +1008,9 @@ public class ParticleMotionView extends JComponent{
 
 	public DataSetSeismogram hseis;
 	public DataSetSeismogram vseis;
-	public AmpConfigRegistrar hAmpConfigRegistrar;
-	public AmpConfigRegistrar vAmpConfigRegistrar;
-	public TimeConfigRegistrar timeRegistrar;
+// 	public AmpConfigRegistrar hAmpConfigRegistrar;
+// 	public AmpConfigRegistrar vAmpConfigRegistrar;
+	public Registrar registrar;
 	public String key = new String();
 	private MicroSecondTimeRange microSecondTimeRange;
 	private Shape shape;
