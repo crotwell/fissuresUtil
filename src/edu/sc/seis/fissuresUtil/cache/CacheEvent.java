@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import org.apache.log4j.Logger;
 
 /**
  * CacheEvent.java
@@ -157,7 +158,8 @@ public class CacheEvent implements EventAccessOperations {
     }
 
     public boolean equals(Object o){
-        if (getEventAccess() != null && o instanceof CacheEvent && ((CacheEvent)o).getEventAccess() != null) {
+        if (getEventAccess() != null && o instanceof CacheEvent &&
+                ((CacheEvent)o).getEventAccess() != null) {
             return getEventAccess().equals(((CacheEvent)o).getEventAccess());
         }
 
@@ -165,18 +167,27 @@ public class CacheEvent implements EventAccessOperations {
         if(o == this) return true;
         if(!(o instanceof EventAccessOperations)) return false;
         EventAccessOperations oEvent = (EventAccessOperations)o;
-        if(!equalAttr(oEvent) || !equalOrigin(oEvent)){
+        if(!equalAttr(oEvent)){
+            return false;
+        }else if(!equalOrigin(oEvent)){
             return false;
         }
         return true;
     }
 
     public int hashCode(){
-        int result = 52;
-        result = 48*result + hashOrigins();
-        //result = 48*result + event.get_attributes().hashCode();
-        return result;
+        if(!hashSet){
+            int result = 52;
+            result = 48*result + hashOrigins();
+            //result = 48*result + event.get_attributes().hashCode();
+            hashValue = result;
+            hashSet = true;
+        }
+        return hashValue;
     }
+
+    private boolean hashSet = false;
+    private int hashValue;
 
     private int hashAttr(){
         EventAttr attr = event.get_attributes();
@@ -190,7 +201,7 @@ public class CacheEvent implements EventAccessOperations {
         int result = 29;
         Origin o = getOrigin();
         result = 89* result + hashLocation(o.my_location);
-        result = 89*result + o.origin_time.date_time.hashCode();
+        result = 89*result + new MicroSecondDate(o.origin_time).hashCode();
         result = 89*result + o.contributor.hashCode();
         result = 89*result + o.catalog.hashCode();
         return result;
@@ -315,9 +326,9 @@ public class CacheEvent implements EventAccessOperations {
         //get depth
 
         Quantity depth = origin.my_location.depth;
-		
-		float latitude = origin.my_location.latitude;
-		float longitude = origin.my_location.longitude;
+
+        float latitude = origin.my_location.latitude;
+        float longitude = origin.my_location.longitude;
 
         StringBuffer buf = new StringBuffer(format);
         for (int i = 0; i < magicStrings.length; i++) {
@@ -335,10 +346,10 @@ public class CacheEvent implements EventAccessOperations {
                 }else if(magicStrings[i].equals(DEPTH_UNIT)){
                     buf.insert(index, UnitDisplayUtil.getNameForUnit((UnitImpl)depth.the_units));
                 }else if(magicStrings[i].equals(LAT)){
-					buf.insert(index, latitude);
-				}else if(magicStrings[i].equals(LON)){
-					buf.insert(index, longitude);
-				}
+                    buf.insert(index, latitude);
+                }else if(magicStrings[i].equals(LON)){
+                    buf.insert(index, longitude);
+                }
             }
         }
         return buf.toString();
@@ -356,5 +367,7 @@ public class CacheEvent implements EventAccessOperations {
     protected EventAttr attr;
     protected Origin[] origins;
     protected Origin preferred;
+
+    private static final Logger logger = Logger.getLogger(CacheEvent.class);
 
 } // CacheEvent
