@@ -72,6 +72,7 @@ public class FissuresConvert  {
                     header.setSampleRateFactor((short)factor);
                     header.setSampleRateMultiplier((short)divisor);
 
+
                     b1000.setEncodingFormat((byte)eData[i].compression);
                     if ( eData[i].byte_order ) {
                         // seed uses oposite convention
