@@ -25,7 +25,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4750 2003-07-15 18:29:29Z oliverpa $
+ * @version $Id: ChannelChooser.java 4783 2003-07-17 22:25:42Z oliverpa $
  *
  */
 
@@ -167,7 +167,7 @@ public class ChannelChooser extends JPanel {
     }
 
     public void setSeismogramDC(DataCenterRouter dcops) {
-        AvailableDataStationRenderer stationRenderer =
+        stationRenderer =
             new AvailableDataStationRenderer(showNames,
                                              showCodes,
                                              codeIsFirst,
@@ -176,6 +176,12 @@ public class ChannelChooser extends JPanel {
         stationRenderer.setJList(stationList);
         setStationListCellRenderer(stationRenderer);
     }
+
+	public void addAvailableStationDataListener(AvailableStationDataListener dataListener){
+		if (stationRenderer != null){
+			stationRenderer.addAvailableStationDataListener(dataListener);
+		}
+	}
 
     public void setStationListCellRenderer(ListCellRenderer r) {
         stationList.setCellRenderer(r);
@@ -1324,6 +1330,8 @@ public class ChannelChooser extends JPanel {
     public void removeChannelSelectionListener(ChannelSelectionListener csl){
         channelSelectionListeners.remove(csl);
     }
+
+	private AvailableDataStationRenderer stationRenderer;
 
     private List channelSelectionListeners = new ArrayList();
     static Category logger =
