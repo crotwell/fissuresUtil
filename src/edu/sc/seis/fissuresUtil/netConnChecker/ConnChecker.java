@@ -30,6 +30,7 @@ public interface ConnChecker  extends Runnable {
     public boolean isUnknown();
     public boolean isSuccessful();
     public ConnStatus getStatus();
+    public String getDescription();
     public void addConnStatusChangedListener(ConnStatusChangedListener listener);
     public void removeConnStatusChangedListener(ConnStatusChangedListener listener);
     public void fireStatusChanged(String urlStr, ConnStatus connectionStatus);

@@ -29,7 +29,7 @@ public class HTTPChecker extends ConcreteConnChecker  {
 
      
        try{
-	   begintime = System.currentTimeMillis();         
+	    begintime = System.currentTimeMillis();         
 	   URL seis = new URL(this.url);
            URLConnection seisConnection = seis.openConnection();
            InputStreamReader buffer = new InputStreamReader(seisConnection.getInputStream());
