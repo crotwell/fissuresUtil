@@ -15,14 +15,14 @@ import javax.swing.JComponent;
  */
 
 public class ScaleBorder extends javax.swing.border.AbstractBorder {
-    
+
     public ScaleBorder() {
         top = 0;
         left = 0;
         right = 0;
         bottom = 0;
     }
-    
+
     public Insets getBorderInsets(Component c) {
         return new Insets(top, left, bottom, right);
     }
@@ -35,11 +35,11 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
         return new Insets(top, left, bottom, right);
     }
 
-    public void paintBorder(Component c, 
-                            Graphics g, 
-                            int x, 
-                            int y, 
-                            int width, 
+    public void paintBorder(Component c,
+                            Graphics g,
+                            int x,
+                            int y,
+                            int width,
                             int height) {
 
         Graphics2D copy = (Graphics2D)g.create();
@@ -49,12 +49,13 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                 copy.setFont(f);
                 // in case there are borders inside of this one
                 Insets insets = ((JComponent)c).getInsets();
-                /*System.out.println("x:     " + x + " y:       " + y);
-                  System.out.println("itop:   " + insets.top + " ibottom: " + insets.bottom + "ileft: " + insets.left +  " iright: " + 
-                  insets.right);
-                  System.out.println("top:   " + top + " bottom: " + bottom + " right:   " + right +  "left:  " + left);*/
+                /*System.out.println("x:     " + x + " y:       " + y + " width: " + width + " height: " + height);
+                System.out.println("itop:   " + insets.top + " ibottom: " + insets.bottom + "ileft: " + insets.left +  " iright: " +
+                                   insets.right);
+                 System.out.println("top:   " + top + " bottom: " + bottom + " right:   " + right +  "left:  " + left);*/
                 FontMetrics fm = copy.getFontMetrics();
                 String label;
+
                 // top
                 int numTicks;
                 int pixelLoc;
@@ -67,12 +68,14 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                         else
                             copy.draw(new Line2D.Float(pixelLoc, top, pixelLoc, top - minorTickLength));
                         label = topScaleMap.getLabel(i);
-                        int labelWidth = (int)fm.getStringBounds(label, copy).getWidth();
-                        if (label != null && label.length() != 0 && pixelLoc + labelWidth < width) {
-                            copy.drawString(label,
-                                            pixelLoc - labelWidth/2,
-                                            top - majorTickLength-
-                                            fm.getLeading());
+                        if (label != null && label.length() != 0 ) {
+                            int labelWidth = (int)fm.getStringBounds(label, copy).getWidth();
+                            if(pixelLoc + labelWidth < width){
+                                copy.drawString(label,
+                                                pixelLoc - labelWidth/2,
+                                                top - majorTickLength-
+                                                fm.getLeading());
+                            }
                         }
                     }
                 }
@@ -86,7 +89,6 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                                         top + (height - top - bottom)/2-
                                         fm.getLeading());
                     } // end of if ()
-            
                     for (int i=0; i<numTicks; i++) {
                         pixelLoc = height - leftScaleMap.getPixelLocation(i) - bottom;
                         if (leftScaleMap.isMajorTick(i)) {
@@ -117,7 +119,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                         }
                     }
                 }
-		
+
                 // bottom
                 if (bottomScaleMap != null) {
                     numTicks = bottomScaleMap.getNumTicks();
@@ -162,7 +164,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
                     }
                 }
 
-		
+
             } finally {
                 copy.dispose();
             }
@@ -173,12 +175,12 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
         this.topScaleMap = scaleMap;
         top = 20;
     }
-    
+
     public void clearTopScaleMapper() {
         this.topScaleMap = null;
         top = 0;
     }
-    
+
     public ScaleMapper getTopScaleMapper() {
         return topScaleMap;
     }
@@ -187,12 +189,12 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
         this.leftScaleMap = scaleMap;
         left = 50;
     }
-      
+
     public void clearLeftScaleMapper() {
         this.leftScaleMap = null;
         left = 0;
     }
-  
+
     public ScaleMapper getLeftScaleMapper() {
         return leftScaleMap;
     }
@@ -201,7 +203,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
         this.bottomScaleMap = scaleMap;
         bottom = 20;
     }
-        
+
     public void clearBottomScaleMapper() {
         this.bottomScaleMap = null;
         bottom = 0;
@@ -215,7 +217,7 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
         this.rightScaleMap = scaleMap;
         right = 50;
     }
-        
+
     public void clearRightScaleMapper() {
         this.rightScaleMap = null;
         right = 0;
@@ -226,71 +228,23 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
     }
 
     /**
-     * Get the value of top.
-     * @return Value of top.
-     */
-    public int getTop() {return top;}
-    
-    /**
-     * Set the value of top.
-     * @param v  Value to assign to top.
-     */
-    public void setTop(int  v) {this.top = v;}
-    
-    /**
-     * Get the value of left.
-     * @return Value of left.
-     */
-    public int getLeft() {return left;}
-    
-    /**
-     * Set the value of left.
-     * @param v  Value to assign to left.
-     */
-    public void setLeft(int  v) {this.left = v;}
-    
-    /**
-     * Get the value of bottom.
-     * @return Value of bottom.
-     */
-    public int getBottom() {return bottom;}
-    
-    /**
-     * Set the value of bottom.
-     * @param v  Value to assign to bottom.
-     */
-    public void setBottom(int  v) {this.bottom = v;}
-    
-    /**
-     * Get the value of right.
-     * @return Value of right.
-     */
-    public int getRight() {return right;}
-    
-    /**
-     * Set the value of right.
-     * @param v  Value to assign to right.
-     */
-    public void setRight(int  v) {this.right = v;}
-
-    /**
      * Get the value of majorTickLength.
      * @return Value of majorTickLength.
      */
     public int getMajorTickLength() {return majorTickLength;}
-    
+
     /**
      * Set the value of majorTickLength.
      * @param v  Value to assign to majorTickLength.
      */
     public void setMajorTickLength(int  v) {this.majorTickLength = v;}
-    
+
     /**
      * Get the value of minorTickLength.
      * @return Value of minorTickLength.
      */
     public int getMinorTickLength() {return minorTickLength;}
-    
+
     /**
      * Set the value of minorTickLength.
      * @param v  Value to assign to minorTickLength.
@@ -302,10 +256,10 @@ public class ScaleBorder extends javax.swing.border.AbstractBorder {
     protected int majorTickLength = 8;
 
     protected int minorTickLength = 4;
-    
+
     protected ScaleMapper topScaleMap;
     protected ScaleMapper leftScaleMap;
     protected ScaleMapper bottomScaleMap;
     protected ScaleMapper rightScaleMap;
-    
+
 } // ScaleBorder
