@@ -118,7 +118,7 @@ public class XMLParameter {
 	    java.util.Properties oprops = new java.util.Properties();
 	    oprops.put("method", "xml");
 	    oprops.put("indent", "yes");
-	    oprops.put("xalan:indent-amount", "4");
+	    //oprops.put("xalan:indent-amount", "4");
 	    serializer.setOutputProperties(oprops);
 	    Element element = doc.createElement("parameter");
 	    insert(element, "notused", value);
