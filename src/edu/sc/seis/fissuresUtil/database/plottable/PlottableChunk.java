@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -84,11 +86,15 @@ public class PlottableChunk {
         return false;
     }
 
+    public static Calendar makeCal() {
+        return Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
+    }
+
     public static MicroSecondDate getTime(int pixel,
                                           int jday,
                                           int year,
                                           int pixelsPerDay) {
-        Calendar cal = JDBCPlottable.makeCal();
+        Calendar cal = makeCal();
         cal.set(Calendar.DAY_OF_YEAR, jday);
         cal.set(Calendar.YEAR, year);
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -105,13 +111,13 @@ public class PlottableChunk {
     }
 
     public static int getJDay(MicroSecondDate time) {
-        Calendar cal = JDBCPlottable.makeCal();
+        Calendar cal = makeCal();
         cal.setTime(time);
         return cal.get(Calendar.DAY_OF_YEAR);
     }
 
     public static int getYear(MicroSecondDate time) {
-        Calendar cal = JDBCPlottable.makeCal();
+        Calendar cal = makeCal();
         cal.setTime(time);
         return cal.get(Calendar.YEAR);
     }
@@ -124,7 +130,7 @@ public class PlottableChunk {
     }
 
     public static MicroSecondDate stripToDay(Date d) {
-        Calendar cal = JDBCPlottable.makeCal();
+        Calendar cal = makeCal();
         cal.setTime(d);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
