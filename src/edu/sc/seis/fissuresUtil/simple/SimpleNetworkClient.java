@@ -17,8 +17,8 @@ import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 
-public class SimpleNetworkClient {
-    
+public class SimpleNetworkClient extends AbstractClient {
+
     /** A very simple client that shows how to connect to a DHI NetworkDC
      *  and retrieve some stations. All the code is left in the main() for
      *  readability. This does not fully exercise the features available within
@@ -27,39 +27,13 @@ public class SimpleNetworkClient {
      *
      */
     public static void main(String[] args) {
-        Properties props = System.getProperties();
-        
-        /** Configure log4j, not required for DHI, but is useful. */
-        BasicConfigurator.configure();
-        logger.info("Logging configured");
-        
-        /* Initialize the ORB. This must be done before the corba system can
-         * be used. Parameters passed in via the args and props configure the
-         * ORB. Consult the docummentation for your orb for more information. */
-        org.omg.CORBA_2_3.ORB orb =
-            (org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init(args, props);
-        logger.info("orb initialized");
-        
-        /* Valuetypes are corba objects that are sent "over the wire" and need
-         * a factory to handle the unmarshalling on the client side, so that the
-         * correct object is created locally. The AllVTFactory.register method
-         * registers factories for all of the IDL defined valuetypes found in
-         * the fissuresImpl package. */
-        AllVTFactory vt = new AllVTFactory();
-        vt.register(orb);
-        logger.info("register valuetype factories");
-        
-        /* Here we pick a name server to connect to. These are two choices for
-         * the IRIS DMC and USC SCEPP, others may exist. Port 6371 are used by
-         * both USC and the DMC, but this is not required.*/
-        FissuresNamingService fisName = new FissuresNamingServiceImpl(orb);
-        //fisName.setNameServiceCorbaLoc("corbaloc:iiop:dmc.iris.washington.edu:6371/NameService");
-        fisName.setNameServiceCorbaLoc("corbaloc:iiop:pooh.seis.sc.edu:6371/NameService");
-        logger.info("got fis name service");
-        
+        /* Initializes the corba orb, finds the naming service and other startup
+         * tasks. See AbstractClient for the code in this method. */
+        init(args);
+
         /** We will try to get data from the II network. */
         String networkCode = "II";
-        
+
         try {
             /** This step is not required, but sometimes helps to determine if
              *  a server is down. if this call succedes but the next fails, then
@@ -68,7 +42,7 @@ public class SimpleNetworkClient {
             Object obj = fisName.getNetworkDCObject("edu/iris/dmc",
                                                     "IRIS_NetworkDC");
             logger.info("Got as corba object, the name service is ok");
-            
+
             /** This connectts to the actual server, as oposed to just getting
              *  the reference to it. The naming convention is that the first
              *  part is the reversed DNS of the organization and the second part
@@ -77,28 +51,28 @@ public class SimpleNetworkClient {
             NetworkDC netDC = fisName.getNetworkDC("edu/iris/dmc",
                                                    "IRIS_NetworkDC");
             logger.info("got NetworkDC");
-            
+
             /** The NetworkFinder is one of the choices at this point. It
              *  allows you to find individual networks, and then retrieve
              *  information about them. */
             NetworkFinder finder = netDC.a_finder();
             logger.info("got NetworkFinder");
-            
+
             /** Get the NetworkAccess for the II station. The NetworkAccess
              *  represents the II network, but is still a remote (corba) object.
              */
             NetworkAccess[] net = finder.retrieve_by_code(networkCode);
             logger.info("got NetworkAccess for "+networkCode);
-            
+
             /** The NetworkAttr has basic information about the network, like
              *  its name, id, owner, etc. */
             NetworkAttr netAttr = net[0].get_attributes();
             logger.info("got NetworkAttr for "+networkCode);
-            
+
             logger.info("Network "+netAttr.get_code()+
                             " retrieved, owner="+netAttr.owner+
                             " desc="+netAttr.description);
-            
+
             /** We can also retrieve the actual stations for this network.
              *  The station array is composed of local objects, so there is
              *  no internet connections once they have been retrieved. */
@@ -109,7 +83,7 @@ public class SimpleNetworkClient {
                                 " ("+stations[i].my_location.latitude+
                                 ", "+stations[i].my_location.longitude+")");
             }
-            
+
             /** Here are someof the possible problems that can occur. */
         }catch (NetworkNotFound e) {
             logger.error("Network "+networkCode+" was not found", e);
@@ -124,7 +98,7 @@ public class SimpleNetworkClient {
         }
         /** All done... */
     }
-    
+
     static Logger logger = Logger.getLogger(SimpleNetworkClient.class);
 }
 
