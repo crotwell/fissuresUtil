@@ -24,6 +24,8 @@ import org.apache.log4j.Category;
  */
 
 public class BasicAmpConfig implements AmpConfig{
+    public BasicAmpConfig(){}
+
     public BasicAmpConfig(DataSetSeismogram[] seismos){
         if(seismos == null || DisplayUtils.allNull(seismos)){
             throw new IllegalArgumentException("Some non null seismograms must be given to an amp config on instantiation");
@@ -56,16 +58,12 @@ public class BasicAmpConfig implements AmpConfig{
      *
      * @param seismo the seismograms to be removed
      */
-    public boolean remove(DataSetSeismogram[] seismos){
-        boolean allRemoved = true;
+    public void remove(DataSetSeismogram[] seismos){
         boolean someRemoved = false;
         synchronized(this){
             for(int i = 0; i < seismos.length; i++){
-                if(!ampData.containsKey(seismos[i])){
-                    allRemoved = false;
-                }else{
+                if(ampData.remove(seismos[i]) != null){
                     someRemoved = true;
-                    ampData.remove(seismos[i]);
                 }
             }
         }
@@ -74,7 +72,10 @@ public class BasicAmpConfig implements AmpConfig{
             currentAmpEvent = null;
             fireAmpEvent();
         }
-        return allRemoved;
+    }
+
+    public void clear(){
+        remove(getSeismograms());
     }
 
     public DataSetSeismogram[] getSeismograms(){
@@ -107,7 +108,9 @@ public class BasicAmpConfig implements AmpConfig{
     public void reset(DataSetSeismogram[] seismos){
         synchronized(this){
             for(int i = 0; i < seismos.length; i++){
-                ((AmpConfigData)ampData.get(seismos[i])).reset();
+                if(ampData.containsKey(seismos[i])){
+                    ((AmpConfigData)ampData.get(seismos[i])).reset();
+                }
             }
         }
         fireAmpEvent();

@@ -22,15 +22,14 @@ import org.apache.log4j.Category;
  */
 
 public class BasicTimeConfig implements TimeConfig{
+    public BasicTimeConfig(){}
+
     /**
      * Creates a new <code>BasicTimeConfig</code> instance.  The display interval is initialized to be the same as the seismogram
      * being passed
      * @param seismo the initial seismogram
      */
     public BasicTimeConfig(DataSetSeismogram[] seismos){
-        if(seismos == null || DisplayUtils.allNull(seismos)){
-            throw new IllegalArgumentException("Seismograms passed into a time config must not be null");
-        }
         add(seismos);
     }
 
@@ -57,18 +56,21 @@ public class BasicTimeConfig implements TimeConfig{
      *
      * @param seismo the seismogram to be removed
      */
-    public boolean remove(DataSetSeismogram[] seismos){
-        boolean allRemoved = true;
+    public void remove(DataSetSeismogram[] seismos){
+        boolean someRemoved = false;
         for(int i = 0; i < seismos.length; i++){
-            if(seismoTimes.containsKey(seismos[i])){
-                seismoTimes.remove(seismos[i]);
-            }else{
-                allRemoved = false;
+            if(seismoTimes.remove(seismos[i]) != null){
+                someRemoved = true;
             }
         }
-        seismograms = null;
-        //fireTimeEvent();
-        return allRemoved;
+        if(someRemoved){
+            seismograms = null;
+            fireTimeEvent();
+        }
+    }
+
+    public void clear(){
+        remove(getSeismograms());
     }
 
     /**
