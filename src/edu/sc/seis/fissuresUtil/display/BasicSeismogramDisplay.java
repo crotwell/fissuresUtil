@@ -79,14 +79,10 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         scaleBorder = new ScaleBorder();
         scaleBorder.setLeftScaleMapper(ampScaleMap);
         setBorder(createDefaultBorder());
-        Insets insets = getInsets();
-        setPreferredSize(new Dimension(PREFERRED_WIDTH + insets.left + insets.right, PREFERRED_HEIGHT + insets.top + insets.bottom));
-        resize();
-        repaint();
+        setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
         addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
         addMouseListener(SeismogramDisplay.getMouseForwarder());
-        timeAmpLabel = new TimeAmpPlotter(this);
-        plotters.add(timeAmpLabel);
+        plotters.add(new TimeAmpPlotter(this));
         add(new PlotPainter());
     }
 
@@ -237,7 +233,10 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
         return out;
     }
 
-    public TimeAmpPlotter getTimeAmpPlotter(){ return timeAmpLabel; }
+    public TimeAmpPlotter getTimeAmpPlotter(){
+        PlotterIterator pi = new PlotterIterator(TimeAmpPlotter.class);
+        return (TimeAmpPlotter)pi.next();
+    }
 
     public java.util.List getSelections(){
         return getPlotters(Selection.class);
@@ -313,8 +312,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     private Border createDefaultBorder(){
         return BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(),
                                                                                      new SeismogramDisplayRemovalBorder(this)),
-                                                      BorderFactory.createCompoundBorder(scaleBorder,
-                                                                                         BorderFactory.createLoweredBevelBorder()));
+                                                  BorderFactory.createCompoundBorder(scaleBorder,
+                                                                                     BorderFactory.createLoweredBevelBorder()));
     }
 
     public void addLeftTitleBorder(LeftTitleBorder ltb){
@@ -567,9 +566,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
 
     private static Set globalFilters = new HashSet();
 
-    public final static int PREFERRED_HEIGHT = 125;
+    public final static int PREFERRED_HEIGHT = 150;
 
-    public final static int PREFERRED_WIDTH = 200;
+    public final static int PREFERRED_WIDTH = 250;
 
     private ArrayList filters = new ArrayList();
 
@@ -592,8 +591,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigL
     private AmpScaleMapper ampScaleMap;
 
     private DataSetSeismogram[] seismogramArray;
-
-    private TimeAmpPlotter timeAmpLabel;
 
     private static Color[] seisColors = { Color.BLUE, Color.RED,  Color.DARK_GRAY, Color.GREEN, Color.BLACK, Color.GRAY };
 
