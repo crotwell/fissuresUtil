@@ -69,7 +69,6 @@ public class SeismogramIterator implements Iterator{
 
     public QuantityImpl getValueAt(int position){
         try{
-            System.out.println(this + " getting value at");
             Object[] seisAndPoint = getSeisAtWithInternal(position);
             LocalSeismogramImpl seis = (LocalSeismogramImpl)seisAndPoint[0];
             Integer point = (Integer)seisAndPoint[1];
