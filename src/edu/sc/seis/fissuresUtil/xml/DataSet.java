@@ -142,6 +142,8 @@ public interface DataSet extends StdDataSetParamNames {
 
     public String[] getDataSetSeismogramNames();
 
+    public void remove(DataSetSeismogram dss);
+    
     /** Optional method to get channel id of all Channel parameters.
      *  @see StdDataSetParamNames for the prefix for these parameters. */
     public ChannelId[] getChannelIds();
