@@ -107,6 +107,11 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	((SeismogramDisplay)basicDisplays.getLast()).addBottomTimeBorder();
     }
     
+    public void releaseCurrentRangeSelection(MouseEvent me){
+	BasicSeismogramDisplay released = ((BasicSeismogramDisplay)me.getComponent());
+	released.releaseCurrentRangeSelection();
+    }
+    
     protected LinkedList basicDisplays = new LinkedList();
 
     protected MouseForwarder mouseForwarder = new MouseForwarder();
