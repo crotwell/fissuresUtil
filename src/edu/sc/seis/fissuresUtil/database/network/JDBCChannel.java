@@ -1,13 +1,9 @@
 
 package edu.sc.seis.fissuresUtil.database.network;
 
+import edu.iris.Fissures.IfNetwork.*;
 import edu.sc.seis.fissuresUtil.database.*;
 
-import edu.iris.Fissures.IfNetwork.Channel;
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.Site;
-import edu.iris.Fissures.IfNetwork.SiteId;
-import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.Sampling;
 import edu.iris.Fissures.TimeRange;
@@ -18,6 +14,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -59,9 +57,27 @@ public class JDBCChannel extends NetworkTable {
                                            "chan_name, chan_orientation_az, "+
                                            "chan_orientation_dip, chan_sampling_interval_id, chan_sampling_numpoints) " +
                                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        String getAllQuery = "SELECT chan_id, site_id, chan_code, chan_begin_id FROM channel";
-        getAll = conn.prepareStatement(getAllQuery);
-        getAllForSite = conn.prepareStatement(getAllQuery + " WHERE site_id = ?");
+        String getAllIdsQuery = "SELECT chan_id, site_id, chan_code, chan_begin_id FROM channel";
+        getAllIds = conn.prepareStatement(getAllIdsQuery);
+        getAllIdsForStation = conn.prepareStatement(getAllIdsQuery + ", site " +
+                                                        "WHERE channel.site_id = ? AND " +
+                                                        "site.sta_id = ?");
+        getAllIdsForNetwork = conn.prepareStatement(getAllIdsQuery + ", site, station " +
+                                                        "WHERE channel.site_id = site.site_id AND " +
+                                                        "site.sta_id = station.sta_id AND " +
+                                                        "station.net_id = ?");
+        String getAllQuery = "SELECT chan_code, site_id, chan_begin_id, " +
+            "chan_end_id, chan_name, chan_sampling_numpoints, " +
+            "chan_sampling_interval_id, chan_orientation_dip, chan_orientation_az " +
+            "FROM channel";
+        getAllChans = conn.prepareStatement(getAllQuery);
+        getAllChansForStation = conn.prepareStatement(getAllQuery + ", site " +
+                                                          "WHERE channel.site_id = site.site_id AND " +
+                                                          "site.sta_id = ?");
+        getAllChansForNetwork = conn.prepareStatement(getAllQuery + ", site, station " +
+                                                          "WHERE channel.site_id = site.site_id AND " +
+                                                          "site.sta_id = station.sta_id AND " +
+                                                          "station.net_id = ?");
         getIfNameExists = conn.prepareStatement("SELECT chan_id FROM channel " +
                                                     "WHERE chan_id = ? AND " +
                                                     "chan_name IS NOT NULL");
@@ -83,6 +99,52 @@ public class JDBCChannel extends NetworkTable {
             putAll.executeUpdate();
         }
         return dbid;
+    }
+
+    public ChannelId[] getAllChannelIds() throws SQLException{
+        return extractAllChanIds(getAllIds);
+    }
+
+    public ChannelId[] getAllChannelIds(StationId station) throws NotFound, SQLException{
+        int sta_id = siteTable.getStationTable().getDBId(station);
+        getAllIdsForStation.setInt(1, sta_id);
+        return extractAllChanIds(getAllIdsForStation);
+    }
+
+    public ChannelId[] getAllChannelIds(NetworkId network) throws NotFound, SQLException{
+        int net_id = siteTable.getStationTable().getNetTable().getDBId(network);
+        getAllIdsForNetwork.setInt(1, net_id);
+        return extractAllChanIds(getAllIdsForNetwork);
+    }
+
+    public Channel[] getAllChannels() throws NotFound, SQLException{
+        return extractAllChans(getAllChans);
+    }
+
+    public Channel[] getAllChannels(StationId station) throws NotFound, SQLException{
+        int sta_id = siteTable.getStationTable().getDBId(station);
+        getAllChansForStation.setInt(1, sta_id);
+        return extractAllChans(getAllChansForStation);
+    }
+
+    public Channel[] getAllChannels(NetworkId network) throws NotFound, SQLException{
+        int net_id = siteTable.getStationTable().getNetTable().getDBId(network);
+        getAllChansForNetwork.setInt(1, net_id);
+        return extractAllChans(getAllChansForNetwork);
+    }
+
+    private Channel[] extractAllChans(PreparedStatement query) throws SQLException, NotFound{
+        ResultSet rs = query.executeQuery();
+        List aList = new ArrayList();
+        while(rs.next()){ aList.add(extract(rs, siteTable, time, quantityTable)); }
+        return (Channel[])aList.toArray(new Channel[aList.size()]);
+    }
+
+    private ChannelId[] extractAllChanIds(PreparedStatement query) throws SQLException{
+        ResultSet rs = query.executeQuery();
+        List aList = new ArrayList();
+        while (rs.next()){ aList.add(extractId(rs, siteTable, time)); }
+        return  (ChannelId[])aList.toArray(new ChannelId[aList.size()]);
     }
 
     public Channel get(int dbid)  throws SQLException, NotFound {
@@ -160,8 +222,13 @@ public class JDBCChannel extends NetworkTable {
 
     }
 
-    private PreparedStatement getAll, getAllForSite, getIfNameExists, getByDBId,
-        getDBId, updateSite, putAll;
+    private PreparedStatement getAllIds, getAllIdsForStation, getAllIdsForNetwork;
+
+    private PreparedStatement getAllChans, getAllChansForSite,
+        getAllChansForStation, getAllChansForNetwork;
+
+    private PreparedStatement getIfNameExists, getByDBId, getDBId, updateSite,
+        putAll;
     private JDBCSequence seq;
     private JDBCQuantity quantityTable;
     private JDBCSite siteTable;

@@ -87,10 +87,13 @@ public class JDBCStation extends NetworkTable{
      */
     public StationId[] getAllStationIds(NetworkId net) throws SQLException{
         try {
-            int net_id = netTable.getDBId(net);
-            getAllForNet.setInt(1, net_id);
-            return extractAll(getAllForNet);
+            return getAllStationIds(netTable.getDBId(net));
         } catch (NotFound e) { return new StationId[]{};  }
+    }
+
+    public StationId[] getAllStationIds(int netDbId) throws SQLException{
+        getAllForNet.setInt(1, netDbId);
+        return extractAll(getAllForNet);
     }
 
     private StationId[] extractAll(PreparedStatement query) throws SQLException{
@@ -184,7 +187,7 @@ public class JDBCStation extends NetworkTable{
 
     public static int insertAll(Station sta, PreparedStatement stmt, int index,
                                 JDBCNetwork netTable, JDBCLocation locTable,
-                               JDBCTime time) throws SQLException {
+                                JDBCTime time) throws SQLException {
         index = insertId(sta.get_id(), stmt, index, netTable, time);
         index = insertOnlyStation(sta, stmt, index, locTable, time);
         return index;
@@ -192,7 +195,7 @@ public class JDBCStation extends NetworkTable{
 
     public static int insertOnlyStation(Station sta, PreparedStatement stmt,
                                         int index, JDBCLocation locTable,
-                                       JDBCTime time) throws SQLException{
+                                        JDBCTime time) throws SQLException{
         stmt.setInt(index++, time.put(sta.effective_time.end_time));
         stmt.setString(index++, sta.name);
         stmt.setString(index++, sta.operator);
@@ -208,6 +211,9 @@ public class JDBCStation extends NetworkTable{
         stmt.setInt(index++, time.put(id.begin_time));
         return index;
     }
+
+    protected JDBCNetwork getNetTable(){ return netTable; }
+
     private JDBCLocation locTable;
     private JDBCNetwork netTable;
     private JDBCSequence seq;
