@@ -28,8 +28,8 @@ public class TimeAmpPlotter implements NamedPlotter{
 
     public boolean drawName(Graphics2D canvas, int xPosition, int yPosition) {
         if(visible){
-            timeText = VerticalSeismogramDisplay.getTimeLabel().getText();
-            ampText = VerticalSeismogramDisplay.getAmpLabel().getText();
+            timeText = VerticalSeismogramDisplay.getTime();
+            ampText = VerticalSeismogramDisplay.getAmp();
             canvas.setPaint(Color.black);
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(canvas.getFontMetrics().getStringBounds(ampText, canvas));
