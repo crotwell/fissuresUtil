@@ -120,11 +120,12 @@ public abstract class TextInfoDisplay
 
         Style regular = textPane.addStyle("regular", def);
         StyleConstants.setFontFamily(regular, "Serif");
+        StyleConstants.setFontFamily(regular, "MonoSpaced");
 
         Style s = textPane.addStyle("label", regular);
+        StyleConstants.setBold(s, true);
 
         s = textPane.addStyle("value", regular);
-        StyleConstants.setBold(s, true);
 
         s = textPane.addStyle("problem", regular);
         StyleConstants.setBold(s, true);
