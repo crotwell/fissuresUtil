@@ -5,6 +5,7 @@ import edu.iris.Fissures.IfNetwork.*;
 import java.util.*;
 import javax.swing.*;
 
+import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
@@ -25,7 +26,7 @@ import org.apache.log4j.Category;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 4799 2003-07-18 15:36:12Z oliverpa $
+ * @version $Id: ChannelChooser.java 4827 2003-07-18 20:19:37Z crotwell $
  *
  */
 
@@ -177,11 +178,17 @@ public class ChannelChooser extends JPanel {
         setStationListCellRenderer(stationRenderer);
     }
 
-	public void addAvailableStationDataListener(AvailableStationDataListener dataListener){
-		if (stationRenderer != null){
-			stationRenderer.addAvailableStationDataListener(dataListener);
-		}
-	}
+    public void setAvailbleDataOrigin(Origin origin) {
+        if (stationRenderer != null){
+            stationRenderer.setOrigin(origin);
+        }
+    }
+
+    public void addAvailableStationDataListener(AvailableStationDataListener dataListener){
+        if (stationRenderer != null){
+            stationRenderer.addAvailableStationDataListener(dataListener);
+        }
+    }
 
     public void setStationListCellRenderer(ListCellRenderer r) {
         stationList.setCellRenderer(r);
@@ -536,13 +543,13 @@ public class ChannelChooser extends JPanel {
 
     public void addStationDataListener(StationDataListener s) {
         listenerList.add(StationDataListener.class, s);
-		s.stationDataCleared();
-		s.stationDataChanged(new StationDataEvent(this, getStations()));
+        s.stationDataCleared();
+        s.stationDataChanged(new StationDataEvent(this, getStations()));
     }
 
     public void addStationSelectionListener(StationSelectionListener s){
         listenerList.add(StationSelectionListener.class, s);
-		s.stationSelectionChanged(new StationSelectionEvent(this, getSelectedStations()));
+        s.stationSelectionChanged(new StationSelectionEvent(this, getSelectedStations()));
     }
 
     protected void fireStationDataChangedEvent(Station[] stations) {
@@ -699,9 +706,9 @@ public class ChannelChooser extends JPanel {
         return (Station[])out.toArray(new Station[0]);
     }
 
-	public void clearStationSelection(){
-		stationList.getSelectionModel().clearSelection();
-	}
+    public void clearStationSelection(){
+        stationList.getSelectionModel().clearSelection();
+    }
 
     public void toggleStationSelected(Station stat){
         ListSelectionModel selModel = stationList.getSelectionModel();
@@ -1334,7 +1341,7 @@ public class ChannelChooser extends JPanel {
         channelSelectionListeners.remove(csl);
     }
 
-	private AvailableDataStationRenderer stationRenderer;
+    private AvailableDataStationRenderer stationRenderer;
 
     private List channelSelectionListeners = new ArrayList();
     static Category logger =
