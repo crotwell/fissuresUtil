@@ -166,7 +166,9 @@ public class BasicLayoutConfig implements LayoutConfig{
                 for (int i = 0; i < data.length; i++){
                     data[i] = new LayoutData(seis[i], 0.0, 1.0);
                 }
-                return new LayoutEvent(data, LayoutEvent.ONE_DEGREE);
+                double dist = ((QuantityImpl)distanceMap.get(orderedSeis.get(0))).getValue();
+                UnitRangeImpl range = new UnitRangeImpl(dist - 2, dist + 2, UnitImpl.DEGREE);
+                return new LayoutEvent(data, range);
             }
             double offset = minDistBetween * scale/2;
             double startDist =  ((QuantityImpl)distanceMap.get(orderedSeis.get(0))).getValue() - offset;
