@@ -17,6 +17,7 @@ import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import java.awt.Color;
@@ -365,6 +366,16 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                         allStations.add(stations[i]);
                     }
                     for (int i = 0; i < request.length; i++) {
+                        if (request[i].channel_id.station_code.endsWith("-farm")) {
+                            request[i].channel_id.station_code =
+                                request[i].channel_id.station_code.substring(0,
+                                                                             request[i].channel_id.station_code.length()-5);
+                        }
+                        if (request[i].channel_id.station_code.endsWith("-spyder")) {
+                            request[i].channel_id.station_code =
+                                request[i].channel_id.station_code.substring(0,
+                                                                             request[i].channel_id.station_code.length()-7);
+                        }
                         Iterator it = allStations.iterator();
                         while (it.hasNext()) {
                             Station station = (Station)it.next();
