@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 2665 2002-10-03 15:16:19Z crotwell $
+ * @version $Id: ChannelChooser.java 2698 2002-10-09 20:02:40Z crotwell $
  *
  */
 
@@ -741,7 +741,7 @@ public class ChannelChooser extends JPanel{
 		int progressVal = 1;
 		setProgressValue(this, progressVal);
 		progressVal++;
-		logger.debug("Got networks");
+		logger.debug("Got all networks, num="+nets.length);
 		for (int i=0; i<nets.length; i++) {
 		    // skip null networks...probably a bug on the server
 		    if (nets[i] != null) {
@@ -766,8 +766,10 @@ public class ChannelChooser extends JPanel{
 		setProgressMax(this, configuredNetworks.length);
 		for(int counter = 0; counter < configuredNetworks.length; counter++) {
 		    try {
+                        logger.debug("Getting network for "+configuredNetworks[counter]);
 			NetworkAccess[] nets = 
 			    netdc.a_finder().retrieve_by_code(configuredNetworks[counter]);
+                        logger.debug("Got "+nets.length+" networks for "+configuredNetworks[counter]);
 			for(int subCounter = 0; subCounter < nets.length; subCounter++) {
 			    if (nets[subCounter] != null) {
 				//  cache = new CacheNetworkAccess(nets[subCounter]);
