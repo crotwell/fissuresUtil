@@ -18,6 +18,8 @@ public class TimeSnapshot {
 	this.tr = tr;
     }
 
+    public void setGeneric(MicroSecondTimeRange tr){ this.tr = tr; }
+
     public MicroSecondTimeRange getTimeRange(){ return tr; }
 
     public MicroSecondTimeRange getTimeRange(DataSetSeismogram seis){ return (MicroSecondTimeRange)seismoDisplayTime.get(seis); }
