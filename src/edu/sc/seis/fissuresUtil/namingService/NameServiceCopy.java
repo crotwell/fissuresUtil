@@ -116,7 +116,6 @@ public class NameServiceCopy {
         for(int i = 0; i < args.length; i++) {
             if(args[i].equals("-h") || args[i].equals("--help")) {
                 System.out.println("-props propfile  Connfiguration properties");
-                System.out.println("--noping         Do not ping servers before copy");
                 System.out.println("-h --help        Print this help message");
                 System.exit(0);
             }
