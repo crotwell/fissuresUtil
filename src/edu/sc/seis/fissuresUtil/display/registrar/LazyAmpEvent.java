@@ -32,11 +32,6 @@ public class LazyAmpEvent implements AmpEvent{
         return event.getAmp();
     }
 
-    public void setAmp(UnitRangeImpl amp) {
-        calculate();
-        event.setAmp(amp);
-    }
-
     private synchronized void calculate(){
         if(!calculated){
             event = config.calculate();

@@ -32,11 +32,6 @@ public interface AmpEvent {
     public UnitRangeImpl getAmp();
 
     /**
-     *sets the generic amp range for thsi event
-     */
-    public void setAmp(UnitRangeImpl amp);
-
-    /**
      *@returns the seismograms held by this event
      */
     public DataSetSeismogram[] getSeismograms();
