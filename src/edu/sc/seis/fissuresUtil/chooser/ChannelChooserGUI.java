@@ -401,14 +401,6 @@ public class ChannelChooserGUI extends JPanel{
     /*================Class Variables===============*/
 
 
-    protected edu.iris.Fissures.Plottable[] arrayplottable;
-    protected edu.iris.Fissures.Plottable[] arrayplottabletemp;
-    protected edu.iris.Fissures.Plottable clientPlottable;
-    protected SeisPlotUtilTemp seisplotutil = 
-        new SeisPlotUtilTemp();
-
-    protected PaintSeismogram psgram = new PaintSeismogram();
-
     protected String[] networks;
     protected String[] stations = {"    "};
     protected String[] sites={"    "}; 

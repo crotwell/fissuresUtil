@@ -247,12 +247,9 @@ System.out.println("8 netSet.add ");
     /*================Class Variables===============*/
 
     protected HashMap allchanMap = new HashMap(); 
-    protected SeisPlotUtilTemp seisplotutil = 
-        new SeisPlotUtilTemp();
 
     private NetworkDC netdc;
     private NetworkFinder netfound;
-    private PlottableDC plottableRef;
 
  
     protected String[] networks;
