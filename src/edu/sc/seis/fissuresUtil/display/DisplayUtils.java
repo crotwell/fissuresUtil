@@ -331,6 +331,80 @@ public class DisplayUtils {
         return end;
     }
 
+    /**
+     * Creates a color object from a hex string with patterns such as RGB, ARGB,
+     * RRGGBB, or AARRGGBB. In the case of RGB and ARGB, F will be treated as
+     * FF. It doesn't matter whether you include the "#" or not.
+     */
+    public static Color getColorFromHex(String hexString) {
+        hexString = stripPoundSign(hexString);
+        int[] argb = {255, 0, 0, 0};
+        int pos = 0;
+        switch(hexString.length()){
+            case 4:
+                argb[0] = getDecimalFromHexSubstring(doubleSubstring(hexString,
+                                                                     pos,
+                                                                     ++pos));
+            case 3:
+                for(int i = 1; i < argb.length; i++) {
+                    argb[i] = getDecimalFromHexSubstring(doubleSubstring(hexString,
+                                                                         pos,
+                                                                         ++pos));
+                }
+                break;
+            case 8:
+                argb[0] = getDecimalFromHexSubstring(hexString.substring(pos,
+                                                                         pos += 2));
+            case 6:
+                for(int i = 1; i < argb.length; i++) {
+                    argb[i] = getDecimalFromHexSubstring(hexString.substring(pos,
+                                                                             pos += 2));
+                }
+                break;
+            default:
+                throw new NumberFormatException("hex string provided not in proper format");
+        }
+        return new Color(argb[1], argb[2], argb[3], argb[0]);
+    }
+
+    private static String doubleSubstring(String string, int start, int end) {
+        String substring = string.substring(start, end);
+        return substring + substring;
+    }
+
+    private static String stripPoundSign(String string) {
+        if(string.startsWith("#")) { return string.substring(1); }
+        return string;
+    }
+
+    /**
+     * returns an int from a hex substring. It doesn't matter whether you
+     * include the "#" or not.
+     */
+    public static int getDecimalFromHexSubstring(String hexSubstring) {
+        hexSubstring = stripPoundSign(hexSubstring.toLowerCase());
+        char[] hexChars = hexSubstring.toCharArray();
+        int total = 0;
+        for(int i = 0; i < hexChars.length; i++) {
+            total += (getDecimalFromHexChar(hexChars[i]) * Math.pow(16,
+                                                                    hexChars.length
+                                                                            - 1
+                                                                            - i));
+        }
+        return total;
+    }
+
+    /**
+     * returns the int representation of the hex char. F will return 15.
+     */
+    public static int getDecimalFromHexChar(char hexChar) {
+        int theInt = 15 + (hexChar - 'f');
+        if((theInt < 10) || (theInt > 15)) {
+            theInt = Integer.parseInt(hexChar + "");
+        }
+        return theInt;
+    }
+
     public static final String UP = "Up";
 
     public static final String EAST = "East";
