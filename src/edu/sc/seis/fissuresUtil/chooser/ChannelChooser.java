@@ -10,7 +10,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
-import edu.sc.seis.fissuresUtil.cache.BulletproofNetworkAccess;
+import edu.sc.seis.fissuresUtil.cache.BulletproofNetworkAccessFactory;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
@@ -26,7 +26,7 @@ import org.apache.log4j.Category;
 /**
  * ChannelChooser.java
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 9193 2004-06-16 20:47:44Z groves $
+ * @version $Id: ChannelChooser.java 9385 2004-06-29 14:49:36Z groves $
  *
  */
 
@@ -358,8 +358,7 @@ public class ChannelChooser extends JPanel {
         siLabel.setToolTipText(lsittip);
         chLabel.setToolTipText(lchatip);
 
-        //networkList = new JList(networks);
-        networkList = new DNDJList(networks);
+        networkList = new JList(networks);
         networkList.setCellRenderer(renderer);
         networkList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         networkList.addListSelectionListener(new ListSelectionListener() {
@@ -397,7 +396,7 @@ public class ChannelChooser extends JPanel {
                         }
                     }
                 } );
-        stationList = new DNDJList(stationNames);
+        stationList = new JList(stationNames);
         // set a default cell renederer, but this can be overridden
         // with the setStationListCellRenderer method
         stationList.setCellRenderer(renderer);
@@ -1134,7 +1133,7 @@ public class ChannelChooser extends JPanel {
                     // skip null networks...probably a bug on the server
                     if (nets[i] != null) {
                         //  cache = new CacheNetworkAccess(nets[i]);
-                        NetworkAccess net = new BulletproofNetworkAccess(nets[i], netdc, nets[i].get_attributes().get_id());
+                        NetworkAccess net = BulletproofNetworkAccessFactory.vest(nets[i], netdc);
                         NetworkAttr attr = net.get_attributes();
                         logger.debug("Got attributes "+attr.get_code());
                         // preload attributes
@@ -1170,7 +1169,7 @@ public class ChannelChooser extends JPanel {
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if (nets[subCounter] != null) {
                                 // preload attributes
-                                NetworkAccess net = new BulletproofNetworkAccess(nets[subCounter], netdc, nets[subCounter].get_attributes().get_id());
+                                NetworkAccess net = BulletproofNetworkAccessFactory.vest(nets[subCounter], netdc);
                                 NetworkAttr attr = net.get_attributes();
 
                                 // this is BAD CODE, but prevents the scepp
