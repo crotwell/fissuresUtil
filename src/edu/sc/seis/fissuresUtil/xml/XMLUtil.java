@@ -117,6 +117,58 @@ public class XMLUtil {
 	return elementArray;
     }
 
+    /**
+     * Describe <code>getAllAsStrings</code> method here.
+     *
+     * @param path a <code>String</code> value
+     * @return a <code>String[]</code> value
+     */
+    public static  String[] getAllAsStrings(Element config, String path) {
+	//logger.debug("The path that is passed to GetALLASStrings is "+path);
+	
+        NodeList nodes = evalNodeList(config, path);
+        if (nodes == null) {
+            return new String[0];
+        } // end of if (nodes == null)
+        
+	String[] out = new String[nodes.getLength()];
+	//logger.debug("the length of the nodes is "+nodes.getLength());
+        for (int i=0; i<out.length; i++) {
+            out[i] = nodes.item(i).getNodeValue();
+        } // end of for (int i=0; i++; i<out.length)
+        return out;
+    }
+
+    /**
+     * Describe <code>getUniqueName</code> method here.
+     *
+     * @param nameList a <code>String[]</code> value
+     * @param name a <code>String</code> value
+     * @return a <code>String</code> value
+     */
+    public static String getUniqueName(String[] nameList, String name) {
+	int counter = 0;
+	for(int i = 0; i < nameList.length; i++) {
+		if(nameList[i].indexOf(name) != -1) counter++;
+	}
+	if(counter == 0) return name;
+	return name+"_"+(counter+1);
+    }
+
+     /**
+     * Describe <code>evalElement</code> method here.
+     *
+     * @param context a <code>Node</code> value
+     * @param path a <code>String</code> value
+     * @return an <code>Element</code> value
+     */
+    public static  Element evalElement(Node context, String path) {
+        NodeList nList = evalNodeList(context, path);
+        if (nList != null && nList.getLength() != 0) {
+            return (Element)nList.item(0);
+        }
+        return null;
+    }
 
     private static CachedXPathAPI xpath = new CachedXPathAPI();
 }// XMLUtil
