@@ -129,8 +129,6 @@ public class UnitRangeMapper implements ScaleMapper{
         return range;
     }
 
-    private UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
-
     private int firstMajorTick = 0;
 
     private int majorTickStep = 10;
