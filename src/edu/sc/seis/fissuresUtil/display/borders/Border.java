@@ -45,6 +45,8 @@ public abstract class Border extends JComponent{
 
     public void paint(Graphics g){
         Graphics2D g2d = (Graphics2D)g;
+        g.setColor(getBackground());
+        g2d.fillRect(0, 0, getSize().width, getSize().height);
         g.setColor(Color.BLACK);
         Iterator it = borderFormats.iterator();
         while(it.hasNext()){
@@ -180,7 +182,7 @@ public abstract class Border extends JComponent{
             nextLabelPoint = getFirstPoint();
             for (int i = 0; i < numLabelTicks; i++) {
                 if(displayNegatives || value >= 0){
-                    label(getLabel(value), nextLabelPoint, g2d);
+                    label(getLabel(value), nextLabelPoint, g2d, translation[1]);
                 }
                 value += divSize;
                 nextLabelPoint = getNextPoint((float)pixelsPerLabelTick,
@@ -189,7 +191,8 @@ public abstract class Border extends JComponent{
             g2d.translate(-(int)translation[0], -(int)translation[1]);
         }
 
-        private void label(String label, float[] nextLabelPoint, Graphics2D g2d) {
+        private void label(String label, float[] nextLabelPoint, Graphics2D g2d,
+                           double trans) {
             Rectangle2D bounds = g2d.getFontMetrics().getStringBounds(label, g2d);
             float x, y;
             if(direction == VERTICAL){
@@ -202,7 +205,8 @@ public abstract class Border extends JComponent{
                 if(side == TOP) y = nextLabelPoint[1] - LABEL_TICK_LENGTH - 3;
                 else y = LABEL_TICK_LENGTH + (float)bounds.getHeight() - 3;
             }
-            g2d.drawString(label, x, y);
+            if(y + trans <= getSize().height &&
+               y - bounds.getHeight() + trans >= 0)g2d.drawString(label, x, y);
         }
 
         //returns the position of the first label tick. 1st element is x, 2nd
