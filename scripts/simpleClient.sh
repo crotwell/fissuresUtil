@@ -27,9 +27,9 @@ JARS=${JACORBJARS}:${SEEDCODEC}:${FISSURESIDL}:${FISSURESIMPL}:${FISSURESUTIL}:$
 
 JACORBPARAMS="-Djava.endorsed.dirs=${JACORB_LIB} -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton -Djacorb.connection.client.pending_reply_timeout=${JACORB_TIMEOUT} -classpath ${JARS} "
 
-java ${JACORBPARAMS}  edu.sc.seis.fissuresUtil.simple.SimpleNetworkClient -props ./simpleClient.prop
+#java ${JACORBPARAMS}  edu.sc.seis.fissuresUtil.simple.SimpleNetworkClient -props ./simpleClient.prop
 
-java ${JACORBPARAMS} edu.sc.seis.fissuresUtil.simple.SimpleEventClient -props ./simpleClient.prop
+#java ${JACORBPARAMS} edu.sc.seis.fissuresUtil.simple.SimpleEventClient -props ./simpleClient.prop
 
 java ${JACORBPARAMS}  edu.sc.seis.fissuresUtil.simple.SimpleSeismogramClient -props ./simpleClient.prop
 
