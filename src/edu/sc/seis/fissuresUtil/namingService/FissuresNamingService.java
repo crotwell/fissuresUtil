@@ -23,6 +23,7 @@ import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
+import org.omg.PortableServer.Servant;
 import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventDCHelper;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
@@ -659,7 +660,25 @@ public class FissuresNamingService {
         return rtnValue;
     }
 
-    private String getInterfaceName(org.omg.CORBA.Object obj) {
+    /** This method works correctly with only the Fissures servers. Custom
+     * server types will cause a IllegalArgumentException
+     */
+    public static String getInterfaceName(Servant obj) {
+        return getInterfaceNamePrivate(obj);
+    }
+    
+
+    /** This method works correctly with only the Fissures servers. Custom
+     * server types will cause a IllegalArgumentException
+     */
+    public static String getInterfaceName(org.omg.CORBA.Object obj) {
+        return getInterfaceNamePrivate(obj);
+    }
+
+    /** This method works correctly with only the Fissures servers. Custom
+     * server types will cause a IllegalArgumentException
+     */
+    private static String getInterfaceNamePrivate(Object obj) {
         String temp = new String();
         Class[] interfacenames = obj.getClass().getInterfaces();
         for(int counter = 0; counter < interfacenames.length; counter++) {
@@ -670,11 +689,15 @@ public class FissuresNamingService {
             }
         }
         StringTokenizer tokenizer = new StringTokenizer(temp, ".");
-        String rtnValue = new String();
+        String rtnValue = null;
         while(tokenizer.hasMoreElements()) {
             rtnValue = (String)tokenizer.nextElement();
         }
-        return rtnValue.substring(0, rtnValue.length());
+        if (rtnValue != null) { 
+            return rtnValue;
+        } else {
+            throw new IllegalArgumentException(obj.getClass().getName()+" not recognized");
+        }
     }
 
     private String nameServiceCorbaLoc = null;
