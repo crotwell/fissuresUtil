@@ -343,7 +343,13 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 				       }
 	particleDisplays++;
 	particleWindow.setVisible(true);
-	}
+	}else {
+	    particleDisplay.addParticleMotionDisplay((DataSetSeismogram)creator.getSeismograms().getFirst(), 
+					       (TimeConfigRegistrar)creator.getTimeConfig(), 
+					       creator.getAmpRegistrar(), 
+					       creator.getAmpRegistrar());
+	} // end of else
+	
     }
     
     
