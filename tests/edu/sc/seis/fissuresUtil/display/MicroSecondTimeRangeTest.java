@@ -16,7 +16,7 @@ public class MicroSecondTimeRangeTest extends EqualsHashCodeTestCase{
     }
 
     protected Object createInstance() throws Exception {
-        return new MicroSecondTimeRange(new MicroSecondDate(),
+        return new MicroSecondTimeRange(new MicroSecondDate(0),
                                         new MicroSecondDate(5000));
     }
 
