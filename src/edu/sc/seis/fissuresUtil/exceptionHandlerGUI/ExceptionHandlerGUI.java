@@ -30,7 +30,15 @@ public class ExceptionHandlerGUI {
 	JFrame displayFrame = new JFrame("Exception Handler");
 	JPanel messagePanel = new JPanel();
 	JLabel exceptionMessageLabel = new JLabel();
+	JTextArea messageArea = new JTextArea();
+	messageArea.setLineWrap(true);
+	messageArea.setFont(new Font("BookManOldSytle", Font.BOLD, 20));
+	messageArea.setWrapStyleWord(true);
+	messageArea.setEditable(false);
+	
+	
 	exceptionMessageLabel.setText(exception.toString());
+	
 	messagePanel.setLayout(new BorderLayout());
 	messagePanel.add(exceptionMessageLabel);
 	tabbedPane.addTab("information", messagePanel);
@@ -39,11 +47,12 @@ public class ExceptionHandlerGUI {
 	JScrollPane scrollPane = new JScrollPane(stackTracePanel);
 	JLabel stackTraceLabel = new JLabel();
 	stackTraceLabel.setText(getStackTrace(exception));
+	messageArea.setText(getStackTrace(exception));
 	stackTracePanel.setLayout(new BorderLayout());
-	stackTracePanel.add(stackTraceLabel);
+	stackTracePanel.add(messageArea);
 	tabbedPane.addTab("stackTrace", scrollPane);
 
-	java.awt.Dimension dimension = new java.awt.Dimension(400, 400);
+	java.awt.Dimension dimension = new java.awt.Dimension(600, 400);
 	tabbedPane.setPreferredSize(dimension);
 	tabbedPane.setMinimumSize(dimension);
 
