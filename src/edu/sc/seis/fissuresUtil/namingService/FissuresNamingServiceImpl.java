@@ -63,19 +63,34 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
         this.orb = orb;
     }
 
+    public void setNameServiceCorbaLoc(String nameServiceCorbaLoc) {
+	this.nameServiceCorbaLoc = nameServiceCorbaLoc;
+	namingContext = null;
+    }
+
     public NamingContextExt getNameService() throws org.omg.CORBA.ORBPackage.InvalidName{
         if (namingContext == null) {
-            // get a reference to the Naming Service root_context
-            org.omg.CORBA.Object rootObj = 
-                orb.resolve_initial_references("NameService");
-            if (rootObj == null) {
-                //logger.error
-                logger.info("Name service object is null!");
-                return null;
-            }
-            namingContext = NamingContextExtHelper.narrow(rootObj);
-            //logger.info
-            logger.info("got Name context");
+	    if ( nameServiceCorbaLoc != null) {
+		org.omg.CORBA.Object rootObj = 
+		    orb.string_to_object(nameServiceCorbaLoc);
+		if (rootObj == null) {
+		    //logger.error
+		    logger.info("Name service object is null!");
+		    return null;
+		}
+		logger.info("got Name context from nameServiceCorbaLoc property");
+	    } else {
+		// get a reference to the Naming Service root_context
+		org.omg.CORBA.Object rootObj = 
+		    orb.resolve_initial_references("NameService");
+		if (rootObj == null) {
+		    //logger.error
+		    logger.info("Name service object is null!");
+		    return null;
+		}
+		namingContext = NamingContextExtHelper.narrow(rootObj);
+		logger.info("got Name context from initial_references");
+	    } // end of else
         } // end of if (namingContext == null)
         return namingContext;
     }
@@ -484,19 +499,19 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	
 		if(binding.binding_type == BindingType.ncontext) {
 		    
-			if(path == null) tempPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
-			else tempPath = path + "/"+binding.binding_name[0].id+"."+binding.binding_name[0].kind;
-			org.omg.CORBA.Object[] str;
-			if(binding.binding_name[0].kind.equals("interface") && 
-			   binding.binding_name[0].id.equals(interfaceName)) {
-			    str = getAllObjects("__END__RECURSION__", tempPath);
-			} else {
-			    str = getAllObjects(interfaceName, tempPath);
-			}
-			if(str != null) {
-			    for(int i = 0; i < str.length; i++) 
-				arrayList.add(str[i]);
-			}
+		    if(path == null) tempPath = binding.binding_name[0].id+"."+binding.binding_name[0].kind;
+		    else tempPath = path + "/"+binding.binding_name[0].id+"."+binding.binding_name[0].kind;
+		    org.omg.CORBA.Object[] str;
+		    if(binding.binding_name[0].kind.equals("interface") && 
+		       binding.binding_name[0].id.equals(interfaceName)) {
+			str = getAllObjects("__END__RECURSION__", tempPath);
+		    } else {
+			str = getAllObjects(interfaceName, tempPath);
+		    }
+		    if(str != null) {
+			for(int i = 0; i < str.length; i++) 
+			    arrayList.add(str[i]);
+		    }
 		} else {
 		    if(interfaceName.equals("__END__RECURSION__")) {
 			String objectPath = new String();
@@ -732,15 +747,15 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	    rtnValue = (String) tokenizer.nextElement();
 	}
 	return rtnValue.substring(0, rtnValue.length());
-  }
+    }
 
-
+    private String nameServiceCorbaLoc = null;
 
     private java.util.Properties props;
     private org.omg.CORBA_2_3.ORB orb;
     private NamingContextExt namingContext; 
 
-     static Category logger = Category.getInstance(FissuresNamingServiceImpl.class.getName());
+    static Category logger = Category.getInstance(FissuresNamingServiceImpl.class.getName());
 
 
 }// FissuresNamingServiceImpl
