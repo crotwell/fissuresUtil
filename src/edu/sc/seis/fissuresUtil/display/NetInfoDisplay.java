@@ -8,8 +8,13 @@ import edu.iris.Fissures.model.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+//drag and drop
+import java.awt.dnd.*;
+import java.awt.datatransfer.*;
+
 import java.awt.*;              //for layout managers
 import java.awt.event.*;        //for action and window events
+import java.util.*;
 import edu.iris.Fissures.display.*;
 
 /**
@@ -39,6 +44,12 @@ public class NetInfoDisplay extends TextInfoDisplay {
         }
     }
 
+    protected void appendNetwork(NetworkAttr attr)
+	throws BadLocationException 
+    {
+	appendNetwork(attr, textPane.getDocument());
+    }
+
     protected void appendNetwork(NetworkAttr attr, Document doc)
 	throws BadLocationException 
     {
@@ -62,6 +73,12 @@ public class NetInfoDisplay extends TextInfoDisplay {
         } catch (BadLocationException ble) {
             System.err.println("Couldn't insert message.");
         }
+    }
+
+    protected void appendStation(Station sta) 
+	throws BadLocationException 
+    {
+	appendStation(sta, textPane.getDocument());
     }
 
     protected void appendStation(Station sta, Document doc) 
@@ -93,6 +110,12 @@ public class NetInfoDisplay extends TextInfoDisplay {
         }
     }
 
+    protected void appendSite(Site site) 
+	throws BadLocationException 
+    {
+	appendSite(site, textPane.getDocument());
+    }
+
     protected void appendSite(Site site, Document doc) 
 	throws BadLocationException 
     {
@@ -119,6 +142,12 @@ public class NetInfoDisplay extends TextInfoDisplay {
         } catch (BadLocationException ble) {
             System.err.println("Couldn't insert message.");
         }
+    }
+
+    protected void appendChannel(Channel chan) 
+	throws BadLocationException 
+    {
+	appendChannel(chan, textPane.getDocument());
     }
 
     protected void appendChannel(Channel chan, Document doc) 
@@ -156,10 +185,104 @@ public class NetInfoDisplay extends TextInfoDisplay {
         } 
     }
 
+    // Drag and Drop...
+
+    public void drop(DropTargetDropEvent e) {
+	//System.err.println("[Target] drop");
+        DropTargetContext targetContext = e.getDropTargetContext();
+
+        boolean outcome = false;
+
+//         if ((e.getSourceActions() & DnDConstants.ACTION_COPY) != 0) {
+// 	    System.out.println("Action.COPY & was ok");
+//             e.acceptDrop(DnDConstants.ACTION_COPY);
+//         } else {
+// 	    System.out.println("Action.COPY & didn't");
+//             e.rejectDrop();
+//             return;
+//         }
+
+	e.acceptDrop(DnDConstants.ACTION_COPY);
 
 
+        DataFlavor[] dataFlavors = e.getCurrentDataFlavors();
+        DataFlavor   transferDataFlavor = null;
+	try {
+	    for (int i = 0; i < dataFlavors.length; i++) {
+		if (networkDataFlavor.equals(dataFlavors[i])) {
+		    System.err.println("matched network");
+		    transferDataFlavor = dataFlavors[i];
+		    Transferable t  = e.getTransferable();
+		    NetworkAccess net = 
+			(NetworkAccess)t.getTransferData(transferDataFlavor);
+		    appendNetwork(net.get_attributes());
+		    outcome = true;
+		    break;
+		}
+
+		System.err.println(dataFlavors[i].getMimeType());
+		clear();
+		if (edu.sc.seis.fissuresUtil.chooser.DNDLinkedList.listDataFlavor.equals(dataFlavors[i])) {
+		    System.err.println("matched list");
+		    transferDataFlavor = dataFlavors[i];
+		    Transferable t  = e.getTransferable();
+		    LinkedList list = 
+			(LinkedList)t.getTransferData(transferDataFlavor);
+		    Iterator it = list.iterator();
+		    Object obj;
+		    while (it.hasNext()) {
+			obj = it.next();
+			if (obj instanceof NetworkAccess) {
+			    appendNetwork(((NetworkAccess)obj).get_attributes());
+			    outcome = true;
+			} else if (obj instanceof Station) {
+			    appendStation((Station)obj);
+			    outcome = true;
+			} else if (obj instanceof Site) {
+			    appendSite((Site)obj);
+			    outcome = true;
+			} else if (obj instanceof Channel) {
+			    appendChannel((Channel)obj);
+			    outcome = true;
+			} // end of else
+			
+		    } // end of while (it.hasNext())
+		    break;
+		}
+		
+	    }
+
+	} catch (BadLocationException bl) {
+	    bl.printStackTrace();
+	    System.err.println(bl.getMessage());
+	    targetContext.dropComplete(false);
+	    return;
+	} catch (java.io.IOException ioe) {
+	    ioe.printStackTrace();
+	    System.err.println(ioe.getMessage());
+	    targetContext.dropComplete(false);
+	    return;
+	} catch (UnsupportedFlavorException ufe) {
+	    ufe.printStackTrace();
+	    System.err.println(ufe.getMessage());
+	    targetContext.dropComplete(false);
+	    return;
+	} // end of try-catch
+	targetContext.dropComplete(outcome);
+    }
+
+    public void dragScroll(DropTargetDragEvent e) {
+	System.err.println("[Target] dropScroll");
+    }
+
+    public void dropActionChanged(DropTargetDragEvent e) {
+        System.err.println("[Target] dropActionChanged");
+    }
 
 
-    NetworkExplorer netExplorer;
-    NetworkFinder netFinder;
+    private DataFlavor networkDataFlavor =
+	new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType+
+		       "; class="+edu.sc.seis.fissuresUtil.chooser.DNDNetworkAccess.class.getName(), 
+		       "Seismic Network");
+
 } // NetInfoDisplay

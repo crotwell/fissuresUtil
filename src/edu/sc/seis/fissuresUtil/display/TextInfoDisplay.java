@@ -6,6 +6,10 @@ import javax.swing.text.*;
 import java.awt.*;              //for layout managers
 import java.awt.event.*;        //for action and window events
 
+//drag and drop
+import java.awt.dnd.*;
+import java.awt.datatransfer.*;
+
 /**
  * TextInfoDisplay.java
  *
@@ -16,7 +20,11 @@ import java.awt.event.*;        //for action and window events
  * @version
  */
 
-public class TextInfoDisplay extends JPanel {
+public abstract class TextInfoDisplay 
+    extends JPanel 
+    implements DropTargetListener 
+{
+
     public TextInfoDisplay (){
 	setLayout(new BorderLayout());
 	//Create a text pane.
@@ -28,6 +36,9 @@ public class TextInfoDisplay extends JPanel {
         paneScrollPane.setMinimumSize(new Dimension(10, 10));
 	add(paneScrollPane, BorderLayout.CENTER);
 	initStylesForTextPane(textPane);
+
+	dropTarget = new DropTarget(textPane, this);
+	dropTarget.setActive(true);
     }
     
 
@@ -77,6 +88,20 @@ public class TextInfoDisplay extends JPanel {
 			     textPane.getStyle("problem"));
     }
 
+    public Document getDocument() {
+	return textPane.getDocument();
+    }
+
+    public void clear() {
+	Document doc = textPane.getDocument();
+        try {
+	    doc.remove(0, doc.getLength());
+            toTop();
+        } catch (BadLocationException ble) {
+            System.err.println("Couldn't insert message.");
+        }
+    }
+
     public void toTop() {
         int min = paneScrollPane.getVerticalScrollBar().getMinimum();
         paneScrollPane.getVerticalScrollBar().setValue(min);
@@ -112,7 +137,22 @@ public class TextInfoDisplay extends JPanel {
 
     }
 
+    public void dragEnter(DropTargetDragEvent e) {
+        //System.err.println("[Target] dragEnter");
+        e.acceptDrag(DnDConstants.ACTION_COPY);
+    }
+
+    public void dragOver(DropTargetDragEvent e) {
+        //System.err.println("[Target] dragOver");
+        e.acceptDrag(DnDConstants.ACTION_COPY);
+    }
+
+    public void dragExit(DropTargetEvent e) {
+        //System.err.println("[Target] dragExit");
+    }
+
     JTextPane textPane;
     JScrollPane paneScrollPane;
+    DropTarget dropTarget = null;
 
 }// TextInfoDisplay
