@@ -12,5 +12,7 @@ public interface ServerNameDNS {
 
     public String getServerDNS();
     
+    public org.omg.CORBA.Object getRealCorbaObject();
+    
 }
 

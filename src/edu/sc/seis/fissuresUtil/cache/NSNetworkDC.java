@@ -37,6 +37,10 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
                 + wrappedClass.getName());
     }
 
+    public org.omg.CORBA.Object getRealCorbaObject() {
+        return getCorbaObject();
+    }
+
     public NetworkDC getCorbaObject() {
         // side effect - make sure netDC is loaded
         NetworkDC n = getNetworkDC();
