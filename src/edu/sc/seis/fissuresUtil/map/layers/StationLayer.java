@@ -25,6 +25,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import org.apache.log4j.Logger;
+import edu.iris.Fissures.network.StationIdUtil;
 
 public class StationLayer extends MouseAdapterLayer implements StationDataListener,
     StationSelectionListener, AvailableStationDataListener, EQSelectionListener, EventDataListener{
@@ -123,9 +125,14 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
             boolean found = false;
             while (it.hasNext() && !found){
                 OMStation current = (OMStation)it.next();
-                if (current.getStation() == station){
+                if (current.getStation().name.equals(station.name)) {
+                    // if (StationIdUtil.areEqual(current.getStation().get_id(), station.get_id())){
                     current.setIsUp(isUp);
+                    found = true;
                 }
+            }
+            if ( ! found ) {
+                logger.debug("no match for available data update, "+station.get_code()+" "+isUp);
             }
             repaint();
         }
@@ -139,6 +146,12 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
      *
      */
     public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
+        Iterator it = omgraphics.iterator();
+        while (it.hasNext()){
+            OMStation current = (OMStation)it.next();
+            current.resetIsUp();
+        }
+        repaint();
         currentEvent = eqSelectionEvent.getEvents()[0];
     }
 
@@ -169,7 +182,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
                   stat.my_location.longitude, xPoints, yPoints,
                   OMPoly.COORDMODE_ORIGIN);
             station = stat;
-            setDefaultColor(DOWN_STATION);
+            setDefaultColor(NO_STATUS_STATION);
             setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             setLinePaint(Color.BLACK);
             generate(getProjection());
@@ -193,6 +206,10 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
                 deselect();
             }
             return selected;
+        }
+
+        public void resetIsUp() {
+            setDefaultColor(NO_STATUS_STATION);
         }
 
         public void setIsUp(boolean up){
@@ -253,6 +270,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     private List stationNames = new ArrayList();
 
     public static final Color STATION = new Color(43, 33, 243);
+
+    public static final Color NO_STATUS_STATION = Color.WHITE;
 
     public static final Color DOWN_STATION = new Color(183, 183, 183);
 
@@ -367,6 +386,8 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
 
         return dist;
     }
+
+    private static Logger logger = Logger.getLogger(StationLayer.class);
 }
 
 
