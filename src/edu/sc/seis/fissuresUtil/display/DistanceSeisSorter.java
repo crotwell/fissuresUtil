@@ -6,13 +6,13 @@ package edu.sc.seis.fissuresUtil.display;
  * @author Created by Charlie Groves
  */
 
+import java.util.Iterator;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicLayoutConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutData;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutListener;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.Iterator;
 
 public class DistanceSeisSorter extends SeismogramSorter implements LayoutListener{
     public DistanceSeisSorter(){

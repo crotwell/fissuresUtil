@@ -1,20 +1,15 @@
 
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.IfNetwork.*;
-
-import edu.iris.Fissures.network.ResponsePrint;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTargetContext;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.util.Iterator;
-import java.util.LinkedList;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.Instrumentation;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.network.ResponsePrint;
 
 /**
  * NetInfoDisplay.java

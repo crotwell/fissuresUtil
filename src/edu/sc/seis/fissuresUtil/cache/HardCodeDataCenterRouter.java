@@ -8,9 +8,7 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.log4j.Logger;
-
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;

@@ -1,11 +1,5 @@
 package edu.sc.seis.fissuresUtil.sac;
 
-import edu.sc.seis.fissuresUtil.xml.*;
-
-import edu.iris.Fissures.AuditInfo;
-import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfNetwork.Channel;
-import edu.iris.Fissures.network.ChannelIdUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -19,6 +13,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
 import org.w3c.dom.Element;
+import edu.iris.Fissures.AuditInfo;
+import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.sc.seis.fissuresUtil.xml.DataSet;
+import edu.sc.seis.fissuresUtil.xml.DataSetToXML;
+import edu.sc.seis.fissuresUtil.xml.MemoryDataSet;
+import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
+import edu.sc.seis.fissuresUtil.xml.StdDataSetParamNames;
 
 /**
  * SacDirToDataSet.java
@@ -27,7 +31,7 @@ import org.w3c.dom.Element;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 9761 2004-07-23 14:33:11Z crotwell $
+ * @version $Id: SacDirToDataSet.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {

@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.simple;
 
 
-import edu.sc.seis.fissuresUtil.simple.Initializer;
 import java.io.PrintWriter;
 import org.apache.log4j.Logger;
 

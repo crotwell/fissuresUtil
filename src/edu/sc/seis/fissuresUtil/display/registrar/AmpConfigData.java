@@ -1,12 +1,12 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import edu.sc.seis.fissuresUtil.display.*;
-
-import edu.iris.Fissures.IfNetwork.Response;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
+import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * AmpConfigData encapsulates the data for a particular seismogram in a particular

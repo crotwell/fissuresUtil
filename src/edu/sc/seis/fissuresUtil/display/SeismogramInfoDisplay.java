@@ -1,21 +1,4 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.iris.Fissures.IfNetwork.Channel;
-import edu.iris.Fissures.IfNetwork.NetworkAttr;
-import edu.iris.Fissures.IfNetwork.Response;
-import edu.iris.Fissures.IfNetwork.Site;
-import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.TimeRange;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.network.NetworkIdUtil;
-import edu.iris.Fissures.network.ResponsePrint;
-import edu.iris.Fissures.network.SiteIdUtil;
-import edu.iris.Fissures.network.StationIdUtil;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.text.DecimalFormat;
@@ -26,6 +9,23 @@ import java.util.TimeZone;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.IfNetwork.Response;
+import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.network.NetworkIdUtil;
+import edu.iris.Fissures.network.ResponsePrint;
+import edu.iris.Fissures.network.SiteIdUtil;
+import edu.iris.Fissures.network.StationIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.bag.Statistics;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 
 /**
  * SeismogramInfoDisplay.java

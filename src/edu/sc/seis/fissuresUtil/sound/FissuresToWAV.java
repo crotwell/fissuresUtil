@@ -1,24 +1,28 @@
 package edu.sc.seis.fissuresUtil.sound;
 
-import javax.sound.sampled.*;
-
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.SamplingImpl;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
-import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
-import edu.sc.seis.fissuresUtil.mseed.Utility;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.apache.log4j.Category;
-import edu.iris.Fissures.model.TimeInterval;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.event.EventListenerList;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.mseed.Utility;
 
 /**
  * FissuresToWAV.java

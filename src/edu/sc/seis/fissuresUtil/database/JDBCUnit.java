@@ -1,8 +1,5 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.Unit;
-import edu.iris.Fissures.UnitBase;
-import edu.iris.Fissures.model.UnitImpl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +8,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import edu.iris.Fissures.Unit;
+import edu.iris.Fissures.UnitBase;
+import edu.iris.Fissures.model.UnitImpl;
 /**
  * JDBCUnit.java
  *

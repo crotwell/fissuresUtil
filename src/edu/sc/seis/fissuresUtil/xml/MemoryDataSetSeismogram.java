@@ -3,7 +3,6 @@ package edu.sc.seis.fissuresUtil.xml;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import javax.swing.SwingUtilities;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 
 /**

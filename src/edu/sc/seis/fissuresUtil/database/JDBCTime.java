@@ -1,12 +1,12 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.Time;
-import edu.iris.Fissures.model.MicroSecondDate;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.model.MicroSecondDate;
 
 /**
  * JDBCTime.java

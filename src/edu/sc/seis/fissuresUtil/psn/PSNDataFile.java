@@ -1,7 +1,5 @@
 package edu.sc.seis.fissuresUtil.psn;
 
-import edu.sc.seis.fissuresUtil.psn.PSNEventRecord;
-import edu.sc.seis.fissuresUtil.psn.PSNHeader;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;

@@ -6,12 +6,12 @@
 
 package edu.sc.seis.fissuresUtil.display.registrar;
 
-import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
 import java.util.Hashtable;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
 
 public class LayoutScaler extends JSlider implements ChangeListener{
     public LayoutScaler(RecordSectionDisplay recSec){

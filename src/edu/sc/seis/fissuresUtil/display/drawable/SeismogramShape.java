@@ -1,11 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
-import edu.sc.seis.fissuresUtil.display.*;
-
-import edu.iris.Fissures.IfNetwork.Sensitivity;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -14,6 +8,16 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * SeismogramShape.java
@@ -22,7 +26,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 9829 2004-07-27 19:58:51Z crotwell $
+ * @version $Id: SeismogramShape.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class SeismogramShape implements Shape, SeismogramContainerListener{

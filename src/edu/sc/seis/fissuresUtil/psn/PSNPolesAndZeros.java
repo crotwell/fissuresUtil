@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.psn;
 
-import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 import java.io.DataInputStream;
 import java.io.IOException;
+import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 
 /**
  * PSNPolesAndZeros.java

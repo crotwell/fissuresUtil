@@ -1,16 +1,5 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
-import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
-import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -23,6 +12,17 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Category;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
+import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
+import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 
 public class HSQLRequestFilterDb extends AbstractDb{
     public HSQLRequestFilterDb(String directoryName, String databaseName) throws SQLException {

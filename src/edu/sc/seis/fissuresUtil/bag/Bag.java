@@ -9,23 +9,33 @@ package edu.sc.seis.fissuresUtil.bag;
  * @author <a href="mailto:crotwell@owl.seis.sc.edu">Philip Crotwell</a>
  * @version 1.0
  */
-import edu.sc.seis.fissuresUtil.xml.*;
-import java.io.*;
-
-import edu.iris.Fissures.AuditInfo;
-import edu.iris.Fissures.IfNetwork.Channel;
-import edu.iris.Fissures.Location;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
-import edu.sc.seis.fissuresUtil.sac.SacToFissures;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.AuditInfo;
+import edu.iris.Fissures.Location;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
+import edu.sc.seis.fissuresUtil.sac.SacToFissures;
+import edu.sc.seis.fissuresUtil.xml.DataSet;
+import edu.sc.seis.fissuresUtil.xml.MemoryDataSet;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
+import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
+import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
+import edu.sc.seis.fissuresUtil.xml.URLDataSetSeismogram;
 
 public class Bag {
 

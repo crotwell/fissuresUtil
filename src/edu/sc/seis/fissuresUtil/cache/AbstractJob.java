@@ -7,10 +7,10 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public abstract class AbstractJob implements Job, Runnable {
     public AbstractJob(String name){

@@ -1,10 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.drawable.SoundPlay;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import org.apache.log4j.Logger;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * MultiSeismogramWindowDisplay displays every seismogram added to it

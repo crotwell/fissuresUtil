@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.mouse;
 
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplayProvider;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import javax.swing.event.EventListenerList;

@@ -7,15 +7,19 @@
 
 package edu.sc.seis.fissuresUtil.mseed;
 
-import java.io.*;
-
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.Writer;
+import java.text.DecimalFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import java.text.DecimalFormat;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 /**
  Container class for SEED Fixed Section Data Header information.

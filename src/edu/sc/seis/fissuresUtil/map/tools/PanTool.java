@@ -1,11 +1,7 @@
 package edu.sc.seis.fissuresUtil.map.tools;
-import com.bbn.openmap.event.PanListener;
-import com.bbn.openmap.event.PanSupport;
+import java.awt.event.MouseEvent;
 import com.bbn.openmap.proj.Proj;
 import edu.sc.seis.fissuresUtil.map.OpenMap;
-import java.awt.event.MouseEvent;
-import com.bbn.openmap.event.MapMouseMode;
-import java.awt.Graphics;
 
 
 

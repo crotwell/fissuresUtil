@@ -1,7 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import java.awt.Dimension;
 import java.text.DecimalFormat;
 import java.util.ArrayList;

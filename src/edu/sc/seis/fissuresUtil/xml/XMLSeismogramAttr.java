@@ -1,17 +1,17 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-import edu.iris.Fissures.IfSeismogramDC.Property;
-import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
-import edu.iris.Fissures.Quantity;
-import edu.iris.Fissures.Sampling;
-import edu.iris.Fissures.Unit;
-import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.Sampling;
+import edu.iris.Fissures.Unit;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.iris.Fissures.IfSeismogramDC.Property;
+import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
+import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 
 /**
  * XMLSeismogramAttr.java

@@ -6,17 +6,17 @@
 
 package edu.sc.seis.fissuresUtil.map.layers;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import com.bbn.openmap.MapBean;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.sc.seis.fissuresUtil.display.EQDataEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
 import edu.sc.seis.fissuresUtil.map.colorizer.event.EventColorizer;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 public class EventTableLayer extends EventLayer{
 

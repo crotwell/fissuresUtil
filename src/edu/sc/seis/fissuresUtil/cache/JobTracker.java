@@ -7,9 +7,8 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
 public class JobTracker implements StatusListener{
 

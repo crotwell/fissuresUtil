@@ -1,18 +1,15 @@
 
 package edu.sc.seis.fissuresUtil.chooser;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.*;
-import java.awt.*;
-import java.util.*;
-import java.text.*;
-import javax.swing.*;
-import java.lang.Integer;
-
-import org.apache.log4j.*;
+import java.text.DecimalFormat;
+import java.text.FieldPosition;
+import org.apache.log4j.Category;
+import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.network.ChannelIdUtil;
 
 /**
  * SeisTimeWindowSelector.java

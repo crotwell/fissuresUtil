@@ -1,17 +1,8 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
 //import edu.sc.seis.sac.*;
-import edu.sc.seis.fissuresUtil.namingService.*;
-import java.awt.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
-import org.apache.log4j.*;
-import org.omg.CORBA.*;
-import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.*;
+import org.apache.log4j.Category;
+import org.omg.CORBA.COMM_FAILURE;
 
 
 
@@ -23,7 +14,7 @@ import org.omg.CosNaming.NamingContextPackage.*;
  * CorbaChecker.java
  *
  * @author <a href="mailto:">Srinivasa Telukutla</a>
- * $Id: CorbaChecker.java 7394 2004-03-03 22:14:06Z crotwell $
+ * $Id: CorbaChecker.java 10257 2004-08-31 13:47:25Z groves $
  * @version 1.0
  */
 public class CorbaChecker extends ConcreteConnChecker  {

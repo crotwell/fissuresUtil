@@ -6,15 +6,12 @@
 
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.dmc.seedcodec.CodecException;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
 

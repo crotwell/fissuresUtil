@@ -3,7 +3,7 @@ package edu.sc.seis.fissuresUtil.cache;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.sc.seis.fissuresUtil.namingService.*;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public class BulletproofVestFactory{
 

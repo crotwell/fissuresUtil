@@ -1,9 +1,13 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfTimeSeries.*;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.IfTimeSeries.TimeSeriesType;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * Calculus.java

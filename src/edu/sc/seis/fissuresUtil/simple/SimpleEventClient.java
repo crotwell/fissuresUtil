@@ -1,17 +1,22 @@
 package edu.sc.seis.fissuresUtil.simple;
 
-import edu.iris.Fissures.IfEvent.*;
-
+import org.apache.log4j.Logger;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfEvent.EventAccess;
+import edu.iris.Fissures.IfEvent.EventAttr;
+import edu.iris.Fissures.IfEvent.EventDC;
+import edu.iris.Fissures.IfEvent.EventFinder;
+import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import org.apache.log4j.Logger;
-import org.omg.CosNaming.NamingContextPackage.CannotProceed;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 public class SimpleEventClient implements TestingClient{
     public SimpleEventClient(){

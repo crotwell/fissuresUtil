@@ -8,7 +8,6 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.iris.Fissures.FlinnEngdahlRegion;
 import edu.iris.Fissures.FlinnEngdahlType;
-import java.util.Locale;
 
 public class GeographicRegion extends FlinnEngdahlRegion{
     public GeographicRegion(SeismicRegion parent, String name, int num){

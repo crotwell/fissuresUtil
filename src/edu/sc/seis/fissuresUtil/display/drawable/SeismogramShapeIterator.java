@@ -1,11 +1,11 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import org.apache.log4j.Category;
+import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 /**
  * SeismogramShapeIterator encapsulates a single plotting of a SeismogramShape.
  *

@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.*;
-import java.awt.*;
+import java.awt.Color;
+import java.util.LinkedList;
 
 /**
  * ColorFactory.java

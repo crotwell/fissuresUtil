@@ -6,6 +6,10 @@
 
 package edu.sc.seis.fissuresUtil.chooser;
 
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+import javax.swing.JOptionPane;
+import org.apache.log4j.Logger;
 import com.isti.util.updatechecker.LocationUpdate;
 import com.isti.util.updatechecker.UpdateAction;
 import com.isti.util.updatechecker.UpdateInformation;
@@ -16,10 +20,6 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-import javax.swing.JOptionPane;
-import org.apache.log4j.Logger;
 
 public class UpdateCheckerJob  extends AbstractJob {
     public UpdateCheckerJob(String displayName, String programName, String version, String updateURL, boolean gui) {

@@ -1,14 +1,14 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Category;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 /**
  * BasicTimeConfig synchronizes all the seismograms it holds around their initial times. It gets the first added
  * seismogram's time interval and uses it to initialize the display interval of subsequently added seismograms.  Any time shifts or

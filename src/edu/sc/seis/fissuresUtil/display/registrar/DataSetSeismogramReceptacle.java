@@ -1,4 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
+import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**

@@ -6,9 +6,9 @@ package edu.sc.seis.fissuresUtil.display.drawable;
  * @author Created by Charlie Groves
  */
 
+import java.awt.Graphics2D;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.Graphics2D;
 
 public class SeismogramRemover extends BigX{
     public SeismogramRemover(DataSetSeismogram seis, SeismogramDisplay display){

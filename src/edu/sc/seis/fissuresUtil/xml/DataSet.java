@@ -1,17 +1,10 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 
-import edu.iris.Fissures.*;
-import edu.iris.Fissures.seismogramDC.*;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.apache.xpath.*;
-import org.apache.xpath.objects.*;
-import java.io.*;
-import java.net.*;
-import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
 
 /**
  * Describe interface <code>DataSet</code> here.

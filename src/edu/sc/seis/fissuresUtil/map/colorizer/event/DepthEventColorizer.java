@@ -8,9 +8,7 @@ package edu.sc.seis.fissuresUtil.map.colorizer.event;
 
 import java.awt.Color;
 import java.util.Iterator;
-
 import com.bbn.openmap.omGraphics.OMGraphicList;
-
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;

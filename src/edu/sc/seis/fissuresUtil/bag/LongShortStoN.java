@@ -6,13 +6,11 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.util.LinkedList;
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.LinkedList;
 
 /** Adapted from reftrg.f from Tom Owens and reftrig.c from Passcal.
  * c

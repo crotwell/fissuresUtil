@@ -1,14 +1,16 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import javax.swing.*;
-import javax.swing.text.*;
-
-import java.awt.*;              //for layout managers
-import java.awt.event.*;        //for action and window events
-
-//drag and drop
-import java.awt.dnd.*;
-import java.awt.datatransfer.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 /**
  * TextInfoDisplay.java

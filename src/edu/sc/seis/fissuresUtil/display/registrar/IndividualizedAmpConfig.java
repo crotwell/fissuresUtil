@@ -1,11 +1,11 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
     public IndividualizedAmpConfig(AmpConfig wrapped){

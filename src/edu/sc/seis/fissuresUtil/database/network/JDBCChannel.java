@@ -1,15 +1,6 @@
 
 package edu.sc.seis.fissuresUtil.database.network;
 
-import edu.iris.Fissures.IfNetwork.*;
-import edu.sc.seis.fissuresUtil.database.*;
-
-import edu.iris.Fissures.Orientation;
-import edu.iris.Fissures.Sampling;
-import edu.iris.Fissures.TimeRange;
-import edu.iris.Fissures.model.SamplingImpl;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.network.ChannelImpl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,6 +8,24 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.Orientation;
+import edu.iris.Fissures.Sampling;
+import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.SiteId;
+import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.network.ChannelImpl;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.DBUtil;
+import edu.sc.seis.fissuresUtil.database.JDBCQuantity;
+import edu.sc.seis.fissuresUtil.database.JDBCSequence;
+import edu.sc.seis.fissuresUtil.database.JDBCTime;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 
 /**
  * JDBCChannel.java

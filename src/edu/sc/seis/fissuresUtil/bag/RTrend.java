@@ -1,10 +1,8 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.IfTimeSeries.*;
-import edu.iris.Fissures.seismogramDC.*;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.FissuresException;
-import org.apache.log4j.*;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * RTrend.java

@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * SeisDataChangeEvent.java

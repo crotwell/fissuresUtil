@@ -6,20 +6,19 @@
 
 package edu.sc.seis.fissuresUtil.mseed;
 
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.dmc.seedcodec.SteimFrameBlock;
-import edu.iris.dmc.seedcodec.Steim1;
-import edu.iris.dmc.seedcodec.SteimException;
-import java.util.LinkedList;
-import edu.iris.Fissures.IfTimeSeries.EncodedData;
-import edu.iris.dmc.seedcodec.B1000Types;
 import java.io.IOException;
+import java.util.LinkedList;
+import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
-import edu.iris.dmc.seedcodec.DecompressedData;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.B1000Types;
 import edu.iris.dmc.seedcodec.Codec;
 import edu.iris.dmc.seedcodec.CodecException;
-import java.util.Iterator;
-import edu.iris.Fissures.FissuresException;
+import edu.iris.dmc.seedcodec.DecompressedData;
+import edu.iris.dmc.seedcodec.Steim1;
+import edu.iris.dmc.seedcodec.SteimException;
+import edu.iris.dmc.seedcodec.SteimFrameBlock;
 
 public class Recompress {
 

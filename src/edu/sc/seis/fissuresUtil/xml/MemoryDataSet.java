@@ -6,14 +6,13 @@
 
 package edu.sc.seis.fissuresUtil.xml;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import java.util.HashMap;
-import java.util.LinkedList;
 
 
 

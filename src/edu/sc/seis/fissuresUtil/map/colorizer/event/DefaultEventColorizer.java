@@ -5,10 +5,10 @@
  */
 
 package edu.sc.seis.fissuresUtil.map.colorizer.event;
-import com.bbn.openmap.omGraphics.OMGraphicList;
-import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
 import java.awt.Color;
 import java.util.Iterator;
+import com.bbn.openmap.omGraphics.OMGraphicList;
+import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
 
 
 

@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

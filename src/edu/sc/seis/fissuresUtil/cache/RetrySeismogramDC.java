@@ -6,15 +6,15 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
+import org.apache.log4j.Logger;
+import org.omg.CORBA.SystemException;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.Time;
-import org.apache.log4j.Logger;
-import org.omg.CORBA.SystemException;
-import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 
 public class RetrySeismogramDC implements  ProxySeismogramDC {
     public RetrySeismogramDC(DataCenterOperations dc, int retry) {

@@ -1,13 +1,11 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfTimeSeries.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.*;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.VectorComponent;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.network.NetworkIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalMotionVectorImpl;
 
 /**
  * MotionVectorUtil.java

@@ -1,12 +1,13 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.*;
-import java.util.*;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.apache.log4j.*;
-import javax.xml.stream.XMLStreamWriter;
+import java.util.Calendar;
+import java.util.Date;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import edu.iris.Fissures.Time;
 
 /**
  * XMLTime.java

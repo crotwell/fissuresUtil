@@ -6,13 +6,24 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfNetwork.*;
-
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfNetwork.Calibration;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.ChannelIdIterHolder;
+import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.Instrumentation;
+import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.IfNetwork.OrientationRange;
+import edu.iris.Fissures.IfNetwork.SamplingRange;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.IfNetwork.TimeCorrection;
 
 public class SynchronizedNetworkAccess extends ProxyNetworkAccess {
 

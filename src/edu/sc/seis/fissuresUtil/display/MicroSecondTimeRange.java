@@ -1,12 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import org.apache.log4j.Category;
 
 /**
  * MicroSecondTimeRanges are objects to set the time range for a seismogram and

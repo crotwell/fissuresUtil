@@ -1,15 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.drawable.*;
-import edu.sc.seis.fissuresUtil.display.registrar.*;
-import java.awt.*;
-
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
-import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.fissuresUtil.freq.NamedFilter;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
@@ -22,6 +17,32 @@ import javax.swing.BorderFactory;
 import javax.swing.border.LineBorder;
 import org.apache.log4j.Category;
 import org.w3c.dom.Element;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
+import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
+import edu.sc.seis.fissuresUtil.display.drawable.CurrentTimeFlag;
+import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemover;
+import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
+import edu.sc.seis.fissuresUtil.display.drawable.Flag;
+import edu.sc.seis.fissuresUtil.display.drawable.NamedDrawable;
+import edu.sc.seis.fissuresUtil.display.drawable.Selection;
+import edu.sc.seis.fissuresUtil.display.drawable.SoundPlay;
+import edu.sc.seis.fissuresUtil.display.drawable.TimeAmpLabel;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
+import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 
 public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeListener,
     AmpListener{

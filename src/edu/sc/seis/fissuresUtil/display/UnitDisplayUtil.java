@@ -6,15 +6,15 @@
 
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.IfNetwork.Response;
+import java.text.DecimalFormat;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.IfNetwork.Response;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
-import java.text.DecimalFormat;
-import org.apache.log4j.Logger;
 
 public class UnitDisplayUtil {
 

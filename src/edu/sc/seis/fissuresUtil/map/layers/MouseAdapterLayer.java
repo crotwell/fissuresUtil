@@ -8,11 +8,14 @@ package edu.sc.seis.fissuresUtil.map.layers;
  * @author Created by Charlie Groves
  */
 
-import com.bbn.openmap.Layer;
-import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.event.ProjectionEvent;
 import java.awt.event.MouseEvent;
 import javax.swing.JPopupMenu;
+import com.bbn.openmap.Layer;
+import com.bbn.openmap.event.MapMouseListener;
+import com.bbn.openmap.event.NavMouseMode;
+import com.bbn.openmap.event.NullMouseMode;
+import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.event.SelectMouseMode;
 
 public abstract class MouseAdapterLayer extends Layer implements MapMouseListener{
 	protected JPopupMenu currentPopup;

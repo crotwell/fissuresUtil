@@ -1,10 +1,10 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfNetwork.NetworkId;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import javax.xml.stream.XMLStreamException;
+import edu.iris.Fissures.IfNetwork.NetworkId;
 
 /**
  * XMLNetworkId.java

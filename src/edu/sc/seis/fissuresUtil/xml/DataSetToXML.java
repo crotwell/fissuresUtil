@@ -6,7 +6,6 @@
 
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.AuditInfo;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,6 +21,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import edu.iris.Fissures.AuditInfo;
 
 public class DataSetToXML {
 

@@ -1,10 +1,5 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfEvent.EventAttr;
-import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.IfNetwork.Channel;
-import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,7 +8,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import edu.iris.Fissures.IfEvent.EventAttr;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 
 /**
  * XMLParameter.java

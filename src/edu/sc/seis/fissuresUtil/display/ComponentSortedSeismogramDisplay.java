@@ -6,7 +6,6 @@ import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import sun.security.krb5.internal.ab;
 
 /**
  * ComponentSortedSeismogramDisplay.java

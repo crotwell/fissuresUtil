@@ -1,6 +1,14 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
-import java.util.*;
+import java.awt.Dimension;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -8,9 +16,6 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import java.awt.Dimension;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 public class TimeBorder extends Border implements TitleProvider {
 

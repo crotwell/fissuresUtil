@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.HashMap;
 import java.util.LinkedList;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * SeismogramSorter.java

@@ -1,8 +1,29 @@
 package edu.sc.seis.fissuresUtil.namingService;
 
 
-import org.omg.CosNaming.*;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringTokenizer;
+import org.apache.log4j.Category;
+import org.omg.CORBA.UserException;
+import org.omg.CosNaming.Binding;
+import org.omg.CosNaming.BindingHolder;
+import org.omg.CosNaming.BindingIterator;
+import org.omg.CosNaming.BindingIteratorHolder;
+import org.omg.CosNaming.BindingListHolder;
+import org.omg.CosNaming.BindingType;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextHelper;
+import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
+import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
 import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventDCHelper;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
@@ -16,18 +37,6 @@ import edu.sc.seis.fissuresUtil.cache.NSEventDC;
 import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 import edu.sc.seis.fissuresUtil.cache.NSPlottableDC;
 import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.StringTokenizer;
-import org.apache.log4j.Category;
-import org.omg.CORBA.UserException;
-import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
-import org.omg.CosNaming.NamingContextPackage.CannotProceed;
-import org.omg.CosNaming.NamingContextPackage.InvalidName;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
-import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
 
 /**
  * Description: FissuresNamingService is a wrapper around CORBA Naming service. This class

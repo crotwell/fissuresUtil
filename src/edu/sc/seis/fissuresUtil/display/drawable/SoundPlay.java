@@ -1,17 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
-import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.fissuresUtil.sound.FissuresToWAV;
-import edu.sc.seis.fissuresUtil.sound.PlayEvent;
-import edu.sc.seis.fissuresUtil.sound.PlayEventListener;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -24,6 +12,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.swing.Timer;
+import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.sound.FissuresToWAV;
+import edu.sc.seis.fissuresUtil.sound.PlayEvent;
+import edu.sc.seis.fissuresUtil.sound.PlayEventListener;
 
 public class SoundPlay extends MouseAdapter implements Drawable, MouseMotionListener,
     PlayEventListener{

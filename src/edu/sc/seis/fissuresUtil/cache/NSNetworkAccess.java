@@ -1,9 +1,9 @@
 package edu.sc.seis.fissuresUtil.cache;
+import org.omg.CORBA.TRANSIENT;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A NSNetworkAccess allows for the NetworkAccess reference inside of it to go

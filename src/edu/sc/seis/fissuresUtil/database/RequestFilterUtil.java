@@ -1,12 +1,9 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
 
 /**
  * RequestFilterUtil.java

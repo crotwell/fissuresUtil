@@ -1,8 +1,11 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.model.*;
-import java.text.*;
-import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+import edu.iris.Fissures.model.MicroSecondDate;
 
 /**
  * AbsTimeScaleMapper.java

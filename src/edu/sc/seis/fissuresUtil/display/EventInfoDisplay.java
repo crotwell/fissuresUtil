@@ -1,5 +1,11 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.Magnitude;
@@ -17,12 +23,6 @@ import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.VelocityModel;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import org.apache.log4j.Logger;
 
 /**
  * EventInfoDisplay.java
@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 9391 2004-06-29 14:54:06Z groves $
+ * @version $Id: EventInfoDisplay.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay{

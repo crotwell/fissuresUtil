@@ -1,7 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.*;
-
+import java.awt.Component;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;

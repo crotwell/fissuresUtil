@@ -1,17 +1,19 @@
 package edu.sc.seis.fissuresUtil.sac;
 
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.dmc.seedcodec.CodecException;
-import edu.iris.Fissures.event.*;
-import edu.iris.Fissures.IfEvent.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.IfTimeSeries.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.*;
-import java.util.GregorianCalendar;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.model.ISOTime;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.CodecException;
 
 /**
  * FissuresToSac.java

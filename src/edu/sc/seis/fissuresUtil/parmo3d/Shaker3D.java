@@ -6,8 +6,10 @@ package edu.sc.seis.fissuresUtil.parmo3d;
     animation using the Java3D API.
 */
 
-import javax.media.j3d.*;
-import javax.vecmath.*;
+import javax.media.j3d.LineArray;
+import javax.media.j3d.PointArray;
+import javax.vecmath.Point3d;
+import javax.vecmath.Point3f;
 
 public class Shaker3D {
 

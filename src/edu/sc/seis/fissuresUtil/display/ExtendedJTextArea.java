@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -15,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.text.Document;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * ExtendedJTextArea.java

@@ -5,8 +5,15 @@
  */
 
 package edu.sc.seis.fissuresUtil.map.layers;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Paint;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
 import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.MapBean;
+import com.bbn.openmap.event.NavMouseMode;
+import com.bbn.openmap.event.NullMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
 import com.bbn.openmap.omGraphics.OMCircle;
@@ -23,12 +30,6 @@ import edu.sc.seis.fissuresUtil.display.EQSelectionEvent;
 import edu.sc.seis.fissuresUtil.display.EQSelectionListener;
 import edu.sc.seis.fissuresUtil.display.EventDataListener;
 import edu.sc.seis.fissuresUtil.map.LayerProjectionUpdater;
-import edu.sc.seis.fissuresUtil.map.layers.MouseAdapterLayer;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Paint;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
 
 public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListener, EventDataListener{
 

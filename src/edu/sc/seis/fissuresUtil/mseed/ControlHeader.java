@@ -1,8 +1,13 @@
 
 package edu.sc.seis.fissuresUtil.mseed;
 
-import java.io.*;
-import java.text.*;
+import java.io.BufferedOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DecimalFormat;
 
 public class ControlHeader {
 

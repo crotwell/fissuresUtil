@@ -1,16 +1,22 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
-import edu.sc.seis.fissuresUtil.database.*;
-import java.sql.*;
-
-import edu.iris.Fissures.FlinnEngdahlRegion;
-import edu.iris.Fissures.IfEvent.EventAttr;
-import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-import edu.iris.Fissures.event.EventAttrImpl;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.FlinnEngdahlRegion;
+import edu.iris.Fissures.IfEvent.EventAttr;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.iris.Fissures.event.EventAttrImpl;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.DBUtil;
+import edu.sc.seis.fissuresUtil.database.JDBCParameterRef;
+import edu.sc.seis.fissuresUtil.database.JDBCSequence;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class JDBCEventAttr extends EventTable {
     public JDBCEventAttr(Connection conn) throws SQLException{

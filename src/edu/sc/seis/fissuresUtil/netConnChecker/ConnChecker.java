@@ -1,13 +1,6 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
 //import edu.sc.seis.sac.*;
-import java.awt.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
-import org.apache.log4j.*;
 
 
 /**

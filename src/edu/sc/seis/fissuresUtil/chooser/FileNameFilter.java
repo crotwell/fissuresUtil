@@ -2,9 +2,7 @@ package edu.sc.seis.fissuresUtil.chooser;
 
 
 
-import javax.swing.*;
-import javax.swing.filechooser.*;
-import java.io.*;
+import java.io.File;
 
 /**
  * FileNameFilter.java

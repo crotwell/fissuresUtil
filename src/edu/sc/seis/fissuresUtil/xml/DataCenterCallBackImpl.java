@@ -1,7 +1,9 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBackPOA;
+import edu.iris.Fissures.IfSeismogramDC.LocalMotionVector;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 
 /**
  * DataCenterCallBackImpl.java

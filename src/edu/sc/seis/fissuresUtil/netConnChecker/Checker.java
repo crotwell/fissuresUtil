@@ -1,12 +1,12 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
-import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Category;
+import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 
 public class Checker {
     public Checker() {}

@@ -5,12 +5,12 @@
  */
 
 package edu.sc.seis.fissuresUtil.chooser;
-import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 
 
 

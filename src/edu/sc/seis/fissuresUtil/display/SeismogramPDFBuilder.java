@@ -9,14 +9,6 @@ package edu.sc.seis.fissuresUtil.display;
  * @version 1.0
  */
 
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfTemplate;
-import com.lowagie.text.pdf.PdfWriter;
-import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.io.File;
@@ -25,6 +17,14 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
+import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class SeismogramPDFBuilder {
     public static void createPDF(SeismogramDisplay disp, String fileName) throws FileNotFoundException {

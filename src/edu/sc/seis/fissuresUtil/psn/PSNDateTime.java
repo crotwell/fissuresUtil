@@ -6,9 +6,9 @@ package edu.sc.seis.fissuresUtil.psn;
  * @author Created by Philip Oliver-Paull
  */
 
-import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 import java.io.DataInputStream;
 import java.io.IOException;
+import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 
 public class PSNDateTime {
     private DataInputStream dis;

@@ -6,6 +6,10 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
@@ -13,10 +17,6 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import org.apache.log4j.Logger;
 
 public class InstrumentationLoader extends Thread
 {

@@ -1,10 +1,14 @@
 package edu.sc.seis.fissuresUtil.psn;
 
-import java.util.*;
-
-import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 
 /**
  * PSNVariableHeader.java

@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.freq;
 
-import java.awt.Color;
 
 /**
  * ColoredFilter.java

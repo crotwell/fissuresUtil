@@ -1,10 +1,9 @@
 package edu.sc.seis.fissuresUtil.simple;
 
-import edu.iris.Fissures.IfNetwork.ChannelNotFound;
-import edu.iris.Fissures.IfNetwork.NetworkAccessHelper;
-import edu.iris.Fissures.network.StationIdUtil;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.NetworkAccessHelper;
 
 public class ThreadedNetClient extends SimpleNetworkClient{
     public ThreadedNetClient(){

@@ -6,12 +6,12 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
-import edu.iris.Fissures.IfNetwork.NetworkExplorer;
-import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
+import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
+import edu.iris.Fissures.IfNetwork.NetworkExplorer;
+import edu.iris.Fissures.IfNetwork.NetworkFinder;
 
 
 /** Just a pass thru class for the remote networkdc, but this will retry

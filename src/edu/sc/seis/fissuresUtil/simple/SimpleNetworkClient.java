@@ -1,12 +1,16 @@
 package edu.sc.seis.fissuresUtil.simple;
 
-import edu.iris.Fissures.IfNetwork.*;
-
-import edu.iris.Fissures.network.NetworkIdUtil;
-import edu.iris.Fissures.network.StationIdUtil;
 import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.IfNetwork.NetworkDC;
+import edu.iris.Fissures.IfNetwork.NetworkFinder;
+import edu.iris.Fissures.IfNetwork.NetworkNotFound;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.network.StationIdUtil;
 
 public class SimpleNetworkClient implements TestingClient {
     //IRIS

@@ -1,18 +1,23 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.apache.xpath.*;
-import org.apache.xpath.objects.*;
-import java.io.*;
-import java.net.*;
-import org.apache.log4j.*;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.log4j.Category;
+import org.apache.xpath.XPathAPI;
+import org.apache.xpath.objects.XObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /** Represents a simple XLink. Provides methods for following the link if the
  * protocol is known, ie  URLConnection can be gotten from Java.
  *
  * @author Philip Crotwell
- * @version $Id: SimpleXLink.java 6861 2004-01-21 21:52:30Z crotwell $
+ * @version $Id: SimpleXLink.java 10257 2004-08-31 13:47:25Z groves $
 */
 public class SimpleXLink {
 

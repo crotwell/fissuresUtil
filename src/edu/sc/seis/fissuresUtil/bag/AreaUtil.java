@@ -6,13 +6,13 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.util.LinkedList;
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.GlobalArea;
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.PointDistanceArea;
-import java.util.LinkedList;
+import edu.iris.Fissures.IfNetwork.Channel;
 
 public class AreaUtil {
 

@@ -7,7 +7,6 @@ package edu.sc.seis.fissuresUtil.display.registrar;
  */
 
 import org.apache.log4j.Logger;
-
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;

@@ -6,13 +6,13 @@
 
 package edu.sc.seis.fissuresUtil.exceptionHandler;
 
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 
 public class ExceptionReporterUtils{
     public static String getTrace(Throwable exception) {

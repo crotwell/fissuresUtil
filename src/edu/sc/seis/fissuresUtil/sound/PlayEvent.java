@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.sound;
 
-import edu.iris.Fissures.model.TimeInterval;
 import javax.sound.sampled.Clip;
+import edu.iris.Fissures.model.TimeInterval;
 
 
 public class PlayEvent{

@@ -1,10 +1,8 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.*;
-
 import java.sql.SQLException;
+import edu.iris.Fissures.AuditInfo;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * DataSetCache.java

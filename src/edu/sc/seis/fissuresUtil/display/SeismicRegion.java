@@ -1,9 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.FlinnEngdahlRegion;
-import edu.iris.Fissures.FlinnEngdahlType;
 import java.util.ArrayList;
 import java.util.List;
+import edu.iris.Fissures.FlinnEngdahlRegion;
+import edu.iris.Fissures.FlinnEngdahlType;
 
 public class SeismicRegion extends FlinnEngdahlRegion{
     public SeismicRegion(String name, int num){

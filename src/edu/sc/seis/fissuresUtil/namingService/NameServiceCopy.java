@@ -6,17 +6,17 @@
 
 package edu.sc.seis.fissuresUtil.namingService;
 
-import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
 import org.omg.CORBA_2_3.ORB;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
-import edu.sc.seis.fissuresUtil.simple.Initializer;
-import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 import edu.sc.seis.fissuresUtil.cache.NSEventDC;
+import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 import edu.sc.seis.fissuresUtil.cache.NSPlottableDC;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
+import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
+import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class NameServiceCopy {
 

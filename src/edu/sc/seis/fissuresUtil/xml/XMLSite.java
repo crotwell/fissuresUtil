@@ -1,15 +1,15 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfNetwork.Site;
-import edu.iris.Fissures.IfNetwork.SiteId;
-import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.Location;
-import edu.iris.Fissures.TimeRange;
-import edu.iris.Fissures.network.SiteImpl;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import edu.iris.Fissures.Location;
+import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.SiteId;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.network.SiteImpl;
 
 /**
  * XMLSite.java

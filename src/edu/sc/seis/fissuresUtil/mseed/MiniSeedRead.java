@@ -11,15 +11,15 @@ package edu.sc.seis.fissuresUtil.mseed;
  * @version
  */
 
-import edu.iris.dmc.seedcodec.Codec;
-import edu.iris.dmc.seedcodec.DecompressedData;
-import edu.iris.dmc.seedcodec.UnsupportedCompressionType;
 import java.io.BufferedInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import edu.iris.dmc.seedcodec.Codec;
+import edu.iris.dmc.seedcodec.DecompressedData;
+import edu.iris.dmc.seedcodec.UnsupportedCompressionType;
 
 public class MiniSeedRead  {
 

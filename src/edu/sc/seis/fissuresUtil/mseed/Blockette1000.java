@@ -11,7 +11,8 @@ package edu.sc.seis.fissuresUtil.mseed;
  * @version
  */
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Writer;
 
 public class Blockette1000 extends  DataBlockette {
 

@@ -1,10 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
+import java.awt.Color;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.Color;
-import org.apache.log4j.Category;
 
 /**
  * ParticleMotionDisplayThread.java

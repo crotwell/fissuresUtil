@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.apache.log4j.Logger;
-
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;

@@ -1,7 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.*;
-
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
