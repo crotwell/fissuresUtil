@@ -7,8 +7,8 @@ package edu.sc.seis.fissuresUtil.map;
  */
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.event.ProjectionEvent;
-import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Projection;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 
 public class LayerProjectionUpdater implements Runnable{
@@ -26,9 +26,10 @@ public class LayerProjectionUpdater implements Runnable{
     }
 
     public void run(){
-        layer.setProjection(event.getProjection());
+        Projection projection = event.getProjection();
+        layer.setProjection(projection);
         synchronized(graphics){
-            graphics.regenerate(event.getProjection());
+            graphics.regenerate(projection);
         }
         layer.repaint();
     }
