@@ -7,9 +7,8 @@ import java.io.IOException;
  */
 public class MapCropper {
 
-    public MapCropper(String filename, int width, int height, int leftOffset,
+    public MapCropper(int width, int height, int leftOffset,
             int bottomOffset, int top, int right, int bottom, int left) {
-        this.filename = filename;
         this.width = width;
         this.height = height;
         this.leftOffset = leftOffset;
@@ -33,7 +32,7 @@ public class MapCropper {
         return translatedPoints;
     }
 
-    public void crop() throws InterruptedException, IOException {
+    public void crop(String filename) throws InterruptedException, IOException {
         int newWidth = width - right - left;
         int newHeight = height - top - bottom;
         String command = "mogrify -crop " + newWidth + "x" + newHeight + "+"
@@ -70,8 +69,8 @@ public class MapCropper {
             int[][] rawStationPoints = MapProjectExecute.forward(projection, region, stationCoords);
             int[][] rawEventPoints = MapProjectExecute.forward(projection, region, eventCoords);
             ConvertExecute.convert("world.ps", "world.png", "-antialias -rotate 90");
-            MapCropper cropper = new MapCropper("world.png", 842, 595, 72, 72, 150, 22, 45, 60);
-            cropper.crop();
+            MapCropper cropper = new MapCropper(842, 595, 72, 72, 150, 22, 45, 60);
+            cropper.crop("world.png");
             int[][] stationPoints = cropper.translatePoints(rawStationPoints);
             int[][] eventPoints = cropper.translatePoints(rawEventPoints);
             System.out.println("calculated station points: ");
@@ -86,8 +85,6 @@ public class MapCropper {
             e.printStackTrace();
         }
     }
-
-    private String filename;
 
     private int width, height, leftOffset, bottomOffset, top, right, bottom,
             left;
