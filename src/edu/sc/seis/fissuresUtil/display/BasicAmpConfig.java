@@ -35,7 +35,8 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
          */
     public void add(DataSetSeismogram[] seismos){
                 for(int i = 0; i < seismos.length; i++){
-                        ampData.put(seismos[i], new AmpConfigData(seismos[i], null, null, shift, scale));
+                        ampData.put(seismos[i], new AmpConfigData(seismos[i], 
+								  new UnitRangeImpl(-1, 1, edu.iris.Fissures.model.UnitImpl.COUNT), null, shift, scale));
                         seismos[i].addSeisDataChangeListener(this);
                         seismos[i].retrieveData(this);
                 }

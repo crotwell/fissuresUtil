@@ -21,6 +21,7 @@ import java.util.Map;
  */
 
 public class AmpConfigData {
+
     /**
      * Creates a new <code>AmpConfigData</code> object
      *
@@ -32,12 +33,21 @@ public class AmpConfigData {
      */
     public AmpConfigData (DataSetSeismogram seismo, UnitRangeImpl cleanRange, MicroSecondTimeRange timeRange,
 			  double shift, double scale){
+	if ( cleanRange == null) {
+	    throw new IllegalArgumentException("CleanRange cannot be null");
+	} // end of if ()
+	
 	this.seismo = seismo;
 	this.cleanRange = cleanRange;
 	this.timeRange = timeRange;
 	this.shift = shift;
 	this.scale = scale;
 	shaledRange = null;
+
+	if ( cleanRange == null) {
+	    cleanRange = new UnitRangeImpl(-1, 1, edu.iris.Fissures.model.UnitImpl.COUNT);
+	} // end of if ()
+	
     }
 
     public LocalSeismogramImpl[] getSeismograms() {
@@ -112,10 +122,13 @@ public class AmpConfigData {
      * @return the shaled range
      */
     public UnitRangeImpl getShaledRange(){
-	if(shaledRange == null){
-	    shaledRange = DisplayUtils.getShaledRange(cleanRange, this.shift, this.scale);
+	// use tmpRange in case another thread sets shaledRange to null
+	UnitRangeImpl tmpRange = shaledRange;
+	if(tmpRange == null){
+	    tmpRange = DisplayUtils.getShaledRange(cleanRange, this.shift, this.scale);
+	    shaledRange = tmpRange;
 	}
-	return shaledRange;
+	return tmpRange;
     }
 	
     /**
