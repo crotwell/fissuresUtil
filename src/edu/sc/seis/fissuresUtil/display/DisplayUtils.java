@@ -484,6 +484,30 @@ public class DisplayUtils {
         }
         return null;
     }
+	
+	public static MicroSecondDate firstBeginDate(RequestFilter[] request){
+		MicroSecondDate begin = new MicroSecondDate(request[0].start_time);
+		MicroSecondDate tmp;
+		for (int i = 0; i < request.length; i++) {
+			tmp = new MicroSecondDate(request[i].start_time);
+			if (tmp.before(begin)){
+				begin = tmp;
+			}
+		}
+		return begin;
+	}
+	
+	public static MicroSecondDate lastEndDate(RequestFilter[] request){
+		MicroSecondDate end = new MicroSecondDate(request[0].end_time);
+		MicroSecondDate tmp;
+		for (int i = 0; i < request.length; i++) {
+			tmp = new MicroSecondDate(request[i].end_time);
+			if (tmp.after(end)){
+				end = tmp;
+			}
+		}
+		return end;
+	}
     
     public static final String UP = "Up";
     
