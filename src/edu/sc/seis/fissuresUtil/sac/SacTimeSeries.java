@@ -280,7 +280,12 @@ public class SacTimeSeries {
     public void read(String filename)
         throws FileNotFoundException, IOException {
         File sacFile = new File(filename);
-        FileInputStream fis = new FileInputStream(filename);
+        read(sacFile);
+    }
+    
+    public void read(File sacFile)
+    throws FileNotFoundException, IOException {
+        FileInputStream fis = new FileInputStream(sacFile);
         BufferedInputStream buf = new BufferedInputStream(fis);
         DataInputStream dis = new DataInputStream( buf);
         readHeader(dis);
@@ -291,7 +296,7 @@ public class SacTimeSeries {
                 byteOrder = IntelByteOrder;
                 swapHeader();
             } else {
-                throw new IOException(filename+
+                throw new IOException(sacFile.getName()+
                                           " does not appear to be a sac file! npts("+npts+") + header("+data_offset+") !=  file length="+sacFile.length()+"\n  as linux: npts("+swapBytes(npts)+") + header("+data_offset+") !=  file length="+sacFile.length());
             } // end of else
         }
