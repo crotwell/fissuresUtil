@@ -26,6 +26,9 @@ import java.util.TimeZone;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.util.Vector;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * EventInfoDisplay.java
@@ -34,7 +37,7 @@ import java.util.Vector;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 4342 2003-06-10 09:48:09Z oliverpa $
+ * @version $Id: EventInfoDisplay.java 4355 2003-06-10 22:26:25Z oliverpa $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay
@@ -112,20 +115,14 @@ public class EventInfoDisplay extends TextInfoDisplay
 		appendLabelValue(doc, "    ", "\t\t\t\t\t Event");
 		appendLabelValue(doc, "    ", "\t(deg)\t(deg)\t(deg)\t (km)\t (deg)");
 		appendLabelValue(doc, "----", "-------------------------------------------------------");
-//		Vector sortedStations = new Vector();
-//		for (int j = 0; j < station.length; j++) {
-//			try{
-//				if (event != null) {
-//					dist = sph.distance(event.get_preferred_origin().my_location.latitude,
-//										event.get_preferred_origin().my_location.longitude,
-//										station[j].my_location.latitude,
-//										station[j].my_location.longitude);
-//				}
-//			}
-//			catch(Exception e){
-//
-//			}
-//		}
+
+		try{
+			station = sortStationsByDistance(station, event, sph);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+
 		for (int i=0; i<station.length; i++) {
 			try {
 				if ( event != null) {
@@ -143,7 +140,6 @@ public class EventInfoDisplay extends TextInfoDisplay
 										 twoDecimal.format(dist)+ '\t'+
 										 twoDecimal.format(dist*111.19)+ '\t'+
 										 twoDecimal.format(baz));
-//				     station[i].name);
 				} else {
 					appendLabelValue(doc, station[i].get_code(),
 									 twoDecimal.format(station[i].my_location.latitude)+
@@ -221,6 +217,63 @@ public class EventInfoDisplay extends TextInfoDisplay
 	protected void appendMagnitude(Magnitude mag, Document doc)
 		throws BadLocationException {
 		appendLabelValue(doc, "Magnitude\t", mag.value+" "+mag.type+"  "+mag.contributor);
+	}
+
+	public static Station[] sortStationsByDistance(Station[] stations,
+												   EventAccessOperations event,
+												   edu.sc.seis.TauP.SphericalCoords sph)
+		throws NoPreferredOrigin{
+		try{
+			Station[] temp = new Station[stations.length];
+			System.arraycopy(stations, 0, temp, 0, stations.length);
+
+			int indexOfNextSmallest;
+
+			for (int i = 0; i < temp.length - 1; i++) {
+				indexOfNextSmallest = indexOfClosestStation(temp, i, event, sph);
+				interchange(i, indexOfNextSmallest, temp);
+			}
+
+			return temp;
+		}
+		catch(NoPreferredOrigin n){
+			System.out.println("Stations not sorted because event has no origin.");
+			return stations;
+		}
+	}
+
+	public static void interchange(int i, int j, Station[] s){
+		Station temp;
+
+		temp = s[i];
+		s[i] = s[j];
+		s[j] = temp;
+	}
+
+	public static int indexOfClosestStation(Station[] stations, int startIndex,
+											EventAccessOperations event,
+											edu.sc.seis.TauP.SphericalCoords sph)
+		throws NoPreferredOrigin{
+
+		int index = startIndex;
+		double currentDistance = Double.POSITIVE_INFINITY;
+		double closestDistance = Double.POSITIVE_INFINITY;
+		Station currentStation;
+
+
+		for (int i = startIndex; i < stations.length; i++){
+			currentStation = stations[i];
+			currentDistance = sph.distance(event.get_preferred_origin().my_location.latitude,
+										   event.get_preferred_origin().my_location.longitude,
+										   currentStation.my_location.latitude,
+										   currentStation.my_location.longitude);
+			if (currentDistance < closestDistance){
+				closestDistance = currentDistance;
+				index = i;
+			}
+		}
+		System.out.println("Size of stations: " + stations.length);
+		return index;
 	}
 
 	static ParseRegions feRegions = new ParseRegions();
@@ -307,3 +360,4 @@ public class EventInfoDisplay extends TextInfoDisplay
 	SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
 
 }// EventInfoDisplay
+
