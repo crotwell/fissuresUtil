@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.display;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 
 
 
@@ -23,9 +24,14 @@ public class TimeAmpPlotter implements NamedPlotter{
 
     public boolean drawName(Graphics2D canvas, int xPosition, int yPosition) {
         if(visible){
-            text = VerticalSeismogramDisplay.getLabelText();
+            timeText = VerticalSeismogramDisplay.getTimeLabel().getText();
+            ampText = VerticalSeismogramDisplay.getAmpLabel().getText();
             canvas.setPaint(Color.black);
-            canvas.drawString(text, xPosition, yPosition);
+            Rectangle2D.Float stringBounds = new Rectangle2D.Float();
+            stringBounds.setRect(canvas.getFontMetrics().getStringBounds(ampText, canvas));
+            canvas.drawString(timeText, xPosition + stringBounds.width, yPosition);
+            stringBounds.setRect(canvas.getFontMetrics().getStringBounds(timeText, canvas));
+            canvas.drawString(ampText, xPosition + stringBounds.width, yPosition - stringBounds.height);
         }
         return visible;
     }
@@ -37,13 +43,19 @@ public class TimeAmpPlotter implements NamedPlotter{
         visible = b;
     }
 
-    public String getText(){ return text; }
+    public String getTimeText(){ return timeText; }
+
+    public String getAmpText(){ return ampText; }
+
+    public String getText(){ return timeText + ampText; }
 
     public BasicSeismogramDisplay getDisplay(){ return display; }
 
     private boolean visible = false;
 
-    private String text = "";
+    private String timeText = "";
+
+    private String ampText = "";
 
     private BasicSeismogramDisplay display;
 }

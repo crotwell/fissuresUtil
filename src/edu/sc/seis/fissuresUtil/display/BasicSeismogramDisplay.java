@@ -485,6 +485,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
                 Plotter current = (Plotter)e.next();
                 current.draw(g2, displaySize, currentTimeEvent, currentAmpEvent);
                 if(current instanceof TimeAmpPlotter){
+                    g2.setFont(monospaced);
                     stringBounds.setRect(g2.getFontMetrics().getStringBounds((((TimeAmpPlotter)current).getText()), g2));
                     ((NamedPlotter)current).drawName(g2,(int)(displaySize.width - stringBounds.width), displaySize.height - 3);
                 }else if(current instanceof NamedPlotter){
@@ -554,6 +555,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 
     private static Set globalFilters = new HashSet();
 
+    public static Font monospaced = new Font("Monospaced", Font.PLAIN, 12);
     public final static int preferredBSDHeight = 100;
 
     public final static int preferredBSDWidth = 200;
