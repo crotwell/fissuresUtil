@@ -30,7 +30,9 @@ public class EventBackgroundLoader {
 		    }
 		}
 	    };
-	privateThread = new Thread(r);
+	privateThread = new Thread(eventLoaderThreadGroup,
+                               r,
+                               "EventLoader"+getThreadNum());
 	privateThread.start();
     }
 
@@ -63,5 +65,13 @@ public class EventBackgroundLoader {
     private volatile boolean noStopThread = true;
 
     private EventBackgroundLoaderPool pool;
+
+    private static int threadNum = 0;
+
+    private synchronized static int getThreadNum() {
+        return threadNum++;
+    }
+
+    private ThreadGroup eventLoaderThreadGroup = new ThreadGroup("Event Loader");
 
 } // EventBackgroundLoader
