@@ -21,7 +21,7 @@ import org.apache.log4j.*;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 3051 2003-01-07 18:00:27Z crotwell $
+ * @version $Id: SimplePlotUtil.java 3195 2003-01-27 14:42:25Z crotwell $
  */
 
 public class SimplePlotUtil  {
@@ -589,6 +589,10 @@ public class SimplePlotUtil  {
 
         return createTestData("Sine Wave, phase "+phase+" hertz "+hertz,
                               dataBits);
+    }
+
+    public static LocalSeismogramImpl createSpike() {
+	return createSpike(new MicroSecondDate());
     }
 
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
