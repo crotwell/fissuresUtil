@@ -43,7 +43,7 @@ public class Cmplx {
 	}
 
 
-	Cmplx(double re, double im)
+	public Cmplx(double re, double im)
 	{
 		this.r = re;
 		this.i = im;
