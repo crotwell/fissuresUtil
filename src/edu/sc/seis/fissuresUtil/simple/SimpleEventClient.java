@@ -34,6 +34,8 @@ public class SimpleEventClient implements TestingClient{
         //serverName = "NCSN_DataCenter";
 
         // South Carolina (SCEPP)
+        //serverDNS="edu/sc/seis";
+        //serverName = "SCEPPEventDC";
 
         try{
             /* This step is not required, but sometimes helps to determine if
