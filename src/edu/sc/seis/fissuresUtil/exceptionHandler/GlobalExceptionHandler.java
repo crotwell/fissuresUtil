@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 
 public class GlobalExceptionHandler {
     public static void handle(Throwable thrown) {
-        handle("An uncaught exception has occured. Please report this to geebugs@seis.sc.edu", thrown);
+        handle("An uncaught exception has occured.", thrown);
     }
 
     public static void handle(String message, Throwable thrown) {
