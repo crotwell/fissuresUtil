@@ -10,10 +10,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import edu.iris.Fissures.FlinnEngdahlRegion;
+import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
@@ -52,6 +56,19 @@ public class JDBCEventAccess extends EventTable{
         getAttrAndOrigin = conn.prepareStatement(" SELECT eventattr_id, origin_id FROM eventaccess " +
                                                      " WHERE event_id = ?");
         getEventIds = conn.prepareStatement(" SELECT eventattr_id, event_id, origin_id FROM eventaccess");
+        queryStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, origin, location WHERE "+
+                                          "eventaccess.event_id = origin.origin_event_id AND "+
+                                          "origin_location_id = location.loc_id AND "+
+                                          "origin.origin_id = magnitude.originid AND "+
+                                          "origin.origin_time_id = time.time_id AND "+
+                                          "location.loc_lat >= ? AND location.loc_lat <= ? AND "+
+                                          "location.loc_lon >= ? AND location.loc_lon <= ? AND "+
+                                          "magnitude.magnitudevalue >= ? AND magnitude.magnitudevalue <= ? AND "+
+                                          "time.time_stamp >= ? AND time.time_stamp <= ? AND "+
+                                          "");
+        getByNameStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, eventattr WHERE "+
+                                              "eventattr.name = ? AND "+
+                                              "eventaccess.eventattr_id = eventattr.eventattr_id");
     }
 
     public CacheEvent getEvent(int dbid) throws SQLException, NotFound{
@@ -174,6 +191,51 @@ public class JDBCEventAccess extends EventTable{
         throw new NotFound("The event wasn't found in the db!");
     }
 
+    public int[] query(Quantity min_depth, Quantity max_depth,
+                           float minLat, float maxLat,
+                           float minLon, float maxLon,
+                           Time start_time, Time end_time,
+                           float min_magnitude, float max_magnitude,
+                           String[] search_types,
+                           String[] catalogs,
+                           String[] contributors)  throws SQLException {
+        int index = 1;
+        queryStmt.setFloat(index++, minLat);
+        queryStmt.setFloat(index++, maxLat);
+        queryStmt.setFloat(index++, minLon);
+        queryStmt.setFloat(index++, maxLon);
+        queryStmt.setFloat(index++, min_magnitude);
+        queryStmt.setFloat(index++, max_magnitude);
+        queryStmt.setTimestamp(index++, new MicroSecondDate(start_time).getTimestamp());
+        queryStmt.setTimestamp(index++, new MicroSecondDate(end_time).getTimestamp());
+        ResultSet rs = queryStmt.executeQuery();
+        ArrayList out = new ArrayList();
+        while(rs.next()) {
+            out.add(new Integer(rs.getInt(1)));
+        }
+        Integer[] bigInt = (Integer[])out.toArray(new Integer[out.size()]);
+        int[] littleInt = new int[bigInt.length];
+        for(int i = 0; i < bigInt.length; i++) {
+            littleInt[i] = bigInt[i].intValue();
+        }
+        return littleInt;
+    }
+
+    public int[] getByName(String name)  throws SQLException, NotFound {
+        getByNameStmt.setString(1, name);
+        ResultSet rs = getByNameStmt.executeQuery();
+        ArrayList out = new ArrayList();
+        while(rs.next()) {
+            out.add(new Integer(rs.getInt(1)));
+        }
+        Integer[] bigInt = (Integer[])out.toArray(new Integer[out.size()]);
+        int[] littleInt = new int[bigInt.length];
+        for(int i = 0; i < bigInt.length; i++) {
+            littleInt[i] = bigInt[i].intValue();
+        }
+        return littleInt;
+    }
+    
     private JDBCOrigin origins;
 
     private JDBCEventAttr attrs;
@@ -185,5 +247,12 @@ public class JDBCEventAccess extends EventTable{
     private static Map eventsToIds = Collections.synchronizedMap(new HashMap());
 
     private PreparedStatement put, getDBIdStmt, getCorbaStrings, getAttrAndOrigin,
-        getEventIds;
+        getEventIds, queryStmt, getByNameStmt;
+
+    public void updateFlinnEngdahlRegion(int eventid, FlinnEngdahlRegion region) throws NotFound, SQLException {
+        // TODO Auto-generated method stub
+        
+    }
+
+
 }
