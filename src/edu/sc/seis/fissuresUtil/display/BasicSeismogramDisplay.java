@@ -12,42 +12,39 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
+import javax.swing.BorderFactory;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.LineBorder;
 import org.apache.log4j.Category;
 import org.w3c.dom.Element;
 
 public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeListener,
     AmpListener{
 
-    public BasicSeismogramDisplay(VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-        this(new BasicTimeConfig(), new RMeanAmpConfig(), parent);
+    public BasicSeismogramDisplay(){
+        this(new BasicTimeConfig(), new RMeanAmpConfig());
     }
 
-    public BasicSeismogramDisplay(TimeConfig tc, VerticalSeismogramDisplay parent)
-        throws IllegalArgumentException{
-        this(tc, new RMeanAmpConfig(), parent);
+    public BasicSeismogramDisplay(TimeConfig tc){
+        this(tc, new RMeanAmpConfig());
     }
-    public BasicSeismogramDisplay(AmpConfig ac, VerticalSeismogramDisplay parent)
-        throws IllegalArgumentException{
-        this(new BasicTimeConfig(), ac, parent);
+    public BasicSeismogramDisplay(AmpConfig ac){
+        this(new BasicTimeConfig(), ac);
     }
 
-    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac,
-                                  VerticalSeismogramDisplay parent)throws IllegalArgumentException{
-        this(tc, ac, parent, null);
+    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac){
+        this(tc, ac, null);
     }
 
-    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac,
-                                  VerticalSeismogramDisplay parent, Color borderColor)throws IllegalArgumentException{
-        this.parent = parent;
+    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac, Color borderColor){
+        if(borderColor != null){
+            color = borderColor;
+            setBorder(new LineBorder(color));
+        }else setBorder(BorderFactory.createEtchedBorder());
         add(new AmpBorder(this), CENTER_LEFT);
         add(new TimeBorder(this), TOP_CENTER);
         add(new DisplayRemover(this));
@@ -63,13 +60,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         return pp;
     }
 
-    public void add(DataSetSeismogram seis, Color color) {
-        // TODO
-    }
-
-    public void add(DataSetSeismogram[] seismos){
-        add(seismos, null);
-    }
+    public void add(DataSetSeismogram[] seismos){ add(seismos, null); }
 
     public void add(DataSetSeismogram[] seismos, Color color){
         for(int i = 0; i < seismos.length; i++){
@@ -87,9 +78,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
         seismogramArray = null;
     }
 
-    public void remove(Drawable drawable) {
-        drawables.remove(drawable);
-    }
+    public void remove(Drawable drawable) { drawables.remove(drawable); }
 
     public void add(Drawable drawable) {
         if(!drawables.contains(drawable)){
@@ -133,6 +122,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
     }
 
     public VerticalSeismogramDisplay getParentDisplay(){ return parent; }
+
+    public void setParentDisplay(VerticalSeismogramDisplay disp){ parent = disp; }
 
     public void updateAmp(AmpEvent event){
         currentAmpEvent = event;
@@ -389,7 +380,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
 
     private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
 
-    private Color color;
+    private Color color = Color.BLACK;
 
     public static boolean PRINTING = false;
 
