@@ -8,6 +8,8 @@ import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.display.EventTableModel;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.map.layers.ChannelChooserLayer;
 import edu.sc.seis.fissuresUtil.map.layers.DistanceLayer;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
 import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.ListSelectionModel;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class OpenMap extends OpenMapComponent{
 
@@ -44,10 +45,10 @@ public class OpenMap extends OpenMapComponent{
             tableModel = etm;
 
             //get the projection and set its background color and center point
-//            Proj proj = new Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT, mapBean.DEFAULT_CENTER_LON),
-//                                         DEFAULT_SCALE,
-//                                         mapBean.DEFAULT_WIDTH,
-//                                         mapBean.DEFAULT_HEIGHT);
+            //            Proj proj = new Orthographic(new LatLonPoint(mapBean.DEFAULT_CENTER_LAT, mapBean.DEFAULT_CENTER_LON),
+            //                                         DEFAULT_SCALE,
+            //                                         mapBean.DEFAULT_WIDTH,
+            //                                         mapBean.DEFAULT_HEIGHT);
             Proj proj = (Proj)mapBean.getProjection();
 
             proj.setBackgroundColor(WATER);
@@ -132,14 +133,20 @@ public class OpenMap extends OpenMapComponent{
         }
     }
 
+    /**
+     * Depricated
+     */
     public void addStationsFromChannelChooser(ChannelChooser chooser){
         if(chooser != null){
-            StationLayer sl = new StationLayer(chooser);
-            mapHandler.add(sl);
-            lh.addLayer(sl,0);
-            el.addEQSelectionListener(sl);
-            tableModel.addEventDataListener(sl);
+            addStationLayer(new ChannelChooserLayer(chooser));
         }
+    }
+
+    public void addStationLayer(StationLayer staLayer){
+        mapHandler.add(staLayer);
+        lh.addLayer(staLayer,0);
+        el.addEQSelectionListener(staLayer);
+        tableModel.addEventDataListener(staLayer);
     }
 
     public Layer[] getLayers(){

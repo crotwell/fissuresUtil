@@ -7,7 +7,7 @@ import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.event.ZoomListener;
 import edu.sc.seis.fissuresUtil.map.OpenMap;
-import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
+import edu.sc.seis.fissuresUtil.map.layers.ChannelChooserLayer;
 import java.awt.event.MouseEvent;
 import javax.swing.event.EventListenerList;
 
@@ -79,8 +79,8 @@ public class ZoomTool extends OpenMapTool{
         fireZoomChanged(new ZoomEvent(this, ZoomEvent.ABSOLUTE, mapScale));
         Layer[] layers = map.getLayers();
         for (int i = 0; i < layers.length; i++) {
-            if (layers[i] instanceof StationLayer){
-                ((StationLayer)layers[i]).getChannelChooser().recheckNetworkAvailability();
+            if (layers[i] instanceof ChannelChooserLayer){
+                ((ChannelChooserLayer)layers[i]).getChannelChooser().recheckNetworkAvailability();
                 break;
             }
         }
