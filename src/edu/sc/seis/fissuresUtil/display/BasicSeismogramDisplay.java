@@ -345,7 +345,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements TimeLis
                 logger.debug("aux data pick_flag: " + cur.toString());
                 Element auxDatEl = (Element)seis.getAuxillaryData(cur);
                 logger.debug(auxDatEl.getTagName());
-                add(Flag.getFlagFromElement(auxDatEl));
+				Flag flag = Flag.getFlagFromElement(auxDatEl);
+				flag.setColor(Color.YELLOW);
+                add(flag);
             }
         }
     }
