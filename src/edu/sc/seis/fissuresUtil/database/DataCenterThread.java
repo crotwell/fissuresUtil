@@ -22,44 +22,43 @@ import org.apache.log4j.*;
 
 public class DataCenterThread implements Runnable{
     public DataCenterThread (RequestFilter[] requestFilters,
-			     LocalDataCenterCallBack a_client,
-			     SeisDataChangeListener initiator,
-			     DataCenterOperations dbDataCenter){
-	this.requestFilters = requestFilters;
-	this.a_client = a_client;
-	this.initiator = initiator;
-	this.dbDataCenter = dbDataCenter;
+                             LocalDataCenterCallBack a_client,
+                             SeisDataChangeListener initiator,
+                             DataCenterOperations dbDataCenter){
+        this.requestFilters = requestFilters;
+        this.a_client = a_client;
+        this.initiator = initiator;
+        this.dbDataCenter = dbDataCenter;
     }
 
     public void run() {
-	for(int counter = 0; counter <  requestFilters.length; counter++) {
-	    try {
-		RequestFilter[] temp = new RequestFilter[1];
-		temp[0] = requestFilters[counter];
-		//System.out.println("Making a request to retrieve seismograms");
-		LocalSeismogram[] seis = dbDataCenter.retrieve_seismograms(temp);
-		LocalSeismogramImpl[] seisImpl = castToLocalSeismogramImplArray(seis);
-		//System.out.println("The length of the seismograms in thread is "+seis.length);
-		a_client.pushData(seisImpl, initiator);
-	    } catch(FissuresException fe) {
-		fe.printStackTrace();
-		continue;
-	    }
-	}
-	a_client.finished(initiator);
+        for(int counter = 0; counter <  requestFilters.length; counter++) {
+            try {
+                RequestFilter[] temp = { requestFilters[counter] };
+                //System.out.println("Making a request to retrieve seismograms");
+                LocalSeismogram[] seis = dbDataCenter.retrieve_seismograms(temp);
+                LocalSeismogramImpl[] seisImpl = castToLocalSeismogramImplArray(seis);
+                //System.out.println("The length of the seismograms in thread is "+seis.length);
+                a_client.pushData(seisImpl, initiator);
+            } catch(FissuresException fe) {
+                fe.printStackTrace();
+                continue;
+            }
+        }
+        a_client.finished(initiator);
 
     }
 
     private LocalSeismogramImpl[] castToLocalSeismogramImplArray(LocalSeismogram[] seismos) {
-	LocalSeismogramImpl[] rtnValues = new LocalSeismogramImpl[seismos.length];
-	for(int counter = 0; counter < seismos.length; counter++) {
-	    rtnValues[counter] = (LocalSeismogramImpl) seismos[counter];
-	}
-	return rtnValues;
+        LocalSeismogramImpl[] rtnValues = new LocalSeismogramImpl[seismos.length];
+        for(int counter = 0; counter < seismos.length; counter++) {
+            rtnValues[counter] = (LocalSeismogramImpl) seismos[counter];
+        }
+        return rtnValues;
     }
 
     private RequestFilter[] requestFilters;
-    
+
     private LocalDataCenterCallBack a_client;
 
     private DataCenterOperations dbDataCenter;
@@ -67,6 +66,6 @@ public class DataCenterThread implements Runnable{
     private SeisDataChangeListener initiator;
 
     private static Category logger = Category.getInstance(DataCenterThread.class.getName());
-    
+
 }// DataCenterThread
 
