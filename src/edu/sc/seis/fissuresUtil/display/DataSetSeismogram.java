@@ -28,6 +28,9 @@ public class DataSetSeismogram {
     }
 
     public DataSetSeismogram(LocalSeismogramImpl seismo, DataSet ds, String name){
+	if(seismo == null){
+	    throw new IllegalArgumentException("the seismogram passed to create a DataSetSeismogram must not be null");
+	}
 	this.seis = seismo;
 	this.dataSet = ds;
 	this.name = name;
