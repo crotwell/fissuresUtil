@@ -143,7 +143,7 @@ public class NameServiceCopy {
         copyToNS.setNameServiceCorbaLoc(copyToNSLoc);
         org.omg.CORBA.Object ncObj = orb.string_to_object(copyToNSLoc);
         copyToNameContext = NamingContextExtHelper.narrow(ncObj);
-        String copyFromNSLoc = System.getProperty("edu.sc.seis.fissuresUtil.nameServiceCorbaLoc");
+        String copyFromNSLoc = System.getProperty(FissuresNamingService.CORBALOC_PROP);
         logger.info("Copying all data centers in " + dnsToCopy
                 + " from a naming service at " + copyFromNSLoc
                 + " to naming service at " + copyToNSLoc);
