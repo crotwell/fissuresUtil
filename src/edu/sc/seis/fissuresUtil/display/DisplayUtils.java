@@ -485,6 +485,10 @@ public class DisplayUtils {
         return null;
     }
 	
+	public static String formatQuantityImpl(QuantityImpl quantity){
+		return quantity.toString() + " " + quantity.the_units.toString();
+	}
+	
 	public static MicroSecondDate firstBeginDate(RequestFilter[] request){
 		MicroSecondDate begin = new MicroSecondDate(request[0].start_time);
 		MicroSecondDate tmp;
