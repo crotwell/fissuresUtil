@@ -230,7 +230,9 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener{
             }
 
             File loc = new File(filename);
-            File temp = File.createTempFile(loc.getName(), null, loc.getParentFile());
+            File parent = loc.getParentFile();
+            parent.mkdirs();
+            File temp = File.createTempFile(loc.getName(), null, parent);
             ImageIO.write(bufImg, "png", temp);
             loc.delete();
             temp.renameTo(loc);
