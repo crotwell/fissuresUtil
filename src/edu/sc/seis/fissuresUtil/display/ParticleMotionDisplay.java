@@ -671,13 +671,13 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 
 	public void itemStateChanged(ItemEvent ae) {
 	    if(ae.getStateChange() == ItemEvent.SELECTED) {
-		view.addDisplayKey(ae.paramString());
+		view.addDisplayKey(((JCheckBox)ae.getItem()).getText());
 	    } else if(ae.getStateChange() == ItemEvent.DESELECTED){
-		view.removeDisplaykey(ae.paramString());
+		view.removeDisplaykey(((JCheckBox)ae.getItem()).getText());
 	    }
 	    // view.setDisplayKey(ae.getActionCommand());
 	    repaint();
-	    System.out.println("The radiobutton selected is "+ ae.paramString());
+	    System.out.println("The radiobutton selected is "+ ((JCheckBox)ae.getItem()).getText());
 	}
     }
 
