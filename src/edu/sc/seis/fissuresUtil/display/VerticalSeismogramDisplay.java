@@ -421,7 +421,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 								 dataSet);
 		    if(seismograms[counter].getSeismogram() != null && first.getSeismogram() != seismograms[counter].getSeismogram()){
 			creator.addDisplay(threeSelectionDisplay.addDisplay(seismograms[counter], tr, ar, 
-									    "." 
+									    seismograms[counter].getSeismogram().getName() + "." 
 									    + creator.getColor()));
 		    }
 			
