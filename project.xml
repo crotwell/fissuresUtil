@@ -194,7 +194,7 @@ useful things already done.</description>
 	<directory>src/edu/sc/seis/fissuresUtil/database/props</directory>
 	<targetPath>edu/sc/seis/fissuresUtil/database/props</targetPath>
 	<includes>
-	  <include>*.props</include>
+	  <include>**/*.props</include>
 	</includes>
       </resource>
       <resource>
