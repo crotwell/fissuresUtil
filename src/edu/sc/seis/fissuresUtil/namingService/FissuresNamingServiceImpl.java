@@ -59,7 +59,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 	namingContext = NamingContextExtHelper.narrow(obj);	
     }
 
-    public org.omg.CORBA.Object resolve(String dns, String interfacename, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
+    public org.omg.CORBA.Object resolve(String dns, String interfacename, String objectname) throws org.omg.CosNaming.NamingContextPackage.NotFound,CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 	
 	dns = appendKindNames(dns);
 
@@ -242,20 +242,15 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
 
     public NetworkDC getNetworkDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
-
-	org.omg.CORBA.Object obj = resolve(dns, "NetworkDC", objectname);
-	
-	NetworkDC netdc = NetworkDCHelper.narrow(obj);
+	NetworkDC netdc = NetworkDCHelper.narrow(getNetworkDCObject(dns, objectname));
 	return netdc;
 
     }
 
 
     public DataCenter getSeismogramDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
-
-	org.omg.CORBA.Object obj = resolve(dns, "DataCenter", objectname);
 	
-	DataCenter datacenter = DataCenterHelper.narrow(obj);
+	DataCenter datacenter = DataCenterHelper.narrow(getSeismogramDCObject(dns, objectname));
 	return datacenter;
 
     }
@@ -263,9 +258,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     public PlottableDC getPlottableDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
-	org.omg.CORBA.Object obj = resolve(dns, "PlottableDC", objectname);
-	
-	PlottableDC plottabledc = PlottableDCHelper.narrow(obj);
+	PlottableDC plottabledc = PlottableDCHelper.narrow(getPlottableDC(dns, objectname));
 	return plottabledc;
 
     }
@@ -273,11 +266,38 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     public EventDC getEventDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
-	org.omg.CORBA.Object obj = resolve(dns, "EventDC", objectname);
 	
-	EventDC eventdc = EventDCHelper.narrow(obj);
+	EventDC eventdc = EventDCHelper.narrow(getEventDCObject(dns, objectname));
 	return eventdc;
 
+    }
+    
+    public org.omg.CORBA.Object getNetworkDCObject(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
+
+	org.omg.CORBA.Object obj = resolve(dns, "NetworkDC", objectname);
+	return obj;
+    }
+
+
+    public org.omg.CORBA.Object getSeismogramDCObject(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
+
+	org.omg.CORBA.Object obj = resolve(dns, "DataCenter", objectname);
+	return obj;
+    }
+
+
+    public org.omg.CORBA.Object getPlottableDCObject(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
+
+	org.omg.CORBA.Object obj = resolve(dns, "PlottableDC", objectname);
+	return obj;
+    }
+
+
+    public org.omg.CORBA.Object getEventDCObject(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
+
+	org.omg.CORBA.Object obj = resolve(dns, "EventDC", objectname);
+	return obj;
+	
     }
 
     public org.omg.CORBA.Object getRoot() {
