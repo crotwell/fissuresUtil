@@ -85,17 +85,17 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     private static Logger logger = Logger.getLogger(OpenMap.class);
 
-    private ShapeLayer shapeLayer;
+    private FissuresShapeLayer shapeLayer;
 
     /**
      * Creates a map with a shapelayer based on the file in fissuresUtil, a
      * graticule layer, an empty event layer with depth based colorizationand an
      * empty station layer
      */
-    public OpenMap(){
+    public OpenMap() {
         this(true);
     }
-    
+
     public OpenMap(boolean graticule) {
         this("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse", graticule);
         setEventLayer(new EventLayer(getMapBean(), new DepthEventColorizer()));
@@ -108,10 +108,10 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
      * @param shapefile -
      *            the file to be used in the shapelayer
      */
-    public OpenMap(String shapefile){
+    public OpenMap(String shapefile) {
         this(shapefile, true);
     }
-    
+
     public OpenMap(String shapefile, boolean graticule) {
         try {
             setLayout(new BorderLayout());
@@ -255,7 +255,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         return topol;
     }
 
-    public ShapeLayer getShapeLayer() {
+    public FissuresShapeLayer getShapeLayer() {
         return shapeLayer;
     }
 
@@ -335,30 +335,35 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     public void writeMapToPNG(String filename) throws IOException {
         synchronized(OpenMap.class) {
-            Projection proj = mapBean.getProjection();
-            int w = proj.getWidth(), h = proj.getHeight();
-            logger.debug(ExceptionReporterUtils.getMemoryUsage()
-                    + " before make Buf Image");
-            BufferedImage bufImg = new BufferedImage(w,
-                                                     h,
-                                                     BufferedImage.TYPE_INT_RGB);
-            Graphics g = bufImg.getGraphics();
-            g.setColor(WATER);
-            g.fillRect(0, 0, w, h);
-            Layer[] layers = getLayers();
-            for(int i = layers.length - 1; i >= 0; i--) {
-                logger.debug("rendering " + layers[i].getName());
-                layers[i].renderDataForProjection(proj, g);
+            try {
+                getShapeLayer().setOverrideProjectionChanged(true);
+                Projection proj = mapBean.getProjection();
+                int w = proj.getWidth(), h = proj.getHeight();
+                logger.debug(ExceptionReporterUtils.getMemoryUsage()
+                        + " before make Buf Image");
+                BufferedImage bufImg = new BufferedImage(w,
+                                                         h,
+                                                         BufferedImage.TYPE_INT_RGB);
+                Graphics g = bufImg.getGraphics();
+                g.setColor(WATER);
+                g.fillRect(0, 0, w, h);
+                Layer[] layers = getLayers();
+                for(int i = layers.length - 1; i >= 0; i--) {
+                    logger.debug("rendering " + layers[i].getName());
+                    layers[i].renderDataForProjection(proj, g);
+                }
+                File loc = new File(filename);
+                File parent = loc.getAbsoluteFile().getParentFile();
+                parent.mkdirs();
+                File temp = File.createTempFile(loc.getName(), null, parent);
+                ImageIO.write(bufImg, "png", temp);
+                loc.delete();
+                temp.renameTo(loc);
+                logger.debug(ExceptionReporterUtils.getMemoryUsage()
+                        + " after write image to file");
+            } finally {
+                getShapeLayer().setOverrideProjectionChanged(false);
             }
-            File loc = new File(filename);
-            File parent = loc.getAbsoluteFile().getParentFile();
-            parent.mkdirs();
-            File temp = File.createTempFile(loc.getName(), null, parent);
-            ImageIO.write(bufImg, "png", temp);
-            loc.delete();
-            temp.renameTo(loc);
-            logger.debug(ExceptionReporterUtils.getMemoryUsage()
-                    + " after write image to file");
         }
     }
 
