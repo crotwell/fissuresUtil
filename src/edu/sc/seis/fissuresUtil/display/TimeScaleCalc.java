@@ -37,6 +37,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
             return;
         }
         int majTickNum = totalPixels/60;
+        if (majTickNum < 2) {majTickNum = 2;}// prevent divid by zero
         majTickTime = timeIntv/majTickNum;
         majTickRatio = 10;
         daysInBorder = false;
