@@ -58,6 +58,9 @@ public class ParseRegions {
     }
 
     public String getGeographicRegionName(int geoNum) {
+        if (geoNum == 0){
+            return "Unknown";
+        }            
         return getGeographicRegion(geoNum).getName();
     }
 
