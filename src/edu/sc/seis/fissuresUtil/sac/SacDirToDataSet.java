@@ -16,7 +16,7 @@ import javax.xml.parsers.*;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 1715 2002-05-28 18:28:22Z crotwell $
+ * @version $Id: SacDirToDataSet.java 1724 2002-05-29 13:49:45Z crotwell $
  */
 
 public class SacDirToDataSet {
@@ -51,7 +51,8 @@ public class SacDirToDataSet {
 	    audit[0] = new AuditInfo(userName,
 				     "Added parameter "+key);
 	    try {
-		dataset.addParameterRef(new URL(base,
+		URL dirURL = new URL(base, directory.getName());
+		dataset.addParameterRef(new URL(dirURL,
 						(String)paramRefs.get(key)),
 					key,
 					audit);
