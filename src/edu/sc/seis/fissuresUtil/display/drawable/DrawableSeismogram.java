@@ -25,25 +25,29 @@ import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 
 
 public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListener{
-    public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis){
-        this(parent, new SeismogramShape(parent, seis), seis.getName());
+    public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis, Color color){
+        this(parent, new SeismogramShape(parent, seis), seis.getName(), color);
     }
 
     public DrawableSeismogram(SeismogramDisplay parent,
                               DataSetSeismogram seis,
                               String name){
-        this(parent, new SeismogramShape(parent, seis), name);
+        this(parent, new SeismogramShape(parent, seis), name, null);
     }
 
     protected DrawableSeismogram(SeismogramDisplay parent, SeismogramShape shape){
-        this(parent, shape, shape.getSeismogram().getName());
+        this(parent, shape, shape.getSeismogram().getName(), null);
     }
 
     protected DrawableSeismogram(SeismogramDisplay parent,
                                  SeismogramShape shape,
-                                 String name){
+                                 String name, Color color){
         this.parent = parent;
-        this.color = parent.getNextColor(DrawableSeismogram.class);
+        if(color != null){
+            this.color = color;
+        }else{
+            this.color = parent.getNextColor(DrawableSeismogram.class);
+        }
         this.name = name;
         this.shape = shape;
         setRemover(new SeismogramRemover(shape.getSeismogram(), parent));
