@@ -1,0 +1,82 @@
+network.create=CREATE TABLE network (net_id int NOT NULL, \
+                                       net_code varchar(2) NOT NULL, \
+                                       net_begin_id int NOT NULL, \
+                                       net_end_id int, \
+                                       net_name varchar, \
+                                       net_owner varchar, \
+                                       net_description varchar, \
+                                       PRIMARY KEY (net_id), \
+                                       FOREIGN KEY(net_begin_id) \
+                                       REFERENCES time (time_id), \
+                                       FOREIGN KEY(net_end_id) \
+                                       REFERENCES time (time_id))
+
+station.create = CREATE TABLE station ( sta_id int NOT NULL, \
+                                        net_id int NOT NULL, \
+                                        sta_code varchar(5) NOT NULL, \
+                                        sta_begin_id int NOT NULL, \
+                                        sta_end_id int, \
+                                        sta_name varchar, \
+                                        sta_operator varchar, \
+                                        sta_description varchar, \
+                                        sta_comment varchar, \
+                                        loc_id int, \
+                                        FOREIGN KEY(sta_begin_id) \
+                                        REFERENCES time (time_id), \
+                                        FOREIGN KEY(sta_end_id) \
+                                        REFERENCES time (time_id),\
+                                        FOREIGN KEY(net_id) \
+                                        REFERENCES network (net_id), \
+                                        FOREIGN KEY(loc_id) \
+                                        REFERENCES location(loc_id), \
+                                        PRIMARY KEY(sta_id))
+
+site.create = CREATE TABLE site ( site_id int, \
+                                  sta_id int, \
+                                  site_code varchar(2), \
+                                  site_begin_id int, \
+                                  site_end_id int, \
+                                  site_comment varchar, \
+                                  loc_id int, \
+                                  FOREIGN KEY (sta_id) \
+                                  REFERENCES station (sta_id), \
+                                  FOREIGN KEY (loc_id) \
+                                  REFERENCES location (loc_id), \
+                                  FOREIGN KEY (site_begin_id) \
+                                  REFERENCES time (time_id), \
+                                  FOREIGN KEY (site_end_id) \
+                                  REFERENCES time (time_id), \
+                                  PRIMARY KEY(site_id))
+
+channel.create = CREATE TABLE channel (chan_id int, \
+                                       site_id int, \
+                                       chan_code varchar(3), \
+                                       chan_begin_id int, \
+                                       chan_end_id int, \
+                                       chan_name varchar, \
+                                       chan_orientation_az float, \
+                                       chan_orientation_dip float, \
+                                       chan_sampling_interval_id int, \
+                                       chan_sampling_numpoints int, \
+                                       PRIMARY KEY(chan_id), \
+                                       FOREIGN KEY (site_id) \
+                                       REFERENCES site (site_id), \
+                                       FOREIGN KEY (chan_sampling_interval_id) \
+                                       REFERENCES quantity (quantity_id), \
+                                       FOREIGN KEY (chan_begin_id) \
+                                       REFERENCES time (time_id), \
+                                       FOREIGN KEY (chan_end_id) \
+                                       REFERENCES time (time_id))
+
+
+NetworkSeq.create=CREATE SEQUENCE NetworkSeq
+NetworkSeq.nextVal=SELECT NEXTVAL ('NetworkSeq')
+
+StationSeq.create=CREATE SEQUENCE StationSeq
+StationSeq.nextVal=SELECT NEXTVAL ('StationSeq')
+
+SiteSeq.create=CREATE SEQUENCE SiteSeq
+SiteSeq.nextVal=SELECT NEXTVAL ('SiteSeq')
+
+ChannelSeq.create=CREATE SEQUENCE ChannelSeq
+ChannelSeq.nextVal=SELECT NEXTVAL ('ChannelSeq')

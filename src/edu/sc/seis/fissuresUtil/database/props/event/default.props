@@ -1,0 +1,81 @@
+origin.create=CREATE TABLE origin (origin_id int, \
+                                   origin_catalog_id int, \
+                                   origin_event_id int, \
+                                   origin_time_id int, \
+                                   origin_location_id int, \
+                                   origin_text_id varchar, \
+                                   PRIMARY KEY (origin_id), \
+                                   FOREIGN KEY (origin_location_id) \
+                                   REFERENCES location (loc_id), \
+                                   FOREIGN KEY (origin_catalog_id) \
+                                   REFERENCES catalog (catalog_id), \
+                                   FOREIGN KEY (origin_time_id) \
+                                   REFERENCES time (time_id))
+
+originparamref.create=CREATE TABLE originparamref (originparamrefid int, \
+                                                   originparameterid int, \
+                                                   FOREIGN KEY (originparamrefid) \
+                                                   REFERENCES origin (origin_id), \
+                                                   FOREIGN KEY (originparameterid) \
+                                                   REFERENCES parameterref (parameterid))
+
+catalog.create=CREATE TABLE catalog (catalog_id int, \
+                                     catalog_contributor_id int, \
+                                     catalog_name varchar, \
+                                     PRIMARY KEY (catalog_id), \
+                                     FOREIGN KEY (catalog_contributor_id ) \
+                                     REFERENCES contributor (contributor_id))
+
+contributor.create=CREATE TABLE contributor (contributor_id int, \
+                                             contributor_name varchar, \
+                                             PRIMARY KEY (contributor_id) )
+
+EventAccess.create=CREATE TABLE eventaccess (event_id int, \
+                                             IOR varchar, \
+                                             origin_id int, \
+                                             eventattr_id int, \
+                                             server varchar, \
+                                             dns varchar, \
+                                             PRIMARY KEY (event_id), \
+                                             FOREIGN KEY (eventattr_id) \
+                                             REFERENCES eventattr (eventattr_id), \
+                                             FOREIGN KEY (origin_id) \
+                                             REFERENCES origin (origin_id))
+
+magnitude.create=CREATE TABLE magnitude ( magnitudetype varchar, \
+                                          magnitudevalue float, \
+                                          magnitudecontributorid int, \
+                                          originid int)
+
+eventattr.create=CREATE TABLE eventattr ( eventattr_id int, \
+                                          eventattr_name varchar, \
+                                          flinnengdahlid int,  \
+                                          FOREIGN KEY ( flinnengdahlid ) \
+                                          REFERENCES flinnengdahl ( flinnengdahlid ), \
+                                          PRIMARY KEY (eventattr_id))
+
+eventparameterreference.create=CREATE TABLE eventparameterreference ( \
+                                    eventparameterreferenceid int, \
+                                    parameterid int , \
+                                    FOREIGN KEY (eventparameterreferenceid ) \
+                                    REFERENCES eventattr ( eventattr_id ), \
+                                    FOREIGN KEY (parameterid ) \
+                                    REFERENCES parameterref ( parameterid ))
+
+EventAttrSeq.create=CREATE SEQUENCE EventAttrSeq
+EventAttrSeq.nextVal=SELECT NEXTVAL ('EventAttrSeq')
+
+FlinnEngdahlSeq.create=CREATE SEQUENCE FlinnEngdahlSeq
+FlinnEngdahlSeq.nextVal=SELECT NEXTVAL ('FlinnEngdahlSeq')
+
+ContributorSeq.create=CREATE SEQUENCE ContributorSeq
+ContributorSeq.nextVal=SELECT NEXTVAL ('ContributorSeq')
+
+CatalogSeq.create=CREATE SEQUENCE CatalogSeq
+CatalogSeq.nextVal=SELECT NEXTVAL ('CatalogSeq')
+
+OriginSeq.create=CREATE SEQUENCE OriginSeq
+OriginSeq.nextVal=SELECT NEXTVAL ('OriginSeq')
+
+EventAccessSeq.create=CREATE SEQUENCE EventAccessSeq
+EventAccessSeq.nextVal=SELECT NEXTVAL ('EventAccessSeq')
