@@ -108,27 +108,35 @@ public class LongShortStoN {
             ratio = sta/lta ;
 
         }
-
+        long seisStart = 0;
+        double sampling = 0;
+        boolean samplingAndStartSet = false;
         /*  now get rest of trace */
         for(int i=2*nsta ; i < seisData.length ; i++) {
             /* up date mean */
             mean = mean + ( seisData[i]-mean)*cmean ;
             dat = seisData[i] - mean ;
             mean1 = mean1 + (dat - mean1)*cmean ;
-            dat = dat - mean1 ;
+            dat = Math.abs(dat - mean1);
 
-            sta = sta + ( Math.abs(dat) - sta)*csta ;
+            sta = sta + (dat - sta)*csta ;
             if( (trg==1) && (hold==true)) {
                 /* do not change lta */
             } else {
-                lta = lta + (Math.abs(dat) - lta)*clta ;
+                lta = lta + (dat - lta)*clta ;
             }
             ratio = sta/lta ;
 
             if (ratio >= threshold) {
+                if(!samplingAndStartSet){
+                    seisStart = seis.getBeginTime().getMicroSecondTime();
+                    sampling = seis.getSampling().getPeriod().convertTo(UnitImpl.MICROSECOND).get_value();
+                    samplingAndStartSet = true;
+                }
                 LongShortTrigger trigger = new LongShortTrigger(seis,
                                                                 i,
-                                                                ratio);
+                                                                ratio,
+                                                                new MicroSecondDate((long)(seisStart + sampling * i)));
                 out.add(trigger);
             }
         }
@@ -237,6 +245,7 @@ public class LongShortStoN {
     protected float threshold;
     protected TimeInterval meanTime;
 }
+
 
 
 
