@@ -29,14 +29,15 @@ public class JDBCPlottableTest extends JDBCTest {
     }
 
     public static PlottableChunk createFullDayPlottable() {
-        return new PlottableChunk(FULL_DAY, 0, 1, 2000, SPD, CHAN_ID);
+        return new PlottableChunk(FULL_DAY, 0, 1, 2000, PIXELS, CHAN_ID);
     }
 
     public void testPutThenGet() throws SQLException, IOException {
         plottDb.put(new PlottableChunk[] {data});
         PlottableChunk[] out = plottDb.get(data.getTimeRange(),
                                            data.getChannel(),
-                                           data.getSamplesPerDay());
+                                           data.getPixelsPerDay());
+        System.out.println(out[0]);
         assertEquals(data, out[0]);
     }
 
@@ -45,7 +46,7 @@ public class JDBCPlottableTest extends JDBCTest {
                                                       0,
                                                       2,
                                                       2000,
-                                                      SPD,
+                                                      PIXELS,
                                                       CHAN_ID);
         plottDb.put(new PlottableChunk[] {data, secondDay});
         MicroSecondDate halfPastFirstDay = START.add((TimeInterval)ONE_DAY.divideBy(2));
@@ -53,7 +54,7 @@ public class JDBCPlottableTest extends JDBCTest {
                                                                               ONE_DAY);
         PlottableChunk[] out = plottDb.get(halfFirstToHalfSecond,
                                            data.getChannel(),
-                                           data.getSamplesPerDay());
+                                           data.getPixelsPerDay());
         int halfLength = data.getData().x_coor.length / 2;
         int[] x = new int[halfLength];
         int[] y = new int[halfLength];
@@ -66,7 +67,7 @@ public class JDBCPlottableTest extends JDBCTest {
                                                                halfLength,
                                                                1,
                                                                2000,
-                                                               SPD,
+                                                               PIXELS,
                                                                CHAN_ID);
         assertEquals(secondHalfFirstDay, out[0]);
     }
@@ -77,7 +78,7 @@ public class JDBCPlottableTest extends JDBCTest {
         }
         assertEquals(data, plottDb.get(data.getTimeRange(),
                                        data.getChannel(),
-                                       data.getSamplesPerDay())[0]);
+                                       data.getPixelsPerDay())[0]);
     }
 
     public void testYearStraddlingData() throws CodecException, SQLException,
@@ -86,14 +87,14 @@ public class JDBCPlottableTest extends JDBCTest {
         MicroSecondDate startDate = new MicroSecondDate(start);
         Plottable p = makeDay(startDate);
         PlottableChunk chunk = new PlottableChunk(p,
-                                                  SPD / 2,
+                                                  PIXELS / 2,
                                                   startDate,
-                                                  SPD,
+                                                  PIXELS,
                                                   CHAN_ID);
         plottDb.put(new PlottableChunk[] {chunk});
         PlottableChunk[] results = plottDb.get(chunk.getTimeRange(),
                                                chunk.getChannel(),
-                                               chunk.getSamplesPerDay());
+                                               chunk.getPixelsPerDay());
         assertEquals(chunk.getTimeRange().getBeginTime(),
                      results[0].getBeginTime());
         assertEquals(chunk.getTimeRange().getEndTime(), results[1].getEndTime());
@@ -128,7 +129,7 @@ public class JDBCPlottableTest extends JDBCTest {
                                   startPoint,
                                   1,
                                   2000,
-                                  SPD,
+                                  PIXELS,
                                   orig.getChannel());
     }
 
@@ -146,7 +147,7 @@ public class JDBCPlottableTest extends JDBCTest {
     public static final int PIXELS = 6000;
 
     public static final int SPD = PIXELS * 2;
-
+    
     private static final Time START_TIME = new Time("20000101T000000.000Z", 0);
 
     private static final MicroSecondDate START = new MicroSecondDate(START_TIME);
@@ -168,7 +169,8 @@ public class JDBCPlottableTest extends JDBCTest {
         MicroSecondDate end = startTime.add(ONE_DAY);
         LocalSeismogramImpl seis = SimplePlotUtil.createSpike(startTime,
                                                               ONE_DAY,
-                                                              757);
+                                                              757,
+                                                              CHAN_ID);
         MicroSecondTimeRange fullRange = new MicroSecondTimeRange(startTime,
                                                                   end);
         int[][] coords = SimplePlotUtil.makePlottable(seis, fullRange, SPD);
