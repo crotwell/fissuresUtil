@@ -112,30 +112,6 @@ public interface DataSet extends StdDataSetParamNames {
      */
     public DataSet createChildDataSet(String id, String name, String owner, AuditInfo[] audit);
 
-    /**
-     * Describe <code>getSeismogramNames</code> method here.
-     *
-     * @return a <code>String[]</code> value
-     */
- //   public String[] getSeismogramNames();
-
-    /**
-     * Describe <code>getSeismogram</code> method here.
-     *
-     * @param name a <code>String</code> value
-     * @return a <code>LocalSeismogramImpl</code> value
-     */
-//    public LocalSeismogramImpl getSeismogram(String name);
-
-    /**
-     * Describe <code>addSeismogram</code> method here.
-     *
-     * @param seis a <code>LocalSeismogramImpl</code> value
-     * @param audit an <code>AuditInfo[]</code> value
-     */
-  //  public void addSeismogram(LocalSeismogramImpl seis, AuditInfo[] audit);
-
-
     public void addDataSetSeismogram(DataSetSeismogram dss, AuditInfo[] audit);
 
     public DataSetSeismogram getDataSetSeismogram(String name);
