@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.xml.*;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * DataSetSeismogram.java
@@ -14,16 +14,16 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
  */
 
 public class DataSetSeismogram {
-    public DataSetSeismogram (LocalSeismogram seismo, DataSet ds){
+    public DataSetSeismogram (LocalSeismogramImpl seismo, DataSet ds){
 	this.seis = seismo;
 	this.dataSet = ds;
     }
     
-    public LocalSeismogram getSeismogram(){ return seis; }
+    public LocalSeismogramImpl getSeismogram(){ return seis; }
 
     public DataSet getDataSet(){ return dataSet; }
 
     protected DataSet dataSet;
 
-    protected LocalSeismogram seis;
+    protected LocalSeismogramImpl seis;
 }// DataSetSeismogram
