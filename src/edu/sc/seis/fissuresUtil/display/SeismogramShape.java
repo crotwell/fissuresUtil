@@ -24,7 +24,7 @@ import org.apache.log4j.Category;
  * Created: Fri Jul 26 16:06:52 2002
  *
  * @author <a href="mailto:">Charlie Groves</a>
- * @version $Id: SeismogramShape.java 3428 2003-03-13 20:45:24Z crotwell $
+ * @version $Id: SeismogramShape.java 3429 2003-03-13 20:49:02Z crotwell $
  */
 
 public class SeismogramShape implements Shape, SeisDataChangeListener{
@@ -158,12 +158,12 @@ public class SeismogramShape implements Shape, SeisDataChangeListener{
     
 	public synchronized void pushData(SeisDataChangeEvent sdce) {
 		LocalSeismogramImpl[] tmp =
-			new LocalSeismogramImpl[seis.length+sdce.getSeismos().length];
+			new LocalSeismogramImpl[seis.length+sdce.getSeismograms().length];
 		Statistics[] tmpStat = new Statistics[tmp.length];
 		System.arraycopy(seis, 0, tmp, 0, seis.length);
 		System.arraycopy(stat, 0, tmpStat, 0, stat.length);
-		for ( int i=0; i<sdce.getSeismos().length; i++) {
-			tmp[seis.length+i] = sdce.getSeismos()[i];
+		for ( int i=0; i<sdce.getSeismograms().length; i++) {
+			tmp[seis.length+i] = sdce.getSeismograms()[i];
 			tmpStat[seis.length+i] = new Statistics(tmp[seis.length+i]);
 		} // end of for ()
 		seis = tmp;
