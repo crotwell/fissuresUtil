@@ -64,7 +64,7 @@ public class MailReporter implements ExceptionReporter{
         msg.setRecipient(Message.RecipientType.TO, addressTo);
         String subject = props.getProperty(SUBJECT);
         if(displayExceptionClass){
-            subject += " " + ExceptionReporterUtils.getExceptionClassName(e);
+            subject += " " + ExceptionReporterUtils.getClassName(e);
         }
         msg.setSubject(subject);
         Multipart multipart = new MimeMultipart();
