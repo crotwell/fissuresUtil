@@ -12,27 +12,20 @@ package edu.sc.seis.fissuresUtil.netConnChecker;
 
 public class ConnStatus {
     private String status;
-    
+
     private  ConnStatus (String status){
         this.status = status;
     }
-    
-    /**
-     * returns the string representation of the ConnStatus.
-     *
-     * @return a <code>String</code> value
-     */
+
     public String toString() { return status; }
-    
+
     public static final ConnStatus SUCCESSFUL = new ConnStatus("SUCCESSFUL");
-    
-    public static final ConnStatus UNFINISHED = new ConnStatus("UNFINISHED");
-    
+
     public static final ConnStatus FAILED = new ConnStatus("FAILED");
-    
+
     public static final ConnStatus UNKNOWN = new ConnStatus("UNKNOWN");
-    
+
     public static final ConnStatus TRYING = new ConnStatus("TRYING");
-    
-    
+
+
 }// ConnectionStatus
