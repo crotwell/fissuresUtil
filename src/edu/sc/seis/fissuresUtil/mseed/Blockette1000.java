@@ -15,6 +15,10 @@ import java.io.*;
 
 public class Blockette1000 extends  DataBlockette {
     
+    public Blockette1000() {
+        this(new byte[4]);
+    }
+
     public Blockette1000(byte[] info) {
 	super(info);
 	
