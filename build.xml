@@ -33,6 +33,7 @@
             <src path="${src}" />
             <include name="**/*.java" />
          </javac>
+         <copy todir="${build}/edu/sc/seis/fissuresUtil/display" file="${src}/edu/sc/seis/fissuresUtil/display/FERegions.prop" />
        </target>
 
        <target name="testcompile" depends="javacompile">
