@@ -163,6 +163,14 @@ oot:${pom.artifactId}</connection>
       <url>openmap.bbn.com</url>
     </dependency>
 
+    <dependency>
+      <id>itext</id>  
+      <version>0.99</version> 
+      <properties>
+        <jnlp.jar>true</jnlp.jar>
+      </properties>
+    </dependency>
+
   </dependencies>
 
   <build>
