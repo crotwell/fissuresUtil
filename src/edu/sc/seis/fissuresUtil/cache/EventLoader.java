@@ -1,7 +1,6 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 
 /**
  * EventBackgroundLoader.java

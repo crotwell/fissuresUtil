@@ -1,9 +1,10 @@
 
 package edu.sc.seis.fissuresUtil.mseed;
 
-import java.io.*;
-import java.lang.*;
-import java.lang.reflect.*;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /** Superclass of all seed blockettes. The actual blockettes do not store
  * either their blockette type or their length in the case of ascii blockettes

@@ -31,17 +31,22 @@ package edu.sc.seis.fissuresUtil.parmo3d;
  * redistribute the Software for such purposes.
  */
 
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-import java.awt.image.DataBufferInt;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.util.Hashtable;
-
-import javax.media.j3d.*;
+import javax.media.j3d.Appearance;
+import javax.media.j3d.ImageComponent;
+import javax.media.j3d.ImageComponent2D;
+import javax.media.j3d.Material;
+import javax.media.j3d.QuadArray;
+import javax.media.j3d.Shape3D;
+import javax.media.j3d.Texture;
+import javax.media.j3d.Texture2D;
+import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3f;
 

@@ -1,10 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import java.util.List;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
  * SingleSeismogramWindowDisplay displays every seismogram added to it

@@ -1,12 +1,12 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 
 public class TimeAmpLabel implements NamedDrawable{
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {

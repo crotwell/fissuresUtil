@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.simple;
 
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import org.apache.log4j.Logger;
 
 public class ThreadedEventClient extends SimpleEventClient{
     public void exercise(){

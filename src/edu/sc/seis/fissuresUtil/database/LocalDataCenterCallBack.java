@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.database;
 
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.xml.*;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 
 /**
  * This class is used as a callback object in LocalDCOperations. The class

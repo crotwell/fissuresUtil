@@ -1,10 +1,10 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
 
+import java.awt.Dimension;
+import java.awt.Graphics2D;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
 
 /**
  * CurrentTimeFlagPlotter.java

@@ -1,7 +1,4 @@
 package edu.sc.seis.fissuresUtil.xml;
-import edu.sc.seis.fissuresUtil.database.*;
-
-import edu.iris.Fissures.IfSeismogramDC.*;
 
 /**
  * DSSDataListener.java

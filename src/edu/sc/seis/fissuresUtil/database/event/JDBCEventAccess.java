@@ -1,14 +1,5 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
-import edu.iris.Fissures.IfEvent.EventAttr;
-import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
-import edu.iris.Fissures.IfEvent.Origin;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
-import edu.sc.seis.fissuresUtil.database.JDBCSequence;
-import edu.sc.seis.fissuresUtil.database.NotFound;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +10,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.EventAttr;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.DBUtil;
+import edu.sc.seis.fissuresUtil.database.JDBCSequence;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class JDBCEventAccess extends EventTable{
 

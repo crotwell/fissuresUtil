@@ -1,8 +1,8 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * Statistics.java
@@ -11,7 +11,7 @@ import edu.iris.Fissures.FissuresException;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 8873 2004-05-24 15:57:27Z crotwell $
+ * @version $Id: Statistics.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class Statistics  {

@@ -6,11 +6,11 @@ package edu.sc.seis.fissuresUtil.display.registrar;
  * @author Created by Charlie Groves
  */
 
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class LazyAmpEvent implements AmpEvent{
     public LazyAmpEvent(BasicAmpConfig config){

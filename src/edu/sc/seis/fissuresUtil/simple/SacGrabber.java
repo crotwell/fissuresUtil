@@ -6,6 +6,11 @@
 
 package edu.sc.seis.fissuresUtil.simple;
 
+import java.io.File;
+import java.io.IOException;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -23,11 +28,6 @@ import edu.sc.seis.fissuresUtil.cache.BulletproofVestFactory;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
 import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
-import java.io.File;
-import java.io.IOException;
-import org.omg.CosNaming.NamingContextPackage.CannotProceed;
-import org.omg.CosNaming.NamingContextPackage.InvalidName;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 public class SacGrabber {
 

@@ -1,5 +1,10 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -7,14 +12,8 @@ import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.log4j.Category;
 
 /**
  *  Routes data center requests to the correct datacenter. This allow the

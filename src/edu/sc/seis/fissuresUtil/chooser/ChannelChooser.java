@@ -4,27 +4,50 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
 import org.apache.log4j.Category;
-
 import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.IfNetwork.*;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
+import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.NetworkNotFound;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
-import edu.sc.seis.fissuresUtil.cache.*;
+import edu.sc.seis.fissuresUtil.cache.BulletproofVestFactory;
+import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
+import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
+import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
+import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
 
 /**
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 9711 2004-07-21 19:16:40Z crotwell $
+ * @version $Id: ChannelChooser.java 10257 2004-08-31 13:47:25Z groves $
  *
  */
 

@@ -5,19 +5,18 @@
  */
 package edu.sc.seis.fissuresUtil.simple;
 
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.iris.Fissures.IfNetwork.StationId;
-import edu.iris.Fissures.Time;
-import edu.iris.Fissures.model.AllVTFactory;
-import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.model.AllVTFactory;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public abstract class Initializer {
 

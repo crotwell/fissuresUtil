@@ -1,21 +1,11 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.IfNetwork.*;
-
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.Time;
-import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.IfNetwork.Instrumentation;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.cache.RetryNetworkAccess;
-import edu.sc.seis.fissuresUtil.cache.SynchronizedNetworkAccess;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.log4j.Logger;
 
 /**
  * Applys the overall sensitivity to a seismogram. This is purely a scale

@@ -1,7 +1,11 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import java.util.*;
-
+import java.lang.ref.SoftReference;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -10,8 +14,6 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
 import edu.sc.seis.fissuresUtil.cache.JobTracker;
 import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
-import java.lang.ref.SoftReference;
-import org.apache.log4j.Category;
 
 /**
  * DataCenterThread.java

@@ -5,12 +5,12 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import org.apache.log4j.Logger;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class WorkerThreadPool {
 

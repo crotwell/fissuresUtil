@@ -1,14 +1,4 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
-import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
-import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
-import edu.sc.seis.fissuresUtil.display.drawable.Selection;
-import edu.sc.seis.fissuresUtil.display.mouse.SDMouseForwarder;
-import edu.sc.seis.fissuresUtil.display.mouse.SDMouseMotionForwarder;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -19,6 +9,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
+import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
+import edu.sc.seis.fissuresUtil.display.drawable.Selection;
+import edu.sc.seis.fissuresUtil.display.mouse.SDMouseForwarder;
+import edu.sc.seis.fissuresUtil.display.mouse.SDMouseMotionForwarder;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.DataSetSeismogramReceptacle;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public abstract class SeismogramDisplay extends BorderedDisplay implements DataSetSeismogramReceptacle{
     public SeismogramDisplay(){ this(mouseForwarder, motionForwarder); }

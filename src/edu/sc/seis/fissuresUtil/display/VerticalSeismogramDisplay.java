@@ -1,5 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.borders.Border;
+import java.awt.Color;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import javax.swing.BoxLayout;
+import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
@@ -10,15 +17,6 @@ import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import javax.swing.BoxLayout;
-import org.apache.log4j.Logger;
 
 /**
  * VerticalSeismogramDisplay(VSD) is a JComponent that can contain multiple

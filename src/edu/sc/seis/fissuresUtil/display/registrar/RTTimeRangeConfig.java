@@ -1,10 +1,4 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -13,6 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.Timer;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 /**
  * RTTimeRangeConfig.java
  *

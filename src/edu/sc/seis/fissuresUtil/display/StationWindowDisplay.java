@@ -1,14 +1,13 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
-import edu.sc.seis.fissuresUtil.display.borders.UnchangingTitleProvider;
-import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
+import edu.sc.seis.fissuresUtil.display.borders.UnchangingTitleProvider;
+import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class StationWindowDisplay extends VerticalSeismogramDisplay{
     public void add(DataSetSeismogram[] dss) {

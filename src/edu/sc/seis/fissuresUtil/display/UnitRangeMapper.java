@@ -1,10 +1,9 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.AmpScaleMapper;
 import java.text.DecimalFormat;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.model.UnitRangeImpl;
 
 public class UnitRangeMapper implements ScaleMapper{
 

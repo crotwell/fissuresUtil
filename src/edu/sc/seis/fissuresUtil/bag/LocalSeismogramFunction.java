@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * LocalSeismogramFunction.java

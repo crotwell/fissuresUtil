@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 
 
 

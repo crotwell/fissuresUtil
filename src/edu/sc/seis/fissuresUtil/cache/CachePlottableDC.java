@@ -1,6 +1,13 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import java.lang.ref.SoftReference;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.TimeZone;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.Dimension;
+import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfPlottable.PlottableDC;
@@ -8,14 +15,7 @@ import edu.iris.Fissures.IfPlottable.PlottableDCOperations;
 import edu.iris.Fissures.IfPlottable.PlottableNotAvailable;
 import edu.iris.Fissures.IfPlottable.UnsupportedDimension;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import java.lang.ref.SoftReference;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.TimeZone;
-import org.apache.log4j.Category;
 
 /**
  * PlottableCache.java

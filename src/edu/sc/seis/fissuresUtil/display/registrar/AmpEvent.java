@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**

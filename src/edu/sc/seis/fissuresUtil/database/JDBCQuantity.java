@@ -1,12 +1,12 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.Quantity;
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.UnitImpl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.UnitImpl;
 
 public class JDBCQuantity  {
     public JDBCQuantity()throws SQLException{

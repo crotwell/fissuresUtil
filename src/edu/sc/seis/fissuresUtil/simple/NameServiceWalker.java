@@ -6,6 +6,7 @@
 
 package edu.sc.seis.fissuresUtil.simple;
 
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -13,7 +14,6 @@ import edu.sc.seis.fissuresUtil.cache.NSEventDC;
 import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
-import org.apache.log4j.Logger;
 
 public class NameServiceWalker {
 

@@ -1,16 +1,15 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
-import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
-import edu.sc.seis.fissuresUtil.database.JDBCSequence;
-import edu.sc.seis.fissuresUtil.database.JDBCTable;
-import edu.sc.seis.fissuresUtil.database.NotFound;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.DBUtil;
+import edu.sc.seis.fissuresUtil.database.JDBCSequence;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class JDBCCatalog extends EventTable {
     public JDBCCatalog(Connection conn) throws SQLException{

@@ -6,11 +6,11 @@
 
 package edu.sc.seis.fissuresUtil.display.registrar;
 
+import java.util.Date;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.Date;
 
 public class RelativeTimeConfig extends BasicTimeConfig{
     public void add(DataSetSeismogram[] seis){

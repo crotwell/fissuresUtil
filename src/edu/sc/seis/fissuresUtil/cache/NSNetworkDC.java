@@ -1,11 +1,11 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import org.apache.log4j.Category;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
-import org.apache.log4j.Category;
 
 /**
  * NSNetworkDC.java

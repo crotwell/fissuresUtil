@@ -1,11 +1,12 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.network.*;
-import java.util.*;
-
-import org.apache.log4j.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.TreeMap;
+import org.apache.log4j.Category;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.network.ChannelIdUtil;
 
 /**
  * ChannelGrouperImpl.java

@@ -1,13 +1,13 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfNetwork.NetworkAttr;
-import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.iris.Fissures.TimeRange;
-import edu.iris.Fissures.network.NetworkAttrImpl;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.network.NetworkAttrImpl;
 
 /**
  * XMLNetworkAttr.java

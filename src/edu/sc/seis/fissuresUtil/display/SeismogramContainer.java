@@ -1,18 +1,27 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.xml.*;
-import java.util.*;
-
-import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.cache.AbstractJob;
-import edu.sc.seis.fissuresUtil.database.DBDataCenter;
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.iris.dmc.seedcodec.CodecException;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.fissuresUtil.database.DBDataCenter;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.xml.DCDataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.RequestFilterChangeListener;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeEvent;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
+import edu.sc.seis.fissuresUtil.xml.SeisDataErrorEvent;
 
 /**<code>SeismogramContainer</code> Takes a DataSetSeismogram and requests its
  *data.  It holds whatever it gets in soft references so that they can be

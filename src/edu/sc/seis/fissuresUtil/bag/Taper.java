@@ -1,9 +1,8 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * Taper.java
@@ -12,7 +11,7 @@ import edu.iris.Fissures.FissuresException;
  * Created: Sat Oct 19 21:53:21 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: Taper.java 7451 2004-03-05 21:32:18Z crotwell $
+ * @version $Id: Taper.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class Taper implements LocalSeismogramFunction {

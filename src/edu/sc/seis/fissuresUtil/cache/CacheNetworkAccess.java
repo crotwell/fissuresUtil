@@ -1,17 +1,24 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfNetwork.*;
-
-import edu.iris.Fissures.Time;
-import edu.iris.Fissures.network.NetworkIdUtil;
-import edu.iris.Fissures.network.SiteIdUtil;
-import edu.iris.Fissures.network.StationIdUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.Site;
+import edu.iris.Fissures.IfNetwork.SiteId;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.network.NetworkIdUtil;
+import edu.iris.Fissures.network.SiteIdUtil;
+import edu.iris.Fissures.network.StationIdUtil;
 
 public class CacheNetworkAccess extends ProxyNetworkAccess {
     public CacheNetworkAccess(NetworkAccess net){ super(net); }

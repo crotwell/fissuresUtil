@@ -1,10 +1,11 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import java.util.*;
+import java.util.LinkedList;
+import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 
 /**
  * SeismogramBackgroundLoaderPool.java

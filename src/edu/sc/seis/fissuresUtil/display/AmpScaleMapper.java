@@ -1,10 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
 import edu.sc.seis.fissuresUtil.display.registrar.LazyAmpEvent;
-import org.apache.log4j.Logger;
 
 /**
  * AmpScaleMapper.java

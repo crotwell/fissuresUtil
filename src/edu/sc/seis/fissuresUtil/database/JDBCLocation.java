@@ -2,14 +2,13 @@ package edu.sc.seis.fissuresUtil.database;
 
 
 
-import edu.iris.Fissures.Location;
-import edu.iris.Fissures.LocationType;
-import edu.iris.Fissures.model.QuantityImpl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import edu.iris.Fissures.Location;
+import edu.iris.Fissures.LocationType;
+import edu.iris.Fissures.model.QuantityImpl;
 public class JDBCLocation extends JDBCTable {
     public JDBCLocation(Connection conn) throws SQLException{
         this(conn, new JDBCQuantity(conn));

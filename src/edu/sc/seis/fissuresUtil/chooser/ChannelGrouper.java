@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
-import edu.iris.Fissures.IfNetwork.*;
-import org.omg.CORBA.*;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
 
 /**
  * ChannelGrouper.java

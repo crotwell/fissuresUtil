@@ -6,8 +6,14 @@
 
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import org.apache.log4j.Logger;
+import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
@@ -17,8 +23,6 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import org.apache.log4j.Logger;
-import edu.iris.Fissures.FissuresException;
 
 /** Takes an array of LocalSeismograms and iterates through them, point by point
  */

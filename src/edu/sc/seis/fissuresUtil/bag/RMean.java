@@ -1,10 +1,8 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.IfTimeSeries.*;
-import edu.iris.Fissures.seismogramDC.*;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
-import org.apache.log4j.*;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * RMean.java
@@ -13,7 +11,7 @@ import org.apache.log4j.*;
  * Created: Sat Oct 19 21:54:26 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: RMean.java 8468 2004-05-04 16:32:07Z crotwell $
+ * @version $Id: RMean.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class RMean implements LocalSeismogramFunction {

@@ -1,7 +1,5 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
-import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
@@ -13,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
+import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 
 public abstract class Border extends JComponent{
     public Border(int side, int order){

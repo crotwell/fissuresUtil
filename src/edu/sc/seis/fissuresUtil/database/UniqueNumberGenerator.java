@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.iris.Fissures.model.MicroSecondDate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,31 +1,46 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.sc.seis.fissuresUtil.sac.*;
-import edu.iris.Fissures.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.apache.xpath.*;
-import org.apache.xpath.objects.*;
-import java.lang.ref.*;
-import java.io.*;
-import java.net.*;
-import java.util.HashMap;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.*;
-import org.apache.log4j.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.apache.log4j.Category;
+import org.apache.xpath.XPathAPI;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.Property;
+import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
+import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 
 /**
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 9819 2004-07-27 15:18:24Z crotwell $
+ * @version $Id: XMLDataSet.java 10257 2004-08-31 13:47:25Z groves $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.

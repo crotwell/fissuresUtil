@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.fissuresUtil.xml.FilteredDataSetSeismogram;
 
 public class DrawableFilteredSeismogram extends DrawableSeismogram{
     public DrawableFilteredSeismogram(SeismogramDisplay parent,

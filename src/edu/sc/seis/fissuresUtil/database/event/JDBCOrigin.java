@@ -1,13 +1,6 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
 
-import edu.sc.seis.fissuresUtil.database.*;
-
-import edu.iris.Fissures.IfEvent.Magnitude;
-import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-import edu.iris.Fissures.Location;
-import edu.iris.Fissures.event.OriginImpl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +8,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import edu.iris.Fissures.Location;
+import edu.iris.Fissures.IfEvent.Magnitude;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.iris.Fissures.event.OriginImpl;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.DBUtil;
+import edu.sc.seis.fissuresUtil.database.JDBCLocation;
+import edu.sc.seis.fissuresUtil.database.JDBCParameterRef;
+import edu.sc.seis.fissuresUtil.database.JDBCSequence;
+import edu.sc.seis.fissuresUtil.database.JDBCTime;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class JDBCOrigin extends EventTable {
     public JDBCOrigin(Connection conn) throws SQLException{

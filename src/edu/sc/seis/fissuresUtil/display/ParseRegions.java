@@ -1,7 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.FlinnEngdahlRegion;
-import edu.iris.Fissures.FlinnEngdahlType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.Collator;
@@ -9,6 +7,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Properties;
+import edu.iris.Fissures.FlinnEngdahlRegion;
+import edu.iris.Fissures.FlinnEngdahlType;
 
 /**
  * ParseRegions.java

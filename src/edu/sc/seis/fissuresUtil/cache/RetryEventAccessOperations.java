@@ -5,7 +5,6 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
-
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.IfEvent.Event;

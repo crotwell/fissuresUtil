@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 public class StAXFileWriter {

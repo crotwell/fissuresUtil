@@ -1,6 +1,10 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.FissuresException;
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -8,12 +12,6 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.database.DBDataCenter;
 import edu.sc.seis.fissuresUtil.database.LocalDataCenterCallBack;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import org.apache.log4j.Category;
 
 /**
  * DataSetSeismogram.java

@@ -1,10 +1,4 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.TauP.Arrival;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
@@ -13,6 +7,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 
 
 

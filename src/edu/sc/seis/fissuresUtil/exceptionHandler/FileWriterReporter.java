@@ -8,9 +8,9 @@ package edu.sc.seis.fissuresUtil.exceptionHandler;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.io.IOException;
 
 
 

@@ -1,18 +1,17 @@
 package edu.sc.seis.fissuresUtil.simple;
 
+import org.apache.log4j.Logger;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import org.apache.log4j.Logger;
-import org.omg.CosNaming.NamingContextPackage.CannotProceed;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.sc.seis.fissuresUtil.cache.BulletproofVestFactory;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 
 
 

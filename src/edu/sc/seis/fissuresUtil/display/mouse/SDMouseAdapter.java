@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.mouse;
 
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public abstract class SDMouseAdapter extends MouseAdapter
     implements SDMouseListener, SDMouseMotionListener{

@@ -6,18 +6,17 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.util.HashMap;
+import java.util.Map;
+import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.Location;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModel;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.TauP_Time;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TauPUtil {
 

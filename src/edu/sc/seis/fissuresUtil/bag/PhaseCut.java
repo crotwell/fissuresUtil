@@ -6,18 +6,16 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.IfEvent.Origin;
+import org.apache.log4j.Logger;
+import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModelException;
-import edu.sc.seis.TauP.TauP_Time;
-import org.apache.log4j.Logger;
-import edu.iris.Fissures.FissuresException;
 
 public class PhaseCut {
 

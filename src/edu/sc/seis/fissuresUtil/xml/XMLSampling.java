@@ -1,13 +1,13 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.Quantity;
-import edu.iris.Fissures.Sampling;
-import edu.iris.Fissures.model.SamplingImpl;
-import edu.iris.Fissures.model.TimeInterval;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.Sampling;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.TimeInterval;
 /**
  * XMLSampling.java
  *

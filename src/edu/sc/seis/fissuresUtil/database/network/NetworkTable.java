@@ -6,9 +6,9 @@
 
 package edu.sc.seis.fissuresUtil.database.network;
 
+import java.sql.Connection;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.JDBCTable;
-import java.sql.Connection;
 
 public abstract class NetworkTable extends JDBCTable{
     public NetworkTable(String name, Connection conn){ super(name, conn); }

@@ -1,10 +1,10 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfEvent.Magnitude;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import edu.iris.Fissures.IfEvent.Magnitude;
 
 /**
  * XMLMagnitude.java

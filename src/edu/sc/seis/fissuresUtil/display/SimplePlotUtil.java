@@ -1,18 +1,22 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.iris.Fissures.model.*;
-
+import java.awt.Dimension;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import java.awt.Dimension;
-import org.apache.log4j.Category;
 
 /**
  * SimplePlotUtil.java
@@ -21,7 +25,7 @@ import org.apache.log4j.Category;
  * Created: Thu Jul  8 11:22:02 1999
  *
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 5835 2003-09-29 01:14:21Z groves $
+ * @version $Id: SimplePlotUtil.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class SimplePlotUtil  {

@@ -13,11 +13,8 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.apache.log4j.Logger;

@@ -1,9 +1,8 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import edu.sc.seis.fissuresUtil.xml.*;
-
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.model.*;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.sc.seis.fissuresUtil.xml.SeisDataChangeListener;
 
 /**
  * This class is Similar to DCOperations. This class differs from the DCOperations in the signature of the method

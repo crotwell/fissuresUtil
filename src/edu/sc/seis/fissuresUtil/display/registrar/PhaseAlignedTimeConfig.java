@@ -6,23 +6,22 @@
 
 package edu.sc.seis.fissuresUtil.display.registrar;
 
+import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.TauP.SphericalCoords;
+import edu.sc.seis.TauP.TauModelException;
+import edu.sc.seis.TauP.TauP_Time;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import edu.sc.seis.TauP.TauP_Time;
-import edu.iris.Fissures.Location;
-import edu.iris.Fissures.model.QuantityImpl;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.bag.DistAz;
-import edu.sc.seis.TauP.TauModelException;
-import edu.sc.seis.TauP.Arrival;
-import edu.iris.Fissures.IfNetwork.Channel;
-import edu.sc.seis.TauP.SphericalCoords;
 
 public class PhaseAlignedTimeConfig extends RelativeTimeConfig{
     public MicroSecondTimeRange getInitialTime(DataSetSeismogram seis){

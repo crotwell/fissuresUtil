@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
 
-import java.util.*;
+import java.util.EventListener;
 
 /**
  * ConnectionStatusChangedListener.java

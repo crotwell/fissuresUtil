@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.exceptionHandler;
 
-import java.lang.*;
 
 /**
  * TestExceptionHandler.java

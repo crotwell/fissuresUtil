@@ -6,16 +6,13 @@
 
 package edu.sc.seis.fissuresUtil.xml;
 
+import java.net.URL;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import java.io.IOException;
-import java.net.URL;
-import javax.xml.parsers.ParserConfigurationException;
-import org.apache.log4j.Logger;
-import org.xml.sax.SAXException;
 
 public class URLDataSet implements DataSet {
     public URLDataSet(String name, URL url) {

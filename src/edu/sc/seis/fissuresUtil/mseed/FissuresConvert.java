@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
+import java.util.LinkedList;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -16,9 +17,8 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
-import edu.sc.seis.fissuresUtil.database.DataCenterUtil;
-import java.util.LinkedList;
 import edu.iris.dmc.seedcodec.B1000Types;
+import edu.sc.seis.fissuresUtil.database.DataCenterUtil;
 
 /**
  * FissuresConvert.java

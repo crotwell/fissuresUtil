@@ -1,9 +1,6 @@
 package edu.sc.seis.fissuresUtil.simple;
 
-import edu.iris.Fissures.FissuresException;
 import org.apache.log4j.Logger;
-import org.omg.CosNaming.NamingContextPackage.CannotProceed;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 public class ThreadedSeisClient extends SimpleSeismogramClient{
     public void exercise(){

@@ -6,11 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.TimeZone;
 import java.util.WeakHashMap;
-
 import javax.swing.table.AbstractTableModel;
-
 import org.apache.log4j.Category;
-
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -31,7 +28,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Mon Jan 8 15:59:05 2001
  * 
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 9770 2004-07-23 18:59:55Z oliverpa $
+ * @version $Id: EventTableModel.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class EventTableModel extends AbstractTableModel implements

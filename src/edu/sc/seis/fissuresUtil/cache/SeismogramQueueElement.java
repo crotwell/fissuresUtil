@@ -1,8 +1,9 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 
 /**
  * SeismogramQueueElement.java

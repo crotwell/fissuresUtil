@@ -6,13 +6,13 @@ package edu.sc.seis.fissuresUtil.display;
  * @author Created by Charlie Groves
  */
 
-import edu.sc.seis.fissuresUtil.display.drawable.BigX;
-import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemover;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import javax.swing.border.AbstractBorder;
+import edu.sc.seis.fissuresUtil.display.drawable.BigX;
+import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemover;
 
 public class SeismogramDisplayRemovalBorder extends AbstractBorder{
 

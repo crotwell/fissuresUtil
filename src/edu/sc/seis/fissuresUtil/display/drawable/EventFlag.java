@@ -11,7 +11,6 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;

@@ -10,9 +10,9 @@ package edu.sc.seis.fissuresUtil.xml;
  * @version
  */
 
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class SeismogramFileTypes {
     private SeismogramFileTypes (String val){

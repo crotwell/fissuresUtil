@@ -7,8 +7,8 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;

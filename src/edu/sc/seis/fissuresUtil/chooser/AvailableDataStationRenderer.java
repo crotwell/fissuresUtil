@@ -6,29 +6,33 @@
 
 package edu.sc.seis.fissuresUtil.chooser;
 
-import java.util.*;
-
+import java.awt.Color;
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.JList;
+import org.apache.log4j.Logger;
+import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import edu.sc.seis.fissuresUtil.cache.JobTracker;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
-import java.awt.Color;
-import java.awt.Component;
-import javax.swing.JList;
-import org.apache.log4j.Logger;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.network.NetworkIdUtil;
 
 public class AvailableDataStationRenderer extends NameListCellRenderer {
 

@@ -1,10 +1,12 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.seismogramDC.*;
-import edu.iris.Fissures.model.*;
-import edu.iris.Fissures.IfTimeSeries.*;
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * Cuts seismograms based on a begin and end time.
@@ -13,7 +15,7 @@ import edu.iris.Fissures.FissuresException;
  * Created: Tue Oct  1 21:23:44 2002
  *
  * @author Philip Crotwell
- * @version $Id: Cut.java 9204 2004-06-17 14:11:44Z groves $
+ * @version $Id: Cut.java 10257 2004-08-31 13:47:25Z groves $
  */
 
 public class Cut implements LocalSeismogramFunction {

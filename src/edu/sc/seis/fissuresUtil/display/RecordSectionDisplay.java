@@ -1,14 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.display.registrar.*;
-
-import edu.sc.seis.fissuresUtil.display.borders.DistanceBorder;
-import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
-import edu.sc.seis.fissuresUtil.display.drawable.CurrentTimeFlag;
-import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
-import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
-import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -22,6 +13,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import edu.sc.seis.fissuresUtil.display.borders.DistanceBorder;
+import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
+import edu.sc.seis.fissuresUtil.display.drawable.CurrentTimeFlag;
+import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
+import edu.sc.seis.fissuresUtil.display.registrar.BasicLayoutConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.LayoutConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.LayoutData;
+import edu.sc.seis.fissuresUtil.display.registrar.LayoutEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.LayoutListener;
+import edu.sc.seis.fissuresUtil.display.registrar.LayoutScaler;
+import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.RelativeTimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class RecordSectionDisplay extends SeismogramDisplay implements TimeListener, AmpListener, LayoutListener{
     public RecordSectionDisplay(){

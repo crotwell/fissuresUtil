@@ -1,7 +1,14 @@
 package edu.sc.seis.fissuresUtil.xml;
 
-import java.util.*;
-
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.log4j.Category;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -9,8 +16,6 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.LocalDataCenterCallBack;
-import java.lang.ref.SoftReference;
-import org.apache.log4j.Category;
 
 /**
  * DataSetSeismogram.java

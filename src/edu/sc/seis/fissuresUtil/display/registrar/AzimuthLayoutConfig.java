@@ -9,8 +9,6 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AzimuthLayoutConfig extends BasicLayoutConfig{
     public void add(DataSetSeismogram[] seismos){

@@ -6,7 +6,10 @@
 
 package edu.sc.seis.fissuresUtil.cache;
 
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.Dimension;
+import edu.iris.Fissures.NotImplemented;
+import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfPlottable.PlottableDC;
@@ -14,10 +17,7 @@ import edu.iris.Fissures.IfPlottable.PlottableDCOperations;
 import edu.iris.Fissures.IfPlottable.PlottableNotAvailable;
 import edu.iris.Fissures.IfPlottable.UnsupportedDimension;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.NotImplemented;
-import edu.iris.Fissures.Plottable;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
-import org.apache.log4j.Logger;
 
 public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
 

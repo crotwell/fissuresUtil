@@ -6,18 +6,6 @@
 
 package edu.sc.seis.fissuresUtil.xml;
 
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
-import edu.iris.Fissures.Time;
-import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.bag.Statistics;
-import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
-import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
-import edu.sc.seis.fissuresUtil.freq.Cmplx;
-import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +14,19 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.bag.Statistics;
+import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.freq.Cmplx;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 
 public class FilteredDataSetSeismogram extends DataSetSeismogram implements SeismogramContainerListener{
 

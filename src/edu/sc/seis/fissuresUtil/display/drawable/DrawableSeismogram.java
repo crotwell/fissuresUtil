@@ -1,13 +1,4 @@
 package edu.sc.seis.fissuresUtil.display.drawable;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.NamedColor;
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplayListener;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
@@ -17,6 +8,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.NamedColor;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.SeismogramDisplayListener;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListener {
     public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis, Color color) {

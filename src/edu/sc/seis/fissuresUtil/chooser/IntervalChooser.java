@@ -1,12 +1,15 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.util.*;
-import java.lang.*;
-import edu.iris.Fissures.model.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.Date;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 
 /**
  * IntervalChooser.java

@@ -1,10 +1,13 @@
 package edu.sc.seis.fissuresUtil.database;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-
-import org.hsqldb.*;
-import org.apache.log4j.*;
+import org.apache.log4j.Category;
 
 /**
  * DataSetDb.java

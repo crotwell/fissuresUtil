@@ -1,17 +1,4 @@
 package edu.sc.seis.fissuresUtil.display;
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
-import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
-import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.IfNetwork.Channel;
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.Station;
-import edu.sc.seis.TauP.SphericalCoords;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
-import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
-import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
-import edu.sc.seis.fissuresUtil.freq.NamedFilter;
-import edu.sc.seis.fissuresUtil.xml.DataSet;
-import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -28,6 +15,19 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.Border;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.sc.seis.TauP.SphericalCoords;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.freq.NamedFilter;
+import edu.sc.seis.fissuresUtil.xml.DataSet;
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 
 /**

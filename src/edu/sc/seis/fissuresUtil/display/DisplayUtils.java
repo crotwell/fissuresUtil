@@ -1,14 +1,28 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.util.*;
-
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.Stroke;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.JComponent;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.Location;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -17,22 +31,12 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
-import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableFilteredSeismogram;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
 import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.Stroke;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
-import javax.swing.JComponent;
-import org.apache.log4j.Logger;
 /**
  * DisplayUtils.java
  *

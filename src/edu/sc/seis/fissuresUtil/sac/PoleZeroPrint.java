@@ -1,11 +1,20 @@
 package edu.sc.seis.fissuresUtil.sac;
 
-import edu.iris.Fissures.IfNetwork.*;
-
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.ComplexNumberErrored;
+import edu.iris.Fissures.IfNetwork.Filter;
+import edu.iris.Fissures.IfNetwork.FilterType;
+import edu.iris.Fissures.IfNetwork.Instrumentation;
+import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.PoleZeroFilter;
+import edu.iris.Fissures.IfNetwork.Response;
+import edu.iris.Fissures.IfNetwork.Stage;
+import edu.iris.Fissures.IfNetwork.TransferType;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.TextTable;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import java.text.DecimalFormat;
 
 public class PoleZeroPrint {
 	

@@ -6,7 +6,12 @@
 
 package edu.sc.seis.fissuresUtil.mseed;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import org.apache.log4j.Logger;
 
 public class MultiFileMSeedRead extends MiniSeedRead {
