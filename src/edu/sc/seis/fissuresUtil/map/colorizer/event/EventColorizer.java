@@ -6,12 +6,9 @@
 
 package edu.sc.seis.fissuresUtil.map.colorizer.event;
 
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
-import java.awt.Paint;
+import com.bbn.openmap.omGraphics.OMGraphicList;
 
 public interface EventColorizer {
-	
-	public Paint[] colorize(EventAccessOperations[] events);
-
+    public void colorize(OMGraphicList events);
 }
 
