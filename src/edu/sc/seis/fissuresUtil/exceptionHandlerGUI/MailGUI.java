@@ -65,7 +65,7 @@ public class MailGUI {
 		    if(from == null) from = "";
 		    fissuresMailService.setContent(textArea.getText());
 		    fissuresMailService.setSender(from);
-		    fissuresMailService.addRecipient("telukutl@seis.sc.edu");
+		    fissuresMailService.addRecipient("crotwell@seis.sc.edu");
 		    fissuresMailService.setSubject("Bug in VSNEXPLORER");
 		    for(int counter = 0; counter < arrayList.size(); counter++) {
 			fissuresMailService.addAttachment((String)arrayList.get(counter));
