@@ -24,7 +24,7 @@ import edu.sc.seis.fissuresUtil.cache.*;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 9681 2004-07-20 20:19:12Z groves $
+ * @version $Id: ChannelChooser.java 9711 2004-07-21 19:16:40Z crotwell $
  *
  */
 
@@ -1146,7 +1146,7 @@ public void run() {
                 for (int i = 0; i < nets.length; i++) {
                     // skip null networks...probably a bug on the server
                     if (nets[i] != null) {
-                        NetworkAccess net = BulletproofVestFactory.networkAccessVest(nets[i],
+                        NetworkAccess net = BulletproofVestFactory.vestNetworkAccess(nets[i],
                                                                                  netdc);
                         NetworkAttr attr = net.get_attributes();
                         networkAdd(net);
@@ -1185,7 +1185,7 @@ public void run() {
                         for (int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if (nets[subCounter] != null) {
                                 // preload attributes
-                                NetworkAccess net = BulletproofVestFactory.networkAccessVest(nets[subCounter],
+                                NetworkAccess net = BulletproofVestFactory.vestNetworkAccess(nets[subCounter],
                                                                                          netdc);
                                 NetworkAttr attr = net.get_attributes();
 
