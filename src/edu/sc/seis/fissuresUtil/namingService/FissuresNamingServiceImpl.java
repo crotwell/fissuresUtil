@@ -261,7 +261,7 @@ public class FissuresNamingServiceImpl implements FissuresNamingService {
 
     public PlottableDC getPlottableDC(String dns, String objectname)  throws org.omg.CosNaming.NamingContextPackage.NotFound, org.omg.CosNaming.NamingContextPackage.CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
-	PlottableDC plottabledc = PlottableDCHelper.narrow(getPlottableDC(dns, objectname));
+	PlottableDC plottabledc = PlottableDCHelper.narrow(getPlottableDCObject(dns, objectname));
 	return plottabledc;
 
     }
