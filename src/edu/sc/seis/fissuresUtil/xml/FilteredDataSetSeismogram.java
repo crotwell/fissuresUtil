@@ -34,40 +34,57 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
         container.addListener(this);
     }
 
-    public void updateData() {
-        LocalSeismogramImpl[] containedSeis = container.getSeismograms();
-        List alreadyFiltered = new ArrayList();
-        Iterator it = dataMap.keySet().iterator();
-        boolean found = false;
-        while(it.hasNext()){
-            LocalSeismogramImpl current = (LocalSeismogramImpl)it.next();
-            for (int i = 0; i < containedSeis.length && !found; i++){
-                if(current == containedSeis[i]){
-                    found = true;
-                    alreadyFiltered.add(containedSeis[i]);
-                }
-            }
-            if(!found){
-                it.remove();
-            }
+    public synchronized void updateData(){
+        Thread updateThread =  new Thread(new UpdateDataThread(), this.toString());
+        int priority = Thread.currentThread().getPriority() - (1 + activeFilterThreads);
+        if(priority < Thread.MIN_PRIORITY){
+            priority = Thread.MIN_PRIORITY;
         }
-        for (int i = 0; i < containedSeis.length; i++){
-            it = alreadyFiltered.iterator();
-            found = false;
+        updateThread.setPriority(priority);
+        updateThread.start();
+    }
+
+    private static int activeFilterThreads = 0;
+
+    private class UpdateDataThread implements Runnable{
+
+        public void run(){
+            ++activeFilterThreads;
+            LocalSeismogramImpl[] containedSeis = container.getSeismograms();
+            List alreadyFiltered = new ArrayList();
+            Iterator it = dataMap.keySet().iterator();
+            boolean found = false;
             while(it.hasNext()){
-                for (int j = 0; j < containedSeis.length && !found; j++) {
-                    if(containedSeis == it.next()){
+                LocalSeismogramImpl current = (LocalSeismogramImpl)it.next();
+                for (int i = 0; i < containedSeis.length && !found; i++){
+                    if(current == containedSeis[i]){
                         found = true;
+                        alreadyFiltered.add(containedSeis[i]);
                     }
                 }
+                if(!found){
+                    it.remove();
+                }
             }
-            if(!found){
-                dataMap.put(containedSeis[i], filterData(containedSeis[i],
-                                                         filter));
+            for (int i = 0; i < containedSeis.length; i++){
+                it = alreadyFiltered.iterator();
+                found = false;
+                while(it.hasNext()){
+                    for (int j = 0; j < containedSeis.length && !found; j++) {
+                        if(containedSeis == it.next()){
+                            found = true;
+                        }
+                    }
+                }
+                if(!found){
+                    dataMap.put(containedSeis[i], filterData(containedSeis[i],
+                                                             filter));
+                }
             }
-        }
-        if((containedSeis.length - alreadyFiltered.size()) > 0){
-            pushData(getFilteredSeismograms(), null);
+            if((containedSeis.length - alreadyFiltered.size()) > 0){
+                pushData(getFilteredSeismograms(), null);
+            }
+            --activeFilterThreads;
         }
     }
 
@@ -115,12 +132,6 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
         return (LocalSeismogramImpl[])filteredSeis.toArray(new LocalSeismogramImpl[filteredSeis.size()]);
     }
 
-    /**
-     * Method retrieveData
-     *
-     * @param    dataListener        a  SeisDataChangeListener
-     *
-     */
     public void retrieveData(SeisDataChangeListener dataListener) {
         pushData(getFilteredSeismograms(), dataListener);
     }
@@ -172,5 +183,4 @@ public class FilteredDataSetSeismogram extends DataSetSeismogram implements Seis
     private SeismogramContainer container;
 
     private Map dataMap = new HashMap();
-
 }
