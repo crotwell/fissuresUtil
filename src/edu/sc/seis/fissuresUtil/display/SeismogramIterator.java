@@ -24,6 +24,7 @@ import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.time.RangeTool;
+import edu.sc.seis.fissuresUtil.time.ReduceTool;
 import edu.sc.seis.fissuresUtil.time.SortTool;
 
 /** Takes an array of LocalSeismograms and iterates through them, point by point
@@ -38,7 +39,8 @@ public class SeismogramIterator implements Iterator{
                               MicroSecondTimeRange timeRange){
         this.name = name;
         if(seismograms.length > 0){
-            LocalSeismogramImpl[] seis = this.seismograms = SortTool.sortByDate(seismograms);
+            seismograms = ReduceTool.removeContained(seismograms);
+            LocalSeismogramImpl[] seis = this.seismograms = SortTool.byBeginTimeAscending(seismograms);
             MicroSecondDate startTime = seis[0].getBeginTime();
             MicroSecondDate endTime = seis[seis.length - 1].getEndTime();
             TimeInterval samplingInterval = seis[0].getSampling().getPeriod();
