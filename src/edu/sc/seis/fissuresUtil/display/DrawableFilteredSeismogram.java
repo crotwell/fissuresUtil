@@ -1,11 +1,14 @@
 package edu.sc.seis.fissuresUtil.display;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import javax.swing.JComponent;
 
 public class DrawableFilteredSeismogram extends DrawableSeismogram{
-    public DrawableFilteredSeismogram(DataSetSeismogram seismo,
+    public DrawableFilteredSeismogram(JComponent parent,
+									  DataSetSeismogram seismo,
                                       ColoredFilter filter){
-        super(new FilteredSeismogramShape(filter, seismo),
+        super(parent,
+			  new FilteredSeismogramShape(filter, seismo),
               filter.getColor(),
               seismo.toString());
         setVisibility(filter.getVisibility());
