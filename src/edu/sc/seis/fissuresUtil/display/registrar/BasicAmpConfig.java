@@ -99,8 +99,8 @@ public class BasicAmpConfig implements AmpConfig{
     //TODO make get seis and amp data method so that cached copies of each can be
     //returned in sync
     public AmpConfigData[] getAmpData(){
-        if(dataArray == null){
-            synchronized(ampData){
+        synchronized(ampData){
+            if(dataArray == null){
                 dataArray = new AmpConfigData[ampData.size()];
                 Iterator it = ampData.iterator();
                 int i = 0;
@@ -109,8 +109,8 @@ public class BasicAmpConfig implements AmpConfig{
                     i++;
                 }
             }
+            return dataArray;
         }
-        return dataArray;
     }
 
     public AmpConfigData getAmpData(DataSetSeismogram seis){
