@@ -10,6 +10,7 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -30,6 +31,7 @@ import java.awt.Insets;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.text.SimpleDateFormat;
 import javax.swing.JComponent;
 /**
  * DisplayUtils.java
@@ -484,6 +486,75 @@ public class DisplayUtils {
         }
         return null;
     }
+    
+    /**
+     *@ returns a string for the form "Event: Location | Time | Magnitude | Depth"
+     */
+    public static String getEventInfo(EventAccessOperations event){
+        return getEventInfo(event, NO_ARG_STRING);
+    }
+    
+    /**
+     *@ formats a string for the given event.  To insert information about a
+     * certain item magic strings are used in the format string
+     * Magic Strings
+     * LOC adds the location of the event
+     * TIME adds the event time
+     * MAG adds event magnitude
+     * DEPTH adds the depth
+     *
+     *For example the string
+     *"Event: " + LOC + " | " + TIME + " | " + MAG + " | " + DEPTH
+     *produces the same thing as the no format call to getEventInfo
+     */
+    public static String getEventInfo(EventAccessOperations event, String format){
+        //Get geographic name of origin
+        ParseRegions regions = new ParseRegions();
+        String location = regions.getGeographicRegionName(event.get_attributes().region.number);
+        
+        //Get Date and format it accordingly
+        Origin origin;
+        try{
+            origin = event.get_preferred_origin();
+        }catch(NoPreferredOrigin e){
+            origin = event.get_origins()[0];
+        }
+        MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String originTimeString = sdf.format(msd);
+        
+        //Get Magnitude
+        float mag = origin.magnitudes[0].value;
+        
+        //get depth
+        
+        Quantity depth = origin.my_location.depth;
+        
+        StringBuffer buf = new StringBuffer(format);
+        for (int i = 0; i < magicStrings.length; i++) {
+            int index = buf.indexOf(magicStrings[i]);
+            if(index != -1){
+                buf.delete(index, index + magicStrings[i].length());
+                if(magicStrings[i].equals(LOC)){
+                    buf.insert(index, location);
+                }else if(magicStrings[i].equals(TIME)){
+                    buf.insert(index, originTimeString);
+                }else if(magicStrings[i].equals(MAG)){
+                    buf.insert(index, "Mag " + mag);
+                }else if(magicStrings[i].equals(DEPTH)){
+                    buf.insert(index, "Depth " + depth.value + " " + UnitDisplayUtil.getNameForUnit((UnitImpl)depth.the_units));
+                }
+            }
+        }
+        return buf.toString();
+    }
+    
+    public static final String LOC = "loc", TIME = "time", MAG = "mag", DEPTH = "depth";
+    
+    private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH};
+    
+    private static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME + " | " + MAG + " | " + DEPTH;
     
     public static final String UP = "Up";
     

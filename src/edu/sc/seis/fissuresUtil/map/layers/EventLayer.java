@@ -10,8 +10,6 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.Quantity;
-import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
@@ -24,12 +22,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TimeZone;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
@@ -181,7 +176,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                     it = eventsUnderMouse.iterator();
                     while (it.hasNext()){
                         final EventAccessOperations current = (EventAccessOperations)it.next();
-                        final JMenuItem menuItem = new JMenuItem(getEventInfo(current));
+                        final JMenuItem menuItem = new JMenuItem(DisplayUtils.getEventInfo(current));
                         menuItem.addActionListener(new ActionListener(){
                                     public void actionPerformed(ActionEvent e) {
                                         int rowToSelect = tableModel.getRowForEvent(current);
@@ -226,7 +221,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
                 try{
                     if(current.getBigCircle().contains(e.getX(), e.getY())){
                         EventAccessOperations event = current.getEvent();
-                        fireRequestInfoLine(getEventInfo(event));
+                        fireRequestInfoLine(DisplayUtils.getEventInfo(event));
                         return true;
                     }
                 }
@@ -236,75 +231,6 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         //fireRequestInfoLine(" ");
         return false;
     }
-    
-    /**
-     *@ returns a string for the form "Event: Location | Time | Magnitude | Depth"
-     */
-    public static String getEventInfo(EventAccessOperations event){
-        return getEventInfo(event, NO_ARG_STRING);
-    }
-    
-    public static final String LOC = "loc", TIME = "time", MAG = "mag", DEPTH = "depth";
-    
-    /**
-     *@ formats a string for the given event.  To insert information about a
-     * certain item magic strings are used in the format string
-     * Magic Strings
-     * LOC adds the location of the event
-     * TIME adds the event time
-     * MAG adds event magnitude
-     * DEPTH adds the depth
-     *
-     *For example the string
-     *"Event: " + LOC + " | " + TIME + " | " + MAG + " | " + DEPTH
-     *produces the same thing as the no format call to getEventInfo
-     */
-    public static String getEventInfo(EventAccessOperations event, String format){
-        //Get geographic name of origin
-        ParseRegions regions = new ParseRegions();
-        String location = regions.getGeographicRegionName(event.get_attributes().region.number);
-        
-        //Get Date and format it accordingly
-        Origin origin;
-        try{
-            origin = event.get_preferred_origin();
-        }catch(NoPreferredOrigin e){
-            origin = event.get_origins()[0];
-        }
-        MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        String originTimeString = sdf.format(msd);
-        
-        //Get Magnitude
-        float mag = origin.magnitudes[0].value;
-        
-        //get depth
-        
-        Quantity depth = origin.my_location.depth;
-        
-        StringBuffer buf = new StringBuffer(format);
-        for (int i = 0; i < magicStrings.length; i++) {
-            int index = buf.indexOf(magicStrings[i]);
-            if(index != -1){
-                buf.delete(index, index + magicStrings[i].length());
-                if(magicStrings[i].equals(LOC)){
-                    buf.insert(index, location);
-                }else if(magicStrings[i].equals(TIME)){
-                    buf.insert(index, originTimeString);
-                }else if(magicStrings[i].equals(MAG)){
-                    buf.insert(index, "Mag " + mag);
-                }else if(magicStrings[i].equals(DEPTH)){
-                    buf.insert(index, "Depth " + depth.value + " " + UnitDisplayUtil.getNameForUnit((UnitImpl)depth.the_units));
-                }
-            }
-        }
-        return buf.toString();
-    }
-    
-    private static final String[] magicStrings = { LOC, TIME, MAG, DEPTH};
-    
-    private static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME + " | " + MAG + " | " + DEPTH;
     
     private class OMEvent extends OMGraphicList{
         public OMEvent(EventAccessOperations eao) throws NoPreferredOrigin{

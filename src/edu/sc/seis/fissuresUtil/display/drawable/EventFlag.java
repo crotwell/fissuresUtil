@@ -9,6 +9,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.map.layers.EventLayer;
@@ -203,7 +204,7 @@ public class EventFlag{
     
     public String getTitle(){
         if(eventTitle == null){
-            eventTitle = EventLayer.getEventInfo(eventAccess, "loc | mag | depth | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
+            eventTitle = DisplayUtils.getEventInfo(eventAccess, DisplayUtils.LOC + " | " + DisplayUtils.MAG + " | "  + DisplayUtils.DEPTH + " | Distance ") + FORMATTER.format(arrivals[0].getDistDeg()) + " Degrees";
         }
         return eventTitle;
     }
