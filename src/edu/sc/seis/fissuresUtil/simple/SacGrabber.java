@@ -9,7 +9,6 @@ package edu.sc.seis.fissuresUtil.simple;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -20,6 +19,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.fissuresUtil.cache.BulletproofVestFactory;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
 import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
@@ -33,10 +33,12 @@ public class SacGrabber {
 
     public SacGrabber() throws org.omg.CORBA.ORBPackage.InvalidName, CannotProceed, InvalidName, NotFound, InvalidName, CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName, NotFound {
         seisDC = new DataCenterOperations[2];
-        seisDC[0] = Initializer.getNS().getSeismogramDC("edu/iris/dmc",
-                                                        "IRIS_BudDataCenter");
-        seisDC[1] = Initializer.getNS().getSeismogramDC("edu/iris/dmc",
-                                                        "IRIS_PondDataCenter");
+        seisDC[0] = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
+                                                            "IRIS_BudDataCenter",
+                                                            Initializer.getNS());
+        seisDC[1] = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
+                                                            "IRIS_PondDataCenter",
+                                                            Initializer.getNS());
     }
 
     public int grab(String net, String station, String site, String chan, String beginTime, int seconds) throws FissuresException, CodecException, IOException {
