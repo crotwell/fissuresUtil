@@ -16,9 +16,9 @@ import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import org.apache.log4j.Logger;
 
 public class UnitDisplayUtil {
-    
+
     public static final String mu = "\u03BC";
-    
+
     public static QuantityImpl getBestForDisplay(QuantityImpl quantity) {
         UnitRangeImpl inRange = new UnitRangeImpl(quantity.getValue(),
                                                   quantity.getValue(),
@@ -26,11 +26,11 @@ public class UnitDisplayUtil {
         inRange = getBestForDisplay(inRange);
         return new QuantityImpl(inRange.getMinValue(), inRange.getUnit());
     }
-    
+
     public static UnitRangeImpl getBestForDisplay(UnitRangeImpl inRange) {
         // just in case we don't have a case for this unit
         UnitRangeImpl outRange = inRange;
-        
+
         if (inRange.getUnit().isConvertableTo(UnitImpl.METER_PER_SECOND)) {
             // velocity
             inRange = inRange.convertTo(UnitImpl.METER_PER_SECOND);
@@ -86,7 +86,7 @@ public class UnitDisplayUtil {
         }
         return outRange;
     }
-    
+
     /** calculates a new UnitRangeImpl using the response of the given seismogram.
      If seis does not have a response, then the input amp is used. */
     public static UnitRangeImpl getRealWorldUnitRange(UnitRangeImpl ur, DataSetSeismogram seismo) {
@@ -104,10 +104,10 @@ public class UnitDisplayUtil {
         UnitRangeImpl out = new UnitRangeImpl(ur.getMinValue()/sensitivity,
                                               ur.getMaxValue()/sensitivity,
                                               realWorldUnit);
-        
+
         return getBestForDisplay(out);
     }
-    
+
     /** tries to come up with better names for some standard units than the
      auto-generated versions. */
     public static String getNameForUnit(UnitImpl unit) {
@@ -121,6 +121,9 @@ public class UnitDisplayUtil {
         if (unit.equals(UnitImpl.MILLIMETER_PER_SECOND)) {
             return "mm/s";
         }
+        if (unit.equals(UnitImpl.NANOMETER_PER_SECOND)) {
+            return "nm/s";
+        }
         if (unit.equals(UnitImpl.KILOMETER)){
             return "km";
         }
@@ -133,6 +136,9 @@ public class UnitDisplayUtil {
         if (unit.equals(UnitImpl.MICROMETER)) {
             return "micrometer";
         }
+        if (unit.equals(UnitImpl.NANOMETER)) {
+            return "nanometer";
+        }
         if (unit.equals(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
             return "m/s/s";
         }
@@ -140,7 +146,10 @@ public class UnitDisplayUtil {
             return "mm/s/s";
         }
         if (unit.equals(UnitImpl.MICROMETER_PER_SECOND_PER_SECOND)) {
-            return "micrometer/s/s";
+            return "microns/s/s";
+        }
+        if (unit.equals(UnitImpl.NANOMETER_PER_SECOND_PER_SECOND)) {
+            return "nm/s/s";
         }
         if(unit.equals(UnitImpl.COUNT)){
             return "COUNTS";
@@ -149,9 +158,9 @@ public class UnitDisplayUtil {
         //logger.debug("not a unit we have a friendly name for"+unit.toString());
         return unit.toString();
     }
-    
+
     static Logger logger = Logger.getLogger(UnitDisplayUtil.class);
-    
+
 }
 
 
