@@ -247,7 +247,7 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 		logger.debug("The **** seismogram name is "+ChannelIdUtil.toStringNoDates(channelGroup[counter]));
 		
 		seismograms[counter] = new DataSetSeismogram(hseis.getDataSet().
-							     getSeismogram(getSeismogramName(channelGroup[counter], 
+							     getSeismogram(DisplayUtils.getSeismogramName(channelGroup[counter], 
 											     hseis.getDataSet(),
 											     new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), seis.getEndTime().getFissuresTime()))), hseis.getDataSet());
 		//ChannelIdUtil.toStringNoDates(channelGroup[counter]));
@@ -423,10 +423,10 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	System.out.println("end Time is "+new MicroSecondDate(endTime));
 	try {
 	    for(int counter = 0; counter < channelGroup.length; counter++) {
-		
-		seismograms[counter] = new DataSetSeismogram(hseis.getDataSet().getSeismogram(getSeismogramName(channelGroup[counter], hseis.getDataSet(), new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), seis.getEndTime().getFissuresTime()))),
-							     hseis.getDataSet());
-							     //ChannelIdUtil.toStringNoDates(channelGroup[counter]));
+		String name = DisplayUtils.getSeismogramName(channelGroup[counter], hseis.getDataSet(), 
+							     new edu.iris.Fissures.TimeRange(seis.getBeginTime().getFissuresTime(), 
+											     seis.getEndTime().getFissuresTime()));
+		seismograms[counter] = new DataSetSeismogram(hseis.getDataSet().getSeismogram(name), hseis.getDataSet());
 		timeConfigRegistrar.addSeismogram(seismograms[counter]);
 		//hAmpRangeConfigRegistrar.addSeismogram(seismograms
 		if(seismograms[counter] == null) 
@@ -609,35 +609,6 @@ public class ParticleMotionDisplay extends JPanel implements AmpSyncListener, Ti
 	}
 
 	
-    }
-
-    public String getSeismogramName(ChannelId channelId,
-				    edu.sc.seis.fissuresUtil.xml.DataSet dataset,
-				    edu.iris.Fissures.TimeRange timeRange) {
-	Channel channel = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getChannel(channelId);
-	SeismogramAttr[] seismogramAttrs = ((edu.sc.seis.fissuresUtil.xml.XMLDataSet)dataset).getSeismogramAttrs();
-	MicroSecondDate startDate = new MicroSecondDate(timeRange.start_time);
-	MicroSecondDate endDate = new MicroSecondDate(timeRange.end_time);
-	logger.debug("the microSecond  startDate is "+startDate);
-	logger.debug("the microSecond endDate is "+endDate);
-	for(int counter = 0; counter < seismogramAttrs.length; counter++) {
-	    if(ChannelIdUtil.toString(channelId).equals(
-							ChannelIdUtil.toString(
-					  ((SeismogramAttrImpl)seismogramAttrs[counter]).getChannelID()))) {
-		logger.debug("seismogram start Date is "+((SeismogramAttrImpl)seismogramAttrs[counter]).getBeginTime());
-	       	logger.debug("seismogram end Date is "+((SeismogramAttrImpl)seismogramAttrs[counter]).getEndTime());
-		
-		if((((SeismogramAttrImpl)seismogramAttrs[counter]).getBeginTime().equals(startDate) ||
-		    ((SeismogramAttrImpl)seismogramAttrs[counter]).getBeginTime().before(startDate))){/* &&
-		   (((SeismogramAttrImpl)seismogramAttrs[counter]).getEndTime().equals(endDate) ||
-		   ((SeismogramAttrImpl)seismogramAttrs[counter]).getEndTime().after(endDate))) {*/
-		    logger.debug("******* The Name returned is **** "+((SeismogramAttrImpl)seismogramAttrs[counter]).getName());
-		    return ((SeismogramAttrImpl)seismogramAttrs[counter]).getName();
-		}
-	    }
-	}
-	logger.debug("******* The Name returned is **** NULL");
-	return null;
     }
 
     /**

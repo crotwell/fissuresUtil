@@ -162,7 +162,10 @@ public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarA
     
     public LinkedList getSelections(){ return selections; }
 
-    public void addSelection(Selection newSelection){ selections.add(newSelection); }
+    public void addSelection(Selection newSelection){ 
+	if(!selections.contains(newSelection))
+	    selections.add(newSelection);
+    }
     
     public void removeSelection(Selection oldSelection){ selections.remove(oldSelection); }
 
