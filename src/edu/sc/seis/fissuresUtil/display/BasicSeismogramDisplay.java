@@ -217,7 +217,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 								    current.getMicroSecondTime()));
 	MicroSecondDate selectionEnd = new MicroSecondDate((long)(imagePainter.displayInterval.getValue() * x2percent + 
 								  current.getMicroSecondTime()));
-	if(currentSelection == null){
+	if(currentSelection == null || !selections.contains(currentSelection)){
 	    Iterator e = selections.iterator();
 	    while(e.hasNext()){
 		Selection curr = ((Selection)e.next());
@@ -236,17 +236,20 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     	repaint();
     }
 
-    public void releaseCurrentSelection(){
+    public Selection releaseCurrentSelection(){
 	if(currentSelection != null && currentSelection.remove()){
 	    selections.remove(currentSelection);
 	    repaint();
+	    previousSelection = currentSelection;
+	    currentSelection = null;
+	    return previousSelection;
 	}
-	currentSelection = null;
+	return null;
     }
 
     public Selection getCurrentSelection(){ return currentSelection; }
     
-    protected Selection currentSelection; 
+    protected Selection currentSelection, previousSelection; 
     
     protected LinkedList selections = new LinkedList();
     
