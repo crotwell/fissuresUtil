@@ -86,7 +86,7 @@ public class DCDataSetSeismogram
         }
     }
     
-    private static boolean intersects(RequestFilter rf, LocalSeismogramImpl seis){
+    public static boolean intersects(RequestFilter rf, LocalSeismogramImpl seis){
         MicroSecondDate rfBegin = new MicroSecondDate(rf.start_time);
         MicroSecondDate rfEnd = new MicroSecondDate(rf.end_time);
         if((seis.getBeginTime().before(rfEnd) && seis.getEndTime().after(rfBegin)) ||
