@@ -38,7 +38,7 @@ public class PSNEventInfo {
         }
 
         dis.readFully(fourBytes);
-        otherMagType = new String(fourBytes);
+        otherMagType = new String(PSNDataFile.chopToLength(fourBytes));
 
         eventType = dis.readByte();
 
@@ -46,7 +46,7 @@ public class PSNEventInfo {
         flags = SacTimeSeries.swapBytes((short)dis.readUnsignedShort());
 
         dis.readFully(sixBytes);
-        reportingAgency = new String(sixBytes);
+        reportingAgency = new String(PSNDataFile.chopToLength(sixBytes));
     }
 
     public PSNDateTime getTime() {

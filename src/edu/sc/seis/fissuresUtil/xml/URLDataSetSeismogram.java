@@ -67,6 +67,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         super(dataset, name, requestFilter);
         this.url = url;
         this.fileType = fileType;
+
     }
 
     public URLDataSetSeismogram (URL url, SeismogramFileTypes fileType, DataSet dataset){
@@ -237,7 +238,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     }
 
     public static File saveAsSac(LocalSeismogramImpl seis,
-                                File directory)
+                                 File directory)
         throws IOException, CodecException {
         try {
             return saveAsSac(seis, directory, null, null);
@@ -248,9 +249,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     }
 
     public static File saveAsSac(LocalSeismogramImpl seis,
-                                File directory,
-                                Channel channel,
-                                EventAccessOperations event)
+                                 File directory,
+                                 Channel channel,
+                                 EventAccessOperations event)
         throws IOException, NoPreferredOrigin, CodecException {
 
         SacTimeSeries sac;
@@ -326,15 +327,14 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
 
         LocalSeismogramImpl seis;
 
-        String fileName = seisurl.getFile();
-        if (fileName.substring(fileName.length() - 3, fileName.length()).equals("psn")){
-            PSNDataFile psnData = new PSNDataFile(fileName);
-            seis = PSNToFissures.getSeismograms(psnData)[0];
+        if (isPSN()){
+            psnDataFile = new PSNDataFile(seisurl.getFile());
+            seis = PSNToFissures.getSeismograms(psnDataFile)[0];
         }
         else{
-            SacTimeSeries sac = new SacTimeSeries();
-            sac.read(new DataInputStream(new BufferedInputStream(seisurl.openStream())));
-            seis = SacToFissures.getSeismogram(sac);
+            sacTime = new SacTimeSeries();
+            sacTime.read(new DataInputStream(new BufferedInputStream(seisurl.openStream())));
+            seis = SacToFissures.getSeismogram(sacTime);
         }
 
         // set channel id correctly if extra info stored in Aux data
@@ -349,6 +349,14 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
 
         addToCache(seisurl, seis);
         return seis;
+    }
+
+    public boolean isSac(){
+        return fileType.equals(SeismogramFileTypes.SAC);
+    }
+
+    public boolean isPSN(){
+        return fileType.equals(SeismogramFileTypes.PSN);
     }
 
     public void addToCache(URL seisurl, LocalSeismogramImpl seis) {
@@ -442,6 +450,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     private URL[] url;
 
     private SeismogramFileTypes fileType;
+
+    private SacTimeSeries sacTime;
+
+    private PSNDataFile psnDataFile;
 
     /** Uses SoftReferences, this allows a map from URL to LocalSeismogram, but
      does not prevent garbage collection. */
