@@ -28,7 +28,7 @@ import org.apache.log4j.Category;
  *
  */
 
-public class BasicSeismogramDisplay extends JComponent implements ConfigListener{
+public class BasicSeismogramDisplay extends SeismogramDisplay implements ConfigListener{
 
     public BasicSeismogramDisplay(DataSetSeismogram[] seismos, VerticalSeismogramDisplay parent)throws IllegalArgumentException{
         this(seismos, new BasicTimeConfig(seismos), new RMeanAmpConfig(seismos), parent);
@@ -89,6 +89,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         add(plotPainter);
         timeAmpLabel = new TimeAmpPlotter(this);
         plotters.add(timeAmpLabel);
+        addMouseMotionListener(SeismogramDisplay.getMouseMotionForwarder());
+        addMouseListener(SeismogramDisplay.getMouseForwarder());
     }
 
     public void add(DataSetSeismogram[] seismos){
@@ -143,12 +145,24 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         registrar.reset();
     }
 
+    public void reset(DataSetSeismogram[] seismograms){
+        registrar.reset(seismograms);
+    }
+
     public Arrival[] getArrivals(){
         return arrivals;
     }
 
-    public void addCurrentTimeFlag(){
-        plotters.addLast(new CurrentTimeFlagPlotter());
+    public void setCurrentTimeFlag(boolean visible){
+        if(visible){
+            if(!currentTimeFlag){
+                plotters.addLast(new CurrentTimeFlagPlotter());
+            }
+        }else{
+            PlotterIterator it = new PlotterIterator(CurrentTimeFlagPlotter.class);
+            it.clear();
+        }
+        currentTimeFlag = visible;
     }
 
     public void removeAllFlags(){
@@ -181,6 +195,14 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         return seismogramNames;
     }
 
+    public void setRegistrar(Registrar registrar){
+        registrar.add(getSeismograms());
+        this.registrar.removeListener(this);
+        this.registrar.remove(getSeismograms());
+        this.registrar = registrar;
+        registrar.addListener(this);
+    }
+
     public Registrar getRegistrar(){ return registrar; }
 
     public void updateAmp(AmpEvent event){
@@ -188,10 +210,18 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         repaint();
     }
 
+    public void setAmpConfig(AmpConfig ac){ registrar.setAmpConfig(ac); }
+
+    public AmpConfig getAmpConfig(){ return registrar.getAmpConfig(); }
+
     public void updateTime(TimeEvent event){
         currentTimeEvent = event;
         repaint();
     }
+
+    public void setTimeConfig(TimeConfig tc){ registrar.setTimeConfig(tc); }
+
+    public TimeConfig getTimeConfig(){ return registrar.getTimeConfig(); }
 
     public MicroSecondTimeRange getTime(){
         return currentTimeEvent.getTime();
@@ -375,6 +405,10 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         return false;
     }
 
+    public void clear(){
+        remove();
+    }
+
     public void remove(DataSetSeismogram[] seismos){
         for(int i = 0; i < seismos.length; i++){
             if(seismograms.contains(seismos[i])){
@@ -403,7 +437,7 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
         registrar.remove(getSeismograms());
     }
 
-    public void setUnfilteredDisplay(boolean visible){
+    public void setOriginalVisibility(boolean visible){
         Iterator e = new PlotterIterator(DrawableSeismogram.class);
         LinkedList seismoList = new java.util.LinkedList();
         List drawableList = new ArrayList();
@@ -551,7 +585,6 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
 
     }
 
-
     private static Set globalFilters = new HashSet();
 
     public static Font monospaced = new Font("Monospaced", Font.PLAIN, 12);
@@ -591,6 +624,8 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     private Arrival[] arrivals;
 
     private TimeAmpPlotter timeAmpLabel;
+
+    private boolean currentTimeFlag = false;
 
     private static Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
 
