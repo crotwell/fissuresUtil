@@ -33,7 +33,7 @@ public interface GlobalToolbarActions {
 
     public void createParticleDisplay(MouseEvent me);
 
-    public void selectionReleased(MouseEvent me);
+    // public void selectionReleased(MouseEvent me);
 
     public void clearSelections();
 }// GlobalToolbarActions
