@@ -13,16 +13,19 @@ public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
 
     public void setUp() throws Exception{
         super.setUp();
-        iterator = new SeismogramIterator(DisplayUtilsTest.createThreeSeisArray());
+        iterator = new SeismogramIterator(TEST_ITERATOR,
+                                          DisplayUtilsTest.createThreeSeisArray());
     }
 
 
     protected Object createInstance() throws Exception {
-        return new SeismogramIterator(DisplayUtilsTest.createThreeSeisArray());
+        return new SeismogramIterator(TEST_ITERATOR,
+                                      DisplayUtilsTest.createThreeSeisArray());
     }
 
     protected Object createNotEqualInstance() throws Exception {
-        return new SeismogramIterator(DisplayUtilsTest.createOtherSeisArray());
+        return new SeismogramIterator(TEST_ITERATOR,
+                                      DisplayUtilsTest.createOtherSeisArray());
     }
 
     public void testHasNext(){
@@ -56,7 +59,8 @@ public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
         double gapPoints = difference.divideBy(sampling).getValue();
         int gapSize = (int)gapPoints;
         LocalSeismogramImpl[] gappySeismograms = {one, two};
-        SeismogramIterator gappyIterator = new SeismogramIterator(gappySeismograms);
+        SeismogramIterator gappyIterator = new SeismogramIterator(TEST_ITERATOR,
+                                                                  gappySeismograms);
         while(gappyIterator.hasNext()){
             Object next = gappyIterator.next();
             if(next == SeismogramIterator.NOT_A_NUMBER){
@@ -66,6 +70,8 @@ public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
         assertEquals(0,gapSize);
     }
 
+
+    private static final String TEST_ITERATOR = "TEST ITERATOR";
 
     private SeismogramIterator iterator;
 
