@@ -7,8 +7,9 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.fissuresUtil.cache.EventBackgroundLoaderPool;
+import edu.sc.seis.fissuresUtil.cache.EventLoader;
 import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
+import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -26,7 +27,7 @@ import org.apache.log4j.Category;
  * Created: Mon Jan  8 15:59:05 2001
  *
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 7310 2004-02-26 03:34:00Z crotwell $
+ * @version $Id: EventTableModel.java 8849 2004-05-21 16:35:53Z groves $
  */
 
 public class EventTableModel
@@ -40,7 +41,6 @@ public class EventTableModel
     }
 
     public EventTableModel(EventAccessOperations[] events) {
-        loader = EventBackgroundLoaderPool.getLoaderPool();
         updateEvents(events);
         columnNames = new String[9];
         columnNames[LATITUDE] = "Latitude";
@@ -55,8 +55,6 @@ public class EventTableModel
         ///setColumnSizes();
 
     }
-
-    public EventBackgroundLoaderPool getLoader(){ return loader; }
 
     public int getColumnCount() { return 8; }
 
@@ -171,7 +169,8 @@ public class EventTableModel
             }
             backgrounded.put(events[row], cache);
             rowNumber.put(events[row], new Integer(row));
-            loader.getEvent(events[row], cache, this);
+            EventLoader backLoader = new EventLoader(cache, this);
+            WorkerThreadPool.getDefaultPool().invokeLater(backLoader);
             return false;
         } else {
             return true;
@@ -287,8 +286,6 @@ public class EventTableModel
     protected HashMap rowNumber = new HashMap();
 
     protected NumberFormat depthFormat = new DecimalFormat("0.0");
-
-    protected EventBackgroundLoaderPool loader;
 
     protected static final int LATITUDE = 4;
     protected static final int LONGITUDE = 5;
