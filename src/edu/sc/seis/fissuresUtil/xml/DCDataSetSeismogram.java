@@ -8,6 +8,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.database.DBDataCenter;
 import edu.sc.seis.fissuresUtil.database.LocalDataCenterCallBack;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -53,7 +54,7 @@ public class DCDataSetSeismogram
     
     public void retrieveData(SeisDataChangeListener dataListener){
         List existingSeismos = new ArrayList();
-        synchronized(seisCache){
+         synchronized(seisCache){
             Iterator it = seisCache.iterator();
             while(it.hasNext()){
                 LocalSeismogramImpl current = (LocalSeismogramImpl)((SoftReference)it.next()).get();
@@ -72,19 +73,17 @@ public class DCDataSetSeismogram
             cachedSeismos = (LocalSeismogramImpl[])existingSeismos.toArray(cachedSeismos);
             pushData(cachedSeismos, dataListener);
             uncovered = DBDataCenter.notCovered(uncovered, cachedSeismos);
+         }
+        if(this.dataCenterOps instanceof DBDataCenter && uncovered.length > 0) {
+            ((DBDataCenter)this.dataCenterOps).request_seismograms(uncovered,
+                                                                       (LocalDataCenterCallBack)this,
+                                                                   dataListener,
+                                                                   false,
+                                                                   ClockUtil.now().getFissuresTime());
+            
+        } else {
+            finished(dataListener);
         }
-        try{
-            if(this.dataCenterOps instanceof DBDataCenter && uncovered.length > 0) {
-                ((DBDataCenter)this.dataCenterOps).request_seismograms(uncovered,
-                                                                           (LocalDataCenterCallBack)this,
-                                                                       dataListener,
-                                                                       false,
-                                                                       ClockUtil.now().getFissuresTime());
-                
-            } else {
-                finished(dataListener);
-            }
-        } catch(FissuresException fe) {}
     }
     
     private static boolean intersects(RequestFilter rf, LocalSeismogramImpl seis){
