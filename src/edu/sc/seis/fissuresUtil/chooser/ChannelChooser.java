@@ -22,7 +22,7 @@ import org.apache.log4j.*;
  * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 1589 2002-05-03 18:24:07Z crotwell $
+ * @version $Id: ChannelChooser.java 1615 2002-05-10 16:40:47Z crotwell $
  *
  */
 
@@ -143,7 +143,7 @@ public class ChannelChooser extends JPanel{
 					for (int j=0; j<newStations.length; j++) {
 					    stations.addElement(newStations[j]);
 					    try {
-						sleep(1*1000); 
+						sleep((int)(.1*1000)); 
 					    } catch (InterruptedException e) {
 						
 					    } // end of try-catch
@@ -151,7 +151,7 @@ public class ChannelChooser extends JPanel{
 					}
 					logger.debug("finished adding stations");
 					     try {
-						sleep(1*1000); 
+						sleep((int)(.1*1000)); 
 					    } catch (InterruptedException e) {
 						
 					    } // end of try-catch
@@ -389,8 +389,6 @@ public class ChannelChooser extends JPanel{
         return castSiteArray(siteList.getSelectedValues());
     }
 
-    public static final String[] siteCodeHeuristic = { "00", "  ", "01" };
-
     public Channel[]  getSelectedChannels(){
 	Channel[] inChannels = getChannels();
 	LinkedList outChannels = new LinkedList();
@@ -400,6 +398,7 @@ public class ChannelChooser extends JPanel{
 	// assume only one selected network
 	NetworkAccess[] nets = getSelectedNetworks();
 	NetworkAccess net = nets[0];
+	String[] siteCodeHeuristic = BestChannelUtil.getSiteCodeHeuristic();
 	for (int staNum=0; staNum<selectedStations.length; staNum++) {
 	    Channel[] staChans = 
 		net.retrieve_for_station(selectedStations[staNum].get_id());
@@ -421,10 +420,24 @@ public class ChannelChooser extends JPanel{
 		    // end of if INDIVIDUAL_CHANNELS
 		} else if (orientationList.getSelectedValue().equals("THREE_COMPONENT")) {
 		    for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
-			Channel tmpV = getBestVerticalChannel(staChans, 
-						      (String)selectedChannelCodes[bandNum]);
-			Channel[] tmpH = getBestHorizontalChannels(staChans, 
-							(String)selectedChannelCodes[bandNum]);
+			// selected channel codes in this case are really "band code names"
+			String bandName = (String)selectedChannelCodes[bandNum];
+			String bc = bundle.getString("CODE_"+bandName);
+			Channel[] tmpH = 
+			    BestChannelUtil.getHorizontalChannels(staChans,
+								  bc);
+			Channel tmpV = null;
+			if (tmpH != null && tmpH.length != 0) {
+			    // look for channel with same band, site and gain, 
+			    // but with orientation code Z
+			    tmpV = BestChannelUtil.getChannel(staChans, 
+						  bc,
+						  "Z",
+						  tmpH[0].my_site.get_code(),
+						  tmpH[0].get_code().substring(1,2));
+			     
+			} // end of if (tmpH != null && tmpH.length != 0)
+			
 			if (tmpV != null && 
 			    tmpH != null && 
 			    tmpV.my_site.get_code().equals(tmpH[0].my_site.get_code()) && 
@@ -438,16 +451,21 @@ public class ChannelChooser extends JPanel{
 		    } // end of else
 		} else if (orientationList.getSelectedValue().equals("VERTICAL_ONLY")) {
 		    for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
-			Channel tmp = getBestVerticalChannel(staChans, 
-						      (String)selectedChannelCodes[bandNum]);
+			String bandName = (String)selectedChannelCodes[bandNum];
+			String bc = bundle.getString("CODE_"+bandName);
+			Channel tmp = BestChannelUtil.getVerticalChannel(staChans, 
+									 bc);
 			if (tmp != null) {
 			    outChannels.add(tmp);
 			} // end of if (tmp != null)
 		    }
 		} else if (orientationList.getSelectedValue().equals("HORIZONTAL_ONLY")) {
 		    for (int bandNum=0; bandNum<selectedChannelCodes.length; bandNum++) {
-			Channel[] tmp = getBestHorizontalChannels(staChans, 
-							(String)selectedChannelCodes[bandNum]);
+			String bandName = (String)selectedChannelCodes[bandNum];
+			String bc = bundle.getString("CODE_"+bandName);
+			Channel[] tmp = 
+			    BestChannelUtil.getHorizontalChannels(staChans, 
+								  bc);
 			if (tmp != null) {
 			    outChannels.add(tmp[0]);
 			    outChannels.add(tmp[1]);
@@ -477,78 +495,6 @@ public class ChannelChooser extends JPanel{
 	
 	System.out.println("Found "+outChannels.size()+" chanels");
         return (Channel[])outChannels.toArray(new Channel[0]);
-    }
-
-    /** finds the best vertical channel for the band code. All channels are
-     * assumed to come from the same station. 
-     * @returns best vertical channel, or null if no vertical can be found
-    */	
-    protected Channel getBestVerticalChannel(Channel[] inChan, 
-					     String bandCode) {
-	return getBestChannel(inChan, bandCode, "Z");
-    }
-
-    /** finds the best vertical channel for the band code. All channels are
-     * assumed to come from the same station. Makes sure that the 2 channels
-     * have the same gain and site.
-     * @returns best vertical channel, or null if no vertical can be found
-    */	
-    protected Channel[] getBestHorizontalChannels(Channel[] inChan, 
-						  String bandCode) {
-	// try to find N,E
-	Channel north = getBestChannel(inChan, bandCode, "N");
-	Channel east = getBestChannel(inChan, bandCode, "E");
-	if (north != null && 
-	    east != null && 
-	    north.my_site.get_code().equals(east.my_site.get_code()) && 
-	    north.get_code().substring(1,2).equals(east.get_code().substring(1,2))) {
-	    Channel[] tmp = new Channel[2];
-	    tmp[0] = north;
-	    tmp[1] = east;
-	    return tmp;
-	}
-									     
-	// try to find 1,2
-	north = getBestChannel(inChan, bandCode, "1");
-	east = getBestChannel(inChan, bandCode, "2");
-	if (north != null && 
-	    east != null && 
-	    north.my_site.get_code().equals(east.my_site.get_code()) && 
-	    north.get_code().substring(1,2).equals(east.get_code().substring(1,2))) {
-	    Channel[] tmp = new Channel[2];
-	    tmp[0] = north;
-	    tmp[1] = east;
-	    return tmp;
-	}
-									     
-	return null;
-    }
-
-    protected Channel getBestChannel(Channel[] inChan, 
-				     String bandCode,
-				     String orientationCode) {
-	System.out.println("getBestChannel"+ bandCode+orientationCode);
-	String bc = bundle.getString("CODE_"+bandCode);
-	for (int h=0; h<siteCodeHeuristic.length; h++) {
-	    for (int chanNum=0; chanNum<inChan.length; chanNum++) {
-		if (inChan[chanNum].my_site.get_code().equals(siteCodeHeuristic[h]) 
-		    && inChan[chanNum].get_code().endsWith(orientationCode)
-		    && inChan[chanNum].get_code().startsWith(bc)) {
-		    return inChan[chanNum];
-				}
-	    }
-	}
-
-	// can't find one by hueristic, just find one
-	for (int chanNum=0; chanNum<inChan.length; chanNum++) {
-	    if (inChan[chanNum].get_code().endsWith(orientationCode)
-		&& inChan[chanNum].get_code().startsWith(bc)) {
-		return inChan[chanNum];
-	    }
-	}
-	// oh well, return null
-	System.out.println("can't find"+ bc+orientationCode);
-	return null;
     }
 
    /*================Class Variables===============*/
