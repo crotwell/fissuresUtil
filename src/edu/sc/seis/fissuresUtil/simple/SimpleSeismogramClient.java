@@ -1,9 +1,14 @@
 package edu.sc.seis.fissuresUtil.simple;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -20,11 +25,11 @@ public class SimpleSeismogramClient implements TestingClient {
         String serverName;
         // iris
         serverDNS = "edu/iris/dmc";
-        //serverName = "IRIS_BudDataCenter";
+        serverName = "IRIS_BudDataCenter";
         // or
         //serverName = "IRIS_PondDataCenter";
-        // or
-        serverName = "IRIS_ArchiveDataCenter";
+        // or If using the archive, swtich the request filter used in exercise
+        //serverName = "IRIS_ArchiveDataCenter";
         // Berkeley
         //serverDNS="edu/berkeley/geo/quake";
         //serverName = "NCEDC_DataCenter";
@@ -63,8 +68,11 @@ public class SimpleSeismogramClient implements TestingClient {
     }
 
     public void exercise() {
-        available_data(true);
+        //If testing the archive, switch to this available_data and retrieve
+        //available_data(createOldRF(), true);
         //queuedRetrieve("Wily Test");
+        
+        available_data(true);
         retrieve_seismograms(true);
     }
 
@@ -102,7 +110,7 @@ public class SimpleSeismogramClient implements TestingClient {
 
     public LocalSeismogram[] retrieve_seismograms(boolean verbose) {
         try {
-            LocalSeismogram[] seis = seisDC.retrieve_seismograms(createRF());
+            LocalSeismogram[] seis = seisDC.retrieve_seismograms(createCurrentRF());
             if(verbose) {
                 logger.info("Got " + seis.length + " seismograms.");
                 for(int i = 0; i < seis.length; i++) {
@@ -118,7 +126,7 @@ public class SimpleSeismogramClient implements TestingClient {
     }
 
     public RequestFilter[] available_data(boolean verbose) {
-        return available_data(createRF(), verbose);
+        return available_data(createCurrentRF(), verbose);
     }
 
     public RequestFilter[] available_data(RequestFilter[] request,
@@ -127,23 +135,11 @@ public class SimpleSeismogramClient implements TestingClient {
         if(verbose) {
             logger.info("Got " + rf.length
                     + " request filters back for available data");
-            logger.info("Requested times:");
-            for(int i = 0; i < request.length; i++) {
-                RequestFilter filter = request[i];
-                logger.info("From " + filter.start_time.date_time + " to "
-                        + filter.end_time.date_time);
-            }
-            logger.info("Available times:");
-            for(int i = 0; i < rf.length; i++) {
-                RequestFilter filter = rf[i];
-                logger.info("From " + filter.start_time.date_time + " to "
-                        + filter.end_time.date_time);
-            }
         }
         return rf;
     }
 
-    public static RequestFilter[] createRF() {
+    public static RequestFilter[] createCurrentRF() {
         // we will get data for 1 hour ago until now
         MicroSecondDate now = ClockUtil.now();
         MicroSecondDate hourAgo = now.subtract(ONE_HOUR);
@@ -155,27 +151,26 @@ public class SimpleSeismogramClient implements TestingClient {
     }
 
     public static RequestFilter[] createOldRF() {
-        TimeInterval twoYears = (TimeInterval)ONE_YEAR.multiplyBy(2);
-        TimeInterval sixtyDays = (TimeInterval)ONE_DAY.multiplyBy(60);
-        MicroSecondDate yearAgo = ClockUtil.now()
-                .subtract(twoYears.subtract(sixtyDays));
-        MicroSecondDate yearAgoAndAnHour = yearAgo.add(ONE_HOUR);
-        MicroSecondDate usedEnd = yearAgoAndAnHour;
-        logger.info("query from " + yearAgo + " to " + usedEnd);
-        // construct the request filters to send to the server
-        RequestFilter[] request = {new RequestFilter(Initializer.fakeChan,
-                                                     yearAgo.getFissuresTime(),
-                                                     usedEnd.getFissuresTime())};
-        return request;
+        RequestFilter[] rf = {new RequestFilter()};
+        Time[] queryTimes = new Time[2];
+        SimpleDateFormat formatter = new SimpleDateFormat("G yyyy.MM.dd hh:mm:ss z");
+        try {
+            queryTimes[0] = new MicroSecondDate(formatter.parse("AD 2003.07.20 06:23:25 GMT")).getFissuresTime();
+            queryTimes[1] = new MicroSecondDate(formatter.parse("AD 2003.09.20 06:46:29 GMT")).getFissuresTime();
+        } catch(ParseException e) {
+            e.printStackTrace();
+        }
+        rf[0].channel_id = new ChannelId(new NetworkId("IU", queryTimes[1]),
+                                         "*",
+                                         "*",
+                                         "BHZ",
+                                         queryTimes[1]);
+        rf[0].end_time = queryTimes[1];
+        rf[0].start_time = queryTimes[0];
+        return rf;
     }
 
     protected DataCenterOperations seisDC;
-
-    private static final TimeInterval ONE_YEAR = new TimeInterval(365,
-                                                                  UnitImpl.DAY);
-
-    private static final TimeInterval ONE_DAY = new TimeInterval(1,
-                                                                 UnitImpl.DAY);
 
     private static final TimeInterval ONE_HOUR = new TimeInterval(1,
                                                                   UnitImpl.HOUR);
