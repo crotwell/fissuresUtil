@@ -255,7 +255,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
     class NetworkChecker extends AbstractJob{
         NetworkChecker(NetworkAccess net) {
-            super("Available Data for " + net.get_attributes().get_code());
+            super(net.get_attributes().get_code()+" Available Data");
             logger.debug("NetworkChecker constructor"+net.get_attributes().get_code());
             this.net = net;
             JobTracker.getTracker().add(this);
@@ -282,7 +282,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                         throw e;
                     }
                     try {
-                        setStatus("Waiting 2 seconds before making another attempt");
+                        setStatus("Waiting "+ (2*consecutiveFailures)+" seconds before making another attempt");
                         consecutiveFailures++;
                         Thread.sleep(2000 * consecutiveFailures);
                         if(consecutiveFailures > maxFail) quitThread = true;
@@ -299,7 +299,11 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         void checkNet() {
             logger.debug("checking "+net.get_attributes().get_code());
             TimeRange range;
-            setStatus("Creating available data status request");
+            if (consecutiveFailures==0) {
+                setStatus("Creating available data status request");
+            } else {
+                setStatus(consecutiveFailures+" ReCreating available data status request");
+            }
             if (origin == null) {
                 // use current time
                 MicroSecondDate now = ClockUtil.now();
@@ -326,40 +330,44 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                                                range.end_time);
             }
             if (dc.getDataCenter(net) != null) {
-                setStatus("Requesting available data status");
+                if (consecutiveFailures==0) {
+                    setStatus("Requesting available data status");
+                } else {
+                    setStatus(consecutiveFailures+" ReRequesting available data status");
+                }
                 request = dc.available_data(request);
-                    Station[] stations = net.retrieve_stations();
-                    LinkedList allStations = new LinkedList();
-                    for (int i = 0; i < stations.length; i++) {
-                        allStations.add(stations[i]);
+                Station[] stations = net.retrieve_stations();
+                LinkedList allStations = new LinkedList();
+                for (int i = 0; i < stations.length; i++) {
+                    allStations.add(stations[i]);
+                }
+                for (int i = 0; i < request.length; i++) {
+                    if (request[i].channel_id.station_code.endsWith("-farm")) {
+                        request[i].channel_id.station_code =
+                            request[i].channel_id.station_code.substring(0,
+                                                                         request[i].channel_id.station_code.length()-5);
                     }
-                    for (int i = 0; i < request.length; i++) {
-                        if (request[i].channel_id.station_code.endsWith("-farm")) {
-                            request[i].channel_id.station_code =
-                                request[i].channel_id.station_code.substring(0,
-                                                                             request[i].channel_id.station_code.length()-5);
-                        }
-                        if (request[i].channel_id.station_code.endsWith("-spyder")) {
-                            request[i].channel_id.station_code =
-                                request[i].channel_id.station_code.substring(0,
-                                                                             request[i].channel_id.station_code.length()-7);
-                        }
-                        Iterator it = allStations.iterator();
-                        while (it.hasNext()) {
-                            Station station = (Station)it.next();
-                            if (station.get_code().equals(request[i].channel_id.station_code)) {
-                                finishedCheck(station, true);
-                                it.remove();
-                            }
-                        }
-                        it = null;
+                    if (request[i].channel_id.station_code.endsWith("-spyder")) {
+                        request[i].channel_id.station_code =
+                            request[i].channel_id.station_code.substring(0,
+                                                                         request[i].channel_id.station_code.length()-7);
                     }
                     Iterator it = allStations.iterator();
                     while (it.hasNext()) {
                         Station station = (Station)it.next();
-                        finishedCheck(station, false);
+                        if (station.get_code().equals(request[i].channel_id.station_code)) {
+                            finishedCheck(station, true);
+                            it.remove();
+                        }
                     }
-                    quitThread = true;
+                    it = null;
+                }
+                Iterator it = allStations.iterator();
+                while (it.hasNext()) {
+                    Station station = (Station)it.next();
+                    finishedCheck(station, false);
+                }
+                quitThread = true;
 
             } else {
                 logger.debug("no datacenter for network");
