@@ -96,8 +96,18 @@ public class ConnMgr {
         ConnMgr.url = url;
     }
 
+    public static void setURL(String url, String databaseUser, String databasePassword) {
+        setURL(url);
+        if (databaseUser != null) {
+            getProps().setProperty("user", databaseUser);
+        }
+        if (databasePassword != null) {
+            getProps().setProperty("password", databasePassword);
+        }
+    }
+    
     public static String getURL() {
-        if(url == null) url = getProps().getProperty("URL");
+        if(url == null) { url = getProps().getProperty("URL"); }
         return url;
     }
 
