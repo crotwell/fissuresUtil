@@ -9,6 +9,7 @@ package edu.sc.seis.fissuresUtil.display;
  * @version 1.0
  */
 
+import java.awt.*;
 import javax.swing.*;
 
 import com.lowagie.text.Document;
@@ -20,11 +21,6 @@ import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 import edu.sc.seis.fissuresUtil.chooser.FileNameFilter;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -204,14 +200,6 @@ public class SeismogramPDFBuilder {
 
                     }
 
-
-                    // draw amplitude scale
-                    scaleScaleSize = bsd.drawAmpBorders(g2Scales,(int)(leftMargin*scaleZoomFactor),
-                                                            (int)(heightForTraces*scaleZoomFactor/zoomFactor));
-
-                    // draw a box around this region.
-                    drawBox(g2Scales, (int)(scaleScaleSize.width), (int)(scaleScaleSize.height));
-
                     boolean notAllHere = true;
 
                     while(notAllHere){
@@ -236,6 +224,16 @@ public class SeismogramPDFBuilder {
 
                     drawBox(g2Traces, widthForTraces, heightForTraces);
 
+                    // draw amplitude scale
+                    scaleScaleSize = bsd.drawAmpBorders(g2Scales,(int)(leftMargin*scaleZoomFactor),
+                                                            (int)(heightForTraces*scaleZoomFactor/zoomFactor));
+
+                    // draw amplitude scale
+                    scaleScaleSize = bsd.drawAmpBorders(g2Scales,(int)(leftMargin*scaleZoomFactor),
+                                                            (int)(heightForTraces*scaleZoomFactor/zoomFactor));
+
+                    // draw a box around this region.
+                    drawBox(g2Scales, scaleScaleSize.width, scaleScaleSize.height);
 
                     if (++imagesOnPageCount == imagesPerPage) {
                         // page is full, finish page and create a new page.
@@ -302,6 +300,7 @@ public class SeismogramPDFBuilder {
     }
 
     private void drawBox(Graphics2D g2, int width, int height) {
+        g2.setColor(Color.BLACK);
         g2.drawRect(0,0,width,height);
     }
 
