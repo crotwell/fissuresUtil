@@ -161,7 +161,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     }
 
     public String getAxisLabel() {
-        return "Time";
+        return "Time (GMT)";
     }
 
     /**
