@@ -121,7 +121,7 @@ public class ChannelChooserGUI extends JPanel{
 	 gbc.gridx++;
 
          chalist = new JList(channels);
-	 chalist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	 chalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
          JScrollPane scroller4 = new JScrollPane(chalist);
          subPane.add(scroller4, gbc);
 	 gbc.gridx++;
@@ -295,8 +295,8 @@ public class ChannelChooserGUI extends JPanel{
 		   String mynet= getNet();
 		   String mysta= getStation();
 		   String mysit= getSite();
-		   String mycha= getChannel();
-
+		   //String mycha= getChannel();
+		   String[] mycha = getChannels();
 		   System.out.println("*** User finished a selection:\t");
                    System.out.print(mynet + ":"+ mysta+ ":"+mysit+ ":"+mycha);
 		  
@@ -331,7 +331,23 @@ public class ChannelChooserGUI extends JPanel{
     public String  getChannel(){
 	String channelchosen = (String)chalist.getSelectedValue();
 	return channelchosen;
-     }     
+     }    
+
+    /**
+       The below method is added by Srinivasa Reddy Telukutla
+    *****/
+    public String[] getChannels() {
+
+	java.lang.Object[] objects = chalist.getSelectedValues();
+	String[] channelsChosen = new String[objects.length];
+	for(int counter = 0; counter < objects.length; counter++) {
+
+	    channelsChosen[counter] = (String)objects[counter];
+	    
+	}
+	return channelsChosen;
+
+    }
  
     public String  getSite(){      
 	String sitechosen = (String)sitlist.getSelectedValue();
@@ -376,15 +392,35 @@ public class ChannelChooserGUI extends JPanel{
 
     }
 
+    /**
+       The below two methods are added by srinivasa Reddy Telukutla
+    ******/
+
      public ChannelId getChannelId() {
 	String keyStr = new String();
 	keyStr = getNet() + "." + getStation() + "." + getSite() + "." + getChannel();
 	System.out.println("The key is "+keyStr);
         return mychannelchooser.getChannelId(keyStr);
     }
+
+    public ChannelId[] getChannelIds() {
  
+	String keyStr = new String();
+	ArrayList arrayList = new ArrayList();
+	String[] channels = getChannels();
 
+	for(int counter = 0; counter < channels.length; counter++) {
+	    
+	    keyStr = getNet() + "." + getStation() + "." + getSite() + "." + channels[counter];
+	    arrayList.add(mychannelchooser.getChannelId(keyStr));
+	    
+	}
+	
+	ChannelId[] returnValue = new ChannelId[arrayList.size()];
+	returnValue = (ChannelId[]) arrayList.toArray(returnValue);
+	return returnValue;
 
+    }
    /*================Class Variables===============*/
 
     ChannelChooser mychannelchooser;
