@@ -156,12 +156,13 @@ public class ParticleMotionView extends JComponent{
 	startPoint = null;
 	endPoint = null;
 	if(xa < xs && ya < ys || clickCount != 1) {
+	    System.out.println("The Zooming takes place");
 	    particleMotionDisplay.updateHorizontalAmpScale(new UnitRangeImpl(xa, xs, UnitImpl.COUNT));
 	    particleMotionDisplay.updateVerticalAmpScale(new UnitRangeImpl(ya, ys, UnitImpl.COUNT));
 	    vunitRangeImpl = new UnitRangeImpl(ya, ys, UnitImpl.COUNT);
 	    hunitRangeImpl = new UnitRangeImpl(xa, xs, UnitImpl.COUNT);
 	    particleMotionDisplay.fireAmpRangeEvent(new AmpSyncEvent(ya, ys, true));
-	}
+	} else  System.out.println("NO ZOOMING");
     }
   
     public boolean findPoint(int count, int newx, int newy) {
@@ -213,7 +214,7 @@ public class ParticleMotionView extends JComponent{
 	    graphics2D.fill(rect);
 	    graphics2D.draw(rect);
 	}
-	Dimension dimension = super.getSize();
+
 	int size = displays.size();
 	Shape sector = getSectorShape();
 	graphics2D.setColor(Color.blue);
@@ -226,6 +227,23 @@ public class ParticleMotionView extends JComponent{
 	graphics2D.setStroke(new BasicStroke(1.0f));
 	for(int counter = 0; counter < displays.size(); counter++) {
 	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    if(particleMotion.isSelected()) continue;
+	    drawParticleMotion(particleMotion, graphics2D);
+	}//end of for
+	System.out.println("ENd of the for");
+	for(int counter = 0; counter < displays.size(); counter++) {
+	    ParticleMotion particleMotion = (ParticleMotion)displays.get(counter);
+	    if(particleMotion.isSelected()) {
+		particleMotion.setSelected(false);
+		drawParticleMotion(particleMotion, g);
+	    }
+	}
+    }
+
+    public void drawParticleMotion(ParticleMotion particleMotion, Graphics g) {
+
+	Graphics2D graphics2D = (Graphics2D) g;
+	Dimension dimension = super.getSize();
 	    LocalSeismogramImpl hseis = particleMotion.hseis;
 	    LocalSeismogramImpl vseis = particleMotion.vseis;
 	    AmpRangeConfig vAmpRangeConfig = particleMotion.vAmpRangeConfig;
@@ -241,12 +259,9 @@ public class ParticleMotionView extends JComponent{
 	    }
 	    graphics2D.setColor(color);
 	    Insets insets = getInsets();
-	    //  dimension = new java.awt.Dimension(dimension.width - insets.left - insets.right,
-	    //			       dimension.height - insets.top - insets.bottom);
+	   
 	    Dimension flipDimension = new Dimension(dimension.height,
 						    dimension.width);
-	    //System.out.println("The width is "+dimension.width+" height is "+dimension.height);
-	    //System.out.println("______________________________________________________________");
 	    
 	    try {
 
@@ -286,7 +301,7 @@ public class ParticleMotionView extends JComponent{
 								 dimension);
 
 
-		logger.debug("---------------------->Scaling THE Y VALUES ");
+		System.out.println("---------------------->Scaling THE Y VALUES ");
 		SimplePlotUtil.scaleYvalues(vPixels,
 					    vseis, 
 					    microSecondTimeRange,
@@ -302,7 +317,7 @@ public class ParticleMotionView extends JComponent{
 		x = hPixels[1];
 		y = vPixels[1];
 		if (hPixels[1].length < len) { len = hPixels.length; }
-		logger.debug("-----------------------------------------");
+		System.out.println("-----------------------------------------");
 		for(int c = 0;  c < len; c++) {
 
 		    // logger.debug("x = "+hPixels[1][c]+" y = "+vPixels[1][c]);
@@ -310,19 +325,15 @@ public class ParticleMotionView extends JComponent{
 		}
 		Shape shape = getParticleMotionPath(hPixels[1], vPixels[1]);
 		particleMotion.setShape(shape);
+		System.out.println("After setting the shape");
+		if(shape == null) System.out.println("The shape is null");
 		graphics2D.draw(shape);
-		Composite c = AlphaComposite.getInstance(AlphaComposite.SRC_OUT);
-		//graphics2D.setComposite(c);
-			
+		System.out.println("The shape is drawn");
 	    } catch(Exception e) {
 		e.printStackTrace();
 	    }
-	    
-	 
-	}//end of for
-	
     }
-    
+
     public Shape getParticleMotionPath(int[] x, int[] y) {
 	int len = x.length;
 	if(y.length < len) { len = y.length;}
@@ -337,7 +348,7 @@ public class ParticleMotionView extends JComponent{
 	for(int counter = 0; counter < len; counter++) {
 	    generalPath.append(new Rectangle2D.Float(x[counter]-2, y[counter]-2, 4, 4), false);
 	}
-
+	System.out.println("Before returning from the getParticleMotionPath");
 	return (Shape)generalPath;
     }
     
@@ -623,6 +634,7 @@ public class ParticleMotionView extends JComponent{
 	    if(timeRangeConfig != null) {
 		this.microSecondTimeRange = timeRangeConfig.getTimeRange();
 	    }
+	    setSelected(true);
 	}
     
 	public MicroSecondTimeRange getTimeRange() {
