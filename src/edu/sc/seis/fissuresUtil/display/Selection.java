@@ -77,33 +77,6 @@ public class Selection implements TimeListener, Plotter{
 	} 
     }
     
-    public void adjustRange(MicroSecondDate selectionBegin, MicroSecondDate selectionEnd){
-logger.debug("adjust "+selectionBegin+"   "+selectionEnd);
-	MicroSecondTimeRange currentInternal = latestTime.getTime();
-	double timeWidth = externalRegistrar.getLatestTime().getTime().getInterval().getValue();
-	if(released == true){
-	    double beginDistance = Math.abs(currentInternal.getBeginTime().getMicroSecondTime() - 
-					    selectionEnd.getMicroSecondTime())/timeWidth;
-	    double endDistance = Math.abs(currentInternal.getEndTime().getMicroSecondTime() - 
-					  selectionBegin.getMicroSecondTime())/timeWidth;
-	    if(beginDistance < endDistance)
-		selectedBegin = true;
-	    else
-		selectedBegin = false;
-	    released = false;
-	}else if(selectionBegin.getMicroSecondTime() > currentInternal.getEndTime().getMicroSecondTime() || 
-		 selectionEnd.getMicroSecondTime() < currentInternal.getBeginTime().getMicroSecondTime()){
-	    selectedBegin = !selectedBegin;
-	}
-	if(selectedBegin){
-	    setBegin(selectionBegin);
-	    repaintParents();
-	}else{
-	    setEnd(selectionEnd);
-	    repaintParents();
-	}
-    }
-    
     public boolean isRemoveable(){
 	if(latestTime.getTime().getInterval().getValue()/
 	   externalRegistrar.getLatestTime().getTime().getInterval().getValue() < .01){
@@ -185,8 +158,6 @@ logger.debug("adjust "+selectionBegin+"   "+selectionEnd);
 
     public void addDisplay(BasicSeismogramDisplay display){ displays.add(display); }
 
-    public void release(){ released = true; }
-
     public Registrar getInternalRegistrar(){ return internalRegistrar; }
 
     public MicroSecondDate getBegin() {
@@ -197,7 +168,7 @@ logger.debug("adjust "+selectionBegin+"   "+selectionEnd);
 	if ( latestTime.getTime().getEndTime().equals(newBegin)) {
 	    throw new IllegalArgumentException("Selection must not have zero width, newBegin and end are the same.");
 	} // end of if ()
-	logger.debug("setBegin "+newBegin);
+	//logger.debug("setBegin "+newBegin);
 	
 	MicroSecondDate currentBegin = latestTime.getTime().getBeginTime();
 	TimeInterval timeInt = (TimeInterval)latestTime.getTime().getInterval().convertTo(UnitImpl.MICROSECOND);
@@ -215,7 +186,7 @@ logger.debug("adjust "+selectionBegin+"   "+selectionEnd);
 	if ( latestTime.getTime().getBeginTime().equals(newEnd)) {
 	    throw new IllegalArgumentException("Selection must not have zero width, begin and newEnd are the same.");
 	} // end of if ()
-	logger.debug("setEnd "+newEnd);
+	//logger.debug("setEnd "+newEnd);
 
 	MicroSecondDate currentEnd = latestTime.getTime().getEndTime();
 	TimeInterval timeInt = (TimeInterval)latestTime.getTime().getInterval().convertTo(UnitImpl.MICROSECOND);
@@ -240,7 +211,7 @@ logger.debug("adjust "+selectionBegin+"   "+selectionEnd);
 
     private Color color;
 
-    private boolean selectedBegin, released = true, visible = true;
+    private boolean selectedBegin, visible = true;
 
     private TimeEvent latestTime;
 
