@@ -17,8 +17,11 @@ import org.apache.log4j.*;
  */
 
 public abstract class AbstractDb {
-    public AbstractDb (){
+    public AbstractDb () {}
 
+    public AbstractDb (String directoryName, String databaseName){
+        this.directoryName = directoryName;
+        this.databaseName = databaseName;
     }
 
     public Connection getConnection() {
@@ -40,11 +43,8 @@ public abstract class AbstractDb {
 
     protected Connection connection;
 
-    protected String databaseName = "GEE_database";
+    protected String databaseName;
 
-    protected String directoryName =
-        System.getProperty("java.io.tmpdir")+"/"+
-        "GEE_cache_"+
-        System.getProperty("user.name").replaceAll("\\W","_");
+    protected String directoryName;
 
 }// AbstractDb
