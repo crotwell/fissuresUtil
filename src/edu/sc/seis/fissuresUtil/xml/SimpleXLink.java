@@ -8,14 +8,25 @@ import java.io.*;
 import java.net.*;
 
 /** Represents a simple XLink. Provides methods for following the link if the
-    protocol is known, ie  URLConnection can be gotten from Java.
+ * protocol is known, ie  URLConnection can be gotten from Java.
+ *
+ * @author Philip Crotwell
+ * @version $Id: SimpleXLink.java 1716 2002-05-28 18:30:30Z crotwell $
 */
 public class SimpleXLink {
 
+    /** Creates a SimpleXLink for following the given element. This assumes
+	that the link is absolute, since there is no base. */
     SimpleXLink(DocumentBuilder docBuilder, Element element) {
+	this(docBuilder, element, null);
+    }
+
+    /** Creates a SimpleXLink for following the given element. The 
+	href in the element is evaluated relative to the given base. */
+    SimpleXLink(DocumentBuilder docBuilder, Element element, URL base) {
 	this.docBuilder = docBuilder;
 	this.element = element;
-
+	this.base = base;
     }
 
     /** Trys to retrieve as an XML Element referenced by this simple XLink.
@@ -43,7 +54,7 @@ public class SimpleXLink {
 	} // end of while (fragment.indexOf("%22") != -1)
 	
 	if (xlink.startsWith("http") || xlink.startsWith("ftp")) {
-	    URL url = new URL(xlink);
+	    URL url = new URL(base, xlink);
 	    InputStream conn = url.openStream();
 	    BufferedInputStream inStream = new BufferedInputStream(conn);
 	    Document doc = docBuilder.parse(inStream);
@@ -114,4 +125,5 @@ public class SimpleXLink {
 
     protected DocumentBuilder docBuilder;
 
+    protected URL base;
 }
