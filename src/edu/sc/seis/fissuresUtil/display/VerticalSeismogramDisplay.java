@@ -36,23 +36,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      *
      */
     public VerticalSeismogramDisplay(){
-        this(null);
-    }
-
-    /**
-     * Creates a <code>VerticalSeismogramDisplay</code>
-     *
-     * @param parent the VSD that controls this VSD
-     */
-    public VerticalSeismogramDisplay(VerticalSeismogramDisplay parent){
-        output.setTimeZone(TimeZone.getTimeZone("GMT"));
-        super.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        if(parent != null){
-            this.originalVisible = parent.getOriginalVisibility();
-            this.parent = parent;
-        }else{
-            this.originalVisible = true;
-        }
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     }
 
     public void add(DataSetSeismogram[] dss){ addDisplay(dss); }
@@ -144,15 +128,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      */
     public LinkedList getDisplays(){ return basicDisplays; }
 
-    /**
-     * Sets a string to be appended to the names of each seismogram added to the display.
-     * @param suffix the suffix for the seismogram names
-     */
-    public void setSuffix(String suffix){
-        this.suffix = suffix;
-    }
-
-
     public void print(){
         SeismogramPrinter.print(getDisplayArray());
         revalidate();
@@ -215,8 +190,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         basicDisplays.clear();
         tc = new BasicTimeConfig();
         ac = new RMeanAmpConfig();
-        time = "   Time: ";
-        amp = "   Amplitude: ";
         repaint();
     }
 
@@ -245,108 +218,19 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         return false;
     }
 
-    protected void addTimeBorders(){
-        if(topDisplay != null){
-            topDisplay.removeTopTimeBorder();
+    protected void setTimeBorders(){
+        for (int i = 1; i < getComponentCount() - 1; i++){
+            BasicSeismogramDisplay cur = (BasicSeismogramDisplay)getComponent(i);
+            cur.removeTopTimeBorder();
+            cur.removeBottomTimeBorder();
         }
-        topDisplay = (BasicSeismogramDisplay)super.getComponent(0);
-        topDisplay.addTopTimeBorder();
-        if(bottomDisplay != null){
-            bottomDisplay.removeBottomTimeBorder();
-        }
-        bottomDisplay = (BasicSeismogramDisplay)super.getComponent(super.getComponentCount() - 1);
-        bottomDisplay.addBottomTimeBorder();
+        BasicSeismogramDisplay top = (BasicSeismogramDisplay)getComponent(0);
+        top.addTopTimeBorder();
+        top.removeBottomTimeBorder();
+        BasicSeismogramDisplay bottom = (BasicSeismogramDisplay)getComponent(getComponentCount() - 1);
+        bottom.removeTopTimeBorder();
+        bottom.addBottomTimeBorder();
     }
-
-
-    /**
-     * <code>setTimeAmp</code> sets the time and amp labels for all VSDs
-     *
-     * @param time the new label time
-     * @param amp the new label amp
-     */
-    public void setTimeAmp(MicroSecondDate newTime, QuantityImpl newAmp, UnitRangeImpl ampRange){
-        if(curAmpRange != ampRange){
-            double absMax = Math.abs(ampRange.getMaxValue());
-            double absMin = Math.abs(ampRange.getMinValue());
-            double maxVal;
-            if(absMax/10 > absMin){
-                maxVal = absMax;
-            }else{
-                maxVal = absMin;
-            }
-            if(maxVal < 1){
-                formatter = new DecimalFormat(" 0.000E0;-0.000E0");
-            }else{
-                StringBuffer formatPattern = new StringBuffer(" 0.00;-0.00");
-                while(maxVal > 10){
-                    formatPattern.insert(1,"0");
-                    formatPattern.insert(formatPattern.length() - 4, "0");
-                    maxVal /= 10;
-                }
-                formatter = new DecimalFormat(formatPattern.toString());
-            }
-            curAmpRange = ampRange;
-        }
-        double newAmpVal = newAmp.getValue();
-        if(newAmpVal == Double.NaN){
-            amp = "";
-        }else{
-            String ampString = amplitude;
-            ampString += formatter.format(newAmpVal);
-            amp = ampString+" "+unitDisplayUtil.getNameForUnit(newAmp.getUnit());
-        }
-        calendar.setTime(newTime);
-        StringBuffer timeBuffer = new StringBuffer(amp.length());
-        if(output.format(calendar.getTime()).length() == 21)
-            timeBuffer.append(output.format(calendar.getTime()) + "00");
-        else if(output.format(calendar.getTime()).length() == 22)
-            timeBuffer.append(output.format(calendar.getTime()) + "0");
-        else
-            timeBuffer.append(output.format(calendar.getTime()));
-        int numSpaces = amp.length() - timeBuffer.length() - 10;//Amplitude: is 10 chars
-        if(numSpaces <= 0){
-            timeBuffer.insert(0, "Time:");
-            time = timeBuffer.toString();
-        }else{
-            StringBuffer spaces = new StringBuffer(numSpaces);
-            for (int i = 0; i < numSpaces; i++){
-                spaces.append(" ");
-            }
-            timeBuffer.insert(0, spaces);
-            timeBuffer.insert(0, "Time:");
-            time = timeBuffer.toString();
-        }
-    }
-    /**
-     * <code>setOriginalDisplay</code> sets the display of the unfiltered
-     * seismogram in all BSDs held by this VSD or its children
-     *
-     * @param visible the new visibility of the unfiltered seismogram
-     */
-    public void setOriginalVisibility(boolean visible){
-        Iterator e = basicDisplays.iterator();
-        while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).setOriginalVisibility(visible);
-        }
-        originalVisible = visible;
-    }
-
-    /**
-     *
-     * @return true if the unfiltered seismogram is visible
-     */
-    public boolean getOriginalVisibility(){ return originalVisible; }
-
-    public void setCurrentTimeFlag(boolean visible){
-        Iterator e = basicDisplays.iterator();
-        while(e.hasNext()){
-            ((BasicSeismogramDisplay)e.next()).setCurrentTimeFlag(visible);
-        }
-        currentTimeFlag = visible;
-    }
-
-    public boolean getCurrentTimeFlagStatus(){ return currentTimeFlag; }
 
     public void setAmpConfig(AmpConfig ac){
         this.ac = ac;
@@ -415,39 +299,13 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
         }
     }
 
-    private BasicSeismogramDisplay topDisplay, bottomDisplay;
-
-    public static String getTime(){ return time; }
-
-    public static String getAmp(){ return amp; }
-
-    protected String suffix = "";
-
-    protected boolean originalVisible, globalizedAmp = false, currentTimeFlag = false;
+    protected boolean globalizedAmp = false;
 
     protected TimeConfig tc = new BasicTimeConfig();
 
     protected AmpConfig ac = new RMeanAmpConfig();
 
     protected LinkedList basicDisplays = new LinkedList();
-
-    public static String time = new String("");
-
-    public static String amp = new String("");
-
-    private UnitRangeImpl curAmpRange;
-
-    private String amplitude = new String("Amplitude:");
-
-    public static DecimalFormat formatter = new DecimalFormat(" 0.000E0;-0.000E0");
-
-    UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
-
-    protected SimpleDateFormat output = new SimpleDateFormat("HH:mm:ss.SSS");
-
-    protected static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-
-    private VerticalSeismogramDisplay parent;
 
     private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
 }// VerticalSeismogramDisplay
