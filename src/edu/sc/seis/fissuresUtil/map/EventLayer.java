@@ -60,6 +60,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 							}
 						}
 						if(selectedEvents.size() > 0){
+							//FIXME: make this work for more than one event
 							eqSelectionChanged(new EQSelectionEvent(this, new EventAccessOperations[]{(EventAccessOperations)selectedEvents.get(0)}));
 						}
 					}
@@ -104,6 +105,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 		repaint();
     }
 
+	//FIXME: make this work for more than one selected event at a time
     public void eqSelectionChanged(EQSelectionEvent eqSelectionEvent) {
 		OMEvent selected = null;
 		List deselected = new ArrayList();
