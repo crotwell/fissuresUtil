@@ -139,7 +139,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
     }
 
 
-    public void addSeismogram(LocalSeismogram[] seismos) {
+    public void addSeismogram(LocalSeismogramImpl[] seismos) {
 	//if(getSeismograms(requestFilters).length == 0) {
 	insertFileInfo(seismos);
 	    //}
@@ -168,7 +168,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
      * for the name of the seismogram append begin time and 
      * end time along with the channel name.
      */
-    public void insertFileInfo(LocalSeismogram[] seismograms) {
+    public void insertFileInfo(LocalSeismogramImpl[] seismograms) {
 	HashMap hashMap = new HashMap();
 	
 	

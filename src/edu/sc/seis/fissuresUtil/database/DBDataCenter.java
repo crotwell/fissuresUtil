@@ -94,7 +94,7 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 
 	//RequestFilter param_sequence[] = new RequestFilter[1];
 	//	param_sequence[0] = a_filterseq[counter];
-	LocalSeismogram[] seis = hsqlRequestFilterDb.getSeismograms(a_filterseq);
+	LocalSeismogramImpl[] seis = hsqlRequestFilterDb.getSeismograms(a_filterseq);
 	if(seis.length != 0) {
 	    a_client.pushData(seis, initiator);
 	}
