@@ -86,6 +86,9 @@ public  class PlottableDisplay extends JComponent {
 
     void configChanged() {
 	image = null;
+	// signal any drawing thread to stop
+	currentImageGraphics = null;
+
 	System.out.println("psgramwidth size:"+getSize().toString());
 	
 	int newpsgramwidth = plot_x/plotrows +2*labelXShift;
@@ -98,12 +101,16 @@ public  class PlottableDisplay extends JComponent {
     public void setPlottable(edu.iris.Fissures.Plottable[] clientPlott, 
 			     String nameofstation) {
         removeAll();
+
+	// signal any drawing thread to stop
+	currentImageGraphics = null;
+
         this.arrayplottable = clientPlott;
 	int[] minmax = findMinMax(arrayplottable);
 	min = minmax[0];
 	max = minmax[1];
 	ampScale = plot_y*1f/(max-min);
-	//	setAmpScale(ampScalePercent);
+
 	plottablename = nameofstation;
 
 	if (arrayplottable == null) {
@@ -113,7 +120,6 @@ public  class PlottableDisplay extends JComponent {
 
 	plottablename = nameofstation;
 	plottableShape = makeShape(clientPlott);
-	makeSegments();
 	configChanged();
     }
   
@@ -132,20 +138,17 @@ public  class PlottableDisplay extends JComponent {
 	if (arrayplottable== null ) {
             Logger.warning("Plottable is NULL.");        
 	    return;
-	} 
-
-	Graphics newG = g.create();
+	}
 
 	// for time label on left and title at top
-	newG.translate(labelXShift, 
-		       titleYShift); 
+	g.translate(labelXShift, 
+		    titleYShift); 
 	System.out.println("clipRect "+ plot_x/plotrows+"  "+ 
 		      plot_y +(plotoffset * (plotrows-1)));
-	newG.clipRect(0, 0, 
+	g.clipRect(0, 0, 
 		      plot_x/plotrows, 
 		      plot_y +(plotoffset * (plotrows-1)));
-	drawPlottableNew(newG, arrayplottable);
-	newG.dispose();
+	drawPlottableNew(g, arrayplottable);
     }
 
 
@@ -204,15 +207,18 @@ public  class PlottableDisplay extends JComponent {
 	mean = getMean();
 	System.out.println("plottable.length"+plot.length);
 
+	// get new graphics to avoid messing up original
+	Graphics2D newG = (Graphics2D)g.create(); 
+
 	for (int currRow = 0; currRow < plotrows; currRow++) {
-System.out.println("currRow  xShift  min   max  ampScale  ampScale*min  ampScale*max  plotofset  plot_y");
-System.out.println("  plot_x");
-	    System.out.println(currRow+" "+xShift+" "+min+" "+max+" "+ampScale+" "+(ampScale*min)+" "+(ampScale*max)+" "+plotoffset+" "+plot_y+" "+plot_x);
-	    // get new graphics to avoid messing up original
-	    Graphics2D newG = (Graphics2D)g.create(); 
+	    if (g != currentImageGraphics) return;
+
+	    System.out.println(currRow);
+
 	    // shift for row (left so time is in window, 
 	    //down to correct row on screen, plus
 	    //	    newG.translate(xShift*currRow, plot_y/2 + plotoffset*currRow);
+	    java.awt.geom.AffineTransform original = newG.getTransform();
 	    java.awt.geom.AffineTransform affine = newG.getTransform();
 
 	    affine.concatenate(affine.getTranslateInstance(-1*xShift*currRow,
@@ -220,18 +226,17 @@ System.out.println("  plot_x");
 	    // account for graphics y positive down
 	    affine.concatenate(affine.getScaleInstance(1, -1));
 
+	    newG.setTransform(affine);
+ 	    newG.setPaint(Color.red);
+ 	    newG.drawLine(0, 0, 6000, 0);
 
 	    affine.concatenate(affine.getScaleInstance(1, ampScale));
 	    affine.concatenate(affine.getScaleInstance(1, ampScalePercent));
 	    // translate max so mean is in middle
 	    affine.concatenate(affine.getTranslateInstance(0, -1*mean));
 
-
-
 	    newG.setTransform(affine);
 
- 	    newG.setPaint(Color.red);
- 	    newG.drawLine(0, 0, 6000, 0);
 
 	     System.out.println(currRow+": "+(-1*currRow*xShift)+", "+currRow*plotoffset+"  "+mean);
 	    if (currRow % 2 == 0) {
@@ -240,24 +245,49 @@ System.out.println("  plot_x");
 		newG.setPaint(Color.blue);
 	    }
 	    if (plottableShape != null) {
+		if (g != currentImageGraphics) return;
 		newG.draw(plottableShape);
 	    } // end of if (plottableShape != null)
 
-	    newG.dispose();
+	    newG.setTransform(original);
+
+	    // draw partial image
+	    if (g != currentImageGraphics) return;
+	    repaint();
 	}
+	    newG.dispose();
     }
 
     private Shape makeShape( Plottable[] plot) {
+	final int SHAPESIZE = 100;
 	GeneralPath wholeShape = 
 	    new GeneralPath(GeneralPath.WIND_EVEN_ODD);	
 	for (int a=0; a<plot.length; a++) {
 	    if(plot[a].x_coor.length >= 2){
 		GeneralPath currentShape = 
 		    new GeneralPath(GeneralPath.WIND_EVEN_ODD, 
-				    plot[a].x_coor.length);
+				    SHAPESIZE+1);
 		currentShape.moveTo(plot[a].x_coor[0], 
 				    plot[a].y_coor[0]);
 		for(int i = 1; i < plot[a].x_coor.length; i++) {
+		    //split into smaller shapes
+		    if (i % SHAPESIZE == 0) {
+			// duplicate last point
+			if (plot[a].x_coor[i-1] == plot[a].x_coor[i]-1) {
+			    currentShape.moveTo(plot[a].x_coor[i], 
+						plot[a].y_coor[i]);
+			} else {
+			    currentShape.lineTo(plot[a].x_coor[i], 
+						plot[a].y_coor[i]);
+			    
+			} // end of else
+			System.out.println("Bounds "+currentShape.getBounds().width+" "+currentShape.getBounds().x);
+			 wholeShape.append(currentShape, false);
+			 currentShape = 
+			     new GeneralPath(GeneralPath.WIND_EVEN_ODD, 
+					     SHAPESIZE+1);
+		    } // end of if (i % 100 == 0)
+		    
 		    if (plot[a].x_coor[i-1] == plot[a].x_coor[i]-1) {
 			currentShape.moveTo(plot[a].x_coor[i], 
 					    plot[a].y_coor[i]);
@@ -319,30 +349,38 @@ System.out.println("  plot_x");
 
     public Image createImage() {
         
-   	int width = plot_x/plotrows +2*labelXShift;
-	int height = plot_y +(plotoffset * (plotrows-1))+titleYShift;
+   	final int width = plot_x/plotrows +2*labelXShift;
+	final int height = plot_y +(plotoffset * (plotrows-1))+titleYShift;
 
-	Image offImg = super.createImage(width, height);
+	final Image offImg = super.createImage(width, height);
 	//Image offImg = 
 	//   imagePanel.createImage(new MemoryImageSource(width, height, 
 	//					 new int[width*height],
 	//					 0, width));
 
-	//  Graphics2D g = offImg.createGraphics();
-	Graphics2D g = (Graphics2D)offImg.getGraphics();
-        g.setBackground(Color.white);
+	Thread t = new Thread() {
+		public void run() {
+		    //  Graphics2D g = offImg.createGraphics();
+		    Graphics2D g = (Graphics2D)offImg.getGraphics();
+		    currentImageGraphics = g;
+		    g.setBackground(Color.white);
 
-        // clear canvas
-	g.clearRect(0, 0, width, height);
+		    // clear canvas
+		    g.clearRect(0, 0, width, height);
 
-        drawComponent(g);
-
+		    drawComponent(g);
+		    g.dispose();
+		    repaint();
+		}
+	    };
+	t.start();
 
 
         return offImg;
     }
 
-
+    /** Solely for use to d3etermine if drawing thread is still current. */
+    private Graphics2D currentImageGraphics = null;
 
     public void showImage( Image image){
 
