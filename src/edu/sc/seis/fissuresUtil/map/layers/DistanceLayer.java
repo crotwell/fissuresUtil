@@ -129,15 +129,17 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
     }
 
     public boolean mouseMoved(MouseEvent e){
-        try{
-            LatLonPoint llp = mapBean.getCoordinates(e);
-            double dist = StationLayer.calcDistEventFromLocation(llp.getLatitude(),
-                                                                 llp.getLongitude(),
-                                                                 events[0]);
-            String message = "Distance from Event: " + dist + " deg";
-            fireRequestInfoLine(message);
+        if (events != null && events[0] != null){
+            try{
+                LatLonPoint llp = mapBean.getCoordinates(e);
+                double dist = StationLayer.calcDistEventFromLocation(llp.getLatitude(),
+                                                                     llp.getLongitude(),
+                                                                     events[0]);
+                String message = "Distance from Event: " + dist + " deg";
+                fireRequestInfoLine(message);
+            }
+            catch(NoPreferredOrigin npo){}
         }
-        catch(NoPreferredOrigin npo){}
         return false;
     }
 
