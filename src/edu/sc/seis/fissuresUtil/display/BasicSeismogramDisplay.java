@@ -94,18 +94,20 @@ public class BasicSeismogramDisplay extends JComponent implements ConfigListener
     public void add(DataSetSeismogram[] seismos){
 	registrar.add(seismos);
 	for(int i = 0; i < seismos.length; i++){
-	    seismograms.add(seismos[i]);	
-	    SeismogramShape newPlotter;
-	    if (autoColor) {
-		newPlotter = new SeismogramShape(seismos[i], seisColors[seisCount%seisColors.length]);
-	    }else {
-		newPlotter = new SeismogramShape(seismos[i], Color.blue);
-	    } // end of else
-	    if(parent != null){
-		newPlotter.setVisibility(parent.getOriginalVisibility());
+	    if(seismos[i] ! = null){
+		seismograms.add(seismos[i]);	
+		SeismogramShape newPlotter;
+		if (autoColor) {
+		    newPlotter = new SeismogramShape(seismos[i], seisColors[seisCount%seisColors.length]);
+		}else {
+		    newPlotter = new SeismogramShape(seismos[i], Color.blue);
+		} // end of else
+		if(parent != null){
+		    newPlotter.setVisibility(parent.getOriginalVisibility());
+		}
+		plotters.add(seisCount, newPlotter);
+		seisCount++;
 	    }
-	    plotters.add(seisCount, newPlotter);
-	    seisCount++;
 	}
 	Iterator e = globalFilters.iterator();
 	while(e.hasNext()){
