@@ -135,7 +135,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     public void updateTimeRange(){
 	this.timeScaleMap.setTimes(timeRegistrar.getTimeRange().getBeginTime(), 
 				   timeRegistrar.getTimeRange().getEndTime());
-	redo = true;
+	//redo = true;
 	repaint();
     }
 
@@ -415,7 +415,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		    imageCache.addFirst(overSizedImage.get());
 		}
 		g2.drawImage(((Image)overSizedImage.get()), AffineTransform.getTranslateInstance(-offset, 0.0), null);
-		if(redo){
+		if(redo || endTime >= overTimeRange.getEndTime().getMicroSecondTime() || 
+		   beginTime <= overTimeRange.getBeginTime().getMicroSecondTime()){
 		    logger.debug("the image is being redone");
 		    this.createImage();
 		}
