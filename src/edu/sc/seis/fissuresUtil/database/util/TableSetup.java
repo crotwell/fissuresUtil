@@ -66,7 +66,7 @@ public class TableSetup {
             if (statements.has(key)) {
                 String sql = statements.get(key);
                 field.setAccessible(true);
-                field.set(tableObj, new JDBCSequence(conn, tableName+"Seq", statements.get(tableName+"Seq.create"), statements.get(tableName+"Seq.nextVal")));
+                field.set(tableObj, new JDBCSequence(conn, tableName+"Seq"));
             } else {
                 throw new IllegalArgumentException(tableName+"Seq.create is not defined, unable to create sequence");
             }

@@ -2,13 +2,3 @@ driver=org.hsqldb.jdbcDriver
 URL=jdbc:hsqldb:.
 user=sa
 password=
-
-ParameterRefSeq.nextVal=CALL NEXT VALUE FOR ParameterRefSeq
-
-unit_seq.nextVal=CALL NEXT VALUE FOR unit_seq
-
-LocationSeq.nextVal=CALL NEXT VALUE FOR LocationSeq
-
-QuantitySeq.nextVal=CALL NEXT VALUE FOR QuantitySeq
-
-TimeSeq.nextVal=CALL NEXT VALUE FOR TimeSeq

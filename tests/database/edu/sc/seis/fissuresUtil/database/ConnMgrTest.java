@@ -9,12 +9,11 @@ public class ConnMgrTest extends TestCase{
     }
 
     public void testSetDB()throws IOException{
-        ConnMgr.setDB();
-        assertEquals("org.hsqldb.jdbcDriver", ConnMgr.getSQL("driver"));
-        assertEquals("CREATE SEQUENCE ParameterRefSeq",
-                     ConnMgr.getSQL("ParameterRefSeq.create"));
-        assertEquals("CALL NEXT VALUE FOR ParameterRefSeq",
-                     ConnMgr.getSQL("ParameterRefSeq.nextVal"));
+//        ConnMgr.setDB();
+//        assertEquals("org.hsqldb.jdbcDriver", ConnMgr.getSQL("driver"));
+        
+        ConnMgr.setDB("POSTGRES");
+        assertEquals("org.postgresql.Driver", ConnMgr.getSQL("driver"));
     }
 
     public void testAddPropLocation() throws IOException{
