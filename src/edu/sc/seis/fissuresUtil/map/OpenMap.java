@@ -6,8 +6,10 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.gui.OMComponentPanel;
+import com.bbn.openmap.image.SunJPEGFormatter;
 import com.bbn.openmap.layer.GraticuleLayer;
 import com.bbn.openmap.layer.etopo.ETOPOLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
@@ -221,13 +224,18 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         Properties props = shapeLayer.getProperties(null);
         props.remove("fillColor");
         shapeLayer.setProperties(props);
+        shapeLayer.repaint();
     }
 
     public void setEtopoLayer(String etopoDir) {
         setEtopoLayer(etopoDir, null);
     }
-
+    
     public void setEtopoLayer(String etopoDir, String colorMapFilename) {
+        setEtopoLayer(etopoDir, colorMapFilename, 15);
+    }
+
+    public void setEtopoLayer(String etopoDir, String colorMapFilename, int minuteSpacing) {
         ETOPOLayer topoLayer = null;
         try {
             if(colorMapFilename == null) {
@@ -245,7 +253,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         etopoProps.put("number.colors", "216");
         etopoProps.put("opaque", "255");
         etopoProps.put("view.type", "1");
-        etopoProps.put("minute.spacing", "15");
+        etopoProps.put("minute.spacing", Integer.toString(minuteSpacing));
         etopoProps.put("contrast", "5");
         topoLayer.setProperties(etopoProps);
         topoLayer.setVisible(true);
@@ -318,6 +326,22 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         }
     }
 
+    public void writeMapToJPEG(String filename) throws IOException {
+        File loc = new File(filename);
+        File parent = loc.getParentFile();
+        parent.mkdirs();
+        File temp = File.createTempFile(loc.getName(), null, parent);
+        SunJPEGFormatter formatter = new SunJPEGFormatter();
+        formatter.setImageQuality(0.8f);
+        byte[] imgBytes = formatter.getImageFromMapBean(mapBean);
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(temp));
+        bos.write(imgBytes);
+        bos.flush();
+        bos.close();
+        loc.delete();
+        temp.renameTo(loc);
+    }
+    
     public void writeMapToPNG(String filename) throws IOException {
         synchronized(OpenMap.class) {
             Projection proj = mapBean.getProjection();
@@ -398,6 +422,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         staLayer.stationDataChanged(new StationDataEvent(new Station[] {other}));
         staLayer.stationAvailabiltyChanged(new AvailableStationDataEvent(other,
                                                                          AvailableStationDataEvent.DOWN));
+        staLayer.printStationLocs();
         JButton reloadColorTable = new JButton("Reload Table");
         final JFrame frame = new JFrame("OpenMap Test");
         reloadColorTable.addActionListener(new ActionListener() {
