@@ -267,21 +267,26 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
 
         boolean quitThread;
 
+        int consecutiveFailures = 0;
+
         public void run() {
             setFinished(false);
+            consecutiveFailures = 0;
             quitThread = false;
             while (!quitThread) {
                 checkNet();
                 if(!quitThread){
                     try {
-                        setStatus("Waiting before trying again");
-                        Thread.sleep(1000);
+                        setStatus("Waiting 2 seconds before making another attempt");
+                        Thread.sleep(2000 * consecutiveFailures);
+                        if(consecutiveFailures > 5) quitThread = true;
                     }catch(InterruptedException e) {
                     }
                 }
             }
             logger.debug("network checker thread quitting");
             setFinished();
+            if(consecutiveFailures > 5) setStatus("Failed");
         }
 
         void checkNet() {
