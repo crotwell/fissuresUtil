@@ -208,6 +208,10 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
 
     public DataSetSeismogram getSeismogram(){ return shape.getSeismogram(); }
 
+    public String getDataStatus(){ return shape.getDataStatus();}
+
+    public void getData(){ shape.getData(); }
+
     public static void setDefaultVisibility(boolean visible){
         defaultVisibility = visible;
     }
