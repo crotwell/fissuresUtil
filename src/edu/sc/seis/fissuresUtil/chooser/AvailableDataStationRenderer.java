@@ -312,9 +312,9 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             logger.debug("checking "+net.get_attributes().get_code());
             TimeRange range;
             if (consecutiveFailures==0) {
-                setStatus("Creating available data status request");
+                setStatus("Creating available data request");
             } else {
-                setStatus(consecutiveFailures+" ReCreating available data status request");
+                setStatus("Creating available data request after " + consecutiveFailures + " failures");
             }
             if (origin == null) {
                 // use current time
@@ -343,9 +343,9 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             }
             if (dc.getDataCenter(net) != null) {
                 if (consecutiveFailures==0) {
-                    setStatus("Requesting available data status");
+                    setStatus("Checking data availability");
                 } else {
-                    setStatus(consecutiveFailures+" ReRequesting available data status");
+                    setStatus("Checking data availability after " + consecutiveFailures + " failures");
                 }
                 request = dc.available_data(request);
                 logger.debug(request.length+" items returned for "+net.get_attributes().get_code());
