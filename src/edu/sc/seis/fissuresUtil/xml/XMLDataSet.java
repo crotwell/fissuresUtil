@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 4106 2003-05-27 17:49:03Z crotwell $
+ * @version $Id: XMLDataSet.java 4121 2003-05-28 15:37:15Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -717,7 +717,6 @@ public class XMLDataSet implements DataSet, Serializable{
      * @return a <code>ChannelId[]</code> value
      */
     public ChannelId[] getChannelIds() {
-        Date startTime = Calendar.getInstance().getTime();
         String[] paramNames = getParameterNames();
         ArrayList arrayList = new ArrayList();
 
@@ -729,7 +728,6 @@ public class XMLDataSet implements DataSet, Serializable{
         }
         ChannelId[] channelIds = new ChannelId[arrayList.size()];
         channelIds = (ChannelId[]) arrayList.toArray(channelIds);
-        Date endTime = Calendar.getInstance().getTime();
         return channelIds;
     }
 
@@ -975,7 +973,7 @@ public class XMLDataSet implements DataSet, Serializable{
      * @return an <code>edu.sc.seis.fissuresUtil.cache.CacheEvent</code> value
      */
     public EventAccessOperations getEvent() {
-        return (edu.sc.seis.fissuresUtil.cache.CacheEvent)getParameter(StdDataSetParamNames.EVENT);
+        return (EventAccessOperations)getParameter(StdDataSetParamNames.EVENT);
     }
 
 
@@ -987,7 +985,7 @@ public class XMLDataSet implements DataSet, Serializable{
      */
     public Channel getChannel(ChannelId channelId) {
         Object obj = getParameter(StdDataSetParamNames.CHANNEL+ChannelIdUtil.toString(channelId));
-        return (edu.iris.Fissures.IfNetwork.Channel)obj;
+        return (Channel)obj;
     }
 
     /**
