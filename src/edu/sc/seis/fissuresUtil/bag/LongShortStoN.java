@@ -71,7 +71,7 @@ public class LongShortStoN {
         //   establish number of points in LTA and STA windows
         //    as well as in trgdly
 
-        float dt = (float)seis.getSampling().getPeriod().convertTo(UnitImpl.SECOND).get_value();
+        double dt = seis.getSampling().getPeriod().convertTo(UnitImpl.SECOND).get_value();
         int nlta=(int)(longTime.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
         int nsta=(int)(shortTime.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
         int ntdly=(int)(delay.divideBy(dt).convertTo(UnitImpl.SECOND).getValue()) + 1;
@@ -97,6 +97,7 @@ public class LongShortStoN {
         float dat;
         float ratio;
         boolean hold = false;
+        System.out.println("nsta="+nsta+" csta="+csta+" nlta="+nlta+" clta="+clta);
         for(int i=0 ; i < 2*nsta ; i++) {
             mean = mean + ( seisData[i]-mean)*cmean ;
             dat = seisData[i] - mean ;
@@ -136,7 +137,9 @@ public class LongShortStoN {
                 LongShortTrigger trigger = new LongShortTrigger(seis,
                                                                 i,
                                                                 ratio,
-                                                                new MicroSecondDate((long)(seisStart + sampling * i)));
+                                                                new MicroSecondDate((long)(seisStart + sampling * i)),
+                                                                sta,
+                                                                lta);
                 out.add(trigger);
             }
         }
@@ -231,7 +234,9 @@ public class LongShortStoN {
             if (ratio >= threshold) {
                 LongShortTrigger trigger = new LongShortTrigger(seis,
                                                                 i,
-                                                                ratio);
+                                                                ratio,
+                                                                ysta,
+                                                                ylta);
                 out.add(trigger);
             }
         }
@@ -245,6 +250,7 @@ public class LongShortStoN {
     protected float threshold;
     protected TimeInterval meanTime;
 }
+
 
 
 
