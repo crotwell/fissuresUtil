@@ -22,11 +22,11 @@ public class BasicAmpEvent implements AmpEvent{
         this.amps = amps;
         generateGenericAmp();
     }
-    
+
     public UnitRangeImpl getAmp(DataSetSeismogram seismo){
         return amps[indexOf(seismo)];
     }
-    
+
     public boolean contains(DataSetSeismogram seismo){
         try{
             indexOf(seismo);
@@ -35,11 +35,11 @@ public class BasicAmpEvent implements AmpEvent{
             return false;
         }
     }
-    
+
     public UnitRangeImpl getAmp(){
         return genericAmp;
     }
-    
+
     private void generateGenericAmp(){
         // Currently, we only do "real world units" in the case of one seismogram
         // eventually, the overlays should
@@ -63,10 +63,10 @@ public class BasicAmpEvent implements AmpEvent{
             }
         }
     }
-    
+
     /** calculates a new generic amp using the response of the given seismogram.
      If seis does not have a response, then the initial amp is used. */
-    protected static UnitRangeImpl calcGenericAmp(UnitRangeImpl inAmp, DataSetSeismogram seis) {
+    protected UnitRangeImpl calcGenericAmp(UnitRangeImpl inAmp, DataSetSeismogram seis) {
         Object obj = seis.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
         Response resp = (Response)obj;
         if (obj != null) {
@@ -79,15 +79,15 @@ public class BasicAmpEvent implements AmpEvent{
             return inAmp;
         }
     }
-    
+
     public void setAmp(UnitRangeImpl amp){
         genericAmp = amp;
     }
-    
+
     public DataSetSeismogram[] getSeismograms() {
         return seismos;
     }
-    
+
     private int indexOf(DataSetSeismogram seismo){
         for(int i = 0; i < seismos.length; i++){
             if(seismos[i] == seismo){
@@ -96,11 +96,11 @@ public class BasicAmpEvent implements AmpEvent{
         }
         throw new IllegalArgumentException("Seismogram is not in this AmpEvent");
     }
-    
+
     private DataSetSeismogram[] seismos;
-    
+
     private UnitRangeImpl[] amps;
-    
+
     private UnitRangeImpl genericAmp;
 }
 
