@@ -13,37 +13,30 @@ import org.apache.log4j.*;
  * Created: Sat Oct 19 21:54:26 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: RMean.java 2794 2002-10-22 01:39:52Z crotwell $
+ * @version $Id: RMean.java 2883 2002-11-07 02:54:56Z crotwell $
  */
 
-public class RMean {
-    public static LocalSeismogram removeMean(LocalSeismogramImpl seis){
-	TimeSeriesType dataType = seis.getDataType();
-	TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
-	switch (dataType.value()) {
-	case TimeSeriesType._TYPE_LONG:
-	    int[] iSeries = seis.get_as_longs();
-	    return new LocalSeismogramImpl(seis, removeMean(iSeries));
-	case TimeSeriesType._TYPE_SHORT:
+public class RMean implements LocalSeismogramFunction {
+  
+    public LocalSeismogramImpl apply(LocalSeismogramImpl seis){
+	if (seis.can_convert_to_short()) {
 	    short[] sSeries = seis.get_as_shorts();
 	    return new LocalSeismogramImpl(seis, removeMean(sSeries));
-	case TimeSeriesType._TYPE_FLOAT:
+	} else if (seis.can_convert_to_long()) {
+	    int[] iSeries = seis.get_as_longs();
+	    return new LocalSeismogramImpl(seis, removeMean(iSeries));
+	} else if (seis.can_convert_to_float()) {
 	    float[] fSeries = seis.get_as_floats();
 	    return new LocalSeismogramImpl(seis, removeMean(fSeries));
-	case TimeSeriesType._TYPE_DOUBLE:
+	} else {
 	    double[] dSeries = seis.get_as_doubles();
-	    return new LocalSeismogramImpl(seis, removeMean(dSeries));
-	    
-	default:
-	    // must be encoded?
-
-	    return null;
-	} // end of switch (dataType.value())
-	
+	    return new LocalSeismogramImpl(seis, removeMean(dSeries));	 
+	} // end of else
     }
     
     public static float[] removeMean(float[] data) {
 	float[] out = new float[data.length];
+	System.arraycopy(data, 0, out, 0, data.length);
 	removeMeanInPlace(out);
 	return out;
     }
@@ -59,6 +52,7 @@ public class RMean {
     
     public static double[] removeMean(double[] data) {
 	double[] out = new double[data.length];
+	System.arraycopy(data, 0, out, 0, data.length);
 	removeMeanInPlace(out);
 	return out;
     }
