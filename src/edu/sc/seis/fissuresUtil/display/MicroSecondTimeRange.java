@@ -4,7 +4,6 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import java.text.DateFormat;
-import java.text.ParseException;
 import org.apache.log4j.Category;
 /**
  * MicroSecondTimeRanges are objects to set the time range for a seismogram and assorted widgets that go with them.  It implements TimeSyncListener
@@ -18,9 +17,9 @@ import org.apache.log4j.Category;
 
 public class MicroSecondTimeRange{
     
-	private MicroSecondTimeRange(RequestFilter rf) throws ParseException{
-		this(new MicroSecondDate(DateFormat.parse(rf.start_time.date_time)),
-			 new MicroSecondDate(DateFormat.parse(rf.end_time.date_time)));
+	public MicroSecondTimeRange(RequestFilter rf){
+		this(new MicroSecondDate(rf.start_time),
+			 new MicroSecondDate(rf.end_time));
 	}
 	
 	/**
@@ -45,15 +44,6 @@ public class MicroSecondTimeRange{
 		this.interval = interval;
 	}
 	
-	public static MicroSecondTimeRange createTimeRangeFromFilter(RequestFilter rf){
-		try{
-			return new MicroSecondTimeRange(rf);
-		}catch(ParseException e){
-			logger.debug("caught parse exception turning RequestFilter into MicroSecondTimeRange.  Using one MS interval");
-			return MicroSecondTimeRange.ONE_MS;
-		}
-	}
-			
 	public MicroSecondTimeRange shale(double shift, double scale){
 		if(shift == 0 && scale == 1){
 			return this;
@@ -123,6 +113,6 @@ public class MicroSecondTimeRange{
 	private final MicroSecondDate endTime;
 	
 	private final TimeInterval interval;
-
+	
 	private static Category logger = Category.getInstance(MicroSecondTimeRange.class.getName());
 }// MicroSecondTimeRange
