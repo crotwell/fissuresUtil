@@ -2,15 +2,18 @@ package edu.sc.seis.fissuresUtil.display;
 
 import edu.sc.seis.fissuresUtil.display.registrar.*;
 import java.awt.*;
-import java.util.*;
 
-import edu.sc.seis.fissuresUtil.display.drawable.DisplayRemover;
+import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
+import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
 import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -19,7 +22,6 @@ import javax.swing.JSlider;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 
 public class RecordSectionDisplay extends SeismogramDisplay implements TimeListener, AmpListener, LayoutListener{
 
@@ -84,7 +86,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         }
         layout.add(seismos);
         for (int i = 0; i < seismos.length; i++){
-            drawable.add(new DrawableSeismogram(this, seismos[i]));
+            if(!contains(seismos[i])){
+                    drawables.add(new DrawableSeismogram(this, seismos[i]));
+                }
         }
         updating = false;
         if(displayRemover == null){
@@ -101,6 +105,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
             resize();
         }
         repaint();
+    }
+
+    public void add(Drawable drawable){
+        drawables.add(drawable);
+    }
+
+    public void remove(Drawable drawable){
+        drawables.remove(drawable);
     }
 
     public void setTimeConfig(TimeConfig tc) {
@@ -159,22 +171,22 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     }
 
     public synchronized DataSetSeismogram[] getSeismograms() {
-        return drawableToDataSet(drawable);
+        return drawableToDataSet(drawables);
     }
 
 
     public DrawableIterator iterator(Class drawableClass) {
-        return new DrawableIterator(drawableClass, drawable);
+        return new DrawableIterator(drawableClass, drawables);
     }
 
-    private DataSetSeismogram[] drawableToDataSet(List drawable){
-        DataSetSeismogram[] seis = new DataSetSeismogram[drawable.size()];
-        Iterator it = drawable.iterator();
-        int i = 0;
+    private DataSetSeismogram[] drawableToDataSet(List drawables){
+        List dataSetSeis = new ArrayList();
+        Iterator it = new DrawableIterator(DrawableSeismogram.class, drawables);
         while(it.hasNext()){
-            DrawableSeismogram cur = (DrawableSeismogram)it.next();
-            seis[i++] = cur.getSeismogram();
+            dataSetSeis.add(((DrawableSeismogram)it.next()).getSeismogram());
         }
+        DataSetSeismogram[] seis = new DataSetSeismogram[dataSetSeis.size()];
+        dataSetSeis.toArray(seis);
         return seis;
     }
 
@@ -196,7 +208,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
         layout = null;
         tc = null;
         ac = null;
-        drawable.clear();
+        drawables.clear();
         displayRemover = null;
         setBorder(BorderFactory.createEmptyBorder());
         painter = null;
@@ -206,7 +218,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
     public synchronized void remove(DataSetSeismogram[] seismos) {
         List removed = new ArrayList();
         for (int i = 0; i < seismos.length; i++){
-            Iterator it = drawable.iterator();
+            Iterator it = new DrawableIterator(DrawableSeismogram.class,
+                                               drawables);
             while(it.hasNext()){
                 DrawableSeismogram current = (DrawableSeismogram)it.next();
                 if(current.getSeismogram().equals(seismos[i])){
@@ -214,7 +227,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                 }
             }
         }
-        drawable.removeAll(removed);
+        drawables.removeAll(removed);
         DataSetSeismogram[] removedSeis = drawableToDataSet(removed);
         tc.remove(removedSeis);
         ac.remove(removedSeis);
@@ -272,11 +285,19 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
                     g2.translate(0, -neededYPos);
                     cur.drawName(g2, 5, (int)(neededYPos + drawHeight/2));
                 }
+                it = drawables.iterator();
+                while(it.hasNext()){
+                    Drawable current = (Drawable)it.next();
+                    if(!(current instanceof DrawableSeismogram)){
+                        current.draw(g2, size, timeEvent, ampEvent);
+                    }
+                }
             }
         }
 
         public DrawableSeismogram toDrawable(DataSetSeismogram seis){
-            Iterator it = drawable.iterator();
+            Iterator it = new DrawableIterator(DrawableSeismogram.class,
+                                               drawables);
             DrawableSeismogram current = null;
             while(it.hasNext()){
                 current = (DrawableSeismogram)it.next();
@@ -334,7 +355,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements TimeListe
 
     private SeismogramDisplayRemovalBorder displayRemover;
 
-    private List drawable = new ArrayList();
+    private List drawables = new ArrayList();
 
     private TimeConfig tc;
 

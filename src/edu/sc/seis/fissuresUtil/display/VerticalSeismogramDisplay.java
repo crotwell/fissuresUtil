@@ -4,6 +4,7 @@ import java.util.*;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
@@ -11,7 +12,6 @@ import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.exceptionHandlerGUI.ExceptionHandlerGUI;
-import edu.sc.seis.fissuresUtil.freq.ColoredFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -110,6 +110,20 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay{
      *
      */
     public abstract BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss, TimeConfig tc, AmpConfig ac);
+
+    public void add(Drawable drawable){
+        BasicSeismogramDisplay disp = (BasicSeismogramDisplay)basicDisplays.get(0);
+        if(disp != null){
+            disp.add(drawable);
+        }
+    }
+
+    public void remove(Drawable drawable){
+        BasicSeismogramDisplay disp = (BasicSeismogramDisplay)basicDisplays.get(0);
+        if(disp != null){
+            disp.remove(drawable);
+        }
+    }
 
     public DataSetSeismogram[] getSeismograms(){
         java.util.List seismogramList = new ArrayList();

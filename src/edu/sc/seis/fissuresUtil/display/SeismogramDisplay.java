@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.Selection;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
@@ -40,6 +41,10 @@ public abstract class SeismogramDisplay extends JComponent implements DataSetSei
             ((SeismogramDisplayListener)it.next()).switching(this, to);
         }
     }
+
+    public abstract void add(Drawable drawable);
+
+    public abstract void remove(Drawable drawable);
 
     public static Set getActiveFilters(){ return activeFilters; }
 
