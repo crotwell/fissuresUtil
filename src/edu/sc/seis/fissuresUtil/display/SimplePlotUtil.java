@@ -228,10 +228,14 @@ public class SimplePlotUtil  {
 	    seisIndex++;
 	}
 	xvalue = tempValue;
-	out[0][numAdded] = xvalue;
-	out[0][numAdded+1] = xvalue;
-	out[1][numAdded] = tempYvalues[j-1];
-	out[1][numAdded+1] = tempYvalues[j-1];
+	/*if(j == 0){
+	    out[1][numAdded] = getMinValue(tempYvalues, 0, 0);
+	    out[1][numAdded+1] = (int)getMaxValue(tempYvalues, 0, 0);
+	}
+	else{
+	    out[1][numAdded] = getMinValue(tempYvalues, 0, j-1);
+	    out[1][numAdded + 1] = (int)getMaxValue(tempYvalues, 0, j-1);
+	    }*/
 	int temp[][] = new int[2][numAdded];
 	System.arraycopy(out[0], 0, temp[0], 0, numAdded);
 	System.arraycopy(out[1], 0, temp[1], 0, numAdded);
