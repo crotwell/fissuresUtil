@@ -15,6 +15,8 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.database.DBDataCenter;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.time.CoverageTool;
+import edu.sc.seis.fissuresUtil.time.RangeTool;
 import edu.sc.seis.fissuresUtil.xml.DCDataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
@@ -55,7 +57,7 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
         //getting set to null at other points in the code
         MicroSecondTimeRange fullTime = time;
         if(fullTime == null){
-            fullTime = DisplayUtils.getFullTime(getSeismograms());
+            fullTime = RangeTool.getFullTime(getSeismograms());
             time = fullTime;
         }
         return getIterator(fullTime);
@@ -123,7 +125,7 @@ public class SeismogramContainer implements SeisDataChangeListener, RequestFilte
             for (int j = 0; j < seismograms.length; j++) {
                 LocalSeismogramImpl[] curSeis = getSeismograms(false);
                 RequestFilter[] needed = { seismogram.getRequestFilter() };
-                RequestFilter[] uncovered = DBDataCenter.notCovered(needed, curSeis);
+                RequestFilter[] uncovered = CoverageTool.notCovered(needed, curSeis);
                 boolean satisfiesUncovered = false;
                 for (int i = 0; i < uncovered.length; i++) {
                     if(DCDataSetSeismogram.intersects(uncovered[i], seismograms[j])){
