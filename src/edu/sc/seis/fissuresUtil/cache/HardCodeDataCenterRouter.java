@@ -99,7 +99,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                 try {
                     logger.debug("Asking from "+i+" for "+
                                      ChannelIdUtil.toString(rf[0].channel_id)+
-                                " from "+rf[0].start_time.date_time+" to "+rf[0].end_time.date_time);
+                                     " from "+rf[0].start_time.date_time+" to "+rf[0].end_time.date_time);
                     RequestFilter[] ls = null;
                     try {
                         ls =
@@ -112,7 +112,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                             route[i].reloadDataCenter();
                             if (route[i].getDataCenter() != null) {
                                 ls =
-                                route[i].getDataCenter().available_data(rf);
+                                    route[i].getDataCenter().available_data(rf);
                             } else {
                                 throw new NullPointerException("No route to DataCenter "+route[i].getServerName() );
                             }
@@ -122,11 +122,11 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                         "Got "+ls.length+" req filter from "+i;
                     if (ls.length != 0) {
                         mesg += " for "+
-                                     ChannelIdUtil.toString(ls[0].channel_id)+
-                                " from "+ls[0].start_time.date_time+" to "+ls[0].end_time.date_time;
+                            ChannelIdUtil.toString(ls[0].channel_id)+
+                            " from "+ls[0].start_time.date_time+" to "+ls[0].end_time.date_time;
                     } else {
                         mesg += " for "+
-                                     ChannelIdUtil.toString(rf[0].channel_id);
+                            ChannelIdUtil.toString(rf[0].channel_id);
                     }
                     logger.debug(mesg);
                     for (int j = 0; j < ls.length; j++) {
@@ -176,7 +176,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                         ls =
                             route[i].getDataCenter().retrieve_seismograms(rf);
                     } catch (org.omg.CORBA.SystemException e) {
-                            logger.debug("Caught corba SystemException, retrying once.",e);
+                        logger.debug("Caught corba SystemException, retrying once.",e);
                         try {
                             ls =
                                 route[i].getDataCenter().retrieve_seismograms(rf);
@@ -185,7 +185,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                             route[i].reloadDataCenter();
                             if (route[i].getDataCenter() != null) {
                                 ls =
-                                route[i].getDataCenter().retrieve_seismograms(rf);
+                                    route[i].getDataCenter().retrieve_seismograms(rf);
                             } else {
                                 throw new NullPointerException("No route to DataCenter "+route[i].getServerName() );
                             }
@@ -193,7 +193,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
                     }
                     logger.debug("Got "+ls.length+" lseis from "+i+" for "+
                                      ChannelIdUtil.toString(rf[0].channel_id)+
-                                " from "+rf[0].start_time.date_time+" to "+rf[0].end_time.date_time);
+                                     " from "+rf[0].start_time.date_time+" to "+rf[0].end_time.date_time);
                     for (int j = 0; j < ls.length; j++) {
                         allSeis.add(ls[j]);
                     }
@@ -293,7 +293,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
     }
 
     protected DataCenterOperations getSceppDC() {
-            logger.debug("Resolving Scepp DataCenter");
+        logger.debug("Resolving Scepp DataCenter");
         while (sceppDC == null) {
             TimeInterval delay = sceppDCLoadTime.difference(ClockUtil.now());
             delay.convertTo(UnitImpl.SECOND);
@@ -313,18 +313,9 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
     protected DataCenterOperations loadSceppDC() {
         String dsname = SCEPP;
         if (sceppDC == null) {
-            try {
-                sceppDC = fissuresNamingService.getSeismogramDC("edu/sc/seis",
-                                                                "SCEPPSeismogramDC");
-            } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            }
+            sceppDC = BulletproofVestFactory.vestSeismogramDC("edu/sc/seis",
+                                                              "SCEPPSeismogramDC",
+                                                              fissuresNamingService);
         }
         return sceppDC;
     }
@@ -350,18 +341,9 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
     protected DataCenterOperations loadBudDC() {
         String dsname = BUD;
         if (budDC == null) {
-            try {
-                budDC = fissuresNamingService.getSeismogramDC("edu/iris/dmc",
-                                                              "IRIS_BudDataCenter");
-            } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            }
+            budDC = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
+                                                            "IRIS_BudDataCenter",
+                                                            fissuresNamingService);
         }
         return budDC;
     }
@@ -387,18 +369,9 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements DataCe
     protected DataCenterOperations loadPondDC() {
         String dsname = POND;
         if (pondDC == null) {
-            try {
-                pondDC = fissuresNamingService.getSeismogramDC("edu/iris/dmc",
-                                                               "IRIS_PondDataCenter");
-            } catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.NotFound e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            } catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
-                GlobalExceptionHandler.handle("Can't get DataCenter for "+dsname, e);
-            }
+            pondDC = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
+                                                             "IRIS_PondDataCenter",
+                                                             fissuresNamingService);
         }
         return pondDC;
     }

@@ -1,23 +1,26 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
-import edu.iris.Fissures.IfNetwork.NetworkDC;
 import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
-/**
- * BulletproofNetworkAccess combines our four delicious ProxyNetworkAccess
- * classes in a hard candy shell.  The order is NSNetworkAccess inside a
- * RetryNetworkAccess inside a CacheNetworkAccess inside a
- * SynchronizedDCNetworkAccess.  This means that all of the results you get from
- * this network access will be synched around the DC, cached, if there are some
- * transient network issues we'll retry 3 times, and if the network access
- * reference goes stale we'll reget it from the naming service.  It'd be wise
- * to use a NSNetworkDC as the type of NetworkDCOperations as it allows the
- * NetworkDC to be refreshed from the naming service if the reference goes stale
- *
- */
+
 public class BulletproofVestFactory{
 
+    /**
+     * Bulletproofing the NetworkAccess combines our four delicious ProxyNetworkAccess
+     * classes in a hard candy shell.  The order is SynchronizedDCNetworkAccess
+     * inside a NSNetworkAccess inside a
+     * RetryNetworkAccess inside a CacheNetworkAccess.
+     * This means that all of the results you get from
+     * this network access will be synched around the DC, cached, if there are some
+     * transient network issues we'll retry 3 times, and if the network access
+     * reference goes stale we'll reget it from the naming service.  It'd is required
+     * to use a NSNetworkDC as the type of NetworkDCOperations as it allows the
+     * NetworkDC to be refreshed from the naming service if the reference goes stale
+     *
+     * @throws IllegalArguemtnException if the netDC does not wrap a NSNetworkDC at some level.
+     */
     public static ProxyNetworkAccess networkAccessVest(NetworkAccess na, ProxyNetworkDC netDC) {
         //avoid vesting if it is already vested.
         if(na instanceof CacheNetworkAccess) {
@@ -40,6 +43,15 @@ public class BulletproofVestFactory{
 
     }
 
+    public static ProxyNetworkDC vestNetworkDC(String serverDNS, String serverName, FissuresNamingService fisName) {
+        return new RetryNetworkDC(new NSNetworkDC(serverDNS, serverName, fisName), 2);
+    }
 
+    public static ProxySeismogramDC vestSeismogramDC(String serverDNS, String serverName, FissuresNamingService fisName) {
+        NSSeismogramDC ns = new NSSeismogramDC(serverDNS, serverName, fisName);
+        RetrySeismogramDC retry = new RetrySeismogramDC(ns, 3);
+        return retry;
+    }
 }
+
 
