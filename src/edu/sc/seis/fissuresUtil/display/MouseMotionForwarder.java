@@ -19,6 +19,14 @@ public class MouseMotionForwarder implements MouseMotionListener {
 	
     }
 
+    public void setMouseListener(MouseMotionListener m){
+	if(current != null){
+	    listenerList.remove(MouseMotionListener.class, current);
+	}
+	current = m;
+	listenerList.add(MouseMotionListener.class, m);
+    }
+
     public void addMouseMotionListener(MouseMotionListener m) {
 	if(current != null)
 	    listenerList.remove(MouseMotionListener.class, current);
@@ -29,6 +37,13 @@ public class MouseMotionForwarder implements MouseMotionListener {
     public void removeMouseMotionListener(MouseMotionListener m) {
 	current = null;
 	listenerList.remove(MouseMotionListener.class, m);
+    }
+
+    public void removeMouseMotionListener(){
+	if(current != null){
+	    listenerList.remove(MouseMotionListener.class, current);
+	    current = null;
+	}
     }
 
     public void mouseDragged(MouseEvent e) {
