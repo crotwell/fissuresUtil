@@ -1,7 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.IfNetwork.Response;
 import java.text.DecimalFormat;
 
 /**
@@ -15,33 +18,26 @@ import java.text.DecimalFormat;
  */
 
 public class AmpScaleMapper implements ScaleMapper, AmpListener {
-    public AmpScaleMapper(int totalPixels, int hintPixels, Registrar reg){
-        this(totalPixels, hintPixels, reg, 1, UnitImpl.COUNT);
-    }
 
-    public AmpScaleMapper(int totalPixels, 
-                          int hintPixels, 
-                          Registrar reg, 
-                          float sensitivity, 
-                          UnitImpl originalUnit){
+    public AmpScaleMapper(int totalPixels,
+                          int hintPixels,
+                          Registrar reg){
         this.totalPixels = totalPixels;
         this.hintPixels = hintPixels;
         this.reg = reg;
-        this.sensitivity = sensitivity;
-        this.originalUnit = originalUnit;
         reg.addListener(this);
     }
 
     public int getPixelLocation(int i){
 
         return (int)Math.round(SimplePlotUtil.linearInterp(minTick, 0,
-                                            calcRange, totalPixels,
-                                            minTick + i * tickInc));
+                                                           calcRange, totalPixels,
+                                                           minTick + i * tickInc));
     }
 
     public String getLabel(int i) {
         if (isLabelTick(i)) {
-            double value = (minTick + i * tickInc)/sensitivity;
+            double value = minTick + i * tickInc;
             double absValue = Math.abs(value);
             // use regular notation
             DecimalFormat df;
@@ -62,7 +58,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
     }
 
     public UnitImpl getUnit() {
-        return originalUnit;
+        return range.getUnit();
     }
 
     public int getNumTicks() {
@@ -82,8 +78,8 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
             numTicks = 0;
             return;
         }
-        UnitRangeImpl sensitivityRange = getSensitivityRange();
-        double rangeWidth = sensitivityRange.getMaxValue()-sensitivityRange.getMinValue();
+
+        double rangeWidth = range.getMaxValue()-range.getMinValue();
 
         if ( rangeWidth == 0) {
             // not a real range
@@ -95,7 +91,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         // find power of ten just larger than the goalTickInc
         tickInc = Math.pow(10,
                            Math.ceil(Math.log(rangeWidth) /
-                                     Math.log(10.0)));
+                                         Math.log(10.0)));
         double goalTickInc = (rangeWidth) / totalPixels * hintPixels;
 
         //mostly major ticks are ten x minor ticks, but may be overridden
@@ -114,9 +110,9 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         }
 
         minTick = tickInc *
-            Math.floor(sensitivityRange.getMinValue() / tickInc);
+            Math.floor(range.getMinValue() / tickInc);
         double minMajorTick = majorTickStep * tickInc *
-            Math.floor(sensitivityRange.getMinValue() /
+            Math.floor(range.getMinValue() /
                            (majorTickStep * tickInc));
         firstMajorTick = (int)Math.round((minTick-minMajorTick)/tickInc);
         if (firstMajorTick < 0) {
@@ -124,7 +120,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         }
 
         numTicks = 1;
-        while (minTick + numTicks * tickInc <= sensitivityRange.getMaxValue() ) {
+        while (minTick + numTicks * tickInc <= range.getMaxValue() ) {
             numTicks++;
         }
         calcRange = tickInc * numTicks + minTick;
@@ -146,18 +142,13 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         return range;
     }
 
-    /** returns the range modified by the sensitivity. This should be
-        in units of ground motion.
-    */
-    public UnitRangeImpl getSensitivityRange() {
-        return new UnitRangeImpl(range.getMinValue()/sensitivity,
-                                 range.getMaxValue()/sensitivity,
-                                 originalUnit);
-    }
-
     public void updateAmp(AmpEvent event){
-        range = event.getAmp();
-        calculateTicks();
+        lastAmpEvent = event;
+        if (event.getSeismograms().length != 0) {
+        setUnitRange(getRealWorldUnitRange(event.getAmp(), event.getSeismograms()[0]));
+        } else {
+            setUnitRange(event.getAmp());
+        }
     }
 
     public void setRegistrar(Registrar reg){
@@ -166,9 +157,25 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
         reg.addListener(this);
     }
 
-    private float sensitivity;
+    public UnitRangeImpl getRealWorldUnitRange(UnitRangeImpl ur, DataSetSeismogram seismo) {
+        UnitImpl lastUnit = null;
+        UnitImpl realWorldUnit = UnitImpl.COUNT;
+        // this is the constant to divide by to get real worl units (not counts)
+        float sensitivity = 1.0f;
+        Object responseObj =
+            seismo.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
+        if (responseObj != null && responseObj instanceof Response) {
+            Response response = (Response)responseObj;
+            realWorldUnit = (UnitImpl)response.stages[0].input_units;
+            sensitivity = response.the_sensitivity.sensitivity_factor;
+        }
+        UnitRangeImpl out = new UnitRangeImpl(ur.getMinValue()/sensitivity,
+                                              ur.getMaxValue()/sensitivity,
+                                              realWorldUnit);
+        return out;
+    }
 
-    private UnitImpl originalUnit;
+    private AmpEvent lastAmpEvent = null;
 
     private int firstMajorTick = 0;
 
