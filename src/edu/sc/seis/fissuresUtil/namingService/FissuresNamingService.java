@@ -303,6 +303,8 @@ public class FissuresNamingService {
                             logger.error("Caught AlreadyBound, should not happen, ignoring...",
                                          e);
                         } // end of try-catch
+                        topLevelNameContext.rebind(topLevelNameContext.to_name(nameString),
+                                                   obj);
                         break;
                     case NotFoundReason._not_context:
                         logger.info("Not a Context");
