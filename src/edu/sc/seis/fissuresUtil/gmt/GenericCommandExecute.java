@@ -51,9 +51,16 @@ public class GenericCommandExecute {
         } catch (InterruptedException e) {
             // assume all is well???
         }
-        synchronized(pump) {}
-        synchronized(stdInPump) {}
-        synchronized(errPump) {}
+        try {
+            errPump.join();
+        } catch (InterruptedException e) {
+            // assume all is well???
+        }
+        try {
+            stdInPump.join();
+        } catch (InterruptedException e) {
+            // assume all is well???
+        }
         System.out.println("command returned exit value " + exitVal);
         if(!pump.hasCompleted() || !errPump.hasCompleted()) { 
             throw new IllegalStateException("Pumps must complete: stdout:"+pump.hasCompleted()+"  stderr:"+errPump.hasCompleted()+"  exitValue:"+exitVal);
