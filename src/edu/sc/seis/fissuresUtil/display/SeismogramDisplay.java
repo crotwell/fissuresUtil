@@ -15,11 +15,6 @@ import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 
 public interface SeismogramDisplay extends TimeSyncListener, AmpSyncListener {
     
-    /**
-     * Adds a seismogram to the display
-     *
-     */
-    public void addSeismogram(LocalSeismogram newSeismogram);
     
     /**
      * Removes a seismogram from the display

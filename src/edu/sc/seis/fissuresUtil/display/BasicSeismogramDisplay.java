@@ -31,34 +31,34 @@ import java.awt.print.*;
  * @version 0.1
  */
 
-public class BasicSeismogramDisplay extends JComponent implements SeismogramDisplay, GlobalToolbarActions{
+public class BasicSeismogramDisplay extends JComponent implements GlobalToolbarActions, SeismogramDisplay{
  
-    public BasicSeismogramDisplay(LocalSeismogram seis, String name, VerticalSeismogramDisplay parent){
+    public BasicSeismogramDisplay(DataSetSeismogram seis, String name, VerticalSeismogramDisplay parent){
 	timeRegistrar = new TimeConfigRegistrar(new BoundedTimeConfig(timeRegistrar));
 	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(ampRegistrar));
 	initializeDisplay(seis, name, parent);
     }
     
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, String name, VerticalSeismogramDisplay parent){
+    public BasicSeismogramDisplay(DataSetSeismogram seis, TimeConfigRegistrar tr, String name, VerticalSeismogramDisplay parent){
 	timeRegistrar = new TimeConfigRegistrar(tr);
 	ampRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig(ampRegistrar));
 	initializeDisplay(seis, name, parent);
     }
     
-    public BasicSeismogramDisplay(LocalSeismogram seis, AmpConfigRegistrar ar, String name, VerticalSeismogramDisplay parent){
+    public BasicSeismogramDisplay(DataSetSeismogram seis, AmpConfigRegistrar ar, String name, VerticalSeismogramDisplay parent){
 	timeRegistrar = new TimeConfigRegistrar(new BoundedTimeConfig(timeRegistrar));
 	ampRegistrar = new AmpConfigRegistrar(ar);
 	initializeDisplay(seis, name, parent);
     }
     
-    public BasicSeismogramDisplay(LocalSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name, 
+    public BasicSeismogramDisplay(DataSetSeismogram seis, TimeConfigRegistrar tr, AmpConfigRegistrar ar, String name, 
 				  VerticalSeismogramDisplay parent){
 	timeRegistrar = new TimeConfigRegistrar(tr);
 	ampRegistrar = new AmpConfigRegistrar(ar);
 	initializeDisplay(seis, name, parent);
     }
     
-    public void initializeDisplay(LocalSeismogram seis, String name, VerticalSeismogramDisplay parent){
+    public void initializeDisplay(DataSetSeismogram seis, String name, VerticalSeismogramDisplay parent){
 	this.name = name;
 	this.parent = parent;
 	timeRegistrar.addTimeSyncListener(this);
@@ -91,22 +91,18 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
     }
 
-    /**
-     * Adds a seismogram to the display
-     *
-     * @param newSeismogram a <code>LocalSeismogram</code> value
-     */
-    public void addSeismogram(LocalSeismogram newSeismogram){
+    public void addSeismogram(DataSetSeismogram newSeismogram){
 	seismos.add(newSeismogram);
-	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram, timeRegistrar, ampRegistrar);
+	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram.getSeismogram(), timeRegistrar, ampRegistrar);
 	Iterator e = filters.iterator();
 	seisPlotters.put(newPlotter, seisColors[seisPlotters.size()%seisColors.length]);
 	while(e.hasNext()){
-	    filterPlotters.put(new FilteredSeismogramPlotter(((ButterworthFilter)e.next()), newSeismogram, timeRegistrar, ampRegistrar), 
+	    filterPlotters.put(new FilteredSeismogramPlotter(((ButterworthFilter)e.next()), newSeismogram.getSeismogram(), 
+							     timeRegistrar, ampRegistrar), 
 			       filterColors[filterPlotters.size()%filterColors.length]);
 	}
-	timeRegistrar.addSeismogram(newSeismogram);
-	ampRegistrar.addSeismogram(newSeismogram);
+	timeRegistrar.addSeismogram(newSeismogram.getSeismogram());
+	ampRegistrar.addSeismogram(newSeismogram.getSeismogram());
 	redo = true;
     }
 
@@ -264,7 +260,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
        ampRegistrar.removeAmpSyncListener(this); 
        e = seismos.iterator();
        while(e.hasNext()){
-	   LocalSeismogram current = ((LocalSeismogram)e.next());
+	   LocalSeismogram current = ((DataSetSeismogram)e.next()).getSeismogram();
 	   timeRegistrar.removeSeismogram(current);
 	   ampRegistrar.removeSeismogram(current);
        }
@@ -369,7 +365,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		filters.add(filter);
 		Iterator e = seismos.iterator();
 		while(e.hasNext()){
-		    LocalSeismogram current = ((LocalSeismogram)e.next());
+		    LocalSeismogram current = ((DataSetSeismogram)e.next()).getSeismogram();
 		    logger.debug("creating a new filter for " + name);
 		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, current,
 											      timeRegistrar, ampRegistrar);
