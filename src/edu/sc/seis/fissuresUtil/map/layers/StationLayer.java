@@ -72,6 +72,7 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
     }
 
     public void stationDataCleared() {
+        stationMap.clear();
         omgraphics.clear();
         repaint();
     }
