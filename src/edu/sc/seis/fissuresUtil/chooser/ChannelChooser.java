@@ -1,372 +1,390 @@
 
-
 package edu.sc.seis.fissuresUtil.chooser;
 
+import edu.sc.seis.fissuresUtil.cache.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
 import edu.iris.Fissures.IfNetwork.*;
 import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.IfPlottable.*;
 import edu.iris.Fissures.display.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.utility.*;
-import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-//import edu.sc.seis.TauP.*;
 import java.io.*;
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.*;
-import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.*;
 import java.util.*;
-import java.text.*;
+import javax.swing.*;
+import javax.swing.event.*;
+
+
 
 /**
  * ChannelChooser.java
+ * 
+ * Description: This class creates a list of networks and their respective stations and channels. A non-null NetworkDC reference must be supplied in the constructor, then use the get methods to obtain the necessary information that the user clicked on with the mouse. It takes care of action listeners and single click mouse button.
  *
+ * @author Philip Crotwell
+ * @version $Id: ChannelChooser.java 1559 2002-05-01 14:32:50Z crotwell $
  *
- * @author Georgina Coleman, SrinivasaReddy Telukutla, Philip Crotwell
- * @version
- * 12/04/2001
  */
 
 
-public class ChannelChooser{
-
-    public ChannelChooser() {
+public class ChannelChooser extends JPanel{
 
 
+    public ChannelChooser(NetworkDC netdcgiven){
+        initFrame();
+	setNetworkDC(netdcgiven);
     }
 
-    public ChannelChooser(NetworkDCOperations netdcgiven){
-	netdc = (NetworkDC)netdcgiven;
-
- 
+    public void setNetworkDC(NetworkDC netdcgiven) {
+	netdc = netdcgiven;
+	channels.clear();
+	sites.clear();
+	stations.clear();
+	networks.clear();
+	Thread networkLoader = new Thread() {
+		public void run() {
+		    NetworkAccess[] nets = 
+			netdc.a_finder().retrieve_all();
+		    for (int i=0; i<nets.length; i++) {
+			networks.addElement(new CacheNetworkAccess(nets[i]));
+		    }
+		}
+	    };
+	networkLoader.start();
     }
 
-    public ChannelChooser(NetworkFinder netgiven){
-	netfound = netgiven;
+    public void initFrame(){
+	//	setSize(new java.awt.Dimension (mywidth, myheight));
+	//setPreferredSize(new java.awt.Dimension (mywidth, myheight));
+   
+	setLayout(new GridBagLayout());
+	gbc = new GridBagConstraints();
+	gbc.fill = gbc.BOTH;
+	gbc.weightx = 1.0;
+	gbc.weighty = 0.0;
+	gbc.gridx = 0;
+	gbc.gridy = 0;
 
- 
-    }
-
-    public void setNetworkDC(NetworkDCOperations netdc) {
-
-	this.netdc = (NetworkDC) netdc;
+	JLabel netLabel = new JLabel("NETWORKS  ");
+	JLabel staLabel = new JLabel("STATIONS   ");
+	JLabel siLabel = new JLabel("SITES   ");
+	JLabel chLabel = new JLabel("CHANNELS");
+	netLabel.setToolTipText(lnettip);
+	staLabel.setToolTipText(lstatip);
+	siLabel.setToolTipText(lsittip);
+	chLabel.setToolTipText(lchatip);
 	
-    }
-
-    public void setNetworkFinder(NetworkFinder netgiven) {
-
-	netfound = netgiven;
-
-    }
-
-
-     protected void findChannels() {
-
-	 /* Changed based on the new IDL with an array of Plottable*/
-	BoxAreaImpl box = new BoxAreaImpl(20, 40, -100, -70);
-        int max=10;
-	edu.iris.Fissures.IfNetwork.ChannelGroupIterHolder iterholder = new edu.iris.Fissures.IfNetwork.ChannelGroupIterHolder();
-
-        ChannelId[][] allChans =netdc.a_explorer().locate_all(box, max, iterholder);
-        /* end of change */
-
-	Set netSet = new HashSet();
-	Set staSet = new HashSet();
-	Set siteSet = new HashSet();
-	Set chanSet = new HashSet();
+	add(netLabel, gbc);
+	gbc.gridx++;
+	add(staLabel, gbc);
+	gbc.gridx++;
+	add(siLabel, gbc);
+	gbc.gridx++;
+	add(chLabel, gbc);
+	gbc.gridx++;
 	
-	for (int i=0; i<allChans.length; i++) {
-	    for (int j=0; j<allChans[i].length; j++) {
-		//System.out.println(ChannelIdUtil.toStringNoDates(allChans[i][j]));
-		allchanMap.put(ChannelIdUtil.toStringNoDates(allChans[i][j]),
-			    allChans[i][j]);
-		netSet.add(allChans[i][j].network_id.network_code);
-		staSet.add(allChans[i][j].station_code);
-		siteSet.add(allChans[i][j].site_code);
-		chanSet.add(allChans[i][j].channel_code);
+	gbc.gridy++;
+	gbc.gridx = 0;
+	gbc.weighty = 1.0;
+	ListCellRenderer renderer = new NameListCellRenderer(true);
+
+	netList = new JList(networks);
+	netList.setCellRenderer(renderer);
+	netList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	netList.addListSelectionListener(new ListSelectionListener() {
+
+		public void valueChanged(ListSelectionEvent e) {
+		    if(e.getValueIsAdjusting()){
+			return;
+		    }
+		    NetworkAccess net = getSelectedNetwork();
+		    Station[] newStations = net.retrieve_stations();
+		    stations.clear();
+		    for (int i=0; i<newStations.length; i++) {
+			stations.addElement(newStations[i]);
+		    }
+		}
 	    }
-	}
+					 );
 
-	TreeSet staTree = new TreeSet(staSet);
-	stations = (String[])staTree.toArray(new String[0]);
+	JScrollPane scroller = new JScrollPane(netList);
+	add(scroller, gbc);
+	gbc.gridx++;
 
-	networks = (String[])netSet.toArray(new String[0]);
-	//stations = (String[])staSet.toArray(new String[0]);
-	sites = (String[])siteSet.toArray(new String[0]);
-	channels = (String[])chanSet.toArray(new String[0]);
+	stationList = new JList(stations);
+	stationList.setCellRenderer(renderer);
+	stationList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	stationList.addListSelectionListener(new ListSelectionListener() {
 
-	/* set up channels zne instead of enz */
-	for (int i=0; i<channels.length; i++) {
-	    if (channels[i].endsWith("Z")) {
-		String tmp = channels[0];
-		channels[0] = channels[i];
-		channels[i] = tmp;
-	    } /* end of if (channels[i].endsWith("Z")) */
-	}	    
-    }
-
-    protected void  setNetDC(NetworkDCOperations netdcgiven) {
-	netdc = netdcgiven;	
-    }
-
-    protected void  setNetworks() {
-
-	edu.iris.Fissures.IfNetwork.NetworkAccess[] allNets = new
-                             edu.iris.Fissures.IfNetwork.NetworkAccess[0];
-
-        System.out.println("1setNetworks() ");
-        if(netdc != null) {
-	    edu.iris.Fissures.IfNetwork.NetworkFinder netfromdc = netdc.a_finder();
-        
-            System.out.println("2setNetworks() ");
-
-// 	    // testing...
-//             System.out.println("2testing _non_existent()"+netfromdc._non_existent());
-// 	    allNets = new NetworkAccess[0];
-// 	    try {
-// 		boolean isOut = netfromdc._is_a(NetworkFinderHelper.id());
-//             System.out.println("2testing _is_a"+isOut);
-
-// 	    allNets = netfromdc. retrieve_by_code("II");
-// 	    } catch (Exception e) {
-// 		e.printStackTrace();	
-// 	    } // end of try-catch
-	    
-	    MicroSecondDate before = new MicroSecondDate();
-	    allNets = netfromdc.retrieve_all();
-	    MicroSecondDate after = new MicroSecondDate();
-	    System.out.println("got "+allNets.length+" networks. "+after.subtract(before));
-
-        } else if(netfound != null) {
-            allNets = netfound.retrieve_all();
-	} else { 	   
-	    System.out.println("netdc or netfinder is null");
-	    return;
-	}
-
-
-	Set netSet = new HashSet();
-
-	for (int i=0; i< allNets.length; i++) {
-	    NetworkAttr attr = allNets[i].get_attributes();
-	    //System.out.println("4 allNets[i].get_attributes() ");
-
-	    NetworkId netid = attr.get_id();
-	    //System.out.println("5 attr.get_id() ");
-
-	    String netCode = netid.network_code;
-	    //System.out.println("6 netid.network_code ");
-
-	    // store NetworkId/NetworkAccess in a Map to get latter
-	    netMap.put(netCode, allNets[i]);
-	    //System.out.println("7 netMap.put ");
-
-	    netSet.add(netCode);
-	    //System.out.println("8 netSet.add ");
-
-	}
-
-	TreeSet netTree = new TreeSet(netSet);
-	networks = (String[])netTree.toArray(new String[0]);
+		public void valueChanged(ListSelectionEvent e) {
+		    if(e.getValueIsAdjusting()){
+			return;
+		    }
+		    ListSelectionModel selModel = stationList.getSelectionModel();
+		    for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
+			if (stationList.isSelectedIndex(i)) {
+			    NetworkAccess net = getSelectedNetwork();
+			    Station selectedStation = 
+				(Station)stations.getElementAt(i);
+			    Channel[] chans =
+				net.retrieve_for_station(selectedStation.get_id());
+			    for (int j=0; j<chans.length; j++) {
+				String chanKey = ChannelIdUtil.toString(chans[j].get_id());
+				if ( ! channelMap.containsKey(chanKey)) {
+				    channelMap.put(chanKey, chans[j]);
+				    if ( ! sites.contains(chans[j].my_site.get_code())) {
+					sites.addElement(chans[j].my_site.get_code());
+				    }
+				    if ( ! channels.contains(chans[j].get_code())) {
+					channels.addElement(chans[j].get_code());
+				    }
+				}
+			    } // end of for (int j=0; j<chans.length; j++)
+			    
+			} else {
+			    NetworkAccess net = getSelectedNetwork();
+			    Station selectedStation = 
+				(Station)stations.getElementAt(i);
+			    Channel[] chans =
+				net.retrieve_for_station(selectedStation.get_id());
+			    for (int j=0; j<chans.length; j++) {
+				String chanKey = ChannelIdUtil.toString(chans[j].get_id());
+				if ( channelMap.containsKey(chanKey)) {
+				    channelMap.remove(chanKey);
+				}
+			    }
+			}
+			
+		    } // end of for (int i=e.getFirstIndex(); i<e.getLastIndex(); i++)
+		}
+	    }
+					 );
+	scroller = new JScrollPane(stationList);
+	add(scroller, gbc);
+	gbc.gridx++;
  
-	// networks JList add (netCode);
-
+	siteList = new JList(sites);
+	siteList.setCellRenderer(renderer);
+	siteList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	scroller = new JScrollPane(siteList);
+	add(scroller, gbc);
+	gbc.gridx++;
+	
+	channelList = new JList(channels);
+	channelList.setCellRenderer(renderer);
+	channelList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	scroller = new JScrollPane(channelList);
+	add(scroller, gbc);
+	gbc.gridx++;
     }
 
+    public NetworkAccess[] getNetworks(){
+	Object[] objArray = networks.toArray();
+	return castNetworkArray(objArray);
+    }      
 
-    public void  setStations(String netcode) {
+    protected NetworkAccess[] castNetworkArray(Object[] objArray){
+	NetworkAccess[] nets 
+	    = new NetworkAccess[objArray.length];
+	for (int i=0; i<nets.length; i++) {
+	    nets[i] = (NetworkAccess)objArray[i];
+	}
+	return nets;
+    }
 
+    public Station[]  getStations(){
+	Object[] objArray = stations.toArray();
+	return castStationArray(objArray);
+    }
 
-	edu.iris.Fissures.IfNetwork.NetworkAccess netAccess = (edu.iris.Fissures.IfNetwork.NetworkAccess) netMap.get(netcode);
-	MicroSecondDate before = new MicroSecondDate();
-	edu.iris.Fissures.IfNetwork.Station[] allstations = netAccess.retrieve_stations();
-	MicroSecondDate after = new MicroSecondDate();
-	System.out.println("got "+allstations.length+" stations. "+after.subtract(before));
-	Set staSet = new HashSet();
-	staMap.clear();
+    protected Station[] castStationArray(Object[] objArray){
+	Station[] sta 
+	    = new Station[objArray.length];
+	for (int i=0; i<sta.length; i++) {
+	    sta[i] = (Station)objArray[i];
+	}
+	return sta;
+    }
 
-	for (int i=0; i < allstations.length; i++) {
-	    StationId id = allstations[i].get_id();
-            System.out.println("StationId:"+StationIdUtil.toString(id));
-	    String stationCode = id.station_code;
-	    //	    NetworkAttr attr = netAccess.get_attributes();
+    public Site[]  getSites(){
+	Object[] objArray = sites.toArray();
+	HashMap outSites = new HashMap();
+	for (int i=0; i<objArray.length; i++) {
+	    for (int j=0; j<1; j++) {
+		 
+	    } // end of for (int j=0; j<1; j++)
+	    
+	} // end of for (int i=0; i<objArray.length; i++)
+	
+	return castSiteArray(objArray);
+    }
 
-	    staMap.put(stationCode, allstations[i]);
-
-	    staSet.add(stationCode);// maybe needs station_id
+    protected Site[] castSiteArray(Object[] objArray){
+	Site[] site 
+	    = new Site[objArray.length];
+	for (int i=0; i<site.length; i++) {
+	    site[i] = (Site)objArray[i];
 	} 
-
-
-	TreeSet staTree = new TreeSet(staSet);
-	stations = (String[])staTree.toArray(new String[0]);
-
-	// add to station JList
-
-
+	return site;
     }
 
-    /** The below method is written by SrinivasaReddy Telukutla
-     **/
+    public Channel[]  getChannels(){
+	Channel[] outChannels = 
+	    (Channel[])channelMap.values().toArray(new Channel[0]);
+	return outChannels;
+    }
 
-    public void setChannels(String netCode, String[] stationCode) {
+    protected Channel[] castChannelArray(Object[] objArray){
+	Channel[] chan 
+	    = new Channel[objArray.length];
+	for (int i=0; i<chan.length; i++) {
+	    chan[i] = (Channel)objArray[i];
+	} 
+	return chan;
+    }
 
-	channelsMap = new HashMap();
-	
-	for(int i = 0; i < stationCode.length; i++) {
-	    
-	    setChannels(netCode, stationCode[i]);
-	    String[] channelsStr = getChannels();
+    public NetworkAccess getSelectedNetwork(){
+	return (NetworkAccess)netList.getSelectedValue();
+    }      
 
-	    for(int counter = 0; counter < channelsStr.length; counter++) {
+    public Station[]  getSelectedStations(){
+        return castStationArray(stationList.getSelectedValues());
+    }
 
-		channelsMap.put(channelsStr[counter], "notused");
-		System.out.println("The channel is "+channelsStr[counter]);
-		
+    public Site[]  getSelectedSites(){
+        return castSiteArray(siteList.getSelectedValues());
+    }
+
+    public Channel[]  getSelectedChannels(){
+	Channel[] inChannels = getChannels();
+	LinkedList outChannels = new LinkedList();
+	Object[] selectedChannelCodes = channelList.getSelectedValues();
+	Object[] selectedSiteCodes = siteList.getSelectedValues();
+
+	search:
+	for (int i=0; i<inChannels.length; i++) {
+	    for (int j=0; j<selectedSiteCodes.length; j++) {
+		for (int k=0; k<selectedChannelCodes.length; k++) {
+		    if (inChannels[i].my_site.get_code().equals(selectedSiteCodes[j]) 
+			&& inChannels[i].get_code().equals(selectedChannelCodes[k])) {
+			outChannels.add(inChannels[i]);
+			continue search;
+		    }
+		}
 	    }
 	}
-	Set keySet = channelsMap.keySet();
-	Iterator iter = keySet.iterator();
-	ArrayList arrayList = new ArrayList();
-	while(iter.hasNext()) {
-	    String key = (String) iter.next();
-	    System.out.println("The key is "+key);
-	    arrayList.add(key);
+	
+        return (Channel[])outChannels.toArray(new Channel[0]);
+    }
+
+   /*================Class Variables===============*/
+
+    String lnettip = "Source of data";
+    String lstatip = "Station";
+    String lsittip = "Seismometer site";
+    String lchatip = "Seismometer channels"; 
+    String gotip = "Searches and retrieves a seismogram";
+    String closetip = "Hide this window";
+    String thistip = "Select date and location to obtain seismogram";
+    String bhztip = "B=Broad Band | H=High Gain Seismometer | Z=Vertical"; 
+    String bhetip = "B=Broad Band | H=High Gain Seismometer | E=East-West";
+    String bhntip = "B=Broad Band | H=High Gain Seismometer | N=North-South";
+ 
+
+    protected JList netList;
+    protected JList stationList;
+    protected JList siteList;
+    protected JList channelList;
+
+    protected DefaultListModel networks = new DefaultListModel();
+    protected DefaultListModel stations = new DefaultListModel();
+    protected DefaultListModel sites = new DefaultListModel();
+    protected DefaultListModel channels = new DefaultListModel();
+    protected HashMap channelMap = new HashMap();
+
+    private NetworkDC netdc;
+
+    private GridBagConstraints gbc;
+    int x_leftcorner=0;
+    int y_leftcorner=0;
+
+    int mywidth = 400;
+    int myheight = 200;
+
+    class NameListCellRenderer extends DefaultListCellRenderer {
+	NameListCellRenderer(boolean useNames){
+	    this.useNames = useNames;
 	}
-	channels = new String[arrayList.size()];
-	Collections.sort(arrayList);
-	channels = (String[]) arrayList.toArray(channels);
+
+	public Component getListCellRendererComponent(JList list,
+						      Object value,
+						      int index,
+						      boolean isSelected,
+						      boolean cellHasFocus) {
+	    String name = "XXXX";
+	    if (value instanceof NetworkAccess) {
+		if (useNames) {
+		    name = ((NetworkAccess)value).get_attributes().name;
+		    if (name == null || name.length() == 0) {
+			name = ((NetworkAccess)value).get_attributes().get_code();
+			if (name.startsWith("X") || name.startsWith("Y") || name.startsWith("Z")) {
+			    edu.iris.Fissures.Time start = 
+				((NetworkAccess)value).get_attributes().get_id().begin_time;
+			    name += start.date_time.substring(2,4);
+			} // end of if (name.startsWith("X"))
+			
+		    }
+		} else {
+		    name = ((NetworkAccess)value).get_attributes().get_code();
+		}
+	    }
+	    if (value instanceof Station) {
+		if (useNames) {
+		    name = ((Station)value).name;
+		    if (name == null || name.length() == 0) {
+			name = ((Station)value).get_code();
+		    }
+		} else {
+		    name = ((Station)value).get_code();
+		}
+	    }
+	    if (value instanceof Site) {
+		if (useNames) {
+		    name = ((Site)value).get_code();
+		    if (name == null || name.length() == 0) {
+			name = ((Site)value).get_code();
+		    }
+		} else {
+		    name = ((Site)value).get_code();
+		}
+	    }
 	    
-
-    }
-    public void setChannels(String netCode, String stationCode) {
-
-	
-	NetworkAccess netAccess = (edu.iris.Fissures.IfNetwork.NetworkAccess) netMap.get(netCode);
-	Station station = (edu.iris.Fissures.IfNetwork.Station) staMap.get(stationCode);
-
-	MicroSecondDate before = new MicroSecondDate();
-	Channel[] allChannels = netAccess.retrieve_for_station(station.get_id());
-MicroSecondDate after = new MicroSecondDate();
-	System.out.println("got "+allChannels.length+" channels for "+station.get_id().station_code+". "+after.subtract(before));
-
-	sitMap.clear();
-	chanMap.clear();
-	String chanIdkey = "SP.BRNCH.00.BHZ";
-
-	for (int i=0; i<allChannels.length; i++) {
-
-	    edu.iris.Fissures.IfNetwork.Site thesite = allChannels[i].my_site;
-	    edu.iris.Fissures.IfNetwork.SiteId thesiteid = thesite.get_id();
-	    String siteCode = thesiteid .site_code;
-	    sitMap.put(siteCode, thesite);
-        
-	    edu.iris.Fissures.IfNetwork.ChannelId thechannelid = allChannels[i].get_id();
-	    String channelCode = thechannelid.channel_code;
-	    chanMap.put(channelCode, allChannels[i]);
-	    chanIdkey = netCode + "." + stationCode + "." + siteCode + "." + channelCode;
-	    chanIdMap.put(chanIdkey,thechannelid );
-	    System.out.println(chanIdkey);
-            
-	}
-	
- 	TreeSet sitTree = new TreeSet(sitMap.keySet());
-	sites = (String[])sitTree.toArray(new String[0]);
-
- 	TreeSet chaTree = new TreeSet(chanMap.keySet());
-	channels = (String[])chaTree.toArray(new String[0]);
-
-    }
-
-    public String[] getNetworks() {
-	return networks;
-
-    }
-
-
-    public String[] getStations() {
-	return stations;
-    }
-
-
-    public String[] getSites() {
-	return sites;
-    }
-
-
-    public String[] getChannels() {
-	return channels;
-    }
-
-    public ChannelId getChannelId(String keyStr) {
-
-	System.out.println("### Passed channelID: " + keyStr);
-
-	ChannelId foundChannelId = null;
-
-	Iterator it = chanIdMap.keySet().iterator();
-
-	while (it.hasNext()) {
-	    java.lang.Object key = it.next();
-	    String stkey = (String)key;	   
-
-	    if(stkey.equals(keyStr)) {
-		//	if( chanMap.containsKey(keyStr)) {
-	        System.out.println("Found the channelID: "+stkey);
-	        foundChannelId =  (ChannelId)(chanIdMap.get(keyStr));
+	    if (value instanceof Channel) {
+		if (useNames) {
+		    name = ((Channel)value).name;
+		    if (name == null || name.length() == 0) {
+			name = ((Channel)value).get_code();
+		    }
+		} else {
+		    name = ((Channel)value).get_code();
+		}
 	    }
 
-	} // end of while (it.hasNext())
-
-   if(foundChannelId==null) 
-        System.out.println(keyStr + "ChannelId could not be found.");
-    return foundChannelId;
-
-    }
- 
-    public Map getNetworkMap() {
-	return netMap;
-    }
-
-    public Map getStationMap() {
-	return staMap;
-    }
- 
-    public Map getSiteMap() {
-	return sitMap;
+	    if (value instanceof String) {
+		name = (String)value;
+	    } // end of if (value instanceof String)
+	    
+	    
+	    return super.getListCellRendererComponent(list, 
+						      name, 
+						      index, 
+						      isSelected, 
+						      cellHasFocus);
+	}
+	boolean useNames;
     }
 
-    public Map getChannelMap() {
-	return chanMap;
-    }
-
-    /*================Class Variables===============*/
-
-    protected HashMap allchanMap = new HashMap(); 
-
-    private NetworkDCOperations netdc;
-    private NetworkFinder netfound;
-
- 
-    protected String[] networks;
-    protected String[] stations;
-    protected String[] sites;
-    protected String[] channels;
-
-
-    private HashMap channelsMap;
-
-    protected TreeMap netMap = new TreeMap();
-    protected TreeMap staMap = new TreeMap();
-    protected TreeMap sitMap = new TreeMap();  
-    protected TreeMap chanMap = new TreeMap(); 
-    protected HashMap chanIdMap = new HashMap();  
-
-
-} // PlottableClient
+} // ChannelGUI
 
 
 
