@@ -70,9 +70,7 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
         if(basicDisplays.size() == 0){
             disp = new BasicSeismogramDisplay(tc, ac, this);
             disp.add(newSeis);
-            super.add(disp);
-            disp.addBottomTimeBorder();
-            disp.addTopTimeBorder();
+            getCenterPanel().add(disp);
             basicDisplays.add(disp);
         }
         else{

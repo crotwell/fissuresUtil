@@ -89,7 +89,6 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
             if(display == null){
                 display = new BasicSeismogramDisplay(tc, this);
                 initializeBSD(display, 0, orientation);
-                setTimeBorders();
             }
             display.add(seismos);
         }
@@ -97,8 +96,8 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
     }
 
     private void initializeBSD(BasicSeismogramDisplay disp, int position, String orientation){
-        super.add(disp, position);
-        disp.addLeftTitleBorder(new LeftTitleBorder(orientation));
+        getCenterPanel().add(disp, position);
+        disp.addTitle(orientation, CENTER_LEFT);
         basicDisplays.add(disp);
     }
 

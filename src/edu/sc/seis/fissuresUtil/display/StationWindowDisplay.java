@@ -10,14 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
-
-/**
- * StationWindowDisplay.java
- *
- * @author Created by Charlie Groves
- */
-
 public class StationWindowDisplay extends VerticalSeismogramDisplay{
 
     public BasicSeismogramDisplay addDisplay(DataSetSeismogram[] dss) {
@@ -54,11 +46,10 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
             }else{
                 current = new BasicSeismogramDisplay(tc, new RMeanAmpConfig(),
                                                      this);
-                current.addLeftTitleBorder(new LeftTitleBorder(stationCode));
-                super.add(current);
+                current.addTitle(stationCode, CENTER_LEFT);
+                getCenterPanel().add(current);
                 basicDisplays.add(current);
                 stationDisplay.put(stationCode, current);
-                setTimeBorders();
             }
             current.add(curSeis);
         }
@@ -68,11 +59,6 @@ public class StationWindowDisplay extends VerticalSeismogramDisplay{
     public void clear(){
         stationDisplay = new HashMap();
         super.clear();
-    }
-
-    public void removeAll(){
-        stationDisplay = new HashMap();
-        super.removeAll();
     }
 
     private Map stationDisplay = new HashMap();
