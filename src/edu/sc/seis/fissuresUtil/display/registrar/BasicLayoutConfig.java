@@ -233,7 +233,7 @@ public class BasicLayoutConfig implements LayoutConfig{
     
     private Map distanceMap = new HashMap();
     
-    private List listeners = new ArrayList();
+    private Set listeners = new HashSet();
     
     private List seis =  new ArrayList();
     

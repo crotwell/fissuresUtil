@@ -3,9 +3,9 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
     public IndividualizedAmpConfig(AmpConfig wrapped){
@@ -111,7 +111,7 @@ public class IndividualizedAmpConfig implements AmpConfig, AmpListener{
 
     private AmpConfig wrapped;
 
-    private List listeners = new ArrayList();
+    private Set listeners = new HashSet();
 }
 
 

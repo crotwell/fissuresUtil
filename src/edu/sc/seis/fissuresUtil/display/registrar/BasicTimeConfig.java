@@ -3,11 +3,11 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.log4j.Category;
 /**
  * BasicTimeConfig synchronizes all the seismograms it holds around their initial times. It gets the first added
@@ -223,7 +223,7 @@ public class BasicTimeConfig implements TimeConfig{
     /**
      * <code>listeners</code> contains all of the listeners registered with this config
      */
-    private List listeners = new ArrayList();
+    private Set listeners = new HashSet();
 
     /**
      * <code>seismoTimes</code> contains all of the seismograms held by this config with their current TimeRange
