@@ -471,7 +471,7 @@ public  class PlottableDisplay extends JComponent {
     protected JLabel imagePanel = new JLabel("no image");
 
     private edu.iris.Fissures.Plottable[] arrayplottable = new edu.iris.Fissures.Plottable[0] ; 
-    private String  plottablename="Please, click on DataSource.";
+    private String  plottablename="Please, choose a SCEPP station and then click refresh on the menu above.";
     Image image = null;
     Shape plottableShape = null;
 
