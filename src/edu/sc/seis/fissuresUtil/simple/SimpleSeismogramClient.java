@@ -1,18 +1,16 @@
 package edu.sc.seis.fissuresUtil.simple;
 
-import org.apache.log4j.Logger;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
-import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.DataCenter;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.NetworkId;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
-import edu.iris.Fissures.FissuresException;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import org.apache.log4j.Logger;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 
 
@@ -26,6 +24,8 @@ public class SimpleSeismogramClient implements TestingClient{
         serverName = "IRIS_BudDataCenter";
         // or
         //serverName = "IRIS_PondDataCenter";
+        // or
+        //serverName = "IRIS_ArchiveDataCenter";
 
         // Berkeley
         //serverDNS="edu/berkeley/geo/quake";
@@ -63,7 +63,35 @@ public class SimpleSeismogramClient implements TestingClient{
     }
 
     public void exercise() {
+        //queuedRetrieve();
         retrieve_seismograms(true);
+    }
+
+    public void queuedRetrieve(String name) {
+        try {
+            String id = seisDC.queue_seismograms(createOldRF());
+            logger.info("got id " + id + " for " + name);
+            String status = seisDC.request_status(id);
+            while(status.equals("Processing")){
+                status = seisDC.request_status(id);
+                logger.info("Status is " + status + " for " + name);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {}
+            }
+            logger.info("FINISHED " + name);
+            logger.info(name + " status is " + status);
+            if(status.equals("Finished")){
+                LocalSeismogram[] seis = seisDC.retrieve_queue(id);
+                for (int i = 0; i < seis.length; i++) {
+                    System.out.println(name + " of " + i + " is " +seis[i].num_points+
+                                           " points and starts at "+seis[i].begin_time.date_time);
+                }
+            }
+        } catch (FissuresException e) {
+            logger.info(name + " threw exception");
+            e.printStackTrace();
+        }
     }
 
     public LocalSeismogram[] retrieve_seismograms(){
@@ -96,9 +124,24 @@ public class SimpleSeismogramClient implements TestingClient{
         return request;
     }
 
+    public static RequestFilter[] createOldRF(){
+        MicroSecondDate yearAgo = ClockUtil.now().subtract(ONE_YEAR);
+        MicroSecondDate yearAgoAndADay = yearAgo.add(ONE_DAY);
+        MicroSecondDate yearAgoAndAnHour = yearAgo.add(ONE_HOUR);
+        MicroSecondDate usedEnd = yearAgoAndAnHour;
+        logger.info("query from " + yearAgo + " to " + usedEnd);
+        // construct the request filters to send to the server
+        RequestFilter[] request = { new RequestFilter(Initializer.fakeChan,
+                                                      yearAgo.getFissuresTime(),
+                                                      usedEnd.getFissuresTime()) };
+        return request;
+    }
+
     protected DataCenter seisDC;
 
+    private static final TimeInterval ONE_YEAR = new TimeInterval(365, UnitImpl.DAY);
     private static final TimeInterval ONE_HOUR = new TimeInterval(1, UnitImpl.HOUR);
+    private static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
     private static Logger logger = Logger.getLogger(SimpleSeismogramClient.class);
 
     public static void main(String[] args) {
