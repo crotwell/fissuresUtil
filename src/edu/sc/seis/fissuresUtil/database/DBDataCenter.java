@@ -112,10 +112,12 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 	    a_client.finished(initiator);
 	    return new String();
 	}
-	Thread t = new Thread(new DataCenterThread(missing_seq,
-						   a_client,
-						   initiator,
-						   this));
+	Thread t = new Thread(dbThreadGroup,
+                          new DataCenterThread(missing_seq,
+                                               a_client,
+                                               initiator,
+                                               this),
+                          "DBDataCenter"+getThreadNum());
 	t.start();
 	
 	
@@ -221,6 +223,15 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
     private HSQLRequestFilterDb hsqlRequestFilterDb;
 
     private static DBDataCenter dbDataCenter;
+
     
+    private static int threadNum = 0;
+
+    private synchronized static int getThreadNum() {
+        return threadNum++;
+    }
+
+    private ThreadGroup dbThreadGroup = new ThreadGroup("DBDataCenter");
+
 }// DBDataCenter
 

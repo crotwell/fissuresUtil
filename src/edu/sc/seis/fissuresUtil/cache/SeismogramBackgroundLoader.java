@@ -30,7 +30,9 @@ public class SeismogramBackgroundLoader {
 		    }
 		}
 	    };
-	privateThread = new Thread(r);
+	privateThread = new Thread(seisLoaderThreadGroup,
+                               r,
+                               "Seismogram Loader"+getThreadNum());
 	privateThread.start();
     }
 
@@ -66,5 +68,14 @@ public class SeismogramBackgroundLoader {
     private volatile boolean noStopThread = true;
 
     private SeismogramBackgroundLoaderPool pool;
+
+    private static int threadNum = 0;
+
+    private synchronized static int getThreadNum() {
+        return threadNum++;
+    }
+
+    private ThreadGroup seisLoaderThreadGroup = 
+        new ThreadGroup("Seismogram Loader");
 
 } // SeismogramBackgroundLoader

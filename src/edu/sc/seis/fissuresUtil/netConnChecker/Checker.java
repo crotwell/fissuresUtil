@@ -51,7 +51,9 @@ public class Checker {
 	
 	while(collectionExe.hasNext()){
 	    ConnChecker connChecker =  (ConnChecker)collectionExe.next();
-	    Thread th = new Thread(connChecker);
+	    Thread th = new Thread(checkerThreadGroup,
+                               connChecker,
+                               "ConnChecker"+getThreadNum());
 	    th.start();          
 	}     
 	
@@ -273,6 +275,15 @@ public class Checker {
 
     static Category logger = Category.getInstance(Checker.class);
   
+
+    private static int threadNum = 0;
+
+    private synchronized static int getThreadNum() {
+        return threadNum++;
+    }
+
+    private ThreadGroup checkerThreadGroup = new ThreadGroup("Connection Checker");
+
 
 }// Checker class
 
