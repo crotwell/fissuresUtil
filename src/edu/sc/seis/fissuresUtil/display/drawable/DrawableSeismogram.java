@@ -22,17 +22,17 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
     public DrawableSeismogram(SeismogramDisplay parent, DataSetSeismogram seis, Color color) {
         this(parent, new SeismogramShape(parent, seis), seis.getName(), color);
     }
-    
+
     public DrawableSeismogram(SeismogramDisplay parent,
                               DataSetSeismogram seis,
                               String name) {
         this(parent, new SeismogramShape(parent, seis), name, null);
     }
-    
+
     protected DrawableSeismogram(SeismogramDisplay parent, SeismogramShape shape) {
         this(parent, shape, shape.getSeismogram().getName(), null);
     }
-    
+
     protected DrawableSeismogram(SeismogramDisplay parent,
                                  SeismogramShape shape,
                                  String name, Color color) {
@@ -53,18 +53,18 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         setVisibility(defaultVisibility);
         parent.add((SeismogramDisplayListener)this);
     }
-    
+
     protected void setRemover(SeismogramRemover remover) {
         this.remover = remover;
     }
-    
+
     public SeismogramDisplay getParent() {
         return parent;
     }
-    
-    public void setVisibility(boolean b) {
+
+    public void setVisibility(boolean vis) {
         DataSetSeismogram[] seis = { getSeismogram() };
-        if(b) {
+        if(vis) {
             parent.getTimeConfig().add(seis);
             parent.getAmpConfig().add(seis);
         }
@@ -72,16 +72,16 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
             parent.getTimeConfig().remove(seis);
             parent.getAmpConfig().remove(seis);
         }
-        if(visible != b) {
+        if(visible != vis) {
             parent.repaint();
         }
-        visible = b;
+        visible = vis;
     }
-    
+
     public boolean getVisiblity(){ return visible; }
-    
+
     public Color getColor(){ return color; }
-    
+
     public void draw(Graphics2D canvas,
                      Dimension size,
                      TimeEvent currentTime,
@@ -118,11 +118,11 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
             }
         }
     }
-    
+
     //TODO remove this firstPaint crap and get borders to draw themselves correctly
-    
+
     private boolean firstPaint = true;
-    
+
     public Rectangle2D drawName(Graphics2D canvas, int xPosition, int yPosition) {
         remover.draw(canvas, xPosition, yPosition - 7);
         xPosition += 10;
@@ -155,7 +155,7 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         }
         return stringBounds;
     }
-    
+
     public void add(Drawable child) {
         if(child instanceof Event) {
             ((Event)child).setColor(color);
@@ -163,20 +163,20 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         children.add(child);
         parent.repaint();
     }
-    
+
     public void add(Drawable child, Color color) {
         add(child);
         if(child instanceof Event) {
             ((Event)child).setColor(color);
         }
     }
-    
+
     public void remove(Drawable child) {
         if(children.remove(child)) {
             parent.repaint();
         }
     }
-    
+
     public void clear(Class drawableClass) {
         synchronized(children){
             Iterator it = children.iterator();
@@ -188,19 +188,19 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         }
         parent.repaint();
     }
-    
+
     public DrawableIterator iterator(Class drawableClass) {
         return new DrawableIterator(drawableClass, children);
     }
-    
+
     public void added(SeismogramDisplay recipient, Drawable drawable) {
         // TODO
     }
-    
+
     public void removed(SeismogramDisplay bereaved, Drawable drawable) {
         // TODO
     }
-    
+
     /**
      *called when the display <code>from</code> is being replaced by <code>to</code>
      */
@@ -208,43 +208,43 @@ public class DrawableSeismogram implements NamedDrawable, SeismogramDisplayListe
         this.parent = to;
         setVisibility(visible);
     }
-    
+
     public void switching(AmpConfig from, AmpConfig to) {
         // TODO
     }
-    
+
     public void switching(TimeConfig from, TimeConfig to) {
         // TODO
     }
-    
-    
+
+
     public String getName(){ return name; }
-    
+
     public String toString(){ return getName();}
-    
+
     public DataSetSeismogram getSeismogram(){ return shape.getSeismogram(); }
-    
+
     public String getDataStatus(){ return shape.getDataStatus();}
-    
+
     public void getData(){ shape.getData(); }
-    
+
     public static void setDefaultVisibility(boolean visible) {
         defaultVisibility = visible;
     }
-    
+
     private SeismogramDisplay parent;
-    
+
     private List children = Collections.synchronizedList(new ArrayList());
-    
+
     private Color color;
-    
+
     private String name;
-    
+
     protected SeismogramShape shape;
-    
+
     private static boolean defaultVisibility = true;
-    
+
     private boolean visible;
-    
+
     private SeismogramRemover remover;
 }

@@ -19,7 +19,7 @@ import java.awt.Graphics2D;
 public interface Drawable {
     public void draw(Graphics2D canvas, Dimension size, TimeEvent currentTime, AmpEvent currentAmp);
 
-    public void setVisibility(boolean b);
+    public void setVisibility(boolean visible);
 
     public Color getColor();
 }// Plotter
