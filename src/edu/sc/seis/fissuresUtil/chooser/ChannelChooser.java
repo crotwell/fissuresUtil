@@ -110,7 +110,7 @@ public class ChannelChooser{
     }
 
     protected void  setNetDC(NetworkDCOperations netdcgiven) {
-	netdc = (NetworkDC)netdcgiven;	
+	netdc = netdcgiven;	
     }
 
     protected void  setNetworks() {
@@ -191,6 +191,7 @@ public class ChannelChooser{
 
 	for (int i=0; i < allstations.length; i++) {
 	    StationId id = allstations[i].get_id();
+            System.out.println("StationId:"+StationIdUtil.toString(id));
 	    String stationCode = id.station_code;
 	    //	    NetworkAttr attr = netAccess.get_attributes();
 
@@ -346,7 +347,7 @@ MicroSecondDate after = new MicroSecondDate();
 
     protected HashMap allchanMap = new HashMap(); 
 
-    private NetworkDC netdc;
+    private NetworkDCOperations netdc;
     private NetworkFinder netfound;
 
  
