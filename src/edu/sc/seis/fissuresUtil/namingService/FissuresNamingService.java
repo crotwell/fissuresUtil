@@ -25,6 +25,8 @@ import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
+import java.util.LinkedList;
+import java.util.Iterator;
 
 /**
  * Description: FissuresNamingService is a wrapper around CORBA Naming service. This class
@@ -69,6 +71,18 @@ public class FissuresNamingService {
     public void setNameServiceCorbaLoc(String nameServiceCorbaLoc) {
         this.nameServiceCorbaLoc = nameServiceCorbaLoc;
         rootNamingContext = null;
+    }
+
+    /**
+     * Adds another name service to which all registrations should be sent. This
+     * other name service is not used for queries, only when addind new servers.
+     */
+    public void addRegisterNameServiceCorbaLoc(String nameServiceCorbaLoc) {
+        otherNS.add(nameServiceCorbaLoc);
+    }
+
+    public String[] getOtherNameService() {
+        return (String[])otherNS.toArray(new String[0]);
     }
 
     /**
@@ -181,13 +195,28 @@ public class FissuresNamingService {
      * @exception InvalidName if an error occurs
      */
     public void rebind(String dns, String objectname, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+        rebind(dns, objectname, obj, getNameService());
+        Iterator it = otherNS.iterator();
+        while (it.hasNext()) {
+            String corbaloc = (String)it.next();
+            org.omg.CORBA.Object ncObj = orb.string_to_object(corbaloc);
+            if (ncObj != null) {
+                NamingContextExt nc = NamingContextExtHelper.narrow(ncObj);
+                rebind(dns, objectname, obj, nc);
+            }
+        }
+    }
 
 
+    /**
+     * rebinds the CORBA object on the given name service. If any of the naming
+     * context specified in the dns doesnot exist
+     * it creates a corresponding namingcontext and continues.
+     */
+    public void rebind(String dns, String objectname, org.omg.CORBA.Object obj, NamingContextExt nameContext) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
         logger.info("The CLASS Name is "+obj.getClass().getName());
 
-
         String interfacename = getInterfaceName(obj);
-
         dns = appendKindNames(dns);
 
         if(interfacename != null && interfacename.length() != 0)
@@ -201,7 +230,7 @@ public class FissuresNamingService {
         NameComponent[] ncName;
 
         try {
-            ncName = getNameService().to_name(dns);
+            ncName = nameContext.to_name(dns);
         } catch(InvalidName ine) {
 
             logger.info("INVALID NAME EXCEPTION IS CAUGHT");
@@ -211,7 +240,7 @@ public class FissuresNamingService {
         }
 
         NameComponent[] ncName1 = new NameComponent[1];
-        NamingContext namingContextTemp = (NamingContext)getNameService();
+        NamingContext namingContextTemp = (NamingContext)nameContext;
 
         int counter;
 
@@ -219,7 +248,7 @@ public class FissuresNamingService {
             //NameComponent temp[] = new NameComponent[counter];
             int subcounter;
             try {
-                getNameService().rebind(getNameService().to_name(dns), obj);
+                nameContext.rebind(getNameService().to_name(dns), obj);
                 //namingContext.reslove(namingContext.to_name(dns));
 
             } catch(NotFound nfe) {
@@ -243,7 +272,7 @@ public class FissuresNamingService {
                         if(subcounter != 0){
                             logger.info("resolving new naming context");
                             namingContextTemp =
-                                NamingContextExtHelper.narrow(getNameService().resolve(temp));
+                                NamingContextExtHelper.narrow(nameContext.resolve(temp));
                         }
 
                         if(ncName1[0].id.equals(interfacename))
@@ -759,6 +788,8 @@ public class FissuresNamingService {
     private java.util.Properties props;
     private org.omg.CORBA_2_3.ORB orb;
     private NamingContextExt rootNamingContext;
+
+    protected List otherNS = new LinkedList();
 
     static Category logger = Category.getInstance(FissuresNamingService.class.getName());
 
