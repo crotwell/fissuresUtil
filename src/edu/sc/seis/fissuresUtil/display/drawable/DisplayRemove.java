@@ -32,8 +32,8 @@ public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionL
         if(visible){
             canvas.setColor(drawColor);
             canvas.setStroke(new BasicStroke(3));
-            canvas.drawLine(5, 5, 10, 10);
-            canvas.drawLine(5, 10, 10, 5);
+            canvas.drawLine(xMin, yMin, xMax, yMax);
+            canvas.drawLine(xMin, yMax, xMax, yMin);
         }
     }
 
@@ -82,8 +82,8 @@ public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionL
         if(e.getSource() == display){
             int clickX = e.getX() - display.getInsets().left;
             int clickY = e.getY() - display.getInsets().top;
-            if(clickX >= lastDrawXMin && clickX <= lastDrawXMax &&
-               clickY >= lastDrawYMin && clickY <= lastDrawYMax){
+            if(clickX >= xMin && clickX <= xMax &&
+               clickY >= yMin && clickY <= yMax){
                 return true;
             }
         }
@@ -100,7 +100,7 @@ public class DisplayRemove extends MouseAdapter implements Plotter, MouseMotionL
 
     private Color drawColor = Color.BLUE;
 
-    private int lastDrawXMax = 10, lastDrawXMin = 5, lastDrawYMax = 10, lastDrawYMin = 5;
+    private int xMax = 10, xMin = 5, yMax = 10, yMin = 5;
 
     private BasicSeismogramDisplay display;
 
