@@ -12,6 +12,7 @@ import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.time.CoverageTool;
@@ -129,15 +130,26 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
             rtnValues = (LocalSeismogram[])seisToReturn.toArray(rtnValues);
             return rtnValues;
         } catch(SQLException e) {
+            logger.error("logged here because causal exception cannot be passed up the stack: request is:\n"+requestToString(a_filterseq), e);
             throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,
                                                                                       e.toString()));
         } catch(java.io.IOException e) {
+            logger.error("logged here because causal exception cannot be passed up the stack: request is:\n"+requestToString(a_filterseq), e);
             throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,
                                                                                       e.toString()));
         } catch(edu.iris.dmc.seedcodec.CodecException e) {
+            logger.error("logged here because causal exception cannot be passed up the stack: request is:\n"+requestToString(a_filterseq), e);
             throw new edu.iris.Fissures.FissuresException(new edu.iris.Fissures.Error(0,
                                                                                       e.toString()));
         } // end of catch
+    }
+    
+    public static String requestToString(RequestFilter[] a_filterseq) {
+        String request = "";
+        for(int i = 0; i < a_filterseq.length; i++) {
+            request+="\n"+ChannelIdUtil.toString(a_filterseq[i].channel_id)+" from "+a_filterseq[i].start_time.date_time+" to "+a_filterseq[i].end_time.date_time;
+        }
+        return request;
     }
 
     private void insertIntoList(List list, LocalSeismogram[] localSeismograms) {
