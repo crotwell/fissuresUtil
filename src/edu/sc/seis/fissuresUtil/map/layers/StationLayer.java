@@ -63,7 +63,9 @@ public class StationLayer extends MouseAdapterLayer implements StationDataListen
         for (int i = 0; i < stations.length; i++){
             if (!stationMap.containsKey(stations[i].name)){
                 stationNames.add(stations[i].name);
-                omgraphics.add(new OMStation(stations[i]));
+                synchronized(omgraphics){
+                    omgraphics.add(new OMStation(stations[i]));
+                }
             }
             List stationList = (List)stationMap.get(stations[i].name);
             if (stationList == null){
