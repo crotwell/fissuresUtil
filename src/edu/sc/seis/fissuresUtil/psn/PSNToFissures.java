@@ -6,6 +6,13 @@
 
 package edu.sc.seis.fissuresUtil.psn;
 
-public class PSNToFissures {
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+
+public class PSNToFissures{
+
+    public static LocalSeismogramImpl getSeismogram(){
+        return null;
+    }
+
 }
 
