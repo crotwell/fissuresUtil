@@ -30,39 +30,6 @@ import java.util.ListIterator;
  */
 
 public class DisplayUtils {
-    public static String[] getSeismogramNames(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
-        SeismogramAttr[] attrs = ((XMLDataSet)dataset).getSeismogramAttrs();
-        MicroSecondDate startDate = new MicroSecondDate(timeRange.start_time);
-        MicroSecondDate endDate = new MicroSecondDate(timeRange.end_time);
-        ArrayList arrayList = new ArrayList();
-        for(int counter = 0; counter < attrs.length; counter++) {
-            SeismogramAttrImpl atrib = (SeismogramAttrImpl)attrs[counter];
-            if(ChannelIdUtil.areEqual(channelId,atrib.getChannelID())){
-                if((atrib.getBeginTime().equals(startDate) ||
-                        atrib.getBeginTime().before(startDate)) &&
-                       (atrib.getEndTime().equals(endDate) ||
-                            atrib.getEndTime().after(endDate))){
-                    arrayList.add(atrib.getName());
-
-                }
-            }
-        }
-        String[] rtnValues = new String[arrayList.size()];
-        rtnValues = (String[]) arrayList.toArray(rtnValues);
-        return rtnValues;
-
-    }
-
-
-
-    public static LocalSeismogram[] getSeismogram(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
-        String[] seisNames = DisplayUtils.getSeismogramNames(channelId, dataset, timeRange);
-        LocalSeismogram[] localSeismograms = new LocalSeismogram[seisNames.length];
-        for(int counter = 0 ; counter < seisNames.length; counter++) {
-            localSeismograms[counter] = ((XMLDataSet)dataset).getSeismogram(seisNames[counter]);
-        }
-        return localSeismograms;
-    }
 
     public static DataSetSeismogram[] getComponents(DataSetSeismogram seismogram){
         List componentSeismograms = new ArrayList();
