@@ -83,23 +83,6 @@ public class DisplayUtils {
             aBeginMSD.equals(bBeginMSD);
     }
 
-    public static String getSeismogramName(ChannelId channelId, DataSet dataset, TimeRange timeRange) {
-        SeismogramAttr[] attrs = ((XMLDataSet)dataset).getSeismogramAttrs();
-        MicroSecondDate startDate = new MicroSecondDate(timeRange.start_time);
-        MicroSecondDate endDate = new MicroSecondDate(timeRange.end_time);
-        for(int counter = 0; counter < attrs.length; counter++) {
-            if(ChannelIdUtil.toString(channelId).equals(ChannelIdUtil.toString(((SeismogramAttrImpl)attrs[counter]).getChannelID()))){
-                if(((((SeismogramAttrImpl)attrs[counter]).getBeginTime().equals(startDate) ||
-                         ((SeismogramAttrImpl)attrs[counter]).getBeginTime().before(startDate))) &&
-                       (((SeismogramAttrImpl)attrs[counter]).getEndTime().equals(endDate) ||
-                            ((SeismogramAttrImpl)attrs[counter]).getEndTime().after(endDate))){
-                    return ((SeismogramAttrImpl)attrs[counter]).getName();
-                }
-            }
-        }
-        return null;
-    }
-
     public static void applyFilter(NamedFilter filter, DrawableIterator it){
         while(it.hasNext()){
             DrawableSeismogram seis =  (DrawableSeismogram)it.next();
