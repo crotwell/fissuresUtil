@@ -86,6 +86,10 @@ public class DrawableSeismogram implements NamedDrawable,
         return color;
     }
 
+    public void setColor(Color c) {
+        color = c;
+    }
+
     public void addToTimeAndAmp() {
         DataSetSeismogram[] seis = {getSeismogram()};
         parent.getTimeConfig().add(seis);
