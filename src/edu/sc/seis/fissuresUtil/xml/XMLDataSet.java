@@ -18,7 +18,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 1919 2002-06-20 15:38:35Z crotwell $
+ * @version $Id: XMLDataSet.java 1922 2002-06-20 18:38:06Z crotwell $
  */
 public class XMLDataSet implements DataSet, Serializable {
 
@@ -449,21 +449,27 @@ public class XMLDataSet implements DataSet, Serializable {
                     LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
 		    
                     NodeList propList = evalNodeList(e, "property");
+                    int numDSProps = 0;
                     if (propList != null && propList.getLength() != 0) {
-                        Property[] props = seis.getProperties();
-                        Property[] newProps = 
-                            new Property[1+props.length+nList.getLength()];
-                        System.arraycopy(props, 0, newProps, 0, props.length);
-                        for (int i=0; i<propList.getLength(); i++) {
-                            Element propElement = (Element)propList.item(i);
-                            newProps[props.length+i] = 
-                                new Property(xpath.eval(propElement, "name/text()").str(),
-                                             xpath.eval(propElement, "value/text()").str());
-                        } // end of for
-                        newProps[newProps.length-1] = new Property(seisNameKey,
-                                                                   name);
-                        seis.setProperties(newProps);
-                    }
+                        numDSProps = nList.getLength();
+                    } else {
+                        // no properties in dataset
+                        numDSProps = 0;
+                    } // end of else
+
+                    Property[] props = seis.getProperties();
+                    Property[] newProps = 
+                        new Property[1+props.length+numDSProps];
+                    System.arraycopy(props, 0, newProps, 0, props.length);
+                    for (int i=0; i<propList.getLength(); i++) {
+                        Element propElement = (Element)propList.item(i);
+                        newProps[props.length+i] = 
+                            new Property(xpath.eval(propElement, "name/text()").str(),
+                                         xpath.eval(propElement, "value/text()").str());
+                    } // end of for
+                    newProps[newProps.length-1] = new Property(seisNameKey,
+                                                               name);
+                    seis.setProperties(newProps);
 
                     if (seis != null) {
                         seismogramCache.put(name, seis);
