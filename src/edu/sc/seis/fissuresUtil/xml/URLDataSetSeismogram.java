@@ -27,7 +27,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
     public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType) {
         this(url, fileType, null);
     }
-    
+
     public Object clone() {
         return super.clone();
     }
@@ -35,7 +35,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
     public void retrieveData(final SeisDataChangeListener dataListener) {
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    
+
                     if(fileType == SeismogramFileTypes.MSEED) {
                         finished(dataListener);
                         return;
@@ -72,7 +72,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
                                               seis.getEndTime().getFissuresTime());
         }
         return requestFilter;
-        
+
     }
 
     private LocalSeismogramImpl getSeismogram() {
@@ -84,17 +84,20 @@ public class URLDataSetSeismogram extends DataSetSeismogram{
                      );
             LocalSeismogramImpl seis = SacToFissures.getSeismogram(sac);
             return seis;
-       
+
         } catch(Exception e) {
             return null;
         }
     }
-    
+
+
+    public DataSet getDataSet(){ return dataSet; }
+
 
     private URL url;
 
     private SeismogramFileTypes fileType;
 
     DataSet dataSet;
-    
+
 }// URLDataSetSeismogram
