@@ -91,10 +91,10 @@ public class ChannelChooserGUI extends JPanel{
 	gbc.weighty = 1.0;
 	ListCellRenderer renderer = new NameListCellRenderer(true);
 
-	netlist = new JList(networks);
-	netlist.setCellRenderer(renderer);
-	netlist.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-	netlist.addListSelectionListener(new ListSelectionListener() {
+	netList = new JList(networks);
+	netList.setCellRenderer(renderer);
+	netList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+	netList.addListSelectionListener(new ListSelectionListener() {
 
 		public void valueChanged(ListSelectionEvent e) {
 		    if(e.getValueIsAdjusting()){
@@ -110,22 +110,22 @@ public class ChannelChooserGUI extends JPanel{
 	    }
 					 );
 
-	JScrollPane scroller = new JScrollPane(netlist);
+	JScrollPane scroller = new JScrollPane(netList);
 	add(scroller, gbc);
 	gbc.gridx++;
 
-	stalist = new JList(stations);
-	stalist.setCellRenderer(renderer);
-	stalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	stalist.addListSelectionListener(new ListSelectionListener() {
+	stationList = new JList(stations);
+	stationList.setCellRenderer(renderer);
+	stationList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	stationList.addListSelectionListener(new ListSelectionListener() {
 
 		public void valueChanged(ListSelectionEvent e) {
 		    if(e.getValueIsAdjusting()){
 			return;
 		    }
-		    ListSelectionModel selModel = stalist.getSelectionModel();
+		    ListSelectionModel selModel = stationList.getSelectionModel();
 		    for (int i=e.getFirstIndex(); i<=e.getLastIndex(); i++) {
-			if (stalist.isSelectedIndex(i)) {
+			if (stationList.isSelectedIndex(i)) {
 			    NetworkAccess net = getSelectedNetwork();
 			    Station selectedStation = 
 				(Station)stations.getElementAt(i);
@@ -133,7 +133,6 @@ public class ChannelChooserGUI extends JPanel{
 				net.retrieve_for_station(selectedStation.get_id());
 			    for (int j=0; j<chans.length; j++) {
 				String chanKey = ChannelIdUtil.toString(chans[j].get_id());
-				System.out.println(chanKey+" is selected");
 				if ( ! channelMap.containsKey(chanKey)) {
 				    channelMap.put(chanKey, chans[j]);
 				    if ( ! sites.contains(chans[j].my_site.get_code())) {
@@ -153,7 +152,6 @@ public class ChannelChooserGUI extends JPanel{
 				net.retrieve_for_station(selectedStation.get_id());
 			    for (int j=0; j<chans.length; j++) {
 				String chanKey = ChannelIdUtil.toString(chans[j].get_id());
-				System.out.println(chanKey+" is not selected");
 				if ( channelMap.containsKey(chanKey)) {
 				    channelMap.remove(chanKey);
 				}
@@ -164,21 +162,21 @@ public class ChannelChooserGUI extends JPanel{
 		}
 	    }
 					 );
-	scroller = new JScrollPane(stalist);
+	scroller = new JScrollPane(stationList);
 	add(scroller, gbc);
 	gbc.gridx++;
  
-	sitlist = new JList(sites);
-	sitlist.setCellRenderer(renderer);
-	sitlist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	scroller = new JScrollPane(sitlist);
+	siteList = new JList(sites);
+	siteList.setCellRenderer(renderer);
+	siteList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	scroller = new JScrollPane(siteList);
 	add(scroller, gbc);
 	gbc.gridx++;
 	
-	chalist = new JList(channels);
-	chalist.setCellRenderer(renderer);
-	chalist.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	scroller = new JScrollPane(chalist);
+	channelList = new JList(channels);
+	channelList.setCellRenderer(renderer);
+	channelList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	scroller = new JScrollPane(channelList);
 	add(scroller, gbc);
 	gbc.gridx++;
     }
@@ -213,6 +211,14 @@ public class ChannelChooserGUI extends JPanel{
 
     public Site[]  getSites(){
 	Object[] objArray = sites.toArray();
+	HashMap outSites = new HashMap();
+	for (int i=0; i<objArray.length; i++) {
+	    for (int j=0; j<1; j++) {
+		 
+	    } // end of for (int j=0; j<1; j++)
+	    
+	} // end of for (int i=0; i<objArray.length; i++)
+	
 	return castSiteArray(objArray);
     }
 
@@ -226,8 +232,9 @@ public class ChannelChooserGUI extends JPanel{
     }
 
     public Channel[]  getChannels(){
-	Object[] objArray = channels.toArray();
-	return castChannelArray(objArray);
+	Channel[] outChannels = 
+	    (Channel[])channelMap.values().toArray(new Channel[0]);
+	return outChannels;
     }
 
     protected Channel[] castChannelArray(Object[] objArray){
@@ -240,19 +247,37 @@ public class ChannelChooserGUI extends JPanel{
     }
 
     public NetworkAccess getSelectedNetwork(){
-	return (NetworkAccess)netlist.getSelectedValue();
+	return (NetworkAccess)netList.getSelectedValue();
     }      
 
     public Station[]  getSelectedStations(){
-        return castStationArray(stalist.getSelectedValues());
+        return castStationArray(stationList.getSelectedValues());
     }
 
     public Site[]  getSelectedSites(){
-        return castSiteArray(sitlist.getSelectedValues());
+        return castSiteArray(siteList.getSelectedValues());
     }
 
     public Channel[]  getSelectedChannels(){
-        return castChannelArray(chalist.getSelectedValues());
+	Channel[] inChannels = getChannels();
+	LinkedList outChannels = new LinkedList();
+	Object[] selectedChannelCodes = channelList.getSelectedValues();
+	Object[] selectedSiteCodes = siteList.getSelectedValues();
+
+	search:
+	for (int i=0; i<inChannels.length; i++) {
+	    for (int j=0; j<selectedSiteCodes.length; j++) {
+		for (int k=0; k<selectedChannelCodes.length; k++) {
+		    if (inChannels[i].my_site.get_code().equals(selectedSiteCodes[j]) 
+			&& inChannels[i].get_code().equals(selectedChannelCodes[k])) {
+			outChannels.add(inChannels[i]);
+			continue search;
+		    }
+		}
+	    }
+	}
+	
+        return (Channel[])outChannels.toArray(new Channel[0]);
     }
 
    /*================Class Variables===============*/
@@ -269,10 +294,10 @@ public class ChannelChooserGUI extends JPanel{
     String bhntip = "B=Broad Band | H=High Gain Seismometer | N=North-South";
  
 
-    protected JList netlist;
-    protected JList stalist;
-    protected JList sitlist;
-    protected JList chalist;
+    protected JList netList;
+    protected JList stationList;
+    protected JList siteList;
+    protected JList channelList;
 
     protected DefaultListModel networks = new DefaultListModel();
     protected DefaultListModel stations = new DefaultListModel();
