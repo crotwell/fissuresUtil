@@ -32,23 +32,24 @@ public class PlottableSelection{
 
     public PlottableSelection(PlottableDisplay display, int x, int y){
         this(display);
-        setXY(x, y);
+        setXY(x, y, 10);
     }
 
     public void draw(Graphics g) {
         if(visible){
             // get new graphics to avoid messing up original
             Graphics2D newG = (Graphics2D)g.create();
-            int yTrans = plottableDisplay.getOffset();
-            int offset = PlottableDisplay.TITLE_Y_SHIFT + yTrans - 5;
+            int rowHeight = plottableDisplay.getRowOffset();
+            int yOffset = plottableDisplay.titleHeight;
+            int xOffset = PlottableDisplay.LABEL_X_SHIFT;
             for (int currRow = startRow; currRow <= endRow; currRow++) {
-                int x = PlottableDisplay.LABEL_X_SHIFT;
+                int x = xOffset;
                 int width = plottableDisplay.getRowWidth();
-                int y =  yTrans*currRow + offset;
-                int height = plottableDisplay.getOffset() - 10;
+                int y =  rowHeight*currRow + yOffset - rowHeight/2 + 5;
+                int height = rowHeight - 10;
                 if(currRow == startRow) {
                     x =  startRowX;
-                    width = PlottableDisplay.LABEL_X_SHIFT + width - x;
+                    width -= x - xOffset;
                 }
                 if(currRow == endRow) {
                     width = endRowX - x;
@@ -92,11 +93,11 @@ public class PlottableSelection{
     private int[] getSelectedRows(int beginy, int endy) {
         if(beginy == -1 || endy == -1) return new int[0];
         ArrayList arrayList = new ArrayList();
-        int selectionOffset = plottableDisplay.getOffset() / 2;
+        int selectionOffset = plottableDisplay.getRowOffset() / 2;
         for(int counter = 0; counter < plottableDisplay.getRows(); counter++) {
-            int value =  (plottableDisplay.getRowHeight()/2 +
-                              PlottableDisplay.TITLE_Y_SHIFT +
-                              plottableDisplay.getOffset()*counter);
+            int value =  (plottableDisplay.getRowOffset()/2 +
+                              plottableDisplay.titleHeight +
+                              plottableDisplay.getRowOffset()*counter);
 
             if( (beginy <= (value + selectionOffset)) &&
                    (endy > (value - selectionOffset))) {
@@ -112,15 +113,12 @@ public class PlottableSelection{
     }
 
     public int getRow(int yPixel){
-        if(yPixel - PlottableDisplay.TITLE_Y_SHIFT <0) return -1;
-        int selectionOffset = plottableDisplay.getOffset() / 2;
-        for(int counter = 0; counter < plottableDisplay.getRows(); counter++) {
-            int value =  (plottableDisplay.getRowHeight()/2 +
-                              PlottableDisplay.TITLE_Y_SHIFT +
-                              plottableDisplay.getOffset()*counter);
-
-            if( yPixel <= (value + selectionOffset)) {
-                return counter;
+        int rowHeight = plottableDisplay.getRowOffset();
+        if(yPixel - plottableDisplay.titleHeight + rowHeight/2 <0) return -1;
+        for(int counter = 1; counter <= plottableDisplay.getRows(); counter++) {
+            int value =  plottableDisplay.titleHeight + rowHeight*counter - rowHeight/2;
+            if( yPixel <= (value)) {
+                return counter-1;
             }
         }
         return -1;
@@ -186,7 +184,7 @@ public class PlottableSelection{
         }
     }
 
-    public void setXY(int x, int y) {
+    public void setXY(int x, int y, int width){
         if(x < PlottableDisplay.LABEL_X_SHIFT ||
            x > plottableDisplay.getRowWidth() + PlottableDisplay.LABEL_X_SHIFT){
             if(!placed) visible = false;
@@ -207,8 +205,8 @@ public class PlottableSelection{
         }
         visible = true;
         startRow = endRow = row;
-        startRowX = x - 5;
-        endRowX = x + 5;
+        startRowX = x - width/2;
+        endRowX = x + width/2;
     }
 
     private MicroSecondDate getTime(float rowoffsetvalue) {
