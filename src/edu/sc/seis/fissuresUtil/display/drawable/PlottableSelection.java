@@ -146,42 +146,76 @@ public class PlottableSelection{
         }
         int row = getRow(y);
         if(row > -1 && row < plottableDisplay.getRows()){
-            if(row == startRow){
-                if(row == endRow &&
-                       (Math.abs(startRowX - x) > Math.abs(endRowX - x))){
-                    endRowX = x;
-                }else{
-                    startRowX = x;
-                }
-            }else if(row == endRow){
-                endRowX = x;
-            }else{
-                if(row < startRow){
-                    startRow = row;
-                    startRowX = x;
-                }else if(row > endRow){
-                    endRow = row;
-                    endRowX = x;
-                }else{
-                    if(Math.abs(startRow - row) == Math.abs(endRow - row)){
-                        if(x - startRowX > endRowX - x){
-                            startRowX = x;
-                            startRow = row;
-                        }else{
-                            endRowX = x;
-                            endRow = row;
-                        }
-                    }else if(Math.abs(startRow - row) > Math.abs(endRow - row)){
-                        endRow = row;
-                        endRowX = x;
+            int xToStart = Math.abs(x - startRowX);
+            int xToEnd = Math.abs(x - endRowX);
+            int rowsToStart = Math.abs(row - startRow);
+            int rowsToEnd = Math.abs(row - endRow);
+            if(startRow == endRow){
+                if(row == startRow){
+                    if(xToStart < xToEnd){
+                        setStart(x, row);
                     }else{
-                        startRow = row;
-                        startRowX = x;
+                        setEnd(x, row);
+                    }
+                }else if(row < startRow){
+                    if(xToStart > xToEnd){
+                        setEnd(startRowX, startRow);
+                    }
+                    setStart(x, row);
+                }else{
+                    if(xToStart < xToEnd){
+                        setStart(endRowX, endRow);
+                    }
+                    setEnd(x, row);
+                }
+            }else{
+                if(endRow - startRow > 1){
+                    if(rowsToStart < rowsToEnd){
+                        setStart(x, row);
+                    }else{
+                        setEnd(x, row);
+                    }
+                }else{
+                    System.out.println(i++);
+                    if(row < startRow){
+                        setStart(x, row);
+                    }else if(row > endRow){
+                        setEnd(x, row);
+                    }else if(row == startRow && xToStart <= xToEnd + 3){
+                        setStart(x, row);
+                    }else if(row == endRow && xToEnd <= xToStart + 3){
+                        setEnd(x, row);
+                    }else if(row == startRow){
+                        if(x < startRowX){
+                            setEnd(startRowX, startRow);
+                            setStart(x, row);
+                        }else{
+                            setEnd(x, row);
+                        }
+                    }else{
+                        if(x > endRowX){
+                            setStart(endRowX, endRow);
+                            setEnd(x,row);
+                        }else{
+                            setStart(x, row);
+                        }
                     }
                 }
             }
-            placed = true;
         }
+        placed = true;
+    }
+
+    private int i = 0;
+
+    private void setStart(int x, int row){
+        startRowX = x;
+        startRow = row;
+    }
+
+    private void setEnd(int x, int row){
+        endRowX = x;
+        endRow = row;
     }
 
     public void setXY(int x, int y, int width){
