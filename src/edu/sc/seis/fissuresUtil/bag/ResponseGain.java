@@ -28,6 +28,9 @@ public class ResponseGain implements LocalSeismogramFunction {
         finder = netFinder;
     }
 
+    /** Applys the overall sensitivity of the response to the seismogram. This
+     * will promote short or int based seismograms to float to avoid rounding
+     * and overflow problems. */
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis)
         throws ChannelNotFound, NetworkNotFound,  FissuresException {
 
@@ -40,21 +43,8 @@ public class ResponseGain implements LocalSeismogramFunction {
         Sensitivity sensitivity = inst.the_response.the_sensitivity;
         LocalSeismogramImpl outSeis;
 
-        if (seis.can_convert_to_short()) {
-            short[] sSeries = seis.get_as_shorts();
-            short[] out = new short[sSeries.length];
-            for (int i=0; i<sSeries.length; i++) {
-                out[i] = (short)(sSeries[i] * sensitivity.sensitivity_factor);
-            }
-            outSeis = new LocalSeismogramImpl(seis, out);
-        } else if (seis.can_convert_to_long()) {
-            int[] iSeries = seis.get_as_longs();
-            int[] out = new int[iSeries.length];
-            for (int i=0; i<iSeries.length; i++) {
-                out[i] = (short)(iSeries[i] * sensitivity.sensitivity_factor);
-            }
-            outSeis = new LocalSeismogramImpl(seis, out);
-        } else if (seis.can_convert_to_float()) {
+        // don't use int or short, promote to float
+        if (seis.can_convert_to_float()) {
             float[] fSeries = seis.get_as_floats();
             float[] out = new float[fSeries.length];
             for (int i=0; i<fSeries.length; i++) {
