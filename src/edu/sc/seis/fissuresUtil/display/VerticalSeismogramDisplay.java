@@ -88,10 +88,12 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	    ((BasicSeismogramDisplay)e.next()).stopImageCreation();
     }
 
-    public void removeAll(){
+    public void removeAll(MouseEvent me){
+	this.stopImageCreation();
 	seismograms.removeAll();
 	remove(seismograms);
 	basicDisplays = new LinkedList();
+	names = new LinkedList();
 	globalTimeRegistrar = new TimeConfigRegistrar();
 	globalAmpRegistrar = new AmpConfigRegistrar();
 	repaint();

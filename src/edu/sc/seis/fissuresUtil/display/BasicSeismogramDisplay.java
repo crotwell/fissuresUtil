@@ -19,6 +19,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 import org.apache.log4j.*;
+import java.awt.print.*;
 
 /**
  * BasicSeismogramDisplay.java
@@ -170,6 +171,11 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	   timeRegistrar.removeSeismogram(current);
 	   ampRegistrar.removeSeismogram(current);
        }
+    }
+
+    public void removeAll(MouseEvent me){
+	logger.debug("remove all called");
+	parent.removeAll(me);
     }
 
     /**
@@ -358,6 +364,9 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     }
 
     public void zoomIn(MouseEvent me) {
+	PrinterJob pj = PrinterJob.getPrinterJob();
+	pj.setPrintable(new ComponentPrintable(this));
+	try{pj.print();} catch(Exception e){ }
 	Insets insets = this.getInsets();
 	Dimension dim = this.getSize();
 	if (me.getX() < insets.left ||
