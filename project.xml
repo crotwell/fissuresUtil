@@ -9,7 +9,7 @@
     <url>http://www.seis.sc.edu</url>
     <logo>http://www.seis.sc.edu/images/header.gif</logo>
   </organization>
-  <currentVersion>1.0.5</currentVersion>
+  <currentVersion>1.0.6beta</currentVersion>
   <inceptionYear>2002</inceptionYear>
   <package>edu.sc.seis.fissuresUtil</package>
   <shortDescription>Utility functionality for fissures clients and servers.</shortDescription>
@@ -122,7 +122,7 @@ oot:${pom.artifactId}</connection>
     </dependency>
     <dependency>
       <id>fissuresImpl</id>
-      <version>1.1.3beta</version>
+      <version>1.1.4beta</version>
     </dependency>
     <dependency>
       <id>fissuresIDL</id>
