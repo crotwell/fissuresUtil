@@ -69,9 +69,9 @@ public class UnitDisplayUtil
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER_PER_SECOND_PER_SECOND);
             }
         } else {
-            logger.debug("No case, using amp range of "+outRange.getMinValue()+" to "
-                             +outRange.getMaxValue()+" "+
-                             outRange.getUnit());
+//            logger.debug("No case, using amp range of "+outRange.getMinValue()+" to "
+//                             +outRange.getMaxValue()+" "+
+//                             outRange.getUnit());
         }
         return outRange;
     }
