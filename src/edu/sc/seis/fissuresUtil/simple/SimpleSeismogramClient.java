@@ -27,7 +27,7 @@ public class SimpleSeismogramClient implements TestingClient{
             Initializer.getNS().getSeismogramDCObject("edu/iris/dmc",
                                                       "IRIS_BudDataCenter");
             logger.info("Got SeisDC as corba object, the name service is ok");
-            
+
             /* This connects to the actual server, as opposed to just getting
              *  the reference to it. The naming convention is that the first
              *  part is the reversed DNS of the organization and the second part
@@ -47,15 +47,15 @@ public class SimpleSeismogramClient implements TestingClient{
             logger.error("Problem with name service: ", e);
         }
     }
-    
+
     public void exercise() {
         retrieve_seismograms(true);
     }
-    
+
     public LocalSeismogram[] retrieve_seismograms(){
         return retrieve_seismograms(false);
     }
-    
+
     public LocalSeismogram[] retrieve_seismograms(boolean verbose){
         try {
             LocalSeismogram[] seis = seisDC.retrieve_seismograms(createRF());
@@ -69,24 +69,24 @@ public class SimpleSeismogramClient implements TestingClient{
             return seis;
         } catch (FissuresException e) {throw new RuntimeException(e);}
     }
-    
-    protected static RequestFilter[] createRF(){
+
+    public static RequestFilter[] createRF(){
         // we will get data for 1 hour ago until now
         MicroSecondDate now = ClockUtil.now();
         MicroSecondDate hourAgo = now.subtract(ONE_HOUR);
-        
+
         // construct the request filters to send to the server
         RequestFilter[] request = { new RequestFilter(Initializer.fakeChan,
                                                       hourAgo.getFissuresTime(),
                                                       now.getFissuresTime()) };
         return request;
     }
-    
+
     protected DataCenter seisDC;
-    
+
     private static final TimeInterval ONE_HOUR = new TimeInterval(1, UnitImpl.HOUR);
     private static Logger logger = Logger.getLogger(SimpleSeismogramClient.class);
-    
+
     public static void main(String[] args) {
         /* Initializes the corba orb, finds the naming service and other startup
          * tasks. See Initializer for the code in this method. */
