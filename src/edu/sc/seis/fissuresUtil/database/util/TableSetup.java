@@ -35,8 +35,6 @@ public class TableSetup {
                                    Connection conn,
                                    Object tableObj,
                                    SQLLoader statements) throws SQLException {
-        // create seq before table in case of table dependency
-        createSequence(tablename, conn, tableObj, statements);
         createTable(tablename, conn, statements);
         prepareStatements(tablename, conn, tableObj, statements);
     }
@@ -76,45 +74,6 @@ public class TableSetup {
             SQLException sqle = new SQLException(e.getMessage() + " " + stmt);
             sqle.setStackTrace(e.getStackTrace());
             throw sqle;
-        }
-    }
-
-    /**
-     * creates JDBCSequences for fields named tableName+"Seq" using the property
-     * tableName+"Seq.create" and tableName+"Seq.nextVal"
-     */
-    public static void createSequence(String tableName,
-                                      Connection conn,
-                                      Object tableObj,
-                                      SQLLoader statements) throws SQLException {
-        try {
-            Field field = tableObj.getClass().getDeclaredField(tableName
-                    + "Seq");
-            String key = tableName + "Seq.create";
-            if(field != null) {
-                if(statements.has(key)) {
-                    String sql = statements.get(key);
-                    field.setAccessible(true);
-                    field.set(tableObj, new JDBCSequence(conn, tableName
-                            + "Seq"));
-                } else {
-                    throw new IllegalArgumentException(tableName
-                            + "Seq.create is not defined, unable to create sequence");
-                }
-            }
-        } catch(NoSuchFieldException e) {
-            logger.info("No Sequence field named: " + tableName + "Seq found.");
-            Field[] fields = tableObj.getClass().getDeclaredFields();
-            for(int i = 0; i < fields.length; i++) {
-                logger.info("Field in " + tableName + " " + fields[i].getName());
-            }
-            // no field following the naming convention, so skip
-        } catch(IllegalArgumentException e) {
-            GlobalExceptionHandler.handle("Thought this couldn't happen since I checked the object type.",
-                                          e);
-        } catch(IllegalAccessException e) {
-            GlobalExceptionHandler.handle("Thought this couldn't happen since I called setAccessible.  Looks like I was wrong",
-                                          e);
         }
     }
 
