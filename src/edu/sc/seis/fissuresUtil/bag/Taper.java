@@ -7,10 +7,18 @@ package edu.sc.seis.fissuresUtil.bag;
  * Created: Sat Oct 19 21:53:21 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: Taper.java 2781 2002-10-20 02:13:43Z crotwell $
+ * @version $Id: Taper.java 2782 2002-10-20 12:08:41Z crotwell $
  */
 
 public class Taper {
+    public Taper (){
+	this(0.05f);
+    }
+
+    public Taper (float width){
+	this(HANNING, width);
+    }
+
     public Taper (int type, float width){
 	this.type = type;
 	this.width = width;
