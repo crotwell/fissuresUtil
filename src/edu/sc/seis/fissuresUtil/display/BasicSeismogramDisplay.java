@@ -97,94 +97,41 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
      * @param newSeismogram a <code>LocalSeismogram</code> value
      */
     public void addSeismogram(LocalSeismogram newSeismogram){
+	seismos.add(newSeismogram);
 	SeismogramPlotter newPlotter = new SeismogramPlotter(newSeismogram, timeRegistrar, ampRegistrar);
 	Iterator e = filters.iterator();
-	plotters.put(newPlotter, colors[plotters.size()%colors.length]);
+	seisPlotters.put(newPlotter, seisColors[seisPlotters.size()%seisColors.length]);
 	while(e.hasNext()){
-	    plotters.put(new FilteredSeismogramPlotter(((ButterworthFilter)e.next()), newSeismogram, timeRegistrar, ampRegistrar), 
-			 colors[plotters.size()%colors.length]);
+	    filterPlotters.put(new FilteredSeismogramPlotter(((ButterworthFilter)e.next()), newSeismogram, timeRegistrar, ampRegistrar), 
+			       filterColors[filterPlotters.size()%filterColors.length]);
 	}
 	timeRegistrar.addSeismogram(newSeismogram);
 	ampRegistrar.addSeismogram(newSeismogram);
 	redo = true;
     }
 
-    public LocalSeismogramImpl getSeismogram(){
-	Iterator e = plotters.keySet().iterator();
-	while(e.hasNext()){
-	    Plotter current = ((Plotter)e.next());
-	    if(current instanceof SeismogramPlotter)
-		return ((LocalSeismogramImpl)((SeismogramPlotter)current).getSeismogram());
-	}
-	return null;
-    }
-    
-    /**
-     * Removes a seismogram from the display
-     *
-     *
-     * @param oldSeis a <code>LocalSeismogram</code> value
-     */
+    public LinkedList getSeismograms(){ return seismos; }
+  
     public void removeSeismogram(LocalSeismogram oldSeis){}
 
-    /**
-     * Describe <code>remove</code> method here.
-     *
-     * @param me a <code>MouseEvent</code> value
-     */
-    public void remove(MouseEvent me){
-       logger.debug(name + " being removed");
-       this.stopImageCreation();
-       parent.removeDisplay(this);
-       timeRegistrar.removeTimeSyncListener(this);
-       ampRegistrar.removeAmpSyncListener(this); 
-       Iterator e = plotters.keySet().iterator();
-       while(e.hasNext()){
-	   LocalSeismogram current = ((SeismogramPlotter)e.next()).getSeismogram();
-	   timeRegistrar.removeSeismogram(current);
-	   ampRegistrar.removeSeismogram(current);
-       }
-    }
+    public String getName(){ return name; }
+    
+    public void setName(String name){ this.name = name; } 
 
-    public void removeAll(MouseEvent me){
-	logger.debug("remove all called");
-	parent.removeAll();
-    }
-
-    /**
-     * Returns the amp range configurator the display is using
-     *
-     *
-     * @return an <code>AmpRangeConfig</code> value
-     */
     public AmpRangeConfig getAmpConfig(){ return ampRegistrar.getAmpConfig(); }
     
     public AmpConfigRegistrar getAmpRegistrar(){ return ampRegistrar; } 
 
-    /**
-     * Describe <code>updateAmpRange</code> method here.
-     *
-     */
     public void updateAmpRange(){
 	ampScaleMap.setUnitRange(ampRegistrar.getAmpRange());
 	redo = true;
 	repaint();
     }
 
-    /**
-     * Returns the time range configurator the display is using
-     *
-     *
-     * @return a <code>TimeRangeConfig</code> value
-     */
     public TimeRangeConfig getTimeConfig(){ return timeRegistrar.getTimeConfig(); }
     
     public TimeConfigRegistrar getTimeRegistrar(){ return timeRegistrar; }
 
-    /**
-     * Describe <code>updateTimeRange</code> method here.
-     *
-     */
     public void updateTimeRange(){
 	this.timeScaleMap.setTimes(timeRegistrar.getTimeRange().getBeginTime(), 
 				   timeRegistrar.getTimeRange().getEndTime());
@@ -192,32 +139,19 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	
     }
 
-    /**
-     * Describe <code>addBottomTimeBorder</code> method here.
-     *
-     */
-    public void addBottomTimeBorder(){	
+   public void addBottomTimeBorder(){	
 	scaleBorder.setBottomScaleMapper(timeScaleMap); 
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
 	this.revalidate();
     }
 
-    /**
-     * Describe <code>removeBottomTimeBorder</code> method here.
-     *
-     */
     public void removeBottomTimeBorder(){ 
 	scaleBorder.clearBottomScaleMapper(); 
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
     }
 
-
-    /**
-     * Describe <code>addTopTimeBorder</code> method here.
-     *
-     */
     public void addTopTimeBorder(){ 
 	scaleBorder.setTopScaleMapper(timeScaleMap);
 	Insets current = this.getInsets();
@@ -225,29 +159,17 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	this.revalidate();
     }
 
-    /**
-     * Describe <code>removeTopTimeBorder</code> method here.
-     *
-     */
     public void removeTopTimeBorder(){ 
 	scaleBorder.clearTopScaleMapper();
 	Insets current = this.getInsets();
 	setPreferredSize(new Dimension(200 + current.left, 100 + current.top + current.bottom));
     }
 
-    /**
-     * Describe <code>redraw</code> method here.
-     *
-     */
     public void redraw(){
 	redo = true;
 	repaint();
     }
 
-    /**
-     * Describe <code>resize</code> method here.
-     *
-     */
     protected void resize() {
 	Insets insets = getInsets();
 	synchronized(imagePainter){
@@ -261,34 +183,10 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	repaint();
     }
 
-    /**
-     * Describe <code>stopImageCreation</code> method here.
-     *
-     */
     public void stopImageCreation(){
 	synchronized(imageMaker){ imageMaker.remove(imagePainter); }
     }
-
-    /**
-     * Describe <code>turnOnToolTip</code> method here.
-     *
-     */
-    public void turnOnToolTip(){
-	this.setToolTipText(name);
-    }
-
-    /**
-     * Describe <code>turnOffToolTip</code> method here.
-     *
-     */
-    public void turnOffToolTip(){
-	this.setToolTipText("");
-    }
-
-    public String getName(){ return name; }
     
-    public void setName(String name){ this.name = name; } 
-
     public void selectRegion(MouseEvent one, MouseEvent two){
 	Insets insets = this.getInsets();
 	Dimension dim = getSize();
@@ -315,8 +213,8 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		    return;
 		}
 	    }
-	    currentSelection = new Selection(selectionBegin, selectionEnd, timeRegistrar, plotters, this, 
-					     transparentColors[selections.size()%transparentColors.length]);
+	    currentSelection = new Selection(selectionBegin, selectionEnd, timeRegistrar, seisPlotters, this, 
+					     selectionColors[selections.size()%selectionColors.length]);
 	    selections.add(currentSelection);
 	    return;
 	}
@@ -327,13 +225,36 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	if(currentSelection != null && currentSelection.remove()){
 	    selections.remove(currentSelection);
 	    repaint();
-	    previousSelection = currentSelection;
+	    Selection previousSelection = currentSelection;
 	    currentSelection = null;
 	    return previousSelection;
 	}
 	currentSelection.released();
 	currentSelection = null;
 	return null;
+    }
+
+    /**
+     * Describe <code>remove</code> method here.
+     *
+     * @param me a <code>MouseEvent</code> value
+     */
+    public void remove(MouseEvent me){
+       logger.debug(name + " being removed");
+       this.stopImageCreation();
+       parent.removeDisplay(this);
+       timeRegistrar.removeTimeSyncListener(this);
+       ampRegistrar.removeAmpSyncListener(this); 
+       Iterator e = seismos.iterator();
+       while(e.hasNext()){
+	   LocalSeismogram current = ((LocalSeismogram)e.next());
+	   timeRegistrar.removeSeismogram(current);
+	   ampRegistrar.removeSeismogram(current);
+       }
+    }
+
+    public void removeAll(MouseEvent me){
+	parent.removeAll();
     }
 
     public void zoomIn(MouseEvent me) {
@@ -376,6 +297,15 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	timeRegistrar.fireTimeRangeEvent(new TimeSyncEvent(xDiff, xDiff, false));
     }
 
+    public void print(){
+	PrinterJob pj = PrinterJob.getPrinterJob();
+	pj.setPrintable(new ComponentPrintable(this));
+	if(pj.printDialog()){
+	    try { pj.print(); } 
+	    catch(Exception e){ e.printStackTrace(); }
+	}
+    }
+
     public void mouseReleased(MouseEvent me){
 	parent.redraw();
     }
@@ -383,22 +313,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     public void mouseMoved(MouseEvent me){
 	Insets insets = this.getInsets();
 	Dimension dim = this.getSize();
-	/*BasicSeismogramDisplay selected = ((BasicSeismogramDisplay)me.getComponent());
-	if(last == null)
-	    last = selected;
-	    if (me.getX() < insets.left){	    
-	    last.turnOffToolTip();
-	    selected.turnOnToolTip();
-	    last = selected;
-	    return;
-	} 
-	if(me.getX() > dim.width-insets.right ||
-	   me.getY() < insets.top ||
-	   me.getY() > dim.height-insets.bottom) {
-	    return;
-	}
-	last.turnOffToolTip();*/
-	    double xPercent = (me.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
+	double xPercent = (me.getX() - insets.left)/(double)(dim.getWidth() - insets.left - insets.right);
 	MicroSecondTimeRange currRange = timeRegistrar.getTimeRange();
 	MicroSecondDate time = new MicroSecondDate((long)(currRange.getBeginTime().getMicroSecondTime() + 
 							  currRange.getInterval().getValue() * xPercent));	
@@ -417,11 +332,9 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     
     public void setUnfilteredDisplay(boolean visible){
 	synchronized(imageMaker){
-	    Iterator e = plotters.keySet().iterator();
+	    Iterator e = seisPlotters.keySet().iterator();
 	    while(e.hasNext()){
-		Plotter current = ((Plotter)e.next());
-		if(current instanceof SeismogramPlotter)
-		    ((SeismogramPlotter)current).setVisibility(visible);
+		((SeismogramPlotter)e.next()).setVisibility(visible);
 	    }
 	}
 	redo = true;
@@ -429,38 +342,24 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
     }
 
     public void setFilter(ButterworthFilter filter, boolean visible){
-	LinkedList seismos = new LinkedList();
-	LinkedList filteredSeismos = new LinkedList();
-	LinkedList filteredPlotters = new LinkedList();
-	boolean changingExisting = false;
 	synchronized(imageMaker){
 	    if(filters.contains(filter)){
-		changingExisting = true;
+		Iterator e = filterPlotters.keySet().iterator();
+		while(e.hasNext()){
+		FilteredSeismogramPlotter current = ((FilteredSeismogramPlotter)e.next());
+		if(current.getFilter() == filter)
+		    current.setVisibility(visible);
+		}
 	    }else{
 		filters.add(filter);
-	    }
-	    Iterator e = plotters.keySet().iterator();
-	    while(e.hasNext()){
-		Plotter current = ((Plotter)e.next());
-		if(current instanceof SeismogramPlotter){
-		    seismos.add(((SeismogramPlotter)current).getSeismogram());
-		}else if(changingExisting && current instanceof FilteredSeismogramPlotter  && 
-			 ((FilteredSeismogramPlotter)current).getFilter() == filter){
-		    filteredSeismos.add(((FilteredSeismogramPlotter)current).getUnfilteredSeismogram());
-		    filteredPlotters.add(current);
-		}
-	    }
-	    e = seismos.iterator();
-	    while(e.hasNext()){
-		LocalSeismogramImpl current = ((LocalSeismogramImpl)e.next());
-		if(changingExisting && filteredSeismos.contains(current)){
-		    ((FilteredSeismogramPlotter)filteredPlotters.get(filteredSeismos.indexOf(current))).setVisibility(visible);
-		}else{
+		Iterator e = seismos.iterator();
+		while(e.hasNext()){
+		    LocalSeismogram current = ((LocalSeismogram)e.next());
 		    logger.debug("creating a new filter for " + name);
-		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, (LocalSeismogram)current,
+		    FilteredSeismogramPlotter filteredPlotter = new FilteredSeismogramPlotter(filter, current,
 											      timeRegistrar, ampRegistrar);
 		    filteredPlotter.setVisibility(visible);
-		    plotters.put(filteredPlotter, colors[plotters.size()%colors.length]);
+		    filterPlotters.put(filteredPlotter, filterColors[filterPlotters.size()%filterColors.length]);
 		}
 	    }
 	}
@@ -546,10 +445,11 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	}
 	
 	public synchronized void createImage(){
-	    imageMaker.createImage(this, new PlotInfo(overSize, plotters, displayInterval));
+	    imageMaker.createImage(this, new PlotInfo(overSize, seisPlotters, filterPlotters, displayInterval));
 	}
 
 	public synchronized void setImage(Image newImage){
+	    System.out.println("setting image");
 	    overTimeRange = timeRegistrar.getTimeRange().getOversizedTimeRange(OVERSIZED_SCALE);
 	    displayTime = displayInterval.getValue();
 	    overBeginTime = overTimeRange.getBeginTime().getMicroSecondTime();
@@ -563,7 +463,7 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 		imageCache.removeLast();
 	    repaint();	
  	}
-
+	
 	public TimeRangeConfig getTimeConfig(){ return timeRegistrar.getTimeConfig(); }
 	
 	protected long overEndTime, overBeginTime;
@@ -577,20 +477,23 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 	protected TimeInterval displayInterval;
     
 	protected SoftReference overSizedImage;
-
     }
     protected static LinkedList imageCache = new LinkedList();
-    
+           
     protected VerticalSeismogramDisplay parent; 
     
-    protected Selection currentSelection, previousSelection; 
+    protected Selection currentSelection; 
+    
+    protected LinkedList seismos = new LinkedList();
     
     protected LinkedList selections = new LinkedList();
     
     protected LinkedList filters = new LinkedList();
 
-    protected HashMap plotters = new HashMap();
+    protected HashMap seisPlotters = new HashMap();
     
+    protected HashMap filterPlotters = new HashMap();
+
     protected String name;
 
     protected AmpConfigRegistrar ampRegistrar;
@@ -613,9 +516,11 @@ public class BasicSeismogramDisplay extends JComponent implements SeismogramDisp
 
     protected static ImageMaker imageMaker = new ImageMaker();
 
-    private Color[] colors = { Color.blue, Color.red, Color.yellow, Color.green, Color.black };
+    private Color[] seisColors = { Color.blue, Color.red,  Color.gray, Color.magenta, Color.cyan };
 
-    private Color[] transparentColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64), 
+    private Color[] filterColors = { Color.yellow, Color.green, Color.black, Color.darkGray, Color.orange };
+
+    private Color[] selectionColors = { new Color(255, 0, 0, 64), new Color(255, 255, 0, 64), new Color(0, 255, 0, 64), 
 					  new Color(0, 0, 255, 64)};
 
     private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());

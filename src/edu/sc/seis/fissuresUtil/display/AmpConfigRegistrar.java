@@ -18,26 +18,28 @@ import org.apache.log4j.*;
 
 public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
     public AmpConfigRegistrar(){
-	this.ampConfig = new RMeanAmpConfig(this);
+	ampConfig = new RMeanAmpConfig();
+	ampConfig.setRegistrar(this);
     }
 
-    public AmpConfigRegistrar(TimeConfigRegistrar timeRegistrar){
-	this.ampConfig = new RMeanAmpConfig(this);
-	ampConfig.visibleAmpCalc(timeRegistrar);
-    }
-    
     public AmpConfigRegistrar (AmpRangeConfig ampConfig){
 	this.ampConfig = ampConfig;
 	ampConfig.setRegistrar(this);
     }
+
+    public AmpConfigRegistrar(AmpConfigRegistrar ampRegistrar){
+	setRegistrar(ampRegistrar);
+    }
+	
      
-    public void setRegistrar(AmpConfigRegistrar ampConfig){ 
-	ampConfig.removeAmpSyncListener(this);
-	this.ampConfig = ampConfig;
+    public void setRegistrar(AmpConfigRegistrar ampRegistrar){ 
+	if(ampConfig instanceof AmpConfigRegistrar)
+	((AmpConfigRegistrar)ampConfig).removeAmpSyncListener(this);
 	Iterator e = seismograms.iterator();
 	while(e.hasNext())
-	    ampConfig.addSeismogram(((LocalSeismogram)e.next()));
-	ampConfig.addAmpSyncListener(this);
+	    ampRegistrar.addSeismogram(((LocalSeismogram)e.next()));
+	ampRegistrar.addAmpSyncListener(this);
+	ampConfig = ampRegistrar;
 	updateAmpSyncListeners();
     }
 
@@ -49,6 +51,8 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      * @param seis the seismogram to be added
      */
     public void addSeismogram(LocalSeismogram seis){
+	if(seismograms.contains(seis))
+	    return;
 	seismograms.add(seis);
 	ampConfig.addSeismogram(seis);
     }
@@ -87,7 +91,7 @@ public class AmpConfigRegistrar implements AmpRangeConfig, AmpSyncListener{
      */
     public void visibleAmpCalc(TimeConfigRegistrar timeRegistrar){ ampConfig.visibleAmpCalc(timeRegistrar); }
 
-    public void addAmpSyncListener(AmpSyncListener a){ ampListeners.add(a); }
+    public void addAmpSyncListener(AmpSyncListener a){ 	ampListeners.add(a); }
 
     /**
      * Removes an amplitude sync listener from the current configurator

@@ -21,6 +21,8 @@ import java.util.*;
 
 public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     
+    public RMeanAmpConfig(){}
+
     public RMeanAmpConfig(AmpRangeConfig registrar){
 	this.ampRegistrar = registrar;
     }

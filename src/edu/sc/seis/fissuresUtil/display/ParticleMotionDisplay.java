@@ -41,16 +41,17 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				  AmpConfigRegistrar hAmpConfigRegistrar,
 				  AmpConfigRegistrar vAmpConfigRegistrar, Color color){
 
-	this.hAmpConfigRegistrar = new AmpConfigRegistrar(hAmpConfigRegistrar);
-	this.vAmpConfigRegistrar = new AmpConfigRegistrar(vAmpConfigRegistrar);
-	hAmpConfigRegistrar.addAmpSyncListener(this);
-	vAmpConfigRegistrar.addAmpSyncListener(this);
-
+	hRegistrar = new AmpConfigRegistrar(hAmpConfigRegistrar);
+	vRegistrar = new AmpConfigRegistrar(vAmpConfigRegistrar);
+	hRegistrar.addSeismogram(hSeis);
+	vRegistrar.addSeismogram(vSeis);
+	hRegistrar.addAmpSyncListener(this);
+	vRegistrar.addAmpSyncListener(this);
 	showScale(hSeis, 
 		  vSeis,
 		  timeConfigRegistrar,
-		  hAmpConfigRegistrar,
-		  vAmpConfigRegistrar,
+		  hRegistrar,
+		  vRegistrar,
 		  color);
 	this.addComponentListener(new ComponentAdapter() {
 		public void componentResized(ComponentEvent e) {
@@ -133,8 +134,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 				 LocalSeismogramImpl vseis, 
 				 TimeConfigRegistrar timeConfigRegistrar) {
 
-	//	AmpConfigRegistrar ampConfig = new RMeanAmpConfig();
-	this(hseis, vseis, timeConfigRegistrar, new AmpConfigRegistrar());
+	this(hseis, vseis, timeConfigRegistrar, new AmpConfigRegistrar(new RMeanAmpConfig()));
     }
 
 
@@ -180,8 +180,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	    
 	     e.printStackTrace();
 	}
-	this.hAmpConfigRegistrar = hAmpConfigRegistrar;
-	this.vAmpConfigRegistrar = vAmpConfigRegistrar;
+	this.hRegistrar = hAmpConfigRegistrar;
+	this.vRegistrar = vAmpConfigRegistrar;
 	showScale((LocalSeismogramImpl)seismograms[0], 
 	     (LocalSeismogramImpl)seismograms[1], 
 	     timeConfigRegistrar, 
@@ -242,11 +242,11 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     }
 
     public void updateAmpRange() {
-	this.hAmpScaleMap.setUnitRange(hAmpConfigRegistrar.getAmpRange());
+	this.hAmpScaleMap.setUnitRange(hRegistrar.getAmpRange());
     }
     
     public void updateVerticalAmpRange() {
-	this.vAmpScaleMap.setUnitRange(vAmpConfigRegistrar.getAmpRange());
+	this.vAmpScaleMap.setUnitRange(vRegistrar.getAmpRange());
     }
     public void updateHorizontalAmpScale(UnitRangeImpl r) {
 	//logger.debug("The amplitudeRange is being updated ");
@@ -336,8 +336,8 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
      */
     public void setAmplitudeRange(AmpConfigRegistrar amplitudeRange) {
 	
-	this.hAmpConfigRegistrar = amplitudeRange;
-	this.vAmpConfigRegistrar = amplitudeRange;
+	this.hRegistrar = amplitudeRange;
+	this.vRegistrar = amplitudeRange;
     }
 
     public void addAzimuthLine(double degrees) {
@@ -362,7 +362,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 
     public void fireAmpRangeEvent(AmpSyncEvent event) {
 
-	this.hAmpConfigRegistrar.fireAmpRangeEvent(event);
+	this.hRegistrar.fireAmpRangeEvent(event);
     }
 
     public void updateTimeRange() {
@@ -383,6 +383,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
 	JPanel buttonPanel = new JPanel();
 	buttonPanel.setLayout(new FlowLayout());
 	buttonPanel.add(zoomIn);
+
 	buttonPanel.add(zoomOut);
         //        Seismogram hSeis = SeisPlotUtil.createTestData();
         //        Seismogram vSeis = SeisPlotUtil.createTestData();
@@ -396,7 +397,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
         LocalSeismogramImpl vSeisex = 
             (LocalSeismogramImpl)SeisPlotUtil.createSineWave(-265, .1, 100, 400);
 	
-	AmpConfigRegistrar vAmpConfigRegistrar = new AmpConfigRegistrar();
+	AmpConfigRegistrar vAmpConfigRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
        
         final ParticleMotionDisplay sv = new ParticleMotionDisplay(hSeis, hSeis,
 								   null,
@@ -475,7 +476,7 @@ public class ParticleMotionDisplay extends JLayeredPane implements AmpSyncListen
     protected ParticleMotionView view;
 
 
-    private AmpConfigRegistrar hAmpConfigRegistrar, vAmpConfigRegistrar;
+    private AmpConfigRegistrar hRegistrar, vRegistrar;
 
 
     static Category logger = 

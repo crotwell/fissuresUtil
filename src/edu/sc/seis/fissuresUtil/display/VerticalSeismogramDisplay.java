@@ -35,7 +35,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	seismograms.setLayout(new BoxLayout(seismograms, BoxLayout.Y_AXIS));
 	this.getViewport().add(seismograms);
 	globalTimeRegistrar = new TimeConfigRegistrar();
-	globalAmpRegistrar = new AmpConfigRegistrar();
+	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	sorter = new SeismogramSorter();
     }
     
@@ -90,7 +90,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
 	basicDisplays = new LinkedList();
 	sorter = new SeismogramSorter();
 	globalTimeRegistrar = new TimeConfigRegistrar();
-	globalAmpRegistrar = new AmpConfigRegistrar();
+	globalAmpRegistrar = new AmpConfigRegistrar(new RMeanAmpConfig());
 	this.time.setText("   Time: ");
 	this.amp.setText("   Amplitude: ");
 	repaint();
@@ -170,11 +170,18 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     
     public void createParticleDisplay(BasicSeismogramDisplay creator){
 	if(particleDisplay == null){
-	    particleDisplay = new ParticleMotionDisplay(creator.getSeismogram(), creator.getSeismogram(), 
-							creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
+	    logger.debug("creating particle display");
+	    LocalSeismogramImpl seis = ((LocalSeismogramImpl)creator.getSeismograms().getFirst());
+	    particleDisplay = new ParticleMotionDisplay(seis, seis, creator.getTimeRegistrar(), creator.getAmpRegistrar(), 
 							creator.getAmpRegistrar(), Color.blue);
 	}
     }
+
+    public void createSelectionDisplay(BasicSeismogramDisplay creator){
+	if(selectionDisplay == null){
+	    logger.debug("creating selection display");
+	    selectionDisplay = new VerticalSeismogramDisplay(mouseForwarder, motionForwarder);
+	}}
 	
     
     protected SeismogramSorter sorter;
@@ -182,7 +189,7 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     protected TimeConfigRegistrar globalTimeRegistrar;
 
     protected AmpConfigRegistrar globalAmpRegistrar;
-
+    
     protected HashMap selectionDisplayMap = new HashMap();
 
     protected LocalSeismogramImpl waitingSeismo;
@@ -208,6 +215,8 @@ public class VerticalSeismogramDisplay extends JScrollPane{
     protected SimpleDateFormat output = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.S");
 
     protected Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+    protected VerticalSeismogramDisplay selectionDisplay;
 
     private static Category logger = Category.getInstance(VerticalSeismogramDisplay.class.getName());
 }// VerticalSeismogramDisplay
