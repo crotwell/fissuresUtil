@@ -74,14 +74,15 @@ public class FissuresMailService {
     
     public void sendMail() throws Exception{
 
-
-	Session session = Session.getDefaultInstance(null, null);
+	Properties props = new Properties();
+	Session session = Session.getDefaultInstance(props, null);
 	MimeMessage message = new MimeMessage(session);
 	BodyPart bodyPart = new MimeBodyPart();
 	bodyPart.setContent(content, "text/plain");
 	
 	Multipart multiPart = new MimeMultipart();
 	multiPart.addBodyPart(bodyPart);
+	//	System.out.println("added bodypart");
 	for(int counter = 0; counter < attachments.size(); counter++) {
 
 	    String fileName = (String)attachments.get(counter);
@@ -92,19 +93,23 @@ public class FissuresMailService {
 	    bodyPart.setDisposition(Part.ATTACHMENT);
 	    multiPart.addBodyPart(bodyPart);
 	}
+	//System.out.println("adding attachemt");
 	Address[] addresses = new Address[recipients.size()];
 	for(int counter = 0; counter < recipients.size(); counter++) {
 	    addresses[counter] = new InternetAddress((String)recipients.get(counter));
 	}
+	//	System.out.println("added addresses");
 	message.addRecipients(Message.RecipientType.TO, addresses);
-	message.setFrom(new InternetAddress(sender));
+	if(sender.length() != 0) {
+	    message.setFrom(new InternetAddress(sender));
+	}
 	message.setSubject(subject);
 	message.setContent(multiPart);
 	Transport.send(message);
-	
+	//System.out.println("sent the message successfully");
     }
 
-    private ArrayList recipients;
+    private ArrayList recipients = new ArrayList();
     private String sender;
     private String content;
     private String subject;

@@ -70,7 +70,7 @@ public class ExceptionHandlerGUI {
 
     }
 
-    private static String getStackTrace(Exception e) {
+    public static String getStackTrace(Exception e) {
 
 
 	StringWriter  stringWriter = new StringWriter();
