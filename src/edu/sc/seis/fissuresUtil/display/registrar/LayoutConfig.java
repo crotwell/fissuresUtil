@@ -6,7 +6,7 @@ public interface LayoutConfig extends DataSetSeismogramReceptacle{
 
     public void removeListener(LayoutListener listener);
 
-     /**
+    /**
      * fires a layout event to all LayoutListeners with an event from
      * generateLayoutEvent()
      */
@@ -17,5 +17,13 @@ public interface LayoutConfig extends DataSetSeismogramReceptacle{
      * the seismograms contained in its getSeismograms() method
      */
     public LayoutEvent generateLayoutEvent();
+
+    /**
+     *sets the amount by which every seismogram in the layout is being scaled
+     *@param scale - the factor by which the seismogram height is multiplied
+     */
+    public void setScale(double scale);
+
+    public double getScale();
 }
 
