@@ -242,9 +242,24 @@ public class Cmplx {
 		return (fdata);
 
 	}
-		
 
-
+    public static final float[] convolve(float[] fdata, float[] gdata) {
+	    Cmplx[] fTrans = fft(fdata);
+	    Cmplx[] gTrans = fft(gdata);
+	    for (int i=0; i<fdata.length; i++) {
+		fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i]);
+	    } // end of for (int i=0; i<gdata.length; i++)
+	    return inverseFFT(fTrans, fdata.length);	    
+    }
+	
+	public static final float[] correlate(float[] fdata, float[] gdata) {
+	    Cmplx[] fTrans = fft(fdata);
+	    Cmplx[] gTrans = fft(gdata);
+	    for (int i=0; i<fdata.length; i++) {
+		fTrans[i] = Cmplx.mul(fTrans[i],  gTrans[i].conjg());
+	    } // end of for (int i=0; i<gdata.length; i++)
+	    return inverseFFT(fTrans, fdata.length);	    
+	}
 
 	/** Fast Fourier Transform  (adapted from Numerical Recipies in C)
 	*
