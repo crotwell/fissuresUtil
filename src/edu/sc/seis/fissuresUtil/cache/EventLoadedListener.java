@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+
 /**
  * EventLoadedListener.java
  * Allows a backgroung event loader to notify interested parties that the
@@ -13,6 +14,6 @@ package edu.sc.seis.fissuresUtil.cache;
 
 public interface EventLoadedListener extends java.util.EventListener {
 
-    public void eventLoaded(CacheEvent event);
+    public void eventLoaded(ProxyEventAccessOperations event);
 	    
 }// EventLoadedListener

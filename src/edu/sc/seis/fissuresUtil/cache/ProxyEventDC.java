@@ -32,10 +32,13 @@ public abstract class ProxyEventDC implements EventDCOperations {
     public EventDCOperations getWrappedDC() { return eventDC; }
 	
     public EventDCOperations getWrappedDC(Class wrappedClass) {
+    		if(getClass().equals(wrappedClass)){
+    			return this;
+    		}
         if(getWrappedDC().getClass().equals(wrappedClass)){
             return getWrappedDC();
         }else if(getWrappedDC().getClass().equals(ProxyEventDC.class)){
-            ((ProxyEventDC)getWrappedDC()).getWrappedDC(wrappedClass);
+            return ((ProxyEventDC)getWrappedDC()).getWrappedDC(wrappedClass);
         }
         throw new IllegalArgumentException("This doesn't contain a DC of class " + wrappedClass);
     }
