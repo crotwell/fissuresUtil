@@ -10,6 +10,5 @@ import java.util.EventListener;
 
 public interface ChannelSelectionListener extends EventListener{
     public void channelSelectionChanged(ChannelSelectionEvent e);
-
 }
 
