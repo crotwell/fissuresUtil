@@ -20,7 +20,11 @@ public class NSNetworkAccess extends ProxyNetworkAccess{
      * NetworkAccess returned by the netDC.
      */
     public NSNetworkAccess(NetworkId id, NetworkDCOperations netDC) throws NetworkNotFound{
-        super(netDC.a_finder().retrieve_by_id(id));
+        this(netDC.a_finder().retrieve_by_id(id), id, netDC);
+    }
+
+    public NSNetworkAccess(NetworkAccess na, NetworkId id, NetworkDCOperations netDC){
+        super(na);
         this.id = id;
         this.netDC = netDC;
     }
