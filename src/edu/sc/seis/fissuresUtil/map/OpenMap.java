@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.imageio.ImageIO;
@@ -33,6 +35,7 @@ import com.bbn.openmap.event.LayerStatusEvent;
 import com.bbn.openmap.event.LayerStatusListener;
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.image.SunJPEGFormatter;
@@ -52,11 +55,13 @@ import edu.sc.seis.fissuresUtil.map.layers.EventTableLayer;
 import edu.sc.seis.fissuresUtil.map.layers.FissuresGraticuleLayer;
 import edu.sc.seis.fissuresUtil.map.layers.FissuresShapeLayer;
 import edu.sc.seis.fissuresUtil.map.layers.OverriddenOMLayer;
+import edu.sc.seis.fissuresUtil.map.layers.ShapeLayerPropertiesHandler;
 import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
 import edu.sc.seis.fissuresUtil.map.tools.PanTool;
 import edu.sc.seis.fissuresUtil.map.tools.ZoomTool;
 
-public class OpenMap extends OMComponentPanel implements LayerStatusListener {
+public class OpenMap extends OMComponentPanel implements LayerStatusListener,
+        ProjectionListener {
 
     public static final Color WATER = new Color(54, 179, 221);
 
@@ -86,7 +91,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     private static Logger logger = Logger.getLogger(OpenMap.class);
 
-    private FissuresShapeLayer shapeLayer;
+    private List shapeLayers = new ArrayList();
 
     /**
      * Creates a map with a shapelayer based on the file in fissuresUtil, a
@@ -98,7 +103,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
     }
 
     public OpenMap(boolean graticule) {
-        this("edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse", graticule);
+        this(ShapeLayerPropertiesHandler.getProperties(), graticule);
         setEventLayer(new EventLayer(this, new DepthEventColorizer()));
         setStationLayer(new StationLayer());
     }
@@ -109,24 +114,38 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
      * @param shapefile -
      *            the file to be used in the shapelayer
      */
-    public OpenMap(String shapefile) {
-        this(shapefile, true);
+    public OpenMap(Properties shapeLayerProps) {
+        this(shapeLayerProps, true);
     }
 
-    public OpenMap(String shapefile, boolean graticule) {
-        this(shapefile, null, graticule);
+    public OpenMap(Properties[] shapeLayerProps) {
+        this(shapeLayerProps, true);
     }
 
-    public OpenMap(String shapefile, Projection projection) {
-        this(shapefile, projection, true);
+    public OpenMap(Properties shapeLayerProps, boolean graticule) {
+        this(new Properties[] {shapeLayerProps}, null, graticule);
     }
 
-    public OpenMap(String shapefile, Projection projection, boolean graticule) {
+    public OpenMap(Properties[] shapeLayerProps, boolean graticule) {
+        this(shapeLayerProps, null, graticule);
+    }
+
+    public OpenMap(Properties shapeLayerProps, Projection projection) {
+        this(new Properties[] {shapeLayerProps}, projection, true);
+    }
+
+    public OpenMap(Properties[] shapeLayerProps, Projection projection) {
+        this(shapeLayerProps, projection, true);
+    }
+
+    public OpenMap(Properties[] shapeLayerProps, Projection projection,
+            boolean graticule) {
         try {
             setLayout(new BorderLayout());
             mapHandler = new MapHandler();
             mapHandler.add(this);
             mapBean = getMapBean();
+            mapBean.addProjectionListener(this);
             if(projection != null) {
                 mapBean.setProjection(projection);
             }
@@ -151,27 +170,40 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             // LayerHandler will find the MapBean in the MapHandler.
             lh = new LayerHandler();
             mapHandler.add(lh);
-            // Create a ShapeLayer to show world political boundaries.
-            shapeLayer = new FissuresShapeLayer();
-            shapeLayer.addLayerStatusListener(this);
-            //Create shape layer properties
-            Properties shapeLayerProps = new Properties();
-            shapeLayerProps.put("prettyName", "Political Boundaries Layer");
-            shapeLayerProps.put("lineColor", "FF000000");
-            shapeLayerProps.put("fillColor", "FF39DA87");
-            shapeLayerProps.put("shapeFile", shapefile + ".shp");
-            shapeLayerProps.put("spatialIndex", shapefile + ".ssx");
-            shapeLayer.setProperties(shapeLayerProps);
-            shapeLayer.setVisible(true);
-            mapHandler.add(shapeLayer);
-            lh.addLayer(shapeLayer);
+            //Create shape layers
+            for(int i = 0; i < shapeLayerProps.length; i++) {
+                FissuresShapeLayer shapeLayer = new FissuresShapeLayer();
+                shapeLayer.addLayerStatusListener(this);
+                shapeLayer.setProperties(shapeLayerProps[i]);
+                shapeLayer.setVisible(true);
+                shapeLayers.add(shapeLayer);
+                mapHandler.add(shapeLayer);
+                lh.addLayer(shapeLayer);
+                updateShapeLayerProps();
+            }
+            //            Properties shapeLayerProps = new Properties();
+            //            shapeLayerProps.put("prettyName", "Global Shape Layer");
+            //            shapeLayerProps.put("lineColor", "FF000000");
+            //            shapeLayerProps.put("lineColor", "FF39DA87");
+            //            shapeLayerProps.put("lineWidth", "0");
+            //            shapeLayerProps.put("fillColor", "FF39DA87");
+            //            shapeLayerProps.put("shapeFile", globalShapefile + ".shp");
+            //            shapeLayerProps.put("spatialIndex", globalShapefile + ".ssx");
+            //            globalShapeLayer.setProperties(shapeLayerProps);
+            //            globalShapeLayer.setVisible(true);
+            //            shapeLayers.add(0, globalShapeLayer);
+            //            mapHandler.add(globalShapeLayer);
+            //            lh.addLayer(globalShapeLayer);
+            //            updateShapeLayerProps();
             if(graticule) {
                 GraticuleLayer gl = new FissuresGraticuleLayer();
                 Properties graticuleLayerProps = gl.getProperties(new Properties());
                 graticuleLayerProps.setProperty("prettyName", "Graticule Layer");
                 graticuleLayerProps.setProperty("show1And5Lines", "true");
-                graticuleLayerProps.setProperty("10DegreeColor", "FF888888");
-                graticuleLayerProps.setProperty("1DegreeColor", "C7003300");
+                graticuleLayerProps.setProperty("threshold", "3");
+                graticuleLayerProps.setProperty("10DegreeColor", "88888888");
+                graticuleLayerProps.setProperty("5DegreeColor", "88666666");
+                graticuleLayerProps.setProperty("1DegreeColor", "88AAAAAA");
                 gl.setProperties(graticuleLayerProps);
                 gl.setShowRuler(true);
                 mapHandler.add(gl);
@@ -192,6 +224,27 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
             // controlling that one MapBean, LayerHandler,
             // MouseDelegator, etc is being added to the MapHandler.
             GlobalExceptionHandler.handle(msmce);
+        }
+    }
+
+    public void updateShapeLayerProps() {
+        ShapeLayer[] layers = getShapeLayers();
+        for(int i = 0; i < layers.length; i++) {
+            Properties p = new Properties();
+            layers[i].getProperties(p);
+            int threshold = Integer.parseInt((String)p.get("lineWidthThreshold"));
+            if(threshold >= 0) {
+                int overviewWidth = Integer.parseInt((String)p.get("overviewLineWidth"));
+                if (overviewWidth <= 0) {
+                    overviewWidth = 1;
+                }
+                if(mapBean.getScale() < threshold) {
+                    p.setProperty("lineWidth", "" + overviewWidth + 1);
+                } else {
+                    p.setProperty("lineWidth", "" + overviewWidth);
+                }
+            }
+            layers[i].setProperties(p);
         }
     }
 
@@ -233,11 +286,12 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         topol = topoLayer;
         topol.addLayerStatusListener(this);
         mapHandler.add(topol);
-        lh.addLayer(topol);
-        Properties props = shapeLayer.getProperties(null);
+        lh.addLayer(topol, 2);
+        FissuresShapeLayer globalShapeLayer = (FissuresShapeLayer)shapeLayers.get(0);
+        Properties props = globalShapeLayer.getProperties(null);
         props.remove("fillColor");
-        shapeLayer.setProperties(props);
-        shapeLayer.repaint();
+        globalShapeLayer.setProperties(props);
+        globalShapeLayer.repaint();
     }
 
     public void setEtopoLayer(String etopoDir) {
@@ -264,10 +318,10 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         }
         Properties etopoProps = new Properties();
         etopoProps.put("path", etopoDir);
-        etopoProps.put("prettyName", "World Terrain Elevation / Ocean Depth");
+        etopoProps.put("prettyName", "ETOPO Layer");
         etopoProps.put("number.colors", "216");
-        etopoProps.put("opaque", "255");
-        etopoProps.put("view.type", "1");
+        etopoProps.put("opaque", "100");
+        etopoProps.put("view.type", "0");
         etopoProps.put("minute.spacing", Integer.toString(minuteSpacing));
         etopoProps.put("contrast", "5");
         topoLayer.setProperties(etopoProps);
@@ -279,8 +333,20 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
         return topol;
     }
 
-    public FissuresShapeLayer getShapeLayer() {
-        return shapeLayer;
+    public FissuresShapeLayer getGlobalShapeLayer() {
+        return (FissuresShapeLayer)shapeLayers.get(0);
+    }
+
+    public ShapeLayer[] getShapeLayers() {
+        return (ShapeLayer[])shapeLayers.toArray(new ShapeLayer[] {});
+    }
+
+    public ShapeLayer getShapeLayer(String prettyName) {
+        ShapeLayer[] layers = getShapeLayers();
+        for(int i = 0; i < layers.length; i++) {
+            if(layers[i].PrettyNameProperty.equals(prettyName)) { return layers[i]; }
+        }
+        return null;
     }
 
     public DistanceLayer getDistanceLayer() {
@@ -337,7 +403,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
 
     //look at LayerStatusEvent in openmap for status translation
     public int getLayerStatus(Layer layer) {
-        Integer statusObj = (Integer)layerStatusMap.get(shapeLayer);
+        Integer statusObj = (Integer)layerStatusMap.get((FissuresShapeLayer)shapeLayers.get(0));
         return statusObj.intValue();
     }
 
@@ -355,6 +421,10 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
                                                                         null));
             }
         }
+    }
+
+    public void projectionChanged(ProjectionEvent e) {
+        updateShapeLayerProps();
     }
 
     public void writeMapToJPEG(String filename) throws IOException {
@@ -376,7 +446,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
     public void writeMapToPNG(String filename) throws IOException {
         synchronized(OpenMap.class) {
             try {
-                getShapeLayer().setOverrideProjectionChanged(true);
+                getGlobalShapeLayer().setOverrideProjectionChanged(true);
                 Projection proj = mapBean.getProjection();
                 int w = proj.getWidth(), h = proj.getHeight();
                 logger.debug(ExceptionReporterUtils.getMemoryUsage()
@@ -402,15 +472,17 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener {
                 logger.debug(ExceptionReporterUtils.getMemoryUsage()
                         + " after write image to file");
             } finally {
-                getShapeLayer().setOverrideProjectionChanged(false);
+                getGlobalShapeLayer().setOverrideProjectionChanged(false);
             }
         }
     }
-    
-    public float getWidthDegrees(){
+
+    public float getWidthDegrees() {
         Projection proj = getMapBean().getProjection();
-        float distL2C = ProjMath.lonDistance(proj.getUpperLeft().radlon_, proj.getCenter().radlon_);
-        float distC2R = ProjMath.lonDistance(proj.getCenter().radlon_, proj.getLowerRight().radlon_);
+        float distL2C = ProjMath.lonDistance(proj.getUpperLeft().radlon_,
+                                             proj.getCenter().radlon_);
+        float distC2R = ProjMath.lonDistance(proj.getCenter().radlon_,
+                                             proj.getLowerRight().radlon_);
         return Length.DECIMAL_DEGREE.fromRadians(Math.abs(distL2C + distC2R));
     }
 
