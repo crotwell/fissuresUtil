@@ -5,16 +5,16 @@
  */
 
 package edu.sc.seis.fissuresUtil.cache;
-import edu.iris.Fissures.IfEvent.EventChannelFinder;
-import edu.iris.Fissures.IfEvent.EventDC;
-import edu.iris.Fissures.IfEvent.EventDCOperations;
-import edu.iris.Fissures.IfEvent.EventFinder;
-import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import org.apache.log4j.Logger;
 
+import edu.iris.Fissures.IfEvent.EventChannelFinder;
+import edu.iris.Fissures.IfEvent.EventDC;
+import edu.iris.Fissures.IfEvent.EventFinder;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 
-public class NSEventDC implements ServerNameDNS, EventDCOperations {
+
+public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
 
     public NSEventDC(String serverDNS,
                      String serverName,
@@ -40,7 +40,7 @@ public class NSEventDC implements ServerNameDNS, EventDCOperations {
         if ( eventDC == null) {
             try {
                 try {
-                    eventDC = namingService.getEventDC(serverDNS, serverName);
+                    setEventDC(namingService.getEventDC(serverDNS, serverName));
                 } catch (Throwable t) {
                     namingService.reset();
                     eventDC = namingService.getEventDC(serverDNS,serverName);
@@ -88,8 +88,6 @@ public class NSEventDC implements ServerNameDNS, EventDCOperations {
             return getEventDC().a_finder();
         } // end of try-catch
     }
-
-    protected EventDC eventDC = null;
 
     protected String serverDNS;
 
