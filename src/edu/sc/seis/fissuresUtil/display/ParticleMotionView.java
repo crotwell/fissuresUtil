@@ -260,6 +260,34 @@ public class ParticleMotionView extends JComponent{
 	 graphics2D.setStroke(new BasicStroke(1.0f));
    }
 
+    public void drawLabels(ParticleMotion particleMotion, Graphics2D graphics2D) {
+
+	  Color color = particleMotion.getColor();
+	  if(color == null) color = COLORS[0];
+	  graphics2D.setColor(color);
+	  java.awt.Dimension dimension = getSize();
+	  float fontSize = dimension.width / 10;
+	  if(fontSize < 4) fontSize = 4;
+	  else if(fontSize > 32) fontSize = 32;
+	  Font font = new Font("serif", Font.BOLD, (int)fontSize);
+	  graphics2D.setFont(font);
+	  int x = (dimension.width - font.getSize() * 3) / 2;
+	  int y = dimension.height  - 4;
+	  graphics2D.drawString(particleMotion.key.substring(0, 3), x, y);
+	  x = font.getSize();
+	  y = (dimension.height) / 2;
+	   //get the original AffineTransform
+	  AffineTransform oldTransform = graphics2D.getTransform();
+	  AffineTransform ct =  AffineTransform.getTranslateInstance(x, y);
+	  graphics2D.transform(ct);
+	  graphics2D.transform(AffineTransform.getRotateInstance((Math.PI/2)*3));
+	  graphics2D.drawString(particleMotion.key.substring(4, particleMotion.key.length()), 0, 0);
+
+	  //restore the original AffineTransform
+	  graphics2D.setTransform(oldTransform);
+	  
+    }
+
     public void drawParticleMotion(ParticleMotion particleMotion, Graphics g) {
 
 	Graphics2D graphics2D = (Graphics2D) g;
@@ -277,7 +305,9 @@ public class ParticleMotionView extends JComponent{
 		RGBCOLOR++;
 		if(RGBCOLOR == COLORS.length) RGBCOLOR = 0;
 	    }
+	    drawLabels(particleMotion, graphics2D);
 	    graphics2D.setColor(color);
+	    
 	    Insets insets = getInsets();
 	   
 	    Dimension flipDimension = new Dimension(dimension.height,
