@@ -32,9 +32,9 @@ public class FilteredSeismogramShape extends SeismogramShape {
     
 	public synchronized void pushData(SeisDataChangeEvent sdce) {
 		LocalSeismogramImpl[] tmp = 
-			new LocalSeismogramImpl[sdce.getSeismos().length];
-		for ( int i=0; i<sdce.getSeismos().length; i++) {
-			tmp[i] = filterData(sdce.getSeismos()[i], filter);
+			new LocalSeismogramImpl[sdce.getSeismograms().length];
+		for ( int i=0; i<sdce.getSeismograms().length; i++) {
+			tmp[i] = filterData(sdce.getSeismograms()[i], filter);
 		} // end of for ()
 		super.pushData(new SeisDataChangeEvent(tmp, 
 											   sdce.getSource(), 

@@ -49,7 +49,7 @@ public class BasicAmpConfig implements AmpConfig, SeisDataChangeListener{
 	    return;
 	} // end of if ()
 		
-	dssData.addSeismograms(sdce.getSeismos());
+	dssData.addSeismograms(sdce.getSeismograms());
 	this.seismos = null;
 	calculateAmp();
 	recalculateAmp();
