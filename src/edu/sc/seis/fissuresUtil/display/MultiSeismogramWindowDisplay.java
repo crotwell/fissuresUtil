@@ -89,6 +89,9 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             }
             DataSetSeismogram[] seismos = { dss[i] };
             disp = new BasicSeismogramDisplay(seismos, tc, ac, this);
+            if(currentTimeFlag){
+                disp.setCurrentTimeFlag(currentTimeFlag);
+            }
             int j = sorter.sort(dss[i]);
             super.add(disp, j);
             basicDisplays.add(j, disp);
