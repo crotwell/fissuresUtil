@@ -54,7 +54,7 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
     }
 
     public String getAxisLabel() {
-        return getUnit().toString();
+        return unitDisplayUtil.getNameForUnit(getUnit());
     }
 
     public UnitImpl getUnit() {
@@ -174,6 +174,8 @@ public class AmpScaleMapper implements ScaleMapper, AmpListener {
                                               realWorldUnit);
         return out;
     }
+
+    private UnitDisplayUtil unitDisplayUtil = new UnitDisplayUtil();
 
     private AmpEvent lastAmpEvent = null;
 
