@@ -244,7 +244,26 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
         return false;
     }
 
+    /**
+     *@ returns a string for the form "Event: Location | Time | Magnitude | Depth"
+     */
     public static String getEventInfo(EventAccessOperations event){
+        return getEventInfo(event, INCLUDE_ALL);
+    }
+
+    private static boolean[] INCLUDE_ALL = { true, true, true, true, true };
+
+
+    /**
+     *@ returns a string for the form "Event: Location | Time | Magnitude | Depth"
+     * where the included items are indicated by the passed in boolean array.  The
+     * array should be of length 5 where each true included indicates to include
+     * the item in the string with the corresponding count
+     */
+    public static String getEventInfo(EventAccessOperations event, boolean[] include){
+        //TODO restructure boolean [] parameter to be more like a DataFormat
+        //ie pass in a string "Event: loc | time | mag | depth" would print out
+        //what getEventInfo(EventAccessOperations) currently does
         StringBuffer buf = new StringBuffer();
 
         //Get geographic name of origin
@@ -268,14 +287,11 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
 
         //get depth
         Quantity depth = origin.my_location.depth;
-
-        buf.append("Event: ");
-        buf.append(location + " | ");
-        buf.append(originTimeString + " | ");
-        buf.append("Mag " + mag + " | ");
-
-        UnitDisplayUtil udu = new UnitDisplayUtil();
-        buf.append("Depth " + depth.value + " " + udu.getNameForUnit((UnitImpl)depth.the_units));
+        if(include[0])  buf.append("Event: ");
+        if(include[1]) buf.append(location + " | ");
+        if(include[2]) buf.append(originTimeString + " | ");
+        if(include[3]) buf.append("Mag " + mag + " | ");
+        if(include[4]) buf.append("Depth " + depth.value + " " + UnitDisplayUtil.getNameForUnit((UnitImpl)depth.the_units));
         return buf.toString();
     }
 
