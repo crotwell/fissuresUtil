@@ -26,23 +26,20 @@ public class ParticleMotionDisplayThread{
         this.particleMotionDisplay = particleMotionDisplay;
         this.displayColor = displayColor;
     }
-
-
+    
+    
     public void execute() {
         dssArray = DisplayUtils.getComponents(dataSetSeismogram);
-        if(dssArray.length < 3){// in case all the components aren't available, the thread fails
+        if(dssArray.length < 2){// in case only one component was available
             completion = false;
             return;
         }
-
+        
         ChannelId[] channelGroup = new ChannelId[dssArray.length];
         for(int counter = 0; counter < dssArray.length; counter++) {
             channelGroup[counter] = dssArray[counter].getRequestFilter().channel_id;
         }
-        if(displayColor == null){
-            displayColor = SeismogramDisplay.COLORS[particleMotionDisplay.getView().getSelectedParticleMotion().length % SeismogramDisplay.COLORS.length];
-        }
-
+        
         for(int counter = 0; counter < dssArray.length; counter++) {
             String counterOrientation = DisplayUtils.getOrientationName(channelGroup[counter].channel_code);
             for(int subcounter = counter+1; subcounter < dssArray.length; subcounter++) {
@@ -66,57 +63,57 @@ public class ParticleMotionDisplayThread{
                     if(subCounterOrientation.equals(DisplayUtils.EAST)){//North goes vertical with East
                         vSeis = dssArray[counter];
                         hSeis = dssArray[subcounter];
-                        orientationString = DisplayUtils.NORTHEAST;
+                        orientationString = counterOrientation + "-" + subCounterOrientation;
                     }else{//North goes horizontal with Up
                         vSeis = dssArray[subcounter];
                         hSeis = dssArray[counter];
-                        orientationString = DisplayUtils.UPNORTH;
+                        orientationString = subCounterOrientation + "-" + counterOrientation;
                     }
                 }
-                particleMotionDisplay.getView().addParticleMotionDisplay(hSeis,
-                                                                         vSeis,
-                                                                         tc,
-                                                                         displayColor,
-                                                                         orientationString,
-                                                                         horizPlane);
+                particleMotionDisplay.getView().add(hSeis,
+                                                    vSeis,
+                                                    tc,
+                                                    displayColor,
+                                                    orientationString,
+                                                    horizPlane);
             }
         }
         completion = true;
-
+        
     }
-
+    
     public boolean isHorizontalPlane(ChannelId channelIdone,
                                      ChannelId channelIdtwo,
                                      DataSet dataset) {
-
+        
         if(dataset.getChannel(channelIdone).an_orientation.dip == 0 &&
            dataset.getChannel(channelIdtwo).an_orientation.dip == 0)  {
             return true;
         }
         return false;
     }
-
+    
     /**
      *@returns true if the execution step of the thread finishes correctly.
      *
      */
     public boolean getCompletion(){ return completion; }
-
+    
     private boolean completion = false;
-
+    
     private DataSetSeismogram dataSetSeismogram;
-
+    
     private DataSetSeismogram[] dssArray;
-
+    
     private TimeConfig tc;
-
+    
     private boolean advancedOption = false;
-
+    
     private ParticleMotionDisplay  particleMotionDisplay;
-
+    
     private Color displayColor;
-
+    
     static Category logger =
         Category.getInstance(ParticleMotionDisplayThread.class.getName());
-
+    
 }// ParticleMotionDisplayThread
