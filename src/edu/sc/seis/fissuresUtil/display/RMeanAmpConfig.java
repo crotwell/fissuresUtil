@@ -80,6 +80,9 @@ public class RMeanAmpConfig extends AbstractAmpRangeConfig{
     }
 
     public void addSeismogram(DataSetSeismogram seis){
+	if (timeRegistrar != null && !timeRegistrar.contains(seis)) {
+	    timeRegistrar.addSeismogram(seis);
+	} // end of if (!timeRegistrar == null && !timeRegistrar.contains(seis))
 	this.getAmpRange(seis);
 	seismos.add(seis);
 	this.updateAmpSyncListeners();

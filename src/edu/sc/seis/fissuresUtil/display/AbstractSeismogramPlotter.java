@@ -22,9 +22,11 @@ public abstract class AbstractSeismogramPlotter implements Plotter{
 
     public  AmpConfigRegistrar getAmpConfig(){ return ampConfig; }
     
-    public void setVisibility(boolean b){ visible = b; }
+    public void setVisibility(boolean b){ visible = b;  }
 
-    public void toggleVisibility(){ visible = !visible; } 
+    public void toggleVisibility(){ 
+	setVisibility(!visible);
+    } 
 
     protected DataSetSeismogram seismogram;
 

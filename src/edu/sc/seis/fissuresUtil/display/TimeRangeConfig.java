@@ -39,6 +39,8 @@ public interface TimeRangeConfig {
     public void addSeismogram(DataSetSeismogram seis);
 
     public void addSeismogram(DataSetSeismogram seis, MicroSecondDate b);
+    
+    public boolean contains(DataSetSeismogram seis);
 
     /**
      * Remove the values from this seismogram from the configuration

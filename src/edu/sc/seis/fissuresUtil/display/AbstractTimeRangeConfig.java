@@ -66,6 +66,11 @@ public abstract class AbstractTimeRangeConfig implements TimeRangeConfig{
     public void removeSeismogram(DataSetSeismogram seis){ seismos.remove(seis); }
     
     
+    
+    public boolean contains(DataSetSeismogram seis){
+	return seismos.containsKey(seis);
+    }
+    
     /**
      * Fire an event to all of the time sync listeners to update their time ranges
      *
