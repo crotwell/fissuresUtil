@@ -60,7 +60,6 @@ public class Selection implements TimeSyncListener{
 	    selectedBegin = !selectedBegin;
 	}
 	if(selectedBegin){
-	    System.out.println(selectionBegin + " " + currentInternal.getEndTime());
 	    internalTimeConfig.set(selectionBegin, new TimeInterval(selectionBegin, currentInternal.getEndTime()));
 	    repaintParents();
 	}else{
