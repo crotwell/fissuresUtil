@@ -1,15 +1,20 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import edu.iris.Fissures.IfNetwork.*;
-import edu.iris.Fissures.network.*;
-import edu.iris.Fissures.IfSeismogramDC.*;
-import edu.iris.Fissures.seismogramDC.*;
-import edu.sc.seis.fissuresUtil.namingService.*;
-import org.apache.log4j.*;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
+import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import java.util.HashMap;
-import java.util.List;
-import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.log4j.Category;
 
 /**
  *  Routes data center requests to the correct datacenter. This allow the
@@ -182,7 +187,7 @@ public class DataCenterRouter implements DataCenterOperations {
      * DataCenters, all of which support a given network. And the values of
      * the map is a List of RequestFilters that are for the given network.
      */
-    private HashMap makeMap(RequestFilter[] filters) {
+    protected HashMap makeMap(RequestFilter[] filters) {
         HashMap datacenterMap = new HashMap();
         for ( int i=0; i<filters.length; i++) {
             List datacenters = getDataCenter(filters[i].channel_id);
