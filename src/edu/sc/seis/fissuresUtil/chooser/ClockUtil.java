@@ -57,6 +57,10 @@ public class ClockUtil {
     }
          
     public static TimeInterval getServerTimeOffset() throws IOException {
+        if ( timeURL == null) {
+            setTimeURL(SEIS_SC_EDU_URL);
+        } // end of if ()
+        
         URL url = timeURL;
         InputStream is = url.openStream();
         InputStreamReader isReader = new InputStreamReader(is);
@@ -85,11 +89,9 @@ public class ClockUtil {
     private static TimeInterval serverOffset = null;
 
     private static final TimeInterval ZERO_OFFSET = new TimeInterval(0, 
-                                                             UnitImpl.SECOND);
+                                                                     UnitImpl.SECOND);
 
     private static URL SEIS_SC_EDU_URL;
-
-    private static URL timeURL = SEIS_SC_EDU_URL;
 
     private static Category logger = Category.getInstance(ClockUtil.class.getName());
 
@@ -103,5 +105,7 @@ public class ClockUtil {
             logger.error("Caught MalformedURL with seis data_time.pl URL. This should never happen.", e);
         } // end of try-catch
     }
+
+    private static URL timeURL = null;
 
 } // ClockUtil
