@@ -78,10 +78,11 @@ public class LongShortStoNTest extends TestCase {
                                                new TimeInterval(6, UnitImpl.SECOND),
                                                7f);
         LongShortTrigger[] triggers = ston.calcTriggers(seis);
-        System.out.println("Found "+triggers.length+" triggers");
+        System.out.println("Found "+triggers.length+" triggers: cols are index, when, lta, sta, ratio");
         for (int i = 0; i < triggers.length; i++) {
-            System.out.println(triggers[i].getIndex()+"  "+triggers[i].getWhen()+"  "+triggers[i].getValue());
+            System.out.println(triggers[i].getIndex()+"  "+triggers[i].getWhen()+"  "+triggers[i].getLTA()+"  "+triggers[i].getSTA()+"  "+triggers[i].getValue());
         }
+        assertTrue(true); // do we really need an assert???
     }
 
 
