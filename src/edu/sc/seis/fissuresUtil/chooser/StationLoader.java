@@ -18,28 +18,28 @@ import org.apache.log4j.Logger;
 
 public class StationLoader extends Thread
 {
-    
+
     public StationLoader(ChannelChooser chooser, NetworkAccess[] n)
     {
         this.chooser = chooser;
         this.nets = n;
     }
-    
+
     public void addStationAcceptor(StationAcceptor acceptor)
     {
         acceptors.add(acceptor);
     }
-    
+
     private NetworkAccess[] nets;
-    
+
     private ChannelChooser chooser;
-    
+
     private LinkedList acceptors = new LinkedList();
-    
+
     public void run()
     {
         List stations = new ArrayList();
-        
+
         chooser.setProgressOwner(this);
         chooser.setProgressMax(this, 100);
         System.out.println("There are "+nets.length+" selected networks.");
@@ -58,15 +58,18 @@ public class StationLoader extends Thread
             chooser.setProgressValue(this, progressValue);
             for (int i=0; i<nets.length; i++)
             {
-                System.out.println("Before get stations");
+                logger.debug("Before get stations "+i);
+                logger.debug("Network code = "+nets[i].get_attributes().get_code());
                 Station[] newStations = nets[i].retrieve_stations();
+                logger.debug("After retrieve_stations for "+nets[i].get_attributes().get_code());
                 for (int j = 0; j < newStations.length; j++)
                 {
                     stations.add(newStations[j]);
                 }
-                System.out.println("got "+newStations.length+" stations");
+                logger.debug("got "+newStations.length+" stations from "+
+                                 nets[i].get_attributes().get_code());
                 chooser.setProgressValue(this, progressValue+netProgressInc/2);
-                
+
                 boolean okToAdd;
                 for (int j=0; j<newStations.length; j++)
                 {
@@ -84,15 +87,15 @@ public class StationLoader extends Thread
                 }
                 chooser.setProgressValue(this, 100);
 
-                System.out.println("finished adding stations");
+                logger.debug("finished adding stations for "+nets[i].get_attributes().get_code());
                 //          try {
                 //          sleep((int)(.01*1000));
                 //          } catch (InterruptedException e) {
-                
+
                 //          } // end of try-catch
-                
+
             } // end of for ((int i=0; i<nets.length; i++)
-            System.out.println("There are "+chooser.stationNames.getSize()+" items in the station list model");
+            logger.debug("There are "+chooser.stationNames.getSize()+" items in the station list model");
             // stationList.validate();
             //stationList.repaint();
         }
@@ -100,18 +103,18 @@ public class StationLoader extends Thread
         {
             ExceptionHandlerGUI.handleException("Unable to get stations.", e);
         } // end of try-catch   }
-        
+
         //chooser.addStations((Station[])stations.toArray(new Station[stations.size()]));
         stationAdd((Station[])stations.toArray(new Station[stations.size()]));
-        System.out.println("There are "+chooser.stationNames.getSize()+" items in the station list model");
+        logger.debug("There are "+chooser.stationNames.getSize()+" items in the station list model");
     }
-    
+
     /** allows subclasses to veto a station. */
     protected boolean acceptStation(Station sta)
     {
         return true;
     }
-    
+
     void stationAdd(final Station[] s)
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -122,9 +125,9 @@ public class StationLoader extends Thread
                     }
                 });
     }
-    
+
     static Logger logger =
         Logger.getLogger(StationLoader.class);
-    
+
 }
 
