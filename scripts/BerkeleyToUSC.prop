@@ -3,7 +3,7 @@
 # the dns to copy
 #nameServiceCopy.dns=edu/sc/seis
 #nameServiceCopy.dns=edu/iris/dmc
-nameServiceCopy.dns=edu/berkeley/geo/quake
+nameServiceCopy.dns=edu/berkeley/geo
 #
 # name serivce to copy FROM
 #
