@@ -185,7 +185,11 @@ public class Selection implements TimeListener, Plotter{
 
     public Registrar getInternalRegistrar(){ return internalRegistrar; }
 
-    private void setBegin(MicroSecondDate newBegin){
+    public MicroSecondDate getBegin() {
+	return latestTime.getTime().getBeginTime();
+    }
+
+    public void setBegin(MicroSecondDate newBegin){
 	if ( latestTime.getTime().getEndTime().equals(newBegin)) {
 	    throw new IllegalArgumentException("Selection must not have zero width, newBegin and end are the same.");
 	} // end of if ()
@@ -197,7 +201,11 @@ public class Selection implements TimeListener, Plotter{
 	internalRegistrar.shaleTime(shift, scale);
     }
 
-    private void setEnd(MicroSecondDate newEnd){
+    public MicroSecondDate getEnd() {
+	return latestTime.getTime().getEndTime();
+    }
+
+    public void setEnd(MicroSecondDate newEnd){
 	if ( latestTime.getTime().getBeginTime().equals(newEnd)) {
 	    throw new IllegalArgumentException("Selection must not have zero width, newBegin and end are the same.");
 	} // end of if ()
