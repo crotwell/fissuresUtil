@@ -3,15 +3,16 @@ package edu.sc.seis.fissuresUtil.bag;
 import edu.iris.Fissures.seismogramDC.*;
 import edu.iris.Fissures.model.*;
 import edu.iris.Fissures.IfTimeSeries.*;
+import org.apache.log4j.*;
 
 /**
- * Cut.java
+ * Cuts seismograms based on a begin and end time.
  *
  *
  * Created: Tue Oct  1 21:23:44 2002
  *
  * @author Philip Crotwell
- * @version $Id: Cut.java 2883 2002-11-07 02:54:56Z crotwell $
+ * @version $Id: Cut.java 2932 2002-11-18 17:56:43Z crotwell $
  */
 
 public class Cut implements LocalSeismogramFunction {
@@ -20,12 +21,21 @@ public class Cut implements LocalSeismogramFunction {
 	       MicroSecondDate end) {
 	this.begin = begin;
 	this.end = end;
+	secPerSec = UnitImpl.divide(UnitImpl.SECOND, UnitImpl.SECOND);
     }
 
+    /** Applys the cut to the seismogram. Returns null if no data is within 
+     *  the cut window. 
+     */
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis) {
+	if ( begin.after(seis.getEndTime()) || end.before(seis.getBeginTime())) {
+	    return null;
+	} // end of if ()
+	
 	TimeInterval sampPeriod = seis.getSampling().getPeriod();
 	QuantityImpl beginShift = begin.subtract(seis.getBeginTime());
 	beginShift = beginShift.divideBy(sampPeriod);
+	beginShift = beginShift.convertTo(secPerSec); //should be dimensonless
 	int beginIndex = (int)Math.ceil(beginShift.value);
 	if (beginIndex < 0) {
 	    beginIndex = 0;
@@ -36,6 +46,7 @@ public class Cut implements LocalSeismogramFunction {
 
 	QuantityImpl endShift = seis.getEndTime().subtract(end);
 	endShift = endShift.divideBy(sampPeriod);
+	endShift = endShift.convertTo(secPerSec); //should be dimensonless
 	int endIndex = seis.getNumPoints() - (int)Math.floor(endShift.value);
 	if (endIndex < 0) {
 	    endIndex = 0;
@@ -43,6 +54,7 @@ public class Cut implements LocalSeismogramFunction {
 	if (endIndex >  seis.getNumPoints()) {
 	    endIndex = seis.getNumPoints();
 	}
+	logger.debug("cut is "+beginIndex+" to "+endIndex+" "+seis.getEndTime()+" "+endShift);
 
 	TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
 	if (seis.can_convert_to_short()) {
@@ -72,5 +84,8 @@ public class Cut implements LocalSeismogramFunction {
 
     protected MicroSecondDate begin;
     protected MicroSecondDate end;
+    protected UnitImpl secPerSec;
 
+    static Category logger = 
+	Category.getInstance(Cut.class.getName());
 }// Cut
