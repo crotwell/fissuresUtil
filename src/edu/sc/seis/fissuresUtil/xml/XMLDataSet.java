@@ -24,7 +24,7 @@ import org.apache.log4j.*;
  * Access to a dataset stored as an XML file.
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: XMLDataSet.java 3139 2003-01-17 14:37:41Z crotwell $
+ * @version $Id: XMLDataSet.java 3148 2003-01-21 22:01:34Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -1273,7 +1273,7 @@ public class XMLDataSet implements DataSet, Serializable {
         java.util.Properties oprops = new java.util.Properties();
         oprops.put("method", "xml");
         oprops.put("indent", "yes");
-        oprops.put("xalan:indent-amount", "4");
+	//        oprops.put("xalan:indent-amount", "4");
         serializer.setOutputProperties(oprops);
         serializer.transform(new javax.xml.transform.dom.DOMSource(getElement()), 
                              new javax.xml.transform.stream.StreamResult(out));
