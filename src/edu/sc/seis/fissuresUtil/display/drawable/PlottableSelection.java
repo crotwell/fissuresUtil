@@ -293,6 +293,15 @@ public class PlottableSelection{
         display.repaint();
     }
 
+    public boolean borders(int x, int y){
+        int row = getRow(y);
+        if((row == startRow && Math.abs(x - startRowX) < 3) ||
+           (row == endRow && Math.abs(x - endRowX) < 3)){
+            return true;
+        }
+        return false;
+    }
+
     public void setPlaced(boolean isPlaced){ placed = isPlaced; }
 
     private static AlphaComposite OPAQUE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
