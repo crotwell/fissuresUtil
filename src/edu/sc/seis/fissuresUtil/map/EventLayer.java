@@ -26,12 +26,17 @@ import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.cache.EventBackgroundLoaderPool;
 import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -138,15 +143,46 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener, 
     public boolean mouseClicked(MouseEvent e){
 		synchronized(circles){
 			Iterator it = circles.iterator();
+			List eventsUnderMouse = new ArrayList();
 			while(it.hasNext()){
 				OMEvent current = (OMEvent)it.next();
 				if(current.getBigCircle().contains(e.getX(), e.getY())){
-					int rowToSelect = tableModel.getRowForEvent(current.getEvent());
+					eventsUnderMouse.add(current.getEvent());
+				}
+			}
+			if (eventsUnderMouse.size() > 0){
+				if (eventsUnderMouse.size() == 1){
+					int rowToSelect = tableModel.getRowForEvent((EventAccessOperations)eventsUnderMouse.get(0));
 					if (rowToSelect != -1){
 						selectionModel.setSelectionInterval(rowToSelect, rowToSelect);
 					}
-					return true;
 				}
+				else{
+					final JPopupMenu popup = new JPopupMenu();
+					it = eventsUnderMouse.iterator();
+					while (it.hasNext()){
+						try{
+							final EventAccessOperations current = (EventAccessOperations)it.next();
+							JMenuItem menuItem = new JMenuItem(getEventInfo(current));
+							menuItem.addActionListener(new ActionListener(){
+										public void actionPerformed(ActionEvent e) {
+											int rowToSelect = tableModel.getRowForEvent(current);
+											if (rowToSelect != -1){
+												selectionModel.setSelectionInterval(rowToSelect, rowToSelect);
+											}
+											popup.setVisible(false);
+										}
+									});
+							popup.add(menuItem);
+						}
+						catch(NoPreferredOrigin ee){}
+					}
+					Point compLocation = e.getComponent().getLocationOnScreen();
+					double[] popupLoc = {compLocation.getX(), compLocation.getY()};
+					popup.setLocation((int)popupLoc[0] + e.getX(), (int)popupLoc[1] + e.getY());
+					popup.setVisible(true);
+				}
+				return true;
 			}
 		}
 		return false;
