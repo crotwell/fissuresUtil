@@ -40,14 +40,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
         TimeListener, AmpListener, LayoutListener {
 
     public RecordSectionDisplay() {
-        this(new BasicLayoutConfig());
-    }
-
-    public RecordSectionDisplay(LayoutConfig customLayout) {
         distBorder = new DistanceBorder(this);
         add(new TimeBorder(this, TimeBorder.BOTTOM), BOTTOM_CENTER);
         add(distBorder, CENTER_LEFT);
-        setLayout(customLayout);
+        setLayout(new BasicLayoutConfig());
         setTimeConfig(new RelativeTimeConfig());
         setAmpConfig(new RMeanAmpConfig());
         seisToPixelMap = new HashMap();
