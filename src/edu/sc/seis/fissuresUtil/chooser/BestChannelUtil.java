@@ -50,22 +50,12 @@ public class BestChannelUtil {
                                            Channel current,
                                            MicroSecondDate when) {
         for (int i=0; i<inChan.length; i++) {
-            logger.info("Test inChannel "+ChannelIdUtil.toStringNoDates(inChan[i].get_id()));
             if (ChannelIdUtil.toStringNoDates(inChan[i].get_id()).equals(ChannelIdUtil.toStringNoDates(current.get_id()))) {
                 if (when.before(new MicroSecondDate(inChan[i].effective_time.end_time)) &&
                     when.after(new MicroSecondDate(inChan[i].effective_time.start_time))) {
                     return inChan[i];
-                } else {
-                    logger.info("Channel failed time overlap. "
-                                    +inChan[i].effective_time.end_time.date_time+" "
-                                    +new MicroSecondDate(inChan[i].effective_time.end_time)+" "
-                                    +when+" "
-                                    +new MicroSecondDate(inChan[i].effective_time.start_time));
-                } // end of else
-            } else {
-                logger.info("Channel failed code match.");
-            } // end of else
-
+                }
+            }
         } // end of for (int i=0; i<inChan.length; i++)
 
         // no match
@@ -137,7 +127,6 @@ public class BestChannelUtil {
     public static Channel getChannel(Channel[] inChan,
                                      String bandCode,
                                      String orientationCode) {
-        logger.debug("looking for any site "+bandCode+"?"+orientationCode);
         Channel tmpChannel;
         for (int h=0; h<siteCodeHeuristic.length; h++) {
             tmpChannel = getChannel(inChan,
@@ -145,13 +134,11 @@ public class BestChannelUtil {
                                     orientationCode,
                                     siteCodeHeuristic[h]);
             if (tmpChannel != null) {
-                logger.debug("found "+ChannelIdUtil.toStringNoDates(tmpChannel.get_id()));
                 return tmpChannel;
             } // end of if (tmpChannel != null)
         }
 
         // oh well, return null
-        logger.debug("can't find"+ bandCode+" "+orientationCode);
         return null;
     }
 
@@ -163,7 +150,6 @@ public class BestChannelUtil {
                                       String bandCode,
                                       String orientationCode,
                                       String siteCode) {
-        logger.debug("looking for "+siteCode+bandCode+"?"+orientationCode);
         for (int i=0; i< gainCodeHeuristic.length; i++) {
             Channel tmp = getChannel(inChan,
                                      bandCode,
@@ -171,7 +157,6 @@ public class BestChannelUtil {
                                      siteCode,
                                      gainCodeHeuristic[i]);
             if (tmp != null) {
-                logger.debug("found "+ChannelIdUtil.toStringNoDates(tmp.get_id()));
                 return tmp;
             } // end of if (tmp != null)
         } // end of for (int i=0; i< gainHeuristic.length; i++)
@@ -181,14 +166,12 @@ public class BestChannelUtil {
             if (inChan[chanNum].get_id().site_code.equals(siteCode) &&
                 inChan[chanNum].get_code().endsWith(orientationCode) &&
                 inChan[chanNum].get_code().startsWith(bandCode)) {
-                logger.debug("just pick "+ChannelIdUtil.toStringNoDates(inChan[chanNum].get_id()));
                 return inChan[chanNum];
             }
         }
 
 
         // oh well, return null
-        logger.debug("can't find"+ siteCode+bandCode+" "+orientationCode);
         return null;
     }
 
@@ -197,20 +180,17 @@ public class BestChannelUtil {
                                       String orientationCode,
                                       String siteCode,
                                       String gainCode) {
-        logger.debug("looking for "+siteCode+bandCode+gainCode+orientationCode);
         for (int chanNum=0; chanNum<inChan.length; chanNum++) {
             //      logger.debug("trying "+inChan[chanNum].my_site.get_code()+" "+inChan[chanNum].get_code()+" "+siteCode);
             if (inChan[chanNum].my_site.get_code().equals(siteCode)
                 && inChan[chanNum].get_code().endsWith(orientationCode)
                 && inChan[chanNum].get_code().startsWith(bandCode)
                 && inChan[chanNum].get_code().substring(1,2).equals(gainCode)) {
-                logger.debug("returning "+inChan[chanNum].my_site.get_code()+" "+inChan[chanNum].get_code());
                 return inChan[chanNum];
             }
         }
 
         // oh well, return null
-        logger.debug("can't find"+ siteCode+bandCode+gainCode+orientationCode);
         return null;
     }
 
