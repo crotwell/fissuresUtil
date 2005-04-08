@@ -9,6 +9,7 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 import java.util.Date;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
@@ -17,6 +18,7 @@ public class RelativeTimeConfig extends BasicTimeConfig{
         if(time == null && seis.length > 0){
             if(initialTime == null){
                 initialTime = getInitialTime(seis[0]);
+                shaleInitialTime();
             }
             time = new MicroSecondTimeRange(new MicroSecondDate(new Date(5 * 24 * 60 * 60 * 1000)),
                                             initialTime.getInterval());
@@ -39,4 +41,12 @@ public class RelativeTimeConfig extends BasicTimeConfig{
                                                                        interval);
         return rfIntervalTime.shale(shift, scale);
     }
+    
+    /** 
+     * Provides a way for subclasses, such as PhaseAlignedTimeConfig, to shift the initial time while still 
+     * keeping it labeled as time zero. It is a no-impl in RelativeTimeConfig.
+     */
+    protected void shaleInitialTime() {}
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RelativeTimeConfig.class);
 }
