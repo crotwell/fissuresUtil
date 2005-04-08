@@ -62,11 +62,6 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
                 MicroSecondDate seisEndTime = new MicroSecondDate(seis.getRequestFilter().end_time);
                 interval = new TimeInterval(phaseTime, seisEndTime);
             }
-            // shift right by 10% so that P is not at left edge of screen
-            TimeInterval tenthInterval = new TimeInterval(interval.get_value() * 0.1,
-                                                          interval.getUnit());
-            phaseTime = phaseTime.subtract(tenthInterval);
-            interval = interval.add(tenthInterval);
             MicroSecondTimeRange originRange = new MicroSecondTimeRange(phaseTime,
                                                                         interval);
             return originRange.shale(shift, scale);
@@ -74,6 +69,11 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
         return super.getInitialTime(seis);
     }
 
+    protected void shaleInitialTime() {
+        // shift right by 10% so that P is not at left edge of screen
+        shaleTime(-0.1, 1.1);
+    }
+    
     public synchronized MicroSecondDate calculate(Origin origin,
                                                   Location station)
             throws TauModelException {
