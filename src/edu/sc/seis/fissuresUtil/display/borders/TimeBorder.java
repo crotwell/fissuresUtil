@@ -18,6 +18,9 @@ import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
+import edu.sc.seis.fissuresUtil.display.registrar.RTTimeRangeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.RelativeTimeConfig;
+import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 
 public class TimeBorder extends Border implements TitleProvider {
 
@@ -34,10 +37,19 @@ public class TimeBorder extends Border implements TitleProvider {
         axisFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
+    public RelativeTimeConfig getRelative(TimeConfig tc) {
+        if(tc instanceof RTTimeRangeConfig) {
+            return getRelative(((RTTimeRangeConfig)tc).getInternalConfig());
+        } else {
+            return (RelativeTimeConfig)tc;
+        }
+    }
+
     public String getTitle() {
         MicroSecondTimeRange time = disp.getTimeConfig().getTime();
-        if(roundTheEpoch.intersects(time)) return "Relative time";
-        else {
+        if(roundTheEpoch.intersects(time)) {
+            return getRelative(disp.getTimeConfig()).getTypeOfRelativity();
+        } else {
             Date middleDate = time.getBeginTime()
                     .add(new TimeInterval(time.getInterval().divideBy(2)));
             calendar.setTime(middleDate);
