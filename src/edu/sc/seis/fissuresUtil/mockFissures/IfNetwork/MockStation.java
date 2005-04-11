@@ -56,4 +56,15 @@ public class MockStation {
         }
         return stations;
     }
+
+    public static Station createStation(Location location) {
+        return new StationImpl(MockStationId.createMultiSplendoredId(location.latitude
+                                       + "" + location.longitude),
+                               "Test Station",
+                               location,
+                               "Joe",
+                               "this is a test",
+                               "still, a test",
+                               MockNetworkAttr.createMultiSplendoredAttr());
+    }
 }

@@ -29,15 +29,31 @@ public class MockLocation {
     }
 
     public static Location[] create(int rows, int cols) {
+        return create(rows, cols, -70, 70, -180, 180);
+    }
+
+    public static Location[] create(int rows,
+                                    int cols,
+                                    double minLat,
+                                    double maxLat,
+                                    double minLon,
+                                    double maxLon) {
         Location[] locs = new Location[rows * cols];
-        double lonStep = 360 / (double)(cols - 1);
-        double latStep = 140/ (double)(rows - 1);
+        double lonStep = 0;
+        if(cols > 1) {
+            lonStep = (maxLon - minLon) / (cols - 1);
+        }
+        double latStep = 0;
+        if(rows > 1) {
+            latStep = (maxLat - minLat) / (rows - 1);
+        }
         for(int i = 0; i < rows; i++) {
-            float lat = -70  + (float)latStep * i;
+            double lat = minLat + latStep * i;
             int rowOffset = i * cols;
-            float lon = -180;
+            double lon = minLon;
             for(int j = 0; j < cols; j++) {
-                locs[rowOffset + j] = MockLocation.create(lat, lon);
+                locs[rowOffset + j] = MockLocation.create((float)lat,
+                                                          (float)lon);
                 lon += lonStep;
             }
         }
