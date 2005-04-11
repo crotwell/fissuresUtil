@@ -73,7 +73,7 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
         // shift right by 10% so that P is not at left edge of screen
         shaleTime(-0.1, 1.1);
     }
-    
+
     public synchronized MicroSecondDate calculate(Origin origin,
                                                   Location station)
             throws TauModelException {
@@ -89,12 +89,16 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
         return out;
     }
 
-   public synchronized String getPhaseName(){
-       return phaseName;
-   }
-    
-    public synchronized void setPhaseName(String phaseName){
+    public synchronized String getPhaseName() {
+        return phaseName;
+    }
+
+    public synchronized void setPhaseName(String phaseName) {
         this.phaseName = phaseName;
+    }
+
+    public String getTypeOfRelativity() {
+        return "Time relative to the " + getPhaseName() + " arrival";
     }
 
     TauP_Time taup = null;
