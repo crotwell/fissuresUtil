@@ -91,7 +91,7 @@ public class PhasePhilter {
                     resultantArrivals.add(arrivals[i]);
                     foundP = true;
                 }
-            } else if(sPhases.contains(arrivals[i])) {
+            } else if(sPhases.contains(arrivals[i].getName())) {
                 if(!foundS) {
                     resultantArrivals.add(arrivals[i]);
                     foundS = true;
