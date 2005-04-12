@@ -98,7 +98,7 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
     }
 
     public String getTypeOfRelativity() {
-        return "Time relative to the " + getPhaseName() + " arrival";
+        return "Time since the " + getPhaseName() + " arrival";
     }
 
     TauP_Time taup = null;
