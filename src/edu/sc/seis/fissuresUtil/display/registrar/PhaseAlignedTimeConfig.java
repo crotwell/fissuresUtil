@@ -17,6 +17,7 @@ import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.TauP_Time;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -34,24 +35,14 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
 
     public MicroSecondTimeRange getInitialTime(DataSetSeismogram seis) {
         DataSet ds = seis.getDataSet();
-        Origin seisOrigin;
         EventAccessOperations eao = ds.getEvent();
         if(eao != null) {
-            try {
-                seisOrigin = eao.get_preferred_origin();
-            } catch(NoPreferredOrigin e) {
-                if(eao.get_origins().length > 0) {
-                    seisOrigin = eao.get_origins()[0];
-                } else {
-                    return super.getInitialTime(seis);
-                }
-            }
             Channel chan = ds.getChannel(seis.getRequestFilter().channel_id);
             if(chan == null) { return super.getInitialTime(seis); }
             Location stationLoc = chan.my_site.my_station.my_location;
             MicroSecondDate phaseTime;
             try {
-                phaseTime = calculate(seisOrigin, stationLoc);
+                phaseTime = calculate(EventUtil.extractOrigin(eao), stationLoc);
             } catch(TauModelException e) {
                 return super.getInitialTime(seis);
             }
