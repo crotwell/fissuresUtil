@@ -125,7 +125,8 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
             RequestFilter[] rf = route[i].getRequestFilters();
             if(rf.length != 0 && route[i].getDataCenter() != null) {
                 try {
-                    LocalSeismogram[] ls = route[i].getDataCenter().retrieve_seismograms(rf);
+                    LocalSeismogram[] ls = route[i].getDataCenter()
+                            .retrieve_seismograms(rf);
                     logger.debug("Got " + ls.length + " lseis from " + i
                             + " for "
                             + ChannelIdUtil.toString(rf[0].channel_id)
@@ -189,7 +190,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         return out;
     }
 
-    public DataCenterOperations getDC(String serverName) {
+    public ProxySeismogramDC getDC(String serverName) {
         if(serverName == SCEPP) {
             return getSceppDC();
         } else if(serverName == BUD) {
@@ -202,7 +203,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         }
     }
 
-    protected DataCenterOperations getSceppDC() {
+    protected ProxySeismogramDC getSceppDC() {
         logger.debug("Resolving Scepp DataCenter");
         while(sceppDC == null) {
             TimeInterval delay = sceppDCLoadTime.difference(ClockUtil.now());
@@ -219,17 +220,17 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         return sceppDC;
     }
 
-    protected DataCenterOperations loadSceppDC() {
+    protected ProxySeismogramDC loadSceppDC() {
         if(sceppDC == null) {
             sceppDC = BulletproofVestFactory.vestSeismogramDC("edu/sc/seis",
                                                               "SCEPPSeismogramDC",
-                                                              fissuresNamingService, 
+                                                              fissuresNamingService,
                                                               1);
         }
         return sceppDC;
     }
 
-    protected DataCenterOperations getBudDC() {
+    protected ProxySeismogramDC getBudDC() {
         while(budDC == null) {
             logger.debug("Resolving Bud DataCenter");
             TimeInterval delay = budDCLoadTime.difference(ClockUtil.now());
@@ -246,17 +247,17 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         return budDC;
     }
 
-    protected DataCenterOperations loadBudDC() {
+    protected ProxySeismogramDC loadBudDC() {
         if(budDC == null) {
             budDC = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
                                                             "IRIS_BudDataCenter",
-                                                            fissuresNamingService, 
+                                                            fissuresNamingService,
                                                             1);
         }
         return budDC;
     }
 
-    protected DataCenterOperations getPondDC() {
+    protected ProxySeismogramDC getPondDC() {
         while(pondDC == null) {
             logger.debug("Resolving Pond DataCenter");
             TimeInterval delay = pondDCLoadTime.difference(ClockUtil.now());
@@ -273,7 +274,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         return pondDC;
     }
 
-    protected DataCenterOperations loadPondDC() {
+    protected ProxySeismogramDC loadPondDC() {
         if(pondDC == null) {
             pondDC = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
                                                              "IRIS_PondDataCenter",
@@ -283,15 +284,15 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         return pondDC;
     }
 
-    protected DataCenterOperations sceppDC = null;
+    protected ProxySeismogramDC sceppDC = null;
 
     protected MicroSecondDate sceppDCLoadTime = null;
 
-    protected DataCenterOperations budDC = null;
+    protected ProxySeismogramDC budDC = null;
 
     protected MicroSecondDate budDCLoadTime = null;
 
-    protected DataCenterOperations pondDC = null;
+    protected ProxySeismogramDC pondDC = null;
 
     protected MicroSecondDate pondDCLoadTime = null;
 
@@ -327,7 +328,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
             dc = getDC(serverName);
         }
 
-        DataCenterOperations dc;
+        ProxySeismogramDC dc;
 
         String dns;
 
@@ -367,4 +368,12 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
     }
 
     static Logger logger = Logger.getLogger(HardCodeDataCenterRouter.class);
+
+    public ProxySeismogramDC getDataCenter(RequestFilter[] infilters) {
+        DataCenterRoute[] routes = makeRoutes(infilters);
+        for(int i = 0; i < routes.length; i++) {
+            if(routes[i].filterList.size() > 0) { return routes[i].dc; }
+        }
+        return getBudDC();
+    }
 }
