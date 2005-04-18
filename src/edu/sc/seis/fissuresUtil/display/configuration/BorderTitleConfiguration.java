@@ -12,13 +12,23 @@ public class BorderTitleConfiguration {
     public BorderTitleConfiguration(Element el) {
         title = DOMHelper.extractText(el, "text");
         f = FontConfiguration.create(DOMHelper.extractElement(el, "font"));
+        if(DOMHelper.hasElement(el, "titleColor")) {
+            titleColor = ColorConfiguration.create(DOMHelper.getElement(el,
+                                                                        "titleColor"));
+        }
     }
 
     public TitleProvider createTitle() {
-        return new UnchangingTitleProvider(title, f.createFont());
+        TitleProvider tp = new UnchangingTitleProvider(title, f.createFont());
+        if(titleColor != null) {
+            tp.setTitleColor(titleColor.createColor());
+        }
+        return tp;
     }
 
     private FontConfiguration f;
+
+    private ColorConfiguration titleColor;
 
     private String title;
 }
