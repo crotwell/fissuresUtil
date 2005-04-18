@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.database.util;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.StringTokenizer;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
@@ -14,10 +15,11 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  */
 public class TableSetup {
 
-    public static void setup(JDBCTable table, String propFile) throws SQLException {
+    public static void setup(JDBCTable table, String propFile)
+            throws SQLException {
         setup(table.getTableName(), table.getConnection(), table, propFile);
     }
-    
+
     public static void setup(String tableName,
                              Connection conn,
                              Object tableObj,
@@ -39,20 +41,41 @@ public class TableSetup {
                                    Connection conn,
                                    Object tableObj,
                                    SQLLoader statements) throws SQLException {
-        if ( ! statements.getContext().containsKey(TABLE_NAME)) {
+        if(!statements.getContext().containsKey(TABLE_NAME)) {
             statements.getContext().put(TABLE_NAME, tablename);
         }
         createTable(tablename, conn, statements);
+        createViews(tablename, conn, statements);
         prepareStatements(tablename, conn, tableObj, statements);
+    }
+
+    private static void createViews(String tablename,
+                                    Connection conn,
+                                    SQLLoader statements) throws SQLException {
+        String views = statements.get(tablename + ".views");
+        if(views != null) {
+            StringTokenizer tok = new StringTokenizer(views, ",");
+            while(tok.hasMoreElements()) {
+                String viewName = tok.nextToken();
+                createTableOrView(viewName, conn, statements);
+            }
+        }
     }
 
     private static void createTable(String tablename,
                                     Connection conn,
                                     SQLLoader statements) throws SQLException {
+        createTableOrView(tablename, conn, statements);
+    }
+
+    private static void createTableOrView(String tablename,
+                                          Connection conn,
+                                          SQLLoader statements)
+            throws SQLException {
         if(!DBUtil.tableExists(tablename, conn)) {
             String creationStmt = statements.get(tablename + ".create");
-            if(creationStmt == null) { 
-                throw new IllegalArgumentException("creation Statement, cannot be null: "+tablename+".create"); }
+            if(creationStmt == null) { throw new IllegalArgumentException("creation Statement, cannot be null: "
+                    + tablename + ".create"); }
             try {
                 conn.createStatement().executeUpdate(creationStmt);
             } catch(SQLException e) {
@@ -91,9 +114,9 @@ public class TableSetup {
      * prepared statement is created for it and assigned to the field
      */
     private static void prepareStatements(String tableName,
-                                         Connection conn,
-                                         Object tableObj,
-                                         SQLLoader statements)
+                                          Connection conn,
+                                          Object tableObj,
+                                          SQLLoader statements)
             throws SQLException {
         Field[] fields = tableObj.getClass().getDeclaredFields();
         for(int i = 0; i < fields.length; i++) {
@@ -116,6 +139,6 @@ public class TableSetup {
     }
 
     public static final String TABLE_NAME = "tablename";
-    
+
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TableSetup.class);
 }
