@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.text.DateFormat;
@@ -200,6 +201,16 @@ public class TimeBorder extends Border implements TitleProvider {
 
         private DateFormat format;
     }
+
+    public Color getTitleColor() {
+        return c;
+    }
+
+    public void setTitleColor(Color newColor) {
+        this.c = newColor;
+    }
+
+    private Color c = null;
 
     private Font titleFont = DisplayUtils.DEFAULT_FONT;
 

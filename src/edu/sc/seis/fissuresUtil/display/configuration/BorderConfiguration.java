@@ -32,6 +32,10 @@ public class BorderConfiguration implements Cloneable {
             this.titleFont = FontConfiguration.create(DOMHelper.getElement(element,
                                                                            "titleFont"));
         }
+        if(DOMHelper.hasElement(element, "titleColor")) {
+            this.titleColor = ColorConfiguration.create(DOMHelper.getElement(element,
+                                                                             "titleColor"));
+        }
         if(DOMHelper.hasElement(element, "clipTicks")) {
             clipTicks = true;
             Element tickConfig = DOMHelper.getElement(element, "clipTicks");
@@ -81,11 +85,16 @@ public class BorderConfiguration implements Cloneable {
         } else {
             b = new TitleBorder(getSide(position), getOrder(order));
         }
-        if(b instanceof TitleProvider && titleFont != null) {
-            ((TitleProvider)b).setTitleFont(titleFont.createFont());
+        if(b instanceof TitleProvider) {
+            if(titleFont != null) {
+                ((TitleProvider)b).setTitleFont(titleFont.createFont());
+            }
+            if(titleColor != null) {
+                ((TitleProvider)b).setTitleColor(titleColor.createColor());
+            }
         }
         if(color != null) {
-            b.setColor(color.createColor());
+            b.setTitleAndTickColor(color.createColor());
         }
         if(background != null) {
             b.setBackground(background.createColor());
@@ -144,7 +153,7 @@ public class BorderConfiguration implements Cloneable {
 
     private String type = TITLE, order = ASCENDING, position = LEFT;
 
-    private ColorConfiguration background, color;
+    private ColorConfiguration background, color, titleColor;
 
     private FontConfiguration titleFont;
 

@@ -22,7 +22,7 @@ public abstract class Border extends JComponent {
         borderFormats = createFormats();
     }
 
-    public void setColor(Color c) {
+    public void setTitleAndTickColor(Color c) {
         color = c;
     }
 
@@ -75,7 +75,6 @@ public abstract class Border extends JComponent {
         Graphics2D g2d = (Graphics2D)g;
         g.setColor(getBackground());
         g2d.fillRect(0, 0, getSize().width, getSize().height);
-        g.setColor(color);
         paintBorder(g2d);
     }
 
@@ -186,6 +185,11 @@ public abstract class Border extends JComponent {
             while(it.hasNext()) {
                 TitleProvider tp = (TitleProvider)it.next();
                 g2d.setFont(tp.getTitleFont());
+                if(tp.getTitleColor() != null) {
+                    g2d.setColor(tp.getTitleColor());
+                } else {
+                    g2d.setColor(color);
+                }
                 FontMetrics fm = g2d.getFontMetrics();
                 Rectangle2D titleBounds = fm.getStringBounds(tp.getTitle(), g2d);
                 cumulativeTitleHeight += titleBounds.getHeight();
@@ -209,6 +213,7 @@ public abstract class Border extends JComponent {
                     g2d.drawString(tp.getTitle(), x, y);
                 }
             }
+            g2d.setColor(color);
             if(range != null) {
                 double numDivisions = (range.max_value - range.min_value)
                         / divSize;
@@ -406,5 +411,5 @@ public abstract class Border extends JComponent {
 
     protected int tickPad = 3, labelTickLength = 10, tickLength = 4;
 
-    private Color color = Color.BLACK;
+    protected Color color = Color.BLACK;
 }

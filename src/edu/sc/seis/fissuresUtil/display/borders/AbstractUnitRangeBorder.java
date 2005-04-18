@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.borders;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.text.DecimalFormat;
@@ -68,6 +69,16 @@ public abstract class AbstractUnitRangeBorder extends Border implements
 
         private DecimalFormat df;
     }
+
+    public Color getTitleColor() {
+        return c;
+    }
+
+    public void setTitleColor(Color newColor) {
+        this.c = newColor;
+    }
+
+    private Color c = null;
 
     private Font titleFont = DisplayUtils.DEFAULT_FONT;
 }
