@@ -41,15 +41,21 @@ public class JDBCPlottable extends PlottableTable {
 
     public void put(PlottableChunk[] chunks) throws SQLException, IOException {
         MicroSecondTimeRange stuffInDB = RangeTool.getFullTime(chunks);
+        logger.debug("stuffInDB timeRange: " + stuffInDB);
         MicroSecondDate startTime = PlottableChunk.stripToDay(stuffInDB.getBeginTime());
+        logger.debug("start time of chunks: " + startTime);
         MicroSecondDate strippedEnd = PlottableChunk.stripToDay(stuffInDB.getEndTime());
+        logger.debug("end time of chunks: " + strippedEnd);
         if(!strippedEnd.equals(stuffInDB.getEndTime())) {
+            logger.debug("!strippedEnd.equals(stuffInDB.getEndTime())");
             strippedEnd = strippedEnd.add(PlottableChunk.ONE_DAY);
+            logger.debug("strippedEnd now: " + strippedEnd);
         }
         stuffInDB = new MicroSecondTimeRange(startTime, strippedEnd);
         PlottableChunk[] dbChunks = get(stuffInDB,
                                         chunks[0].getChannel(),
                                         chunks[0].getPixelsPerDay());
+        logger.debug("got " + dbChunks.length + " chunks from stuff that was already in the database");
         PlottableChunk[] everything = new PlottableChunk[chunks.length
                 + dbChunks.length];
         System.arraycopy(dbChunks, 0, everything, 0, dbChunks.length);
@@ -170,23 +176,29 @@ public class JDBCPlottable extends PlottableTable {
         while(rs.next()) {
             Timestamp ts = rs.getTimestamp("start_time");
             MicroSecondDate rowBeginTime = new MicroSecondDate(ts);
+            logger.debug("rowBeginTime: " + rowBeginTime);
             int offsetIntoRequestPixels = SimplePlotUtil.getPixel(requestPixels,
                                                                   requestRange,
                                                                   rowBeginTime);
+            logger.debug("offetIntoRequestPixels: " + offsetIntoRequestPixels);
             int numPixels = rs.getInt("pixel_count");
+            logger.debug("numPixels: " + numPixels);
             int firstPixelForRequest = 0;
             if(offsetIntoRequestPixels < 0) {
                 //This db row has data starting before the request, start at
                 // pertinent point
                 firstPixelForRequest = -1 * offsetIntoRequestPixels;
             }
+            logger.debug("firstPixelForRequest: " + firstPixelForRequest);
             int lastPixelForRequest = numPixels;
             if(offsetIntoRequestPixels + numPixels > requestPixels) {
                 //This row has more data than was requested in it, only get
                 // enough to fill the request
                 lastPixelForRequest = requestPixels - offsetIntoRequestPixels;
             }
+            logger.debug("lastPixleForRequest: " + lastPixelForRequest);
             int pixelsUsed = lastPixelForRequest - firstPixelForRequest;
+            logger.debug("pixelsUsed: " + pixelsUsed);
             int[] x = new int[pixelsUsed * 2];
             int[] y = new int[pixelsUsed * 2];
             byte[] dataBytes = rs.getBytes("data");
@@ -196,9 +208,11 @@ public class JDBCPlottable extends PlottableTable {
                 dis.readInt();
             }
             for(int i = 0; i < pixelsUsed * 2; i++) {
-                x[i] = firstPixelForRequest + i / 2;
+                //x[i] = firstPixelForRequest + i / 2;
+                x[i] = firstPixelForRequest + offsetIntoRequestPixels + i/2;
                 y[i] = dis.readInt();
             }
+            logger.debug("x[0]: " + x[0]);
             Plottable p = new Plottable(x, y);
             PlottableChunk pc = new PlottableChunk(p,
                                                    PlottableChunk.getPixel(rowBeginTime,
