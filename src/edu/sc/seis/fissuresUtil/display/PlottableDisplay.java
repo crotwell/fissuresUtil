@@ -44,11 +44,17 @@ import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
 public class PlottableDisplay extends JComponent {
 
     public PlottableDisplay() {
-        this(true);
+        this(TOTAL_WIDTH);
+    }
+    
+    public PlottableDisplay(int pixelsPerDay){
+        this(pixelsPerDay, true);
     }
 
-    public PlottableDisplay(boolean includeText) {
+    public PlottableDisplay(int pixelsPerDay, boolean includeText) {
         super();
+        totalWidth = pixelsPerDay;
+        rowWidth = totalWidth/rows;
         dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
         removeAll();
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
@@ -294,6 +300,8 @@ public class PlottableDisplay extends JComponent {
             g2.setTransform(originalTransform);
             g2.setPaint(axisColor);
             int yLoc = rowOffset * row;
+            System.out.println("yLoc: " + yLoc);
+            System.out.println("rowWidth: " + rowWidth);
             g2.drawLine(0, yLoc, rowWidth, yLoc);
             //Create new transform to draw plottable scaled correctly
             g2.setTransform(new AffineTransform());
@@ -583,7 +591,7 @@ public class PlottableDisplay extends JComponent {
         return rowWidth;
     }
 
-    private int rowWidth = totalWidth / rows;
+    private int rowWidth;
 
     public int getRowOffset() {
         return rowOffset;
