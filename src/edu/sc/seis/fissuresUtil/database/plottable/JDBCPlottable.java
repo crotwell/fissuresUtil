@@ -212,7 +212,11 @@ public class JDBCPlottable extends PlottableTable {
                 x[i] = firstPixelForRequest + offsetIntoRequestPixels + i/2;
                 y[i] = dis.readInt();
             }
-            logger.debug("x[0]: " + x[0]);
+            if (x.length > 0){
+                logger.debug("x[0]: " + x[0]);
+            } else {
+                logger.debug("ZERO LENGTH ARRAY!!!");
+            }
             Plottable p = new Plottable(x, y);
             PlottableChunk pc = new PlottableChunk(p,
                                                    PlottableChunk.getPixel(rowBeginTime,
