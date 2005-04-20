@@ -40,6 +40,14 @@ public class JDBCPlottableTest extends JDBCTearDown {
         assertEquals(data, out[0]);
     }
 
+    public void testPutThenGetDiffResolution() throws SQLException, IOException {
+        plottDb.put(new PlottableChunk[] {data});
+        PlottableChunk[] out = plottDb.get(data.getTimeRange(),
+                                           data.getChannel(),
+                                           1400);
+        assertEquals(0, out.length);
+    }
+
     public void testPutTwoDaysGetOne() throws SQLException, IOException {
         PlottableChunk secondDay = new PlottableChunk(data.getData(),
                                                       0,
