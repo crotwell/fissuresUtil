@@ -300,8 +300,6 @@ public class PlottableDisplay extends JComponent {
             g2.setTransform(originalTransform);
             g2.setPaint(axisColor);
             int yLoc = rowOffset * row;
-            System.out.println("yLoc: " + yLoc);
-            System.out.println("rowWidth: " + rowWidth);
             g2.drawLine(0, yLoc, rowWidth, yLoc);
             //Create new transform to draw plottable scaled correctly
             g2.setTransform(new AffineTransform());
