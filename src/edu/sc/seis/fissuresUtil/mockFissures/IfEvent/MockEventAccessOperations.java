@@ -46,6 +46,10 @@ public class MockEventAccessOperations {
         return new CacheEvent(attr, origins, origins[0]);
     }
 
+    /**
+     * @return 18 events evenly spaced in time from the 1st of January 2001 to
+     *         the 31st of that month and evenly spaced over the entire globe
+     */
     public static CacheEvent[] createEventTimeRange() {
         Time t = new Time("20010101T000000.000Z", 0);
         MicroSecondTimeRange tr = new MicroSecondTimeRange(new MicroSecondDate(t),
