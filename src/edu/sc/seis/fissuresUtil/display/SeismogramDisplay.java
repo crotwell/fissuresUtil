@@ -143,6 +143,15 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
         return classColors[i++ % classColors.length];
     }
 
+    public DrawableSeismogram getDrawableSeismogram(DataSetSeismogram ds) {
+        DrawableIterator it = iterator(DrawableSeismogram.class);
+        while(it.hasNext()) {
+            DrawableSeismogram cur = (DrawableSeismogram)it.next();
+            if(cur.getSeismogram().equals(ds)) { return cur; }
+        }
+        throw new IllegalArgumentException("The passed in data set seismgoram must have a drawable seismogram using it in this display");
+    }
+
     private int i = 0;
 
     public abstract void add(Drawable drawable);
