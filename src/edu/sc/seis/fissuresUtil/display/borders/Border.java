@@ -98,7 +98,7 @@ public abstract class Border extends JComponent {
         fixSize();
     }
 
-    private void fixSize() {
+    protected void fixSize() {
         int tpHeight = 0;
         Iterator it = titles.iterator();
         while(it.hasNext()) {
@@ -172,7 +172,7 @@ public abstract class Border extends JComponent {
             else return stringBounds.getWidth();
         }
 
-        private double getLimitingSize() {
+        protected double getLimitingSize() {
             if(direction == VERTICAL) return getSize().getHeight();
             return getSize().getWidth();
         }
@@ -255,17 +255,15 @@ public abstract class Border extends JComponent {
                     labelValue += divSize;
                 }
                 //Figure out how much to translate this generic tick shape to
-                // match
-                //the actual time
+                // match the actual time
                 double[] translation = getTranslation(range);
-                //Casing the translation to an int removes tick jitter in
-                // borders
-                //where the values have changed, but the range hasn't. Since
-                // they
-                //move by an integral amount, they move in lockstep. This
-                // introduces
-                //inaccuracy in translations that wouldn't naturally be an int.
-                //Be forewarned!
+                /*
+                 * Casing the translation to an int removes tick jitter in
+                 * borders where the values have changed, but the range hasn't.
+                 * Since they move by int amounts, they move in lockstep. This
+                 * introduces inaccuracy in translations that wouldn't naturally
+                 * be an int. Be forewarned!
+                 */
                 g2d.translate((int)translation[0], (int)translation[1]);
                 g2d.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
                 g2d.draw(labelTickShape);
@@ -315,7 +313,7 @@ public abstract class Border extends JComponent {
 
         //returns the position of the first label tick. 1st element is x, 2nd
         //element is y
-        private float[] getFirstPoint() {
+        protected float[] getFirstPoint() {
             float[] point = new float[2];
             if(direction == VERTICAL) {
                 if(side == LEFT) {
@@ -339,7 +337,7 @@ public abstract class Border extends JComponent {
 
         //returns the values in curPoint incremented by the increment value in
         //the direction of this border
-        private float[] getNextPoint(float increment, float[] curPoint) {
+        protected float[] getNextPoint(float increment, float[] curPoint) {
             float[] nextPoint = {curPoint[0], curPoint[1]};
             if(direction == VERTICAL) {
                 if(order == ASCENDING) nextPoint[1] -= increment;
@@ -351,13 +349,13 @@ public abstract class Border extends JComponent {
             return nextPoint;
         }
 
-        //This value is the first value below the minimum that would fall
-        // evenly
-        //on a major tick boundary. Therefore, we're labelling and creating
-        // borders
-        //that are slightly larger and start before the actual unit ranges
-        // passed
-        //in in most cases. Thats why the translation is used in the draw step.
+        /*
+         * This value is the first value below the minimum that would fall
+         * evenly on a major tick boundary. Therefore, we're labelling and
+         * creating borders that are slightly larger and start before the actual
+         * unit ranges passed in in most cases. Thats why the translation is
+         * used in the draw step.
+         */
         private double getFirstLabelValue(UnitRangeImpl r) {
             double min = r.min_value;
             double divisions = Math.floor(min / divSize);
@@ -407,7 +405,7 @@ public abstract class Border extends JComponent {
     public static final int ASCENDING = 0, DESCENDING = 4;
 
     //LEFT and RIGHT borders are VERTICAL, TOP and BOTTOM are HORIZONTAL
-    private static final int VERTICAL = 0, HORIZONTAL = 1;
+    protected static final int VERTICAL = 0, HORIZONTAL = 1;
 
     protected int tickPad = 3, labelTickLength = 10, tickLength = 4;
 
