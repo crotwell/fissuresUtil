@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.configuration;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -7,10 +8,12 @@ import javax.swing.JComponent;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import edu.sc.seis.fissuresUtil.display.BorderedDisplay;
+import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
 import edu.sc.seis.fissuresUtil.display.borders.Border;
 import edu.sc.seis.fissuresUtil.display.borders.DistanceBorder;
+import edu.sc.seis.fissuresUtil.display.borders.TriangleBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TitleProvider;
@@ -41,6 +44,10 @@ public class BorderConfiguration implements Cloneable {
             Element tickConfig = DOMHelper.getElement(element, "clipTicks");
             minTickValue = new Double(DOMHelper.extractText(tickConfig, "min")).doubleValue();
             maxTickValue = new Double(DOMHelper.extractText(tickConfig, "max")).doubleValue();
+        }
+        if(DOMHelper.hasElement(element, "triangleColors")) {
+            colors = ColorClassConfiguration.extractColors(DOMHelper.getElement(element,
+                                                                                "triangleColors"));
         }
     }
 
@@ -82,6 +89,11 @@ public class BorderConfiguration implements Cloneable {
             b = new TimeBorder(disp);
         } else if(type.equals(DIST)) {
             b = new DistanceBorder(disp);
+        } else if(type.equals(TRIANGLE)) {
+            b = new TriangleBorder((RecordSectionDisplay)disp,
+                                   getSide(position),
+                                   getOrder(order),
+                                   colors);
         } else {
             b = new TitleBorder(getSide(position), getOrder(order));
         }
@@ -168,7 +180,9 @@ public class BorderConfiguration implements Cloneable {
     private static final String LEFT = "left", RIGHT = "right", TOP = "top",
             BOTTOM = "bottom", AMP = "amp", TIME = "time", DIST = "dist",
             TITLE = "title", ASCENDING = "ascending",
-            DESCENDING = "descending";
+            DESCENDING = "descending", TRIANGLE = "triangle";
 
     private List titles = new ArrayList();
+
+    private Color[] colors = new Color[] {Color.BLACK};
 }
