@@ -17,13 +17,9 @@ public class ColorClassConfiguration {
             colorClass = definer.colorClass;
             colors = definer.colors;
         } else {
-            NodeList colorNodes = DOMHelper.extractNodes(el, "color");
-            if(colorNodes.getLength() > 0) {
-                colors = new Color[colorNodes.getLength()];
-                for(int i = 0; i < colors.length; i++) {
-                    colors[i] = ColorConfiguration.create((Element)colorNodes.item(i))
-                            .createColor();
-                }
+            Color[] configColors = extractColors(el);
+            if(configColors.length > 0) {
+                colors = configColors;
             }
             if(el.getTagName().equals("flagColors")) {
                 colorClass = Flag.class;
@@ -32,6 +28,16 @@ public class ColorClassConfiguration {
             }
             defs.updateDefinitions(el, this);
         }
+    }
+
+    public static Color[] extractColors(Element el) {
+        NodeList colorNodes = DOMHelper.extractNodes(el, "color");
+        Color[] colors = new Color[colorNodes.getLength()];
+        for(int i = 0; i < colors.length; i++) {
+            colors[i] = ColorConfiguration.create((Element)colorNodes.item(i))
+                    .createColor();
+        }
+        return colors;
     }
 
     public Class getColorClass() {
