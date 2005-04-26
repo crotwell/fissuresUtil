@@ -8,12 +8,10 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.display.configuration.SeismogramDisplayConfigurationTest;
+import edu.sc.seis.fissuresUtil.display.registrar.CustomLayOutConfig;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStation;
@@ -42,6 +40,7 @@ public class RecordSectionDisplayTest extends TestCase {
         System.setProperty("swing.volatileImageBufferEnabled", "false");
         sd = SeismogramDisplayConfigurationTest.create("recsec")
                 .createDisplay();
+        ((RecordSectionDisplay)sd).setLayout(new CustomLayOutConfig(0, 180, 10));
         MemoryDataSet ds = new MemoryDataSet("id",
                                              "Test Data set",
                                              "None",
@@ -49,14 +48,18 @@ public class RecordSectionDisplayTest extends TestCase {
         ds.addParameter(StdDataSetParamNames.EVENT,
                         MockEventAccessOperations.createEvent(),
                         null);
-        Station[] stations = MockStation.createMultiSplendoredStations(5, 2);
+        Station[] stations = MockStation.createMultiSplendoredStations(3, 9);
         Channel[] channels = new Channel[stations.length];
-        for(int i = 0; i < stations.length; i++) {
+        for(int i = 0; i < channels.length; i++) {
             channels[i] = MockChannel.createMotionVector(stations[i])[0];
         }
-        for(int i = 0; i < stations.length; i++) {
-            LocalSeismogramImpl lsi = SimplePlotUtil.createSpike(ClockUtil.now()
-                    .add(new TimeInterval(i, UnitImpl.MINUTE)));
+        for(int i = 0; i < channels.length; i++) {
+            LocalSeismogramImpl lsi = SimplePlotUtil.createSpike();
+            if(i % 3 == 0) {
+                lsi = SimplePlotUtil.createTestData();
+            } else {
+                lsi = SimplePlotUtil.createSineWave();
+            }
             MemoryDataSetSeismogram memDSS = new MemoryDataSetSeismogram(lsi);
             memDSS.getRequestFilter().channel_id = channels[i].get_id();
             ds.addDataSetSeismogram(memDSS, null);
