@@ -65,13 +65,13 @@ public abstract class Initializer {
 
     public static Properties loadProperties(String[] args) {
         String propFilename;
-        Properties props = System.getProperties();
+        Properties sysProps = System.getProperties();
         for(int i = 0; i < args.length - 1; i++) {
             if(args[i].equals("-props")) {
                 propFilename = args[i + 1];
                 try {
                     FileInputStream in = new FileInputStream(propFilename);
-                    props.load(in);
+                    sysProps.load(in);
                     in.close();
                 } catch(FileNotFoundException f) {
                     System.err.println(" file missing " + f + " using defaults");
@@ -80,7 +80,7 @@ public abstract class Initializer {
                 }
             }
         }
-        return props;
+        return sysProps;
     }
 
     public static org.omg.CORBA_2_3.ORB getORB() {
