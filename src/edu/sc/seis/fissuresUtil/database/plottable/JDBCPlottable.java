@@ -36,7 +36,10 @@ public class JDBCPlottable extends PlottableTable {
     public JDBCPlottable(Connection conn) throws SQLException {
         super("plottable", conn);
         chanTable = new JDBCChannel(conn);
-        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/plottable/default.props");
+        TableSetup.setup(getTableName(),
+                         conn,
+                         this,
+                         "edu/sc/seis/fissuresUtil/database/props/plottable/default.props");
     }
 
     public void put(PlottableChunk[] chunks) throws SQLException, IOException {
@@ -55,7 +58,8 @@ public class JDBCPlottable extends PlottableTable {
         PlottableChunk[] dbChunks = get(stuffInDB,
                                         chunks[0].getChannel(),
                                         chunks[0].getPixelsPerDay());
-        logger.debug("got " + dbChunks.length + " chunks from stuff that was already in the database");
+        logger.debug("got " + dbChunks.length
+                + " chunks from stuff that was already in the database");
         PlottableChunk[] everything = new PlottableChunk[chunks.length
                 + dbChunks.length];
         System.arraycopy(dbChunks, 0, everything, 0, dbChunks.length);
@@ -76,19 +80,22 @@ public class JDBCPlottable extends PlottableTable {
             logger.debug("Adding chunk " + i + ": " + everything[i]);
             int stmtIndex = 1;
             PlottableChunk chunk = everything[i];
-            put.setInt(stmtIndex++, chanTable.put(chunk.getChannel()));
-            put.setInt(stmtIndex++, chunk.getPixelsPerDay());
-            put.setTimestamp(stmtIndex++, chunk.getBeginTime().getTimestamp());
-            put.setTimestamp(stmtIndex++, chunk.getEndTime().getTimestamp());
-            int[] y = chunk.getData().y_coor;
-            put.setInt(stmtIndex++, y.length / 2);
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(out);
-            for(int k = 0; k < y.length; k++) {
-                dos.writeInt(y[k]);
+            synchronized(put) {
+                put.setInt(stmtIndex++, chanTable.put(chunk.getChannel()));
+                put.setInt(stmtIndex++, chunk.getPixelsPerDay());
+                put.setTimestamp(stmtIndex++, chunk.getBeginTime()
+                        .getTimestamp());
+                put.setTimestamp(stmtIndex++, chunk.getEndTime().getTimestamp());
+                int[] y = chunk.getData().y_coor;
+                put.setInt(stmtIndex++, y.length / 2);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                DataOutputStream dos = new DataOutputStream(out);
+                for(int k = 0; k < y.length; k++) {
+                    dos.writeInt(y[k]);
+                }
+                put.setBytes(stmtIndex++, out.toByteArray());
+                put.executeUpdate();
             }
-            put.setBytes(stmtIndex++, out.toByteArray());
-            put.executeUpdate();
         }
     }
 
@@ -144,11 +151,13 @@ public class JDBCPlottable extends PlottableTable {
                     + " not found");
             return 0;
         }
-        drop.setTimestamp(1, requestRange.getEndTime().getTimestamp());
-        drop.setTimestamp(2, requestRange.getBeginTime().getTimestamp());
-        drop.setInt(3, chanDbId);
-        drop.setDouble(4, samplesPerDay);
-        return drop.executeUpdate();
+        synchronized(drop) {
+            drop.setTimestamp(1, requestRange.getEndTime().getTimestamp());
+            drop.setTimestamp(2, requestRange.getBeginTime().getTimestamp());
+            drop.setInt(3, chanDbId);
+            drop.setDouble(4, samplesPerDay);
+            return drop.executeUpdate();
+        }
     }
 
     public PlottableChunk[] get(MicroSecondTimeRange requestRange,
@@ -164,11 +173,15 @@ public class JDBCPlottable extends PlottableTable {
             return new PlottableChunk[0];
         }
         int index = 1;
-        get.setTimestamp(index++, requestRange.getEndTime().getTimestamp());
-        get.setTimestamp(index++, requestRange.getBeginTime().getTimestamp());
-        get.setInt(index++, chanDbId);
-        get.setInt(index++, pixelsPerDay);
-        ResultSet rs = get.executeQuery();
+        ResultSet rs;
+        synchronized(get) {
+            get.setTimestamp(index++, requestRange.getEndTime().getTimestamp());
+            get.setTimestamp(index++, requestRange.getBeginTime()
+                    .getTimestamp());
+            get.setInt(index++, chanDbId);
+            get.setInt(index++, pixelsPerDay);
+            rs = get.executeQuery();
+        }
         List chunks = new ArrayList();
         int requestPixels = getPixels(pixelsPerDay, requestRange);
         logger.debug("Request made for " + requestPixels + " from "
@@ -209,10 +222,10 @@ public class JDBCPlottable extends PlottableTable {
             }
             for(int i = 0; i < pixelsUsed * 2; i++) {
                 //x[i] = firstPixelForRequest + i / 2;
-                x[i] = firstPixelForRequest + offsetIntoRequestPixels + i/2;
+                x[i] = firstPixelForRequest + offsetIntoRequestPixels + i / 2;
                 y[i] = dis.readInt();
             }
-            if (x.length > 0){
+            if(x.length > 0) {
                 logger.debug("x[0]: " + x[0]);
             } else {
                 logger.debug("ZERO LENGTH ARRAY!!!");
