@@ -55,4 +55,34 @@
         </clipTicks>
         <titleFont base="REV Title Font"/>
     </border>
+    <border>
+        <type>triangle</type>
+        <position>top</position>
+        <triangleColors>
+            <color>
+                <red>7</red>
+                <green>44</green>
+                <blue>127</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>197</red>
+                <green>15</green>
+                <blue>221</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>7</red>
+                <green>44</green>
+                <blue>12</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>9</red>
+                <green>224</green>
+                <blue>221</blue>
+                <alpha>255</alpha>
+            </color>
+        </triangleColors>
+    </border>
 </displayConfig>
