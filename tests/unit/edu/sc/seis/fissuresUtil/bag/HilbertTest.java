@@ -17,7 +17,7 @@ import junit.framework.TestCase;
  */
 public class HilbertTest extends TestCase {
 
-    public void testHilbert() throws Exception {
+    public void testImpluseResponse() throws Exception {
         Hilbert hilbert = new Hilbert();
         LocalSeismogramImpl testSeis = SimplePlotUtil.createDelta();
         LocalSeismogramImpl hilbertSeis = hilbert.apply(testSeis);
