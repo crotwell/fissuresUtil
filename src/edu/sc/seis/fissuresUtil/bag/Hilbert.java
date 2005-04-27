@@ -41,4 +41,28 @@ public class Hilbert implements LocalSeismogramFunction {
         }
         return out;
     }
+    
+    public double[] unwrapPhase(Cmplx[] data) {
+        double[] out = new double[data.length];
+        int wraps = 0;
+        double a = data[0].phs();
+        out[0] = a;
+        double b = data[1].phs();
+        out[1] = b;
+        double c;
+        for(int i = 2; i < out.length; i++) {
+            c = data[i].phs();
+            if (2*b-a > Math.PI && c < 0) {
+                // unwrap up
+                wraps++;
+            } else if (2*b-a < -Math.PI && c > 0) {
+                // unwrap down
+                wraps--;
+            }
+            out[i] = c + wraps*2*Math.PI;
+            a = b;
+            b = c;
+        }
+        return out;
+    }
 }
