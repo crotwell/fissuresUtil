@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Iterator;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutData;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutEvent;
@@ -69,7 +70,8 @@ public class TriangleBorder extends NoTickBorder {
                                                 (int)point[1] - 15,
                                                 15);
                 g2d.fillPolygon(triangle[0], triangle[1], 3);
-                g2d.setColor(Color.BLACK);
+                g2d.setColor(new Color(64, 44, 127));
+                g2d.setStroke(DisplayUtils.TWO_PIXEL_STROKE);
                 g2d.drawPolygon(triangle[0], triangle[1], 3);
             }
             super.draw(range, g2d);
