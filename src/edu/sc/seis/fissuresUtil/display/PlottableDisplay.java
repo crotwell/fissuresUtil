@@ -34,6 +34,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.drawable.EventFlag;
 import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * PlottableDisplay.java Created: Wed Jul 18 11:08:24 2001
@@ -394,6 +395,7 @@ public class PlottableDisplay extends JComponent {
         Thread t = new Thread("Plottable Image Creator") {
 
             public void run() {
+                try {
                 Graphics2D g = (Graphics2D)offImg.getGraphics();
                 currentImageGraphics = g;
                 g.setBackground(backgroundColor);
@@ -402,6 +404,9 @@ public class PlottableDisplay extends JComponent {
                 drawComponent(g);
                 g.dispose();
                 repaint();
+                } catch(Throwable t) {
+                    GlobalExceptionHandler.handle("Problem drawing the plottable image.", t);
+                }
             }
         };
         t.start();
