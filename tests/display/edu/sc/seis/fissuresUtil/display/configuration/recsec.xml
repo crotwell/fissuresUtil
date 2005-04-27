@@ -60,27 +60,63 @@
         <position>top</position>
         <triangleColors>
             <color>
-                <red>7</red>
-                <green>44</green>
-                <blue>127</blue>
+                <red>213</red>
+                <green>25</green>
+                <blue>74</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>171</red>
+                <green>251</green>
+                <blue>156</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>74</red>
+                <green>63</green>
+                <blue>219</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>31</red>
+                <green>153</green>
+                <blue>188</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>31</red>
+                <green>188</green>
+                <blue>105</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>236</red>
+                <green>234</green>
+                <blue>28</blue>
                 <alpha>255</alpha>
             </color>
             <color>
                 <red>197</red>
-                <green>15</green>
-                <blue>221</blue>
+                <green>134</green>
+                <blue>195</blue>
                 <alpha>255</alpha>
             </color>
             <color>
-                <red>7</red>
-                <green>44</green>
-                <blue>12</blue>
+                <red>215</red>
+                <green>159</green>
+                <blue>24</blue>
                 <alpha>255</alpha>
             </color>
             <color>
-                <red>9</red>
-                <green>224</green>
-                <blue>221</blue>
+                <red>15</red>
+                <green>85</green>
+                <blue>39</blue>
+                <alpha>255</alpha>
+            </color>
+            <color>
+                <red>115</red>
+                <green>87</green>
+                <blue>21</blue>
                 <alpha>255</alpha>
             </color>
         </triangleColors>
