@@ -23,7 +23,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 12926 2005-04-18 22:19:31Z oliverpa $
+ * @version $Id: SimplePlotUtil.java 13085 2005-04-27 15:38:05Z crotwell $
  */
 public class SimplePlotUtil {
 
@@ -428,6 +428,15 @@ public class SimplePlotUtil {
                               dataBits);
     }
 
+    public static LocalSeismogramImpl createDelta() {
+        MicroSecondDate now = ClockUtil.now();
+        TimeInterval traceLength = new TimeInterval(50, UnitImpl.SECOND);
+        double traceSecs = traceLength.getValue(UnitImpl.SECOND);
+        int[] dataBits = new int[(int)(SPIKE_SAMPLES_PER_SECOND * traceSecs)];
+        dataBits[0] = 1;
+        return createTestData("kronecker delta at 0", dataBits, now.getFissuresTime(), makeChanId(now.getFissuresTime()));
+    }
+    
     public static LocalSeismogramImpl createSpike() {
         return createSpike(ClockUtil.now());
     }
