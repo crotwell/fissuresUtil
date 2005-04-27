@@ -163,7 +163,6 @@ public class EventFlag {
     }
 
     private double getXPercent(Arrival arrival) {
-        System.out.println(arrival.getName());
         return getXPercent(getTime(arrival));
     }
 
