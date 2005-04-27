@@ -154,8 +154,8 @@ public class UnitDisplayUtil {
         if(unit.equals(UnitImpl.KILOMETER)) { return "km"; }
         if(unit.equals(UnitImpl.METER)) { return "m"; }
         if(unit.equals(UnitImpl.MILLIMETER)) { return "mm"; }
-        if(unit.equals(UnitImpl.MICROMETER)) { return "micrometer"; }
-        if(unit.equals(UnitImpl.NANOMETER)) { return "nanometer"; }
+        if(unit.equals(UnitImpl.MICROMETER)) { return "micrometers"; }
+        if(unit.equals(UnitImpl.NANOMETER)) { return "nanometers"; }
         if(unit.equals(UnitImpl.METER_PER_SECOND_PER_SECOND)) { return "m/s/s"; }
         if(unit.equals(UnitImpl.MILLIMETER_PER_SECOND_PER_SECOND)) { return "mm/s/s"; }
         if(unit.equals(UnitImpl.MICROMETER_PER_SECOND_PER_SECOND)) { return "microns/s/s"; }
@@ -174,8 +174,7 @@ public class UnitDisplayUtil {
     }
 
     public static String formatQuantityImpl(Quantity quantity) {
-        return formatQuantityImpl(quantity,
-                                  quantityFormat);
+        return formatQuantityImpl(quantity, quantityFormat);
     }
 
     public static String formatQuantityImpl(Quantity quantity,
@@ -186,6 +185,6 @@ public class UnitDisplayUtil {
     }
 
     static final DecimalFormat quantityFormat = new DecimalFormat("#,###,##0.0##; -#,###,##0.0##");
-    
+
     static Logger logger = Logger.getLogger(UnitDisplayUtil.class);
 }
