@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 
@@ -15,7 +16,7 @@ public class Hilbert implements LocalSeismogramFunction {
     public Hilbert() {
     }
 
-    public LocalSeismogramImpl apply(LocalSeismogramImpl seis) throws Exception {
+    public LocalSeismogramImpl apply(LocalSeismogramImpl seis) throws FissuresException {
         Cmplx[] c = Cmplx.fft(seis.get_as_floats());
         for(int i = 0; i < c.length/2; i++) {
             double tmp = c[i].i;
@@ -28,5 +29,16 @@ public class Hilbert implements LocalSeismogramFunction {
             c[i].r = tmp;
         }
         return new LocalSeismogramImpl(seis, Cmplx.fftInverse(c, seis.getNumPoints()));
+    }
+    
+    public Cmplx[] analyticSignal(LocalSeismogramImpl seis) throws FissuresException {
+        float[] seisData = seis.get_as_floats();
+        LocalSeismogramImpl hilbert = apply(seis);
+        float[] hilbertData = hilbert.get_as_floats();
+        Cmplx[] out = new Cmplx[seis.getNumPoints()];
+        for(int i = 0; i < out.length; i++) {
+            out[i] = new Cmplx(seisData[i], hilbertData[i]);
+        }
+        return out;
     }
 }
