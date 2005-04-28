@@ -21,6 +21,8 @@ public abstract class AbstractUnitRangeBorder extends Border implements
         List formats = new ArrayList();
         for(double i = .000000001; i <= 100000000; i *= 10) {
             formats.add(new UnitRangeFormatter(i, 2));
+            formats.add(new UnitRangeFormatter(i * 2, 2));
+            formats.add(new UnitRangeFormatter(i * 3, 3));
             formats.add(new UnitRangeFormatter(i * 5, 5));
         }
         return formats;
@@ -45,14 +47,16 @@ public abstract class AbstractUnitRangeBorder extends Border implements
             if(division < .01) {
                 // exponential notation
                 df = new DecimalFormat("#.###E00");
-            } else if(division < 10 && division != 0) {
-                df = new DecimalFormat("0.00###");
-            } else if(division < 100000) {
-                df = new DecimalFormat("#.####");
-            } else {
-                // exponential notation
-                df = new DecimalFormat("#.###E00");
-            }
+            } else
+                if(division < 10 && division != 0) {
+                    df = new DecimalFormat("0.00###");
+                } else
+                    if(division < 100000) {
+                        df = new DecimalFormat("#.####");
+                    } else {
+                        // exponential notation
+                        df = new DecimalFormat("#.###E00");
+                    }
         }
 
         public String getMaxString() {
@@ -64,7 +68,7 @@ public abstract class AbstractUnitRangeBorder extends Border implements
         }
 
         public String toString() {
-            return "UnitRange " + getDivSize();
+            return "UnitRange " + getDivSize() + " " + ticksPerDiv;
         }
 
         private DecimalFormat df;
