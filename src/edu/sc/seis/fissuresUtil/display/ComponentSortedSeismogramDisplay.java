@@ -102,9 +102,12 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
     }
 
     public boolean removeDisplay(BasicSeismogramDisplay display) {
-        if(display == north) north = null;
-        else if(display == east) east = null;
-        else z = null;
+        if(display == north)
+            north = null;
+        else if(display == east)
+            east = null;
+        else
+            z = null;
         return super.removeDisplay(display);
     }
 
