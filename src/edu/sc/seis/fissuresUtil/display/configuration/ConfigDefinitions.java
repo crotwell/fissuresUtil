@@ -25,6 +25,8 @@ public class ConfigDefinitions {
                         + o + " on id " + id);
             }
             idsToConfigs.put(id, o);
+        } else if(el.hasAttribute("overwritingId")) {
+            idsToConfigs.put(el.getAttribute("overwritingId"), o);
         }
     }
 
