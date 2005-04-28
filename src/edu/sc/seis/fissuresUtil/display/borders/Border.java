@@ -41,16 +41,20 @@ public abstract class Border extends JComponent {
             if(side == TOP) {
                 labelTickHeight = -labelTickLength;
                 tickHeight = -tickLength;
-            } else if(side == BOTTOM) {
-                labelTickHeight = labelTickLength;
-                tickHeight = tickLength;
-            } else if(side == RIGHT) {
-                labelTickWidth = labelTickLength;
-                tickWidth = tickLength;
-            } else if(side == LEFT) {
-                labelTickWidth = -labelTickLength;
-                tickWidth = -tickLength;
-            } else throw new IllegalArgumentException("side must be LEFT, RIGHT, BOTTOM, or TOP as defined in Border");
+            } else
+                if(side == BOTTOM) {
+                    labelTickHeight = labelTickLength;
+                    tickHeight = tickLength;
+                } else
+                    if(side == RIGHT) {
+                        labelTickWidth = labelTickLength;
+                        tickWidth = tickLength;
+                    } else
+                        if(side == LEFT) {
+                            labelTickWidth = -labelTickLength;
+                            tickWidth = -tickLength;
+                        } else
+                            throw new IllegalArgumentException("side must be LEFT, RIGHT, BOTTOM, or TOP as defined in Border");
         }
         if(side == LEFT || side == RIGHT) {
             this.direction = VERTICAL;
@@ -79,14 +83,21 @@ public abstract class Border extends JComponent {
     }
 
     protected void paintBorder(Graphics2D g2d) {
+        BorderFormat bf = getFormat(g2d);
+        if(bf != null) {
+            bf.draw(getRange(), g2d);
+        }
+    }
+
+    public BorderFormat getFormat(Graphics2D g2d) {
         Iterator it = borderFormats.iterator();
         while(it.hasNext()) {
             BorderFormat cur = (BorderFormat)it.next();
             if(cur.willFit(getRange(), g2d)) {
-                cur.draw(getRange(), g2d);
-                return;
+                return cur;
             }
         }
+        return null;
     }
 
     /**
@@ -139,7 +150,7 @@ public abstract class Border extends JComponent {
 
     protected double maxTickValue = Double.POSITIVE_INFINITY;
 
-    protected abstract class BorderFormat {
+    public abstract class BorderFormat {
 
         /**
          * The division size determines the number of divisions that will be
@@ -160,20 +171,22 @@ public abstract class Border extends JComponent {
             double labelSize = getLimitingLabelSize(g2d);
             int numTicks = (int)Math.ceil(numDivisions * ticksPerDiv);
             double maxSize = getLimitingSize();
-            if(numTicks * tickPad < maxSize
-                    && labelSize * numDivisions < maxSize) return true;
-            return false;
+            return numTicks * tickPad < maxSize
+                    && labelSize * numDivisions < maxSize;
         }
 
         private double getLimitingLabelSize(Graphics2D g2d) {
             FontMetrics fm = g2d.getFontMetrics();
             Rectangle2D stringBounds = fm.getStringBounds(getMaxString(), g2d);
-            if(direction == VERTICAL) return stringBounds.getHeight();
-            else return stringBounds.getWidth();
+            if(direction == VERTICAL)
+                return stringBounds.getHeight();
+            else
+                return stringBounds.getWidth();
         }
 
         protected double getLimitingSize() {
-            if(direction == VERTICAL) return getSize().getHeight();
+            if(direction == VERTICAL)
+                return getSize().getHeight();
             return getSize().getWidth();
         }
 
@@ -196,9 +209,11 @@ public abstract class Border extends JComponent {
                 if(direction == VERTICAL) {
                     double y = (int)(getSize().height / 2 + titleBounds.getWidth() / 2);
                     double x;
-                    if(side == LEFT) x = cumulativeTitleHeight - 5;
-                    else x = getWidth() - cumulativeTitleHeight
-                            + (int)titleBounds.getHeight() - 5;
+                    if(side == LEFT)
+                        x = cumulativeTitleHeight - 5;
+                    else
+                        x = getWidth() - cumulativeTitleHeight
+                                + (int)titleBounds.getHeight() - 5;
                     g2d.translate(x, y);
                     g2d.rotate(-Math.PI / 2);
                     g2d.drawString(tp.getTitle(), 0, 0);
@@ -207,9 +222,11 @@ public abstract class Border extends JComponent {
                 } else {
                     int x = (int)(getWidth() / 2 - titleBounds.getWidth() / 2);
                     int y;
-                    if(side == TOP) y = cumulativeTitleHeight - 5;
-                    else y = getHeight() - cumulativeTitleHeight
-                            + (int)titleBounds.getHeight() - 5;
+                    if(side == TOP)
+                        y = cumulativeTitleHeight - 5;
+                    else
+                        y = getHeight() - cumulativeTitleHeight
+                                + (int)titleBounds.getHeight() - 5;
                     g2d.drawString(tp.getTitle(), x, y);
                 }
             }
@@ -297,18 +314,20 @@ public abstract class Border extends JComponent {
             if(direction == VERTICAL) {
                 y = nextLabelPoint[1] + (float)(bounds.getHeight() / 4);
                 int xMod = labelTickLength + 2;
-                if(side == LEFT) x = nextLabelPoint[0] - xMod
-                        - (int)bounds.getWidth();
-                else x = nextLabelPoint[0] + xMod;
+                if(side == LEFT)
+                    x = nextLabelPoint[0] - xMod - (int)bounds.getWidth();
+                else
+                    x = nextLabelPoint[0] + xMod;
             } else {//Must be horizontal
                 x = nextLabelPoint[0] - (int)(bounds.getWidth() / 2);
-                if(side == TOP) y = nextLabelPoint[1] - labelTickLength - 3;
-                else y = labelTickLength + (float)bounds.getHeight() - 3;
+                if(side == TOP)
+                    y = nextLabelPoint[1] - labelTickLength - 3;
+                else
+                    y = labelTickLength + (float)bounds.getHeight() - 3;
             }
             if(y + trans <= getSize().height
-                    && y - bounds.getHeight() + trans >= 0) g2d.drawString(label,
-                                                                           x,
-                                                                           y);
+                    && y - bounds.getHeight() + trans >= 0)
+                g2d.drawString(label, x, y);
         }
 
         //returns the position of the first label tick. 1st element is x, 2nd
@@ -321,11 +340,15 @@ public abstract class Border extends JComponent {
                 } else {//Must be right
                     point[0] = 0;
                 }
-                if(order == ASCENDING) point[1] = (float)getSize().getHeight();
-                else point[1] = 0;
+                if(order == ASCENDING)
+                    point[1] = (float)getSize().getHeight();
+                else
+                    point[1] = 0;
             } else {//Must be horizontal
-                if(order == ASCENDING) point[0] = 0;
-                else point[0] = (float)getSize().getWidth();
+                if(order == ASCENDING)
+                    point[0] = 0;
+                else
+                    point[0] = (float)getSize().getWidth();
                 if(side == TOP) {
                     point[1] = (float)getSize().getHeight();
                 } else {//Must be bottom
@@ -340,11 +363,15 @@ public abstract class Border extends JComponent {
         protected float[] getNextPoint(float increment, float[] curPoint) {
             float[] nextPoint = {curPoint[0], curPoint[1]};
             if(direction == VERTICAL) {
-                if(order == ASCENDING) nextPoint[1] -= increment;
-                else nextPoint[1] += increment;//Must be descending
+                if(order == ASCENDING)
+                    nextPoint[1] -= increment;
+                else
+                    nextPoint[1] += increment;//Must be descending
             } else {//Must be horizontal
-                if(order == ASCENDING) nextPoint[0] += increment;
-                else nextPoint[0] -= increment;
+                if(order == ASCENDING)
+                    nextPoint[0] += increment;
+                else
+                    nextPoint[0] -= increment;
             }
             return nextPoint;
         }
@@ -371,12 +398,16 @@ public abstract class Border extends JComponent {
             double percentageDiff = diff / range;
             if(direction == VERTICAL) {
                 double shiftAmount = percentageDiff * getSize().getHeight();
-                if(order == ASCENDING) translation[1] = shiftAmount;
-                else translation[1] = -shiftAmount;
+                if(order == ASCENDING)
+                    translation[1] = shiftAmount;
+                else
+                    translation[1] = -shiftAmount;
             } else {//Must be horizontal
                 double shiftAmount = percentageDiff * getSize().getWidth();
-                if(order == ASCENDING) translation[0] = -shiftAmount;
-                else translation[0] = shiftAmount;
+                if(order == ASCENDING)
+                    translation[0] = -shiftAmount;
+                else
+                    translation[0] = shiftAmount;
             }
             return translation;
         }
@@ -387,9 +418,7 @@ public abstract class Border extends JComponent {
 
         public abstract String getLabel(double value);
 
-        protected double divSize;
-
-        private double ticksPerDiv;
+        protected double divSize, ticksPerDiv;
     }
 
     /**
