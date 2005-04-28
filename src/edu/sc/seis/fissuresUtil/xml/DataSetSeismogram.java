@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Category;
+import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -51,17 +52,17 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
 
     public boolean equals(Object other) {
         if(!(getClass().equals(other.getClass()))) { return false; } // end of
-                                                                     // if ()
+        // if ()
         if(super.equals(other)) { return true; } // end of if ()
         // objects are not the same, but may be cloned check request filter
         DataSetSeismogram otherDSS = (DataSetSeismogram)other;
         if(!otherDSS.getName().equals(getName())) { return false; } // end of if
-                                                                    // ()
+        // ()
         if(!ChannelIdUtil.areEqual(otherDSS.getRequestFilter().channel_id,
                                    getRequestFilter().channel_id)) { return false; } // end
-                                                                                     // of
-                                                                                     // if
-                                                                                     // ()
+        // of
+        // if
+        // ()
         MicroSecondDate otherB = otherDSS.getBeginMicroSecondDate();
         MicroSecondDate thisB = getBeginMicroSecondDate();
         if(!otherB.equals(thisB)) { return false; } // end of if ()
@@ -69,7 +70,7 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
         MicroSecondDate thisE = getEndMicroSecondDate();
         if(!otherE.equals(thisE)) { return false; } // end of if ()
         if(otherDSS.getDataSet() != getDataSet()) { return false; } // end of if
-                                                                    // ()
+        // ()
         return true;
     }
 
@@ -79,6 +80,14 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
      */
     public DataSet getDataSet() {
         return dataSet;
+    }
+
+    public Channel getChannel() {
+        return getDataSet().getChannel(getChannelId());
+    }
+
+    public EventAccessOperations getEvent() {
+        return getDataSet().getEvent();
     }
 
     public void setDataSet(DataSet dataSet) {
