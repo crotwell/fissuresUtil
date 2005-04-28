@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Category;
-import org.jacorb.transaction.Sleeper;
 import org.omg.CORBA.UserException;
 import org.omg.CosNaming.Binding;
 import org.omg.CosNaming.BindingHolder;
@@ -103,6 +102,10 @@ public class FissuresNamingService {
             logger.debug("corbaloc not null");
             logger.info("Using name service corba loc=" + nameServiceCorbaLoc);
             rootObj = orb.string_to_object(nameServiceCorbaLoc);
+            if(rootObj == null) {
+                throw new RuntimeException("Unable to make an object from "
+                        + nameServiceCorbaLoc);
+            }
             logger.debug("got root object");
         } else {
             logger.debug("corbaloc is  null, resolve initial references");
@@ -110,10 +113,11 @@ public class FissuresNamingService {
                 // get a reference to the Naming Service root_context
                 rootObj = orb.resolve_initial_references("NameService");
             } catch(org.omg.CORBA.ORBPackage.InvalidName e) {
-                // do nothing, return null in this case
+                throw new RuntimeException("Unable to resolve from initial references",
+                                           e);
             }
             if(rootObj == null) {
-                logger.info("Name service object is null! Resolve initial references gave null.");
+                throw new RuntimeException("Unable to resolve from initial references");
             }
         }
         return rootObj;
@@ -122,10 +126,6 @@ public class FissuresNamingService {
     public NamingContextExt getNameService() {
         if(rootNamingContext == null) {
             org.omg.CORBA.Object rootObj = getRoot();
-            if(rootObj == null) {
-                logger.info("Name service object is null!");
-                return null;
-            }
             logger.debug("now trying narrow ");
             rootNamingContext = NamingContextExtHelper.narrow(rootObj);
         }
@@ -173,25 +173,33 @@ public class FissuresNamingService {
                 return getNameService().resolve(names);
             } catch(org.omg.CORBA.SystemException e) {
                 logger.info("retry=" + i + " " + e);
-                if(i == maxTry) { throw e; }
+                if(i == maxTry) {
+                    throw e;
+                }
             } catch(NotFound nfe) {
                 logger.info("retry="
                         + i
                         + "NOT FOUND Exception caught while resolving name context and the name not found is "
                         + nfe.rest_of_name[0].id + " from "
                         + nameServiceCorbaLoc);
-                if(i == maxTry) { throw nfe; }
+                if(i == maxTry) {
+                    throw nfe;
+                }
             } catch(InvalidName ine) {
                 logger.info("retry="
                                     + i
                                     + "INVALID NAME Exception caught while resolving name context",
                             ine);
-                if(i == maxTry) { throw ine; }
+                if(i == maxTry) {
+                    throw ine;
+                }
             } catch(CannotProceed cpe) {
                 logger.info("retry="
                         + i
                         + "CANNOT PROCEED Exception caught while resolving dns name context");
-                if(i == maxTry) { throw cpe; }
+                if(i == maxTry) {
+                    throw cpe;
+                }
             }
         }
         throw new RuntimeException("This code should never happen");
@@ -256,12 +264,18 @@ public class FissuresNamingService {
                        NamingContextExt topLevelNameContext,
                        String interfacename) throws NotFound, CannotProceed,
             InvalidName {
-        if(dns == null || dns.length() == 0) { throw new IllegalArgumentException("dns must have characters: "
-                + dns); }
-        if(objectname == null || objectname.length() == 0) { throw new IllegalArgumentException("objectname must have characters: "
-                + objectname); }
-        if(interfacename == null || interfacename.length() == 0) { throw new IllegalArgumentException("interfacename must have characters: "
-                + interfacename); }
+        if(dns == null || dns.length() == 0) {
+            throw new IllegalArgumentException("dns must have characters: "
+                    + dns);
+        }
+        if(objectname == null || objectname.length() == 0) {
+            throw new IllegalArgumentException("objectname must have characters: "
+                    + objectname);
+        }
+        if(interfacename == null || interfacename.length() == 0) {
+            throw new IllegalArgumentException("interfacename must have characters: "
+                    + interfacename);
+        }
         logger.info("rebind dns=" + dns + " interface=" + interfacename
                 + " object=" + objectname);
         if(topLevelNameContext == null) {
@@ -281,9 +295,11 @@ public class FissuresNamingService {
                     System.out.println("Missing Node");
                     try {
                         NamingContext nc = topLevelNameContext.bind_new_context(topLevelNameContext.to_name(contextName));
-                        // we now have the parent context, so just rebind the object
+                        // we now have the parent context, so just rebind the
+                        // object
                         NameComponent[] nameComponents = topLevelNameContext.to_name(nameString);
-                        nc.rebind(new NameComponent[] { nameComponents[nameComponents.length-1] }, obj );
+                        nc.rebind(new NameComponent[] {nameComponents[nameComponents.length - 1]},
+                                  obj);
                     } catch(AlreadyBound e) {
                         logger.error("Shouldn't be already bound, just got an exception saying it wasn't bound",
                                      e);
@@ -361,7 +377,9 @@ public class FissuresNamingService {
      */
     public NetworkDC getNetworkDC(String dns, String objectname)
             throws NotFound, CannotProceed, InvalidName {
-        if(isMock(dns, objectname)) { return new MockNetworkDC(); }
+        if(isMock(dns, objectname)) {
+            return new MockNetworkDC();
+        }
         return NetworkDCHelper.narrow(getNetworkDCObject(dns, objectname));
     }
 
@@ -379,7 +397,9 @@ public class FissuresNamingService {
      */
     public DataCenter getSeismogramDC(String dns, String objectname)
             throws NotFound, CannotProceed, InvalidName {
-        if(isMock(dns, objectname)) { return new MockDC(); }
+        if(isMock(dns, objectname)) {
+            return new MockDC();
+        }
         logger.debug("before get SeismogramDC Object");
         org.omg.CORBA.Object obj = getSeismogramDCObject(dns, objectname);
         logger.debug("before narrow");
@@ -423,7 +443,9 @@ public class FissuresNamingService {
      */
     public EventDC getEventDC(String dns, String objectname) throws NotFound,
             CannotProceed, InvalidName {
-        if(isMock(dns, objectname)) { return new MockEventDC(); }
+        if(isMock(dns, objectname)) {
+            return new MockEventDC();
+        }
         return EventDCHelper.narrow(getEventDCObject(dns, objectname));
     }
 
