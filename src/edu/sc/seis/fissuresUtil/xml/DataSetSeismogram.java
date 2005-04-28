@@ -51,26 +51,20 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
     }
 
     public boolean equals(Object other) {
-        if(!(getClass().equals(other.getClass()))) { return false; } // end of
-        // if ()
-        if(super.equals(other)) { return true; } // end of if ()
+        if(!(getClass().equals(other.getClass()))) { return false; }
+        if(super.equals(other)) { return true; }
         // objects are not the same, but may be cloned check request filter
         DataSetSeismogram otherDSS = (DataSetSeismogram)other;
-        if(!otherDSS.getName().equals(getName())) { return false; } // end of if
-        // ()
+        if(!otherDSS.getName().equals(getName())) { return false; }
         if(!ChannelIdUtil.areEqual(otherDSS.getRequestFilter().channel_id,
-                                   getRequestFilter().channel_id)) { return false; } // end
-        // of
-        // if
-        // ()
+                                   getRequestFilter().channel_id)) { return false; }
         MicroSecondDate otherB = otherDSS.getBeginMicroSecondDate();
         MicroSecondDate thisB = getBeginMicroSecondDate();
         if(!otherB.equals(thisB)) { return false; } // end of if ()
         MicroSecondDate otherE = otherDSS.getEndMicroSecondDate();
         MicroSecondDate thisE = getEndMicroSecondDate();
         if(!otherE.equals(thisE)) { return false; } // end of if ()
-        if(otherDSS.getDataSet() != getDataSet()) { return false; } // end of if
-        // ()
+        if(otherDSS.getDataSet() != getDataSet()) { return false; }
         return true;
     }
 
