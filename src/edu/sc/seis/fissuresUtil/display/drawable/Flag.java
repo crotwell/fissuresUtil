@@ -77,10 +77,10 @@ public class Flag implements Drawable {
                 }
             }
             if(flagTime.before(timeRange.getBeginTime())
-                    || flagTime.after(timeRange.getEndTime())) return;
+                    || flagTime.after(timeRange.getEndTime()))
+                return;
             canvas.setFont(DisplayUtils.BOLD_FONT);
-            MicroSecondTimeRange time = timeEvent.getTime();
-            int location = getFlagLocation(size, time);
+            int location = getFlagLocation(size, timeRange);
             Rectangle2D.Float stringBounds = new Rectangle2D.Float();
             stringBounds.setRect(canvas.getFontMetrics()
                     .getStringBounds(name, canvas));
@@ -111,12 +111,14 @@ public class Flag implements Drawable {
             canvas.setColor(Color.BLACK);
             canvas.setStroke(DisplayUtils.ONE_PIXEL_STROKE);
             canvas.draw(flag);
-            if(SeismogramDisplay.PRINTING) canvas.setColor(Color.WHITE);
+            if(SeismogramDisplay.PRINTING) {
+                canvas.setColor(Color.WHITE);
+            }
             canvas.drawString(name, location + PADDING / 2, stringBounds.height
                     - PADDING / 2);
         }
     }
-    
+
     private int prevDrawHeight = 0;
 
     public int getFlagLocation(Dimension size, MicroSecondTimeRange timeRange) {
@@ -174,11 +176,11 @@ public class Flag implements Drawable {
                         dataCells.add(EventUtil.getEventInfo(event,
                                                              EventUtil.LOC));
                     } else if(template[i].equals(EVENT_MAG)) { //Event
-                                                               // Magnitude
+                        // Magnitude
                         dataCells.add(EventUtil.getEventInfo(event,
                                                              EventUtil.MAG));
                     } else if(template[i].equals(EVENT_ORIG)) { //Event Origin
-                                                                // Time
+                        // Time
                         dataCells.add(EventUtil.getEventInfo(event,
                                                              EventUtil.TIME));
                     } else if(template[i].equals(EVENT_DEPTH)) { //Event Depth
@@ -190,7 +192,7 @@ public class Flag implements Drawable {
                         dataCells.add(EventUtil.getEventInfo(event,
                                                              EventUtil.LAT));
                     } else if(template[i].equals(EVENT_LON)) { //Event
-                                                               // Longitude
+                        // Longitude
                         dataCells.add(EventUtil.getEventInfo(event,
                                                              EventUtil.LON));
                     } else if(template[i].equals(ORIGIN_DIFF)) { //flagTime-originTime
@@ -199,12 +201,12 @@ public class Flag implements Drawable {
                         QuantityImpl timeInSeconds = interval.convertTo(UnitImpl.SECOND);
                         dataCells.add(twoDecimal.format(timeInSeconds.get_value()));
                     } else if(template[i].equals(DISTANCE_FROM_ORIG)) { //Distance
-                                                                        // from
-                                                                        // Origin,
-                                                                        // if
-                                                                        // that
-                                                                        // wasn't
-                                                                        // obvious
+                        // from
+                        // Origin,
+                        // if
+                        // that
+                        // wasn't
+                        // obvious
                         QuantityImpl distance = DisplayUtils.calculateDistance(dss);
                         dataCells.add(UnitDisplayUtil.formatQuantityImpl(distance));
                     } else if(template[i].equals(BACK_AZIMUTH)) {
@@ -290,9 +292,9 @@ public class Flag implements Drawable {
             } else if(template[i].equals(ORIGIN_DIFF)) { //flagTime-originTime
                 dataCells.add(ORIGIN_DIFF);
             } else if(template[i].equals(DISTANCE_FROM_ORIG)) { //Distance from
-                                                                // Origin, if
-                                                                // that wasn't
-                                                                // obvious
+                // Origin, if
+                // that wasn't
+                // obvious
                 dataCells.add(DISTANCE_FROM_ORIG);
             } else if(template[i].equals(BACK_AZIMUTH)) {
                 dataCells.add(BACK_AZIMUTH);
@@ -360,11 +362,11 @@ public class Flag implements Drawable {
     public static final String NAME = "Flag Name";
 
     public static final String ORIGIN_DIFF = "Time from Origin (s)"; //flag
-                                                                     // time
-                                                                     // minus
-                                                                     // origin
-                                                                     // time
 
+    // time
+    // minus
+    // origin
+    // time
     public static final String TAUP_P = "TauP P Wave (s)";
 
     public static final String TIME_DIFF_ORIG_P = "Prediction Difference (s)";
