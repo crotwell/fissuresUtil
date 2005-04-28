@@ -20,6 +20,7 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
@@ -402,6 +403,21 @@ public class DisplayUtils {
             theInt = Integer.parseInt(hexChar + "");
         }
         return theInt;
+    }
+
+    public static double[] getShiftAndScale(MicroSecondTimeRange newRange,
+                                            MicroSecondTimeRange curRange) {
+        MicroSecondDate newBegin = newRange.getBeginTime();
+        MicroSecondDate currentBegin = curRange.getBeginTime();
+        double currentInterval = valAsMicro(curRange.getInterval());
+        double shift = (newBegin.getMicroSecondTime() - currentBegin.getMicroSecondTime())
+                / currentInterval;
+        double scale = valAsMicro(newRange.getInterval()) / currentInterval;
+        return new double[] {shift, scale};
+    }
+
+    private static double valAsMicro(TimeInterval timeInt) {
+        return timeInt.convertTo(UnitImpl.MICROSECOND).getValue();
     }
 
     public static final String UP = "Up";
