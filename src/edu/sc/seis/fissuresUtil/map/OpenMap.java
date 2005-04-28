@@ -110,9 +110,6 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
 
     /**
      * Create a map with a shape layer and a graticule
-     * 
-     * @param shapefile -
-     *            the file to be used in the shapelayer
      */
     public OpenMap(Properties shapeLayerProps) {
         this(shapeLayerProps, true);
@@ -235,7 +232,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
             int threshold = Integer.parseInt((String)p.get("lineWidthThreshold"));
             if(threshold >= 0) {
                 int overviewWidth = Integer.parseInt((String)p.get("overviewLineWidth"));
-                if (overviewWidth <= 0) {
+                if(overviewWidth <= 0) {
                     overviewWidth = 1;
                 }
                 if(mapBean.getScale() < threshold) {
@@ -288,7 +285,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         mapHandler.add(topol);
         lh.addLayer(topol, lh.getLayers().length);
         for(int i = 0; i < shapeLayers.size(); i++) {
-            Layer cur =  (FissuresShapeLayer)shapeLayers.get(i);
+            Layer cur = (FissuresShapeLayer)shapeLayers.get(i);
             Properties props = cur.getProperties(null);
             props.remove("fillColor");
             cur.setProperties(props);
@@ -399,13 +396,11 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
 
     public void updateLayerStatus(LayerStatusEvent event) {
         layerStatusMap.put(event.getLayer(), new Integer(event.getStatus()));
-        logger.debug("Layer " + event.getLayer().getName() + " status: "
-                + translateLayerStatus(event.getStatus()));
     }
 
     //look at LayerStatusEvent in openmap for status translation
     public int getLayerStatus(Layer layer) {
-        Integer statusObj = (Integer)layerStatusMap.get((FissuresShapeLayer)shapeLayers.get(0));
+        Integer statusObj = (Integer)layerStatusMap.get(shapeLayers.get(0));
         return statusObj.intValue();
     }
 
@@ -506,13 +501,13 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         BasicConfigurator.configure();
         final OpenMap om = new OpenMap();
         om.setActiveMouseMode(new PanTool(om));
-//        System.out.println("before if statement");
-//        if(args.length > 2) {
-//            System.out.println("if!");
-//            om.setEtopoLayer("edu/sc/seis/mapData", args[2]);
-//        } else {
-//            System.out.println("else!");
-            om.setEtopoLayer("edu/sc/seis/mapData");
+        //        System.out.println("before if statement");
+        //        if(args.length > 2) {
+        //            System.out.println("if!");
+        //            om.setEtopoLayer("edu/sc/seis/mapData", args[2]);
+        //        } else {
+        //            System.out.println("else!");
+        om.setEtopoLayer("edu/sc/seis/mapData");
         //}
         //        om.getEventLayer()
         //                .eventDataChanged(new
