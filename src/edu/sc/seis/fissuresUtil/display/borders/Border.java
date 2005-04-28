@@ -41,20 +41,17 @@ public abstract class Border extends JComponent {
             if(side == TOP) {
                 labelTickHeight = -labelTickLength;
                 tickHeight = -tickLength;
+            } else if(side == BOTTOM) {
+                labelTickHeight = labelTickLength;
+                tickHeight = tickLength;
+            } else if(side == RIGHT) {
+                labelTickWidth = labelTickLength;
+                tickWidth = tickLength;
+            } else if(side == LEFT) {
+                labelTickWidth = -labelTickLength;
+                tickWidth = -tickLength;
             } else
-                if(side == BOTTOM) {
-                    labelTickHeight = labelTickLength;
-                    tickHeight = tickLength;
-                } else
-                    if(side == RIGHT) {
-                        labelTickWidth = labelTickLength;
-                        tickWidth = tickLength;
-                    } else
-                        if(side == LEFT) {
-                            labelTickWidth = -labelTickLength;
-                            tickWidth = -tickLength;
-                        } else
-                            throw new IllegalArgumentException("side must be LEFT, RIGHT, BOTTOM, or TOP as defined in Border");
+                throw new IllegalArgumentException("side must be LEFT, RIGHT, BOTTOM, or TOP as defined in Border");
         }
         if(side == LEFT || side == RIGHT) {
             this.direction = VERTICAL;
@@ -290,7 +287,9 @@ public abstract class Border extends JComponent {
                 nextLabelPoint = getFirstPoint();
                 g2d.setFont(getFont());
                 for(int i = 0; i < numLabelTicks; i++) {
-                    if((value >= minTickValue && value <= maxTickValue)) {
+                    if(value >= minTickValue && value <= maxTickValue
+                            && value >= range.min_value
+                            && value <= range.max_value) {
                         label(getLabel(value),
                               nextLabelPoint,
                               g2d,
@@ -325,9 +324,7 @@ public abstract class Border extends JComponent {
                 else
                     y = labelTickLength + (float)bounds.getHeight() - 3;
             }
-            if(y + trans <= getSize().height
-                    && y - bounds.getHeight() + trans >= 0)
-                g2d.drawString(label, x, y);
+            g2d.drawString(label, x, y);
         }
 
         //returns the position of the first label tick. 1st element is x, 2nd
