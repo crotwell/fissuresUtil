@@ -99,7 +99,6 @@ public class FissuresNamingService {
     public org.omg.CORBA.Object getRoot() {
         org.omg.CORBA.Object rootObj = null;
         if(nameServiceCorbaLoc != null) {
-            logger.debug("corbaloc not null");
             logger.info("Using name service corba loc=" + nameServiceCorbaLoc);
             rootObj = orb.string_to_object(nameServiceCorbaLoc);
             if(rootObj == null) {
@@ -108,7 +107,7 @@ public class FissuresNamingService {
             }
             logger.debug("got root object");
         } else {
-            logger.debug("corbaloc is  null, resolve initial references");
+            logger.debug("resolve initial references");
             try {
                 // get a reference to the Naming Service root_context
                 rootObj = orb.resolve_initial_references("NameService");
