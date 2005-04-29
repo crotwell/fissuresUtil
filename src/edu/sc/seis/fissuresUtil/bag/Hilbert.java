@@ -42,27 +42,59 @@ public class Hilbert implements LocalSeismogramFunction {
         return out;
     }
     
-    public double[] unwrapPhase(Cmplx[] data) {
-        double[] out = new double[data.length];
+    public double[] unwrapPhase(Cmplx[] analytic) {
+        double[] out = new double[analytic.length];
         int wraps = 0;
-        double a = data[0].phs();
+        double a = analytic[0].phs();
         out[0] = a;
-        double b = data[1].phs();
+        double b = analytic[1].phs();
         out[1] = b;
         double c;
         for(int i = 2; i < out.length; i++) {
-            c = data[i].phs();
-            if (2*b-a > Math.PI && c < 0) {
+            // guess no extra wrapping
+            c = analytic[i].phs()+wraps*2*Math.PI;
+            if (b - c > Math.PI) {
                 // unwrap up
                 wraps++;
-            } else if (2*b-a < -Math.PI && c > 0) {
+                c = analytic[i].phs()+wraps*2*Math.PI;
+            } else if (b- c < -Math.PI) {
                 // unwrap down
                 wraps--;
+                c = analytic[i].phs()+wraps*2*Math.PI;
             }
-            out[i] = c + wraps*2*Math.PI;
+            out[i] = c;
             a = b;
             b = c;
         }
         return out;
     }
+
+    public double[] phase(Cmplx[] analytic) {
+        double[] phase = new double[analytic.length];
+        for(int i = 0; i < analytic.length; i++) {
+            phase[i] = analytic[i].phs();
+        }
+        return phase;
+    }
+    
+    public double[] envelope(Cmplx[] analytic) {
+        double[] amp = new double[analytic.length];
+        for(int i = 0; i < analytic.length; i++) {
+            amp[i] = analytic[i].mag();
+        }
+        return amp;
+    }
+    
+    public double[] instantFreq(Cmplx[] analytic) {
+        double[] phase = new double[analytic.length];
+        phase = unwrapPhase(analytic);
+        double[] freq = new double[phase.length];
+        freq[0] = phase[0];
+        for(int i = 1; i < freq.length; i++) {
+            //freq[i] = (phase[i]-phase[i-1])/radial.getSampling().getPeriod().getValue(UnitImpl.SECOND);
+            freq[i] = (phase[i]-phase[i-1]);
+        }
+        return freq;
+    }
+    
 }
