@@ -67,9 +67,7 @@ public class ImageAugmenter {
                              Paint fill,
                              Paint strokePaint,
                              int strokeWidth) {
-        int realX = translateCoord(x, diameter);
-        int realY = translateCoord(translateY(y), diameter);
-        int[] triCoords = getTriangleCoords(new int[] {realX, realY},
+        int[] triCoords = getTriangleCoords(new int[] {x, translateY(y)},
                                             diameter,
                                             strokeWidth);
         Polygon poly = new Polygon(new int[] {triCoords[0],
@@ -152,29 +150,33 @@ public class ImageAugmenter {
         int[] triCoords = new int[6];
         double staRadius = staDiameter / 2 + staStrokeWidth;
         for(int i = 0; i < 3; i++) {
-            double rads = i * TWO_THIRDS_PI;
+            double rads = i * TWO_THIRDS_PI - ONE_HALF_PI;
             triCoords[i * 2] = (int)(centerCoords[0] + staRadius
-                    * Math.sin(rads));
-            triCoords[i * 2 + 1] = (int)(centerCoords[1] + staRadius
                     * Math.cos(rads));
+            triCoords[i * 2 + 1] = (int)(centerCoords[1] + staRadius
+                    * Math.sin(rads));
         }
+        //System.out.println("triCoords: " + printIntArray(triCoords));
         return triCoords;
+    }
+
+    public static String printIntArray(int[] ints) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[ ");
+        for(int i = 0; i < ints.length; i++) {
+            buf.append(ints[i]);
+            if(i < ints.length - 1) {
+                buf.append(", ");
+            }
+        }
+        buf.append(" ]");
+        return buf.toString();
     }
 
     public static void main(String[] args) {
         ImageAugmenter imgAug = new ImageAugmenter(args[0], true);
-        imgAug.drawCircle(300,
-                          300,
-                          20,
-                          new Color(0, 0, 0, 0),
-                          Color.RED,
-                          2);
-        imgAug.drawTriangle(350,
-                            345,
-                            10,
-                            new Color(0, 0, 255),
-                            Color.WHITE,
-                            1);
+        imgAug.drawCircle(300, 300, 20, new Color(0, 0, 0, 0), Color.RED, 2);
+        imgAug.drawTriangle(350, 345, 10, new Color(0, 0, 255), Color.WHITE, 1);
         try {
             imgAug.outputToPNG(args[0] + "augmented.png");
         } catch(IOException e) {
@@ -183,6 +185,8 @@ public class ImageAugmenter {
     }
 
     private static double TWO_THIRDS_PI = Math.PI * (2 / 3d);
+
+    private static double ONE_HALF_PI = Math.PI * (1 / 2d);
 
     private boolean yFromBottom = false;
 
