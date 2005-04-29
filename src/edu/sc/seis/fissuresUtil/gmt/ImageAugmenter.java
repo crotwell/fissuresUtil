@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
@@ -24,14 +25,22 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  */
 public class ImageAugmenter {
 
-    public ImageAugmenter(String imgFileLoc) {
+    public ImageAugmenter(String imgFileLoc) throws IOException {
         this(imgFileLoc, false);
     }
 
-    public ImageAugmenter(String imgFileLoc, boolean yFromBottom) {
+    public ImageAugmenter(String imgFileLoc, boolean yFromBottom)
+            throws IOException {
         this.yFromBottom = yFromBottom;
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Image img = toolkit.getImage(imgFileLoc);
+        Image img = null;
+        try {
+            img = toolkit.getImage(getClass().getClassLoader()
+                    .getResource(imgFileLoc));
+        } catch(Exception e) {
+            logger.info("loading image with classloader failed.  maybe it's a normal file?  I'm trying that next.");
+            img = toolkit.getImage(imgFileLoc);
+        }
         JPanel panel = new JPanel();
         MediaTracker tracker = new MediaTracker(panel);
         tracker.addImage(img, 0);
@@ -48,10 +57,10 @@ public class ImageAugmenter {
         g2d.drawImage(img, 0, 0, null);
     }
 
-    private void drawShape(Shape shape,
-                           Paint fill,
-                           Paint strokePaint,
-                           int strokeWidth) {
+    public void drawShape(Shape shape,
+                          Paint fill,
+                          Paint strokePaint,
+                          int strokeWidth) {
         Graphics2D g2d = (Graphics2D)image.getGraphics();
         g2d.setPaint(fill);
         g2d.fill(shape);
@@ -107,6 +116,14 @@ public class ImageAugmenter {
         } else {
             return y;
         }
+    }
+    
+    public void cropImage(int newWidth, int newHeight, int left, int top){
+        BufferedImage oldImage = image;
+        image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2D = image.createGraphics();
+        g2D.drawImage(oldImage, null, -left, -top);
+        oldImage = null;
     }
 
     public void outputToPNG(String filename) throws IOException {
@@ -173,17 +190,23 @@ public class ImageAugmenter {
     }
 
     public static void main(String[] args) {
-        ImageAugmenter imgAug = new ImageAugmenter(args[0], true);
-        imgAug.drawCircle(300,
-                          300,
-                          5,
-                          Color.YELLOW,
-                          Color.BLACK,
-                          1);
-        imgAug.drawCircle(300, 300, 50, new Color(0, 0, 0, 0), Color.YELLOW, 2);
-        imgAug.drawTriangle(350, 345, 10, new Color(0, 0, 255), Color.WHITE, 1);
         try {
-            imgAug.outputToPNG(args[0] + "_augmented.png");
+            ImageAugmenter imgAug = new ImageAugmenter(args[0], true);
+            imgAug.drawCircle(300, 300, 5, Color.YELLOW, Color.BLACK, 1);
+            imgAug.drawCircle(300,
+                              300,
+                              50,
+                              new Color(0, 0, 0, 0),
+                              Color.YELLOW,
+                              2);
+            imgAug.drawTriangle(350,
+                                345,
+                                10,
+                                new Color(0, 0, 255),
+                                Color.WHITE,
+                                1);
+            imgAug.cropImage(790, 426, 5, 169);
+            imgAug.outputToPNG(args[1]);
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -192,6 +215,8 @@ public class ImageAugmenter {
     private static double TWO_THIRDS_PI = Math.PI * (2 / 3d);
 
     private static double ONE_HALF_PI = Math.PI * (1 / 2d);
+
+    private static Logger logger = Logger.getLogger(ImageAugmenter.class);
 
     private boolean yFromBottom = false;
 
