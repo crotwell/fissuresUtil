@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -439,8 +440,23 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         loc.delete();
         temp.renameTo(loc);
     }
-
-    public void writeMapToPNG(String filename) throws IOException {
+    
+    public void writeMapToPNG(String filename) throws IOException{
+        writeMapToPNG(new File(filename));
+    }
+    
+    public void writeMapToPNG(File loc) throws IOException {
+        File parent = loc.getAbsoluteFile().getParentFile();
+        parent.mkdirs();
+        File temp = File.createTempFile(loc.getName(), null, parent);
+        writeMapToPNG(new FileOutputStream(temp));
+        loc.delete();
+        temp.renameTo(loc);
+        logger.debug(ExceptionReporterUtils.getMemoryUsage()
+                + " after write image to file");
+    }
+    
+    public void writeMapToPNG(OutputStream out) throws IOException {
         synchronized(OpenMap.class) {
             try {
                 getGlobalShapeLayer().setOverrideProjectionChanged(true);
@@ -459,15 +475,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
                     logger.debug("rendering " + layers[i].getName());
                     layers[i].renderDataForProjection(proj, g);
                 }
-                File loc = new File(filename);
-                File parent = loc.getAbsoluteFile().getParentFile();
-                parent.mkdirs();
-                File temp = File.createTempFile(loc.getName(), null, parent);
-                ImageIO.write(bufImg, "png", temp);
-                loc.delete();
-                temp.renameTo(loc);
-                logger.debug(ExceptionReporterUtils.getMemoryUsage()
-                        + " after write image to file");
+                ImageIO.write(bufImg, "png", out);
             } finally {
                 getGlobalShapeLayer().setOverrideProjectionChanged(false);
             }
