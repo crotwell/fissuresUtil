@@ -33,9 +33,7 @@ public class MapCropper {
     }
 
     public void crop(String filename) throws InterruptedException, IOException {
-        int newWidth = width - right - left;
-        int newHeight = height - top - bottom;
-        String command = "mogrify -crop " + newWidth + "x" + newHeight + "+"
+        String command = "mogrify -crop " + getNewWidth() + "x" + getNewHeight() + "+"
                 + left + "+" + top + " " + filename;
         GenericCommandExecute.execute(command);
     }
@@ -130,6 +128,14 @@ public class MapCropper {
 
     public int getWidth() {
         return width;
+    }
+    
+    public int getNewWidth(){
+        return width - right - left;
+    }
+    
+    public int getNewHeight(){
+        return height - top - bottom;
     }
 
     private int width, height, leftOffset, bottomOffset, top, right, bottom,
