@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.borders;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.Iterator;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
@@ -48,6 +49,8 @@ public class TriangleBorder extends NoTickBorder {
         }
 
         public void draw(UnitRangeImpl range, Graphics2D g2d) {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                 RenderingHints.VALUE_ANTIALIAS_ON);
             double size = getLimitingSize();//total amount of space to fill
             LayoutEvent ev = rsd.getLayoutConfig().getLayout();
             Iterator it = ev.iterator();
@@ -72,6 +75,8 @@ public class TriangleBorder extends NoTickBorder {
                 g2d.setColor(new Color(64, 44, 127));//REV Purple
                 g2d.drawPolygon(triangle[0], triangle[1], 3);
             }
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                 RenderingHints.VALUE_ANTIALIAS_DEFAULT);
             super.draw(range, g2d);
         }
     }
