@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.gmt;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
@@ -45,8 +44,8 @@ public class ImageAugmenter {
         image = new BufferedImage(img.getWidth(null),
                                   img.getHeight(null),
                                   BufferedImage.TYPE_INT_ARGB);
-        Graphics g = image.createGraphics();
-        g.drawImage(img, 0, 0, null);
+        Graphics2D g2d = image.createGraphics();
+        g2d.drawImage(img, 0, 0, null);
     }
 
     private void drawShape(Shape shape,
@@ -175,10 +174,16 @@ public class ImageAugmenter {
 
     public static void main(String[] args) {
         ImageAugmenter imgAug = new ImageAugmenter(args[0], true);
-        imgAug.drawCircle(300, 300, 20, new Color(0, 0, 0, 0), Color.RED, 2);
+        imgAug.drawCircle(300,
+                          300,
+                          5,
+                          Color.YELLOW,
+                          Color.BLACK,
+                          1);
+        imgAug.drawCircle(300, 300, 50, new Color(0, 0, 0, 0), Color.YELLOW, 2);
         imgAug.drawTriangle(350, 345, 10, new Color(0, 0, 255), Color.WHITE, 1);
         try {
-            imgAug.outputToPNG(args[0] + "augmented.png");
+            imgAug.outputToPNG(args[0] + "_augmented.png");
         } catch(IOException e) {
             e.printStackTrace();
         }
