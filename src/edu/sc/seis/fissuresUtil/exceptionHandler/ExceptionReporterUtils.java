@@ -54,6 +54,7 @@ public class ExceptionReporterUtils{
         sysInfo += "user.name : "+System.getProperty("user.name")+"\n";
         sysInfo += "user.timeZone : "+System.getProperty("user.timeZone")+"\n";
         sysInfo += "user.region : "+System.getProperty("user.region")+"\n";
+        sysInfo += "Memory : "+ExceptionReporterUtils.getMemoryUsage()+"\n";
 
         sysInfo += "\n\n\n Other Properties:\n";
         StringWriter stringWriter = new StringWriter();
