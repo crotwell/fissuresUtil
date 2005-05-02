@@ -79,6 +79,8 @@ public class TriangleBorder extends NoTickBorder {
     }
 
     public static void drawTriangle(Graphics2D g2d, Color c) {
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                             RenderingHints.VALUE_ANTIALIAS_ON);
         drawTriangle(g2d, c, TRIANGLE_WIDTH / 2, TRIANGLE_WIDTH / 2);
     }
 
