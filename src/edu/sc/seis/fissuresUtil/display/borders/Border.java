@@ -310,24 +310,36 @@ public abstract class Border extends JComponent {
             Rectangle2D bounds = g2d.getFontMetrics().getStringBounds(label,
                                                                       g2d);
             float x, y;
+            double percentageDrawn = 1;
             if(direction == VERTICAL) {
                 y = nextLabelPoint[1] + (float)(bounds.getHeight() / 4);
                 int xMod = labelTickLength + 2;
-                if(side == LEFT)
+                if(side == LEFT) {
                     x = nextLabelPoint[0] - xMod - (int)bounds.getWidth();
-                else
+                } else {
                     x = nextLabelPoint[0] + xMod;
+                }
+                if(y < 0) {
+                    percentageDrawn = (bounds.getHeight() + y)
+                            / bounds.getHeight();
+                } else if((y + bounds.getHeight()) > getHeight()) {
+                    percentageDrawn = (getHeight() - y) / bounds.getHeight();
+                }
             } else {//Must be horizontal
                 x = nextLabelPoint[0] - (int)(bounds.getWidth() / 2);
-                if(side == TOP)
+                if(side == TOP) {
                     y = nextLabelPoint[1] - labelTickLength - 3;
-                else
+                } else {
                     y = labelTickLength + (float)bounds.getHeight() - 3;
+                }
             }
-            g2d.drawString(label, x, y);
-        }
+            if(percentageDrawn >= .6) {//Only draw a label if 60 percent or
+                // more of the text is visible
+                g2d.drawString(label, x, y);
+            }
+        } //returns the position of the first label tick. 1st element is
 
-        //returns the position of the first label tick. 1st element is x, 2nd
+        // x, 2nd
         //element is y
         protected float[] getFirstPoint() {
             float[] point = new float[2];
