@@ -60,7 +60,6 @@ public class TriangleBorder extends NoTickBorder {
                 LayoutData cur = (LayoutData)it.next();
                 float centerPoint = (float)((cur.getStart() + (cur.getEnd() - cur.getStart()) / 2) * size);
                 float[] point = getNextPoint(centerPoint, firstPoint);
-                g2d.setColor(colors[(i++ % colors.length)]);
                 if(side == LEFT) {
                     point[0] -= 10;
                 } else if(side == RIGHT) {
@@ -68,12 +67,10 @@ public class TriangleBorder extends NoTickBorder {
                 } else if(side == BOTTOM) {
                     point[1] += 25;
                 }
-                int[][] triangle = makeTriangle((int)point[0],
-                                                (int)point[1] - 15,
-                                                15);
-                g2d.fillPolygon(triangle[0], triangle[1], 3);
-                g2d.setColor(new Color(64, 44, 127));//REV Purple
-                g2d.drawPolygon(triangle[0], triangle[1], 3);
+                drawTriangle(g2d,
+                             colors[(i++ % colors.length)],
+                             (int)point[0],
+                             (int)point[1] - TRIANGLE_WIDTH);
             }
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                  RenderingHints.VALUE_ANTIALIAS_DEFAULT);
@@ -81,8 +78,23 @@ public class TriangleBorder extends NoTickBorder {
         }
     }
 
-    private int[][] makeTriangle(int centerX, int centerY, int width) {
-        int halfWidth = width / 2;
+    public static void drawTriangle(Graphics2D g2d, Color c) {
+        drawTriangle(g2d, c, TRIANGLE_WIDTH / 2, TRIANGLE_WIDTH / 2);
+    }
+
+    public static void drawTriangle(Graphics2D g2d,
+                                    Color c,
+                                    int centerX,
+                                    int centerY) {
+        g2d.setColor(c);
+        int[][] triangle = makeTriangle(centerX, centerY);
+        g2d.fillPolygon(triangle[0], triangle[1], 3);
+        g2d.setColor(new Color(64, 44, 127));//REV Purple
+        g2d.drawPolygon(triangle[0], triangle[1], 3);
+    }
+
+    private static int[][] makeTriangle(int centerX, int centerY) {
+        int halfWidth = TRIANGLE_WIDTH / 2;
         int[] x = {centerX - halfWidth, centerX, centerX + halfWidth};
         int[] y = {centerY + halfWidth,
                    centerY - halfWidth,
@@ -91,6 +103,8 @@ public class TriangleBorder extends NoTickBorder {
     }
 
     private Color[] colors;
+
+    public static final int TRIANGLE_WIDTH = 15;
 
     RecordSectionDisplay rsd;
 }
