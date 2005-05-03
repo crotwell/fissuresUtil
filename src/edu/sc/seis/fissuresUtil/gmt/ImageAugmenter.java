@@ -34,11 +34,10 @@ public class ImageAugmenter {
         this.yFromBottom = yFromBottom;
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Image img = null;
-        try {
+        if (imgFileLoc.startsWith("jar:")){
             img = toolkit.getImage(getClass().getClassLoader()
-                    .getResource(imgFileLoc));
-        } catch(Exception e) {
-            logger.info("loading image with classloader failed.  maybe it's a normal file?  I'm trying that next.");
+                    .getResource(imgFileLoc.substring(4)));
+        } else {
             img = toolkit.getImage(imgFileLoc);
         }
         JPanel panel = new JPanel();
