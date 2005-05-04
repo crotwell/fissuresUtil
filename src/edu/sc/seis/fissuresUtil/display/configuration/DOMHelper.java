@@ -44,8 +44,10 @@ public class DOMHelper {
         try {
             Node n = XPathAPI.selectSingleNode(el, xpath);
             if(n == null) {
-                if(defaultValue == null) { throw new RuntimeException("No nodes found matching XPath "
-                        + xpath); }
+                if(defaultValue == null) {
+                    throw new RuntimeException("No nodes found matching XPath "
+                            + xpath);
+                }
                 return defaultValue;
             } else {
                 return n.getNodeValue();
@@ -92,7 +94,7 @@ public class DOMHelper {
     }
 
     public static Element createElement(String loc) throws Exception {
-        ClassLoader cl = SeismogramDisplayConfigurationTest.class.getClassLoader();
+        ClassLoader cl = DOMHelper.class.getClassLoader();
         InputStream source = cl.getResourceAsStream(loc);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -100,5 +102,4 @@ public class DOMHelper {
         Document doc = builder.parse(source);
         return doc.getDocumentElement();
     }
-
 }
