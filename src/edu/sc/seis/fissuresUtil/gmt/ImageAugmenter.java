@@ -8,6 +8,7 @@ import java.awt.MediaTracker;
 import java.awt.Paint;
 import java.awt.Polygon;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
@@ -59,12 +60,13 @@ public class ImageAugmenter {
     public void drawShape(Shape shape,
                           Paint fill,
                           Paint strokePaint,
-                          int strokeWidth) {
+                          float strokeWidth) {
         Graphics2D g2d = (Graphics2D)image.getGraphics();
         g2d.setPaint(fill);
         g2d.fill(shape);
         g2d.setPaint(strokePaint);
-        g2d.setStroke(new BasicStroke(strokeWidth));
+        Stroke stroke = new BasicStroke(strokeWidth);
+        g2d.setStroke(stroke);
         g2d.draw(shape);
     }
 
@@ -73,7 +75,7 @@ public class ImageAugmenter {
                              int diameter,
                              Paint fill,
                              Paint strokePaint,
-                             int strokeWidth) {
+                             float strokeWidth) {
         int[] triCoords = getTriangleCoords(new int[] {x, translateY(y)},
                                             diameter,
                                             strokeWidth);
@@ -92,7 +94,7 @@ public class ImageAugmenter {
                            int diameter,
                            Paint fill,
                            Paint strokePaint,
-                           int strokeWidth) {
+                           float strokeWidth) {
         int realX = translateCoord(x, diameter);
         int realY = translateCoord(translateY(y), diameter);
         Shape shape = new Arc2D.Double(realX,
@@ -161,7 +163,7 @@ public class ImageAugmenter {
 
     public static int[] getTriangleCoords(int[] centerCoords,
                                           int staDiameter,
-                                          int staStrokeWidth) {
+                                          float staStrokeWidth) {
         int[] triCoords = new int[6];
         double staRadius = staDiameter / 2 + staStrokeWidth;
         for(int i = 0; i < 3; i++) {
