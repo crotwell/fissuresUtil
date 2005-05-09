@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Category;
+import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.UserException;
 import org.omg.CosNaming.Binding;
 import org.omg.CosNaming.BindingHolder;
@@ -102,8 +103,9 @@ public class FissuresNamingService {
             logger.info("Using name service corba loc=" + nameServiceCorbaLoc);
             rootObj = orb.string_to_object(nameServiceCorbaLoc);
             if(rootObj == null) {
-                throw new RuntimeException("Unable to make an object from "
-                        + nameServiceCorbaLoc);
+                throw new UNKNOWN("Got a null object back from string_to_object on "
+                        + nameServiceCorbaLoc
+                        + "  This probably indicates something wrong with the name server given, but it's hard to say since our orb just returned null.");
             }
             logger.debug("got root object");
         } else {
