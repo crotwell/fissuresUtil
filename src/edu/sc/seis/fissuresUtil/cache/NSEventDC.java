@@ -6,6 +6,9 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.apache.log4j.Logger;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventDCOperations;
@@ -33,18 +36,18 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
         eventDC = null;
     }
 
-    public EventDCOperations getEventDC(){
+    public EventDCOperations getEventDC() {
         return (EventDC)getCorbaObject();
     }
-    
+
     public synchronized org.omg.CORBA.Object getCorbaObject() {
         if(eventDC == null) {
             try {
                 try {
-                    setEventDC(namingService.getEventDC(serverDNS, serverName));
+                    loadEventDC();
                 } catch(Throwable t) {
                     namingService.reset();
-                    eventDC = namingService.getEventDC(serverDNS, serverName);
+                    loadEventDC();
                 }
             } catch(org.omg.CosNaming.NamingContextPackage.NotFound e) {
                 repackageException(e);
@@ -54,7 +57,11 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
                 repackageException(e);
             } // end of try-catch
         } // end of if ()
-        return (EventDC)eventDC;
+        return (org.omg.CORBA.Object)eventDC;
+    }
+
+    private void loadEventDC() throws NotFound, CannotProceed, InvalidName {
+        setEventDC(namingService.getEventDC(serverDNS, serverName));
     }
 
     protected void repackageException(org.omg.CORBA.UserException e) {

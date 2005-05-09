@@ -13,49 +13,50 @@ import edu.iris.Fissures.IfEvent.EventFinder;
  */
 public class RetryEventDC extends ProxyEventDC {
 
-	public RetryEventDC(ProxyEventDC eventDC, int retry){
-		setEventDC(eventDC);
-		this.retry = retry;
-	}
-	
-	public EventFinder a_finder() {
-	       int count = 0;
-	        SystemException lastException = null;
-	        while (count < retry) {
-	            try {
-	                return eventDC.a_finder();
-	            } catch (SystemException t) {
-	                lastException = t;
-	                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
-	            } catch (OutOfMemoryError e) {
-	                // repackage to get at least a partial stack trace
-	                throw new RuntimeException("Out of memory", e);
-	            }
-	            count++;
-	        }
-	        throw lastException;
-	}
+    public RetryEventDC(ProxyEventDC eventDC, int retry) {
+        setEventDC(eventDC);
+        this.retry = retry;
+    }
 
-	public EventChannelFinder a_channel_finder() {
-	       int count = 0;
-	        SystemException lastException = null;
-	        while (count < retry) {
-	            try {
-	                return eventDC.a_channel_finder();
-	            } catch (SystemException t) {
-	                lastException = t;
-	                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
-	            } catch (OutOfMemoryError e) {
-	                // repackage to get at least a partial stack trace
-	                throw new RuntimeException("Out of memory", e);
-	            }
-	            count++;
-	        }
-	        throw lastException;
-	}
-	
-	protected int retry;
-	
-	private static final Logger logger = Logger.getLogger(RetryEventDC.class);
+    public EventFinder a_finder() {
+        int count = 0;
+        SystemException lastException = null;
+        while(count < retry) {
+            try {
+                return getEventDC().a_finder();
+            } catch(SystemException t) {
+                lastException = t;
+                logger.warn("Caught exception, retrying " + count + " of "
+                        + retry, t);
+            } catch(OutOfMemoryError e) {
+                // repackage to get at least a partial stack trace
+                throw new RuntimeException("Out of memory", e);
+            }
+            count++;
+        }
+        throw lastException;
+    }
 
+    public EventChannelFinder a_channel_finder() {
+        int count = 0;
+        SystemException lastException = null;
+        while(count < retry) {
+            try {
+                return getEventDC().a_channel_finder();
+            } catch(SystemException t) {
+                lastException = t;
+                logger.warn("Caught exception, retrying " + count + " of "
+                        + retry, t);
+            } catch(OutOfMemoryError e) {
+                // repackage to get at least a partial stack trace
+                throw new RuntimeException("Out of memory", e);
+            }
+            count++;
+        }
+        throw lastException;
+    }
+
+    protected int retry;
+
+    private static final Logger logger = Logger.getLogger(RetryEventDC.class);
 }
