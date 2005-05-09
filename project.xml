@@ -255,10 +255,20 @@
                     <filtering>false</filtering>
                 </resource>
                 <resource>
+                    <directory>tests/database/edu/sc/seis/fissuresUtil/database/util</directory>
+                    <targetPath>edu/sc/seis/fissuresUtil/database/util/</targetPath>
+                    <includes>
+                        <include>*.vm</include>
+                    </includes>
+                    <filtering>false</filtering>
+                </resource>
+                <resource>
                     <directory>tests/unit/edu/sc/seis/fissuresUtil/bag</directory>
                     <targetPath>edu/sc/seis/fissuresUtil/bag/</targetPath>
                     <includes>
                         <include>03.141.18.40.32.0551.6.m</include>
+                        <include>delta.sac</include>
+                        <include>hilbert_delta.sac</include>
                     </includes>
                     <filtering>false</filtering>
                 </resource>
