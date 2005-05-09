@@ -1,4 +1,3 @@
-
 package edu.sc.seis.fissuresUtil.sac;
 
 import java.text.DecimalFormat;
@@ -39,135 +38,124 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 
 /**
- * SacToFissures.java
- *
- *
- * Created: Thu Mar  2 13:48:26 2000
- *
+ * SacToFissures.java Created: Thu Mar 2 13:48:26 2000
+ * 
  * @author Philip Crotwell
  * @version
  */
+public class SacToFissures {
 
-public class SacToFissures  {
-    
-    public SacToFissures() {
-        
-    }
+    public SacToFissures() {}
 
-    /** Gets a LocalSeismogram. The data comes from the sac file, while
-     *  the SeismogramAttr comes from attr. A check is made on the
-     *  beginTime, numPoints and sampling and the sac file is considered
-     *  correct for these three. */
+    /**
+     * Gets a LocalSeismogram. The data comes from the sac file, while the
+     * SeismogramAttr comes from attr. A check is made on the beginTime,
+     * numPoints and sampling and the sac file is considered correct for these
+     * three.
+     */
     public static LocalSeismogramImpl getSeismogram(SacTimeSeries sac,
-                            SeismogramAttr attr)
-        throws FissuresException {
-    LocalSeismogramImpl seis =
-        new LocalSeismogramImpl(attr, sac.y);
-    if (seis.getNumPoints() != sac.npts) {
-        seis.num_points = sac.npts;
-    } // end of if (seis.getNumPoints() != sac.npts)
-    Sampling samp = seis.getSampling();
-    TimeInterval period = ((SamplingImpl)samp).getPeriod();
-    if (sac.delta != 0) {
-        double error =
-        (period.convertTo(UnitImpl.SECOND).getValue() - sac.delta)
-        / sac.delta;
-        if (error > 0.01) {
-         seis.sampling_info =
-             new SamplingImpl(1,
-                      new TimeInterval(sac.delta,
-                               UnitImpl.SECOND));
-        } // end of if (error > 0.01)
-    } // end of if (samp.getPeriod().getValue() != sac.delta)
-
-    if (sac.b != -12345) {
-        MicroSecondDate beginTime = getSeismogramBeginTime(sac);
-        double error =
-        seis.getBeginTime().subtract(beginTime).divideBy(period).getValue();
-        if (Math.abs(error) > 0.01) {
-        seis.begin_time = beginTime.getFissuresTime();
-        } // end of if (error > 0.01)
-    } // end of if (sac.b != -12345)
-    return seis;
+                                                    SeismogramAttr attr)
+            throws FissuresException {
+        LocalSeismogramImpl seis = new LocalSeismogramImpl(attr, sac.y);
+        if(seis.getNumPoints() != sac.npts) {
+            seis.num_points = sac.npts;
+        } // end of if (seis.getNumPoints() != sac.npts)
+        Sampling samp = seis.getSampling();
+        TimeInterval period = ((SamplingImpl)samp).getPeriod();
+        if(sac.delta != 0) {
+            double error = (period.convertTo(UnitImpl.SECOND).getValue() - sac.delta)
+                    / sac.delta;
+            if(error > 0.01) {
+                seis.sampling_info = new SamplingImpl(1,
+                                                      new TimeInterval(sac.delta,
+                                                                       UnitImpl.SECOND));
+            } // end of if (error > 0.01)
+        } // end of if (samp.getPeriod().getValue() != sac.delta)
+        if(sac.b != -12345) {
+            MicroSecondDate beginTime = getSeismogramBeginTime(sac);
+            double error = seis.getBeginTime()
+                    .subtract(beginTime)
+                    .divideBy(period)
+                    .getValue();
+            if(Math.abs(error) > 0.01) {
+                seis.begin_time = beginTime.getFissuresTime();
+            } // end of if (error > 0.01)
+        } // end of if (sac.b != -12345)
+        return seis;
     }
 
     public static LocalSeismogramImpl getSeismogram(SacTimeSeries sac)
-        throws FissuresException {
+            throws FissuresException {
         ISOTime isoTime = new ISOTime(sac.nzyear,
                                       sac.nzjday,
                                       sac.nzhour,
                                       sac.nzmin,
-                                      sac.nzsec+sac.nzmsec/1000f);
+                                      sac.nzsec + sac.nzmsec / 1000f);
         MicroSecondDate beginTime = getSeismogramBeginTime(sac);
         edu.iris.Fissures.Time time = beginTime.getFissuresTime();
         TimeSeriesDataSel data = new TimeSeriesDataSel();
         data.flt_values(sac.y);
-
         ChannelId chanId = getChannelId(sac);
-
         String evtName = "   ";
-        if ( ! sac.kevnm.equals(sac.STRING16_UNDEF)) {
-            evtName+= sac.kevnm.trim()+" ";
+        if(!sac.kevnm.equals(sac.STRING16_UNDEF)) {
+            evtName += sac.kevnm.trim() + " ";
         }
-        if (sac.evla != sac.FLOAT_UNDEF &&
-            sac.evlo != sac.FLOAT_UNDEF &&
-            sac.evdp != sac.FLOAT_UNDEF) {
-            evtName+= "lat: "+sac.evla+" lon: "+sac.evlo+" depth: "+(sac.evdp/1000)+" km";
+        if(sac.evla != sac.FLOAT_UNDEF && sac.evlo != sac.FLOAT_UNDEF
+                && sac.evdp != sac.FLOAT_UNDEF) {
+            evtName += "lat: " + sac.evla + " lon: " + sac.evlo + " depth: "
+                    + (sac.evdp / 1000) + " km";
         }
-        if (sac.gcarc != sac.FLOAT_UNDEF) {
+        if(sac.gcarc != sac.FLOAT_UNDEF) {
             DecimalFormat df = new DecimalFormat("##0.#");
-            evtName += "  "+df.format(sac.gcarc)+" deg.";
+            evtName += "  " + df.format(sac.gcarc) + " deg.";
         }
-        if (sac.az != sac.FLOAT_UNDEF) {
+        if(sac.az != sac.FLOAT_UNDEF) {
             DecimalFormat df = new DecimalFormat("##0.#");
-            evtName += "  az "+df.format(sac.az)+" deg.";
+            evtName += "  az " + df.format(sac.az) + " deg.";
         }
         // seis id can be anything, so set to net:sta:site:chan:begin
-        String seisId = chanId.network_id.network_code+":"+
-            chanId.station_code+":"+
-            chanId.site_code+":"+
-            chanId.channel_code+":"+
-            time.date_time;
+        String seisId = chanId.network_id.network_code + ":"
+                + chanId.station_code + ":" + chanId.site_code + ":"
+                + chanId.channel_code + ":" + time.date_time;
         return new LocalSeismogramImpl(seisId,
                                        time,
                                        sac.npts,
                                        new SamplingImpl(1,
-                                                        new TimeInterval(sac.delta, UnitImpl.SECOND)),
+                                                        new TimeInterval(sac.delta,
+                                                                         UnitImpl.SECOND)),
                                        UnitImpl.COUNT,
                                        chanId,
                                        data);
     }
 
     public static ChannelId getChannelId(SacTimeSeries sac) {
-        if ( ! sac.khole.equals(sac.STRING8_UNDEF) && sac.khole.trim().length() == 2) {
-            return getChannelId(sac, sac.khole.trim());
-        }
+        if(!sac.khole.equals(sac.STRING8_UNDEF)
+                && sac.khole.trim().length() == 2) { return getChannelId(sac,
+                                                                         sac.khole.trim()); }
         return getChannelId(sac, "  ");
     }
 
-    public static ChannelId getChannelId(SacTimeSeries sac,
-                                         String siteCode) {
+    public static ChannelId getChannelId(SacTimeSeries sac, String siteCode) {
         MicroSecondDate nzTime = getNZTime(sac);
         Time fisTime = nzTime.getFissuresTime();
         String netCode = "XX";
-        if ( ! sac.knetwk.trim().equals("-12345")) {
+        if(!sac.knetwk.trim().equals("-12345")) {
             netCode = sac.knetwk.trim();
         }
         String staCode = "XXXXX";
-        if ( ! sac.kstnm.trim().equals("-12345")) {
+        if(!sac.kstnm.trim().equals("-12345")) {
             staCode = sac.kstnm.trim();
         }
         String chanCode = "XXX";
-        if ( ! sac.kcmpnm.trim().equals("-12345")) {
+        if(!sac.kcmpnm.trim().equals("-12345")) {
             chanCode = sac.kcmpnm.trim();
-            if (chanCode.length() == 5) {
+            if(chanCode.length() == 5) {
                 // site code is first 2 chars of kcmpnm
-                siteCode = chanCode.substring(0,2);
-                chanCode = chanCode.substring(2,5);
+                siteCode = chanCode.substring(0, 2);
+                chanCode = chanCode.substring(2, 5);
             }
         }
-        NetworkId netId = new NetworkId(netCode,
-                                        fisTime);
+        NetworkId netId = new NetworkId(netCode, fisTime);
         ChannelId id = new ChannelId(netId,
                                      staCode,
                                      siteCode,
@@ -178,83 +166,72 @@ public class SacToFissures  {
 
     public static Channel getChannel(SacTimeSeries sac) {
         ChannelId chanId = getChannelId(sac);
-
         float stel = sac.stel;
-        if (stel == -12345.0f) {
+        if(stel == -12345.0f) {
             stel = 0;
         } // end of if (stel == -12345.0f)
         float stdp = sac.stdp;
-        if (stdp == -12345.0f) {
+        if(stdp == -12345.0f) {
             stdp = 0;
         } // end of if (stdp == -12345.0f)
-        
         Location loc = new Location(sac.stla,
                                     sac.stlo,
-                                    new QuantityImpl(sac.stel,
-                                                     UnitImpl.METER),
-                                    new QuantityImpl(sac.stdp,
-                                                     UnitImpl.METER),
+                                    new QuantityImpl(sac.stel, UnitImpl.METER),
+                                    new QuantityImpl(sac.stdp, UnitImpl.METER),
                                     LocationType.GEOGRAPHIC);
         Orientation orient = new Orientation(sac.cmpaz, sac.cmpinc - 90);
-                SamplingImpl samp = new SamplingImpl(1,
-                                         new TimeInterval(sac.delta,
-                                                          UnitImpl.SECOND));
-                TimeRange effective = new TimeRange(chanId.network_id.begin_time,
-                                                    new Time(edu.iris.Fissures.TIME_UNKNOWN.value,
-                                                             0));
-                
-        NetworkAttr netAttr =
-            new NetworkAttrImpl(chanId.network_id,
-                                chanId.network_id.network_code,
-                                "",
-                                "",
-                                effective);
+        SamplingImpl samp = new SamplingImpl(1,
+                                             new TimeInterval(sac.delta,
+                                                              UnitImpl.SECOND));
+        TimeRange effective = new TimeRange(chanId.network_id.begin_time,
+                                            new Time(edu.iris.Fissures.TIME_UNKNOWN.value,
+                                                     0));
+        NetworkAttr netAttr = new NetworkAttrImpl(chanId.network_id,
+                                                  chanId.network_id.network_code,
+                                                  "",
+                                                  "",
+                                                  effective);
         StationId staId = new StationId(chanId.network_id,
                                         chanId.station_code,
                                         chanId.network_id.begin_time);
-        Station station =
-            new StationImpl(staId,
-                            chanId.station_code,
-                            loc,
-                            effective,
-                            "",
-                            "",
-                            "from sac",
-                            netAttr);
+        Station station = new StationImpl(staId,
+                                          chanId.station_code,
+                                          loc,
+                                          effective,
+                                          "",
+                                          "",
+                                          "from sac",
+                                          netAttr);
         SiteId siteId = new SiteId(chanId.network_id,
                                    chanId.station_code,
                                    chanId.site_code,
                                    chanId.network_id.begin_time);
-        Site site = new SiteImpl(siteId,
-                                 loc,
-                                 effective,
-                                 station,
-                                 "from sac");
+        Site site = new SiteImpl(siteId, loc, effective, station, "from sac");
         return new ChannelImpl(chanId,
                                chanId.channel_code,
                                orient,
                                samp,
                                effective,
                                site);
-        
     }
 
-    /** calculates the reference (NZ) time from the sac headers
-     * NZYEAR, NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
+    /**
+     * calculates the reference (NZ) time from the sac headers NZYEAR, NZJDAY,
+     * NZHOUR, NZMIN, NZSEC, NZMSEC.
      */
     public static MicroSecondDate getNZTime(SacTimeSeries sac) {
         ISOTime isoTime = new ISOTime(sac.nzyear,
                                       sac.nzjday,
                                       sac.nzhour,
                                       sac.nzmin,
-                                      sac.nzsec+sac.nzmsec/1000f);
+                                      sac.nzsec + sac.nzmsec / 1000f);
         MicroSecondDate originTime = isoTime.getDate();
         return originTime;
     }
-    
 
-    /** calculates the event origin time from the sac headers
-     * O, NZYEAR, NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
+    /**
+     * calculates the event origin time from the sac headers O, NZYEAR, NZJDAY,
+     * NZHOUR, NZMIN, NZSEC, NZMSEC.
      */
     public static MicroSecondDate getEventOriginTime(SacTimeSeries sac) {
         MicroSecondDate originTime = getNZTime(sac);
@@ -262,10 +239,10 @@ public class SacToFissures  {
         originTime = originTime.add(sacOMarker);
         return originTime;
     }
-    
 
-    /** calculates the seismogram begin time from the sac headers
-     * B, NZYEAR, NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
+    /**
+     * calculates the seismogram begin time from the sac headers B, NZYEAR,
+     * NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
      */
     public static MicroSecondDate getSeismogramBeginTime(SacTimeSeries sac) {
         MicroSecondDate bTime = getNZTime(sac);
@@ -273,41 +250,40 @@ public class SacToFissures  {
         bTime = bTime.add(sacBMarker);
         return bTime;
     }
-    
+
     public static CacheEvent getEvent(SacTimeSeries sac) {
-    if (sac.o != sac.FLOAT_UNDEF &&
-            sac.evla != sac.FLOAT_UNDEF &&
-            sac.evlo != sac.FLOAT_UNDEF &&
-            sac.evdp != sac.FLOAT_UNDEF) {
+        if(sac.o != sac.FLOAT_UNDEF && sac.evla != sac.FLOAT_UNDEF
+                && sac.evlo != sac.FLOAT_UNDEF && sac.evdp != sac.FLOAT_UNDEF) {
             MicroSecondDate beginTime = getEventOriginTime(sac);
             EventAttr attr = new EventAttrImpl("SAC Event");
             Origin[] origins = new Origin[1];
             Location loc;
-        if (sac.evdp > 1000) {
-            loc = new Location(sac.evla,
-                               sac.evlo,
-                               new QuantityImpl(0, UnitImpl.METER),
-                               new QuantityImpl(sac.evdp, UnitImpl.METER),
-                               LocationType.GEOGRAPHIC);
+            if(sac.evdp > 1000) {
+                loc = new Location(sac.evla,
+                                   sac.evlo,
+                                   new QuantityImpl(0, UnitImpl.METER),
+                                   new QuantityImpl(sac.evdp, UnitImpl.METER),
+                                   LocationType.GEOGRAPHIC);
+            } else {
+                loc = new Location(sac.evla,
+                                   sac.evlo,
+                                   new QuantityImpl(0, UnitImpl.METER),
+                                   new QuantityImpl(sac.evdp,
+                                                    UnitImpl.KILOMETER),
+                                   LocationType.GEOGRAPHIC);
+            } // end of else
+            origins[0] = new OriginImpl("genid:"
+                                                + Math.round(Math.random()
+                                                        * Integer.MAX_VALUE),
+                                        "",
+                                        "",
+                                        beginTime.getFissuresTime(),
+                                        loc,
+                                        new Magnitude[0],
+                                        new ParameterRef[0]);
+            return new CacheEvent(attr, origins, origins[0]);
         } else {
-            loc = new Location(sac.evla,
-                               sac.evlo,
-                               new QuantityImpl(0, UnitImpl.METER),
-                               new QuantityImpl(sac.evdp, UnitImpl.KILOMETER),
-                               LocationType.GEOGRAPHIC);
-        } // end of else
-        origins[0] = new OriginImpl("genid:"+
-                                   Math.round(Math.random()*Integer.MAX_VALUE),
-                                    "",
-                                    "",
-                                    beginTime.getFissuresTime(),
-                                    loc,
-                                    new Magnitude[0],
-                                    new ParameterRef[0]);
-        return new CacheEvent(attr, origins, origins[0]);
-    } else {
-        return null;
+            return null;
+        }
     }
-    }
-    
 } // SacToFissures
