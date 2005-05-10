@@ -42,7 +42,7 @@ public class EventFlag {
         return getY(getOriginRow());
     }
 
-    private int getY(int row) {
+    protected int getY(int row) {
         return row * display.getRowOffset() + display.titleHeight;
     }
 
@@ -50,7 +50,7 @@ public class EventFlag {
         return getX(getXPercent(arrival));
     }
 
-    private int getX(MicroSecondDate time) {
+    protected int getX(MicroSecondDate time) {
         return getX(getXPercent(time));
     }
 
@@ -101,7 +101,8 @@ public class EventFlag {
         FontMetrics fm = g2.getFontMetrics();
         Rectangle2D stringBounds = fm.getStringBounds(title, g2);
         int textY = y - halfOffset;
-        if(reverseWindDirection) x -= stringBounds.getWidth();
+        if(reverseWindDirection)
+            x -= stringBounds.getWidth();
         stringBounds.setRect(x,
                              textY,
                              stringBounds.getWidth() + 3,
@@ -114,11 +115,15 @@ public class EventFlag {
     public boolean isSelected(int[][] rowAndX) {
         int row = getOriginRow();
         int x = getOriginX();
-        if(intersects(rowAndX, x, row)) { return true; }
+        if(intersects(rowAndX, x, row)) {
+            return true;
+        }
         for(int i = 0; i < arrivals.length; i++) {
             row = getRow(arrivals[i]);
             x = getX(arrivals[i]);
-            if(intersects(rowAndX, x, row)) { return true; }
+            if(intersects(rowAndX, x, row)) {
+                return true;
+            }
         }
         return false;
     }
@@ -127,13 +132,15 @@ public class EventFlag {
         for(int i = 0; i < rowAndX.length; i++) {
             int[] cur = rowAndX[i];
             if(row == cur[0]) {
-                if(x <= cur[2] && x >= cur[1]) { return true; }
+                if(x <= cur[2] && x >= cur[1]) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    private MicroSecondDate getOriginTime() {
+    protected MicroSecondDate getOriginTime() {
         return new MicroSecondDate(EventUtil.extractOrigin(eventAccess).origin_time);
     }
 
@@ -151,7 +158,7 @@ public class EventFlag {
                 + eventTime.getMicroSecondTime());
     }
 
-    private int getRow(MicroSecondDate time) {
+    protected int getRow(MicroSecondDate time) {
         MicroSecondDate startTime = new MicroSecondDate(display.getDate());
         QuantityImpl intervalInHours = time.subtract(startTime)
                 .convertTo(UnitImpl.HOUR);
@@ -166,7 +173,7 @@ public class EventFlag {
         return getXPercent(getTime(arrival));
     }
 
-    private double getXPercent(MicroSecondDate time) {
+    protected double getXPercent(MicroSecondDate time) {
         MicroSecondDate startTime = new MicroSecondDate(display.getDate());
         TimeInterval interval = time.subtract(startTime);
         QuantityImpl intervalInHours = interval.convertTo(UnitImpl.HOUR);
@@ -253,6 +260,10 @@ public class EventFlag {
         return color;
     }
 
+    public PlottableDisplay getDisplay() {
+        return display;
+    }
+
     private int titleX, titleY, titleWidth, titleHeight;
 
     private String eventTitle;
@@ -264,7 +275,7 @@ public class EventFlag {
     private Color color = SeismogramDisplay.COLORS[++colorCount
             % SeismogramDisplay.COLORS.length];
 
-    private Arrival[] arrivals;
+    protected Arrival[] arrivals;
 
     private static int colorCount = 0;
 
