@@ -32,6 +32,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.fissuresUtil.display.drawable.EventBoxes;
 import edu.sc.seis.fissuresUtil.display.drawable.EventFlag;
 import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
@@ -47,15 +48,15 @@ public class PlottableDisplay extends JComponent {
     public PlottableDisplay() {
         this(TOTAL_WIDTH);
     }
-    
-    public PlottableDisplay(int pixelsPerDay){
+
+    public PlottableDisplay(int pixelsPerDay) {
         this(pixelsPerDay, true);
     }
 
     public PlottableDisplay(int pixelsPerDay, boolean includeText) {
         super();
         totalWidth = pixelsPerDay;
-        rowWidth = totalWidth/rows;
+        rowWidth = totalWidth / rows;
         dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
         removeAll();
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
@@ -65,13 +66,21 @@ public class PlottableDisplay extends JComponent {
         selection = new PlottableSelection(this);
         configChanged();
         this.includeText = includeText;
-        if (!includeText) {
+        if(!includeText) {
             titleHeight = 30;
             configChanged();
         }
     }
-    
-    public void setColors(Color even, Color odd, Color axis, Color background){
+
+    public void displayEventsAsBoxes() {
+        useFlags = false;
+    }
+
+    public void displayEventsAsFlags() {
+        useFlags = true;
+    }
+
+    public void setColors(Color even, Color odd, Color axis, Color background) {
         evenColor = even;
         oddColor = odd;
         axisColor = axis;
@@ -107,7 +116,7 @@ public class PlottableDisplay extends JComponent {
             revalidate();
         }
     }
-    
+
     public void setPlottable(Plottable[] clientPlott,
                              String nameofstation,
                              String orientationName,
@@ -235,7 +244,8 @@ public class PlottableDisplay extends JComponent {
             String myt = "Time";
             String mygmt = "GMT";
             g2.setPaint(evenColor);
-            if(titleYPos < 30) titleYPos = 40;
+            if(titleYPos < 30)
+                titleYPos = 40;
             g2.drawString(myt, 10, titleYPos - 10);
             g2.drawString(myt, rowWidth + LABEL_X_SHIFT, titleYPos - 10);
             g2.drawString(mygmt, 10, titleYPos - 20);
@@ -267,23 +277,23 @@ public class PlottableDisplay extends JComponent {
             }
             g2.drawString(hourmin, houroffset, titleHeight + rowOffset
                     * currRow);
-            hour = (hour + hourinterval)%24;
+            hour = (hour + hourinterval) % 24;
             hourmin = hour + minutes;
             houroffset = calcHourOffset(hour);
             g2.drawString(hour + minutes, xShift + houroffset, titleHeight
                     + rowOffset * currRow);
         }
     }
-    
-    private static int calcHourOffset(int hour){
+
+    private static int calcHourOffset(int hour) {
         if(hour >= 10) {
             return 5;
         }
         return 10;
     }
-    
-    private static String formatMinutes(int minutes){
-        if (minutes < 10) {
+
+    private static String formatMinutes(int minutes) {
+        if(minutes < 10) {
             return "0" + minutes;
         }
         return "" + minutes;
@@ -372,7 +382,9 @@ public class PlottableDisplay extends JComponent {
 
     public int getMean() {
         if(arrayplottable == null || arrayplottable.length == 0
-                || arrayplottable[0].y_coor.length == 0) { return 0; }
+                || arrayplottable[0].y_coor.length == 0) {
+            return 0;
+        }
         long mean = arrayplottable[0].y_coor[0];
         int numPoints = 0;
         for(int i = 0; i < arrayplottable.length; i++) {
@@ -396,16 +408,17 @@ public class PlottableDisplay extends JComponent {
 
             public void run() {
                 try {
-                Graphics2D g = (Graphics2D)offImg.getGraphics();
-                currentImageGraphics = g;
-                g.setBackground(backgroundColor);
-                // clear canvas
-                g.clearRect(0, 0, width, height);
-                drawComponent(g);
-                g.dispose();
-                repaint();
+                    Graphics2D g = (Graphics2D)offImg.getGraphics();
+                    currentImageGraphics = g;
+                    g.setBackground(backgroundColor);
+                    // clear canvas
+                    g.clearRect(0, 0, width, height);
+                    drawComponent(g);
+                    g.dispose();
+                    repaint();
                 } catch(Throwable t) {
-                    GlobalExceptionHandler.handle("Problem drawing the plottable image.", t);
+                    GlobalExceptionHandler.handle("Problem drawing the plottable image.",
+                                                  t);
                 }
             }
         };
@@ -496,7 +509,9 @@ public class PlottableDisplay extends JComponent {
     }
 
     public boolean bordersSelection(int x, int y) {
-        if(selection.borders(x, y)) { return true; }
+        if(selection.borders(x, y)) {
+            return true;
+        }
         return false;
     }
 
@@ -535,7 +550,8 @@ public class PlottableDisplay extends JComponent {
     }
 
     public RequestFilter getRequestFilter(int x, int y) {
-        if(selection.intersectsExtract(x, y)) return selection.getRequestFilter();
+        if(selection.intersectsExtract(x, y))
+            return selection.getRequestFilter();
         return null;
     }
 
@@ -556,9 +572,15 @@ public class PlottableDisplay extends JComponent {
     private void addEventPlotterInfo(EventAccessOperations[] eventAccessArray,
                                      Arrival[][] arrivals) {
         for(int i = 0; i < eventAccessArray.length; i++) {
-            eventPlotterList.add(new EventFlag(this,
-                                               eventAccessArray[i],
-                                               arrivals[i]));
+            if(useFlags) {
+                eventPlotterList.add(new EventFlag(this,
+                                                   eventAccessArray[i],
+                                                   arrivals[i]));
+            } else {
+                eventPlotterList.add(new EventBoxes(this,
+                                                    eventAccessArray[i],
+                                                    arrivals[i]));
+            }
         }
     }
 
@@ -610,12 +632,14 @@ public class PlottableDisplay extends JComponent {
         return totalHours;
     }
 
+    private boolean useFlags = true;
+
     private Color backgroundColor = Color.WHITE;
 
     private Color evenColor = Color.BLACK;
-    
+
     private Color oddColor = Color.BLUE;
-    
+
     private Color axisColor = Color.RED;
 
     private int totalHours = 24;
@@ -627,7 +651,7 @@ public class PlottableDisplay extends JComponent {
     private float ampScalePercent = 1.0f;
 
     private Date date;
-    
+
     private Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
     private static ColorFactory colorFactory = new ColorFactory();
@@ -649,7 +673,7 @@ public class PlottableDisplay extends JComponent {
     private Shape plottableShape = null;
 
     private Graphics currentImageGraphics = null;
-    
+
     private boolean includeText;
 
     private static SimpleDateFormat dateFormater = new SimpleDateFormat("EEEE, d MMMM yyyy");
