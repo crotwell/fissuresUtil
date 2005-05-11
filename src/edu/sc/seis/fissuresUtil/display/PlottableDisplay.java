@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.TimeZone;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -553,6 +554,10 @@ public class PlottableDisplay extends JComponent {
         if(selection.intersectsExtract(x, y))
             return selection.getRequestFilter();
         return null;
+    }
+
+    public List getEventPlotters() {
+        return eventPlotterList;
     }
 
     public EventAccessOperations[] getSelectedEvents() {
