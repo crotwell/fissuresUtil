@@ -79,7 +79,7 @@ public class EventBoxes extends EventFlag {
     private Arrival get4kmpsArrival() {
         Arrival kmpsArrival = null;
         for(int i = 0; i < arrivals.length; i++) {
-            if(arrivals[i].getName().equals("4kmps")) {
+            if(arrivals[i].getName().equals("3kmps")) {
                 if(kmpsArrival == null) {
                     kmpsArrival = arrivals[i];
                 } else if(kmpsArrival.getDist() > arrivals[i].getDist()) {
@@ -88,7 +88,7 @@ public class EventBoxes extends EventFlag {
             }
         }
         if(kmpsArrival == null) {
-            throw new IllegalStateException("To use Event boxes, a 4kmps arrival must be included with the arrivals passed into PlottableDisplay");
+            throw new IllegalStateException("To use Event boxes, a 3kmps arrival must be included with the arrivals passed into PlottableDisplay");
         }
         return kmpsArrival;
     }
