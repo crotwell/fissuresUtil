@@ -52,7 +52,7 @@ public class ImageAugmenter {
         }
         image = new BufferedImage(img.getWidth(null),
                                   img.getHeight(null),
-                                  BufferedImage.TYPE_INT_ARGB);
+                                  BufferedImage.TYPE_INT_ARGB_PRE);
         Graphics2D g2d = image.createGraphics();
         g2d.drawImage(img, 0, 0, null);
     }
@@ -121,7 +121,7 @@ public class ImageAugmenter {
     
     public void cropImage(int newWidth, int newHeight, int left, int top){
         BufferedImage oldImage = image;
-        image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB_PRE);
         Graphics2D g2D = image.createGraphics();
         g2D.drawImage(oldImage, null, -left, -top);
         oldImage = null;
