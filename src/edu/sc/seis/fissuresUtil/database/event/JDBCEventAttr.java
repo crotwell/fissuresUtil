@@ -53,7 +53,7 @@ public class JDBCEventAttr extends EventTable {
         getDBIdStmt = conn.prepareStatement(" SELECT eventattr_id FROM eventattr"+
                                                 " WHERE eventattr_name = ? AND"+
                                                 " flinnengdahlid = ? ");
-        getEvent = conn.prepareStatement(" SELECT eventattr_name,flinnengdahlid FROM "+
+        getEvent = conn.prepareStatement(" SELECT * FROM "+
                                              "eventattr WHERE eventattr_id = ?");
         getParameterRefs = conn.prepareStatement(" SELECT parametera_id, parametercreator FROM "+
                                                      paramRef.getTableName()+", "+
@@ -166,7 +166,7 @@ public class JDBCEventAttr extends EventTable {
     public EventAttr get(int eventid) throws SQLException, NotFound {
         getEvent.setInt(1,eventid);
         ResultSet rs = getEvent.executeQuery();
-        if ( rs.next())  return extract(rs,eventid);
+        if ( rs.next())  return extract(rs);
         throw new NotFound("No EventAttr Found for eventid = "+ eventid);
     }
 
@@ -223,7 +223,8 @@ public class JDBCEventAttr extends EventTable {
      * @id - the eventid
      * @return - the EventAttr
      */
-    private EventAttr extract(ResultSet rs, int id) throws SQLException,NotFound {
+    public EventAttr extract(ResultSet rs) throws SQLException,NotFound {
+        int id = rs.getInt("eventattr_id");
         ParameterRef[] params = getParameters(id);
         FlinnEngdahlRegion region = flinnEngdahl.get(rs.getInt("flinnengdahlid"));
         return new EventAttrImpl(rs.getString("eventattr_name"),region,params);
