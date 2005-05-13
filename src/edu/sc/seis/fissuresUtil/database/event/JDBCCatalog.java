@@ -83,7 +83,7 @@ public class JDBCCatalog extends EventTable {
     public String get(int id) throws SQLException, NotFound {
         get.setInt(1,id);
         ResultSet rs = get.executeQuery();
-        if(rs.next()) return rs.getString("catalog_name");
+        if(rs.next()) extract(rs);
         throw new NotFound(" there is no Catalog name is associated  to the id "+id);
     }
 
@@ -96,7 +96,7 @@ public class JDBCCatalog extends EventTable {
         ResultSet rs = getAll.executeQuery();
 
         while( rs.next() ) {
-            aList.add(rs.getString("catalog_name"));
+            aList.add(extract(rs));
         }
 
         String[] catalogs = new String[aList.size()];
@@ -125,6 +125,14 @@ public class JDBCCatalog extends EventTable {
         throw new NotFound(" there is no Catalog name is associated  to the id "+id);
     }
 
+    public String extract(ResultSet rs) throws SQLException {
+        return rs.getString("catalog_name");
+    }
+    
+    public JDBCContributor getJDBCContributor() {
+        return jdbcContributor;
+    }
+    
     protected JDBCContributor jdbcContributor;
 
     protected PreparedStatement getDBId;
