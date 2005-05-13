@@ -11,6 +11,7 @@ import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 public class JDBCMagnitude  extends EventTable {
     public JDBCMagnitude(Connection conn) throws SQLException{
@@ -21,25 +22,8 @@ public class JDBCMagnitude  extends EventTable {
         super("magnitude", conn);
         this.jdbcContributor = jdbcContributor;
         Statement stmt = conn.createStatement();
-        if(!DBUtil.tableExists("magnitude", conn)){
-            stmt.executeUpdate(ConnMgr.getSQL("magnitude.create"));
-        }
-        putStmt = conn.prepareStatement("INSERT INTO magnitude"+
-                                            " ( magnitudetype,"+
-                                            " magnitudevalue,"+
-                                            " magnitudecontributorid,"+
-                                            " originid)"+
-                                            " VALUES(?,?,?,?)");
-        exists = conn.prepareStatement(" SELECT * FROM magnitude"+
-                                           " WHERE magnitudetype = ? AND"+
-                                           " magnitudevalue = ? AND "+
-                                           " magnitudecontributorid = ? AND "+
-                                           " originid = ?");
-        getStmt = conn.prepareStatement(" SELECT magnitudetype ,"+
-                                            " magnitudevalue ,"+
-                                            " magnitudecontributorid FROM magnitude"+
-                                            " WHERE originid = ?");
-        dropAll = conn.prepareStatement("DELETE FROM magnitude");
+        String props = "edu/sc/seis/fissuresUtil/database/props/event/default.props";
+        TableSetup.setup(getTableName(), conn, this, props);
     }
 
     public boolean exists(Magnitude magnitude, int originId) throws SQLException, NotFound {
@@ -98,7 +82,7 @@ public class JDBCMagnitude  extends EventTable {
     public Magnitude extract(ResultSet rs) throws SQLException, NotFound {
         return new Magnitude(rs.getString("magnitudetype"),
                              rs.getFloat("magnitudevalue"),
-                             jdbcContributor.get(rs.getInt("magnitudecontributorid")));
+                             jdbcContributor.extract(rs));
     }
 
     protected JDBCContributor jdbcContributor;

@@ -36,6 +36,7 @@ origin.getDBIdStmt = SELECT origin_id FROM $tablename \
     origin_text_id = ?
     
 origin.getStmt = SELECT * FROM origin \
+    JOIN location ON (origin.origin_location_id = location.loc_id) \
     JOIN catalog ON (origin.origin_catalog_id = catalog.catalog_id) \
     JOIN contributor ON (catalog_contributor_id =   contributor.contributor_id) \
     WHERE origin_id = ?
@@ -81,6 +82,23 @@ magnitude.create=CREATE TABLE magnitude ( magnitudetype varchar, \
                                           magnitudevalue float, \
                                           magnitudecontributorid int, \
                                           originid int)
+
+magnitude.putStmt = INSERT INTO magnitude \
+    ( magnitudetype, magnitudevalue, magnitudecontributorid, originid) \
+    VALUES(?,?,?,?)
+    
+magnitude.exists = SELECT * FROM magnitude \
+    WHERE magnitudetype = ? AND \
+    magnitudevalue = ? AND \
+    magnitudecontributorid = ? AND \
+    originid = ?
+    
+magnitude.getStmt = SELECT magnitudetype , magnitudevalue, contributor_name \
+    FROM magnitude \
+    JOIN contributor ON (magnitude.magnitudecontributorid = contributor_id) \
+    WHERE originid = ?
+    
+magnitude.dropAll = DELETE FROM magnitude
 
 eventattr.create=CREATE TABLE eventattr ( eventattr_id int, \
                                           eventattr_name varchar, \
