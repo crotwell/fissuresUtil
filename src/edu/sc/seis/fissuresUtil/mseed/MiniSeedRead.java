@@ -62,7 +62,7 @@ public class MiniSeedRead  {
         numRead++;
         if (header.getDataBlocketteOffset()< header.getSize()) {
             if (header.getDataBlocketteOffset() == 0) {
-                throw new IllegalArgumentException("Offset to first blockette is zero, this is not valid miniseed");
+                throw new IllegalArgumentException("Offset to first blockette is zero, this is not valid as miniseed must have a blockette 1000");
             }
             throw new IllegalArgumentException("Offset to first blockette must be larger than the header size");
         }
