@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.simple;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -16,6 +17,7 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.AllVTFactory;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public abstract class Initializer {
@@ -70,13 +72,9 @@ public abstract class Initializer {
             if(args[i].equals("-props")) {
                 propFilename = args[i + 1];
                 try {
-                    FileInputStream in = new FileInputStream(propFilename);
-                    sysProps.load(in);
-                    in.close();
+                    loadProps(new FileInputStream(propFilename), sysProps);
                 } catch(FileNotFoundException f) {
                     System.err.println(" file missing " + f + " using defaults");
-                } catch(IOException f) {
-                    System.err.println(f.toString() + " using defaults");
                 }
             }
         }
@@ -84,17 +82,29 @@ public abstract class Initializer {
     }
 
     public static org.omg.CORBA_2_3.ORB getORB() {
-        if(orb == null) init(EMPTY_ARGS);
+        if(orb == null)
+            init(EMPTY_ARGS);
         return orb;
     }
 
     public static FissuresNamingService getNS() {
-        if(fisName == null) init(EMPTY_ARGS);
+        if(fisName == null)
+            init(EMPTY_ARGS);
         return fisName;
     }
 
     public static Properties getProps() {
         return props;
+    }
+
+    public static void loadProps(InputStream propStream, Properties baseProps) {
+        try {
+            baseProps.load(propStream);
+            propStream.close();
+        } catch(Exception f) {
+            GlobalExceptionHandler.handle("Problem loading props!", f);
+            System.exit(0);
+        }
     }
 
     private static Properties props;
