@@ -73,7 +73,7 @@ public class JDBCLocation extends JDBCTable {
         return index;
     }
 
-    private Location extract(ResultSet rs) throws SQLException{
+    public Location extract(ResultSet rs) throws SQLException{
         float lat = rs.getFloat("loc_lat");
         float lon = rs.getFloat("loc_lon");
         try {

@@ -20,6 +20,7 @@ import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
+import edu.sc.seis.fissuresUtil.simple.TimeOMatic;
 
 public class JDBCOrigin extends EventTable {
 
@@ -217,7 +218,7 @@ public class JDBCOrigin extends EventTable {
         int originId = rs.getInt("origin_id");
         ParameterRef[] params = getParams(originId);
         Magnitude[] magnitudes = getMags(originId);
-        Location location = jdbcLocation.get(rs.getInt("origin_location_id"));
+        Location location = jdbcLocation.extract(rs);
         if(location == null) { throw new NullPointerException("Location from database is NULL, originId="
                 + originId); }
         return new OriginImpl(rs.getString("origin_text_id"),
