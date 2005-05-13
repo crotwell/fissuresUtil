@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.database;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class ConnMgr {
 
@@ -20,7 +23,8 @@ public class ConnMgr {
      */
     public static void addPropsLocation(String loc) {
         synchronized(propLocs) {
-            if(!propLocs.contains(loc)) propLocs.add(loc);
+            if(!propLocs.contains(loc))
+                propLocs.add(loc);
             if(props != null) {
                 try {
                     load(loc, props);
@@ -61,15 +65,19 @@ public class ConnMgr {
             throws IOException {
         ClassLoader cl = ConnMgr.class.getClassLoader();
         load(cl, loc + DEFAULT_PROPS, existing);
-        if(DB_NAME == HSQL) load(cl, loc + HSQL_PROPS, existing);
-        else if(DB_NAME == MCKOI) load(cl, loc + MCKOI_PROPS, existing);
-        else if(DB_NAME == POSTGRES) load(cl, loc + POSTGRES_PROPS, existing);
+        if(DB_NAME == HSQL)
+            load(cl, loc + HSQL_PROPS, existing);
+        else if(DB_NAME == MCKOI)
+            load(cl, loc + MCKOI_PROPS, existing);
+        else if(DB_NAME == POSTGRES)
+            load(cl, loc + POSTGRES_PROPS, existing);
     }
 
     private static void load(ClassLoader cl, String loc, Properties existing)
             throws IOException {
         InputStream in = cl.getResourceAsStream(loc);
-        if(in != null) existing.load(in);
+        if(in != null)
+            existing.load(in);
     }
 
     public static void setDB(Properties newprops) {
@@ -82,9 +90,11 @@ public class ConnMgr {
 
     public static String getSQL(String key) {
         String SQL = getProps().getProperty(key);
-        if(SQL == null) { throw new IllegalArgumentException("No such sql entry "
-                + key
-                + " Make sure the properties files are in the jars and are being loaded"); }
+        if(SQL == null) {
+            throw new IllegalArgumentException("No such sql entry "
+                    + key
+                    + " Make sure the properties files are in the jars and are being loaded");
+        }
         return SQL;
     }
 
@@ -96,18 +106,22 @@ public class ConnMgr {
         ConnMgr.url = url;
     }
 
-    public static void setURL(String url, String databaseUser, String databasePassword) {
+    public static void setURL(String url,
+                              String databaseUser,
+                              String databasePassword) {
         setURL(url);
-        if (databaseUser != null) {
+        if(databaseUser != null) {
             getProps().setProperty("user", databaseUser);
         }
-        if (databasePassword != null) {
+        if(databasePassword != null) {
             getProps().setProperty("password", databasePassword);
         }
     }
-    
+
     public static String getURL() {
-        if(url == null) { url = getProps().getProperty("URL"); }
+        if(url == null) {
+            url = getProps().getProperty("URL");
+        }
         return url;
     }
 
@@ -129,7 +143,7 @@ public class ConnMgr {
         }
         return props;
     }
-    
+
     public static Connection createConnection() throws SQLException {
         try {
             Class.forName(getDriver()).newInstance();
@@ -144,6 +158,62 @@ public class ConnMgr {
         return DriverManager.getConnection("jdbc:postgresql:anhingatest",
                                            "anhingatest",
                                            "");
+    }
+
+    public static void loadDbProperties(Properties sysProperties,
+                                        Properties dbProperties) {
+        if(dbProperties.containsKey(DB_SERVER_PORT)) {
+            if(dbProperties.containsKey(DBURL_KEY)) {
+                logger.error("-hsql properties and SOD properties are both specifying the db connection.  Using -hsql properties");
+            }
+            //Use hsqldb properties specified in
+            // http://hsqldb.sourceforge.net/doc/guide/ch04.html
+            String url = "jdbc:hsqldb:hsql://localhost";
+            if(dbProperties.containsKey(DB_SERVER_PORT)) {
+                url += ":" + dbProperties.getProperty(DB_SERVER_PORT);
+            }
+            url += "/";
+            if(dbProperties.containsKey("server.dbname.0")) {
+                url += dbProperties.getProperty("server.dbname.0");
+            }
+            logger.debug("Setting db url to " + url);
+            setURL(url);
+        } else if(sysProperties.containsKey(DBURL_KEY)) {
+            logger.debug("Setting db url to "
+                    + sysProperties.getProperty(DBURL_KEY));
+            setURL(sysProperties.getProperty(DBURL_KEY));
+        }
+    }
+
+    public static Properties loadDbProperties(String[] args) {
+        Properties dbProperties = new Properties();
+        boolean loadedFromArg = false;
+        for(int i = 0; i < args.length - 1; i++) {
+            if(args[i].equals("-hsql")) {
+                System.out.println("Loading db props");
+                try {
+                    Initializer.loadProps(new FileInputStream(args[i + 1]),
+                                          dbProperties);
+                } catch(FileNotFoundException e) {
+                    logger.error("Unable to find file " + args[i + 1]
+                            + " specified by -hsql");
+                }
+                loadedFromArg = true;
+            }
+        }
+        if(!loadedFromArg) {
+            try {
+                Initializer.loadProps(new FileInputStream("server.properties"),
+                                      dbProperties);
+            } catch(FileNotFoundException e) {
+                logger.debug("Didn't find default server.properties file");
+            }
+        }
+        return dbProperties;
+    }
+
+    public static void loadDbProperties(Properties sysProperties, String[] args) {
+        loadDbProperties(sysProperties, loadDbProperties(args));
     }
 
     private static final String DEFAULT_LOC = "edu/sc/seis/fissuresUtil/database/props/";
@@ -164,11 +234,17 @@ public class ConnMgr {
 
     public static final String POSTGRES_PROPS = "Postgres.props";
 
+    public static final String DB_SERVER_PORT = "server.port";
+
+    public static final String DBURL_KEY = "sod.dburl";
+
     private static String DB_NAME = HSQL;
 
     private static Properties props;
 
     private static List propLocs = new ArrayList();
+
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ConnMgr.class);
 
     private static String url;
     static {
