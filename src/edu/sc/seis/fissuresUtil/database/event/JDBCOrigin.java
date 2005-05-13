@@ -19,6 +19,7 @@ import edu.sc.seis.fissuresUtil.database.JDBCParameterRef;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 public class JDBCOrigin extends EventTable {
 
@@ -49,44 +50,8 @@ public class JDBCOrigin extends EventTable {
         String parameterSubTableName = "originparamref";
         this.jdbcEventAttr = jdbcEventAttr;
         seq = new JDBCSequence(conn, "OriginSeq");
-        Statement stmt = conn.createStatement();
-        if(!DBUtil.tableExists("origin", conn)) {
-            stmt.executeUpdate(ConnMgr.getSQL("origin.create"));
-        }
-        if(!DBUtil.tableExists("originparamref", conn)) {
-            stmt.executeUpdate(ConnMgr.getSQL("originparamref.create"));
-        }
-        putStmt = conn.prepareStatement(" INSERT INTO origin " + "(origin_id, "
-                + "origin_catalog_id, " + "origin_time_id, "
-                + "origin_location_id, " + "origin_text_id) "
-                + "VALUES(?,?,?,?,?)");
-        putOriginParamRefStmt = conn.prepareStatement(" INSERT INTO "
-                + parameterSubTableName + "(originparamrefid,"
-                + " originparameterid )" + " VALUES(?,?)");
-        deleteOriginParamRefStmt = conn.prepareStatement(" DELETE FROM "
-                + parameterSubTableName + " WHERE originparamrefid = ?");
-        getDBIdStmt = conn.prepareStatement(" SELECT origin_id FROM origin "
-                + " WHERE origin_catalog_id = ? AND"
-                + " origin_time_id = ? AND" + " origin_location_id = ? AND"
-                + " origin_text_id = ?");
-        getStmt = conn.prepareStatement(" SELECT * FROM origin WHERE origin_id = ?");
-        getParamsStmt = conn.prepareStatement(" SELECT parametera_id, parametercreator FROM "
-                + jdbcParamRef.getTableName()
-                + ","
-                + parameterSubTableName
-                + ","
-                + tableName
-                + " WHERE "
-                + " parameterref.parameterid = "
-                + " originparamref.originparameterid"
-                + " AND "
-                + " originparamrefid = " + " origin_id AND " + " origin_id = ?");
-        updateEventIdStmt = conn.prepareStatement(" UPDATE " + tableName
-                + " SET origin_event_id = ? " + " WHERE origin_id = ?");
-        deleteOriginStmt = conn.prepareStatement(" DELETE FROM " + tableName
-                + " WHERE origin_id = ?");
-        getAllStmt = conn.prepareStatement(" SELECT origin_id FROM origin "
-                + "  WHERE origin_event_id = ?");
+        String props = "edu/sc/seis/fissuresUtil/database/props/event/default.props";
+        TableSetup.setup(getTableName(), conn, this, props, new String[] { parameterSubTableName });
     }
 
     /**
