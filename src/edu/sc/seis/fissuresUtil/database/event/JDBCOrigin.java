@@ -201,7 +201,7 @@ public class JDBCOrigin extends EventTable {
     public Origin get(int originId) throws SQLException, NotFound {
         getStmt.setInt(1, originId);
         ResultSet rs = getStmt.executeQuery();
-        if(rs.next()) return extract(rs, originId);
+        if(rs.next()) return extract(rs);
         throw new NotFound(" there is no Origin object corresponding to the id "
                 + originId);
     }
@@ -240,15 +240,16 @@ public class JDBCOrigin extends EventTable {
 
     /**
      * returns the Origin object given the result set and dbid
-     * 
      * @param rs -
      *            ResultSet
      * @param id -
      *            dbid
+     * 
      * @return - Origin
      */
-    public Origin extract(ResultSet rs, int originId) throws SQLException,
+    public Origin extract(ResultSet rs) throws SQLException,
             NotFound {
+        int originId = rs.getInt("origin_id");
         ParameterRef[] params = getParams(originId);
         Magnitude[] magnitudes = getMags(originId);
         Location location = jdbcLocation.get(rs.getInt("origin_location_id"));
