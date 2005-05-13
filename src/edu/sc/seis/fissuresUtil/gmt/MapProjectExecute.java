@@ -1,13 +1,12 @@
 package edu.sc.seis.fissuresUtil.gmt;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
+import java.io.StringReader;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-import edu.sc.seis.fissuresUtil.bag.StreamPump;
+import org.apache.log4j.Logger;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * @author oliverpa Created on Jan 19, 2005
@@ -20,35 +19,40 @@ public class MapProjectExecute {
             InterruptedException {
         Runtime rt = Runtime.getRuntime();
         String command = "mapproject -Dp -J" + projection + " -R" + region;
-        //System.out.println("executing gmt command: " + command);
-        Process proc = rt.exec(command);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-        StringWriter outputSW = new StringWriter();
-        BufferedWriter writer = new BufferedWriter(outputSW);
-        BufferedWriter procWriter = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
-        BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-        BufferedWriter errWriter = new BufferedWriter(new OutputStreamWriter(System.err));
-        StreamPump pump = new StreamPump(reader, writer, false);
-        StreamPump errPump = new StreamPump(errReader, errWriter, false);
-        pump.start();
-        errPump.start();
+        //logger.debug("executing command: " + command);
+        StringBuffer buf = new StringBuffer();
         for(int i = 0; i < points.length; i++) {
-            procWriter.write(points[i][0] + " " + points[i][1] + '\n');
+            for(int j = 0; j < points[i].length; j++) {
+                buf.append(points[i][j] + "");
+                if(j < points[i].length - 1) {
+                    buf.append(" ");
+                } else {
+                    buf.append("\n");
+                }
+            }
         }
-        procWriter.close();
-        int exitVal = proc.waitFor();
-        //waiting for finish of StreamPump runs
-        synchronized(pump) {}
-        synchronized(errPump) {}
-        //System.out.println("command returned exit value " + exitVal);
-        //System.out.println("processing output from gmt command");
-        StringTokenizer tok = new StringTokenizer(outputSW.toString());
+        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
+        GenericCommandExecute.execute(command,
+                                      new StringReader(buf.toString()),
+                                      baOutputStream,
+                                      System.err);
+        StringTokenizer tok = new StringTokenizer(baOutputStream.toString());
         int[][] pixelLocs = new int[points.length][2];
-        for(int i = 0; i < points.length; i++) {
-            pixelLocs[i][0] = (int)Double.parseDouble(tok.nextToken());
-            pixelLocs[i][1] = (int)Double.parseDouble(tok.nextToken());
+        try {
+            for(int i = 0; i < points.length; i++) {
+                String xString = tok.nextToken();
+                logger.debug("pixelLocs[" + i + "][0] will be " + xString);
+                String yString = tok.nextToken();
+                logger.debug("pixelLocs[" + i + "][1] will be " + yString);
+                pixelLocs[i][0] = (int)Double.parseDouble(xString);
+                pixelLocs[i][1] = (int)Double.parseDouble(yString);
+            }
+            return pixelLocs;
+        } catch(NoSuchElementException e) {
+            GlobalExceptionHandler.handle("problem translating points.  input was\n"
+                    + buf.toString());
         }
-        return pixelLocs;
+        throw new IOException("there was a problem using mapproject");
     }
 
     public static void main(String[] args) {
@@ -73,5 +77,6 @@ public class MapProjectExecute {
             e.printStackTrace();
         }
     }
-    //private static Logger logger = Logger.getLogger(MapProjectExecute.class);
+
+    private static Logger logger = Logger.getLogger(MapProjectExecute.class);
 }
