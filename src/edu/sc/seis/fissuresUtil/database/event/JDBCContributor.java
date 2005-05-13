@@ -72,7 +72,7 @@ public class JDBCContributor extends EventTable {
     public String get(int id) throws SQLException, NotFound {
         getStmt.setInt(1,id);
         ResultSet rs = getStmt.executeQuery();
-        if(rs.next()) return rs.getString("contributor_name");
+        if(rs.next()) return extract(rs);
         throw new NotFound(" there is no Contributor name is associated  to the id "+id);
     }
 
@@ -93,6 +93,9 @@ public class JDBCContributor extends EventTable {
 
     }
 
+    public String extract(ResultSet rs) throws SQLException {
+        return rs.getString("contributor_name");
+    }
     protected PreparedStatement getDBIdStmt;
 
     protected PreparedStatement getStmt;

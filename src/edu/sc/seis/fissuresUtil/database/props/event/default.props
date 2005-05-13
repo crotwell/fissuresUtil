@@ -35,7 +35,10 @@ origin.getDBIdStmt = SELECT origin_id FROM $tablename \
     origin_time_id = ? AND origin_location_id = ? AND \
     origin_text_id = ?
     
-origin.getStmt = SELECT * FROM origin JOIN catalog ON (origin.origin_catalog_id = catalog.catalog_id)WHERE origin_id = ?
+origin.getStmt = SELECT * FROM origin \
+    JOIN catalog ON (origin.origin_catalog_id = catalog.catalog_id) \
+    JOIN contributor ON (catalog_contributor_id =   contributor.contributor_id) \
+    WHERE origin_id = ?
 
 origin.getParamsStmt = SELECT parametera_id, parametercreator FROM \
     $tablename JOIN originparamref ON ( originparamrefid = origin_id ) \

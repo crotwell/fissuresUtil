@@ -221,8 +221,8 @@ public class JDBCOrigin extends EventTable {
         if(location == null) { throw new NullPointerException("Location from database is NULL, originId="
                 + originId); }
         return new OriginImpl(rs.getString("origin_text_id"),
-                              jdbcCatalog.get(rs.getInt("origin_catalog_id")),
-                              jdbcCatalog.getContributor(rs.getInt("origin_catalog_id")),
+                              jdbcCatalog.extract(rs),
+                              jdbcCatalog.getJDBCContributor().extract(rs),
                               timeTable.get(rs.getInt("origin_time_id")),
                               location,
                               magnitudes,
