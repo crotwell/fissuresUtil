@@ -1,4 +1,4 @@
-origin.create=CREATE TABLE origin (origin_id int, \
+origin.create=CREATE TABLE $tablename (origin_id int, \
                                    origin_catalog_id int, \
                                    origin_event_id int, \
                                    origin_time_id int, \
@@ -18,7 +18,39 @@ originparamref.create=CREATE TABLE originparamref (originparamrefid int, \
                                                    REFERENCES origin (origin_id), \
                                                    FOREIGN KEY (originparameterid) \
                                                    REFERENCES parameterref (parameterid))
+origin.putStmt = INSERT INTO $tablename (origin_id, \
+    origin_catalog_id, origin_time_id, \
+    origin_location_id, origin_text_id) \
+    VALUES(?,?,?,?,?)
+    
+origin.putOriginParamRefStmt = INSERT INTO \
+    originparamref (originparamrefid, \
+    originparameterid ) VALUES(?,?)
+    
+origin.deleteOriginParamRefStmt = DELETE FROM \
+    originparamref WHERE originparamrefid = ?
+    
+origin.getDBIdStmt = SELECT origin_id FROM $tablename \
+    WHERE origin_catalog_id = ? AND \
+    origin_time_id = ? AND origin_location_id = ? AND \
+    origin_text_id = ?
+    
+origin.getStmt = SELECT * FROM origin JOIN catalog ON (origin.origin_catalog_id = catalog.catalog_id)WHERE origin_id = ?
 
+origin.getParamsStmt = SELECT parametera_id, parametercreator FROM \
+    $tablename JOIN originparamref ON ( originparamrefid = origin_id ) \
+    JOIN parameterref ON (parameterref.parameterid = originparamref.originparameterid ) \
+    WHERE origin_id = ?
+    
+origin.updateEventIdStmt = UPDATE $tablename \
+    SET origin_event_id = ?  WHERE origin_id = ?
+    
+origin.deleteOriginStmt = DELETE FROM $tablename \
+    WHERE origin_id = ?
+    
+origin.getAllStmt = SELECT origin_id FROM origin \
+    WHERE origin_event_id = ?
+                
 catalog.create=CREATE TABLE catalog (catalog_id int, \
                                      catalog_contributor_id int, \
                                      catalog_name varchar, \

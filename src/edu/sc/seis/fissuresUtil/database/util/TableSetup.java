@@ -31,20 +31,48 @@ public class TableSetup {
                              Connection conn,
                              Object tableObj,
                              String propFile,
+                             String[] subtableNames) throws SQLException {
+        setup(tableName, conn, tableObj, propFile, new VelocityContext(), subtableNames);
+    }
+
+    public static void setup(String tableName,
+                             Connection conn,
+                             Object tableObj,
+                             String propFile,
                              Context ctx) throws SQLException {
+        setup(tableName, conn, tableObj, propFile, ctx, new String[0]);
+    }
+
+    public static void setup(String tableName,
+                             Connection conn,
+                             Object tableObj,
+                             String propFile,
+                             Context ctx,
+                             String[] subtableNames) throws SQLException {
         ctx.put(TABLE_NAME, tableName);
         SQLLoader sql = new SQLLoader(propFile, ctx);
-        TableSetup.customSetup(tableName, conn, tableObj, sql);
+        TableSetup.customSetup(tableName, conn, tableObj, sql, subtableNames);
     }
 
     public static void customSetup(String tablename,
                                    Connection conn,
                                    Object tableObj,
                                    SQLLoader statements) throws SQLException {
+        customSetup(tablename, conn, tableObj, statements, new String[0]);
+    }
+
+    public static void customSetup(String tablename,
+                                   Connection conn,
+                                   Object tableObj,
+                                   SQLLoader statements,
+                                   String[] subtableNames) throws SQLException {
         if(!statements.getContext().containsKey(TABLE_NAME)) {
             statements.getContext().put(TABLE_NAME, tablename);
         }
         createTable(tablename, conn, statements);
+        for(int i = 0; i < subtableNames.length; i++) {
+            createTable(subtableNames[i], conn, statements);
+        }
         createViews(tablename, conn, statements);
         prepareStatements(tablename, conn, tableObj, statements);
     }
