@@ -3,8 +3,7 @@ package edu.sc.seis.fissuresUtil.database.plottable;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
+import org.apache.log4j.varia.NullAppender;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -56,22 +55,23 @@ public class JDBCPlottableTest extends JDBCTearDown {
                                                       PIXELS,
                                                       CHAN_ID);
         plottDb.put(new PlottableChunk[] {data, secondDay});
-        MicroSecondDate halfPastFirstDay = START.add((TimeInterval)ONE_DAY.divideBy(2));
-        MicroSecondTimeRange halfFirstToHalfSecond = new MicroSecondTimeRange(halfPastFirstDay,
-                                                                              ONE_DAY);
-        PlottableChunk[] out = plottDb.get(halfFirstToHalfSecond,
+        TimeInterval halfDay = (TimeInterval)ONE_DAY.divideBy(2);
+        MicroSecondDate halfPastFirstDay = START.add(halfDay);
+        MicroSecondTimeRange halfFirstToStartSecond = new MicroSecondTimeRange(halfPastFirstDay,
+                                                                               halfDay);
+        PlottableChunk[] out = plottDb.get(halfFirstToStartSecond,
                                            data.getChannel(),
                                            data.getPixelsPerDay());
         int halfLength = data.getData().x_coor.length / 2;
         int[] x = new int[halfLength];
         int[] y = new int[halfLength];
         for(int i = 0; i < halfLength; i++) {
-            x[i] = (i + halfLength) / 2;
+            x[i] = i / 2;
         }
         System.arraycopy(data.getData().y_coor, halfLength, y, 0, halfLength);
-        PlottableChunk secondHalfFirstDay = new PlottableChunk(new Plottable(x,
-                                                                             y),
-                                                               halfLength,
+        Plottable plott = new Plottable(x, y);
+        PlottableChunk secondHalfFirstDay = new PlottableChunk(plott,
+                                                               PIXELS / 2,
                                                                1,
                                                                2000,
                                                                PIXELS,
@@ -162,7 +162,9 @@ public class JDBCPlottableTest extends JDBCTearDown {
 
     private static Plottable FULL_DAY = null;
     static {
-        BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%C{1}.%M - %m\n")));
+        BasicConfigurator.configure(new NullAppender());//ConsoleAppender(new
+        // PatternLayout("%C{1}.%M
+        // - %m\n")));
         try {
             FULL_DAY = makeDay(START);
         } catch(CodecException e) {
