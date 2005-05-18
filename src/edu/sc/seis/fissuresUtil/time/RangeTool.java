@@ -58,10 +58,8 @@ public class RangeTool {
 
     public static boolean areOverlapping(MicroSecondTimeRange one,
                                          MicroSecondTimeRange two) {
-        if((one.getBeginTime().before(two.getEndTime()) && one.getEndTime()
-                .after(two.getBeginTime()))
-                || (two.getBeginTime().before(one.getEndTime()) && two.getEndTime()
-                        .after(one.getBeginTime()))) { return true; }
+        if(one.getBeginTime().before(two.getEndTime()) && one.getEndTime()
+                .after(two.getBeginTime())) { return true; }
         return false;
     }
 
