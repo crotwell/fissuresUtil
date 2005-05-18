@@ -16,5 +16,5 @@ plottable.get=SELECT * FROM plottable WHERE \
               pixels_per_day = ?
               
 plottable.drop=DELETE FROM plottable WHERE \
-			  start_time <= ? AND end_time >= ? and channel_id = ? and \
+			  start_time < ? AND end_time > ? and channel_id = ? and \
               pixels_per_day = ?
