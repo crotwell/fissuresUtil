@@ -47,6 +47,10 @@ public class JDBCUnit extends JDBCTable {
     }
 
     public Unit get(int dbid) throws SQLException, NotFound {
+        Unit cachedUnit = (Unit)cache.get(new Integer(dbid));
+        if (cachedUnit != null) { 
+            return cachedUnit;
+        }
         getStmt.setInt(1, dbid);
         ResultSet results =  getStmt.executeQuery();
         if (results.next()) {
@@ -127,13 +131,21 @@ public class JDBCUnit extends JDBCTable {
         putStmt.setDouble(6, aUnit.getMultiFactor());
         putStmt.setInt(7, aUnit.getPower());
         putStmt.executeUpdate();
+        cache.put(new Integer(nextDBId), aUnit);
         return nextDBId;
     }
 
     public int getDBId(Unit aUnit) throws SQLException, NotFound {
         // check cache first
-        Integer dbid = (Integer)cache.get(aUnit.toString());
-        if (dbid != null)  return dbid.intValue();
+        if (cache.containsValue(aUnit)) {
+            Iterator it = cache.keySet().iterator();
+            while(it.hasNext()) {
+                Integer id = (Integer)it.next();
+                if (((Unit)cache.get(id)).equals(aUnit)) {
+                    return id.intValue();
+                }
+            }
+        }
         // not in cache so check db
         getDBIdStmt.setString(1, aUnit.toString());
         ResultSet rs = getDBIdStmt.executeQuery();
@@ -177,6 +189,9 @@ public class JDBCUnit extends JDBCTable {
         common.add(UnitImpl.JOULE);
         common.add(UnitImpl.COULOMB);
         common.add(UnitImpl.VOLT);
+        common.add(UnitImpl.MICROMETER_PER_SECOND);
+        common.add(UnitImpl.NANOMETER_PER_SECOND);
+        common.add(UnitImpl.COUNT);
 
         int dbid;
         Iterator iter = common.iterator();
@@ -184,7 +199,6 @@ public class JDBCUnit extends JDBCTable {
         while (iter.hasNext()) {
             unit = (UnitImpl)iter.next();
             dbid = put(unit);
-            cache.put(new Integer(dbid), unit);
         }
     }
 
