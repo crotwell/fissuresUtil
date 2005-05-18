@@ -87,12 +87,12 @@ public class EventBoxesTest extends TestCase {
                                         double arrivalTimeInSeconds) {
         CacheEvent ev = MockEventAccessOperations.createEvent();
         PlottableDisplay disp = new PlottableDisplay();
-        Arrival arr = new Arrival(new SeismicPhase("4kmps", new TauModel()),
+        Arrival arr = new Arrival(new SeismicPhase("3kmps", new TauModel()),
                                   arrivalTimeInSeconds,
                                   1d,
                                   1d,
                                   1,
-                                  "4kmps",
+                                  "3kmps",
                                   "HOO-AH",
                                   1d);
         Arrival[][] arrivals = new Arrival[1][];
