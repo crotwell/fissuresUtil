@@ -17,7 +17,6 @@ public class MapProjectExecute {
                                   String region,
                                   double[][] points) throws IOException,
             InterruptedException {
-        Runtime rt = Runtime.getRuntime();
         String command = "mapproject -Dp -J" + projection + " -R" + region;
         //logger.debug("executing command: " + command);
         StringBuffer buf = new StringBuffer();
