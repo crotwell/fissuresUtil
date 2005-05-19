@@ -12,6 +12,7 @@ import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class ImageAugmenter {
         this.yFromBottom = yFromBottom;
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Image img = null;
-        if (imgFileLoc.startsWith("jar:")){
+        if(imgFileLoc.startsWith("jar:")) {
             img = toolkit.getImage(getClass().getClassLoader()
                     .getResource(imgFileLoc.substring(4)));
         } else {
@@ -118,10 +119,12 @@ public class ImageAugmenter {
             return y;
         }
     }
-    
-    public void cropImage(int newWidth, int newHeight, int left, int top){
+
+    public void cropImage(int newWidth, int newHeight, int left, int top) {
         BufferedImage oldImage = image;
-        image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB_PRE);
+        image = new BufferedImage(newWidth,
+                                  newHeight,
+                                  BufferedImage.TYPE_INT_ARGB_PRE);
         Graphics2D g2D = image.createGraphics();
         g2D.drawImage(oldImage, null, -left, -top);
         oldImage = null;
@@ -136,7 +139,7 @@ public class ImageAugmenter {
         File temp = File.createTempFile(file.getName(),
                                         null,
                                         file.getParentFile());
-        outputToPNG(new FileOutputStream(temp));
+        outputToPNG(new BufferedOutputStream(new FileOutputStream(temp)));
         file.delete();
         temp.renameTo(file);
     }
