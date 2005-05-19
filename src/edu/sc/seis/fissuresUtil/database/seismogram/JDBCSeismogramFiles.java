@@ -104,7 +104,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
 					}
 			    }
 			    catch (Exception e){
-			        GlobalExceptionHandler.handle("Problem occured while returning seismograms from the database.");
+			        GlobalExceptionHandler.handle("Problem occured while returning seismograms from the database.", e);
 			    }   
 			}
 			
