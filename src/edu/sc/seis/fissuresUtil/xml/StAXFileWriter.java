@@ -1,13 +1,11 @@
 /**
  * StAXFileWriter.java
- *
- * @author Philip Oliver-Paull
- *
- * Convenience class for StAX stream writing
+ * 
+ * @author Philip Oliver-Paull Convenience class for StAX stream writing
  */
-
 package edu.sc.seis.fissuresUtil.xml;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,36 +14,35 @@ import javax.xml.stream.XMLStreamWriter;
 
 public class StAXFileWriter {
 
-    public StAXFileWriter(File file) throws IOException, XMLStreamException{
+    public StAXFileWriter(File file) throws IOException, XMLStreamException {
         outFile = file;
-        if (outFile.exists()){
-            tempFile = File.createTempFile("Temp_" + outFile.getName(), "xml", outFile.getParentFile());
+        if(outFile.exists()) {
+            tempFile = File.createTempFile("Temp_" + outFile.getName(),
+                                           "xml",
+                                           outFile.getParentFile());
             isTempFiled = true;
-        }
-        else {
+        } else {
             tempFile = outFile;
         }
-        fileWriter = new FileWriter(tempFile);
+        fileWriter = new BufferedWriter(new FileWriter(tempFile));
         xmlWriter = XMLUtil.staxOutputFactory.createXMLStreamWriter(fileWriter);
     }
 
-    public XMLStreamWriter getStreamWriter(){
+    public XMLStreamWriter getStreamWriter() {
         return xmlWriter;
     }
 
-    public void close() throws XMLStreamException, IOException{
-        if (!isClosed){
+    public void close() throws XMLStreamException, IOException {
+        if(!isClosed) {
             xmlWriter.writeEndDocument();
-            xmlWriter.flush();
-            fileWriter.flush();
             xmlWriter.close();
             fileWriter.close();
-            if (isTempFiled){
-                if ( ! tempFile.renameTo(outFile)) {
+            if(isTempFiled) {
+                if(!tempFile.renameTo(outFile)) {
                     //If unable to rename the tempfile, delete it and try again
-                    if(outFile.delete()){
+                    if(outFile.delete()) {
                         tempFile.renameTo(outFile);
-                    }else{
+                    } else {
                         throw new IOException("Unable to move temp file over old file");
                     }
                 }
@@ -55,9 +52,12 @@ public class StAXFileWriter {
     }
 
     private File outFile, tempFile;
+
     private boolean isTempFiled = false;
+
     private boolean isClosed = false;
-    private FileWriter fileWriter;
+
+    private BufferedWriter fileWriter;
+
     private XMLStreamWriter xmlWriter;
 }
-
