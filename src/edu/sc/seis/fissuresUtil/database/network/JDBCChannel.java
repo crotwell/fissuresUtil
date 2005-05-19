@@ -85,6 +85,13 @@ public class JDBCChannel extends NetworkTable {
     public Channel get(ChannelId id) throws SQLException, NotFound {
         return get(getDBId(id));
     }
+    
+    public ChannelId getId(int dbid) throws SQLException, NotFound{
+        getByDBId.setInt(1, dbid);
+        ResultSet rs = getByDBId.executeQuery();
+        if(rs.next()) { return extractId(rs, siteTable, time); }
+        throw new NotFound("No ChannelId found for database id = " + dbid);
+    }
 
     public Channel get(int dbid) throws SQLException, NotFound {
         getByDBId.setInt(1, dbid);
