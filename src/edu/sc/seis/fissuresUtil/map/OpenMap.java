@@ -136,8 +136,9 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         this(shapeLayerProps, projection, true);
     }
 
-    public OpenMap(Properties[] shapeLayerProps, Projection projection,
-            boolean graticule) {
+    public OpenMap(Properties[] shapeLayerProps,
+                   Projection projection,
+                   boolean graticule) {
         try {
             setLayout(new BorderLayout());
             mapHandler = new MapHandler();
@@ -344,7 +345,9 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
     public ShapeLayer getShapeLayer(String prettyName) {
         ShapeLayer[] layers = getShapeLayers();
         for(int i = 0; i < layers.length; i++) {
-            if(layers[i].PrettyNameProperty.equals(prettyName)) { return layers[i]; }
+            if(layers[i].PrettyNameProperty.equals(prettyName)) {
+                return layers[i];
+            }
         }
         return null;
     }
@@ -440,22 +443,22 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         loc.delete();
         temp.renameTo(loc);
     }
-    
-    public void writeMapToPNG(String filename) throws IOException{
+
+    public void writeMapToPNG(String filename) throws IOException {
         writeMapToPNG(new File(filename));
     }
-    
+
     public void writeMapToPNG(File loc) throws IOException {
         File parent = loc.getAbsoluteFile().getParentFile();
         parent.mkdirs();
         File temp = File.createTempFile(loc.getName(), null, parent);
-        writeMapToPNG(new FileOutputStream(temp));
+        writeMapToPNG(new BufferedOutputStream(new FileOutputStream(temp)));
         loc.delete();
         temp.renameTo(loc);
         logger.debug(ExceptionReporterUtils.getMemoryUsage()
                 + " after write image to file");
     }
-    
+
     public void writeMapToPNG(OutputStream out) throws IOException {
         synchronized(OpenMap.class) {
             try {
@@ -477,6 +480,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
                 }
                 ImageIO.write(bufImg, "png", out);
             } finally {
+                out.close();
                 getGlobalShapeLayer().setOverrideProjectionChanged(false);
             }
         }
