@@ -5,4 +5,6 @@ resource.loader = class
 class.resource.loader.description = Velocity Classpath Resource Loader
 class.resource.loader.class = org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 
-#
+
+#No global library
+velocimacro.library =
