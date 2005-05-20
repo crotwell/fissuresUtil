@@ -17,7 +17,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Rotate.java Created: Sun Dec 15 13:43:21 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Rotate.java 13505 2005-05-20 14:42:43Z crotwell $
+ * @version $Id: Rotate.java 13511 2005-05-20 19:09:12Z crotwell $
  */
 public class Rotate implements LocalMotionVectorFunction {
 
@@ -47,27 +47,16 @@ public class Rotate implements LocalMotionVectorFunction {
             throws FissuresException, IncompatibleSeismograms {
         float[][] data = rotateGCP(x, y, staLoc, evtLoc);
         LocalSeismogramImpl[] out = new LocalSeismogramImpl[2];
-        ChannelId xChanId = new ChannelId(x.channel_id.network_id,
-                                          x.channel_id.station_code,
-                                          x.channel_id.site_code,
-                                          x.channel_id.channel_code.substring(0,
-                                                                              2)
-                                                  + radialCode,
-                                          x.channel_id.begin_time);
-        out[0] = new LocalSeismogramImpl(x.get_id() + "Radial",
+
+        ChannelId xChanId = replaceChannelOrientation(y.channel_id, transverseCode);
+        out[0] = new LocalSeismogramImpl(x.get_id() + "Transverse",
                                          x.begin_time,
                                          data[0].length,
                                          x.sampling_info,
                                          x.y_unit,
                                          xChanId,
                                          data[0]);
-        ChannelId yChanId = new ChannelId(y.channel_id.network_id,
-                                          y.channel_id.station_code,
-                                          y.channel_id.site_code,
-                                          y.channel_id.channel_code.substring(0,
-                                                                              2)
-                                                  + transverseCode,
-                                          y.channel_id.begin_time);
+        ChannelId yChanId = replaceChannelOrientation(y.channel_id, radialCode);
         out[1] = new LocalSeismogramImpl(y.get_id() + "Radial",
                                          y.begin_time,
                                          data[1].length,
@@ -76,6 +65,15 @@ public class Rotate implements LocalMotionVectorFunction {
                                          yChanId,
                                          data[1]);
         return out;
+    }
+    
+    public static ChannelId replaceChannelOrientation(ChannelId chanId, String orientation) {
+        return new ChannelId(chanId.network_id,
+                             chanId.station_code,
+                             chanId.site_code,
+                             chanId.channel_code.substring(0, 2)
+                                     + orientation,
+                                     chanId.begin_time);
     }
 
     /**
@@ -95,9 +93,21 @@ public class Rotate implements LocalMotionVectorFunction {
                                       Location evtLoc)
             throws FissuresException, IncompatibleSeismograms {
         DistAz distAz = new DistAz(staLoc, evtLoc);
-        return Rotate.rotate(x, y, dtor(180 + distAz.getBaz()));
+        return Rotate.rotate(x, y, dtor(getRadialAzimuth(staLoc, evtLoc)));
     }
-
+    
+    public static double getRadialAzimuth(Location staLoc,
+                                             Location evtLoc) {
+        DistAz distAz = new DistAz(staLoc, evtLoc);
+        return (180 + distAz.getBaz()) % 360;
+    }
+    
+    public static double getTransverseAzimuth(Location staLoc,
+                                             Location evtLoc) {
+        DistAz distAz = new DistAz(staLoc, evtLoc);
+        return (270 + distAz.getBaz()) % 360;
+    }
+    
     /**
      * rotates the two seismograms by the given angle. It is assumed that the
      * two seismograms orientation are perpendicular to each other and that the
