@@ -54,8 +54,11 @@ public class BorderedDisplay extends JPanel {
                                                size.height,
                                                BufferedImage.TYPE_INT_RGB);
         renderToGraphics(bImg.createGraphics(), size);
-        ImageIO.write(bImg, "png", loc);
-        loc.close();
+        try {
+            ImageIO.write(bImg, "png", loc);
+        } finally {
+            loc.close();
+        }
     }
 
     public void renderToGraphics(Graphics2D g) {
@@ -100,10 +103,14 @@ public class BorderedDisplay extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;//Fill all panels in both directions
         gbc.gridx = position % 3;
         gbc.gridy = position / 3;
-        if(gbc.gridx == 1) gbc.weightx = 1;//All row 1 components have a x
-        else gbc.weightx = 0;//weight of 1
-        if(gbc.gridy == 1) gbc.weighty = 1;// All column 1 components have y
-        else gbc.weighty = 0;//weight of 1
+        if(gbc.gridx == 1)
+            gbc.weightx = 1;//All row 1 components have a x
+        else
+            gbc.weightx = 0;//weight of 1
+        if(gbc.gridy == 1)
+            gbc.weighty = 1;// All column 1 components have y
+        else
+            gbc.weighty = 0;//weight of 1
         super.add(comp, gbc);
     }
 
