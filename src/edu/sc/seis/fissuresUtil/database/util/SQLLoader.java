@@ -11,6 +11,7 @@ import java.util.Properties;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.runtime.RuntimeConstants;
 import edu.sc.seis.fissuresUtil.database.WrappedSQLException;
 
 /**
@@ -18,53 +19,61 @@ import edu.sc.seis.fissuresUtil.database.WrappedSQLException;
  */
 public class SQLLoader {
 
-    public SQLLoader(String template) throws SQLException{
+    public SQLLoader(String template) throws SQLException {
         this(template, new VelocityContext());
     }
-    
+
     public SQLLoader(String template, Context ctx) throws SQLException {
         try {
-        this.context = ctx;
-        VelocityEngine ve = new VelocityEngine();
-        Properties props = new Properties();
-        ClassLoader cl = getClass().getClassLoader();
-        props.load(cl.getResourceAsStream(propsLoc));
-        ve.init(props);
-        StringWriter velWriter = new StringWriter();
-        ve.mergeTemplate(template, ctx, velWriter);
-        String velOutput = velWriter.toString();
-        InputStream sqlInput = new ByteArrayInputStream(velOutput.getBytes());
-        sqlProps.load(sqlInput);
+            this.context = ctx;
+            VelocityEngine ve = new VelocityEngine();
+            Properties props = new Properties();
+            ClassLoader cl = getClass().getClassLoader();
+            props.load(cl.getResourceAsStream(propsLoc));
+            props.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                              "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+            props.setProperty("runtime.log.logsystem.log4j.category",
+                              logger.getName());
+            ve.init(props);
+            StringWriter velWriter = new StringWriter();
+            ve.mergeTemplate(template, ctx, velWriter);
+            String velOutput = velWriter.toString();
+            InputStream sqlInput = new ByteArrayInputStream(velOutput.getBytes());
+            sqlProps.load(sqlInput);
         } catch(IOException e) {
-            throw new WrappedSQLException("unable to load sql properties from "+template, e);
-        } catch (Exception e) {
-            throw new WrappedSQLException("unable to merge template from "+template, e);
+            throw new WrappedSQLException("unable to load sql properties from "
+                    + template, e);
+        } catch(Exception e) {
+            throw new WrappedSQLException("unable to merge template from "
+                    + template, e);
         }
     }
-    
-    public boolean has(String propName){
+
+    public boolean has(String propName) {
         return sqlProps.getProperty(propName) != null;
     }
-    
-    public String get(String propName){
+
+    public String get(String propName) {
         return sqlProps.getProperty(propName);
     }
 
-    public String[] getNamesForPrefix(String prefix){
+    public String[] getNamesForPrefix(String prefix) {
         ArrayList list = new ArrayList();
         Iterator it = sqlProps.keySet().iterator();
         while(it.hasNext()) {
             String key = (String)it.next();
-            if (key.startsWith(prefix)) {
+            if(key.startsWith(prefix)) {
                 list.add(key);
             }
         }
         return (String[])list.toArray(new String[0]);
     }
-    
+
     private Properties sqlProps = new Properties();
 
     private static final String propsLoc = "edu/sc/seis/fissuresUtil/database/util/SQLLoader.prop";
+
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SQLLoader.class);
 
     private Context context;
 
