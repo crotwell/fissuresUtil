@@ -260,7 +260,7 @@ public class FissuresNamingService {
      * namingcontext and continues.
      */
     public void rebind(String dns,
-                       String objectname,
+                       String objectId,
                        org.omg.CORBA.Object obj,
                        NamingContextExt topLevelNameContext,
                        String interfacename) throws NotFound, CannotProceed,
@@ -269,38 +269,58 @@ public class FissuresNamingService {
             throw new IllegalArgumentException("dns must have characters: "
                     + dns);
         }
-        if(objectname == null || objectname.length() == 0) {
-            throw new IllegalArgumentException("objectname must have characters: "
-                    + objectname);
+        if(objectId == null || objectId.length() == 0) {
+            throw new IllegalArgumentException("objectId must have characters: "
+                    + objectId);
         }
         if(interfacename == null || interfacename.length() == 0) {
             throw new IllegalArgumentException("interfacename must have characters: "
                     + interfacename);
         }
         logger.info("rebind dns=" + dns + " interface=" + interfacename
-                + " object=" + objectname);
+                + " object=" + objectId);
         if(topLevelNameContext == null) {
             logger.warn("top level name context is null!");
         }
         String nameString = appendKindNames(dns);
         nameString = nameString + "/" + interfacename + ".interface";
         String contextName = nameString;
-        nameString = nameString + "/" + objectname + ".object" + getVersion();
+        String objectName = objectId + ".object" + getVersion();
+        nameString = nameString + "/" + objectName;
         logger.info("the object to be rebound is " + nameString);
+        NameComponent[] nameComponents = topLevelNameContext.to_name(contextName);
         try {
-            topLevelNameContext.rebind(topLevelNameContext.to_name(nameString),
-                                       obj);
+            topLevelNameContext.rebind(nameComponents, obj);
         } catch(NotFound nfe) {
             switch(nfe.why.value()){
                 case NotFoundReason._missing_node:
-                    System.out.println("Missing Node");
+                    int numMissing = nfe.rest_of_name.length;
+                    logger.debug("Missing "
+                            + numMissing
+                            + " context nodes from a total of "
+                            + nameComponents.length
+                            + " in "
+                            + nameString
+                            + ".  Attempting to bind them as new contexts one by one");
                     try {
-                        NamingContext nc = topLevelNameContext.bind_new_context(topLevelNameContext.to_name(contextName));
-                        // we now have the parent context, so just rebind the
-                        // object
-                        NameComponent[] nameComponents = topLevelNameContext.to_name(nameString);
-                        nc.rebind(new NameComponent[] {nameComponents[nameComponents.length - 1]},
-                                  obj);
+                        //nameComponents array includes the object
+                        // name so nameComponents.length - 2 is the last context
+                        // node and nameComponents.length - 1 is the object
+                        // name.Therefore nameComponents[nameComponents.length -
+                        // numMissing] is the first missing context node and
+                        // nameComponents[nameComponents.length - 2] is the last
+                        // context node that needs to be bound
+                        for(int i = nameComponents.length - numMissing; i < nameComponents.length; i++) {
+                            NameComponent[] subComponent = new NameComponent[i];
+                            for(int j = 0; j < subComponent.length; j++) {
+                                subComponent[j] = nameComponents[j];
+                            }
+                            logger.debug("Binding " + subComponent[i - 1].id
+                                    + "." + subComponent[i - 1].kind
+                                    + " as new context");
+                            topLevelNameContext.bind_new_context(subComponent);
+                        }
+                        topLevelNameContext.bind(nameComponents, obj);
                     } catch(AlreadyBound e) {
                         logger.error("Shouldn't be already bound, just got an exception saying it wasn't bound",
                                      e);
