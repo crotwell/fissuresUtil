@@ -26,17 +26,8 @@ public class SQLLoader {
     public SQLLoader(String template, Context ctx) throws SQLException {
         try {
             this.context = ctx;
-            VelocityEngine ve = new VelocityEngine();
-            Properties props = new Properties();
-            ClassLoader cl = getClass().getClassLoader();
-            props.load(cl.getResourceAsStream(propsLoc));
-            props.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                              "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-            props.setProperty("runtime.log.logsystem.log4j.category",
-                              logger.getName());
-            ve.init(props);
             StringWriter velWriter = new StringWriter();
-            ve.mergeTemplate(template, ctx, velWriter);
+            getEngine().mergeTemplate(template, ctx, velWriter);
             String velOutput = velWriter.toString();
             InputStream sqlInput = new ByteArrayInputStream(velOutput.getBytes());
             sqlProps.load(sqlInput);
@@ -47,6 +38,22 @@ public class SQLLoader {
             throw new WrappedSQLException("unable to merge template from "
                     + template, e);
         }
+    }
+
+    private synchronized static VelocityEngine getEngine() throws IOException,
+            Exception {
+        if(ve == null) {
+            ve = new VelocityEngine();
+            Properties props = new Properties();
+            ClassLoader cl = SQLLoader.class.getClassLoader();
+            props.load(cl.getResourceAsStream(propsLoc));
+            props.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                              "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+            props.setProperty("runtime.log.logsystem.log4j.category",
+                              logger.getName());
+            ve.init(props);
+        }
+        return ve;
     }
 
     public boolean has(String propName) {
@@ -76,6 +83,8 @@ public class SQLLoader {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SQLLoader.class);
 
     private Context context;
+
+    private static VelocityEngine ve;
 
     public Context getContext() {
         return context;
