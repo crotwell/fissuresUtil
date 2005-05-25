@@ -284,11 +284,10 @@ public class FissuresNamingService {
         }
         String nameString = appendKindNames(dns);
         nameString = nameString + "/" + interfacename + ".interface";
-        String contextName = nameString;
         String objectName = objectId + ".object" + getVersion();
         nameString = nameString + "/" + objectName;
         logger.info("the object to be rebound is " + nameString);
-        NameComponent[] nameComponents = topLevelNameContext.to_name(contextName);
+        NameComponent[] nameComponents = topLevelNameContext.to_name(nameString);
         try {
             topLevelNameContext.rebind(nameComponents, obj);
         } catch(NotFound nfe) {
