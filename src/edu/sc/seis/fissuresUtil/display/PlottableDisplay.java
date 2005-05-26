@@ -174,7 +174,9 @@ public class PlottableDisplay extends JComponent {
 
     protected void drawComponent(Graphics g) {
         drawTitle(g);
-        drawTimeTicks(g);
+        if(date != null) {
+            drawTimeTicks(g, date);
+        }
         if(arrayplottable == null) {
             logger.warn("Plottable is NULL.");
             return;
@@ -259,7 +261,7 @@ public class PlottableDisplay extends JComponent {
         }
     }
 
-    void drawTimeTicks(Graphics g) {
+    void drawTimeTicks(Graphics g, Date date) {
         Graphics2D g2 = (Graphics2D)g;
         //int hour = 0;
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
