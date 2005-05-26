@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.gmt;
 
-import java.io.BufferedReader;
+import java.io.Reader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.bag.StreamPump;
 
@@ -26,21 +27,29 @@ public class GenericCommandExecute {
                               OutputStream stdout,
                               OutputStream stderr) throws InterruptedException,
             IOException {
+        return execute(command, stdin, new OutputStreamWriter(stdout), new OutputStreamWriter(stderr));
+    }
+
+    public static int execute(String command,
+                              Reader stdin,
+                              Writer stdout,
+                              Writer stderr) throws InterruptedException,
+            IOException {
         Runtime rt = Runtime.getRuntime();
         //System.out.println("executing command: " + command);
         Process proc = rt.exec(command);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdout));
-        BufferedWriter inWriter = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
-        BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-        BufferedWriter errWriter = new BufferedWriter(new OutputStreamWriter(stderr));
-        StreamPump pump = new StreamPump(reader, writer, false);
+        Reader reader = new InputStreamReader(proc.getInputStream());
+        //BufferedWriter writer = new BufferedWriter(stdout);
+        Writer inWriter = new OutputStreamWriter(proc.getOutputStream());
+        Reader errReader = new InputStreamReader(proc.getErrorStream());
+        //BufferedWriter errWriter = new BufferedWriter(stderr);
+        StreamPump pump = new StreamPump(reader, stdout, false);
         pump.setName("stdout");
         pump.start();
-        StreamPump errPump = new StreamPump(errReader, errWriter, false);
+        StreamPump errPump = new StreamPump(errReader, stderr, false);
         errPump.setName("stderr");
         errPump.start();
-        StreamPump stdInPump = new StreamPump(new BufferedReader(stdin),
+        StreamPump stdInPump = new StreamPump(stdin,
                                               inWriter,
                                               true);
         stdInPump.setName("stdin");
