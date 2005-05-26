@@ -3,9 +3,6 @@ package edu.sc.seis.fissuresUtil.bag;
 import java.awt.geom.AffineTransform;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
-import edu.iris.Fissures.Sampling;
-import edu.iris.Fissures.Time;
-import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.LocalMotionVector;
 import edu.iris.Fissures.IfSeismogramDC.VectorComponent;
@@ -17,7 +14,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Rotate.java Created: Sun Dec 15 13:43:21 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Rotate.java 13511 2005-05-20 19:09:12Z crotwell $
+ * @version $Id: Rotate.java 13579 2005-05-26 21:03:15Z crotwell $
  */
 public class Rotate implements LocalMotionVectorFunction {
 
