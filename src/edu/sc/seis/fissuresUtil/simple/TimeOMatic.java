@@ -29,13 +29,14 @@ public class TimeOMatic {
     public static TimeInterval time() {
         Thread t = Thread.currentThread();
         MicroSecondDate then = (MicroSecondDate)times.get(t);
+        if (then == null) { start(); return new TimeInterval(0, UnitImpl.SECOND);}
         MicroSecondDate now = new MicroSecondDate();
         times.put(t, now);
         return now.subtract(then);
     }
     
     public static void print(String msg) {
-        System.out.println(msg+": "+time().convertTo(UnitImpl.SECOND));
+        System.out.println("["+Thread.currentThread().getName()+"] "+msg+": "+time().convertTo(UnitImpl.SECOND));
     }
     
     private static HashMap times = new HashMap();
