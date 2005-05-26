@@ -182,6 +182,8 @@ public class ConnMgr {
             logger.debug("Setting db url to "
                     + sysProperties.getProperty(DBURL_KEY));
             setURL(sysProperties.getProperty(DBURL_KEY));
+        }else{
+            logger.debug("using default url of " + getURL());
         }
     }
 
@@ -203,8 +205,10 @@ public class ConnMgr {
         }
         if(!loadedFromArg) {
             try {
+                logger.debug("No -hsql argument found, trying to load from server.properties in current working directory");
                 Initializer.loadProps(new FileInputStream("server.properties"),
                                       dbProperties);
+                logger.debug("loaded props from server.properties in working directory");
             } catch(FileNotFoundException e) {
                 logger.debug("Didn't find default server.properties file");
             }
