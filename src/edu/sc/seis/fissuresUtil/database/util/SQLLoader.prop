@@ -4,7 +4,10 @@ resource.loader = class
 #setup the class loader to load items in the classpath
 class.resource.loader.description = Velocity Classpath Resource Loader
 class.resource.loader.class = org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+class.resource.loader.cache = true
+class.resource.loader.modificationCheckInterval = 0
 
+resource.manager.logwhenfound = false
 
 #No global library
 velocimacro.library =
