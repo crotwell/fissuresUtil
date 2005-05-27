@@ -97,8 +97,8 @@ public class FissuresNamingService {
     /**
      * returns the reference to the root Naming Service.
      */
-    public org.omg.CORBA.Object getRoot() {
-        org.omg.CORBA.Object rootObj = null;
+    public synchronized org.omg.CORBA.Object getRoot() {
+        org.omg.CORBA.Object rootObj;
         if(nameServiceCorbaLoc != null) {
             logger.info("Using name service corba loc=" + nameServiceCorbaLoc);
             rootObj = orb.string_to_object(nameServiceCorbaLoc);
@@ -124,7 +124,7 @@ public class FissuresNamingService {
         return rootObj;
     }
 
-    public NamingContextExt getNameService() {
+    public synchronized NamingContextExt getNameService() {
         if(rootNamingContext == null) {
             org.omg.CORBA.Object rootObj = getRoot();
             logger.debug("now trying narrow ");
