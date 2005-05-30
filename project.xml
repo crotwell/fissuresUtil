@@ -284,6 +284,14 @@
                 <filtering>false</filtering>
             </resource>
             <resource>
+            <directory>src/edu/sc/seis/fissuresUtil/database/seismogram</directory>
+            <targetPath>edu/sc/seis/fissuresUtil/database/seismogram</targetPath>
+            <includes>
+                <include>seisfilereference.vm</include>
+            </includes>
+            <filtering>false</filtering>
+        </resource>
+        <resource>
                 <directory>src/edu/sc/seis/fissuresUtil/database/props</directory>
                 <targetPath>edu/sc/seis/fissuresUtil/database/props</targetPath>
                 <includes>
