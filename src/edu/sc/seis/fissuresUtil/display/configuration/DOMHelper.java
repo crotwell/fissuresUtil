@@ -10,6 +10,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 /**
  * @author groves Created on Feb 17, 2005
@@ -101,5 +102,28 @@ public class DOMHelper {
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(source);
         return doc.getDocumentElement();
+    }
+
+    public static Element extractOrCreateElement(Element parent, String name) {
+        Document rootDoc = parent.getOwnerDocument();
+        if(hasElement(parent, name)) {
+            return extractElement(parent, name);
+        } else {
+            Element newElement = rootDoc.createElement(name);
+            parent.appendChild(newElement);
+            return newElement;
+        }
+    }
+
+    public static Text extractOrCreateTextNode(Element filenameElement,
+                                               String defaultText) {
+        Document rootDoc = filenameElement.getOwnerDocument();
+        if(filenameElement.getChildNodes().item(0) instanceof Text) {
+            return (Text)filenameElement.getChildNodes().item(0);
+        } else {
+            Text textNode = rootDoc.createTextNode(defaultText);
+            filenameElement.appendChild(textNode);
+            return textNode;
+        }
     }
 }
