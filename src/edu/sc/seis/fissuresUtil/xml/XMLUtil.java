@@ -95,7 +95,9 @@ public class XMLUtil {
                 writer.writeEndDocument();
                 break;
             case XMLStreamConstants.START_ELEMENT:
-                writer.writeStartElement(reader.getPrefix(),
+                String prefix = reader.getPrefix() == null ? ""
+                        : reader.getPrefix();
+                writer.writeStartElement(prefix,
                                          reader.getLocalName(),
                                          reader.getNamespaceURI());
                 for(int i = 0; i < reader.getNamespaceCount(); i++) {
@@ -315,7 +317,8 @@ public class XMLUtil {
 
     public static XMLEventFactory staxEventFactory = XMLEventFactory.newInstance();
 
-    public static QName emptyName = new QName("thisisareallyuglynameforatagthathopefullynoonewilleveruse");
+    public static QName emptyName = new QName("",
+                                              "thisisareallyuglynameforatagthathopefullynoonewilleveruse");
 
     //---------------------------------------------------------
     //End of StAX stuff. Everything else is DOM.
@@ -342,7 +345,9 @@ public class XMLUtil {
         try {
             //xpath = new CachedXPathAPI();
             XObject xobj = xpath.eval(context, path);
-            if(xobj != null && xobj.getType() == XObject.CLASS_NODESET) { return xobj.nodelist(); }
+            if(xobj != null && xobj.getType() == XObject.CLASS_NODESET) {
+                return xobj.nodelist();
+            }
         } catch(javax.xml.transform.TransformerException e) {
             //System.out.println("Couldn't get NodeList"+e);
         } // end of try-catch
@@ -372,7 +377,8 @@ public class XMLUtil {
      * recurse into subelements.
      */
     public static String getText(Element config) {
-        if(config == null) return new String("");
+        if(config == null)
+            return new String("");
         NodeList children = config.getChildNodes();
         Node node;
         String out = "";
@@ -394,7 +400,9 @@ public class XMLUtil {
         for(int counter = 0; counter < children.getLength(); counter++) {
             node = children.item(counter);
             if(node instanceof Element) {
-                if(((Element)node).getTagName().equals(elementName)) { return ((Element)node); }
+                if(((Element)node).getTagName().equals(elementName)) {
+                    return ((Element)node);
+                }
             }
         }
         return null;
@@ -427,7 +435,9 @@ public class XMLUtil {
     public static String[] getAllAsStrings(Element config, String path) {
         //logger.debug("The path that is passed to GetALLASStrings is "+path);
         NodeList nodes = evalNodeList(config, path);
-        if(nodes == null) { return new String[0]; } // end of if (nodes == null)
+        if(nodes == null) {
+            return new String[0];
+        } // end of if (nodes == null)
         String[] out = new String[nodes.getLength()];
         //logger.debug("the length of the nodes is "+nodes.getLength());
         for(int i = 0; i < out.length; i++) {
@@ -448,9 +458,11 @@ public class XMLUtil {
     public static String getUniqueName(String[] nameList, String name) {
         int counter = 0;
         for(int i = 0; i < nameList.length; i++) {
-            if(nameList[i].indexOf(name) != -1) counter++;
+            if(nameList[i].indexOf(name) != -1)
+                counter++;
         }
-        if(counter == 0) return name;
+        if(counter == 0)
+            return name;
         return name + "_" + (counter + 1);
     }
 
@@ -465,7 +477,9 @@ public class XMLUtil {
      */
     public static Element evalElement(Node context, String path) {
         NodeList nList = evalNodeList(context, path);
-        if(nList != null && nList.getLength() != 0) { return (Element)nList.item(0); }
+        if(nList != null && nList.getLength() != 0) {
+            return (Element)nList.item(0);
+        }
         return null;
     }
 
