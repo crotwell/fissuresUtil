@@ -15,8 +15,9 @@ import java.net.URL;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class SeismogramFileTypes {
-    private SeismogramFileTypes (String val){
+    private SeismogramFileTypes (String val, int intVal){
         this.val = val;
+        this.intVal = intVal;
     }
 
     public boolean equals(Object obj) {
@@ -26,6 +27,10 @@ public class SeismogramFileTypes {
 
     public String getValue() {
         return this.val;
+    }
+
+    public int getIntValue() {
+        return this.intVal;
     }
 
     public URL getURLValue() {
@@ -49,14 +54,26 @@ public class SeismogramFileTypes {
         throw new UnsupportedFileTypeException(typeURL);
     }
 
-    public static final SeismogramFileTypes SAC = new SeismogramFileTypes("sac");
+    public static SeismogramFileTypes fromInt(int type) throws UnsupportedFileTypeException {
+        if (type == MSEED.getIntValue()) {
+            return MSEED;
+        } else if (type == SAC.getIntValue()) {
+            return SAC;
+        } else if (type == PSN.getIntValue()) {
+            return PSN;
+        }
+        throw new UnsupportedFileTypeException(""+type);
+    }
 
-    public static final SeismogramFileTypes MSEED = new SeismogramFileTypes("mseed");
+    public static final SeismogramFileTypes SAC = new SeismogramFileTypes("sac", 1);
 
-    public static final SeismogramFileTypes PSN = new SeismogramFileTypes("psn");
+    public static final SeismogramFileTypes MSEED = new SeismogramFileTypes("mseed", 2);
+
+    public static final SeismogramFileTypes PSN = new SeismogramFileTypes("psn", 3);
 
     public static final String URL_PREFIX = "http://www.seis.sc.edu/xml/SeismogramFileTypes/";
 
     private String val;
+    private int intVal;
 
 }// SeismogramFileTypes
