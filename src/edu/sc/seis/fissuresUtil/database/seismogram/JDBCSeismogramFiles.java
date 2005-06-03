@@ -25,8 +25,11 @@ import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.mseed.MiniSeedRead;
 import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
+import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
+import edu.sc.seis.fissuresUtil.xml.URLDataSetSeismogram;
 
 /**
  * @author fenner
@@ -43,15 +46,16 @@ public class JDBCSeismogramFiles extends JDBCTable {
 		chanTable = new JDBCChannel(conn);
 	}
 	
-	public void saveSeismogramToDatabase(ChannelId chan, LocalSeismogramImpl seis, String fileLocation) throws SQLException{
+	public void saveSeismogramToDatabase(ChannelId chan, LocalSeismogramImpl seis, String fileLocation, SeismogramFileTypes filetype) throws SQLException{
 		//Get absolute file path out of the file path given
 	    File sacFile = new File(fileLocation);
-	    String absoluteFilePath = sacFile.getAbsolutePath();
+	    String absoluteFilePath = sacFile.getPath();
 	    
 		insert.setInt(1, chanTable.put(chan));
 		insert.setInt(2, timeTable.put(seis.getBeginTime().getFissuresTime()));
 		insert.setInt(3, timeTable.put(seis.getEndTime().getFissuresTime()));
 		insert.setString(4, absoluteFilePath);
+        insert.setInt(5, filetype.getIntValue());
 		insert.executeUpdate();
 	}
 	
@@ -96,11 +100,13 @@ public class JDBCSeismogramFiles extends JDBCTable {
 			if(returnSeismograms){
 			    try{
 				    while(databaseResults.next()){
-					    File sacFile = new File(databaseResults.getString(4));
-					    SacTimeSeries sacSeries = new SacTimeSeries();
-					    sacSeries.read(sacFile);
-					    LocalSeismogram result = SacToFissures.getSeismogram(sacSeries);
-					    matchingSeismogramsResultList.add(result);
+				        File sacFile = new File(databaseResults.getString(4));
+				        SeismogramFileTypes filetype = SeismogramFileTypes.fromInt(databaseResults.getInt("filetype"));
+				        URLDataSetSeismogram urlSeis = new URLDataSetSeismogram(sacFile.toURL(), filetype);
+				        LocalSeismogramImpl[] result = urlSeis.getSeismograms();
+				        for(int j = 0; j < result.length; j++) {
+				            matchingSeismogramsResultList.add(result[i]);
+				        }
 					}
 			    }
 			    catch (Exception e){
