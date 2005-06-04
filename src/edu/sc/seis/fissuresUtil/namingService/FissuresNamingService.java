@@ -309,17 +309,15 @@ public class FissuresNamingService {
                         // numMissing] is the first missing context node and
                         // nameComponents[nameComponents.length - 2] is the last
                         // context node that needs to be bound
+                        NamingContext curContext = topLevelNameContext;
                         for(int i = nameComponents.length - numMissing; i < nameComponents.length; i++) {
-                            NameComponent[] subComponent = new NameComponent[i];
-                            for(int j = 0; j < subComponent.length; j++) {
-                                subComponent[j] = nameComponents[j];
-                            }
-                            logger.debug("Binding " + subComponent[i - 1].id
-                                    + "." + subComponent[i - 1].kind
+                            logger.debug("Binding " + nameComponents[i - 1].id
+                                    + "." + nameComponents[i - 1].kind
                                     + " as new context");
-                            topLevelNameContext.bind_new_context(subComponent);
+                            curContext = curContext.bind_new_context(new NameComponent[] {nameComponents[i - 1]});
                         }
-                        topLevelNameContext.bind(nameComponents, obj);
+                        curContext.bind(new NameComponent[] {nameComponents[nameComponents.length - 1]},
+                                        obj);
                     } catch(AlreadyBound e) {
                         logger.error("Shouldn't be already bound, just got an exception saying it wasn't bound",
                                      e);
