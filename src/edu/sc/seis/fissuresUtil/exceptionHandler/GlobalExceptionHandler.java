@@ -20,6 +20,8 @@ import org.apache.log4j.Logger;
 
 public class GlobalExceptionHandler {
 
+    private static final String EXITONEXCEPTION = "fissuresUtil.exceptionHandler.exitOnException";
+
     public static void handle(Throwable thrown) {
         handle("Houston, we have a problem...", thrown);
     }
@@ -31,7 +33,7 @@ public class GlobalExceptionHandler {
     public static void handle(String message) {
         handle(message, new Exception());
     }
-    
+
     public static void handle(String message, Throwable thrown) {
         try {
             Iterator intIt = interceptors.iterator();
@@ -39,7 +41,8 @@ public class GlobalExceptionHandler {
             while(intIt.hasNext()) {
                 ExceptionInterceptor interceptor = (ExceptionInterceptor)intIt.next();
                 handledByInterceptor = interceptor.handle(message, thrown);
-                if(handledByInterceptor) break;
+                if(handledByInterceptor)
+                    break;
             }
             if(!handledByInterceptor) {
                 if(reporters.size() == 0) {
@@ -84,19 +87,22 @@ public class GlobalExceptionHandler {
         } catch(Throwable e) {
             paranoid(e, thrown);
         }
+        if(exitOnException) {
+            System.exit(1);
+        }
     }
-    
+
     public static void add(ExceptionInterceptor interceptor) {
         interceptors.add(interceptor);
     }
-    
+
     /*
-     * Add an interceptor someplace other than the end of the list so as
-     * to affect its priority over other interceptors.  A position of 0
-     * puts the interceptor at the beginning of the list and thus makes
-     * it the first one to be run.  Hurrah for bombastic documentation! 
+     * Add an interceptor someplace other than the end of the list so as to
+     * affect its priority over other interceptors. A position of 0 puts the
+     * interceptor at the beginning of the list and thus makes it the first one
+     * to be run. Hurrah for bombastic documentation!
      */
-    public static void add(ExceptionInterceptor interceptor, int position){
+    public static void add(ExceptionInterceptor interceptor, int position) {
         interceptors.add(position, interceptor);
     }
 
@@ -151,9 +157,12 @@ public class GlobalExceptionHandler {
     }
 
     private static String parse(Object item) throws IOException {
-        if(item instanceof List) return createString((List)item);
-        else if(item instanceof File) return createString((File)item);
-        else throw new IllegalArgumentException();
+        if(item instanceof List)
+            return createString((List)item);
+        else if(item instanceof File)
+            return createString((File)item);
+        else
+            throw new IllegalArgumentException();
     }
 
     private static String createString(File file) throws IOException {
@@ -189,6 +198,11 @@ public class GlobalExceptionHandler {
         } catch(Throwable loggerException) {
             //well, lets hope System.err is good enough.
         }
+    }
+
+    private static final boolean exitOnException;
+    static {
+        exitOnException = Boolean.getBoolean(EXITONEXCEPTION);
     }
 
     private static Map sectionToContents = new HashMap();
