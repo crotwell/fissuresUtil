@@ -19,8 +19,28 @@ public class CoverageTool {
      */
     public static RequestFilter[] notCovered(RequestFilter[] neededFilters,
                                              LocalSeismogramImpl[] existingFilters) {
-        if(existingFilters.length == 0) { return neededFilters; }
+        if(existingFilters.length == 0) {
+            return neededFilters;
+        }
         LocalSeismogramImpl[] sorted = SortTool.byBeginTimeAscending(existingFilters);
+        MicroSecondTimeRange[] ranges = new MicroSecondTimeRange[sorted.length];
+        for(int i = 0; i < sorted.length; i++) {
+            ranges[i] = new MicroSecondTimeRange(sorted[i]);
+        }
+        return CoverageTool.notCovered(neededFilters, ranges);
+    }
+
+    /**
+     * @returns an array containing the request filters taken from the
+     *          <code>filters</code> array that are not completely covered by
+     *          the existing filters begin and end.
+     */
+    public static RequestFilter[] notCovered(RequestFilter[] neededFilters,
+                                             RequestFilter[] existingFilters) {
+        if(existingFilters.length == 0) {
+            return neededFilters;
+        }
+        RequestFilter[] sorted = SortTool.byBeginTimeAscending(existingFilters);
         MicroSecondTimeRange[] ranges = new MicroSecondTimeRange[sorted.length];
         for(int i = 0; i < sorted.length; i++) {
             ranges[i] = new MicroSecondTimeRange(sorted[i]);
