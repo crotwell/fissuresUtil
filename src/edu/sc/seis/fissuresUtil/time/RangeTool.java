@@ -15,7 +15,7 @@ public class RangeTool {
 
     public static boolean areContiguous(PlottableChunk one, PlottableChunk two) {
         TimeInterval sampleInterval = new TimeInterval(1d / one.getPixelsPerDay(),
-                                                        UnitImpl.DAY);
+                                                       UnitImpl.DAY);
         return areContiguous(one.getTimeRange(),
                              two.getTimeRange(),
                              sampleInterval);
@@ -37,11 +37,10 @@ public class RangeTool {
                 return one.getEndTime()
                         .add(doubleInterval)
                         .after(two.getBeginTime());
-            } else {
-                return two.getEndTime()
-                        .add(doubleInterval)
-                        .after(one.getBeginTime());
             }
+            return two.getEndTime()
+                    .add(doubleInterval)
+                    .after(one.getBeginTime());
         }
         return false;
     }
@@ -58,8 +57,10 @@ public class RangeTool {
 
     public static boolean areOverlapping(MicroSecondTimeRange one,
                                          MicroSecondTimeRange two) {
-        if(one.getBeginTime().before(two.getEndTime()) && one.getEndTime()
-                .after(two.getBeginTime())) { return true; }
+        if(one.getBeginTime().before(two.getEndTime())
+                && one.getEndTime().after(two.getBeginTime())) {
+            return true;
+        }
         return false;
     }
 
@@ -77,7 +78,9 @@ public class RangeTool {
      *          in seismograms to the latest end time
      */
     public static MicroSecondTimeRange getFullTime(LocalSeismogramImpl[] seis) {
-        if(seis.length == 0) { return DisplayUtils.ZERO_TIME; }
+        if(seis.length == 0) {
+            return DisplayUtils.ZERO_TIME;
+        }
         MicroSecondDate beginTime = SortTool.byBeginTimeAscending(seis)[0].getBeginTime();
         MicroSecondDate endTime = new MicroSecondDate(0);
         for(int i = 0; i < seis.length; i++) {
@@ -89,7 +92,9 @@ public class RangeTool {
     }
 
     public static MicroSecondTimeRange getFullTime(PlottableChunk[] pc) {
-        if(pc.length == 0) { return DisplayUtils.ZERO_TIME; }
+        if(pc.length == 0) {
+            return DisplayUtils.ZERO_TIME;
+        }
         MicroSecondDate beginTime = SortTool.byBeginTimeAscending(pc)[0].getBeginTime();
         MicroSecondDate endTime = new MicroSecondDate(0);
         for(int i = 0; i < pc.length; i++) {
