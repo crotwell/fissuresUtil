@@ -183,6 +183,10 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
             return getDataCenter().retrieve_seismograms(a_filterseq);
         } // end of try-catch
     }
+    
+    public String toString() {
+        return "NSSeismogramDC " + serverDNS + "/" + serverName;
+    }
 
     protected String serverDNS, serverName;
 
