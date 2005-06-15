@@ -170,7 +170,7 @@ public class FissuresNamingService {
         for(int i = 0; i <= maxTry; i++) {
             try {
                 NameComponent[] names = getNameService().to_name(dns);
-                //return resolveBySteps(names); // for debugging
+                // return resolveBySteps(names); // for debugging
                 return getNameService().resolve(names);
             } catch(org.omg.CORBA.SystemException e) {
                 logger.info("retry=" + i + " " + e);
@@ -378,14 +378,15 @@ public class FissuresNamingService {
                        String objectname,
                        NamingContextExt topLevelNameContext) throws NotFound,
             CannotProceed, InvalidName {
-        dns = appendKindNames(dns);
+        String toUnbind = appendKindNames(dns);
         if(interfacename != null && interfacename.length() != 0) {
-            dns = dns + "/" + interfacename + ".interface";
+            toUnbind = toUnbind + "/" + interfacename + ".interface";
         }
         if(objectname != null && objectname.length() != 0) {
-            dns = dns + "/" + objectname + ".object" + getVersion();
+            toUnbind = toUnbind + "/" + objectname + ".object" + getVersion();
         }
-        topLevelNameContext.unbind(topLevelNameContext.to_name(dns));
+        logger.debug("Attempting to unbind " + toUnbind);
+        topLevelNameContext.unbind(topLevelNameContext.to_name(toUnbind));
     }
 
     /**
