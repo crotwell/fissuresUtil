@@ -202,6 +202,10 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
         throw lastException;
     }
 
+    public String toString() {
+        return "Retry " + dc.toString();
+    }
+
     DataCenterOperations dc;
 
     int retry;
