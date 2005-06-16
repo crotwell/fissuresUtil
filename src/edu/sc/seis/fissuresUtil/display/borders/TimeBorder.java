@@ -41,21 +41,19 @@ public class TimeBorder extends Border implements TitleProvider {
     public RelativeTimeConfig getRelative(TimeConfig tc) {
         if(tc instanceof RTTimeRangeConfig) {
             return getRelative(((RTTimeRangeConfig)tc).getInternalConfig());
-        } else {
-            return (RelativeTimeConfig)tc;
         }
+        return (RelativeTimeConfig)tc;
     }
 
     public String getTitle() {
         MicroSecondTimeRange time = disp.getTimeConfig().getTime();
         if(roundTheEpoch.intersects(time)) {
             return getRelative(disp.getTimeConfig()).getTypeOfRelativity();
-        } else {
-            Date middleDate = time.getBeginTime()
-                    .add(new TimeInterval(time.getInterval().divideBy(2)));
-            calendar.setTime(middleDate);
-            return axisFormat.format(calendar.getTime());
         }
+        Date middleDate = time.getBeginTime()
+                .add(new TimeInterval(time.getInterval().divideBy(2)));
+        calendar.setTime(middleDate);
+        return axisFormat.format(calendar.getTime());
     }
 
     public void setTitleFont(Font f) {
@@ -85,22 +83,22 @@ public class TimeBorder extends Border implements TitleProvider {
         return formats;
     }
 
-    //this is used to create formats with the given number of seconds between
-    //labelled ticks and 10 ticks between each labelled tick
+    // this is used to create formats with the given number of seconds between
+    // labelled ticks and 10 ticks between each labelled tick
     private static double[] secDivs = {.01, .02, .05, .1, .25, .5, 1, 2.5};
 
-    //this is used to create foramts with the first number used to determine
+    // this is used to create foramts with the first number used to determine
     // how
-    //many seconds between each major tick, and the second to determine how
+    // many seconds between each major tick, and the second to determine how
     // many
-    //ticks for each major tick
+    // ticks for each major tick
     private static double[][] minSecDivs = { {5, 5}, {10, 5}, {20, 4}, {30, 6}};
 
-    //this is used to create foramts with the first number used to determine
+    // this is used to create foramts with the first number used to determine
     // how
-    //many minutes between each major tick, and the second to determine how
+    // many minutes between each major tick, and the second to determine how
     // many
-    //ticks for each major tick
+    // ticks for each major tick
     private static double[][] minDivs = { {1, 6},
                                          {2, 6},
                                          {5, 5},
@@ -108,10 +106,10 @@ public class TimeBorder extends Border implements TitleProvider {
                                          {20, 10},
                                          {30, 10}};
 
-    //this is used to create foramts with the first number used to determine
+    // this is used to create foramts with the first number used to determine
     // how
-    //many hours between each major tick, and the second to determine how many
-    //ticks for each major tick
+    // many hours between each major tick, and the second to determine how many
+    // ticks for each major tick
     private static double[][] hourDivs = { {1, 6},
                                           {2, 4},
                                           {6, 6},
@@ -183,8 +181,9 @@ public class TimeBorder extends Border implements TitleProvider {
             this(format, labelInterval, 10);
         }
 
-        public TimeBorderFormat(String format, TimeInterval labelInterval,
-                int ticksPerDivision) {
+        public TimeBorderFormat(String format,
+                                TimeInterval labelInterval,
+                                int ticksPerDivision) {
             super(labelInterval.convertTo(UnitImpl.MILLISECOND).getValue(),
                   ticksPerDivision);
             this.format = new SimpleDateFormat(format);
@@ -218,12 +217,12 @@ public class TimeBorder extends Border implements TitleProvider {
 
     private SimpleDateFormat axisFormat = new SimpleDateFormat("MM/dd/yyyy (zzz)");
 
-    //Five days before the epoch to 10 after
+    // Five days before the epoch to 10 after
     public static MicroSecondTimeRange roundTheEpoch = new MicroSecondTimeRange(new MicroSecondDate(0),
                                                                                 new TimeInterval(20,
                                                                                                  UnitImpl.DAY));
 
-    //FULL_DATE has 2 digits for hours, minutes and seconds, and 999 millis
+    // FULL_DATE has 2 digits for hours, minutes and seconds, and 999 millis
     private static Date FULL_DATE;
     static {
         Calendar cal = GregorianCalendar.getInstance();
