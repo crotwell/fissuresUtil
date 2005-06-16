@@ -30,6 +30,9 @@ public class ResponseGain{
         /* Sensitivity is COUNTs per Groung Motion, so should divide in order
          * to convert COUNT seismogram into Ground Motion. */
         Sensitivity sensitivity = inst.the_response.the_sensitivity;
+        if (sensitivity.frequency == -1 && sensitivity.sensitivity_factor == -1) {
+            throw new IllegalArgumentException("Sensitivity is -1, so undefined");
+        }
         LocalSeismogramImpl outSeis;
 
         // don't use int or short, promote to float
