@@ -126,9 +126,8 @@ public class BorderConfiguration implements Cloneable {
     private static int getOrder(String order) {
         if(order.equals(ASCENDING)) {
             return Border.ASCENDING;
-        } else {
-            return Border.DESCENDING;
         }
+        return Border.DESCENDING;
     }
 
     private static int getSide(String position) {
