@@ -50,8 +50,10 @@ public class JDBCChannel extends NetworkTable {
              new JDBCTime(conn));
     }
 
-    public JDBCChannel(Connection conn, JDBCQuantity quantityTable,
-            JDBCSite siteTable, JDBCTime time) throws SQLException {
+    public JDBCChannel(Connection conn,
+                       JDBCQuantity quantityTable,
+                       JDBCSite siteTable,
+                       JDBCTime time) throws SQLException {
         super("channel", conn);
         this.quantityTable = quantityTable;
         this.time = time;
@@ -59,7 +61,8 @@ public class JDBCChannel extends NetworkTable {
         stationTable = siteTable.getStationTable();
         netTable = stationTable.getNetTable();
         seq = new JDBCSequence(conn, "ChannelSeq");
-        TableSetup.setup(this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
+        TableSetup.setup(this,
+                         "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     private ChannelId[] extractAllChanIds(PreparedStatement query)
@@ -85,25 +88,31 @@ public class JDBCChannel extends NetworkTable {
     public Channel get(ChannelId id) throws SQLException, NotFound {
         return get(getDBId(id));
     }
-    
-    public ChannelId getId(int dbid) throws SQLException, NotFound{
+
+    public ChannelId getId(int dbid) throws SQLException, NotFound {
         getByDBId.setInt(1, dbid);
         ResultSet rs = getByDBId.executeQuery();
-        if(rs.next()) { return extractId(rs, siteTable, time); }
+        if(rs.next()) {
+            return extractId(rs, siteTable, time);
+        }
         throw new NotFound("No ChannelId found for database id = " + dbid);
     }
 
     public Channel get(int dbid) throws SQLException, NotFound {
         getByDBId.setInt(1, dbid);
         ResultSet rs = getByDBId.executeQuery();
-        if(rs.next()) { return extract(rs, siteTable, time, quantityTable); }
+        if(rs.next()) {
+            return extract(rs, siteTable, time, quantityTable);
+        }
         throw new NotFound("No Channel found for database id = " + dbid);
     }
 
     public int getStationDbId(int channelDbId) throws SQLException, NotFound {
         getStationDbId.setInt(1, channelDbId);
         ResultSet rs = getStationDbId.executeQuery();
-        if(rs.next()) { return rs.getInt("sta_id"); }
+        if(rs.next()) {
+            return rs.getInt("sta_id");
+        }
         throw new NotFound("No such channel " + channelDbId);
     }
 
@@ -157,6 +166,20 @@ public class JDBCChannel extends NetworkTable {
         return extractAllChans(getByCodes);
     }
 
+    public ChannelId[] getIdsByCode(NetworkId networkId,
+                                    String station_code,
+                                    String site_code,
+                                    String channel_code) throws SQLException,
+            NotFound {
+        int net_id = netTable.getDbId(networkId);
+        int index = 1;
+        getIdsByCodes.setInt(index++, net_id);
+        getIdsByCodes.setString(index++, station_code);
+        getIdsByCodes.setString(index++, site_code);
+        getIdsByCodes.setString(index++, channel_code);
+        return extractAllChanIds(getIdsByCodes);
+    }
+
     public int getDBId(ChannelId id) throws SQLException, NotFound {
         int netDbId = netTable.getDbId(id.network_id);
         int[] possibleStaDbIds = stationTable.getDBIds(netDbId, id.station_code);
@@ -172,7 +195,9 @@ public class JDBCChannel extends NetworkTable {
         query += possibleSiteIds[possibleSiteIds.length - 1] + ")";
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query);
-        if(rs.next()) { return rs.getInt("chan_id"); }
+        if(rs.next()) {
+            return rs.getInt("chan_id");
+        }
         throw new NotFound("No such channel id in the db");
     }
 
@@ -245,7 +270,7 @@ public class JDBCChannel extends NetworkTable {
     private PreparedStatement getAllChans, getAllChansForStation,
             getAllChansForNetwork, getByDBId, putAll, updateNonId, putId,
             getAllIds, getAllIdsForStation, getAllIdsForNetwork, getByCodes,
-            getStationDbId;
+            getIdsByCodes, getStationDbId;
 
     private JDBCNetwork netTable;
 
