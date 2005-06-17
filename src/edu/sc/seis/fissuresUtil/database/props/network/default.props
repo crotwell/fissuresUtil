@@ -162,6 +162,12 @@ channel.getByCodes = $channel_getAllQuery, site, station \
                 site.sta_id = station.sta_id AND \
                 station.net_id = ? AND \
                 station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ?
+                
+channel.getIdsByCodes = $channel_getAllIdsQuery, site, station \
+			   WHERE channel.site_id = site.site_id AND \
+                site.sta_id = station.sta_id AND \
+                station.net_id = ? AND \
+                station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ?
 
 channel.getAllChansForNetwork = $channel_getAllQuery , site, station \
                 WHERE channel.site_id = site.site_id AND \
