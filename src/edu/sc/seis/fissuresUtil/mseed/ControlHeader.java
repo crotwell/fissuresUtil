@@ -19,41 +19,41 @@ public class ControlHeader {
 	
     public static ControlHeader read(DataInput in) 
 	throws IOException, SeedFormatException {
-	byte[] seqBytes = new byte[6];
-	in.readFully(seqBytes);
-
-	String seqNumString = new String(seqBytes);
-
-	int sequenceNum =0;
-	try {
-	   sequenceNum = Integer.valueOf(seqNumString).intValue();
-	     
-	} catch (NumberFormatException e) {
-	    System.err.println("seq num unreadable, setting to 0 "+e.toString());
-	} // end of try-catch
+		byte[] seqBytes = new byte[6];
+		in.readFully(seqBytes);
 	
+		String seqNumString = new String(seqBytes);
+	
+		int sequenceNum =0;
+		try {
+		   sequenceNum = Integer.valueOf(seqNumString).intValue();
+		     
+		} catch (NumberFormatException e) {
+		    System.err.println("seq num unreadable, setting to 0 "+e.toString());
+		} // end of try-catch
 		
-	byte typeCode = in.readByte();
-		
-	int b = in.readByte();
-	boolean continuationCode;
-	if (b == 32) {
-	    // a space, so no continuation
-	    continuationCode = false;
-	} else if (b == 42) {
-	    // an asterisk, so is a continuation
-	    continuationCode = true;
-	} else {
-	    throw new SeedFormatException("ControlHeader, expected space or *, but got"+b);
-	}
-		
-	if (typeCode == (byte)'D') {
-	    // Data Header
-	    return DataHeader.read(in, sequenceNum, (char)typeCode, continuationCode);
-	} else {
-	    // Control header
-	    return new ControlHeader(sequenceNum, typeCode, continuationCode);
-	}
+			
+		byte typeCode = in.readByte();
+			
+		int b = in.readByte();
+		boolean continuationCode;
+		if (b == 32) {
+		    // a space, so no continuation
+		    continuationCode = false;
+		} else if (b == 42) {
+		    // an asterisk, so is a continuation
+		    continuationCode = true;
+		} else {
+		    throw new SeedFormatException("ControlHeader, expected space or *, but got"+b);
+		}
+			
+		if (typeCode == (byte)'D') {
+		    // Data Header
+		    return DataHeader.read(in, sequenceNum, (char)typeCode, continuationCode);
+		} else {
+		    // Control header
+		    return new ControlHeader(sequenceNum, typeCode, continuationCode);
+		}
     }
 	
     /**
