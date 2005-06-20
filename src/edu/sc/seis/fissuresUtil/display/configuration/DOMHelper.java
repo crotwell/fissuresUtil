@@ -18,11 +18,11 @@ import org.w3c.dom.Text;
 public class DOMHelper {
 
     public static Element getElement(Element el, String name) {
-        if(hasElement(el, name)) {
-            return (Element)el.getElementsByTagName(name).item(0);
-        } else {
-            return null;
-        }
+        return (Element)getElements(el, name).item(0);
+    }
+
+    public static NodeList getElements(Element el, String name) {
+        return extractNodes(el, name);
     }
 
     public static boolean hasElement(Element el, String name) {
@@ -50,9 +50,8 @@ public class DOMHelper {
                             + xpath);
                 }
                 return defaultValue;
-            } else {
-                return n.getNodeValue();
             }
+            return n.getNodeValue();
         } catch(DOMException e) {
             handle(e);
         } catch(TransformerException e) {
@@ -108,11 +107,10 @@ public class DOMHelper {
         Document rootDoc = parent.getOwnerDocument();
         if(hasElement(parent, name)) {
             return extractElement(parent, name);
-        } else {
-            Element newElement = rootDoc.createElement(name);
-            parent.appendChild(newElement);
-            return newElement;
         }
+        Element newElement = rootDoc.createElement(name);
+        parent.appendChild(newElement);
+        return newElement;
     }
 
     public static Text extractOrCreateTextNode(Element filenameElement,
@@ -120,10 +118,9 @@ public class DOMHelper {
         Document rootDoc = filenameElement.getOwnerDocument();
         if(filenameElement.getChildNodes().item(0) instanceof Text) {
             return (Text)filenameElement.getChildNodes().item(0);
-        } else {
-            Text textNode = rootDoc.createTextNode(defaultText);
-            filenameElement.appendChild(textNode);
-            return textNode;
         }
+        Text textNode = rootDoc.createTextNode(defaultText);
+        filenameElement.appendChild(textNode);
+        return textNode;
     }
 }
