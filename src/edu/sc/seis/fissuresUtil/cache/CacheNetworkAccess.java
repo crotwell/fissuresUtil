@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
@@ -16,8 +17,10 @@ import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;
+import edu.iris.Fissures.IfNetwork.Stage;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -44,7 +47,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         knownStations.clear();
         knownTimes.clear();
         knownSites.clear();
-        instrumentationMap.clear();
+        sensMap.clear();
         super.reset();
     }
 
@@ -110,36 +113,79 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
-        MicroSecondDate date = new MicroSecondDate(the_time);
-        Instrumentation inst = null;
-        String idString = ChannelIdUtil.toString(id);
-        List instForChannel = (List)instrumentationMap.get(idString);
-        if(instForChannel == null) {
-            instForChannel = new ArrayList();
-            instrumentationMap.put(idString, instForChannel);
-        }
-        for(Iterator iter = instForChannel.iterator(); iter.hasNext();) {
-            InstHolder instHold = (InstHolder)iter.next();
-            if(instHold.range.intersects(date)) {
-                inst = instHold.inst;
-            }
-        }
-        if(inst == null) {
-            inst = net.retrieve_instrumentation(id, the_time);
-            InstHolder instHold = new InstHolder(inst);
-            instForChannel.add(instHold);
-        }
+        return retrieve_instrumentation(id, the_time, getHolder(id, the_time));
+    }
+
+    public Instrumentation retrieve_instrumentation(ChannelId id,
+                                                    Time the_time,
+                                                    SensitivityHolder holder)
+            throws ChannelNotFound {
+        Instrumentation inst = net.retrieve_instrumentation(id, the_time);
+        holder.updateHoldings(inst);
         return inst;
     }
 
-    class InstHolder {
+    private SensitivityHolder getHolder(ChannelId id, Time the_time) {
+        MicroSecondDate date = new MicroSecondDate(the_time);
+        List sensForChannel = extractSensForChannel(id);
+        for(Iterator iter = sensForChannel.iterator(); iter.hasNext();) {
+            SensitivityHolder holder = (SensitivityHolder)iter.next();
+            if(holder.range.intersects(date)) {
+                return holder;
+            }
+        }
+        SensitivityHolder holder = new SensitivityHolder();
+        sensForChannel.add(holder);
+        return holder;
+    }
 
-        InstHolder(Instrumentation inst) {
-            this.inst = inst;
+    private List extractSensForChannel(ChannelId id) {
+        String idString = ChannelIdUtil.toString(id);
+        List sensForChannel = (List)sensMap.get(idString);
+        if(sensForChannel == null) {
+            sensForChannel = new ArrayList();
+            sensMap.put(idString, sensForChannel);
+        }
+        return sensForChannel;
+    }
+
+    private SensitivityHolder getFilledHolder(ChannelId id, Time the_time)
+            throws ChannelNotFound {
+        SensitivityHolder holder = getHolder(id, the_time);
+        if(holder.sensitivity == null) {
+            retrieve_instrumentation(id, the_time, holder);
+        }
+        return holder;
+    }
+
+    public Sensitivity retrieve_sensitivity(ChannelId id, Time the_time)
+            throws ChannelNotFound {
+        return getFilledHolder(id, the_time).sensitivity;
+    }
+
+    public Unit retrieve_initial_units(ChannelId id, Time the_time)
+            throws ChannelNotFound {
+        return getFilledHolder(id, the_time).initialUnits;
+    }
+
+    public Unit retrieve_final_units(ChannelId id, Time the_time)
+            throws ChannelNotFound {
+        return getFilledHolder(id, the_time).finalUnits;
+    }
+
+    class SensitivityHolder {
+
+        private void updateHoldings(Instrumentation inst) {
+            this.sensitivity = inst.the_response.the_sensitivity;
+            Stage[] stages = inst.the_response.stages;
+            this.initialUnits = stages[0].input_units;
+            this.finalUnits = stages[stages.length - 1].output_units;
             this.range = new MicroSecondTimeRange(inst.effective_time);
         }
 
-        Instrumentation inst;
+        Sensitivity sensitivity;
+
+        Unit initialUnits, finalUnits;
 
         MicroSecondTimeRange range;
     }
@@ -228,7 +274,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     private HashMap channelMap = new HashMap();
 
-    private HashMap instrumentationMap = new HashMap();
+    private HashMap sensMap = new HashMap();
 
     private static Logger logger = Logger.getLogger(CacheNetworkAccess.class);
 }
