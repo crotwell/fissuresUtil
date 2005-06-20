@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.Response;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
@@ -31,9 +32,17 @@ public class ResponseGain {
             throw new IllegalArgumentException("Invalid instrumentation for "
                     + ChannelIdUtil.toString(seis.channel_id));
         }
+        return apply(seis,
+                     inst.the_response.the_sensitivity,
+                     inst.the_response.stages[0].input_units);
+    }
+
+    public static LocalSeismogramImpl apply(LocalSeismogramImpl seis,
+                                            Sensitivity sensitivity,
+                                            Unit initialUnits)
+            throws FissuresException {
         // Sensitivity is COUNTs per Ground Motion, so should divide in order to
         // convert COUNT seismogram into Ground Motion.
-        Sensitivity sensitivity = inst.the_response.the_sensitivity;
         LocalSeismogramImpl outSeis;
         // don't use int or short, promote to float
         if(seis.can_convert_to_float()) {
@@ -51,7 +60,7 @@ public class ResponseGain {
             }
             outSeis = new LocalSeismogramImpl(seis, out);
         } // end of else
-        outSeis.y_unit = inst.the_response.stages[0].input_units;
+        outSeis.y_unit = initialUnits;
         return outSeis;
     }
 
