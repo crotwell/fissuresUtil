@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.Response;
@@ -21,7 +20,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 public class ResponseGain {
 
     /**
-     * Applys the overall sensitivity of the response to the seismogram. This
+     * Applies the overall sensitivity of the response to the seismogram. This
      * will promote short or int based seismograms to float to avoid rounding
      * and overflow problems.
      */
@@ -32,10 +31,8 @@ public class ResponseGain {
             throw new IllegalArgumentException("Invalid instrumentation for "
                     + ChannelIdUtil.toString(seis.channel_id));
         }
-        /*
-         * Sensitivity is COUNTs per Groung Motion, so should divide in order to
-         * convert COUNT seismogram into Ground Motion.
-         */
+        // Sensitivity is COUNTs per Ground Motion, so should divide in order to
+        // convert COUNT seismogram into Ground Motion.
         Sensitivity sensitivity = inst.the_response.the_sensitivity;
         LocalSeismogramImpl outSeis;
         // don't use int or short, promote to float
@@ -55,7 +52,6 @@ public class ResponseGain {
             outSeis = new LocalSeismogramImpl(seis, out);
         } // end of else
         outSeis.y_unit = inst.the_response.stages[0].input_units;
-        logger.debug("NOAMP seis units are " + outSeis.y_unit);
         return outSeis;
     }
 
@@ -64,10 +60,7 @@ public class ResponseGain {
         return resp.stages.length != 0 && isValid(resp.the_sensitivity);
     }
 
-    public static boolean isValid(Sensitivity sensitivity) {
-        return sensitivity.frequency == -1
-                && sensitivity.sensitivity_factor == -1;
+    public static boolean isValid(Sensitivity sens) {
+        return sens.frequency != -1 && sens.sensitivity_factor != -1;
     }
-
-    private static final Logger logger = Logger.getLogger(ResponseGain.class);
 }// ResponseGain
