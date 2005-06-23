@@ -28,6 +28,7 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
+import edu.sc.seis.fissuresUtil.bag.ResponseGain;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class CacheNetworkAccess extends ProxyNetworkAccess {
@@ -113,20 +114,32 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
-        return retrieve_instrumentation(id, the_time, getHolder(id, the_time));
-    }
-
-    public Instrumentation retrieve_instrumentation(ChannelId id,
-                                                    Time the_time,
-                                                    SensitivityHolder holder)
-            throws ChannelNotFound {
         Instrumentation inst = net.retrieve_instrumentation(id, the_time);
-        holder.updateHoldings(inst);
+        if(!ResponseGain.isValid(inst)) {
+            throw new RuntimeException(ChannelIdUtil.toString(id)
+                    + " has an invalid sensitivity for time "
+                    + new MicroSecondDate(the_time));
+        }
+        updateHolder(id, the_time, inst);
         return inst;
     }
 
-    private SensitivityHolder getHolder(ChannelId id, Time the_time) {
-        MicroSecondDate date = new MicroSecondDate(the_time);
+    private SensitivityHolder updateHolder(ChannelId id,
+                                           Time the_time,
+                                           Instrumentation inst) {
+        SensitivityHolder holder = extractExistingHolder(id, the_time);
+        List sensForChannel = extractSensForChannel(id);
+        if(holder == null) {
+            holder = new SensitivityHolder(inst);
+            sensForChannel.add(holder);
+        } else {
+            holder.updateHoldings(inst);
+        }
+        return holder;
+    }
+
+    private SensitivityHolder extractExistingHolder(ChannelId id, Time time) {
+        MicroSecondDate date = new MicroSecondDate(time);
         List sensForChannel = extractSensForChannel(id);
         for(Iterator iter = sensForChannel.iterator(); iter.hasNext();) {
             SensitivityHolder holder = (SensitivityHolder)iter.next();
@@ -134,9 +147,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
                 return holder;
             }
         }
-        SensitivityHolder holder = new SensitivityHolder();
-        sensForChannel.add(holder);
-        return holder;
+        return null;
     }
 
     private List extractSensForChannel(ChannelId id) {
@@ -151,9 +162,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     private SensitivityHolder getFilledHolder(ChannelId id, Time the_time)
             throws ChannelNotFound {
-        SensitivityHolder holder = getHolder(id, the_time);
-        if(holder.sensitivity == null) {
-            retrieve_instrumentation(id, the_time, holder);
+        SensitivityHolder holder = extractExistingHolder(id, the_time);
+        if(holder == null) {
+            retrieve_instrumentation(id, the_time);
+            return extractExistingHolder(id, the_time);
         }
         return holder;
     }
@@ -174,6 +186,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     }
 
     class SensitivityHolder {
+
+        public SensitivityHolder(Instrumentation inst) {
+            updateHoldings(inst);
+        }
 
         private void updateHoldings(Instrumentation inst) {
             this.sensitivity = inst.the_response.the_sensitivity;
