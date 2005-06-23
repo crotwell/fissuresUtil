@@ -240,7 +240,7 @@ public class ConnMgr {
 
     public static final String DB_SERVER_PORT = "server.port";
 
-    public static final String DBURL_KEY = "sod.dburl";
+    public static final String DBURL_KEY = "fissuresUtil.database.url";
 
     private static String DB_NAME = HSQL;
 
