@@ -160,13 +160,13 @@ public class ConnMgr {
                                            "");
     }
 
-    public static void loadDbProperties(Properties sysProperties,
-                                        Properties dbProperties) {
+    public static void installDbProperties(Properties sysProperties,
+                                           Properties dbProperties) {
         if(dbProperties.containsKey(DB_SERVER_PORT)) {
             if(dbProperties.containsKey(DBURL_KEY)) {
                 logger.error("-hsql properties and SOD properties are both specifying the db connection.  Using -hsql properties");
             }
-            //Use hsqldb properties specified in
+            // Use hsqldb properties specified in
             // http://hsqldb.sourceforge.net/doc/guide/ch04.html
             String url = "jdbc:hsqldb:hsql://localhost";
             if(dbProperties.containsKey(DB_SERVER_PORT)) {
@@ -182,12 +182,12 @@ public class ConnMgr {
             logger.debug("Setting db url to "
                     + sysProperties.getProperty(DBURL_KEY));
             setURL(sysProperties.getProperty(DBURL_KEY));
-        }else{
+        } else {
             logger.debug("using default url of " + getURL());
         }
     }
 
-    public static Properties loadDbProperties(String[] args) {
+    public static Properties readDbProperties(String[] args) {
         Properties dbProperties = new Properties();
         boolean loadedFromArg = false;
         for(int i = 0; i < args.length - 1; i++) {
@@ -216,8 +216,9 @@ public class ConnMgr {
         return dbProperties;
     }
 
-    public static void loadDbProperties(Properties sysProperties, String[] args) {
-        loadDbProperties(sysProperties, loadDbProperties(args));
+    public static void installDbProperties(Properties sysProperties,
+                                           String[] args) {
+        installDbProperties(sysProperties, readDbProperties(args));
     }
 
     private static final String DEFAULT_LOC = "edu/sc/seis/fissuresUtil/database/props/";
