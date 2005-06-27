@@ -146,10 +146,12 @@ public class ConnMgr {
 
     public static Connection createConnection() throws SQLException {
         try {
+            logger.info("Using driver class: "+getDriver());
             Class.forName(getDriver()).newInstance();
         } catch(Exception e) {
-            e.printStackTrace();
-            throw new SQLException("Unable to instantiate DBDriver");
+            SQLException ee = new SQLException("Unable to instantiate DBDriver");
+            ee.initCause(e);
+            throw ee;
         }
         return DriverManager.getConnection(getURL(), getUser(), getPass());
     }
