@@ -1,5 +1,5 @@
 plottable.create=CREATE TABLE plottable (channel_id int, \
-                                         pixels_per_day double, \
+                                         pixels_per_day double precision, \
                                          start_time timestamp, \
                                          end_time timestamp, \
                                          pixel_count int, \

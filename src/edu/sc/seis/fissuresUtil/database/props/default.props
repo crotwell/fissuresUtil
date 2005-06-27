@@ -4,7 +4,7 @@ unit.create=CREATE TABLE unit ( unit_id int, \
                                 unit_base varchar(10), \
                                 unit_subunit_id varchar, \
                                 unit_exponent int, \
-                                unit_multFactor double, \
+                                unit_multFactor double precision, \
                                 unit_power int, \
                                 PRIMARY KEY (unit_id) )
 
@@ -22,7 +22,7 @@ location.create=CREATE TABLE location (loc_id int, \
 
 quantity.create=CREATE TABLE quantity (quantity_id int, \
                                        quantity_unit_id int, \
-                                       quantity_value double, \
+                                       quantity_value double precision, \
                                        FOREIGN KEY (quantity_unit_id) \
                                        REFERENCES unit (unit_id), \
                                        PRIMARY KEY (quantity_id))
