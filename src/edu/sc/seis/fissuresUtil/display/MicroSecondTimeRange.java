@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import org.apache.log4j.Category;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -41,7 +40,7 @@ public class MicroSecondTimeRange {
      * doesn't matter
      */
     public MicroSecondTimeRange(MicroSecondDate time,
-            MicroSecondDate anotherTime) {
+                                MicroSecondDate anotherTime) {
         if(time.before(anotherTime)) {
             this.beginTime = time;
             this.endTime = anotherTime;
@@ -57,7 +56,7 @@ public class MicroSecondTimeRange {
     }
 
     public MicroSecondTimeRange(MicroSecondTimeRange timeRange,
-            MicroSecondTimeRange timeRange2) {
+                                MicroSecondTimeRange timeRange2) {
         this(timeRange.getBeginTime().before(timeRange2.getBeginTime()) ? timeRange.getBeginTime()
                      : timeRange2.getBeginTime(),
              timeRange.getEndTime().after(timeRange2.getEndTime()) ? timeRange.getEndTime()
@@ -66,7 +65,8 @@ public class MicroSecondTimeRange {
 
     public boolean intersects(MicroSecondDate newTime) {
         if((beginTime.before(newTime) || beginTime.equals(newTime))
-                && (endTime.after(newTime) || endTime.equals(newTime))) return true;
+                && (endTime.after(newTime) || endTime.equals(newTime)))
+            return true;
         return false;
     }
 
@@ -76,7 +76,9 @@ public class MicroSecondTimeRange {
     }
 
     public MicroSecondTimeRange shale(double shift, double scale) {
-        if(shift == 0 && scale == 1) { return this; }
+        if(shift == 0 && scale == 1) {
+            return this;
+        }
         TimeInterval timeShift = (TimeInterval)interval.multiplyBy(Math.abs(shift));
         MicroSecondDate newBeginTime;
         if(shift < 0) {
@@ -94,15 +96,16 @@ public class MicroSecondTimeRange {
     }
 
     public MicroSecondTimeRange shift(double percentage) {
-        if(percentage == 0) { return this; }
+        if(percentage == 0) {
+            return this;
+        }
         TimeInterval shift = (TimeInterval)interval.multiplyBy(Math.abs(percentage));
         if(percentage < 0) {
             return new MicroSecondTimeRange(beginTime.subtract(shift),
                                             endTime.subtract(shift));
-        } else {
-            return new MicroSecondTimeRange(beginTime.add(shift),
-                                            endTime.add(shift));
         }
+        return new MicroSecondTimeRange(beginTime.add(shift),
+                                        endTime.add(shift));
     }
 
     /**
@@ -126,6 +129,11 @@ public class MicroSecondTimeRange {
         return interval;
     }
 
+    public TimeRange getFissuresTimeRange() {
+        return new TimeRange(getBeginTime().getFissuresTime(),
+                             getEndTime().getFissuresTime());
+    }
+
     public UnitRangeImpl getMillis() {
         return new UnitRangeImpl(beginTime.getTime(),
                                  endTime.getTime(),
@@ -133,11 +141,15 @@ public class MicroSecondTimeRange {
     }
 
     public boolean equals(Object other) {
-        if(this == other) return true;
-        if(getClass() != other.getClass()) return false;
+        if(this == other)
+            return true;
+        if(getClass() != other.getClass())
+            return false;
         MicroSecondTimeRange mstrTime = (MicroSecondTimeRange)other;
         if(beginTime.equals(mstrTime.getBeginTime())
-                && endTime.equals(mstrTime.getEndTime())) { return true; }
+                && endTime.equals(mstrTime.getEndTime())) {
+            return true;
+        }
         return false;
     }
 
@@ -157,6 +169,4 @@ public class MicroSecondTimeRange {
     private final MicroSecondDate endTime;
 
     private final TimeInterval interval;
-
-    private static Category logger = Category.getInstance(MicroSecondTimeRange.class.getName());
 }// MicroSecondTimeRange
