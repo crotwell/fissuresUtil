@@ -177,7 +177,20 @@ public class JDBCChannel extends NetworkTable {
         getIdsByCodes.setString(index++, station_code);
         getIdsByCodes.setString(index++, site_code);
         getIdsByCodes.setString(index++, channel_code);
-        return extractAllChanIds(getIdsByCodes);
+        ResultSet rs = getIdsByCodes.executeQuery();
+        List aList = new ArrayList();
+        while(rs.next()) {
+            try {
+                aList.add(new ChannelId(networkId,
+                                     station_code,
+                                     site_code,
+                                     channel_code,
+                                     time.get(rs.getInt("chan_begin_id"))));
+            } catch(NotFound e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return (ChannelId[])aList.toArray(new ChannelId[aList.size()]);
     }
 
     public int getDBId(ChannelId id) throws SQLException, NotFound {
