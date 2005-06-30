@@ -12,13 +12,15 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.context.Context;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
@@ -27,19 +29,18 @@ import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.time.RangeTool;
 import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
-public class JDBCPlottable extends PlottableTable {
-
-    public JDBCPlottable() throws SQLException {
-        this(ConnMgr.createConnection());
-    }
-
-    public JDBCPlottable(Connection conn) throws SQLException {
+public class JDBCPlottable extends JDBCTable {
+    
+    public JDBCPlottable(Connection conn, String dbType) throws SQLException {
         super("plottable", conn);
         chanTable = new JDBCChannel(conn);
+        Context ctx = new VelocityContext();
+        ctx.put(dbType, "true");
         TableSetup.setup(getTableName(),
                          conn,
                          this,
-                         "edu/sc/seis/fissuresUtil/database/props/plottable/default.props");
+                         "edu/sc/seis/fissuresUtil/database/props/plottable/default.props",
+                         ctx);
     }
 
     public void put(PlottableChunk[] chunks) throws SQLException, IOException {
@@ -65,12 +66,21 @@ public class JDBCPlottable extends PlottableTable {
         System.arraycopy(dbChunks, 0, everything, 0, dbChunks.length);
         System.arraycopy(chunks, 0, everything, dbChunks.length, chunks.length);
         logger.debug("Merging " + everything.length + " chunks");
+        for(int i = 0; i < everything.length; i++) {
+            logger.debug(everything[i]);
+        }
         everything = ReduceTool.merge(everything);
         logger.debug("Breaking "
                 + everything.length
                 + " remaining chunks after merge into seperate chunks based on day");
+        for(int i = 0; i < everything.length; i++) {
+            logger.debug(everything[i]);
+        }
         everything = breakIntoDays(everything);
         logger.debug("Adding " + everything.length + " chunks split on days");
+        for(int i = 0; i < everything.length; i++) {
+            logger.debug(everything[i]);
+        }
         int rowsDropped = drop(stuffInDB,
                                chunks[0].getChannel(),
                                chunks[0].getPixelsPerDay());
