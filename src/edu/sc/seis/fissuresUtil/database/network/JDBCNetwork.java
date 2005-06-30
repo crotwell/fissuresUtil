@@ -149,12 +149,12 @@ public class JDBCNetwork extends NetworkTable{
         return get(getDbId(id));
     }
 
-    public NetworkAttr[] getByCode(String netCode) throws SQLException, NotFound {
+    public NetworkId[] getByCode(String netCode) throws SQLException, NotFound {
         getByCode.setString(1, netCode);
         ResultSet rs = getByCode.executeQuery();
         List aList = new ArrayList();
-        while (rs.next()) aList.add(extract(rs, time));
-        return  (NetworkAttr[])aList.toArray(new NetworkAttr[aList.size()]);
+        while (rs.next()) aList.add(extractId(rs, time));
+        return  (NetworkId[])aList.toArray(new NetworkId[aList.size()]);
     }
 
     public int getDbId(NetworkId id)  throws SQLException, NotFound {
