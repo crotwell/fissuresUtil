@@ -1,9 +1,9 @@
-plottable.create=CREATE TABLE plottable (channel_id int, \
+plottable.create=CREATE #if ($HSQL) CACHED #end TABLE plottable (channel_id int, \
                                          pixels_per_day double precision, \
                                          start_time timestamp, \
                                          end_time timestamp, \
                                          pixel_count int, \
-                                         data binary, \
+                                         data #if ($HSQL) binary #else bytea #end, \
                                          PRIMARY KEY (channel_id, pixels_per_day, start_time), \
                                          FOREIGN KEY (channel_id) REFERENCES channel (chan_id))
 
