@@ -26,6 +26,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -56,33 +57,42 @@ import edu.sc.seis.fissuresUtil.sac.SacToFissures;
  */
 public class URLDataSetSeismogram extends DataSetSeismogram {
 
-    public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType,
-            DataSet dataset, String name) {
+    public URLDataSetSeismogram(URL url,
+                                SeismogramFileTypes fileType,
+                                DataSet dataset,
+                                String name) {
         this(new URL[] {url},
              new SeismogramFileTypes[] {fileType},
              dataset,
              name);
     }
 
-    public URLDataSetSeismogram(URL[] url, SeismogramFileTypes[] fileType,
-            DataSet dataset, String name) {
+    public URLDataSetSeismogram(URL[] url,
+                                SeismogramFileTypes[] fileType,
+                                DataSet dataset,
+                                String name) {
         this(url, fileType, dataset, name, null);
     }
 
-    public URLDataSetSeismogram(URL[] url, SeismogramFileTypes[] fileType,
-            DataSet dataset, String name, RequestFilter requestFilter) {
+    public URLDataSetSeismogram(URL[] url,
+                                SeismogramFileTypes[] fileType,
+                                DataSet dataset,
+                                String name,
+                                RequestFilter requestFilter) {
         super(dataset, name, requestFilter);
         this.url = url;
         this.fileType = fileType;
     }
 
-    public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType,
-            DataSet dataset) {
+    public URLDataSetSeismogram(URL url,
+                                SeismogramFileTypes fileType,
+                                DataSet dataset) {
         this(new URL[] {url}, new SeismogramFileTypes[] {fileType}, dataset);
     }
 
-    public URLDataSetSeismogram(URL[] url, SeismogramFileTypes[] fileType,
-            DataSet dataset) {
+    public URLDataSetSeismogram(URL[] url,
+                                SeismogramFileTypes[] fileType,
+                                DataSet dataset) {
         this(url, fileType, dataset, "");
     }
 
@@ -90,8 +100,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         this(new URL[] {url}, new SeismogramFileTypes[] {fileType});
     }
 
-    public URLDataSetSeismogram(URL url, SeismogramFileTypes fileType,
-            String name) {
+    public URLDataSetSeismogram(URL url,
+                                SeismogramFileTypes fileType,
+                                String name) {
         this(new URL[] {url}, new SeismogramFileTypes[] {fileType}, name);
     }
 
@@ -99,24 +110,27 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         this(url, fileType, (DataSet)null);
     }
 
-    public URLDataSetSeismogram(URL[] url, SeismogramFileTypes[] fileType,
-            String name) {
+    public URLDataSetSeismogram(URL[] url,
+                                SeismogramFileTypes[] fileType,
+                                String name) {
         this(url, fileType, null, name);
     }
 
-    public URLDataSetSeismogram(URL[] url, SeismogramFileTypes[] fileType,
-            String name, RequestFilter requestFilter) {
+    public URLDataSetSeismogram(URL[] url,
+                                SeismogramFileTypes[] fileType,
+                                String name,
+                                RequestFilter requestFilter) {
         this(url, fileType, null, name, requestFilter);
     }
 
     public void retrieveData(final SeisDataChangeListener dataListener) {
-        //logger.debug("adding " + url[0] + " to the pool");
+        // logger.debug("adding " + url[0] + " to the pool");
         WorkerThreadPool.getDefaultPool().invokeLater(new Runnable() {
 
             public void run() {
                 LocalSeismogramImpl[] seismos;
                 for(int i = 0; i < url.length; i++) {
-                    //logger.debug("retrieveData for " + url[i]);
+                    // logger.debug("retrieveData for " + url[i]);
                     try {
                         LocalSeismogramImpl seis = getSeismogram(i);
                         if(seis != null) {
@@ -130,7 +144,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                         error(dataListener, e);
                     }
                 }
-                //logger.debug("finished urlDSS.retrieveData");
+                // logger.debug("finished urlDSS.retrieveData");
                 finished(dataListener);
             }
         });
@@ -213,7 +227,8 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             // probably should throw something instead of this, but the error
             // may be ok?
             String dssName = "dss is null";
-            if(dss != null) dssName = dss.getName();
+            if(dss != null)
+                dssName = dss.getName();
             GlobalExceptionHandler.handle("A problem occured trying to localize the "
                                                   + dssName
                                                   + " dataset seismogram.",
@@ -291,7 +306,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                          Channel channel,
                                          String suffix) throws IOException,
             NoPreferredOrigin, CodecException {
-        if(channel == null) { throw new IllegalArgumentException("Channel cannot be null"); }
+        if(channel == null) {
+            throw new IllegalArgumentException("Channel cannot be null");
+        }
         String seisFilename = "";
         seisFilename = ChannelIdUtil.toStringNoDates(channel.get_id());
         seisFilename = seisFilename.replace(' ', '_'); // check for space-space
@@ -359,9 +376,11 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         ChannelId chanId = seis.getChannelID();
         if(requestFilter != null) {
             MicroSecondDate tmp = new MicroSecondDate(requestFilter.start_time);
-            if(tmp.before(begin)) begin = tmp;
+            if(tmp.before(begin))
+                begin = tmp;
             tmp = new MicroSecondDate(requestFilter.end_time);
-            if(tmp.after(end)) end = tmp;
+            if(tmp.after(end))
+                end = tmp;
             chanId = requestFilter.channel_id;
             seis.channel_id = chanId;
         }
@@ -384,7 +403,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                 obj = null;
             }
         }
-        if(obj != null) { return (LocalSeismogramImpl)obj; }
+        if(obj != null) {
+            return (LocalSeismogramImpl)obj;
+        }
         LocalSeismogramImpl seis;
         if(isPSN(seisNum)) {
             URL psnURL = getURLfromPSNURL(seisURL);
@@ -414,11 +435,12 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         // set channel id correctly if extra info stored in Aux data
         Object netBegin = getAuxillaryData(NETWORK_BEGIN);
         if(netBegin != null && netBegin instanceof String) {
-            seis.channel_id.network_id.begin_time.date_time = (String)netBegin;
+            seis.channel_id.network_id.begin_time = new Time((String)netBegin,
+                                                             -1);
         }
         Object chanBegin = getAuxillaryData(CHANNEL_BEGIN);
         if(chanBegin != null && chanBegin instanceof String) {
-            seis.channel_id.begin_time.date_time = (String)chanBegin;
+            seis.channel_id.begin_time = new Time((String)chanBegin, -1);
         }
         addToCache(seisURL, fileType[seisNum], seis);
         return seis;
@@ -450,7 +472,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             }
         }
         if(!found) {
-            //found, so no need to add
+            // found, so no need to add
             URL[] tmp = new URL[url.length + 1];
             System.arraycopy(url, 0, tmp, 0, url.length);
             url = tmp;
@@ -502,13 +524,13 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     XMLUtil.writeEndElementWithNewLine(writer);
                 } else if(getAuxillaryData(next) instanceof Element) {
                     logger.debug(NAMED_VALUE + " insert placeholder");
-                    //writer.writeStartElement(NAMED_VALUE);
-                    //XMLUtil.writeTextElement(writer, "name", (String)next);
-                    //writer.writeStartElement("value");
-                    //XMLUtil.writeNode(writer,
+                    // writer.writeStartElement(NAMED_VALUE);
+                    // XMLUtil.writeTextElement(writer, "name", (String)next);
+                    // writer.writeStartElement("value");
+                    // XMLUtil.writeNode(writer,
                     // (Element)getAuxillaryData(next));
-                    //XMLUtil.writeEndElementWithNewLine(writer);
-                    //XMLUtil.writeEndElementWithNewLine(writer);
+                    // XMLUtil.writeEndElementWithNewLine(writer);
+                    // XMLUtil.writeEndElementWithNewLine(writer);
                 }
             } else {
                 logger.warn("try to save aux data " + next + " "
@@ -655,6 +677,4 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
      * does not prevent garbage collection.
      */
     private HashMap urlToLSMap = new HashMap();
-
-    private static Logger logger = Logger.getLogger(URLDataSetSeismogram.class);
 }// URLDataSetSeismogram
