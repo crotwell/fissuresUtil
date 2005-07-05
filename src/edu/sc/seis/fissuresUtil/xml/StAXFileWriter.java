@@ -5,12 +5,14 @@
  */
 package edu.sc.seis.fissuresUtil.xml;
 
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import org.apache.log4j.Logger;
 
 public class StAXFileWriter {
 
@@ -18,33 +20,48 @@ public class StAXFileWriter {
         outFile = file;
         if(outFile.exists()) {
             tempFile = File.createTempFile("Temp_" + outFile.getName(),
-                                           "xml",
-                                           outFile.getParentFile());
+                                           null,
+                                           outFile.getAbsoluteFile()
+                                                   .getParentFile());
             isTempFiled = true;
         } else {
             tempFile = outFile;
         }
-        fileWriter = new BufferedWriter(new FileWriter(tempFile));
-        xmlWriter = XMLUtil.staxOutputFactory.createXMLStreamWriter(fileWriter);
+        fileWriter = new BufferedOutputStream(new FileOutputStream(tempFile));
+        xmlWriter = XMLUtil.staxOutputFactory.createXMLStreamWriter(fileWriter,
+                                                                    "UTF-8");
     }
 
     public XMLStreamWriter getStreamWriter() {
         return xmlWriter;
     }
 
-    public void close() throws XMLStreamException, IOException {
+    public synchronized void close() throws XMLStreamException, IOException {
         if(!isClosed) {
             xmlWriter.writeEndDocument();
             xmlWriter.close();
             fileWriter.close();
             if(isTempFiled) {
-                if(!tempFile.renameTo(outFile)) {
-                    //If unable to rename the tempfile, delete it and try again
+                if(!tempFile.renameTo(outFile.getAbsoluteFile())) {
+                    logger.debug("Unable to rename " + tempFile + " to "
+                            + outFile.getAbsoluteFile());
+                    // If unable to rename the tempfile, delete it and try again
                     if(outFile.delete()) {
                         tempFile.renameTo(outFile);
                     } else {
-                        throw new IOException("Unable to move temp file over old file");
+                        try {
+                            Thread.sleep(1000);
+                        } catch(InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if(outFile.delete()) {
+                            tempFile.renameTo(outFile);
+                        } else {
+                            throw new IOException("Unable to move temp file over old file");
+                        }
                     }
+                } else {
+                    logger.debug("Renamed " + tempFile + " to " + outFile);
                 }
             }
             isClosed = true;
@@ -57,7 +74,9 @@ public class StAXFileWriter {
 
     private boolean isClosed = false;
 
-    private BufferedWriter fileWriter;
+    private OutputStream fileWriter;
 
     private XMLStreamWriter xmlWriter;
+
+    private Logger logger = Logger.getLogger(StAXFileWriter.class);
 }
