@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.mockFissures.IfEvent;
 
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Time;
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.iris.Fissures.IfEvent.Origin;
@@ -17,8 +16,8 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfParameterMgr.MockParameterRef;
 
 public class MockEventAccessOperations {
 
-    public synchronized static EventAccessOperations[] createEvents() {
-        evs = new EventAccessOperations[2];
+    public synchronized static CacheEvent[] createEvents() {
+        evs = new CacheEvent[2];
         evs[0] = createEvent();
         evs[1] = createFallEvent();
         return evs;
@@ -83,5 +82,5 @@ public class MockEventAccessOperations {
         return events;
     }
 
-    private static EventAccessOperations[] evs;
+    private static CacheEvent[] evs;
 }
