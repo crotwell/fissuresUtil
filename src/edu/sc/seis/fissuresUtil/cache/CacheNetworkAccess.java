@@ -115,11 +115,6 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
         Instrumentation inst = net.retrieve_instrumentation(id, the_time);
-        if(!ResponseGain.isValid(inst)) {
-            throw new RuntimeException(ChannelIdUtil.toString(id)
-                    + " has an invalid sensitivity for time "
-                    + new MicroSecondDate(the_time));
-        }
         updateHolder(id, the_time, inst);
         return inst;
     }
