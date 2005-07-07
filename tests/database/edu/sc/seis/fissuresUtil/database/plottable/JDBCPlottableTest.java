@@ -12,6 +12,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
 import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
@@ -24,7 +25,8 @@ public class JDBCPlottableTest extends JDBCTearDown {
 
     public void setUp() throws SQLException {
         data = createFullDayPlottable();
-        plottDb = new JDBCPlottable();
+        plottDb = new JDBCPlottable(new ConnectionCreator(new String[] {}).createConnection(),
+                                    "HSQL");
     }
 
     public static PlottableChunk createFullDayPlottable() {
@@ -162,7 +164,7 @@ public class JDBCPlottableTest extends JDBCTearDown {
 
     private static Plottable FULL_DAY = null;
     static {
-        BasicConfigurator.configure(new NullAppender());//ConsoleAppender(new
+        BasicConfigurator.configure(new NullAppender());// ConsoleAppender(new
         // PatternLayout("%C{1}.%M
         // - %m\n")));
         try {
