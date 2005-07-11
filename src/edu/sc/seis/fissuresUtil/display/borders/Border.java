@@ -13,6 +13,8 @@ import java.util.List;
 import javax.swing.JComponent;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
+import edu.sc.seis.fissuresUtil.display.particlemotion.SelfDrawableTitleProvider;
+import edu.sc.seis.fissuresUtil.display.particlemotion.ParticleMotionSelfDrawableTitleProvider;
 
 public abstract class Border extends JComponent {
 
@@ -105,6 +107,13 @@ public abstract class Border extends JComponent {
         titles.add(0, tp);
         fixSize();
     }
+    
+    
+    public void removeTitle(TitleProvider toBeRemoved){
+        if(titles.contains(toBeRemoved)){
+            titles.remove(toBeRemoved);
+        }
+    }
 
     protected void fixSize() {
         int tpHeight = 0;
@@ -188,7 +197,8 @@ public abstract class Border extends JComponent {
         }
 
         public abstract String getMaxString();
-
+        
+        
         public void draw(UnitRangeImpl range, Graphics2D g2d) {
             Iterator it = titles.iterator();
             int cumulativeTitleHeight = 0;
@@ -201,7 +211,12 @@ public abstract class Border extends JComponent {
                     g2d.setColor(color);
                 }
                 FontMetrics fm = g2d.getFontMetrics();
-                Rectangle2D titleBounds = fm.getStringBounds(tp.getTitle(), g2d);
+                Rectangle2D titleBounds;
+                if(tp instanceof SelfDrawableTitleProvider) {
+                    titleBounds = ((SelfDrawableTitleProvider)tp).getBounds(g2d);
+                } else {
+                    titleBounds = fm.getStringBounds(tp.getTitle(), g2d);
+                }
                 cumulativeTitleHeight += titleBounds.getHeight();
                 if(direction == VERTICAL) {
                     double y = (int)(getSize().height / 2 + titleBounds.getWidth() / 2);
@@ -213,9 +228,12 @@ public abstract class Border extends JComponent {
                                 + (int)titleBounds.getHeight() - 5;
                     g2d.translate(x, y);
                     g2d.rotate(-Math.PI / 2);
-                    g2d.drawString(tp.getTitle(), 0, 0);
+                    drawTitle(g2d, tp, 0, 0);
                     g2d.rotate(Math.PI / 2);
                     g2d.translate(-x, -y);
+                    if(tp instanceof SelfDrawableTitleProvider){
+                        ((ParticleMotionSelfDrawableTitleProvider)tp).setVerticalCoordinates(x, y);
+                    }
                 } else {
                     int x = (int)(getWidth() / 2 - titleBounds.getWidth() / 2);
                     int y;
@@ -224,7 +242,10 @@ public abstract class Border extends JComponent {
                     else
                         y = getHeight() - cumulativeTitleHeight
                                 + (int)titleBounds.getHeight() - 5;
-                    g2d.drawString(tp.getTitle(), x, y);
+                    drawTitle(g2d, tp, x, y);
+                    if(tp instanceof SelfDrawableTitleProvider){
+                        ((ParticleMotionSelfDrawableTitleProvider)tp).setHorizontalCoordinates(x, y);
+                    }
                 }
             }
             g2d.setColor(color);
@@ -302,6 +323,15 @@ public abstract class Border extends JComponent {
                 g2d.translate(-(int)translation[0], -(int)translation[1]);
             }
         }
+
+        private void drawTitle(Graphics2D g2d, TitleProvider tp, int i, int j) {
+            if(tp instanceof SelfDrawableTitleProvider) {
+                ((SelfDrawableTitleProvider)tp).draw(i, j, g2d);
+            } else {
+                g2d.drawString(tp.getTitle(), 0, 0);
+            }
+        }
+
 
         private void label(String label,
                            float[] nextLabelPoint,
@@ -448,4 +478,5 @@ public abstract class Border extends JComponent {
     protected int tickPad = 3, labelTickLength = 10, tickLength = 4;
 
     protected Color color = Color.BLACK;
+
 }
