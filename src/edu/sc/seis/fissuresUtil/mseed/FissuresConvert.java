@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
+import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.TimeZone;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -11,6 +13,7 @@ import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesType;
+import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
@@ -20,6 +23,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.iris.dmc.seedcodec.B1000Types;
 import edu.sc.seis.fissuresUtil.database.DataCenterUtil;
+import edu.sc.seis.seisFile.mseed.*;
 
 /**
  * FissuresConvert.java
@@ -161,7 +165,7 @@ public class FissuresConvert {
             header.setChannelIdentifier(channel_id.channel_code);
             header.setNetworkCode(channel_id.network_id.network_code);
             TimeInterval sampPeriod = sampling_info.getPeriod();
-            header.setStartTime(start);
+            header.setStartBtime(getBtime(start));
             header.setNumSamples((short)eData[i].num_points);
             start = start.add((TimeInterval)sampPeriod.multiplyBy(eData[i].num_points));
             double sps = 1 / sampPeriod.convertTo(UnitImpl.SECOND).getValue();
@@ -247,7 +251,7 @@ public class FissuresConvert {
     public static LocalSeismogramImpl toFissures(DataRecord seed)
             throws SeedFormatException {
         DataHeader header = seed.getHeader();
-        String isoTime = header.getISOStartTime();
+        String isoTime = getISOTime(header.getStartBtime());
         // the network id isn't correct, but network start is not stored
         // in miniseed
         ChannelId channelId = new ChannelId(new NetworkId(header.getNetworkCode()
@@ -262,7 +266,7 @@ public class FissuresConvert {
                                             new Time(isoTime, -1));
         String seisId = channelId.network_id.network_code + ":"
                 + channelId.station_code + ":" + channelId.site_code + ":"
-                + channelId.channel_code + ":" + header.getISOStartTime();
+                + channelId.channel_code + ":" + getISOTime(header.getStartBtime());
         Property[] props = new Property[1];
         props[0] = new Property("Name", seisId);
         Blockette[] blocketts = seed.getBlockettes(100);
@@ -336,6 +340,52 @@ public class FissuresConvert {
         // wasteful as this does the data as well...
         return toFissures(seed);
     }
+    
+
+
+    /**
+     get the value of start time in ISO format
+
+     @return the value of start time in ISO format
+     */
+    public static String getISOTime(Btime startStruct) {
+        float fSecond = startStruct.sec + startStruct.tenthMilli / 10000f;
+        return edu.iris.Fissures.model.ISOTime.getISOString(startStruct.year,
+                                                            startStruct.jday,
+                                                            startStruct.hour,
+                                                            startStruct.min,
+                                                            fSecond);
+    }
+
+    /**
+     get the value of start time in MicroSecondDate format
+
+     @return the value of start time in MicroSecondDate format
+     */
+    public MicroSecondDate getMicroSecondTime(Btime startStruct) {
+        ISOTime iso =  new ISOTime(startStruct.year,
+                                                            startStruct.jday,
+                                                            startStruct.hour,
+                                                            startStruct.min,
+                                                            startStruct.sec);
+        MicroSecondDate d = iso.getDate().add(new TimeInterval(startStruct.tenthMilli, UnitImpl.TENTHMILLISECOND));
+        return d;
+    }
+
+    public static Btime getBtime(MicroSecondDate date) {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTime(date);
+
+        Btime btime = new Btime();
+        btime.tenthMilli = (int)(cal.get(cal.MILLISECOND)*10+(Math.round(date.getMicroSeconds()/100.0)));
+        btime.year = cal.get(cal.YEAR);
+        btime.jday = cal.get(cal.DAY_OF_YEAR);
+        btime.hour = cal.get(cal.HOUR_OF_DAY);
+        btime.min = cal.get(cal.MINUTE);
+        btime.sec = cal.get(cal.SECOND);
+        return btime;
+    }
+
 
     static final byte RECORD_SIZE_POWER = 12;
 
