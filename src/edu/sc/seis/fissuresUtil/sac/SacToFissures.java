@@ -36,6 +36,7 @@ import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
  * SacToFissures.java Created: Thu Mar 2 13:48:26 2000
