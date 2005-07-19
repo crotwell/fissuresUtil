@@ -13,7 +13,11 @@ import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.Response;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
+import edu.iris.Fissures.IfNetwork.Stage;
 import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.sc.seis.fissuresUtil.bag.ResponseGain;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
@@ -55,6 +59,28 @@ public class InstrumentationLoader extends Thread
             }
         }
     }
+    
+    public static void repairResponse(Response resp) {
+        if(isValid(resp)) {
+            logger.info("response is valid");
+            System.out.println("response is valid");
+            return;
+        }
+        logger.info("response is not valid");
+        System.out.println("response is not valid");
+        Stage[] stages = resp.stages;
+        float sensitivity = stages[0].the_gain.gain_factor;
+        for(int i = 1; i < stages.length; i++) {
+            if(stages[i - 1].the_gain.frequency != stages[i].the_gain.frequency) {
+                logger.warn("Different frequencies in the stages of the response. Stage 0="+stages[0].the_gain.frequency+"  stage "+i+"= "+stages[i].the_gain.frequency);
+                System.out.println("Different frequencies in the stages of the response. Stage 0="+stages[0].the_gain.frequency+"  stage "+i+"= "+stages[i].the_gain.frequency);
+                return;
+            }
+            sensitivity *= stages[i].the_gain.gain_factor;
+        }
+        resp.the_sensitivity.sensitivity_factor = sensitivity;
+        resp.the_sensitivity.frequency = stages[0].the_gain.frequency;
+    }
 
     protected synchronized boolean isEmpty() {
         return queue.isEmpty();
@@ -85,6 +111,18 @@ public class InstrumentationLoader extends Thread
 
     public void getInstrumentation(DataSetSeismogram seis, NetworkAccess net) {
         addToQueue(new WorkUnit(seis, net));
+    }
+
+    public static boolean isValid(Sensitivity sens) {
+        return sens.frequency >= 0 && sens.sensitivity_factor != -1;
+    }
+
+    public static boolean isValid(Instrumentation inst) {
+        return isValid(inst.the_response);
+    }
+    
+    public static boolean isValid(Response resp) {
+        return resp.stages.length != 0 && isValid(resp.the_sensitivity);
     }
 
     private LinkedList queue = new LinkedList();
