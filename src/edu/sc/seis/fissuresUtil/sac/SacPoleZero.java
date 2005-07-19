@@ -5,17 +5,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
-import org.jacorb.transaction.Sleeper;
-import edu.iris.Fissures.IfNetwork.ComplexNumberErrored;
-import edu.iris.Fissures.IfNetwork.Filter;
-import edu.iris.Fissures.IfNetwork.FilterType;
-import edu.iris.Fissures.IfNetwork.Instrumentation;
-import edu.iris.Fissures.IfNetwork.PoleZeroFilter;
-import edu.iris.Fissures.IfNetwork.Response;
-import edu.iris.Fissures.IfNetwork.Stage;
-import edu.iris.Fissures.IfNetwork.TransferType;
-import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.cache.InstrumentationLoader;
 import edu.sc.seis.fissuresUtil.display.TextTable;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 
@@ -28,78 +17,6 @@ public class SacPoleZero {
         this.poles = poles;
         this.zeros = zeros;
         this.constant = constant;
-    }
-
-    public SacPoleZero(Response response) {
-        InstrumentationLoader.repairResponse(response);
-        if ( ! InstrumentationLoader.isValid(response)) {
-            throw new IllegalArgumentException("response is not valid");
-        }
-        Stage stage = response.stages[0];
-        Filter filter = stage.filters[0];
-        if(filter.discriminator().value() != FilterType._POLEZERO) {
-            throw new IllegalArgumentException("Unexpected response type "
-                    + filter.discriminator().value());
-        }
-        PoleZeroFilter pz = filter.pole_zero_filter();
-        int gamma = 0;
-        UnitImpl unit = (UnitImpl)stage.input_units;
-        if(unit.isConvertableTo(UnitImpl.METER_PER_SECOND)) {
-            gamma = 1;
-        } else if(unit.isConvertableTo(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
-            gamma = 2;
-        }
-        int num_zeros = pz.zeros.length + gamma;
-        double mulFactor = 1;
-        if(stage.type == TransferType.ANALOG) {
-            mulFactor = 2 * Math.PI;
-        }
-        zeros = initCmplx(num_zeros);
-        for(int i = 0; i < pz.zeros.length; i++) {
-            zeros[i] = new Cmplx(pz.zeros[i].real * mulFactor,
-                                 pz.zeros[i].imaginary * mulFactor);
-        }
-        poles = initCmplx(pz.poles.length);
-        for(int i = 0; i < pz.poles.length; i++) {
-            poles[i] = new Cmplx(pz.poles[i].real * mulFactor,
-                                 pz.poles[i].imaginary * mulFactor);
-        }
-        constant = stage.the_normalization[0].ao_normalization_factor;
-        double sd = response.the_sensitivity.sensitivity_factor;
-        double fs = response.the_sensitivity.frequency;
-        sd *= Math.pow(2 * Math.PI * fs, gamma);
-        double A0 = stage.the_normalization[0].ao_normalization_factor;
-        double fn = stage.the_normalization[0].normalization_freq;
-        A0 = A0 / Math.pow(2 * Math.PI * fn, gamma);
-        if(stage.type == TransferType.ANALOG) {
-            A0 *= Math.pow(2 * Math.PI, pz.poles.length - pz.zeros.length);
-        }
-        if(poles.length == 0 && zeros.length == 0) {
-            constant = (float)(sd * A0);
-        } else {
-            constant = (float)(sd * calc_A0(poles, zeros, fs));
-        }
-    }
-
-    private static double calc_A0(Cmplx[] poles, Cmplx[] zeros, double ref_freq) {
-        int i;
-        Cmplx numer, denom, f0, hold;
-        double a0;
-        f0 = new Cmplx(0, 2 * Math.PI * ref_freq);
-        hold = zeros[0];
-        denom = Cmplx.sub(f0, hold);
-        for(i = 1; i < zeros.length; i++) {
-            hold = zeros[i];
-            denom = Cmplx.mul(denom, Cmplx.sub(f0, hold));
-        }
-        hold = poles[0];
-        numer = Cmplx.sub(f0, hold);
-        for(i = 1; i < poles.length; i++) {
-            hold = poles[i];
-            numer = Cmplx.mul(numer, Cmplx.sub(f0, hold));
-        }
-        a0 = Cmplx.div(numer, denom).mag();
-        return a0;
     }
 
     public float getConstant() {
