@@ -3,10 +3,10 @@ package edu.sc.seis.fissuresUtil.bag;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
-import edu.iris.Fissures.IfNetwork.Response;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.cache.InstrumentationLoader;
 
 /**
  * Applys the overall sensitivity to a seismogram. This is purely a scale
@@ -28,7 +28,7 @@ public class ResponseGain {
     public static LocalSeismogramImpl apply(LocalSeismogramImpl seis,
                                             Instrumentation inst)
             throws FissuresException {
-        if(!isValid(inst)) {
+        if(!InstrumentationLoader.isValid(inst)) {
             throw new IllegalArgumentException("Invalid instrumentation for "
                     + ChannelIdUtil.toString(seis.channel_id));
         }
@@ -62,14 +62,5 @@ public class ResponseGain {
         } // end of else
         outSeis.y_unit = initialUnits;
         return outSeis;
-    }
-
-    public static boolean isValid(Instrumentation inst) {
-        Response resp = inst.the_response;
-        return resp.stages.length != 0 && isValid(resp.the_sensitivity);
-    }
-
-    public static boolean isValid(Sensitivity sens) {
-        return sens.frequency != -1 && sens.sensitivity_factor != -1;
     }
 }// ResponseGain
