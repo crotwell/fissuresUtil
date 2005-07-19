@@ -33,14 +33,14 @@ import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.sac.SacTimeSeries;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 
 /**
  * Access to a dataset stored as an XML file.
  * 
  * @author <a href="mailto:">Philip Crotwell </a>
- * @version $Id: XMLDataSet.java 12888 2005-04-16 05:33:27Z groves $
+ * @version $Id: XMLDataSet.java 14283 2005-07-19 17:08:02Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.

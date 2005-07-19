@@ -16,9 +16,9 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
-import edu.sc.seis.fissuresUtil.mseed.DataRecord;
+import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
-import edu.sc.seis.fissuresUtil.mseed.MiniSeedRead;
+import edu.sc.seis.seisFile.mseed.MiniSeedRead;
 
 public class LongShortStoNTest extends TestCase {
 
