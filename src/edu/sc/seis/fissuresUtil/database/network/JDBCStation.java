@@ -58,7 +58,6 @@ public class JDBCStation extends NetworkTable {
     }
 
     private StationId[] extractAll(PreparedStatement query) throws SQLException {
-        System.out.println(query);
         ResultSet rs = query.executeQuery();
         List aList = new ArrayList();
         try {
@@ -173,7 +172,7 @@ public class JDBCStation extends NetworkTable {
         throw new NotFound("No stations in the database of code "
                 + station_code + " for netDbId " + netDbId);
     }
-
+    
     public int[] getDBIds(NetworkId net, String stationCode)
             throws SQLException, NotFound {
         return getDBIds(netTable.getDbId(net), stationCode);
