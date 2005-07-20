@@ -26,6 +26,7 @@ import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
 import org.omg.PortableServer.Servant;
+import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventDCHelper;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
@@ -150,6 +151,24 @@ public class FissuresNamingService {
         return out;
     }
 
+    public static String piecesToNameString(String dns,
+                                            String interfacename,
+                                            String objectname) {
+        checkForContents(dns, "dns must be specified");
+        checkForContents(interfacename,
+                         "Interface name must be specified.  DNS is " + dns);
+        checkForContents(objectname, "Object name must be specified.  DNS is "
+                + dns + "and interface is " + interfacename);
+        return appendKindNames(dns) + "/" + interfacename + ".interface" + "/"
+                + objectname + ".object" + getVersion();
+    }
+
+    private static void checkForContents(String toCheck, String errorMsg) {
+        if(toCheck == null || toCheck.length() == 0) {
+            throw new IllegalArgumentException(errorMsg);
+        }
+    }
+
     /**
      * resolves a CORBA object with the name objectname.
      */
@@ -157,19 +176,13 @@ public class FissuresNamingService {
                                         String interfacename,
                                         String objectname) throws NotFound,
             CannotProceed, InvalidName {
-        dns = appendKindNames(dns);
-        if(interfacename != null && interfacename.length() != 0) {
-            dns = dns + "/" + interfacename + ".interface";
-        }
-        if(objectname != null && objectname.length() != 0) {
-            dns = dns + "/" + objectname + ".object" + getVersion();
-        }
+        String nameString = piecesToNameString(dns, interfacename, objectname);
         logger.info("the final dns resolved is " + dns);
         // try 2 times in case of an exception
         int maxTry = 1;
         for(int i = 0; i <= maxTry; i++) {
             try {
-                NameComponent[] names = getNameService().to_name(dns);
+                NameComponent[] names = getNameService().to_name(nameString);
                 // return resolveBySteps(names); // for debugging
                 return getNameService().resolve(names);
             } catch(org.omg.CORBA.SystemException e) {
@@ -265,27 +278,10 @@ public class FissuresNamingService {
                        NamingContextExt topLevel,
                        String interfacename) throws NotFound, CannotProceed,
             InvalidName {
-        if(dns == null || dns.length() == 0) {
-            throw new IllegalArgumentException("dns must have characters: "
-                    + dns);
-        }
-        if(objectId == null || objectId.length() == 0) {
-            throw new IllegalArgumentException("objectId must have characters: "
-                    + objectId);
-        }
-        if(interfacename == null || interfacename.length() == 0) {
-            throw new IllegalArgumentException("interfacename must have characters: "
-                    + interfacename);
-        }
-        logger.info("rebind dns=" + dns + " interface=" + interfacename
-                + " object=" + objectId);
         if(topLevel == null) {
             logger.warn("top level name context is null!");
         }
-        String nameString = appendKindNames(dns);
-        nameString = nameString + "/" + interfacename + ".interface";
-        String objectName = objectId + ".object" + getVersion();
-        nameString = nameString + "/" + objectName;
+        String nameString = piecesToNameString(dns, interfacename, objectId);
         logger.info("the object to be rebound is " + nameString);
         NameComponent[] name = topLevel.to_name(nameString);
         try {
@@ -378,13 +374,7 @@ public class FissuresNamingService {
                        String objectname,
                        NamingContextExt topLevelNameContext) throws NotFound,
             CannotProceed, InvalidName {
-        String toUnbind = appendKindNames(dns);
-        if(interfacename != null && interfacename.length() != 0) {
-            toUnbind = toUnbind + "/" + interfacename + ".interface";
-        }
-        if(objectname != null && objectname.length() != 0) {
-            toUnbind = toUnbind + "/" + objectname + ".object" + getVersion();
-        }
+        String toUnbind = piecesToNameString(dns, interfacename, objectname);
         logger.debug("Attempting to unbind " + toUnbind);
         topLevelNameContext.unbind(topLevelNameContext.to_name(toUnbind));
     }
@@ -624,11 +614,13 @@ public class FissuresNamingService {
      */
     public String[] getInstanceNames(String dns, String interfacename)
             throws NotFound, CannotProceed, InvalidName {
-        dns = appendKindNames(dns);
-        if(interfacename != null && interfacename.length() != 0) {
-            dns = dns + "/" + interfacename + ".interface";
-        }
-        return getNames(dns, "object" + getVersion());
+        checkForContents(interfacename, interfacename + " must be defined");
+        return getNames(appendKindNames(dns) + "/"
+                + appendInterfaceKind(interfacename), "object" + getVersion());
+    }
+
+    private String appendInterfaceKind(String interfacename) {
+        return interfacename + ".interface";
     }
 
     /**
@@ -666,7 +658,7 @@ public class FissuresNamingService {
         return (String[])bindings.toArray(new String[bindings.size()]);
     }
 
-    private String appendKindNames(String dns) {
+    private static String appendKindNames(String dns) {
         dns = FISSURES + "/" + dns + "/";
         StringTokenizer tokenizer = new StringTokenizer(dns, "/");
         String rtnValue = new String();
