@@ -3,7 +3,7 @@ package edu.sc.seis.fissuresUtil.rt130;
 public class HexRead {
 
     public static String toString(byte input)
-            throws OneHundredThirtyFormatException {
+            throws RT130FormatException {
         int inputInt = input;
         // Take care of negatives.
         inputInt = (inputInt & 255);
@@ -28,7 +28,7 @@ public class HexRead {
                 firstFourBits = "F";
             } else {
                 System.err.println("The fifth and sixth bytes of the Packet Header were not formatted correctly, and do not refer to a valid hexadecimal.");
-                throw new OneHundredThirtyFormatException();
+                throw new RT130FormatException();
             }
         }
         if(secondFourBitsInt >= 10) {
@@ -46,14 +46,14 @@ public class HexRead {
                 secondFourBits = "F";
             } else {
                 System.err.println("The fifth and sixth bytes of the Packet Header were not formatted correctly, and do not refer to a valid hexadecimal.");
-                throw new OneHundredThirtyFormatException();
+                throw new RT130FormatException();
             }
         }
         return firstFourBits + secondFourBits;
     }
 
     public static String toString(byte[] input)
-            throws OneHundredThirtyFormatException {
+            throws RT130FormatException {
         String value = "";
         for(int i = 0; i < input.length; i++) {
             value = value.concat(HexRead.toString(input[i]));
