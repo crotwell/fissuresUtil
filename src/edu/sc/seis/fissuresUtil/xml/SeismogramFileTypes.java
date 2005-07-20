@@ -57,6 +57,8 @@ public class SeismogramFileTypes {
             return SAC;
         } else if(typeURL.equals(PSN.getURLValue().toString())) {
             return PSN;
+        } else if (typeURL.equals(RT_130.getURLValue().toString())) {
+            return RT_130;
         }
         throw new UnsupportedFileTypeException(typeURL);
     }
@@ -69,6 +71,8 @@ public class SeismogramFileTypes {
             return SAC;
         } else if(type == PSN.getIntValue()) {
             return PSN;
+        } else if (type == RT_130.getIntValue()) {
+            return RT_130;
         }
         throw new UnsupportedFileTypeException("" + type);
     }
@@ -79,8 +83,9 @@ public class SeismogramFileTypes {
     public static final SeismogramFileTypes MSEED = new SeismogramFileTypes("mseed",
                                                                             2);
 
-    public static final SeismogramFileTypes PSN = new SeismogramFileTypes("psn",
-                                                                          3);
+    public static final SeismogramFileTypes PSN = new SeismogramFileTypes("psn", 3);
+    
+    public static final SeismogramFileTypes RT_130 = new SeismogramFileTypes("rt130", 4);
 
     public static final String URL_PREFIX = "http://www.seis.sc.edu/xml/SeismogramFileTypes/";
 
