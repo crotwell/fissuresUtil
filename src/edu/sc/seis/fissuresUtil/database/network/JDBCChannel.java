@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.Orientation;
@@ -182,15 +183,49 @@ public class JDBCChannel extends NetworkTable {
         while(rs.next()) {
             try {
                 aList.add(new ChannelId(networkId,
-                                     station_code,
-                                     site_code,
-                                     channel_code,
-                                     time.get(rs.getInt("chan_begin_id"))));
+                                        station_code,
+                                        site_code,
+                                        channel_code,
+                                        time.get(rs.getInt("chan_begin_id"))));
             } catch(NotFound e) {
                 throw new RuntimeException(e);
             }
         }
         return (ChannelId[])aList.toArray(new ChannelId[aList.size()]);
+    }
+
+    public int[] getDBIdIgnoringNetworkId(String network_code,
+                                          String station_code,
+                                          String site_code,
+                                          String channel_code)
+            throws SQLException, NotFound {
+        String query = "SELECT chan_id FROM channel, site, station, network WHERE chan_code = '"
+                + channel_code
+                + "'"
+                + " AND channel.site_id = site.site_id AND site_code = '"
+                + site_code
+                + "'"
+                + " AND site.sta_id = station.sta_id AND sta_code = '"
+                + station_code
+                + "'"
+                + " AND station.net_id = network.net_id AND net_code = '"
+                + network_code + "'";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        List resultList = new ArrayList();
+        if(rs.next()) {
+            resultList.add(new Integer(rs.getInt("chan_id")));
+            while(rs.next()) {
+                resultList.add(new Integer(rs.getInt("chan_id")));
+            }
+            Iterator it = resultList.iterator();
+            int[] result = new int[resultList.size()];
+            for(int i = 0; it.hasNext(); i++) {
+                result[i] = ((Integer)it.next()).intValue();
+            }
+            return result;
+        }
+        throw new NotFound("No such channel id in the db");
     }
 
     public int getDBId(ChannelId id) throws SQLException, NotFound {
