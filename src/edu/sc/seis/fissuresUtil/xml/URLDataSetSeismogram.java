@@ -167,7 +167,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                 try {
                     // this updates the request filter internally as a side
                     // effect
-                    LocalSeismogramImpl seis = getSeismogram(i);
+                    getSeismogram(i);
                 } catch(Exception e) {
                     GlobalExceptionHandler.handle("Cannot get seismogram for "
                             + url[i].toString(), e);
