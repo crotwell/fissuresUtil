@@ -158,8 +158,12 @@ public class FissuresToSac {
                                        Origin origin)
         throws CodecException {
         SacTimeSeries sac = getSAC(seis);
-        addChannel(sac, channel);
-        addOrigin(sac, origin);
+        if (channel != null) {
+            addChannel(sac, channel);
+        }
+        if (origin != null) {
+            addOrigin(sac, origin);
+        }
         return sac;
     }
 

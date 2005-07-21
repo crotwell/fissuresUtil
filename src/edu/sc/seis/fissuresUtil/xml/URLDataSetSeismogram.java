@@ -349,23 +349,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                  Channel channel,
                                  EventAccessOperations event)
             throws IOException, NoPreferredOrigin, CodecException {
-        SacTimeSeries sac;
         File seisFile = getUnusedFileName(directory, channel, ".sac");
-        if(channel != null) {
-            if(event != null) {
-                sac = FissuresToSac.getSAC(seis,
-                                           channel,
-                                           event.get_preferred_origin());
-            } else {
-                sac = FissuresToSac.getSAC(seis, channel);
-            }
-        } else {
-            if(event != null) {
-                sac = FissuresToSac.getSAC(seis, event.get_preferred_origin());
-            } else {
-                sac = FissuresToSac.getSAC(seis);
-            }
-        }
+        SacTimeSeries sac = FissuresToSac.getSAC(seis,
+                                   channel,
+                                   event != null ? event.get_preferred_origin() : null);
         sac.write(seisFile);
         return seisFile;
     }
