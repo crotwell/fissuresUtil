@@ -16,11 +16,10 @@ import org.apache.log4j.BasicConfigurator;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
-import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.rt130.RT130PopulateDatabaseInfo;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
@@ -85,7 +84,12 @@ public class PopulateDatabaseFromDirectory {
         } else if(fileName.endsWith(".mseed")) {
             finished = processMSeed(jdbcSeisFile, fileLoc, fileName, verbose);
         } else if(fileName.length() == 18 && fileName.charAt(9) == '_') {
-            finished = processRefTek(jdbcSeisFile, conn, fileLoc, fileName, verbose, props);
+            finished = processRefTek(jdbcSeisFile,
+                                     conn,
+                                     fileLoc,
+                                     fileName,
+                                     verbose,
+                                     props);
         } else {
             if(verbose) {
                 System.out.println(fileName + " is not a valid file.");
@@ -105,7 +109,8 @@ public class PopulateDatabaseFromDirectory {
             if(files[i].isDirectory()) {
                 readEntireDirectory(baseDirectory + files[i].getName() + "/",
                                     verbose,
-                                    conn, props);
+                                    conn,
+                                    props);
             } else {
                 readSingleFile(files[i].getAbsolutePath(), verbose, conn, props);
             }
@@ -177,10 +182,10 @@ public class PopulateDatabaseFromDirectory {
         LinkedList list = new LinkedList();
         try {
             while(true) {
-                try{
+                try {
                     DataRecord dr = mseedRead.getNextRecord();
                     list.add(dr);
-                } catch(SeedFormatException e){
+                } catch(SeedFormatException e) {
                     System.out.println("Format exception skipped");
                 }
             }
@@ -192,16 +197,6 @@ public class PopulateDatabaseFromDirectory {
                                               seis,
                                               fileLoc,
                                               SeismogramFileTypes.MSEED);
-        System.out.println("    Start time: " + seis.begin_time.date_time);
-        System.out.println("    Number of points: " + seis.num_points);
-        try {
-            for(int i = 0; i < seis.num_points; i++){
-                System.out.println("    Data point " + i + ": " + seis.getValueAt(i).value);
-            }
-        } catch(CodecException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         if(verbose) {
             System.out.println("MSEED file " + fileName
                     + " added to the database.");
@@ -216,8 +211,8 @@ public class PopulateDatabaseFromDirectory {
                                          boolean verbose,
                                          Properties props) throws IOException,
             SQLException {
-        if(props == null || conn == null){
-            if(verbose){
+        if(props == null || conn == null) {
+            if(verbose) {
                 System.out.println("No props file was specified.");
                 System.out.println("The channel IDs created will not be correct.");
             }
@@ -227,13 +222,14 @@ public class PopulateDatabaseFromDirectory {
         fis = new FileInputStream(seismogramFile);
         BufferedInputStream bis = new BufferedInputStream(fis);
         DataInputStream dis = new DataInputStream(bis);
-        RT130ToLocalSeismogramImpl toSeismogram = new RT130ToLocalSeismogramImpl(dis, conn, props);
+        RT130PopulateDatabaseInfo toSeismogram = new RT130PopulateDatabaseInfo(dis,
+                                                                                 conn,
+                                                                                 props);
         LocalSeismogramImpl[] seismogramArray = null;
         try {
             seismogramArray = toSeismogram.readEntireDataFile();
         } catch(RT130FormatException e) {
-            System.err.println(fileName
-                    + " seems to be an invalid rt130 file.");
+            System.err.println(fileName + " seems to be an invalid rt130 file.");
             return false;
         }
         for(int i = 0; i < seismogramArray.length; i++) {
@@ -241,24 +237,6 @@ public class PopulateDatabaseFromDirectory {
                                                   seismogramArray[i],
                                                   fileLoc,
                                                   SeismogramFileTypes.RT_130);
-            System.out.println("    Start time: " + seismogramArray[i].begin_time.date_time);
-            System.out.println("    Number of points: " + seismogramArray[i].num_points);
-            try {
-                System.out.println("    Data 0: " + seismogramArray[i].getValueAt(0).value);
-                System.out.println("    Data 1: " + seismogramArray[i].getValueAt(1).value);
-                System.out.println("    Data 2: " + seismogramArray[i].getValueAt(2).value);
-                System.out.println("    Data 3: " + seismogramArray[i].getValueAt(3).value);
-                System.out.println("    Data 4: " + seismogramArray[i].getValueAt(4).value);
-                System.out.println("    Data 5: " + seismogramArray[i].getValueAt(5).value);
-                System.out.println("    Data 6: " + seismogramArray[i].getValueAt(6).value);
-                System.out.println("    Data 7: " + seismogramArray[i].getValueAt(7).value);
-                System.out.println("    Data 8: " + seismogramArray[i].getValueAt(8).value);
-                System.out.println("    Data 9: " + seismogramArray[i].getValueAt(9).value);
-            } catch(CodecException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
         }
         if(verbose) {
             System.out.println("REF_TEK file " + fileName
