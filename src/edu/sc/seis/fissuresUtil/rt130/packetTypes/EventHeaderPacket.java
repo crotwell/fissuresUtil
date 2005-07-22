@@ -68,7 +68,7 @@ public class EventHeaderPacket extends PacketType{
         
         // Data Format
         dataFormat = HexRead.toString(this.readBytes(in, 1));
-        System.out.println("    Data Format: " + dataFormat);
+        //System.out.println("    Data Format: " + dataFormat);
         
         if(dataFormat.equals("C0")){
             // Trigger Time Message
@@ -101,7 +101,7 @@ public class EventHeaderPacket extends PacketType{
             
             // Sample Rate
             sampleRate = new String(this.readBytes(in, 4));
-            System.out.println("    Sample Rate: " + sampleRate);
+            //System.out.println("    Sample Rate: " + sampleRate);
             
             // Trigger Type
             triggerType = new String(this.readBytes(in, 4));
@@ -135,7 +135,7 @@ public class EventHeaderPacket extends PacketType{
             
             // Channel Gain
             channelGain = new String (this.readBytes(in, 16));
-            System.out.println("    Channel Gain: " + channelGain);
+            //System.out.println("    Channel Gain: " + channelGain);
             
             // Channel A/D Resolution
             channelADResolution = new String (this.readBytes(in, 16));
