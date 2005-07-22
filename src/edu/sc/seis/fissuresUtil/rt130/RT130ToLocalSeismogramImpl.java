@@ -39,8 +39,13 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
 
-/**
+/*
  * @author fenner Created on Jun 13, 2005
+ * 
+ * This class processes Ref Tek 130 files and returns an array of complete
+ * LocalSeismogramImpl.
+ * 
+ * 
  */
 public class RT130ToLocalSeismogramImpl {
 
@@ -51,8 +56,8 @@ public class RT130ToLocalSeismogramImpl {
     }
 
     public RT130ToLocalSeismogramImpl(DataInput inputStream,
-                                                 Connection conn,
-                                                 Properties props) {
+                                      Connection conn,
+                                      Properties props) {
         this.dataInputStream = inputStream;
         this.props = props;
         this.conn = conn;
@@ -72,9 +77,9 @@ public class RT130ToLocalSeismogramImpl {
         try {
             nextPacket = new PacketType(dataInputStream);
         } catch(EOFException e) {
-            System.err.println("End of file reached before Event Trailer Packet was read.");
-            System.err.println("The file likely contains an incomplete seismogram.");
-            System.err.println("Local seismogram creation was not disturbed.");
+            System.err.println("End of file reached before any data processing was done.");
+            System.err.println("The file likely contains no data.");
+            System.err.println("Local seismogram creation failed.");
             done = true;
         }
         while(!done) {
@@ -97,8 +102,10 @@ public class RT130ToLocalSeismogramImpl {
                     seismogramData.put(j,
                                        Append.appendEventTrailerPacket((PacketType)seismogramData.get(j),
                                                                        nextPacket));
-                    seismogramList.add(makeSeismogram((PacketType)seismogramData.get(j), false));
-                    resetSeismogramData((PacketType)seismogramData.get(j), nextPacket);
+                    seismogramList.add(makeSeismogram((PacketType)seismogramData.get(j),
+                                                      false));
+                    resetSeismogramData((PacketType)seismogramData.get(j),
+                                        nextPacket);
                 }
                 done = true;
             } else if(nextPacket.packetType.equals("AD")) {
@@ -151,12 +158,14 @@ public class RT130ToLocalSeismogramImpl {
         TimeInterval sampleGapWithTolerance = new TimeInterval(((double)1 / (double)seismogramData.sample_rate)
                                                                        * tolerance,
                                                                UnitImpl.SECOND);
-//         System.out.println("---------------------------- sampleGap: " +
-//         sampleGapWithTolerance.toString());
-//        System.out.println("------------------------------- seismogramData.end_time_of_last_packet: "
-//                + seismogramData.end_time_of_last_packet.toString());
-//        System.out.println("-------------------------------- dataPacket.begin_time_of_first_packet: "
-//                + dataPacket.begin_time_of_first_packet.toString());
+        // System.out.println("---------------------------- sampleGap: " +
+        // sampleGapWithTolerance.toString());
+        // System.out.println("-------------------------------
+        // seismogramData.end_time_of_last_packet: "
+        // + seismogramData.end_time_of_last_packet.toString());
+        // System.out.println("--------------------------------
+        // dataPacket.begin_time_of_first_packet: "
+        // + dataPacket.begin_time_of_first_packet.toString());
         if(seismogramData.end_time_of_last_packet.difference(dataPacket.begin_time_of_first_packet)
                 .lessThan(sampleGapWithTolerance)) {
             value = true;
@@ -164,16 +173,17 @@ public class RT130ToLocalSeismogramImpl {
         return value;
     }
 
-    private LocalSeismogramImpl makeSeismogram(PacketType seismogramData, boolean breakInData) {
-        if(breakInData){
+    private LocalSeismogramImpl makeSeismogram(PacketType seismogramData,
+                                               boolean breakInData) {
+        if(breakInData) {
             System.out.println("The data collecting unit stopped recording data for a period of time longer than allowed.");
             System.out.println("A new seismogram will be created to hold the rest of the data.");
-//        System.out.println("      Number of samples for channel "
-//                + seismogramData.channel_number + ": "
-//                + seismogramData.number_of_samples);
-//        System.out.println("      Begin time of seismogram for channel "
-//                + seismogramData.channel_number + ": "
-//                + seismogramData.begin_time_of_seismogram);
+            // System.out.println(" Number of samples for channel "
+            // + seismogramData.channel_number + ": "
+            // + seismogramData.number_of_samples);
+            // System.out.println(" Begin time of seismogram for channel "
+            // + seismogramData.channel_number + ": "
+            // + seismogramData.begin_time_of_seismogram);
         }
         Time beginTime = seismogramData.begin_time_of_seismogram.getFissuresTime();
         int numPoints = seismogramData.number_of_samples;
@@ -200,7 +210,6 @@ public class RT130ToLocalSeismogramImpl {
         }
         String id = channelId.toString();
         TimeSeriesDataSel timeSeriesDataSel = new TimeSeriesDataSel();
-        System.out.println("encoded_data.length : " + seismogramData.encoded_data.length);
         timeSeriesDataSel.encoded_values(seismogramData.encoded_data);
         return new LocalSeismogramImpl(id,
                                        beginTime,
@@ -228,7 +237,8 @@ public class RT130ToLocalSeismogramImpl {
                                Append.appendDataPacket((PacketType)seismogramData.get(i),
                                                        nextPacket));
         } else {
-            seismogramList.add(makeSeismogram((PacketType)seismogramData.get(i), true));
+            seismogramList.add(makeSeismogram((PacketType)seismogramData.get(i),
+                                              true));
             resetSeismogramData((PacketType)seismogramData.get(i), nextPacket);
             append(seismogramData, i, nextPacket, seismogramList);
         }
