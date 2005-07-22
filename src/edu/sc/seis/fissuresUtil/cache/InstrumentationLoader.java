@@ -19,6 +19,7 @@ import edu.iris.Fissures.IfNetwork.Stage;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.bag.ResponseGain;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.sac.InvalidResponse;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 
@@ -60,21 +61,16 @@ public class InstrumentationLoader extends Thread
         }
     }
     
-    public static void repairResponse(Response resp) {
+    public static void repairResponse(Response resp) throws InvalidResponse {
         if(isValid(resp)) {
-            logger.info("response is valid");
-            System.out.println("response is valid");
             return;
         }
-        logger.info("response is not valid");
-        System.out.println("response is not valid");
+        logger.info("response is not valid, repairing");
         Stage[] stages = resp.stages;
         float sensitivity = stages[0].the_gain.gain_factor;
         for(int i = 1; i < stages.length; i++) {
             if(stages[i - 1].the_gain.frequency != stages[i].the_gain.frequency) {
-                logger.warn("Different frequencies in the stages of the response. Stage 0="+stages[0].the_gain.frequency+"  stage "+i+"= "+stages[i].the_gain.frequency);
-                System.out.println("Different frequencies in the stages of the response. Stage 0="+stages[0].the_gain.frequency+"  stage "+i+"= "+stages[i].the_gain.frequency);
-                return;
+                throw new InvalidResponse("No sensitivity and different frequencies in the stages of the response. Stage 0="+stages[0].the_gain.frequency+"  stage "+i+"= "+stages[i].the_gain.frequency);
             }
             sensitivity *= stages[i].the_gain.gain_factor;
         }

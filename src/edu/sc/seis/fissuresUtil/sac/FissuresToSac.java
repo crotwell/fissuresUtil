@@ -215,7 +215,7 @@ public class FissuresToSac {
         sac.o = (float)sacOMarker.value;
     }
     
-    public static SacPoleZero getPoleZero(Response response) {
+    public static SacPoleZero getPoleZero(Response response) throws InvalidResponse {
         InstrumentationLoader.repairResponse(response);
         if ( ! InstrumentationLoader.isValid(response)) {
             throw new IllegalArgumentException("response is not valid");
