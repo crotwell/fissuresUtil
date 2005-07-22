@@ -52,7 +52,7 @@ public class RT130ToLocalSeismogramImplTest  extends JDBCTearDown {
             fis = new FileInputStream(seismogramFile);
 	        BufferedInputStream bis = new BufferedInputStream(fis);
 	        DataInputStream dis = new DataInputStream(bis);
-	        RT130ToLocalSeismogramImpl toSeismogram = new RT130ToLocalSeismogramImpl(dis);
+	        RT130ToLocalSeismogramImpl toSeismogram = new RT130ToLocalSeismogramImpl(dis, true);
 		    LocalSeismogramImpl[] seismogramArray = toSeismogram.readEntireDataFile();
             
             JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
