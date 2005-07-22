@@ -9,7 +9,7 @@ import edu.sc.seis.fissuresUtil.rt130.packetTypes.*;
 public class Append {
 
     public static PacketType appendDataPacket(PacketType seismogramData,
-                                              PacketType nextPacket) {
+                                              PacketType nextPacket, boolean processData) {
         // Update channel_number
         //
         // There is no need for this to happen every time,
@@ -29,19 +29,21 @@ public class Append {
         seismogramData.begin_time_of_first_packet = nextPacket.begin_time_of_first_packet;
         // Update end_time_of_last_packet
         seismogramData.end_time_of_last_packet = nextPacket.end_time_of_last_packet;
-        // Append the sample data frames.
-        int newArraySize = seismogramData.encoded_data.length
-                + nextPacket.encoded_data.length;
-        EncodedData[] data = new EncodedData[newArraySize];
-        int i = 0;
-        for(; i < seismogramData.encoded_data.length; i++) {
-            data[i] = seismogramData.encoded_data[i];
+        if(processData){
+            // Append the sample data frames.
+            int newArraySize = seismogramData.encoded_data.length
+                    + nextPacket.encoded_data.length;
+            EncodedData[] data = new EncodedData[newArraySize];
+            int i = 0;
+            for(; i < seismogramData.encoded_data.length; i++) {
+                data[i] = seismogramData.encoded_data[i];
+            }
+            for(; i < newArraySize; i++) {
+                data[i] = nextPacket.encoded_data[i
+                        - seismogramData.encoded_data.length];
+            }
+            seismogramData.encoded_data = data;
         }
-        for(; i < newArraySize; i++) {
-            data[i] = nextPacket.encoded_data[i
-                    - seismogramData.encoded_data.length];
-        }
-        seismogramData.encoded_data = data;
         return seismogramData;
     }
 
