@@ -30,11 +30,11 @@ public class DataPacket extends PacketType {
         }
     }
 
-    public DataPacket(DataInput in) throws IOException, RT130FormatException {
-        this.read(in);
+    public DataPacket(DataInput in, boolean processData) throws IOException, RT130FormatException {
+        this.read(in, processData);
     }
 
-    private void read(DataInput in) throws IOException, RT130FormatException {
+    private void read(DataInput in, boolean processData) throws IOException, RT130FormatException {
         
         // Event Number
         eventNumber = BCDRead.toInt(this.readBytes(in, 2)); 
@@ -66,8 +66,13 @@ public class DataPacket extends PacketType {
             // Filler
             in.skipBytes(40);
             
-            // Data Frames 0-14
-            dataFrames = this.readBytes(in, 960);
+            if(processData){
+                // Data Frames 0-14
+                dataFrames = this.readBytes(in, 960);
+            } else{
+                // Data Frames 0-14
+                in.skipBytes(960);
+            }
         } else {
             System.err.println("The data in this packet is not in compressed format. This file reader is not prepaired to read uncompressed seismogram data. Throwing a format exception even though this format is valid.");
             throw new RT130FormatException();

@@ -49,18 +49,21 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
  */
 public class RT130ToLocalSeismogramImpl {
 
-    public RT130ToLocalSeismogramImpl(DataInput inputStream) {
+    public RT130ToLocalSeismogramImpl(DataInput inputStream, boolean processData) {
         this.dataInputStream = inputStream;
         this.props = null;
         this.conn = null;
+        this.processData = processData;
     }
 
     public RT130ToLocalSeismogramImpl(DataInput inputStream,
                                       Connection conn,
-                                      Properties props) {
+                                      Properties props,
+                                      boolean processData) {
         this.dataInputStream = inputStream;
         this.props = props;
         this.conn = conn;
+        this.processData = processData;
     }
 
     public void close() {
@@ -75,7 +78,7 @@ public class RT130ToLocalSeismogramImpl {
         PacketType header = new PacketType();
         Map seismogramData = new HashMap();
         try {
-            nextPacket = new PacketType(dataInputStream);
+            nextPacket = new PacketType(dataInputStream, this.processData);
         } catch(EOFException e) {
             System.err.println("End of file reached before any data processing was done.");
             System.err.println("The file likely contains no data.");
@@ -139,7 +142,7 @@ public class RT130ToLocalSeismogramImpl {
             }
             if(!done) {
                 try {
-                    nextPacket = new PacketType(dataInputStream);
+                    nextPacket = new PacketType(dataInputStream, this.processData);
                 } catch(EOFException e) {
                     System.err.println("End of file reached before Event Trailer Packet was read.");
                     System.err.println("The file likely contains an incomplete seismogram.");
@@ -235,7 +238,7 @@ public class RT130ToLocalSeismogramImpl {
         if(seismogramIsContinuos((PacketType)seismogramData.get(i), nextPacket)) {
             seismogramData.put(i,
                                Append.appendDataPacket((PacketType)seismogramData.get(i),
-                                                       nextPacket));
+                                                       nextPacket, this.processData));
         } else {
             seismogramList.add(makeSeismogram((PacketType)seismogramData.get(i),
                                               true));
@@ -308,6 +311,8 @@ public class RT130ToLocalSeismogramImpl {
     private final String STATION_NAME = "station.stationName";
 
     private final String NETWORK_BEGIN_TIME = "network.beginTime";
+
+    private boolean processData;
 
     private Connection conn;
 

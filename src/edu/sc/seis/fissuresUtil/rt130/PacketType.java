@@ -16,10 +16,10 @@ public class PacketType {
         encoded_data = new EncodedData[0];
     }
 
-    public PacketType(DataInput in) throws IOException,
+    public PacketType(DataInput in, boolean processData) throws IOException,
             RT130FormatException {
         encoded_data = new EncodedData[0];
-        this.readNextPacket(in);
+        this.readNextPacket(in, processData);
     }
 
     public PacketType(PacketType original) {
@@ -65,7 +65,7 @@ public class PacketType {
         }
     }
 
-    public void readNextPacket(DataInput in) throws IOException,
+    public void readNextPacket(DataInput in, boolean processData) throws IOException,
             RT130FormatException {
         // Packet Type
         packetType = new String(this.readBytes(in, 2));
@@ -98,9 +98,13 @@ public class PacketType {
         } else if(packetType.equals("DS")) {
             this.dSPP = new DataStreamParameterPacket(in);
         } else if(packetType.equals("DT")) {
-            this.dP = new DataPacket(in);
+            this.dP = new DataPacket(in, processData);
+            if(processData){
             encoded_data = new EncodedData[1];
             encoded_data[0] = new EncodedData((short)10, this.dP.dataFrames, this.dP.numberOfSamples, false);
+            } else{
+                encoded_data = new EncodedData[0];
+            }
             channel_number = this.dP.channelNumber;
         } else if(packetType.equals("EH")) {
             this.eHP = new EventHeaderPacket(in);
