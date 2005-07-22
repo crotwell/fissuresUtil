@@ -19,7 +19,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
-import edu.sc.seis.fissuresUtil.rt130.RT130PopulateDatabaseInfo;
+import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
@@ -92,7 +92,12 @@ public class PopulateDatabaseFromDirectory {
                                      props);
         } else {
             if(verbose) {
-                System.out.println(fileName + " is not a valid file.");
+                System.out.println(fileName
+                        + " can not be processed because it's file"
+                        + " name is not formatted correctly, and therefore"
+                        + " is assumed to be an invalid file format. If"
+                        + " the file format is valid (mini seed, sac, rt130)"
+                        + " try renaming the file.");
             }
         }
         return finished;
@@ -216,9 +221,10 @@ public class PopulateDatabaseFromDirectory {
         fis = new FileInputStream(seismogramFile);
         BufferedInputStream bis = new BufferedInputStream(fis);
         DataInputStream dis = new DataInputStream(bis);
-        RT130PopulateDatabaseInfo toSeismogram = new RT130PopulateDatabaseInfo(dis,
+        RT130ToLocalSeismogramImpl toSeismogram = new RT130ToLocalSeismogramImpl(dis,
                                                                                  conn,
-                                                                                 props);
+                                                                                 props,
+                                                                                 false);
         LocalSeismogramImpl[] seismogramArray = null;
         try {
             seismogramArray = toSeismogram.readEntireDataFile();
