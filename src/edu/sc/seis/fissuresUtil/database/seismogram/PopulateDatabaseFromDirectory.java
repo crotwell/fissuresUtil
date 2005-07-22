@@ -181,14 +181,8 @@ public class PopulateDatabaseFromDirectory {
         }
         LinkedList list = new LinkedList();
         try {
-            while(true) {
-                try {
-                    DataRecord dr = mseedRead.getNextRecord();
-                    list.add(dr);
-                } catch(SeedFormatException e) {
-                    System.out.println("Format exception skipped");
-                }
-            }
+            DataRecord dr = mseedRead.getNextRecord();
+            list.add(dr);
         } catch(EOFException e) {
             // must be all
         }
@@ -239,7 +233,7 @@ public class PopulateDatabaseFromDirectory {
                                                   SeismogramFileTypes.RT_130);
         }
         if(verbose) {
-            System.out.println("REF_TEK file " + fileName
+            System.out.println("RT130 file " + fileName
                     + " added to the database.");
         }
         return true;
