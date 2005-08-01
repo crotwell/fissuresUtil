@@ -150,7 +150,7 @@
         <dependency>
             <groupId>TauP</groupId>
             <artifactId>TauP</artifactId>
-            <version>1.1.5beta</version>
+            <version>1.1.5</version>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
@@ -264,6 +264,7 @@
                         <include>03.141.18.40.32.0551.6.m</include>
                         <include>delta.sac</include>
                         <include>hilbert_delta.sac</include>
+                        <include>IU.HRV.__.BHE.SAC.0</include>
                     </includes>
                     <filtering>false</filtering>
                 </resource>
