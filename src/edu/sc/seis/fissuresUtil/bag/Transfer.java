@@ -96,6 +96,10 @@ public class Transfer {
         freqValues = combine(freqValues, sampFreq, poleZero, lowCut, lowPass, highPass, highCut);
         
         values = Cmplx.fftInverse(freqValues, values.length);
+        // a extra factor of nfft gets in somehow???
+        for(int i = 0; i < values.length; i++) {
+            values[i] *= freqValues.length;
+        }
         LocalSeismogramImpl out = new LocalSeismogramImpl(seis, values);
         out.y_unit = UnitImpl.METER;
         return out;
@@ -154,9 +158,9 @@ public class Transfer {
                 return ZERO;
             }
             zeroOut = Cmplx.mul(zeroOut, Cmplx.sub(s, pz.getZeros()[i]));
-            if (false && freq < 0.01) { System.out.println("zero "+i+" freq "+freq+"  "+zeroOut+"    pz "+pz.getZeros()[i]);}
         }
         Cmplx out = Cmplx.div(poleOut, zeroOut);
+        // sac uses opposite sign in imag, so take conjugate
         return Cmplx.div(out, pz.getConstant()).conjg();
     }
 
