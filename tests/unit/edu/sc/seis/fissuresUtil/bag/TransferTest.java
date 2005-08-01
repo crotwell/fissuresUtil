@@ -377,7 +377,6 @@ public class TransferTest extends TestCase {
         float[] sacdata = sactfr.get_as_floats();
         float[] bagdata = bagtfr.get_as_floats();
         for(int i = 0; i < bagdata.length && i < 20; i++) {
-            System.out.println("bag="+bagdata[i]+"  sac="+sacdata[i]);
             if (bagdata[i] == 0) {
                 assertEquals("data", sacdata[i] , bagdata[i], 0.0001f);
             } else {
