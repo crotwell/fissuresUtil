@@ -12,15 +12,18 @@ import edu.sc.seis.fissuresUtil.rt130.PacketType;
  */
 public class DataPacket extends PacketType {
     
-    public DataPacket(DataPacket original){
+    public DataPacket(DataPacket original) throws RT130FormatException{
         if(original != null){
             this.dataFormat = original.dataFormat;
-            
-            this.dataFrames = new byte[original.dataFrames.length];
-            for(int i = 0; i < original.dataFrames.length; i++){
-                this.dataFrames[i] = original.dataFrames[i];
+            if(this.dataFormat.equals("C0")){
+                this.dataFrames = new byte[original.dataFrames.length];
+                for(int i = 0; i < original.dataFrames.length; i++){
+                    this.dataFrames[i] = original.dataFrames[i];
+                }
+            } else{
+                System.err.println("The data in this packet is not in compressed format. This file reader is not prepaired to read uncompressed seismogram data. Throwing a format exception even though this format is valid.");
+                throw new RT130FormatException();
             }
-            
             this.flags = original.flags;
             
             this.eventNumber = original.eventNumber;
@@ -70,6 +73,7 @@ public class DataPacket extends PacketType {
                 // Data Frames 0-14
                 dataFrames = this.readBytes(in, 960);
             } else{
+                dataFrames = new byte[0];
                 // Data Frames 0-14
                 in.skipBytes(960);
             }
