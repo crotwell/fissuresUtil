@@ -2,5 +2,8 @@ seisfilereference.create=CREATE TABLE SeisFileReference (channel_id	INTEGER, beg
 seisfilereference.insert=INSERT INTO SeisFileReference (channel_id, begin_time_id, end_time_id, file_path, filetype) VALUES (?, ?, ?, ?, ?)
 seisfilereference.select=SELECT channel_id, begin_time_id, end_time_id, file_path, filetype FROM SeisFileReference WHERE \
 	channel_id = ? AND \
-	begin_time_id IN (SELECT time_id FROM time WHERE time_stamp <= ?) AND \
-	end_time_id IN (SELECT time_id FROM time WHERE time_stamp >= ?) 
+	begin_time_id IN (SELECT time_id FROM Time WHERE time_stamp <= ?) AND \
+	end_time_id IN (SELECT time_id FROM Time WHERE time_stamp >= ?)
+seisfilereference.updateChannelBeginTime=UPDATE Channel SET chan_begin_id = ? WHERE chan_id = ?
+	
+	
