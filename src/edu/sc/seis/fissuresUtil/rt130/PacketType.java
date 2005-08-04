@@ -22,7 +22,7 @@ public class PacketType {
         this.readNextPacket(in, processData);
     }
 
-    public PacketType(PacketType original) {
+    public PacketType(PacketType original) throws RT130FormatException {
         this.packetType = original.packetType;
         this.unitIdNumber = original.unitIdNumber;
         this.time = original.time;
@@ -36,6 +36,12 @@ public class PacketType {
         this.number_of_samples = original.number_of_samples;
         this.sample_rate = original.sample_rate;
         this.encoded_data = original.encoded_data;
+        this.begin_time_from_state_of_health_file = original.begin_time_from_state_of_health_file;
+        this.latitude_ = original.latitude_;
+        this.longitude_ = original.longitude_;
+        this.channel_name = original.channel_name;
+        this.channel_number = original.channel_number;
+        this.data_stream_number = original.data_stream_number;
         if(original.aDPP != null) {
             this.aDPP = new AuxiliaryDataParameterPacket(original.aDPP);
         }
@@ -65,8 +71,8 @@ public class PacketType {
         }
     }
 
-    public void readNextPacket(DataInput in, boolean processData) throws IOException,
-            RT130FormatException {
+    public void readNextPacket(DataInput in, boolean processData)
+            throws IOException, RT130FormatException {
         // Packet Type
         packetType = new String(this.readBytes(in, 2));
         // System.out.println("Packet Type: " + packetType);
@@ -84,7 +90,7 @@ public class PacketType {
         // System.out.println("Time: " + timeString);
         time = this.stringToMicroSecondDate(timeString, (year + 2000));
         begin_time_of_first_packet = time;
-        //System.out.println("Micro Second Date Time: " + time.toString());
+        // System.out.println("Micro Second Date Time: " + time.toString());
         // Byte Count
         byteCount = BCDRead.toInt(this.readBytes(in, 2));
         // System.out.println("Byte Count: " + byteCount);
@@ -99,10 +105,13 @@ public class PacketType {
             this.dSPP = new DataStreamParameterPacket(in);
         } else if(packetType.equals("DT")) {
             this.dP = new DataPacket(in, processData);
-            if(processData){
-            encoded_data = new EncodedData[1];
-            encoded_data[0] = new EncodedData((short)10, this.dP.dataFrames, this.dP.numberOfSamples, false);
-            } else{
+            if(processData) {
+                encoded_data = new EncodedData[1];
+                encoded_data[0] = new EncodedData((short)10,
+                                                  this.dP.dataFrames,
+                                                  this.dP.numberOfSamples,
+                                                  false);
+            } else {
                 encoded_data = new EncodedData[0];
             }
             channel_number = this.dP.channelNumber;
@@ -118,6 +127,7 @@ public class PacketType {
             this.oMPP = new OperatingModeParameterPacket(in);
         } else if(packetType.equals("SC")) {
             this.sCPP = new StationChannelParameterPacket(in);
+            this.channel_name = this.sCPP.channelName;
         } else if(packetType.equals("SH")) {
             this.sOHP = new StateOfHealthPacket(in);
         } else {
@@ -197,17 +207,21 @@ public class PacketType {
 
     protected MicroSecondDate time;
 
-    public MicroSecondDate begin_time_of_seismogram,
-            begin_time_of_first_packet, end_time_of_last_packet;
+    public String[] channel_name;
+
+    public MicroSecondDate begin_time_from_state_of_health_file,
+            begin_time_of_seismogram, begin_time_of_first_packet,
+            end_time_of_last_packet;
 
     protected int experimentNumber, year, byteCount, packetSequence;
 
     public int number_of_samples, sample_rate, channel_number,
             data_stream_number;
 
-    
+    public float latitude_, longitude_;
+
     public EncodedData[] encoded_data;
-    
+
     public AuxiliaryDataParameterPacket aDPP;
 
     public CalibrationParameterPacket cPP;
