@@ -14,12 +14,18 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import org.apache.log4j.BasicConfigurator;
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
+import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
-import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
+import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogram;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
@@ -31,10 +37,9 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
 public class PopulateDatabaseFromDirectory {
 
     public static void main(String[] args) throws FissuresException,
-            IOException, SeedFormatException, SQLException {
+            IOException, SeedFormatException, SQLException, NotFound {
         BasicConfigurator.configure();
         Properties props = Initializer.loadProperties(args);
-        ConnMgr.installDbProperties(props, args);
         boolean verbose = false;
         boolean finished = false;
         for(int i = 1; i < args.length; i++) {
@@ -43,19 +48,26 @@ public class PopulateDatabaseFromDirectory {
             }
         }
         if(args.length > 0) {
-            Connection conn = null;
-            try {
-                conn = ConnMgr.createConnection();
-            } catch(SQLException e) {
-                System.err.println("Error creating connection.");
-                e.printStackTrace();
-            }
+            ConnectionCreator connCreator = new ConnectionCreator(props);
+            Connection conn = connCreator.createConnection();
+            System.out.println("Database location: " + connCreator.getUrl());
             String fileLoc = args[args.length - 1];
             File file = new File(fileLoc);
             if(file.isDirectory()) {
-                finished = readEntireDirectory(fileLoc, verbose, conn, props);
+                finished = readEntireDirectory(fileLoc,
+                                               verbose,
+                                               conn,
+                                               props,
+                                               fileLoc);
             } else {
-                finished = readSingleFile(fileLoc, verbose, conn, props);
+                File seismogramFile = new File(fileLoc);
+                File dataStream = new File(seismogramFile.getParent());
+                File unitId = new File(dataStream.getParent());
+                finished = readSingleFile(fileLoc,
+                                          verbose,
+                                          conn,
+                                          props,
+                                          unitId.getAbsolutePath());
             }
         }
         if(finished) {
@@ -70,8 +82,10 @@ public class PopulateDatabaseFromDirectory {
     private static boolean readSingleFile(String fileLoc,
                                           boolean verbose,
                                           Connection conn,
-                                          Properties props) throws IOException,
-            FissuresException, SeedFormatException, SQLException {
+                                          Properties props,
+                                          String absoluteBaseDirectory)
+            throws IOException, FissuresException, SeedFormatException,
+            SQLException, NotFound {
         boolean finished = false;
         StringTokenizer t = new StringTokenizer(fileLoc, "/");
         String fileName = "";
@@ -89,14 +103,20 @@ public class PopulateDatabaseFromDirectory {
                                      fileLoc,
                                      fileName,
                                      verbose,
-                                     props);
+                                     props,
+                                     absoluteBaseDirectory);
+        } else if(fileName.equals("SOH.RT")) {
+            if(verbose) {
+                System.out.println("Ignoring State of Health file " + fileName
+                        + ".");
+            }
         } else {
             if(verbose) {
                 System.out.println(fileName
                         + " can not be processed because it's file"
                         + " name is not formatted correctly, and therefore"
                         + " is assumed to be an invalid file format. If"
-                        + " the file format is valid (mini seed, sac, rt130)"
+                        + " the data file format is valid (mini seed, sac, rt130)"
                         + " try renaming the file.");
             }
         }
@@ -106,18 +126,24 @@ public class PopulateDatabaseFromDirectory {
     private static boolean readEntireDirectory(String baseDirectory,
                                                boolean verbose,
                                                Connection conn,
-                                               Properties props)
+                                               Properties props,
+                                               String absoluteBaseDirectory)
             throws FissuresException, IOException, SeedFormatException,
-            SQLException {
+            SQLException, NotFound {
         File[] files = new File(baseDirectory).listFiles();
         for(int i = 0; i < files.length; i++) {
             if(files[i].isDirectory()) {
                 readEntireDirectory(baseDirectory + files[i].getName() + "/",
                                     verbose,
                                     conn,
-                                    props);
+                                    props,
+                                    absoluteBaseDirectory);
             } else {
-                readSingleFile(files[i].getAbsolutePath(), verbose, conn, props);
+                readSingleFile(files[i].getAbsolutePath(),
+                               verbose,
+                               conn,
+                               props,
+                               absoluteBaseDirectory);
             }
         }
         return true;
@@ -155,9 +181,7 @@ public class PopulateDatabaseFromDirectory {
             return false;
         }
         LocalSeismogramImpl seis = SacToFissures.getSeismogram(sacTime);
-        System.out.println("CHANNEL " + ChannelIdUtil.toString(seis.channel_id)
-                + " BEGIN TIME: " + seis.getBeginTime().toString());
-        jdbcSeisFile.saveSeismogramToDatabase(seis.channel_id,
+        jdbcSeisFile.saveSeismogramToDatabase(SacToFissures.getChannel(sacTime),
                                               seis,
                                               fileLoc,
                                               SeismogramFileTypes.SAC);
@@ -208,35 +232,45 @@ public class PopulateDatabaseFromDirectory {
                                          String fileLoc,
                                          String fileName,
                                          boolean verbose,
-                                         Properties props) throws IOException,
-            SQLException {
+                                         Properties props,
+                                         String absoluteBaseDirectory)
+            throws IOException, SQLException, NotFound {
         if(props == null || conn == null) {
             if(verbose) {
                 System.out.println("No props file was specified.");
                 System.out.println("The channel IDs created will not be correct.");
             }
         }
-        File seismogramFile = new File(fileLoc);
-        FileInputStream fis = null;
-        fis = new FileInputStream(seismogramFile);
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        DataInputStream dis = new DataInputStream(bis);
-        RT130ToLocalSeismogramImpl toSeismogram = new RT130ToLocalSeismogramImpl(dis,
-                                                                                 conn,
-                                                                                 props,
-                                                                                 false);
-        LocalSeismogramImpl[] seismogramArray = null;
+        RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc, false);
+        PacketType[] seismogramDataPacketArray = null;
         try {
-            seismogramArray = toSeismogram.readEntireDataFile();
+            seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
             System.err.println(fileName + " seems to be an invalid rt130 file.");
             return false;
         }
+        RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn, props);
+        LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
+        Channel[] channel = toSeismogram.getChannels();
+         
+        // Check database for channels that match (with lat/long buffer)
+        // If channel exists, use it. If not, use new channel.
         for(int i = 0; i < seismogramArray.length; i++) {
-            jdbcSeisFile.saveSeismogramToDatabase(seismogramArray[i].channel_id,
-                                                  seismogramArray[i],
-                                                  fileLoc,
-                                                  SeismogramFileTypes.RT_130);
+            Channel closeChannel = jdbcSeisFile.findCloseChannel(channel[i], new QuantityImpl(1, UnitImpl.KILOMETER));
+            if(closeChannel == null){
+                System.out.println("New station code: " + channel[i].my_site.my_station.get_code());
+                jdbcSeisFile.saveSeismogramToDatabase(channel[i],
+                                               seismogramArray[i],
+                                               fileLoc,
+                                               SeismogramFileTypes.RT_130);
+            } else {
+                jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel, channel[i]);
+                System.out.println("Existing station code : " + closeChannel.my_site.my_station.get_code());
+                jdbcSeisFile.saveSeismogramToDatabase(closeChannel,
+                                                      seismogramArray[i],
+                                                      fileLoc,
+                                                      SeismogramFileTypes.RT_130);
+            }
         }
         if(verbose) {
             System.out.println("RT130 file " + fileName
