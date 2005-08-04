@@ -22,7 +22,7 @@ public class ConnectionCreator {
     }
 
     public ConnectionCreator(Properties props) {
-        this(props.getProperty(DB_URL_KEY, "localhost:."),
+        this(props.getProperty(DB_URL_KEY, "jdbc:hsqldb:."),
              props.getProperty(DB_TYPE_KEY, "HSQL"),
              props.getProperty(DB_USER_KEY, "SA"),
              props.getProperty(DB_PASS_KEY, ""));
@@ -54,6 +54,9 @@ public class ConnectionCreator {
             ee.initCause(e);
             throw ee;
         }
+        System.out.println("URL: " + url);
+        System.out.println("Username: " + username);
+        System.out.println("Password " + password);
         return DriverManager.getConnection(url, username, password);
     }
 
