@@ -124,18 +124,22 @@ public class DOMHelper {
         return textNode;
     }
 
-    public static float extractFloat(Element config, String xpath, float defaultValue) {
+    public static float extractFloat(Element config,
+                                     String xpath,
+                                     float defaultValue) {
         String text = extractText(config, xpath, DEFAULT);
-        if (text.equals(DEFAULT)) {
+        if(text.equals(DEFAULT)) {
             // didn't find it, so use default value
             return defaultValue;
         }
         return Float.parseFloat(text);
     }
 
-    public static double extractDouble(Element config, String xpath, double defaultValue) {
+    public static double extractDouble(Element config,
+                                       String xpath,
+                                       double defaultValue) {
         String text = extractText(config, xpath, DEFAULT);
-        if (text.equals(DEFAULT)) {
+        if(text.equals(DEFAULT)) {
             // didn't find it, so use default value
             return defaultValue;
         }
@@ -144,12 +148,20 @@ public class DOMHelper {
 
     public static int extractInt(Element config, String xpath, int defaultValue) {
         String text = extractText(config, xpath, DEFAULT);
-        if (text.equals(DEFAULT)) {
+        if(text.equals(DEFAULT)) {
             // didn't find it, so use default value
             return defaultValue;
         }
         return Integer.parseInt(text);
     }
-    
+
+    public static Text getTextChildFromPossiblyNonexistentElement(Element parentOfElement,
+                                                                  String elementName,
+                                                                  String defaultText) {
+        Element filenameElement = extractOrCreateElement(parentOfElement,
+                                                         elementName);
+        return extractOrCreateTextNode(filenameElement, defaultText);
+    }
+
     private static final String DEFAULT = "DEFAULT";
 }
