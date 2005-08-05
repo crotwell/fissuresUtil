@@ -395,7 +395,13 @@ public class Cmplx {
 
 
 
-
+    public String toString() {
+        if (i >= 0) {
+            return r+" + i "+i;
+        } else {
+            return r+" - i "+(-1*i);
+        }
+    }
 
 }   // End class Cmplx
 
