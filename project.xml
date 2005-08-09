@@ -74,7 +74,7 @@
     <dependency>
       <artifactId>seisFile</artifactId>
       <groupId>seisFile</groupId>
-      <version>1.0beta</version>
+      <version>1.0</version>
     </dependency>
         <dependency>
             <groupId>isti</groupId>
@@ -264,7 +264,9 @@
                         <include>03.141.18.40.32.0551.6.m</include>
                         <include>delta.sac</include>
                         <include>hilbert_delta.sac</include>
-                        <include>IU.HRV.__.BHE.SAC.0</include>
+                        <include>IU.HRV.__.BHE.SAC</include>
+                        <include>hrv.bhe.sacpz</include>
+                        <include>transfer.sac</include>
                     </includes>
                     <filtering>false</filtering>
                 </resource>
