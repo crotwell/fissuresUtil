@@ -35,6 +35,12 @@ public class GlobalExceptionHandler {
     }
 
     public static void handle(String message, Throwable thrown) {
+        handle(message, thrown, new ArrayList());
+    }
+
+    public static void handle(String message,
+                              Throwable thrown,
+                              List additonalSections) {
         try {
             Iterator intIt = interceptors.iterator();
             boolean handledByInterceptor = false;
@@ -61,6 +67,10 @@ public class GlobalExceptionHandler {
                     if(showSysInfo) {
                         parsedContents.add(new Section("System Information",
                                                        ExceptionReporterUtils.getSysInfo()));
+                    }
+                    it = additonalSections.iterator();
+                    while(it.hasNext()) {
+                        parsedContents.add(it.next());
                     }
                     List reporterExceptions = new ArrayList();
                     synchronized(reporters) {
@@ -196,7 +206,7 @@ public class GlobalExceptionHandler {
             logger.error("Caught an exception in the exception handler: ", e);
             logger.error("Original exception was:", thrown);
         } catch(Throwable loggerException) {
-            //well, lets hope System.err is good enough.
+            // well, lets hope System.err is good enough.
         }
     }
 
