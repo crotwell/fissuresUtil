@@ -1,9 +1,14 @@
 seisfilereference.create=CREATE TABLE SeisFileReference (channel_id	INTEGER, begin_time_id INTEGER, end_time_id INTEGER, file_path VARCHAR, filetype INTEGER)
+seisfilereference.index=CREATE INDEX seismogram_file ON SeisFileReference (channel_id, file_path)
+seisfilereference.selectSeismogram=SELECT channel_id, file_path FROM SeisFileReference WHERE \
+	channel_id = ? AND \
+	file_path = ?
 seisfilereference.insert=INSERT INTO SeisFileReference (channel_id, begin_time_id, end_time_id, file_path, filetype) VALUES (?, ?, ?, ?, ?)
 seisfilereference.select=SELECT channel_id, begin_time_id, end_time_id, file_path, filetype FROM SeisFileReference WHERE \
 	channel_id = ? AND \
 	begin_time_id IN (SELECT time_id FROM Time WHERE time_stamp <= ?) AND \
 	end_time_id IN (SELECT time_id FROM Time WHERE time_stamp >= ?)
 seisfilereference.updateChannelBeginTime=UPDATE Channel SET chan_begin_id = ? WHERE chan_id = ?
+
 	
 	
