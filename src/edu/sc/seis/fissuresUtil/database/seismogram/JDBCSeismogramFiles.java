@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.Location;
-import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -22,7 +21,6 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -33,7 +31,6 @@ import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.fissuresUtil.rt130.Append;
 import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
@@ -58,32 +55,80 @@ public class JDBCSeismogramFiles extends JDBCTable {
                                          LocalSeismogramImpl seis,
                                          String fileLocation,
                                          SeismogramFileTypes filetype)
-            throws SQLException {
+            throws SQLException, IOException {
+        int channel_id = chanTable.put(channelId);
+        int begin_time_id = timeTable.put(seis.getBeginTime().getFissuresTime());
+        int end_time_id = timeTable.put(seis.getEndTime().getFissuresTime());
         // Get absolute file path out of the file path given
         File seismogramFile = new File(fileLocation);
-        String absoluteFilePath = seismogramFile.getPath();
-        insert.setInt(1, chanTable.put(channelId));
-        insert.setInt(2, timeTable.put(seis.getBeginTime().getFissuresTime()));
-        insert.setInt(3, timeTable.put(seis.getEndTime().getFissuresTime()));
-        insert.setString(4, absoluteFilePath);
-        insert.setInt(5, filetype.getIntValue());
-        insert.executeUpdate();
+        String absoluteFilePath = seismogramFile.getCanonicalPath();
+        int fileTypeInt = filetype.getIntValue();
+        selectSeismogram.setInt(1, channel_id);
+        selectSeismogram.setString(2, absoluteFilePath);
+        ResultSet results = selectSeismogram.executeQuery();
+        if(results.next()) {
+            // Do nothing.
+        } else {
+            insert.setInt(1, channel_id);
+            insert.setInt(2, begin_time_id);
+            insert.setInt(3, end_time_id);
+            insert.setString(4, absoluteFilePath);
+            insert.setInt(5, fileTypeInt);
+            insert.executeUpdate();
+        }
     }
 
     public void saveSeismogramToDatabase(Channel channel,
                                          LocalSeismogramImpl seis,
                                          String fileLocation,
                                          SeismogramFileTypes filetype)
-            throws SQLException {
+            throws SQLException, IOException {
+        int channel_id = chanTable.put(channel);
+        int begin_time_id = timeTable.put(seis.getBeginTime().getFissuresTime());
+        int end_time_id = timeTable.put(seis.getEndTime().getFissuresTime());
         // Get absolute file path out of the file path given
         File seismogramFile = new File(fileLocation);
-        String absoluteFilePath = seismogramFile.getPath();
-        insert.setInt(1, chanTable.put(channel));
-        insert.setInt(2, timeTable.put(seis.getBeginTime().getFissuresTime()));
-        insert.setInt(3, timeTable.put(seis.getEndTime().getFissuresTime()));
-        insert.setString(4, absoluteFilePath);
-        insert.setInt(5, filetype.getIntValue());
-        insert.executeUpdate();
+        String absoluteFilePath = seismogramFile.getCanonicalPath();
+        int fileTypeInt = filetype.getIntValue();
+        selectSeismogram.setInt(1, channel_id);
+        selectSeismogram.setString(2, absoluteFilePath);
+        ResultSet results = selectSeismogram.executeQuery();
+        if(results.next()) {
+            // Do nothing.
+        } else {
+            insert.setInt(1, channel_id);
+            insert.setInt(2, begin_time_id);
+            insert.setInt(3, end_time_id);
+            insert.setString(4, absoluteFilePath);
+            insert.setInt(5, fileTypeInt);
+            insert.executeUpdate();
+        }
+    }
+
+    public void saveSeismogramToDatabase(int channelDbId,
+                                         LocalSeismogramImpl seis,
+                                         String fileLocation,
+                                         SeismogramFileTypes filetype)
+            throws SQLException, IOException {
+        int begin_time_id = timeTable.put(seis.getBeginTime().getFissuresTime());
+        int end_time_id = timeTable.put(seis.getEndTime().getFissuresTime());
+        // Get absolute file path out of the file path given
+        File seismogramFile = new File(fileLocation);
+        String absoluteFilePath = seismogramFile.getCanonicalPath();
+        int fileTypeInt = filetype.getIntValue();
+        selectSeismogram.setInt(1, channelDbId);
+        selectSeismogram.setString(2, absoluteFilePath);
+        ResultSet results = selectSeismogram.executeQuery();
+        if(results.next()) {
+            // Do nothing.
+        } else {
+            insert.setInt(1, channelDbId);
+            insert.setInt(2, begin_time_id);
+            insert.setInt(3, end_time_id);
+            insert.setString(4, absoluteFilePath);
+            insert.setInt(5, fileTypeInt);
+            insert.executeUpdate();
+        }
     }
 
     public RequestFilter[] findMatchingSeismograms(RequestFilter[] requestArray,
@@ -122,15 +167,28 @@ public class JDBCSeismogramFiles extends JDBCTable {
 
     public Channel findCloseChannel(Channel newChannel, QuantityImpl distance)
             throws SQLException, NotFound {
-        Channel[] channel = chanTable.getAllChannels();
-        for(int i = 0; i < channel.length; i++) {
-            Location locationFromDatabase = channel[i].my_site.my_location;
-            DistAz da = new DistAz(locationFromDatabase,
-                                   newChannel.my_site.my_location);
-            QuantityImpl siteDistance = new QuantityImpl(DistAz.degreesToKilometers(da.getDelta()),
-                                                         UnitImpl.KILOMETER);            
-            if(ChannelIdUtil.areEqualExceptForBeginTime(newChannel.get_id(), channel[i].get_id()) && siteDistance.lessThan(distance)) {
-                return channel[i];
+        ChannelId[] channelId;
+        try {
+            channelId = chanTable.getIdsByCode(newChannel.get_id().network_id,
+                                                           newChannel.get_id().station_code,
+                                                           newChannel.get_id().site_code,
+                                                           newChannel.get_code());
+        } catch(NotFound e) {
+            return null;
+        }
+        ChannelId newChannelId = newChannel.get_id();
+        for(int i = 0; i < channelId.length; i++) {
+            Channel closeChannel = chanTable.get(channelId[i]);
+            if(ChannelIdUtil.areEqualExceptForBeginTime(newChannelId,
+                                                        channelId[i])) {
+                Location locationFromDatabase = closeChannel.my_site.my_location;
+                DistAz da = new DistAz(locationFromDatabase,
+                                       newChannel.my_site.my_location);
+                QuantityImpl siteDistance = new QuantityImpl(DistAz.degreesToKilometers(da.getDelta()),
+                                                             UnitImpl.KILOMETER);
+                if(siteDistance.lessThan(distance)) {
+                    return closeChannel;
+                }
             }
         }
         return null;
@@ -138,21 +196,26 @@ public class JDBCSeismogramFiles extends JDBCTable {
 
     public void setChannelBeginTimeToEarliest(Channel channelFromDatabase,
                                               Channel newChannel)
-            throws SQLException, NotFound{
+            throws SQLException, NotFound {
         MicroSecondDate newChannelBeginTime = new MicroSecondDate(newChannel.get_id().begin_time);
+        MicroSecondDate newChannelEndTime = new MicroSecondDate(newChannel.effective_time.end_time);
         MicroSecondDate channelFromDatabaseBeginTime = new MicroSecondDate(channelFromDatabase.get_id().begin_time);
-        if(newChannelBeginTime.before(channelFromDatabaseBeginTime)){
-            updateChannelBeginTime.setInt(1, timeTable.put(newChannel.get_id().begin_time));
-            updateChannelBeginTime.setInt(2, chanTable.getDBId(channelFromDatabase.get_id()));
+        MicroSecondDate channelFromDatabaseEndTime = new MicroSecondDate(channelFromDatabase.effective_time.end_time);
+        if(newChannelBeginTime.before(channelFromDatabaseBeginTime)
+                && newChannelEndTime.equals(channelFromDatabaseEndTime)) {
+            updateChannelBeginTime.setInt(1,
+                                          timeTable.put(newChannel.get_id().begin_time));
+            updateChannelBeginTime.setInt(2,
+                                          chanTable.getDBId(channelFromDatabase.get_id()));
             updateChannelBeginTime.executeUpdate();
             // Set the begin time of the channel ID from the database
-            // to the earlier begin time, so when the channel is put 
-            // into the database, it matches the updated channel, and 
+            // to the earlier begin time, so when the channel is put
+            // into the database, it matches the updated channel, and
             // does not create a new channel.
             channelFromDatabase.get_id().begin_time = newChannel.get_id().begin_time;
         }
     }
-    
+
     private void queryDatabaseForSeismogram(List matchingSeismogramsResultList,
                                             RequestFilter request,
                                             boolean returnSeismograms,
@@ -267,7 +330,8 @@ public class JDBCSeismogramFiles extends JDBCTable {
 
     private static final Logger logger = Logger.getLogger(JDBCSeismogramFiles.class);
 
-    private PreparedStatement insert, select, updateChannelBeginTime;
+    private PreparedStatement insert, select, updateChannelBeginTime,
+            selectSeismogram, tableIndex;
 
     private ResultSet databaseResults;
 
