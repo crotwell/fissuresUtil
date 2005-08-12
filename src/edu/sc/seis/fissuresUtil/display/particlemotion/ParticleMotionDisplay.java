@@ -22,6 +22,7 @@ import edu.sc.seis.fissuresUtil.display.drawable.SeismogramRemover;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;
+import edu.sc.seis.fissuresUtil.display.registrar.BasicAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
@@ -35,7 +36,7 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
         TimeListener, AmpListener {
 
     public ParticleMotionDisplay(TimeConfig tc) {
-        this(tc, new ParmoAmpConfig());
+        this(tc, new BasicAmpConfig());
     }
 
     public ParticleMotionDisplay(TimeConfig tc, AmpConfig ac) {
