@@ -352,7 +352,6 @@ public class RT130FileReader {
                                + seismogramData.sample_rate
                                + " samples per second will be assumed.");
         }
-        System.out.println("Sample rate: " + seismogramData.sample_rate);
         return seismogramData;
     }
 
