@@ -59,6 +59,9 @@ public class Append {
 
     public static PacketType appendEventTrailerPacket(PacketType seismogramData,
                                                       PacketType nextPacket) {
+        if(seismogramData.sample_rate == 0){
+            seismogramData.sample_rate = nextPacket.sample_rate;
+        }
         return seismogramData;
     }
 
