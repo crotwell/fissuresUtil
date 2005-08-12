@@ -5,13 +5,13 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.BorderFactory;
-import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplayProvider;
@@ -26,7 +26,6 @@ import edu.sc.seis.fissuresUtil.display.registrar.IndividualizedAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
-import edu.sc.seis.fissuresUtil.freq.NamedFilter;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
@@ -35,8 +34,11 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 public class ParticleMotionDisplay extends SeismogramDisplay implements
         TimeListener, AmpListener {
 
+    public ParticleMotionDisplay(TimeConfig tc) {
+        this(tc, new ParmoAmpConfig());
+    }
+
     public ParticleMotionDisplay(TimeConfig tc, AmpConfig ac) {
-        System.out.println("yes we're here!");
         setBorder(BorderFactory.createEtchedBorder());
         add(new AmpBorder(this, LEFT, false), CENTER_LEFT);
         add(new AmpBorder(this, BOTTOM, false), BOTTOM_CENTER);
@@ -68,12 +70,11 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
         if(cont == null) {
             return;
         }
-        if(!seismograms.contains(cont)) {
+        if(!contains(cont)) {
             seismograms.add(cont);
-        }
-        ParticleMotionDisplayDrawable tempDraw = new ParticleMotionDisplayDrawable(this,
-                                                                                   cont);
-        if(!drawables.contains(tempDraw)) {
+            ParticleMotionDisplayDrawable tempDraw = new ParticleMotionDisplayDrawable(this,
+                                                                                       cont,
+                                                                                       getNextColor(ParticleMotionDisplayDrawable.class));
             drawables.add(tempDraw);
             tempDraw.setTopTitle(top);
             tempDraw.setRightTitle(right);
@@ -81,20 +82,31 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
             getAmpConfig().add(getSeismograms());
         }
         initialized = true;
-        Iterator e = activeFilters.iterator();
-        while(e.hasNext()) {
-            DisplayUtils.applyFilter((NamedFilter)e.next(),
-                                     new DrawableIterator(ParticleMotionDisplayDrawable.class,
-                                                          drawables));
-        }
     }
+
+    private boolean contains(SeisContainer cont) {
+        Iterator it = seismograms.iterator();
+        while(it.hasNext()) {
+            SeisContainer seis = (SeisContainer)it.next();
+            if(seis.equals(cont)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * @deprecated
+     */
 
     public void remove(Drawable drawable) {
     //no longer in use
     }
-
-
-
+    
+    
+    /**
+     * @deprecated
+     */
     public void add(Drawable drawable) {
     /*
      * if(!drawables.contains(drawable)) { drawables.add(drawable);
@@ -109,15 +121,15 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
     }
 
     public DataSetSeismogram[] getSeismograms() {
-            DataSetSeismogram[] returnArray = new DataSetSeismogram[seismograms.size() * 2];
-            Iterator iter = seismograms.iterator();
-            int n = -1;
-            while(iter.hasNext()) {
-                SeisContainer tempSeis = (SeisContainer)iter.next();
-                returnArray[++n] = tempSeis.getHorz();
-                returnArray[++n] = tempSeis.getVert();
-            }
-            return returnArray;
+        DataSetSeismogram[] returnArray = new DataSetSeismogram[seismograms.size() * 2];
+        Iterator iter = seismograms.iterator();
+        int n = -1;
+        while(iter.hasNext()) {
+            SeisContainer tempSeis = (SeisContainer)iter.next();
+            returnArray[++n] = tempSeis.getHorz();
+            returnArray[++n] = tempSeis.getVert();
+        }
+        return returnArray;
     }
 
     public void reset() {
@@ -131,9 +143,6 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
     }
 
     public void setAmpConfig(AmpConfig ampConfig) {
-        if(seismograms == null) {
-            return;
-        }
         if(this.ac != null) {
             this.ac.removeListener(this);
             tc.removeListener(this.ac);
@@ -176,13 +185,14 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
     public DrawableIterator iterator(Class drawableClass) {
         return new DrawableIterator(drawableClass, drawables);
     }
-
+    /**
+     * @deprecated
+     */
     public void print() {
     //this is a stub, just to satisfy the compiler.
     }
-    
+
     public void remove(SeisContainer seismos) {
-        System.out.println("the size of seismograms before remove is: " + seismograms.size());
         if(seismograms.contains(seismos)) {
             seismograms.remove(seismos);
         }
@@ -198,9 +208,8 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
         }
         tc.remove(seismos.getSeismograms());
         ac.remove(seismos.getSeismograms());
-        System.out.println("the size of seismograms after remove is: "  + seismograms.size());
     }
-    
+
     public void remove(DataSetSeismogram[] seismos) {
         for(int i = 0; i < seismos.length; i++) {
             if(seismos[i] != null && seismograms.contains(seismos[i])) {
@@ -213,8 +222,6 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
         }
         tc.remove(seismos);
         ac.remove(seismos);
-        System.out.println("after remove: ");
-        System.out.println("the size of seismograms is: " + seismograms.size());
     }
 
     private void removeDrawable(DataSetSeismogram[] seismos) {
@@ -294,6 +301,27 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
         return false;
     }
 
+    public void removeTitle(ParticleMotionDisplayDrawable draw) {
+        top.removeTitle(draw);
+        right.removeTitle(draw);
+    }
+
+    public LinkedList getPoints() {
+        return points;
+    }
+
+    public Point2D getLastAdded() {
+        return (Point2D)points.getLast();
+    }
+
+    public void setPoints(LinkedList points) {
+        this.points = points;
+    }
+
+    public static int Count() {
+        return count;
+    }
+
     public final static int PREFERRED_HEIGHT = 150;
 
     public final static int PREFERRED_WIDTH = 250;
@@ -322,10 +350,8 @@ public class ParticleMotionDisplay extends SeismogramDisplay implements
 
     public static final int LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
 
-    public void removeTitle(ParticleMotionDisplayDrawable draw) {
-        top.removeTitle(draw);
-        right.removeTitle(draw);
-    }
-
     private static int count = 0;
+
+    private LinkedList points;
+    
 }
