@@ -123,6 +123,8 @@ public class PacketType {
                     .intValue();
         } else if(packetType.equals("ET")) {
             this.eTP = new EventTrailerPacket(in);
+            sample_rate = Integer.valueOf(this.eTP.sampleRate.trim())
+                    .intValue();
         } else if(packetType.equals("OM")) {
             this.oMPP = new OperatingModeParameterPacket(in);
         } else if(packetType.equals("SC")) {
