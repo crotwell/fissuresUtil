@@ -18,10 +18,11 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
+import edu.sc.seis.fissuresUtil.rt130.NCFile;
 import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
@@ -42,23 +43,33 @@ public class PopulateDatabaseFromDirectory {
         Properties props = Initializer.loadProperties(args);
         boolean verbose = false;
         boolean finished = false;
+        NCFile ncFile = null;
         for(int i = 1; i < args.length; i++) {
             if(args[i].equals("-v")) {
                 verbose = true;
             }
         }
+        for(int i = 1; i < args.length - 1; i++) {
+            if(args[i].equals("-nc")) {
+                String ncFileLocation = args[i + 1];
+                ncFile = new NCFile(ncFileLocation);
+            }
+        }
         if(args.length > 0) {
             ConnectionCreator connCreator = new ConnectionCreator(props);
             Connection conn = connCreator.createConnection();
-            System.out.println("Database location: " + connCreator.getUrl());
             String fileLoc = args[args.length - 1];
             File file = new File(fileLoc);
+            JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
+            JDBCChannel chanTable = new JDBCChannel(conn);
             if(file.isDirectory()) {
                 finished = readEntireDirectory(fileLoc,
                                                verbose,
                                                conn,
-                                               props,
-                                               fileLoc);
+                                               ncFile,
+                                               fileLoc,
+                                               jdbcSeisFile,
+                                               chanTable);
             } else {
                 File seismogramFile = new File(fileLoc);
                 File dataStream = new File(seismogramFile.getParent());
@@ -66,8 +77,10 @@ public class PopulateDatabaseFromDirectory {
                 finished = readSingleFile(fileLoc,
                                           verbose,
                                           conn,
-                                          props,
-                                          unitId.getAbsolutePath());
+                                          ncFile,
+                                          unitId.getAbsolutePath(),
+                                          jdbcSeisFile,
+                                          chanTable);
             }
         }
         if(finished) {
@@ -82,29 +95,31 @@ public class PopulateDatabaseFromDirectory {
     private static boolean readSingleFile(String fileLoc,
                                           boolean verbose,
                                           Connection conn,
-                                          Properties props,
-                                          String absoluteBaseDirectory)
+                                          NCFile ncFile,
+                                          String absoluteBaseDirectory,
+                                          JDBCSeismogramFiles jdbcSeisFile,
+                                          JDBCChannel chanTable)
             throws IOException, FissuresException, SeedFormatException,
             SQLException, NotFound {
         boolean finished = false;
         StringTokenizer t = new StringTokenizer(fileLoc, "/");
         String fileName = "";
-        JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
         while(t.hasMoreTokens()) {
             fileName = t.nextToken();
         }
-        if(fileName.endsWith(".sac")) {
-            finished = processSac(jdbcSeisFile, fileLoc, fileName, verbose);
-        } else if(fileName.endsWith(".mseed")) {
-            finished = processMSeed(jdbcSeisFile, fileLoc, fileName, verbose);
-        } else if(fileName.length() == 18 && fileName.charAt(9) == '_') {
+        if(fileName.length() == 18 && fileName.charAt(9) == '_') {
             finished = processRefTek(jdbcSeisFile,
                                      conn,
                                      fileLoc,
                                      fileName,
                                      verbose,
-                                     props,
-                                     absoluteBaseDirectory);
+                                     ncFile,
+                                     absoluteBaseDirectory,
+                                     chanTable);
+        } else if(fileName.endsWith(".mseed")) {
+            finished = processMSeed(jdbcSeisFile, fileLoc, fileName, verbose);
+        } else if(fileName.endsWith(".sac")) {
+            finished = processSac(jdbcSeisFile, fileLoc, fileName, verbose);
         } else if(fileName.equals("SOH.RT")) {
             if(verbose) {
                 System.out.println("Ignoring State of Health file " + fileName
@@ -126,8 +141,10 @@ public class PopulateDatabaseFromDirectory {
     private static boolean readEntireDirectory(String baseDirectory,
                                                boolean verbose,
                                                Connection conn,
-                                               Properties props,
-                                               String absoluteBaseDirectory)
+                                               NCFile ncFile,
+                                               String absoluteBaseDirectory,
+                                               JDBCSeismogramFiles jdbcSeisFile,
+                                               JDBCChannel chanTable)
             throws FissuresException, IOException, SeedFormatException,
             SQLException, NotFound {
         File[] files = new File(baseDirectory).listFiles();
@@ -136,14 +153,18 @@ public class PopulateDatabaseFromDirectory {
                 readEntireDirectory(baseDirectory + files[i].getName() + "/",
                                     verbose,
                                     conn,
-                                    props,
-                                    absoluteBaseDirectory);
+                                    ncFile,
+                                    absoluteBaseDirectory,
+                                    jdbcSeisFile,
+                                    chanTable);
             } else {
                 readSingleFile(files[i].getAbsolutePath(),
                                verbose,
                                conn,
-                               props,
-                               absoluteBaseDirectory);
+                               ncFile,
+                               absoluteBaseDirectory,
+                               jdbcSeisFile,
+                               chanTable);
             }
         }
         return true;
@@ -232,10 +253,11 @@ public class PopulateDatabaseFromDirectory {
                                          String fileLoc,
                                          String fileName,
                                          boolean verbose,
-                                         Properties props,
-                                         String absoluteBaseDirectory)
+                                         NCFile ncFile,
+                                         String absoluteBaseDirectory,
+                                         JDBCChannel chanTable)
             throws IOException, SQLException, NotFound {
-        if(props == null || conn == null) {
+        if(ncFile == null || conn == null) {
             if(verbose) {
                 System.out.println("No props file was specified.");
                 System.out.println("The channel IDs created will not be correct.");
@@ -249,7 +271,7 @@ public class PopulateDatabaseFromDirectory {
             System.err.println(fileName + " seems to be an invalid rt130 file.");
             return false;
         }
-        RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn, props);
+        RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn, ncFile);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         Channel[] channel = toSeismogram.getChannels();
          
@@ -258,15 +280,15 @@ public class PopulateDatabaseFromDirectory {
         for(int i = 0; i < seismogramArray.length; i++) {
             Channel closeChannel = jdbcSeisFile.findCloseChannel(channel[i], new QuantityImpl(1, UnitImpl.KILOMETER));
             if(closeChannel == null){
-                System.out.println("New station code: " + channel[i].my_site.my_station.get_code());
+                //System.out.println("New station code: " + channel[i].my_site.my_station.get_code());
                 jdbcSeisFile.saveSeismogramToDatabase(channel[i],
                                                seismogramArray[i],
                                                fileLoc,
                                                SeismogramFileTypes.RT_130);
             } else {
                 jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel, channel[i]);
-                System.out.println("Existing station code : " + closeChannel.my_site.my_station.get_code());
-                jdbcSeisFile.saveSeismogramToDatabase(closeChannel,
+                //System.out.println("Existing station code : " + closeChannel.my_site.my_station.get_code());
+                jdbcSeisFile.saveSeismogramToDatabase(chanTable.getDBId(closeChannel.get_id()),
                                                       seismogramArray[i],
                                                       fileLoc,
                                                       SeismogramFileTypes.RT_130);
