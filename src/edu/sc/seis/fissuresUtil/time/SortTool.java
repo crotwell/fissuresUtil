@@ -64,8 +64,8 @@ public class SortTool {
             return ((LocalSeismogramImpl)o).getTimeInterval();
         }
     }
-
-    private class AscendingTimeSorter implements Comparator {
+    
+    public static class AscendingTimeSorter implements Comparator {
 
         public int compare(Object o1, Object o2) {
             MicroSecondDate o1Begin = getTime(o1);
