@@ -15,6 +15,7 @@ import java.util.Map;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 
 /*
  * @author fenner Created on Jun 13, 2005
@@ -263,6 +264,11 @@ public class RT130FileReader {
                     System.err.println("End of file reached before Event Trailer Packet was read.");
                     System.err.println("The file likely contains an incomplete seismogram.");
                     System.err.println("Local seismogram creation was not disturbed.");
+                    for(Integer j = new Integer(0); seismogramData.containsKey(j); j = new Integer(j.intValue() + 1)) {
+                        seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
+                                                                  stateOfHealthData,
+                                                                  false));
+                    }
                     done = true;
                 }
             }
@@ -284,7 +290,6 @@ public class RT130FileReader {
             seismogramData.dP.dataFrames = new byte[0];
             seismogramData.begin_time_of_seismogram = dataPacket.begin_time_of_first_packet;
             seismogramData.end_time_of_last_packet = dataPacket.begin_time_of_first_packet;
-            seismogramData.sample_rate = 40;
             System.out.println();
             System.out.println("The Event Header Packet for channel "
                     + seismogramData.channel_number + " was missing "
@@ -293,9 +298,8 @@ public class RT130FileReader {
                     + "the header information from the first "
                     + "data packet instead.");
             System.out.println("The only information unable to be recovered "
-                    + "is the data sample rate. A sample rate of "
-                    + seismogramData.sample_rate
-                    + " samples per second will be assumed.");
+                    + "this way is the data sample rate. The sample rate from "
+                    + "the Event Trailer Packet will be used.");
             System.out.println();
         }
         if(seismogramData.end_time_of_last_packet.difference(dataPacket.begin_time_of_first_packet)
@@ -335,6 +339,20 @@ public class RT130FileReader {
         } else {
             seismogramData.channel_name = stateOfHealthData.channel_name;
         }
+        if(seismogramData.sample_rate == 0){
+            seismogramData.sample_rate = 40;
+            System.out.println("The Event Header and Event Trailer Packets for channel "
+                               + seismogramData.channel_number + " were missing "
+                               + "from the beginning and end of the data file.");
+            System.out.println("This rare occurance is handled by using "
+                               + "the header information from the first "
+                               + "data packet instead.");
+            System.out.println("The only information unable to be recovered "
+                               + "is the data sample rate. A sample rate of "
+                               + seismogramData.sample_rate
+                               + " samples per second will be assumed.");
+        }
+        System.out.println("Sample rate: " + seismogramData.sample_rate);
         return seismogramData;
     }
 
