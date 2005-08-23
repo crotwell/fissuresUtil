@@ -619,8 +619,8 @@ public class FissuresNamingService {
                 + appendInterfaceKind(interfacename), "object" + getVersion());
     }
 
-    private String appendInterfaceKind(String interfacename) {
-        return interfacename + ".interface";
+    public String appendInterfaceKind(String interfacename) {
+        return interfacename + "."+INTERFACE;
     }
 
     /**
@@ -658,7 +658,7 @@ public class FissuresNamingService {
         return (String[])bindings.toArray(new String[bindings.size()]);
     }
 
-    private static String appendKindNames(String dns) {
+    public static String appendKindNames(String dns) {
         dns = FISSURES + "/" + dns + "/";
         StringTokenizer tokenizer = new StringTokenizer(dns, "/");
         String rtnValue = new String();
