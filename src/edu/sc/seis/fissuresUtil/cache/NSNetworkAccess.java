@@ -46,9 +46,10 @@ public class NSNetworkAccess extends ProxyNetworkAccess {
     }
 
     private static NetworkAccess getFromDC(NetworkId id,
-                                           NetworkDCOperations netDC)
+                                           ProxyNetworkDC netDC)
             throws NetworkNotFound {
         synchronized(netDC) {
+            netDC.reset();
             return new SynchronizedNetworkAccess(netDC.a_finder()
                     .retrieve_by_id(id));
         }
