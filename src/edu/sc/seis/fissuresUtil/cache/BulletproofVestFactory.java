@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
@@ -63,13 +64,23 @@ public class BulletproofVestFactory {
         CacheEventDC cache = new CacheEventDC(retry);
         return cache;
     }
-
+    
     public static ProxyNetworkDC vestNetworkDC(String serverDNS,
                                                String serverName,
                                                FissuresNamingService fisName) {
         return new RetryNetworkDC(new NSNetworkDC(serverDNS,
                                                   serverName,
                                                   fisName), 2);
+    }
+    
+    /**
+     * When reset is called on the NSNetworkFinder, the networkfinder gets revested in a retry.
+     * Just be aware that any changes here need to be checked there, as well.
+     */
+    public static ProxyNetworkFinder vestNetworkFinder(NetworkFinder nf, ProxyNetworkDC netDC){
+        RetryNetworkFinder retry = new RetryNetworkFinder(nf, 3);
+        NSNetworkFinder ns = new NSNetworkFinder(retry, netDC);
+        return ns;
     }
 
     public static ProxySeismogramDC vestSeismogramDC(String serverDNS,
