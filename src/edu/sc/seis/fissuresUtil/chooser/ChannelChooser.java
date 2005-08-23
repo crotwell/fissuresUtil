@@ -47,7 +47,7 @@ import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 11638 2005-01-12 16:49:25Z groves $
+ * @version $Id: ChannelChooser.java 14603 2005-08-23 18:23:29Z oliverpa $
  */
 /**
  * @author Charlie Groves
@@ -63,17 +63,20 @@ public class ChannelChooser extends JPanel {
     }
 
     public ChannelChooser(ProxyNetworkDC[] netdcgiven,
-            String[] configuredNetworks) {
+                          String[] configuredNetworks) {
         this(netdcgiven, false, configuredNetworks);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven, boolean showSites,
-            String[] configuredNetworks) {
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+                          boolean showSites,
+                          String[] configuredNetworks) {
         this(netdcgiven, showSites, true, configuredNetworks);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven, boolean showSites,
-            boolean showNetworks, String[] configuredNetworks) {
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+                          boolean showSites,
+                          boolean showNetworks,
+                          String[] configuredNetworks) {
         this(netdcgiven,
              showSites,
              showNetworks,
@@ -82,9 +85,11 @@ public class ChannelChooser extends JPanel {
              defaultAutoSelectBand);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven, boolean showSites,
-            String[] configuredNetworks, String[] selectableBand,
-            String[] autoSelectBand) {
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+                          boolean showSites,
+                          String[] configuredNetworks,
+                          String[] selectableBand,
+                          String[] autoSelectBand) {
         this(netdcgiven,
              showSites,
              true,
@@ -93,9 +98,12 @@ public class ChannelChooser extends JPanel {
              autoSelectBand);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven, boolean showSites,
-            boolean showNetworks, String[] configuredNetworks,
-            String[] selectableBand, String[] autoSelectBand) {
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+                          boolean showSites,
+                          boolean showNetworks,
+                          String[] configuredNetworks,
+                          String[] selectableBand,
+                          String[] autoSelectBand) {
         this(netdcgiven,
              showSites,
              showNetworks,
@@ -106,10 +114,13 @@ public class ChannelChooser extends JPanel {
              defaultAutoSelectedOrientation);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven, boolean showSites,
-            String[] configuredNetworks, String[] selectableBand,
-            String[] autoSelectBand, int[] selectableOrientations,
-            int autoSelectedOrientation) {
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+                          boolean showSites,
+                          String[] configuredNetworks,
+                          String[] selectableBand,
+                          String[] autoSelectBand,
+                          int[] selectableOrientations,
+                          int autoSelectedOrientation) {
         this(netdcgiven,
              showSites,
              true,
@@ -120,10 +131,14 @@ public class ChannelChooser extends JPanel {
              autoSelectedOrientation);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven, boolean showSites,
-            boolean showNetworks, String[] configuredNetworks,
-            String[] selectableBand, String[] autoSelectBand,
-            int[] selectableOrientations, int autoSelectedOrientation) {
+    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+                          boolean showSites,
+                          boolean showNetworks,
+                          String[] configuredNetworks,
+                          String[] selectableBand,
+                          String[] autoSelectBand,
+                          int[] selectableOrientations,
+                          int autoSelectedOrientation) {
         this.showSites = showSites;
         this.showNetworks = showNetworks;
         this.selectableOrientations = selectableOrientations;
@@ -317,8 +332,8 @@ public class ChannelChooser extends JPanel {
     }
 
     private void initWidgets() {
-        //  setSize(new java.awt.Dimension (mywidth, myheight));
-        //setPreferredSize(new java.awt.Dimension (mywidth, myheight));
+        // setSize(new java.awt.Dimension (mywidth, myheight));
+        // setPreferredSize(new java.awt.Dimension (mywidth, myheight));
         netLabel = new JLabel(bundle.getString("LABEL_NETWORKS"));
         staLabel = new JLabel(bundle.getString("LABEL_STATIONS"));
         siLabel = new JLabel(bundle.getString("LABEL_SITES"));
@@ -334,7 +349,9 @@ public class ChannelChooser extends JPanel {
         networkList.addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-                if(e.getValueIsAdjusting()) { return; }
+                if(e.getValueIsAdjusting()) {
+                    return;
+                }
                 int first = e.getFirstIndex();
                 int last = e.getLastIndex();
                 ListSelectionModel selections = networkList.getSelectionModel();
@@ -373,11 +390,13 @@ public class ChannelChooser extends JPanel {
         stationList.addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-                if(e.getValueIsAdjusting()) { return; }
+                if(e.getValueIsAdjusting()) {
+                    return;
+                }
                 ChannelLoader t = new ChannelLoader(e);
                 setChannelLoader(t);
                 t.start();
-                //added to see if selection will work properly in the map
+                // added to see if selection will work properly in the map
                 fireStationSelectedEvent(e);
             }
         });
@@ -400,7 +419,9 @@ public class ChannelChooser extends JPanel {
         orientationList.addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-                if(e.getValueIsAdjusting()) { return; }
+                if(e.getValueIsAdjusting()) {
+                    return;
+                }
                 String selected = (String)orientationList.getSelectedValue();
                 if((selected.equals("THREE_COMPONENT")
                         || selected.equals("VERTICAL_ONLY") || selected.equals("HORIZONTAL_ONLY"))
@@ -472,7 +493,7 @@ public class ChannelChooser extends JPanel {
 
     protected void fireNetworkDataChangedEvent(NetworkAccess net) {
         NetworkDataEvent networkDataEvent = null;
-        //logger.debug("fireStationDataEvent called");
+        // logger.debug("fireStationDataEvent called");
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
@@ -480,10 +501,10 @@ public class ChannelChooser extends JPanel {
         for(int i = listeners.length - 2; i >= 0; i -= 2) {
             if(listeners[i] == NetworkDataListener.class) {
                 // Lazily create the event:
-                if(networkDataEvent == null) networkDataEvent = new NetworkDataEvent(this,
-                                                                                     net);
+                if(networkDataEvent == null)
+                    networkDataEvent = new NetworkDataEvent(this, net);
                 ((NetworkDataListener)listeners[i + 1]).networkDataChanged(networkDataEvent);
-                //logger.debug("fireStationDataEvent!");
+                // logger.debug("fireStationDataEvent!");
             }
         }
     }
@@ -571,8 +592,8 @@ public class ChannelChooser extends JPanel {
     public Station[] getStations() {
         LinkedList out = new LinkedList();
         Object[] objArray = stationNames.toArray();
-        //logger.debug("Object array length: " + objArray.length);
-        //logger.debug("stationNames size: " + stationNames.getSize());
+        // logger.debug("Object array length: " + objArray.length);
+        // logger.debug("stationNames size: " + stationNames.getSize());
         for(int i = 0; i < objArray.length; i++) {
             String name = ((Station)objArray[i]).name;
             LinkedList staList = (LinkedList)stationMap.get(name);
@@ -636,7 +657,9 @@ public class ChannelChooser extends JPanel {
     }
 
     public NetworkAccess[] getSelectedNetworks() {
-        if(!showNetworks) { return getNetworks(); }
+        if(!showNetworks) {
+            return getNetworks();
+        }
         return castNetworkArray(networkList.getSelectedValues());
     }
 
@@ -696,7 +719,9 @@ public class ChannelChooser extends JPanel {
         ListModel listModel = stationList.getModel();
         for(int i = 0; i < listModel.getSize(); i++) {
             Station cur = (Station)listModel.getElementAt(i);
-            if(cur.equals(stat)) { return i; }
+            if(cur.equals(stat)) {
+                return i;
+            }
         }
         return -1;
     }
@@ -719,8 +744,12 @@ public class ChannelChooser extends JPanel {
             NetworkDCOperations[] retrievedDCs = getNetworkDCs();
             for(int i = 0; i < retrievedDCs.length; i++) {
                 try {
-                    net = retrievedDCs[i].a_finder().retrieve_by_id(netid);
-                    if(net != null) { return new CacheNetworkAccess(net); }
+                    net = BulletproofVestFactory.vestNetworkFinder(retrievedDCs[i].a_finder(),
+                                                                   (ProxyNetworkDC)retrievedDCs[i])
+                            .retrieve_by_id(netid);
+                    if(net != null) {
+                        return new CacheNetworkAccess(net);
+                    }
                 } catch(NetworkNotFound e) {
                     // oh well, try next
                 } catch(org.omg.CORBA.COMM_FAILURE e) {
@@ -869,7 +898,9 @@ public class ChannelChooser extends JPanel {
                                               tmpH[0].my_site.get_code(),
                                               tmpH[0].get_code()
                                                       .substring(1, 2));
-            if(tmpV != null) { return new Channel[] {tmpH[0], tmpH[1], tmpV}; }
+            if(tmpV != null) {
+                return new Channel[] {tmpH[0], tmpH[1], tmpV};
+            }
         }
         return null;
     }
@@ -1131,7 +1162,9 @@ public class ChannelChooser extends JPanel {
         public void run() {
             setProgressOwner(this);
             if(configuredNetworks == null || configuredNetworks.length == 0) {
-                NetworkAccess[] nets = netDC.a_finder().retrieve_all();
+                NetworkAccess[] nets = BulletproofVestFactory.vestNetworkFinder(netDC.a_finder(),
+                                                                                netDC)
+                        .retrieve_all();
                 // I don't think this should ever happen, but...
                 if(nets == null) {
                     nets = new NetworkAccess[0];
@@ -1156,7 +1189,7 @@ public class ChannelChooser extends JPanel {
                     progressVal++;
                 }
             } else {
-                //when the channelChooser is configured with networkCodes....
+                // when the channelChooser is configured with networkCodes....
                 int totalNetworks = 0;
                 setProgressMax(this, configuredNetworks.length);
                 for(int counter = 0; counter < configuredNetworks.length; counter++) {
@@ -1172,7 +1205,8 @@ public class ChannelChooser extends JPanel {
                             }
                         }
                         // end hack
-                        NetworkAccess[] nets = netDC.a_finder()
+                        NetworkAccess[] nets = BulletproofVestFactory.vestNetworkFinder(netDC.a_finder(),
+                                                                                        netDC)
                                 .retrieve_by_code(configuredNetworks[counter]);
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if(nets[subCounter] != null) {
@@ -1208,15 +1242,15 @@ public class ChannelChooser extends JPanel {
                             } else {
                                 logger.warn("a networkaccess returned from NetworkFinder.retrieve_by_code is null, skipping.");
                             } // end of else
-                        }//end of inner for subCounter = 0;
+                        }// end of inner for subCounter = 0;
                     } catch(NetworkNotFound nnfe) {
                         logger.warn("Network "
                                 + configuredNetworks[counter]
                                 + " not found while getting network access uding NetworkFinder.retrieve_by_code");
                     }
                     setProgressValue(this, counter + 1);
-                }//end of outer for counter = 0;
-            }//end of if else checking for configuredNetworks == null
+                }// end of outer for counter = 0;
+            }// end of if else checking for configuredNetworks == null
             if(doSelect) {
                 // need to do this later to give java Event thread time to set
                 // up network list before setting selection
