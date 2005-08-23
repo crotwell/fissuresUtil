@@ -4,6 +4,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContext;
 import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextHelper;
 import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
@@ -25,7 +26,7 @@ public class CreateNameContexts {
         // TODO Auto-generated constructor stub
     }
 
-    public static void main(String[] args) throws NotFound, AlreadyBound, CannotProceed, InvalidName {
+    public static void main(String[] args) throws NotFound, CannotProceed, InvalidName {
         BasicConfigurator.configure();
         Initializer.init(args);
         String dns = null;
@@ -46,20 +47,43 @@ public class CreateNameContexts {
         NamingContextExt topLevel = fisName.getNameService();
         NameComponent[] name = topLevel.to_name(dnsWithKind);
         NamingContext lastContext = topLevel;
-        int curLevel = 0;
+        NameComponent[] subName = new NameComponent[1];
         for(int i = 0; i < name.length; i++) {
+            try {
                 logger.debug("Binding " + name[i].id
                         + "." + name[i].kind
                         + " as new context");
-                NameComponent[] subName = new NameComponent[i - curLevel];
                 System.arraycopy(name,
-                                 curLevel,
+                                 i,
                                  subName,
                                  0,
                                  subName.length);
+                logger.debug("NameComponent: "+nameComponentToString(subName));
                 lastContext = lastContext.bind_new_context(subName);
-                curLevel = i;
+            } catch(AlreadyBound e) {
+                // already there so go to next name in list
+                // but need to resolve as lastContext
+                lastContext = NamingContextHelper.narrow(lastContext.resolve(subName));
+            }
         }
+        for(int i = 0; i < interfaces.length; i++) {
+            try {
+                subName[0] = new NameComponent(interfaces[i], fisName.INTERFACE);
+                lastContext.bind_new_context(subName);
+            } catch (AlreadyBound e) {
+                // oh well...
+            }
+        }
+    }
+    
+    static String[] interfaces = new String[] {"PlottableDC", "NetworkDC", "DataCenter", "EventDC"};
+    
+    static String nameComponentToString(NameComponent[] name) {
+        String out = "";
+        for(int i = 0; i < name.length; i++) {
+            out += "/"+name[i].id+"."+name[i].kind;
+        }
+        return out;
     }
     
     static void printHelp() {
