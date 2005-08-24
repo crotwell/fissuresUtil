@@ -14,7 +14,7 @@
 FissuresUtil provides java classes that are built on the Fissures/DHI system
 and provide utility funtionality that is used across many clients and servers
 created at USC. It depends on the <a href="../fissuresImpl">fissuresImpl</a>
-project.
+ and <a href="../seisFile">seisFile</a> projects.
 </p>
 
 <p>You are likely will also want 
