@@ -139,14 +139,6 @@ public class PlottableSelection{
 
     private MicroSecondDate getTime(double percentageOfPlottable){
         Date startTime = display.getDate();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startTime);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        startTime = calendar.getTime();
         long milliSecondsPast = (long)(percentageOfPlottable * (display.getTotalHours() * 60 * 60 * 1000));
         return new MicroSecondDate(new Date(startTime.getTime() + milliSecondsPast));
     }
