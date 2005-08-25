@@ -47,7 +47,7 @@ import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 14603 2005-08-23 18:23:29Z oliverpa $
+ * @version $Id: ChannelChooser.java 14623 2005-08-25 21:34:04Z oliverpa $
  */
 /**
  * @author Charlie Groves
@@ -642,6 +642,19 @@ public class ChannelChooser extends JPanel {
         Channel[] staChans = net.retrieve_for_station(station.get_id());
         return staChans;
     }
+    
+    public Channel[] getChannels(Station station, MicroSecondDate when) {
+        Channel[] in = getChannels(station);
+        LinkedList out = new LinkedList();
+        for(int i = 0; i < in.length; i++) {
+            MicroSecondDate b = new MicroSecondDate(in[i].effective_time.start_time);
+            MicroSecondDate e = new MicroSecondDate(in[i].effective_time.end_time);
+            if(when.after(b) && when.before(e)) {
+                out.add(in[i]);
+            }
+        } // end of for ()
+        return (Channel[])out.toArray(new Channel[out.size()]);
+    }
 
     /**
      * returns selected items from channel list. May be full codes like BHZ or
@@ -675,7 +688,11 @@ public class ChannelChooser extends JPanel {
 
     public Station[] getSelectedStations(MicroSecondDate when) {
         Station[] in = getSelectedStations();
-        LinkedList out = new LinkedList();
+        return getStationsThatExistOnDate(when, in);
+    }
+    
+    public static Station[] getStationsThatExistOnDate(MicroSecondDate when, Station[] in) {
+       LinkedList out = new LinkedList();
         for(int i = 0; i < in.length; i++) {
             MicroSecondDate b = new MicroSecondDate(in[i].effective_time.start_time);
             MicroSecondDate e = new MicroSecondDate(in[i].effective_time.end_time);
