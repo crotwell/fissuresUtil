@@ -363,11 +363,13 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         ChannelId chanId = seis.getChannelID();
         if(requestFilter != null) {
             MicroSecondDate tmp = new MicroSecondDate(requestFilter.start_time);
-            if(tmp.before(begin))
+            if(tmp.before(begin)){
                 begin = tmp;
+            }
             tmp = new MicroSecondDate(requestFilter.end_time);
-            if(tmp.after(end))
+            if(tmp.after(end)){
                 end = tmp;
+            }
             chanId = requestFilter.channel_id;
             seis.channel_id = chanId;
         }
