@@ -223,8 +223,6 @@ public class RT130FileReader {
                     seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
                                                                   stateOfHealthData,
                                                                   false));
-                    resetSeismogramData((PacketType)seismogramData.get(j),
-                                        nextPacket);
                 }
                 done = true;
             } else if(nextPacket.packetType.equals("AD")) {
@@ -268,12 +266,14 @@ public class RT130FileReader {
                         seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
                                                                   stateOfHealthData,
                                                                   false));
+                        resetSeismogramData((PacketType)seismogramData.get(j),
+                                            nextPacket);
                     }
                     done = true;
                 }
             }
         }
-        return (PacketType[])seismogramList.toArray(new PacketType[seismogramList.size()]);
+        return (PacketType[])seismogramList.toArray(new PacketType[0]);
     }
 
     private boolean seismogramIsContinuos(PacketType seismogramData,
