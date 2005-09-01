@@ -13,8 +13,8 @@ import java.util.List;
 import javax.swing.JComponent;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.particlemotion.SelfDrawableTitleProvider;
 import edu.sc.seis.fissuresUtil.display.particlemotion.ParticleMotionSelfDrawableTitleProvider;
+import edu.sc.seis.fissuresUtil.display.particlemotion.SelfDrawableTitleProvider;
 
 public abstract class Border extends JComponent {
 
@@ -107,10 +107,9 @@ public abstract class Border extends JComponent {
         titles.add(0, tp);
         fixSize();
     }
-    
-    
-    public void removeTitle(TitleProvider toBeRemoved){
-        if(titles.contains(toBeRemoved)){
+
+    public void removeTitle(TitleProvider toBeRemoved) {
+        if(titles.contains(toBeRemoved)) {
             titles.remove(toBeRemoved);
         }
     }
@@ -119,7 +118,7 @@ public abstract class Border extends JComponent {
         int tpHeight = 0;
         Iterator it = titles.iterator();
         while(it.hasNext()) {
-            //TODO - calculate based on actual string, font metrics
+            // TODO - calculate based on actual string, font metrics
             TitleProvider tp = (TitleProvider)it.next();
             tpHeight += tp.getTitleFont().getSize();
         }
@@ -184,10 +183,10 @@ public abstract class Border extends JComponent {
         private double getLimitingLabelSize(Graphics2D g2d) {
             FontMetrics fm = g2d.getFontMetrics();
             Rectangle2D stringBounds = fm.getStringBounds(getMaxString(), g2d);
-            if(direction == VERTICAL)
+            if(direction == VERTICAL) {
                 return stringBounds.getHeight();
-            else
-                return stringBounds.getWidth();
+            }
+            return stringBounds.getWidth();
         }
 
         protected double getLimitingSize() {
@@ -197,8 +196,7 @@ public abstract class Border extends JComponent {
         }
 
         public abstract String getMaxString();
-        
-        
+
         public void draw(UnitRangeImpl range, Graphics2D g2d) {
             Iterator it = titles.iterator();
             int cumulativeTitleHeight = 0;
@@ -231,8 +229,9 @@ public abstract class Border extends JComponent {
                     drawTitle(g2d, tp, 0, 0);
                     g2d.rotate(Math.PI / 2);
                     g2d.translate(-x, -y);
-                    if(tp instanceof SelfDrawableTitleProvider){
-                        ((ParticleMotionSelfDrawableTitleProvider)tp).setVerticalCoordinates(x, y);
+                    if(tp instanceof SelfDrawableTitleProvider) {
+                        ((ParticleMotionSelfDrawableTitleProvider)tp).setVerticalCoordinates(x,
+                                                                                             y);
                     }
                 } else {
                     int x = (int)(getWidth() / 2 - titleBounds.getWidth() / 2);
@@ -243,8 +242,9 @@ public abstract class Border extends JComponent {
                         y = getHeight() - cumulativeTitleHeight
                                 + (int)titleBounds.getHeight() - 5;
                     drawTitle(g2d, tp, x, y);
-                    if(tp instanceof SelfDrawableTitleProvider){
-                        ((ParticleMotionSelfDrawableTitleProvider)tp).setHorizontalCoordinates(x, y);
+                    if(tp instanceof SelfDrawableTitleProvider) {
+                        ((ParticleMotionSelfDrawableTitleProvider)tp).setHorizontalCoordinates(x,
+                                                                                               y);
                     }
                 }
             }
@@ -256,7 +256,7 @@ public abstract class Border extends JComponent {
                 double pixelsPerMinorTick = pixelsPerLabelTick / ticksPerDiv;
                 double labelValPerTick = divSize / ticksPerDiv;
                 int numLabelTicks = (int)Math.ceil(numDivisions) + 1;
-                //Create tick shapes
+                // Create tick shapes
                 GeneralPath labelTickShape = new GeneralPath();
                 GeneralPath minorTickShape = new GeneralPath();
                 float[] nextLabelPoint = getFirstPoint();
@@ -289,7 +289,7 @@ public abstract class Border extends JComponent {
                                                   nextLabelPoint);
                     labelValue += divSize;
                 }
-                //Figure out how much to translate this generic tick shape to
+                // Figure out how much to translate this generic tick shape to
                 // match the actual time
                 double[] translation = getTranslation(range);
                 /*
@@ -328,10 +328,9 @@ public abstract class Border extends JComponent {
             if(tp instanceof SelfDrawableTitleProvider) {
                 ((SelfDrawableTitleProvider)tp).draw(i, j, g2d);
             } else {
-                g2d.drawString(tp.getTitle(), 0, 0);
+                g2d.drawString(tp.getTitle(), i, j);
             }
         }
-
 
         private void label(String label,
                            float[] nextLabelPoint,
@@ -355,7 +354,7 @@ public abstract class Border extends JComponent {
                 } else if((y + bounds.getHeight()) > getHeight()) {
                     percentageDrawn = (getHeight() - y) / bounds.getHeight();
                 }
-            } else {//Must be horizontal
+            } else {// Must be horizontal
                 x = nextLabelPoint[0] - (int)(bounds.getWidth() / 2);
                 if(side == TOP) {
                     y = nextLabelPoint[1] - labelTickLength - 3;
@@ -363,50 +362,50 @@ public abstract class Border extends JComponent {
                     y = labelTickLength + (float)bounds.getHeight() - 3;
                 }
             }
-            if(percentageDrawn >= .6) {//Only draw a label if 60 percent or
+            if(percentageDrawn >= .6) {// Only draw a label if 60 percent or
                 // more of the text is visible
                 g2d.drawString(label, x, y);
             }
-        } //returns the position of the first label tick. 1st element is
+        } // returns the position of the first label tick. 1st element is
 
         // x, 2nd
-        //element is y
+        // element is y
         protected float[] getFirstPoint() {
             float[] point = new float[2];
             if(direction == VERTICAL) {
                 if(side == LEFT) {
                     point[0] = (float)getSize().getWidth();
-                } else {//Must be right
+                } else {// Must be right
                     point[0] = 0;
                 }
                 if(order == ASCENDING)
                     point[1] = (float)getSize().getHeight();
                 else
                     point[1] = 0;
-            } else {//Must be horizontal
+            } else {// Must be horizontal
                 if(order == ASCENDING)
                     point[0] = 0;
                 else
                     point[0] = (float)getSize().getWidth();
                 if(side == TOP) {
                     point[1] = (float)getSize().getHeight();
-                } else {//Must be bottom
+                } else {// Must be bottom
                     point[1] = 0;
                 }
             }
             return point;
         }
 
-        //returns the values in curPoint incremented by the increment value in
-        //the direction of this border
+        // returns the values in curPoint incremented by the increment value in
+        // the direction of this border
         protected float[] getNextPoint(float increment, float[] curPoint) {
             float[] nextPoint = {curPoint[0], curPoint[1]};
             if(direction == VERTICAL) {
                 if(order == ASCENDING)
                     nextPoint[1] -= increment;
                 else
-                    nextPoint[1] += increment;//Must be descending
-            } else {//Must be horizontal
+                    nextPoint[1] += increment;// Must be descending
+            } else {// Must be horizontal
                 if(order == ASCENDING)
                     nextPoint[0] += increment;
                 else
@@ -441,7 +440,7 @@ public abstract class Border extends JComponent {
                     translation[1] = shiftAmount;
                 else
                     translation[1] = -shiftAmount;
-            } else {//Must be horizontal
+            } else {// Must be horizontal
                 double shiftAmount = percentageDiff * getSize().getWidth();
                 if(order == ASCENDING)
                     translation[0] = -shiftAmount;
@@ -472,11 +471,10 @@ public abstract class Border extends JComponent {
      */
     public static final int ASCENDING = 0, DESCENDING = 4;
 
-    //LEFT and RIGHT borders are VERTICAL, TOP and BOTTOM are HORIZONTAL
+    // LEFT and RIGHT borders are VERTICAL, TOP and BOTTOM are HORIZONTAL
     protected static final int VERTICAL = 0, HORIZONTAL = 1;
 
     protected int tickPad = 3, labelTickLength = 10, tickLength = 4;
 
     protected Color color = Color.BLACK;
-
 }
