@@ -38,7 +38,6 @@ public class WorkerThreadPool {
         for(int i = 0; i < numNewThreads; i++) {
             BackgroundWorker bw = new BackgroundWorker(tg, ""
                     + totalNumCreated++, tg.getMaxPriority());
-            logger.debug("Adding thread " + bw + " to a pool");
             idle.add(bw);
             bw.start();
         }
