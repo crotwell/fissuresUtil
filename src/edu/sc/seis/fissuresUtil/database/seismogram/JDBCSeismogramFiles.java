@@ -253,7 +253,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
                         File seismogramFile = new File(databaseResults.getString(4));
                         SeismogramFileTypes filetype = SeismogramFileTypes.fromInt(databaseResults.getInt("filetype"));
                         if(filetype.equals(SeismogramFileTypes.RT_130)) {
-                            List refTekSeismogramsList = getMatchingSeismogramsFromRefTek(seismogramFile.getAbsolutePath(),
+                            List refTekSeismogramsList = getMatchingSeismogramsFromRefTek(seismogramFile.getCanonicalPath(),
                                                                                           request.channel_id,
                                                                                           adjustedBeginTime,
                                                                                           adjustedEndTime);
