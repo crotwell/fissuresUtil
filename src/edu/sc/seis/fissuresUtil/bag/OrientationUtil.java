@@ -24,7 +24,7 @@ public class OrientationUtil {
         for(int i = 0; i < chans.length; i++) {
             Channel chan = chans[i];
             Orientation chanOrient = chan.an_orientation;
-            //Dip = Lat, Az = Lon
+            // Dip = Lat, Az = Lon
             double dist = SphericalCoords.distance(centerDip,
                                                    centerAZ,
                                                    chanOrient.dip,
@@ -35,4 +35,28 @@ public class OrientationUtil {
         }
         return (Channel[])results.toArray(new Channel[results.size()]);
     }
+
+    public static boolean areOrthogonal(Orientation one, Orientation two) {
+        double A1 = Math.toRadians(one.azimuth);
+        double A2 = Math.toRadians(two.azimuth);
+        double D1 = Math.toRadians(one.dip);
+        double D2 = Math.toRadians(two.dip);
+        if(one.dip == two.dip) {
+            if(Math.abs(one.dip) == 90) {
+                return false;
+            } else if(one.dip == 0) {
+                return isOddInteger(TWO_OVER_PI * (A1 - A2));
+            } else {
+                return isOddInteger(TWO_OVER_PI * (D1 - D2));
+            }
+        }
+        return (Math.cos(A1 - A2) * Math.cos(D1) * Math.cos(D2) + Math.sin(D1))
+                * Math.sin(D2) == 0;
+    }
+
+    private static boolean isOddInteger(double d) {
+        return d == (int)d && d % 2 != 0;
+    }
+
+    private static final double TWO_OVER_PI = 2d / Math.PI;
 }
