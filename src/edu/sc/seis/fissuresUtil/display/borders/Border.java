@@ -14,7 +14,6 @@ import javax.swing.JComponent;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.particlemotion.ParticleMotionSelfDrawableTitleProvider;
-import edu.sc.seis.fissuresUtil.display.particlemotion.SelfDrawableTitleProvider;
 
 public abstract class Border extends JComponent {
 
