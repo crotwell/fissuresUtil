@@ -661,8 +661,6 @@ public class PlottableDisplay extends JComponent {
 
     private Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    private static ColorFactory colorFactory = new ColorFactory();
-
     private PlottableSelection selection, tempSelection;
 
     private LinkedList eventPlotterList = new LinkedList();
