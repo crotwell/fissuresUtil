@@ -13,7 +13,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.particlemotion.ParticleMotionSelfDrawableTitleProvider;
 
 public abstract class Border extends JComponent {
 
@@ -228,10 +227,6 @@ public abstract class Border extends JComponent {
                     drawTitle(g2d, tp, 0, 0);
                     g2d.rotate(Math.PI / 2);
                     g2d.translate(-x, -y);
-                    if(tp instanceof SelfDrawableTitleProvider) {
-                        ((ParticleMotionSelfDrawableTitleProvider)tp).setVerticalCoordinates(x,
-                                                                                             y);
-                    }
                 } else {
                     int x = (int)(getWidth() / 2 - titleBounds.getWidth() / 2);
                     int y;
@@ -241,10 +236,6 @@ public abstract class Border extends JComponent {
                         y = getHeight() - cumulativeTitleHeight
                                 + (int)titleBounds.getHeight() - 5;
                     drawTitle(g2d, tp, x, y);
-                    if(tp instanceof SelfDrawableTitleProvider) {
-                        ((ParticleMotionSelfDrawableTitleProvider)tp).setHorizontalCoordinates(x,
-                                                                                               y);
-                    }
                 }
             }
             g2d.setColor(color);
@@ -310,10 +301,7 @@ public abstract class Border extends JComponent {
                     if(value >= minTickValue && value <= maxTickValue
                             && value >= range.min_value
                             && value <= range.max_value) {
-                        label(getLabel(value),
-                              nextLabelPoint,
-                              g2d,
-                              translation[1]);
+                        label(getLabel(value), nextLabelPoint, g2d);
                     }
                     value += divSize;
                     nextLabelPoint = getNextPoint((float)pixelsPerLabelTick,
@@ -331,10 +319,7 @@ public abstract class Border extends JComponent {
             }
         }
 
-        private void label(String label,
-                           float[] nextLabelPoint,
-                           Graphics2D g2d,
-                           double trans) {
+        private void label(String label, float[] nextLabelPoint, Graphics2D g2d) {
             Rectangle2D bounds = g2d.getFontMetrics().getStringBounds(label,
                                                                       g2d);
             float x, y;
