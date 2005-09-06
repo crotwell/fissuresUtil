@@ -102,7 +102,7 @@ public class PopulateDatabaseFromDirectory {
             throws IOException, FissuresException, SeedFormatException,
             SQLException, NotFound {
         boolean finished = false;
-        StringTokenizer t = new StringTokenizer(fileLoc, "/");
+        StringTokenizer t = new StringTokenizer(fileLoc, "/\\");
         String fileName = "";
         while(t.hasMoreTokens()) {
             fileName = t.nextToken();
