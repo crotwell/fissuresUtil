@@ -13,7 +13,6 @@ public class JDBCEventAccessTest extends JDBCTearDown {
 
     public void setUp() throws SQLException {
         this.eventTable = new JDBCEventAccess(ConnMgr.createConnection());
-        BasicConfigurator.configure();
     }
 
     public void tearDown() throws SQLException {
