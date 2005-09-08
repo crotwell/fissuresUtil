@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.xml;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -128,6 +129,11 @@ public class MemoryDataSet implements DataSet {
     }
 
     public void addParameter(String paramName, Object param, AuditInfo[] audit) {
+        if(paramName.startsWith(StdDataSetParamNames.CHANNEL)) {
+            Channel chan = (Channel)param;
+            chanIdStringsToChannels.put(ChannelIdUtil.toString(chan.get_id()),
+                                        chan);
+        }
         parameters.put(paramName, param);
         parameterNames.add(paramName);
     }
@@ -158,9 +164,7 @@ public class MemoryDataSet implements DataSet {
      * @see StdDataSetParamNames for the prefix for these parameters.
      */
     public Channel getChannel(ChannelId channelId) {
-        Object obj = getParameter(StdDataSetParamNames.CHANNEL
-                + ChannelIdUtil.toString(channelId));
-        return (Channel)obj;
+        return (Channel)chanIdStringsToChannels.get(ChannelIdUtil.toString(channelId));
     }
 
     /**
@@ -178,6 +182,8 @@ public class MemoryDataSet implements DataSet {
     protected String owner;
 
     protected String id;
+
+    private Map chanIdStringsToChannels = new HashMap();
 
     protected LinkedList datasetSeismogramNames = new LinkedList();
 
