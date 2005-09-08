@@ -62,8 +62,8 @@ public class DisplayUtils {
                 componentSeismograms.add(currentSeis);
             }
         }
-        //If we didn't find three with the same channel id and begin and end
-        //times, look for some with the same channel id and overlapping times
+        // If we didn't find three with the same channel id and begin and end
+        // times, look for some with the same channel id and overlapping times
         // do this as a separate step in case there are exact matches AND
         // overlaps
         // and we prefer exact match to overlapping
@@ -73,7 +73,8 @@ public class DisplayUtils {
                 RequestFilter currentRF = currentSeis.getRequestFilter();
                 MicroSecondTimeRange curTr = new MicroSecondTimeRange(currentRF);
                 if(areFriends(chanId, currentRF.channel_id)
-                        && RangeTool.areOverlapping(tr, curTr)) componentSeismograms.add(currentSeis);
+                        && RangeTool.areOverlapping(tr, curTr))
+                    componentSeismograms.add(currentSeis);
             }
         }
         DataSetSeismogram[] components = new DataSetSeismogram[componentSeismograms.size()];
@@ -123,7 +124,9 @@ public class DisplayUtils {
     public static UnitRangeImpl getShaledRange(UnitRangeImpl ampRange,
                                                double shift,
                                                double scale) {
-        if(shift == 0 && scale == 1.0) { return ampRange; }
+        if(shift == 0 && scale == 1.0) {
+            return ampRange;
+        }
         double range = ampRange.getMaxValue() - ampRange.getMinValue();
         double minValue = ampRange.getMinValue() + range * shift;
         return new UnitRangeImpl(minValue,
@@ -189,9 +192,12 @@ public class DisplayUtils {
 
     public static String getOrientationName(String orientation) {
         char ch = orientation.charAt(2);
-        if(ch == 'E' || ch == '1' || ch == 'U') return EAST;
-        else if(ch == 'N' || ch == '2' || ch == 'V') return NORTH;
-        else return UP;
+        if(ch == 'E' || ch == '1' || ch == 'U')
+            return EAST;
+        else if(ch == 'N' || ch == '2' || ch == 'V')
+            return NORTH;
+        else
+            return UP;
     }
 
     public static DataSetSeismogram[][] sortByComponents(DataSetSeismogram[] seismos) {
@@ -255,7 +261,9 @@ public class DisplayUtils {
 
     public static boolean allNull(Object[] array) {
         for(int i = 0; i < array.length; i++) {
-            if(array[i] != null) { return false; }
+            if(array[i] != null) {
+                return false;
+            }
         }
         return true;
     }
@@ -266,7 +274,9 @@ public class DisplayUtils {
         if(me.getX() < insets.left
                 || me.getX() > comp.getSize().width - insets.right
                 || me.getY() < insets.top
-                || me.getY() > comp.getSize().height - insets.bottom) { return true; }
+                || me.getY() > comp.getSize().height - insets.bottom) {
+            return true;
+        }
         return false;
     }
 
@@ -280,30 +290,34 @@ public class DisplayUtils {
 
     public static DistAz calculateDistAz(DataSetSeismogram seis) {
         EventAccessOperations event = seis.getDataSet().getEvent();
-        ChannelId chanId = seis.getRequestFilter().channel_id;
-        Channel channel = seis.getDataSet().getChannel(chanId);
-        if(channel != null && event != null) { return new DistAz(channel, event); }
+        Channel channel = seis.getChannel();
+        if(channel != null && event != null) {
+            return new DistAz(channel, event);
+        }
         return null;
     }
 
     public static QuantityImpl calculateBackAzimuth(DataSetSeismogram seis) {
         DistAz distAz = calculateDistAz(seis);
-        if(distAz != null) { return new QuantityImpl(distAz.getBaz(),
-                                                     UnitImpl.DEGREE); }
+        if(distAz != null) {
+            return new QuantityImpl(distAz.getBaz(), UnitImpl.DEGREE);
+        }
         return null;
     }
 
     public static QuantityImpl calculateAzimuth(DataSetSeismogram seis) {
         DistAz distAz = calculateDistAz(seis);
-        if(distAz != null) { return new QuantityImpl(distAz.getAz(),
-                                                     UnitImpl.DEGREE); }
+        if(distAz != null) {
+            return new QuantityImpl(distAz.getAz(), UnitImpl.DEGREE);
+        }
         return null;
     }
 
     public static QuantityImpl calculateDistance(DataSetSeismogram seis) {
         DistAz distAz = calculateDistAz(seis);
-        if(distAz != null) { return new QuantityImpl(distAz.getDelta(),
-                                                     UnitImpl.DEGREE); }
+        if(distAz != null) {
+            return new QuantityImpl(distAz.getDelta(), UnitImpl.DEGREE);
+        }
         return null;
     }
 
@@ -373,7 +387,9 @@ public class DisplayUtils {
     }
 
     private static String stripPoundSign(String string) {
-        if(string.startsWith("#")) { return string.substring(1); }
+        if(string.startsWith("#")) {
+            return string.substring(1);
+        }
         return string;
     }
 
