@@ -43,7 +43,7 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
  * Access to a dataset stored as an XML file.
  * 
  * @author <a href="mailto:">Philip Crotwell </a>
- * @version $Id: XMLDataSet.java 14642 2005-08-26 20:50:56Z groves $
+ * @version $Id: XMLDataSet.java 14714 2005-09-08 17:25:23Z groves $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -936,8 +936,15 @@ public class XMLDataSet implements DataSet, Serializable {
     }
 
     public Channel getChannel(ChannelId channelId) {
-        return (Channel)getParameter(StdDataSetParamNames.CHANNEL
-                + ChannelIdUtil.toString(channelId));
+        List channels = getChannels();
+        Iterator it = channels.iterator();
+        while(it.hasNext()) {
+            Channel cur = (Channel)it.next();
+            if(ChannelIdUtil.areEqualExceptForBeginTime(cur.get_id(), channelId)) {
+                return cur;
+            }
+        }
+        return null;
     }
 
     /**
