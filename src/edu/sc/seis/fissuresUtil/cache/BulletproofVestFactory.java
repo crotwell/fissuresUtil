@@ -77,10 +77,17 @@ public class BulletproofVestFactory {
      * When reset is called on the NSNetworkFinder, the networkfinder gets revested in a retry.
      * Just be aware that any changes here need to be checked there, as well.
      */
-    public static ProxyNetworkFinder vestNetworkFinder(NetworkFinder nf, ProxyNetworkDC netDC){
-        RetryNetworkFinder retry = new RetryNetworkFinder(nf, 3);
+    public static ProxyNetworkFinder vestNetworkFinder(ProxyNetworkDC netDC){
+        RetryNetworkFinder retry = new RetryNetworkFinder(netDC.a_finder(), 3);
         NSNetworkFinder ns = new NSNetworkFinder(retry, netDC);
         return ns;
+    }
+    
+    public static ProxyNetworkFinder vestNetworkFinder(String serverDNS,
+                                                       String serverName,
+                                                       FissuresNamingService fisName) {
+        ProxyNetworkDC netDC = vestNetworkDC(serverDNS, serverName, fisName);
+        return vestNetworkFinder(netDC);
     }
 
     public static ProxySeismogramDC vestSeismogramDC(String serverDNS,

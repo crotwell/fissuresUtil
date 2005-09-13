@@ -47,7 +47,7 @@ import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 14623 2005-08-25 21:34:04Z oliverpa $
+ * @version $Id: ChannelChooser.java 14739 2005-09-13 17:58:37Z crotwell $
  */
 /**
  * @author Charlie Groves
@@ -761,8 +761,7 @@ public class ChannelChooser extends JPanel {
             NetworkDCOperations[] retrievedDCs = getNetworkDCs();
             for(int i = 0; i < retrievedDCs.length; i++) {
                 try {
-                    net = BulletproofVestFactory.vestNetworkFinder(retrievedDCs[i].a_finder(),
-                                                                   (ProxyNetworkDC)retrievedDCs[i])
+                    net = BulletproofVestFactory.vestNetworkFinder((ProxyNetworkDC)retrievedDCs[i])
                             .retrieve_by_id(netid);
                     if(net != null) {
                         return new CacheNetworkAccess(net);
@@ -1179,8 +1178,7 @@ public class ChannelChooser extends JPanel {
         public void run() {
             setProgressOwner(this);
             if(configuredNetworks == null || configuredNetworks.length == 0) {
-                NetworkAccess[] nets = BulletproofVestFactory.vestNetworkFinder(netDC.a_finder(),
-                                                                                netDC)
+                NetworkAccess[] nets = BulletproofVestFactory.vestNetworkFinder(netDC)
                         .retrieve_all();
                 // I don't think this should ever happen, but...
                 if(nets == null) {
@@ -1222,8 +1220,7 @@ public class ChannelChooser extends JPanel {
                             }
                         }
                         // end hack
-                        NetworkAccess[] nets = BulletproofVestFactory.vestNetworkFinder(netDC.a_finder(),
-                                                                                        netDC)
+                        NetworkAccess[] nets = BulletproofVestFactory.vestNetworkFinder(netDC)
                                 .retrieve_by_code(configuredNetworks[counter]);
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if(nets[subCounter] != null) {
