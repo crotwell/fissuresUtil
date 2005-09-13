@@ -21,8 +21,8 @@ import edu.sc.seis.fissuresUtil.time.SortTool;
 
 public class NCFile {
 
-    public NCFile(String ncFIleLocation) throws IOException {
-        File file = new File(ncFIleLocation);
+    public NCFile(String ncFileLocation) throws IOException {
+        File file = new File(ncFileLocation);
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
         DataInputStream dis = new DataInputStream(bis);
