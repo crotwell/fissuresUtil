@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Properties;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
@@ -15,7 +14,6 @@ import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
-import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -26,7 +24,6 @@ import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
 
 public class RT130ToLocalSeismogram {
@@ -37,7 +34,9 @@ public class RT130ToLocalSeismogram {
         this.props = null;
     }
 
-    public RT130ToLocalSeismogram(Connection conn, NCFile ncFile, Properties props) {
+    public RT130ToLocalSeismogram(Connection conn,
+                                  NCFile ncFile,
+                                  Properties props) {
         this.conn = conn;
         this.ncFile = ncFile;
         this.props = props;
@@ -164,19 +163,17 @@ public class RT130ToLocalSeismogram {
 
     private Channel[] channel;
 
-    private final String STATION_NAME = "station.stationName";
-    
     private final String NETWORK_ID = "network.networkId";
-    
+
     private final String NETWORK_NAME = "network.name";
-    
+
     private final String NETWORK_DESCRIPTION = "network.name";
 
     private final String NETWORK_OWNER = "network.name";
-    
+
     private Connection conn;
 
     private NCFile ncFile;
-    
+
     private Properties props;
 }
