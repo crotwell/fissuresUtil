@@ -11,8 +11,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
+
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -32,8 +36,8 @@ import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.rt130.PacketType;
-import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
+import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogram;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 import edu.sc.seis.fissuresUtil.xml.URLDataSetSeismogram;
@@ -178,9 +182,9 @@ public class JDBCSeismogramFiles extends JDBCTable {
         }
         ChannelId newChannelId = newChannel.get_id();
         for(int i = 0; i < channelId.length; i++) {
-            Channel closeChannel = chanTable.get(channelId[i]);
             if(ChannelIdUtil.areEqualExceptForBeginTime(newChannelId,
                                                         channelId[i])) {
+            	Channel closeChannel = getChannel(channelId[i]);
                 Location locationFromDatabase = closeChannel.my_site.my_location;
                 DistAz da = new DistAz(locationFromDatabase,
                                        newChannel.my_site.my_location);
@@ -193,6 +197,18 @@ public class JDBCSeismogramFiles extends JDBCTable {
         }
         return null;
     }
+
+	private Channel getChannel(ChannelId channelId) throws SQLException, NotFound {
+		String chanIdString = ChannelIdUtil.toString(channelId);
+		Channel closeChannel = (Channel)chanIdToChannel.get(chanIdString);
+		if(closeChannel == null){
+			closeChannel = chanTable.get(channelId);
+			chanIdToChannel.put(chanIdString, closeChannel);
+		}
+		return closeChannel;
+	}
+    
+    private Map chanIdToChannel = new HashMap();
 
     public void setChannelBeginTimeToEarliest(Channel channelFromDatabase,
                                               Channel newChannel)
