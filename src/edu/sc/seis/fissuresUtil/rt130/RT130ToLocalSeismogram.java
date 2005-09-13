@@ -34,11 +34,13 @@ public class RT130ToLocalSeismogram {
     public RT130ToLocalSeismogram() {
         this.conn = null;
         this.ncFile = null;
+        this.props = null;
     }
 
-    public RT130ToLocalSeismogram(Connection conn, NCFile ncFile) {
+    public RT130ToLocalSeismogram(Connection conn, NCFile ncFile, Properties props) {
         this.conn = conn;
         this.ncFile = ncFile;
+        this.props = props;
     }
 
     public LocalSeismogramImpl[] ConvertRT130ToLocalSeismogram(PacketType[] seismogramDataPacket) {
@@ -59,7 +61,7 @@ public class RT130ToLocalSeismogram {
                                                  new TimeInterval(1,
                                                                   UnitImpl.SECOND));
         ChannelId channelId;
-        if(ncFile == null || conn == null) {
+        if(ncFile == null || conn == null || props == null) {
             channelId = new ChannelId(MockNetworkId.createNetworkID(),
                                       seismogramData.unitIdNumber,
                                       "" + seismogramData.data_stream_number,
@@ -91,20 +93,24 @@ public class RT130ToLocalSeismogram {
             System.err.println("| Unit name for DAS unit number "
                     + seismogramData.unitIdNumber
                     + " was not found in the NC file.");
-            System.err.println("| The name \""
-                    + seismogramData.unitIdNumber
+            System.err.println("| The name \"" + seismogramData.unitIdNumber
                     + "\" will be used instead.");
             System.err.println("| To correct this entry in the database, please run UnitNameUpdater.");
             System.err.println("\\-------------------------");
         }
-        String networkIdString = "XX";
+        String networkIdString = props.getProperty(NETWORK_ID);
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
         NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
+        String tempCode = "B";
+        if(seismogramData.sample_rate < 10) {
+            tempCode = "L";
+        }
         ChannelId channelId = new ChannelId(networkId,
                                             stationCode,
                                             "00",
-                                            "BH"
+                                            tempCode
+                                                    + "H"
                                                     + seismogramData.channel_name[seismogramData.channel_number],
                                             channelBeginTime);
         TimeRange effectiveNetworkTime = new TimeRange(networkBeginTime,
@@ -126,9 +132,9 @@ public class RT130ToLocalSeismogram {
                                          depth,
                                          LocationType.from_int(0));
         NetworkAttrImpl networkAttr = new NetworkAttrImpl(networkId,
-                                                          "",
-                                                          "",
-                                                          "",
+                                                          props.getProperty(NETWORK_NAME),
+                                                          props.getProperty(NETWORK_DESCRIPTION),
+                                                          props.getProperty(NETWORK_OWNER),
                                                           effectiveNetworkTime);
         StationImpl station = new StationImpl(stationId,
                                               "",
@@ -159,8 +165,18 @@ public class RT130ToLocalSeismogram {
     private Channel[] channel;
 
     private final String STATION_NAME = "station.stationName";
+    
+    private final String NETWORK_ID = "network.networkId";
+    
+    private final String NETWORK_NAME = "network.name";
+    
+    private final String NETWORK_DESCRIPTION = "network.name";
 
+    private final String NETWORK_OWNER = "network.name";
+    
     private Connection conn;
 
     private NCFile ncFile;
+    
+    private Properties props;
 }
