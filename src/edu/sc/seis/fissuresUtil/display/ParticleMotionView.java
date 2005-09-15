@@ -242,12 +242,21 @@ public class ParticleMotionView extends JComponent {
 
     public void setDisplayKey(String key) {
         displayKey = key;
-        pmd.setActiveAmpConfig((AmpConfig)keysToAmpConfigs.get(displayKey));
+        pmd.setActiveAmpConfig(getAmpConfig(displayKey));
     }
 
     public JTable getStatusTable() {
         if(statusTable == null) statusTable = new ParticleMotionStatusTable(parMos);
         return statusTable;
+    }
+
+    private AmpConfig getAmpConfig(String key) {
+        AmpConfig ac = (AmpConfig)keysToAmpConfigs.get(key);
+        if(ac == null) {
+            ac = new RMeanAmpConfig();
+            keysToAmpConfigs.put(key, ac);
+        }
+        return ac;
     }
 
     private String displayKey;
@@ -310,11 +319,7 @@ public class ParticleMotionView extends JComponent {
         private void setUpConfigs() {
             DataSetSeismogram[] seis = {horiz.getDataSetSeismogram(),
                                         vert.getDataSetSeismogram()};
-            AmpConfig ac = (AmpConfig)keysToAmpConfigs.get(key);
-            if(ac == null) {
-                ac = new RMeanAmpConfig();
-                keysToAmpConfigs.put(key, ac);
-            }
+            AmpConfig ac = getAmpConfig(key);
             if(!tc.contains(seis[0])) {
                 tc.add(seis);
             }
