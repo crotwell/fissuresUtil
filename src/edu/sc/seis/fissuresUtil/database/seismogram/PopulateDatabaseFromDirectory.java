@@ -43,16 +43,34 @@ public class PopulateDatabaseFromDirectory {
         Properties props = Initializer.loadProperties(args);
         boolean verbose = false;
         boolean finished = false;
+        boolean batch = false;
         NCFile ncFile = null;
         for(int i = 1; i < args.length; i++) {
             if(args[i].equals("-v")) {
                 verbose = true;
+                System.out.println("Verbose messages: ON");
+                System.out.println();
             }
         }
         for(int i = 1; i < args.length - 1; i++) {
             if(args[i].equals("-nc")) {
                 String ncFileLocation = args[i + 1];
                 ncFile = new NCFile(ncFileLocation);
+                if(verbose) {
+                    File file = new File(ncFileLocation);
+                    System.out.println("NC file location: "
+                            + file.getCanonicalPath());
+                    System.out.println();
+                }
+            }
+        }
+        for(int i = 1; i < args.length; i++) {
+            if(args[i].equals("-rt")) {
+                batch = true;
+                if(verbose) {
+                    System.out.println("Batch process of RT130 data: ON");
+                    System.out.println();
+                }
             }
         }
         if(args.length > 0) {
@@ -62,26 +80,30 @@ public class PopulateDatabaseFromDirectory {
             File file = new File(fileLoc);
             JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
             JDBCChannel chanTable = new JDBCChannel(conn);
-            if(file.isDirectory()) {
+            if(batch) {
+                finished = processBatchRefTek(file,
+                                              verbose,
+                                              conn,
+                                              ncFile,
+                                              jdbcSeisFile,
+                                              chanTable);
+            } else if(file.isDirectory()) {
                 finished = readEntireDirectory(fileLoc,
                                                verbose,
                                                conn,
                                                ncFile,
-                                               fileLoc,
                                                jdbcSeisFile,
-                                               chanTable);
+                                               chanTable, props);
             } else {
-                File seismogramFile = new File(fileLoc);
-                File dataStream = new File(seismogramFile.getParent());
-                File unitId = new File(dataStream.getParent());
                 finished = readSingleFile(fileLoc,
                                           verbose,
                                           conn,
                                           ncFile,
-                                          unitId.getAbsolutePath(),
                                           jdbcSeisFile,
-                                          chanTable);
+                                          chanTable, props);
             }
+        } else {
+            printHelp();
         }
         if(finished) {
             System.out.println();
@@ -96,9 +118,8 @@ public class PopulateDatabaseFromDirectory {
                                           boolean verbose,
                                           Connection conn,
                                           NCFile ncFile,
-                                          String absoluteBaseDirectory,
                                           JDBCSeismogramFiles jdbcSeisFile,
-                                          JDBCChannel chanTable)
+                                          JDBCChannel chanTable, Properties props)
             throws IOException, FissuresException, SeedFormatException,
             SQLException, NotFound {
         boolean finished = false;
@@ -108,25 +129,23 @@ public class PopulateDatabaseFromDirectory {
             fileName = t.nextToken();
         }
         if(fileName.length() == 18 && fileName.charAt(9) == '_') {
-            finished = processRefTek(jdbcSeisFile,
-                                     conn,
-                                     fileLoc,
-                                     fileName,
-                                     verbose,
-                                     ncFile,
-                                     absoluteBaseDirectory,
-                                     chanTable);
+            finished = processSingleRefTek(jdbcSeisFile,
+                                           conn,
+                                           fileLoc,
+                                           fileName,
+                                           verbose,
+                                           ncFile,
+                                           chanTable, props);
         } else if(fileName.endsWith(".mseed")) {
             finished = processMSeed(jdbcSeisFile, fileLoc, fileName, verbose);
         } else if(fileName.endsWith(".sac")) {
             finished = processSac(jdbcSeisFile, fileLoc, fileName, verbose);
-        } else if(fileName.equals("SOH.RT")) {
-            if(verbose) {
-                System.out.println("Ignoring State of Health file " + fileName
-                        + ".");
-            }
-        } else {
-            if(verbose) {
+        } else if(verbose) {
+            if(fileName.equals("SOH.RT")) {
+                System.out.println("Ignoring file: " + fileName + ".");
+            } else if(fileName.equals(".DS_Store")) {
+                System.out.println("Ignoring Mac OS X file: " + fileName + ".");
+            } else {
                 System.out.println(fileName
                         + " can not be processed because it's file"
                         + " name is not formatted correctly, and therefore"
@@ -142,9 +161,8 @@ public class PopulateDatabaseFromDirectory {
                                                boolean verbose,
                                                Connection conn,
                                                NCFile ncFile,
-                                               String absoluteBaseDirectory,
                                                JDBCSeismogramFiles jdbcSeisFile,
-                                               JDBCChannel chanTable)
+                                               JDBCChannel chanTable, Properties props)
             throws FissuresException, IOException, SeedFormatException,
             SQLException, NotFound {
         File[] files = new File(baseDirectory).listFiles();
@@ -154,20 +172,71 @@ public class PopulateDatabaseFromDirectory {
                                     verbose,
                                     conn,
                                     ncFile,
-                                    absoluteBaseDirectory,
                                     jdbcSeisFile,
-                                    chanTable);
+                                    chanTable, props);
             } else {
-                readSingleFile(files[i].getAbsolutePath(),
+                readSingleFile(files[i].getCanonicalPath(),
                                verbose,
                                conn,
                                ncFile,
-                               absoluteBaseDirectory,
                                jdbcSeisFile,
-                               chanTable);
+                               chanTable, props);
             }
         }
         return true;
+    }
+
+    private static boolean readEntireBatchDirectory(String baseDirectory,
+                                                    boolean verbose,
+                                                    Connection conn,
+                                                    NCFile ncFile,
+                                                    JDBCSeismogramFiles jdbcSeisFile,
+                                                    JDBCChannel chanTable)
+            throws FissuresException, IOException, SeedFormatException,
+            SQLException, NotFound {
+        boolean finished = true;
+        File[] files = new File(baseDirectory).listFiles();
+        for(int i = 0; i < files.length; i++) {
+            if(files[i].isDirectory() 
+                    && (files[i].getParentFile().getParentFile().getName().length() == 7)
+                    && (files[i].getParentFile().getName().length() == 4)
+                    && (files[i].getName().length() == 1)) {
+                finished = processDatastreamDirectory(files[i],
+                                                      verbose,
+                                                      conn,
+                                                      ncFile,
+                                                      jdbcSeisFile,
+                                                      chanTable);
+            } else if(files[i].isDirectory()) {
+                finished = readEntireBatchDirectory(baseDirectory
+                                                            + files[i].getName()
+                                                            + "/",
+                                                    verbose,
+                                                    conn,
+                                                    ncFile,
+                                                    jdbcSeisFile,
+                                                    chanTable);
+                System.out.println("Directory found.");
+            } else {
+                // Individual file found.
+                // Do nothing. 
+            }
+        }
+        return finished;
+    }
+
+    private static boolean processDatastreamDirectory(File datastreamDirectoryFile,
+                                                      boolean verbose,
+                                                      Connection conn,
+                                                      NCFile ncFile,
+                                                      JDBCSeismogramFiles jdbcSeisFile,
+                                                      JDBCChannel chanTable) {
+        boolean finished = false;
+        String yearAndDay = datastreamDirectoryFile.getParentFile().getParent();
+        String unitIdNumber = datastreamDirectoryFile.getParent();
+        System.out.println("Year and day: " + yearAndDay);
+        System.out.println("Unit ID number: " + unitIdNumber);
+        return finished;
     }
 
     private static void printHelp() {
@@ -179,6 +248,8 @@ public class PopulateDatabaseFromDirectory {
         System.out.println("    -props   | Accepts alternate SOD properties file");
         System.out.println("    -hsql    | Accepts alternate database properties file");
         System.out.println("    -v       | Turn verbose messages on");
+        System.out.println("    -rt      | Batch process of RT130 data");
+        System.out.println("             |   No other types of data can be processed");
         System.out.println();
         System.out.println("    Props file time format | yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         System.out.println();
@@ -248,22 +319,22 @@ public class PopulateDatabaseFromDirectory {
         return true;
     }
 
-    private static boolean processRefTek(JDBCSeismogramFiles jdbcSeisFile,
-                                         Connection conn,
-                                         String fileLoc,
-                                         String fileName,
-                                         boolean verbose,
-                                         NCFile ncFile,
-                                         String absoluteBaseDirectory,
-                                         JDBCChannel chanTable)
+    private static boolean processSingleRefTek(JDBCSeismogramFiles jdbcSeisFile,
+                                               Connection conn,
+                                               String fileLoc,
+                                               String fileName,
+                                               boolean verbose,
+                                               NCFile ncFile,
+                                               JDBCChannel chanTable, Properties props)
             throws IOException, SQLException, NotFound {
         if(ncFile == null || conn == null) {
             if(verbose) {
-                System.out.println("No props file was specified.");
+                System.out.println("No NC (Network Configuration) file was specified.");
                 System.out.println("The channel IDs created will not be correct.");
             }
         }
-        RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc, false);
+        RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
+                                                                      false);
         PacketType[] seismogramDataPacketArray = null;
         try {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
@@ -271,23 +342,28 @@ public class PopulateDatabaseFromDirectory {
             System.err.println(fileName + " seems to be an invalid rt130 file.");
             return false;
         }
-        RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn, ncFile);
+        RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
+                                                                         ncFile, props);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         Channel[] channel = toSeismogram.getChannels();
-         
         // Check database for channels that match (with lat/long buffer)
         // If channel exists, use it. If not, use new channel.
         for(int i = 0; i < seismogramArray.length; i++) {
-            Channel closeChannel = jdbcSeisFile.findCloseChannel(channel[i], new QuantityImpl(1, UnitImpl.KILOMETER));
-            if(closeChannel == null){
-                //System.out.println("New station code: " + channel[i].my_site.my_station.get_code());
+            Channel closeChannel = jdbcSeisFile.findCloseChannel(channel[i],
+                                                                 new QuantityImpl(1,
+                                                                                  UnitImpl.KILOMETER));
+            if(closeChannel == null) {
+                // System.out.println("New station code: " +
+                // channel[i].my_site.my_station.get_code());
                 jdbcSeisFile.saveSeismogramToDatabase(channel[i],
-                                               seismogramArray[i],
-                                               fileLoc,
-                                               SeismogramFileTypes.RT_130);
+                                                      seismogramArray[i],
+                                                      fileLoc,
+                                                      SeismogramFileTypes.RT_130);
             } else {
-                jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel, channel[i]);
-                //System.out.println("Existing station code : " + closeChannel.my_site.my_station.get_code());
+                jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel,
+                                                           channel[i]);
+                // System.out.println("Existing station code : " +
+                // closeChannel.my_site.my_station.get_code());
                 jdbcSeisFile.saveSeismogramToDatabase(chanTable.getDBId(closeChannel.get_id()),
                                                       seismogramArray[i],
                                                       fileLoc,
@@ -299,5 +375,29 @@ public class PopulateDatabaseFromDirectory {
                     + " added to the database.");
         }
         return true;
+    }
+
+    private static boolean processBatchRefTek(File file,
+                                              boolean verbose,
+                                              Connection conn,
+                                              NCFile ncFile,
+                                              JDBCSeismogramFiles jdbcSeisFile,
+                                              JDBCChannel chanTable)
+            throws FissuresException, IOException, SeedFormatException,
+            SQLException, NotFound {
+        boolean finished = false;
+        if(file.isDirectory()) {
+            finished = readEntireBatchDirectory(file.getCanonicalPath() + "/",
+                                                verbose,
+                                                conn,
+                                                ncFile,
+                                                jdbcSeisFile,
+                                                chanTable);
+        } else {
+            System.out.println("Single files can not be processed using the -rt batch feature.");
+            printHelp();
+            finished = true;
+        }
+        return finished;
     }
 }
