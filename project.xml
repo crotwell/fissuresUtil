@@ -136,7 +136,7 @@
         <dependency>
             <groupId>fissuresImpl</groupId>
             <artifactId>fissuresImpl</artifactId>
-            <version>1.1.9</version>
+            <version>1.1.10beta</version>
         </dependency>
         <dependency>
             <groupId>fissuresIDL</groupId>
