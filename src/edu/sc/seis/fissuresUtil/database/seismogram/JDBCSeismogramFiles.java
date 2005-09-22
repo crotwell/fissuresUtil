@@ -18,6 +18,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -129,6 +130,31 @@ public class JDBCSeismogramFiles extends JDBCTable {
             insert.setInt(1, channelDbId);
             insert.setInt(2, begin_time_id);
             insert.setInt(3, end_time_id);
+            insert.setString(4, filePath);
+            insert.setInt(5, fileTypeInt);
+            insert.executeUpdate();
+        }
+    }
+    
+    public void saveSeismogramToDatabase(int channelDbId,
+                                         int beginTimeId,
+                                         int endTimeId,
+                                         String fileLocation,
+                                         SeismogramFileTypes filetype)
+            throws SQLException, IOException {
+        // Get absolute file path out of the file path given
+        File seismogramFile = new File(fileLocation);
+        String filePath = seismogramFile.getPath();
+        int fileTypeInt = filetype.getIntValue();
+        selectSeismogram.setInt(1, channelDbId);
+        selectSeismogram.setString(2, filePath);
+        ResultSet results = selectSeismogram.executeQuery();
+        if(results.next()) {
+            // Do nothing.
+        } else {
+            insert.setInt(1, channelDbId);
+            insert.setInt(2, beginTimeId);
+            insert.setInt(3, endTimeId);
             insert.setString(4, filePath);
             insert.setInt(5, fileTypeInt);
             insert.executeUpdate();
