@@ -264,8 +264,8 @@ public class RT130FileReader {
                     System.err.println("Local seismogram creation was not disturbed.");
                     for(Integer j = new Integer(0); seismogramData.containsKey(j); j = new Integer(j.intValue() + 1)) {
                         seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
-                                                                  stateOfHealthData,
-                                                                  false));
+                                                                      stateOfHealthData,
+                                                                      false));
                         resetSeismogramData((PacketType)seismogramData.get(j),
                                             nextPacket);
                     }
@@ -339,18 +339,19 @@ public class RT130FileReader {
         } else {
             seismogramData.channel_name = stateOfHealthData.channel_name;
         }
-        if(seismogramData.sample_rate == 0){
+        if(seismogramData.sample_rate == 0) {
             seismogramData.sample_rate = 40;
             System.out.println("The Event Header and Event Trailer Packets for channel "
-                               + seismogramData.channel_number + " were missing "
-                               + "from the beginning and end of the data file.");
+                    + seismogramData.channel_number
+                    + " were missing "
+                    + "from the beginning and end of the data file.");
             System.out.println("This rare occurance is handled by using "
-                               + "the header information from the first "
-                               + "data packet instead.");
+                    + "the header information from the first "
+                    + "data packet instead.");
             System.out.println("The only information unable to be recovered "
-                               + "is the data sample rate. A sample rate of "
-                               + seismogramData.sample_rate
-                               + " samples per second will be assumed.");
+                    + "is the data sample rate. A sample rate of "
+                    + seismogramData.sample_rate
+                    + " samples per second will be assumed.");
         }
         return seismogramData;
     }

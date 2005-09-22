@@ -152,7 +152,6 @@ public class PopulateDatabaseFromDirectory {
                                           Properties props,
                                           boolean batch) throws IOException,
             FissuresException, SeedFormatException, SQLException, NotFound {
-
         boolean finished = false;
         StringTokenizer t = new StringTokenizer(fileLoc, "/\\");
         String fileName = "";
@@ -238,7 +237,7 @@ public class PopulateDatabaseFromDirectory {
         }
         return true;
     }
-    
+
     private static void printHelp() {
         System.out.println();
         System.out.println("    The last argument must be a directory or file location.");
@@ -447,8 +446,9 @@ public class PopulateDatabaseFromDirectory {
         }
         return true;
     }
-    
-    private static int getTimeDbId(MicroSecondDate date, JDBCTime timeTable) throws SQLException{
+
+    private static int getTimeDbId(MicroSecondDate date, JDBCTime timeTable)
+            throws SQLException {
         Integer timeDbId = (Integer)timeToDbId.get(date);
         if(timeDbId == null) {
             timeDbId = new Integer(timeTable.put(date.getFissuresTime()));
@@ -456,9 +456,9 @@ public class PopulateDatabaseFromDirectory {
         }
         return timeDbId.intValue();
     }
-    
+
     private static Map timeToDbId = new HashMap();
-    
+
     private static int getChannelDbId(Channel channel, JDBCChannel chanTable)
             throws SQLException, NotFound {
         Integer channelDbId = (Integer)channelToDbId.get(channel);
