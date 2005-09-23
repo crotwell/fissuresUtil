@@ -61,13 +61,6 @@ public class PopulateDatabaseFromDirectory {
     public static void main(String[] args) throws FissuresException,
             IOException, SeedFormatException, SQLException, NotFound {
         BasicConfigurator.configure();
-        // org.hsqldb.Server.main(new String[0]);
-        // try {
-        // Thread.sleep(70000);
-        // } catch(InterruptedException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
         Properties props = Initializer.loadProperties(args);
         boolean verbose = false;
         boolean finished = false;
@@ -76,8 +69,10 @@ public class PopulateDatabaseFromDirectory {
         for(int i = 1; i < args.length; i++) {
             if(args[i].equals("-v")) {
                 verbose = true;
-                System.out.println("Verbose messages: ON");
                 System.out.println();
+                System.out.println("/---------------Database Populator---");
+                System.out.println();
+                System.out.println("Verbose messages: ON");
             }
         }
         for(int i = 1; i < args.length - 1; i++) {
@@ -88,7 +83,26 @@ public class PopulateDatabaseFromDirectory {
                     File file = new File(ncFileLocation);
                     System.out.println("NC file location: "
                             + file.getCanonicalPath());
-                    System.out.println();
+                }
+            }
+        }
+        for(int i = 1; i < args.length - 1; i++) {
+            if(verbose) {
+                if(args[i].equals("-props")) {
+                    String propFileLocation = args[i + 1];
+                    File file = new File(propFileLocation);
+                    System.out.println("Properties file location: "
+                            + file.getCanonicalPath());
+                }
+            }
+        }
+        for(int i = 1; i < args.length - 1; i++) {
+            if(verbose) {
+                if(args[i].equals("-hsql")) {
+                    String hsqlFileLocation = args[i + 1];
+                    File file = new File(hsqlFileLocation);
+                    System.out.println("HSQL properties file location: "
+                            + file.getCanonicalPath());
                 }
             }
         }
@@ -97,9 +111,13 @@ public class PopulateDatabaseFromDirectory {
                 batch = true;
                 if(verbose) {
                     System.out.println("Batch process of RT130 data: ON");
-                    System.out.println();
                 }
             }
+        }
+        if(verbose) {
+            System.out.println();
+            System.out.println("\\------------------------------------");
+            System.out.println();
         }
         if(args.length > 0) {
             ConnectionCreator connCreator = new ConnectionCreator(props);
@@ -250,7 +268,6 @@ public class PopulateDatabaseFromDirectory {
         System.out.println("    -rt      | Batch process of RT130 data");
         System.out.println("             |   No other types of data can be processed");
         System.out.println();
-        System.out.println("    Props file time format | yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         System.out.println();
         System.out.println("Program finished before database population was completed.");
         System.out.println();
@@ -354,8 +371,6 @@ public class PopulateDatabaseFromDirectory {
                                                                  new QuantityImpl(1,
                                                                                   UnitImpl.KILOMETER));
             if(closeChannel == null) {
-                // System.out.println("New station code: " +
-                // channel[i].my_site.my_station.get_code());
                 jdbcSeisFile.saveSeismogramToDatabase(channel[i],
                                                       seismogramArray[i],
                                                       fileLoc,
@@ -363,13 +378,47 @@ public class PopulateDatabaseFromDirectory {
             } else {
                 jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel,
                                                            channel[i]);
-                // System.out.println("Existing station code : " +
-                // closeChannel.my_site.my_station.get_code());
                 jdbcSeisFile.saveSeismogramToDatabase(chanTable.getDBId(closeChannel.get_id()),
                                                       seismogramArray[i],
                                                       fileLoc,
                                                       SeismogramFileTypes.RT_130);
             }
+        }
+        if(verbose) {
+            System.out.println("RT130 file " + fileName
+                    + " added to the database.");
+        }
+        return true;
+    }
+
+    private static boolean processSingleRefTekWithKnownChannel(JDBCSeismogramFiles jdbcSeisFile,
+                                                               Connection conn,
+                                                               String fileLoc,
+                                                               String fileName,
+                                                               boolean verbose,
+                                                               NCFile ncFile,
+                                                               JDBCChannel chanTable,
+                                                               Properties props,
+                                                               Channel knownChannel)
+            throws IOException, SQLException, NotFound {
+        RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
+                                                                      false);
+        PacketType[] seismogramDataPacketArray = null;
+        try {
+            seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
+        } catch(RT130FormatException e) {
+            System.err.println(fileName + " seems to be an invalid rt130 file.");
+            return false;
+        }
+        RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
+                                                                         ncFile,
+                                                                         props);
+        LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
+        for(int i = 0; i < seismogramArray.length; i++) {
+            jdbcSeisFile.saveSeismogramToDatabase(knownChannel,
+                                                  seismogramArray[i],
+                                                  fileLoc,
+                                                  SeismogramFileTypes.RT_130);
         }
         if(verbose) {
             System.out.println("RT130 file " + fileName
@@ -395,7 +444,7 @@ public class PopulateDatabaseFromDirectory {
                 .getName();
         String unitIdNumber = file.getParentFile().getParentFile().getName();
         String datastream = file.getParentFile().getName();
-        if(!unitIdToFileData.containsKey(unitIdNumber)) {
+        if(!datastreamToFileData.containsKey(unitIdNumber + datastream)) {
             RT130FileReader rtFileReader = new RT130FileReader(fileLoc, false);
             PacketType[] fileData;
             try {
@@ -405,11 +454,14 @@ public class PopulateDatabaseFromDirectory {
                         + " seems to be an invalid rt130 file.");
                 return false;
             }
-            unitIdToFileData.put(unitIdNumber, fileData[0]);
+            datastreamToFileData.put(unitIdNumber + datastream, fileData[0]);
         }
         if(!datastreamToChannel.containsKey(unitIdNumber + datastream)
                 && (!datastream.equals("0"))) {
-            Channel[] newChannel = createChannels(ncFile, unitIdNumber, props);
+            Channel[] newChannel = createChannels(ncFile,
+                                                  unitIdNumber,
+                                                  datastream,
+                                                  props);
             datastreamToChannel.put(unitIdNumber + datastream, newChannel);
         }
         int year = Integer.valueOf(yearAndDay.substring(0, 4)).intValue();
@@ -418,33 +470,58 @@ public class PopulateDatabaseFromDirectory {
         int minutes = Integer.valueOf(fileName.substring(2, 4)).intValue();
         int seconds = Integer.valueOf(fileName.substring(4, 6)).intValue();
         // Get begin time and calculate end time for file based on file name.
-        ISOTime beginIsoTime = new ISOTime(year,
-                                           dayOfYear,
-                                           hours,
-                                           minutes,
-                                           seconds);
-        ISOTime endIsoTime = new ISOTime(year,
-                                         dayOfYear,
-                                         (hours + 1),
-                                         minutes,
-                                         seconds);
-        Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
-                + datastream);
-        for(int i = 0; i < channel.length; i++) {
-            jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel[i],
-                                                                 chanTable),
-                                                  getTimeDbId(beginIsoTime.getDate(),
-                                                              timeTable),
-                                                  getTimeDbId(endIsoTime.getDate(),
-                                                              timeTable),
-                                                  file.getPath(),
-                                                  SeismogramFileTypes.RT_130);
+        if(fileName.endsWith("00000000")) {
+            Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
+                    + datastream);
+            for(int i = 0; i < channel.length; i++) {
+                processSingleRefTekWithKnownChannel(jdbcSeisFile,
+                                                    conn,
+                                                    fileLoc,
+                                                    fileName,
+                                                    verbose,
+                                                    ncFile,
+                                                    chanTable,
+                                                    props,
+                                                    channel[i]);
+            }
+            return true;
+        } else {
+            String[] fileLength = {fileName.substring(10, 11),
+                                   fileName.substring(11, 12),
+                                   fileName.substring(12, 13),
+                                   fileName.substring(13, 14),
+                                   fileName.substring(14, 15),
+                                   fileName.substring(15, 16),
+                                   fileName.substring(16, 17),
+                                   fileName.substring(17, 18)};
+            ISOTime beginIsoTime = new ISOTime(year,
+                                               dayOfYear,
+                                               hours,
+                                               minutes,
+                                               seconds);
+            ISOTime endIsoTime = new ISOTime(year,
+                                             dayOfYear,
+                                             (hours + 1),
+                                             minutes,
+                                             seconds);
+            Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
+                    + datastream);
+            for(int i = 0; i < channel.length; i++) {
+                jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel[i],
+                                                                     chanTable),
+                                                      getTimeDbId(beginIsoTime.getDate(),
+                                                                  timeTable),
+                                                      getTimeDbId(endIsoTime.getDate(),
+                                                                  timeTable),
+                                                      file.getPath(),
+                                                      SeismogramFileTypes.RT_130);
+            }
+            if(verbose) {
+                System.out.println("RT130 file " + fileName
+                        + " added to the database.");
+            }
+            return true;
         }
-        if(verbose) {
-            System.out.println("RT130 file " + fileName
-                    + " added to the database.");
-        }
-        return true;
     }
 
     private static int getTimeDbId(MicroSecondDate date, JDBCTime timeTable)
@@ -473,8 +550,10 @@ public class PopulateDatabaseFromDirectory {
 
     private static Channel[] createChannels(NCFile ncFile,
                                             String unitIdNumber,
+                                            String datastream,
                                             Properties props) {
-        String stationCode = ncFile.getUnitName(((PacketType)(unitIdToFileData.get(unitIdNumber))).begin_time_from_state_of_health_file,
+        String stationCode = ncFile.getUnitName(((PacketType)(datastreamToFileData.get(unitIdNumber
+                                                        + datastream))).begin_time_from_state_of_health_file,
                                                 unitIdNumber);
         if(stationCode == null) {
             stationCode = unitIdNumber;
@@ -491,7 +570,7 @@ public class PopulateDatabaseFromDirectory {
         Time channelBeginTime = networkBeginTime;
         NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
         String tempCode = "B";
-        if(((PacketType)(unitIdToFileData.get(unitIdNumber))).sample_rate < 10) {
+        if(((PacketType)(datastreamToFileData.get(unitIdNumber + datastream))).sample_rate < 10) {
             tempCode = "L";
         }
         ChannelId[] channelId = {new ChannelId(networkId,
@@ -522,8 +601,10 @@ public class PopulateDatabaseFromDirectory {
                                             channelBeginTime);
         QuantityImpl elevation = new QuantityImpl(0, UnitImpl.METER);
         QuantityImpl depth = elevation;
-        Location location = new Location(((PacketType)(unitIdToFileData.get(unitIdNumber))).latitude_,
-                                         ((PacketType)(unitIdToFileData.get(unitIdNumber))).longitude_,
+        Location location = new Location(((PacketType)(datastreamToFileData.get(unitIdNumber
+                                                 + datastream))).latitude_,
+                                         ((PacketType)(datastreamToFileData.get(unitIdNumber
+                                                 + datastream))).longitude_,
                                          elevation,
                                          depth,
                                          LocationType.from_int(0));
@@ -545,7 +626,8 @@ public class PopulateDatabaseFromDirectory {
                                      effectiveChannelTime,
                                      station,
                                      "");
-        SamplingImpl sampling = new SamplingImpl(((PacketType)(unitIdToFileData.get(unitIdNumber))).sample_rate,
+        SamplingImpl sampling = new SamplingImpl(((PacketType)(datastreamToFileData.get(unitIdNumber
+                                                         + datastream))).sample_rate,
                                                  new TimeInterval(1,
                                                                   UnitImpl.SECOND));
         Channel[] newChannel = new ChannelImpl[channelId.length];
@@ -562,7 +644,7 @@ public class PopulateDatabaseFromDirectory {
 
     private static Map datastreamToChannel = new HashMap();
 
-    private static Map unitIdToFileData = new HashMap();
+    private static Map datastreamToFileData = new HashMap();
 
     private static final String NETWORK_ID = "network.networkId";
 
