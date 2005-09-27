@@ -108,32 +108,6 @@ public class JDBCSeismogramFiles extends JDBCTable {
     }
 
     public void saveSeismogramToDatabase(int channelDbId,
-                                         LocalSeismogramImpl seis,
-                                         String fileLocation,
-                                         SeismogramFileTypes filetype)
-            throws SQLException, IOException {
-        int begin_time_id = timeTable.put(seis.getBeginTime().getFissuresTime());
-        int end_time_id = timeTable.put(seis.getEndTime().getFissuresTime());
-        // Get absolute file path out of the file path given
-        File seismogramFile = new File(fileLocation);
-        String filePath = seismogramFile.getPath();
-        int fileTypeInt = filetype.getIntValue();
-        selectSeismogram.setInt(1, channelDbId);
-        selectSeismogram.setString(2, filePath);
-        ResultSet results = selectSeismogram.executeQuery();
-        if(results.next()) {
-            // Do nothing.
-        } else {
-            insert.setInt(1, channelDbId);
-            insert.setInt(2, begin_time_id);
-            insert.setInt(3, end_time_id);
-            insert.setString(4, filePath);
-            insert.setInt(5, fileTypeInt);
-            insert.executeUpdate();
-        }
-    }
-
-    public void saveSeismogramToDatabase(int channelDbId,
                                          int beginTimeId,
                                          int endTimeId,
                                          String fileLocation,
