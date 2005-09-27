@@ -195,6 +195,7 @@ public class PopulateDatabaseFromDirectory {
                                                verbose,
                                                ncFile,
                                                chanTable,
+                                               timeTable,
                                                props);
             }
         } else if(fileName.endsWith(".mseed")) {
@@ -342,6 +343,7 @@ public class PopulateDatabaseFromDirectory {
                                                boolean verbose,
                                                NCFile ncFile,
                                                JDBCChannel chanTable,
+                                               JDBCTime timeTable,
                                                Properties props)
             throws IOException, SQLException, NotFound {
         if(ncFile == null || conn == null) {
@@ -371,15 +373,23 @@ public class PopulateDatabaseFromDirectory {
                                                                  new QuantityImpl(1,
                                                                                   UnitImpl.KILOMETER));
             if(closeChannel == null) {
-                jdbcSeisFile.saveSeismogramToDatabase(channel[i],
-                                                      seismogramArray[i],
+                jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel[i],
+                                                                     chanTable),
+                                                      getTimeDbId(seismogramArray[i].getBeginTime(),
+                                                                  timeTable),
+                                                      getTimeDbId(seismogramArray[i].getEndTime(),
+                                                                  timeTable),
                                                       fileLoc,
                                                       SeismogramFileTypes.RT_130);
             } else {
                 jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel,
                                                            channel[i]);
-                jdbcSeisFile.saveSeismogramToDatabase(chanTable.getDBId(closeChannel.get_id()),
-                                                      seismogramArray[i],
+                jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(closeChannel,
+                                                                     chanTable),
+                                                      getTimeDbId(seismogramArray[i].getBeginTime(),
+                                                                  timeTable),
+                                                      getTimeDbId(seismogramArray[i].getEndTime(),
+                                                                  timeTable),
                                                       fileLoc,
                                                       SeismogramFileTypes.RT_130);
             }
@@ -398,6 +408,7 @@ public class PopulateDatabaseFromDirectory {
                                                                boolean verbose,
                                                                NCFile ncFile,
                                                                JDBCChannel chanTable,
+                                                               JDBCTime timeTable,
                                                                Properties props,
                                                                Channel knownChannel)
             throws IOException, SQLException, NotFound {
@@ -415,8 +426,12 @@ public class PopulateDatabaseFromDirectory {
                                                                          props);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
-            jdbcSeisFile.saveSeismogramToDatabase(knownChannel,
-                                                  seismogramArray[i],
+            jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(knownChannel,
+                                                                 chanTable),
+                                                  getTimeDbId(seismogramArray[i].getBeginTime(),
+                                                              timeTable),
+                                                  getTimeDbId(seismogramArray[i].getEndTime(),
+                                                              timeTable),
                                                   fileLoc,
                                                   SeismogramFileTypes.RT_130);
         }
@@ -475,13 +490,15 @@ public class PopulateDatabaseFromDirectory {
                                                     verbose,
                                                     ncFile,
                                                     chanTable,
+                                                    timeTable,
                                                     props,
                                                     channel[i]);
             }
             return true;
         } else {
             try {
-                MicroSecondDate beginTime = FileNameParser.getBeginTime(yearAndDay, fileName);
+                MicroSecondDate beginTime = FileNameParser.getBeginTime(yearAndDay,
+                                                                        fileName);
                 TimeInterval lengthOfData = FileNameParser.getLengthOfData(fileName);
                 MicroSecondDate endTime = beginTime.add(lengthOfData);
                 Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
