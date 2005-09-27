@@ -26,7 +26,6 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.StationId;
-import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
@@ -43,6 +42,7 @@ import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
+import edu.sc.seis.fissuresUtil.rt130.FileNameParser;
 import edu.sc.seis.fissuresUtil.rt130.NCFile;
 import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
@@ -464,12 +464,6 @@ public class PopulateDatabaseFromDirectory {
                                                   props);
             datastreamToChannel.put(unitIdNumber + datastream, newChannel);
         }
-        int year = Integer.valueOf(yearAndDay.substring(0, 4)).intValue();
-        int dayOfYear = Integer.valueOf(yearAndDay.substring(4, 7)).intValue();
-        int hours = Integer.valueOf(fileName.substring(0, 2)).intValue();
-        int minutes = Integer.valueOf(fileName.substring(2, 4)).intValue();
-        int seconds = Integer.valueOf(fileName.substring(4, 6)).intValue();
-        // Get begin time and calculate end time for file based on file name.
         if(fileName.endsWith("00000000")) {
             Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
                     + datastream);
@@ -486,41 +480,32 @@ public class PopulateDatabaseFromDirectory {
             }
             return true;
         } else {
-            String[] fileLength = {fileName.substring(10, 11),
-                                   fileName.substring(11, 12),
-                                   fileName.substring(12, 13),
-                                   fileName.substring(13, 14),
-                                   fileName.substring(14, 15),
-                                   fileName.substring(15, 16),
-                                   fileName.substring(16, 17),
-                                   fileName.substring(17, 18)};
-            ISOTime beginIsoTime = new ISOTime(year,
-                                               dayOfYear,
-                                               hours,
-                                               minutes,
-                                               seconds);
-            ISOTime endIsoTime = new ISOTime(year,
-                                             dayOfYear,
-                                             (hours + 1),
-                                             minutes,
-                                             seconds);
-            Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
-                    + datastream);
-            for(int i = 0; i < channel.length; i++) {
-                jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel[i],
-                                                                     chanTable),
-                                                      getTimeDbId(beginIsoTime.getDate(),
-                                                                  timeTable),
-                                                      getTimeDbId(endIsoTime.getDate(),
-                                                                  timeTable),
-                                                      file.getPath(),
-                                                      SeismogramFileTypes.RT_130);
+            try {
+                MicroSecondDate beginTime = FileNameParser.getBeginTime(yearAndDay, fileName);
+                TimeInterval lengthOfData = FileNameParser.getLengthOfData(fileName);
+                MicroSecondDate endTime = beginTime.add(lengthOfData);
+                Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
+                        + datastream);
+                for(int i = 0; i < channel.length; i++) {
+                    jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel[i],
+                                                                         chanTable),
+                                                          getTimeDbId(beginTime,
+                                                                      timeTable),
+                                                          getTimeDbId(endTime,
+                                                                      timeTable),
+                                                          file.getPath(),
+                                                          SeismogramFileTypes.RT_130);
+                }
+                if(verbose) {
+                    System.out.println("RT130 file " + fileName
+                            + " added to the database.");
+                }
+                return true;
+            } catch(RT130FormatException e) {
+                System.err.println(fileName
+                        + " seems to be an invalid rt130 file.");
+                return false;
             }
-            if(verbose) {
-                System.out.println("RT130 file " + fileName
-                        + " added to the database.");
-            }
-            return true;
         }
     }
 
