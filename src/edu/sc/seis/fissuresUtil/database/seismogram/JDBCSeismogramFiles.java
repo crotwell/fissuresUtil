@@ -14,11 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
-
 import edu.iris.Fissures.Location;
-import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -135,7 +132,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
             insert.executeUpdate();
         }
     }
-    
+
     public void saveSeismogramToDatabase(int channelDbId,
                                          int beginTimeId,
                                          int endTimeId,
@@ -200,9 +197,9 @@ public class JDBCSeismogramFiles extends JDBCTable {
         ChannelId[] channelId;
         try {
             channelId = chanTable.getIdsByCode(newChannel.get_id().network_id,
-                                                           newChannel.get_id().station_code,
-                                                           newChannel.get_id().site_code,
-                                                           newChannel.get_code());
+                                               newChannel.get_id().station_code,
+                                               newChannel.get_id().site_code,
+                                               newChannel.get_code());
         } catch(NotFound e) {
             return null;
         }
@@ -210,7 +207,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
         for(int i = 0; i < channelId.length; i++) {
             if(ChannelIdUtil.areEqualExceptForBeginTime(newChannelId,
                                                         channelId[i])) {
-            	Channel closeChannel = getChannel(channelId[i]);
+                Channel closeChannel = getChannel(channelId[i]);
                 Location locationFromDatabase = closeChannel.my_site.my_location;
                 DistAz da = new DistAz(locationFromDatabase,
                                        newChannel.my_site.my_location);
@@ -224,16 +221,17 @@ public class JDBCSeismogramFiles extends JDBCTable {
         return null;
     }
 
-	private Channel getChannel(ChannelId channelId) throws SQLException, NotFound {
-		String chanIdString = ChannelIdUtil.toString(channelId);
-		Channel closeChannel = (Channel)chanIdToChannel.get(chanIdString);
-		if(closeChannel == null){
-			closeChannel = chanTable.get(channelId);
-			chanIdToChannel.put(chanIdString, closeChannel);
-		}
-		return closeChannel;
-	}
-    
+    private Channel getChannel(ChannelId channelId) throws SQLException,
+            NotFound {
+        String chanIdString = ChannelIdUtil.toString(channelId);
+        Channel closeChannel = (Channel)chanIdToChannel.get(chanIdString);
+        if(closeChannel == null) {
+            closeChannel = chanTable.get(channelId);
+            chanIdToChannel.put(chanIdString, closeChannel);
+        }
+        return closeChannel;
+    }
+
     private Map chanIdToChannel = new HashMap();
 
     public void setChannelBeginTimeToEarliest(Channel channelFromDatabase,
@@ -373,7 +371,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
     private static final Logger logger = Logger.getLogger(JDBCSeismogramFiles.class);
 
     private PreparedStatement insert, select, updateChannelBeginTime,
-            selectSeismogram, tableIndex;
+            selectSeismogram;
 
     private ResultSet databaseResults;
 
