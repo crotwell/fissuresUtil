@@ -262,11 +262,34 @@ public class FissuresNamingService {
                        org.omg.CORBA.Object obj,
                        NamingContextExt topLevelNameContext) throws NotFound,
             CannotProceed, InvalidName {
-        logger.info("Rebind a class with name " + obj.getClass().getName());
-        String interfacename = getInterfaceName(obj);
-        rebind(dns, objectname, obj, topLevelNameContext, interfacename);
+        String interfaceName = getInterfaceName(obj);
+        logger.info("Rebind, as "+interfaceName+"  for classname: " + obj.getClass().getName());
+        rebind(dns, objectname, obj, topLevelNameContext, interfaceName);
     }
 
+    /**
+     * Creates all contexts in the name except the last as that is the object.
+     */
+    public NamingContext rebindBySteps(NameComponent[] name, NamingContextExt topLevel) throws CannotProceed, InvalidName, NotFound {
+        NamingContext binder = topLevel;
+        for(int i = 0; i < name.length - 1; i++) {
+            NamingContext temp;
+            try {
+                temp = NamingContextHelper.narrow(binder.resolve(new NameComponent[] {name[i]}));
+            } catch(NotFound e) {
+                logger.debug("rebinding by steps: " + name[i].id + "."
+                        + name[i].kind+" due to "+ e.getMessage());
+                try {
+                    temp = binder.bind_new_context(new NameComponent[] {name[i]});
+                } catch(AlreadyBound ee) {
+                    throw new RuntimeException("shouldn't happen as we just tried a resolve that failed", ee);
+                }
+            }
+            binder = temp;
+        }
+        return binder;
+    }
+    
     /**
      * rebinds the CORBA object on the given name service. If any of the naming
      * context specified in the dns doesnot exist it creates a corresponding
@@ -279,16 +302,29 @@ public class FissuresNamingService {
                        String interfacename) throws NotFound, CannotProceed,
             InvalidName {
         if(topLevel == null) {
-            logger.warn("top level name context is null!");
+            throw new IllegalArgumentException("top level name context is null!");
         }
         String nameString = piecesToNameString(dns, interfacename, objectId);
         logger.info("the object to be rebound is " + nameString);
         NameComponent[] name = topLevel.to_name(nameString);
         try {
-            topLevel.rebind(name, obj);
+            NamingContext lowestContext = rebindBySteps(name, topLevel);
+            lowestContext.rebind(new NameComponent[] {name[name.length-1]}, obj);
+            // test by doing a resolve to see if we can get it back out
+            try {
+            Object out = topLevel.resolve(name);
+            } catch (NotFound e) {
+                logger.debug("Failure on resolve after rebinding for "+nameString, e);
+                // try again?
+                topLevel.rebind(name, obj);
+            }
+            logger.debug("Rebind successful for "+nameString);
         } catch(NotFound nfe) {
+            logger.debug("Failure on rebund for "+nameString, nfe);
             switch(nfe.why.value()){
                 case NotFoundReason._missing_node:
+                    // this code should never be executed as rebindBySteps should ensure
+                    // all contexts exist before trying the rebind, but...
                     int numMissing = nfe.rest_of_name.length;
                     NameComponent[] contextName = new NameComponent[name.length - 1];
                     System.arraycopy(name,
@@ -419,9 +455,7 @@ public class FissuresNamingService {
         }
         logger.debug("before get SeismogramDC Object");
         org.omg.CORBA.Object obj = getSeismogramDCObject(dns, objectname);
-        logger.debug("before narrow");
         DataCenter datacenter = DataCenterHelper.narrow(obj);
-        logger.debug("after narrow");
         return datacenter;
     }
 
@@ -668,7 +702,6 @@ public class FissuresNamingService {
             rtnValue = rtnValue + temp;
         }
         rtnValue = rtnValue.substring(0, rtnValue.length() - 1);
-        logger.info("The String returned is " + rtnValue);
         return rtnValue;
     }
 
