@@ -153,6 +153,10 @@ public class Cmplx {
     {
         return (Math.sqrt(this.r * this.r + this.i * this.i));
     }
+    
+    public final Cmplx unitVector() {
+        return Cmplx.div(this, this.mag());
+    }
 
     public final double phs()
     {
