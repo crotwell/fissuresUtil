@@ -331,6 +331,10 @@ public class JDBCChannel extends NetworkTable {
     private JDBCStation stationTable;
 
     private JDBCTime time;
+    
+    public Channel extract(ResultSet rs) throws SQLException, NotFound {
+        return extract(rs, siteTable, time, quantityTable);
+    }
 
     public static Channel extract(ResultSet rs,
                                   JDBCSite siteTable,
