@@ -88,7 +88,7 @@ public class BorderConfiguration implements Cloneable {
         } else if(type.equals(TIME)) {
             b = new TimeBorder(disp);
         } else if(type.equals(DIST)) {
-            b = new DistanceBorder(disp);
+            b = new DistanceBorder((RecordSectionDisplay)disp);
         } else if(type.equals(TRIANGLE)) {
             b = new TriangleBorder((RecordSectionDisplay)disp,
                                    getSide(position),
