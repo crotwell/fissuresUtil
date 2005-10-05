@@ -11,9 +11,14 @@ import edu.sc.seis.fissuresUtil.display.registrar.LayoutConfig;
 
 public class BackAzimuthDisplay extends RecordSectionDisplay{
     
-    
-    protected LayoutConfig getNewLayoutConfig(){
-        return new BackAzimuthLayoutConfig();
+    public BackAzimuthDisplay() {
+        this(false);
     }
+
+    public BackAzimuthDisplay(boolean swapAxes) {
+        super(swapAxes);
+        setLayout(new BackAzimuthLayoutConfig());
+    }
+    
 }
 

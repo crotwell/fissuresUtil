@@ -123,6 +123,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     }
 
     public void setTimeConfig(TimeConfig tc) {
+        checkDrawHeight = true;
         if(this.tc != null) {
             this.tc.removeListener(this);
             this.tc.removeListener(ac);
@@ -139,6 +140,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     }
 
     public void setAmpConfig(AmpConfig ac) {
+        checkDrawHeight = true;
         if(this.ac != null) {
             this.ac.removeListener(this);
             this.tc.removeListener(ac);
@@ -201,12 +203,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     }
 
     public void reset() {
+        checkDrawHeight = true;
         layout.reset();
         tc.reset();
         ac.reset();
     }
 
     public void reset(DataSetSeismogram[] seismos) {
+        checkDrawHeight = true;
         tc.reset(seismos);
         ac.reset(seismos);
     }
@@ -217,6 +221,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     }
 
     public synchronized void remove(DataSetSeismogram[] seismos) {
+        checkDrawHeight = true;
         List removed = new ArrayList();
         for(int i = 0; i < seismos.length; i++) {
             Iterator it = new DrawableIterator(DrawableSeismogram.class,
@@ -275,9 +280,44 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     public boolean getSwapAxes(){
         return this.swapAxes;
     }
+    
+    public int getMinSeisPixelHeight() {
+        return minSeisPixelHeight;
+    }
+
+    public void setMinSeisPixelHeight(int minPixelHeight) {
+        checkDrawHeight = true;
+        this.minSeisPixelHeight = minPixelHeight;
+    }
+
+    public void checkSeismogramHeight(Dimension size) {
+        Iterator it = curLayoutEvent.iterator();
+        int height = size.height;
+        if(it.hasNext()) {
+            LayoutData current = (LayoutData)it.next();
+            double drawHeight = (current.getEnd() - current.getStart())
+                    * height;
+            //If the draw height is less than minPixelHeight, change the scale so that
+            //it is
+            if(drawHeight < minSeisPixelHeight && checkDrawHeight) {
+                if(drawHeight == 0) {
+                    drawHeight = 1;
+                    logger.warn("pixel height from LayoutConfig is 0, should always be >0");
+                }
+                double percentIncreaseNeeded = minSeisPixelHeight / drawHeight;
+                if(scaler != null) {
+                    scaler.increaseScale(percentIncreaseNeeded);
+                } else {
+                    scalingChanged(scaling*percentIncreaseNeeded);
+                }
+                checkDrawHeight = false;
+            }
+        }
+    }
 
     public void drawSeismograms(Graphics2D g2, Dimension size) {
         synchronized(this) {
+            checkSeismogramHeight(size);
             int width = size.width;
             int height = size.height;
             if(swapAxes) {
@@ -305,16 +345,6 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
                 double distBorderWidth = distBorder.getWidth();
                 storePixels(current, distBorderWidth, topLeftY, width
                         + distBorderWidth, bottomRightY);
-                //If the draw height is less than 40, change the scale so that
-                //it is
-                if(drawHeight < 40 && checkDrawHeight) {
-                    if(drawHeight == 0) drawHeight = 1;
-                    double percentIncreaseNeeded = 40 / drawHeight;
-                    if(scaler != null) {
-                        scaler.increaseScale(percentIncreaseNeeded);
-                    }
-                    checkDrawHeight = false;
-                }
                 double neededYPos = midPoint - drawHeight / 2;
                 if(neededYPos < 0) {
                     neededYPos = 0;
@@ -432,9 +462,13 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
 
     private double scaling = LayoutScaler.INITIAL_SCALE;
 
+    private int minSeisPixelHeight = 40;
+    
     private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
 
     private LayoutScaler scaler = null;
 
     private boolean checkDrawHeight = false;
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RecordSectionDisplay.class);
 }
