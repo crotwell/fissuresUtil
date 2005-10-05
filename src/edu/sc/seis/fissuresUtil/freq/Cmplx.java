@@ -217,7 +217,9 @@ public class Cmplx {
         }
     }
 
-
+    public boolean isNaN() {
+        return Double.isNaN(r) || Double.isNaN(i);
+    }
 
     /** Static processing methods */
 
