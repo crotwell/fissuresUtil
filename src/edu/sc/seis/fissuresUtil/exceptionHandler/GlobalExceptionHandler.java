@@ -72,25 +72,27 @@ public class GlobalExceptionHandler {
                     while(it.hasNext()) {
                         parsedContents.add(it.next());
                     }
-                    List reporterExceptions = new ArrayList();
+                    HashMap reporterExceptions = new HashMap();
                     synchronized(reporters) {
                         numHandled++;
                         it = reporters.iterator();
                         while(it.hasNext()) {
+                            ExceptionReporter reporter = (ExceptionReporter)it.next();
                             try {
-                                ((ExceptionReporter)it.next()).report(message,
+                                reporter.report(message,
                                                                       thrown,
                                                                       parsedContents);
                             } catch(Throwable e) {
                                 it.remove();
-                                reporterExceptions.add(e);
+                                reporterExceptions.put(e, reporter);
                             }
                         }
                     }
-                    it = reporterExceptions.iterator();
+                    it = reporterExceptions.keySet().iterator();
                     while(it.hasNext()) {
-                        handle("An exception reporter caused this exception.  It has been removed from the GlobalExceptionHandler",
-                               (Throwable)it.next());
+                        Throwable t = (Throwable)it.next();
+                        handle("An exception reporter caused this exception, "+reporterExceptions.get(t)+".  It has been removed from the GlobalExceptionHandler",
+                               t);
                     }
                 }
             }
