@@ -12,6 +12,7 @@ import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.network.NetworkAttrImpl;
+import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
@@ -153,7 +154,9 @@ public class JDBCNetwork extends NetworkTable{
         getByCode.setString(1, netCode);
         ResultSet rs = getByCode.executeQuery();
         List aList = new ArrayList();
-        while (rs.next()) aList.add(extractId(rs, time));
+        while (rs.next()) {
+            aList.add(extractId(rs, time));
+        }
         return  (NetworkId[])aList.toArray(new NetworkId[aList.size()]);
     }
 
@@ -161,6 +164,13 @@ public class JDBCNetwork extends NetworkTable{
         insertId(id, getDBId, 1, time);
         ResultSet rs = getDBId.executeQuery();
         if(rs.next()){ return rs.getInt("net_id"); }
+        // didn't find it, try by code in case date is different
+        NetworkId[] nets = getByCode(id.network_code);
+        for(int i = 0; i < nets.length; i++) {
+            if (NetworkIdUtil.areEqual(id, nets[i])) {
+                return getDbId(nets[i]);
+            }
+        }
         throw new NotFound("No such network id in the db");
     }
 
