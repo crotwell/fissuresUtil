@@ -238,10 +238,6 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
 
     public static boolean PRINTING = false;
 
-    public UnitRangeImpl getDistance() {
-        throw new UnsupportedOperationException("Generic seismogram displays dont have distances");
-    }
-
     public void setDrawNamesForNamedDrawables(boolean drawNamesForNamedDrawables) {
         this.drawNamesForNamedDrawables = drawNamesForNamedDrawables;
     }
