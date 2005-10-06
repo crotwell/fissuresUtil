@@ -119,6 +119,9 @@ public class Cmplx {
         return (Math.sqrt(this.r * this.r + this.i * this.i));
     }
 
+    /**
+     * creates a unit mag complex number. zero is assigned (1,0)
+     */
     public final Cmplx unitVector() {
         double mag = mag();
         if(mag != 0) {
@@ -126,6 +129,13 @@ public class Cmplx {
         } else {
             return new Cmplx(1, 0);
         }
+    }
+
+    public final Cmplx zeroOrUnitVector() {
+        if(r == 0 && i == 0) {
+            return new Cmplx(0, 0);
+        }
+        return unitVector();
     }
 
     public final double phs() {
