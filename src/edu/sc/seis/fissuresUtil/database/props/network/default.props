@@ -189,3 +189,39 @@ channel.putId = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id)
 
 channel.getByDBId = SELECT * FROM channel WHERE chan_id = ?
 
+channel.views=netchan
+
+netchan.create=CREATE VIEW netchan AS \
+    SELECT network.net_id, network.net_code, network.net_begin_id, network.net_end_id, \
+    network.net_name, network.net_owner, network.net_description, \
+    net_begin.time_stamp AS net_begin_time_stamp, net_begin.time_nanos AS net_begin_nanos, net_begin.time_leapsec AS net_begin_leapsec, \
+    net_end.time_stamp AS net_end_time_stamp, net_end.time_nanos AS net_end_nanos, net_end.time_leapsec AS net_end_leapsec, \
+    station.sta_id, station.sta_code, station.sta_begin_id, station.sta_end_id, station.sta_name, \
+    station.sta_operator, station.sta_description, station.sta_comment, station.loc_id AS sta_loc_id, \
+    stalocation.loc_lat AS sta_loc_lat, stalocation.loc_lon AS sta_loc_lon, \
+    sta_begin.time_stamp AS sta_begin_time_stamp, sta_begin.time_nanos AS sta_begin_nanos, sta_begin.time_leapsec AS sta_begin_leapsec, \
+    sta_end.time_stamp AS sta_end_time_stamp, sta_end.time_nanos AS sta_end_nanos, sta_end.time_leapsec AS sta_end_leapsec, \
+    site.site_id, site.site_code, site.site_begin_id, site.site_end_id, site.site_comment, \
+    site.loc_id AS site_loc_id, sitelocation.loc_lat AS site_loc_lat, sitelocation.loc_lon AS site_loc_lon, \
+    site_begin.time_stamp AS site_begin_time_stamp, site_begin.time_nanos AS site_begin_nanos, site_begin.time_leapsec AS site_begin_leapsec, \
+    site_end.time_stamp AS site_end_time_stamp, site_end.time_nanos AS site_end_nanos, site_end.time_leapsec AS site_end_leapsec, \
+    channel.chan_id, channel.chan_code, channel.chan_begin_id, channel.chan_end_id, channel.chan_name, \
+    channel.chan_orientation_az, channel.chan_orientation_dip, channel.chan_sampling_interval_id, \
+    channel.chan_sampling_numpoints, \
+    chan_begin.time_stamp AS chan_begin_time_stamp, chan_begin.time_nanos AS chan_begin_nanos, chan_begin.time_leapsec AS chan_begin_leapsec, \
+    chan_end.time_stamp AS chan_end_time_stamp, chan_end.time_nanos AS chan_end_nanos, chan_end.time_leapsec AS chan_end_leapsec \
+   FROM network \
+   JOIN time net_begin ON net_begin_id = net_begin.time_id \
+   JOIN time net_end ON net_end_id = net_end.time_id \
+   JOIN station ON network.net_id = station.net_id \
+   JOIN time sta_begin ON sta_begin_id = sta_begin.time_id \
+   JOIN time sta_end ON sta_end_id = sta_end.time_id \
+   JOIN site ON station.sta_id = site.sta_id \
+   JOIN time site_begin ON site_begin_id = site_begin.time_id \
+   JOIN time site_end ON site_end_id = site_end.time_id \
+   JOIN channel ON site.site_id = channel.site_id \
+   JOIN time chan_begin ON chan_begin_id = chan_begin.time_id \
+   JOIN time chan_end ON chan_end_id = chan_end.time_id \
+   JOIN location stalocation ON station.loc_id = stalocation.loc_id \
+   JOIN location sitelocation ON site.loc_id = sitelocation.loc_id
+
