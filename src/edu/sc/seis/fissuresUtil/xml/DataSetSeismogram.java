@@ -170,9 +170,25 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
         rfChangeListeners.remove(listener);
     }
 
+    protected List getRFChangeListenersCopy() {
+        LinkedList tmp;
+        synchronized(rfChangeListeners) {
+            tmp = new LinkedList(rfChangeListeners);
+        }
+        return tmp;
+    }
+    
+    protected List getDSSDataListenersCopy() {
+        LinkedList tmp;
+        synchronized(dssDataListeners) {
+            tmp = new LinkedList(dssDataListeners);
+        }
+        return tmp;
+    }
+    
     protected void fireEndTimeChangedEvent() {
         // use temp array to avoid concurrentModificationException
-        Collection tmp = new LinkedList(rfChangeListeners);
+        Collection tmp = getRFChangeListenersCopy();
         Iterator iterator = tmp.iterator();
         while(iterator.hasNext()) {
             RequestFilterChangeListener listener = (RequestFilterChangeListener)iterator.next();
@@ -182,7 +198,7 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
 
     protected void fireBeginTimeChangedEvent() {
         // use temp array to avoid concurrentModificationException
-        Collection tmp = new LinkedList(rfChangeListeners);
+        Collection tmp = getRFChangeListenersCopy();
         Iterator iterator = tmp.iterator();
         while(iterator.hasNext()) {
             RequestFilterChangeListener listener = (RequestFilterChangeListener)iterator.next();
@@ -197,15 +213,14 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
     }
 
     public void removeSeisDataChangeListener(SeisDataChangeListener dataListener) {
-        dssDataListeners.remove(dataListener);
+        synchronized(dssDataListeners) {
+            dssDataListeners.remove(dataListener);
+        }
     }
 
     protected void fireNewDataEvent(SeisDataChangeEvent event) {
         // use temp array to avoid concurrentModificationException
-        LinkedList tmp;
-        synchronized(dssDataListeners) {
-            tmp = new LinkedList(dssDataListeners);
-        }
+        List tmp = getDSSDataListenersCopy();
         Iterator iterator = tmp.iterator();
         while(iterator.hasNext()) {
             SeisDataChangeListener dssDataListener = (SeisDataChangeListener)iterator.next();
@@ -215,7 +230,7 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
 
     protected void fireDataFinishedEvent(SeisDataChangeEvent event) {
         // use temp array to avoid concurrentModificationException
-        LinkedList tmp = new LinkedList(dssDataListeners);
+        List tmp = getDSSDataListenersCopy();
         Iterator iterator = tmp.iterator();
         while(iterator.hasNext()) {
             SeisDataChangeListener dssDataListener = (SeisDataChangeListener)iterator.next();
@@ -225,7 +240,7 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
 
     protected void fireDataErrorEvent(SeisDataErrorEvent event) {
         // use temp array to avoid concurrentModificationException
-        LinkedList tmp = new LinkedList(dssDataListeners);
+        List tmp = getDSSDataListenersCopy();
         Iterator iterator = tmp.iterator();
         while(iterator.hasNext()) {
             SeisDataChangeListener dssDataListener = (SeisDataChangeListener)iterator.next();
