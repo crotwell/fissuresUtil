@@ -69,7 +69,7 @@ public abstract class Initializer {
         String propFilename;
         Properties sysProps = System.getProperties();
         for(int i = 0; i < args.length - 1; i++) {
-            if(args[i].equals("-props")) {
+            if(args[i].equals("-props") || args[i].equals("-p")) {
                 propFilename = args[i + 1];
                 try {
                     loadProps(new FileInputStream(propFilename), sysProps);
