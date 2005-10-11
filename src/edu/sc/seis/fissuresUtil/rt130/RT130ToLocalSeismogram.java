@@ -150,10 +150,17 @@ public class RT130ToLocalSeismogram {
                                      "");
         Channel newChannel = new ChannelImpl(channelId,
                                              "",
-                                             new Orientation(0, -90),
+                                             new Orientation(0, 0),
                                              sampling,
                                              effectiveChannelTime,
                                              site);
+        if(channelId.channel_code.endsWith("N")) {
+            newChannel.an_orientation = new Orientation(0, 0);
+        } else if(channelId.channel_code.endsWith("E")) {
+            newChannel.an_orientation = new Orientation(90, 0);
+        } else if(channelId.channel_code.endsWith("Z")) {
+            newChannel.an_orientation = new Orientation(0, -90);
+        }
         return newChannel;
     }
 
