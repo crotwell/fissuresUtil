@@ -634,12 +634,28 @@ public class PopulateDatabaseFromDirectory {
                                                                   UnitImpl.SECOND));
         Channel[] newChannel = new ChannelImpl[channelId.length];
         for(int i = 0; i < channelId.length; i++) {
-            newChannel[i] = new ChannelImpl(channelId[i],
-                                            "",
-                                            new Orientation(0, -90),
-                                            sampling,
-                                            effectiveChannelTime,
-                                            site);
+            if(channelId[i].channel_code.endsWith("N")) {
+                newChannel[i] = new ChannelImpl(channelId[i],
+                                                "",
+                                                new Orientation(0, 0),
+                                                sampling,
+                                                effectiveChannelTime,
+                                                site);
+            } else if(channelId[i].channel_code.endsWith("E")) {
+                newChannel[i] = new ChannelImpl(channelId[i],
+                                                "",
+                                                new Orientation(90, 0),
+                                                sampling,
+                                                effectiveChannelTime,
+                                                site);
+            } else if(channelId[i].channel_code.endsWith("Z")) {
+                newChannel[i] = new ChannelImpl(channelId[i],
+                                                "",
+                                                new Orientation(0, -90),
+                                                sampling,
+                                                effectiveChannelTime,
+                                                site);
+            }
         }
         return newChannel;
     }
