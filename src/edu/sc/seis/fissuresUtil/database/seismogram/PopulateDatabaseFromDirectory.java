@@ -266,7 +266,8 @@ public class PopulateDatabaseFromDirectory {
         System.out.println("    -props   | Accepts alternate SOD properties file");
         System.out.println("    -hsql    | Accepts alternate database properties file");
         System.out.println("    -v       | Turn verbose messages on");
-        System.out.println("    -rt      | Batch process of RT130 data");
+        System.out.println("    -nc      | NC file location. Required for RT130 data");
+        System.out.println("    -rt      | Turn on batch process of RT130 data");
         System.out.println("             |   No other types of data can be processed");
         System.out.println();
         System.out.println();
