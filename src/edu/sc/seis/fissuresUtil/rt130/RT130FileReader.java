@@ -266,8 +266,6 @@ public class RT130FileReader {
                         seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
                                                                       stateOfHealthData,
                                                                       false));
-                        resetSeismogramData((PacketType)seismogramData.get(j),
-                                            nextPacket);
                     }
                     done = true;
                 }
