@@ -7,7 +7,7 @@ END
 
 # Installed SNP62
 
-START 2005:141:00
+START 2005:140:00
 name    DAS/chan        sensor/model    chan/dip/azi
 SNP42   9515/123        T3N37/CMG3T     default
 SNP62   938A/123    T3N39/CMG3T default
@@ -115,7 +115,7 @@ END
 
 # Installed SNP48
 
-START 2005:155:22
+START 2005:155:21
 name    DAS/chan        sensor/model    chan/dip/azi
 SNP11   965F/123        T3J77/CMG3T     default
 SNP21   9514/123        T3J46/CMG3T     default
@@ -210,7 +210,7 @@ END
 
 # Installed SNP12
 
-START 2005:166:20
+START 2005:166:21
 name    DAS/chan        sensor/model    chan/dip/azi
 SNP11   965F/123        T3J77/CMG3T     default
 SNP12   9669/123    T3J57/CMG3T     default
@@ -1042,7 +1042,7 @@ END
 #  to get data read into DHI system
 #
 
-START 2005:224:00
+START 2005:223:00
 name    DAS/chan        sensor/model    chan/dip/azi
 SNP11   965F/123        T3J77/CMG3T     default
 SNP12   9669/123        T3J57/CMG3T     default
