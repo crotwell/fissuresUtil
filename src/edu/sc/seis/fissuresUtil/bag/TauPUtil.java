@@ -32,12 +32,16 @@ public class TauPUtil {
         QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
         depth = depth.convertTo(UnitImpl.KILOMETER);
         DistAz distAz = new DistAz(stationLoc, origin.my_location);
-        taup_time.setSourceDepth(depth.getValue());
+        return calcTravelTimes(distAz.getDelta(), depth.getValue(), phaseNames);
+    }
+
+    public synchronized Arrival[] calcTravelTimes(double distDeg, double depthKm, String[] phaseNames) throws TauModelException {
+        taup_time.setSourceDepth(depthKm);
         taup_time.clearPhaseNames();
         for (int i = 0; i < phaseNames.length; i++) {
             taup_time.appendPhaseName(phaseNames[i]);
         }
-        taup_time.calculate(distAz.getDelta());
+        taup_time.calculate(distDeg);
         Arrival[] arrivals = taup_time.getArrivals();
         return arrivals;
     }
