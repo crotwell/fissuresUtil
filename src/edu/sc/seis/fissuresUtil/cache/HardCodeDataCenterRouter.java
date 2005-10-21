@@ -43,6 +43,8 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         budResolve.start();
         DCResolver pondResolve = new DCResolver(POND);
         pondResolve.start();
+        DCResolver snepResolve = new DCResolver(SNEP);
+        snepResolve.start();
     }
 
     static final String SCEPP = "SCEPP";
@@ -50,6 +52,8 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
     static final String BUD = "BUD";
 
     static final String POND = "POND";
+    
+    static final String SNEP = "SNEP";
 
     static final int SCEPP_INDEX = 0;
 
@@ -155,7 +159,8 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
     protected DataCenterRoute[] makeRoutes(RequestFilter[] filters) {
         DataCenterRoute[] out = {new DataCenterRoute(SCEPP),
                                  new DataCenterRoute(BUD),
-                                 new DataCenterRoute(POND)};
+                                 new DataCenterRoute(POND),
+                                 new DataCenterRoute(SNEP)};
         MicroSecondDate BUD_CUTOFF = ClockUtil.now().subtract(BUD_OFFSET);
         for(int i = 0; i < filters.length; i++) {
             MicroSecondDate end = new MicroSecondDate(filters[i].end_time);
@@ -164,7 +169,12 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
                 logger.info("Request to SCEPP"
                         + ChannelIdUtil.toStringNoDates(filters[i].channel_id));
                 out[0].add(filters[i]);
-            } else {
+            } else if (filters[i].channel_id.network_id.network_code.equals("XE") &&
+                    filters[i].channel_id.station_code.startsWith("SNP")){
+                logger.info("Request of SNEP" 
+                            + ChannelIdUtil.toStringNoDates(filters[i].channel_id));
+                out[3].add(filters[i]);
+            }   else {
                 if(end.after(BUD_CUTOFF)) {
                     logger.info("Request to Bud"
                             + ChannelIdUtil.toStringNoDates(filters[i].channel_id));
@@ -183,6 +193,8 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         LinkedList out = new LinkedList();
         if(networkCode.equals("SP")) {
             out.add(getSceppDC());
+        } else if (networkCode.equals("XE")) {
+            out.add(getSnepDC());
         } else {
             out.add(getBudDC());
             out.add(getPondDC());
@@ -197,7 +209,9 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
             return getBudDC();
         } else if(serverName == POND) {
             return getPondDC();
-        } else {
+        } else if(serverName == SNEP) {
+            return getSnepDC();
+        }else {
             throw new IllegalArgumentException("server " + serverName
                     + " not known.");
         }
@@ -256,6 +270,33 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         }
         return budDC;
     }
+    
+    protected ProxySeismogramDC getSnepDC() {
+        logger.debug("Resolving SNEP DataCenter");
+        while(snepDC == null) {
+            TimeInterval delay = snepDCLoadTime.difference(ClockUtil.now());
+            delay.convertTo(UnitImpl.SECOND);
+            logger.debug("Resolving SNEP DataCenter " + delay);
+            if(delay.getValue() > 10) {
+                // max sleep is 10 seconds
+                break;
+            }
+            try {
+                Thread.sleep(500);
+            } catch(InterruptedException e) {}
+        }
+        return snepDC;
+    }
+    
+    protected ProxySeismogramDC loadSnepDC() {
+        if(snepDC == null) {
+            snepDC = BulletproofVestFactory.vestSeismogramDC("edu/sc/seis/internal",
+                                                             "SNEP",
+                                                             fissuresNamingService,
+                                                             1);
+        }
+        return snepDC;
+    }
 
     protected ProxySeismogramDC getPondDC() {
         while(pondDC == null) {
@@ -295,6 +336,10 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
     protected ProxySeismogramDC pondDC = null;
 
     protected MicroSecondDate pondDCLoadTime = null;
+    
+    protected ProxySeismogramDC snepDC = null;
+    
+    protected MicroSecondDate snepDCLoadTime = null;
 
     FissuresNamingService fissuresNamingService;
 
@@ -351,6 +396,9 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
             } else if(serverName.equals(POND)) {
                 pondDC = null;
                 pondDCLoadTime = ClockUtil.now();
+            } else if (serverName.equals(SNEP)) {
+                snepDC = null;
+                snepDCLoadTime = ClockUtil.now();
             }
         }
 
@@ -363,6 +411,8 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
                 loadBudDC();
             } else if(serverName.equals(POND)) {
                 loadPondDC();
+            } else if (serverName.equals(SNEP)) {
+                loadSnepDC();
             }
         }
     }
