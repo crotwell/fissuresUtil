@@ -301,7 +301,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
                         matchingSeismogramsResultList.add(resultSetToRequestFilter);
                     }
                 } catch(Exception e) {
-                    GlobalExceptionHandler.handle("Problem occured while querying the database for seismograms.");
+                    GlobalExceptionHandler.handle("Problem occured while querying the database for seismograms.", e);
                 }
             }
         }
