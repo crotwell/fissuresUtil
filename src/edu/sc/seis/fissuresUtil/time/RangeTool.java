@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.time;
 
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -26,6 +27,11 @@ public class RangeTool {
         return areContiguous(new MicroSecondTimeRange(one),
                              new MicroSecondTimeRange(two),
                              one.getSampling().getPeriod());
+    }
+
+    public static boolean areContiguous(RequestFilter one, RequestFilter two) {
+        return areContiguous(new MicroSecondTimeRange(one),
+                             new MicroSecondTimeRange(two));
     }
 
     public static boolean areContiguous(MicroSecondTimeRange one,
