@@ -285,7 +285,10 @@ public class JDBCSeismogramFiles extends JDBCTable {
                         }
                     }
                 } catch(Exception e) {
-                    GlobalExceptionHandler.handle("Problem occured while returning seismograms from the database." + "\n" + "The problem file is located at " + databaseResults.getString(4),
+                    GlobalExceptionHandler.handle("Problem occured while returning seismograms from the database."
+                                                          + "\n"
+                                                          + "The problem file is located at "
+                                                          + databaseResults.getString(4),
                                                   e);
                 }
             } else {
@@ -318,7 +321,8 @@ public class JDBCSeismogramFiles extends JDBCTable {
             RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram();
             seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         } catch(RT130FormatException e) {
-            logger.debug("Problem occured while returning rt130 seismograms from the file listed in the database." + "\n" + "The problem file is located at " + seismogramFile);
+            logger.debug("Problem occured while returning rt130 seismograms from the file listed in the database."
+                    + "\n" + "The problem file is located at " + seismogramFile);
             return new ArrayList(0);
         }
         List matchingSeismogramsResultList = new ArrayList(0);
