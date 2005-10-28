@@ -96,7 +96,7 @@ public class JDBCStation extends NetworkTable {
     }
 
     public StationId[] getAllStationIds() throws SQLException {
-        return extractAll(getAll);
+        return extractAll(getAllQuery);
     }
 
     public Station[] getAllStations() throws SQLException {
@@ -243,7 +243,7 @@ public class JDBCStation extends NetworkTable {
         return dbid;
     }
 
-    private PreparedStatement getAll, getAllForNet, getIfNameExists, getByDBId,
+    private PreparedStatement getAllQuery, getAllForNet, getIfNameExists, getByDBId,
             getStationIdByDBId, getDBId, updateSta, putAll, putId,
             putChanIdBits, getDBIdsForNetAndCode, deleteStation, getAllStations;
 
