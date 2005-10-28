@@ -19,7 +19,6 @@ public class StationNamePopulator {
         ConnectionCreator connCreator = new ConnectionCreator(props);
         Connection conn = connCreator.createConnection();
         JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
-        JDBCStation jdbcStation = new JDBCStation(conn);
         boolean verbose = false;
         for(int i = 1; i < args.length; i++) {
             if(args[i].equals("-h")) {
@@ -50,36 +49,8 @@ public class StationNamePopulator {
             System.out.println("\\------------------------------------");
         }
         if(args.length > 0) {
-            String oldName = args[args.length - 2];
-            String newName = args[args.length - 1];
-            if(verbose) {
-                int numOld = numOfStationCodes(jdbcStation, oldName);
-                System.out.println();
-                System.out.println("Updating " + numOld + " instances of "
-                        + oldName + " to " + newName + ".");
-            }
-            jdbcSeisFile.updateStationCode(oldName, newName);
-            if(verbose) {
-                int numNew = numOfStationCodes(jdbcStation, newName);
-                System.out.println("Now " + numNew + " instances of " + newName
-                        + ".");
-                System.out.println();
-                System.out.println("Update complete.");
-            }
+            jdbcSeisFile.populateStationName();
         }
-    }
-
-    private static int numOfStationCodes(JDBCStation jdbcStation,
-                                         String stationCode)
-            throws SQLException {
-        StationId[] stationIds = jdbcStation.getAllStationIds();
-        int numOfStationCode = 0;
-        for(int i = 0; i < stationIds.length; i++) {
-            if(stationIds[i].station_code.equals(stationCode)) {
-                numOfStationCode++;
-            }
-        }
-        return numOfStationCode;
     }
 
     private static void printHelp() {
