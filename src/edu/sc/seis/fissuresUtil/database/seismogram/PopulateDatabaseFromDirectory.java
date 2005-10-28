@@ -62,6 +62,11 @@ public class PopulateDatabaseFromDirectory {
             IOException, SeedFormatException, SQLException, NotFound {
         BasicConfigurator.configure();
         Properties props = Initializer.loadProperties(args);
+        ConnectionCreator connCreator = new ConnectionCreator(props);
+        Connection conn = connCreator.createConnection();
+        JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
+        JDBCChannel chanTable = new JDBCChannel(conn);
+        JDBCTime timeTable = new JDBCTime(conn);
         boolean verbose = false;
         boolean finished = false;
         boolean batch = false;
@@ -119,14 +124,9 @@ public class PopulateDatabaseFromDirectory {
             System.out.println("\\------------------------------------");
             System.out.println();
         }
-        if(args.length > 0) {
-            ConnectionCreator connCreator = new ConnectionCreator(props);
-            Connection conn = connCreator.createConnection();
+        if(args.length > 0) {   
             String fileLoc = args[args.length - 1];
             File file = new File(fileLoc);
-            JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
-            JDBCChannel chanTable = new JDBCChannel(conn);
-            JDBCTime timeTable = new JDBCTime(conn);
             if(file.isDirectory()) {
                 finished = readEntireDirectory(fileLoc,
                                                verbose,
@@ -354,7 +354,7 @@ public class PopulateDatabaseFromDirectory {
             }
         }
         RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
-                                                                      false);
+                                                                      true);
         PacketType[] seismogramDataPacketArray = null;
         try {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
