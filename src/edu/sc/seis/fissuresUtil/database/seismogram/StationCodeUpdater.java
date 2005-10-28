@@ -11,7 +11,7 @@ import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
 import edu.sc.seis.fissuresUtil.database.network.JDBCStation;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
-public class DatabaseUpdater {
+public class StationCodeUpdater {
 
     public static void main(String[] args) throws SQLException, IOException {
         BasicConfigurator.configure();
@@ -26,7 +26,7 @@ public class DatabaseUpdater {
             if(args[i].equals("-v")) {
                 verbose = true;
                 System.out.println();
-                System.out.println("/---------------Unit Name Updater---");
+                System.out.println("/---------------Station Code Updater---");
                 System.out.println();
                 System.out.println("Verbose messages: ON");
             }
@@ -54,7 +54,7 @@ public class DatabaseUpdater {
                 System.out.println("Updating " + numOld + " instances of "
                         + oldName + " to " + newName + ".");
             }
-            jdbcSeisFile.updateUnitName(oldName, newName);
+            jdbcSeisFile.updateStationCode(oldName, newName);
             if(verbose) {
                 int numNew = numOfStationCodes(jdbcStation, newName);
                 System.out.println("Now " + numNew + " instances of " + newName
