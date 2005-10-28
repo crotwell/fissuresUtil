@@ -94,7 +94,7 @@ public class RT130ToLocalSeismogram {
                     + " was not found in the NC file.");
             System.err.println("| The name \"" + seismogramData.unitIdNumber
                     + "\" will be used instead.");
-            System.err.println("| To correct this entry in the database, please run UnitNameUpdater.");
+            System.err.println("| To correct this entry in the database, please run DatabaseUpdater.");
             System.err.println("\\-------------------------");
         }
         String networkIdString = props.getProperty(NETWORK_ID);
