@@ -136,7 +136,7 @@ public class RT130ToLocalSeismogram {
                                                           props.getProperty(NETWORK_OWNER),
                                                           effectiveNetworkTime);
         StationImpl station = new StationImpl(stationId,
-                                              "",
+                                              stationCode,
                                               location,
                                               effectiveChannelTime,
                                               "",
