@@ -9,6 +9,7 @@ seisfilereference.select=SELECT channel_id, begin_time_id, end_time_id, file_pat
 	begin_time_id IN (SELECT time_id FROM Time WHERE time_stamp <= ?) AND \
 	end_time_id IN (SELECT time_id FROM Time WHERE time_stamp >= ?)
 seisfilereference.updateChannelBeginTime=UPDATE Channel SET chan_begin_id = ? WHERE chan_id = ?
+seisfilereference.updateUnitName=UPDATE Station SET sta_code = ? WHERE sta_code = ?
 
 	
 	
