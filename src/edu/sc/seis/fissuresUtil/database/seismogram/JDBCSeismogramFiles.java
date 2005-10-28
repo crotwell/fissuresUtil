@@ -343,7 +343,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
         return matchingSeismogramsResultList;
     }
     
-    public void updateUnitName(String oldName, String newName) throws SQLException{
+    public void updateStationCode(String oldName, String newName) throws SQLException{
         updateUnitName.setString(1,
                               newName);
         updateUnitName.setString(2,
