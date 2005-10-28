@@ -342,6 +342,15 @@ public class JDBCSeismogramFiles extends JDBCTable {
         }
         return matchingSeismogramsResultList;
     }
+    
+    public void updateUnitName(String oldName, String newName) throws SQLException{
+        updateUnitName.setString(1,
+                              newName);
+        updateUnitName.setString(2,
+                              oldName);
+        updateUnitName.executeUpdate();
+        
+    }
 
     private static final TimeInterval ONE_SECOND = new TimeInterval(1,
                                                                     UnitImpl.SECOND);
@@ -349,7 +358,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
     private static final Logger logger = Logger.getLogger(JDBCSeismogramFiles.class);
 
     private PreparedStatement insert, select, updateChannelBeginTime,
-            selectSeismogram;
+            selectSeismogram, updateUnitName;
 
     private ResultSet databaseResults;
 
