@@ -5,34 +5,66 @@
  */
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.StringTokenizer;
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.GlobalArea;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.PointDistanceArea;
 import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.UnitImpl;
 
 public class AreaUtil {
 
     public static Channel[] inArea(Area area, Channel[] channels) {
         LinkedList out = new LinkedList();
+        // shortcut for GlobalArea
         if(area instanceof GlobalArea) {
             return channels;
-        } else if(area instanceof BoxArea) {
-            BoxArea box = (BoxArea)area;
-            for(int i = 0; i < channels.length; i++) {
-                Location loc = channels[i].my_site.my_location;
-                if(loc.latitude >= box.min_latitude && loc.latitude <= box.max_latitude
-                        && loc.longitude % 360 >= box.min_longitude % 360
-                        && loc.longitude % 360 <= box.max_longitude % 360) {
-                    out.add(channels[i]);
-                }
+        }
+        for(int i = 0; i < channels.length; i++) {
+            Location loc = channels[i].my_site.my_location;
+            if(inArea(area, loc)) {
+                out.add(channels[i]);
             }
-        } else if(area instanceof PointDistanceArea) {
-            throw new IllegalArgumentException("Doesn't support PointDistance areas");
         }
         return (Channel[])out.toArray(new Channel[0]);
+    }
+
+    public static boolean inArea(Area area, Location point) {
+        if(area instanceof GlobalArea) {
+            return true;
+        } else if(area instanceof BoxArea) {
+            BoxArea box = (BoxArea)area;
+            if(point.latitude >= box.min_latitude && point.latitude <= box.max_latitude
+                    && point.longitude % 360 >= box.min_longitude % 360
+                    && point.longitude % 360 <= box.max_longitude % 360) {
+                return true;
+            }
+        } else if(area instanceof PointDistanceArea) {
+            PointDistanceArea pdArea = (PointDistanceArea)area;
+            DistAz distAz = new DistAz(pdArea.latitude, pdArea.longitude, point.latitude, point.longitude);
+            double minDegree, maxDegree;
+            if (((UnitImpl)pdArea.min_distance.the_units).isConvertableTo(UnitImpl.DEGREE)) {
+                minDegree = ((QuantityImpl)pdArea.min_distance).getValue(UnitImpl.DEGREE);
+            } else {
+                minDegree = DistAz.kilometersToDegrees(((QuantityImpl)pdArea.min_distance).getValue(UnitImpl.KILOMETER));
+            }
+            if (((UnitImpl)pdArea.max_distance.the_units).isConvertableTo(UnitImpl.DEGREE)) {
+                maxDegree = ((QuantityImpl)pdArea.max_distance).getValue(UnitImpl.DEGREE);
+            } else {
+                maxDegree = DistAz.kilometersToDegrees(((QuantityImpl)pdArea.max_distance).getValue(UnitImpl.KILOMETER));
+            }
+            return (distAz.getDelta() >= minDegree && distAz.getDelta() <= maxDegree);
+        }
+        throw new RuntimeException("Unknown Area type: "+area.getClass().getName());
     }
 
     public static boolean inArea(Location[] bounds, Location point) {
@@ -44,7 +76,7 @@ public class AreaUtil {
             lonB = bounds[(i + 1) % bounds.length].longitude - point.longitude;
             latB = bounds[(i + 1) % bounds.length].latitude - point.latitude;
             int check = polygonPointCheck(lonA, latA, lonB, latB);
-            if (check == 4) {
+            if(check == 4) {
                 return true;
             }
             inside += check;
@@ -95,5 +127,17 @@ public class AreaUtil {
         } else {
             return 4;
         }
+    }
+    
+    public Location[] loadPolygon(BufferedReader in) throws IOException {
+        ArrayList out = new ArrayList();
+        String line;
+        while((line = in.readLine()) != null && line.length() > 2) {
+            StringTokenizer tokenizer = new StringTokenizer(line);
+            float lat = Float.parseFloat(tokenizer.nextToken());
+            float lon = Float.parseFloat(tokenizer.nextToken());
+            out.add(new Location(lat, lon, null, null, LocationType.GEOGRAPHIC));
+        }
+        return (Location[])out.toArray(new Location[0]);
     }
 }
