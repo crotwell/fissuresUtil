@@ -301,7 +301,8 @@ public class JDBCSeismogramFiles extends JDBCTable {
                         matchingSeismogramsResultList.add(resultSetToRequestFilter);
                     }
                 } catch(Exception e) {
-                    GlobalExceptionHandler.handle("Problem occured while querying the database for seismograms.", e);
+                    GlobalExceptionHandler.handle("Problem occured while querying the database for seismograms.",
+                                                  e);
                 }
             }
         }
@@ -342,14 +343,16 @@ public class JDBCSeismogramFiles extends JDBCTable {
         }
         return matchingSeismogramsResultList;
     }
-    
-    public void updateStationCode(String oldName, String newName) throws SQLException{
-        updateUnitName.setString(1,
-                              newName);
-        updateUnitName.setString(2,
-                              oldName);
+
+    public void updateStationCode(String oldName, String newName)
+            throws SQLException {
+        updateUnitName.setString(1, newName);
+        updateUnitName.setString(2, oldName);
         updateUnitName.executeUpdate();
-        
+    }
+
+    public void populateStationName() throws SQLException {
+        populateStationName.executeUpdate();
     }
 
     private static final TimeInterval ONE_SECOND = new TimeInterval(1,
@@ -358,7 +361,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
     private static final Logger logger = Logger.getLogger(JDBCSeismogramFiles.class);
 
     private PreparedStatement insert, select, updateChannelBeginTime,
-            selectSeismogram, updateUnitName;
+            selectSeismogram, updateUnitName, populateStationName;
 
     private ResultSet databaseResults;
 
