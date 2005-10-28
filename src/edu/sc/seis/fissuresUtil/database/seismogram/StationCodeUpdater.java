@@ -21,7 +21,11 @@ public class StationCodeUpdater {
         JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
         JDBCStation jdbcStation = new JDBCStation(conn);
         boolean verbose = false;
-        boolean finished = false;
+        for(int i = 1; i < args.length; i++) {
+            if(args[i].equals("-h")) {
+                printHelp();
+            }
+        }
         for(int i = 1; i < args.length; i++) {
             if(args[i].equals("-v")) {
                 verbose = true;
@@ -61,11 +65,7 @@ public class StationCodeUpdater {
                         + ".");
                 System.out.println();
                 System.out.println("Update complete.");
-                finished = true;
             }
-        }
-        if(!finished){
-            printHelp();
         }
     }
 
