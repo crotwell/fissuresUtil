@@ -30,7 +30,7 @@ public class MockNetworkDC implements NetworkDC{
         return finder;
     }
     
-    NetworkFinder finder = new MockNetworkFinder();
+    protected NetworkFinder finder = new MockNetworkFinder();
 
     public void _release() {}
 
