@@ -146,15 +146,30 @@ public class ConnMgr {
 
     public static Connection createConnection() throws SQLException {
         try {
-            logger.info("Using driver class: "+getDriver());
+            String driver = getDriver();
+            if(firstTime) {
+                logger.debug("Using " + driver);
+                lastDriverForConnection = driver;
+                firstTime = false;
+            }
+            if(!driver.equals(lastDriverForConnection)) {
+                logger.warn("Previous connections were created with "
+                        + lastDriverForConnection + " but now " + driver
+                        + " is being used");
+                lastDriverForConnection = driver;
+            }
             Class.forName(getDriver()).newInstance();
         } catch(Exception e) {
-            SQLException ee = new SQLException("Unable to instantiate DBDriver");
+            SQLException ee = new SQLException("Unable to instantiate driver");
             ee.initCause(e);
             throw ee;
         }
         return DriverManager.getConnection(getURL(), getUser(), getPass());
     }
+
+    private static String lastDriverForConnection;
+
+    private static boolean firstTime = true;
 
     private static Connection createPSQLConn() throws SQLException {
         return DriverManager.getConnection("jdbc:postgresql:anhingatest",
