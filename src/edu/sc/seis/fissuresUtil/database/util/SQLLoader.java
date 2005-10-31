@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -40,20 +42,23 @@ public class SQLLoader {
         }
     }
 
-    private synchronized static VelocityEngine getEngine() throws IOException,
-            Exception {
+    private synchronized static VelocityEngine getEngine() throws Exception {
         if(ve == null) {
             ve = new VelocityEngine();
-            Properties props = new Properties();
-            ClassLoader cl = SQLLoader.class.getClassLoader();
+            Properties props = new Properties();ClassLoader cl = SQLLoader.class.getClassLoader();
             props.load(cl.getResourceAsStream(propsLoc));
-            props.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                              "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-            props.setProperty("runtime.log.logsystem.log4j.category",
-                              logger.getName());
+            setupVelocityLogger(props, logger);
             ve.init(props);
         }
         return ve;
+    }
+
+    public static void setupVelocityLogger(Properties velocityProps,  Logger velocityLogger) {
+        velocityProps.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                          "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+        velocityProps.setProperty("runtime.log.logsystem.log4j.category",
+                          logger.getName());
+        velocityLogger.setLevel(Level.WARN);
     }
 
     public boolean has(String propName) {
@@ -80,7 +85,7 @@ public class SQLLoader {
 
     private static final String propsLoc = "edu/sc/seis/fissuresUtil/database/util/SQLLoader.prop";
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SQLLoader.class);
+    private static final Logger logger = Logger.getLogger(SQLLoader.class);
 
     private Context context;
 
