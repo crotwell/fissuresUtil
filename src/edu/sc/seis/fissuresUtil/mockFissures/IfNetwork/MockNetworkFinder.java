@@ -14,7 +14,7 @@ import edu.sc.seis.fissuresUtil.cache.ProxyNetworkFinder;
  */
 public class MockNetworkFinder extends ProxyNetworkFinder {
 
-    private NetworkAccess[] nets = new NetworkAccess[] {MockNetworkAccess.createNetworkAccess(),
+    protected NetworkAccess[] nets = new NetworkAccess[] {MockNetworkAccess.createNetworkAccess(),
                                                         MockNetworkAccess.createOtherNetworkAccess(),
                                                         MockNetworkAccess.createManySplendoredNetworkAccess()};
 

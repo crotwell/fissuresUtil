@@ -56,8 +56,9 @@ public class MockNetworkAccess implements NetworkAccess {
 
     private NetworkAttr attributes;
 
-    private MockNetworkAccess(NetworkAttr attributes, Station station,
-            Channel[] channels) {
+    public MockNetworkAccess(NetworkAttr attributes,
+                             Station station,
+                             Channel[] channels) {
         this(attributes, new Station[] {station}, make2DArray(channels));
     }
 
@@ -67,8 +68,9 @@ public class MockNetworkAccess implements NetworkAccess {
         return channels2d;
     }
 
-    private MockNetworkAccess(NetworkAttr attributes, Station station[],
-            Channel[][] channels) {
+    private MockNetworkAccess(NetworkAttr attributes,
+                              Station station[],
+                              Channel[][] channels) {
         this.attributes = attributes;
         this.stations = station;
         this.channels = channels;
@@ -91,7 +93,9 @@ public class MockNetworkAccess implements NetworkAccess {
     public Channel retrieve_channel(ChannelId p1) throws ChannelNotFound {
         for(int j = 0; j < channels.length; j++) {
             for(int i = 0; i < channels[j].length; i++) {
-                if(ChannelIdUtil.areEqual(channels[j][i].get_id(), p1)) { return channels[j][i]; }
+                if(ChannelIdUtil.areEqual(channels[j][i].get_id(), p1)) {
+                    return channels[j][i];
+                }
             }
         }
         throw new ChannelNotFound();
@@ -99,7 +103,9 @@ public class MockNetworkAccess implements NetworkAccess {
 
     public Channel[] retrieve_for_station(StationId p1) {
         for(int i = 0; i < stations.length; i++) {
-            if(StationIdUtil.areEqual(p1, stations[i].get_id())) { return channels[i]; }
+            if(StationIdUtil.areEqual(p1, stations[i].get_id())) {
+                return channels[i];
+            }
         }
         return new Channel[] {};
     }
