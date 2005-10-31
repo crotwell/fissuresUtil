@@ -26,7 +26,6 @@ import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
 import org.omg.PortableServer.Servant;
-import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventDCHelper;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
@@ -42,7 +41,9 @@ import edu.sc.seis.fissuresUtil.cache.NSPlottableDC;
 import edu.sc.seis.fissuresUtil.cache.NSSeismogramDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkDC;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.NamedNetDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockDC;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.NamedMockSeisDC;
 
 /**
  * FissuresNamingService is a wrapper around CORBA Naming service. This class
@@ -263,14 +264,17 @@ public class FissuresNamingService {
                        NamingContextExt topLevelNameContext) throws NotFound,
             CannotProceed, InvalidName {
         String interfaceName = getInterfaceName(obj);
-        logger.info("Rebind, as "+interfaceName+"  for classname: " + obj.getClass().getName());
+        logger.info("Rebind, as " + interfaceName + "  for classname: "
+                + obj.getClass().getName());
         rebind(dns, objectname, obj, topLevelNameContext, interfaceName);
     }
 
     /**
      * Creates all contexts in the name except the last as that is the object.
      */
-    public NamingContext rebindBySteps(NameComponent[] name, NamingContextExt topLevel) throws CannotProceed, InvalidName, NotFound {
+    public NamingContext rebindBySteps(NameComponent[] name,
+                                       NamingContextExt topLevel)
+            throws CannotProceed, InvalidName, NotFound {
         NamingContext binder = topLevel;
         for(int i = 0; i < name.length - 1; i++) {
             NamingContext temp;
@@ -278,18 +282,19 @@ public class FissuresNamingService {
                 temp = NamingContextHelper.narrow(binder.resolve(new NameComponent[] {name[i]}));
             } catch(NotFound e) {
                 logger.debug("rebinding by steps: " + name[i].id + "."
-                        + name[i].kind+" due to "+ e.getMessage());
+                        + name[i].kind + " due to " + e.getMessage());
                 try {
                     temp = binder.bind_new_context(new NameComponent[] {name[i]});
                 } catch(AlreadyBound ee) {
-                    throw new RuntimeException("shouldn't happen as we just tried a resolve that failed", ee);
+                    throw new RuntimeException("shouldn't happen as we just tried a resolve that failed",
+                                               ee);
                 }
             }
             binder = temp;
         }
         return binder;
     }
-    
+
     /**
      * rebinds the CORBA object on the given name service. If any of the naming
      * context specified in the dns doesnot exist it creates a corresponding
@@ -309,21 +314,24 @@ public class FissuresNamingService {
         NameComponent[] name = topLevel.to_name(nameString);
         try {
             NamingContext lowestContext = rebindBySteps(name, topLevel);
-            lowestContext.rebind(new NameComponent[] {name[name.length-1]}, obj);
+            lowestContext.rebind(new NameComponent[] {name[name.length - 1]},
+                                 obj);
             // test by doing a resolve to see if we can get it back out
             try {
-            Object out = topLevel.resolve(name);
-            } catch (NotFound e) {
-                logger.debug("Failure on resolve after rebinding for "+nameString, e);
+                Object out = topLevel.resolve(name);
+            } catch(NotFound e) {
+                logger.debug("Failure on resolve after rebinding for "
+                        + nameString, e);
                 // try again?
                 topLevel.rebind(name, obj);
             }
-            logger.debug("Rebind successful for "+nameString);
+            logger.debug("Rebind successful for " + nameString);
         } catch(NotFound nfe) {
-            logger.debug("Failure on rebund for "+nameString, nfe);
+            logger.debug("Failure on rebund for " + nameString, nfe);
             switch(nfe.why.value()){
                 case NotFoundReason._missing_node:
-                    // this code should never be executed as rebindBySteps should ensure
+                    // this code should never be executed as rebindBySteps
+                    // should ensure
                     // all contexts exist before trying the rebind, but...
                     int numMissing = nfe.rest_of_name.length;
                     NameComponent[] contextName = new NameComponent[name.length - 1];
@@ -431,6 +439,9 @@ public class FissuresNamingService {
     public NetworkDC getNetworkDC(String dns, String objectname)
             throws NotFound, CannotProceed, InvalidName {
         if(isMock(dns, objectname)) {
+            if(dns.equals(MOCK_DNS)) {
+                return NamedNetDC.create(objectname);
+            }
             return new MockNetworkDC();
         }
         return NetworkDCHelper.narrow(getNetworkDCObject(dns, objectname));
@@ -451,6 +462,9 @@ public class FissuresNamingService {
     public DataCenter getSeismogramDC(String dns, String objectname)
             throws NotFound, CannotProceed, InvalidName {
         if(isMock(dns, objectname)) {
+            if(dns.equals(MOCK_DNS)) {
+                return NamedMockSeisDC.create(objectname);
+            }
             return new MockDC();
         }
         logger.debug("before get SeismogramDC Object");
@@ -654,7 +668,7 @@ public class FissuresNamingService {
     }
 
     public String appendInterfaceKind(String interfacename) {
-        return interfacename + "."+INTERFACE;
+        return interfacename + "." + INTERFACE;
     }
 
     /**
@@ -786,7 +800,8 @@ public class FissuresNamingService {
 
     public static boolean isMock(String dns, String name) {
         return dns.equals("edu/sc/seis")
-                && (name.equals("Mock") || name.equals("Timeout"));
+                && (name.equals("Mock") || name.equals("Timeout"))
+                || dns.equals(MOCK_DNS);
     }
 
     public static final String FISSURES = "Fissures";
@@ -802,6 +817,8 @@ public class FissuresNamingService {
     public static final String INTERFACE = "interface";
 
     public static final String DNS = "dns";
+
+    public static final String MOCK_DNS = "edu/sc/seis/mock";
 
     public static final String CORBALOC_PROP = "edu.sc.seis.fissuresUtil.nameServiceCorbaLoc";
 
