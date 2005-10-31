@@ -43,7 +43,7 @@ public class WorkerThreadPool {
         }
     }
 
-    public static WorkerThreadPool getDefaultPool() {
+    public synchronized static WorkerThreadPool getDefaultPool() {
         if(defaultPool == null) {
             defaultPool = new WorkerThreadPool("default workers", 2);
         }
