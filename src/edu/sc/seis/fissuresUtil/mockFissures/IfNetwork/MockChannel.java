@@ -16,25 +16,29 @@ public class MockChannel {
     public static Channel createChannel() {
         return createChannel(MockChannelId.createVerticalChanId(),
                              "Vertical Channel",
-                             MockSite.createSite());
+                             MockSite.createSite(),
+                             VERTICAL);
     }
 
     public static Channel createNorthChannel() {
         return createChannel(MockChannelId.createNorthChanId(),
                              "North Channel",
-                             MockSite.createSite());
+                             MockSite.createSite(),
+                             NORTH);
     }
 
     public static Channel createEastChannel() {
         return createChannel(MockChannelId.createEastChanId(),
                              "East Channel",
-                             MockSite.createSite());
+                             MockSite.createSite(),
+                             EAST);
     }
 
     public static Channel createOtherNetChan() {
         return createChannel(MockChannelId.createOtherNetChanId(),
                              "Other Net Vertical Channel",
-                             MockSite.createOtherSite());
+                             MockSite.createOtherSite(),
+                             VERTICAL);
     }
 
     public static Channel[] createChannelsAtLocs(Location[] locs) {
@@ -49,18 +53,26 @@ public class MockChannel {
         Site s = MockSite.createSite(location);
         return createChannel(MockChannelId.createChanId("BHZ", s),
                              location.toString(),
-                             s);
+                             s,
+                             VERTICAL);
     }
 
-    private static Channel createChannel(ChannelId id, String info, Site s) {
+    private static Channel createChannel(ChannelId id,
+                                         String info,
+                                         Site s,
+                                         Orientation o) {
         return new ChannelImpl(id,
                                info,
-                               new Orientation(0, 0),
+                               o,
                                new SamplingImpl(0,
                                                 new TimeInterval(20.0,
                                                                  UnitImpl.SECOND)),
                                s.effective_time,
                                s);
+    }
+
+    public static Channel[] createMotionVector() {
+        return createMotionVector(MockStation.createStation());
     }
 
     public static Channel[] createMotionVector(Station station) {
@@ -70,8 +82,17 @@ public class MockChannel {
         for(int i = 0; i < codes.length; i++) {
             channels[i] = createChannel(MockChannelId.createChanId(codes[i], s),
                                         "Motion Vector Channel " + codes[i],
-                                        s);
+                                        s,
+                                        ORIENTATIONS[i]);
         }
         return channels;
     }
+
+    private static final Orientation VERTICAL = new Orientation(0, 90);
+
+    private static final Orientation EAST = new Orientation(90, 0);
+
+    private static final Orientation NORTH = new Orientation(0, 0);
+
+    private static final Orientation[] ORIENTATIONS = {VERTICAL, NORTH, EAST};
 }
