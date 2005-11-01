@@ -19,5 +19,7 @@ public interface StdAuxillaryDataNames
 	public static final String PICK_FLAG = prefix+"/PICK_FLAG";
     
     public static final String APPROVED = prefix+"/APPROVED";
+    
+    public static final String S_TO_N = prefix+"/StoN";
 }
 
