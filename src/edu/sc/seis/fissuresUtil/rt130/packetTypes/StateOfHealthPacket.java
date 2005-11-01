@@ -19,13 +19,16 @@ public class StateOfHealthPacket extends PacketType {
     }
 
     private void read(DataInput in) throws IOException, RT130FormatException {
-        String entirePacket = new String(this.readBytes(in, 1008));
+        String entirePacket = new String(this.readBytes(in, 1008));     
+        // Skip first GPS_MARKER
         int i = entirePacket.indexOf(GPS_MARKER);
+        String croppedPacket = entirePacket.substring(i + GPS_MARKER.length(), entirePacket.length());
+        i = croppedPacket.indexOf(GPS_MARKER);
         if(i > 0) {
             // Grab the next 28 characters.
             // One or two extra characters are processed to allow
             // for two or three digit lat/long  degree values.
-            CharSequence locationCharSeq = entirePacket.subSequence(i
+            CharSequence locationCharSeq = croppedPacket.subSequence(i
                     + GPS_MARKER.length(), i + GPS_MARKER.length() + 28);
             String locationString = locationCharSeq.toString();
             StringTokenizer st = new StringTokenizer(locationString);
