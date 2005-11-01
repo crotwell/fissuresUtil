@@ -9,6 +9,8 @@ public class NamedNetDC {
     public static NetworkDC create(String name) {
         if(name.equals("SingleChannel")) {
             return new SingleChannel();
+        }else if(name.equals("Vector")){
+        return new Vector();
         }
         throw new RuntimeException("No mock net dc by the name of " + name
                 + " known");
@@ -21,6 +23,15 @@ public class NamedNetDC {
             NetworkAccess net = new MockNetworkAccess(MockNetworkAttr.createNetworkAttr(),
                                                       MockStation.createStation(),
                                                       new Channel[] {MockChannel.createChannel()});
+            ((MockNetworkFinder)finder).nets = new NetworkAccess[] {net};
+        }
+    }
+
+    public static class Vector extends MockNetworkDC {
+
+        public Vector() {
+            super();
+            NetworkAccess net = MockNetworkAccess.createNetworkAccess();
             ((MockNetworkFinder)finder).nets = new NetworkAccess[] {net};
         }
     }
