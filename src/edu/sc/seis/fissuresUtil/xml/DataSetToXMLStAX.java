@@ -25,22 +25,11 @@ public class DataSetToXMLStAX {
      */
     public File save(DataSet dataset, File saveDirectory) throws IOException,
             XMLStreamException {
-        return save(dataset, saveDirectory, SeismogramFileTypes.SAC);
-    }
-
-    /**
-     * Saves the given dataset to an xml file in the given directory. The file
-     * is returned.
-     */
-    public File save(DataSet dataset,
-                     File saveDirectory,
-                     SeismogramFileTypes fileType) throws IOException,
-            XMLStreamException {
         String filename = createFileName(dataset);
         logger.debug("save to " + filename + " in " + saveDirectory.toString());
         saveDirectory.mkdirs();
         File outFile = new File(saveDirectory, filename);
-        createFile(dataset, saveDirectory, outFile, fileType);
+        createFile(dataset, saveDirectory, outFile);
         logger.debug("Done with save to " + saveDirectory.toString());
         return outFile;
     }
@@ -61,17 +50,13 @@ public class DataSetToXMLStAX {
      * unless you want to do such things, which is pretty nasty, if I say so
      * myself.
      */
-    public void createFile(DataSet dataset,
-                           File dataDirectory,
-                           File outFile,
-                           SeismogramFileTypes fileType) throws IOException,
-            XMLStreamException {
+    public void createFile(DataSet dataset, File dataDirectory, File outFile)
+            throws IOException, XMLStreamException {
         StAXFileWriter staxWriter = new StAXFileWriter(outFile);
         staxWriter.getStreamWriter().writeStartDocument();
         writeDataSetWithNSInfo(staxWriter.getStreamWriter(),
                                dataset,
-                               dataDirectory,
-                               fileType);
+                               dataDirectory);
         staxWriter.close();
     }
 
@@ -84,11 +69,10 @@ public class DataSetToXMLStAX {
      */
     public void writeDataSet(XMLStreamWriter writer,
                              DataSet dataset,
-                             File directory,
-                             SeismogramFileTypes fileType)
-            throws XMLStreamException, IOException {
+                             File directory) throws XMLStreamException,
+            IOException {
         writer.writeStartElement("dataset");
-        insertDSInfo(writer, dataset, directory, fileType);
+        insertDSInfo(writer, dataset, directory);
         XMLUtil.writeEndElementWithNewLine(writer);
     }
 
@@ -98,11 +82,10 @@ public class DataSetToXMLStAX {
      */
     public void writeDataSetWithNSInfo(XMLStreamWriter writer,
                                        DataSet dataset,
-                                       File directory,
-                                       SeismogramFileTypes fileType)
+                                       File directory)
             throws XMLStreamException, IOException {
         writeDataSetStartElement(writer);
-        insertDSInfo(writer, dataset, directory, fileType);
+        insertDSInfo(writer, dataset, directory);
         writer.writeEndElement();
     }
 
@@ -126,9 +109,8 @@ public class DataSetToXMLStAX {
      */
     public void insertDSInfo(XMLStreamWriter writer,
                              DataSet dataset,
-                             File directory,
-                             SeismogramFileTypes fileType)
-            throws XMLStreamException, IOException {
+                             File directory) throws XMLStreamException,
+            IOException {
         writer.writeAttribute("datasetid", dataset.getId());
         XMLUtil.writeTextElement(writer, "name", dataset.getName());
         XMLUtil.writeTextElement(writer, "owner", dataset.getOwner());
@@ -146,8 +128,7 @@ public class DataSetToXMLStAX {
             } else {
                 writeDataSet(writer,
                              dataset.getDataSet(childDataSets[i]),
-                             childDirectory,
-                             fileType);
+                             childDirectory);
             }
         }
     }
