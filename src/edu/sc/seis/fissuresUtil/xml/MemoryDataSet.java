@@ -104,6 +104,19 @@ public class MemoryDataSet implements DataSet {
     }
 
     /**
+     * adds the DataSetSeismogram to this DataSet. If a seismogram of the same
+     * name is already in the data set, this dss replaces it and the dss already
+     * in the data set is kicked out
+     */
+    public void overwriteDataSetSeismogram(DataSetSeismogram dss) {
+        if(datasetSeismogramNames.contains(dss.getName())) {
+            ((DataSetSeismogram)datasetSeismograms.get(dss.getName())).setDataSet(null);
+            datasetSeismogramNames.remove(dss.getName());
+        }
+        addDataSetSeismogram(dss, null);
+    }
+
+    /**
      * @return the DataSetSeismogram inserted with this name
      */
     public DataSetSeismogram getDataSetSeismogram(String seismogramName) {
