@@ -304,36 +304,37 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
 
     public static File getUnusedFileName(File directory,
                                          Channel channel,
-                                         String suffix) throws IOException,
-            NoPreferredOrigin, CodecException {
-        if(channel == null) {
-            throw new IllegalArgumentException("Channel cannot be null");
+                                         String suffix) {
+        File seisFile = getBaseFile(directory, channel, suffix);
+        for(int n = 1; seisFile.exists(); n++) {
+            seisFile = makeFile(directory, n, channel, suffix);
         }
-        String seisFilename = "";
-        seisFilename = ChannelIdUtil.toStringNoDates(channel.get_id());
-        seisFilename = seisFilename.replace(' ', '_'); // check for space-space
-        // site
-        seisFilename += suffix; // append .sac to filename
-        File seisFile = new File(directory, seisFilename);
-        int n = 0;
-        while(seisFile.exists()) {
-            n++;
-            seisFilename = ChannelIdUtil.toStringNoDates(channel.get_id())
-                    + "." + n;
-            seisFilename = seisFilename.replace(' ', '_'); // check for
-            // space-space site
-            seisFilename += suffix; // append .sac to filename
-            seisFile = new File(directory, seisFilename);
-        } // end of while (seisFile.exists())
         return seisFile;
+    }
+
+    public static File getBaseFile(File directory,
+                                   Channel channel,
+                                   String suffix) {
+        return makeFile(directory, 0, channel, suffix);
+    }
+
+    public static File makeFile(File directory,
+                                 int count,
+                                 Channel channel,
+                                 String suffix) {
+        String seisFilename = ChannelIdUtil.toStringNoDates(channel.get_id());
+        seisFilename += count > 0 ? "" + count : "";
+        seisFilename = seisFilename.replace(' ', '_');// make spacespace sites
+        // '__'
+        seisFilename += suffix;
+        return new File(directory, seisFilename);
     }
 
     public static File saveAsMSeed(LocalSeismogramImpl seis,
                                    File directory,
                                    Channel channel,
                                    EventAccessOperations event)
-            throws IOException, NoPreferredOrigin, CodecException,
-            SeedFormatException {
+            throws IOException, SeedFormatException {
         File seisFile = getUnusedFileName(directory, channel, ".mseed");
         DataRecord[] dr = FissuresConvert.toMSeed(seis);
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(seisFile)));
@@ -351,8 +352,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             throws IOException, NoPreferredOrigin, CodecException {
         File seisFile = getUnusedFileName(directory, channel, ".sac");
         SacTimeSeries sac = FissuresToSac.getSAC(seis,
-                                   channel,
-                                   event != null ? event.get_preferred_origin() : null);
+                                                 channel,
+                                                 event != null ? event.get_preferred_origin()
+                                                         : null);
         sac.write(seisFile);
         return seisFile;
     }
@@ -363,11 +365,11 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         ChannelId chanId = seis.getChannelID();
         if(requestFilter != null) {
             MicroSecondDate tmp = new MicroSecondDate(requestFilter.start_time);
-            if(tmp.before(begin)){
+            if(tmp.before(begin)) {
                 begin = tmp;
             }
             tmp = new MicroSecondDate(requestFilter.end_time);
-            if(tmp.after(end)){
+            if(tmp.after(end)) {
                 end = tmp;
             }
             chanId = requestFilter.channel_id;
