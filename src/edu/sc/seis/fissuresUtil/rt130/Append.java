@@ -102,11 +102,14 @@ public class Append {
         if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
             stateOfHealthData.begin_time_from_state_of_health_file = nextPacket.time;
         }
-        if(stateOfHealthData.latitude_ == 0) {
+        if(stateOfHealthData.latitude_ != nextPacket.sOHP.latitude) {
             stateOfHealthData.latitude_ = nextPacket.sOHP.latitude;
         }
-        if(stateOfHealthData.longitude_ == 0) {
+        if(stateOfHealthData.longitude_ != nextPacket.sOHP.longitude) {
             stateOfHealthData.longitude_ = nextPacket.sOHP.longitude;
+        }
+        if(stateOfHealthData.elevation_ != nextPacket.sOHP.elevation) {
+            stateOfHealthData.elevation_ = nextPacket.sOHP.elevation;
         }
         return stateOfHealthData;
     }
