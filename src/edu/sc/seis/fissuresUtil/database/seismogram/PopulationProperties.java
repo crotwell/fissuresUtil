@@ -48,6 +48,8 @@ public class PopulationProperties {
     public static Channel fix(Channel chan, Properties props) {
         String netString = NetworkIdUtil.toStringNoDates(chan.get_id().network_id);
         NetworkAttrImpl netAttr = getNetworkAttr(netString, props);
+        // in case of remap of network code
+        netString = NetworkIdUtil.toStringNoDates(netAttr.get_id());
         StationImpl station;
         String stationString = netString + "." + chan.my_site.my_station.get_code();
         if(stations.containsKey(stationString)) {
