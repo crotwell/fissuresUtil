@@ -309,33 +309,41 @@ public class RT130FileReader {
 
     private PacketType finalizeSeismogramCreation(PacketType seismogramData,
                                                   PacketType stateOfHealthData,
-                                                  boolean gapInData) {
+                                                  boolean gapInData) throws RT130FormatException {
         if(gapInData) {
             System.out.println("The data collecting unit stopped recording data on channel "
                     + seismogramData.channel_number);
             System.out.println("for a period of time longer than allowed.");
             System.out.println("A new seismogram will be created to hold the rest of the data.");
         }
-        if(stateOfHealthData == null
-                || stateOfHealthData.begin_time_from_state_of_health_file == null) {
-            System.err.println("The begin time for the channel is not present in the state of health data.");
+        if(stateOfHealthData == null){
+            System.err.println("The state of health file was not read correctly, and was returned as null.");
         } else {
-            seismogramData.begin_time_from_state_of_health_file = stateOfHealthData.begin_time_from_state_of_health_file;
-        }
-        if(stateOfHealthData == null || stateOfHealthData.latitude_ == 0) {
-            System.err.println("The latitude for the channel is not present in the state of health data.");
-        } else {
-            seismogramData.latitude_ = stateOfHealthData.latitude_;
-        }
-        if(stateOfHealthData == null || stateOfHealthData.longitude_ == 0) {
-            System.err.println("The longitude for the channel is not present in the state of health data.");
-        } else {
-            seismogramData.longitude_ = stateOfHealthData.longitude_;
-        }
-        if(stateOfHealthData == null || stateOfHealthData.channel_name == null) {
-            System.err.println("The channel name for the channel is not present in the state of health data.");
-        } else {
-            seismogramData.channel_name = stateOfHealthData.channel_name;
+            if (stateOfHealthData.begin_time_from_state_of_health_file == null) {
+                System.err.println("The begin time for the channel is not present in the state of health data.");
+            } else {
+                seismogramData.begin_time_from_state_of_health_file = stateOfHealthData.begin_time_from_state_of_health_file;
+            }
+            if(stateOfHealthData.latitude_ == 0) {
+                System.err.println("The latitude for the channel is not present in the state of health data.");
+            } else {
+                seismogramData.latitude_ = stateOfHealthData.latitude_;
+            }
+            if(stateOfHealthData.longitude_ == 0) {
+                System.err.println("The longitude for the channel is not present in the state of health data.");
+            } else {
+                seismogramData.longitude_ = stateOfHealthData.longitude_;
+            }
+            if(stateOfHealthData.elevation_ == 0) {
+                System.err.println("The elevation for the channel is not present in the state of health data.");
+            } else {
+                seismogramData.elevation_ = stateOfHealthData.elevation_;
+            }
+            if(stateOfHealthData.channel_name == null) {
+                System.err.println("The channel name for the channel is not present in the state of health data.");
+            } else {
+                seismogramData.channel_name = stateOfHealthData.channel_name;
+            }
         }
         if(seismogramData.sample_rate == 0) {
             seismogramData.sample_rate = 40;
@@ -351,7 +359,7 @@ public class RT130FileReader {
                     + seismogramData.sample_rate
                     + " samples per second will be assumed.");
         }
-        return seismogramData;
+        return new PacketType(seismogramData);
     }
 
     private void resetSeismogramData(PacketType seismogramData,
