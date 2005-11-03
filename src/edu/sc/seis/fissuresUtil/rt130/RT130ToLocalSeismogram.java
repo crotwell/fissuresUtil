@@ -123,7 +123,7 @@ public class RT130ToLocalSeismogram {
         StationId stationId = new StationId(networkId,
                                             stationCode,
                                             channelBeginTime);
-        QuantityImpl elevation = new QuantityImpl(0, UnitImpl.METER);
+        QuantityImpl elevation = new QuantityImpl(seismogramData.elevation_, UnitImpl.METER);
         QuantityImpl depth = elevation;
         Location location = new Location(seismogramData.latitude_,
                                          seismogramData.longitude_,
