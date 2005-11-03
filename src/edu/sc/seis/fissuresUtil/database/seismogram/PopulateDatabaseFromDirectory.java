@@ -299,7 +299,6 @@ public class PopulateDatabaseFromDirectory {
         SeismogramAttrImpl seis = SacToFissures.getSeismogramAttr(sacTime);
         Channel chan = SacToFissures.getChannel(sacTime);
         chan = PopulationProperties.fix(chan, props);
-        System.out.println("try to save seis for: "+ChannelIdUtil.toStringNoDates(chan.get_id()));
         jdbcSeisFile.saveSeismogramToDatabase(chan,
                                               seis,
                                               fileLoc,
