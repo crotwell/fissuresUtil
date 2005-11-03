@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.database.seismogram;
 
 import java.util.HashMap;
 import java.util.Properties;
+import com.sun.rsasign.p;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -56,7 +57,6 @@ public class PopulationProperties {
             station = (StationImpl)stations.get(stationString);
         } else {
             String staPrefix = NET + stationString;
-            System.out.println("begin prop name: "+staPrefix + BEGIN+"  end: "+staPrefix + END);
             TimeRange staEffectiveTime = new TimeRange(new Time(props.getProperty(staPrefix + BEGIN,
                                                                                   TimeUtils.timeUnknown.date_time),
                                                                 -1),
@@ -74,6 +74,23 @@ public class PopulationProperties {
                                       chan.my_site.my_station.comment,
                                       netAttr);
             stations.put(stationString, station);
+        }
+        // check for remap of channel codes
+        chan.get_id().channel_code=props.getProperty(CHANNEL_REMAP+chan.get_code(), chan.get_code());
+        // check lower case
+        chan.get_id().channel_code=props.getProperty(CHANNEL_REMAP+chan.get_code().toLowerCase(), chan.get_code());
+        // sac processor will split a 5 char kcmpnm into site and channel code
+        if (props.containsKey(CHANNEL_REMAP+chan.my_site.get_code()+chan.get_code())) {
+            chan.get_id().site_code = "  ";
+            chan.my_site.get_id().site_code = "  ";
+            chan.get_id().channel_code=props.getProperty(CHANNEL_REMAP+chan.my_site.get_code()+chan.get_code(), chan.get_code());
+        }
+        // check lower case
+        String key = CHANNEL_REMAP+chan.my_site.get_code().toLowerCase()+chan.get_code().toLowerCase();
+        if (props.containsKey(key)) {
+            chan.get_id().site_code = "  ";
+            chan.my_site.get_id().site_code = "  ";
+            chan.get_id().channel_code=props.getProperty(key);
         }
         Channel out;
         String channelString = stationString + "." + chan.get_id().site_code + "." + chan.get_code();
@@ -96,6 +113,17 @@ public class PopulationProperties {
                                              siteId.site_code,
                                              chan.get_code(),
                                              station.effective_time.start_time);
+            // check for undef az on Z
+            if (chan.an_orientation.dip == -90 && chan.an_orientation.azimuth == -12345) {
+                chan.an_orientation.azimuth = 0;
+            }
+            // check for elevation or depth bad
+            if (chan.my_site.my_location.elevation.value == -12345) {
+                chan.my_site.my_location.elevation.value = 0;
+            }
+            if (chan.my_site.my_location.depth.value == -12345) {
+                chan.my_site.my_location.depth.value = 0;
+            }
             out = new ChannelImpl(chanId,
                                   chan.name,
                                   chan.an_orientation,
@@ -115,7 +143,9 @@ public class PopulationProperties {
 
     public static final String NET = "network.";
 
-    public static final String NETWORK_REMAP = NET + "remap";
+    public static final String NETWORK_REMAP = NET + "remap.";
+    
+    public static final String CHANNEL_REMAP = NET + "channel.remap.";
 
     public static final String BEGIN = ".beginTime";
 

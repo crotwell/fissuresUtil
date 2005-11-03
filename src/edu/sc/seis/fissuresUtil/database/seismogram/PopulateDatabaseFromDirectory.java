@@ -587,7 +587,7 @@ public class PopulateDatabaseFromDirectory {
             System.err.println("\\-------------------------");
         }
         String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP
-                + ".XX");
+                + "XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
         NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
