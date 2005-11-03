@@ -673,7 +673,7 @@ public class PopulateDatabaseFromDirectory {
 
     private static final String NETWORK_NAME = "network.name";
 
-    private static final String NETWORK_DESCRIPTION = "network.name";
+    private static final String NETWORK_DESCRIPTION = "network.description";
 
-    private static final String NETWORK_OWNER = "network.name";
+    private static final String NETWORK_OWNER = "network.owner";
 }
