@@ -128,7 +128,7 @@ public class PopulateDatabaseFromDirectory {
             String fileLoc = args[args.length - 1];
             File file = new File(fileLoc);
             if(file.isDirectory()) {
-                finished = readEntireDirectory(fileLoc,
+                finished = readEntireDirectory(file,
                                                verbose,
                                                conn,
                                                ncFile,
@@ -219,7 +219,7 @@ public class PopulateDatabaseFromDirectory {
         return finished;
     }
 
-    private static boolean readEntireDirectory(String baseDirectory,
+    private static boolean readEntireDirectory(File baseDirectory,
                                                boolean verbose,
                                                Connection conn,
                                                NCFile ncFile,
@@ -230,13 +230,13 @@ public class PopulateDatabaseFromDirectory {
                                                boolean batch)
             throws FissuresException, IOException, SeedFormatException,
             SQLException, NotFound {
-        File[] files = new File(baseDirectory).listFiles();
+        File[] files = baseDirectory.listFiles();
         if (files == null) {
             throw new IOException("Unable to get listing of directory: "+baseDirectory);
         }
         for(int i = 0; i < files.length; i++) {
             if(files[i].isDirectory()) {
-                readEntireDirectory(baseDirectory + files[i].getName() + "/",
+                readEntireDirectory(files[i],
                                     verbose,
                                     conn,
                                     ncFile,
