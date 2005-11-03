@@ -146,15 +146,15 @@ public class SacToFissures {
         Time fisTime = nzTime.getFissuresTime();
         String netCode = "XX";
         if(!sac.knetwk.trim().equals("-12345")) {
-            netCode = sac.knetwk.trim();
+            netCode = sac.knetwk.trim().toUpperCase();
         }
         String staCode = "XXXXX";
         if(!sac.kstnm.trim().equals("-12345")) {
-            staCode = sac.kstnm.trim();
+            staCode = sac.kstnm.trim().toUpperCase();
         }
         String chanCode = "XXX";
         if(!sac.kcmpnm.trim().equals("-12345")) {
-            chanCode = sac.kcmpnm.trim();
+            chanCode = sac.kcmpnm.trim().toUpperCase();
             if(chanCode.length() == 5) {
                 // site code is first 2 chars of kcmpnm
                 siteCode = chanCode.substring(0, 2);
