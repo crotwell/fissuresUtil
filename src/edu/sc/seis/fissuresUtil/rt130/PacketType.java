@@ -35,11 +35,26 @@ public class PacketType {
         this.packetSequence = original.packetSequence;
         this.number_of_samples = original.number_of_samples;
         this.sample_rate = original.sample_rate;
-        this.encoded_data = original.encoded_data;
+        if(original.encoded_data != null) {
+            this.encoded_data = new EncodedData[original.encoded_data.length];
+            System.arraycopy(original.encoded_data,
+                             0,
+                             this.encoded_data,
+                             0,
+                             original.encoded_data.length);
+        }
         this.begin_time_from_state_of_health_file = original.begin_time_from_state_of_health_file;
         this.latitude_ = original.latitude_;
         this.longitude_ = original.longitude_;
-        this.channel_name = original.channel_name;
+        this.elevation_ = original.elevation_;
+        if(original.channel_name != null) {
+            this.channel_name = new String[original.channel_name.length];
+            System.arraycopy(original.channel_name,
+                             0,
+                             this.channel_name,
+                             0,
+                             original.channel_name.length);
+        }
         this.channel_number = original.channel_number;
         this.data_stream_number = original.data_stream_number;
         if(original.aDPP != null) {
@@ -196,12 +211,12 @@ public class PacketType {
         int minutesInt = Integer.valueOf(minutes).intValue();
         seconds = seconds.concat(".");
         seconds = seconds.concat(fractionsOfSecond);
-        float secondsInt = Float.valueOf(seconds).floatValue();
+        float secondsFloat = Float.valueOf(seconds).floatValue();
         ISOTime isoTime = new ISOTime(yearInt,
                                       daysOfYearInt,
                                       hoursInt,
                                       minutesInt,
-                                      secondsInt);
+                                      secondsFloat);
         return isoTime.getDate();
     }
 
@@ -221,6 +236,8 @@ public class PacketType {
             data_stream_number;
 
     public float latitude_, longitude_;
+
+    public double elevation_;
 
     public EncodedData[] encoded_data;
 
