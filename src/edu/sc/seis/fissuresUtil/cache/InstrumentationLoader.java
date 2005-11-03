@@ -61,6 +61,12 @@ public class InstrumentationLoader extends Thread
         }
     }
     
+    /**
+     * Checks for nonsense sensitivity (overall gain of -1) and trys to repair by multiplying the
+     * gains of the individual stages. This only works if all the frequencys are either the same
+     * or zero. We assume a frequency of zero means that there is no frequnecy dependence for this
+     * stage. 
+     */
     public static void repairResponse(Response resp) throws InvalidResponse {
         if(isValid(resp)) {
             return;
@@ -69,7 +75,8 @@ public class InstrumentationLoader extends Thread
         Stage[] stages = resp.stages;
         float sensitivity = stages[0].the_gain.gain_factor;
         for(int i = 1; i < stages.length; i++) {
-            if(stages[i - 1].the_gain.frequency != stages[i].the_gain.frequency) {
+            // assume that a stage with frequency 0 means it has no frequency dependence
+            if(stages[i - 1].the_gain.frequency != stages[i].the_gain.frequency && stages[i].the_gain.frequency != 0) {
                 throw new InvalidResponse("No sensitivity and different frequencies in the stages of the response. Stage 0="+stages[0].the_gain.frequency+"  stage "+i+"= "+stages[i].the_gain.frequency);
             }
             sensitivity *= stages[i].the_gain.gain_factor;
