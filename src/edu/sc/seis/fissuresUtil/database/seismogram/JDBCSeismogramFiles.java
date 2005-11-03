@@ -59,6 +59,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
                                          String fileLocation,
                                          SeismogramFileTypes filetype)
             throws SQLException {
+        chanTable.put(channel);
         saveSeismogramToDatabase(channel.get_id(), seis, fileLocation, filetype);
     }
 

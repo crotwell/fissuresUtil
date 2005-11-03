@@ -202,7 +202,7 @@ public class PopulateDatabaseFromDirectory {
         } else if(fileName.endsWith(".mseed")) {
             finished = processMSeed(jdbcSeisFile, fileLoc, fileName, verbose);
         } else if(fileName.endsWith(".sac")) {
-            finished = processSac(jdbcSeisFile, fileLoc, fileName, verbose);
+            finished = processSac(jdbcSeisFile, fileLoc, fileName, verbose, props);
         } else if(verbose) {
             if(fileName.equals("SOH.RT")) {
                 System.out.println("Ignoring file: " + fileName + ".");
@@ -282,7 +282,8 @@ public class PopulateDatabaseFromDirectory {
     private static boolean processSac(JDBCSeismogramFiles jdbcSeisFile,
                                       String fileLoc,
                                       String fileName,
-                                      boolean verbose) throws IOException,
+                                      boolean verbose,
+                                      Properties props) throws IOException,
             FissuresException, SQLException {
         SacTimeSeries sacTime = new SacTimeSeries();
         try {
@@ -295,7 +296,13 @@ public class PopulateDatabaseFromDirectory {
             return false;
         }
         SeismogramAttrImpl seis = SacToFissures.getSeismogramAttr(sacTime);
-        jdbcSeisFile.saveSeismogramToDatabase(SacToFissures.getChannel(sacTime),
+        Channel chan = SacToFissures.getChannel(sacTime);
+        if (chan.get_id().network_id.network_code.equals("XX")) {
+            // sac network header is unknown, so set to be value from props
+            chan.get_id().network_id.network_code = props.getProperty(NETWORK_CODE);
+            chan.get_id().network_id.begin_time = new Time(props.getProperty(NETWORK_BEGIN), -1);
+        }
+        jdbcSeisFile.saveSeismogramToDatabase(chan,
                                               seis,
                                               fileLoc,
                                               SeismogramFileTypes.SAC);
@@ -572,7 +579,7 @@ public class PopulateDatabaseFromDirectory {
             System.err.println("| To correct this entry in the database, please run UnitNameUpdater.");
             System.err.println("\\-------------------------");
         }
-        String networkIdString = props.getProperty(NETWORK_ID);
+        String networkIdString = props.getProperty(NETWORK_CODE);
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
         NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
@@ -669,7 +676,9 @@ public class PopulateDatabaseFromDirectory {
 
     private static Map datastreamToFileData = new HashMap();
 
-    private static final String NETWORK_ID = "network.networkId";
+    private static final String NETWORK_CODE = "network.code";
+    
+    private static final String NETWORK_BEGIN = "network.beginTime";
 
     private static final String NETWORK_NAME = "network.name";
 
