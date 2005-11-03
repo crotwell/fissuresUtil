@@ -22,8 +22,10 @@ public class PopulationProperties {
     public static NetworkAttrImpl getNetworkAttr(String netString, Properties props) {
         if(netString.equals("XX") || netString.trim().length() == 0) {
             // sac network header is unknown, so set to be value from props
-            netString = props.getProperty(NETWORK_REMAPXX);
+            netString = props.getProperty(NETWORK_REMAP);
         }
+        // remap if props have a network remap, otherwise use netString as is
+        netString=props.getProperty(NETWORK_REMAP+"."+netString, netString);
         NetworkAttrImpl netAttr;
         if(nets.containsKey(netString)) {
             netAttr = (NetworkAttrImpl)nets.get(netString);
@@ -44,7 +46,7 @@ public class PopulationProperties {
     }
 
     public static Channel fix(Channel chan, Properties props) {
-        String netString = NetworkIdUtil.toString(chan.get_id().network_id);
+        String netString = NetworkIdUtil.toStringNoDates(chan.get_id().network_id);
         NetworkAttrImpl netAttr = getNetworkAttr(netString, props);
         StationImpl station;
         String stationString = netString + "." + chan.my_site.my_station.get_code();
@@ -52,10 +54,11 @@ public class PopulationProperties {
             station = (StationImpl)stations.get(stationString);
         } else {
             String staPrefix = NET + stationString;
+            System.out.println("begin prop name: "+staPrefix + BEGIN+"  end: "+staPrefix + END);
             TimeRange staEffectiveTime = new TimeRange(new Time(props.getProperty(staPrefix + BEGIN,
                                                                                   TimeUtils.timeUnknown.date_time),
                                                                 -1),
-                                                       new Time(props.getProperty(NET + netString + END,
+                                                       new Time(props.getProperty(staPrefix + END,
                                                                                   TimeUtils.timeUnknown.date_time),
                                                                 -1));
             StationId stationId = new StationId(netAttr.get_id(),
@@ -110,7 +113,7 @@ public class PopulationProperties {
 
     public static final String NET = "network.";
 
-    public static final String NETWORK_REMAPXX = NET + "remapxx";
+    public static final String NETWORK_REMAP = NET + "remap";
 
     public static final String BEGIN = ".beginTime";
 
