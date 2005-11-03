@@ -35,6 +35,7 @@ import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
@@ -87,6 +88,13 @@ public class SacToFissures {
 
     public static LocalSeismogramImpl getSeismogram(SacTimeSeries sac)
             throws FissuresException {
+        TimeSeriesDataSel data = new TimeSeriesDataSel();
+        data.flt_values(sac.y);
+        return new LocalSeismogramImpl(getSeismogramAttr(sac), data);
+    }
+    
+    public static SeismogramAttrImpl getSeismogramAttr(SacTimeSeries sac)
+    throws FissuresException {
         ISOTime isoTime = new ISOTime(sac.nzyear,
                                       sac.nzjday,
                                       sac.nzhour,
@@ -94,8 +102,6 @@ public class SacToFissures {
                                       sac.nzsec + sac.nzmsec / 1000f);
         MicroSecondDate beginTime = getSeismogramBeginTime(sac);
         edu.iris.Fissures.Time time = beginTime.getFissuresTime();
-        TimeSeriesDataSel data = new TimeSeriesDataSel();
-        data.flt_values(sac.y);
         ChannelId chanId = getChannelId(sac);
         String evtName = "   ";
         if(!sac.kevnm.equals(sac.STRING16_UNDEF)) {
@@ -118,15 +124,14 @@ public class SacToFissures {
         String seisId = chanId.network_id.network_code + ":"
                 + chanId.station_code + ":" + chanId.site_code + ":"
                 + chanId.channel_code + ":" + time.date_time;
-        return new LocalSeismogramImpl(seisId,
+        return new SeismogramAttrImpl(seisId,
                                        time,
                                        sac.npts,
                                        new SamplingImpl(1,
                                                         new TimeInterval(sac.delta,
                                                                          UnitImpl.SECOND)),
                                        UnitImpl.COUNT,
-                                       chanId,
-                                       data);
+                                       chanId);
     }
 
     public static ChannelId getChannelId(SacTimeSeries sac) {
