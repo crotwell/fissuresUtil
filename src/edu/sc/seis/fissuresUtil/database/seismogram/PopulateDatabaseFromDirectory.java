@@ -32,6 +32,7 @@ import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.SiteImpl;
@@ -297,15 +298,8 @@ public class PopulateDatabaseFromDirectory {
         }
         SeismogramAttrImpl seis = SacToFissures.getSeismogramAttr(sacTime);
         Channel chan = SacToFissures.getChannel(sacTime);
-        if (chan.get_id().network_id.network_code.equals("XX")) {
-            // sac network header is unknown, so set to be value from props
-            chan.get_id().network_id.network_code = props.getProperty(NETWORK_CODE);
-            chan.get_id().network_id.begin_time = new Time(props.getProperty(NETWORK_BEGIN), -1);
-            chan.my_site.my_station.my_network.description = props.getProperty(NETWORK_DESCRIPTION);
-            chan.my_site.my_station.my_network.owner = props.getProperty(NETWORK_OWNER);
-            chan.my_site.my_station.my_network.effective_time.start_time = chan.get_id().network_id.begin_time;
-            chan.my_site.my_station.my_network.name = props.getProperty(NETWORK_NAME);
-        }
+        chan = PopulationProperties.fix(chan, props);
+        System.out.println("try to save seis for: "+ChannelIdUtil.toStringNoDates(chan.get_id()));
         jdbcSeisFile.saveSeismogramToDatabase(chan,
                                               seis,
                                               fileLoc,
@@ -583,7 +577,7 @@ public class PopulateDatabaseFromDirectory {
             System.err.println("| To correct this entry in the database, please run UnitNameUpdater.");
             System.err.println("\\-------------------------");
         }
-        String networkIdString = props.getProperty(NETWORK_CODE);
+        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAPXX);
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
         NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
@@ -606,8 +600,6 @@ public class PopulateDatabaseFromDirectory {
                                                "00",
                                                tempCode + "HE",
                                                channelBeginTime)};
-        TimeRange effectiveNetworkTime = new TimeRange(networkBeginTime,
-                                                       TimeUtils.timeUnknown);
         TimeRange effectiveChannelTime = new TimeRange(channelBeginTime,
                                                        TimeUtils.timeUnknown);
         SiteId siteId = new SiteId(networkId,
@@ -626,11 +618,8 @@ public class PopulateDatabaseFromDirectory {
                                          elevation,
                                          depth,
                                          LocationType.from_int(0));
-        NetworkAttrImpl networkAttr = new NetworkAttrImpl(networkId,
-                                                          props.getProperty(NETWORK_NAME),
-                                                          props.getProperty(NETWORK_DESCRIPTION),
-                                                          props.getProperty(NETWORK_OWNER),
-                                                          effectiveNetworkTime);
+        NetworkAttrImpl networkAttr = PopulationProperties.getNetworkAttr(networkIdString, props);
+        
         StationImpl station = new StationImpl(stationId,
                                               "",
                                               location,
@@ -680,13 +669,4 @@ public class PopulateDatabaseFromDirectory {
 
     private static Map datastreamToFileData = new HashMap();
 
-    private static final String NETWORK_CODE = "network.code";
-    
-    private static final String NETWORK_BEGIN = "network.beginTime";
-
-    private static final String NETWORK_NAME = "network.name";
-
-    private static final String NETWORK_DESCRIPTION = "network.description";
-
-    private static final String NETWORK_OWNER = "network.owner";
 }
