@@ -118,8 +118,6 @@ public class PopulateDatabaseFromDirectory {
                 if(verbose) {
                     System.out.println("Batch process of RT130 data: ON");
                 }
-            } else {
-                System.out.println("Batch process of RT130 data: OFF");
             }
         }
         if(verbose) {
@@ -152,7 +150,9 @@ public class PopulateDatabaseFromDirectory {
                                           batch);
             } else {
                 System.err.println("File: " + file
-                        + " is not a file or a directory.");
+                        + " is not a file or a directory. This can"
+                        + " be caused in Windows when the file path includes"
+                        + " a Unix-style reference (soft or hard).");
             }
         } else {
             printHelp();
