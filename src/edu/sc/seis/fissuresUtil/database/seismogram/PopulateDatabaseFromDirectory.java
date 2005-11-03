@@ -119,6 +119,8 @@ public class PopulateDatabaseFromDirectory {
                 if(verbose) {
                     System.out.println("Batch process of RT130 data: ON");
                 }
+            } else {
+                System.out.println("Batch process of RT130 data: OFF");
             }
         }
         if(verbose) {
@@ -126,7 +128,7 @@ public class PopulateDatabaseFromDirectory {
             System.out.println("\\------------------------------------");
             System.out.println();
         }
-        if(args.length > 0) {   
+        if(args.length > 0) {
             String fileLoc = args[args.length - 1];
             File file = new File(fileLoc);
             if(file.isDirectory()) {
@@ -139,7 +141,7 @@ public class PopulateDatabaseFromDirectory {
                                                timeTable,
                                                props,
                                                batch);
-            } else if (file.isFile()){
+            } else if(file.isFile()) {
                 finished = readSingleFile(fileLoc,
                                           verbose,
                                           conn,
@@ -150,7 +152,8 @@ public class PopulateDatabaseFromDirectory {
                                           props,
                                           batch);
             } else {
-                System.err.println("File: "+file+" is not a file or a directory.");
+                System.err.println("File: " + file
+                        + " is not a file or a directory.");
             }
         } else {
             printHelp();
@@ -205,7 +208,11 @@ public class PopulateDatabaseFromDirectory {
         } else if(fileName.endsWith(".mseed")) {
             finished = processMSeed(jdbcSeisFile, fileLoc, fileName, verbose);
         } else if(fileName.endsWith(".sac")) {
-            finished = processSac(jdbcSeisFile, fileLoc, fileName, verbose, props);
+            finished = processSac(jdbcSeisFile,
+                                  fileLoc,
+                                  fileName,
+                                  verbose,
+                                  props);
         } else if(verbose) {
             if(fileName.equals("SOH.RT")) {
                 System.out.println("Ignoring file: " + fileName + ".");
@@ -235,8 +242,9 @@ public class PopulateDatabaseFromDirectory {
             throws FissuresException, IOException, SeedFormatException,
             SQLException, NotFound {
         File[] files = baseDirectory.listFiles();
-        if (files == null) {
-            throw new IOException("Unable to get listing of directory: "+baseDirectory);
+        if(files == null) {
+            throw new IOException("Unable to get listing of directory: "
+                    + baseDirectory);
         }
         for(int i = 0; i < files.length; i++) {
             if(files[i].isDirectory()) {
@@ -578,7 +586,8 @@ public class PopulateDatabaseFromDirectory {
             System.err.println("| To correct this entry in the database, please run UnitNameUpdater.");
             System.err.println("\\-------------------------");
         }
-        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP+".XX");
+        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP
+                + ".XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
         NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
@@ -619,8 +628,8 @@ public class PopulateDatabaseFromDirectory {
                                          elevation,
                                          depth,
                                          LocationType.from_int(0));
-        NetworkAttrImpl networkAttr = PopulationProperties.getNetworkAttr(networkIdString, props);
-        
+        NetworkAttrImpl networkAttr = PopulationProperties.getNetworkAttr(networkIdString,
+                                                                          props);
         StationImpl station = new StationImpl(stationId,
                                               "",
                                               location,
@@ -669,5 +678,4 @@ public class PopulateDatabaseFromDirectory {
     private static Map datastreamToChannel = new HashMap();
 
     private static Map datastreamToFileData = new HashMap();
-
 }
