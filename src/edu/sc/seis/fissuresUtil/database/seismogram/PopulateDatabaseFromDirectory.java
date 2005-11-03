@@ -568,7 +568,7 @@ public class PopulateDatabaseFromDirectory {
 
     private static Map channelToDbId = new HashMap();
 
-    private static Channel[] createChannels(NCFile ncFile,
+private static Channel[] createChannels(NCFile ncFile,
                                             String unitIdNumber,
                                             String datastream,
                                             Properties props) {
@@ -618,7 +618,8 @@ public class PopulateDatabaseFromDirectory {
         StationId stationId = new StationId(networkId,
                                             stationCode,
                                             channelBeginTime);
-        QuantityImpl elevation = new QuantityImpl(0, UnitImpl.METER);
+        QuantityImpl elevation = new QuantityImpl(((PacketType)(datastreamToFileData.get(unitIdNumber
+                                                                                        + datastream))).elevation_, UnitImpl.METER);
         QuantityImpl depth = elevation;
         Location location = new Location(((PacketType)(datastreamToFileData.get(unitIdNumber
                                                  + datastream))).latitude_,
@@ -672,9 +673,7 @@ public class PopulateDatabaseFromDirectory {
             }
         }
         return newChannel;
-    }
-
-    private static Map datastreamToChannel = new HashMap();
+    }    private static Map datastreamToChannel = new HashMap();
 
     private static Map datastreamToFileData = new HashMap();
 }
