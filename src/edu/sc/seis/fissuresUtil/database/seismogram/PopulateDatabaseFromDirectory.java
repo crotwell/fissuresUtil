@@ -37,6 +37,7 @@ import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
@@ -285,7 +286,7 @@ public class PopulateDatabaseFromDirectory {
             FissuresException, SQLException {
         SacTimeSeries sacTime = new SacTimeSeries();
         try {
-            sacTime.read(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
+            sacTime.readHeader(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
             System.err.println(fileName + " seems to be an invalid sac file.");
             return false;
@@ -293,7 +294,7 @@ public class PopulateDatabaseFromDirectory {
             System.err.println("Unable to find file " + fileName);
             return false;
         }
-        LocalSeismogramImpl seis = SacToFissures.getSeismogram(sacTime);
+        SeismogramAttrImpl seis = SacToFissures.getSeismogramAttr(sacTime);
         jdbcSeisFile.saveSeismogramToDatabase(SacToFissures.getChannel(sacTime),
                                               seis,
                                               fileLoc,
