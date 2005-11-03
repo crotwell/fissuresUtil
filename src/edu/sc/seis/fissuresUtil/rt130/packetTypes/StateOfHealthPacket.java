@@ -19,21 +19,20 @@ public class StateOfHealthPacket extends PacketType {
     }
 
     private void read(DataInput in) throws IOException, RT130FormatException {
-        String entirePacket = new String(this.readBytes(in, 1008));     
+        String entirePacket = new String(this.readBytes(in, 1008));
         // Skip first GPS_MARKER
         int i = entirePacket.indexOf(GPS_MARKER);
-        String croppedPacket = entirePacket.substring(i + GPS_MARKER.length(), entirePacket.length());
-        i = croppedPacket.indexOf(GPS_MARKER);
         if(i > 0) {
-            // Grab the next 28 characters.
+            // Grab the next 35 characters.
             // One or two extra characters are processed to allow
-            // for two or three digit lat/long  degree values.
-            CharSequence locationCharSeq = croppedPacket.subSequence(i
-                    + GPS_MARKER.length(), i + GPS_MARKER.length() + 28);
+            // for two or three digit lat/long degree values.
+            CharSequence locationCharSeq = entirePacket.subSequence(i
+                    + GPS_MARKER.length(), i + GPS_MARKER.length() + 35);
             String locationString = locationCharSeq.toString();
             StringTokenizer st = new StringTokenizer(locationString);
             String latitudeString = st.nextToken();
             String longitudeString = st.nextToken();
+            String elevationString = st.nextToken();
             char latDirection = latitudeString.charAt(0);
             latitudeString = latitudeString.subSequence(1,
                                                         latitudeString.length())
@@ -51,7 +50,7 @@ public class StateOfHealthPacket extends PacketType {
             float latMin = Float.valueOf(st.nextToken()).floatValue();
             float latSec = Float.valueOf(st.nextToken()).floatValue();
             this.latitude = (latDeg + (latMin / 60) + (latSec / 3600))
-                    / signCorrection;
+                    * signCorrection;
             char longDirection = longitudeString.charAt(0);
             longitudeString = longitudeString.subSequence(1,
                                                           longitudeString.length())
@@ -69,7 +68,27 @@ public class StateOfHealthPacket extends PacketType {
             float longMin = Float.valueOf(st.nextToken()).floatValue();
             float longSec = Float.valueOf(st.nextToken()).floatValue();
             this.longitude = (longDeg + (longMin / 60) + (longSec / 3600))
-                    / signCorrection;
+                    * signCorrection;
+            char elevationDirection = elevationString.charAt(0);
+            char elevationUnit = elevationString.charAt(elevationString.length() - 1);
+            elevationString = elevationString.subSequence(1,
+                                                          (elevationString.length() - 1))
+                    .toString();
+            signCorrection = 1;
+            if(elevationDirection == '+') {
+                signCorrection = 1;
+            } else if(elevationDirection == '-') {
+                signCorrection = -1;
+            } else {
+                throw new RT130FormatException();
+            }
+            if(elevationUnit == 'M') {
+                double elevationDouble = Double.valueOf(elevationString).doubleValue();
+                this.elevation = elevationDouble * signCorrection;
+            } else {
+                throw new RT130FormatException("Unit for elevation from SOH file expected as M, got "
+                        + elevationUnit);
+            }
         }
     }
 
@@ -80,6 +99,8 @@ public class StateOfHealthPacket extends PacketType {
     }
 
     public float latitude, longitude;
+    
+    public double elevation;
 
     private final String GPS_MARKER = "GPS: POSITION: ";
 }
