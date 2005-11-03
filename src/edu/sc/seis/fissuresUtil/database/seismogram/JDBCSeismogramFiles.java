@@ -26,6 +26,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
@@ -54,7 +55,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
     }
 
     public void saveSeismogramToDatabase(Channel channel,
-                                         LocalSeismogramImpl seis,
+                                         SeismogramAttrImpl seis,
                                          String fileLocation,
                                          SeismogramFileTypes filetype)
             throws SQLException {
@@ -62,7 +63,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
     }
 
     public void saveSeismogramToDatabase(ChannelId channelId,
-                                         LocalSeismogramImpl seis,
+                                         SeismogramAttrImpl seis,
                                          String fileLocation,
                                          SeismogramFileTypes filetype)
             throws SQLException {
