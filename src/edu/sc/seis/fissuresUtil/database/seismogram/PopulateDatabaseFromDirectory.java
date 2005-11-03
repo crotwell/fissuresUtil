@@ -139,7 +139,7 @@ public class PopulateDatabaseFromDirectory {
                                                timeTable,
                                                props,
                                                batch);
-            } else {
+            } else if (file.isFile()){
                 finished = readSingleFile(fileLoc,
                                           verbose,
                                           conn,
@@ -149,6 +149,8 @@ public class PopulateDatabaseFromDirectory {
                                           timeTable,
                                           props,
                                           batch);
+            } else {
+                System.err.println("File: "+file+" is not a file or a directory.");
             }
         } else {
             printHelp();
@@ -576,7 +578,7 @@ public class PopulateDatabaseFromDirectory {
             System.err.println("| To correct this entry in the database, please run UnitNameUpdater.");
             System.err.println("\\-------------------------");
         }
-        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAPXX);
+        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP+".XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
         NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
