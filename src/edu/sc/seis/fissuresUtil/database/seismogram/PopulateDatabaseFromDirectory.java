@@ -301,6 +301,10 @@ public class PopulateDatabaseFromDirectory {
             // sac network header is unknown, so set to be value from props
             chan.get_id().network_id.network_code = props.getProperty(NETWORK_CODE);
             chan.get_id().network_id.begin_time = new Time(props.getProperty(NETWORK_BEGIN), -1);
+            chan.my_site.my_station.my_network.description = props.getProperty(NETWORK_DESCRIPTION);
+            chan.my_site.my_station.my_network.owner = props.getProperty(NETWORK_OWNER);
+            chan.my_site.my_station.my_network.effective_time.start_time = chan.get_id().network_id.begin_time;
+            chan.my_site.my_station.my_network.name = props.getProperty(NETWORK_NAME);
         }
         jdbcSeisFile.saveSeismogramToDatabase(chan,
                                               seis,
