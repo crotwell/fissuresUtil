@@ -112,9 +112,9 @@ public class PopulationProperties {
 
     public static final String NETWORK_REMAPXX = NET + "remapxx";
 
-    public static final String BEGIN = "beginTime";
+    public static final String BEGIN = ".beginTime";
 
-    public static final String END = "endTime";
+    public static final String END = ".endTime";
 
     public static final String NAME = ".name";
 
