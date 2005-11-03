@@ -231,6 +231,9 @@ public class PopulateDatabaseFromDirectory {
             throws FissuresException, IOException, SeedFormatException,
             SQLException, NotFound {
         File[] files = new File(baseDirectory).listFiles();
+        if (files == null) {
+            throw new IOException("Unable to get listing of directory: "+baseDirectory);
+        }
         for(int i = 0; i < files.length; i++) {
             if(files[i].isDirectory()) {
                 readEntireDirectory(baseDirectory + files[i].getName() + "/",
