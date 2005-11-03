@@ -4,7 +4,7 @@ fissuresUtil.database.username=SA
 fissuresUtil.database.password=
 
 network.list=XE05
-network.remapXX=XE05
+network.remap.XX=XE05
 network.XE05.beginTime=2005-05-17T01:01:01.001-0000
 network.XE05.name=Sierra Nevada EarthScope Project
 network.XE05.description=no_description

@@ -3,7 +3,13 @@ fissuresUtil.database.type=HSQL
 fissuresUtil.database.username=SA
 fissuresUtil.database.password=
 
-network.remapXX=BL
+network.remap.XX=BL
+network.remap.blsp=BL
+network.remap.BLSP92=BL
+network.channel.remap.vertical=BHZ
+network.channel.remap.north=BHN
+network.channel.remap.east=BHE
+
 network.list=BL
 network.BL.beginTime=1992-01-01T00:00:00.000-0000
 network.BL.name=BLSP - Brazilian Lithospheric Seismic Project
