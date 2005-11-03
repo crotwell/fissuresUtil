@@ -53,10 +53,10 @@ public class PopulationProperties {
         } else {
             String staPrefix = NET + stationString;
             TimeRange staEffectiveTime = new TimeRange(new Time(props.getProperty(staPrefix + BEGIN,
-                                                                                  chan.my_site.my_station.my_network.effective_time.start_time.date_time),
+                                                                                  TimeUtils.timeUnknown.date_time),
                                                                 -1),
                                                        new Time(props.getProperty(NET + netString + END,
-                                                                                  chan.my_site.my_station.my_network.effective_time.end_time.date_time),
+                                                                                  TimeUtils.timeUnknown.date_time),
                                                                 -1));
             StationId stationId = new StationId(netAttr.get_id(),
                                                 chan.my_site.my_station.get_code(),
