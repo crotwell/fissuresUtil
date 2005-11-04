@@ -47,6 +47,7 @@ public class PacketType {
         this.latitude_ = original.latitude_;
         this.longitude_ = original.longitude_;
         this.elevation_ = original.elevation_;
+        this.number_of_location_readings = original.number_of_location_readings;
         if(original.channel_name != null) {
             this.channel_name = new String[original.channel_name.length];
             System.arraycopy(original.channel_name,
@@ -234,6 +235,8 @@ public class PacketType {
 
     public int number_of_samples, sample_rate, channel_number,
             data_stream_number;
+    
+    public int number_of_location_readings = -1;
 
     public float latitude_, longitude_;
 
