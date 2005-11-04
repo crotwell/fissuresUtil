@@ -339,6 +339,11 @@ public class RT130FileReader {
             } else {
                 seismogramData.elevation_ = stateOfHealthData.elevation_;
             }
+            if(stateOfHealthData.number_of_location_readings == 0) {
+                System.err.println("The state of health data didn't contain enough GPS information.");
+            } else {
+                seismogramData.number_of_location_readings = stateOfHealthData.number_of_location_readings;
+            }
             if(stateOfHealthData.channel_name == null) {
                 System.err.println("The channel name for the channel is not present in the state of health data.");
             } else {
@@ -358,6 +363,12 @@ public class RT130FileReader {
                     + "is the data sample rate. A sample rate of "
                     + seismogramData.sample_rate
                     + " samples per second will be assumed.");
+        }
+        if(seismogramData.number_of_location_readings > 0){
+            // Get the average of the lat, long, elevation data.
+            seismogramData.latitude_ = (seismogramData.latitude_ / seismogramData.number_of_location_readings);
+            seismogramData.longitude_ = (seismogramData.longitude_ / seismogramData.number_of_location_readings);
+            seismogramData.elevation_ = (seismogramData.elevation_ / seismogramData.number_of_location_readings);
         }
         return new PacketType(seismogramData);
     }
