@@ -24,6 +24,7 @@ import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
 
 public class RT130ToLocalSeismogram {
@@ -97,10 +98,11 @@ public class RT130ToLocalSeismogram {
             System.err.println("| To correct this entry in the database, please run StationCodeUpdater.");
             System.err.println("\\-------------------------");
         }
-        String networkIdString = props.getProperty(NETWORK_ID);
+        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP + "XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
-        NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
+        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString, props).get_id();
+        networkId.begin_time = networkBeginTime;
         String tempCode = "B";
         if(seismogramData.sample_rate < 10) {
             tempCode = "L";
