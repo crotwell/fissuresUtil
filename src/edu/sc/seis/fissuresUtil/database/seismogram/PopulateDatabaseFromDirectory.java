@@ -589,7 +589,8 @@ private static Channel[] createChannels(NCFile ncFile,
                 + "XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
-        NetworkId networkId = new NetworkId(networkIdString, networkBeginTime);
+        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString, props).get_id();
+        networkId.begin_time = networkBeginTime;
         String tempCode = "B";
         if(((PacketType)(datastreamToFileData.get(unitIdNumber + datastream))).sample_rate < 10) {
             tempCode = "L";
