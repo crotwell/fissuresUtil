@@ -7,7 +7,6 @@ package edu.sc.seis.fissuresUtil.bag;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
@@ -43,28 +42,33 @@ public class AreaUtil {
             return true;
         } else if(area instanceof BoxArea) {
             BoxArea box = (BoxArea)area;
-            if(point.latitude >= box.min_latitude && point.latitude <= box.max_latitude
+            if(point.latitude >= box.min_latitude
+                    && point.latitude <= box.max_latitude
                     && point.longitude % 360 >= box.min_longitude % 360
                     && point.longitude % 360 <= box.max_longitude % 360) {
                 return true;
             }
         } else if(area instanceof PointDistanceArea) {
             PointDistanceArea pdArea = (PointDistanceArea)area;
-            DistAz distAz = new DistAz(pdArea.latitude, pdArea.longitude, point.latitude, point.longitude);
+            DistAz distAz = new DistAz(pdArea.latitude,
+                                       pdArea.longitude,
+                                       point.latitude,
+                                       point.longitude);
             double minDegree, maxDegree;
-            if (((UnitImpl)pdArea.min_distance.the_units).isConvertableTo(UnitImpl.DEGREE)) {
+            if(((UnitImpl)pdArea.min_distance.the_units).isConvertableTo(UnitImpl.DEGREE)) {
                 minDegree = ((QuantityImpl)pdArea.min_distance).getValue(UnitImpl.DEGREE);
             } else {
                 minDegree = DistAz.kilometersToDegrees(((QuantityImpl)pdArea.min_distance).getValue(UnitImpl.KILOMETER));
             }
-            if (((UnitImpl)pdArea.max_distance.the_units).isConvertableTo(UnitImpl.DEGREE)) {
+            if(((UnitImpl)pdArea.max_distance.the_units).isConvertableTo(UnitImpl.DEGREE)) {
                 maxDegree = ((QuantityImpl)pdArea.max_distance).getValue(UnitImpl.DEGREE);
             } else {
                 maxDegree = DistAz.kilometersToDegrees(((QuantityImpl)pdArea.max_distance).getValue(UnitImpl.KILOMETER));
             }
             return (distAz.getDelta() >= minDegree && distAz.getDelta() <= maxDegree);
         }
-        throw new RuntimeException("Unknown Area type: "+area.getClass().getName());
+        throw new RuntimeException("Unknown Area type: "
+                + area.getClass().getName());
     }
 
     public static boolean inArea(Location[] bounds, Location point) {
@@ -84,7 +88,10 @@ public class AreaUtil {
         return (inside != 0);
     }
 
-    private static int polygonPointCheck(float lonA, float latA, float lonB, float latB) {
+    private static int polygonPointCheck(float lonA,
+                                         float latA,
+                                         float lonB,
+                                         float latB) {
         if(latA * latB > 0) {
             return 0;
         }
@@ -93,43 +100,34 @@ public class AreaUtil {
                 if(latA > 0) {
                     if(latA * lonB >= lonA * latB) {
                         return 0;
-                    } else {
-                        return -2;
                     }
-                } else {
-                    if(lonA * latB >= latA * lonB) {
-                        return 0;
-                    } else {
-                        return 2;
-                    }
+                    return -2;
                 }
-            } else {
-                if(latB == 0) {
-                    if(latA == 0) {
-                        return 0;
-                    }
-                    if(lonB > 0) {
-                        return 0;
-                    }
-                    if(latA > 0) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                } else if(lonA > 0) {
+                if(lonA * latB >= latA * lonB) {
                     return 0;
-                } else if(latB > 0) {
-                    return 1;
-                } else {
+                }
+                return 2;
+            }
+            if(latB == 0) {
+                if(latA == 0) {
+                    return 0;
+                } else if(lonB > 0) {
+                    return 0;
+                } else if(latA > 0) {
                     return -1;
                 }
+                return 1;
+            } else if(lonA > 0) {
+                return 0;
+            } else if(latB > 0) {
+                return 1;
             }
-        } else {
-            return 4;
+            return -1;
         }
+        return 4;
     }
-    
-    public Location[] loadPolygon(BufferedReader in) throws IOException {
+
+    public static Location[] loadPolygon(BufferedReader in) throws IOException {
         ArrayList out = new ArrayList();
         String line;
         while((line = in.readLine()) != null && line.length() > 2) {
