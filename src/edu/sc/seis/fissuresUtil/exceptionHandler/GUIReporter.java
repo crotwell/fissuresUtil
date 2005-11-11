@@ -168,8 +168,8 @@ public class GUIReporter implements ExceptionReporter {
         return buttonPanel;
     }
 
-    public static void setGreeting(String title, String contents) {
-        setGreeting(new Section(title, contents));
+    private static void setGreeting(String title, String contents) {
+        greeting = new Section(title, contents);
     }
 
     public static void appendToGreeting(String title, String contents) {
@@ -180,12 +180,11 @@ public class GUIReporter implements ExceptionReporter {
         }
     }
 
-    public static void setGreeting(Section greeting) {
-        GUIReporter.greeting = greeting;
-    }
-
-    public static Section getGreeting() {
-        return greeting;
+    public static void swapGreetingAndHandle(Throwable t, String temporaryGreeting) {
+        Section currentGreeting = greeting;
+        setGreeting("Information", temporaryGreeting);
+        GlobalExceptionHandler.handle(t);
+        greeting = currentGreeting;
     }
 
     private boolean atMostOneAtATime = true;
