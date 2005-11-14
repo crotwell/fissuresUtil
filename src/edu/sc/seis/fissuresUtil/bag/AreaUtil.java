@@ -42,12 +42,10 @@ public class AreaUtil {
             return true;
         } else if(area instanceof BoxArea) {
             BoxArea box = (BoxArea)area;
-            if(point.latitude >= box.min_latitude
+            return (point.latitude >= box.min_latitude
                     && point.latitude <= box.max_latitude
                     && point.longitude % 360 >= box.min_longitude % 360
-                    && point.longitude % 360 <= box.max_longitude % 360) {
-                return true;
-            }
+                    && point.longitude % 360 <= box.max_longitude % 360);
         } else if(area instanceof PointDistanceArea) {
             PointDistanceArea pdArea = (PointDistanceArea)area;
             DistAz distAz = new DistAz(pdArea.latitude,
