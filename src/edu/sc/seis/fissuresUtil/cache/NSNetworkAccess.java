@@ -1,8 +1,6 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.omg.CORBA.TRANSIENT;
-import edu.iris.Fissures.IfNetwork.NetworkAccess;
-import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 
@@ -21,15 +19,17 @@ public class NSNetworkAccess extends ProxyNetworkAccess {
      * netDC and the behaviour will change back to whatever is provided by the
      * NetworkAccess returned by the netDC.
      */
-    public NSNetworkAccess(NetworkId id, ProxyNetworkDC netDC)
+    public NSNetworkAccess(NetworkId id, VestingNetworkFinder vnf)
             throws NetworkNotFound {
-        this(getFromDC(id, netDC), id, netDC);
+        this(getAccess(id, vnf), id, vnf);
     }
 
-    public NSNetworkAccess(NetworkAccess na, NetworkId id, ProxyNetworkDC netDC) {
+    public NSNetworkAccess(SynchronizedNetworkAccess na,
+                           NetworkId id,
+                           VestingNetworkFinder vnf) {
         super(na);
         this.id = id;
-        this.netDC = netDC;
+        this.vnf = vnf;
     }
 
     /**
@@ -37,7 +37,8 @@ public class NSNetworkAccess extends ProxyNetworkAccess {
      */
     public void reset() {
         try {
-            net = getFromDC(id, netDC);
+            vnf.reset();
+            net = getAccess(id, vnf);
         } catch(NetworkNotFound e) {
             TRANSIENT t = new TRANSIENT("Unable to find the network to reset it");
             t.initCause(e);
@@ -45,17 +46,13 @@ public class NSNetworkAccess extends ProxyNetworkAccess {
         }
     }
 
-    private static NetworkAccess getFromDC(NetworkId id,
-                                           ProxyNetworkDC netDC)
+    private static SynchronizedNetworkAccess getAccess(NetworkId id,
+                                                       VestingNetworkFinder vnf)
             throws NetworkNotFound {
-        synchronized(netDC) {
-            netDC.reset();
-            return new SynchronizedNetworkAccess(netDC.a_finder()
-                    .retrieve_by_id(id));
-        }
+        return new SynchronizedNetworkAccess(((ProxyNetworkAccess)vnf.retrieve_by_id(id)).getCorbaObject());
     }
 
-    private ProxyNetworkDC netDC;
+    private VestingNetworkFinder vnf;
 
     private NetworkId id;
 }

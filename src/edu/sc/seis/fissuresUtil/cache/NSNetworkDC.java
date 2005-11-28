@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.apache.log4j.Category;
-import edu.iris.Fissures.IfNetwork.NetworkDC;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
@@ -15,8 +14,9 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
  */
 public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
 
-    public NSNetworkDC(String serverDNS, String serverName,
-            FissuresNamingService fissuresNamingService) {
+    public NSNetworkDC(String serverDNS,
+                       String serverName,
+                       FissuresNamingService fissuresNamingService) {
         this.serverDNS = serverDNS;
         this.serverName = serverName;
         this.namingService = fissuresNamingService;
@@ -29,16 +29,17 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
     public NetworkDCOperations getWrappedDC(Class wrappedClass) {
         if(this.getClass().isAssignableFrom(wrappedClass)) {
             return this;
-        } else {
-            NetworkDCOperations tmp = getWrappedDC();
-            if(tmp instanceof ProxyNetworkDC) { return ((ProxyNetworkDC)tmp).getWrappedDC(wrappedClass); }
+        }
+        NetworkDCOperations tmp = getWrappedDC();
+        if(tmp instanceof ProxyNetworkDC) {
+            return ((ProxyNetworkDC)tmp).getWrappedDC(wrappedClass);
         }
         throw new IllegalArgumentException("Can't find class "
                 + wrappedClass.getName());
     }
 
     public org.omg.CORBA.Object getCorbaObject() {
-        return getNetworkDC();
+        return getNetworkDC().getCorbaObject();
     }
 
     public FissuresNamingService getFissuresNamingService() {
@@ -57,15 +58,17 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
         netDC = null;
     }
 
-    public synchronized NetworkDC getNetworkDC() {
+    public synchronized ProxyNetworkDC getNetworkDC() {
         if(netDC == null) {
             try {
+                NetworkDCOperations realDC;
                 try {
-                    netDC = namingService.getNetworkDC(serverDNS, serverName);
+                    realDC = namingService.getNetworkDC(serverDNS, serverName);
                 } catch(Throwable t) {
                     namingService.reset();
-                    netDC = namingService.getNetworkDC(serverDNS, serverName);
+                    realDC = namingService.getNetworkDC(serverDNS, serverName);
                 }
+                netDC = new SynchronizedNetworkDC(realDC);
             } catch(org.omg.CosNaming.NamingContextPackage.NotFound e) {
                 repackageException(e);
             } catch(org.omg.CosNaming.NamingContextPackage.CannotProceed e) {
@@ -114,11 +117,9 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
         } // end of try-catch
     }
 
-    protected NetworkDC netDC = null;
+    protected SynchronizedNetworkDC netDC;
 
-    protected String serverDNS;
-
-    protected String serverName;
+    protected String serverDNS, serverName;
 
     protected FissuresNamingService namingService;
 

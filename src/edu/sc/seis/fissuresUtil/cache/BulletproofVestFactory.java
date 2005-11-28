@@ -2,8 +2,6 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
-import edu.iris.Fissures.IfNetwork.NetworkFinder;
-import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public class BulletproofVestFactory {
@@ -20,30 +18,17 @@ public class BulletproofVestFactory {
      * NetworkDCOperations as it allows the NetworkDC to be refreshed from the
      * naming service if the reference goes stale
      * 
+     * @deprecated - vestNetworkDC now vests everything that comes out of it, so
+     *             if you use it you don't need to call this
+     * 
      */
     public static ProxyNetworkAccess vestNetworkAccess(NetworkAccess na,
-                                                       ProxyNetworkDC netDC) {
+                                                       VestingNetworkFinder vnf) {
         // avoid vesting if it is already vested.
         if(na instanceof ProxyNetworkAccess) {
             return (ProxyNetworkAccess)na;
-        } 
-            // side effect, make sure we have an NSNetworkDC inside the
-            // ProxyNetworkDC
-            // throws an IllegalArgumentException if there is not a NSNetworkDC
-            // inside somewhere
-            NSNetworkDC nsNetDC = (NSNetworkDC)netDC.getWrappedDC(NSNetworkDC.class);
-            // side effect
-            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
-            RetryNetworkAccess retry = new RetryNetworkAccess(synch, 3);
-            CacheNetworkAccess cache = new CacheNetworkAccess(retry);
-            NetworkId id = cache.get_attributes().get_id();
-            NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch,
-                                                                  id,
-                                                                  netDC);
-            retry.setNetworkAccess(nsNetworkAccess);
-            cache.setNetworkAccess(retry);
-            return cache;
+        }
+        return VestingNetworkFinder.vest(na, vnf);
     }
 
     public static ProxyEventAccessOperations vestEventAccess(EventAccessOperations eventAccess) {
@@ -64,30 +49,26 @@ public class BulletproofVestFactory {
         CacheEventDC cache = new CacheEventDC(retry);
         return cache;
     }
-    
+
+    /**
+     * @deprecated - call new VestingNetworkDC directly
+     */
     public static ProxyNetworkDC vestNetworkDC(String serverDNS,
                                                String serverName,
                                                FissuresNamingService fisName) {
-        return new RetryNetworkDC(new NSNetworkDC(serverDNS,
-                                                  serverName,
-                                                  fisName), 2);
+        return new VestingNetworkDC(serverDNS, serverName, fisName);
     }
-    
+
     /**
-     * When reset is called on the NSNetworkFinder, the networkfinder gets revested in a retry.
-     * Just be aware that any changes here need to be checked there, as well.
+     * When reset is called on the NSNetworkFinder, the networkfinder gets
+     * revested in a retry. Just be aware that any changes here need to be
+     * checked there, as well.
+     * 
+     * @deprecated - the DCs returned by vestNetworkDC now vest their finders,
+     *             so you should just vest there and forget about it
      */
-    public static ProxyNetworkFinder vestNetworkFinder(ProxyNetworkDC netDC){
-        RetryNetworkFinder retry = new RetryNetworkFinder(netDC.a_finder(), 3);
-        NSNetworkFinder ns = new NSNetworkFinder(retry, netDC);
-        return ns;
-    }
-    
-    public static ProxyNetworkFinder vestNetworkFinder(String serverDNS,
-                                                       String serverName,
-                                                       FissuresNamingService fisName) {
-        ProxyNetworkDC netDC = vestNetworkDC(serverDNS, serverName, fisName);
-        return vestNetworkFinder(netDC);
+    public static ProxyNetworkFinder vestNetworkFinder(ProxyNetworkDC netDC) {
+        return new VestingNetworkFinder(netDC);
     }
 
     public static ProxySeismogramDC vestSeismogramDC(String serverDNS,
