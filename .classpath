@@ -18,7 +18,7 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/vecmath/jars/vecmath.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.4.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xml-apis/jars/xml-apis-2.6.2.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.8.0.2.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.7.3_USC1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/velocity-tools/jars/velocity-tools-generic-1.1-rc1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/stax/jars/stax-1.1.1-dev.jar"/>
