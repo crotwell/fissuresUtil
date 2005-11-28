@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import java.util.regex.Pattern;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
-import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 
@@ -11,10 +10,8 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
  */
 public class FilterNetworkFinder extends ProxyNetworkFinder {
 
-    public FilterNetworkFinder(NetworkFinder nf, ProxyNetworkDC myCreator,
-            Pattern[] patterns) {
+    public FilterNetworkFinder(VestingNetworkFinder nf, Pattern[] patterns) {
         super(nf);
-        this.myCreator = myCreator;
         this.patterns = patterns;
     }
 
@@ -43,9 +40,7 @@ public class FilterNetworkFinder extends ProxyNetworkFinder {
     }
 
     private FilterNetworkAccess make(NetworkAccess na) {
-        NetworkAccess vested = BulletproofVestFactory.vestNetworkAccess(na,
-                                                                        myCreator);
-        return new FilterNetworkAccess(vested, patterns);
+        return new FilterNetworkAccess(na, patterns);
     }
 
     private Pattern[] patterns;

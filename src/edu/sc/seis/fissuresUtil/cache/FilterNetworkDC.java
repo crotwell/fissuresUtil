@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.Object;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
@@ -17,11 +18,11 @@ import edu.iris.Fissures.IfNetwork.NetworkFinder;
 /**
  * @author groves Created on Dec 1, 2004
  */
-public class FilterNetworkDC extends AbstractProxyNetworkDC {
+public class FilterNetworkDC implements ProxyNetworkDC {
 
-    public FilterNetworkDC(NetworkDCOperations wrappedDC, Pattern[] patterns) {
-        super(wrappedDC);
+    public FilterNetworkDC(VestingNetworkDC wrappedDC, Pattern[] patterns) {
         this.patterns = patterns;
+        vester = wrappedDC;
     }
 
     public NetworkExplorer a_explorer() {
@@ -29,8 +30,7 @@ public class FilterNetworkDC extends AbstractProxyNetworkDC {
     }
 
     public NetworkFinder a_finder() {
-        return new FilterNetworkFinder(getWrappedDC().a_finder(),
-                                       this,
+        return new FilterNetworkFinder((VestingNetworkFinder)vester.a_finder(),
                                        patterns);
     }
 
@@ -51,6 +51,32 @@ public class FilterNetworkDC extends AbstractProxyNetworkDC {
         }
         return (Pattern[])gottenPatterns.toArray(new Pattern[0]);
     }
+
+    public NetworkDCOperations getWrappedDC() {
+        return vester;
+    }
+
+    public NetworkDCOperations getWrappedDC(Class wrappedClass) {
+        if(this.getClass().isAssignableFrom(wrappedClass)) {
+            return this;
+        }
+        NetworkDCOperations tmp = getWrappedDC();
+        if(tmp instanceof ProxyNetworkDC) {
+            return ((ProxyNetworkDC)tmp).getWrappedDC(wrappedClass);
+        }
+        throw new IllegalArgumentException("Can't find class "
+                + wrappedClass.getName());
+    }
+
+    public void reset() {
+        vester.reset();
+    }
+
+    public Object getCorbaObject() {
+        return vester.getCorbaObject();
+    }
+
+    private VestingNetworkDC vester;
 
     private Pattern[] patterns;
 }
