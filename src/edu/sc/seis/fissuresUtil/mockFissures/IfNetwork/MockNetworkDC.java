@@ -14,72 +14,89 @@ import org.omg.CORBA.Policy;
 import org.omg.CORBA.Request;
 import org.omg.CORBA.SetOverrideType;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
-import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
+import edu.sc.seis.fissuresUtil.cache.AbstractProxyNetworkDC;
 
 /**
  * @author Charlie Groves
  */
-public class MockNetworkDC implements NetworkDC{
-
-    public NetworkExplorer a_explorer() {
-        return null;
-    }
+public class MockNetworkDC extends AbstractProxyNetworkDC implements NetworkDC {
 
     public NetworkFinder a_finder() {
         return finder;
     }
-    
+
     protected NetworkFinder finder = new MockNetworkFinder();
 
-    public void _release() {}
-
-    public boolean _non_existent() {
+    public boolean _is_a(String arg0) {
+        // TODO Auto-generated method stub
         return false;
     }
 
-    public int _hash(int maximum) {
+    public boolean _is_equivalent(Object arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean _non_existent() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public int _hash(int arg0) {
+        // TODO Auto-generated method stub
         return 0;
     }
 
-    public boolean _is_a(String repositoryIdentifier) {
-        return false;
-    }
-
-    public DomainManager[] _get_domain_managers() {
-        return null;
-    }
-
     public Object _duplicate() {
+        // TODO Auto-generated method stub
         return null;
+    }
+
+    public void _release() {
+    // TODO Auto-generated method stub
     }
 
     public Object _get_interface_def() {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    public boolean _is_equivalent(Object other) {
-        return false;
-    }
-
-    public Policy _get_policy(int policy_type) {
+    public Request _request(String arg0) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    public Request _request(String operation) {
+    public Request _create_request(Context arg0,
+                                   String arg1,
+                                   NVList arg2,
+                                   NamedValue arg3) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    public Object _set_policy_override(Policy[] policies, SetOverrideType set_add) {
+    public Request _create_request(Context arg0,
+                                   String arg1,
+                                   NVList arg2,
+                                   NamedValue arg3,
+                                   ExceptionList arg4,
+                                   ContextList arg5) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    public Request _create_request(Context ctx, String operation, NVList arg_list, NamedValue result) {
+    public Policy _get_policy(int arg0) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    public Request _create_request(Context ctx, String operation, NVList arg_list, NamedValue result, ExceptionList exclist, ContextList ctxlist) {
+    public DomainManager[] _get_domain_managers() {
+        // TODO Auto-generated method stub
         return null;
     }
 
+    public Object _set_policy_override(Policy[] arg0, SetOverrideType arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
