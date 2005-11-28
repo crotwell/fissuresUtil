@@ -15,7 +15,7 @@ public class ProxyNetworkFinderTest extends TestCase {
     public void testNSAndRetry() {
         try {
             ProxyNetworkDC netDC = getVestedNetDC();
-            ProxyNetworkFinder finder = BulletproofVestFactory.vestNetworkFinder(netDC);
+            ProxyNetworkFinder finder = new VestingNetworkFinder(netDC);
             NetworkAccess net = finder.retrieve_by_id(MockNetworkId.createNetworkID());
             System.out.println(NetworkIdUtil.toString(net.get_attributes().get_id()));
         } catch(Exception e) {

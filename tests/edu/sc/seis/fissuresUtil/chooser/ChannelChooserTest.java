@@ -4,15 +4,12 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
 import junit.framework.TestCase;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
-import edu.sc.seis.fissuresUtil.cache.RetryNetworkDC;
+import edu.sc.seis.fissuresUtil.cache.VestingNetworkDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
 
@@ -20,18 +17,20 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
  * @author Charlie Groves
  */
 public class ChannelChooserTest extends TestCase {
+
     public ChannelChooserTest() throws NetworkNotFound {
         BasicConfigurator.configure();
         MockNetworkDC mockDC = new MockNetworkDC();
-        ProxyNetworkDC[] dcs = new ProxyNetworkDC[] { new RetryNetworkDC(
-                mockDC, 3) };
+        VestingNetworkDC[] dcs = new VestingNetworkDC[] {new VestingNetworkDC(mockDC)};
         cc = new ChannelChooser(dcs);
         try {
             Thread.sleep(500);
-        } catch (InterruptedException e) {}
-        NetworkAccess threeCompNet = mockDC.a_finder().retrieve_by_id(MockNetworkId.createNetworkID());
+        } catch(InterruptedException e) {}
+        NetworkAccess threeCompNet = mockDC.a_finder()
+                .retrieve_by_id(MockNetworkId.createNetworkID());
         threeCompStation = threeCompNet.retrieve_stations()[0];
-        NetworkAccess vertNet = mockDC.a_finder().retrieve_by_id(MockNetworkId.createOtherNetworkID());
+        NetworkAccess vertNet = mockDC.a_finder()
+                .retrieve_by_id(MockNetworkId.createOtherNetworkID());
         vertOnlyStation = vertNet.retrieve_stations()[0];
     }
 
@@ -77,16 +76,16 @@ public class ChannelChooserTest extends TestCase {
         cc.orientationList.setSelectedIndex(ChannelChooser.BEST_CHANNELS);
         assertEquals(1, cc.getSelectedChannels().length);
     }
-    
-    
+
     public void tearDown() {
         cc.deselect(threeCompStation);
         cc.deselect(vertOnlyStation);
     }
 
     private ChannelChooser cc;
-    
+
     private Station threeCompStation;
+
     private Station vertOnlyStation;
 
     private static Logger logger = Logger.getLogger(ChannelChooserTest.class);
