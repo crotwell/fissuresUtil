@@ -42,38 +42,39 @@ import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import edu.sc.seis.fissuresUtil.cache.NSNetworkDC;
 import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
+import edu.sc.seis.fissuresUtil.cache.VestingNetworkDC;
 
 /**
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 14739 2005-09-13 17:58:37Z crotwell $
+ * @version $Id: ChannelChooser.java 15328 2005-11-28 21:38:23Z groves $
  */
 /**
  * @author Charlie Groves
  */
 public class ChannelChooser extends JPanel {
 
-    public ChannelChooser(ProxyNetworkDC[] netDC) {
+    public ChannelChooser(VestingNetworkDC[] netDC) {
         this(netDC, false);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netDC, boolean showSites) {
+    public ChannelChooser(VestingNetworkDC[] netDC, boolean showSites) {
         this(netDC, showSites, new String[0]);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+    public ChannelChooser(VestingNetworkDC[] netdcgiven,
                           String[] configuredNetworks) {
         this(netdcgiven, false, configuredNetworks);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+    public ChannelChooser(VestingNetworkDC[] netdcgiven,
                           boolean showSites,
                           String[] configuredNetworks) {
         this(netdcgiven, showSites, true, configuredNetworks);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+    public ChannelChooser(VestingNetworkDC[] netdcgiven,
                           boolean showSites,
                           boolean showNetworks,
                           String[] configuredNetworks) {
@@ -85,7 +86,7 @@ public class ChannelChooser extends JPanel {
              defaultAutoSelectBand);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+    public ChannelChooser(VestingNetworkDC[] netdcgiven,
                           boolean showSites,
                           String[] configuredNetworks,
                           String[] selectableBand,
@@ -98,7 +99,7 @@ public class ChannelChooser extends JPanel {
              autoSelectBand);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+    public ChannelChooser(VestingNetworkDC[] netdcgiven,
                           boolean showSites,
                           boolean showNetworks,
                           String[] configuredNetworks,
@@ -114,7 +115,7 @@ public class ChannelChooser extends JPanel {
              defaultAutoSelectedOrientation);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+    public ChannelChooser(VestingNetworkDC[] netdcgiven,
                           boolean showSites,
                           String[] configuredNetworks,
                           String[] selectableBand,
@@ -131,7 +132,7 @@ public class ChannelChooser extends JPanel {
              autoSelectedOrientation);
     }
 
-    public ChannelChooser(ProxyNetworkDC[] netdcgiven,
+    public ChannelChooser(VestingNetworkDC[] netdcgiven,
                           boolean showSites,
                           boolean showNetworks,
                           String[] configuredNetworks,
@@ -222,7 +223,7 @@ public class ChannelChooser extends JPanel {
         return netdc;
     }
 
-    public void setNetworkDCs(ProxyNetworkDC[] netdcgiven) {
+    public void setNetworkDCs(VestingNetworkDC[] netdcgiven) {
         netdc = netdcgiven;
         channels.clear();
         sites.clear();
@@ -642,7 +643,7 @@ public class ChannelChooser extends JPanel {
         Channel[] staChans = net.retrieve_for_station(station.get_id());
         return staChans;
     }
-    
+
     public Channel[] getChannels(Station station, MicroSecondDate when) {
         Channel[] in = getChannels(station);
         LinkedList out = new LinkedList();
@@ -690,9 +691,10 @@ public class ChannelChooser extends JPanel {
         Station[] in = getSelectedStations();
         return getStationsThatExistOnDate(when, in);
     }
-    
-    public static Station[] getStationsThatExistOnDate(MicroSecondDate when, Station[] in) {
-       LinkedList out = new LinkedList();
+
+    public static Station[] getStationsThatExistOnDate(MicroSecondDate when,
+                                                       Station[] in) {
+        LinkedList out = new LinkedList();
         for(int i = 0; i < in.length; i++) {
             MicroSecondDate b = new MicroSecondDate(in[i].effective_time.start_time);
             MicroSecondDate e = new MicroSecondDate(in[i].effective_time.end_time);
@@ -761,8 +763,7 @@ public class ChannelChooser extends JPanel {
             NetworkDCOperations[] retrievedDCs = getNetworkDCs();
             for(int i = 0; i < retrievedDCs.length; i++) {
                 try {
-                    net = BulletproofVestFactory.vestNetworkFinder((ProxyNetworkDC)retrievedDCs[i])
-                            .retrieve_by_id(netid);
+                    net = retrievedDCs[i].a_finder().retrieve_by_id(netid);
                     if(net != null) {
                         return new CacheNetworkAccess(net);
                     }
@@ -1167,7 +1168,7 @@ public class ChannelChooser extends JPanel {
 
         boolean doSelect = true;
 
-        public NetworkLoader(ProxyNetworkDC netdc) {
+        public NetworkLoader(VestingNetworkDC netdc) {
             this.netDC = netdc;
         }
 
@@ -1178,8 +1179,7 @@ public class ChannelChooser extends JPanel {
         public void run() {
             setProgressOwner(this);
             if(configuredNetworks == null || configuredNetworks.length == 0) {
-                NetworkAccess[] nets = BulletproofVestFactory.vestNetworkFinder(netDC)
-                        .retrieve_all();
+                NetworkAccess[] nets = netDC.a_finder().retrieve_all();
                 // I don't think this should ever happen, but...
                 if(nets == null) {
                     nets = new NetworkAccess[0];
@@ -1193,10 +1193,8 @@ public class ChannelChooser extends JPanel {
                 for(int i = 0; i < nets.length; i++) {
                     // skip null networks...probably a bug on the server
                     if(nets[i] != null) {
-                        NetworkAccess net = BulletproofVestFactory.vestNetworkAccess(nets[i],
-                                                                                     netDC);
-                        net.get_attributes();
-                        networkAdd(net);
+                        nets[i].get_attributes();
+                        networkAdd(nets[i]);
                     } else {
                         logger.warn("a networkaccess returned from NetworkFinder.retrieve_all() is null, skipping.");
                     } // end of else
@@ -1220,14 +1218,12 @@ public class ChannelChooser extends JPanel {
                             }
                         }
                         // end hack
-                        NetworkAccess[] nets = BulletproofVestFactory.vestNetworkFinder(netDC)
+                        NetworkAccess[] nets = netDC.a_finder()
                                 .retrieve_by_code(configuredNetworks[counter]);
                         for(int subCounter = 0; subCounter < nets.length; subCounter++) {
                             if(nets[subCounter] != null) {
                                 // preload attributes
-                                NetworkAccess net = BulletproofVestFactory.vestNetworkAccess(nets[subCounter],
-                                                                                             netDC);
-                                NetworkAttr attr = net.get_attributes();
+                                NetworkAttr attr = nets[subCounter].get_attributes();
                                 // this is BAD CODE, but prevents the scepp
                                 // network, SP, from being loaded from the DMC
                                 if(attr.get_code().equals("SP")
@@ -1239,7 +1235,7 @@ public class ChannelChooser extends JPanel {
                                 NetworkAccess[] storedNets = (NetworkAccess[])netDCToNetMap.get(netDC);
                                 if(storedNets == null) {
                                     storedNets = new NetworkAccess[1];
-                                    storedNets[0] = net;
+                                    storedNets[0] = nets[subCounter];
                                     netDCToNetMap.put(netDC, storedNets);
                                 } else {
                                     NetworkAccess[] tmp = new NetworkAccess[storedNets.length + 1];
@@ -1248,10 +1244,10 @@ public class ChannelChooser extends JPanel {
                                                      tmp,
                                                      0,
                                                      storedNets.length);
-                                    tmp[storedNets.length] = net;
+                                    tmp[storedNets.length] = nets[subCounter];
                                     netDCToNetMap.put(netDC, tmp);
                                 } // end of else
-                                networkAdd(net);
+                                networkAdd(nets[subCounter]);
                                 totalNetworks++;
                             } else {
                                 logger.warn("a networkaccess returned from NetworkFinder.retrieve_by_code is null, skipping.");
