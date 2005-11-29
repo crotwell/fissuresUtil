@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.bag;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.sun.rsasign.o;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.OrientationRange;
@@ -59,4 +60,8 @@ public class OrientationUtil {
     }
 
     private static final double TWO_OVER_PI = 2d / Math.PI;
+
+    public static String toString(Orientation orientation) {
+        return "az="+orientation.azimuth+", dip="+orientation.dip;
+    }
 }
