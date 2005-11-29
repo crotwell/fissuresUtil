@@ -22,6 +22,10 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         return vest(nf.retrieve_by_name(name));
     }
 
+    public NetworkAccess[] retrieve_all() {
+        return vest(nf.retrieve_all());
+    }
+
     public NetworkAccess[] vest(NetworkAccess[] accesses) {
         NetworkAccess[] vested = new NetworkAccess[accesses.length];
         for(int i = 0; i < accesses.length; i++) {
