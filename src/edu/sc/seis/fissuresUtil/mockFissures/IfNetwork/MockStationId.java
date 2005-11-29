@@ -19,6 +19,12 @@ public class MockStationId {
                              Defaults.WALL_FALL.getFissuresTime());
     }
 
+    public static StationId createCloseStationId() {
+        return new StationId(MockNetworkId.createNetworkID(),
+                             "CLOSE",
+                             Defaults.WALL_FALL.getFissuresTime());
+    }
+    
     //this station is used as other station in MockSite and Channel as well.
     //It has one site and one channel
     public static StationId createOtherStationId() {
@@ -32,4 +38,6 @@ public class MockStationId {
                              code,
                              Defaults.WALL_FALL.getFissuresTime());
     }
+    
+    
 }
