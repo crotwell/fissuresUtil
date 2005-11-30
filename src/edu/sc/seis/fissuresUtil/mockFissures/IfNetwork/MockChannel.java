@@ -64,8 +64,8 @@ public class MockChannel {
         return new ChannelImpl(id,
                                info,
                                o,
-                               new SamplingImpl(0,
-                                                new TimeInterval(20.0,
+                               new SamplingImpl(20,
+                                                new TimeInterval(1.0,
                                                                  UnitImpl.SECOND)),
                                s.effective_time,
                                s);
