@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.bag;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.sun.rsasign.o;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.OrientationRange;
