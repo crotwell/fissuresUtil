@@ -35,8 +35,8 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
 
     public MicroSecondTimeRange getInitialTime(DataSetSeismogram seis) {
         DataSet ds = seis.getDataSet();
-        EventAccessOperations eao = ds.getEvent();
-        if(eao != null) {
+        EventAccessOperations eao;
+        if(ds != null && (eao = ds.getEvent()) != null) {
             Channel chan = ds.getChannel(seis.getRequestFilter().channel_id);
             if(chan == null) { return super.getInitialTime(seis); }
             Location stationLoc = chan.my_site.my_station.my_location;
