@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry excluding="unit/|database/|display/" kind="src" path="tests"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/database"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/display"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/unit"/>
