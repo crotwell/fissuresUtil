@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.mockFissures.IfNetwork;
 
+import com.sun.tools.jdi.LocationImpl;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.network.StationImpl;
@@ -39,6 +40,17 @@ public class MockStation {
 
     public static Station[] createMultiSplendoredStations() {
         return createMultiSplendoredStations(4, 5);
+    }
+    
+    public static Station createCloseStation(Station in) {
+        Location loc = new Location(in.my_location.latitude+.01f, in.my_location.longitude+.01f, in.my_location.elevation, in.my_location.depth, in.my_location.type);
+        return new StationImpl(MockStationId.createCloseStationId(),
+                               "Close Station",
+                               loc,
+                               "Close to you",
+                               "is this too close",
+                               "still, just a close a test",
+                               MockNetworkAttr.createNetworkAttr());
     }
 
     public static Station[] createMultiSplendoredStations(int rows, int columns) {
