@@ -289,10 +289,16 @@ public class DisplayUtils {
     }
 
     public static DistAz calculateDistAz(DataSetSeismogram seis) {
-        EventAccessOperations event = seis.getDataSet().getEvent();
+        EventAccessOperations event = seis.getEvent();
         Channel channel = seis.getChannel();
         if(channel != null && event != null) {
             return new DistAz(channel, event);
+        }
+        if(channel == null) {
+            logger.debug("Couldn't get channel from data set for " + seis);
+        }
+        if(event == null) {
+            logger.debug("Couldn't get event from dataset for " + seis);
         }
         return null;
     }
