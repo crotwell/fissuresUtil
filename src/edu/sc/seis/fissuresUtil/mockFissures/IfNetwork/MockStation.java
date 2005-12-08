@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.mockFissures.IfNetwork;
 
-import com.sun.tools.jdi.LocationImpl;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.network.StationImpl;
