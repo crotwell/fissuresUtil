@@ -21,5 +21,7 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/velocity-tools/jars/velocity-tools-generic-1.1-rc1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/stax/jars/stax-1.1.1-dev.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xalan/jars/xalan-2.6.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.6.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
