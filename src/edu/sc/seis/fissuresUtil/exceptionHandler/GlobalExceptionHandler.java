@@ -95,6 +95,15 @@ public class GlobalExceptionHandler {
                                t);
                     }
                 }
+                Iterator it = postProcessors.iterator();
+                while(it.hasNext()) {
+                    try {
+                    PostProcess process = (PostProcess)it.next();
+                    process.process(message, thrown);
+                    } catch (Throwable t) {
+                        paranoid(t, thrown);
+                    }
+                }
             }
         } catch(Throwable e) {
             paranoid(e, thrown);
@@ -136,6 +145,14 @@ public class GlobalExceptionHandler {
 
     public static void remove(ExceptionReporter reporter) {
         reporters.remove(reporter);
+    }
+    
+    public static void add(PostProcess process) {
+        postProcessors.add(process);
+    }
+    
+    public static void remove(PostProcess process) {
+        postProcessors.remove(process);
     }
 
     public static void add(String sectionName, File file) {
@@ -213,6 +230,7 @@ public class GlobalExceptionHandler {
     }
 
     private static final boolean exitOnException;
+    
     static {
         exitOnException = Boolean.getBoolean(EXITONEXCEPTION);
     }
@@ -226,6 +244,8 @@ public class GlobalExceptionHandler {
     private static List extractors = Collections.synchronizedList(new ArrayList());
 
     private static List interceptors = Collections.synchronizedList(new ArrayList());
+    
+    private static List postProcessors = Collections.synchronizedList(new ArrayList());
 
     private static boolean showSysInfo = true;
 
@@ -234,5 +254,6 @@ public class GlobalExceptionHandler {
         // always send error to log4j
         add(new Log4jReporter());
         add(new DefaultExtractor());
+        add(new QuitOnExceptionPostProcess(java.lang.OutOfMemoryError.class));
     }
 }
