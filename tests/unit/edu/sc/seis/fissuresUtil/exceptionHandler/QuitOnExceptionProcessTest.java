@@ -7,8 +7,11 @@ public class QuitOnExceptionProcessTest extends TestCase {
     
     public void testQuit() {
         GlobalExceptionHandler.handle("just a test", new OutOfMemoryError());
-        assertFalse("after out of memory", true);
+        fail("after out of memory");
+    }
+    
+    public void testWrappedQuit() {
         GlobalExceptionHandler.handle("just a test", new RuntimeException(new OutOfMemoryError()));
-        assertFalse("after wrapped out of memory", true);
+        fail("after wrapped out of memory");
     }
 }
