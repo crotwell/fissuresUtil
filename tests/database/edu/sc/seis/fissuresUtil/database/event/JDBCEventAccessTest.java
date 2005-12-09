@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.database.event;
 
 import java.sql.SQLException;
-import org.apache.log4j.BasicConfigurator;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
@@ -17,7 +16,6 @@ public class JDBCEventAccessTest extends JDBCTearDown {
 
     public void tearDown() throws SQLException {
         super.tearDown();
-        JDBCEventAccess.emptyCache();
     }
 
     public void testGetAll() throws SQLException, NotFound {
@@ -35,6 +33,12 @@ public class JDBCEventAccessTest extends JDBCTearDown {
         CacheEvent[] caches = new CacheEvent[events.length];
         for(int i = 0; i < events.length; i++) {
             caches[i] = new CacheEvent(events[i]);
+        }
+        try {
+            eventTable.getDBId(caches[0]);
+            fail("Not found should've been thrown");
+        } catch(NotFound e) {
+            assertTrue(true);
         }
         for(int i = 0; i < events.length; i++) {
             int dbid = put(events[i], i);
