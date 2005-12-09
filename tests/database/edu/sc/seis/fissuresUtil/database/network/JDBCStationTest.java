@@ -19,11 +19,6 @@ public class JDBCStationTest extends JDBCTearDown {
         stationTable = new JDBCStation();
     }
     
-    public void tearDown() throws SQLException{
-        super.tearDown();
-        JDBCStation.emptyCache();
-    }
-
     public void testDoublePut() throws SQLException, NotFound {
         Station sta = MockStation.createStation();
         int dbidA = stationTable.put(sta.get_id());
