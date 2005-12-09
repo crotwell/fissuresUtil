@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -47,14 +46,17 @@ public class JDBCStation extends NetworkTable {
              new JDBCTime(conn));
     }
 
-    public JDBCStation(Connection conn, JDBCLocation jdbcLocation,
-            JDBCNetwork jdbcNetwork, JDBCTime time) throws SQLException {
+    public JDBCStation(Connection conn,
+                       JDBCLocation jdbcLocation,
+                       JDBCNetwork jdbcNetwork,
+                       JDBCTime time) throws SQLException {
         super("station", conn);
         this.locTable = jdbcLocation;
         this.netTable = jdbcNetwork;
         this.time = time;
         seq = new JDBCSequence(conn, "StationSeq");
-        TableSetup.setup(this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
+        TableSetup.setup(this,
+                         "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     private StationId[] extractAll(PreparedStatement query) throws SQLException {
@@ -84,10 +86,14 @@ public class JDBCStation extends NetworkTable {
 
     public Station get(int dbid) throws SQLException, NotFound {
         Station sta = (Station)dbIdsToStations.get(new Integer(dbid));
-        if(sta != null) { return sta; }
+        if(sta != null) {
+            return sta;
+        }
         getByDBId.setInt(1, dbid);
         ResultSet rs = getByDBId.executeQuery();
-        if(rs.next()) { return extract(rs, locTable, netTable, time); }
+        if(rs.next()) {
+            return extract(rs, locTable, netTable, time);
+        }
         throw new NotFound("No Station found for database id = " + dbid);
     }
 
@@ -103,7 +109,7 @@ public class JDBCStation extends NetworkTable {
         ResultSet rs = getAllStations.executeQuery();
         return extractAll(rs);
     }
-    
+
     public StationId[] getAllStationIds(int netDbId) throws SQLException {
         getAllForNet.setInt(1, netDbId);
         return extractAll(getAllForNet);
@@ -172,7 +178,7 @@ public class JDBCStation extends NetworkTable {
         throw new NotFound("No stations in the database of code "
                 + station_code + " for netDbId " + netDbId);
     }
-    
+
     public int[] getDBIds(NetworkId net, String stationCode)
             throws SQLException, NotFound {
         return getDBIds(netTable.getDbId(net), stationCode);
@@ -184,15 +190,25 @@ public class JDBCStation extends NetworkTable {
 
     public StationId getStationId(int dbid) throws SQLException, NotFound {
         Station sta = (Station)dbIdsToStations.get(new Integer(dbid));
-        if(sta != null) { return sta.get_id(); }
+        if(sta != null) {
+            return sta.get_id();
+        }
         getStationIdByDBId.setInt(1, dbid);
         ResultSet rs = getStationIdByDBId.executeQuery();
-        if(rs.next()) { return extractId(rs, netTable, time); }
+        if(rs.next()) {
+            return extractId(rs, netTable, time);
+        }
         throw new NotFound("No StationId found for database id = " + dbid);
     }
 
     public int put(ChannelId id) throws SQLException {
         int netDbId = netTable.put(id.network_id);
+        getByChanIdBits.setInt(1, netDbId);
+        getByChanIdBits.setString(2, id.station_code);
+        ResultSet rs = getByChanIdBits.executeQuery();
+        if(rs.next()) {
+            return rs.getInt(1);
+        }
         int dbId = seq.next();
         putChanIdBits.setInt(1, dbId);
         putChanIdBits.setInt(2, netDbId);
@@ -209,7 +225,7 @@ public class JDBCStation extends NetworkTable {
             // now check if the attrs are added
             getIfNameExists.setInt(1, dbid);
             ResultSet rs = getIfNameExists.executeQuery();
-            if(!rs.next()) {//No name, so we need to add the attr part
+            if(!rs.next()) {// No name, so we need to add the attr part
                 int index = insertOnlyStation(sta,
                                               updateSta,
                                               1,
@@ -243,9 +259,10 @@ public class JDBCStation extends NetworkTable {
         return dbid;
     }
 
-    private PreparedStatement getAllQuery, getAllForNet, getIfNameExists, getByDBId,
-            getStationIdByDBId, getDBId, updateSta, putAll, putId,
-            putChanIdBits, getDBIdsForNetAndCode, deleteStation, getAllStations;
+    private PreparedStatement getAllQuery, getAllForNet, getIfNameExists,
+            getByDBId, getStationIdByDBId, getDBId, updateSta, putAll, putId,
+            putChanIdBits, getByChanIdBits, getDBIdsForNetAndCode,
+            deleteStation, getAllStations;
 
     private JDBCLocation locTable;
 
@@ -265,7 +282,9 @@ public class JDBCStation extends NetworkTable {
                                   JDBCNetwork netTable,
                                   JDBCTime time) throws SQLException, NotFound {
         Station sta = (Station)dbIdsToStations.get(new Integer(rs.getInt("sta_id")));
-        if(sta != null) { return sta; }
+        if(sta != null) {
+            return sta;
+        }
         StationId id = extractId(rs, netTable, time);
         edu.iris.Fissures.Time endTime = time.get(rs.getInt("sta_end_id"));
         sta = new StationImpl(id,
@@ -336,7 +355,7 @@ public class JDBCStation extends NetworkTable {
                                         JDBCLocation locTable,
                                         JDBCTime time) throws SQLException {
         // make sure network is completely inserted
-        int notUsed = netTable.put(sta.my_network);
+        netTable.put(sta.my_network);
         stmt.setInt(index++, time.put(sta.effective_time.end_time));
         stmt.setString(index++, sta.name);
         stmt.setString(index++, sta.operator);
@@ -348,11 +367,10 @@ public class JDBCStation extends NetworkTable {
 
     private static Map dbIdsToStations = Collections.synchronizedMap(new HashMap());
 
-    private static final Logger logger = Logger.getLogger(JDBCStation.class);
-
     private static Map stationIdsToDbIds = Collections.synchronizedMap(new HashMap());
 
-    public void cleanupVestigesOfLonelyChannelId(int sta_id) throws SQLException {
+    public void cleanupVestigesOfLonelyChannelId(int sta_id)
+            throws SQLException {
         deleteStation.setInt(1, sta_id);
         deleteStation.executeUpdate();
     }

@@ -7,14 +7,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Logger;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
@@ -219,7 +217,5 @@ public class JDBCNetwork extends NetworkTable{
 
     protected PreparedStatement putAll, putId, getAll, getIfNameExists,
         getByDBId, getDBId, updateAttr, getNetIdByDBId, getByCode;
-
-    private static final Logger logger = Logger.getLogger(JDBCNetwork.class);
 
 }// JDBCNetwork
