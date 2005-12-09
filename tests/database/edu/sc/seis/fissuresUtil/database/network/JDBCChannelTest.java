@@ -15,17 +15,12 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStationId;
 
 public class JDBCChannelTest extends JDBCTearDown {
 
-    public void setUp()throws SQLException{
+    public void setUp() throws SQLException {
         chanTable = new JDBCChannel();
     }
-    
-    public void tearDown(){
-        JDBCStation.emptyCache();
-    }
-    
+
     public void testPutGet() throws SQLException, NotFound {
         int dbid = chanTable.put(chan);
-        chanTable.getSiteTable().getStationTable().emptyCache();
         Channel out = chanTable.get(dbid);
         assertEquals(chan.sampling_info, out.sampling_info);
         assertTrue(ChannelIdUtil.areEqual(chan.get_id(), out.get_id()));
@@ -83,14 +78,14 @@ public class JDBCChannelTest extends JDBCTearDown {
         assertTrue(ChannelIdUtil.areEqual(otherNet.get_id(),
                                           otherNetChans[0].get_id()));
     }
-    
-    public void testPutIdThenChannel() throws SQLException{
+
+    public void testPutIdThenChannel() throws SQLException {
         int idDbId = chanTable.put(chan.get_id());
         int chanDbId = chanTable.put(chan);
         assertEquals(idDbId, chanDbId);
     }
-    
-    public void testPutChannelThenId() throws SQLException{
+
+    public void testPutChannelThenId() throws SQLException {
         int chanDbId = chanTable.put(chan);
         int idDbId = chanTable.put(chan.get_id());
         assertEquals(idDbId, chanDbId);
@@ -102,8 +97,19 @@ public class JDBCChannelTest extends JDBCTearDown {
         assertEquals(dbid, dbid2);
         assertEquals(dbid, chanTable.getDBId(chan.get_id()));
     }
-    
-    
+
+    public void testPartialSitesOnlyDeletedAfterAllReferingChannelIdsHaveChannelsInserted()
+            throws SQLException, NotFound {
+        int chanDbId = chanTable.put(chan.get_id());
+        int otherDbId = chanTable.put(other.get_id());
+        assertEquals(1, chanTable.getSiteTable().size());
+        assertEquals(chanDbId, chanTable.put(chan));
+        assertEquals(2, chanTable.getSiteTable().size());
+        chanTable.getId(otherDbId);
+        assertEquals(otherDbId, chanTable.put(other));
+        assertEquals(1, chanTable.getSiteTable().size());
+    }
+
     private JDBCChannel chanTable;
 
     private static Channel chan = MockChannel.createChannel();
