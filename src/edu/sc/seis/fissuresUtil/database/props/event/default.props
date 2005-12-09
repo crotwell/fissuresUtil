@@ -114,3 +114,14 @@ eventparameterreference.create=CREATE TABLE eventparameterreference ( \
                                     REFERENCES eventattr ( eventattr_id ), \
                                     FOREIGN KEY (parameterid ) \
                                     REFERENCES parameterref ( parameterid ))
+
+origin.views=originview
+
+originview.create=CREATE VIEW originview AS \
+    SELECT * FROM origin \
+    JOIN location ON (origin.origin_location_id = location.loc_id) \
+    JOIN catalog ON (origin.origin_catalog_id = catalog.catalog_id) \
+    JOIN contributor ON (catalog_contributor_id =   contributor.contributor_id) \
+    JOIN time ON (origin.origin_time_id = time.time_id )
+    
+
