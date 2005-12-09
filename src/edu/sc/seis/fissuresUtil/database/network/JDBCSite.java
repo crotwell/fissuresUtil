@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Logger;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.Site;
@@ -44,27 +43,34 @@ public class JDBCSite extends NetworkTable {
              new JDBCTime(conn));
     }
 
-    public JDBCSite(Connection conn, JDBCLocation locTable,
-            JDBCStation stationTable, JDBCTime time) throws SQLException {
+    public JDBCSite(Connection conn,
+                    JDBCLocation locTable,
+                    JDBCStation stationTable,
+                    JDBCTime time) throws SQLException {
         super("site", conn);
         this.locTable = locTable;
         this.stationTable = stationTable;
         this.time = time;
         seq = new JDBCSequence(conn, "SiteSeq");
-        TableSetup.setup(this, "edu/sc/seis/fissuresUtil/database/props/network/default.props");
+        TableSetup.setup(this,
+                         "edu/sc/seis/fissuresUtil/database/props/network/default.props");
     }
 
     public Site get(int dbid) throws SQLException, NotFound {
         getByDBId.setInt(1, dbid);
         ResultSet rs = getByDBId.executeQuery();
-        if(rs.next()) { return extract(rs, locTable, stationTable, time); }
+        if(rs.next()) {
+            return extract(rs, locTable, stationTable, time);
+        }
         throw new NotFound("No Site found for database id = " + dbid);
     }
 
     public int getDBId(SiteId id, Station staId) throws SQLException, NotFound {
         insertId(id, staId, getDBId, 1, stationTable, time);
         ResultSet rs = getDBId.executeQuery();
-        if(rs.next()) { return rs.getInt("site_id"); }
+        if(rs.next()) {
+            return rs.getInt("site_id");
+        }
         throw new NotFound("No such Site id in the db");
     }
 
@@ -93,7 +99,9 @@ public class JDBCSite extends NetworkTable {
     public SiteId getSiteId(int dbid) throws SQLException, NotFound {
         getSiteIdByDBId.setInt(1, dbid);
         ResultSet rs = getSiteIdByDBId.executeQuery();
-        if(rs.next()) { return extractId(rs, stationTable, time); }
+        if(rs.next()) {
+            return extractId(rs, stationTable, time);
+        }
         throw new NotFound("No SiteId found for database id = " + dbid);
     }
 
@@ -103,6 +111,12 @@ public class JDBCSite extends NetworkTable {
 
     public int put(ChannelId id) throws SQLException {
         int sta_id = stationTable.put(id);
+        getByChanIdBits.setInt(1, sta_id);
+        getByChanIdBits.setString(2, id.site_code);
+        ResultSet rs = getByChanIdBits.executeQuery();
+        if(rs.next()) {
+            return rs.getInt(1);
+        }
         int dbid = seq.next();
         putChanIdBits.setInt(1, dbid);
         putChanIdBits.setInt(2, sta_id);
@@ -119,7 +133,7 @@ public class JDBCSite extends NetworkTable {
             // now check if the attrs are added
             getIfCommentExists.setInt(1, dbid);
             ResultSet rs = getIfCommentExists.executeQuery();
-            if(!rs.next()) {//No name, so we need to add the attr part
+            if(!rs.next()) {// No name, so we need to add the attr part
                 int index = insertOnlySite(site, updateSite, 1, locTable, time);
                 updateSite.setInt(index, dbid);
                 updateSite.executeUpdate();
@@ -136,7 +150,7 @@ public class JDBCSite extends NetworkTable {
 
     private PreparedStatement getIfCommentExists, getByDBId, getSiteIdByDBId,
             getDBId, updateSite, putAll, getDBIdsForStaAndCode, putChanIdBits,
-            deleteSite;
+            getByChanIdBits, deleteSite, count;
 
     private JDBCLocation locTable;
 
@@ -214,8 +228,6 @@ public class JDBCSite extends NetworkTable {
         return index;
     }
 
-    private static final Logger logger = Logger.getLogger(JDBCSite.class);
-
     public void cleanupVestigesOfLonelyChannelId(int currentSiteId)
             throws SQLException {
         getByDBId.setInt(1, currentSiteId);
@@ -225,5 +237,11 @@ public class JDBCSite extends NetworkTable {
         deleteSite.setInt(1, currentSiteId);
         deleteSite.executeUpdate();
         stationTable.cleanupVestigesOfLonelyChannelId(sta_id);
+    }
+
+    public int size() throws SQLException {
+        ResultSet rs = count.executeQuery();
+        rs.next();
+        return rs.getInt(1);
     }
 } // JDBCSite

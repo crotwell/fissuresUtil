@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Logger;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.Sampling;
 import edu.iris.Fissures.TimeRange;
@@ -438,8 +437,6 @@ public class JDBCChannel extends NetworkTable {
         stmt.setInt(index++, chan.sampling_info.numPoints);
         return index;
     }
-
-    private static final Logger logger = Logger.getLogger(JDBCChannel.class);
 
     public JDBCQuantity getQuantityTable() {
         return quantityTable;
