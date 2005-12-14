@@ -14,7 +14,11 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.StationImpl;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.JDBCLocation;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
@@ -225,18 +229,30 @@ public class JDBCStation extends NetworkTable {
             // now check if the attrs are added
             getIfNameExists.setInt(1, dbid);
             ResultSet rs = getIfNameExists.executeQuery();
-            if(!rs.next()) {// No name, so we need to add the attr part
-                int index = insertOnlyStation(sta,
-                                              updateSta,
-                                              1,
-                                              netTable,
-                                              locTable,
-                                              time);
-                updateSta.setInt(index, dbid);
-                updateSta.executeUpdate();
+            if(!rs.next()) {//No name, so we need to add the attr part
+                updateStation(sta, dbid);
             }
         } catch(NotFound notFound) {
-            // no id found so ok to add the whole thing
+            // no id found so check for wrong begin time
+            try {
+            int[] dbidForCode = getDBIds(sta.get_id().network_id, sta.get_code());
+            MicroSecondDate staBeginDate = new MicroSecondDate(sta.effective_time.start_time);
+            MicroSecondDate staEndDate = new MicroSecondDate(sta.effective_time.end_time);
+            MicroSecondDate nowPlusTen = ClockUtil.now().add(new TimeInterval(10, UnitImpl.GREGORIAN_YEAR));
+            for(int i = 0; i < dbidForCode.length; i++) {
+                Station dbsta = get(dbidForCode[i]);
+                MicroSecondDate dbEndDate = new MicroSecondDate(dbsta.effective_time.end_time);
+                MicroSecondDate dbBeginDate = new MicroSecondDate(dbsta.effective_time.start_time);
+                if (dbBeginDate.before(staBeginDate) && dbEndDate.after(nowPlusTen) && staEndDate.after(nowPlusTen)) {
+                    // both end in future, so end db station and insert new with db station end as new station begin
+                    dbsta.effective_time.end_time = sta.effective_time.start_time;
+                    updateStation(dbsta, dbidForCode[i]);
+                }
+            }
+            } catch (NotFound e) {
+                // not found by code, so go ahead an add it
+            }
+            // ok to add the whole thing
             dbid = seq.next();
             putAll.setInt(1, dbid);
             insertAll(sta, putAll, 2, netTable, locTable, time);
@@ -244,6 +260,17 @@ public class JDBCStation extends NetworkTable {
             putAll.executeUpdate();
         }
         return dbid;
+    }
+    
+    public void updateStation(Station sta, int dbid) throws SQLException {
+        int index = insertOnlyStation(sta,
+                                      updateSta,
+                                      1,
+                                      netTable,
+                                      locTable,
+                                      time);
+        updateSta.setInt(index, dbid);
+        updateSta.executeUpdate();
     }
 
     public int put(StationId id) throws SQLException {
