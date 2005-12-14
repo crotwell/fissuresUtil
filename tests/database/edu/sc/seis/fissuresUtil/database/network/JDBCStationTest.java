@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.database.network;
 import java.sql.SQLException;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.database.NotFound;
@@ -92,6 +93,18 @@ public class JDBCStationTest extends JDBCTearDown {
         }
         assertTrue(foundDbid);
         assertTrue(foundRestartDbid);
+    }
+    
+    public void testStationdEnded() throws SQLException, NotFound {
+        Station sta = MockStation.createStation();
+        Station resta = MockStation.createRestartedStation();
+        int dbid = stationTable.put(sta);
+        int restartDbid = stationTable.put(resta);
+        Station outSta = stationTable.get(dbid);
+        // endtime of sta should now be start time of resta
+        MicroSecondDate newStaBegin = new MicroSecondDate(resta.effective_time.start_time);
+        MicroSecondDate outStaEnd = new MicroSecondDate(outSta.effective_time.end_time);
+        assertEquals(0, newStaBegin.compareTo(outStaEnd));
     }
 
     private JDBCStation stationTable;
