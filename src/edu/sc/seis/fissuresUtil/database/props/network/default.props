@@ -122,6 +122,8 @@ site.deleteSite = DELETE FROM site WHERE site_id = ?
 
 site.count = SELECT count(*) FROM site
 
+site.getAllForStationDbId = SELECT * FROM site where sta_id = ?
+
 channel.create = CREATE TABLE channel (chan_id int, \
                                        site_id int, \
                                        chan_code varchar(3), \
