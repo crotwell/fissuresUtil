@@ -13,6 +13,14 @@ public class MockSiteId {
                           sta.get_id().begin_time);
     }
 
+    public static SiteId createOtherSiteIdSameStation() {
+        Station sta = MockStation.createStation();
+        return new SiteId(sta.get_id().network_id,
+                          sta.get_code(),
+                          "11",
+                          sta.get_id().begin_time);
+    }
+
     public static SiteId createOtherSiteId() {
         Station sta = MockStation.createOtherStation();
         return new SiteId(sta.get_id().network_id,
