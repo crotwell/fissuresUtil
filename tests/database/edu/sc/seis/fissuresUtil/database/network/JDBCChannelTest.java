@@ -110,11 +110,26 @@ public class JDBCChannelTest extends JDBCTearDown {
         assertEquals(1, chanTable.getSiteTable().size());
     }
 
+
+    public void testPartialSitesOnlyDeletedAfterAllReferingChannelIdsHaveChannelsInsertedWithDifferentSiteIds()
+            throws SQLException, NotFound {
+        int chanDbId = chanTable.put(chan.get_id());
+        int otherDbId = chanTable.put(otherSiteSameStation.get_id());
+        assertEquals(2, chanTable.getSiteTable().size());
+        assertEquals(chanDbId, chanTable.put(chan));
+        assertEquals(2, chanTable.getSiteTable().size());
+        chanTable.getId(otherDbId);
+        assertEquals(otherDbId, chanTable.put(otherSiteSameStation));
+        assertEquals(2, chanTable.getSiteTable().size());
+    }
+    
     private JDBCChannel chanTable;
 
     private static Channel chan = MockChannel.createChannel();
 
     private static Channel other = MockChannel.createNorthChannel();
 
+    private static Channel otherSiteSameStation = MockChannel.createOtherSiteSameStationChan();
+    
     private static Channel otherNet = MockChannel.createOtherNetChan();
 }

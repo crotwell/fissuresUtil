@@ -150,7 +150,7 @@ public class JDBCSite extends NetworkTable {
 
     private PreparedStatement getIfCommentExists, getByDBId, getSiteIdByDBId,
             getDBId, updateSite, putAll, getDBIdsForStaAndCode, putChanIdBits,
-            getByChanIdBits, deleteSite, count;
+            getByChanIdBits, deleteSite, count, getAllForStationDbId;
 
     private JDBCLocation locTable;
 
@@ -236,7 +236,20 @@ public class JDBCSite extends NetworkTable {
         int sta_id = rs.getInt("sta_id");
         deleteSite.setInt(1, currentSiteId);
         deleteSite.executeUpdate();
-        stationTable.cleanupVestigesOfLonelyChannelId(sta_id);
+        SiteId[] sameStaIdSites = getAllSiteIdsForStationDbId(rs.getInt("sta_id"));
+        if (sameStaIdSites.length == 0) {
+            stationTable.cleanupVestigesOfLonelyChannelId(sta_id);
+        }
+    }
+    
+    public SiteId[] getAllSiteIdsForStationDbId(int sta_dbid) throws SQLException {
+        getAllForStationDbId.setInt(1, sta_dbid);
+        ResultSet rs = getAllForStationDbId.executeQuery();
+        List out = new ArrayList();
+        while(rs.next()) {
+            out.add(extractId(rs, getStationTable(), time));
+        }
+        return (SiteId[])out.toArray(new SiteId[0]);
     }
 
     public int size() throws SQLException {
