@@ -13,6 +13,10 @@ public class MockChannelId{
     public static ChannelId createOtherNetChanId(){
         return createChanId("BHZ", MockSite.createOtherSite());
     }
+    
+    public static ChannelId createOtherSiteSameStationChanId(){
+        return createChanId("BHZ", MockSite.createOtherSiteSameStation());
+    }
 
     public static ChannelId createChanId(String chanCode, Site site){
         ChannelId chanId = new ChannelId();

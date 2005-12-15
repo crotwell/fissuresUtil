@@ -23,6 +23,13 @@ public class MockSite {
                             "?dnarg ti t'nsI  .etis a is siht");
     }
 
+    public static Site createOtherSiteSameStation() {
+        return new SiteImpl(MockSiteId.createOtherSiteIdSameStation(),
+                            MockLocation.SIMPLE,
+                            MockStation.createStation(),
+                            "this is another site.  Isn't it grander?");
+    }
+
     public static Site createSite(Station station) {
         return new SiteImpl(MockSiteId.createSiteId(station),
                             station.my_location,

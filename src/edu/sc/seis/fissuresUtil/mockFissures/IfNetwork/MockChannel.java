@@ -34,6 +34,13 @@ public class MockChannel {
                              EAST);
     }
 
+    public static Channel createOtherSiteSameStationChan() {
+        return createChannel(MockChannelId.createOtherSiteSameStationChanId(),
+                             "Other Site Same Station Vertical Channel",
+                             MockSite.createOtherSiteSameStation(),
+                             VERTICAL);
+    }
+
     public static Channel createOtherNetChan() {
         return createChannel(MockChannelId.createOtherNetChanId(),
                              "Other Net Vertical Channel",
@@ -95,4 +102,5 @@ public class MockChannel {
     private static final Orientation NORTH = new Orientation(0, 0);
 
     private static final Orientation[] ORIENTATIONS = {VERTICAL, NORTH, EAST};
+
 }
