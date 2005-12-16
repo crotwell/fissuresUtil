@@ -37,11 +37,11 @@ public class Tester{
         private int repeats;
     }
 
-    /**Runs all the runnables 3 times against each other pair wise with one
+    /**Runs all the runnables 10 times against each other pair wise with one
      * thread per runnable
      */
     public static void runAll(Runnable[] runnables)throws Throwable{
-        runAll(runnables, 3, null);
+        runAll(runnables, 10, null);
     }
 
     public static void runAll(Runnable[] runnables, int runsPerThread, PrintWriter out)throws Throwable{
