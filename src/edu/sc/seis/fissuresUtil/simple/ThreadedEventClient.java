@@ -1,10 +1,21 @@
 package edu.sc.seis.fissuresUtil.simple;
 
+import java.util.Properties;
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 
 public class ThreadedEventClient extends SimpleEventClient{
+    
+    public ThreadedEventClient() {
+        super();
+    }
+    
+    public ThreadedEventClient(String serverDNS, String serverName) {
+        super(serverDNS, serverName);
+    }
+    
     public void exercise(){
         super.exercise();
         try {
@@ -51,11 +62,28 @@ public class ThreadedEventClient extends SimpleEventClient{
 
     private static Logger logger = Logger.getLogger(ThreadedEventClient.class);
 
-    public static void main(String[] args){
+    public static void amain(String[] args){
         Initializer.init(args);
         try {
             Tester.runAll(new ThreadedEventClient().createRunnables());
         } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+    public static void main(String[] args) {
+        BasicConfigurator.configure();
+        Initializer.init(args);
+        Properties props = Initializer.getProps();
+        try {
+            ThreadedEventClient client;
+            if(props.containsKey("serverName") && props.containsKey("serverDNS")) {
+                client = new ThreadedEventClient(props.getProperty("serverDNS"),
+                                               props.getProperty("serverName"));
+            } else {
+                client = new ThreadedEventClient();
+            }
+            Tester.runAll(client.createRunnables());
+        } catch(Throwable e) {
             e.printStackTrace();
         }
     }
