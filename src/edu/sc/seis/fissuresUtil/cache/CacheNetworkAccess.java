@@ -122,6 +122,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     private SensitivityHolder updateHolder(ChannelId id,
                                            Time the_time,
                                            Instrumentation inst) {
+
+        if (inst.the_response.stages.length == 0) {
+            throw new RuntimeException("Instrumentation for "+ChannelIdUtil.toString(id)+" has no stages, units cannot be determined.");
+        }
         SensitivityHolder holder = extractExistingHolder(id, the_time);
         List sensForChannel = extractSensForChannel(id);
         if(holder == null) {
