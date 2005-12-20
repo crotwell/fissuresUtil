@@ -11,7 +11,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 11888 2005-02-01 16:00:38Z crotwell $
+ * @version $Id: Statistics.java 15609 2005-12-20 15:56:29Z crotwell $
  */
 
 public class Statistics  {
@@ -358,6 +358,31 @@ public class Statistics  {
         return Math.sqrt(var());
     }
 
+
+    public double covariance(double[] other) {
+        return covariance(new Statistics(other));
+    }
+    
+    public double covariance(Statistics otherStat) {
+        if (otherStat.dSeries.length != dSeries.length) {
+            throw new IllegalArgumentException("covariance cannot be calculated if the data series are not of the same length: "+dSeries.length+" != "+otherStat.dSeries.length);
+        }
+        double ourMean = mean();
+        double otherMean = otherStat.mean();
+        double covar = 0;
+        for(int i = 0; i < otherStat.dSeries.length; i++) {
+            covar += dSeries[i] * otherStat.dSeries[i];
+        }
+        covar /= otherStat.dSeries.length ;
+        covar -= ourMean*otherMean;
+        return covar;
+    }
+    
+    public double correlation(double[] other) {
+        Statistics otherStat = new Statistics(other);
+        double covar = covariance(otherStat);
+        return covar / otherStat.stddev() / stddev();
+    }
 
     /**
      * Calculates the linear Least Squares slope and intercept for this series.
