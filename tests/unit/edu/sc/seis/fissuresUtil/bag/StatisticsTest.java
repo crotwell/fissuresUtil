@@ -240,25 +240,41 @@ public class StatisticsTest
         //    System.out.println("pacf "+i+" = "+testPACF[i]);
         }
     }
+    
+    public void testCorrelation() {
+        Statistics stat;
+        double[] testData = new double[10];
+        double[] otherData = new double[10];
+        
+        for(int i = 0; i < otherData.length; i++) {
+            otherData[i] = 1;
+            testData[i] = 1;
+        }
+        stat = new Statistics(testData);
+        assertEquals("no variation, so no correlation", 0, stat.correlation(otherData), 0.00001);
+        
+        for(int i = 0; i < otherData.length; i++) {
+            otherData[i] = i;
+            testData[i] = i;
+        }
+        stat = new Statistics(testData);
+        assertEquals("perfect correlation", 1, stat.correlation(otherData), 0.00001);
+        
 
+        for(int i = 0; i < otherData.length; i++) {
+            otherData[i] = i;
+            testData[i] = -i;
+        }
+        stat = new Statistics(testData);
+        assertEquals("perfect anticorrelation", -1, stat.correlation(otherData), 0.00001);
+        
 
-
-    /**
-     * JUnitDoclet moves marker to this method, if there is not match
-     * for them in the regenerated code and if the marker is not empty.
-     * This way, no test gets lost when regenerating after renaming.
-     * Method testVault is supposed to be empty.
-     */
-    public void testVault() throws Exception {
-        // JUnitDoclet begin method testcase.testVault
-        // JUnitDoclet end method testcase.testVault
+        for(int i = 0; i < otherData.length; i++) {
+            otherData[i] = i;
+            testData[i] = i % 2;
+        }
+        stat = new Statistics(testData);
+        assertEquals("uncorrelated", 0, stat.correlation(otherData), 0.00001);
     }
-
-    public static void main(String[] args) {
-        // JUnitDoclet begin method testcase.main
-        junit.textui.TestRunner.run(StatisticsTest.class);
-        // JUnitDoclet end method testcase.main
-    }
-
 
 }
