@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <notAllowed/>
+  </start>
+  <define name="fissures_quantity" ns="http://www.seis.sc.edu/xschema/dataset/2.0">
+    <element name="value">
+      <data type="decimal"/>
+    </element>
+    <ref name="the_units"/>
+  </define>
+  <define name="the_units" ns="http://www.seis.sc.edu/xschema/dataset/2.0">
+    <element name="the_units">
+      <element name="the_unit_base">
+        <element name="value">
+          <data type="integer"/>
+        </element>
+      </element>
+      <element name="power">
+        <data type="integer"/>
+      </element>
+      <element name="name">
+        <text/>
+      </element>
+      <element name="multi_factor">
+        <data type="decimal"/>
+      </element>
+      <element name="exponent">
+        <data type="integer"/>
+      </element>
+    </element>
+  </define>
+  <define name="begin_time">
+    <element name="begin_time">
+      <element name="date_time">
+        <text/>
+      </element>
+      <element name="leap_seconds_version">
+        <data type="int"/>
+      </element>
+    </element>
+  </define>
+  <define name="effective_time">
+    <element name="effective_time">
+      <ref name="effective_time_contents"/>
+    </element>
+  </define>
+  <define name="effective_time_contents">
+    <element name="start_time">
+      <element name="date_time">
+        <text/>
+      </element>
+      <element name="leap_seconds_version">
+        <data type="int"/>
+      </element>
+    </element>
+    <element name="end_time">
+      <element name="date_time">
+        <text/>
+      </element>
+      <element name="leap_seconds_version">
+        <data type="int"/>
+      </element>
+    </element>
+  </define>
+  <define name="my_location">
+    <element name="my_location">
+      <element name="latitude">
+        <data type="decimal"/>
+      </element>
+      <element name="longitude">
+        <data type="decimal"/>
+      </element>
+      <element name="elevation">
+        <ref name="fissures_quantity"/>
+      </element>
+      <element name="depth">
+        <ref name="fissures_quantity"/>
+      </element>
+      <element name="type">
+        <text/>
+      </element>
+    </element>
+  </define>
+  <define name="channel_id_contents">
+      <ref name="network_id"/>
+      <element name="station_code">
+        <text/>
+      </element>
+      <element name="site_code">
+        <text/>
+      </element>
+      <element name="channel_code">
+        <text/>
+      </element>
+      <ref name="begin_time"/>
+  </define>
+  <define name="network_id">
+    <element name="network_id">
+      <element name="network_code">
+        <text/>
+      </element>
+      <ref name="begin_time"/>
+    </element>
+  </define>
+</grammar>
