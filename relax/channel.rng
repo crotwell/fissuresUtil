@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="base_definitions.rng"/>
+  <start combine="choice">
+    <element name="parameter">
+      <element name="name">
+        <data type="string">
+          <param name="pattern">edu.sc.seis.fissuresUtil.xml#CHANNEL_.*</param>
+        </data>
+      </element>
+      <element name="type">
+        <element name="definition">
+          <text/>
+        </element>
+        <element name="name">
+          <text/>
+        </element>
+      </element>
+      <element name="value">
+        <element name="channel">
+          <ref name="channel_id"/>
+          <element name="name">
+            <text/>
+          </element>
+          <element name="an_orientation">
+            <element name="azimuth">
+              <data type="decimal"/>
+            </element>
+            <element name="dip">
+              <data type="decimal"/>
+            </element>
+          </element>
+          <element name="sampling_info">
+            <element name="numPoints">
+              <data type="integer"/>
+            </element>
+            <element name="interval">
+              <element name="value">
+                <data type="decimal"/>
+              </element>
+              <ref name="the_units"/>
+            </element>
+          </element>
+          <ref name="effective_time"/>
+          <element name="my_site">
+            <ref name="site_id"/>
+            <ref name="my_location"/>
+            <ref name="effective_time"/>
+            <element name="my_station">
+              <ref name="station_id"/>
+              <element name="name">
+                <text/>
+              </element>
+              <ref name="my_location"/>
+              <ref name="effective_time"/>
+              <element name="operator">
+                <text/>
+              </element>
+              <element name="description">
+                <text/>
+              </element>
+              <element name="comment">
+                <text/>
+              </element>
+              <element name="my_network">
+                <element name="name">
+                  <text/>
+                </element>
+                <element name="description">
+                  <text/>
+                </element>
+                <element name="owner">
+                  <text/>
+                </element>
+                <ref name="my_network_id"/>
+                <ref name="effective_time"/>
+              </element>
+            </element>
+            <element name="comment">
+              <text/>
+            </element>
+          </element>
+        </element>
+      </element>
+    </element>
+  </start>
+  <define name="channel_id">
+    <element name="id">
+      <ref name="channel_id_contents"/>
+    </element>
+  </define>
+  <define name="site_id">
+    <element name="id">
+      <ref name="network_id"/>
+      <element name="station_code">
+        <text/>
+      </element>
+      <element name="site_code">
+        <text/>
+      </element>
+      <ref name="begin_time"/>
+    </element>
+  </define>
+  <define name="station_id">
+    <element name="id">
+      <ref name="network_id"/>
+      <element name="station_code">
+        <text/>
+      </element>
+      <ref name="begin_time"/>
+    </element>
+  </define>
+  <define name="my_network_id">
+    <element name="id">
+      <element name="network_code">
+        <text/>
+      </element>
+      <ref name="begin_time"/>
+    </element>
+  </define>
+</grammar>
