@@ -32,9 +32,9 @@ import org.w3c.dom.Text;
  */
 public class XMLUtil {
 
-    //---------------------------------------------------------
-    //Begin StAX stuff. DOM stuff is at the bottom.
-    //---------------------------------------------------------
+    // ---------------------------------------------------------
+    // Begin StAX stuff. DOM stuff is at the bottom.
+    // ---------------------------------------------------------
     /**
      * outputs a text element to a StAX writer
      */
@@ -68,7 +68,7 @@ public class XMLUtil {
         while(xmlReader.hasNext()) {
             if(i != XMLStreamConstants.END_ELEMENT
                     || !xmlReader.getName().equals(rootTag)) {
-                //grab the real root element QName
+                // grab the real root element QName
                 if(i == XMLStreamConstants.START_ELEMENT
                         && rootTag.equals(emptyName)) {
                     rootTag = xmlReader.getName();
@@ -184,19 +184,19 @@ public class XMLUtil {
         return buf.toString();
     }
 
-    //TODO make this method work again. I think newlines broke it.
+    // TODO make this method work again. I think newlines broke it.
     public static void mergeDocs(File intoFile,
                                  File fromFile,
                                  QName compareTag,
                                  QName rootTag) throws FileNotFoundException,
             XMLStreamException, IOException {
-        //create reader for original File
+        // create reader for original File
         FileReader fileReader1 = new FileReader(intoFile);
         XMLEventReader xmlReader1 = staxInputFactory.createXMLEventReader(fileReader1);
-        //create reader for file with the new data to be merged in
+        // create reader for file with the new data to be merged in
         FileReader fileReader2 = new FileReader(fromFile);
         XMLEventReader xmlReader2 = staxInputFactory.createXMLEventReader(fileReader2);
-        //create writer for merged document
+        // create writer for merged document
         File tempFile = File.createTempFile("Temp_" + intoFile.getName() + "1",
                                             "xml",
                                             intoFile.getParentFile());
@@ -207,18 +207,18 @@ public class XMLUtil {
                           xmlWriter,
                           compareTag,
                           rootTag);
-        //close the readers
+        // close the readers
         xmlReader1.close();
         xmlReader2.close();
         fileReader1.close();
         fileReader2.close();
-        //flush and close the writers
+        // flush and close the writers
         xmlWriter.flush();
         fileWriter.flush();
         xmlWriter.close();
         fileWriter.close();
         if(!tempFile.renameTo(intoFile)) {
-            //If unable to rename the tempfile, delete it and try again
+            // If unable to rename the tempfile, delete it and try again
             if(intoFile.delete()) {
                 tempFile.renameTo(intoFile);
             } else {
@@ -227,7 +227,7 @@ public class XMLUtil {
         }
     }
 
-    //TODO make this work again. I think newlines broke it
+    // TODO make this work again. I think newlines broke it
     /**
      * Merges two XML Documents using StAX. The root element of
      * <code>reader1</code> will be used in the new document. Flushing and
@@ -240,7 +240,7 @@ public class XMLUtil {
                                  QName compareTag,
                                  QName rootTag) throws XMLStreamException {
         javax.xml.stream.events.XMLEvent event;
-        //write prologue of from reader1
+        // write prologue of from reader1
         while(reader1.hasNext()
                 && !isOfName(compareTag, reader1.peek())
                 && !(reader1.peek().isEndElement() && reader1.peek()
@@ -251,25 +251,25 @@ public class XMLUtil {
             writer.add(event);
         }
         javax.xml.stream.events.XMLEvent curEvent = reader1.nextEvent();
-        //write the pertinant information that is being merged
+        // write the pertinant information that is being merged
         if(isOfName(compareTag, curEvent)) {
             moveElements(reader1, writer, curEvent, compareTag);
         }
-        //skip prologue of reader2
+        // skip prologue of reader2
         while(reader2.hasNext() && !isOfName(compareTag, reader2.peek())) {
             event = reader2.nextEvent();
         }
         curEvent = reader2.nextEvent();
-        //write more pertinant information
+        // write more pertinant information
         if(isOfName(compareTag, curEvent)) {
             curEvent = moveElements(reader2, writer, curEvent, compareTag);
         }
-        //try to get the rest of reader1. If there isn't anything left,
-        //the xml was either malformed or there was a problem parsing
+        // try to get the rest of reader1. If there isn't anything left,
+        // the xml was either malformed or there was a problem parsing
         writer.add(curEvent);
     }
 
-    //TODO make this work again. I think newlines broke it.
+    // TODO make this work again. I think newlines broke it.
     /**
      * Moves all elements of a particular type.
      * 
@@ -320,9 +320,9 @@ public class XMLUtil {
     public static QName emptyName = new QName("",
                                               "thisisareallyuglynameforatagthathopefullynoonewilleveruse");
 
-    //---------------------------------------------------------
-    //End of StAX stuff. Everything else is DOM.
-    //---------------------------------------------------------
+    // ---------------------------------------------------------
+    // End of StAX stuff. Everything else is DOM.
+    // ---------------------------------------------------------
     public static Element createTextElement(Document doc,
                                             String elementName,
                                             String value) {
@@ -343,13 +343,13 @@ public class XMLUtil {
      */
     public static NodeList evalNodeList(Node context, String path) {
         try {
-            //xpath = new CachedXPathAPI();
+            // xpath = new CachedXPathAPI();
             XObject xobj = xpath.eval(context, path);
             if(xobj != null && xobj.getType() == XObject.CLASS_NODESET) {
                 return xobj.nodelist();
             }
         } catch(javax.xml.transform.TransformerException e) {
-            //System.out.println("Couldn't get NodeList"+e);
+            // System.out.println("Couldn't get NodeList"+e);
         } // end of try-catch
         return null;
     }
@@ -367,7 +367,7 @@ public class XMLUtil {
         try {
             return xpath.eval(context, path).str();
         } catch(javax.xml.transform.TransformerException e) {
-            //System.out.println("Couldn't get String"+ e);
+            // System.out.println("Couldn't get String"+ e);
         } // end of try-catch
         return null;
     }
@@ -433,13 +433,13 @@ public class XMLUtil {
      * @return a <code>String[]</code> value
      */
     public static String[] getAllAsStrings(Element config, String path) {
-        //logger.debug("The path that is passed to GetALLASStrings is "+path);
+        // logger.debug("The path that is passed to GetALLASStrings is "+path);
         NodeList nodes = evalNodeList(config, path);
         if(nodes == null) {
             return new String[0];
         } // end of if (nodes == null)
         String[] out = new String[nodes.getLength()];
-        //logger.debug("the length of the nodes is "+nodes.getLength());
+        // logger.debug("the length of the nodes is "+nodes.getLength());
         for(int i = 0; i < out.length; i++) {
             out[i] = nodes.item(i).getNodeValue();
         } // end of for (int i=0; i++; i<out.length)
@@ -481,6 +481,29 @@ public class XMLUtil {
             return (Element)nList.item(0);
         }
         return null;
+    }
+
+    public static void gotoNextStartElement(XMLStreamReader parser, String name)
+            throws XMLStreamException {
+        System.out.println(name);
+        while(parser.hasNext()) {
+            int event = parser.next();
+            if(event == XMLStreamConstants.START_ELEMENT) {
+                if(parser.getLocalName().equals(name)) {
+                    return;
+                }
+            }
+        }
+    }
+
+    public static void getNextStartElement(XMLStreamReader parser)
+            throws XMLStreamException {
+        while(parser.hasNext()) {
+            int event = parser.next();
+            if(event == XMLStreamConstants.START_ELEMENT) {
+                return;
+            }
+        }
     }
 
     private static CachedXPathAPI xpath = new CachedXPathAPI();
