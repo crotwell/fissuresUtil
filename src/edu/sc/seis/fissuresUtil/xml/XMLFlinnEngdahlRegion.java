@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -66,7 +67,7 @@ public class XMLFlinnEngdahlRegion {
             element.appendChild(XMLUtil.createTextElement(doc,
                                                           "number",
                                                           ""+region.number));
-        } // end of else
+        }
     }
 
     public static FlinnEngdahlRegion getRegion(Element base) {
@@ -83,20 +84,21 @@ public class XMLFlinnEngdahlRegion {
         }
         return flinnEngdahlRegion;
     }
-
-    //  public static FlinnEngdahlRegion getRegion(Element base) {
-
-    //  String type = XMLUtil.evalString(base, "type");
-    //  int value = Integer.parseInt(XMLUtil.evalString(base, "number"));
-    //  FlinnEngdahlRegion flinnEngdahlRegion = null;
-    //  if(type.equals("SEISMIC_REGION")) {
-    //      flinnEngdahlRegion = new FlinnEngdahlRegionImpl(FlinnEngdahlType.SEISMIC_REGION,
-    //                              value);
-    //  } else if(type.equals("GEOGRAPHIC_REGION")) {
-    //      flinnEngdahlRegion = new FlinnEngdahlRegionImpl(FlinnEngdahlType.GEOGRAPHIC_REGION,
-    //                              value);
-    //  }
-    //  return flinnEngdahlRegion;
-    //  }
+    
+    public static FlinnEngdahlRegion getRegion(XMLStreamReader parser) throws XMLStreamException {
+        XMLUtil.gotoNextStartElement(parser, "type");
+        String type = parser.getElementText();
+        XMLUtil.gotoNextStartElement(parser, "number");
+        int number = Integer.parseInt(parser.getElementText());
+        FlinnEngdahlRegion flinnEngdahlRegion = null;
+        if(type.equals("SEISMIC_REGION")) {
+            flinnEngdahlRegion = new FlinnEngdahlRegionImpl(FlinnEngdahlType.SEISMIC_REGION,
+                                                            number);
+        } else if(type.equals("GEOGRAPHIC_REGION")) {
+            flinnEngdahlRegion = new FlinnEngdahlRegionImpl(FlinnEngdahlType.GEOGRAPHIC_REGION,
+                                                            number);
+        }
+        return flinnEngdahlRegion;
+    }
 
 }// XMLFlinnEngdahlRegion
