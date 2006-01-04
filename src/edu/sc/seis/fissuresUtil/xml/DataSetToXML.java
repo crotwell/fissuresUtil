@@ -14,6 +14,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,6 +25,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import edu.iris.Fissures.AuditInfo;
+import edu.sc.seis.fissuresUtil.xml.StAX.StAXToDataSet;
 
 public class DataSetToXML {
 
@@ -278,38 +283,100 @@ public class DataSetToXML {
             UnsupportedFileTypeException {
         DataSet dataset = null;
         DocumentBuilder docBuilder = getDocumentBuilder();
+        XMLInputFactory factory = XMLInputFactory.newInstance();
         try {
-            Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
-            Element docElement = doc.getDocumentElement();
-            if(docElement.getTagName().equals("dataset")) {
-                if(docElement.getAttribute("xsi:schemaLocation")
-                        .equals(DSML_SCHEMA2_0)) {
-                    DataSetToXML dataSetToXML = new DataSetToXML();
-                    dataset = dataSetToXML.extract(datasetURL, docElement);
-                } else {
-                    logger.warn("Not a 2.0 dsml. " + docElement.getTagName()
-                            + "  "
-                            + docElement.getAttribute("xsi:schemaLocation"));
-                    dataset = new XMLDataSet(docBuilder, datasetURL, docElement);
-                    AuditInfo[] audit = {new AuditInfo("loaded from "
-                                                               + datasetURL.toString(),
-                                                       System.getProperty("user.name"))};
-                    dataset.addParameter("xml:base",
-                                         datasetURL.toString(),
-                                         audit);
+            XMLStreamReader parser = factory.createXMLStreamReader(datasetURL.openStream());
+            while(parser.hasNext()) {
+                int event = parser.next();
+                if(event == XMLStreamConstants.START_ELEMENT) {
+                    if(parser.getLocalName().equals("dataset")) {
+                        if(parser.getAttributeValue(null, "schemaLocation")
+                                .equals(DSML_SCHEMA2_0)) {
+                            DataSetToXML dataSetToXML = new DataSetToXML();
+                            dataset = dataSetToXML.createWithStAX(parser,
+                                                                  datasetURL);
+                        } else {
+                            Document doc = docBuilder.parse(new BufferedInputStream(datasetURL.openStream()));
+                            Element docElement = doc.getDocumentElement();
+                            logger.warn("Not a 2.0 dsml. "
+                                    + docElement.getTagName()
+                                    + "  "
+                                    + docElement.getAttribute("xsi:schemaLocation"));
+                            dataset = new XMLDataSet(docBuilder,
+                                                     datasetURL,
+                                                     docElement);
+                            AuditInfo[] audit = {new AuditInfo("loaded from "
+                                                                       + datasetURL.toString(),
+                                                               System.getProperty("user.name"))};
+                            dataset.addParameter("xml:base",
+                                                 datasetURL.toString(),
+                                                 audit);
+                            return dataset;
+                        }
+                    }
                 }
-                return dataset;
             }
-            throw new IncomprehensibleDSMLException("This does not appear to be a dsml file, starting tag is not dataset. "
-                    + datasetURL.toString());
+        } catch(XMLStreamException e1) {
+            throw new IncomprehensibleDSMLException("This does not appear to be a dsml file."
+                                                            + datasetURL.toString(),
+                                                    e1);
         } catch(SAXException e) {
             throw new IncomprehensibleDSMLException("This does not appear to be a dsml file."
                                                             + datasetURL.toString(),
                                                     e);
         }
+        return dataset;
     }
 
     public static final String DSML_SCHEMA2_0 = "http://www.seis.sc.edu/xschema/dataset/2.0 http://www.seis.sc.edu/xschema/dataset/2.0/dataset.xsd";
+
+    /**
+     * Creates the dataset from the input.
+     * 
+     * @throws XMLStreamException
+     * @throws MalformedURLException
+     * @throws UnsupportedFileTypeException
+     */
+    public DataSet createWithStAX(XMLStreamReader parser, URL base)
+            throws XMLStreamException, MalformedURLException,
+            UnsupportedFileTypeException {
+        String name = "no name yet";
+        String owner = "no owner yet";
+        String id = parser.getAttributeValue(null, "datasetid");
+        AuditInfo[] audit = createAuditInfo(base, id);
+        MemoryDataSet dataset = new MemoryDataSet(id, name, owner, audit);
+        StAXToDataSet staxToDataSet = new StAXToDataSet(parser, base);
+        XMLUtil.getNextStartElement(parser);
+        while(parser.hasNext()) {
+            if(parser.isStartElement()) {
+                if(parser.getLocalName().equals("name")) {
+                    name = parser.getElementText();
+                    dataset.setName(name);
+                } else if(parser.getLocalName().equals("owner")) {
+                    owner = parser.getElementText();
+                    dataset.setOwner(owner);
+                } else if(parser.getLocalName().equals("dataset")) {
+                    dataset.addDataSet(createWithStAX(parser, base), audit);
+                } else if(parser.getLocalName().equals("datasetRef")) {
+                    staxToDataSet.addDataSet(dataset, audit);
+                } else if(parser.getLocalName().equals("urlDataSetSeismogram")) {
+                    staxToDataSet.addDataSetSeismogram(dataset, audit);
+                } else if(parser.getLocalName().equals("parameter")) {
+                    staxToDataSet.addParameter(dataset, audit);
+                } else {
+                    XMLUtil.getNextStartElement(parser);
+                }
+            } else {
+                XMLUtil.getNextStartElement(parser);
+            }
+        }
+        System.out.println();
+        System.out.println("Name: " + name);
+        System.out.println("Owner: " + owner);
+        System.out.println("ID: " + id);
+        System.out.println();
+        return dataset;
+    }
 
     /**
      * Extracts the dataset from the element, which is assumed to be a
@@ -331,13 +398,8 @@ public class DataSetToXML {
                 }
             }
         }
-        // all 3 should be populated now
-        AuditInfo[] audit = new AuditInfo[1];
-        audit[0] = new AuditInfo("loaded from " + base.toString(),
-                                 System.getProperty("user.name"));
-        if(id == null || id.length() == 0) {
-            id = "autogen_id-" + Math.random();
-        }
+        // name, owner, id - should be populated by now
+        AuditInfo[] audit = createAuditInfo(base, id);
         MemoryDataSet dataset = new MemoryDataSet(id, name, owner, audit);
         dataset.addParameter("xml:base", base.toString(), audit);
         for(int i = 0; i < children.getLength(); i++) {
@@ -362,6 +424,16 @@ public class DataSetToXML {
             }
         }
         return dataset;
+    }
+
+    public static AuditInfo[] createAuditInfo(URL base, String id) {
+        AuditInfo[] audit = new AuditInfo[1];
+        audit[0] = new AuditInfo("loaded from " + base.toString(),
+                                 System.getProperty("user.name"));
+        if(id == null || id.length() == 0) {
+            id = "autogen_id-" + Math.random();
+        }
+        return audit;
     }
 
     protected boolean saveLocally = true;
