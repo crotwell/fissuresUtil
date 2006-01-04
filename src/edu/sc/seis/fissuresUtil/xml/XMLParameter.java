@@ -4,7 +4,9 @@ import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -183,8 +185,8 @@ public class XMLParameter {
                                           String name,
                                           String href,
                                           Object value) {
-        //  write(href, value);
-        //Element paramRef = doc.createElement("parameterRef");
+        // write(href, value);
+        // Element paramRef = doc.createElement("parameterRef");
         paramRef.setAttribute("name", name);
         paramRef.setAttributeNS(xlinkNS, "xlink:type", "type/xml");
         if(href.startsWith("file:")) {
@@ -223,7 +225,7 @@ public class XMLParameter {
             java.util.Properties oprops = new java.util.Properties();
             oprops.put("method", "xml");
             oprops.put("indent", "yes");
-            //oprops.put("xalan:indent-amount", "4");
+            // oprops.put("xalan:indent-amount", "4");
             serializer.setOutputProperties(oprops);
             Element element = doc.createElement("parameter");
             insert(element, "notused", value);
@@ -309,20 +311,19 @@ public class XMLParameter {
      */
     public static Object getParameter(Element base) {
         String name = XMLUtil.getText(XMLUtil.getElement(base, "name"));
-        Element typeNode = XMLUtil.getElement(base, "type");
-        Element type = null;
-        if(typeNode != null) {
-            type = typeNode;
-        }
+        Element type = XMLUtil.getElement(base, "type");
         String className = XMLUtil.getText(XMLUtil.getElement(type, "name"));
         try {
             Class c = Class.forName(className);
             while(!c.equals(Object.class)) {
-                if(isRecognizedClass(c)) { return makeForClass(c, base); }
+                if(isRecognizedClass(c)) {
+                    return makeForClass(c, base);
+                }
                 Class[] interfaces = c.getInterfaces();
                 for(int i = 0; i < interfaces.length; i++) {
-                    if(isRecognizedClass(interfaces[i])) { return makeForClass(interfaces[i],
-                                                                               base); }
+                    if(isRecognizedClass(interfaces[i])) {
+                        return makeForClass(interfaces[i], base);
+                    }
                 }
                 c = c.getSuperclass();
             }
@@ -334,6 +335,33 @@ public class XMLParameter {
         return new ParameterRef(name, value);
     }
 
+    public static Object getParameter(XMLStreamReader parser, String name)
+            throws XMLStreamException {
+        XMLUtil.gotoNextStartElement(parser, "name");
+        String className = parser.getElementText();
+        try {
+            Class c = Class.forName(className);
+            while(!c.equals(Object.class)) {
+                if(isRecognizedClass(c)) {
+                    return makeForClass(c, parser);
+                }
+                Class[] interfaces = c.getInterfaces();
+                for(int i = 0; i < interfaces.length; i++) {
+                    if(isRecognizedClass(interfaces[i])) {
+                        return makeForClass(interfaces[i], parser);
+                    }
+                }
+                c = c.getSuperclass();
+            }
+        } catch(ClassNotFoundException e) {
+            logger.debug("unable to find class of type " + className
+                    + " loading parameter as a string");
+        }
+        XMLUtil.gotoNextStartElement(parser, "value");
+        String value = parser.getElementText();
+        return new ParameterRef(name, value);
+    }
+
     public static boolean isRecognizedClass(Class c) {
         return c.equals(EventAccessOperations.class) || c.equals(Channel.class);
     }
@@ -341,7 +369,19 @@ public class XMLParameter {
     public static Object makeForClass(Class c, Element base) {
         if(c.equals(EventAccessOperations.class)) {
             return makeEvent(base);
-        } else if(c.equals(Channel.class)) { return makeChannel(base); }
+        } else if(c.equals(Channel.class)) {
+            return makeChannel(base);
+        }
+        return null;
+    }
+
+    public static Object makeForClass(Class c, XMLStreamReader parser)
+            throws XMLStreamException {
+        if(c.equals(EventAccessOperations.class)) {
+            return makeEvent(parser);
+        } else if(c.equals(Channel.class)) {
+            return makeChannel(parser);
+        }
         return null;
     }
 
@@ -353,11 +393,26 @@ public class XMLParameter {
         return channel;
     }
 
+    private static Channel makeChannel(XMLStreamReader parser)
+            throws XMLStreamException {
+        XMLUtil.gotoNextStartElement(parser, "channel");
+        Channel channel = XMLChannel.getChannel(parser);
+        return channel;
+    }
+
     private static EventAccessOperations makeEvent(Element base) {
         Element event = XMLUtil.getElement(XMLUtil.getElement(base, "value"),
                                            "event");
         EventAttr eventAttr = XMLEvent.getEvent(event);
         Origin preferred_origin = XMLEvent.getPreferredOrigin(event);
+        return new CacheEvent(eventAttr, new Origin[0], preferred_origin);
+    }
+
+    private static EventAccessOperations makeEvent(XMLStreamReader parser)
+            throws XMLStreamException {
+        XMLUtil.gotoNextStartElement(parser, "event");
+        EventAttr eventAttr = XMLEvent.getEvent(parser);
+        Origin preferred_origin = XMLEvent.getPreferredOrigin(parser);
         return new CacheEvent(eventAttr, new Origin[0], preferred_origin);
     }
 
@@ -369,9 +424,12 @@ public class XMLParameter {
      * @return a <code>String</code> value
      */
     public static String getObjectType(Object object) {
-        if(object instanceof Channel) return "edu.sc.seis.fissuresUtil.xml.XMLChannel";
-        else if(object instanceof CacheEvent) return "edu.sc.seis.fissuresUtil.xml.XMLEvent";
-        else return "String";
+        if(object instanceof Channel)
+            return "edu.sc.seis.fissuresUtil.xml.XMLChannel";
+        else if(object instanceof CacheEvent)
+            return "edu.sc.seis.fissuresUtil.xml.XMLEvent";
+        else
+            return "String";
     }
 
     private static final String xlinkNS = "http://www.w3.org/1999/xlink";
