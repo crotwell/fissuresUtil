@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,8 +43,13 @@ public class XMLUnitBase {
     public static UnitBase getUnitBase(Element base) {
 
         int value = Integer.parseInt(XMLUtil.getText(XMLUtil.getElement(base,"value")));
-        //Integer.parseInt(XMLUtil.evalString(base, "value"));
         return UnitBase.from_int(value);
     }
 
+    public static UnitBase getUnitBase(XMLStreamReader parser) throws XMLStreamException {
+        XMLUtil.gotoNextStartElement(parser, "value");
+        int value = Integer.parseInt(parser.getElementText());
+        return UnitBase.from_int(value);
+    }
+    
 }// XMLUnitBase
