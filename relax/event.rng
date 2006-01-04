@@ -38,26 +38,30 @@
             <element name="contributor">
               <text/>
             </element>
-            <element name="origin_time">
-              <element name="date_time">
-                <text/>
+            <optional>
+              <element name="origin_time">
+                <element name="date_time">
+                  <text/>
+                </element>
+                <element name="leap_seconds_version">
+                  <data type="integer"/>
+                </element>
               </element>
-              <element name="leap_seconds_version">
-                <data type="integer"/>
-              </element>
-            </element>
+            </optional>
             <ref name="my_location"/>
-            <element name="magnitude">
-              <element name="type">
-                <text/>
+            <oneOrMore>
+              <element name="magnitude">
+                <element name="type">
+                  <text/>
+                </element>
+                <element name="value">
+                  <data type="decimal"/>
+                </element>
+                <element name="contributor">
+                  <text/>
+                </element>
               </element>
-              <element name="value">
-                <data type="decimal"/>
-              </element>
-              <element name="contributor">
-                <text/>
-              </element>
-            </element>
+            </oneOrMore>
           </element>
         </element>
       </element>
