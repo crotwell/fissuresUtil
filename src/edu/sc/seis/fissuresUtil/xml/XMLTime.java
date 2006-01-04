@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.xml;
 import java.util.Calendar;
 import java.util.Date;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -39,7 +40,6 @@ public class XMLTime {
     }
 
     public static edu.iris.Fissures.Time  getFissuresTime(Element element) {
-        Date startTime = Calendar.getInstance().getTime();
         NodeList  nodeList = element.getChildNodes();
         String date_time = "";
         int leap_seconds_version = 0;
@@ -54,13 +54,17 @@ public class XMLTime {
                     leap_seconds_version = Integer.parseInt(XMLUtil.getText(elem));
                 }
             }
-            //String date_time = XMLUtil.evalString(element, "date_time");
-            //int leap_seconds_version = Integer.parseInt(XMLUtil.evalString(element,"leap_seconds_version"));
         }
-        Date endTime = Calendar.getInstance().getTime();
         return new edu.iris.Fissures.Time(date_time, leap_seconds_version);
     }
 
+    public static edu.iris.Fissures.Time  getFissuresTime(XMLStreamReader parser) throws XMLStreamException {
+        XMLUtil.gotoNextStartElement(parser, "date_time");
+        String date_time = parser.getElementText();
+        XMLUtil.gotoNextStartElement(parser, "leap_seconds_version");
+        int leap_seconds_version = Integer.parseInt(parser.getElementText());
+        return new edu.iris.Fissures.Time(date_time, leap_seconds_version);
+    }
 
 
 }// XMLTime
