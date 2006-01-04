@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -28,6 +29,7 @@ import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -319,9 +321,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
     }
 
     public static File makeFile(File directory,
-                                 int count,
-                                 Channel channel,
-                                 String suffix) {
+                                int count,
+                                Channel channel,
+                                String suffix) {
         String seisFilename = ChannelIdUtil.toStringNoDates(channel.get_id());
         seisFilename += count > 0 ? "" + count : "";
         seisFilename = seisFilename.replace(' ', '_');// make spacespace sites
@@ -621,20 +623,56 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                                                seisTypes,
                                                                name,
                                                                request);
-        children = element.getElementsByTagName(NAMED_VALUE);
-        for(int i = 0; i < children.getLength(); i++) {
-            Element nameElement = (Element)((Element)children.item(i)).getElementsByTagName("name")
-                    .item(0);
-            String auxName = XMLUtil.getText(nameElement);
-            urlDSS.addAuxillaryData(auxName,
-                                    ((Element)children.item(i)).getElementsByTagName("value")
-                                            .item(0)
-                                            .getFirstChild());
-        }
+        // children = element.getElementsByTagName(NAMED_VALUE);
+        // for(int i = 0; i < children.getLength(); i++) {
+        // Element nameElement =
+        // (Element)((Element)children.item(i)).getElementsByTagName("name")
+        // .item(0);
+        // String auxName = XMLUtil.getText(nameElement);
+        // urlDSS.addAuxillaryData(auxName,
+        // ((Element)children.item(i)).getElementsByTagName("value")
+        // .item(0)
+        // .getFirstChild());
+        // }
         children = element.getElementsByTagName(PROPERTY);
         for(int i = 0; i < children.getLength(); i++) {
             Property p = XMLProperty.getProperty((Element)children.item(i));
             urlDSS.addAuxillaryData(p.name, p.value);
+        }
+        return urlDSS;
+    }
+
+    public static URLDataSetSeismogram getURLDataSetSeismogram(URL base,
+                                                               XMLStreamReader parser)
+            throws XMLStreamException, MalformedURLException,
+            UnsupportedFileTypeException {
+        XMLUtil.gotoNextStartElement(parser, "name");
+        String name = parser.getElementText();
+        XMLUtil.gotoNextStartElement(parser, "requestFilter");
+        RequestFilter request = XMLRequestFilter.getRequestFilter(parser);
+        XMLUtil.gotoNextStartElement(parser, "url");
+        List urlList = new ArrayList();
+        List fileTypeList = new ArrayList();
+        urlList.add(new URL(base, parser.getAttributeValue(null, "href")));
+        fileTypeList.add(SeismogramFileTypes.fromString(parser.getAttributeValue(null,
+                                                                                 "role")));
+        XMLUtil.getNextStartElement(parser);
+        while(parser.getLocalName().equals("url")) {
+            urlList.add(new URL(base, parser.getAttributeValue(null, "href")));
+            fileTypeList.add(SeismogramFileTypes.fromString(parser.getAttributeValue(null,
+                                                                                     "role")));
+            XMLUtil.getNextStartElement(parser);
+        }
+        URL[] urls = (URL[])urlList.toArray(new URL[0]);
+        SeismogramFileTypes[] fileTypes = (SeismogramFileTypes[])fileTypeList.toArray(new SeismogramFileTypes[0]);
+        URLDataSetSeismogram urlDSS = new URLDataSetSeismogram(urls,
+                                                               fileTypes,
+                                                               name,
+                                                               request);
+        while(parser.hasNext() && parser.getLocalName().equals("property")) {
+            Property p = XMLProperty.getProperty(parser);
+            urlDSS.addAuxillaryData(p.name, p.value);
+            XMLUtil.getNextStartElement(parser);
         }
         return urlDSS;
     }
