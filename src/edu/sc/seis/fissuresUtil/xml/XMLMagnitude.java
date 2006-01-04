@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,4 +56,18 @@ public class XMLMagnitude {
                              contributor);
 
     }
+    
+    public static Magnitude getMagnitude(XMLStreamReader parser) throws XMLStreamException {
+        XMLUtil.gotoNextStartElement(parser, "type");
+        String type = parser.getElementText();
+        XMLUtil.gotoNextStartElement(parser, "value");
+        float value = Float.parseFloat(parser.getElementText());
+        XMLUtil.gotoNextStartElement(parser, "contributor");
+        String contributor = parser.getElementText();
+        return new Magnitude(type,
+                             value,
+                             contributor);
+
+    }
+    
 }//XMLMagnitude
