@@ -1,6 +1,9 @@
 package edu.sc.seis.fissuresUtil.xml;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -81,7 +84,7 @@ public class XMLOrigin {
             magnitude = doc.createElement("magnitude");
             XMLMagnitude.insert(magnitude, origin.magnitudes[i]);
             element.appendChild(magnitude);
-        } // end of for (int i=0; i<origin.magnitudes.length; i++)
+        }
 
     }
 
@@ -90,24 +93,15 @@ public class XMLOrigin {
         String catalog = XMLUtil.getText(XMLUtil.getElement(base, "catalog"));
         String contributor = XMLUtil.getText(XMLUtil.getElement(base, "contributor"));
         Element originTimeNode = XMLUtil.getElement(base, "origin_time");
-        edu.iris.Fissures.Time origin_time = new edu.iris.Fissures.Time();
-        if(originTimeNode != null) {
-            origin_time = XMLTime.getFissuresTime(originTimeNode);
-        }
+        edu.iris.Fissures.Time origin_time = XMLTime.getFissuresTime(originTimeNode);
         Element locationNode = XMLUtil.getElement(base, "my_location");
-        Location location = null;
-        if(locationNode != null) {
-            location = XMLLocation.getLocation(locationNode);
-        }
+        Location location = XMLLocation.getLocation(locationNode);
         Element[] magnitudeList = XMLUtil.getElementArray(base, "magnitude");
-        Magnitude[] magnitudes = new Magnitude[0];
-        if(magnitudeList != null && magnitudeList.length != 0) {
-            magnitudes = new Magnitude[magnitudeList.length];
-            for(int counter = 0; counter < magnitudeList.length; counter++) {
-                magnitudes[counter] =
-                    XMLMagnitude.getMagnitude(magnitudeList[counter]);
+        Magnitude[] magnitudes = new Magnitude[magnitudeList.length];
+            for(int i = 0; i < magnitudeList.length; i++) {
+                magnitudes[i] =
+                    XMLMagnitude.getMagnitude(magnitudeList[i]);
             }
-        }
         return new OriginImpl(id,
                               catalog,
                               contributor,
@@ -117,36 +111,33 @@ public class XMLOrigin {
                               new ParameterRef[0]);
     }
 
-    //    public static Origin getOrigin(Element base) {
-    //  String id = XMLUtil.evalString(base, "id");
-    //  String catalog = XMLUtil.evalString(base, "catalog");
-    //  String contributor = XMLUtil.evalString(base, "contributor");
-    //  NodeList originTimeNode = XMLUtil.evalNodeList(base, "origin_time");
-    //  edu.iris.Fissures.Time origin_time = new edu.iris.Fissures.Time();
-    //  if(originTimeNode != null && originTimeNode.getLength() != 0 ) {
-    //      origin_time = XMLTime.getFissuresTime((Element)originTimeNode.item(0));
-    //  }
-    //  NodeList locationNode = XMLUtil.evalNodeList(base, "my_location");
-    //  Location location = null;
-    //  if(locationNode != null && locationNode.getLength() != 0) {
-    //      location = XMLLocation.getLocation((Element)locationNode.item(0));
-    //  }
-    //  NodeList magnitudeList = XMLUtil.evalNodeList(base, "magnitude");
-    //  Magnitude[] magnitudes = new Magnitude[0];
-    //  if(magnitudeList != null && magnitudeList.getLength() != 0) {
-    //      magnitudes = new Magnitude[magnitudeList.getLength()];
-    //      for(int counter = 0; counter < magnitudeList.getLength(); counter++) {
-    //          magnitudes[counter] =
-    //          XMLMagnitude.getMagnitude((Element)magnitudeList.item(counter));
-    //      }
-    //  }
-    //  return new OriginImpl(id,
-    //                catalog,
-    //                contributor,
-    //                origin_time,
-    //                location,
-    //                magnitudes,
-    //                new ParameterRef[0]);
-    //     }
-
+    public static Origin getOrigin(XMLStreamReader parser) throws XMLStreamException {
+        XMLUtil.gotoNextStartElement(parser, "id");
+        String id = parser.getElementText();
+        XMLUtil.gotoNextStartElement(parser, "catalog");
+        String catalog = parser.getElementText();
+        XMLUtil.gotoNextStartElement(parser, "contributor");
+        String contributor = parser.getElementText();
+        XMLUtil.gotoNextStartElement(parser, "origin_time");
+        edu.iris.Fissures.Time origin_time = XMLTime.getFissuresTime(parser);
+        XMLUtil.gotoNextStartElement(parser, "my_location");
+        Location location = XMLLocation.getLocation(parser);
+        XMLUtil.gotoNextStartElement(parser, "magnitude");
+        List magnitudeList = new ArrayList();
+        magnitudeList.add(XMLMagnitude.getMagnitude(parser));
+        XMLUtil.getNextStartElement(parser);
+        while(parser.getLocalName().equals("magnitude")){
+            magnitudeList.add(XMLMagnitude.getMagnitude(parser));
+            XMLUtil.getNextStartElement(parser);
+        }
+        Magnitude[] magnitudes = (Magnitude[])magnitudeList.toArray(new Magnitude[0]);
+        return new OriginImpl(id,
+                              catalog,
+                              contributor,
+                              origin_time,
+                              location,
+                              magnitudes,
+                              new ParameterRef[0]);
+    }
+    
 }// XMLOrigin
