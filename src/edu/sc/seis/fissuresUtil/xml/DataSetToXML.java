@@ -290,8 +290,10 @@ public class DataSetToXML {
                 int event = parser.next();
                 if(event == XMLStreamConstants.START_ELEMENT) {
                     if(parser.getLocalName().equals("dataset")) {
-                        if(parser.getAttributeValue(null, "schemaLocation")
-                                .equals(DSML_SCHEMA2_0)) {
+                        if(parser.getAttributeValue(null, "schemaLocation") != null
+                                && parser.getAttributeValue(null,
+                                                            "schemaLocation")
+                                        .equals(DSML_SCHEMA2_0)) {
                             DataSetToXML dataSetToXML = new DataSetToXML();
                             dataset = dataSetToXML.createWithStAX(parser,
                                                                   datasetURL);
@@ -370,11 +372,6 @@ public class DataSetToXML {
                 XMLUtil.getNextStartElement(parser);
             }
         }
-        System.out.println();
-        System.out.println("Name: " + name);
-        System.out.println("Owner: " + owner);
-        System.out.println("ID: " + id);
-        System.out.println();
         return dataset;
     }
 
