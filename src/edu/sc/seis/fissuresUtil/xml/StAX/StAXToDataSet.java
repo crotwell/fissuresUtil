@@ -20,11 +20,12 @@ public class StAXToDataSet {
     }
 
     public void addDataSet(MemoryDataSet dataset, AuditInfo[] audit)
-            throws MalformedURLException {
+            throws MalformedURLException, XMLStreamException {
         dataset.addDataSet(new URLDataSet(parser.getAttributeValue(null, "title"),
                                           new URL(base,
                                                   parser.getAttributeValue(null, "href"))),
                            audit);
+        XMLUtil.getNextStartElement(parser);
     }
 
     public void addDataSetSeismogram(MemoryDataSet dataset, AuditInfo[] audit)
