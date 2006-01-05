@@ -485,7 +485,6 @@ public class XMLUtil {
 
     public static void gotoNextStartElement(XMLStreamReader parser, String name)
             throws XMLStreamException {
-        System.out.println(name);
         while(parser.hasNext()) {
             int event = parser.next();
             if(event == XMLStreamConstants.START_ELEMENT) {
