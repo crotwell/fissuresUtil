@@ -16,11 +16,14 @@ import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
 
 /**
- * @author groves Created on Dec 1, 2004
+ * @author groves Created on Dec 1, 2004 The extension of VestingNetworkDC is a
+ *         hack so this thing can be passed around as a vestingdc. It really
+ *         just uses the one passed into it and not the superclass methods
  */
-public class FilterNetworkDC implements ProxyNetworkDC {
+public class FilterNetworkDC extends VestingNetworkDC {
 
     public FilterNetworkDC(VestingNetworkDC wrappedDC, Pattern[] patterns) {
+        super(wrappedDC);
         this.patterns = patterns;
         vester = wrappedDC;
     }
