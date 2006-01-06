@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -69,7 +68,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay {
                                   BOTTOM_CENTER);
                 }
             }
-            validate();
+            revalidate();
         }
 
         private SeismogramDisplay get(int pos) {
@@ -81,7 +80,6 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay {
         }
     }
 
-    private static final Color EVEN = new Color(0, 0, 0, 0), ODD = Color.WHITE;
 
     public abstract void add(DataSetSeismogram[] dss);
 
@@ -265,7 +263,7 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay {
         }
     }
 
-    protected CenterPanel cp;
+    private CenterPanel cp;
 
     protected boolean globalizedAmp = false;
 

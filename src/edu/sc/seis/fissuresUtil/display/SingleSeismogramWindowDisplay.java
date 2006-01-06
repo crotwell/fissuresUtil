@@ -27,14 +27,14 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
         BasicSeismogramDisplay disp;
         DataSetSeismogram[] newSeis = new DataSetSeismogram[toAdd.size()];
         toAdd.toArray(newSeis);
-        if(cp.getComponentCount() == 0){
+        if(getCenter().getComponentCount() == 0){
             disp = new BasicSeismogramDisplay(tc, ac);
             disp.setParentDisplay(this);
             disp.add(newSeis);
             getCenter().add(disp);
         }
         else{
-            disp = (BasicSeismogramDisplay)cp.getComponent(0);
+            disp = (BasicSeismogramDisplay)getCenter().getComponent(0);
             disp.add(newSeis);
         }
         setBorders();
@@ -42,8 +42,8 @@ public class SingleSeismogramWindowDisplay extends VerticalSeismogramDisplay {
 
     public void setIndividualizedAmpConfig(AmpConfig ac){
         this.ac = new IndividualizedAmpConfig(ac);
-        if(cp.getComponentCount() != 0){
-            BasicSeismogramDisplay  disp = (BasicSeismogramDisplay)cp.getComponent(0);
+        if(getCenter().getComponentCount() != 0){
+            BasicSeismogramDisplay  disp = (BasicSeismogramDisplay)getCenter().getComponent(0);
             disp.setAmpConfig(this.ac);
         }
     }

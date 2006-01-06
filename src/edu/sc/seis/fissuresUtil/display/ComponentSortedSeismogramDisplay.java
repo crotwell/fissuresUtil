@@ -87,10 +87,10 @@ public class ComponentSortedSeismogramDisplay extends VerticalSeismogramDisplay 
 
     public void setIndividualizedAmpConfig(AmpConfig ac) {
         Class configClass = ac.getClass();
-        for(int i = 0; i < cp.getComponentCount(); i++) {
+        for(int i = 0; i < getCenter().getComponentCount(); i++) {
             try {
                 AmpConfig newAmp = new IndividualizedAmpConfig((AmpConfig)configClass.newInstance());
-                ((SeismogramDisplay)cp.getComponent(i)).setAmpConfig(newAmp);
+                ((SeismogramDisplay)getCenter().getComponent(i)).setAmpConfig(newAmp);
             } catch(IllegalAccessException e) {
                 GlobalExceptionHandler.handle("Problem creating ampConfig from class",
                                               e);

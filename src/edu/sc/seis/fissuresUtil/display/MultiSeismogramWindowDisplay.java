@@ -31,11 +31,10 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             disp.addSoundPlay();
         }
         setBorders();
-        revalidate();
     }
 
     protected void addBSD(BasicSeismogramDisplay disp, int pos){
-        cp.add(disp, pos);
+        getCenter().add(disp, pos);
     }
 
     public void remove(DataSetSeismogram[] dss){
@@ -60,7 +59,6 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
     }
 
     private SeismogramSorter sorter;
-    private static Logger logger = Logger.getLogger(MultiSeismogramWindowDisplay.class);
 
 }// MultiSeismogramWindowDisplay
 
