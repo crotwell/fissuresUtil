@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.gmt;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -11,9 +12,14 @@ public class PSXYExecute {
 
     public static void open(String psFilename, String projection, String region)
             throws InterruptedException, IOException {
+        open(new File(psFilename), projection, region);
+    }
+    
+    public static void open(File psFile, String projection, String region)
+                throws InterruptedException, IOException {
         String command = "psxy /dev/null -V -J" + projection + " -R" + region
                 + " -K";
-        FileOutputStream fos = new FileOutputStream(psFilename, true);
+        FileOutputStream fos = new FileOutputStream(psFile, true);
         try {
             GenericCommandExecute.execute(command,
                                           new StringReader(""),
@@ -26,9 +32,14 @@ public class PSXYExecute {
 
     public static void close(String psFilename, String projection, String region)
             throws InterruptedException, IOException {
+        close(new File(psFilename), projection, region);
+    }
+
+    public static void close(File psFile, String projection, String region)
+            throws InterruptedException, IOException {
         String command = "psxy /dev/null -V -J" + projection + " -R" + region
                 + " -O";
-        FileOutputStream fos = new FileOutputStream(psFilename, true);
+        FileOutputStream fos = new FileOutputStream(psFile, true);
         try {
             GenericCommandExecute.execute(command,
                                           new StringReader(""),
@@ -40,6 +51,17 @@ public class PSXYExecute {
     }
 
     public static void addPoints(String psFilename,
+                                 String projection,
+                                 String region,
+                                 String symbol,
+                                 String fillColor,
+                                 String outlineColor,
+                                 double[][] points) throws IOException,
+            InterruptedException {
+        addPoints(new File(psFilename), projection, region, symbol, fillColor, outlineColor, points);
+    }
+
+    public static void addPoints(File psFilename,
                                  String projection,
                                  String region,
                                  String symbol,
