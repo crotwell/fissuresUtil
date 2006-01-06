@@ -31,6 +31,7 @@ public class MultiSeismogramWindowDisplay extends VerticalSeismogramDisplay {
             disp.addSoundPlay();
         }
         setBorders();
+        revalidate();
     }
 
     protected void addBSD(BasicSeismogramDisplay disp, int pos){
