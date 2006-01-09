@@ -28,15 +28,14 @@ public class SoftRefSeismogramContainer extends AbstractSeismogramContainer {
         this(null, seismogram);
     }
 
-    public SoftRefSeismogramContainer(
-            SeismogramContainerListener initialListener,
-            DataSetSeismogram seismogram) {
+    public SoftRefSeismogramContainer(SeismogramContainerListener initialListener,
+                                      DataSetSeismogram seismogram) {
         super(initialListener, seismogram);
     }
 
     public SeismogramIterator getIterator() {
-        //use circuitous route to return time to sidestep class variable time
-        //getting set to null at other points in the code
+        // use circuitous route to return time to sidestep class variable time
+        // getting set to null at other points in the code
         MicroSecondTimeRange fullTime = time;
         if(fullTime == null) {
             fullTime = RangeTool.getFullTime(getSeismograms());
@@ -110,7 +109,8 @@ public class SoftRefSeismogramContainer extends AbstractSeismogramContainer {
                         LocalSeismogramImpl cur = (LocalSeismogramImpl)((SoftReference)it.next()).get();
                         if(cur != null
                                 && DataSetSeismogram.equalOrContains(cur,
-                                                                     seismograms[j])) it.remove();
+                                                                     seismograms[j]))
+                            it.remove();
                     }
                     if(seismograms[j].isDataDecodable()) {
                         softSeis.add(new SoftReference(seismograms[j]));
@@ -164,7 +164,9 @@ public class SoftRefSeismogramContainer extends AbstractSeismogramContainer {
         LocalSeismogramImpl[] seis = EMPTY_ARRAY;
         synchronized(softSeis) {
             if(softSeis.size() == 0 && retrieveOnEmpty) {
-                callRetrieve = true;
+                if(retrievedTime == null || (!retrievedTime.equals(getDSSTime()) && getDataStatus() != NO_DATA)) {
+                    callRetrieve = true;
+                }
             } else {
                 Iterator it = softSeis.iterator();
                 while(it.hasNext()) {
@@ -183,9 +185,15 @@ public class SoftRefSeismogramContainer extends AbstractSeismogramContainer {
         }
         if(callRetrieve) {
             time = null;
+            retrievedTime = getDSSTime();
             getDataSetSeismogram().retrieveData(this);
         }
         return seis;
+    }
+
+    private MicroSecondTimeRange getDSSTime() {
+        return new MicroSecondTimeRange(getDataSetSeismogram().getBeginMicroSecondDate(),
+                                        getDataSetSeismogram().getEndMicroSecondDate());
     }
 
     private List softSeis = Collections.synchronizedList(new ArrayList());
@@ -194,5 +202,5 @@ public class SoftRefSeismogramContainer extends AbstractSeismogramContainer {
 
     private static final LocalSeismogramImpl[] EMPTY_ARRAY = {};
 
-    private MicroSecondTimeRange time;
+    private MicroSecondTimeRange time, retrievedTime;
 }
