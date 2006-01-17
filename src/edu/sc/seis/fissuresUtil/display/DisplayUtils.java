@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -41,6 +42,18 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  * @version
  */
 public class DisplayUtils {
+
+    public static void runInDispatchThread(Runnable r) {
+        if(!SwingUtilities.isEventDispatchThread()) {
+            try {
+                SwingUtilities.invokeAndWait(r);
+            } catch(Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            r.run();// If we're in the dispatch thread, run the chooser directly
+        }
+    }
 
     public static DataSetSeismogram[] getComponents(DataSetSeismogram seismogram) {
         DataSet dataSet = seismogram.getDataSet();
