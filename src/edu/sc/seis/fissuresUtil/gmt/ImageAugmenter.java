@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Paint;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.Toolkit;
@@ -55,6 +56,7 @@ public class ImageAugmenter {
                                   img.getHeight(null),
                                   BufferedImage.TYPE_INT_ARGB_PRE);
         Graphics2D g2d = image.createGraphics();
+        setAntialiasingOn(g2d);
         g2d.drawImage(img, 0, 0, null);
     }
 
@@ -63,6 +65,7 @@ public class ImageAugmenter {
                           Paint strokePaint,
                           float strokeWidth) {
         Graphics2D g2d = (Graphics2D)image.getGraphics();
+        setAntialiasingOn(g2d);
         g2d.setPaint(fill);
         g2d.fill(shape);
         g2d.setPaint(strokePaint);
@@ -125,8 +128,9 @@ public class ImageAugmenter {
         image = new BufferedImage(newWidth,
                                   newHeight,
                                   BufferedImage.TYPE_INT_ARGB_PRE);
-        Graphics2D g2D = image.createGraphics();
-        g2D.drawImage(oldImage, null, -left, -top);
+        Graphics2D g2d = image.createGraphics();
+        setAntialiasingOn(g2d);
+        g2d.drawImage(oldImage, null, -left, -top);
         oldImage = null;
     }
 
@@ -162,6 +166,10 @@ public class ImageAugmenter {
 
     public void setYFromBottom(boolean b) {
         yFromBottom = b;
+    }
+    
+    public static void setAntialiasingOn(Graphics2D g2d) {
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 
     public static int[] getTriangleCoords(int[] centerCoords,
