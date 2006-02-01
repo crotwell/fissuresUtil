@@ -11,14 +11,14 @@ public class MockSite {
 
     public static Site createSite() {
         return new SiteImpl(MockSiteId.createSiteId(),
-                            MockLocation.SIMPLE,
+                            MockLocation.create(),
                             MockStation.createStation(),
                             "this is a site.  Isn't it grand?");
     }
 
     public static Site createOtherSite() {
         return new SiteImpl(MockSiteId.createOtherSiteId(),
-                            MockLocation.BERLIN,
+                            MockLocation.createBerlin(),
                             MockStation.createOtherStation(),
                             "?dnarg ti t'nsI  .etis a is siht");
     }

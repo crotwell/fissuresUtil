@@ -6,15 +6,24 @@ import edu.iris.Fissures.Quantity;
 
 public class MockLocation {
 
+    /**
+     * @deprecated - use create()  instead of sharing fields in case
+     *             someone changes the internals
+     */
     public static final Location SIMPLE = create();
 
-    public static final Location BERLIN = create(52.31f,
-                                                 13.24f,
-                                                 Defaults.TEN_K,
-                                                 Defaults.TEN_K);
+    /**
+     * @deprecated - use createBerlin() instead of sharing fields in case
+     *             someone changes the internals
+     */
+    public static final Location BERLIN = createBerlin();
 
     public static Location create() {
         return create(0f, 0f);
+    }
+
+    public static Location createBerlin() {
+        return create(52.31f, 13.24f, Defaults.TEN_K, Defaults.TEN_K);
     }
 
     public static Location create(float lat, float lon) {
@@ -62,8 +71,8 @@ public class MockLocation {
 
     public static Location[] createMultiple() {
         Location[] locs = new Location[3];
-        locs[0] = SIMPLE;
-        locs[1] = BERLIN;
+        locs[0] = create();
+        locs[1] = createBerlin();
         locs[2] = create(21.3f, 31.4f, Defaults.ZERO_K, Defaults.TEN_K);
         return locs;
     }

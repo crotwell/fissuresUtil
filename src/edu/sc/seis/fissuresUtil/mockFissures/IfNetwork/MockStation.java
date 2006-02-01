@@ -10,7 +10,7 @@ public class MockStation {
     public static Station createStation() {
         return new StationImpl(MockStationId.createStationId(),
                                "Test Station",
-                               MockLocation.SIMPLE,
+                               MockLocation.create(),
                                "Joe",
                                "this is a test",
                                "still, a test",
@@ -20,7 +20,7 @@ public class MockStation {
     public static Station createRestartedStation() {
         return new StationImpl(MockStationId.createRestartedStationId(),
                                "Test Station",
-                               MockLocation.SIMPLE,
+                               MockLocation.create(),
                                "Joe",
                                "this is a test",
                                "still, a test",
@@ -30,7 +30,7 @@ public class MockStation {
     public static Station createOtherStation() {
         return new StationImpl(MockStationId.createOtherStationId(),
                                "Noitats tset",
-                               MockLocation.BERLIN,
+                               MockLocation.createBerlin(),
                                "Frank",
                                "tset a si siht",
                                "tset a ,llits",

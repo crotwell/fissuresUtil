@@ -17,10 +17,7 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfParameterMgr.MockParameterRef;
 public class MockEventAccessOperations {
 
     public synchronized static CacheEvent[] createEvents() {
-        evs = new CacheEvent[2];
-        evs[0] = createEvent();
-        evs[1] = createFallEvent();
-        return evs;
+        return new CacheEvent[] {createEvent(), createFallEvent()};
     }
 
     public static CacheEvent createEvent() {
@@ -75,12 +72,10 @@ public class MockEventAccessOperations {
                                       eventBegin.getFissuresTime(),
                                       locs[i],
                                       mags[i],
-                                      MockParameterRef.params);
+                                      MockParameterRef.createParams());
             EventAttr ea = MockEventAttr.create();
             events[i] = new CacheEvent(ea, o);
         }
         return events;
     }
-
-    private static CacheEvent[] evs;
 }

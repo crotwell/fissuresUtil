@@ -63,11 +63,17 @@ public class MicroSecondTimeRange {
                      : timeRange2.getEndTime());
     }
 
+    /**
+     *@deprecated - just calls contains(MicroSecondDate)
+     */
     public boolean intersects(MicroSecondDate newTime) {
-        if((beginTime.before(newTime) || beginTime.equals(newTime))
-                && (endTime.after(newTime) || endTime.equals(newTime)))
-            return true;
-        return false;
+        return contains(newTime);
+    }
+
+
+    public boolean contains(MicroSecondDate newTime) {
+        return (beginTime.before(newTime) || beginTime.equals(newTime))
+                && (endTime.after(newTime) || endTime.equals(newTime));
     }
 
     public boolean intersects(MicroSecondTimeRange time) {

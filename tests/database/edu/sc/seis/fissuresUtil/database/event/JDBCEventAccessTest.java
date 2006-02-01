@@ -2,10 +2,20 @@ package edu.sc.seis.fissuresUtil.database.event;
 
 import java.sql.SQLException;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.model.BoxAreaImpl;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.PointDistanceAreaImpl;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.bag.AreaUtilTest;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
 
 public class JDBCEventAccessTest extends JDBCTearDown {
@@ -43,11 +53,6 @@ public class JDBCEventAccessTest extends JDBCTearDown {
         for(int i = 0; i < events.length; i++) {
             int dbid = put(events[i], i);
             assertEquals(caches[i], eventTable.getEvent(dbid));
-            assertEquals(caches[i].hashCode(), eventTable.getEvent(dbid)
-                    .hashCode());
-            assertEquals("event" + i, eventTable.getIOR(dbid));
-            assertEquals("localhost", eventTable.getServer(dbid));
-            assertEquals("test/dns", eventTable.getDNS(dbid));
         }
     }
 
@@ -68,6 +73,89 @@ public class JDBCEventAccessTest extends JDBCTearDown {
             int dbid = put(events[i], i);
             assertEquals(dbid, eventTable.getDBId(events[i]));
         }
+    }
+
+    public void testAllInclusiveQuery() throws SQLException {
+        assertEquals(populateDefaults().length,
+                     eventTable.query(new EventFinderQuery()).length);
+    }
+
+    private EventAccessOperations[] populateDefaults() throws SQLException {
+        EventAccessOperations[] events = MockEventAccessOperations.createEvents();
+        for(int i = 0; i < events.length; i++) {
+            put(events[i], i);
+        }
+        return events;
+    }
+
+    public void testMagnitudeRestricedQuery() throws SQLException {
+        EventAccessOperations[] events = populateDefaults();
+        EventFinderQuery q = new EventFinderQuery();
+        q.setMinMag(7);
+        assertEquals(0, eventTable.query(q).length);
+        populateDefaults();
+        q.setMaxMag(3);
+        assertEquals(0, eventTable.query(q).length);
+        q.setMinMag(3);
+        q.setMaxMag(7);
+        assertEquals(events.length, eventTable.query(q).length);
+    }
+
+    public void testLocationRestrictingQuery() throws SQLException {
+        populateDefaults();
+        EventFinderQuery q = new EventFinderQuery();
+        q.setArea(new BoxAreaImpl(-1, 1, -1, 1));
+        assertEquals(1, eventTable.query(q).length);
+        q.setArea(new PointDistanceAreaImpl(0,
+                                            0,
+                                            AreaUtilTest.ZERO,
+                                            AreaUtilTest.TEN_DEG));
+        assertEquals(1, eventTable.query(q).length);
+        q.setArea(new PointDistanceAreaImpl(0,
+                                            0,
+                                            AreaUtilTest.ZERO,
+                                            new QuantityImpl(90,
+                                                             UnitImpl.DEGREE)));
+        assertEquals(2, eventTable.query(q).length);
+        q.setArea(new BoxAreaImpl(-2, -1, -180, 180));
+        assertEquals(0, eventTable.query(q).length);
+    }
+
+    public void testLocationAroundDateLine() throws SQLException {
+        populateDefaults();
+        CacheEvent ev = MockEventAccessOperations.createEvent();
+        EventUtil.extractOrigin(ev).my_location.longitude = 179;
+        put(ev, 2);
+        EventFinderQuery q = new EventFinderQuery();
+        q.setArea(new PointDistanceAreaImpl(0,
+                                            179,
+                                            AreaUtilTest.ZERO,
+                                            AreaUtilTest.TEN_DEG));
+        assertEquals(1, eventTable.query(q).length);
+    }
+
+    public void testTimeQuery() throws SQLException {
+        populateDefaults();
+        EventFinderQuery q = new EventFinderQuery();
+        MicroSecondDate start = new MicroSecondDate(0);
+        MicroSecondDate end = start.add(new TimeInterval(1, UnitImpl.DAY));
+        q.setTime(new MicroSecondTimeRange(start, end));
+        assertEquals(1, eventTable.query(q).length);
+        q.setTime(new MicroSecondTimeRange(end, end));
+        assertEquals(0, eventTable.query(q).length);
+    }
+
+    public void testDepthQuery() throws SQLException {
+        EventAccessOperations[] events = populateDefaults();
+        EventFinderQuery q = new EventFinderQuery();
+        assertEquals(events.length, eventTable.query(q).length);
+        q.setMinDepth(9);
+        q.setMaxDepth(11);
+        assertEquals(1, eventTable.query(q).length);
+        q.setMinDepth(q.getMaxDepth());
+        assertEquals(0, eventTable.query(q).length);
+        q.setMinDepth(0);
+        assertEquals(events.length, eventTable.query(q).length);
     }
 
     private int put(EventAccessOperations event, int i) throws SQLException {

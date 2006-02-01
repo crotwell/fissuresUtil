@@ -18,7 +18,7 @@ public class JDBCMagnitudeTest extends JDBCTearDown {
 
     public void testPutAndGet() throws NotFound, SQLException {
         int originId = 100;
-        Magnitude[] mags = MockMagnitude.MAGS;
+        Magnitude[] mags = MockMagnitude.createMagnitudes();
         for (int i = 0; i < mags.length; i++) {
             jdbcMagnitude.put(mags[i], originId);
         }
@@ -29,7 +29,7 @@ public class JDBCMagnitudeTest extends JDBCTearDown {
     }
 
     public void testDoubleInsert() throws SQLException, NotFound {
-        Magnitude[] mags = MockMagnitude.MAGS;
+        Magnitude[] mags = MockMagnitude.createMagnitudes();
         for (int i = 1; i < mags.length; i++) {
             int origingDbId = i+10;
             jdbcMagnitude.put(mags[i], origingDbId);

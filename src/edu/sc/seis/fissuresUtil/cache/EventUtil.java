@@ -32,9 +32,8 @@ public class EventUtil {
             Origin[] oArray = ev.get_origins();
             if(oArray.length > 0) {
                 return oArray[0];
-            } else {
-                throw new RuntimeException("No preferred origin", e);
             }
+            throw new RuntimeException("No preferred origin", e);
         }
     }
 
@@ -68,7 +67,7 @@ public class EventUtil {
         StringBuffer buf = new StringBuffer(format);
         int index = buf.indexOf(LOC);
         if(index != -1) {
-            //Get geographic name of origin
+            // Get geographic name of origin
             ParseRegions regions = ParseRegions.getInstance();
             String location = regions.getGeographicRegionName(event.get_attributes().region.number);
             buf.delete(index, index + LOC.length());
@@ -94,16 +93,16 @@ public class EventUtil {
     public static String getOriginInfo(Origin origin,
                                        String format,
                                        DateFormat sdf) {
-        //Get Date and format it accordingly
+        // Get Date and format it accordingly
         MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String originTimeString = sdf.format(msd);
-        //Get Magnitude
+        // Get Magnitude
         float mag = Float.NaN;
         if(origin.magnitudes.length > 0) {
             mag = origin.magnitudes[0].value;
         }
-        //get depth
+        // get depth
         Quantity depth = origin.my_location.depth;
         float latitude = origin.my_location.latitude;
         float longitude = origin.my_location.longitude;
