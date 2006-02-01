@@ -1,0 +1,50 @@
+eventaccess.create=CREATE TABLE eventaccess (event_id int, \
+                                             IOR varchar, \
+                                             origin_id int, \
+                                             eventattr_id int, \
+                                             server varchar, \
+                                             dns varchar, \
+                                             PRIMARY KEY (event_id), \
+                                             FOREIGN KEY (eventattr_id) \
+                                             REFERENCES eventattr (eventattr_id), \
+                                             FOREIGN KEY (origin_id) \
+                                             REFERENCES origin (origin_id))
+                                             
+eventaccess.put=INSERT INTO eventaccess \
+                (event_id, IOR, origin_id, eventattr_id, server, dns) \
+                VALUES(?,?,?,?,?,?)               
+                
+eventaccess.getDBIdStmt=SELECT event_id FROM eventaccess \
+            WHERE eventattr_id = ? AND origin_id = ?      
+
+eventaccess.getCorbaStrings=SELECT IOR, server, dns FROM eventaccess \
+               WHERE event_id =?
+
+eventaccess.getAttrAndOrigin=SELECT eventattr_id, origin_id FROM eventaccess \
+                WHERE event_id = ?
+                
+eventaccess.getEventIds=SELECT eventattr_id, event_id, origin_id FROM eventaccess
+
+eventaccess.getByNameStmt=SELECT DISTINCT event_id FROM eventaccess, eventattr \
+                          JOIN eventattr ON (eventaccess.eventattr_id = eventattr.eventattr_id) \
+                          WHERE eventattr.eventattr_name = ?
+                          
+
+eventaccess.getLast=SELECT TOP 1 event_id from eventaccess ORDER BY event_id DESC
+
+eventaccess.finderQuery=SELECT DISTINCT event_id FROM eventaccess \
+                        JOIN origin ON (eventaccess.event_id = origin.origin_event_id) \
+                        JOIN location ON (origin_location_id = location.loc_id) \
+                        JOIN time ON (origin.origin_time_id = time.time_id ) \
+                        JOIN magnitude ON (origin.origin_id = magnitude.originid)  \
+                        JOIN quantity AS depth ON (loc_depth_id = quantity_id) \
+                        WHERE location.loc_lat >= ? AND \
+                        location.loc_lat <= ? AND \
+                        MOD((location.loc_lon - ?), 360) >= 0 AND \
+                        MOD((location.loc_lon - ?), 360) <= ? AND \
+                        magnitude.magnitudevalue >= ? AND \
+                        magnitude.magnitudevalue <= ? AND  \
+                        time.time_stamp >= ? AND \
+                        time.time_stamp <= ? AND \
+                        depth.quantity_value >= ? AND \
+                        depth.quantity_value <= ?                    

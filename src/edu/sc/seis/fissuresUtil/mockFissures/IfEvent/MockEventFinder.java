@@ -17,11 +17,12 @@ import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.EventAccessSeqHolder;
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventFactory;
 import edu.iris.Fissures.IfEvent.EventFinder;
+import edu.iris.Fissures.IfEvent.EventSeqIter;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 /**
  * @author groves Created on Nov 9, 2004
@@ -33,13 +34,10 @@ public class MockEventFinder implements EventFinder {
     }
 
     public MockEventFinder(EventAccessOperations[] servedEvents) {
-        events = new MockEventAccess[servedEvents.length];
-        for(int i = 0; i < servedEvents.length; i++) {
-            events[i] = new MockEventAccess(servedEvents[i]);
-        }
+        events = wrap(servedEvents);
     }
 
-    public static EventAccess[] wrap(EventAccessOperations[] evs) {
+    public static MockEventAccess[] wrap(EventAccessOperations[] evs) {
         MockEventAccess[] events = new MockEventAccess[evs.length];
         for(int i = 0; i < evs.length; i++) {
             events[i] = new MockEventAccess(evs[i]);
@@ -60,8 +58,118 @@ public class MockEventFinder implements EventFinder {
                                       String[] contributors,
                                       int seq_max,
                                       EventSeqIterHolder iter) {
-        MicroSecondTimeRange tr = new MicroSecondTimeRange(time_range);
-        return wrap(MockEventAccessOperations.createEvents(tr, 3, 6));
+        return prepareReturn(events, iter, seq_max);
+    }
+
+    private EventAccess[] prepareReturn(final MockEventAccess[] queryEvents,
+                                        final EventSeqIterHolder iter,
+                                        final int seq_max) {
+        if(seq_max < queryEvents.length) {
+            EventAccess[] initialEvents = new EventAccess[seq_max];
+            System.arraycopy(queryEvents, 0, initialEvents, 0, seq_max);
+            iter.value = new EventSeqIter() {
+
+                int curPosition = seq_max;
+
+                public int how_many_remain() {
+                    return queryEvents.length - curPosition;
+                }
+
+                public boolean next_n(int how_many, EventAccessSeqHolder seq) {
+                    int numReturned = how_many;
+                    if(how_many > how_many_remain()) {
+                        numReturned = how_many_remain();
+                    }
+                    seq.value = new EventAccess[numReturned];
+                    System.arraycopy(queryEvents,
+                                     curPosition,
+                                     seq.value,
+                                     0,
+                                     numReturned);
+                    curPosition += numReturned;
+                    return numReturned <= how_many;
+                }
+
+                public void destroy() {
+                // TODO Auto-generated method stub
+                }
+
+                public boolean _is_a(String repositoryIdentifier) {
+                    // TODO Auto-generated method stub
+                    return false;
+                }
+
+                public boolean _is_equivalent(Object other) {
+                    // TODO Auto-generated method stub
+                    return false;
+                }
+
+                public boolean _non_existent() {
+                    // TODO Auto-generated method stub
+                    return false;
+                }
+
+                public int _hash(int maximum) {
+                    // TODO Auto-generated method stub
+                    return 0;
+                }
+
+                public Object _duplicate() {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                public void _release() {
+                // TODO Auto-generated method stub
+                }
+
+                public Object _get_interface_def() {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                public Request _request(String operation) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                public Request _create_request(Context ctx,
+                                               String operation,
+                                               NVList arg_list,
+                                               NamedValue result) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                public Request _create_request(Context ctx,
+                                               String operation,
+                                               NVList arg_list,
+                                               NamedValue result,
+                                               ExceptionList exclist,
+                                               ContextList ctxlist) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                public Policy _get_policy(int policy_type) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                public DomainManager[] _get_domain_managers() {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                public Object _set_policy_override(Policy[] policies,
+                                                   SetOverrideType set_add) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+            };
+            return initialEvents;
+        }
+        return queryEvents;
     }
 
     public EventAccess[] get_by_name(String name) {

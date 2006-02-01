@@ -8,7 +8,7 @@ package edu.sc.seis.fissuresUtil.bag;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.BoxArea;
@@ -16,57 +16,82 @@ import edu.iris.Fissures.GlobalArea;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.PointDistanceArea;
+import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.model.BoxAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 
 public class AreaUtil {
 
-    public static Channel[] inArea(Area area, Channel[] channels) {
-        LinkedList out = new LinkedList();
-        // shortcut for GlobalArea
-        if(area instanceof GlobalArea) {
-            return channels;
+    public static BoxArea makeContainingBox(Area a) {
+        if(a instanceof BoxArea) {
+            return (BoxArea)a;
+        } else if(a instanceof GlobalArea) {
+            return new BoxAreaImpl(-90, 90, -180, 180);
+        } else if(a instanceof PointDistanceArea) {
+            PointDistanceArea pda = (PointDistanceArea)a;
+            float maxDegree = (float)distanceToDegrees(pda.max_distance);
+            float maxLong = wrapLong(pda.longitude + maxDegree);
+            float minLong = wrapLong(pda.longitude - maxDegree);
+            return new BoxAreaImpl(pda.latitude - maxDegree, pda.latitude
+                    + maxDegree, minLong, maxLong);
         }
+        throw new RuntimeException("Unknown Area: " + a.getClass().getName());
+    }
+
+    private static float wrapLong(float lon) {
+        if(lon > 180) {
+            return -180 + (lon - 180);
+        } else if(lon < -180) {
+            lon = 180 + (lon + 180);
+        }
+        return lon;
+    }
+
+    public static Channel[] inArea(Area area, Channel[] channels) {
+        List out = new ArrayList(channels.length);
         for(int i = 0; i < channels.length; i++) {
-            Location loc = channels[i].my_site.my_location;
-            if(inArea(area, loc)) {
+            if(inArea(area, channels[i].my_site.my_location)) {
                 out.add(channels[i]);
             }
         }
-        return (Channel[])out.toArray(new Channel[0]);
+        return (Channel[])out.toArray(new Channel[out.size()]);
     }
 
     public static boolean inArea(Area area, Location point) {
         if(area instanceof GlobalArea) {
             return true;
         } else if(area instanceof BoxArea) {
-            BoxArea box = (BoxArea)area;
-            return (point.latitude >= box.min_latitude
-                    && point.latitude <= box.max_latitude
-                    && point.longitude % 360 >= box.min_longitude % 360
-                    && point.longitude % 360 <= box.max_longitude % 360);
+            return inBox(point, (BoxArea)area);
         } else if(area instanceof PointDistanceArea) {
-            PointDistanceArea pdArea = (PointDistanceArea)area;
-            DistAz distAz = new DistAz(pdArea.latitude,
-                                       pdArea.longitude,
-                                       point.latitude,
-                                       point.longitude);
-            double minDegree, maxDegree;
-            if(((UnitImpl)pdArea.min_distance.the_units).isConvertableTo(UnitImpl.DEGREE)) {
-                minDegree = ((QuantityImpl)pdArea.min_distance).getValue(UnitImpl.DEGREE);
-            } else {
-                minDegree = DistAz.kilometersToDegrees(((QuantityImpl)pdArea.min_distance).getValue(UnitImpl.KILOMETER));
-            }
-            if(((UnitImpl)pdArea.max_distance.the_units).isConvertableTo(UnitImpl.DEGREE)) {
-                maxDegree = ((QuantityImpl)pdArea.max_distance).getValue(UnitImpl.DEGREE);
-            } else {
-                maxDegree = DistAz.kilometersToDegrees(((QuantityImpl)pdArea.max_distance).getValue(UnitImpl.KILOMETER));
-            }
-            return (distAz.getDelta() >= minDegree && distAz.getDelta() <= maxDegree);
+            return inDonut((PointDistanceArea)area, point);
         }
         throw new RuntimeException("Unknown Area type: "
                 + area.getClass().getName());
+    }
+
+    private static boolean inDonut(PointDistanceArea a, Location p) {
+        DistAz distAz = new DistAz(a.latitude,
+                                   a.longitude,
+                                   p.latitude,
+                                   p.longitude);
+        double minDegree = distanceToDegrees(a.min_distance);
+        double maxDegree = distanceToDegrees(a.max_distance);
+        return (distAz.getDelta() >= minDegree && distAz.getDelta() <= maxDegree);
+    }
+
+    private static double distanceToDegrees(Quantity minDist) {
+        if(((UnitImpl)minDist.the_units).isConvertableTo(UnitImpl.DEGREE)) {
+            return ((QuantityImpl)minDist).getValue(UnitImpl.DEGREE);
+        }
+        return DistAz.kilometersToDegrees(((QuantityImpl)minDist).getValue(UnitImpl.KILOMETER));
+    }
+
+    private static boolean inBox(Location point, BoxArea box) {
+        return (point.latitude >= box.min_latitude
+                && point.latitude <= box.max_latitude
+                && point.longitude % 360 >= box.min_longitude % 360 && point.longitude % 360 <= box.max_longitude % 360);
     }
 
     public static boolean inArea(Location[] bounds, Location point) {

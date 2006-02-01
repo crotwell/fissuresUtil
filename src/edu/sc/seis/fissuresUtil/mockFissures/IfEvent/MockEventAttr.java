@@ -14,7 +14,7 @@ public class MockEventAttr{
     }
     
     public static EventAttr create(String name, int feRegion){
-        return create(name, feRegion, MockParameterRef.params);
+        return create(name, feRegion, MockParameterRef.createParams());
     }
     
     public static EventAttr create(String name, int feRegion,

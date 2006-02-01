@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.mockFissures;
 
 import java.util.Calendar;
 import java.util.TimeZone;
-import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
@@ -27,7 +26,7 @@ public class Defaults{
     
     public static final MicroSecondDate WALL_FALL = new MicroSecondDate(cal.getTime());
     
-    public static final Quantity ZERO_K = new QuantityImpl(0, UnitImpl.KILOMETER);
+    public static final QuantityImpl ZERO_K = new QuantityImpl(0, UnitImpl.KILOMETER);
     
-    public static final Quantity TEN_K = new QuantityImpl(10, UnitImpl.KILOMETER);
+    public static final QuantityImpl TEN_K = new QuantityImpl(10, UnitImpl.KILOMETER);
 }

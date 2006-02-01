@@ -66,18 +66,6 @@ contributor.create=CREATE TABLE contributor (contributor_id int, \
                                              contributor_name varchar, \
                                              PRIMARY KEY (contributor_id) )
 
-EventAccess.create=CREATE TABLE eventaccess (event_id int, \
-                                             IOR varchar, \
-                                             origin_id int, \
-                                             eventattr_id int, \
-                                             server varchar, \
-                                             dns varchar, \
-                                             PRIMARY KEY (event_id), \
-                                             FOREIGN KEY (eventattr_id) \
-                                             REFERENCES eventattr (eventattr_id), \
-                                             FOREIGN KEY (origin_id) \
-                                             REFERENCES origin (origin_id))
-
 magnitude.create=CREATE TABLE magnitude ( magnitudetype varchar, \
                                           magnitudevalue float, \
                                           magnitudecontributorid int, \

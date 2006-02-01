@@ -4,25 +4,24 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import edu.iris.Fissures.FlinnEngdahlRegion;
-import edu.iris.Fissures.Quantity;
-import edu.iris.Fissures.Time;
+import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.bag.AreaUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 
 public class JDBCEventAccess extends EventTable {
 
@@ -34,40 +33,15 @@ public class JDBCEventAccess extends EventTable {
         this(conn, new JDBCOrigin(conn), new JDBCEventAttr(conn));
     }
 
-    public JDBCEventAccess(Connection conn, JDBCOrigin origins,
-            JDBCEventAttr attrs) throws SQLException {
+    public JDBCEventAccess(Connection conn,
+                           JDBCOrigin origins,
+                           JDBCEventAttr attrs) throws SQLException {
         super("eventaccess", conn);
         this.jdbcOrigin = origins;
         this.jdbcAttr = attrs;
         seq = new JDBCSequence(conn, "EventAccessSeq");
-        Statement stmt = conn.createStatement();
-        if(!DBUtil.tableExists("eventaccess", conn)) {
-            stmt.executeUpdate(ConnMgr.getSQL("EventAccess.create"));
-        }
-        put = conn.prepareStatement(" INSERT INTO eventaccess "
-                + "(event_id, IOR, origin_id, " + "eventattr_id, server, dns)"
-                + "VALUES(?,?,?,?,?,?)");
-        getDBIdStmt = conn.prepareStatement(" SELECT event_id FROM eventaccess "
-                + " WHERE eventattr_id = ? AND" + " origin_id = ?");
-        getCorbaStrings = conn.prepareStatement(" SELECT IOR, server, dns FROM eventaccess "
-                + " WHERE event_id = ?");
-        getAttrAndOrigin = conn.prepareStatement(" SELECT eventattr_id, origin_id FROM eventaccess "
-                + " WHERE event_id = ?");
-        getEventIds = conn.prepareStatement(" SELECT eventattr_id, event_id, origin_id FROM eventaccess");
-        queryStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM "
-                + "eventaccess, origin, location, magnitude, time WHERE "
-                + "eventaccess.event_id = origin.origin_event_id AND "
-                + "origin_location_id = location.loc_id AND "
-                + "origin.origin_id = magnitude.originid AND "
-                + "origin.origin_time_id = time.time_id AND "
-                + "location.loc_lat >= ? AND location.loc_lat <= ? AND "
-                + "location.loc_lon >= ? AND location.loc_lon <= ? AND "
-                + "magnitude.magnitudevalue >= ? AND magnitude.magnitudevalue <= ? AND "
-                + "time.time_stamp >= ? AND time.time_stamp <= ? " + "");
-        getByNameStmt = conn.prepareStatement("SELECT DISTINCT event_id FROM eventaccess, eventattr WHERE "
-                + "eventattr.eventattr_name = ? AND "
-                + "eventaccess.eventattr_id = eventattr.eventattr_id");
-        getLast = conn.prepareStatement("SELECT TOP 1 event_id from eventaccess ORDER BY event_id DESC");
+        TableSetup.setup(this,
+                         "edu/sc/seis/fissuresUtil/database/props/event/eventaccess.props");
     }
 
     public CacheEvent getEvent(int dbid) throws SQLException, NotFound {
@@ -78,8 +52,8 @@ public class JDBCEventAccess extends EventTable {
         }
         getAttrAndOrigin.setInt(1, dbid);
         ResultSet rs = getAttrAndOrigin.executeQuery();
-        if (rs.next()) {
-        return getEvent(rs, dbid);
+        if(rs.next()) {
+            return getEvent(rs, dbid);
         }
         throw new NotFound();
     }
@@ -96,8 +70,16 @@ public class JDBCEventAccess extends EventTable {
     }
 
     public CacheEvent[] getAllEvents() throws SQLException, SQLException {
+        List events = getAllEventsList();
+        return (CacheEvent[])events.toArray(new CacheEvent[events.size()]);
+    }
+
+    public List getAllEventsList() throws SQLException, SQLException {
+        return extractEvents(getEventIds.executeQuery());
+    }
+
+    public List extractEvents(ResultSet rs) throws SQLException {
         List events = new ArrayList();
-        ResultSet rs = getEventIds.executeQuery();
         while(rs.next()) {
             try {
                 int id = rs.getInt("event_id");
@@ -112,37 +94,7 @@ public class JDBCEventAccess extends EventTable {
                                            e);
             }
         }
-        return (CacheEvent[])events.toArray(new CacheEvent[events.size()]);
-    }
-
-    public String getServer(int dbid) throws SQLException {
-        return getCorbaStrings(dbid)[0];
-    }
-
-    public String getDNS(int dbid) throws SQLException {
-        return getCorbaStrings(dbid)[1];
-    }
-
-    public String getIOR(int dbid) throws SQLException {
-        return getCorbaStrings(dbid)[2];
-    }
-
-    /**
-     * Method getCorbaStrings returns all the server information about this
-     * event db id
-     * 
-     * @return a String[] of length three with the Server in position 0, DNS in
-     *         position 1 and the IOR in position 2
-     */
-    public String[] getCorbaStrings(int dbid) throws SQLException {
-        String[] serverInfo = new String[3];
-        getCorbaStrings.setInt(1, dbid);
-        ResultSet rs = getCorbaStrings.executeQuery();
-        rs.next();
-        serverInfo[0] = rs.getString("server");
-        serverInfo[1] = rs.getString("dns");
-        serverInfo[2] = rs.getString("IOR");
-        return serverInfo;
+        return events;
     }
 
     /**
@@ -163,30 +115,46 @@ public class JDBCEventAccess extends EventTable {
         try {
             return getDBId(eao);
         } catch(NotFound e) {
-            int id = seq.next();
-            int attrId = jdbcAttr.put(eao.get_attributes());
-            int originId;
-            for(int i = 0; i < eao.get_origins().length; i++) {
-                jdbcOrigin.put(eao.get_origins()[i], id);
-            }
-            try {
-                originId = jdbcOrigin.getDBId(eao.get_preferred_origin());
-            } catch(NotFound ex) {
-                throw new RuntimeException("The preferred origin wasn't found right after all origins were inserted.  This shouldn't ever happen.  If you're seeing this, I imagine very bad things are happening to the database right now");
-            } catch(NoPreferredOrigin ee) {
-                throw new IllegalArgumentException("Events passed in must have preferred origins");
-            }
-            put.setInt(1, id);
-            put.setString(2, IOR);
-            put.setInt(3, originId);
-            put.setInt(4, attrId);
-            put.setString(5, server);
-            put.setString(6, dns);
-            put.executeUpdate();
-            eventsToIds.put(eao, new Integer(id));
-            idsToEvents.put(new Integer(id), eao);
-            return id;
+            return insert(eao, IOR, server, dns);
         }
+    }
+
+    public int insert(EventAccessOperations eao,
+                      String IOR,
+                      String server,
+                      String dns) throws SQLException {
+        int id = seq.next();
+        int attrId = jdbcAttr.put(eao.get_attributes());
+        int originId;
+        for(int i = 0; i < eao.get_origins().length; i++) {
+            jdbcOrigin.put(eao.get_origins()[i], id);
+        }
+        try {
+            originId = jdbcOrigin.getDBId(eao.get_preferred_origin());
+        } catch(NotFound ex) {
+            throw new RuntimeException("The preferred origin wasn't found right after all origins were inserted.  This shouldn't ever happen.  If you're seeing this, I imagine very bad things are happening to the database right now");
+        } catch(NoPreferredOrigin ee) {
+            throw new IllegalArgumentException("Events passed in must have preferred origins");
+        }
+        put.setInt(1, id);
+        put.setString(2, IOR);
+        put.setInt(3, originId);
+        put.setInt(4, attrId);
+        put.setString(5, server);
+        put.setString(6, dns);
+        put.executeUpdate();
+        eventsToIds.put(eao, new Integer(id));
+        idsToEvents.put(new Integer(id), eao);
+        return id;
+    }
+
+    public boolean contains(EventAccessOperations eao) throws SQLException {
+        try {
+            getDBId(eao);
+        } catch(NotFound e) {
+            return false;
+        }
+        return true;
     }
 
     public int getDBId(EventAccessOperations eao) throws SQLException, NotFound {
@@ -194,7 +162,9 @@ public class JDBCEventAccess extends EventTable {
             eao = new CacheEvent(eao);
         }
         Integer id = (Integer)eventsToIds.get(eao);
-        if(id != null) { return id.intValue(); }
+        if(id != null) {
+            return id.intValue();
+        }
         getDBIdStmt.setInt(1, jdbcAttr.getDBId(eao.get_attributes()));
         try {
             getDBIdStmt.setInt(2,
@@ -211,32 +181,32 @@ public class JDBCEventAccess extends EventTable {
         throw new NotFound("The event wasn't found in the db!");
     }
 
-    public int[] query(Quantity min_depth,
-                       Quantity max_depth,
-                       float minLat,
-                       float maxLat,
-                       float minLon,
-                       float maxLon,
-                       Time start_time,
-                       Time end_time,
-                       float min_magnitude,
-                       float max_magnitude,
-                       String[] search_types,
-                       String[] catalogs,
-                       String[] contributors) throws SQLException {
+    /**
+     * @returns the indicies of events matched by the query ignoring the
+     *          catalog, contributor and type sections of the query
+     */
+    public int[] query(EventFinderQuery q) throws SQLException {
         int index = 1;
-        queryStmt.setFloat(index++, minLat);
-        queryStmt.setFloat(index++, maxLat);
-        queryStmt.setFloat(index++, minLon);
-        queryStmt.setFloat(index++, maxLon);
-        queryStmt.setFloat(index++, min_magnitude);
-        queryStmt.setFloat(index++, max_magnitude);
-        queryStmt.setTimestamp(index++,
-                               new MicroSecondDate(start_time).getTimestamp());
-        queryStmt.setTimestamp(index++,
-                               new MicroSecondDate(end_time).getTimestamp());
-        logger.debug(queryStmt);
-        ResultSet rs = queryStmt.executeQuery();
+        // TODO - if q.getArea is PointDistanceArea, run results through
+        // AreaUtil.inDonut before returning
+        BoxArea ba = AreaUtil.makeContainingBox(q.getArea());
+        finderQuery.setFloat(index++, ba.min_latitude);
+        finderQuery.setFloat(index++, ba.max_latitude);
+        // The SQL transforms the events longitude into a new coordinate system
+        // with 0 at min_longitude
+        finderQuery.setFloat(index++, ba.min_longitude);
+        finderQuery.setFloat(index++, ba.min_longitude);
+        // this turns the max_longitude into the new coordinate system
+        float rightEdge = Math.abs(ba.max_longitude - ba.min_longitude);
+        finderQuery.setFloat(index++, rightEdge);
+        finderQuery.setFloat(index++, q.getMinMag());
+        finderQuery.setFloat(index++, q.getMaxMag());
+        MicroSecondTimeRange range = q.getTime();
+        finderQuery.setTimestamp(index++, range.getBeginTime().getTimestamp());
+        finderQuery.setTimestamp(index++, range.getEndTime().getTimestamp());
+        finderQuery.setDouble(index++, q.getMinDepth());
+        finderQuery.setDouble(index++, q.getMaxDepth());
+        ResultSet rs = finderQuery.executeQuery();
         ArrayList out = new ArrayList();
         while(rs.next()) {
             out.add(new Integer(rs.getInt(1)));
@@ -256,6 +226,9 @@ public class JDBCEventAccess extends EventTable {
         while(rs.next()) {
             out.add(new Integer(rs.getInt(1)));
         }
+        if(out.size() == 0) {
+            throw new NotFound("No events by name " + name);
+        }
         Integer[] bigInt = (Integer[])out.toArray(new Integer[out.size()]);
         int[] littleInt = new int[bigInt.length];
         for(int i = 0; i < bigInt.length; i++) {
@@ -274,8 +247,6 @@ public class JDBCEventAccess extends EventTable {
 
     private JDBCSequence seq;
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(JDBCEventAccess.class);
-
     public static void emptyCache() {
         idsToEvents.clear();
         eventsToIds.clear();
@@ -285,13 +256,8 @@ public class JDBCEventAccess extends EventTable {
 
     private static Map eventsToIds = Collections.synchronizedMap(new HashMap());
 
-    private PreparedStatement put, getDBIdStmt, getCorbaStrings,
-            getAttrAndOrigin, getEventIds, queryStmt, getByNameStmt, getLast;
-
-    public void updateFlinnEngdahlRegion(int eventid, FlinnEngdahlRegion region)
-            throws NotFound, SQLException {
-    // TODO Auto-generated method stub
-    }
+    private PreparedStatement put, getDBIdStmt, getAttrAndOrigin, getEventIds,
+            finderQuery, getByNameStmt, getLast;
 
     public JDBCEventAttr getJDBCAttr() {
         return jdbcAttr;
@@ -303,7 +269,9 @@ public class JDBCEventAccess extends EventTable {
 
     public CacheEvent getLastEvent() throws SQLException, NotFound {
         ResultSet rs = getLast.executeQuery();
-        if(rs.next()) { return getEvent(rs.getInt("event_id")); }
+        if(rs.next()) {
+            return getEvent(rs.getInt("event_id"));
+        }
         throw new NotFound("No events!");
     }
 }

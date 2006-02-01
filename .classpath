@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="var" path="CLOVER_RUNTIME"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/database"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/display"/>
@@ -22,6 +23,7 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/stax/jars/stax-1.1.1-dev.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xalan/jars/xalan-2.6.0.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.6.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.6.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.8.0.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

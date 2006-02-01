@@ -12,7 +12,7 @@ public class ShapeLayerPropertiesHandler {
      */
     public static Properties getProperties() {
         return getProperties("Global Shape Layer",
-                             "edu/sc/seis/fissuresUtil/data/maps/dcwpo-browse");
+                             "edu/sc/seis/mapData/dcwpo-browse");
     }
 
     /**
