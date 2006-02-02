@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -53,7 +54,9 @@ public class BorderedDisplay extends JPanel {
         BufferedImage bImg = new BufferedImage(size.width,
                                                size.height,
                                                BufferedImage.TYPE_INT_RGB);
-        renderToGraphics(bImg.createGraphics(), size);
+        Graphics2D g2d = bImg.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        renderToGraphics(g2d, size);
         try {
             ImageIO.write(bImg, "png", loc);
         } finally {
