@@ -7,6 +7,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
@@ -474,7 +475,9 @@ public class PlottableDisplay extends JComponent {
         BufferedImage img = new BufferedImage(getPreferredSize().width,
                                               getPreferredSize().height,
                                               BufferedImage.TYPE_INT_ARGB);
-        renderToGraphics((Graphics2D)img.getGraphics(), getSize());
+        Graphics2D g2d = img.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        renderToGraphics(g2d, getSize());
         ImageIO.write(img, "png", out);
     }
 
