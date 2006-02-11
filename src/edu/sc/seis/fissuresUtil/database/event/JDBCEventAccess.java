@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
@@ -47,6 +48,7 @@ public class JDBCEventAccess extends EventTable {
     public CacheEvent getEvent(int dbid) throws SQLException, NotFound {
         CacheEvent ev = (CacheEvent)idsToEvents.get(new Integer(dbid));
         if(ev != null) {
+            touchEventId(dbid);
             ev.setDbId(dbid);
             return ev;
         }
@@ -65,6 +67,7 @@ public class JDBCEventAccess extends EventTable {
         EventAttr attr = jdbcAttr.get(rs.getInt("eventattr_id"));
         CacheEvent ev = new CacheEvent(attr, allOrigins, preferredOrigin);
         idsToEvents.put(new Integer(dbid), ev);
+        touchEventId(dbid);
         ev.setDbId(dbid);
         return ev;
     }
@@ -84,6 +87,7 @@ public class JDBCEventAccess extends EventTable {
             try {
                 int id = rs.getInt("event_id");
                 CacheEvent ev = (CacheEvent)idsToEvents.get(new Integer(id));
+                touchEventId(id);
                 if(ev != null) {
                     events.add(ev);
                 } else {
@@ -145,6 +149,7 @@ public class JDBCEventAccess extends EventTable {
         put.executeUpdate();
         eventsToIds.put(eao, new Integer(id));
         idsToEvents.put(new Integer(id), eao);
+        touchEventId(id);
         return id;
     }
 
@@ -163,6 +168,7 @@ public class JDBCEventAccess extends EventTable {
         }
         Integer id = (Integer)eventsToIds.get(eao);
         if(id != null) {
+            touchEventId(id.intValue());
             return id.intValue();
         }
         getDBIdStmt.setInt(1, jdbcAttr.getDBId(eao.get_attributes()));
@@ -176,6 +182,7 @@ public class JDBCEventAccess extends EventTable {
         if(rs.next()) {
             int dbid = rs.getInt("event_id");
             eventsToIds.put(eao, new Integer(dbid));
+            touchEventId(dbid);
             return dbid;
         }
         throw new NotFound("The event wasn't found in the db!");
@@ -247,14 +254,36 @@ public class JDBCEventAccess extends EventTable {
 
     private JDBCSequence seq;
 
+    public static void touchEventId(int dbid) {
+        synchronized(eventAccessList) {
+            Integer id = new Integer(dbid);
+            if(eventAccessList.contains(id)) {
+                eventAccessList.remove(id);
+            }
+            eventAccessList.add(0, id);
+            if(eventAccessList.size() > MAX_EVENTS) {
+                Integer dbIdToRemove = (Integer)eventAccessList.remove(eventAccessList.size() - 1);
+                EventAccessOperations eao = (EventAccessOperations)idsToEvents.remove(dbIdToRemove);
+                eventsToIds.remove(eao);
+            }
+        }
+    }
+
     public static void emptyCache() {
         idsToEvents.clear();
         eventsToIds.clear();
+        eventAccessList.clear();
     }
 
     private static Map idsToEvents = Collections.synchronizedMap(new HashMap());
 
     private static Map eventsToIds = Collections.synchronizedMap(new HashMap());
+
+    private static List eventAccessList = Collections.synchronizedList(new ArrayList());
+
+    private static int MAX_EVENTS = 5000;
+
+    private static final Logger logger = Logger.getLogger(JDBCEventAccess.class);
 
     private PreparedStatement put, getDBIdStmt, getAttrAndOrigin, getEventIds,
             finderQuery, getByNameStmt, getLast;
