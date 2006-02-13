@@ -14,6 +14,7 @@ import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -26,6 +27,7 @@ import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
+import edu.sc.seis.fissuresUtil.rt130.leapSecondCorrection.LeapSecondApplier;
 
 public class RT130ToLocalSeismogram {
 
@@ -75,8 +77,10 @@ public class RT130ToLocalSeismogram {
         String id = channelId.toString();
         TimeSeriesDataSel timeSeriesDataSel = new TimeSeriesDataSel();
         timeSeriesDataSel.encoded_values(seismogramData.encoded_data);
+        MicroSecondDate beginTimeOfSeismogram = LeapSecondApplier.applyLeapSecondCorrection(seismogramData.unitIdNumber,
+                                                                                            seismogramData.begin_time_of_seismogram);
         return new LocalSeismogramImpl(id,
-                                       seismogramData.begin_time_of_seismogram.getFissuresTime(),
+                                       beginTimeOfSeismogram.getFissuresTime(),
                                        numPoints,
                                        sampling,
                                        UnitImpl.COUNT,
@@ -98,10 +102,13 @@ public class RT130ToLocalSeismogram {
             System.err.println("| To correct this entry in the database, please run StationCodeUpdater.");
             System.err.println("\\-------------------------");
         }
-        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP + "XX");
+        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP
+                + "XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
-        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString, props).get_id();
+        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString,
+                                                                  props)
+                .get_id();
         networkId.begin_time = networkBeginTime;
         String tempCode = "B";
         if(seismogramData.sample_rate < 10) {
@@ -125,7 +132,8 @@ public class RT130ToLocalSeismogram {
         StationId stationId = new StationId(networkId,
                                             stationCode,
                                             channelBeginTime);
-        QuantityImpl elevation = new QuantityImpl(seismogramData.elevation_, UnitImpl.METER);
+        QuantityImpl elevation = new QuantityImpl(seismogramData.elevation_,
+                                                  UnitImpl.METER);
         QuantityImpl depth = elevation;
         Location location = new Location(seismogramData.latitude_,
                                          seismogramData.longitude_,
