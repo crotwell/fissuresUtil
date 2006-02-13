@@ -6,9 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import org.apache.log4j.BasicConfigurator;
-import edu.iris.Fissures.IfNetwork.StationId;
 import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
-import edu.sc.seis.fissuresUtil.database.network.JDBCStation;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class StationNamePopulator {
