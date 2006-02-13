@@ -235,7 +235,7 @@ public class PacketType {
 
     public int number_of_samples, sample_rate, channel_number,
             data_stream_number;
-    
+
     public int number_of_location_readings = -1;
 
     public float latitude_, longitude_;
