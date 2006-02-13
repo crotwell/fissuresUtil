@@ -15,7 +15,6 @@ import java.util.Map;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 
 /*
  * @author fenner Created on Jun 13, 2005
@@ -28,7 +27,7 @@ import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 public class RT130FileReader {
 
     public RT130FileReader(String dataFileLoc, boolean processData)
-            throws FileNotFoundException {
+            throws IOException {
         File file = new File(dataFileLoc);
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
@@ -309,17 +308,18 @@ public class RT130FileReader {
 
     private PacketType finalizeSeismogramCreation(PacketType seismogramData,
                                                   PacketType stateOfHealthData,
-                                                  boolean gapInData) throws RT130FormatException {
+                                                  boolean gapInData)
+            throws RT130FormatException {
         if(gapInData) {
             System.out.println("The data collecting unit stopped recording data on channel "
                     + seismogramData.channel_number);
             System.out.println("for a period of time longer than allowed.");
             System.out.println("A new seismogram will be created to hold the rest of the data.");
         }
-        if(stateOfHealthData == null){
+        if(stateOfHealthData == null) {
             System.err.println("The state of health file was not read correctly, and was returned as null.");
         } else {
-            if (stateOfHealthData.begin_time_from_state_of_health_file == null) {
+            if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
                 System.err.println("The begin time for the channel is not present in the state of health data.");
             } else {
                 seismogramData.begin_time_from_state_of_health_file = stateOfHealthData.begin_time_from_state_of_health_file;
@@ -364,7 +364,7 @@ public class RT130FileReader {
                     + seismogramData.sample_rate
                     + " samples per second will be assumed.");
         }
-        if(seismogramData.number_of_location_readings > 0){
+        if(seismogramData.number_of_location_readings > 0) {
             // Get the average of the lat, long, elevation data.
             seismogramData.latitude_ = (seismogramData.latitude_ / seismogramData.number_of_location_readings);
             seismogramData.longitude_ = (seismogramData.longitude_ / seismogramData.number_of_location_readings);
