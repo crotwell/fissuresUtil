@@ -90,7 +90,7 @@ public class StationCodeUpdater {
         System.out.println("    The default database properties file is server.properties.");
         System.out.println();
         System.out.println("    -props   | Accepts alternate SOD properties file");
-        System.out.println("                Use the same prop file used for DB population");        
+        System.out.println("                Use the same prop file used for DB population");
         System.out.println("    -v       | Turn verbose messages on");
         System.out.println();
         System.out.println();
