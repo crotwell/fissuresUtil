@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -49,6 +50,7 @@ import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogram;
+import edu.sc.seis.fissuresUtil.rt130.leapSecondCorrection.LeapSecondApplier;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
@@ -60,9 +62,12 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
 public class PopulateDatabaseFromDirectory {
 
     public static void main(String[] args) throws FissuresException,
-            IOException, SeedFormatException, SQLException, NotFound {
+            IOException, SeedFormatException, SQLException, NotFound,
+            ParseException {
         BasicConfigurator.configure();
         Properties props = Initializer.loadProperties(args);
+        LeapSecondApplier.addLeapSeconds(props.getProperty("leapSecondTimeFileLoc"));
+        LeapSecondApplier.addCorrections(props.getProperty("powerUpTimeFileLoc"));
         ConnectionCreator connCreator = new ConnectionCreator(props);
         Connection conn = connCreator.createConnection();
         JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
@@ -71,7 +76,7 @@ public class PopulateDatabaseFromDirectory {
         boolean verbose = false;
         boolean finished = false;
         boolean batch = false;
-        NCFile ncFile = null;
+        NCFile ncFile = new NCFile(props.getProperty("NCFileLoc"));
         for(int i = 1; i < args.length; i++) {
             if(args[i].equals("-v")) {
                 verbose = true;
@@ -81,16 +86,8 @@ public class PopulateDatabaseFromDirectory {
                 System.out.println("Verbose messages: ON");
             }
         }
-        for(int i = 1; i < args.length - 1; i++) {
-            if(args[i].equals("-nc")) {
-                String ncFileLocation = args[i + 1];
-                ncFile = new NCFile(ncFileLocation);
-                if(verbose) {
-                    File file = new File(ncFileLocation);
-                    System.out.println("NC file location: "
-                            + file.getCanonicalPath());
-                }
-            }
+        if(verbose) {
+            System.out.println("NC file location: " + ncFile.getCanonicalPath());
         }
         for(int i = 1; i < args.length - 1; i++) {
             if(verbose) {
@@ -175,7 +172,8 @@ public class PopulateDatabaseFromDirectory {
                                           JDBCTime timeTable,
                                           Properties props,
                                           boolean batch) throws IOException,
-            FissuresException, SeedFormatException, SQLException, NotFound {
+            FissuresException, SeedFormatException, SQLException, NotFound,
+            ParseException {
         boolean finished = false;
         StringTokenizer t = new StringTokenizer(fileLoc, "/\\");
         String fileName = "";
@@ -239,7 +237,7 @@ public class PopulateDatabaseFromDirectory {
                                                Properties props,
                                                boolean batch)
             throws FissuresException, IOException, SeedFormatException,
-            SQLException, NotFound {
+            SQLException, NotFound, ParseException {
         File[] files = baseDirectory.listFiles();
         if(files == null) {
             throw new IOException("Unable to get listing of directory: "
@@ -280,7 +278,6 @@ public class PopulateDatabaseFromDirectory {
         System.out.println("    -props   | Accepts alternate SOD properties file");
         System.out.println("    -hsql    | Accepts alternate database properties file");
         System.out.println("    -v       | Turn verbose messages on");
-        System.out.println("    -nc      | NC file location. Required for RT130 data");
         System.out.println("    -rt      | Turn on batch process of RT130 data");
         System.out.println("             |   No other types of data can be processed");
         System.out.println();
@@ -363,7 +360,7 @@ public class PopulateDatabaseFromDirectory {
                                                JDBCChannel chanTable,
                                                JDBCTime timeTable,
                                                Properties props)
-            throws IOException, SQLException, NotFound {
+            throws IOException, SQLException, NotFound, ParseException {
         if(ncFile == null || conn == null) {
             if(verbose) {
                 System.out.println("No NC (Network Configuration) file was specified.");
@@ -429,7 +426,7 @@ public class PopulateDatabaseFromDirectory {
                                                                JDBCTime timeTable,
                                                                Properties props,
                                                                Channel knownChannel)
-            throws IOException, SQLException, NotFound {
+            throws IOException, SQLException, NotFound, ParseException {
         RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
                                                                       false);
         PacketType[] seismogramDataPacketArray = null;
@@ -469,7 +466,7 @@ public class PopulateDatabaseFromDirectory {
                                                     JDBCChannel chanTable,
                                                     JDBCTime timeTable,
                                                     Properties props)
-            throws IOException, SQLException, NotFound {
+            throws IOException, SQLException, NotFound, ParseException {
         File file = new File(fileLoc);
         String yearAndDay = file.getParentFile()
                 .getParentFile()
@@ -517,6 +514,8 @@ public class PopulateDatabaseFromDirectory {
             try {
                 MicroSecondDate beginTime = FileNameParser.getBeginTime(yearAndDay,
                                                                         fileName);
+                beginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
+                                                                        beginTime);
                 TimeInterval lengthOfData = FileNameParser.getLengthOfData(fileName);
                 MicroSecondDate endTime = beginTime.add(lengthOfData);
                 Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
@@ -568,28 +567,20 @@ public class PopulateDatabaseFromDirectory {
 
     private static Map channelToDbId = new HashMap();
 
-private static Channel[] createChannels(NCFile ncFile,
+    private static Channel[] createChannels(NCFile ncFile,
                                             String unitIdNumber,
                                             String datastream,
                                             Properties props) {
         String stationCode = ncFile.getUnitName(((PacketType)(datastreamToFileData.get(unitIdNumber
                                                         + datastream))).begin_time_from_state_of_health_file,
                                                 unitIdNumber);
-        if(stationCode == null) {
-            stationCode = unitIdNumber;
-            System.err.println("/-------------------------");
-            System.err.println("| Unit name for DAS unit number "
-                    + unitIdNumber + " was not found in the NC file.");
-            System.err.println("| The name \"" + unitIdNumber
-                    + "\" will be used instead.");
-            System.err.println("| To correct this entry in the database, please run UnitNameUpdater.");
-            System.err.println("\\-------------------------");
-        }
         String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP
                 + "XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
-        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString, props).get_id();
+        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString,
+                                                                  props)
+                .get_id();
         networkId.begin_time = networkBeginTime;
         String tempCode = "B";
         if(((PacketType)(datastreamToFileData.get(unitIdNumber + datastream))).sample_rate < 10) {
@@ -620,7 +611,8 @@ private static Channel[] createChannels(NCFile ncFile,
                                             stationCode,
                                             channelBeginTime);
         QuantityImpl elevation = new QuantityImpl(((PacketType)(datastreamToFileData.get(unitIdNumber
-                                                                                        + datastream))).elevation_, UnitImpl.METER);
+                                                          + datastream))).elevation_,
+                                                  UnitImpl.METER);
         QuantityImpl depth = elevation;
         Location location = new Location(((PacketType)(datastreamToFileData.get(unitIdNumber
                                                  + datastream))).latitude_,
@@ -674,7 +666,9 @@ private static Channel[] createChannels(NCFile ncFile,
             }
         }
         return newChannel;
-    }    private static Map datastreamToChannel = new HashMap();
+    }
+
+    private static Map datastreamToChannel = new HashMap();
 
     private static Map datastreamToFileData = new HashMap();
 }
