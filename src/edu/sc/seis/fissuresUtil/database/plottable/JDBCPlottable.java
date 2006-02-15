@@ -30,7 +30,7 @@ import edu.sc.seis.fissuresUtil.time.RangeTool;
 import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
 public class JDBCPlottable extends JDBCTable {
-    
+
     public JDBCPlottable(Connection conn, String dbType) throws SQLException {
         super("plottable", conn);
         chanTable = new JDBCChannel(conn);
@@ -91,20 +91,26 @@ public class JDBCPlottable extends JDBCTable {
             int stmtIndex = 1;
             PlottableChunk chunk = everything[i];
             synchronized(put) {
-                put.setInt(stmtIndex++, chanTable.put(chunk.getChannel()));
-                put.setInt(stmtIndex++, chunk.getPixelsPerDay());
-                put.setTimestamp(stmtIndex++, chunk.getBeginTime()
-                        .getTimestamp());
-                put.setTimestamp(stmtIndex++, chunk.getEndTime().getTimestamp());
-                int[] y = chunk.getData().y_coor;
-                put.setInt(stmtIndex++, y.length / 2);
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                DataOutputStream dos = new DataOutputStream(out);
-                for(int k = 0; k < y.length; k++) {
-                    dos.writeInt(y[k]);
+                try {
+                    put.setInt(stmtIndex++, chanTable.put(chunk.getChannel()));
+                    put.setInt(stmtIndex++, chunk.getPixelsPerDay());
+                    put.setTimestamp(stmtIndex++, chunk.getBeginTime()
+                            .getTimestamp());
+                    put.setTimestamp(stmtIndex++, chunk.getEndTime()
+                            .getTimestamp());
+                    int[] y = chunk.getData().y_coor;
+                    put.setInt(stmtIndex++, y.length / 2);
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    DataOutputStream dos = new DataOutputStream(out);
+                    for(int k = 0; k < y.length; k++) {
+                        dos.writeInt(y[k]);
+                    }
+                    put.setBytes(stmtIndex++, out.toByteArray());
+                    put.executeUpdate();
+                } catch(SQLException ex) {
+                    logger.warn("problem with sql query: " + put);
+                    throw ex;
                 }
-                put.setBytes(stmtIndex++, out.toByteArray());
-                put.executeUpdate();
             }
         }
     }
@@ -208,14 +214,14 @@ public class JDBCPlottable extends JDBCTable {
             logger.debug("numPixels: " + numPixels);
             int firstPixelForRequest = 0;
             if(offsetIntoRequestPixels < 0) {
-                //This db row has data starting before the request, start at
+                // This db row has data starting before the request, start at
                 // pertinent point
                 firstPixelForRequest = -1 * offsetIntoRequestPixels;
             }
             logger.debug("firstPixelForRequest: " + firstPixelForRequest);
             int lastPixelForRequest = numPixels;
             if(offsetIntoRequestPixels + numPixels > requestPixels) {
-                //This row has more data than was requested in it, only get
+                // This row has more data than was requested in it, only get
                 // enough to fill the request
                 lastPixelForRequest = requestPixels - offsetIntoRequestPixels;
             }
@@ -231,7 +237,7 @@ public class JDBCPlottable extends JDBCTable {
                 dis.readInt();
             }
             for(int i = 0; i < pixelsUsed * 2; i++) {
-                //x[i] = firstPixelForRequest + i / 2;
+                // x[i] = firstPixelForRequest + i / 2;
                 x[i] = firstPixelForRequest + offsetIntoRequestPixels + i / 2;
                 y[i] = dis.readInt();
             }
