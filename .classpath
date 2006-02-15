@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="var" path="CLOVER_RUNTIME"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/database"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/display"/>
