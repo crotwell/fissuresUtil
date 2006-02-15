@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 import junit.framework.TestCase;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -49,7 +48,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertTrue(list.contains(date3));
     }
 
-    public void testNonApplicationOfLeapSecond_BeforeLeapSecondOccurrence() throws ParseException {
+    public void testNonApplicationOfLeapSecond_BeforeLeapSecondOccurrence()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("05:365:23:59:30:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("939D",
                                                                               date);
@@ -61,7 +61,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertEquals(cal.get(Calendar.SECOND), 30);
     }
 
-    public void testNonApplicationOfLeapSecond_BeforeLeapSecondOccurrence_EdgeCase() throws ParseException {
+    public void testNonApplicationOfLeapSecond_BeforeLeapSecondOccurrence_EdgeCase()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("05:365:23:59:59:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("939D",
                                                                               date);
@@ -73,7 +74,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertEquals(cal.get(Calendar.SECOND), 59);
     }
 
-    public void testNonApplicationOfLeapSecond_AfterLeapSecondOccurrence_AfterPowerUpTime() throws ParseException {
+    public void testNonApplicationOfLeapSecond_AfterLeapSecondOccurrence_AfterPowerUpTime()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("06:015:16:50:46:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("939D",
                                                                               date);
@@ -85,7 +87,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertEquals(cal.get(Calendar.SECOND), 46);
     }
 
-    public void testApplicationOfLeapSecond_AfterLeapSecondOccurrence_EdgeCase() throws ParseException {
+    public void testApplicationOfLeapSecond_AfterLeapSecondOccurrence_EdgeCase()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("06:001:00:00:00:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("939D",
                                                                               date);
@@ -97,7 +100,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertEquals(cal.get(Calendar.SECOND), 1);
     }
 
-    public void testApplicationOfLeapSecond_AfterLeapSecondOccurrence() throws ParseException {
+    public void testApplicationOfLeapSecond_AfterLeapSecondOccurrence()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("06:010:12:30:30:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("939D",
                                                                               date);
@@ -109,7 +113,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertEquals(cal.get(Calendar.SECOND), 31);
     }
 
-    public void testApplicationOfLeapSecond_BeforePowerUpTime_EdgeCase() throws ParseException {
+    public void testApplicationOfLeapSecond_BeforePowerUpTime_EdgeCase()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("06:015:16:50:45:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("939D",
                                                                               date);
@@ -121,7 +126,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertEquals(cal.get(Calendar.SECOND), 46);
     }
 
-    public void testApplicationOfLeapSecond_AfterTwoLeapSecondOccurrencesAndNoPowerUpTimes() throws ParseException {
+    public void testApplicationOfLeapSecond_AfterTwoLeapSecondOccurrencesAndNoPowerUpTimes()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("06:182:12:30:30:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("6991",
                                                                               date);
@@ -133,7 +139,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertEquals(cal.get(Calendar.SECOND), 32);
     }
 
-    public void testApplicationOfLeapSecond_WithUnknownUnitId() throws ParseException {
+    public void testApplicationOfLeapSecond_WithUnknownUnitId()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("06:005:12:30:30:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("xxxx",
                                                                               date);
@@ -145,7 +152,8 @@ public class LeapSecondApplierTest extends TestCase {
         assertEquals(cal.get(Calendar.SECOND), 31);
     }
 
-    public void testApplicationOfLeapSecond_AfterTwoLeapSecondOccurences_WithUnkownUnitId() throws ParseException {
+    public void testApplicationOfLeapSecond_AfterTwoLeapSecondOccurences_WithUnkownUnitId()
+            throws ParseException {
         MicroSecondDate date = new MicroSecondDate(format.parse("06:182:12:30:30:000"));
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("xxxx",
                                                                               date);
