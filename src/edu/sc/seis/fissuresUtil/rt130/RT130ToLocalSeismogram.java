@@ -27,7 +27,6 @@ import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
-import edu.sc.seis.fissuresUtil.rt130.leapSecondCorrection.LeapSecondApplier;
 
 public class RT130ToLocalSeismogram {
 
