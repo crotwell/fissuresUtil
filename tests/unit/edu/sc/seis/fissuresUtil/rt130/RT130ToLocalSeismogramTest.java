@@ -1,4 +1,4 @@
-package edu.sc.seis.fissuresUtil.rt130ToLocalSeismogramImplTest;
+package edu.sc.seis.fissuresUtil.rt130;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -17,9 +17,9 @@ import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 /**
  * @author fenner Created on Jun 14, 2005
  */
-public class RT130ToLocalSeismogramImplTest extends JDBCTearDown {
+public class RT130ToLocalSeismogramTest extends JDBCTearDown {
 
-    public RT130ToLocalSeismogramImplTest() {
+    public RT130ToLocalSeismogramTest() {
         BasicConfigurator.configure();
     }
 
