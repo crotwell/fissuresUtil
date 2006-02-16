@@ -13,12 +13,21 @@ public class VestingNetworkDC extends AbstractProxyNetworkDC {
     public VestingNetworkDC(String dns,
                             String name,
                             FissuresNamingService fisName) {
-        this(new RetryNetworkDC(new NSNetworkDC(dns, name, fisName), 2));
+        this(dns, name, fisName, BulletproofVestFactory.getDefaultNumRetry());
+    }
+    public VestingNetworkDC(String dns,
+                            String name,
+                            FissuresNamingService fisName,
+                            int numRetry) {
+        this(new RetryNetworkDC(new NSNetworkDC(dns, name, fisName), numRetry));
+        this.numRetry = numRetry;
     }
 
     public NetworkFinder a_finder() {
-        return new VestingNetworkFinder(proxy);
+        return new VestingNetworkFinder(proxy, numRetry);
     }
 
     private ProxyNetworkDC proxy;
+    
+    private int numRetry;
 }

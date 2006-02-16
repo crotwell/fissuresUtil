@@ -6,8 +6,9 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 
 public class VestingNetworkFinder extends ProxyNetworkFinder {
 
-    public VestingNetworkFinder(ProxyNetworkDC netDC) {
+    public VestingNetworkFinder(ProxyNetworkDC netDC, int numRetry) {
         super(new NSNetworkFinder(netDC));
+        this.numRetry = numRetry;
     }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
@@ -35,13 +36,14 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     }
 
     public NetworkAccess vest(NetworkAccess na) {
-        return vest(na, this);
+        return vest(na, this, numRetry);
     }
 
     public static ProxyNetworkAccess vest(NetworkAccess na,
-                                          VestingNetworkFinder vnf) {
+                                          VestingNetworkFinder vnf,
+                                          int numRetry) {
         SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
-        RetryNetworkAccess retry = new RetryNetworkAccess(synch, 3);
+        RetryNetworkAccess retry = new RetryNetworkAccess(synch, numRetry);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry);
         NetworkId id = cache.get_attributes().get_id();
         NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, vnf);
@@ -49,4 +51,6 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         cache.setNetworkAccess(retry);
         return cache;
     }
+    
+    int numRetry;
 }

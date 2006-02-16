@@ -28,15 +28,24 @@ public class BulletproofVestFactory {
         if(na instanceof ProxyNetworkAccess) {
             return (ProxyNetworkAccess)na;
         }
-        return VestingNetworkFinder.vest(na, vnf);
+        return VestingNetworkFinder.vest(na, vnf, getDefaultNumRetry());
     }
 
     public static ProxyEventAccessOperations vestEventAccess(EventAccessOperations eventAccess) {
+        // this does not use the default retry as eventAccess currently cannot reset back to the
+        // name service, so it makes more sense to fail after 3 tries than to keep retrying over
+        // and over again. Also because of the cache, as long as the cache is populated right 
+        // after the eventAccess is retrieved, there is little chance of a failure.
+        return vestEventAccess(eventAccess, 3);
+    }
+
+    public static ProxyEventAccessOperations vestEventAccess(EventAccessOperations eventAccess,
+                                                             int numRetry) {
         if(eventAccess instanceof CacheEvent) {
             return (ProxyEventAccessOperations)eventAccess;
         }
         RetryEventAccessOperations retry = new RetryEventAccessOperations(eventAccess,
-                                                                          3);
+                                                                          numRetry);
         CacheEvent cache = new CacheEvent(retry);
         return cache;
     }
@@ -44,8 +53,15 @@ public class BulletproofVestFactory {
     public static ProxyEventDC vestEventDC(String serverDNS,
                                            String serverName,
                                            FissuresNamingService fisName) {
+        return vestEventDC(serverDNS, serverName, fisName, getDefaultNumRetry());
+    }
+
+    public static ProxyEventDC vestEventDC(String serverDNS,
+                                           String serverName,
+                                           FissuresNamingService fisName,
+                                           int numRetry) {
         NSEventDC ns = new NSEventDC(serverDNS, serverName, fisName);
-        RetryEventDC retry = new RetryEventDC(ns, 3);
+        RetryEventDC retry = new RetryEventDC(ns, numRetry);
         CacheEventDC cache = new CacheEventDC(retry);
         return cache;
     }
@@ -68,30 +84,72 @@ public class BulletproofVestFactory {
      *             so you should just vest there and forget about it
      */
     public static ProxyNetworkFinder vestNetworkFinder(ProxyNetworkDC netDC) {
-        return new VestingNetworkFinder(netDC);
+        return new VestingNetworkFinder(netDC, getDefaultNumRetry());
     }
 
     public static ProxySeismogramDC vestSeismogramDC(String serverDNS,
                                                      String serverName,
                                                      FissuresNamingService fisName) {
-        return vestSeismogramDC(serverDNS, serverName, fisName, 3);
+        return vestSeismogramDC(serverDNS,
+                                serverName,
+                                fisName,
+                                getDefaultNumRetry());
     }
 
     public static ProxySeismogramDC vestSeismogramDC(String serverDNS,
                                                      String serverName,
                                                      FissuresNamingService fisName,
-                                                     int count) {
+                                                     int numRetry) {
         NSSeismogramDC ns = new NSSeismogramDC(serverDNS, serverName, fisName);
-        RetrySeismogramDC retry = new RetrySeismogramDC(ns, count);
-        return retry;
+        RetrySeismogramDC retryDC = new RetrySeismogramDC(ns, numRetry);
+        return retryDC;
     }
 
     public static ProxyPlottableDC vestPlottableDC(String serverDNS,
                                                    String serverName,
                                                    FissuresNamingService fisName) {
+        return vestPlottableDC(serverDNS,
+                               serverName,
+                               fisName,
+                               getDefaultNumRetry());
+    }
+
+    public static ProxyPlottableDC vestPlottableDC(String serverDNS,
+                                                   String serverName,
+                                                   FissuresNamingService fisName,
+                                                   int numRetry) {
         NSPlottableDC ns = new NSPlottableDC(serverDNS, serverName, fisName);
-        RetryPlottableDC retry = new RetryPlottableDC(ns, 3);
+        RetryPlottableDC retry = new RetryPlottableDC(ns, numRetry);
         CachePlottableDC cache = new CachePlottableDC(retry);
         return cache;
     }
+
+    public static int getDefaultNumRetry() {
+        return defaultNumRetry;
+    }
+
+    public static void setDefaultNumRetry(int defaultNum) {
+        defaultNumRetry = defaultNum;
+    }
+    
+    /** Sleep for some time between retries. Each RetryXYZDC proxy uses this to retry less
+     * frequently as the number of failures in a row increases.
+     */
+    public static void retrySleep(int count) {
+        if (count>3) {
+            try {
+                if (count>10) {
+                    Thread.sleep(10*sleepSeconds*1000);
+                }else {
+                    Thread.sleep(sleepSeconds*1000);
+                }
+            } catch(InterruptedException e) {
+                //  oh well
+            }
+        }
+    }
+
+    protected static int sleepSeconds = 1;
+    
+    private static int defaultNumRetry = 3;
 }
