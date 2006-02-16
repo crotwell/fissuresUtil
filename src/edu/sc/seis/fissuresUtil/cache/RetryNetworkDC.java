@@ -33,6 +33,8 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
             } catch (SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying "+count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch (OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -51,6 +53,8 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
             } catch (SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying "+count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch (OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -58,6 +62,10 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
             count++;
         }
         throw lastException;
+    }
+    
+    public int getNumRetry() {
+        return retry;
     }
 
     int retry;

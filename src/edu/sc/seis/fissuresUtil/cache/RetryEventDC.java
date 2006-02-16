@@ -28,6 +28,8 @@ public class RetryEventDC extends ProxyEventDC {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count + " of "
                         + retry, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -47,6 +49,8 @@ public class RetryEventDC extends ProxyEventDC {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count + " of "
                         + retry, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);

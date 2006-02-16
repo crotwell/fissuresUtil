@@ -42,6 +42,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 				if (i == retry - 1) { reset(); }
 				t = e;
 				logger.warn("Caught exception, retrying " + i + " of " + retry, t);
+                BulletproofVestFactory.retrySleep(i);
 			}
 		}
 		throw t;

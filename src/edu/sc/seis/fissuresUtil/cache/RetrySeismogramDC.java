@@ -60,6 +60,8 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
             } catch(SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -95,6 +97,8 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
             } catch(SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -115,6 +119,8 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
             } catch(SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -135,6 +141,8 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
             } catch(SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -154,6 +162,8 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
             } catch(SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -173,6 +183,8 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
             } catch(SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
@@ -193,6 +205,8 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
             } catch(SystemException t) {
                 lastException = t;
                 logger.warn("Caught exception, retrying " + count, t);
+                BulletproofVestFactory.retrySleep(count);
+                reset();
             } catch(OutOfMemoryError e) {
                 // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
