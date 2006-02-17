@@ -79,10 +79,10 @@ public class LeapSecondApplier {
     public static MicroSecondDate applyLeapSecondCorrection(String unitId,
                                                             MicroSecondDate time) {
         if(unitIdToCorrections.containsKey(unitId)) {
-            time = time.add(new TimeInterval(howManyLeapSeconds(unitId, time),
+            time = time.subtract(new TimeInterval(howManyLeapSeconds(unitId, time),
                                              UnitImpl.SECOND));
         } else {
-            time = time.add(new TimeInterval(howManyLeapSeconds(time),
+            time = time.subtract(new TimeInterval(howManyLeapSeconds(time),
                                              UnitImpl.SECOND));
         }
         return time;
