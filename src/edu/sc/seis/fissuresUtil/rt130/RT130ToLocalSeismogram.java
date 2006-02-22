@@ -90,17 +90,6 @@ public class RT130ToLocalSeismogram {
     private Channel createChannel(PacketType seismogramData, Sampling sampling) {
         String stationCode = ncFile.getUnitName(seismogramData.begin_time_from_state_of_health_file,
                                                 seismogramData.unitIdNumber);
-        if(stationCode == null) {
-            stationCode = seismogramData.unitIdNumber;
-            System.err.println("/-------------------------");
-            System.err.println("| The station code for DAS unit number "
-                    + seismogramData.unitIdNumber
-                    + " was not found in the NC file.");
-            System.err.println("| The code \"" + seismogramData.unitIdNumber
-                    + "\" will be used instead.");
-            System.err.println("| To correct this entry in the database, please run StationCodeUpdater.");
-            System.err.println("\\-------------------------");
-        }
         String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP
                 + "XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
