@@ -281,6 +281,27 @@ public class Cmplx {
         } // end of for (int i=0; i<gdata.length; i++)
         return fftInverse(fTrans, fdata.length);
     }
+    
+    public static float[] four1Forward(float[] data) {
+        return four1(data, 1);
+    }
+    
+    public static float[] four1Inverse(float[] data) {
+        return four1(data, -1);
+    }
+    
+    public static float[] four1(float[] data, int isign) {
+        double[] d = new double[data.length];
+        for(int i = 0; i < d.length; i++) {
+            d[i] = data[i];
+        }
+        d = four1(d, isign);
+        float[] out = new float[d.length];
+        for(int i = 0; i < out.length; i++) {
+            out[i] = (float)d[i];
+        }
+        return out;
+    }
 
     /**
      * Fast Fourier Transform (adapted from Numerical Recipies in C) isign = 1
