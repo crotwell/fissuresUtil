@@ -49,7 +49,7 @@ public class StationCodeUpdater {
             System.out.println();
             System.out.println("\\------------------------------------");
         }
-        if(args.length > 0) {
+        if(args.length > 4) {
             String oldName = args[args.length - 2];
             String newName = args[args.length - 1];
             if(verbose) {
@@ -66,6 +66,8 @@ public class StationCodeUpdater {
                 System.out.println();
                 System.out.println("Update complete.");
             }
+        } else {
+            printHelp();
         }
     }
 
@@ -86,10 +88,9 @@ public class StationCodeUpdater {
         System.out.println();
         System.out.println("    The last argument must be a String representing the new name.");
         System.out.println("    The next to last argument must be a String representing the old name.");
-        System.out.println("    The default SOD properties file is server.properties.");
         System.out.println("    The default database properties file is server.properties.");
         System.out.println();
-        System.out.println("    -props   | Accepts alternate SOD properties file");
+        System.out.println("    -props   | Accepts alternate database properties file");
         System.out.println("                Use the same prop file used for DB population");
         System.out.println("    -v       | Turn verbose messages on");
         System.out.println();
