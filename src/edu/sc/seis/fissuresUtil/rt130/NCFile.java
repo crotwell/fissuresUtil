@@ -96,10 +96,12 @@ public class NCFile {
     public String getUnitName(MicroSecondDate time, String unitId) {
         MicroSecondDate[] keyArray = (MicroSecondDate[])keyList.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
-            if(time.before(keyArray[i])) {
-                Map dataHashMap = (Map)timeAndDataHashMap.get(keyArray[i - 1]);
-                String unitName = (String)dataHashMap.get(unitId);
-                return unitName;
+            if(time.after(keyArray[i])) {
+                Map dataHashMap = (Map)timeAndDataHashMap.get(keyArray[i]);
+                if(dataHashMap.containsKey(unitId)){
+                    String unitName = (String)dataHashMap.get(unitId);
+                    return unitName;
+                }
             }
         }
         System.err.println("/-------------------------");
@@ -107,7 +109,8 @@ public class NCFile {
                 + " was not found in the NC file.");
         System.err.println("| The name \"" + unitId
                 + "\" will be used instead.");
-        System.err.println("| To correct this entry in the database, please run UnitNameUpdater.");
+        System.err.println("| To correct this entry in the database, please ");
+        System.err.println("|   run StationCodeUpdater and then StationNamePopulator.");
         System.err.println("| ");
         System.err.println("| The time requested was: " + time.toString());
         System.err.println("\\-------------------------");
