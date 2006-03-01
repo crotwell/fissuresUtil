@@ -20,7 +20,7 @@ log4j.appender.E.layout.ConversionPattern=%d{ISO8601} %p %t %c{2} - %m%n
 log4j.appender.E.Threshold=error
 # end of log4j configuration.
 
-edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:nameservice.seis.sc.edu:6371/NameService
 
 #JacORB Props
 jacorb.connection.client.pending_reply_timeout=120000
