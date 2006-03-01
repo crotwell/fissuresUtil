@@ -7,13 +7,13 @@ nameServiceCopy.dns=edu/sc/seis
 #
 # name serivce to copy FROM
 #
-edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:nameservice.seis.sc.edu:6371/NameService
 #edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:dmc.iris.washington.edu:6371/NameService
 
 #
 # the corbaloc of the name server to copy TO
 nameServiceCopy.copyTo=corbaloc:iiop:dmc.iris.washington.edu:6371/NameService
-#nameServiceCopy.copyTo=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+#nameServiceCopy.copyTo=corbaloc:iiop:nameservice.seis.sc.edu:6371/NameService
 
 # start of log4j configuration
 log4j.rootCategory=debug, C

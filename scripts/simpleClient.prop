@@ -24,7 +24,7 @@ log4j.appender.R.layout.ConversionPattern=%d{ISO8601} %p %t %c{2} - %m%n
 #
 
 # fisName helper style (orb independent) - SCEPP
-edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:pooh.seis.sc.edu:6371/NameService
+edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:nameservice.seis.sc.edu:6371/NameService
 
 # fisName helper style (orb independent) - IRIS connection
 #edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:dmc.iris.washington.edu:6371/NameService
