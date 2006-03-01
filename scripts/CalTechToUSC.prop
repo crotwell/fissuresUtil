@@ -12,7 +12,6 @@ edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:dmc.iris.washington.e
 
 #
 # the corbaloc of the name server to copy TO
-#nameServiceCopy.copyTo=corbaloc:iiop:dmc.iris.washington.edu:6371/NameService
 nameServiceCopy.copyTo=corbaloc:iiop:nameservice.seis.sc.edu:6371/NameService
 
 # start of log4j configuration
