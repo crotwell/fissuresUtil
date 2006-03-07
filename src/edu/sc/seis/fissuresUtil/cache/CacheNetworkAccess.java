@@ -124,7 +124,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
                                            Instrumentation inst) {
 
         if (inst.the_response.stages.length == 0) {
-            throw new RuntimeException("Instrumentation for "+ChannelIdUtil.toString(id)+" has no stages, units cannot be determined.");
+            throw new InstrumentationInvalid(id, "Instrumentation has no stages, units cannot be determined.");
         }
         SensitivityHolder holder = extractExistingHolder(id, the_time);
         List sensForChannel = extractSensForChannel(id);
@@ -142,7 +142,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         List sensForChannel = extractSensForChannel(id);
         for(Iterator iter = sensForChannel.iterator(); iter.hasNext();) {
             SensitivityHolder holder = (SensitivityHolder)iter.next();
-            if(holder.range.intersects(date)) {
+            if(holder.range.contains(date)) {
                 return holder;
             }
         }
