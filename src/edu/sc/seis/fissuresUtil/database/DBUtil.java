@@ -9,10 +9,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class DBUtil{
-    public static String commaDelimit(int numQuestionMarks){
+public class DBUtil {
+
+    public static String commaDelimit(int numQuestionMarks) {
         List qs = new ArrayList(numQuestionMarks);
-        for (int i = 0; i < numQuestionMarks; i++) { qs.add("?"); }
+        for(int i = 0; i < numQuestionMarks; i++) {
+            qs.add("?");
+        }
         return commaDelimit(qs);
     }
 
@@ -20,58 +23,75 @@ public class DBUtil{
         String commaDelimited = "";
         Iterator it = strings.iterator();
         boolean first = true;
-        while(it.hasNext()){
-            if(first){ first = false; }
-            else{ commaDelimited += ", "; }
+        while(it.hasNext()) {
+            if(first) {
+                first = false;
+            } else {
+                commaDelimited += ", ";
+            }
             commaDelimited += it.next();
         }
         return commaDelimited;
     }
+
     public static boolean tableExists(String tableName, Connection conn)
-        throws SQLException{
+            throws SQLException {
         DatabaseMetaData dbmd = conn.getMetaData();
         ResultSet rs = dbmd.getTables(null, null, null, null);
-        while(rs.next()){
-            if(rs.getString("TABLE_NAME").equalsIgnoreCase(tableName)) return true;
+        while(rs.next()) {
+            if(rs.getString("TABLE_NAME").equalsIgnoreCase(tableName)) {
+                return true;
+            }
         }
         return false;
     }
 
     public static boolean sequenceExists(String seqName, Connection conn)
-        throws SQLException{
+            throws SQLException {
         DatabaseMetaData dbmd = conn.getMetaData();
-        if (dbmd.getURL().startsWith("jdbc:postgresql:")) {
-            // try select from pg_class
-            ResultSet rs = conn.createStatement().executeQuery("SELECT * from pg_class where relname = '"+seqName.toLowerCase()+"' AND relkind = 'S'");
-            if (rs.next()) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (dbmd.getURL().startsWith("jdbc:hsqldb:")) {
+        if(dbmd.getURL().startsWith("jdbc:postgresql:")) {
+            return returnsAnyRows("SELECT * from pg_class where relname = '"
+                    + seqName.toLowerCase() + "' AND relkind = 'S'", conn);
+        } else if(dbmd.getURL().startsWith("jdbc:hsqldb:")) {
             // try select from system_sequences
-            ResultSet rs = conn.createStatement().executeQuery("SELECT * from system_sequences where sequence_name = '"+seqName.toUpperCase()+"'");
-            if (rs.next()) {
-                return true;
-            } else {
-                return false;
+            String whereClause = "WHERE sequence_name = '"
+                    + seqName.toUpperCase() + "'";
+            try {
+                return returnsAnyRows("SELECT sequence_name FROM system_sequences "
+                                              + whereClause,
+                                      conn);
+            } catch(SQLException e) {
+                // Try again as this may be a table not found exception.
+                // Under HSQLDB 1.8 and later the system_sequences table
+                // belongs to a schema
+                return returnsAnyRows("SELECT sequence_name FROM information_schema.system_sequences "
+                                              + whereClause,
+                                      conn);
             }
         }
-        // not postgres, so try asking as a table, maybe this works for other databases
+        // not postgres, so try asking as a table, maybe this works for other
+        // databases
         return tableExists(seqName, conn);
     }
-    
-    public static void printTableExistence(String name, Connection conn)throws SQLException{
-        if(tableExists(name, conn)) System.out.println(name + " exists");
-        else System.out.println(name + " does not exist");
+
+    private static boolean returnsAnyRows(String stmt, Connection conn)
+            throws SQLException {
+        return conn.createStatement().executeQuery(stmt).next();
     }
 
+    public static void printTableExistence(String name, Connection conn)
+            throws SQLException {
+        if(tableExists(name, conn))
+            System.out.println(name + " exists");
+        else
+            System.out.println(name + " does not exist");
+    }
 
-    public static void printExistingTables(Connection conn)throws SQLException{
+    public static void printExistingTables(Connection conn) throws SQLException {
         DatabaseMetaData dbmd = conn.getMetaData();
         System.out.println("********************************************");
         ResultSet rs = dbmd.getTables(null, null, null, null);
-        while(rs.next()){
+        while(rs.next()) {
             System.out.println(rs.getString("TABLE_NAME"));
         }
         System.out.println("********************************************");
