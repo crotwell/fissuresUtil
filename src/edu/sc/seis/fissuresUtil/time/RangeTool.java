@@ -97,6 +97,24 @@ public class RangeTool {
         return new MicroSecondTimeRange(beginTime, endTime);
     }
 
+
+    /**
+     * @returns A time range encompassing the earliest begin time of the passed
+     *          in request filter to the latest end time
+     */
+    public static MicroSecondTimeRange getFullTime(RequestFilter[] seis) {
+        if(seis.length == 0) {
+            return DisplayUtils.ZERO_TIME;
+        }
+        MicroSecondDate beginTime = new MicroSecondDate(SortTool.byBeginTimeAscending(seis)[0].start_time);
+        MicroSecondDate endTime = new MicroSecondDate(0);
+        for(int i = 0; i < seis.length; i++) {
+            if(new MicroSecondDate(seis[i].end_time).after(endTime)) {
+                endTime = new MicroSecondDate(seis[i].end_time);
+            }
+        }
+        return new MicroSecondTimeRange(beginTime, endTime);
+    }
     public static MicroSecondTimeRange getFullTime(PlottableChunk[] pc) {
         if(pc.length == 0) {
             return DisplayUtils.ZERO_TIME;
