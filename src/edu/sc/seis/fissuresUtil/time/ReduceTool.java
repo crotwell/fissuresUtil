@@ -5,6 +5,8 @@ import java.util.List;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.IfTimeSeries.EncodedData;
+import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
@@ -39,8 +41,8 @@ public class ReduceTool {
     }
 
     /**
-     * Unites contiguous seismograms into a single LocalSeismogramImpl.
-     * Overlapping seismograms are left separate.
+     * Unites contiguous and equal seismograms into a single
+     * LocalSeismogramImpl. Partially overlapping seismograms are left separate.
      */
     public static LocalSeismogramImpl[] merge(LocalSeismogramImpl[] seis) {
         return new LSMerger().merge(seis);
@@ -76,9 +78,7 @@ public class ReduceTool {
 
         public abstract Object merge(Object one, Object two);
 
-        public abstract boolean areContiguous(Object one, Object two);
-
-        public abstract boolean areOverlapping(Object one, Object two);
+        public abstract boolean shouldMerge(Object one, Object two);
 
         public Object[] internalMerge(Object[] chunks,
                                       Object[] resultantTypeArray) {
@@ -87,8 +87,7 @@ public class ReduceTool {
                 Object chunk = chunks[i];
                 for(int j = i + 1; j < chunks.length; j++) {
                     Object chunk2 = chunks[j];
-                    if(areContiguous(chunk, chunk2)
-                            || areOverlapping(chunk, chunk2)) {
+                    if(shouldMerge(chunk, chunk2)) {
                         chunks[j] = merge(chunk, chunk2);
                         chunks[i] = null;
                         break;
@@ -104,19 +103,16 @@ public class ReduceTool {
             return results.toArray(resultantTypeArray);
         }
     }
-
+ 
     private static class MSTRMerger extends Merger {
 
         public Object merge(Object one, Object two) {
             return new MicroSecondTimeRange(cast(one), cast(two));
         }
 
-        public boolean areContiguous(Object one, Object two) {
-            return RangeTool.areContiguous(cast(one), cast(two));
-        }
-
-        public boolean areOverlapping(Object one, Object two) {
-            return RangeTool.areOverlapping(cast(one), cast(two));
+        public boolean shouldMerge(Object one, Object two) {
+            return RangeTool.areContiguous(cast(one), cast(two))
+                    || RangeTool.areOverlapping(cast(one), cast(two));
         }
 
         public MicroSecondTimeRange cast(Object o) {
@@ -139,22 +135,14 @@ public class ReduceTool {
                     .getFissuresTime(), tr.getEndTime().getFissuresTime());
         }
 
-        public boolean areContiguous(Object one, Object two) {
-            return onSameChannel(one, two)
-                    && RangeTool.areContiguous(toMSTR(one), toMSTR(two));
-        }
-
-        private boolean onSameChannel(Object one, Object two) {
-            return getChannelString(one).equals(getChannelString(two));
-        }
-
         protected String getChannelString(Object rf) {
             return ChannelIdUtil.toStringNoDates(((RequestFilter)rf).channel_id);
         }
 
-        public boolean areOverlapping(Object one, Object two) {
-            return onSameChannel(one, two)
-                    && RangeTool.areOverlapping(toMSTR(one), toMSTR(two));
+        public boolean shouldMerge(Object one, Object two) {
+            return getChannelString(one).equals(getChannelString(two))
+                    && (RangeTool.areOverlapping(toMSTR(one), toMSTR(two)) || RangeTool.areContiguous(toMSTR(one),
+                                                                                                      toMSTR(two)));
         }
 
         protected MicroSecondTimeRange toMSTR(Object o) {
@@ -166,24 +154,41 @@ public class ReduceTool {
         }
     }
 
-    private static class LSMerger extends RFMerger {
+    private static class LSMerger extends Merger {
 
         public Object merge(Object one, Object two) {
             LocalSeismogramImpl seis = (LocalSeismogramImpl)one;
             LocalSeismogramImpl seis2 = (LocalSeismogramImpl)two;
             MicroSecondTimeRange fullRange = new MicroSecondTimeRange(toMSTR(seis),
                                                                       toMSTR(seis2));
-            logger.debug("Merging " + seis + " and " + seis2 + " into "
+            logger.debug("Merging " + toMSTR(seis) + " and " + toMSTR(seis2)+ " into "
                     + fullRange);
-            int numPoints = seis.getNumPoints() + seis2.getNumPoints();
+            if(fullRange.equals(toMSTR(seis))) {
+                return seis;
+            }
             LocalSeismogramImpl earlier = seis;
             LocalSeismogramImpl later = seis2;
             if(seis2.getBeginTime().before(seis.getBeginTime())) {
                 earlier = seis2;
                 later = seis;
             }
-            LocalSeismogramImpl outSeis;
             try {
+                if(seis.is_encoded()) {
+                    EncodedData[] earlierED = earlier.get_as_encoded();
+                    EncodedData[] laterED = later.get_as_encoded();
+                    EncodedData[] outED = new EncodedData[earlierED.length
+                            + laterED.length];
+                    System.arraycopy(earlierED, 0, outED, 0, earlierED.length);
+                    System.arraycopy(laterED,
+                                     0,
+                                     outED,
+                                     earlierED.length,
+                                     outED.length);
+                    TimeSeriesDataSel td = new TimeSeriesDataSel();
+                    td.encoded_values(outED);
+                    return new LocalSeismogramImpl(earlier, td);
+                }
+                int numPoints = seis.getNumPoints() + seis2.getNumPoints();
                 if(seis.can_convert_to_short()) {
                     short[] outS = new short[numPoints];
                     System.arraycopy(earlier.get_as_shorts(),
@@ -196,7 +201,7 @@ public class ReduceTool {
                                      outS,
                                      earlier.getNumPoints(),
                                      later.getNumPoints());
-                    outSeis = new LocalSeismogramImpl(earlier, outS);
+                    return new LocalSeismogramImpl(earlier, outS);
                 } else if(seis.can_convert_to_long()) {
                     int[] outI = new int[numPoints];
                     System.arraycopy(earlier.get_as_longs(),
@@ -209,7 +214,7 @@ public class ReduceTool {
                                      outI,
                                      earlier.getNumPoints(),
                                      later.getNumPoints());
-                    outSeis = new LocalSeismogramImpl(earlier, outI);
+                    return new LocalSeismogramImpl(earlier, outI);
                 } else if(seis.can_convert_to_float()) {
                     float[] outF = new float[numPoints];
                     System.arraycopy(earlier.get_as_floats(),
@@ -222,7 +227,7 @@ public class ReduceTool {
                                      outF,
                                      earlier.getNumPoints(),
                                      later.getNumPoints());
-                    outSeis = new LocalSeismogramImpl(earlier, outF);
+                    return new LocalSeismogramImpl(earlier, outF);
                 } else {
                     double[] outD = new double[numPoints];
                     System.arraycopy(earlier.get_as_doubles(),
@@ -235,16 +240,17 @@ public class ReduceTool {
                                      outD,
                                      earlier.getNumPoints(),
                                      later.getNumPoints());
-                    outSeis = new LocalSeismogramImpl(earlier, outD);
-                } // end of else
+                    return new LocalSeismogramImpl(earlier, outD);
+                } 
             } catch(FissuresException e) {
                 throw new RuntimeException(e);
             }
-            return outSeis;
         }
 
-        public boolean areOverlapping(Object one, Object two) {
-            return false;
+        public boolean shouldMerge(Object one, Object two) {
+            return getChannelString(one).equals(getChannelString(two))
+                    && (RangeTool.areContiguous((LocalSeismogramImpl)one,
+                                                (LocalSeismogramImpl)two) || toMSTR(one).equals(toMSTR(two)));
         }
 
         protected String getChannelString(Object rf) {
@@ -288,15 +294,12 @@ public class ReduceTool {
                                       chunk.getChannel());
         }
 
-        public boolean areContiguous(Object one, Object two) {
-            return RangeTool.areContiguous(cast(one), cast(two));
+        public boolean shouldMerge(Object one, Object two) {
+            return RangeTool.areContiguous(cast(one), cast(two))
+                    || RangeTool.areOverlapping(cast(one), cast(two));
         }
 
-        public boolean areOverlapping(Object one, Object two) {
-            return RangeTool.areOverlapping(cast(one), cast(two));
-        }
-
-        public PlottableChunk cast(Object o) {
+        private PlottableChunk cast(Object o) {
             return (PlottableChunk)o;
         }
 
