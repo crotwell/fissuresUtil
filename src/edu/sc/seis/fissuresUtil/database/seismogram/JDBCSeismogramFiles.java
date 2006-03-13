@@ -27,6 +27,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
+import edu.sc.seis.fissuresUtil.bag.Cut;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
@@ -38,6 +39,7 @@ import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogram;
+import edu.sc.seis.fissuresUtil.time.ReduceTool;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 import edu.sc.seis.fissuresUtil.xml.URLDataSetSeismogram;
 
@@ -116,31 +118,32 @@ public class JDBCSeismogramFiles extends JDBCTable {
     public RequestFilter[] findMatchingSeismograms(RequestFilter[] requestArray,
                                                    boolean ignoreNetworkTimes)
             throws SQLException {
-        List matchingSeismogramsResultList = queryDatabaseForSeismograms(requestArray,
-                                                                         false,
-                                                                         ignoreNetworkTimes);
-        return (RequestFilter[])matchingSeismogramsResultList.toArray(new RequestFilter[matchingSeismogramsResultList.size()]);
+        List results = queryDatabaseForSeismograms(requestArray,
+                                                   false,
+                                                   ignoreNetworkTimes);
+        RequestFilter[] request = (RequestFilter[])results.toArray(new RequestFilter[results.size()]);
+        return ReduceTool.merge(request);
     }
 
     public LocalSeismogram[] getMatchingSeismograms(RequestFilter[] requestArray,
                                                     boolean ignoreNetworkTimes)
             throws SQLException {
-        List matchingSeismogramsResultList = queryDatabaseForSeismograms(requestArray,
-                                                                         true,
-                                                                         ignoreNetworkTimes);
-        return (LocalSeismogram[])matchingSeismogramsResultList.toArray(new LocalSeismogram[matchingSeismogramsResultList.size()]);
+        List results = queryDatabaseForSeismograms(requestArray,
+                                                   true,
+                                                   ignoreNetworkTimes);
+        LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])results.toArray(new LocalSeismogram[results.size()]);
+        return ReduceTool.merge(seis);
     }
 
-    public List queryDatabaseForSeismograms(RequestFilter[] requestArray,
+    public List queryDatabaseForSeismograms(RequestFilter[] request,
                                             boolean returnSeismograms,
                                             boolean ignoreNetworkTimes)
             throws SQLException {
+        RequestFilter[] minimalRequest = ReduceTool.merge(request);
         List matchingSeismogramsResultList = new ArrayList();
-        // Loop used to compair data in requestArray with the database and save
-        // results in a ResultSet.
-        for(int i = 0; i < requestArray.length; i++) {
+        for(int i = 0; i < minimalRequest.length; i++) {
             queryDatabaseForSeismogram(matchingSeismogramsResultList,
-                                       requestArray[i],
+                                       minimalRequest[i],
                                        returnSeismograms,
                                        ignoreNetworkTimes);
         }
@@ -220,6 +223,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
         // and place the times into a time table while
         // buffering the query by one second on each end.
         int[] chanId;
+        Cut cutter = new Cut(request);
         try {
             if(ignoreNetworkTimes) {
                 chanId = chanTable.getDBIdIgnoringNetworkId(request.channel_id.network_id.network_code,
@@ -244,25 +248,31 @@ public class JDBCSeismogramFiles extends JDBCTable {
             databaseResults = select.executeQuery();
             if(returnSeismograms) {
                 try {
+                    List preliminaryResults = new ArrayList();
                     while(databaseResults.next()) {
                         File seismogramFile = new File(databaseResults.getString(4));
                         SeismogramFileTypes filetype = SeismogramFileTypes.fromInt(databaseResults.getInt("filetype"));
+                        LocalSeismogramImpl[] curSeis;
                         if(filetype.equals(SeismogramFileTypes.RT_130)) {
-                            List refTekSeismogramsList = getMatchingSeismogramsFromRefTek(seismogramFile.getCanonicalPath(),
-                                                                                          request.channel_id,
-                                                                                          adjustedBeginTime,
-                                                                                          adjustedEndTime);
-                            LocalSeismogramImpl[] refTekSeismogramsArray = (LocalSeismogramImpl[])refTekSeismogramsList.toArray(new LocalSeismogramImpl[refTekSeismogramsList.size()]);
-                            for(int j = 0; j < refTekSeismogramsArray.length; j++) {
-                                matchingSeismogramsResultList.add(refTekSeismogramsArray[j]);
-                            }
+                            List refTekSeis = getMatchingSeismogramsFromRefTek(seismogramFile.getCanonicalPath(),
+                                                                               request.channel_id,
+                                                                               adjustedBeginTime,
+                                                                               adjustedEndTime);
+                            curSeis = (LocalSeismogramImpl[])refTekSeis.toArray(new LocalSeismogramImpl[refTekSeis.size()]);
                         } else {
                             URLDataSetSeismogram urlSeis = new URLDataSetSeismogram(seismogramFile.toURL(),
                                                                                     filetype);
-                            LocalSeismogramImpl[] result = urlSeis.getSeismograms();
-                            for(int j = 0; j < result.length; j++) {
-                                matchingSeismogramsResultList.add(result[j]);
+                            curSeis = urlSeis.getSeismograms();
+                        }
+                        for(int j = 0; j < curSeis.length; j++) {
+                            LocalSeismogram seis = cutter.apply(curSeis[j]);
+                            if(seis != null) {
+                                preliminaryResults.add(seis);
                             }
+                        }
+                        LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])preliminaryResults.toArray(new LocalSeismogramImpl[0]);
+                        for(int j = 0; j < seis.length; j++) {
+                            matchingSeismogramsResultList.add(seis[j]);
                         }
                     }
                 } catch(Exception e) {
@@ -275,11 +285,10 @@ public class JDBCSeismogramFiles extends JDBCTable {
             } else {
                 try {
                     while(databaseResults.next()) {
-                        RequestFilter resultSetToRequestFilter = new RequestFilter();
-                        resultSetToRequestFilter.channel_id = chanTable.getId(databaseResults.getInt(1));
-                        resultSetToRequestFilter.start_time = timeTable.get(databaseResults.getInt(2));
-                        resultSetToRequestFilter.end_time = timeTable.get(databaseResults.getInt(3));
-                        matchingSeismogramsResultList.add(resultSetToRequestFilter);
+                        RequestFilter req = new RequestFilter(chanTable.getId(databaseResults.getInt(1)),
+                                                              timeTable.get(databaseResults.getInt(2)),
+                                                              timeTable.get(databaseResults.getInt(3)));
+                        matchingSeismogramsResultList.add(cutter.apply(req));
                     }
                 } catch(Exception e) {
                     GlobalExceptionHandler.handle("Problem occured while querying the database for seismograms.",

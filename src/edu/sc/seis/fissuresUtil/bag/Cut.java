@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -14,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Tue Oct 1 21:23:44 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Cut.java 15189 2005-11-08 20:38:53Z groves $
+ * @version $Id: Cut.java 16417 2006-03-13 20:15:20Z groves $
  */
 public class Cut implements LocalSeismogramFunction {
 
@@ -23,9 +24,15 @@ public class Cut implements LocalSeismogramFunction {
         this.end = end;
     }
 
+    public Cut(RequestFilter request) {
+        this(new MicroSecondDate(request.start_time),
+             new MicroSecondDate(request.end_time));
+    }
+
     /**
-     * Applys the cut to the seismogram. Returns null if no data is within the
-     * cut window.
+     * @return - a seismogram cut to the configured time window. The original
+     *         seismogram is not modified. Returns null if no data is within the
+     *         cut window.
      */
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis)
             throws FissuresException {
@@ -36,7 +43,7 @@ public class Cut implements LocalSeismogramFunction {
         QuantityImpl beginShift = begin.subtract(seis.getBeginTime());
         beginShift = beginShift.divideBy(sampPeriod);
         beginShift = beginShift.convertTo(SEC_PER_SEC); // should be
-                                                        // dimensonless
+        // dimensonless
         int beginIndex = (int)Math.ceil(beginShift.value);
         if(beginIndex < 0) {
             beginIndex = 0;
@@ -90,4 +97,25 @@ public class Cut implements LocalSeismogramFunction {
 
     public static final UnitImpl SEC_PER_SEC = UnitImpl.divide(UnitImpl.SECOND,
                                                                UnitImpl.SECOND);
+
+    public RequestFilter apply(RequestFilter original) {
+        RequestFilter result = new RequestFilter();
+        result.channel_id = original.channel_id;
+        MicroSecondDate filterBegin = new MicroSecondDate(original.start_time);
+        MicroSecondDate filterEnd = new MicroSecondDate(original.end_time);
+        if(begin.after(filterEnd) || end.before(filterBegin)) {
+            return null;
+        } // end of if ()
+        if(begin.after(filterBegin)) {
+            result.start_time = begin.getFissuresTime();
+        } else {
+            result.start_time = original.start_time;
+        }
+        if(end.before(filterEnd)) {
+            result.end_time = end.getFissuresTime();
+        } else {
+            result.end_time = original.end_time;
+        }
+        return result;
+    }
 }// Cut
