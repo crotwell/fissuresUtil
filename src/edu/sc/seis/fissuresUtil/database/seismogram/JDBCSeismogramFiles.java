@@ -131,8 +131,10 @@ public class JDBCSeismogramFiles extends JDBCTable {
         List results = queryDatabaseForSeismograms(requestArray,
                                                    true,
                                                    ignoreNetworkTimes);
-        LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])results.toArray(new LocalSeismogram[results.size()]);
-        return ReduceTool.merge(seis);
+        LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])results.toArray(new LocalSeismogramImpl[results.size()]);
+        LocalSeismogramImpl[] reduced = ReduceTool.merge(seis);
+        logger.debug("Reduced " + seis.length + " to " + reduced.length);
+        return reduced;
     }
 
     public List queryDatabaseForSeismograms(RequestFilter[] request,
@@ -140,14 +142,14 @@ public class JDBCSeismogramFiles extends JDBCTable {
                                             boolean ignoreNetworkTimes)
             throws SQLException {
         RequestFilter[] minimalRequest = ReduceTool.merge(request);
-        List matchingSeismogramsResultList = new ArrayList();
+        List resultCollector = new ArrayList();
         for(int i = 0; i < minimalRequest.length; i++) {
-            queryDatabaseForSeismogram(matchingSeismogramsResultList,
+            queryDatabaseForSeismogram(resultCollector,
                                        minimalRequest[i],
                                        returnSeismograms,
                                        ignoreNetworkTimes);
         }
-        return matchingSeismogramsResultList;
+        return resultCollector;
     }
 
     public Channel findCloseChannel(Channel newChannel, QuantityImpl distance)
@@ -214,7 +216,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
         }
     }
 
-    private void queryDatabaseForSeismogram(List matchingSeismogramsResultList,
+    private void queryDatabaseForSeismogram(List resultCollector,
                                             RequestFilter request,
                                             boolean returnSeismograms,
                                             boolean ignoreNetworkTimes)
@@ -272,7 +274,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
                         }
                         LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])preliminaryResults.toArray(new LocalSeismogramImpl[0]);
                         for(int j = 0; j < seis.length; j++) {
-                            matchingSeismogramsResultList.add(seis[j]);
+                            resultCollector.add(seis[j]);
                         }
                     }
                 } catch(Exception e) {
@@ -288,7 +290,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
                         RequestFilter req = new RequestFilter(chanTable.getId(databaseResults.getInt(1)),
                                                               timeTable.get(databaseResults.getInt(2)),
                                                               timeTable.get(databaseResults.getInt(3)));
-                        matchingSeismogramsResultList.add(cutter.apply(req));
+                        resultCollector.add(cutter.apply(req));
                     }
                 } catch(Exception e) {
                     GlobalExceptionHandler.handle("Problem occured while querying the database for seismograms.",
@@ -306,32 +308,32 @@ public class JDBCSeismogramFiles extends JDBCTable {
         RT130FileReader toSeismogramDataPacket = new RT130FileReader(seismogramFile,
                                                                      true);
         PacketType[] seismogramDataPacketArray;
-        LocalSeismogramImpl[] seismogramArray;
+        LocalSeismogramImpl[] seis;
         try {
             seismogramDataPacketArray = toSeismogramDataPacket.processRT130Data();
             RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram();
-            seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
+            seis = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         } catch(RT130FormatException e) {
             logger.debug("Problem occured while returning rt130 seismograms from the file listed in the database."
                     + "\n" + "The problem file is located at " + seismogramFile);
             return new ArrayList(0);
         }
-        List matchingSeismogramsResultList = new ArrayList(0);
-        for(int i = 0; i < seismogramArray.length; i++) {
+        List matchingSeis = new ArrayList();
+        for(int i = 0; i < seis.length; i++) {
             // Check to make sure the seismograms returned fall within the
-            // requested time window, and compair the channel code of the
+            // requested time window, and compare the channel code of the
             // channel requested with the channel code of the dummy channel
             // created during the above file reading. If the codes are equal,
             // set the dummy channel equal to the channel requested (real
             // channel).
-            if(seismogramArray[i].channel_id.channel_code.equals(chanId.channel_code)
-                    && seismogramArray[i].getBeginTime().before(endTime)
-                    && seismogramArray[i].getEndTime().after(beginTime)) {
-                seismogramArray[i].channel_id = chanId;
-                matchingSeismogramsResultList.add(seismogramArray[i]);
+            if(seis[i].channel_id.channel_code.equals(chanId.channel_code)
+                    && seis[i].getBeginTime().before(endTime)
+                    && seis[i].getEndTime().after(beginTime)) {
+                seis[i].channel_id = chanId;
+                matchingSeis.add(seis[i]);
             }
         }
-        return matchingSeismogramsResultList;
+        return matchingSeis;
     }
 
     public void updateStationCode(String oldName, String newName)
