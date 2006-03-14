@@ -27,8 +27,8 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
-import edu.sc.seis.fissuresUtil.bag.Cut;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
+import edu.sc.seis.fissuresUtil.bag.EncodedCut;
 import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
@@ -225,7 +225,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
         // and place the times into a time table while
         // buffering the query by one second on each end.
         int[] chanId;
-        Cut cutter = new Cut(request);
+        EncodedCut cutter = new EncodedCut(request);
         try {
             if(ignoreNetworkTimes) {
                 chanId = chanTable.getDBIdIgnoringNetworkId(request.channel_id.network_id.network_code,
