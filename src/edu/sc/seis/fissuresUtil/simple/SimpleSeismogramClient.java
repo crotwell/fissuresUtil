@@ -109,16 +109,20 @@ public class SimpleSeismogramClient implements TestingClient {
         try {
             LocalSeismogram[] seis = seisDC.retrieve_seismograms(createCurrentRF());
             if(verbose) {
-                logger.info("Got " + seis.length + " seismograms.");
-                for(int i = 0; i < seis.length; i++) {
-                    logger.info("Seismogram " + i + " has "
-                            + seis[i].num_points + " points and starts at "
-                            + seis[i].begin_time.date_time);
-                }
+                printSeisResults(seis);
             }
             return seis;
         } catch(FissuresException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void printSeisResults(LocalSeismogram[] seis) {
+        logger.info("Got " + seis.length + " seismograms.");
+        for(int i = 0; i < seis.length; i++) {
+            logger.info("Seismogram " + i + " has "
+                    + seis[i].num_points + " points and starts at "
+                    + seis[i].begin_time.date_time);
         }
     }
 
@@ -140,10 +144,15 @@ public class SimpleSeismogramClient implements TestingClient {
         // we will get data for 1 hour ago until now
         MicroSecondDate now = ClockUtil.now();
         MicroSecondDate hourAgo = now.subtract(ONE_HOUR);
+        return createRF(hourAgo, now);
+        
+    }
+    
+    public static RequestFilter[] createRF(MicroSecondDate start, MicroSecondDate end){
         // construct the request filters to send to the server
         RequestFilter[] request = {new RequestFilter(Initializer.fakeChan,
-                                                     hourAgo.getFissuresTime(),
-                                                     now.getFissuresTime())};
+                                                     start.getFissuresTime(),
+                                                     end.getFissuresTime())};
         return request;
     }
 
