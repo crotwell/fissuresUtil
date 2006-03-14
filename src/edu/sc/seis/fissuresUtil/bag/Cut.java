@@ -15,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Tue Oct 1 21:23:44 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Cut.java 16417 2006-03-13 20:15:20Z groves $
+ * @version $Id: Cut.java 16428 2006-03-14 20:19:12Z groves $
  */
 public class Cut implements LocalSeismogramFunction {
 
@@ -36,31 +36,11 @@ public class Cut implements LocalSeismogramFunction {
      */
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis)
             throws FissuresException {
-        if(begin.after(seis.getEndTime()) || end.before(seis.getBeginTime())) {
+        if(!overlaps(seis)) {
             return null;
         } // end of if ()
-        TimeInterval sampPeriod = seis.getSampling().getPeriod();
-        QuantityImpl beginShift = begin.subtract(seis.getBeginTime());
-        beginShift = beginShift.divideBy(sampPeriod);
-        beginShift = beginShift.convertTo(SEC_PER_SEC); // should be
-        // dimensonless
-        int beginIndex = (int)Math.ceil(beginShift.value);
-        if(beginIndex < 0) {
-            beginIndex = 0;
-        } // end of if (beginIndex < 0)
-        if(beginIndex >= seis.getNumPoints()) {
-            beginIndex = seis.getNumPoints() - 1;
-        }
-        QuantityImpl endShift = seis.getEndTime().subtract(end);
-        endShift = endShift.divideBy(sampPeriod);
-        endShift = endShift.convertTo(SEC_PER_SEC); // should be dimensonless
-        int endIndex = seis.getNumPoints() - (int)Math.floor(endShift.value);
-        if(endIndex < 0) {
-            endIndex = 0;
-        }
-        if(endIndex > seis.getNumPoints()) {
-            endIndex = seis.getNumPoints();
-        }
+        int beginIndex = getBeginIndex(seis);
+        int endIndex = getEndIndex(seis);
         LocalSeismogramImpl outSeis;
         if(seis.can_convert_to_short()) {
             short[] outS = new short[endIndex - beginIndex];
@@ -84,9 +64,44 @@ public class Cut implements LocalSeismogramFunction {
             outSeis = new LocalSeismogramImpl(seis, outD);
         } // end of else
         outSeis.begin_time = seis.getBeginTime()
-                .add((TimeInterval)sampPeriod.multiplyBy(beginIndex))
+                .add((TimeInterval)seis.getSampling().getPeriod().multiplyBy(beginIndex))
                 .getFissuresTime();
         return outSeis;
+    }
+
+    protected boolean overlaps(LocalSeismogramImpl seis) {
+        return begin.before(seis.getEndTime()) && end.after(seis.getBeginTime());
+    }
+
+    protected int getEndIndex(LocalSeismogramImpl seis) {
+        TimeInterval sampPeriod = seis.getSampling().getPeriod();
+        QuantityImpl endShift = seis.getEndTime().subtract(end);
+        endShift = endShift.divideBy(sampPeriod);
+        endShift = endShift.convertTo(SEC_PER_SEC); // should be dimensonless
+        int endIndex = seis.getNumPoints() - (int)Math.floor(endShift.value);
+        if(endIndex < 0) {
+            endIndex = 0;
+        }
+        if(endIndex > seis.getNumPoints()) {
+            endIndex = seis.getNumPoints();
+        }
+        return endIndex;
+    }
+
+    protected int getBeginIndex(LocalSeismogramImpl seis) {
+        TimeInterval sampPeriod = seis.getSampling().getPeriod();
+        QuantityImpl beginShift = begin.subtract(seis.getBeginTime());
+        beginShift = beginShift.divideBy(sampPeriod);
+        beginShift = beginShift.convertTo(SEC_PER_SEC); // should be
+        // dimensonless
+        int beginIndex = (int)Math.ceil(beginShift.value);
+        if(beginIndex < 0) {
+            beginIndex = 0;
+        } // end of if (beginIndex < 0)
+        if(beginIndex >= seis.getNumPoints()) {
+            beginIndex = seis.getNumPoints() - 1;
+        }
+        return beginIndex;
     }
 
     public String toString() {
