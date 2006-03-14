@@ -103,7 +103,7 @@ public class ReduceTool {
             return results.toArray(resultantTypeArray);
         }
     }
- 
+
     private static class MSTRMerger extends Merger {
 
         public Object merge(Object one, Object two) {
@@ -161,8 +161,8 @@ public class ReduceTool {
             LocalSeismogramImpl seis2 = (LocalSeismogramImpl)two;
             MicroSecondTimeRange fullRange = new MicroSecondTimeRange(toMSTR(seis),
                                                                       toMSTR(seis2));
-            logger.debug("Merging " + toMSTR(seis) + " and " + toMSTR(seis2)+ " into "
-                    + fullRange);
+            logger.debug("Merging " + toMSTR(seis) + " and " + toMSTR(seis2)
+                    + " into " + fullRange);
             if(fullRange.equals(toMSTR(seis))) {
                 return seis;
             }
@@ -182,8 +182,8 @@ public class ReduceTool {
                     System.arraycopy(laterED,
                                      0,
                                      outED,
-                                     earlierED.length,
-                                     outED.length);
+                                     earlierED.length - 1,
+                                     laterED.length);
                     TimeSeriesDataSel td = new TimeSeriesDataSel();
                     td.encoded_values(outED);
                     return new LocalSeismogramImpl(earlier, td);
@@ -199,7 +199,7 @@ public class ReduceTool {
                     System.arraycopy(later.get_as_shorts(),
                                      0,
                                      outS,
-                                     earlier.getNumPoints(),
+                                     earlier.getNumPoints() - 1,
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outS);
                 } else if(seis.can_convert_to_long()) {
@@ -212,7 +212,7 @@ public class ReduceTool {
                     System.arraycopy(later.get_as_longs(),
                                      0,
                                      outI,
-                                     earlier.getNumPoints(),
+                                     earlier.getNumPoints() - 1,
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outI);
                 } else if(seis.can_convert_to_float()) {
@@ -225,7 +225,7 @@ public class ReduceTool {
                     System.arraycopy(later.get_as_floats(),
                                      0,
                                      outF,
-                                     earlier.getNumPoints(),
+                                     earlier.getNumPoints() - 1,
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outF);
                 } else {
@@ -238,10 +238,10 @@ public class ReduceTool {
                     System.arraycopy(later.get_as_doubles(),
                                      0,
                                      outD,
-                                     earlier.getNumPoints(),
+                                     earlier.getNumPoints() - 1,
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outD);
-                } 
+                }
             } catch(FissuresException e) {
                 throw new RuntimeException(e);
             }
