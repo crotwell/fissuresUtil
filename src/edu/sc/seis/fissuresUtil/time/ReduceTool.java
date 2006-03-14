@@ -182,7 +182,7 @@ public class ReduceTool {
                     System.arraycopy(laterED,
                                      0,
                                      outED,
-                                     earlierED.length - 1,
+                                     earlierED.length,
                                      laterED.length);
                     TimeSeriesDataSel td = new TimeSeriesDataSel();
                     td.encoded_values(outED);
@@ -199,7 +199,7 @@ public class ReduceTool {
                     System.arraycopy(later.get_as_shorts(),
                                      0,
                                      outS,
-                                     earlier.getNumPoints() - 1,
+                                     earlier.getNumPoints(),
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outS);
                 } else if(seis.can_convert_to_long()) {
@@ -212,7 +212,7 @@ public class ReduceTool {
                     System.arraycopy(later.get_as_longs(),
                                      0,
                                      outI,
-                                     earlier.getNumPoints() - 1,
+                                     earlier.getNumPoints(),
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outI);
                 } else if(seis.can_convert_to_float()) {
@@ -225,7 +225,7 @@ public class ReduceTool {
                     System.arraycopy(later.get_as_floats(),
                                      0,
                                      outF,
-                                     earlier.getNumPoints() - 1,
+                                     earlier.getNumPoints(),
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outF);
                 } else {
@@ -238,7 +238,7 @@ public class ReduceTool {
                     System.arraycopy(later.get_as_doubles(),
                                      0,
                                      outD,
-                                     earlier.getNumPoints() - 1,
+                                     earlier.getNumPoints(),
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outD);
                 }
