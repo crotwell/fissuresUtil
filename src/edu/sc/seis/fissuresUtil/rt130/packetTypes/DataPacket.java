@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.rt130.packetTypes;
 
 import java.io.DataInput;
 import java.io.IOException;
+import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.rt130.BCDRead;
 import edu.sc.seis.fissuresUtil.rt130.HexRead;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
@@ -21,8 +22,8 @@ public class DataPacket extends PacketType {
                     this.dataFrames[i] = original.dataFrames[i];
                 }
             } else{
-                System.err.println("The data in this packet is not in compressed format. This file reader is not prepaired to read uncompressed seismogram data. Throwing a format exception even though this format is valid.");
-                throw new RT130FormatException();
+                logger.error("The data in this packet is not in compressed format. This file reader is not prepaired to read uncompressed seismogram data. Throwing a format exception even though this format is valid.");
+                throw new RT130FormatException("Can not currently read uncompressed format.");
             }
             this.flags = original.flags;
             
@@ -78,8 +79,8 @@ public class DataPacket extends PacketType {
                 in.skipBytes(960);
             }
         } else {
-            System.err.println("The data in this packet is not in compressed format. This file reader is not prepaired to read uncompressed seismogram data. Throwing a format exception even though this format is valid.");
-            throw new RT130FormatException();
+            logger.error("The data in this packet is not in compressed format. This file reader is not prepaired to read uncompressed seismogram data. Throwing a format exception even though this format is valid.");
+            throw new RT130FormatException("Can not currently read uncompressed format.");
         }
     }
 
@@ -96,4 +97,6 @@ public class DataPacket extends PacketType {
     public byte flags;
     
     public int eventNumber, dataStreamNumber, channelNumber, numberOfSamples;
+    
+    private static final Logger logger = Logger.getLogger(DataPacket.class);
 }
