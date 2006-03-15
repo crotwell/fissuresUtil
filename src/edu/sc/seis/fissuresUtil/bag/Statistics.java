@@ -11,7 +11,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 15609 2005-12-20 15:56:29Z crotwell $
+ * @version $Id: Statistics.java 16435 2006-03-15 15:52:21Z crotwell $
  */
 
 public class Statistics  {
@@ -120,6 +120,30 @@ public class Statistics  {
      */
     public double max(int beginIndex, int endIndex){
         return minMaxMean(beginIndex, endIndex)[1];
+    }
+
+    /**
+     * Finds the <code>max</code> deviation from the mean.
+     *
+     * @return a <code>double</code> value
+     */
+    public double maxDeviation(){
+        return Math.max(Math.abs(max()-mean()), Math.abs(min()-mean()));
+    }
+
+    /**
+     * Finds the <code>max</code> deviation from the mean between index
+     * beginIndex and endIndex-1.
+     * 
+     * @param beginIndex
+     *            an <code>int</code> value
+     * @param endIndex
+     *            an <code>int</code> value
+     * @return a <code>double</code> value
+     */
+    public double maxDeviation(int beginIndex, int endIndex) {
+        return Math.max(Math.abs(max(beginIndex, endIndex) - mean(beginIndex, endIndex)), 
+                        Math.abs(min(beginIndex, endIndex) - mean(beginIndex, endIndex)));
     }
 
     /**
