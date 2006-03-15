@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -51,7 +52,7 @@ public class RT130FileReader {
                 dis = new DataInputStream(bis);
                 this.stateOfHealthDataInputStream = dis;
             } catch(FileNotFoundException f) {
-                System.err.println("Missing Sate of Health File.");
+                logger.error("Missing Sate of Health File.");
                 e.printStackTrace();
                 f.printStackTrace();
             }
@@ -125,23 +126,23 @@ public class RT130FileReader {
             nextPacket = new PacketType(this.stateOfHealthDataInputStream,
                                         this.processData);
         } catch(EOFException e) {
-            System.err.println("End of file reached before any data processing was done.");
-            System.err.println("The file likely contains no data.");
-            System.err.println("PacketType creation failed.");
+            logger.error("End of file reached before any data processing was done. "
+                         + "The file likely contains no data. "
+                         + "PacketType creation failed.");
             done = true;
         }
         while(!done) {
             if(nextPacket.packetType.equals("DT")) {
-                System.err.println("The given data file contains an unexpected Data Packet.");
-                System.err.println("More than likely you are reading a data file.");
+                logger.error("The given data file contains an unexpected Data Packet. "
+                        + "More than likely you are reading a data file.");
                 return null;
             } else if(nextPacket.packetType.equals("EH")) {
-                System.err.println("The given data file contains an unexpected Event Header Packet.");
-                System.err.println("More than likely you are reading a data file.");
+                logger.error("The given data file contains an unexpected Event Header Packet. "
+                        + "More than likely you are reading a data file.");
                 return null;
             } else if(nextPacket.packetType.equals("ET")) {
-                System.err.println("The given data file contains an unexpected Event Trailer Packet.");
-                System.err.println("More than likely you are reading a data file.");
+                logger.error("The given data file contains an unexpected Event Trailer Packet. "
+                        + "More than likely you are reading a data file.");
                 return null;
             } else if(nextPacket.packetType.equals("AD")) {
                 stateOfHealthData = Append.appendAuxiliaryDataParameterPacket(stateOfHealthData,
@@ -162,8 +163,8 @@ public class RT130FileReader {
                 stateOfHealthData = Append.appendStationChannelParameterPacket(stateOfHealthData,
                                                                                nextPacket);
             } else {
-                System.err.println("The first two bytes of the Packet Header were not formatted");
-                System.err.println("correctly, and do not refer to a valid Packet Type.");
+                logger.error("The first two bytes of the Packet Header were not formatted "
+                        + "correctly, and do not refer to a valid Packet Type.");
                 throw new RT130FormatException();
             }
             if(!done) {
@@ -189,9 +190,9 @@ public class RT130FileReader {
             nextPacket = new PacketType(this.seismogramDataInputStream,
                                         this.processData);
         } catch(EOFException e) {
-            System.err.println("End of file reached before any data processing was done.");
-            System.err.println("The file likely contains no data.");
-            System.err.println("PacketType creation failed.");
+            logger.error("End of file reached before any data processing was done. "
+                    + "The file likely contains no data. "
+                    + "PacketType creation failed.");
             done = true;
         }
         while(!done) {
@@ -225,32 +226,32 @@ public class RT130FileReader {
                 }
                 done = true;
             } else if(nextPacket.packetType.equals("AD")) {
-                System.err.println("The given data file contains an unexpected Auxiliary Data Parameter Packet.");
-                System.err.println("More than likely you are reading the State-of-Health file.");
+                logger.error("The given data file contains an unexpected Auxiliary Data Parameter Packet. "
+                        + "More than likely you are reading the State-of-Health file.");
                 return null;
             } else if(nextPacket.packetType.equals("CD")) {
-                System.err.println("The given data file contains an unexpected Calibration Parameter Packet.");
-                System.err.println("More than likely you are reading the State-of-Health file.");
+                logger.error("The given data file contains an unexpected Calibration Parameter Packet. "
+                        + "More than likely you are reading the State-of-Health file.");
                 return null;
             } else if(nextPacket.packetType.equals("DS")) {
-                System.err.println("The given data file contains an unexpected Data Stream Parameter Packet.");
-                System.err.println("More than likely you are reading the State-of-Health file.");
+                logger.error("The given data file contains an unexpected Data Stream Parameter Packet. "
+                        + "More than likely you are reading the State-of-Health file.");
                 return null;
             } else if(nextPacket.packetType.equals("OM")) {
-                System.err.println("The given data file contains an unexpected Operating Mode Parameter Packet.");
-                System.err.println("More than likely you are reading the State-of-Health file.");
+                logger.error("The given data file contains an unexpected Operating Mode Parameter Packet. "
+                        + "More than likely you are reading the State-of-Health file.");
                 return null;
             } else if(nextPacket.packetType.equals("SH")) {
-                System.err.println("The given data file contains an unexpected State-Of-Health Packet.");
-                System.err.println("More than likely you are reading the State-of-Health file.");
+                logger.error("The given data file contains an unexpected State-Of-Health Packet. "
+                        + "More than likely you are reading the State-of-Health file.");
                 return null;
             } else if(nextPacket.packetType.equals("SC")) {
-                System.err.println("The given data file contains an unexpected Station/Channel Parameter Packet.");
-                System.err.println("More than likely you are reading the State-of-Health file.");
+                logger.error("The given data file contains an unexpected Station/Channel Parameter Packet. "
+                        + "More than likely you are reading the State-of-Health file.");
                 return null;
             } else {
-                System.err.println("The first two bytes of the Packet Header were not formatted");
-                System.err.println("correctly, and do not refer to a valid Packet Type.");
+                logger.error("The first two bytes of the Packet Header were not formatted "
+                        + "correctly, and do not refer to a valid Packet Type.");
                 throw new RT130FormatException();
             }
             if(!done) {
@@ -258,9 +259,9 @@ public class RT130FileReader {
                     nextPacket = new PacketType(this.seismogramDataInputStream,
                                                 this.processData);
                 } catch(EOFException e) {
-                    System.err.println("End of file reached before Event Trailer Packet was read.");
-                    System.err.println("The file likely contains an incomplete seismogram.");
-                    System.err.println("Local seismogram creation was not disturbed.");
+                    logger.warn("End of file reached before Event Trailer Packet was read."
+                            + "The file likely contains an incomplete seismogram."
+                            + "Local seismogram creation was not disturbed.");
                     for(Integer j = new Integer(0); seismogramData.containsKey(j); j = new Integer(j.intValue() + 1)) {
                         seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
                                                                       stateOfHealthData,
@@ -287,17 +288,15 @@ public class RT130FileReader {
             seismogramData.dP.dataFrames = new byte[0];
             seismogramData.begin_time_of_seismogram = dataPacket.begin_time_of_first_packet;
             seismogramData.end_time_of_last_packet = dataPacket.begin_time_of_first_packet;
-            System.out.println();
-            System.out.println("The Event Header Packet for channel "
+            logger.warn("The Event Header Packet for channel "
                     + seismogramData.channel_number + " was missing "
-                    + "from the beginning of the data file.");
-            System.out.println("This rare occurance is handled by using "
+                    + "from the beginning of the data file."
+                    + "This rare occurance is handled by using "
                     + "the header information from the first "
-                    + "data packet instead.");
-            System.out.println("The only information unable to be recovered "
+                    + "data packet instead."
+                    + "The only information unable to be recovered "
                     + "this way is the data sample rate. The sample rate from "
                     + "the Event Trailer Packet will be used.");
-            System.out.println();
         }
         if(seismogramData.end_time_of_last_packet.difference(dataPacket.begin_time_of_first_packet)
                 .lessThan(sampleGapWithTolerance)) {
@@ -311,58 +310,56 @@ public class RT130FileReader {
                                                   boolean gapInData)
             throws RT130FormatException {
         if(gapInData) {
-            System.out.println("The data collecting unit stopped recording data on channel "
-                    + seismogramData.channel_number);
-            System.out.println("for a period of time longer than allowed.");
-            System.out.println("A new seismogram will be created to hold the rest of the data.");
+            logger.warn("The data collecting unit stopped recording data on channel "
+                    + seismogramData.channel_number
+                    + " for a period of time longer than allowed."
+                    + " A new seismogram will be created to hold the rest of the data.");
         }
         if(stateOfHealthData == null) {
-            System.err.println("The state of health file was not read correctly, and was returned as null.");
+            logger.error("The state of health file was not read correctly, and was returned as null.");
         } else {
             if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
-                System.err.println("The begin time for the channel is not present in the state of health data.");
+                logger.warn("The begin time for the channel is not present in the state of health data.");
             } else {
                 seismogramData.begin_time_from_state_of_health_file = stateOfHealthData.begin_time_from_state_of_health_file;
             }
             if(stateOfHealthData.latitude_ == 0) {
-                System.err.println("The latitude for the channel is not present in the state of health data.");
+                logger.warn("The latitude for the channel is not present in the state of health data.");
             } else {
                 seismogramData.latitude_ = stateOfHealthData.latitude_;
             }
             if(stateOfHealthData.longitude_ == 0) {
-                System.err.println("The longitude for the channel is not present in the state of health data.");
+                logger.warn("The longitude for the channel is not present in the state of health data.");
             } else {
                 seismogramData.longitude_ = stateOfHealthData.longitude_;
             }
             if(stateOfHealthData.elevation_ == 0) {
-                System.err.println("The elevation for the channel is not present in the state of health data.");
+                logger.warn("The elevation for the channel is not present in the state of health data.");
             } else {
                 seismogramData.elevation_ = stateOfHealthData.elevation_;
             }
             if(stateOfHealthData.number_of_location_readings == 0) {
-                System.err.println("The state of health data didn't contain enough GPS information.");
+                logger.warn("The state of health data didn't contain enough GPS information.");
             } else {
                 seismogramData.number_of_location_readings = stateOfHealthData.number_of_location_readings;
             }
             if(stateOfHealthData.channel_name == null) {
-                System.err.println("The channel name for the channel is not present in the state of health data.");
+                logger.warn("The channel name for the channel is not present in the state of health data.");
             } else {
                 seismogramData.channel_name = stateOfHealthData.channel_name;
             }
         }
         if(seismogramData.sample_rate == 0) {
-            seismogramData.sample_rate = 40;
-            System.out.println("The Event Header and Event Trailer Packets for channel "
+            logger.warn("The Event Header and Event Trailer Packets for channel "
                     + seismogramData.channel_number
                     + " were missing "
-                    + "from the beginning and end of the data file.");
-            System.out.println("This rare occurance is handled by using "
+                    + "from the beginning and end of the data file."
+                    + "This rare occurance is handled by using "
                     + "the header information from the first "
-                    + "data packet instead.");
-            System.out.println("The only information unable to be recovered "
-                    + "is the data sample rate. A sample rate of "
-                    + seismogramData.sample_rate
-                    + " samples per second will be assumed.");
+                    + "data packet instead."
+                    + "The only information unable to be recovered "
+                    + "is the data sample rate. The current sample rate is "
+                    + seismogramData.sample_rate + " samples per second.");
         }
         if(seismogramData.number_of_location_readings > 0) {
             // Get the average of the lat, long, elevation data.
@@ -408,4 +405,6 @@ public class RT130FileReader {
     private boolean processData;
 
     private DataInput seismogramDataInputStream, stateOfHealthDataInputStream;
+
+    private static final Logger logger = Logger.getLogger(RT130FileReader.class);
 }
