@@ -7,6 +7,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class EncodedCut extends Cut {
@@ -45,17 +46,30 @@ public class EncodedCut extends Cut {
         List outData = new ArrayList();
         EncodedData[] ed = seis.get_as_encoded();
         int currentPoint = 0;
+        int firstUsedPoint = -1;
+        int pointsInNewSeis = 0;
         for(int i = 0; i < ed.length && currentPoint < endIndex; i++) {
             if(currentPoint + ed[i].num_points > beginIndex) {
                 outData.add(ed[i]);
+                pointsInNewSeis += ed[i].num_points;
+                if(firstUsedPoint == -1) {
+                    firstUsedPoint = currentPoint;
+                }
             }
             currentPoint += ed[i].num_points;
         }
         TimeSeriesDataSel ds = new TimeSeriesDataSel();
         ds.encoded_values((EncodedData[])outData.toArray(new EncodedData[outData.size()]));
         logger.debug(outData.size() + " encoded segments matched cut");
-        return new LocalSeismogramImpl(seis, ds);
+        LocalSeismogramImpl outSeis = new LocalSeismogramImpl(seis, ds);
+        outSeis.begin_time = seis.getBeginTime()
+                .add((TimeInterval)seis.getSampling()
+                        .getPeriod()
+                        .multiplyBy(firstUsedPoint))
+                .getFissuresTime();
+        outSeis.num_points = pointsInNewSeis;
+        return outSeis;
     }
-    
+
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(EncodedCut.class);
 }
