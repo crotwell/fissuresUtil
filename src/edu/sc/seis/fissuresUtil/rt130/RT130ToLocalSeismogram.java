@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.rt130;
 
 import java.sql.Connection;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.Orientation;
@@ -58,6 +59,20 @@ public class RT130ToLocalSeismogram {
                                                              int i) {
         Time mockBeginTimeOfChannel = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
         int numPoints = seismogramData.number_of_samples;
+        if(seismogramData.sample_rate == 0) {
+            logger.debug("A sample rate of 0 samples per second was detected.");
+            if(props.containsKey(DATASTREAM_TO_SAMPLE_RATE
+                                 + seismogramData.data_stream_number)){
+            seismogramData.sample_rate = Integer.valueOf(props.getProperty(DATASTREAM_TO_SAMPLE_RATE
+                    + seismogramData.data_stream_number))
+                    .intValue();
+                logger.debug("The sample rate of " + seismogramData.sample_rate
+                             + " was found in the props file, and will be used.");
+            } else {
+                logger.error("The props file does not contain a sample rate for this "
+                             + "data stream, and can not be used to correct the problem.");
+            }
+        }
         SamplingImpl sampling = new SamplingImpl(seismogramData.sample_rate,
                                                  new TimeInterval(1,
                                                                   UnitImpl.SECOND));
@@ -176,9 +191,13 @@ public class RT130ToLocalSeismogram {
 
     private final String NETWORK_OWNER = "network.name";
 
+    private final String DATASTREAM_TO_SAMPLE_RATE = "datastream.";
+
     private Connection conn;
 
     private NCFile ncFile;
 
     private Properties props;
+    
+    private static final Logger logger = Logger.getLogger(RT130ToLocalSeismogram.class);
 }
