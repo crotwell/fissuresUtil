@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.rt130;
 
 import java.io.DataInput;
 import java.io.IOException;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -206,7 +207,7 @@ public class PacketType {
                     + timeString.charAt(timeString.length() - 12);
         }
         if(timeString.length() > 12 || timeString.length() < 9) {
-            System.err.println("Cannot read time field of Packet Header.");
+            logger.error("Cannot read time field of Packet Header.");
             throw new RT130FormatException();
         }
         String daysOfYear = "0";
@@ -267,4 +268,6 @@ public class PacketType {
     public StationChannelParameterPacket sCPP;
 
     public StateOfHealthPacket sOHP;
+    
+    private static final Logger logger = Logger.getLogger(PacketType.class);
 }
