@@ -92,6 +92,12 @@ public class PacketType {
         // Packet Type
         packetType = new String(this.readBytes(in, 2));
         // System.out.println("Packet Type: " + packetType);
+        if(!(packetType.equals("AD") || packetType.equals("CD")
+                || packetType.equals("DS") || packetType.equals("DT")
+                || packetType.equals("EH") || packetType.equals("ET")
+                || packetType.equals("OM") || packetType.equals("SC") || packetType.equals("SH"))) {
+            throw new RT130FormatException("First two bytes of Packet Header were not formatted correctly, and do not refer to a valid Packet Type.");
+        }
         // Experiment Number
         experimentNumber = BCDRead.toInt(this.readBytes(in, 1));
         // System.out.println("Experiement Number: " + experimentNumber);
@@ -149,8 +155,7 @@ public class PacketType {
         } else if(packetType.equals("SH")) {
             this.sOHP = new StateOfHealthPacket(in);
         } else {
-            System.err.println("First two bytes of Packet Header were not formatted correctly, and do not refer to a valid Packet Type.");
-            throw new RT130FormatException();
+            throw new RT130FormatException("First two bytes of Packet Header were not formatted correctly, and do not refer to a valid Packet Type.");
         }
     }
 
@@ -163,6 +168,7 @@ public class PacketType {
     private MicroSecondDate stringToMicroSecondDate(String timeString,
                                                     int yearInt)
             throws RT130FormatException {
+        // System.out.println(timeString + " " + yearInt);
         String fractionsOfSecond = "";
         String seconds = "";
         String minutes = "";
