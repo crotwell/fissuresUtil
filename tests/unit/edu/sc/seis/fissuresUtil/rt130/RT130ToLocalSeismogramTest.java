@@ -33,7 +33,7 @@ public class RT130ToLocalSeismogramTest extends JDBCTearDown {
         // filePath =
         // "/private/Network/Servers/roo.seis.sc.edu/Volumes/home/Users/fenner/tohpc
         // Folder/2005129/9307/1/231354265_57D5D7C0";
-        filePath = "/private/Network/Servers/roo.seis.sc.edu/Volumes/home/Users/fenner/20050617_huddle/2005168/91EB/1/200332765_0036EE80";
+        filePath = "D:\\August_2005\\9665_2005_176_00_23.0\\2005215\\9665\\1\\102530765_0036EE80";
     }
 
     public void testGeneral() throws SQLException, RT130FormatException,
@@ -55,7 +55,7 @@ public class RT130ToLocalSeismogramTest extends JDBCTearDown {
                                                   seismogramArray[i],
                                                   filePath,
                                                   SeismogramFileTypes.RT_130);
-            System.err.println(i);
+            //System.err.println(i);
         }
     }
 
