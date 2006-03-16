@@ -15,8 +15,7 @@ import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 public class RangeTool {
 
     public static boolean areContiguous(PlottableChunk one, PlottableChunk two) {
-        TimeInterval sampleInterval = new TimeInterval(1d / one.getPixelsPerDay(),
-                                                       UnitImpl.DAY);
+        TimeInterval sampleInterval = new TimeInterval(0, UnitImpl.DAY);
         return areContiguous(one.getTimeRange(),
                              two.getTimeRange(),
                              sampleInterval);
