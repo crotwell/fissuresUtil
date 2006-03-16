@@ -44,50 +44,35 @@ public class JDBCPlottable extends JDBCTable {
     }
 
     public void put(PlottableChunk[] chunks) throws SQLException, IOException {
-        MicroSecondTimeRange stuffInDB = RangeTool.getFullTime(chunks);
-        logger.debug("stuffInDB timeRange: " + stuffInDB);
-        MicroSecondDate startTime = PlottableChunk.stripToDay(stuffInDB.getBeginTime());
-        logger.debug("start time of chunks: " + startTime);
-        MicroSecondDate strippedEnd = PlottableChunk.stripToDay(stuffInDB.getEndTime());
-        logger.debug("end time of chunks: " + strippedEnd);
-        if(!strippedEnd.equals(stuffInDB.getEndTime())) {
-            logger.debug("!strippedEnd.equals(stuffInDB.getEndTime())");
-            strippedEnd = strippedEnd.add(PlottableChunk.ONE_DAY);
-            logger.debug("strippedEnd now: " + strippedEnd);
-        }
-        stuffInDB = new MicroSecondTimeRange(startTime, strippedEnd);
+        MicroSecondTimeRange stuffInDB = getDroppingRange(chunks);
         PlottableChunk[] dbChunks = get(stuffInDB,
                                         chunks[0].getChannel(),
                                         chunks[0].getPixelsPerDay());
         logger.debug("got " + dbChunks.length
                 + " chunks from stuff that was already in the database");
+        logger.debug("combining chunks from database with new chunks");
         PlottableChunk[] everything = new PlottableChunk[chunks.length
                 + dbChunks.length];
         System.arraycopy(dbChunks, 0, everything, 0, dbChunks.length);
         System.arraycopy(chunks, 0, everything, dbChunks.length, chunks.length);
+        //scrutinizeEverything(everything, "unmerged");
         logger.debug("Merging " + everything.length + " chunks");
-        for(int i = 0; i < everything.length; i++) {
-            logger.debug(everything[i]);
-        }
         everything = ReduceTool.merge(everything);
+        //scrutinizeEverything(everything, "merged");
         logger.debug("Breaking "
                 + everything.length
                 + " remaining chunks after merge into seperate chunks based on day");
-        for(int i = 0; i < everything.length; i++) {
-            logger.debug(everything[i]);
-        }
         everything = breakIntoDays(everything);
+        //scrutinizeEverything(everything, "split into days");
         logger.debug("Adding " + everything.length + " chunks split on days");
-        for(int i = 0; i < everything.length; i++) {
-            logger.debug(everything[i]);
-        }
+        logger.debug("Dropping data within time range of " + stuffInDB);
         int rowsDropped = drop(stuffInDB,
                                chunks[0].getChannel(),
                                chunks[0].getPixelsPerDay());
         logger.debug("Dropped " + rowsDropped
                 + " rows of stuff that new data covered");
         for(int i = 0; i < everything.length; i++) {
-            logger.debug("Adding chunk " + i + ": " + everything[i]);
+            logger.debug("putting chunk " + i + ": " + everything[i]);
             int stmtIndex = 1;
             PlottableChunk chunk = everything[i];
             synchronized(put) {
@@ -109,10 +94,46 @@ public class JDBCPlottable extends JDBCTable {
                     put.executeUpdate();
                 } catch(SQLException ex) {
                     logger.warn("problem with sql query: " + put);
+                    logger.debug("problematic chunk: " + chunk);
                     throw ex;
                 }
             }
         }
+    }
+
+    /*
+     * use this for debugging various processing steps of plottable chunks in
+     * put()
+     */
+    private static void scrutinizeEverything(PlottableChunk[] everything,
+                                             String whatsBeenDone) {
+        logger.debug("everything[] " + whatsBeenDone + ":");
+        for(int i = 0; i < everything.length; i++) {
+            logger.debug(everything[i]);
+            Plottable plot = everything[i].getData();
+            try {
+                for(int j = 0; j < plot.y_coor.length; j += 2) {
+                    if(plot.y_coor[j] == 0 || plot.y_coor[j + 1] == 0) {
+                        logger.debug(j / 2 + ": " + plot.y_coor[j] + " "
+                                + plot.y_coor[j + 1]);
+                    }
+                }
+            } catch(Exception e) {
+                logger.debug("something weird happened.");
+                logger.debug(e.getMessage());
+            }
+        }
+        logger.debug("end everything[] " + whatsBeenDone);
+    }
+
+    private static MicroSecondTimeRange getDroppingRange(PlottableChunk[] chunks) {
+        MicroSecondTimeRange stuffInDB = RangeTool.getFullTime(chunks);
+        MicroSecondDate startTime = PlottableChunk.stripToDay(stuffInDB.getBeginTime());
+        MicroSecondDate strippedEnd = PlottableChunk.stripToDay(stuffInDB.getEndTime());
+        if(!strippedEnd.equals(stuffInDB.getEndTime())) {
+            strippedEnd = strippedEnd.add(PlottableChunk.ONE_DAY);
+        }
+        return new MicroSecondTimeRange(startTime, strippedEnd);
     }
 
     private PlottableChunk[] breakIntoDays(PlottableChunk[] everything) {
@@ -137,9 +158,9 @@ public class JDBCPlottable extends JDBCTable {
                              int[] y,
                              PlottableChunk chunk) {
         MicroSecondDate rowBeginTime = chunk.getBeginTime();
-        int offsetIntoRequestSamples = SimplePlotUtil.getPixel(y.length,
+        int offsetIntoRequestSamples = SimplePlotUtil.getPixel(y.length / 2,
                                                                fullRange,
-                                                               rowBeginTime);
+                                                               rowBeginTime) * 2;
         int[] dataY = chunk.getData().y_coor;
         int numSamples = dataY.length;
         int firstSampleForRequest = 0;
@@ -205,29 +226,23 @@ public class JDBCPlottable extends JDBCTable {
         while(rs.next()) {
             Timestamp ts = rs.getTimestamp("start_time");
             MicroSecondDate rowBeginTime = new MicroSecondDate(ts);
-            logger.debug("rowBeginTime: " + rowBeginTime);
             int offsetIntoRequestPixels = SimplePlotUtil.getPixel(requestPixels,
                                                                   requestRange,
                                                                   rowBeginTime);
-            logger.debug("offetIntoRequestPixels: " + offsetIntoRequestPixels);
             int numPixels = rs.getInt("pixel_count");
-            logger.debug("numPixels: " + numPixels);
             int firstPixelForRequest = 0;
             if(offsetIntoRequestPixels < 0) {
                 // This db row has data starting before the request, start at
                 // pertinent point
                 firstPixelForRequest = -1 * offsetIntoRequestPixels;
             }
-            logger.debug("firstPixelForRequest: " + firstPixelForRequest);
             int lastPixelForRequest = numPixels;
             if(offsetIntoRequestPixels + numPixels > requestPixels) {
                 // This row has more data than was requested in it, only get
                 // enough to fill the request
                 lastPixelForRequest = requestPixels - offsetIntoRequestPixels;
             }
-            logger.debug("lastPixleForRequest: " + lastPixelForRequest);
             int pixelsUsed = lastPixelForRequest - firstPixelForRequest;
-            logger.debug("pixelsUsed: " + pixelsUsed);
             int[] x = new int[pixelsUsed * 2];
             int[] y = new int[pixelsUsed * 2];
             byte[] dataBytes = rs.getBytes("data");
