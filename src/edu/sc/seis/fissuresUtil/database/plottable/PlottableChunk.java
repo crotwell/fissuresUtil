@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -25,8 +25,9 @@ public class PlottableChunk {
      * start pixels into the jday and year of otherstuff at
      * otherstuff.getPixelsPerDay ppd.
      */
-    public PlottableChunk(Plottable data, int startPixel,
-            PlottableChunk otherStuff) {
+    public PlottableChunk(Plottable data,
+                          int startPixel,
+                          PlottableChunk otherStuff) {
         this(data,
              startPixel,
              otherStuff.getJDay(),
@@ -38,9 +39,14 @@ public class PlottableChunk {
     /**
      * Creates a plottable chunk based on the plottable in data, starting
      * startPixel pixels into the jday and year of start data at pixelsPerDay
+     * NOTE: The start pixel should be relative to the beginning of the jday of
+     * the start date. Otherwise, things get screwy.
      */
-    public PlottableChunk(Plottable data, int startPixel,
-            MicroSecondDate startDate, int pixelsPerDay, ChannelId channel) {
+    public PlottableChunk(Plottable data,
+                          int startPixel,
+                          MicroSecondDate startDate,
+                          int pixelsPerDay,
+                          ChannelId channel) {
         this(data,
              startPixel,
              getJDay(startDate),
@@ -53,9 +59,22 @@ public class PlottableChunk {
      * Creates a plottable chunk based on the plottable in data, starting
      * startPixel pixels into the jday and year at pixelsPerDay
      */
-    public PlottableChunk(Plottable data, int startPixel, int jday, int year,
-            int pixelsPerDay, ChannelId channel) {
+    public PlottableChunk(Plottable data,
+                          int startPixel,
+                          int jday,
+                          int year,
+                          int pixelsPerDay,
+                          ChannelId channel) {
         this.data = data;
+        // here we shall get rid of days of dead space if they exist
+        if(startPixel >= pixelsPerDay) {
+            int numDaysToAdd = startPixel / pixelsPerDay;
+            MicroSecondDate date = getDate(jday, year);
+            date = date.add(new TimeInterval(new TimeInterval(1.0, UnitImpl.DAY).multiplyBy(numDaysToAdd)));
+            jday = getJDay(date);
+            year = getYear(date);
+            startPixel = startPixel % pixelsPerDay;
+        }
         this.beginPixel = startPixel;
         this.pixelsPerDay = pixelsPerDay;
         this.jday = jday;
@@ -74,7 +93,9 @@ public class PlottableChunk {
                         if(year == oChunk.year) {
                             if(data.x_coor.length == oChunk.data.x_coor.length) {
                                 for(int i = 0; i < data.x_coor.length; i++) {
-                                    if(data.x_coor[i] != oChunk.data.x_coor[i]) { return false; }
+                                    if(data.x_coor[i] != oChunk.data.x_coor[i]) {
+                                        return false;
+                                    }
                                 }
                                 return true;
                             }
@@ -87,13 +108,10 @@ public class PlottableChunk {
     }
 
     public static Calendar makeCal() {
-        return Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
+        return Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     }
 
-    public static MicroSecondDate getTime(int pixel,
-                                          int jday,
-                                          int year,
-                                          int pixelsPerDay) {
+    public static Calendar makeCalWithDate(int jday, int year) {
         Calendar cal = makeCal();
         cal.set(Calendar.DAY_OF_YEAR, jday);
         cal.set(Calendar.YEAR, year);
@@ -101,6 +119,18 @@ public class PlottableChunk {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
+        return cal;
+    }
+
+    public static MicroSecondDate getDate(int jday, int year) {
+        return new MicroSecondDate(makeCalWithDate(jday, year).getTimeInMillis() * 1000);
+    }
+
+    public static MicroSecondDate getTime(int pixel,
+                                          int jday,
+                                          int year,
+                                          int pixelsPerDay) {
+        Calendar cal = makeCalWithDate(jday, year);
         double sampleMillis = SimplePlotUtil.linearInterp(0,
                                                           0,
                                                           pixelsPerDay,
@@ -202,10 +232,8 @@ public class PlottableChunk {
     }
 
     public PlottableChunk[] breakIntoDays() {
-        int numDays = (int)Math.ceil(getNumPixels() / (double)getPixelsPerDay());
-        if(getNumPixels() % getPixelsPerDay() == 0 && beginPixel != 0) {
-            numDays++;
-        }
+        int numDays = (int)Math.ceil((beginPixel + getNumPixels())
+                / (double)getPixelsPerDay());
         List dayChunks = new ArrayList();
         MicroSecondDate time = getBeginTime();
         for(int i = 0; i < numDays; i++) {
@@ -242,4 +270,6 @@ public class PlottableChunk {
     private int pixelsPerDay, beginPixel;
 
     private int jday, year;
+
+    private static final Logger logger = Logger.getLogger(PlottableChunk.class);
 }
