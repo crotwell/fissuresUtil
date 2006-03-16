@@ -38,14 +38,14 @@ public class RangeTool {
                                         MicroSecondTimeRange two,
                                         TimeInterval interval) {
         if(!RangeTool.areOverlapping(one, two)) {
-            TimeInterval doubleInterval = (TimeInterval)interval.multiplyBy(2.0);
+            TimeInterval littleMoreThanInterval = (TimeInterval)interval.add(new TimeInterval(1, UnitImpl.MICROSECOND));
             if(one.getEndTime().before(two.getBeginTime())) {
                 return one.getEndTime()
-                        .add(doubleInterval)
+                        .add(littleMoreThanInterval)
                         .after(two.getBeginTime());
             }
             return two.getEndTime()
-                    .add(doubleInterval)
+                    .add(littleMoreThanInterval)
                     .after(one.getBeginTime());
         }
         return false;
