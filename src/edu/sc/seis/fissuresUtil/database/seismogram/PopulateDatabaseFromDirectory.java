@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
@@ -73,61 +74,37 @@ public class PopulateDatabaseFromDirectory {
         JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
         JDBCChannel chanTable = new JDBCChannel(conn);
         JDBCTime timeTable = new JDBCTime(conn);
-        boolean verbose = false;
         boolean finished = false;
         boolean batch = false;
         NCFile ncFile = new NCFile(props.getProperty("NCFileLoc"));
-        for(int i = 1; i < args.length; i++) {
-            if(args[i].equals("-v")) {
-                verbose = true;
-                System.out.println();
-                System.out.println("/---------------Database Populator---");
-                System.out.println();
-                System.out.println("Verbose messages: ON");
-            }
-        }
-        if(verbose) {
-            System.out.println("NC file location: " + ncFile.getCanonicalPath());
-        }
+        logger.debug("NC file location: " + ncFile.getCanonicalPath());
         for(int i = 1; i < args.length - 1; i++) {
-            if(verbose) {
-                if(args[i].equals("-props")) {
-                    String propFileLocation = args[i + 1];
-                    File file = new File(propFileLocation);
-                    System.out.println("Properties file location: "
-                            + file.getCanonicalPath());
-                }
+            if(args[i].equals("-props")) {
+                String propFileLocation = args[i + 1];
+                File file = new File(propFileLocation);
+                logger.debug("Properties file location: "
+                        + file.getCanonicalPath());
             }
         }
         for(int i = 1; i < args.length - 1; i++) {
-            if(verbose) {
-                if(args[i].equals("-hsql")) {
-                    String hsqlFileLocation = args[i + 1];
-                    File file = new File(hsqlFileLocation);
-                    System.out.println("HSQL properties file location: "
-                            + file.getCanonicalPath());
-                }
+            if(args[i].equals("-hsql")) {
+                String hsqlFileLocation = args[i + 1];
+                File file = new File(hsqlFileLocation);
+                logger.debug("HSQL properties file location: "
+                        + file.getCanonicalPath());
             }
         }
         for(int i = 1; i < args.length; i++) {
             if(args[i].equals("-rt")) {
                 batch = true;
-                if(verbose) {
-                    System.out.println("Batch process of RT130 data: ON");
-                }
+                logger.debug("Batch process of RT130 data: ON");
             }
-        }
-        if(verbose) {
-            System.out.println();
-            System.out.println("\\------------------------------------");
-            System.out.println();
         }
         if(args.length > 0) {
             String fileLoc = args[args.length - 1];
             File file = new File(fileLoc);
             if(file.isDirectory()) {
                 finished = readEntireDirectory(file,
-                                               verbose,
                                                conn,
                                                ncFile,
                                                jdbcSeisFile,
@@ -137,7 +114,6 @@ public class PopulateDatabaseFromDirectory {
                                                batch);
             } else if(file.isFile()) {
                 finished = readSingleFile(fileLoc,
-                                          verbose,
                                           conn,
                                           ncFile,
                                           jdbcSeisFile,
@@ -164,7 +140,6 @@ public class PopulateDatabaseFromDirectory {
     }
 
     private static boolean readSingleFile(String fileLoc,
-                                          boolean verbose,
                                           Connection conn,
                                           NCFile ncFile,
                                           JDBCSeismogramFiles jdbcSeisFile,
@@ -186,7 +161,6 @@ public class PopulateDatabaseFromDirectory {
                                                     conn,
                                                     fileLoc,
                                                     fileName,
-                                                    verbose,
                                                     ncFile,
                                                     chanTable,
                                                     timeTable,
@@ -196,27 +170,22 @@ public class PopulateDatabaseFromDirectory {
                                                conn,
                                                fileLoc,
                                                fileName,
-                                               verbose,
                                                ncFile,
                                                chanTable,
                                                timeTable,
                                                props);
             }
         } else if(fileName.endsWith(".mseed")) {
-            finished = processMSeed(jdbcSeisFile, fileLoc, fileName, verbose);
+            finished = processMSeed(jdbcSeisFile, fileLoc, fileName);
         } else if(fileName.endsWith(".sac")) {
-            finished = processSac(jdbcSeisFile,
-                                  fileLoc,
-                                  fileName,
-                                  verbose,
-                                  props);
-        } else if(verbose) {
+            finished = processSac(jdbcSeisFile, fileLoc, fileName, props);
+        } else {
             if(fileName.equals("SOH.RT")) {
-                System.out.println("Ignoring file: " + fileName + ".");
+                logger.debug("Ignoring file: " + fileName + ".");
             } else if(fileName.equals(".DS_Store")) {
-                System.out.println("Ignoring Mac OS X file: " + fileName + ".");
+                logger.debug("Ignoring Mac OS X file: " + fileName + ".");
             } else {
-                System.out.println(fileName
+                logger.debug(fileName
                         + " can not be processed because it's file"
                         + " name is not formatted correctly, and therefore"
                         + " is assumed to be an invalid file format. If"
@@ -228,7 +197,6 @@ public class PopulateDatabaseFromDirectory {
     }
 
     private static boolean readEntireDirectory(File baseDirectory,
-                                               boolean verbose,
                                                Connection conn,
                                                NCFile ncFile,
                                                JDBCSeismogramFiles jdbcSeisFile,
@@ -246,7 +214,6 @@ public class PopulateDatabaseFromDirectory {
         for(int i = 0; i < files.length; i++) {
             if(files[i].isDirectory()) {
                 readEntireDirectory(files[i],
-                                    verbose,
                                     conn,
                                     ncFile,
                                     jdbcSeisFile,
@@ -256,7 +223,6 @@ public class PopulateDatabaseFromDirectory {
                                     batch);
             } else {
                 readSingleFile(files[i].getCanonicalPath(),
-                               verbose,
                                conn,
                                ncFile,
                                jdbcSeisFile,
@@ -289,7 +255,6 @@ public class PopulateDatabaseFromDirectory {
     private static boolean processSac(JDBCSeismogramFiles jdbcSeisFile,
                                       String fileLoc,
                                       String fileName,
-                                      boolean verbose,
                                       Properties props) throws IOException,
             FissuresException, SQLException {
         SacTimeSeries sacTime = new SacTimeSeries();
@@ -309,17 +274,13 @@ public class PopulateDatabaseFromDirectory {
                                               seis,
                                               fileLoc,
                                               SeismogramFileTypes.SAC);
-        if(verbose) {
-            System.out.println("SAC file " + fileName
-                    + " added to the database.");
-        }
+        logger.debug("SAC file " + fileName + " added to the database.");
         return true;
     }
 
     private static boolean processMSeed(JDBCSeismogramFiles jdbcSeisFile,
                                         String fileLoc,
-                                        String fileName,
-                                        boolean verbose) throws IOException,
+                                        String fileName) throws IOException,
             SeedFormatException, FissuresException, SQLException {
         MiniSeedRead mseedRead = null;
         try {
@@ -344,10 +305,7 @@ public class PopulateDatabaseFromDirectory {
                                               seis,
                                               fileLoc,
                                               SeismogramFileTypes.MSEED);
-        if(verbose) {
-            System.out.println("MSEED file " + fileName
-                    + " added to the database.");
-        }
+        logger.debug("MSEED file " + fileName + " added to the database.");
         return true;
     }
 
@@ -355,17 +313,14 @@ public class PopulateDatabaseFromDirectory {
                                                Connection conn,
                                                String fileLoc,
                                                String fileName,
-                                               boolean verbose,
                                                NCFile ncFile,
                                                JDBCChannel chanTable,
                                                JDBCTime timeTable,
                                                Properties props)
             throws IOException, SQLException, NotFound, ParseException {
-        if(ncFile == null || conn == null) {
-            if(verbose) {
-                System.out.println("No NC (Network Configuration) file was specified.");
-                System.out.println("The channel IDs created will not be correct.");
-            }
+        if(ncFile == null) {
+            logger.debug("No NC (Network Configuration) file was specified. "
+                    + "The channel IDs created will not be correct.");
         }
         RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
                                                                       true);
@@ -409,10 +364,7 @@ public class PopulateDatabaseFromDirectory {
                                                       SeismogramFileTypes.RT_130);
             }
         }
-        if(verbose) {
-            System.out.println("RT130 file " + fileName
-                    + " added to the database.");
-        }
+        logger.debug("RT130 file " + fileName + " added to the database.");
         return true;
     }
 
@@ -420,7 +372,6 @@ public class PopulateDatabaseFromDirectory {
                                                                Connection conn,
                                                                String fileLoc,
                                                                String fileName,
-                                                               boolean verbose,
                                                                NCFile ncFile,
                                                                JDBCChannel chanTable,
                                                                JDBCTime timeTable,
@@ -450,10 +401,7 @@ public class PopulateDatabaseFromDirectory {
                                                   fileLoc,
                                                   SeismogramFileTypes.RT_130);
         }
-        if(verbose) {
-            System.out.println("RT130 file " + fileName
-                    + " added to the database.");
-        }
+        logger.debug("RT130 file " + fileName + " added to the database.");
         return true;
     }
 
@@ -461,7 +409,6 @@ public class PopulateDatabaseFromDirectory {
                                                     Connection conn,
                                                     String fileLoc,
                                                     String fileName,
-                                                    boolean verbose,
                                                     NCFile ncFile,
                                                     JDBCChannel chanTable,
                                                     JDBCTime timeTable,
@@ -502,7 +449,6 @@ public class PopulateDatabaseFromDirectory {
                                                     conn,
                                                     fileLoc,
                                                     fileName,
-                                                    verbose,
                                                     ncFile,
                                                     chanTable,
                                                     timeTable,
@@ -530,10 +476,8 @@ public class PopulateDatabaseFromDirectory {
                                                           file.getPath(),
                                                           SeismogramFileTypes.RT_130);
                 }
-                if(verbose) {
-                    System.out.println("RT130 file " + fileName
-                            + " added to the database.");
-                }
+                logger.debug("RT130 file " + fileName
+                        + " added to the database.");
                 return true;
             } catch(RT130FormatException e) {
                 System.err.println(fileName
@@ -671,4 +615,6 @@ public class PopulateDatabaseFromDirectory {
     private static Map datastreamToChannel = new HashMap();
 
     private static Map datastreamToFileData = new HashMap();
+
+    private static final Logger logger = Logger.getLogger(PopulateDatabaseFromDirectory.class);
 }
