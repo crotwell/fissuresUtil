@@ -207,8 +207,7 @@ public class PacketType {
                     + timeString.charAt(timeString.length() - 12);
         }
         if(timeString.length() > 12 || timeString.length() < 9) {
-            logger.error("Cannot read time field of Packet Header.");
-            throw new RT130FormatException();
+            throw new RT130FormatException("Cannot read time field of Packet Header.");
         }
         String daysOfYear = "0";
         for(int i = daysOfYearReversed.length() - 1; i >= 0; i--) {
