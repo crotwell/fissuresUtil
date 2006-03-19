@@ -39,15 +39,9 @@ public class NameServiceTreeModel implements TreeModel {
                                                       bindings[arg1].binding_name);
                     return wrapper;
                 } catch(NotFound e) {
-                    String name = "Root:";
-                    for(int i = 0; i < bindings[arg1].binding_name.length; i++) {
-                        name += "." + bindings[arg1].binding_name[i].id;
-                    }
-                    GlobalExceptionHandler.handle(name, e);
-                    return "exception " + name;
+                	return handleWithBinding(e, bindings, arg1);
                 } catch(Exception e) {
-                    GlobalExceptionHandler.handle(e);
-                    return "exception";
+                	return handleWithBinding(e, bindings, arg1);
                 }
             } else {
                 NameComponent name = bindings[arg1].binding_name[bindings[arg1].binding_name.length - 1];
@@ -55,6 +49,16 @@ public class NameServiceTreeModel implements TreeModel {
             }
         }
         return "dummy";
+    }
+    
+    private String handleWithBinding(Throwable e, Binding[] bindings, int arg1) {
+        String name = "Root:";
+        for(int i = 0; i < bindings[arg1].binding_name.length; i++) {
+        	name += "/";
+        	name +=  bindings[arg1].binding_name[i].id+"."+bindings[arg1].binding_name[i].kind;
+        }
+        GlobalExceptionHandler.handle(name, e);
+        return "exception " + name;
     }
 
     public int getChildCount(Object arg0) {
