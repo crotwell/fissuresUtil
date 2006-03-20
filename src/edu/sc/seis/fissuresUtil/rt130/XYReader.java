@@ -35,13 +35,13 @@ public class XYReader {
         while((line = reader.readLine()) != null) {
             StringTokenizer st = new StringTokenizer(line, " ");
             Location loc = new Location();
-            String stationCode = st.nextToken();
-            loc.longitude = Float.parseFloat(stationCode);
-            loc.latitude = Float.parseFloat(stationCode);
-            loc.elevation = new QuantityImpl(Float.parseFloat(stationCode),
+            loc.longitude = Float.parseFloat(st.nextToken());
+            loc.latitude = Float.parseFloat(st.nextToken());
+            loc.elevation = new QuantityImpl(Float.parseFloat(st.nextToken()),
                                              UnitImpl.METER);
             loc.depth = new QuantityImpl(0, UnitImpl.METER);
             loc.type = LocationType.GEOGRAPHIC;
+            String stationCode = st.nextToken();
             locs.put(stationCode, loc);
             logger.debug("Read in location for " + stationCode + " "
                     + toString(loc));
