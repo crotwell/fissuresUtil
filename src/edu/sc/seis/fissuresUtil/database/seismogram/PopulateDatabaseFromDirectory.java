@@ -1,11 +1,13 @@
 package edu.sc.seis.fissuresUtil.database.seismogram;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -52,6 +54,7 @@ import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogram;
+import edu.sc.seis.fissuresUtil.rt130.XYReader;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
@@ -78,6 +81,9 @@ public class PopulateDatabaseFromDirectory {
         boolean batch = false;
         NCFile ncFile = new NCFile(props.getProperty("NCFileLoc"));
         logger.debug("NC file location: " + ncFile.getCanonicalPath());
+        String xyFileLoc = props.getProperty("XYFileLoc");
+        logger.debug("XY file location: " + xyFileLoc);
+        Map stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
         for(int i = 1; i < args.length - 1; i++) {
             if(args[i].equals("-props")) {
                 String propFileLocation = args[i + 1];
@@ -111,7 +117,8 @@ public class PopulateDatabaseFromDirectory {
                                                chanTable,
                                                timeTable,
                                                props,
-                                               batch);
+                                               batch,
+                                               stationLocations);
             } else if(file.isFile()) {
                 finished = readSingleFile(fileLoc,
                                           conn,
@@ -120,7 +127,8 @@ public class PopulateDatabaseFromDirectory {
                                           chanTable,
                                           timeTable,
                                           props,
-                                          batch);
+                                          batch,
+                                          stationLocations);
             } else {
                 System.err.println("File: " + file
                         + " is not a file or a directory. This can"
@@ -146,9 +154,10 @@ public class PopulateDatabaseFromDirectory {
                                           JDBCChannel chanTable,
                                           JDBCTime timeTable,
                                           Properties props,
-                                          boolean batch) throws IOException,
-            FissuresException, SeedFormatException, SQLException, NotFound,
-            ParseException {
+                                          boolean batch,
+                                          Map stationLocations)
+            throws IOException, FissuresException, SeedFormatException,
+            SQLException, NotFound, ParseException {
         boolean finished = false;
         StringTokenizer t = new StringTokenizer(fileLoc, "/\\");
         String fileName = "";
@@ -164,7 +173,8 @@ public class PopulateDatabaseFromDirectory {
                                                     ncFile,
                                                     chanTable,
                                                     timeTable,
-                                                    props);
+                                                    props,
+                                                    stationLocations);
             } else {
                 finished = processSingleRefTek(jdbcSeisFile,
                                                conn,
@@ -173,7 +183,8 @@ public class PopulateDatabaseFromDirectory {
                                                ncFile,
                                                chanTable,
                                                timeTable,
-                                               props);
+                                               props,
+                                               stationLocations);
             }
         } else if(fileName.endsWith(".mseed")) {
             finished = processMSeed(jdbcSeisFile, fileLoc, fileName);
@@ -203,7 +214,8 @@ public class PopulateDatabaseFromDirectory {
                                                JDBCChannel chanTable,
                                                JDBCTime timeTable,
                                                Properties props,
-                                               boolean batch)
+                                               boolean batch,
+                                               Map stationLocations)
             throws FissuresException, IOException, SeedFormatException,
             SQLException, NotFound, ParseException {
         File[] files = baseDirectory.listFiles();
@@ -220,7 +232,8 @@ public class PopulateDatabaseFromDirectory {
                                     chanTable,
                                     timeTable,
                                     props,
-                                    batch);
+                                    batch,
+                                    stationLocations);
             } else {
                 readSingleFile(files[i].getCanonicalPath(),
                                conn,
@@ -229,7 +242,8 @@ public class PopulateDatabaseFromDirectory {
                                chanTable,
                                timeTable,
                                props,
-                               batch);
+                               batch,
+                               stationLocations);
             }
         }
         return true;
@@ -316,7 +330,8 @@ public class PopulateDatabaseFromDirectory {
                                                NCFile ncFile,
                                                JDBCChannel chanTable,
                                                JDBCTime timeTable,
-                                               Properties props)
+                                               Properties props,
+                                               Map stationLocations)
             throws IOException, SQLException, NotFound, ParseException {
         if(ncFile == null) {
             logger.debug("No NC (Network Configuration) file was specified. "
@@ -333,7 +348,8 @@ public class PopulateDatabaseFromDirectory {
         }
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
                                                                          ncFile,
-                                                                         props);
+                                                                         props,
+                                                                         stationLocations);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         Channel[] channel = toSeismogram.getChannels();
         // Check database for channels that match (with lat/long buffer)
@@ -376,7 +392,8 @@ public class PopulateDatabaseFromDirectory {
                                                                JDBCChannel chanTable,
                                                                JDBCTime timeTable,
                                                                Properties props,
-                                                               Channel knownChannel)
+                                                               Channel knownChannel,
+                                                               Map stationLocations)
             throws IOException, SQLException, NotFound, ParseException {
         RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
                                                                       false);
@@ -389,7 +406,8 @@ public class PopulateDatabaseFromDirectory {
         }
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
                                                                          ncFile,
-                                                                         props);
+                                                                         props,
+                                                                         stationLocations);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
             jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(knownChannel,
@@ -412,7 +430,8 @@ public class PopulateDatabaseFromDirectory {
                                                     NCFile ncFile,
                                                     JDBCChannel chanTable,
                                                     JDBCTime timeTable,
-                                                    Properties props)
+                                                    Properties props,
+                                                    Map stationLocations)
             throws IOException, SQLException, NotFound, ParseException {
         File file = new File(fileLoc);
         String yearAndDay = file.getParentFile()
@@ -453,7 +472,8 @@ public class PopulateDatabaseFromDirectory {
                                                     chanTable,
                                                     timeTable,
                                                     props,
-                                                    channel[i]);
+                                                    channel[i],
+                                                    stationLocations);
             }
             return true;
         } else {
