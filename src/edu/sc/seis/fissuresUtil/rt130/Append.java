@@ -102,18 +102,6 @@ public class Append {
         if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
             stateOfHealthData.begin_time_from_state_of_health_file = nextPacket.time;
         }
-        if(stateOfHealthData.number_of_location_readings < 0) {
-            // Skips first GPS entry in SOH file.
-        }else {
-            if(nextPacket.sOHP.latitude == 0 && nextPacket.sOHP.longitude == 0 && nextPacket.sOHP.elevation == 0){
-                // Reduce count if 0's are added.
-                stateOfHealthData.number_of_location_readings--;
-            }
-            stateOfHealthData.latitude_ =  stateOfHealthData.latitude_ + nextPacket.sOHP.latitude;
-            stateOfHealthData.longitude_ = stateOfHealthData.longitude_ + nextPacket.sOHP.longitude;
-            stateOfHealthData.elevation_ = stateOfHealthData.elevation_ + nextPacket.sOHP.elevation;
-        }
-        stateOfHealthData.number_of_location_readings++;
         return stateOfHealthData;
     }
 
