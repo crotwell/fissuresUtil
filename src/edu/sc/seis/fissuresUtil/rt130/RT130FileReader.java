@@ -323,26 +323,6 @@ public class RT130FileReader {
             } else {
                 seismogramData.begin_time_from_state_of_health_file = stateOfHealthData.begin_time_from_state_of_health_file;
             }
-            if(stateOfHealthData.latitude_ == 0) {
-                logger.warn("The latitude for the channel is not present in the state of health data.");
-            } else {
-                seismogramData.latitude_ = stateOfHealthData.latitude_;
-            }
-            if(stateOfHealthData.longitude_ == 0) {
-                logger.warn("The longitude for the channel is not present in the state of health data.");
-            } else {
-                seismogramData.longitude_ = stateOfHealthData.longitude_;
-            }
-            if(stateOfHealthData.elevation_ == 0) {
-                logger.warn("The elevation for the channel is not present in the state of health data.");
-            } else {
-                seismogramData.elevation_ = stateOfHealthData.elevation_;
-            }
-            if(stateOfHealthData.number_of_location_readings == 0) {
-                logger.warn("The state of health data didn't contain enough GPS information.");
-            } else {
-                seismogramData.number_of_location_readings = stateOfHealthData.number_of_location_readings;
-            }
             if(stateOfHealthData.channel_name == null) {
                 logger.warn("The channel name for the channel is not present in the state of health data.");
             } else {
@@ -360,12 +340,6 @@ public class RT130FileReader {
                     + "The only information unable to be recovered "
                     + "is the data sample rate. The current sample rate is "
                     + seismogramData.sample_rate + " samples per second.");
-        }
-        if(seismogramData.number_of_location_readings > 0) {
-            // Get the average of the lat, long, elevation data.
-            seismogramData.latitude_ = (seismogramData.latitude_ / seismogramData.number_of_location_readings);
-            seismogramData.longitude_ = (seismogramData.longitude_ / seismogramData.number_of_location_readings);
-            seismogramData.elevation_ = (seismogramData.elevation_ / seismogramData.number_of_location_readings);
         }
         return new PacketType(seismogramData);
     }
