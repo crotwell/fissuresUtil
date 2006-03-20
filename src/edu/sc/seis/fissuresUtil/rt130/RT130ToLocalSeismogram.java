@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
 import java.sql.Connection;
+import java.util.Map;
 import java.util.Properties;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.Location;
@@ -39,10 +40,12 @@ public class RT130ToLocalSeismogram {
 
     public RT130ToLocalSeismogram(Connection conn,
                                   NCFile ncFile,
-                                  Properties props) {
+                                  Properties props,
+                                  Map stationLocations) {
         this.conn = conn;
         this.ncFile = ncFile;
         this.props = props;
+        this.stationLocations = stationLocations;
     }
 
     public LocalSeismogramImpl[] ConvertRT130ToLocalSeismogram(PacketType[] seismogramDataPacket) {
@@ -62,15 +65,15 @@ public class RT130ToLocalSeismogram {
         if(seismogramData.sample_rate == 0) {
             logger.debug("A sample rate of 0 samples per second was detected.");
             if(props.containsKey(DATASTREAM_TO_SAMPLE_RATE
-                                 + seismogramData.data_stream_number)){
-            seismogramData.sample_rate = Integer.valueOf(props.getProperty(DATASTREAM_TO_SAMPLE_RATE
-                    + seismogramData.data_stream_number))
-                    .intValue();
+                    + seismogramData.data_stream_number)) {
+                seismogramData.sample_rate = Integer.valueOf(props.getProperty(DATASTREAM_TO_SAMPLE_RATE
+                        + seismogramData.data_stream_number))
+                        .intValue();
                 logger.debug("The sample rate of " + seismogramData.sample_rate
-                             + " was found in the props file, and will be used.");
+                        + " was found in the props file, and will be used.");
             } else {
                 logger.error("The props file does not contain a sample rate for this "
-                             + "data stream, and can not be used to correct the problem.");
+                        + "data stream, and can not be used to correct the problem.");
             }
         }
         SamplingImpl sampling = new SamplingImpl(seismogramData.sample_rate,
@@ -135,14 +138,19 @@ public class RT130ToLocalSeismogram {
         StationId stationId = new StationId(networkId,
                                             stationCode,
                                             channelBeginTime);
-        QuantityImpl elevation = new QuantityImpl(seismogramData.elevation_,
-                                                  UnitImpl.METER);
-        QuantityImpl depth = elevation;
-        Location location = new Location(seismogramData.latitude_,
-                                         seismogramData.longitude_,
-                                         elevation,
-                                         depth,
-                                         LocationType.from_int(0));
+        Location location = new Location(0,
+                                         0,
+                                         new QuantityImpl(0, UnitImpl.METER),
+                                         new QuantityImpl(0, UnitImpl.METER),
+                                         LocationType.GEOGRAPHIC);
+        if(stationLocations.containsKey(seismogramData.unitIdNumber)) {
+            location = (Location)stationLocations.get(seismogramData.unitIdNumber);
+        } else {
+            logger.error("XY file did not contain a location for unit "
+                    + seismogramData.unitIdNumber
+                    + "./n"
+                    + "The location used for the unit will be the Gulf of Guinea (Atlantic Ocean).");
+        }
         NetworkAttrImpl networkAttr = new NetworkAttrImpl(networkId,
                                                           props.getProperty(NETWORK_NAME),
                                                           props.getProperty(NETWORK_DESCRIPTION),
@@ -183,8 +191,6 @@ public class RT130ToLocalSeismogram {
 
     private Channel[] channel;
 
-    private final String NETWORK_ID = "network.networkId";
-
     private final String NETWORK_NAME = "network.name";
 
     private final String NETWORK_DESCRIPTION = "network.name";
@@ -198,6 +204,8 @@ public class RT130ToLocalSeismogram {
     private NCFile ncFile;
 
     private Properties props;
-    
+
+    private Map stationLocations;
+
     private static final Logger logger = Logger.getLogger(RT130ToLocalSeismogram.class);
 }
