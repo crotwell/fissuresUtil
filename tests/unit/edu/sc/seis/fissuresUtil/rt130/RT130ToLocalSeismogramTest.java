@@ -47,6 +47,7 @@ public class RT130ToLocalSeismogramTest extends JDBCTearDown {
         PacketType[] packetArray = toPackets.processRT130Data();
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
                                                                          null,
+                                                                         null,
                                                                          null);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(packetArray);
         JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
@@ -55,7 +56,6 @@ public class RT130ToLocalSeismogramTest extends JDBCTearDown {
                                                   seismogramArray[i],
                                                   filePath,
                                                   SeismogramFileTypes.RT_130);
-            //System.err.println(i);
         }
     }
 
