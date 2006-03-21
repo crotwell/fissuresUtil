@@ -48,7 +48,7 @@ public class EventUtil {
     public static String getEventInfo(EventAccessOperations event, String format) {
         return getEventInfo(event,
                             format,
-                            new SimpleDateFormat("MM/dd/yyyy HH:mm:sss z"));
+                            new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z"));
     }
 
     /**
@@ -87,7 +87,7 @@ public class EventUtil {
     public static String getOriginInfo(Origin origin, String format) {
         return getOriginInfo(origin,
                              format,
-                             new SimpleDateFormat("MM/dd/yyyy HH:mm:sss z"));
+                             new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z"));
     }
 
     public static String getOriginInfo(Origin origin,
