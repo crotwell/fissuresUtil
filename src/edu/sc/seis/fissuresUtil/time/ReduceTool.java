@@ -186,7 +186,9 @@ public class ReduceTool {
                                      laterED.length);
                     TimeSeriesDataSel td = new TimeSeriesDataSel();
                     td.encoded_values(outED);
-                    return new LocalSeismogramImpl(earlier, td);
+                    LocalSeismogramImpl newSeis =  new LocalSeismogramImpl(earlier, td);
+                    newSeis.num_points = seis.num_points + seis2.num_points;
+                    return newSeis;
                 }
                 int numPoints = seis.getNumPoints() + seis2.getNumPoints();
                 if(seis.can_convert_to_short()) {
