@@ -130,7 +130,7 @@ public class PopulateDatabaseFromDirectory {
                                           batch,
                                           stationLocations);
             } else {
-                System.err.println("File: " + file
+                logger.error("File: " + file
                         + " is not a file or a directory. This can"
                         + " be caused in Windows when the file path includes"
                         + " a Unix-style reference (soft or hard).");
@@ -275,10 +275,10 @@ public class PopulateDatabaseFromDirectory {
         try {
             sacTime.readHeader(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
-            System.err.println(fileName + " seems to be an invalid sac file.");
+            logger.error(fileName + " seems to be an invalid sac file.");
             return false;
         } catch(FileNotFoundException e) {
-            System.err.println("Unable to find file " + fileName);
+            logger.error("Unable to find file " + fileName);
             return false;
         }
         SeismogramAttrImpl seis = SacToFissures.getSeismogramAttr(sacTime);
@@ -300,11 +300,11 @@ public class PopulateDatabaseFromDirectory {
         try {
             mseedRead = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
-            System.err.println(fileName
+            logger.error(fileName
                     + " seems to  be an invalid mseed file.");
             return false;
         } catch(FileNotFoundException e) {
-            System.err.println("Unable to find file " + fileName);
+            logger.error("Unable to find file " + fileName);
             return false;
         }
         LinkedList list = new LinkedList();
@@ -343,7 +343,7 @@ public class PopulateDatabaseFromDirectory {
         try {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
-            System.err.println(fileName + " seems to be an invalid rt130 file.");
+            logger.error(fileName + " seems to be an invalid rt130 file.");
             return false;
         }
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
@@ -401,7 +401,7 @@ public class PopulateDatabaseFromDirectory {
         try {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
-            System.err.println(fileName + " seems to be an invalid rt130 file.");
+            logger.error(fileName + " seems to be an invalid rt130 file.");
             return false;
         }
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
@@ -446,7 +446,7 @@ public class PopulateDatabaseFromDirectory {
             try {
                 fileData = rtFileReader.processRT130Data();
             } catch(RT130FormatException e) {
-                System.err.println(fileName
+                logger.error(fileName
                         + " seems to be an invalid rt130 file.");
                 return false;
             }
@@ -500,7 +500,7 @@ public class PopulateDatabaseFromDirectory {
                         + " added to the database.");
                 return true;
             } catch(RT130FormatException e) {
-                System.err.println(fileName
+                logger.error(fileName
                         + " seems to be an invalid rt130 file.");
                 return false;
             }
