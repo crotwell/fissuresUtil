@@ -14,4 +14,4 @@ dataStream.2=1
 leapSecondTimeFileLoc=LeapSeconds
 powerUpTimeFileLoc=PowerUpTimes
 NCFileLoc=snep.nc
-XYFileLoc=location.xy
+XYFileLoc=SNEP_Sites.xy
