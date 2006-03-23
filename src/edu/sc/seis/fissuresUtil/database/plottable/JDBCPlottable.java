@@ -94,8 +94,9 @@ public class JDBCPlottable extends JDBCTable {
                     put.executeUpdate();
                 } catch(SQLException ex) {
                     logger.warn("problem with sql query: " + put);
-                    logger.debug("problematic chunk: " + chunk);
-                    throw ex;
+                    SQLException newEx = new SQLException(ex.getMessage() + ". problematic chunk: " + chunk);
+                    newEx.setStackTrace(ex.getStackTrace());
+                    throw newEx;
                 }
             }
         }
