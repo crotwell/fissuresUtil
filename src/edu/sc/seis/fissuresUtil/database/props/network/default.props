@@ -215,11 +215,11 @@ netchan.create=CREATE VIEW netchan AS \
     net_end.time_stamp AS net_end_time_stamp, net_end.time_nanos AS net_end_nanos, net_end.time_leapsec AS net_end_leapsec, \
     station.sta_id, station.sta_code, station.sta_begin_id, station.sta_end_id, station.sta_name, \
     station.sta_operator, station.sta_description, station.sta_comment, station.loc_id AS sta_loc_id, \
-    stalocation.loc_lat AS sta_loc_lat, stalocation.loc_lon AS sta_loc_lon, \
+    stalocation.loc_lat AS sta_loc_lat, stalocation.loc_lon AS sta_loc_lon, stalocation.loc_elev_id AS sta_loc_elev_id, stalocation.loc_depth_id AS sta_loc_depth_id, stalocation.loc_type AS sta_loc_type, \
     sta_begin.time_stamp AS sta_begin_time_stamp, sta_begin.time_nanos AS sta_begin_nanos, sta_begin.time_leapsec AS sta_begin_leapsec, \
     sta_end.time_stamp AS sta_end_time_stamp, sta_end.time_nanos AS sta_end_nanos, sta_end.time_leapsec AS sta_end_leapsec, \
     site.site_id, site.site_code, site.site_begin_id, site.site_end_id, site.site_comment, \
-    site.loc_id AS site_loc_id, sitelocation.loc_lat AS site_loc_lat, sitelocation.loc_lon AS site_loc_lon, \
+    site.loc_id AS site_loc_id, sitelocation.loc_lat AS site_loc_lat, sitelocation.loc_lon AS site_loc_lon,  sitelocation.loc_elev_id AS site_loc_elev_id, sitelocation.loc_depth_id AS site_loc_depth_id, sitelocation.loc_type AS site_loc_type,\
     site_begin.time_stamp AS site_begin_time_stamp, site_begin.time_nanos AS site_begin_nanos, site_begin.time_leapsec AS site_begin_leapsec, \
     site_end.time_stamp AS site_end_time_stamp, site_end.time_nanos AS site_end_nanos, site_end.time_leapsec AS site_end_leapsec, \
     channel.chan_id, channel.chan_code, channel.chan_begin_id, channel.chan_end_id, channel.chan_name, \
