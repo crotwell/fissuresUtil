@@ -187,6 +187,10 @@ public class JDBCStation extends NetworkTable {
             throws SQLException, NotFound {
         return getDBIds(netTable.getDbId(net), stationCode);
     }
+    
+    public JDBCLocation getLocationTable() {
+        return locTable;
+    }
 
     public JDBCNetwork getNetTable() {
         return netTable;
@@ -314,9 +318,16 @@ public class JDBCStation extends NetworkTable {
         }
         StationId id = extractId(rs, netTable, time);
         edu.iris.Fissures.Time endTime = time.get(rs.getInt("sta_end_id"));
+        // check to see if this is a straight station sql or a netchan sql call
+        boolean netChan = true;
+        try {rs.findColumn("sta_loc_lat");
+        } catch (SQLException e) {
+            // not a netchan extract, must be straight station table
+            netChan = false;
+        }
         sta = new StationImpl(id,
                               rs.getString("sta_name"),
-                              locTable.get(rs.getInt("loc_id")),
+                              netChan ? locTable.extract(rs, "sta_") : locTable.get(rs.getInt("loc_id")),
                               new TimeRange(id.begin_time, endTime),
                               rs.getString("sta_operator"),
                               rs.getString("sta_description"),

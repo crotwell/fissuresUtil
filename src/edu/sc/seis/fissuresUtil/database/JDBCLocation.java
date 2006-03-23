@@ -88,12 +88,16 @@ public class JDBCLocation extends JDBCTable {
     }
 
     public Location extract(ResultSet rs) throws SQLException {
-        float lat = rs.getFloat("loc_lat");
-        float lon = rs.getFloat("loc_lon");
+        return extract(rs, "");
+    }
+
+    public Location extract(ResultSet rs, String prefix) throws SQLException {
+        float lat = rs.getFloat(prefix+"loc_lat");
+        float lon = rs.getFloat(prefix+"loc_lon");
         try {
-            QuantityImpl elev = quantityTable.get(rs.getInt("loc_elev_id"));
-            QuantityImpl depth = quantityTable.get(rs.getInt("loc_depth_id"));
-            LocationType type = LocationType.from_int(rs.getInt("loc_type"));
+            QuantityImpl elev = quantityTable.get(rs.getInt(prefix+"loc_elev_id"));
+            QuantityImpl depth = quantityTable.get(rs.getInt(prefix+"loc_depth_id"));
+            LocationType type = LocationType.from_int(rs.getInt(prefix+"loc_type"));
             return new Location(lat, lon, elev, depth, type);
         } catch(NotFound e) {
             throw new RuntimeException("There is a foreign key constraint that requires that the elev id and depth id be in quantity, but it looks like this has been violated.  This indicates a db problem",
