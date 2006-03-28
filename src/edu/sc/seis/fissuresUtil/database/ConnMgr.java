@@ -148,7 +148,7 @@ public class ConnMgr {
         try {
             String driver = getDriver();
             if(firstTime) {
-                logger.debug("Using " + driver);
+                logger.debug("Using " + driver + " on " + getURL());
                 lastDriverForConnection = driver;
                 firstTime = false;
             }
