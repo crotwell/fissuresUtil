@@ -74,6 +74,7 @@ public class PopulateDatabaseFromDirectory {
         LeapSecondApplier.addCorrections(props.getProperty("powerUpTimeFileLoc"));
         ConnectionCreator connCreator = new ConnectionCreator(props);
         Connection conn = connCreator.createConnection();
+        DatabasePopulationReport report = new DatabasePopulationReport();
         JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
         JDBCChannel chanTable = new JDBCChannel(conn);
         JDBCTime timeTable = new JDBCTime(conn);
@@ -114,6 +115,7 @@ public class PopulateDatabaseFromDirectory {
                                                conn,
                                                ncFile,
                                                jdbcSeisFile,
+                                               report,
                                                chanTable,
                                                timeTable,
                                                props,
@@ -124,6 +126,7 @@ public class PopulateDatabaseFromDirectory {
                                           conn,
                                           ncFile,
                                           jdbcSeisFile,
+                                          report,
                                           chanTable,
                                           timeTable,
                                           props,
@@ -151,6 +154,7 @@ public class PopulateDatabaseFromDirectory {
                                           Connection conn,
                                           NCFile ncFile,
                                           JDBCSeismogramFiles jdbcSeisFile,
+                                          DatabasePopulationReport report,
                                           JDBCChannel chanTable,
                                           JDBCTime timeTable,
                                           Properties props,
@@ -167,6 +171,7 @@ public class PopulateDatabaseFromDirectory {
         if(fileName.length() == 18 && fileName.charAt(9) == '_') {
             if(batch) {
                 finished = processSingleRefTekBatch(jdbcSeisFile,
+                                                    report,
                                                     conn,
                                                     fileLoc,
                                                     fileName,
@@ -177,6 +182,7 @@ public class PopulateDatabaseFromDirectory {
                                                     stationLocations);
             } else {
                 finished = processSingleRefTek(jdbcSeisFile,
+                                               report,
                                                conn,
                                                fileLoc,
                                                fileName,
@@ -187,15 +193,26 @@ public class PopulateDatabaseFromDirectory {
                                                stationLocations);
             }
         } else if(fileName.endsWith(".mseed")) {
-            finished = processMSeed(jdbcSeisFile, fileLoc, fileName);
+            finished = processMSeed(jdbcSeisFile, report, fileLoc, fileName);
         } else if(fileName.endsWith(".sac")) {
-            finished = processSac(jdbcSeisFile, fileLoc, fileName, props);
+            finished = processSac(jdbcSeisFile,
+                                  report,
+                                  fileLoc,
+                                  fileName,
+                                  props);
         } else {
             if(fileName.equals("SOH.RT")) {
-                logger.debug("Ignoring file: " + fileName + ".");
+                logger.debug("Ignoring file: " + fileName);
             } else if(fileName.equals(".DS_Store")) {
-                logger.debug("Ignoring Mac OS X file: " + fileName + ".");
+                logger.debug("Ignoring Mac OS X file: " + fileName);
             } else {
+                report.addProblemFile(fileLoc,
+                                      fileName
+                                              + " can not be processed because it's file"
+                                              + " name is not formatted correctly, and therefore"
+                                              + " is assumed to be an invalid file format. If"
+                                              + " the data file format is valid (mini seed, sac, rt130)"
+                                              + " try renaming the file.");
                 logger.debug(fileName
                         + " can not be processed because it's file"
                         + " name is not formatted correctly, and therefore"
@@ -211,6 +228,7 @@ public class PopulateDatabaseFromDirectory {
                                                Connection conn,
                                                NCFile ncFile,
                                                JDBCSeismogramFiles jdbcSeisFile,
+                                               DatabasePopulationReport report,
                                                JDBCChannel chanTable,
                                                JDBCTime timeTable,
                                                Properties props,
@@ -229,6 +247,7 @@ public class PopulateDatabaseFromDirectory {
                                     conn,
                                     ncFile,
                                     jdbcSeisFile,
+                                    report,
                                     chanTable,
                                     timeTable,
                                     props,
@@ -239,6 +258,7 @@ public class PopulateDatabaseFromDirectory {
                                conn,
                                ncFile,
                                jdbcSeisFile,
+                               report,
                                chanTable,
                                timeTable,
                                props,
@@ -267,6 +287,7 @@ public class PopulateDatabaseFromDirectory {
     }
 
     private static boolean processSac(JDBCSeismogramFiles jdbcSeisFile,
+                                      DatabasePopulationReport report,
                                       String fileLoc,
                                       String fileName,
                                       Properties props) throws IOException,
@@ -275,24 +296,24 @@ public class PopulateDatabaseFromDirectory {
         try {
             sacTime.readHeader(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
+            report.addProblemFile(fileLoc, fileName
+                    + " seems to be an invalid sac file.");
             logger.error(fileName + " seems to be an invalid sac file.");
             return false;
         } catch(FileNotFoundException e) {
+            report.addProblemFile(fileLoc, "Unable to find file " + fileName);
             logger.error("Unable to find file " + fileName);
             return false;
         }
         SeismogramAttrImpl seis = SacToFissures.getSeismogramAttr(sacTime);
         Channel chan = SacToFissures.getChannel(sacTime);
         chan = PopulationProperties.fix(chan, props);
-        jdbcSeisFile.saveSeismogramToDatabase(chan,
-                                              seis,
-                                              fileLoc,
-                                              SeismogramFileTypes.SAC);
-        logger.debug("SAC file " + fileName + " added to the database.");
+        saveSacToDatabase(jdbcSeisFile, report, chan, seis, fileLoc);
         return true;
     }
 
     private static boolean processMSeed(JDBCSeismogramFiles jdbcSeisFile,
+                                        DatabasePopulationReport report,
                                         String fileLoc,
                                         String fileName) throws IOException,
             SeedFormatException, FissuresException, SQLException {
@@ -300,10 +321,12 @@ public class PopulateDatabaseFromDirectory {
         try {
             mseedRead = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
-            logger.error(fileName
-                    + " seems to  be an invalid mseed file.");
+            report.addProblemFile(fileLoc, fileName
+                    + " seems to be an invalid mseed file.");
+            logger.error(fileName + " seems to be an invalid mseed file.");
             return false;
         } catch(FileNotFoundException e) {
+            report.addProblemFile(fileLoc, "Unable to find file " + fileName);
             logger.error("Unable to find file " + fileName);
             return false;
         }
@@ -315,15 +338,12 @@ public class PopulateDatabaseFromDirectory {
             // must be all
         }
         LocalSeismogramImpl seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new DataRecord[0]));
-        jdbcSeisFile.saveSeismogramToDatabase(seis.channel_id,
-                                              seis,
-                                              fileLoc,
-                                              SeismogramFileTypes.MSEED);
-        logger.debug("MSEED file " + fileName + " added to the database.");
+        saveMSeedToDatabase(jdbcSeisFile, report, seis, fileLoc);
         return true;
     }
 
     private static boolean processSingleRefTek(JDBCSeismogramFiles jdbcSeisFile,
+                                               DatabasePopulationReport report,
                                                Connection conn,
                                                String fileLoc,
                                                String fileName,
@@ -343,6 +363,8 @@ public class PopulateDatabaseFromDirectory {
         try {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
+            report.addProblemFile(fileLoc, fileName
+                    + " seems to be an invalid rt130 file.");
             logger.error(fileName + " seems to be an invalid rt130 file.");
             return false;
         }
@@ -359,32 +381,32 @@ public class PopulateDatabaseFromDirectory {
                                                                  new QuantityImpl(1,
                                                                                   UnitImpl.KILOMETER));
             if(closeChannel == null) {
-                jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel[i],
-                                                                     chanTable),
-                                                      getTimeDbId(seismogramArray[i].getBeginTime(),
-                                                                  timeTable),
-                                                      getTimeDbId(seismogramArray[i].getEndTime(),
-                                                                  timeTable),
-                                                      fileLoc,
-                                                      SeismogramFileTypes.RT_130);
+                saveRefTekToDatabase(jdbcSeisFile,
+                                     report,
+                                     chanTable,
+                                     timeTable,
+                                     channel[i],
+                                     seismogramArray[i].getBeginTime(),
+                                     seismogramArray[i].getEndTime(),
+                                     fileLoc);
             } else {
                 jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel,
                                                            channel[i]);
-                jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(closeChannel,
-                                                                     chanTable),
-                                                      getTimeDbId(seismogramArray[i].getBeginTime(),
-                                                                  timeTable),
-                                                      getTimeDbId(seismogramArray[i].getEndTime(),
-                                                                  timeTable),
-                                                      fileLoc,
-                                                      SeismogramFileTypes.RT_130);
+                saveRefTekToDatabase(jdbcSeisFile,
+                                     report,
+                                     chanTable,
+                                     timeTable,
+                                     closeChannel,
+                                     seismogramArray[i].getBeginTime(),
+                                     seismogramArray[i].getEndTime(),
+                                     fileLoc);
             }
         }
-        logger.debug("RT130 file " + fileName + " added to the database.");
         return true;
     }
 
     private static boolean processSingleRefTekWithKnownChannel(JDBCSeismogramFiles jdbcSeisFile,
+                                                               DatabasePopulationReport report,
                                                                Connection conn,
                                                                String fileLoc,
                                                                String fileName,
@@ -401,6 +423,8 @@ public class PopulateDatabaseFromDirectory {
         try {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
+            report.addProblemFile(fileLoc, fileName
+                    + " seems to be an invalid rt130 file.");
             logger.error(fileName + " seems to be an invalid rt130 file.");
             return false;
         }
@@ -410,20 +434,20 @@ public class PopulateDatabaseFromDirectory {
                                                                          stationLocations);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
-            jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(knownChannel,
-                                                                 chanTable),
-                                                  getTimeDbId(seismogramArray[i].getBeginTime(),
-                                                              timeTable),
-                                                  getTimeDbId(seismogramArray[i].getEndTime(),
-                                                              timeTable),
-                                                  fileLoc,
-                                                  SeismogramFileTypes.RT_130);
+            saveRefTekToDatabase(jdbcSeisFile,
+                                 report,
+                                 chanTable,
+                                 timeTable,
+                                 knownChannel,
+                                 seismogramArray[i].getBeginTime(),
+                                 seismogramArray[i].getEndTime(),
+                                 fileLoc);
         }
-        logger.debug("RT130 file " + fileName + " added to the database.");
         return true;
     }
 
     private static boolean processSingleRefTekBatch(JDBCSeismogramFiles jdbcSeisFile,
+                                                    DatabasePopulationReport report,
                                                     Connection conn,
                                                     String fileLoc,
                                                     String fileName,
@@ -446,8 +470,9 @@ public class PopulateDatabaseFromDirectory {
             try {
                 fileData = rtFileReader.processRT130Data();
             } catch(RT130FormatException e) {
-                logger.error(fileName
+                report.addProblemFile(fileLoc, fileName
                         + " seems to be an invalid rt130 file.");
+                logger.error(fileName + " seems to be an invalid rt130 file.");
                 return false;
             }
             datastreamToFileData.put(unitIdNumber + datastream, fileData[0]);
@@ -465,6 +490,7 @@ public class PopulateDatabaseFromDirectory {
                     + datastream);
             for(int i = 0; i < channel.length; i++) {
                 processSingleRefTekWithKnownChannel(jdbcSeisFile,
+                                                    report,
                                                     conn,
                                                     fileLoc,
                                                     fileName,
@@ -487,21 +513,20 @@ public class PopulateDatabaseFromDirectory {
                 Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
                         + datastream);
                 for(int i = 0; i < channel.length; i++) {
-                    jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel[i],
-                                                                         chanTable),
-                                                          getTimeDbId(beginTime,
-                                                                      timeTable),
-                                                          getTimeDbId(endTime,
-                                                                      timeTable),
-                                                          file.getPath(),
-                                                          SeismogramFileTypes.RT_130);
+                    saveRefTekToDatabase(jdbcSeisFile,
+                                         report,
+                                         chanTable,
+                                         timeTable,
+                                         channel[i],
+                                         beginTime,
+                                         endTime,
+                                         file.getPath());
                 }
-                logger.debug("RT130 file " + fileName
-                        + " added to the database.");
                 return true;
             } catch(RT130FormatException e) {
-                logger.error(fileName
+                report.addProblemFile(fileLoc, fileName
                         + " seems to be an invalid rt130 file.");
+                logger.error(fileName + " seems to be an invalid rt130 file.");
                 return false;
             }
         }
@@ -630,6 +655,46 @@ public class PopulateDatabaseFromDirectory {
             }
         }
         return newChannel;
+    }
+
+    private static void saveSacToDatabase(JDBCSeismogramFiles jdbcSeisFile,
+                                          DatabasePopulationReport report,
+                                          Channel chan,
+                                          SeismogramAttrImpl seis,
+                                          String fileLoc) throws SQLException {
+        report.addSacSeismogram();
+        jdbcSeisFile.saveSeismogramToDatabase(chan,
+                                              seis,
+                                              fileLoc,
+                                              SeismogramFileTypes.SAC);
+    }
+
+    private static void saveMSeedToDatabase(JDBCSeismogramFiles jdbcSeisFile,
+                                            DatabasePopulationReport report,
+                                            SeismogramAttrImpl seis,
+                                            String fileLoc) throws SQLException {
+        report.addMSeedSeismogram();
+        jdbcSeisFile.saveSeismogramToDatabase(seis.channel_id,
+                                              seis,
+                                              fileLoc,
+                                              SeismogramFileTypes.MSEED);
+    }
+
+    private static void saveRefTekToDatabase(JDBCSeismogramFiles jdbcSeisFile,
+                                             DatabasePopulationReport report,
+                                             JDBCChannel chanTable,
+                                             JDBCTime timeTable,
+                                             Channel channel,
+                                             MicroSecondDate beginTime,
+                                             MicroSecondDate endTime,
+                                             String fileLoc)
+            throws SQLException, NotFound {
+        report.addRefTekSeismogram(channel, beginTime, endTime);
+        jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel, chanTable),
+                                              getTimeDbId(beginTime, timeTable),
+                                              getTimeDbId(endTime, timeTable),
+                                              fileLoc,
+                                              SeismogramFileTypes.RT_130);
     }
 
     private static Map datastreamToChannel = new HashMap();
