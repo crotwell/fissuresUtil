@@ -28,6 +28,7 @@ public class ConfigDefinitions {
             Node parent = el.getParentNode();
             while(parent != null && parent instanceof Element){
                 elementPath = el.getTagName() + "/" + elementPath;
+                parent = parent.getParentNode();
             }
             throw new RuntimeException(elementPath
                     + " references an undefined definition " + definitionName(el));
