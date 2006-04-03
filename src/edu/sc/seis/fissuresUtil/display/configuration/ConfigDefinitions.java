@@ -27,7 +27,7 @@ public class ConfigDefinitions {
             String elementPath = el.getTagName();
             Node parent = el.getParentNode();
             while(parent != null && parent instanceof Element){
-                elementPath = el.getTagName() + "/" + elementPath;
+                elementPath = parent.getTagName() + "/" + elementPath;
                 parent = parent.getParentNode();
             }
             throw new RuntimeException(elementPath
