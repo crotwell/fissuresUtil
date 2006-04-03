@@ -27,13 +27,13 @@ public class BorderConfiguration implements Cloneable {
         type = DOMHelper.extractText(element, "type", type);
         order = DOMHelper.extractText(element, "order", order);
         position = DOMHelper.extractText(element, "position", position);
-        NodeList titleList = DOMHelper.extractNodes(element, "title");
-        for(int i = 0; i < titleList.getLength(); i++) {
-            titles.add(new BorderTitleConfiguration((Element)titleList.item(i)));
-        }
         if(DOMHelper.hasElement(element, "titleFont")) {
             this.titleFont = FontConfiguration.create(DOMHelper.getElement(element,
                                                                            "titleFont"));
+        }
+        NodeList titleList = DOMHelper.extractNodes(element, "title");
+        for(int i = 0; i < titleList.getLength(); i++) {
+            titles.add(new BorderTitleConfiguration((Element)titleList.item(i)));
         }
         if(DOMHelper.hasElement(element, "titleColor")) {
             this.titleColor = ColorConfiguration.create(DOMHelper.getElement(element,
