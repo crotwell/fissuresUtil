@@ -8,12 +8,24 @@ import org.w3c.dom.Element;
  * @author groves Created on Mar 1, 2005
  */
 public class ConfigDefinitions {
-
-    public boolean hasDefinition(Element el) {
+    
+    public boolean referencesDefinition(Element el){
         return el.hasAttribute("base");
     }
 
+    public static String definitionName(Element el) {
+        return el.getAttribute("base");
+    }
+
+    public boolean hasDefinition(Element el) {
+        return idsToConfigs.containsKey(definitionName(el));
+    }
+
     public Object getDefinition(Element el) {
+        if(!hasDefinition(el)) {
+            throw new RuntimeException(el.getLocalName()
+                    + " references an undefined definition " + definitionName(el));
+        }
         return idsToConfigs.get(el.getAttribute("base"));
     }
 
