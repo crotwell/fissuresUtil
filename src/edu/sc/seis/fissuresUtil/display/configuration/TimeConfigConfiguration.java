@@ -52,7 +52,7 @@ public class TimeConfigConfiguration implements Cloneable {
     public static TimeConfigConfiguration create(Element el)
             throws NoSuchFieldException {
         TimeConfigConfiguration c = null;
-        if(defs.hasDefinition(el)) {
+        if(defs.referencesDefinition(el)) {
             TimeConfigConfiguration base = (TimeConfigConfiguration)defs.getDefinition(el);
             c = (TimeConfigConfiguration)base.clone();
         } else {

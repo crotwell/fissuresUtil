@@ -55,7 +55,7 @@ public class BorderConfiguration implements Cloneable {
                                              ColorConfiguration color,
                                              ColorConfiguration background) {
         BorderConfiguration c = null;
-        if(defs.hasDefinition(el)) {
+        if(defs.referencesDefinition(el)) {
             BorderConfiguration base = (BorderConfiguration)defs.getDefinition(el);
             c = (BorderConfiguration)base.clone();
         } else {

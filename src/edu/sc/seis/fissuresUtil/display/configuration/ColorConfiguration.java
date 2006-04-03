@@ -18,11 +18,9 @@ public class ColorConfiguration implements Cloneable {
 
     public static ColorConfiguration create(Element el) {
         ColorConfiguration c = null;
-        if(defs.hasDefinition(el)) {
+        if(defs.referencesDefinition(el)) {
             try {
                 ColorConfiguration base = (ColorConfiguration)defs.getDefinition(el);
-                if(base == null) { throw new NullPointerException("Unable to find a base for "
-                        + el.getAttribute("base")); }
                 c = (ColorConfiguration)base.clone();
             } catch(CloneNotSupportedException e) {
                 GlobalExceptionHandler.handle("But I added clone to this object....");

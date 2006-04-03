@@ -12,7 +12,7 @@ import edu.sc.seis.fissuresUtil.display.drawable.Flag;
 public class ColorClassConfiguration {
 
     public ColorClassConfiguration(Element el) {
-        if(defs.hasDefinition(el)) {
+        if(defs.referencesDefinition(el)) {
             ColorClassConfiguration definer = (ColorClassConfiguration)defs.getDefinition(el);
             colorClass = definer.colorClass;
             colors = definer.colors;
