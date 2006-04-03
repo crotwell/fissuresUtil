@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display.configuration;
 import java.util.HashMap;
 import java.util.Map;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * @author groves Created on Mar 1, 2005
@@ -23,7 +24,12 @@ public class ConfigDefinitions {
 
     public Object getDefinition(Element el) {
         if(!hasDefinition(el)) {
-            throw new RuntimeException(el.getLocalName()
+            String elementPath = el.getTagName();
+            Node parent = el.getParentNode();
+            while(parent != null && parent instanceof Element){
+                elementPath = el.getTagName() + "/" + elementPath;
+            }
+            throw new RuntimeException(elementPath
                     + " references an undefined definition " + definitionName(el));
         }
         return idsToConfigs.get(el.getAttribute("base"));
