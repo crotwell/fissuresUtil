@@ -57,7 +57,7 @@ public class SeismogramDisplayConfiguration implements Cloneable {
     public static SeismogramDisplayConfiguration create(Element el)
             throws NoSuchFieldException {
         SeismogramDisplayConfiguration c = null;
-        if(defs.hasDefinition(el)) {
+        if(defs.referencesDefinition(el)) {
             SeismogramDisplayConfiguration base = (SeismogramDisplayConfiguration)defs.getDefinition(el);
             c = (SeismogramDisplayConfiguration)base.clone();
         } else {
