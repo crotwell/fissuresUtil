@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -152,6 +154,16 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
         throw new IllegalArgumentException("The passed in data set seismgoram must have a drawable seismogram using it in this display");
     }
 
+    public void outputToPDF(String filename) throws FileNotFoundException {
+        outputToPDF(new File(filename));
+    }
+
+    public void outputToPDF(File f) throws FileNotFoundException {
+        SeismogramPDFBuilder.createPDF(this, f, pdfSeismogramsPerPage, true);
+    }
+    
+    private int pdfSeismogramsPerPage = 1;
+
     private int i = 0;
 
     public abstract void add(Drawable drawable);
@@ -208,6 +220,15 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
         return currentTimeFlag;
     }
 
+    public int getPdfSeismogramsPerPage() {
+        return pdfSeismogramsPerPage;
+    }
+
+    
+    public void setPdfSeismogramsPerPage(int pdfSeismogramsPerPage) {
+        this.pdfSeismogramsPerPage = pdfSeismogramsPerPage;
+    }
+    
     private static SDMouseMotionForwarder motionForwarder;
 
     private static SDMouseForwarder mouseForwarder;
@@ -241,4 +262,5 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     public void setDrawNamesForNamedDrawables(boolean drawNamesForNamedDrawables) {
         this.drawNamesForNamedDrawables = drawNamesForNamedDrawables;
     }
+
 }

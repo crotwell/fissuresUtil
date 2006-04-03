@@ -370,14 +370,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
         }
     }
 
-    public void outputToPDF(String filename) throws FileNotFoundException {
-        outputToPDF(new File(filename));
-    }
-
-    public void outputToPDF(File f) throws FileNotFoundException {
-        SeismogramPDFBuilder.createPDF(this, f, 1, true);
-    }
-
     private class PlotPainter extends SeismogramDisplayProvider {
 
         public SeismogramDisplay provide() {
