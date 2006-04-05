@@ -106,6 +106,8 @@ public class EventUtil {
         Quantity depth = origin.my_location.depth;
         float latitude = origin.my_location.latitude;
         float longitude = origin.my_location.longitude;
+        String catalog = origin.catalog;
+        String contributor = origin.contributor;
         StringBuffer buf = new StringBuffer(format);
         for(int i = 0; i < magicStrings.length; i++) {
             int index = buf.indexOf(magicStrings[i]);
@@ -128,6 +130,10 @@ public class EventUtil {
                     buf.insert(index, latitude);
                 } else if(magicStrings[i].equals(LON)) {
                     buf.insert(index, longitude);
+                } else if(magicStrings[i].equals(CAT)) {
+                    buf.insert(index, catalog);
+                } else if(magicStrings[i].equals(CONTRIB)) {
+                    buf.insert(index, contributor);
                 }
             }
         }
@@ -138,7 +144,7 @@ public class EventUtil {
 
     public static final String LOC = "LOC", TIME = "TIME", MAG = "MAG",
             DEPTH = "DEPTH", DEPTH_UNIT = "DEPTH_UNIT", LAT = "LAT",
-            LON = "LON";
+            LON = "LON", CAT = "CAT", CONTRIB = "CONTRIB";
 
     private static final String[] magicStrings = {LOC,
                                                   TIME,
@@ -146,10 +152,12 @@ public class EventUtil {
                                                   DEPTH,
                                                   DEPTH_UNIT,
                                                   LAT,
-                                                  LON};
+                                                  LON,
+                                                  CAT,
+                                                  CONTRIB};
 
     public static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME
-            + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT + "| ("
+            + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT + " | ("
             + LAT + ", " + LON + ")";
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(EventUtil.class);
