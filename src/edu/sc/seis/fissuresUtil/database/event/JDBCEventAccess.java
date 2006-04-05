@@ -197,15 +197,10 @@ public class JDBCEventAccess extends EventTable {
         // TODO - if q.getArea is PointDistanceArea, run results through
         // AreaUtil.inDonut before returning
         BoxArea ba = AreaUtil.makeContainingBox(q.getArea());
+        PreparedStatement finderQuery = (ba.min_longitude <= ba.max_longitude ? finderQueryAvoidDateline
+                : finderQueryAroundDateline);
         finderQuery.setFloat(index++, ba.min_latitude);
         finderQuery.setFloat(index++, ba.max_latitude);
-        // The SQL transforms the events longitude into a new coordinate system
-        // with 0 at min_longitude
-        finderQuery.setFloat(index++, ba.min_longitude);
-        finderQuery.setFloat(index++, ba.min_longitude);
-        // this turns the max_longitude into the new coordinate system
-        float rightEdge = Math.abs(ba.max_longitude - ba.min_longitude);
-        finderQuery.setFloat(index++, rightEdge);
         finderQuery.setFloat(index++, q.getMinMag());
         finderQuery.setFloat(index++, q.getMaxMag());
         MicroSecondTimeRange range = q.getTime();
@@ -213,6 +208,8 @@ public class JDBCEventAccess extends EventTable {
         finderQuery.setTimestamp(index++, range.getEndTime().getTimestamp());
         finderQuery.setDouble(index++, q.getMinDepth());
         finderQuery.setDouble(index++, q.getMaxDepth());
+        finderQuery.setFloat(index++, ba.min_longitude);
+        finderQuery.setFloat(index++, ba.max_longitude);
         ResultSet rs = finderQuery.executeQuery();
         ArrayList out = new ArrayList();
         while(rs.next()) {
@@ -286,7 +283,8 @@ public class JDBCEventAccess extends EventTable {
     private static final Logger logger = Logger.getLogger(JDBCEventAccess.class);
 
     private PreparedStatement put, getDBIdStmt, getAttrAndOrigin, getEventIds,
-            finderQuery, getByNameStmt, getLast;
+            finderQueryAvoidDateline, finderQueryAroundDateline, getByNameStmt,
+            getLast;
 
     public JDBCEventAttr getJDBCAttr() {
         return jdbcAttr;
