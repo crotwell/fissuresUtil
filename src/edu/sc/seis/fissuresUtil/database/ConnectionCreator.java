@@ -74,8 +74,12 @@ public class ConnectionCreator {
     }
 
     public static Properties loadDbProperties(String[] args) {
+        return loadDbProperties(loadDbPropsFromArgProps(args));
+    }
+    
+    public static Properties loadDbProperties(Properties propsFromArgs) {
         Properties dbProps = loadDbPropsFromHSQLProps();
-        dbProps.putAll(loadDbPropsFromArgProps(args));
+        dbProps.putAll(propsFromArgs);
         dbProps.putAll(loadDbPropsFromSystemProps());
         return dbProps;
     }
