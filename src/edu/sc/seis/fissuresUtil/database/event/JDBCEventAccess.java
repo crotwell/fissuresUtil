@@ -60,6 +60,14 @@ public class JDBCEventAccess extends EventTable {
         throw new NotFound();
     }
 
+    public CacheEvent[] getEvents(int[] dbIds) throws SQLException, NotFound {
+        CacheEvent[] events = new CacheEvent[dbIds.length];
+        for(int i = 0; i < dbIds.length; i++) {
+            events[i] = getEvent(dbIds[i]);
+        }
+        return events;
+    }
+
     private CacheEvent getEvent(ResultSet rs, int dbid) throws NotFound,
             SQLException {
         Origin preferredOrigin = jdbcOrigin.get(rs.getInt("origin_id"));
@@ -193,12 +201,19 @@ public class JDBCEventAccess extends EventTable {
      *          catalog, contributor and type sections of the query
      */
     public int[] query(EventFinderQuery q) throws SQLException {
+        return query(q, finderQueryAvoidDateline, finderQueryAroundDateline);
+    }
+
+    public static int[] query(EventFinderQuery q,
+                              PreparedStatement avoidDatelineStatement,
+                              PreparedStatement aroundDatelineStatement)
+            throws SQLException {
         int index = 1;
         // TODO - if q.getArea is PointDistanceArea, run results through
         // AreaUtil.inDonut before returning
         BoxArea ba = AreaUtil.makeContainingBox(q.getArea());
-        PreparedStatement finderQuery = (ba.min_longitude <= ba.max_longitude ? finderQueryAvoidDateline
-                : finderQueryAroundDateline);
+        PreparedStatement finderQuery = (ba.min_longitude <= ba.max_longitude ? avoidDatelineStatement
+                : aroundDatelineStatement);
         finderQuery.setFloat(index++, ba.min_latitude);
         finderQuery.setFloat(index++, ba.max_latitude);
         finderQuery.setFloat(index++, q.getMinMag());
