@@ -7,12 +7,15 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class NamedMockSeisDC {
+	
+	public static final String SOMETIMES_AVAIL_UNKNOWN = "SometimesAvailUnknown";
+	private static AvailUnknown avUn = new AvailUnknown();
 
     public static DataCenter create(String name) {
         if(name.equals("SometimesNoAvail")) {
             return new AvailAvailAgain();
-        } else if(name.equals("SometimesAvailUnknown")) {
-            return new AvailUnknown();
+        } else if(name.equals(SOMETIMES_AVAIL_UNKNOWN)) {
+            return avUn;
         } else if(name.equals("Simple")) {
             return new MockDC();
         } else if(name.equals("SometimesNoData")) {
