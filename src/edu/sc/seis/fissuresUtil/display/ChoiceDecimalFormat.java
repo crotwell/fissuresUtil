@@ -48,9 +48,8 @@ public class ChoiceDecimalFormat extends NumberFormat {
     }
 
     /**
-     * This creates a ChoiceDecimalFormat that handles Tom's style 'a' for
-     * USArrayMonitor and REV. < 100 should have a single decimal, and >=100
-     * should have none
+     * This creates a ChoiceDecimalFormat where numbers < 100 have a single decimal, and numbers >=100
+     *  have none
      */
     public static ChoiceDecimalFormat createTomStyleA() {
         return new ChoiceDecimalFormat(new double[] {100, 100},
@@ -59,9 +58,8 @@ public class ChoiceDecimalFormat extends NumberFormat {
     }
 
     /**
-     * This creates a ChoiceDecimalFormat that handles Tom's style 'b' for
-     * USArrayMonitor and REV. < 10 should have a single decimal, and >=10
-     * should have none
+     * This creates a ChoiceDecimalFormat where numbers < 10 have a single decimal, and numbers >=10
+     * have none
      */
     public static ChoiceDecimalFormat createTomStyleB() {
         return new ChoiceDecimalFormat(new double[] {10, 10},
