@@ -24,7 +24,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  * SeismogramShape.java Created: Fri Jul 26 16:06:52 2002
  * 
  * @author <a href="mailto:">Charlie Groves </a>
- * @version $Id: SeismogramShape.java 16886 2006-04-14 18:03:38Z groves $
+ * @version $Id: SeismogramShape.java 16890 2006-04-14 20:39:12Z groves $
  */
 public class SeismogramShape implements Shape, SeismogramContainerListener {
 
@@ -207,7 +207,8 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
                               minAmp,
                               range,
                               height,
-                              i,pointsPerPixel);
+                              i,
+                              pointsPerPixel);
             } else {
                 plotCompression(unroundStartPoint,
                                 points,
@@ -225,8 +226,10 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
                                double minAmp,
                                double range,
                                int height,
-                               int point, double pointsPerPixel) {
+                               int point,
+                               double pointsPerPixel) {
         int startPoint = (int)Math.floor(unroundStartPoint);
+        double unroundEndPoint = unroundStartPoint + pointsPerPixel;
         if(startPoint < 0 && startPoint >= -3) {
             startPoint = 0;// if the base point is off a bit, fudge a little
         }
@@ -240,29 +243,38 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
             endPoint = 1;
         }
         double lastPoint = container.getIterator()
-        .getValueAt(endPoint)
-        .getValue();
-        double value;
-        if(unroundStartPoint + pointsPerPixel > endPoint){
-            value = lastPoint;
-        }else{
-        double firstPoint = container.getIterator()
-                .getValueAt(startPoint)
+                .getValueAt(endPoint)
                 .getValue();
-        double difference = unroundStartPoint - startPoint;
-        value = firstPoint * (1 - difference) + (lastPoint * difference);
-        }
-        if(container.getDataSetSeismogram()
-                .getAuxillaryDataKeys()
-                .contains("sensitivity")
-                && ((Sensitivity)container.getDataSetSeismogram()
-                        .getAuxillaryData("sensitivity")).sensitivity_factor < 0) {
-            points[0][point] = (int)((value - minAmp) / range * height);
+        double[] values = new double[2];
+        if(unroundStartPoint + pointsPerPixel > endPoint) {
+            values[0] = lastPoint;
         } else {
-            points[0][point] = height
-                    - (int)((value - minAmp) / range * height);
+            double firstPoint = container.getIterator()
+                    .getValueAt(startPoint)
+                    .getValue();
+            double difference = unroundStartPoint - startPoint;
+            values[0] = firstPoint * (1 - difference)
+                    + (lastPoint * difference);
         }
-        points[1][point] = points[0][point];
+        if(Math.floor(unroundEndPoint) > Math.ceil(unroundStartPoint)) {
+            values[1] = container.getIterator()
+                    .getValueAt(endPoint + 1)
+                    .getValue();
+        } else {
+            values[1] = values[0];
+        }
+        for(int i = 0; i < 2; i++) {
+            if(container.getDataSetSeismogram()
+                    .getAuxillaryDataKeys()
+                    .contains("sensitivity")
+                    && ((Sensitivity)container.getDataSetSeismogram()
+                            .getAuxillaryData("sensitivity")).sensitivity_factor < 0) {
+                points[i][point] = (int)((values[i] - minAmp) / range * height);
+            } else {
+                points[i][point] = height
+                        - (int)((values[i] - minAmp) / range * height);
+            }
+        }
     }
 
     private void plotCompression(double unroundStartPoint,
