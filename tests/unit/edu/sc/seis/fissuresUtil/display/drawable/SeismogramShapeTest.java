@@ -31,10 +31,17 @@ public class SeismogramShapeTest extends TestCase {
         MicroSecondTimeRange tr = new MicroSecondTimeRange(seis.getBeginTime(),
                                                            new TimeInterval(2,
                                                                             UnitImpl.MINUTE));
+
+        checkMinAndMaxInPathIterator(seis, ss, tr, new Dimension(4000, 400));
+        checkMinAndMaxInPathIterator(seis, ss, tr, new Dimension(700, 400));
+        checkMinAndMaxInPathIterator(seis, ss, tr, new Dimension(100, 400));
+    }
+
+    private void checkMinAndMaxInPathIterator(LocalSeismogramImpl seis, SeismogramShape ss, MicroSecondTimeRange tr, Dimension dimension) throws CodecException {
         for(int j = 0; j < 9; j++) {
             ss.update(tr.shift(.01 * j),
                       seis.getAmplitudeRange(),
-                      new Dimension(4000, 400));
+                      dimension);
             PathIterator pit = ss.getPathIterator(new AffineTransform());
             float[] coords = new float[6];
             float min = Float.MAX_VALUE;
