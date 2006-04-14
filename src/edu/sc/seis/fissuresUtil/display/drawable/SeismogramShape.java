@@ -24,7 +24,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  * SeismogramShape.java Created: Fri Jul 26 16:06:52 2002
  * 
  * @author <a href="mailto:">Charlie Groves </a>
- * @version $Id: SeismogramShape.java 12655 2005-03-29 21:00:12Z groves $
+ * @version $Id: SeismogramShape.java 16886 2006-04-14 18:03:38Z groves $
  */
 public class SeismogramShape implements Shape, SeismogramContainerListener {
 
@@ -119,7 +119,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
                                                     iterator.getTime());
         double pixels = currentIterator.getSize().width * shiftPercentage
                 + currentIterator.getLeftoverPixels();
-        //checks if the pixel shift is within 1/1000 of being an even pixel
+        // checks if the pixel shift is within 1/1000 of being an even pixel
         pixels *= 1000;
         pixels = Math.round(pixels);
         pixels /= 1000;
@@ -164,7 +164,8 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
                          length);
         int drawStart, drawEnd;
         int[] drawnPixels = setPixels(iterator);
-        if(pointsPerPixel <= 2) { //if there are less than 2 points per pixel,
+        if(pointsPerPixel <= 2) { // if there are less than 2 points per
+            // pixel,
             plotPixels(drawnPixels[0], drawnPixels[1], iterator);
             return;
         } else if(dragAmount < 0) {
@@ -183,7 +184,9 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
     }
 
     private void plotPixels(int start, int end, SeismogramShapeIterator iterator) {
-        if(start >= end || start < 0 || start == end) { return; }
+        if(start >= end || start < 0 || start == end) {
+            return;
+        }
         int[][] points = iterator.getPoints();
         double pointsPerPixel = iterator.getPointsPerPixel();
         UnitImpl lseisUnit = container.getIterator().getUnit();
@@ -204,7 +207,7 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
                               minAmp,
                               range,
                               height,
-                              i);
+                              i,pointsPerPixel);
             } else {
                 plotCompression(unroundStartPoint,
                                 points,
@@ -222,14 +225,12 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
                                double minAmp,
                                double range,
                                int height,
-                               int point) {
+                               int point, double pointsPerPixel) {
         int startPoint = (int)Math.floor(unroundStartPoint);
         if(startPoint < 0 && startPoint >= -3) {
-            startPoint = 0;//if the base point is off a bit, fudge a little
+            startPoint = 0;// if the base point is off a bit, fudge a little
         }
         int endPoint = startPoint + 1;
-        //TODO fix point calculation such that these aren't over the number of
-        // points
         if(endPoint >= container.getIterator().getNumPoints()) {
             endPoint = container.getIterator().getNumPoints() - 1;
             startPoint = endPoint - 1;
@@ -238,12 +239,19 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
             startPoint = 0;
             endPoint = 1;
         }
-        double firstPoint = height / 2;
-        double lastPoint = firstPoint;
-        firstPoint = container.getIterator().getValueAt(startPoint).getValue();
-        lastPoint = container.getIterator().getValueAt(endPoint).getValue();
+        double lastPoint = container.getIterator()
+        .getValueAt(endPoint)
+        .getValue();
+        double value;
+        if(unroundStartPoint + pointsPerPixel > endPoint){
+            value = lastPoint;
+        }else{
+        double firstPoint = container.getIterator()
+                .getValueAt(startPoint)
+                .getValue();
         double difference = unroundStartPoint - startPoint;
-        double value = firstPoint * (1 - difference) + (lastPoint * difference);
+        value = firstPoint * (1 - difference) + (lastPoint * difference);
+        }
         if(container.getDataSetSeismogram()
                 .getAuxillaryDataKeys()
                 .contains("sensitivity")
@@ -317,12 +325,16 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
         int displayWidth = iterator.getSize().width;
         double seisPointRange = seisPoints[1] - seisPoints[0];
         if(seisPoints[1] < 0
-                || seisPoints[0] >= container.getIterator().getNumPoints()) { return SeismogramShape.setArrayToNegativeOne(displayPixels); }
+                || seisPoints[0] >= container.getIterator().getNumPoints()) {
+            return SeismogramShape.setArrayToNegativeOne(displayPixels);
+        }
         if(seisPoints[0] >= 0) {
             displayPixels[0] = 0;
         } else {
             displayPixels[0] = (int)Math.round(-seisPoints[0] / pointsPerPixel);
-            if(displayPixels[0] == displayWidth) { return SeismogramShape.setArrayToNegativeOne(displayPixels); }
+            if(displayPixels[0] == displayWidth) {
+                return SeismogramShape.setArrayToNegativeOne(displayPixels);
+            }
         }
         if(seisPoints[1] < container.getIterator().getNumPoints()) {
             displayPixels[1] = displayWidth - 1;
