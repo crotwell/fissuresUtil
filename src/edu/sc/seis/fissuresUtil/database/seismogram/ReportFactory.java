@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.database.seismogram;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,44 +12,63 @@ import edu.iris.Fissures.IfNetwork.Channel;
 
 public class ReportFactory {
 
-    public ReportFactory(Map channelsWithTimeRanges) {
-        stationCodeWithChannelCodesAndTimeRanges = new LinkedList();
-        organizeByStationCode(channelsWithTimeRanges);
+    public ReportFactory(Map channelIdWithTimeRanges, Map channelIdToChannel) {
+        stationDataSummaryList = new LinkedList();
+        organizeByStationCode(channelIdWithTimeRanges, channelIdToChannel);
     }
 
     public void print() {
-        Iterator it = stationCodeWithChannelCodesAndTimeRanges.iterator();
+        Collections.sort(stationDataSummaryList);
+        Iterator it = stationDataSummaryList.iterator();
         while(it.hasNext()) {
-            ((StationCodeWithChannelCodesAndTimeRanges)it.next()).print();
+            ((StationDataSummary)it.next()).print();
             System.out.println();
         }
     }
 
-    private void organizeByStationCode(Map channelsWithTimeRanges) {
-        Set stationCodes = new HashSet();
-        Iterator it = channelsWithTimeRanges.keySet().iterator();
+    public List getStationCodes() {
+        List stationCodes = new LinkedList();
+        Iterator it = stationDataSummaryList.iterator();
         while(it.hasNext()) {
-            stationCodes.add(((Channel)it.next()).my_site.my_station.get_code());
+            stationCodes.add(((StationDataSummary)it.next()).getStationCode());
+        }
+        return stationCodes;
+    }
+
+    public List getStationDataSummaryList() {
+        return stationDataSummaryList;
+    }
+
+    public List getSortedStationDataSummaryList() {
+        Collections.sort(stationDataSummaryList);
+        return stationDataSummaryList;
+    }    
+    
+    private void organizeByStationCode(Map channelIdWithTimeRanges, Map channelIdToChannel) {
+        Set stationCodes = new HashSet();
+        Iterator it = channelIdWithTimeRanges.keySet().iterator();
+        while(it.hasNext()) {
+            stationCodes.add(((Channel)channelIdToChannel.get((String)it.next())).my_site.my_station.get_code());
         }
         Iterator jt = stationCodes.iterator();
         while(jt.hasNext()) {
             String setStationCode = (String)jt.next();
             Map channelCodesWithTimeRanges = new HashMap();
-            Iterator kt = channelsWithTimeRanges.keySet().iterator();
+            Iterator kt = channelIdWithTimeRanges.keySet().iterator();
             while(kt.hasNext()) {
-                Channel channelKey = ((Channel)kt.next());
-                String stationCode = (channelKey).my_site.my_station.get_code();
+                String channelIdKey = ((String)kt.next());
+                String stationCode = ((Channel)channelIdToChannel.get(channelIdKey)).my_site.my_station.get_code();
                 if(stationCode.equals(setStationCode)) {
-                    String channelCode = channelKey.get_code();
-                    List timeRanges = (List)channelsWithTimeRanges.get(channelKey);
+                    String channelCode = ((Channel)channelIdToChannel.get(channelIdKey)).get_code();
+                    List timeRanges = (List)channelIdWithTimeRanges.get(channelIdKey);
                     channelCodesWithTimeRanges.put(channelCode, timeRanges);
                 }
             }
-            StationCodeWithChannelCodesAndTimeRanges temp = new StationCodeWithChannelCodesAndTimeRanges(setStationCode,
-                                                                                                         channelCodesWithTimeRanges);
-            stationCodeWithChannelCodesAndTimeRanges.add(temp);
+            StationDataSummary temp = new StationDataSummary(setStationCode,
+                                                             channelCodesWithTimeRanges);
+            stationDataSummaryList.add(temp);
         }
     }
 
-    private List stationCodeWithChannelCodesAndTimeRanges;
+    private List stationDataSummaryList;
 }

@@ -101,7 +101,7 @@ public class PopulateDatabaseFromDirectory {
                         + file.getCanonicalPath());
             }
         }
-        for(int i = 1; i < args.length; i++) {
+        for(int i = 0; i < args.length; i++) {
             if(args[i].equals("-rt")) {
                 batch = true;
                 logger.debug("Batch process of RT130 data: ON");
@@ -142,6 +142,8 @@ public class PopulateDatabaseFromDirectory {
             printHelp();
         }
         if(finished) {
+            report.makeReportImage();
+            report.printReport();
             System.out.println();
             System.out.println("Database population complete.");
             System.out.println();
@@ -482,7 +484,8 @@ public class PopulateDatabaseFromDirectory {
             Channel[] newChannel = createChannels(ncFile,
                                                   unitIdNumber,
                                                   datastream,
-                                                  props);
+                                                  props,
+                                                  stationLocations);
             datastreamToChannel.put(unitIdNumber + datastream, newChannel);
         }
         if(fileName.endsWith("00000000")) {
@@ -559,7 +562,7 @@ public class PopulateDatabaseFromDirectory {
     private static Channel[] createChannels(NCFile ncFile,
                                             String unitIdNumber,
                                             String datastream,
-                                            Properties props) {
+                                            Properties props, Map stationLocations) {
         String stationCode = ncFile.getUnitName(((PacketType)(datastreamToFileData.get(unitIdNumber
                                                         + datastream))).begin_time_from_state_of_health_file,
                                                 unitIdNumber);
@@ -599,17 +602,19 @@ public class PopulateDatabaseFromDirectory {
         StationId stationId = new StationId(networkId,
                                             stationCode,
                                             channelBeginTime);
-        QuantityImpl elevation = new QuantityImpl(((PacketType)(datastreamToFileData.get(unitIdNumber
-                                                          + datastream))).elevation_,
-                                                  UnitImpl.METER);
-        QuantityImpl depth = elevation;
-        Location location = new Location(((PacketType)(datastreamToFileData.get(unitIdNumber
-                                                 + datastream))).latitude_,
-                                         ((PacketType)(datastreamToFileData.get(unitIdNumber
-                                                 + datastream))).longitude_,
-                                         elevation,
-                                         depth,
-                                         LocationType.from_int(0));
+        Location location = new Location(0,
+                                         0,
+                                         new QuantityImpl(0, UnitImpl.METER),
+                                         new QuantityImpl(0, UnitImpl.METER),
+                                         LocationType.GEOGRAPHIC);
+        if(stationLocations.containsKey(stationCode)) {
+            location = (Location)stationLocations.get(stationCode);
+        } else {
+            logger.error("XY file did not contain a location for unit "
+                    + stationCode
+                    + ".\n"
+                    + "The location used for the unit will be the Gulf of Guinea (Atlantic Ocean).");
+        }
         NetworkAttrImpl networkAttr = PopulationProperties.getNetworkAttr(networkIdString,
                                                                           props);
         StationImpl station = new StationImpl(stationId,

@@ -143,12 +143,12 @@ public class RT130ToLocalSeismogram {
                                          new QuantityImpl(0, UnitImpl.METER),
                                          new QuantityImpl(0, UnitImpl.METER),
                                          LocationType.GEOGRAPHIC);
-        if(stationLocations.containsKey(seismogramData.unitIdNumber)) {
-            location = (Location)stationLocations.get(seismogramData.unitIdNumber);
+        if(stationLocations.containsKey(stationCode)) {
+            location = (Location)stationLocations.get(stationCode);
         } else {
             logger.error("XY file did not contain a location for unit "
-                    + seismogramData.unitIdNumber
-                    + "./n"
+                    + stationCode
+                    + ".\n"
                     + "The location used for the unit will be the Gulf of Guinea (Atlantic Ocean).");
         }
         NetworkAttrImpl networkAttr = new NetworkAttrImpl(networkId,
