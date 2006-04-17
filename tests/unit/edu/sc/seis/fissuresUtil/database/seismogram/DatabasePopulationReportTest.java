@@ -114,5 +114,38 @@ public class DatabasePopulationReportTest extends TestCase {
         report.printReport();
     }
 
+    public void testMakeReportImage() {
+        report.addMSeedSeismogram();
+        report.addMSeedSeismogram();
+        report.addMSeedSeismogram();
+        report.addSacSeismogram();
+        report.addSacSeismogram();
+        report.addSacSeismogram();
+        report.addProblemFile("File location01", "Problem description01");
+        report.addProblemFile("File location02", "Problem description02");
+        report.addProblemFile("File location03", "Problem description03");
+        Channel channel1 = MockChannel.createChannel();
+        Channel channel2 = MockChannel.createOtherNetChan();
+        ISOTime beginTime1 = new ISOTime(2005, 115, 12, 30, (float)15.0);
+        ISOTime endTime1 = new ISOTime(2005, 115, 13, 30, (float)15.0);
+        ISOTime beginTime2 = new ISOTime(2005, 115, 13, 30, (float)15.0);
+        ISOTime endTime2 = new ISOTime(2005, 115, 14, 30, (float)15.0);
+        ISOTime beginTime3 = new ISOTime(2005, 115, 15, 30, (float)15.0);
+        ISOTime endTime3 = new ISOTime(2005, 115, 16, 30, (float)15.0);
+        report.addRefTekSeismogram(channel1,
+                                   beginTime1.getDate(),
+                                   endTime1.getDate());
+        report.addRefTekSeismogram(channel1,
+                                   beginTime2.getDate(),
+                                   endTime2.getDate());
+        report.addRefTekSeismogram(channel2,
+                                   beginTime1.getDate(),
+                                   endTime1.getDate());
+        report.addRefTekSeismogram(channel2,
+                                   beginTime3.getDate(),
+                                   endTime3.getDate());
+        report.makeReportImage();
+    }
+    
     private DatabasePopulationReport report;
 }

@@ -22,5 +22,7 @@
 	<classpathentry output="target/test-classes" kind="src" path="tests/database"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/display"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/unit"/>
+	<classpathentry kind="var" path="MAVEN_REPO/jfreechart/jars/jfreechart-1.0.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/jfreechart/jars/jcommon-1.0.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
