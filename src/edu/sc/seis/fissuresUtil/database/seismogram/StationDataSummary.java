@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
-public class StationDataSummary implements Comparable{
+public class StationDataSummary implements Comparable {
 
     public StationDataSummary(String stationCode, Map channelsWithTimeRanges) {
         this.stationCode = stationCode;
@@ -63,14 +63,14 @@ public class StationDataSummary implements Comparable{
         }
     }
 
-    private String stationCode;
-
-    private Map channelCodesWithTimeRanges;
-
     public int compareTo(Object o) {
-        if(o instanceof StationDataSummary){
-            return ((StationDataSummary)o).stationCode.compareTo(this.stationCode); 
+        if(o instanceof StationDataSummary) {
+            return ((StationDataSummary)o).stationCode.compareTo(this.stationCode);
         }
         return -1;
     }
+
+    private String stationCode;
+
+    private Map channelCodesWithTimeRanges;
 }

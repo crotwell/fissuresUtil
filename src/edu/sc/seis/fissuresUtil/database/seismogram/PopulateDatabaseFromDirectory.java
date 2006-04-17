@@ -562,7 +562,8 @@ public class PopulateDatabaseFromDirectory {
     private static Channel[] createChannels(NCFile ncFile,
                                             String unitIdNumber,
                                             String datastream,
-                                            Properties props, Map stationLocations) {
+                                            Properties props,
+                                            Map stationLocations) {
         String stationCode = ncFile.getUnitName(((PacketType)(datastreamToFileData.get(unitIdNumber
                                                         + datastream))).begin_time_from_state_of_health_file,
                                                 unitIdNumber);

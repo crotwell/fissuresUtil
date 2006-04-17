@@ -42,9 +42,10 @@ public class ReportFactory {
     public List getSortedStationDataSummaryList() {
         Collections.sort(stationDataSummaryList);
         return stationDataSummaryList;
-    }    
-    
-    private void organizeByStationCode(Map channelIdWithTimeRanges, Map channelIdToChannel) {
+    }
+
+    private void organizeByStationCode(Map channelIdWithTimeRanges,
+                                       Map channelIdToChannel) {
         Set stationCodes = new HashSet();
         Iterator it = channelIdWithTimeRanges.keySet().iterator();
         while(it.hasNext()) {
