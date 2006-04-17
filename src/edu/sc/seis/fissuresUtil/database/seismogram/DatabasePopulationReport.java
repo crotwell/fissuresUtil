@@ -70,7 +70,8 @@ public class DatabasePopulationReport extends ApplicationFrame {
     public void makeReportImage() {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
-        ReportFactory reportFactory = new ReportFactory(channelIdWithTime, channelIdToChannel);
+        ReportFactory reportFactory = new ReportFactory(channelIdWithTime,
+                                                        channelIdToChannel);
         TaskSeries taskSeries = new TaskSeries("Stations");
         List stationDataSummaryList = reportFactory.getSortedStationDataSummaryList();
         Iterator it = stationDataSummaryList.iterator();
@@ -82,14 +83,14 @@ public class DatabasePopulationReport extends ApplicationFrame {
             Iterator ij = keySet.iterator();
             List timeRangeList = null;
             // Try to use high bandwidth channel.
-            while(ij.hasNext()){
+            while(ij.hasNext()) {
                 String channelCode = (String)ij.next();
-                if(channelCode.startsWith("B")){
+                if(channelCode.startsWith("B")) {
                     timeRangeList = (List)channelsToTimeRanges.get(channelCode);
                     break;
                 }
             }
-            if(timeRangeList == null){
+            if(timeRangeList == null) {
                 Iterator il = keySet.iterator();
                 timeRangeList = (List)channelsToTimeRanges.get((String)il.next());
             }
@@ -206,7 +207,8 @@ public class DatabasePopulationReport extends ApplicationFrame {
     private void printRefTekImportSummary() {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
-        ReportFactory reportFactory = new ReportFactory(channelIdWithTime, channelIdToChannel);
+        ReportFactory reportFactory = new ReportFactory(channelIdWithTime,
+                                                        channelIdToChannel);
         reportFactory.print();
     }
 
@@ -215,6 +217,6 @@ public class DatabasePopulationReport extends ApplicationFrame {
     private Map problemFiles;
 
     private Map channelIdWithTime;
-    
+
     private Map channelIdToChannel;
 }
