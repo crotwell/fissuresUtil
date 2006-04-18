@@ -232,6 +232,16 @@
             <id>commons-collections</id>
             <version>3.1</version>
         </dependency>
+        <dependency>
+            <groupId>jfreechart</groupId>
+            <artifactId>jcommon</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jfreechart</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>
