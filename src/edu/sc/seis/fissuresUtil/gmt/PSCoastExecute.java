@@ -32,8 +32,8 @@ public class PSCoastExecute {
                                  String border,
                                  String fill,
                                  boolean isPortrait,
-                                 int xOffset,
-                                 int yOffset) throws InterruptedException,
+                                 float xOffset,
+                                 float yOffset) throws InterruptedException,
             IOException {
         String orient = "";
         if(isPortrait) {
