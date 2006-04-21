@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.database.seismogram;
 
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,12 +18,12 @@ public class ReportFactory {
         organizeByStationCode(channelIdWithTimeRanges, channelIdToChannel);
     }
 
-    public void print() {
+    public void print(PrintWriter reportStream) {
         Collections.sort(stationDataSummaryList);
         Iterator it = stationDataSummaryList.iterator();
         while(it.hasNext()) {
-            ((StationDataSummary)it.next()).print();
-            System.out.println();
+            ((StationDataSummary)it.next()).print(reportStream);
+            reportStream.println();
         }
     }
 
