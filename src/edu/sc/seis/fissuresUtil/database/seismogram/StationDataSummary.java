@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.database.seismogram;
 
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,22 @@ public class StationDataSummary implements Comparable {
 
     public Map getChannelsWithTimeRanges() {
         return channelCodesWithTimeRanges;
+    }
+
+    public String getChannelCodeWithMostGaps() {
+        Set channelCodesSet = channelCodesWithTimeRanges.keySet();
+        Iterator it = channelCodesSet.iterator();
+        int num = 0;
+        String channelCode = "";
+        while(it.hasNext()) {
+            String tempString = (String)it.next();
+            int temp = ((List)channelCodesWithTimeRanges.get(tempString)).size();
+            if(temp > num) {
+                num = temp;
+                channelCode = tempString;
+            }
+        }
+        return channelCode;
     }
 
     public MicroSecondTimeRange getEncompassingTimeRange() {
@@ -47,27 +64,29 @@ public class StationDataSummary implements Comparable {
         return result;
     }
 
-    public void print() {
-        System.out.println(stationCode);
+    public void print(PrintWriter reportStream) {
         Iterator it = channelCodesWithTimeRanges.keySet().iterator();
         while(it.hasNext()) {
             String channelCode = (String)it.next();
-            System.out.println(channelCode);
             Iterator jt = ((List)channelCodesWithTimeRanges.get(channelCode)).iterator();
             while(jt.hasNext()) {
                 MicroSecondTimeRange timeRange = (MicroSecondTimeRange)jt.next();
-                System.out.print(timeRange.getBeginTime().toString());
-                System.out.print(" - ");
-                System.out.println(timeRange.getEndTime().toString());
+                reportStream.print(stationCode);
+                reportStream.print(" ");
+                reportStream.print(channelCode);
+                reportStream.print(" ");
+                reportStream.print(timeRange.getBeginTime().toString());
+                reportStream.print(" - ");
+                reportStream.println(timeRange.getEndTime().toString());
             }
         }
     }
 
     public int compareTo(Object o) {
         if(o instanceof StationDataSummary) {
-            return ((StationDataSummary)o).stationCode.compareTo(this.stationCode);
+            return (((StationDataSummary)o).stationCode.compareTo(this.stationCode) * (-1));
         }
-        return -1;
+        return 1;
     }
 
     private String stationCode;
