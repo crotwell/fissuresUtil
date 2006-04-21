@@ -1,6 +1,13 @@
 package edu.sc.seis.fissuresUtil.database.seismogram;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,6 +25,11 @@ import org.jfree.data.gantt.TaskSeries;
 import org.jfree.data.gantt.TaskSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
+import com.lowagie.text.Document;
+import com.lowagie.text.pdf.DefaultFontMapper;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
@@ -79,21 +91,8 @@ public class DatabasePopulationReport extends ApplicationFrame {
         for(int i = 0; it.hasNext(); i++) {
             StationDataSummary stationDataSummary = (StationDataSummary)it.next();
             Map channelsToTimeRanges = stationDataSummary.getChannelsWithTimeRanges();
-            Set keySet = channelsToTimeRanges.keySet();
-            Iterator ij = keySet.iterator();
-            List timeRangeList = null;
-            // Try to use high bandwidth channel.
-            while(ij.hasNext()) {
-                String channelCode = (String)ij.next();
-                if(channelCode.startsWith("B")) {
-                    timeRangeList = (List)channelsToTimeRanges.get(channelCode);
-                    break;
-                }
-            }
-            if(timeRangeList == null) {
-                Iterator il = keySet.iterator();
-                timeRangeList = (List)channelsToTimeRanges.get((String)il.next());
-            }
+            String channelCodeWithMostGaps = stationDataSummary.getChannelCodeWithMostGaps();
+            List timeRangeList = (List)channelsToTimeRanges.get(channelCodeWithMostGaps);
             Iterator ik = timeRangeList.iterator();
             MicroSecondTimeRange firstTimeRange = stationDataSummary.getEncompassingTimeRange();
             task = new Task(stationDataSummary.getStationCode(),
@@ -119,34 +118,72 @@ public class DatabasePopulationReport extends ApplicationFrame {
         final CategoryPlot plot = (CategoryPlot)chart.getPlot();
         final CategoryItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesPaint(0, Color.PINK);
-        final ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
-        setContentPane(chartPanel);
-        pack();
-        RefineryUtilities.centerFrameOnScreen(this);
-        setVisible(true);
+        renderer.setOutlinePaint(Color.BLACK);
+        printChartToPDF(chart, 1024, 768, "DatabasePopulationReport.pdf");
+    }
+
+    void printChartToPDF(JFreeChart chart,
+                         int width,
+                         int height,
+                         String fileName) {
+        try {
+            Document document = new Document(new com.lowagie.text.Rectangle(width,
+                                                                            height));
+            PdfWriter writer = PdfWriter.getInstance(document,
+                                                     new FileOutputStream(fileName));
+            document.addAuthor("University of South Carolina, United States of America, Geological Scienses");
+            document.open();
+            PdfContentByte cb = writer.getDirectContent();
+            PdfTemplate tp = cb.createTemplate(width, height);
+            Graphics2D g2 = tp.createGraphics(width,
+                                              height,
+                                              new DefaultFontMapper());
+            Rectangle2D rectangle2D = new Rectangle2D.Double(0,
+                                                             0,
+                                                             width,
+                                                             height);
+            chart.draw(g2, rectangle2D);
+            g2.dispose();
+            cb.addTemplate(tp, 0, 0);
+            document.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void printReport() {
-        System.out.println("Report");
-        System.out.println("-------");
-        printRefTekImportSummary();
-        System.out.println("Number of stations read: " + getNumStations());
-        System.out.println("Number of channels read: " + getNumChannels());
-        System.out.println("Number of channels read with incontiguous data: "
+        FileWriter report = null;
+        try {
+            report = new FileWriter("DatabasePopulationReport.txt");
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+        PrintWriter reportStream = new PrintWriter(report);
+        reportStream.println("Report");
+        reportStream.println("-------");
+        printRefTekImportSummary(reportStream);
+        reportStream.println("Number of stations read: " + getNumStations());
+        reportStream.println("Number of channels read: " + getNumChannels());
+        reportStream.println("Number of channels read with incontiguous data: "
                 + getNumIncontiguousChannels());
-        System.out.println();
-        System.out.println("SAC Files");
-        System.out.println("----------");
-        System.out.println("Number of files read: " + getNumSacFiles());
-        System.out.println();
-        System.out.println("MSEED Files");
-        System.out.println("------------");
-        System.out.println("Number of files read: " + getNumMSeedFiles());
-        System.out.println();
-        System.out.println("Problem Files");
-        System.out.println("--------------");
-        printProblemFiles();
+        reportStream.println();
+        reportStream.println("SAC Files");
+        reportStream.println("----------");
+        reportStream.println("Number of files read: " + getNumSacFiles());
+        reportStream.println();
+        reportStream.println("MSEED Files");
+        reportStream.println("------------");
+        reportStream.println("Number of files read: " + getNumMSeedFiles());
+        reportStream.println();
+        reportStream.println("Problem Files");
+        reportStream.println("--------------");
+        printProblemFiles(reportStream);
+        reportStream.close();
+        try {
+            report.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addProblemFile(String fileLoc, String problemDescription) {
@@ -191,25 +228,25 @@ public class DatabasePopulationReport extends ApplicationFrame {
         return numMSeedFiles;
     }
 
-    private void printProblemFiles() {
+    private void printProblemFiles(PrintWriter reportStream) {
         Iterator it = problemFiles.keySet().iterator();
         if(!it.hasNext()) {
-            System.out.println("No problem files.");
+            reportStream.println("No problem files.");
         }
         while(it.hasNext()) {
             String key = (String)it.next();
-            System.out.println(key);
-            System.out.println(problemFiles.get(key));
-            System.out.println();
+            reportStream.println(key);
+            reportStream.println(problemFiles.get(key));
+            reportStream.println();
         }
     }
 
-    private void printRefTekImportSummary() {
+    private void printRefTekImportSummary(PrintWriter reportStream) {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
         ReportFactory reportFactory = new ReportFactory(channelIdWithTime,
                                                         channelIdToChannel);
-        reportFactory.print();
+        reportFactory.print(reportStream);
     }
 
     private int numSacFiles, numMSeedFiles;
