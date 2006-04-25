@@ -45,25 +45,8 @@ public class Calculus {
 		double sampPeriod = samp.getPeriod().convertTo(UnitImpl.SECOND)
 				.getValue();
 		LocalSeismogramImpl outSeis;
-		TimeSeriesType dataType = seis.getDataType();
-		TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
 
-		if (seis.can_convert_to_short()) {
-			short[] data = seis.get_as_shorts();
-			short[] out = new short[data.length - 1];
-			for (int i = 0; i < out.length; i++) {
-				out[i] = (short) Math.round((data[i + 1] - data[i])
-						/ sampPeriod);
-			} // end of for (int i=0; i<out.length; i++)
-			outSeis = new LocalSeismogramImpl(seis, out);
-		} else if (seis.can_convert_to_long()) {
-			int[] data = seis.get_as_longs();
-			int[] out = new int[data.length - 1];
-			for (int i = 0; i < out.length; i++) {
-				out[i] = (int) Math.round((data[i + 1] - data[i]) / sampPeriod);
-			} // end of for (int i=0; i<out.length; i++)
-			outSeis = new LocalSeismogramImpl(seis, out);
-		} else if (seis.can_convert_to_float()) {
+		if (seis.can_convert_to_float()) {
 			float[] data = seis.get_as_floats();
 			float[] out = new float[data.length - 1];
 			for (int i = 0; i < out.length; i++) {
@@ -94,31 +77,7 @@ public class Calculus {
 		double sampPeriod = samp.getPeriod().convertTo(UnitImpl.SECOND)
 				.getValue();
 		LocalSeismogramImpl outSeis;
-		TimeSeriesType dataType = seis.getDataType();
-		TimeSeriesDataSel dataSel = new TimeSeriesDataSel();
-
-		if (seis.can_convert_to_short()) {
-			short[] data = seis.get_as_shorts();
-			short[] out = new short[data.length];
-
-			float previous = 0;
-			out[0] = (short)Math.round(previous);
-			for (int i = 1; i < out.length; i++) {
-				previous += data[i] * sampPeriod;
-				out[i] = (short)Math.round(previous);
-			}
-			outSeis = new LocalSeismogramImpl(seis, out);
-		} else if (seis.can_convert_to_long()) {
-			int[] data = seis.get_as_longs();
-			int[] out = new int[data.length];
-			float previous = 0;
-			out[0] = Math.round(previous);
-			for (int i = 1; i < out.length; i++) {
-				previous += data[i] * sampPeriod;
-				out[i] = Math.round(previous);
-			}
-			outSeis = new LocalSeismogramImpl(seis, out);
-		} else if (seis.can_convert_to_float()) {
+		if (seis.can_convert_to_float()) {
 			float[] data = seis.get_as_floats();
 			float[] out = new float[data.length];
 			out[0] = 0;

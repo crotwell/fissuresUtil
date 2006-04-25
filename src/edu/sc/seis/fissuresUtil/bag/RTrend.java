@@ -20,13 +20,7 @@ public class RTrend  implements LocalSeismogramFunction {
     }
 
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis) throws FissuresException {
-        if (seis.can_convert_to_short()) {
-            short[] sSeries = seis.get_as_shorts();
-            return new LocalSeismogramImpl(seis, apply(sSeries));
-        } else if (seis.can_convert_to_long()) {
-            int[] iSeries = seis.get_as_longs();
-            return new LocalSeismogramImpl(seis, apply(iSeries));
-        } else if (seis.can_convert_to_float()) {
+        if (seis.can_convert_to_float()) {
             float[] fSeries = seis.get_as_floats();
             return new LocalSeismogramImpl(seis, apply(fSeries));
         } else {

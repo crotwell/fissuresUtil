@@ -11,19 +11,13 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Sat Oct 19 21:54:26 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: RMean.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: RMean.java 17005 2006-04-25 19:40:01Z crotwell $
  */
 
 public class RMean implements LocalSeismogramFunction {
 
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis) throws FissuresException {
-        if (seis.can_convert_to_short()) {
-            short[] sSeries = seis.get_as_shorts();
-            return new LocalSeismogramImpl(seis, removeMean(sSeries));
-        } else if (seis.can_convert_to_long()) {
-            int[] iSeries = seis.get_as_longs();
-            return new LocalSeismogramImpl(seis, removeMean(iSeries));
-        } else if (seis.can_convert_to_float()) {
+        if (seis.can_convert_to_float()) {
             float[] fSeries = seis.get_as_floats();
             return new LocalSeismogramImpl(seis, removeMean(fSeries));
         } else {
