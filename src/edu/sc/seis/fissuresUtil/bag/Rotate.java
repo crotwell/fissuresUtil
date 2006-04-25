@@ -3,46 +3,43 @@ package edu.sc.seis.fissuresUtil.bag;
 import java.awt.geom.AffineTransform;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfSeismogramDC.LocalMotionVector;
-import edu.iris.Fissures.IfSeismogramDC.VectorComponent;
-import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.seismogramDC.LocalMotionVectorImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
  * Rotate.java Created: Sun Dec 15 13:43:21 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Rotate.java 13579 2005-05-26 21:03:15Z crotwell $
+ * @version $Id: Rotate.java 17004 2006-04-25 19:38:48Z crotwell $
  */
-public class Rotate implements LocalMotionVectorFunction {
-
-    public Rotate() {} // Rotate constructor
-
-    public LocalMotionVector apply(LocalMotionVector vec) {
-        VectorComponent[] data = new VectorComponent[3];
-        return new LocalMotionVectorImpl(vec.get_id(),
-                                         vec.properties,
-                                         vec.begin_time,
-                                         vec.num_points,
-                                         vec.sampling_info,
-                                         vec.y_unit,
-                                         vec.channel_group,
-                                         vec.parm_ids,
-                                         (TimeInterval[])vec.time_corrections,
-                                         vec.sample_rate_history,
-                                         data);
-    }
+public class Rotate  {
 
     public static LocalSeismogramImpl[] rotateGCP(LocalSeismogramImpl x,
+                                                  Orientation xOrient,
                                                   LocalSeismogramImpl y,
+                                                  Orientation yOrient,
                                                   Location staLoc,
                                                   Location evtLoc,
                                                   String transverseCode,
                                                   String radialCode)
             throws FissuresException, IncompatibleSeismograms {
-        float[][] data = rotateGCP(x, y, staLoc, evtLoc);
+        // want x north, y east, 
+        if ((xOrient.azimuth - yOrient.azimuth) % 360 == 90) {
+            // ok
+        } else if ((xOrient.azimuth - yOrient.azimuth) % 360 == -90) {
+            // need to swap
+            LocalSeismogramImpl tmp = x;
+            Orientation tmpOrient = xOrient;
+            x = y;
+            xOrient = yOrient;
+            y = tmp;
+            yOrient = tmpOrient;
+        } else {
+            throw new IncompatibleSeismograms("not 90 deg separation: "+((xOrient.azimuth - yOrient.azimuth)%360));
+        }
+        double radialAz = getRadialAzimuth(staLoc, evtLoc);
+        float[][] data = Rotate.rotate(x, y, dtor(radialAz-yOrient.azimuth));
         LocalSeismogramImpl[] out = new LocalSeismogramImpl[2];
 
         ChannelId xChanId = replaceChannelOrientation(y.channel_id, transverseCode);
@@ -89,7 +86,6 @@ public class Rotate implements LocalMotionVectorFunction {
                                       Location staLoc,
                                       Location evtLoc)
             throws FissuresException, IncompatibleSeismograms {
-        DistAz distAz = new DistAz(staLoc, evtLoc);
         return Rotate.rotate(x, y, dtor(getRadialAzimuth(staLoc, evtLoc)));
     }
     
