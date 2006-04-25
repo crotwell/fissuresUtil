@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.bag;
 import junit.framework.TestCase;
 import junitx.framework.ArrayAssert;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
@@ -57,14 +58,14 @@ public class RotateTest extends TestCase {
         System.arraycopy(origx, 0, x, 0, x.length);
         float[] y = new float[origy.length];
         System.arraycopy(origy, 0, y, 0, y.length);
-        rotate.rotate(x, y, -1 * Math.PI / 2); // 90 degrees
+        Rotate.rotate(x, y, -1 * Math.PI / 2); // 90 degrees
         assertEquals(0, x[0], 0.0001);
         assertEquals(0, y[0], 0.0001);
         assertEquals(1, x[1], 0.0001);
         assertEquals(-1, y[1], 0.0001);
         assertEquals(" x from (.5, -.5)", -.5, x[2], 0.0001);
         assertEquals(" y from (.5, -.5)", -.5, y[2], 0.0001);
-        rotate.rotate(x, y, Math.PI / 2); // inverse transform
+        Rotate.rotate(x, y, Math.PI / 2); // inverse transform
         ArrayAssert.assertEquals(origx, x, 0.0001f);
     }
 
@@ -83,20 +84,60 @@ public class RotateTest extends TestCase {
                                        Defaults.ZERO_K,
                                        Defaults.ZERO_K,
                                        null);
-        float[][] ans = rotate.rotateGCP(xSeis, ySeis, staLoc, evtLoc);
+        float[][] ans = Rotate.rotateGCP(xSeis, ySeis, staLoc, evtLoc);
         DistAz distAz = new DistAz(staLoc, evtLoc);
         assertEquals(" transverse ",
                      100 * Math.sqrt(2)
-                             * Math.sin(rotate.dtor(distAz.getBaz() - 45)),
+                             * Math.sin(Rotate.dtor(distAz.getBaz() - 45)),
                      ans[0][0],
                      0.001f);
         assertEquals(" radial ",
                      -100 * Math.sqrt(2)
-                             * Math.cos(rotate.dtor(distAz.getBaz() - 45)),
+                             * Math.cos(Rotate.dtor(distAz.getBaz() - 45)),
                      ans[1][0],
                      0.001f);
     }
 
+    public void testRotateGCPWithOrientation() throws Exception {
+        MicroSecondDate now = new MicroSecondDate();
+        // both spikes are same, so 45 degree part motion e and n
+        LocalSeismogramImpl xSeis = SimplePlotUtil.createSpike(now);
+        Orientation xOrient = new Orientation(135, 0);
+        LocalSeismogramImpl ySeis = SimplePlotUtil.createSpike(now);
+        Orientation yOrient = new Orientation(45, 0);
+        Location staLoc = new Location(0f,
+                                       0f,
+                                       Defaults.ZERO_K,
+                                       Defaults.ZERO_K,
+                                       null);
+        Location evtLoc = new Location(90f,
+                                       0f,
+                                       Defaults.ZERO_K,
+                                       Defaults.ZERO_K,
+                                       null);
+        LocalSeismogramImpl[] ans = Rotate.rotateGCP(xSeis, xOrient, ySeis, yOrient, staLoc, evtLoc, "T", "R");
+        assertEquals(" transverse ",
+                     -100 * Math.sqrt(2),
+                     ans[0].get_as_floats()[0],
+                     0.001f);
+        assertEquals(" radial ",
+                     0,
+                     ans[1].get_as_floats()[0],
+                     0.001f);
+        // try with x and y swapped, ans should be same
+        xOrient = new Orientation(45, 0);
+        yOrient = new Orientation(135, 0);
+        ans = Rotate.rotateGCP(xSeis, xOrient, ySeis, yOrient, staLoc, evtLoc, "T", "R");
+        assertEquals(" transverse ",
+                     -100 * Math.sqrt(2),
+                     ans[0].get_as_floats()[0],
+                     0.001f);
+        assertEquals(" radial ",
+                     0,
+                     ans[1].get_as_floats()[0],
+                     0.001f);
+    }
+    
     public void testRotateGCPXAxis() throws Exception {
         MicroSecondDate now = new MicroSecondDate();
         // both spikes are same, so 45 degree part motion e and n
