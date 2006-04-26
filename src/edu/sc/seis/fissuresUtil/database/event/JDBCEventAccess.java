@@ -10,13 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.Area;
 import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.PointDistanceAreaImpl;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.bag.AreaUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.NotFound;
@@ -238,6 +245,39 @@ public class JDBCEventAccess extends EventTable {
         return littleInt;
     }
 
+
+    /*
+     * gets events from the database that vary in position or time by small
+     * amounts. results will include the original event, as well (or at least
+     * one would hope).
+     */
+    public CacheEvent[] getSimilarEvents(CacheEvent event, TimeInterval timeTolerance, QuantityImpl positionTolerance)
+            throws SQLException, NotFound {
+        EventFinderQuery query = new EventFinderQuery();
+        Origin origin = EventUtil.extractOrigin(event);
+        // get query time range
+        MicroSecondDate evTime = new MicroSecondDate(origin.origin_time);
+        MicroSecondTimeRange timeRange = new MicroSecondTimeRange(evTime.subtract(timeTolerance),
+                                                                  evTime.add(timeTolerance));
+        // get query area
+        Area area = new PointDistanceAreaImpl(origin.my_location.latitude,
+                                              origin.my_location.longitude,
+                                              new QuantityImpl(0.0,
+                                                               UnitImpl.DEGREE),
+                                              positionTolerance);
+        // set query vars
+        query.setTime(timeRange);
+        query.setArea(area);
+        query.setMinMag(JDBCEventAccess.INCONCEIVABLY_SMALL_MAGNITUDE);
+        query.setMaxMag(JDBCEventAccess.INCONCEIVABLY_LARGE_MAGNITUDE);
+        query.setMinDepth(JDBCEventAccess.INCONCEIVABLY_SMALL_DEPTH);
+        query.setMaxDepth(JDBCEventAccess.INCONCEIVABLY_LARGE_DEPTH);
+        // get event ids and turn them into actual events
+        int[] eventIds = query(query);
+        CacheEvent[] events = getEvents(eventIds);
+        return events;
+    }
+    
     public int[] getByName(String name) throws SQLException, NotFound {
         getByNameStmt.setString(1, name);
         ResultSet rs = getByNameStmt.executeQuery();
@@ -297,6 +337,12 @@ public class JDBCEventAccess extends EventTable {
 
     private static final Logger logger = Logger.getLogger(JDBCEventAccess.class);
 
+    public static final float INCONCEIVABLY_SMALL_MAGNITUDE = -99.0f;
+    public static final float INCONCEIVABLY_LARGE_MAGNITUDE = 12.0f;
+
+    public static final float INCONCEIVABLY_SMALL_DEPTH = -99.0f;
+    public static final float INCONCEIVABLY_LARGE_DEPTH = 7000.0f;
+    
     private PreparedStatement put, getDBIdStmt, getAttrAndOrigin, getEventIds,
             finderQueryAvoidDateline, finderQueryAroundDateline, getByNameStmt,
             getLast;
