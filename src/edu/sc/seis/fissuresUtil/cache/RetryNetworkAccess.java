@@ -20,6 +20,7 @@ import edu.iris.Fissures.IfNetwork.SamplingRange;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.IfNetwork.TimeCorrection;
+import edu.iris.Fissures.network.StationIdUtil;
 
 /** Just a pass thru class for the remote networkAccess, but this will retry
  *  if there are errors, up to the specified number. This can help in the
@@ -83,7 +84,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
                 return net.retrieve_for_station(id);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logger.warn("Caught exception, retrying "+count+" of "+retry+" on "+StationIdUtil.toString(id), t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
