@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -338,6 +339,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                    EventAccessOperations event)
             throws IOException, SeedFormatException {
         File seisFile = getUnusedFileName(directory, channel, ".mseed");
+        return writeMSeed(seis, seisFile);
+    }
+
+    public static File writeMSeed(LocalSeismogramImpl seis, File seisFile) throws SeedFormatException, FileNotFoundException, IOException {
         DataRecord[] dr = FissuresConvert.toMSeed(seis);
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(seisFile)));
         for(int i = 0; i < dr.length; i++) {
