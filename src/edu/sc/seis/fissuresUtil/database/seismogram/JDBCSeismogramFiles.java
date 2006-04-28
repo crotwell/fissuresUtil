@@ -122,7 +122,9 @@ public class JDBCSeismogramFiles extends JDBCTable {
                                                    false,
                                                    ignoreNetworkTimes);
         RequestFilter[] request = (RequestFilter[])results.toArray(new RequestFilter[results.size()]);
-        return ReduceTool.merge(request);
+        RequestFilter[] reduced = ReduceTool.merge(request);
+        logger.debug("Reduced " + request.length + " to " + reduced.length);
+        return reduced;
     }
 
     public LocalSeismogram[] getMatchingSeismograms(RequestFilter[] requestArray,
@@ -247,10 +249,10 @@ public class JDBCSeismogramFiles extends JDBCTable {
             select.setInt(1, chanId[i]);
             select.setTimestamp(2, adjustedEndTime.getTimestamp());
             select.setTimestamp(3, adjustedBeginTime.getTimestamp());
+            logger.debug("Making query " + select);
             databaseResults = select.executeQuery();
             if(returnSeismograms) {
                 try {
-                    List preliminaryResults = new ArrayList();
                     while(databaseResults.next()) {
                         File seismogramFile = new File(databaseResults.getString(4));
                         SeismogramFileTypes filetype = SeismogramFileTypes.fromInt(databaseResults.getInt("filetype"));
@@ -269,13 +271,12 @@ public class JDBCSeismogramFiles extends JDBCTable {
                         for(int j = 0; j < curSeis.length; j++) {
                             LocalSeismogram seis = cutter.apply(curSeis[j]);
                             if(seis != null) {
-                                preliminaryResults.add(seis);
+                                resultCollector.add(seis);
                             }
                         }
-                        LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])preliminaryResults.toArray(new LocalSeismogramImpl[0]);
-                        for(int j = 0; j < seis.length; j++) {
-                            resultCollector.add(seis[j]);
-                        }
+                        logger.debug("After adding " + seismogramFile
+                                + " there are " + resultCollector.size()
+                                + " items");
                     }
                 } catch(Exception e) {
                     GlobalExceptionHandler.handle("Problem occured while returning seismograms from the database."
@@ -290,7 +291,10 @@ public class JDBCSeismogramFiles extends JDBCTable {
                         RequestFilter req = new RequestFilter(chanTable.getId(databaseResults.getInt(1)),
                                                               timeTable.get(databaseResults.getInt(2)),
                                                               timeTable.get(databaseResults.getInt(3)));
-                        resultCollector.add(cutter.apply(req));
+                        req = cutter.apply(req);
+                        if(req != null) {
+                            resultCollector.add(req);
+                        }
                     }
                 } catch(Exception e) {
                     GlobalExceptionHandler.handle("Problem occured while querying the database for seismograms.",
@@ -304,20 +308,14 @@ public class JDBCSeismogramFiles extends JDBCTable {
                                                   ChannelId chanId,
                                                   MicroSecondDate beginTime,
                                                   MicroSecondDate endTime)
-            throws IOException {
+            throws IOException, RT130FormatException {
         RT130FileReader toSeismogramDataPacket = new RT130FileReader(seismogramFile,
                                                                      true);
-        PacketType[] seismogramDataPacketArray;
-        LocalSeismogramImpl[] seis;
-        try {
-            seismogramDataPacketArray = toSeismogramDataPacket.processRT130Data();
-            RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram();
-            seis = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
-        } catch(RT130FormatException e) {
-            logger.debug("Problem occured while returning rt130 seismograms from the file listed in the database."
-                    + "\n" + "The problem file is located at " + seismogramFile);
-            return new ArrayList(0);
-        }
+        PacketType[] seismogramDataPacketArray = toSeismogramDataPacket.processRT130Data();
+        RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram();
+        LocalSeismogramImpl[] seis = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
+        logger.debug("Got " + seis.length + " seismograms out of "
+                + seismogramFile);
         List matchingSeis = new ArrayList();
         for(int i = 0; i < seis.length; i++) {
             // Check to make sure the seismograms returned fall within the
@@ -333,6 +331,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
                 matchingSeis.add(seis[i]);
             }
         }
+        logger.debug(matchingSeis.size() + " were of the right channel code");
         return matchingSeis;
     }
 
