@@ -161,8 +161,6 @@ public class ReduceTool {
             LocalSeismogramImpl seis2 = (LocalSeismogramImpl)two;
             MicroSecondTimeRange fullRange = new MicroSecondTimeRange(toMSTR(seis),
                                                                       toMSTR(seis2));
-            logger.debug("Merging " + toMSTR(seis) + " and " + toMSTR(seis2)
-                    + " into " + fullRange);
             if(fullRange.equals(toMSTR(seis))) {
                 return seis;
             }
