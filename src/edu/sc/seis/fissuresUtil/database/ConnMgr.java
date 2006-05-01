@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -164,8 +166,17 @@ public class ConnMgr {
             ee.initCause(e);
             throw ee;
         }
-        return DriverManager.getConnection(getURL(), getUser(), getPass());
+        Connection conn = DriverManager.getConnection(getURL(), getUser(), getPass());
+        if (firstConnection && getURL().startsWith("jdbc:hsql")) {
+            Statement stmt = conn.createStatement();
+            stmt.execute("SET PROPERTY \"hsqldb.default_table_type\" 'CACHED'");
+            stmt.execute("CHECKPOINT");
+            firstConnection = false;
+        }
+        return conn;
     }
+    
+    private static boolean firstConnection = true;
 
     private static String lastDriverForConnection;
 
