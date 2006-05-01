@@ -150,16 +150,16 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
             }
             originalCenter = mapBean.getProjection().getCenter();
             originalScale = mapBean.getScale();
-            //            ProjectionFactory projFac = ProjectionFactory.getInstance();
-            //            mapBean.setProjection(projFac.makeProjection(new
+            // ProjectionFactory projFac = ProjectionFactory.getInstance();
+            // mapBean.setProjection(projFac.makeProjection(new
             // EckertIVLoader(),
-            //                                                         mapBean.getCenter()
-            //                                                                 .getLatitude(),
-            //                                                         mapBean.getCenter()
-            //                                                                 .getLongitude(),
-            //                                                         mapBean.getScale(),
-            //                                                         mapBean.getWidth(),
-            //                                                         mapBean.getHeight()));
+            // mapBean.getCenter()
+            // .getLatitude(),
+            // mapBean.getCenter()
+            // .getLongitude(),
+            // mapBean.getScale(),
+            // mapBean.getWidth(),
+            // mapBean.getHeight()));
             mapBean.setBackgroundColor(WATER);
             mapHandler.add(mapBean);
             // Create and add a LayerHandler to the MapHandler. The
@@ -169,7 +169,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
             // LayerHandler will find the MapBean in the MapHandler.
             lh = new LayerHandler();
             mapHandler.add(lh);
-            //Create shape layers
+            // Create shape layers
             for(int i = 0; i < shapeLayerProps.length; i++) {
                 FissuresShapeLayer shapeLayer = new FissuresShapeLayer();
                 shapeLayer.addLayerStatusListener(this);
@@ -180,20 +180,20 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
                 lh.addLayer(shapeLayer);
                 updateShapeLayerProps();
             }
-            //            Properties shapeLayerProps = new Properties();
-            //            shapeLayerProps.put("prettyName", "Global Shape Layer");
-            //            shapeLayerProps.put("lineColor", "FF000000");
-            //            shapeLayerProps.put("lineColor", "FF39DA87");
-            //            shapeLayerProps.put("lineWidth", "0");
-            //            shapeLayerProps.put("fillColor", "FF39DA87");
-            //            shapeLayerProps.put("shapeFile", globalShapefile + ".shp");
-            //            shapeLayerProps.put("spatialIndex", globalShapefile + ".ssx");
-            //            globalShapeLayer.setProperties(shapeLayerProps);
-            //            globalShapeLayer.setVisible(true);
-            //            shapeLayers.add(0, globalShapeLayer);
-            //            mapHandler.add(globalShapeLayer);
-            //            lh.addLayer(globalShapeLayer);
-            //            updateShapeLayerProps();
+            // Properties shapeLayerProps = new Properties();
+            // shapeLayerProps.put("prettyName", "Global Shape Layer");
+            // shapeLayerProps.put("lineColor", "FF000000");
+            // shapeLayerProps.put("lineColor", "FF39DA87");
+            // shapeLayerProps.put("lineWidth", "0");
+            // shapeLayerProps.put("fillColor", "FF39DA87");
+            // shapeLayerProps.put("shapeFile", globalShapefile + ".shp");
+            // shapeLayerProps.put("spatialIndex", globalShapefile + ".ssx");
+            // globalShapeLayer.setProperties(shapeLayerProps);
+            // globalShapeLayer.setVisible(true);
+            // shapeLayers.add(0, globalShapeLayer);
+            // mapHandler.add(globalShapeLayer);
+            // lh.addLayer(globalShapeLayer);
+            // updateShapeLayerProps();
             if(graticule) {
                 GraticuleLayer gl = new FissuresGraticuleLayer();
                 Properties graticuleLayerProps = gl.getProperties(new Properties());
@@ -252,9 +252,16 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         staLayer.addLayerStatusListener(this);
         mapHandler.add(stl);
         lh.addLayer(stl, 0);
-        el.addEQSelectionListener(stl);
-        if(el instanceof EventTableLayer) {
-            ((EventTableLayer)el).getTableModel().addEventDataListener(stl);
+        listenToEventLayer(staLayer);
+    }
+
+    private void listenToEventLayer(StationLayer staLayer) {
+        if(el != null) {
+            el.addEQSelectionListener(staLayer);
+            if(el instanceof EventTableLayer) {
+                ((EventTableLayer)el).getTableModel()
+                        .addEventDataListener(staLayer);
+            }
         }
     }
 
@@ -263,17 +270,37 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
     }
 
     public void setEventLayer(EventLayer evl) {
-        el = evl;
-        el.addLayerStatusListener(this);
-        mapHandler.add(el);
-        lh.addLayer(el, 0);
-        dl = new DistanceLayer(mapBean);
-        dl.addLayerStatusListener(this);
-        el.addEQSelectionListener(dl);
-        mapHandler.add(dl);
-        lh.addLayer(dl, 1);
-        if(el instanceof EventTableLayer) {
-            ((EventTableLayer)el).getTableModel().addEventDataListener(dl);
+        synchronized(this) {
+            if(el != null) {
+                el.removeLayerStatusListener(this);
+                mapHandler.remove(el);
+                lh.removeLayer(el);
+                dl.removeLayerStatusListener(this);
+                mapHandler.remove(dl);
+                lh.removeLayer(dl);
+                if(stl != null) {
+                    el.removeEQSelectionListener(stl);
+                }
+                if(el instanceof EventTableLayer) {
+                    ((EventTableLayer)el).getTableModel()
+                            .removeEventDataListener(stl);
+                }
+            }
+            el = evl;
+            el.addLayerStatusListener(this);
+            mapHandler.add(el);
+            lh.addLayer(el, 0);
+            dl = new DistanceLayer(mapBean);
+            dl.addLayerStatusListener(this);
+            el.addEQSelectionListener(dl);
+            mapHandler.add(dl);
+            lh.addLayer(dl, 1);
+            if(el instanceof EventTableLayer) {
+                ((EventTableLayer)el).getTableModel().addEventDataListener(dl);
+            }
+            if(stl != null) {
+                listenToEventLayer(stl);
+            }
         }
     }
 
@@ -402,7 +429,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         layerStatusMap.put(event.getLayer(), new Integer(event.getStatus()));
     }
 
-    //look at LayerStatusEvent in openmap for status translation
+    // look at LayerStatusEvent in openmap for status translation
     public int getLayerStatus(Layer layer) {
         Integer statusObj = (Integer)layerStatusMap.get(shapeLayers.get(0));
         return statusObj.intValue();
@@ -415,8 +442,8 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
             if(cur instanceof OverriddenOMLayer) {
                 ((OverriddenOMLayer)cur).setOverrideProjectionChanged(override);
             }
-            //this keeps the shapelayer happy, since it doesn't like to repaint
-            //sometimes
+            // this keeps the shapelayer happy, since it doesn't like to repaint
+            // sometimes
             if(cur instanceof ShapeLayer) {
                 ((ShapeLayer)cur).projectionChanged(new ProjectionEvent(this,
                                                                         null));
@@ -513,30 +540,30 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
         BasicConfigurator.configure();
         final OpenMap om = new OpenMap();
         om.setActiveMouseMode(new PanTool(om));
-        //        System.out.println("before if statement");
-        //        if(args.length > 2) {
-        //            System.out.println("if!");
-        //            om.setEtopoLayer("edu/sc/seis/mapData", args[2]);
-        //        } else {
-        //            System.out.println("else!");
+        // System.out.println("before if statement");
+        // if(args.length > 2) {
+        // System.out.println("if!");
+        // om.setEtopoLayer("edu/sc/seis/mapData", args[2]);
+        // } else {
+        // System.out.println("else!");
         om.setEtopoLayer("edu/sc/seis/mapData");
-        //}
-        //        om.getEventLayer()
-        //                .eventDataChanged(new
+        // }
+        // om.getEventLayer()
+        // .eventDataChanged(new
         // EQDataEvent(MockEventAccessOperations.createEvents()));
-        //        StationLayer staLayer = om.getStationLayer();
-        //        Station sta = MockStation.createStation();
-        //        Station other = MockStation.createOtherStation();
-        //        staLayer.stationDataChanged(new StationDataEvent(new Station[]
+        // StationLayer staLayer = om.getStationLayer();
+        // Station sta = MockStation.createStation();
+        // Station other = MockStation.createOtherStation();
+        // staLayer.stationDataChanged(new StationDataEvent(new Station[]
         // {sta}));
-        //        staLayer.stationAvailabiltyChanged(new AvailableStationDataEvent(sta,
-        //                                                                         AvailableStationDataEvent.UP));
-        //        staLayer.stationDataChanged(new StationDataEvent(new Station[]
+        // staLayer.stationAvailabiltyChanged(new AvailableStationDataEvent(sta,
+        // AvailableStationDataEvent.UP));
+        // staLayer.stationDataChanged(new StationDataEvent(new Station[]
         // {other}));
-        //        staLayer.stationAvailabiltyChanged(new
+        // staLayer.stationAvailabiltyChanged(new
         // AvailableStationDataEvent(other,
-        //                                                                         AvailableStationDataEvent.DOWN));
-        //        staLayer.printStationLocs();
+        // AvailableStationDataEvent.DOWN));
+        // staLayer.printStationLocs();
         JButton reloadColorTable = new JButton("Reload Table");
         final JFrame frame = new JFrame("OpenMap Test");
         reloadColorTable.addActionListener(new ActionListener() {
