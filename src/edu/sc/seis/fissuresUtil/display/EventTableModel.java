@@ -20,6 +20,7 @@ import edu.sc.seis.fissuresUtil.cache.EventLoader;
 import edu.sc.seis.fissuresUtil.cache.ProxyEventAccessOperations;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
 
 /**
  * EventTableModel.java
@@ -28,7 +29,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Mon Jan 8 15:59:05 2001
  * 
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 15262 2005-11-15 06:35:28Z groves $
+ * @version $Id: EventTableModel.java 17074 2006-05-01 19:19:28Z groves $
  */
 public class EventTableModel extends AbstractTableModel implements
         EventLoadedListener {
@@ -219,6 +220,9 @@ public class EventTableModel extends AbstractTableModel implements
     public void addEventDataListener(EventDataListener edl) {
         listenerList.add(EventDataListener.class, edl);
     }
+    public void removeEventDataListener(EventDataListener edl) {
+        listenerList.remove(EventDataListener.class, edl);
+    }
 
     private void fireEventDataChanged(EventAccessOperations[] events) {
         EQDataEvent eqDataEvent = null;
@@ -334,4 +338,5 @@ public class EventTableModel extends AbstractTableModel implements
     protected String[] columnNames;
 
     static Category logger = Category.getInstance(EventTableModel.class.getName());
+
 } // EventTableModel
