@@ -81,10 +81,8 @@ public class Calculus {
 			float[] data = seis.get_as_floats();
 			float[] out = new float[data.length];
 			out[0] = 0;
-			float previous = 0;
 			for (int i = 1; i < out.length; i++) {
-				previous += data[i] * sampPeriod;
-				out[i] = previous;
+                out[i] = out[i-1] + (data[i-1]+data[i])/2 * (float)sampPeriod;
 			}
 			outSeis = new LocalSeismogramImpl(seis, out);
 		} else {
@@ -92,10 +90,8 @@ public class Calculus {
 			double[] data = seis.get_as_doubles();
 			double[] out = new double[data.length];
 			out[0] = 0;
-			double previous = 0;
 			for (int i = 1; i < out.length; i++) {
-				previous += data[i] * sampPeriod;
-				out[i] = previous;
+				out[i] = out[i-1] + (data[i-1]+data[i])/2 * sampPeriod;
 			}
 			outSeis = new LocalSeismogramImpl(seis, out);
 		} // end of else
