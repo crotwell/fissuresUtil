@@ -169,7 +169,7 @@ public class JDBCNetwork extends NetworkTable{
                 return getDbId(nets[i]);
             }
         }
-        throw new NotFound("No such network id in the db");
+        throw new NotFound("No such network id in the db: "+NetworkIdUtil.toString(id));
     }
 
     public static NetworkAttr extract(ResultSet rs, JDBCTime time) throws SQLException, NotFound {
