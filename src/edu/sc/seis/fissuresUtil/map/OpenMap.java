@@ -389,6 +389,12 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
 
     public MapBean getMapBean() {
         if(mapBean == null) {
+            // From my reading of the open map license, this is no longer a
+            // problem even though the javadocs say so.
+            // Since we're redistributing source, I think we fall under the
+            // conditions of their license.
+            // If I'm mistaken, turn the copyright back on.
+            MapBean.suppressCopyright = true;
             mapBean = new BufferedMapBean();
         }
         return mapBean;
