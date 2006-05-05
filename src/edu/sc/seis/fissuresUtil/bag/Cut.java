@@ -15,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Tue Oct 1 21:23:44 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Cut.java 16428 2006-03-14 20:19:12Z groves $
+ * @version $Id: Cut.java 17143 2006-05-05 21:34:22Z groves $
  */
 public class Cut implements LocalSeismogramFunction {
 
@@ -38,7 +38,10 @@ public class Cut implements LocalSeismogramFunction {
             throws FissuresException {
         if(!overlaps(seis)) {
             return null;
-        } // end of if ()
+        } else if(seis.getBeginTime().equals(getBegin())
+                && seis.getEndTime().equals(getEnd())) {
+            return seis;
+        }
         int beginIndex = getBeginIndex(seis);
         int endIndex = getEndIndex(seis);
         LocalSeismogramImpl outSeis;
@@ -64,13 +67,16 @@ public class Cut implements LocalSeismogramFunction {
             outSeis = new LocalSeismogramImpl(seis, outD);
         } // end of else
         outSeis.begin_time = seis.getBeginTime()
-                .add((TimeInterval)seis.getSampling().getPeriod().multiplyBy(beginIndex))
+                .add((TimeInterval)seis.getSampling()
+                        .getPeriod()
+                        .multiplyBy(beginIndex))
                 .getFissuresTime();
         return outSeis;
     }
 
-    protected boolean overlaps(LocalSeismogramImpl seis) {
-        return begin.before(seis.getEndTime()) && end.after(seis.getBeginTime());
+    public boolean overlaps(LocalSeismogramImpl seis) {
+        return begin.before(seis.getEndTime())
+                && end.after(seis.getBeginTime());
     }
 
     protected int getEndIndex(LocalSeismogramImpl seis) {
@@ -106,6 +112,14 @@ public class Cut implements LocalSeismogramFunction {
 
     public String toString() {
         return "Cut from " + begin + " to " + end;
+    }
+
+    public MicroSecondDate getBegin() {
+        return begin;
+    }
+
+    public MicroSecondDate getEnd() {
+        return end;
     }
 
     private MicroSecondDate begin, end;

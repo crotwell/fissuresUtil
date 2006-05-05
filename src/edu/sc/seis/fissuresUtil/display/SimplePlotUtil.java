@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 16468 2006-03-16 21:13:19Z oliverpa $
+ * @version $Id: SimplePlotUtil.java 17143 2006-05-05 21:34:22Z groves $
  */
 public class SimplePlotUtil {
 
@@ -591,8 +591,13 @@ public class SimplePlotUtil {
     }
 
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
+        return createSpike(spikeTime, new TimeInterval(50, UnitImpl.SECOND));
+    }
+
+    public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime,
+                                                  TimeInterval traceLength) {
         return createSpike(spikeTime,
-                           new TimeInterval(50, UnitImpl.SECOND),
+                           traceLength,
                            20,
                            makeChanId(spikeTime.getFissuresTime()));
     }
