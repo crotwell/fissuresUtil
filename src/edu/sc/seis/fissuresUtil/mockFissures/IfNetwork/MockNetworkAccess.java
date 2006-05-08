@@ -29,12 +29,7 @@ import edu.iris.Fissures.network.StationIdUtil;
 public class MockNetworkAccess implements NetworkAccess {
 
     public static NetworkAccess createNetworkAccess() {
-        Channel[] channels = new Channel[] {MockChannel.createChannel(),
-                                            MockChannel.createNorthChannel(),
-                                            MockChannel.createEastChannel()};
-        return new MockNetworkAccess(MockNetworkAttr.createNetworkAttr(),
-                                     MockStation.createStation(),
-                                     channels);
+        return new MockNetworkAccess();
     }
 
     public static NetworkAccess createOtherNetworkAccess() {
@@ -66,6 +61,14 @@ public class MockNetworkAccess implements NetworkAccess {
         Channel[][] channels2d = new Channel[1][];
         channels2d[0] = channels;
         return channels2d;
+    }
+
+    public MockNetworkAccess() {
+        this(MockNetworkAttr.createNetworkAttr(),
+             MockStation.createStation(),
+             new Channel[] {MockChannel.createChannel(),
+                            MockChannel.createNorthChannel(),
+                            MockChannel.createEastChannel()});
     }
 
     private MockNetworkAccess(NetworkAttr attributes,
