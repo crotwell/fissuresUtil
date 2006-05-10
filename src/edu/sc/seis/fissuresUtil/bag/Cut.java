@@ -15,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Tue Oct 1 21:23:44 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Cut.java 17143 2006-05-05 21:34:22Z groves $
+ * @version $Id: Cut.java 17197 2006-05-10 03:16:40Z groves $
  */
 public class Cut implements LocalSeismogramFunction {
 
@@ -44,6 +44,10 @@ public class Cut implements LocalSeismogramFunction {
         }
         int beginIndex = getBeginIndex(seis);
         int endIndex = getEndIndex(seis);
+        return cut(seis, beginIndex, endIndex);
+    }
+
+    public static LocalSeismogramImpl cut(LocalSeismogramImpl seis, int beginIndex, int endIndex) throws FissuresException {
         LocalSeismogramImpl outSeis;
         if(seis.can_convert_to_short()) {
             short[] outS = new short[endIndex - beginIndex];
