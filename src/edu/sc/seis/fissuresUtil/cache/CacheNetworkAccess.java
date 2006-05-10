@@ -122,9 +122,9 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     private SensitivityHolder updateHolder(ChannelId id,
                                            Time the_time,
                                            Instrumentation inst) {
-
-        if (inst.the_response.stages.length == 0) {
-            throw new InstrumentationInvalid(id, "Instrumentation has no stages, units cannot be determined.");
+        if(inst.the_response.stages.length == 0) {
+            throw new InstrumentationInvalid(id,
+                                             "Instrumentation has no stages, units cannot be determined.");
         }
         SensitivityHolder holder = extractExistingHolder(id, the_time);
         List sensForChannel = extractSensForChannel(id);
@@ -228,7 +228,9 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     }
 
     private void intern(StationId id) {
-        id.network_id = get_attributes().get_id();
+        if(NetworkIdUtil.areEqual(id.network_id, get_attributes().get_id())) {
+            id.network_id = get_attributes().get_id();
+        }
         id.station_code = id.station_code.intern();
         id.begin_time = intern(id.begin_time);
     }
@@ -259,7 +261,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
             String id = StationIdUtil.toString(station.get_id());
             if(!knownStations.containsKey(id)) {
                 intern(station.get_id());
-                station.my_network = get_attributes();
+                if(NetworkIdUtil.areEqual(station.my_network.get_id(),
+                                          get_attributes().get_id())) {
+                    station.my_network = get_attributes();
+                }
                 knownStations.put(id, station);
                 return station;
             }
