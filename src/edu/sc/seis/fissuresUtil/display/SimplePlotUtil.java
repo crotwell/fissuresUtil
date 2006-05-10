@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 17143 2006-05-05 21:34:22Z groves $
+ * @version $Id: SimplePlotUtil.java 17195 2006-05-10 03:16:29Z groves $
  */
 public class SimplePlotUtil {
 
@@ -486,9 +486,17 @@ public class SimplePlotUtil {
                                                      int[] dataBits,
                                                      edu.iris.Fissures.Time time,
                                                      ChannelId channelID) {
-        String id = "Nowhere: " + name;
         TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
         SamplingImpl sampling = new SamplingImpl(20, timeInterval);
+        return createTestData(name, dataBits, time, channelID, sampling);
+    }
+
+    public static LocalSeismogramImpl createTestData(String name,
+                                                     int[] dataBits,
+                                                     edu.iris.Fissures.Time time,
+                                                     ChannelId channelID,
+                                                     SamplingImpl sampling) {
+        String id = "Nowhere: " + name;
         TimeSeriesDataSel bits = new TimeSeriesDataSel();
         bits.int_values(dataBits);
         Property[] props = new Property[1];
@@ -614,19 +622,39 @@ public class SimplePlotUtil {
                                                         int samplesPerSpike,
                                                         int missingSamples,
                                                         ChannelId id) {
-        double secondShift = missingSamples / (double)SPIKE_SAMPLES_PER_SECOND;
+        return createRaggedSpike(time,
+                                 traceLength,
+                                 samplesPerSpike,
+                                 missingSamples,
+                                 id,
+                                 SPIKE_SAMPLES_PER_SECOND);
+    }
+
+    public static LocalSeismogramImpl createRaggedSpike(MicroSecondDate time,
+                                                        TimeInterval traceLength,
+                                                        int samplesPerSpike,
+                                                        int missingSamples,
+                                                        ChannelId id,
+                                                        double samplesPerSecond) {
+        double secondShift = missingSamples / samplesPerSecond;
         TimeInterval shiftInt = new TimeInterval(secondShift, UnitImpl.SECOND);
         time = time.add(shiftInt);
         traceLength = traceLength.subtract(shiftInt);
         String name = "spike at " + time.toString();
         double traceSecs = traceLength.convertTo(UnitImpl.SECOND).getValue();
-        int[] dataBits = new int[(int)(SPIKE_SAMPLES_PER_SECOND * traceSecs)];
+        int[] dataBits = new int[(int)Math.round((samplesPerSecond * traceSecs))];
         for(int i = 0; i < dataBits.length; i++) {
             if((i + missingSamples) % samplesPerSpike == 0) {
                 dataBits[i] = 100;
             }
         }
-        return createTestData(name, dataBits, time.getFissuresTime(), id);
+        return createTestData(name,
+                              dataBits,
+                              time.getFissuresTime(),
+                              id,
+                              new SamplingImpl(dataBits.length,
+                                               new TimeInterval(traceSecs,
+                                                                UnitImpl.SECOND)));
     }
 
     public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
