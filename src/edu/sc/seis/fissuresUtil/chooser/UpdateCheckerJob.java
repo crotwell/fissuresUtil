@@ -1,9 +1,8 @@
 /**
  * UpdateCheckerJob.java
- *
+ * 
  * @author Philip Crotwell
  */
-
 package edu.sc.seis.fissuresUtil.chooser;
 
 import java.util.prefs.BackingStoreException;
@@ -21,14 +20,22 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
-public class UpdateCheckerJob  extends AbstractJob {
-    public UpdateCheckerJob(String displayName, String programName, String version, String updateURL, boolean gui) {
+public class UpdateCheckerJob extends AbstractJob {
+
+    public UpdateCheckerJob(String displayName,
+                            String programName,
+                            String version,
+                            String updateURL,
+                            boolean gui) {
         this(displayName, programName, version, updateURL, gui, false);
     }
 
-    /** @param forceCheck overides the users "don't bother me until..." setting
-     * in the Java Preferences. Usually this should be false, but is useful for
-     * testing. */
+    /**
+     * @param forceCheck
+     *            overides the users "don't bother me until..." setting in the
+     *            Java Preferences. Usually this should be false, but is useful
+     *            for testing.
+     */
     public UpdateCheckerJob(String displayName,
                             String programName,
                             String version,
@@ -42,50 +49,49 @@ public class UpdateCheckerJob  extends AbstractJob {
         this.forceCheck = forceCheck;
         this.version = version;
         prefs = Preferences.userNodeForPackage(this.getClass());
-        this.prefsName = programName+"_"+NEXT_CHECK_DATE;
+        this.prefsName = programName + "_" + NEXT_CHECK_DATE;
     }
 
     public void runJob() {
         // only check if have not yet checked, or if forceCheck is true
-        if ( !forceCheck && checkedYet) {
+        if(!forceCheck && checkedYet) {
             setFinished();
             return;
         }
         checkedYet = true;
-
         boolean checkNeeded = true;
         prefs = prefs.node("UpdateCheckerTask");
         MicroSecondDate now = ClockUtil.now();
-        String nextCheckDate = prefs.get(prefsName,
-                                         now.subtract(SIX_HOUR).getFissuresTime().date_time);
+        String nextCheckDate = prefs.get(prefsName, now.subtract(SIX_HOUR)
+                .getFissuresTime().date_time);
         MicroSecondDate date = new MicroSecondDate(new Time(nextCheckDate, -1));
-        if (date.after(now) && ! forceCheck) {
+        if(date.after(now) && !forceCheck) {
             // don't check
-            logger.debug("no updated wanted until "+date);
+            logger.debug("no updated wanted until " + date);
             setFinished(true);
             return;
         }
         setStatus("Connect to server");
-
-        XMLUpdateCheckerClient updateChecker =
-            new XMLUpdateCheckerClient(version,
-                                       updateURL);
+        XMLUpdateCheckerClient updateChecker = new XMLUpdateCheckerClient(version,
+                                                                          updateURL);
         setStatus("Check for update");
-        if (updateChecker.isUpdateAvailable()) {
+        if(updateChecker.isUpdateAvailable()) {
             UpdateInformation[] updates = updateChecker.getUpdates();
-            logger.info("our version is "+version+", update version is "+updates[updates.length-1].getVersion());
-            UpdateAction[] actions = updates[updates.length-1].getUpdateActions();
+            logger.info("our version is " + version + ", update version is "
+                    + updates[updates.length - 1].getVersion());
+            UpdateAction[] actions = updates[updates.length - 1].getUpdateActions();
             LocationUpdate locationUpdate = (LocationUpdate)actions[0];
             try {
-                if (isGui) {
+                if(isGui) {
                     handleUpdateGUI(locationUpdate);
                 } else {
                     handleUpdateNonGUI(locationUpdate);
                 }
-            } catch (BackingStoreException e) {
-                GlobalExceptionHandler.handle("trouble flushing preferences for updatechecker", e);
+            } catch(BackingStoreException e) {
+                GlobalExceptionHandler.handle("trouble flushing preferences for updatechecker",
+                                              e);
             }
-        }else if(showNoUpdate) {
+        } else if(showNoUpdate) {
             JOptionPane.showMessageDialog(null,
                                           "No update is available",
                                           "Update Check",
@@ -95,52 +101,56 @@ public class UpdateCheckerJob  extends AbstractJob {
         setFinished();
     }
 
-    protected void handleUpdateGUI(LocationUpdate locationUpdate) throws BackingStoreException {
+    protected void handleUpdateGUI(LocationUpdate locationUpdate)
+            throws BackingStoreException {
         Object[] options = new String[3];
         options[0] = "Go To Update Page";
         options[1] = "Remind in a fortnight";
         options[2] = "Remind in a month";
         int n = JOptionPane.showOptionDialog(null,
-                                             "An updated version of "+programName+" is available!\nPlease go to\n"+locationUpdate.getLocation()+"\nto get the latest version.",
-                                             "An updated version of "+programName+" is available!",
+                                             "An updated version of "
+                                                     + programName
+                                                     + " is available!\nPlease go to\n"
+                                                     + locationUpdate.getLocation()
+                                                     + "\nto get the latest version.",
+                                             "An updated version of "
+                                                     + programName
+                                                     + " is available!",
                                              JOptionPane.YES_NO_OPTION,
                                              JOptionPane.QUESTION_MESSAGE,
-                                             null,     //don't use a custom Icon
-                                             options,  //the titles of buttons
-                                             options[0]); //default button title
-        logger.debug("return val is "+n);
+                                             null, // don't use a custom Icon
+                                             options, // the titles of buttons
+                                             options[0]); // default button
+                                                            // title
+        logger.debug("return val is " + n);
         TimeInterval nextInterval = SIX_HOUR;
-        if (n == JOptionPane.YES_OPTION) {
+        if(n == JOptionPane.YES_OPTION) {
             logger.debug("Opening browser");
             setStatus("Opening browser");
             locationUpdate.run();
-
-        } else if (n == 1) {
+        } else if(n == 1) {
             nextInterval = FORTNIGHT;
-        } else if (n == 2) {
+        } else if(n == 2) {
             nextInterval = MONTH;
         }
         MicroSecondDate nextCheck = ClockUtil.now().add(nextInterval);
         prefs.put(prefsName, nextCheck.getFissuresTime().date_time);
-        logger.debug("no update check wanted for "+nextInterval+", next at "+nextCheck);
+        logger.debug("no update check wanted for " + nextInterval
+                + ", next at " + nextCheck);
         prefs.flush();
         logger.debug("done flushing prefs");
     }
 
-    protected void handleUpdateNonGUI(LocationUpdate locationUpdate) throws BackingStoreException {
-        System.out.println("*******************************************************");
-        System.out.println();
-        System.out.println("An updated version of "+programName+" is available!");
-        System.out.println("Please go to");
-        System.out.println();
-        System.out.println(locationUpdate.getLocation());
-        System.out.println();
-        System.out.println("to get the latest version.");
-        System.out.println();
-        System.out.println();
-        System.out.println("Description: "+locationUpdate.getDescription());
-        System.out.println();
-        System.out.println("*******************************************************");
+    protected void handleUpdateNonGUI(LocationUpdate locationUpdate)
+            throws BackingStoreException {
+        System.err.println("*******************************************************");
+        System.err.println();
+        System.err.println("An updated version of " + programName
+                + " is available!");
+        System.err.println("Please go to " + locationUpdate.getLocation()
+                + " to get the latest version.");
+        System.err.println();
+        System.err.println("*******************************************************");
         prefs.put(prefsName,
                   ClockUtil.now().add(SIX_HOUR).getFissuresTime().date_time);
         prefs.flush();
@@ -173,6 +183,4 @@ public class UpdateCheckerJob  extends AbstractJob {
     static final String NEXT_CHECK_DATE = "nextCheckDate";
 
     private static final Logger logger = Logger.getLogger(UpdateCheckerJob.class);
-
 }
-
