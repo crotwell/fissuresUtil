@@ -10,6 +10,7 @@ import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.PointDistanceAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.TauP.SphericalCoords;
 
 public class AreaUtilTest extends TestCase {
 
@@ -17,6 +18,17 @@ public class AreaUtilTest extends TestCase {
         BoxArea b = new BoxAreaImpl(-90, 90, -180, 180);
         assertEquals(b, AreaUtil.makeContainingBox(b));
         assertEquals(b, AreaUtil.makeContainingBox(new GlobalAreaImpl()));
+    }
+    
+    public void testDonutConvertToBoxNearPole() {
+        PointDistanceArea meridian = new PointDistanceAreaImpl(80,
+                                                               0,
+                                                               ZERO,
+                                                               TEN_DEG);
+        double eastFiveLon = SphericalCoords.lonFor(80, 0, 5, 90);
+        BoxArea box = AreaUtil.makeContainingBox(meridian);
+        assertTrue("eastFive > min lon", eastFiveLon > box.min_longitude);
+        assertTrue("eastFive < max lon", eastFiveLon < box.max_longitude);
     }
 
     public void testDonutConvertToBox() {

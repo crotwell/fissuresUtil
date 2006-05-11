@@ -21,6 +21,7 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.BoxAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.TauP.SphericalCoords;
 
 public class AreaUtil {
 
@@ -32,10 +33,14 @@ public class AreaUtil {
         } else if(a instanceof PointDistanceArea) {
             PointDistanceArea pda = (PointDistanceArea)a;
             float maxDegree = (float)distanceToDegrees(pda.max_distance);
-            float maxLong = wrapLong(pda.longitude + maxDegree);
-            float minLong = wrapLong(pda.longitude - maxDegree);
-            return new BoxAreaImpl(pda.latitude - maxDegree, pda.latitude
-                    + maxDegree, minLong, maxLong);
+            if (maxDegree >= 180) {return new BoxAreaImpl(-90, 90, -180, 180);}
+            float maxLong = wrapLong((float)SphericalCoords.lonFor(pda.latitude, pda.longitude, maxDegree,  90));
+            float minLong = wrapLong((float)SphericalCoords.lonFor(pda.latitude, pda.longitude, maxDegree, -90));
+            float minLat = pda.latitude - maxDegree;
+            if (minLat < -90) {minLat = -90;}
+            float maxLat = pda.latitude + maxDegree;
+            if (maxLat > 90) {maxLat = 90;}
+            return new BoxAreaImpl(minLat, maxLat, minLong, maxLong);
         }
         throw new RuntimeException("Unknown Area: " + a.getClass().getName());
     }
