@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.database.seismogram;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.FileOutputStream;
@@ -16,15 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.data.gantt.Task;
 import org.jfree.data.gantt.TaskSeries;
 import org.jfree.data.gantt.TaskSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 import com.lowagie.text.Document;
 import com.lowagie.text.pdf.DefaultFontMapper;
 import com.lowagie.text.pdf.PdfContentByte;
@@ -37,10 +33,9 @@ import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
-public class DatabasePopulationReport extends ApplicationFrame {
+public class DatabasePopulationReport  {
 
     public DatabasePopulationReport() {
-        super("Database Population Report");
         this.numSacFiles = 0;
         this.numMSeedFiles = 0;
         this.problemFiles = new HashMap();
