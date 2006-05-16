@@ -19,6 +19,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
@@ -68,8 +69,8 @@ public class PopulateDatabaseFromDirectory {
     public static void main(String[] args) throws FissuresException,
             IOException, SeedFormatException, SQLException, NotFound,
             ParseException {
-        BasicConfigurator.configure();
         Properties props = Initializer.loadProperties(args);
+        PropertyConfigurator.configure(props);
         LeapSecondApplier.addLeapSeconds(props.getProperty("leapSecondTimeFileLoc"));
         LeapSecondApplier.addCorrections(props.getProperty("powerUpTimeFileLoc"));
         ConnectionCreator connCreator = new ConnectionCreator(props);
