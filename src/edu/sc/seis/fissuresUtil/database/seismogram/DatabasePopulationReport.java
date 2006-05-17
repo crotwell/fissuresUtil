@@ -126,7 +126,7 @@ public class DatabasePopulationReport  {
                                                                             height));
             PdfWriter writer = PdfWriter.getInstance(document,
                                                      new FileOutputStream(fileName));
-            document.addAuthor("University of South Carolina, United States of America, Geological Scienses");
+            document.addAuthor("University of South Carolina, United States of America, Geological Sciences");
             document.open();
             PdfContentByte cb = writer.getDirectContent();
             PdfTemplate tp = cb.createTemplate(width, height);

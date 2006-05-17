@@ -143,11 +143,11 @@ public class PopulateDatabaseFromDirectory {
             printHelp();
         }
         if(finished) {
-            report.makeReportImage();
-            report.printReport();
             System.out.println();
             System.out.println("Database population complete.");
             System.out.println();
+            report.printReport();
+            report.makeReportImage();
         } else {
             printHelp();
         }
