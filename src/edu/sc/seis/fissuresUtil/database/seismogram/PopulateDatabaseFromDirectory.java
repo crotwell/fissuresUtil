@@ -525,6 +525,9 @@ public class PopulateDatabaseFromDirectory {
                 if(lengthOfData.value > (nominalLengthOfData + (nominalLengthOfData * 0.05))) {
                     Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
                             + datastream);
+                    report.addProblemFile(fileLoc, fileName
+                                          + " seems to be an invalid rt130 file name. The file was read to determine its true length.");
+                                  logger.error(fileName + " seems to be an invalid rt130 file name. The file was read to determine its true length.");
                     for(int i = 0; i < channel.length; i++) {
                         processSingleRefTekWithKnownChannel(jdbcSeisFile,
                                                             report,
