@@ -35,6 +35,12 @@ import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
 public class DatabasePopulationReport  {
 
+
+    /**
+     * Comment for <code>serialVersionUID</code>
+     */
+    private static final long serialVersionUID = -6054672565897409698L;
+
     public DatabasePopulationReport() {
         this.numSacFiles = 0;
         this.numMSeedFiles = 0;
@@ -61,7 +67,7 @@ public class DatabasePopulationReport  {
             channelIdWithTime.put(channelId, newList);
         } else {
             List list = new LinkedList();
-            list.add(new MicroSecondTimeRange(beginTime, endTime));
+            list.add(timeRange);
             channelIdWithTime.put(channelId, list);
         }
     }
