@@ -108,6 +108,9 @@ public class PopulateDatabaseFromDirectory {
                 logger.debug("Batch process of RT130 data: ON");
             }
         }
+        if(!batch) {
+            logger.debug("Batch process of RT130 data: OFF  (Seismograms will not be leap second corrected)");
+        }
         if(args.length > 0) {
             String fileLoc = args[args.length - 1];
             File file = new File(fileLoc);
@@ -418,7 +421,8 @@ public class PopulateDatabaseFromDirectory {
                                                                JDBCTime timeTable,
                                                                Properties props,
                                                                Channel knownChannel,
-                                                               Map stationLocations)
+                                                               Map stationLocations,
+                                                               String unitIdNumber)
             throws IOException, SQLException, NotFound, ParseException {
         RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
                                                                       false);
@@ -442,8 +446,10 @@ public class PopulateDatabaseFromDirectory {
                                  chanTable,
                                  timeTable,
                                  knownChannel,
-                                 seismogramArray[i].getBeginTime(),
-                                 seismogramArray[i].getEndTime(),
+                                 LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
+                                                                             seismogramArray[i].getBeginTime()),
+                                 LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
+                                                                             seismogramArray[i].getEndTime()),
                                  fileLoc);
         }
         return true;
@@ -503,7 +509,8 @@ public class PopulateDatabaseFromDirectory {
                                                     timeTable,
                                                     props,
                                                     channel[i],
-                                                    stationLocations);
+                                                    stationLocations,
+                                                    unitIdNumber);
             }
             return true;
         } else {
@@ -513,20 +520,42 @@ public class PopulateDatabaseFromDirectory {
                 beginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
                                                                         beginTime);
                 TimeInterval lengthOfData = FileNameParser.getLengthOfData(fileName);
-                MicroSecondDate endTime = beginTime.add(lengthOfData);
-                Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
-                        + datastream);
-                for(int i = 0; i < channel.length; i++) {
-                    saveRefTekToDatabase(jdbcSeisFile,
-                                         report,
-                                         chanTable,
-                                         timeTable,
-                                         channel[i],
-                                         beginTime,
-                                         endTime,
-                                         file.getPath());
+                double nominalLengthOfData = Double.valueOf(props.getProperty("nominalLengthOfData"))
+                .doubleValue();
+                if(lengthOfData.value > (nominalLengthOfData + (nominalLengthOfData * 0.05))) {
+                    Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
+                            + datastream);
+                    for(int i = 0; i < channel.length; i++) {
+                        processSingleRefTekWithKnownChannel(jdbcSeisFile,
+                                                            report,
+                                                            conn,
+                                                            fileLoc,
+                                                            fileName,
+                                                            ncFile,
+                                                            chanTable,
+                                                            timeTable,
+                                                            props,
+                                                            channel[i],
+                                                            stationLocations,
+                                                            unitIdNumber);
+                    }
+                    return true;
+                } else {
+                    MicroSecondDate endTime = beginTime.add(lengthOfData);
+                    Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
+                            + datastream);
+                    for(int i = 0; i < channel.length; i++) {
+                        saveRefTekToDatabase(jdbcSeisFile,
+                                             report,
+                                             chanTable,
+                                             timeTable,
+                                             channel[i],
+                                             beginTime,
+                                             endTime,
+                                             file.getPath());
+                    }
+                    return true;
                 }
-                return true;
             } catch(RT130FormatException e) {
                 report.addProblemFile(fileLoc, fileName
                         + " seems to be an invalid rt130 file.");
