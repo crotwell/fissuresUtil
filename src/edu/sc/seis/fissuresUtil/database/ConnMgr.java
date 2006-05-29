@@ -166,16 +166,22 @@ public class ConnMgr {
             ee.initCause(e);
             throw ee;
         }
-        Connection conn = DriverManager.getConnection(getURL(), getUser(), getPass());
-        if (firstConnection && getURL().startsWith("jdbc:hsql")) {
+        Connection conn = DriverManager.getConnection(getURL(),
+                                                      getUser(),
+                                                      getPass());
+        if(firstConnection && getURL().startsWith("jdbc:hsql") && conn.getMetaData().getDatabaseProductVersion().compareTo("1.8.0") >= 0) {
             Statement stmt = conn.createStatement();
-            stmt.execute("SET PROPERTY \"hsqldb.default_table_type\" 'CACHED'");
-            stmt.execute("CHECKPOINT");
+            try {
+                stmt.execute("SET PROPERTY \"hsqldb.default_table_type\" 'CACHED'");
+                stmt.execute("CHECKPOINT");
+            } catch(SQLException e) {
+                logger.debug("Unable to set default table type to CACHED", e);
+            }
             firstConnection = false;
         }
         return conn;
     }
-    
+
     private static boolean firstConnection = true;
 
     private static String lastDriverForConnection;
