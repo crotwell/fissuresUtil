@@ -7,7 +7,6 @@ package edu.sc.seis.fissuresUtil.simple;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.log4j.Logger;
@@ -27,7 +26,7 @@ public abstract class Initializer {
             if(fisName == null) {
                 props = loadProperties(args);
                 /** Configure log4j, not required for DHI, but is useful. */
-                //BasicConfigurator.configure();
+                // BasicConfigurator.configure();
                 PropertyConfigurator.configure(props);
                 logger.info("Logging configured");
                 /*
@@ -39,30 +38,39 @@ public abstract class Initializer {
                 orb = (org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init(args, props);
                 logger.info("orb initialized, class="
                         + orb.getClass().getName());
-                /*
-                 * Valuetypes are corba objects that are sent "over the wire"
-                 * and need a factory to handle the unmarshalling on the client
-                 * side, so that the correct object is created locally. The
-                 * AllVTFactory.register method registers factories for all of
-                 * the IDL defined valuetypes found in the fissuresImpl package.
-                 */
-                AllVTFactory vt = new AllVTFactory();
-                vt.register(orb);
-                logger.info("register valuetype factories");
-                /*
-                 * Here we pick a name server to connect to. These are two
-                 * choices for the IRIS DMC and USC SCEPP, others may exist.
-                 * Port 6371 are used by both USC and the DMC, but this is not
-                 * required.
-                 */
-                fisName = new FissuresNamingService(orb);
-                logger.info("create fisName helper with orb");
-                fisName.setNameServiceCorbaLoc(props.getProperty(FissuresNamingService.CORBALOC_PROP,
-                                                                 "corbaloc:iiop:dmc.iris.washington.edu:6371/NameService"));
-                fisName.getNameService();
-                logger.info("got fis name service");
+                registerValuetypes(orb);
+                fisName = createNamingService(orb, props);
             }
         }
+    }
+
+    public static FissuresNamingService createNamingService(org.omg.CORBA_2_3.ORB orb,
+                                                            Properties props) {
+        /*
+         * Here we pick a name server to connect to. These are two choices for
+         * the IRIS DMC and USC SCEPP, others may exist. Port 6371 are used by
+         * both USC and the DMC, but this is not required.
+         */
+        FissuresNamingService ns = new FissuresNamingService(orb);
+        logger.info("create fisName helper with orb");
+        ns.setNameServiceCorbaLoc(props.getProperty(FissuresNamingService.CORBALOC_PROP,
+                                                    "corbaloc:iiop:dmc.iris.washington.edu:6371/NameService"));
+        ns.getNameService();
+        logger.info("got fis name service");
+        return ns;
+    }
+
+    public static void registerValuetypes(org.omg.CORBA_2_3.ORB orb) {
+        /*
+         * Valuetypes are corba objects that are sent "over the wire" and need a
+         * factory to handle the unmarshalling on the client side, so that the
+         * correct object is created locally. The AllVTFactory.register method
+         * registers factories for all of the IDL defined valuetypes found in
+         * the fissuresImpl package.
+         */
+        AllVTFactory vt = new AllVTFactory();
+        vt.register(orb);
+        logger.info("register valuetype factories");
     }
 
     public static Properties loadProperties(String[] args) {
@@ -157,7 +165,7 @@ public abstract class Initializer {
 
     public static ChannelId fakeChan;
     static {
-        //IRIS
+        // IRIS
         fakeNet = new NetworkId("II", new Time("19861024000000.0000GMT", 0));
         fakeStation = new StationId(fakeNet,
                                     "AAK",
