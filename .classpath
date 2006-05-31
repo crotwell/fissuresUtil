@@ -16,7 +16,7 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xalan/jars/xalan-2.6.0.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.6.2.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.8.0.2.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/fissuresImpl"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/fissuresImpl1"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/TauP"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry output="target/test-classes" kind="src" path="tests/database"/>
