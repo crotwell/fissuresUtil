@@ -318,7 +318,7 @@ public class FissuresNamingService {
                                  obj);
             // test by doing a resolve to see if we can get it back out
             try {
-                Object out = topLevel.resolve(name);
+                topLevel.resolve(name);
             } catch(NotFound e) {
                 logger.debug("Failure on resolve after rebinding for "
                         + nameString, e);
