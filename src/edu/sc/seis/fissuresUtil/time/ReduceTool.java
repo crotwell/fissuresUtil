@@ -8,6 +8,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -32,8 +33,15 @@ public class ReduceTool {
                 if(RangeTool.areOverlapping(seis[i], seis[j])) {
                     MicroSecondDate iEnd = seis[i].getEndTime();
                     MicroSecondDate iBegin = seis[i].getBeginTime();
-                    Cut cut = new Cut(iBegin, iEnd);
-                    seis[j] = cut.apply(seis[j]);
+                    TimeInterval halfSample = (TimeInterval)seis[i].getSampling().getPeriod().divideBy(2);
+                    if (iEnd.before(seis[j].getEndTime())) {
+                        // overlap on i's end
+                        Cut cut = new Cut(iEnd.add(halfSample), seis[j].getEndTime());
+                        seis[j] = cut.apply(seis[j]);   
+                    } else {
+                        Cut cut = new Cut(seis[j].getBeginTime(), iBegin.subtract(halfSample));
+                        seis[j] = cut.apply(seis[j]);
+                    }
                 }
             }
         }
