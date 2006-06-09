@@ -42,6 +42,7 @@ public class ReduceTool {
                         Cut cut = new Cut(seis[j].getBeginTime(), iBegin.subtract(halfSample));
                         seis[j] = cut.apply(seis[j]);
                     }
+                    if (seis[j] != null) {results.add(seis[j]);}
                 }
             }
         }
