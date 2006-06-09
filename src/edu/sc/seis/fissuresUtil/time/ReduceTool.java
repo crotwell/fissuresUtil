@@ -11,6 +11,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.bag.Cut;
 import edu.sc.seis.fissuresUtil.database.plottable.JDBCPlottable;
 import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
@@ -19,6 +20,25 @@ import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
  * @author groves Created on Oct 29, 2004
  */
 public class ReduceTool {
+    
+    public static LocalSeismogramImpl[] cutOverlap(LocalSeismogramImpl[] seis)
+            throws FissuresException {
+        // first get rid of totally contained overlaps
+        seis = removeContained(seis);
+        SortTool.byLengthAscending(seis);
+        List results = new ArrayList();
+        for(int i = seis.length-1; i >= 0; i--) {
+            for(int j = i - 1; j >= 0; j--) {
+                if(RangeTool.areOverlapping(seis[i], seis[j])) {
+                    MicroSecondDate iEnd = seis[i].getEndTime();
+                    MicroSecondDate iBegin = seis[i].getBeginTime();
+                    Cut cut = new Cut(iBegin, iEnd);
+                    seis[j] = cut.apply(seis[j]);
+                }
+            }
+        }
+        return (LocalSeismogramImpl[])results.toArray(new LocalSeismogramImpl[0]);
+    }
 
     public static LocalSeismogramImpl[] removeContained(LocalSeismogramImpl[] seis) {
         SortTool.byLengthAscending(seis);
