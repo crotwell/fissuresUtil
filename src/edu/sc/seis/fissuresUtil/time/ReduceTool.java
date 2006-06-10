@@ -214,7 +214,7 @@ public class ReduceTool {
                 later = seis;
             }
             try {
-                if(seis.is_encoded()) {
+                if(seis.is_encoded() && seis2.is_encoded()) {
                     EncodedData[] earlierED = earlier.get_as_encoded();
                     EncodedData[] laterED = later.get_as_encoded();
                     EncodedData[] outED = new EncodedData[earlierED.length
@@ -232,7 +232,7 @@ public class ReduceTool {
                     return newSeis;
                 }
                 int numPoints = seis.getNumPoints() + seis2.getNumPoints();
-                if(seis.can_convert_to_short()) {
+                if(seis.can_convert_to_short() && seis2.can_convert_to_short()) {
                     short[] outS = new short[numPoints];
                     System.arraycopy(earlier.get_as_shorts(),
                                      0,
@@ -245,7 +245,7 @@ public class ReduceTool {
                                      earlier.getNumPoints(),
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outS);
-                } else if(seis.can_convert_to_long()) {
+                } else if(seis.can_convert_to_long() && seis2.can_convert_to_long()) {
                     int[] outI = new int[numPoints];
                     System.arraycopy(earlier.get_as_longs(),
                                      0,
@@ -258,7 +258,7 @@ public class ReduceTool {
                                      earlier.getNumPoints(),
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outI);
-                } else if(seis.can_convert_to_float()) {
+                } else if(seis.can_convert_to_float() && seis2.can_convert_to_float()) {
                     float[] outF = new float[numPoints];
                     System.arraycopy(earlier.get_as_floats(),
                                      0,
