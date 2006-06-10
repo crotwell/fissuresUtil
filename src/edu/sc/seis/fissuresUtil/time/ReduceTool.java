@@ -16,6 +16,7 @@ import edu.sc.seis.fissuresUtil.bag.Cut;
 import edu.sc.seis.fissuresUtil.database.plottable.JDBCPlottable;
 import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.SortTool.SeisSizeSorter;
 
 /**
  * @author groves Created on Oct 29, 2004
@@ -27,22 +28,35 @@ public class ReduceTool {
         // first get rid of totally contained overlaps
         seis = removeContained(seis);
         SortTool.byLengthAscending(seis);
+        SeisSizeSorter sorter = new SeisSizeSorter();
         List results = new ArrayList();
         for(int i = seis.length-1; i >= 0; i--) {
+            if (seis[i] == null) {continue;}
+            results.add(seis[i]);
             for(int j = i - 1; j >= 0; j--) {
+                if (seis[j] == null) {continue;}
                 if(RangeTool.areOverlapping(seis[i], seis[j])) {
                     MicroSecondDate iEnd = seis[i].getEndTime();
                     MicroSecondDate iBegin = seis[i].getBeginTime();
                     TimeInterval halfSample = (TimeInterval)seis[i].getSampling().getPeriod().divideBy(2);
                     if (iEnd.before(seis[j].getEndTime())) {
                         // overlap on i's end
-                        Cut cut = new Cut(iEnd.add(halfSample), seis[j].getEndTime());
+                        Cut cut = new Cut(iEnd.add(halfSample), seis[j].getEndTime().add(halfSample));
                         seis[j] = cut.apply(seis[j]);   
                     } else {
-                        Cut cut = new Cut(seis[j].getBeginTime(), iBegin.subtract(halfSample));
+                        Cut cut = new Cut(seis[j].getBeginTime().subtract(halfSample), iBegin.subtract(halfSample));
                         seis[j] = cut.apply(seis[j]);
                     }
-                    if (seis[j] != null) {results.add(seis[j]);}
+                    for(int k=j-1; k>=0; k++) {
+                        if (seis[k] != null && sorter.compare(seis[k], seis[k+1]) == 1) {
+                            // cut has made order no longer ascending
+                            LocalSeismogramImpl tmp = seis[k];
+                            seis[k] = seis[k+1];
+                            seis[k+1] = tmp;
+                        } else {
+                            break;
+                        }
+                    }
                 }
             }
         }
