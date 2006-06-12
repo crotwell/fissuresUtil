@@ -12,8 +12,9 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
 
-    public NSSeismogramDC(String serverDNS, String serverName,
-            FissuresNamingService fissuresNamingService) {
+    public NSSeismogramDC(String serverDNS,
+                          String serverName,
+                          FissuresNamingService fissuresNamingService) {
         this.serverDNS = serverDNS;
         this.serverName = serverName;
         this.nameService = fissuresNamingService;
@@ -69,7 +70,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
     }
 
     protected void repackageException(org.omg.CORBA.UserException e) {
-        String msg = "Unable to resolve " + serverName + " " + serverDNS + " "
+        String msg = "Unable to resolve " + getServerPath() + " "
                 + e.toString();
         org.omg.CORBA.TRANSIENT t = new org.omg.CORBA.TRANSIENT(msg,
                                                                 0,
@@ -83,10 +84,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         try {
             return getDataCenter().queue_seismograms(a_filterseq);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in queue_seismograms(), regetting from nameservice to try again.",
-                        e);
-            reset();
+            warnAndReset("queue_seismograms", e);
             return getDataCenter().queue_seismograms(a_filterseq);
         } // end of try-catch
     }
@@ -96,10 +94,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         try {
             return getDataCenter().retrieve_queue(a_request);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in retrieve_queue(), regetting from nameservice to try again.",
-                        e);
-            reset();
+            warnAndReset("retrieve_queue", e);
             return getDataCenter().retrieve_queue(a_request);
         } // end of try-catch
     }
@@ -108,13 +103,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         try {
             return getDataCenter().available_data(a_filterseq);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            String msg = "Exception in available_data(), regetting from nameservice to try again. ";
-            if(e instanceof FissuresException) {
-                msg += ((FissuresException)e).the_error.error_description;
-            }
-            logger.warn(msg, e);
-            reset();
+            warnAndReset("available_data", e);
             return getDataCenter().available_data(a_filterseq);
         } // end of try-catch
     }
@@ -123,13 +112,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         try {
             getDataCenter().cancel_request(a_request);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            String msg = "Exception in cancel_request(), regetting from nameservice to try again. ";
-            if(e instanceof FissuresException) {
-                msg += ((FissuresException)e).the_error.error_description;
-            }
-            logger.warn(msg, e);
-            reset();
+            warnAndReset("cancel_request", e);
             getDataCenter().cancel_request(a_request);
         } // end of try-catch
     }
@@ -145,10 +128,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
                                                        long_lived,
                                                        expiration_time);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in request_seismograms(), regetting from nameservice to try again.",
-                        e);
-            reset();
+            warnAndReset("request_seismograms", e);
             return getDataCenter().request_seismograms(a_filterseq,
                                                        a_client,
                                                        long_lived,
@@ -160,10 +140,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         try {
             return getDataCenter().request_status(a_request);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in request_status(), regetting from nameservice to try again.",
-                        e);
-            reset();
+            warnAndReset("request_status", e);
             return getDataCenter().request_status(a_request);
         } // end of try-catch
     }
@@ -173,19 +150,27 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         try {
             return getDataCenter().retrieve_seismograms(a_filterseq);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            String msg = "Exception in retrieve_seismograms(), regetting from nameservice to try again. ";
-            if(e instanceof FissuresException) {
-                msg += ((FissuresException)e).the_error.error_description;
-            }
-            logger.warn(msg, e);
-            reset();
+            warnAndReset("retrieve_seismograms", e);
             return getDataCenter().retrieve_seismograms(a_filterseq);
         } // end of try-catch
     }
-    
+
+    private void warnAndReset(String methodName, Throwable e) {
+        String msg = methodName + " on " + getServerPath()
+                + " failed, regetting from nameservice. ";
+        if(e instanceof FissuresException) {
+            msg += ((FissuresException)e).the_error.error_description;
+        }
+        logger.warn(msg, e);
+        reset();
+    }
+
     public String toString() {
-        return "NSSeismogramDC " + serverDNS + "/" + serverName;
+        return "NSSeismogramDC " + getServerPath();
+    }
+
+    private String getServerPath() {
+        return serverDNS + "/" + serverName;
     }
 
     protected String serverDNS, serverName;
