@@ -17,7 +17,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import edu.iris.Fissures.FissuresException;
@@ -73,12 +72,12 @@ public class PopulateDatabaseFromDirectory {
         PropertyConfigurator.configure(props);
         LeapSecondApplier.addLeapSeconds(props.getProperty("leapSecondTimeFileLoc"));
         LeapSecondApplier.addCorrections(props.getProperty("powerUpTimeFileLoc"));
-        ConnectionCreator connCreator = new ConnectionCreator(props);
-        Connection conn = connCreator.createConnection();
+        // ConnectionCreator connCreator = new ConnectionCreator(props);
+        // Connection conn = connCreator.createConnection();
         DatabasePopulationReport report = new DatabasePopulationReport();
-        JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
-        JDBCChannel chanTable = new JDBCChannel(conn);
-        JDBCTime timeTable = new JDBCTime(conn);
+        // JDBCSeismogramFiles jdbcSeisFile = new JDBCSeismogramFiles(conn);
+        // JDBCChannel chanTable = new JDBCChannel(conn);
+        // JDBCTime timeTable = new JDBCTime(conn);
         boolean finished = false;
         boolean batch = false;
         NCFile ncFile = new NCFile(props.getProperty("NCFileLoc"));
@@ -116,23 +115,23 @@ public class PopulateDatabaseFromDirectory {
             File file = new File(fileLoc);
             if(file.isDirectory()) {
                 finished = readEntireDirectory(file,
-                                               conn,
+                                               null,
                                                ncFile,
-                                               jdbcSeisFile,
+                                               null,
                                                report,
-                                               chanTable,
-                                               timeTable,
+                                               null,
+                                               null,
                                                props,
                                                batch,
                                                stationLocations);
             } else if(file.isFile()) {
                 finished = readSingleFile(fileLoc,
-                                          conn,
+                                          null,
                                           ncFile,
-                                          jdbcSeisFile,
+                                          null,
                                           report,
-                                          chanTable,
-                                          timeTable,
+                                          null,
+                                          null,
                                           props,
                                           batch,
                                           stationLocations);
@@ -169,7 +168,12 @@ public class PopulateDatabaseFromDirectory {
             throws IOException, FissuresException, SeedFormatException,
             SQLException, NotFound, ParseException {
         boolean finished = false;
-        StringTokenizer t = new StringTokenizer(fileLoc, "/\\");
+        StringTokenizer t;
+        if(System.getProperty("os.name").startsWith("Windows")) {
+            t = new StringTokenizer(fileLoc, "\\");
+        } else {
+            t = new StringTokenizer(fileLoc, "/");
+        }
         String fileName = "";
         while(t.hasMoreTokens()) {
             fileName = t.nextToken();
@@ -303,12 +307,16 @@ public class PopulateDatabaseFromDirectory {
             sacTime.readHeader(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
             report.addProblemFile(fileLoc, fileName
-                    + " seems to be an invalid sac file.");
-            logger.error(fileName + " seems to be an invalid sac file.");
+                    + " seems to be an invalid sac file." + "\n"
+                    + e.getMessage());
+            logger.error(fileName + " seems to be an invalid sac file." + "\n"
+                    + e.getMessage());
             return false;
         } catch(FileNotFoundException e) {
-            report.addProblemFile(fileLoc, "Unable to find file " + fileName);
-            logger.error("Unable to find file " + fileName);
+            report.addProblemFile(fileLoc, "Unable to find file " + fileName
+                    + "\n" + e.getMessage());
+            logger.error("Unable to find file " + fileName + "\n"
+                    + e.getMessage());
             return false;
         }
         SeismogramAttrImpl seis = SacToFissures.getSeismogramAttr(sacTime);
@@ -328,12 +336,16 @@ public class PopulateDatabaseFromDirectory {
             mseedRead = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
             report.addProblemFile(fileLoc, fileName
-                    + " seems to be an invalid mseed file.");
-            logger.error(fileName + " seems to be an invalid mseed file.");
+                    + " seems to be an invalid mseed file." + "\n"
+                    + e.getMessage());
+            logger.error(fileName + " seems to be an invalid mseed file."
+                    + "\n" + e.getMessage());
             return false;
         } catch(FileNotFoundException e) {
-            report.addProblemFile(fileLoc, "Unable to find file " + fileName);
-            logger.error("Unable to find file " + fileName);
+            report.addProblemFile(fileLoc, "Unable to find file " + fileName
+                    + "\n" + e.getMessage());
+            logger.error("Unable to find file " + fileName + "\n"
+                    + e.getMessage());
             return false;
         }
         LinkedList list = new LinkedList();
@@ -370,8 +382,10 @@ public class PopulateDatabaseFromDirectory {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
             report.addProblemFile(fileLoc, fileName
-                    + " seems to be an invalid rt130 file.");
-            logger.error(fileName + " seems to be an invalid rt130 file.");
+                    + " seems to be an invalid rt130 file." + "\n"
+                    + e.getMessage());
+            logger.error(fileName + " seems to be an invalid rt130 file."
+                    + "\n" + e.getMessage());
             return false;
         }
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
@@ -431,8 +445,10 @@ public class PopulateDatabaseFromDirectory {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
             report.addProblemFile(fileLoc, fileName
-                    + " seems to be an invalid rt130 file.");
-            logger.error(fileName + " seems to be an invalid rt130 file.");
+                    + " seems to be an invalid rt130 file." + "\n"
+                    + e.getMessage());
+            logger.error(fileName + " seems to be an invalid rt130 file."
+                    + "\n" + e.getMessage());
             return false;
         }
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram(conn,
@@ -480,8 +496,10 @@ public class PopulateDatabaseFromDirectory {
                 fileData = rtFileReader.processRT130Data();
             } catch(RT130FormatException e) {
                 report.addProblemFile(fileLoc, fileName
-                        + " seems to be an invalid rt130 file.");
-                logger.error(fileName + " seems to be an invalid rt130 file.");
+                        + " seems to be an invalid rt130 file." + "\n"
+                        + e.getMessage());
+                logger.error(fileName + " seems to be an invalid rt130 file."
+                        + "\n" + e.getMessage());
                 return false;
             }
             datastreamToFileData.put(unitIdNumber + datastream, fileData[0]);
@@ -521,13 +539,15 @@ public class PopulateDatabaseFromDirectory {
                                                                         beginTime);
                 TimeInterval lengthOfData = FileNameParser.getLengthOfData(fileName);
                 double nominalLengthOfData = Double.valueOf(props.getProperty("nominalLengthOfData"))
-                .doubleValue();
+                        .doubleValue();
                 if(lengthOfData.value > (nominalLengthOfData + (nominalLengthOfData * 0.05))) {
                     Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
                             + datastream);
-                    report.addProblemFile(fileLoc, fileName
-                                          + " seems to be an invalid rt130 file name. The file was read to determine its true length.");
-                                  logger.error(fileName + " seems to be an invalid rt130 file name. The file was read to determine its true length.");
+                    report.addProblemFile(fileLoc,
+                                          fileName
+                                                  + " seems to be an invalid rt130 file name. The file will be read to determine its true length.");
+                    logger.error(fileName
+                            + " seems to be an invalid rt130 file name. The file was read to determine its true length.");
                     for(int i = 0; i < channel.length; i++) {
                         processSingleRefTekWithKnownChannel(jdbcSeisFile,
                                                             report,
@@ -561,8 +581,10 @@ public class PopulateDatabaseFromDirectory {
                 }
             } catch(RT130FormatException e) {
                 report.addProblemFile(fileLoc, fileName
-                        + " seems to be an invalid rt130 file.");
-                logger.error(fileName + " seems to be an invalid rt130 file.");
+                        + " seems to be an invalid rt130 file." + "\n"
+                        + e.getMessage());
+                logger.error(fileName + " seems to be an invalid rt130 file."
+                        + "\n" + e.getMessage());
                 return false;
             }
         }
@@ -729,11 +751,12 @@ public class PopulateDatabaseFromDirectory {
                                              String fileLoc)
             throws SQLException, NotFound {
         report.addRefTekSeismogram(channel, beginTime, endTime);
-        jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel, chanTable),
-                                              getTimeDbId(beginTime, timeTable),
-                                              getTimeDbId(endTime, timeTable),
-                                              fileLoc,
-                                              SeismogramFileTypes.RT_130);
+        // jdbcSeisFile.saveSeismogramToDatabase(getChannelDbId(channel,
+        // chanTable),
+        // getTimeDbId(beginTime, timeTable),
+        // getTimeDbId(endTime, timeTable),
+        // fileLoc,
+        // SeismogramFileTypes.RT_130);
     }
 
     private static Map datastreamToChannel = new HashMap();
