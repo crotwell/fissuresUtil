@@ -80,7 +80,7 @@ public class RT130ToLocalSeismogram {
                                                  new TimeInterval(1,
                                                                   UnitImpl.SECOND));
         ChannelId channelId;
-        if(ncFile == null || conn == null || props == null) {
+        if(ncFile == null || props == null) {
             channelId = new ChannelId(MockNetworkId.createNetworkID(),
                                       seismogramData.unitIdNumber,
                                       "" + seismogramData.data_stream_number,
