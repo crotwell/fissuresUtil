@@ -36,15 +36,17 @@ public class RT130FileReader {
         this.seismogramDataInputStream = dis;
         File dataStream = new File(file.getParent());
         File unitId = new File(dataStream.getParent());
-        String stateOfHealthFileLoc = unitId.getAbsolutePath() + "/0/SOH.RT";
+        stateOfHealthFileLoc = unitId.getAbsolutePath() + "/0/SOH.RT";
         try {
+            nextSOH = false;
             file = new File(stateOfHealthFileLoc);
             fis = new FileInputStream(file);
             bis = new BufferedInputStream(fis);
             dis = new DataInputStream(bis);
             this.stateOfHealthDataInputStream = dis;
         } catch(FileNotFoundException e) {
-            stateOfHealthFileLoc = tryAlternateStateOfHealthFile(dataFileLoc);
+            nextSOH = true;
+            stateOfHealthFileLoc = tryNextStateOfHealthFile(dataFileLoc);
             try {
                 file = new File(stateOfHealthFileLoc);
                 fis = new FileInputStream(file);
@@ -61,7 +63,7 @@ public class RT130FileReader {
         this.processData = processData;
     }
 
-    private String tryAlternateStateOfHealthFile(String dataFileLoc) {
+    private String tryNextStateOfHealthFile(String dataFileLoc) {
         File dataFile = new File(dataFileLoc);
         File dataStreamDirectory = new File(dataFile.getParent());
         File unitIdDirectory = new File(dataStreamDirectory.getParent());
@@ -108,6 +110,8 @@ public class RT130FileReader {
     }
 
     public void close() {
+        nextSOH = false;
+        stateOfHealthFileLoc = null;
         this.seismogramDataInputStream = null;
         this.stateOfHealthDataInputStream = null;
     }
@@ -127,8 +131,8 @@ public class RT130FileReader {
                                         this.processData);
         } catch(EOFException e) {
             logger.error("End of file reached before any data processing was done. "
-                         + "The file likely contains no data. "
-                         + "PacketType creation failed.");
+                    + "The file likely contains no data. "
+                    + "PacketType creation failed.");
             done = true;
         }
         while(!done) {
@@ -165,7 +169,8 @@ public class RT130FileReader {
             } else {
                 logger.error("The first two bytes of the Packet Header were not formatted "
                         + "correctly, and do not refer to a valid Packet Type.");
-                throw new RT130FormatException();
+                throw new RT130FormatException("The first two bytes of the Packet Header were not formatted "
+                        + "correctly, and do not refer to a valid Packet Type.");
             }
             if(!done) {
                 try {
@@ -175,6 +180,32 @@ public class RT130FileReader {
                     done = true;
                 }
             }
+        }
+        if(stateOfHealthData.channel_name == null) {
+            System.out.println("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
+                    + "\n"
+                    + "The State Of Health file location is: \n"
+                    + stateOfHealthFileLoc
+                    + "\n"
+                    + "Used \"next\" State Of Health File: "
+                    + nextSOH
+                    + "Used \"previous\" State Of HealthFile: " + prevSOH);
+            logger.error("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
+                    + "\n"
+                    + "The State Of Health file location is: \n"
+                    + stateOfHealthFileLoc
+                    + "\n"
+                    + "Used \"next\" State Of Health File: "
+                    + nextSOH
+                    + "Used \"previous\" State Of HealthFile: " + prevSOH);
+            throw new RT130FormatException("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
+                    + "\n"
+                    + "The State Of Health file location is: \n"
+                    + stateOfHealthFileLoc
+                    + "\n"
+                    + "Used \"next\" State Of Health File: "
+                    + nextSOH
+                    + "Used \"previous\" State Of HealthFile: " + prevSOH);
         }
         return stateOfHealthData;
     }
@@ -252,7 +283,8 @@ public class RT130FileReader {
             } else {
                 logger.error("The first two bytes of the Packet Header were not formatted "
                         + "correctly, and do not refer to a valid Packet Type.");
-                throw new RT130FormatException();
+                throw new RT130FormatException("The first two bytes of the Packet Header were not formatted "
+                        + "correctly, and do not refer to a valid Packet Type.");
             }
             if(!done) {
                 try {
@@ -376,7 +408,9 @@ public class RT130FileReader {
         }
     }
 
-    private boolean processData;
+    private boolean processData, nextSOH, prevSOH;
+
+    private String stateOfHealthFileLoc;
 
     private DataInput seismogramDataInputStream, stateOfHealthDataInputStream;
 
