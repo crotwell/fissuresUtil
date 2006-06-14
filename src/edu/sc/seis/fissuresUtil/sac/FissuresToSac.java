@@ -70,6 +70,7 @@ public class FissuresToSac {
 
         sac.npts = sac.y.length;
         sac.b = 0;
+        sac.iztype = sac.IB;
         SamplingImpl samp = (SamplingImpl)seis.sampling_info;
         QuantityImpl period = samp.getPeriod();
         period = period.convertTo(UnitImpl.SECOND);
@@ -218,6 +219,9 @@ public class FissuresToSac {
         TimeInterval sacOMarker = (TimeInterval)originTime.subtract(beginTime);
         sacOMarker = (TimeInterval)sacOMarker.convertTo(UnitImpl.SECOND);
         sac.o = (float)sacOMarker.value;
+        if (origin.magnitudes.length > 0) {
+            sac.mag = origin.magnitudes[0].value;
+        }
     }
     
     public static SacPoleZero getPoleZero(Response response) throws InvalidResponse {
