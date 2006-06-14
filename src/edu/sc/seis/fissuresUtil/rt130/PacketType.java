@@ -232,20 +232,22 @@ public class PacketType {
 
     public String[] channel_name;
 
-    public MicroSecondDate begin_time_from_state_of_health_file,
-            begin_time_of_seismogram, begin_time_of_first_packet,
-            end_time_of_last_packet;
+    public MicroSecondDate begin_time_from_state_of_health_file;
+
+    protected MicroSecondDate begin_time_of_seismogram,
+            begin_time_of_first_packet, end_time_of_last_packet;
 
     protected int experimentNumber, year, byteCount, packetSequence;
 
-    public int number_of_samples, sample_rate, channel_number,
-            data_stream_number;
+    public int sample_rate;
 
-    public int number_of_location_readings = -1;
+    protected int number_of_samples, channel_number, data_stream_number;
 
-    public float latitude_, longitude_;
+    protected int number_of_location_readings = -1;
 
-    public double elevation_;
+    protected float latitude_, longitude_;
+
+    protected double elevation_;
 
     public EncodedData[] encoded_data;
 
