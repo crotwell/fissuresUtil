@@ -29,7 +29,8 @@ public class NCFile {
     }
 
     public void readFile(DataInput in) throws IOException {
-        timeAndDataHashMap = new HashMap();
+        timeAndDataMapIdToName = new HashMap();
+        timeAndDataMapNameToId = new HashMap();
         boolean done = false;
         String data = "";
         String line = "";
@@ -59,7 +60,8 @@ public class NCFile {
                 if(network_begin_time == null) {
                     network_begin_time = time;
                 }
-                Map dataHashMap = new HashMap();
+                Map idToName = new HashMap();
+                Map nameToId = new HashMap();
                 while(!st.nextToken().startsWith("chan/dip/azi")) {
                     // Skip to relevant data
                 }
@@ -67,21 +69,31 @@ public class NCFile {
                 while(!temp.startsWith("END")) {
                     String unitName = temp;
                     String unitId = st.nextToken().substring(0, 4);
-                    dataHashMap.put(unitId, unitName);
+                    idToName.put(unitId, unitName);
+                    nameToId.put(unitName, unitId);
                     st.nextToken();
                     st.nextToken();
                     temp = st.nextToken();
                 }
-                timeAndDataHashMap.put(time, dataHashMap);
+                timeAndDataMapIdToName.put(time, idToName);
+                timeAndDataMapNameToId.put(time, nameToId);
+                
             }
         }
-        Set keySet = timeAndDataHashMap.keySet();
-        MicroSecondDate[] keyArray = (MicroSecondDate[])keySet.toArray(new MicroSecondDate[0]);
-        keyList = new ArrayList(keyArray.length);
-        for(int i = 0; i < keyArray.length; i++) {
-            keyList.add(keyArray[i]);
+        Set keySet1 = timeAndDataMapIdToName.keySet();
+        MicroSecondDate[] keyArray1 = (MicroSecondDate[])keySet1.toArray(new MicroSecondDate[0]);
+        keyListForIdToName = new ArrayList(keyArray1.length);
+        for(int i = 0; i < keyArray1.length; i++) {
+            keyListForIdToName.add(keyArray1[i]);
         }
-        Collections.sort(keyList, new SortTool.AscendingTimeSorter());
+        Collections.sort(keyListForIdToName, new SortTool.AscendingTimeSorter());
+        Set keySet2 = timeAndDataMapNameToId.keySet();
+        MicroSecondDate[] keyArray2 = (MicroSecondDate[])keySet2.toArray(new MicroSecondDate[0]);
+        keyListForNameToId = new ArrayList(keyArray2.length);
+        for(int i = 0; i < keyArray2.length; i++) {
+            keyListForNameToId.add(keyArray2[i]);
+        }
+        Collections.sort(keyListForNameToId, new SortTool.AscendingTimeSorter());
     }
 
     private MicroSecondDate stringToMicroSecondDate(String timeString) {
@@ -94,13 +106,12 @@ public class NCFile {
     }
 
     public String getUnitName(MicroSecondDate time, String unitId) {
-        MicroSecondDate[] keyArray = (MicroSecondDate[])keyList.toArray(new MicroSecondDate[0]);
+        MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForIdToName.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
             if(time.after(keyArray[i])) {
-                Map dataHashMap = (Map)timeAndDataHashMap.get(keyArray[i]);
-                if(dataHashMap.containsKey(unitId)){
-                    String unitName = (String)dataHashMap.get(unitId);
-                    return unitName;
+                Map idToName = (Map)timeAndDataMapIdToName.get(keyArray[i]);
+                if(idToName.containsKey(unitId)) {
+                    return (String)idToName.get(unitId);
                 }
             }
         }
@@ -117,15 +128,37 @@ public class NCFile {
         return unitId;
     }
 
+    public String getUnitId(MicroSecondDate time, String unitName) {
+        MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForNameToId.toArray(new MicroSecondDate[0]);
+        for(int i = 0; i < keyArray.length; i++) {
+            if(time.after(keyArray[i])) {
+                Map nameToId = (Map)timeAndDataMapNameToId.get(keyArray[i]);
+                if(nameToId.containsKey(unitName)) {
+                    return (String)nameToId.get(unitName);
+                }
+            }
+        }
+        
+        System.err.println("/-------------------------");
+        System.err.println("| Unit number for DAS unit name " + unitName
+                + " was not found in the NC file.");
+        System.err.println("| The name \"" + unitName
+                + "\" will be used instead.");
+        System.err.println("| ");
+        System.err.println("| The time requested was: " + time.toString());
+        System.err.println("\\-------------------------");
+        return unitName;
+    }
+
     public String getCanonicalPath() throws IOException {
         return file.getCanonicalPath();
     }
 
     public MicroSecondDate network_begin_time;
 
-    private List keyList;
+    private List keyListForIdToName, keyListForNameToId;
 
-    private Map timeAndDataHashMap;
+    private Map timeAndDataMapIdToName, timeAndDataMapNameToId;
 
     private File file;
 }
