@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import org.apache.log4j.Category;
 import edu.iris.Fissures.model.ISOTime;
@@ -123,6 +124,10 @@ public class ClockUtil {
                                                              59));
         MicroSecondTimeRange range = new MicroSecondTimeRange(start, end);
         return range;
+    }
+    
+    public static Calendar getGMTCalendar() {
+        return new GregorianCalendar(TimeZone.getTimeZone("GMT"));
     }
 
     private static boolean warnBadBadClock = false;
