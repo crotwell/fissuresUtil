@@ -22,6 +22,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.fissuresUtil.cache.InstrumentationLoader;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
@@ -89,16 +90,8 @@ public class FissuresToSac {
         QuantityImpl mean = (QuantityImpl)seis.getMeanValue();
         sac.depmen = (float)mean.convertTo(yUnit).value;
 
-        GregorianCalendar cal =
-            new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        cal.setTime(new MicroSecondDate(seis.begin_time));
-        sac.nzyear = cal.get(Calendar.YEAR);
-        sac.nzjday = cal.get(Calendar.DAY_OF_YEAR);
-        sac.nzhour = cal.get(Calendar.HOUR_OF_DAY);
-        sac.nzmin = cal.get(Calendar.MINUTE);
-        sac.nzsec = cal.get(Calendar.SECOND);
-        sac.nzmsec = cal.get(Calendar.MILLISECOND);
-
+        setKZTime(sac, new MicroSecondDate(seis.begin_time));
+        
         sac.knetwk = seis.channel_id.network_id.network_code;
         sac.kstnm = seis.channel_id.station_code;
         if ( ! seis.channel_id.site_code.equals("  ")) {
@@ -215,13 +208,25 @@ public class FissuresToSac {
                                       sac.nzsec+sac.nzmsec/1000f);
         MicroSecondDate beginTime = isoTime.getDate();
         MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
-
-        TimeInterval sacOMarker = (TimeInterval)originTime.subtract(beginTime);
-        sacOMarker = (TimeInterval)sacOMarker.convertTo(UnitImpl.SECOND);
-        sac.o = (float)sacOMarker.value;
+        setKZTime(sac, originTime);
+        TimeInterval sacBMarker = (TimeInterval)beginTime.subtract(originTime);
+        sacBMarker = (TimeInterval)sacBMarker.convertTo(UnitImpl.SECOND);
+        sac.b = (float)sacBMarker.value;
+        sac.o = 0;
         if (origin.magnitudes.length > 0) {
             sac.mag = origin.magnitudes[0].value;
         }
+    }
+    
+    public static void setKZTime(SacTimeSeries sac, MicroSecondDate date) {
+        Calendar cal = ClockUtil.getGMTCalendar();
+        cal.setTime(date);
+        sac.nzyear = cal.get(Calendar.YEAR);
+        sac.nzjday = cal.get(Calendar.DAY_OF_YEAR);
+        sac.nzhour = cal.get(Calendar.HOUR_OF_DAY);
+        sac.nzmin = cal.get(Calendar.MINUTE);
+        sac.nzsec = cal.get(Calendar.SECOND);
+        sac.nzmsec = cal.get(Calendar.MILLISECOND);
     }
     
     public static SacPoleZero getPoleZero(Response response) throws InvalidResponse {
