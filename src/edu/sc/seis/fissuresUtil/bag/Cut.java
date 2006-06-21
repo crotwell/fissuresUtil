@@ -15,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Tue Oct 1 21:23:44 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Cut.java 17415 2006-06-10 14:17:25Z crotwell $
+ * @version $Id: Cut.java 17486 2006-06-21 17:28:49Z crotwell $
  */
 public class Cut implements LocalSeismogramFunction {
 
@@ -50,24 +50,24 @@ public class Cut implements LocalSeismogramFunction {
     public static LocalSeismogramImpl cut(LocalSeismogramImpl seis, int beginIndex, int endIndex) throws FissuresException {
         LocalSeismogramImpl outSeis;
         if(seis.can_convert_to_short()) {
-            short[] outS = new short[endIndex - beginIndex+1];
+            short[] outS = new short[endIndex - beginIndex];
             short[] inS = seis.get_as_shorts();
-            System.arraycopy(inS, beginIndex, outS, 0, endIndex - beginIndex+1);
+            System.arraycopy(inS, beginIndex, outS, 0, endIndex - beginIndex);
             outSeis = new LocalSeismogramImpl(seis, outS);
         } else if(seis.can_convert_to_long()) {
             int[] outI = new int[endIndex - beginIndex+1];
             int[] inI = seis.get_as_longs();
-            System.arraycopy(inI, beginIndex, outI, 0, endIndex - beginIndex+1);
+            System.arraycopy(inI, beginIndex, outI, 0, endIndex - beginIndex);
             outSeis = new LocalSeismogramImpl(seis, outI);
         } else if(seis.can_convert_to_float()) {
             float[] outF = new float[endIndex - beginIndex+1];
             float[] inF = seis.get_as_floats();
-            System.arraycopy(inF, beginIndex, outF, 0, endIndex - beginIndex+1);
+            System.arraycopy(inF, beginIndex, outF, 0, endIndex - beginIndex);
             outSeis = new LocalSeismogramImpl(seis, outF);
         } else {
             double[] outD = new double[endIndex - beginIndex+1];
             double[] inD = seis.get_as_doubles();
-            System.arraycopy(inD, beginIndex, outD, 0, endIndex - beginIndex+1);
+            System.arraycopy(inD, beginIndex, outD, 0, endIndex - beginIndex);
             outSeis = new LocalSeismogramImpl(seis, outD);
         } // end of else
         outSeis.begin_time = seis.getBeginTime()
@@ -93,7 +93,7 @@ public class Cut implements LocalSeismogramFunction {
             endIndex = 0;
         }
         if(endIndex >= seis.getNumPoints()) {
-            endIndex = seis.getNumPoints();
+            endIndex = seis.getNumPoints()-1;
         }
         return endIndex;
     }
