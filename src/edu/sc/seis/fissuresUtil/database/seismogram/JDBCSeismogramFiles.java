@@ -312,6 +312,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
         RT130FileReader toSeismogramDataPacket = new RT130FileReader(seismogramFile,
                                                                      true);
         PacketType[] seismogramDataPacketArray = toSeismogramDataPacket.processRT130Data();
+        // Use default constructor
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram();
         LocalSeismogramImpl[] seis = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         logger.debug("Got " + seis.length + " seismograms out of "
