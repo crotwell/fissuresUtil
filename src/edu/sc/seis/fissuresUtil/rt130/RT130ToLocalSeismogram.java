@@ -1,6 +1,9 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
-import java.sql.Connection;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.log4j.Logger;
@@ -33,16 +36,23 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
 public class RT130ToLocalSeismogram {
 
     public RT130ToLocalSeismogram() {
-        this.conn = null;
         this.ncFile = null;
         this.props = null;
+        this.stationLocations = null;
     }
 
-    public RT130ToLocalSeismogram(Connection conn,
-                                  NCFile ncFile,
+    public RT130ToLocalSeismogram(NCFile ncFile, Properties props)
+            throws FileNotFoundException, IOException {
+        this.ncFile = ncFile;
+        this.props = props;
+        String xyFileLoc = props.getProperty("XYFileLoc");
+        logger.debug("XY file location: " + xyFileLoc);
+        stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
+    }
+
+    public RT130ToLocalSeismogram(NCFile ncFile,
                                   Properties props,
                                   Map stationLocations) {
-        this.conn = conn;
         this.ncFile = ncFile;
         this.props = props;
         this.stationLocations = stationLocations;
@@ -198,8 +208,6 @@ public class RT130ToLocalSeismogram {
     private final String NETWORK_OWNER = "network.name";
 
     private final String DATASTREAM_TO_SAMPLE_RATE = "datastream.";
-
-    private Connection conn;
 
     private NCFile ncFile;
 
