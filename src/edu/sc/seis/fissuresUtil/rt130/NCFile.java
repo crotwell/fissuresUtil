@@ -28,7 +28,7 @@ public class NCFile {
         this.readFile(dis);
     }
 
-    public void readFile(DataInput in) throws IOException {
+    private void readFile(DataInput in) throws IOException {
         timeAndDataMapIdToName = new HashMap();
         timeAndDataMapNameToId = new HashMap();
         boolean done = false;
@@ -142,7 +142,7 @@ public class NCFile {
         System.err.println("/-------------------------");
         System.err.println("| Unit number for DAS unit name " + unitName
                 + " was not found in the NC file.");
-        System.err.println("| The name \"" + unitName
+        System.err.println("| The number \"" + unitName
                 + "\" will be used instead.");
         System.err.println("| ");
         System.err.println("| The time requested was: " + time.toString());
