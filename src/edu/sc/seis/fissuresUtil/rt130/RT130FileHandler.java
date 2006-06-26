@@ -55,11 +55,14 @@ public class RT130FileHandler {
         logger.debug("NC file location: " + ncFile.getCanonicalPath());
         String xyFileLoc = props.getProperty("XYFileLoc");
         logger.debug("XY file location: " + xyFileLoc);
-        ConnectionCreator connCreator = new ConnectionCreator(props);
-        conn = connCreator.createConnection();
-        jdbcSeisFile = new JDBCSeismogramFiles(conn);
-        chanTable = new JDBCChannel(conn);
-        timeTable = new JDBCTime(conn);
+        if(flags.contains(RT130FileHandlerFlag.SCAN)
+                || flags.contains(RT130FileHandlerFlag.FULL)) {} else {
+            ConnectionCreator connCreator = new ConnectionCreator(props);
+            conn = connCreator.createConnection();
+            jdbcSeisFile = new JDBCSeismogramFiles(conn);
+            chanTable = new JDBCChannel(conn);
+            timeTable = new JDBCTime(conn);
+        }
         this.report = new DatabasePopulationReport();
         this.props = props;
         stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
@@ -177,19 +180,26 @@ public class RT130FileHandler {
         // Check database for channels that match (with lat/long buffer)
         // If channel exists, use it. If not, use new channel.
         for(int i = 0; i < seismogramArray.length; i++) {
-            Channel closeChannel = jdbcSeisFile.findCloseChannel(channel[i],
-                                                                 new QuantityImpl(1,
-                                                                                  UnitImpl.KILOMETER));
-            if(closeChannel == null) {
+            if(flags.contains(RT130FileHandlerFlag.SCAN)
+                    || flags.contains(RT130FileHandlerFlag.FULL)) {
                 saveRefTekChannelToDatabase(channel[i],
                                             seismogramArray[i].getBeginTime(),
                                             seismogramArray[i].getEndTime());
             } else {
-                jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel,
-                                                           channel[i]);
-                saveRefTekChannelToDatabase(closeChannel,
-                                            seismogramArray[i].getBeginTime(),
-                                            seismogramArray[i].getEndTime());
+                Channel closeChannel = jdbcSeisFile.findCloseChannel(channel[i],
+                                                                     new QuantityImpl(1,
+                                                                                      UnitImpl.KILOMETER));
+                if(closeChannel == null) {
+                    saveRefTekChannelToDatabase(channel[i],
+                                                seismogramArray[i].getBeginTime(),
+                                                seismogramArray[i].getEndTime());
+                } else {
+                    jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel,
+                                                               channel[i]);
+                    saveRefTekChannelToDatabase(closeChannel,
+                                                seismogramArray[i].getBeginTime(),
+                                                seismogramArray[i].getEndTime());
+                }
             }
         }
         return true;
