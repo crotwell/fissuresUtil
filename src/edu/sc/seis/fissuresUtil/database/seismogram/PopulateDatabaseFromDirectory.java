@@ -192,7 +192,7 @@ public class PopulateDatabaseFromDirectory {
     }
 
     private static boolean processSac(JDBCSeismogramFiles jdbcSeisFile,
-                                      DatabasePopulationReport report,
+                                      RT130Report report,
                                       String fileLoc,
                                       String fileName,
                                       Properties props) throws IOException,
@@ -222,7 +222,7 @@ public class PopulateDatabaseFromDirectory {
     }
 
     private static boolean processMSeed(JDBCSeismogramFiles jdbcSeisFile,
-                                        DatabasePopulationReport report,
+                                        RT130Report report,
                                         String fileLoc,
                                         String fileName) throws IOException,
             SeedFormatException, FissuresException, SQLException {
@@ -256,7 +256,7 @@ public class PopulateDatabaseFromDirectory {
     }
 
     private static void saveSacToDatabase(JDBCSeismogramFiles jdbcSeisFile,
-                                          DatabasePopulationReport report,
+                                          RT130Report report,
                                           Channel chan,
                                           SeismogramAttrImpl seis,
                                           String fileLoc) throws SQLException {
@@ -268,7 +268,7 @@ public class PopulateDatabaseFromDirectory {
     }
 
     private static void saveMSeedToDatabase(JDBCSeismogramFiles jdbcSeisFile,
-                                            DatabasePopulationReport report,
+                                            RT130Report report,
                                             SeismogramAttrImpl seis,
                                             String fileLoc) throws SQLException {
         report.addMSeedSeismogram();

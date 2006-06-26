@@ -38,7 +38,7 @@ import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
 import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
-import edu.sc.seis.fissuresUtil.database.seismogram.DatabasePopulationReport;
+import edu.sc.seis.fissuresUtil.database.seismogram.RT130Report;
 import edu.sc.seis.fissuresUtil.database.seismogram.JDBCSeismogramFiles;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
 
@@ -63,7 +63,7 @@ public class RT130FileHandler {
             chanTable = new JDBCChannel(conn);
             timeTable = new JDBCTime(conn);
         }
-        this.report = new DatabasePopulationReport();
+        this.report = new RT130Report();
         this.props = props;
         stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
     }
@@ -388,7 +388,7 @@ public class RT130FileHandler {
         return flags;
     }
 
-    public DatabasePopulationReport getReport() {
+    public RT130Report getReport() {
         return report;
     }
 
@@ -404,7 +404,7 @@ public class RT130FileHandler {
 
     private NCFile ncFile;
 
-    private DatabasePopulationReport report;
+    private RT130Report report;
 
     private Connection conn;
 
