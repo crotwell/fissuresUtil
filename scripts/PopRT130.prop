@@ -37,6 +37,7 @@ leapSecondTimeFileLoc=LeapSeconds
 powerUpTimeFileLoc=PowerUpTimes
 NCFileLoc=snep.nc
 XYFileLoc=SNEP_Sites.xy
+baseFileSystemLoc=D:\\rt130ServerTestData
 
 #Length of data is given in milliseconds.
 nominalLengthOfData=3600000
