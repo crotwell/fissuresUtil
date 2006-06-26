@@ -39,6 +39,7 @@ public class PopulateDatabaseFromDirectory {
         Properties props = Initializer.loadProperties(args);
         PropertyConfigurator.configure(props);
         boolean finished = false;
+        String baseFileSystemLocation = props.getProperty(BASE_FILE_SYSTEM_LOCATION);
         RT130FileHandlerFlag scanMode = RT130FileHandlerFlag.SCAN;
         RT130FileHandlerFlag makeLogs = RT130FileHandlerFlag.MAKE_LOGS;
         for(int i = 1; i < args.length - 1; i++) {
@@ -47,10 +48,7 @@ public class PopulateDatabaseFromDirectory {
                 File file = new File(propFileLocation);
                 logger.debug("Properties file location: "
                         + file.getCanonicalPath());
-            }
-        }
-        for(int i = 1; i < args.length - 1; i++) {
-            if(args[i].equals("-hsql")) {
+            } else if(args[i].equals("-hsql")) {
                 String hsqlFileLocation = args[i + 1];
                 File file = new File(hsqlFileLocation);
                 logger.debug("HSQL properties file location: "
@@ -61,39 +59,33 @@ public class PopulateDatabaseFromDirectory {
             if(args[i].equals("-full")) {
                 scanMode = RT130FileHandlerFlag.FULL;
                 logger.debug("Full processing of RT130 data: ON");
+            } else if(args[i].equals("-nologs")) {
+                makeLogs = RT130FileHandlerFlag.NO_LOGS;
+                logger.debug("Log creation: OFF");
+            } else if(args[i].equals("-h") || args[i].equals("-help")) {
+                printHelp();
             }
         }
         if(scanMode == RT130FileHandlerFlag.SCAN) {
             logger.debug("Scan processing of RT130 data: ON");
         }
-        for(int i = 0; i < args.length; i++) {
-            if(args[i].equals("-nologs")) {
-                makeLogs = RT130FileHandlerFlag.NO_LOGS;
-                logger.debug("Log creation: OFF");
-            }
-        }
         if(makeLogs == RT130FileHandlerFlag.MAKE_LOGS) {
             logger.debug("Log creation: ON");
         }
-        if(args.length > 0) {
-            String fileLoc = args[args.length - 1];
-            File file = new File(fileLoc);
-            List flags = new LinkedList();
-            flags.add(scanMode);
-            flags.add(makeLogs);
-            fileHandler = new RT130FileHandler(props, flags);
-            if(file.isDirectory()) {
-                finished = readEntireDirectory(file);
-            } else if(file.isFile()) {
-                finished = readSingleFile(fileLoc);
-            } else {
-                logger.error("File: " + file
-                        + " is not a file or a directory. This can"
-                        + " be caused in Windows when the file path includes"
-                        + " a Unix-style reference (soft or hard).");
-            }
+        File file = new File(baseFileSystemLocation);
+        List flags = new LinkedList();
+        flags.add(scanMode);
+        flags.add(makeLogs);
+        fileHandler = new RT130FileHandler(props, flags);
+        if(file.isDirectory()) {
+            finished = readEntireDirectory(file);
+        } else if(file.isFile()) {
+            finished = readSingleFile(baseFileSystemLocation);
         } else {
-            printHelp();
+            logger.error("File: " + file
+                    + " is not a file or a directory. This can"
+                    + " be caused in Windows when the file path includes"
+                    + " a Unix-style reference (soft or hard).");
         }
         if(finished) {
             System.out.println();
@@ -123,9 +115,10 @@ public class PopulateDatabaseFromDirectory {
         if(fileName.length() == 18 && fileName.charAt(9) == '_') {
             if(fileHandler.getFlags().contains(RT130FileHandlerFlag.SCAN)) {
                 finished = fileHandler.processSingleRefTekScan(fileLoc,
-                                                                fileName);
+                                                               fileName);
             } else {
-                finished = fileHandler.processSingleRefTekFull(fileLoc, fileName);
+                finished = fileHandler.processSingleRefTekFull(fileLoc,
+                                                               fileName);
             }
         } else if(fileName.endsWith(".mseed")) {
             finished = processMSeed(fileHandler.getJDBCSeismogramFiles(),
@@ -183,11 +176,10 @@ public class PopulateDatabaseFromDirectory {
 
     private static void printHelp() {
         System.out.println();
-        System.out.println("    The last argument must be a directory or file location.");
         System.out.println("    The default SOD properties file is server.properties.");
         System.out.println("    The default database properties file is server.properties.");
         System.out.println();
-        System.out.println("    -props   | Accepts alternate SOD properties file");
+        System.out.println("    -props   | Accepts alternate properties file");
         System.out.println("    -hsql    | Accepts alternate database properties file");
         System.out.println("    -full    | Turn on full processing of RT130 data");
         System.out.println("             | Scan processing of RT130 data is on by default");
@@ -285,6 +277,8 @@ public class PopulateDatabaseFromDirectory {
                                               fileLoc,
                                               SeismogramFileTypes.MSEED);
     }
+
+    public static final String BASE_FILE_SYSTEM_LOCATION = "baseFileSystemLoc";
 
     private static RT130FileHandler fileHandler;
 
