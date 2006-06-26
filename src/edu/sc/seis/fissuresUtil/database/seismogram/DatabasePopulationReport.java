@@ -120,7 +120,7 @@ public class DatabasePopulationReport  {
         final CategoryItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesPaint(0, Color.PINK);
         renderer.setOutlinePaint(Color.BLACK);
-        printChartToPDF(chart, 1024, 768, "DatabasePopulationReport.pdf");
+        printChartToPDF(chart, 1024, 768, "RT130Report.pdf");
     }
 
     void printChartToPDF(JFreeChart chart,
@@ -155,7 +155,7 @@ public class DatabasePopulationReport  {
     public void printReport() {
         FileWriter report = null;
         try {
-            report = new FileWriter("DatabasePopulationReport.txt");
+            report = new FileWriter("RT130Report.txt");
         } catch(IOException e) {
             e.printStackTrace();
         }
