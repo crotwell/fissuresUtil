@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 public class DatabasePopulationReportTest extends TestCase {
 
     public void setUp() {
-        report = new DatabasePopulationReport();
+        report = new RT130Report();
     }
 
     public void testAddMSeedSeismogram() {
@@ -147,5 +147,5 @@ public class DatabasePopulationReportTest extends TestCase {
         report.makeReportImage();
     }
     
-    private DatabasePopulationReport report;
+    private RT130Report report;
 }
