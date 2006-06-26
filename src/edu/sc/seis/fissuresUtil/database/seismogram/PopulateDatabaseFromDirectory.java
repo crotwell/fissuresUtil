@@ -189,9 +189,10 @@ public class PopulateDatabaseFromDirectory {
         System.out.println();
         System.out.println("    -props   | Accepts alternate SOD properties file");
         System.out.println("    -hsql    | Accepts alternate database properties file");
-        System.out.println("    -v       | Turn verbose messages on");
-        System.out.println("    -rt      | Turn on batch process of RT130 data");
+        System.out.println("    -full    | Turn on full processing of RT130 data");
+        System.out.println("             | Scan processing of RT130 data is on by default");
         System.out.println("             |   No other types of data can be processed");
+        System.out.println("    -nologs  | Do not produce master SOH file log.");
         System.out.println();
         System.out.println();
         System.out.println("Program finished before database population was completed.");
