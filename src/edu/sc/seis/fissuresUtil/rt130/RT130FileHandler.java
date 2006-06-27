@@ -35,9 +35,7 @@ import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
-import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.database.seismogram.RT130Report;
 import edu.sc.seis.fissuresUtil.database.seismogram.JDBCSeismogramFiles;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
@@ -55,13 +53,10 @@ public class RT130FileHandler {
         logger.debug("NC file location: " + ncFile.getCanonicalPath());
         String xyFileLoc = props.getProperty(XYReader.XY_FILE_LOC);
         logger.debug("XY file location: " + xyFileLoc);
-        if(flags.contains(RT130FileHandlerFlag.SCAN)
-                || flags.contains(RT130FileHandlerFlag.FULL)) {} else {
+        if(flags.contains(RT130FileHandlerFlag.FULL)) {
             ConnectionCreator connCreator = new ConnectionCreator(props);
             conn = connCreator.createConnection();
             jdbcSeisFile = new JDBCSeismogramFiles(conn);
-            chanTable = new JDBCChannel(conn);
-            timeTable = new JDBCTime(conn);
         }
         this.report = new RT130Report();
         this.props = props;
@@ -342,27 +337,6 @@ public class RT130FileHandler {
                                              MicroSecondDate endTime)
             throws SQLException, NotFound {
         report.addRefTekSeismogram(channel, beginTime, endTime);
-        if(flags.contains(RT130FileHandlerFlag.POP_DB_WITH_CHANNELS)) {
-            putChannelInDb(channel);
-            putTimeInDb(beginTime);
-            putTimeInDb(endTime);
-        }
-    }
-
-    private void putTimeInDb(MicroSecondDate date) throws SQLException {
-        Integer timeDbId = (Integer)timeToDbId.get(date);
-        if(timeDbId == null) {
-            timeDbId = new Integer(timeTable.put(date.getFissuresTime()));
-            timeToDbId.put(date, timeDbId);
-        }
-    }
-
-    private void putChannelInDb(Channel channel) throws SQLException, NotFound {
-        Integer channelDbId = (Integer)channelToDbId.get(channel);
-        if(channelDbId == null) {
-            channelDbId = new Integer(chanTable.put(channel));
-            channelToDbId.put(channel, channelDbId);
-        }
     }
 
     private void checkFlagsForIncompatibleSettings() {
@@ -412,15 +386,7 @@ public class RT130FileHandler {
 
     private JDBCSeismogramFiles jdbcSeisFile;
 
-    private JDBCChannel chanTable;
-
-    private JDBCTime timeTable;
-
     private Map stationLocations;
-
-    private Map timeToDbId = new HashMap();
-
-    private Map channelToDbId = new HashMap();
 
     private Map datastreamToChannel = new HashMap();
 
