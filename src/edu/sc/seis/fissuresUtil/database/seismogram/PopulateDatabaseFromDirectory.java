@@ -278,7 +278,7 @@ public class PopulateDatabaseFromDirectory {
                                               SeismogramFileTypes.MSEED);
     }
 
-    public static final String BASE_FILE_SYSTEM_LOCATION = "baseFileSystemLoc";
+    public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";
 
     private static RT130FileHandler fileHandler;
 
