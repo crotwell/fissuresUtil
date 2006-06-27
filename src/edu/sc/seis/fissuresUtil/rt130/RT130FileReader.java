@@ -189,6 +189,7 @@ public class RT130FileReader {
                     + "\n"
                     + "Used \"next\" State Of Health File: "
                     + nextSOH
+                    + "\n"
                     + "Used \"previous\" State Of HealthFile: " + prevSOH);
             logger.error("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
                     + "\n"
@@ -197,6 +198,7 @@ public class RT130FileReader {
                     + "\n"
                     + "Used \"next\" State Of Health File: "
                     + nextSOH
+                    + "\n"
                     + "Used \"previous\" State Of HealthFile: " + prevSOH);
             throw new RT130FormatException("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
                     + "\n"
@@ -205,6 +207,7 @@ public class RT130FileReader {
                     + "\n"
                     + "Used \"next\" State Of Health File: "
                     + nextSOH
+                    + "\n"
                     + "Used \"previous\" State Of HealthFile: " + prevSOH);
         }
         return stateOfHealthData;
