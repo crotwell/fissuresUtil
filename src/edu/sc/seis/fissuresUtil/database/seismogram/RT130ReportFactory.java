@@ -18,11 +18,20 @@ public class RT130ReportFactory {
         organizeByStationCode(channelIdWithTimeRanges, channelIdToChannel);
     }
 
-    public void print(PrintWriter reportStream) {
+    public void printGapDescription(PrintWriter reportStream) {
         Collections.sort(stationDataSummaryList);
         Iterator it = stationDataSummaryList.iterator();
         while(it.hasNext()) {
-            ((StationDataSummary)it.next()).print(reportStream);
+            ((StationDataSummary)it.next()).printGapDescription(reportStream);
+            reportStream.println();
+        }
+    }
+    
+    public void printDaysOfCoverage(PrintWriter reportStream) {
+        Collections.sort(stationDataSummaryList);
+        Iterator it = stationDataSummaryList.iterator();
+        while(it.hasNext()) {
+            ((StationDataSummary)it.next()).printDaysOfCoverage(reportStream);
             reportStream.println();
         }
     }
