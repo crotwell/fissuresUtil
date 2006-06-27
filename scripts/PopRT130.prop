@@ -33,11 +33,11 @@ network.XE05.description=no_description
 network.XE05.owner=University of South Carolina
 dataStream.1=40
 dataStream.2=1
-leapSecondTimeFileLoc=LeapSeconds
-powerUpTimeFileLoc=PowerUpTimes
-NCFileLoc=snep.nc
-XYFileLoc=SNEP_Sites.xy
-baseFileSystemLoc=D:\\rt130ServerTestData
+leapSecondFile=LeapSeconds
+powerUpTimes=PowerUpTimes
+NCFile=snep.nc
+XYFile=SNEP_Sites.xy
+seismogramDir=D:\\rt130ServerTestData
 
 #Length of data is given in milliseconds.
 nominalLengthOfData=3600000
