@@ -1,10 +1,13 @@
 package edu.sc.seis.fissuresUtil.database.seismogram;
 
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class StationDataSummary implements Comparable {
@@ -64,13 +67,14 @@ public class StationDataSummary implements Comparable {
         return result;
     }
 
-    public void print(PrintWriter reportStream) {
+    public void printGapDescription(PrintWriter reportStream) {
         Iterator it = channelCodesWithTimeRanges.keySet().iterator();
         while(it.hasNext()) {
             String channelCode = (String)it.next();
             Iterator jt = ((List)channelCodesWithTimeRanges.get(channelCode)).iterator();
             while(jt.hasNext()) {
                 MicroSecondTimeRange timeRange = (MicroSecondTimeRange)jt.next();
+                reportStream.print("    ");
                 reportStream.print(stationCode);
                 reportStream.print(" ");
                 reportStream.print(channelCode);
@@ -78,6 +82,46 @@ public class StationDataSummary implements Comparable {
                 reportStream.print(timeRange.getBeginTime().toString());
                 reportStream.print(" - ");
                 reportStream.println(timeRange.getEndTime().toString());
+            }
+        }
+    }
+
+    public void printDaysOfCoverage(PrintWriter reportStream) {
+        Iterator it = channelCodesWithTimeRanges.keySet().iterator();
+        while(it.hasNext()) {
+            String channelCode = (String)it.next();
+            if(channelCode.equals("BHZ")) {
+                TimeInterval total = null;
+                Iterator jt = ((List)channelCodesWithTimeRanges.get(channelCode)).iterator();
+                while(jt.hasNext()) {
+                    MicroSecondTimeRange timeRange = (MicroSecondTimeRange)jt.next();
+                    if(total == null) {
+                        total = timeRange.getInterval();
+                    } else {
+                        System.out.println(total.getValue(UnitImpl.HOUR));
+                        total = total.add(timeRange.getInterval());
+                        System.out.println(total.getValue(UnitImpl.HOUR));
+                        System.out.println();
+                    }
+                }
+                DecimalFormat format = new DecimalFormat();
+                format.setMaximumFractionDigits(2);
+                format.setMinimumFractionDigits(2);
+                reportStream.print("    ");
+                reportStream.print(stationCode);
+                if(total == null) {
+                    reportStream.print(" - The BHZ channel for this station recorded no time.");
+                } else {
+                    reportStream.print(" covers ");
+                    double doubleDays = total.getValue(UnitImpl.DAY);
+                    String stringDays = format.format(doubleDays);
+                    reportStream.print(stringDays);
+                    if(new Double(stringDays).doubleValue() > 1) {
+                        reportStream.print(" days.");
+                    } else {
+                        reportStream.print(" day.");
+                    }
+                }
             }
         }
     }
