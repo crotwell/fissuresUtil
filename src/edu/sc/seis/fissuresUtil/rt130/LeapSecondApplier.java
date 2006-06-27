@@ -79,11 +79,12 @@ public class LeapSecondApplier {
     public static MicroSecondDate applyLeapSecondCorrection(String unitId,
                                                             MicroSecondDate time) {
         if(unitIdToCorrections.containsKey(unitId)) {
-            time = time.subtract(new TimeInterval(howManyLeapSeconds(unitId, time),
-                                             UnitImpl.SECOND));
+            time = time.subtract(new TimeInterval(howManyLeapSeconds(unitId,
+                                                                     time),
+                                                  UnitImpl.SECOND));
         } else {
             time = time.subtract(new TimeInterval(howManyLeapSeconds(time),
-                                             UnitImpl.SECOND));
+                                                  UnitImpl.SECOND));
         }
         return time;
     }
@@ -137,4 +138,7 @@ public class LeapSecondApplier {
     public static List getPowerUpTimes(String unitId) {
         return (List)unitIdToCorrections.get(unitId);
     }
+
+    public static final String LEAP_SECOND_FILE = "leapSecondFile",
+            POWER_UP_TIMES = "powerUpTimes";
 }
