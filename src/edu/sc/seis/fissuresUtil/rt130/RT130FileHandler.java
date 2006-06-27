@@ -49,11 +49,11 @@ public class RT130FileHandler {
             ParseException {
         flags = rt130FileHandlerFlags;
         checkFlagsForIncompatibleSettings();
-        LeapSecondApplier.addLeapSeconds(props.getProperty("leapSecondTimeFileLoc"));
-        LeapSecondApplier.addCorrections(props.getProperty("powerUpTimeFileLoc"));
-        ncFile = new NCFile(props.getProperty("NCFileLoc"));
+        LeapSecondApplier.addLeapSeconds(props.getProperty(LeapSecondApplier.LEAP_SECOND_FILE));
+        LeapSecondApplier.addCorrections(props.getProperty(LeapSecondApplier.POWER_UP_TIMES));
+        ncFile = new NCFile(props.getProperty(NCFile.NC_FILE_LOC));
         logger.debug("NC file location: " + ncFile.getCanonicalPath());
-        String xyFileLoc = props.getProperty("XYFileLoc");
+        String xyFileLoc = props.getProperty(XYReader.XY_FILE_LOC);
         logger.debug("XY file location: " + xyFileLoc);
         if(flags.contains(RT130FileHandlerFlag.SCAN)
                 || flags.contains(RT130FileHandlerFlag.FULL)) {} else {
