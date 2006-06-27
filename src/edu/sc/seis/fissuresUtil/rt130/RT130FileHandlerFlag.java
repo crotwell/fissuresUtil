@@ -16,12 +16,6 @@ public class RT130FileHandlerFlag {
         return getValue();
     }
 
-    public boolean equals(Object obj) {
-        if(!(obj instanceof RT130FileHandlerFlag))
-            return false;
-        return ((RT130FileHandlerFlag)obj).getValue().equals(this.val);
-    }
-
     public String getValue() {
         return this.val;
     }
