@@ -45,7 +45,7 @@ public class RT130ToLocalSeismogram {
             throws FileNotFoundException, IOException {
         this.ncFile = ncFile;
         this.props = props;
-        String xyFileLoc = props.getProperty("XYFileLoc");
+        String xyFileLoc = props.getProperty(XYReader.XY_FILE_LOC);
         logger.debug("XY file location: " + xyFileLoc);
         stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
     }
