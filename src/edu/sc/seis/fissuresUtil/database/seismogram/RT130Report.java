@@ -33,8 +33,7 @@ import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
-public class RT130Report  {
-
+public class RT130Report {
 
     /**
      * Comment for <code>serialVersionUID</code>
@@ -84,7 +83,7 @@ public class RT130Report  {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
         RT130ReportFactory reportFactory = new RT130ReportFactory(channelIdWithTime,
-                                                        channelIdToChannel);
+                                                                  channelIdToChannel);
         TaskSeries taskSeries = new TaskSeries("Stations");
         List stationDataSummaryList = reportFactory.getSortedStationDataSummaryList();
         Iterator it = stationDataSummaryList.iterator();
@@ -162,19 +161,27 @@ public class RT130Report  {
         PrintWriter reportStream = new PrintWriter(report);
         reportStream.println("Report");
         reportStream.println("-------");
-        printRefTekImportSummary(reportStream);
-        reportStream.println("Number of stations read: " + getNumStations());
-        reportStream.println("Number of channels read: " + getNumChannels());
-        reportStream.println("Number of channels read with incontiguous data: "
+        reportStream.println("  Number of stations read: " + getNumStations());
+        reportStream.println("  Number of channels read: " + getNumChannels());
+        reportStream.println("  Number of channels read with incontiguous data: "
                 + getNumIncontiguousChannels());
         reportStream.println();
         reportStream.println("SAC Files");
         reportStream.println("----------");
-        reportStream.println("Number of files read: " + getNumSacFiles());
+        reportStream.println("  Number of files read: " + getNumSacFiles());
         reportStream.println();
         reportStream.println("MSEED Files");
         reportStream.println("------------");
-        reportStream.println("Number of files read: " + getNumMSeedFiles());
+        reportStream.println("  Number of files read: " + getNumMSeedFiles());
+        reportStream.println();
+        reportStream.println("RT130 Files");
+        reportStream.println("------------");
+        reportStream.println("  Days Of Coverage");
+        reportStream.println("  -----------------");
+        printRefTekDaysOfCoverage(reportStream);
+        reportStream.println("  Gap Description");
+        reportStream.println("  ----------------");
+        printRefTekGapDescription(reportStream);
         reportStream.println();
         reportStream.println("Problem Files");
         reportStream.println("--------------");
@@ -236,19 +243,33 @@ public class RT130Report  {
         }
         while(it.hasNext()) {
             String key = (String)it.next();
-            reportStream.println(key);
-            reportStream.println(problemFiles.get(key));
+            reportStream.println("  " + key);
+            reportStream.println("  " + problemFiles.get(key));
             reportStream.println();
         }
     }
 
-    private void printRefTekImportSummary(PrintWriter reportStream) {
+    private void printRefTekGapDescription(PrintWriter reportStream) {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
-        RT130ReportFactory reportFactory = new RT130ReportFactory(channelIdWithTime,
-                                                        channelIdToChannel);
-        reportFactory.print(reportStream);
+        if(reportFactory == null) {
+            reportFactory = new RT130ReportFactory(channelIdWithTime,
+                                                   channelIdToChannel);
+        }
+        reportFactory.printGapDescription(reportStream);
     }
+
+    private void printRefTekDaysOfCoverage(PrintWriter reportStream) {
+        // ReportFactory is used to organize the data with station codes at the
+        // top of the hierarchy, instead of channels being at the top.
+        if(reportFactory == null) {
+            reportFactory = new RT130ReportFactory(channelIdWithTime,
+                                                   channelIdToChannel);
+        }
+        reportFactory.printDaysOfCoverage(reportStream);
+    }
+
+    private RT130ReportFactory reportFactory;
 
     private int numSacFiles, numMSeedFiles;
 
