@@ -37,24 +37,28 @@ public class RT130FileHandlerFlag {
 
     public static RT130FileHandlerFlag fromString(String modeURL)
             throws UnsupportedFileTypeException {
-        if(modeURL.equals(FULL.getURLValue().toString())) {
+        if(modeURL.equals(SCAN.getURLValue().toString())) {
+            return SCAN;
+        } else if(modeURL.equals(FULL.getURLValue().toString())) {
             return FULL;
         } else if(modeURL.equals(NO_LOGS.getURLValue().toString())) {
             return NO_LOGS;
-        } else if(modeURL.equals(POP_DB_WITH_CHANNELS.getURLValue().toString())) {
-            return POP_DB_WITH_CHANNELS;
+        } else if(modeURL.equals(MAKE_LOGS.getURLValue().toString())) {
+            return MAKE_LOGS;
         }
         throw new UnsupportedFileTypeException(modeURL);
     }
 
     public static RT130FileHandlerFlag fromInt(int type)
             throws UnsupportedFileTypeException {
-        if(type == FULL.getIntValue()) {
+        if(type == SCAN.getIntValue()) {
+            return SCAN;
+        } else if(type == FULL.getIntValue()) {
             return FULL;
         } else if(type == NO_LOGS.getIntValue()) {
             return NO_LOGS;
-        } else if(type == POP_DB_WITH_CHANNELS.getIntValue()) {
-            return POP_DB_WITH_CHANNELS;
+        } else if(type == MAKE_LOGS.getIntValue()) {
+            return MAKE_LOGS;
         }
         throw new UnsupportedFileTypeException("" + type);
     }
@@ -67,12 +71,9 @@ public class RT130FileHandlerFlag {
 
     public static final RT130FileHandlerFlag NO_LOGS = new RT130FileHandlerFlag("nologs",
                                                                                 3);
-    
-    public static final RT130FileHandlerFlag MAKE_LOGS = new RT130FileHandlerFlag("nologs",
-                                                                                4);
 
-    public static final RT130FileHandlerFlag POP_DB_WITH_CHANNELS = new RT130FileHandlerFlag("popdb",
-                                                                                             5);
+    public static final RT130FileHandlerFlag MAKE_LOGS = new RT130FileHandlerFlag("nologs",
+                                                                                  4);
 
     public static final String URL_PREFIX = "http://www.seis.sc.edu/xml/RT130FileHandlerMode/";
 
