@@ -53,6 +53,7 @@ public class XYReader {
         return "Lat: " + loc.latitude + " Long: " + loc.longitude + " Elev: "
                 + loc.elevation;
     }
+    public static final String XY_FILE_LOC = "XYFile";
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(XYReader.class);
 }
