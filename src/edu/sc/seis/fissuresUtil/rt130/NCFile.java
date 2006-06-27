@@ -153,6 +153,8 @@ public class NCFile {
     public String getCanonicalPath() throws IOException {
         return file.getCanonicalPath();
     }
+    
+    public static final String NC_FILE_LOC = "NCFile";
 
     public MicroSecondDate network_begin_time;
 
