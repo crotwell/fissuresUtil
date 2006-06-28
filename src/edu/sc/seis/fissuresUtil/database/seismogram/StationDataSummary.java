@@ -98,10 +98,7 @@ public class StationDataSummary implements Comparable {
                     if(total == null) {
                         total = timeRange.getInterval();
                     } else {
-                        System.out.println(total.getValue(UnitImpl.HOUR));
                         total = total.add(timeRange.getInterval());
-                        System.out.println(total.getValue(UnitImpl.HOUR));
-                        System.out.println();
                     }
                 }
                 DecimalFormat format = new DecimalFormat();
