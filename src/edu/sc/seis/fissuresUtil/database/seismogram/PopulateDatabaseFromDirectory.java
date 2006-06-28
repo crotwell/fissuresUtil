@@ -53,6 +53,10 @@ public class PopulateDatabaseFromDirectory {
                 File file = new File(hsqlFileLocation);
                 logger.debug("HSQL properties file location: "
                         + file.getCanonicalPath());
+            } else if(args[i].equals("-f")) {
+                baseFileSystemLocation = args[i + 1];
+                logger.debug("Using alternative data location: "
+                        + baseFileSystemLocation);
             }
         }
         for(int i = 0; i < args.length; i++) {
@@ -133,8 +137,8 @@ public class PopulateDatabaseFromDirectory {
                                   fileHandler.getProps());
         } else {
             if(fileName.equals("SOH.RT")) {
-                logger.debug("Ignoring file: " + fileName);
-            } else if(fileName.equals(".DS_Store")) {
+                logger.debug("Ignoring Ref Tek file: " + fileName);
+            } else if(fileName.equals(".DS_Store") || fileName.equals("._501")) {
                 logger.debug("Ignoring Mac OS X file: " + fileName);
             } else {
                 fileHandler.getReport()
@@ -181,6 +185,7 @@ public class PopulateDatabaseFromDirectory {
         System.out.println();
         System.out.println("    -props   | Accepts alternate properties file");
         System.out.println("    -hsql    | Accepts alternate database properties file");
+        System.out.println("    -f    | Accepts alternate data directory");
         System.out.println("    -full    | Turn on full processing of RT130 data");
         System.out.println("             | Scan processing of RT130 data is on by default");
         System.out.println("             |   No other types of data can be processed");
