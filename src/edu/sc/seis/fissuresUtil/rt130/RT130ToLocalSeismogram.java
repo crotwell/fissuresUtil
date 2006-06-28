@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.log4j.Logger;
@@ -37,25 +38,55 @@ public class RT130ToLocalSeismogram {
 
     public RT130ToLocalSeismogram() {
         this.ncFile = null;
-        this.props = null;
         this.stationLocations = null;
     }
 
-    public RT130ToLocalSeismogram(NCFile ncFile, Properties props)
+    public static RT130ToLocalSeismogram create(Properties props)
             throws FileNotFoundException, IOException {
-        this.ncFile = ncFile;
-        this.props = props;
+        NCFile ncFile = new NCFile(props.getProperty(NCFile.NC_FILE_LOC));
+        logger.debug("NC file location: " + ncFile.getCanonicalPath());
         String xyFileLoc = props.getProperty(XYReader.XY_FILE_LOC);
         logger.debug("XY file location: " + xyFileLoc);
-        stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
+        Map stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
+        Map dataStreamToSampleRate = new HashMap();
+        for(int i = 1; i < 7; i++) {
+            if(props.containsKey(DATA_STREAM + i)) {
+                dataStreamToSampleRate.put(new Integer(i),
+                                           Integer.valueOf(props.getProperty(DATA_STREAM
+                                                   + i)));
+            }
+        }
+        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP
+                + "XX");
+        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString,
+                                                                  props)
+                .get_id();
+        String networkName = props.getProperty(NETWORK_NAME);
+        String networkDescription = props.getProperty(NETWORK_DESCRIPTION);
+        String networkOwner = props.getProperty(NETWORK_OWNER);
+        return new RT130ToLocalSeismogram(ncFile,
+                                          stationLocations,
+                                          dataStreamToSampleRate,
+                                          networkId,
+                                          networkName,
+                                          networkDescription,
+                                          networkOwner);
     }
 
     public RT130ToLocalSeismogram(NCFile ncFile,
-                                  Properties props,
-                                  Map stationLocations) {
+                                  Map stationLocations,
+                                  Map dataStreamToSampleRate,
+                                  NetworkId networkId,
+                                  String networkName,
+                                  String networkDescription,
+                                  String networkOwner) {
         this.ncFile = ncFile;
-        this.props = props;
         this.stationLocations = stationLocations;
+        this.dataStreamToSampleRate = dataStreamToSampleRate;
+        this.networkId = networkId;
+        this.networkName = networkName;
+        this.networkDescription = networkDescription;
+        this.networkOwner = networkOwner;
     }
 
     public LocalSeismogramImpl[] ConvertRT130ToLocalSeismogram(PacketType[] seismogramDataPacket) {
@@ -74,11 +105,9 @@ public class RT130ToLocalSeismogram {
         int numPoints = seismogramData.number_of_samples;
         if(seismogramData.sample_rate == 0) {
             logger.debug("A sample rate of 0 samples per second was detected.");
-            if(props.containsKey(DATASTREAM_TO_SAMPLE_RATE
-                    + seismogramData.data_stream_number)) {
-                seismogramData.sample_rate = Integer.valueOf(props.getProperty(DATASTREAM_TO_SAMPLE_RATE
-                        + seismogramData.data_stream_number))
-                        .intValue();
+            Integer dataStream = new Integer(seismogramData.data_stream_number);
+            if(dataStreamToSampleRate.containsKey(dataStream)) {
+                seismogramData.sample_rate = ((Integer)dataStreamToSampleRate.get(dataStream)).intValue();
                 logger.debug("The sample rate of " + seismogramData.sample_rate
                         + " was found in the props file, and will be used.");
             } else {
@@ -90,7 +119,7 @@ public class RT130ToLocalSeismogram {
                                                  new TimeInterval(1,
                                                                   UnitImpl.SECOND));
         ChannelId channelId;
-        if(ncFile == null || props == null) {
+        if(ncFile == null) {
             channelId = new ChannelId(MockNetworkId.createNetworkID(),
                                       seismogramData.unitIdNumber,
                                       "" + seismogramData.data_stream_number,
@@ -118,13 +147,8 @@ public class RT130ToLocalSeismogram {
     private Channel createChannel(PacketType seismogramData, Sampling sampling) {
         String stationCode = ncFile.getUnitName(seismogramData.begin_time_from_state_of_health_file,
                                                 seismogramData.unitIdNumber);
-        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP
-                + "XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
-        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString,
-                                                                  props)
-                .get_id();
         networkId.begin_time = networkBeginTime;
         String tempCode = "B";
         if(seismogramData.sample_rate < 10) {
@@ -162,9 +186,9 @@ public class RT130ToLocalSeismogram {
                     + "The location used for the unit will be the Gulf of Guinea (Atlantic Ocean).");
         }
         NetworkAttrImpl networkAttr = new NetworkAttrImpl(networkId,
-                                                          props.getProperty(NETWORK_NAME),
-                                                          props.getProperty(NETWORK_DESCRIPTION),
-                                                          props.getProperty(NETWORK_OWNER),
+                                                          networkName,
+                                                          networkDescription,
+                                                          networkOwner,
                                                           effectiveNetworkTime);
         StationImpl station = new StationImpl(stationId,
                                               stationCode,
@@ -199,21 +223,23 @@ public class RT130ToLocalSeismogram {
         return this.channel;
     }
 
+    private NetworkId networkId;
+
     private Channel[] channel;
 
-    private final String NETWORK_NAME = "network.name";
+    private final static String NETWORK_NAME = "network.name";
 
-    private final String NETWORK_DESCRIPTION = "network.name";
+    private final static String NETWORK_DESCRIPTION = "network.name";
 
-    private final String NETWORK_OWNER = "network.name";
+    private final static String NETWORK_OWNER = "network.name";
 
-    private final String DATASTREAM_TO_SAMPLE_RATE = "datastream.";
+    public static final String DATA_STREAM = "dataStream.";
+
+    private String networkName, networkDescription, networkOwner;
 
     private NCFile ncFile;
 
-    private Properties props;
-
-    private Map stationLocations;
+    private Map stationLocations, dataStreamToSampleRate;
 
     private static final Logger logger = Logger.getLogger(RT130ToLocalSeismogram.class);
 }
