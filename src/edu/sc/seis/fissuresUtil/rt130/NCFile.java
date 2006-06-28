@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.time.SortTool;
@@ -77,7 +78,6 @@ public class NCFile {
                 }
                 timeAndDataMapIdToName.put(time, idToName);
                 timeAndDataMapNameToId.put(time, nameToId);
-                
             }
         }
         Set keySet1 = timeAndDataMapIdToName.keySet();
@@ -115,16 +115,11 @@ public class NCFile {
                 }
             }
         }
-        System.err.println("/-------------------------");
-        System.err.println("| Unit name for DAS unit number " + unitId
+        logger.warn("Unit name for DAS unit number " + unitId
                 + " was not found in the NC file.");
-        System.err.println("| The name \"" + unitId
+        logger.warn("The name \"" + unitId
                 + "\" will be used instead.");
-        System.err.println("| To correct this entry in the database, please ");
-        System.err.println("|   run StationCodeUpdater and then StationNamePopulator.");
-        System.err.println("| ");
-        System.err.println("| The time requested was: " + time.toString());
-        System.err.println("\\-------------------------");
+        logger.warn("The time requested was: " + time.toString());
         return unitId;
     }
 
@@ -138,22 +133,18 @@ public class NCFile {
                 }
             }
         }
-        
-        System.err.println("/-------------------------");
-        System.err.println("| Unit number for DAS unit name " + unitName
+        logger.warn("Unit number for DAS unit name " + unitName
                 + " was not found in the NC file.");
-        System.err.println("| The number \"" + unitName
+        logger.warn("The number \"" + unitName
                 + "\" will be used instead.");
-        System.err.println("| ");
-        System.err.println("| The time requested was: " + time.toString());
-        System.err.println("\\-------------------------");
+        logger.warn("The time requested was: " + time.toString());
         return unitName;
     }
 
     public String getCanonicalPath() throws IOException {
         return file.getCanonicalPath();
     }
-    
+
     public static final String NC_FILE_LOC = "NCFile";
 
     public MicroSecondDate network_begin_time;
@@ -163,4 +154,6 @@ public class NCFile {
     private Map timeAndDataMapIdToName, timeAndDataMapNameToId;
 
     private File file;
+    
+    private static final Logger logger = Logger.getLogger(NCFile.class);
 }
