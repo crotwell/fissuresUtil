@@ -138,7 +138,8 @@ public class RT130ReportGenerator {
         } else {
             if(fileName.equals("SOH.RT")) {
                 logger.debug("Ignoring Ref Tek file: " + fileName);
-            } else if(fileName.equals(".DS_Store") || fileName.equals("._501")) {
+            } else if(fileName.equals(".DS_Store") || fileName.equals("._501")
+                    || fileName.equals("._504")) {
                 logger.debug("Ignoring Mac OS X file: " + fileName);
             } else {
                 fileHandler.getReport()
