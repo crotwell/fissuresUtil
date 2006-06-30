@@ -12,6 +12,12 @@ origin.create=CREATE TABLE $tablename (origin_id int, \
                                    FOREIGN KEY (origin_time_id) \
                                    REFERENCES time (time_id))
 
+origin.index_catalog=create index origin_catalog_idx on origin (origin_catalog_id)
+
+origin.index_time=create index origin_time_idx on origin (origin_time_id)
+
+origin.index_loc=create index origin_loc_idx on origin (origin_location_id)
+
 originparamref.create=CREATE TABLE originparamref (originparamrefid int, \
                                                    originparameterid int, \
                                                    FOREIGN KEY (originparamrefid) \
@@ -106,8 +112,22 @@ eventparameterreference.create=CREATE TABLE eventparameterreference ( \
 origin.views=originview
 
 originview.create=CREATE VIEW originview AS \
-    SELECT * FROM origin \
+    SELECT origin_id, origin_catalog_id, origin_event_id, origin_time_id, \
+    origin_location_id, origin_text_id, \
+    loc_id, loc_lat , loc_lon , loc_elev_id, loc_depth_id, loc_type, \
+    depth.quantity_id AS depth_id, \
+    depth.quantity_unit_id AS depth_unit_id, \
+    depth.quantity_value AS depth_value , \
+    elevation.quantity_id AS elevation_id, \
+    elevation.quantity_unit_id AS elevation_unit_id, \
+    elevation.quantity_value AS elevation_value ,   \
+    catalog_id, catalog_contributor_id, catalog_name, \
+    contributor_id, contributor_name, \
+    time_id, time_stamp , time_nanos, time_leapsec \
+    FROM origin \
     JOIN location ON (origin.origin_location_id = location.loc_id) \
+    JOIN quantity AS depth ON (loc_depth_id = depth.quantity_id) \
+    JOIN quantity AS elevation ON (loc_elev_id = elevation.quantity_id) \
     JOIN catalog ON (origin.origin_catalog_id = catalog.catalog_id) \
     JOIN contributor ON (catalog_contributor_id =   contributor.contributor_id) \
     JOIN time ON (origin.origin_time_id = time.time_id )
