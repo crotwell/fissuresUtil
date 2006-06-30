@@ -154,8 +154,12 @@ public class ReduceTool {
         }
 
         public boolean shouldMerge(Object one, Object two) {
-            return RangeTool.areContiguous(cast(one), cast(two))
-                    || RangeTool.areOverlapping(cast(one), cast(two));
+            MicroSecondTimeRange o = (MicroSecondTimeRange)one;
+            MicroSecondTimeRange t = (MicroSecondTimeRange)two;
+            if(o.getBeginTime().before(t.getBeginTime())){
+                return !o.getEndTime().before(t.getBeginTime());
+            }
+            return !t.getEndTime().before(o.getBeginTime());
         }
 
         public MicroSecondTimeRange cast(Object o) {
