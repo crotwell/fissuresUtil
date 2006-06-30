@@ -35,23 +35,10 @@ import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
 public class RT130Report {
 
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long serialVersionUID = -6054672565897409698L;
-
-    public RT130Report() {
-        this.numSacFiles = 0;
-        this.numMSeedFiles = 0;
-        this.problemFiles = new HashMap();
-        this.channelIdWithTime = new HashMap();
-        this.channelIdToChannel = new HashMap();
-    }
-
     public void addRefTekSeismogram(Channel channel,
                                     MicroSecondDate beginTime,
                                     MicroSecondDate endTime) {
-        String channelId = ChannelIdUtil.toString(channel.get_id());
+        String channelId = getIdString(channel);
         channelIdToChannel.put(channelId, channel);
         MicroSecondTimeRange timeRange = new MicroSecondTimeRange(beginTime,
                                                                   endTime);
@@ -269,13 +256,22 @@ public class RT130Report {
         reportFactory.printDaysOfCoverage(reportStream);
     }
 
+    private String getIdString(Channel chan) {
+        if(!channelToIDString.containsKey(chan)) {
+            channelToIDString.put(chan, ChannelIdUtil.toString(chan.get_id()));
+        }
+        return (String)channelToIDString.get(chan);
+    }
+
     private RT130ReportFactory reportFactory;
 
     private int numSacFiles, numMSeedFiles;
 
-    private Map problemFiles;
+    private Map problemFiles = new HashMap();
 
-    private Map channelIdWithTime;
+    private Map channelIdWithTime = new HashMap();
 
-    private Map channelIdToChannel;
+    private Map channelIdToChannel = new HashMap();
+
+    private Map channelToIDString = new HashMap();
 }
