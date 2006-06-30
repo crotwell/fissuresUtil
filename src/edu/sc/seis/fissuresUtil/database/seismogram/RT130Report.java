@@ -108,7 +108,7 @@ public class RT130Report {
         }
         TaskSeriesCollection dataset = new TaskSeriesCollection();
         dataset.add(taskSeries);
-        JFreeChart chart = ChartFactory.createGanttChart("Database Population Report",
+        JFreeChart chart = ChartFactory.createGanttChart("RT130 Report",
                                                          "Station",
                                                          "Time",
                                                          dataset,
@@ -122,10 +122,10 @@ public class RT130Report {
         printChartToPDF(chart, 1024, 768, "RT130Report.pdf");
     }
 
-    void printChartToPDF(JFreeChart chart,
-                         int width,
-                         int height,
-                         String fileName) {
+    private void printChartToPDF(JFreeChart chart,
+                                 int width,
+                                 int height,
+                                 String fileName) {
         try {
             Document document = new Document(new com.lowagie.text.Rectangle(width,
                                                                             height));
