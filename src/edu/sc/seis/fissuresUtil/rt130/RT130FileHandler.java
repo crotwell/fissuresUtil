@@ -61,6 +61,7 @@ public class RT130FileHandler {
         this.report = new RT130Report();
         this.props = props;
         stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
+        toSeismogram = RT130ToLocalSeismogram.create(props);
     }
 
     public boolean processSingleRefTekScan(String fileLoc, String fileName)
@@ -167,7 +168,7 @@ public class RT130FileHandler {
                     + "\n" + e.getMessage());
             return false;
         }
-        RT130ToLocalSeismogram toSeismogram = RT130ToLocalSeismogram.create(props);
+        toSeismogram = RT130ToLocalSeismogram.create(props);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         Channel[] channel = toSeismogram.getChannels();
         // Check database for channels that match (with lat/long buffer)
@@ -249,7 +250,7 @@ public class RT130FileHandler {
             logger.error("XY file did not contain a location for unit "
                     + stationCode
                     + ".\n"
-                    + "The location used for the unit will be the Gulf of Guinea (Atlantic Ocean).");
+                    + "The location used for the unit will be a lat/long of 0/0.");
         }
         NetworkAttrImpl networkAttr = PopulationProperties.getNetworkAttr(networkIdString,
                                                                           props);
@@ -316,7 +317,7 @@ public class RT130FileHandler {
                     + "\n" + e.getMessage());
             return false;
         }
-        RT130ToLocalSeismogram toSeismogram = RT130ToLocalSeismogram.create(props);
+        toSeismogram = RT130ToLocalSeismogram.create(props);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
             saveRefTekChannelToDatabase(knownChannel,
@@ -369,6 +370,8 @@ public class RT130FileHandler {
     public JDBCSeismogramFiles getJDBCSeismogramFiles() {
         return jdbcSeisFile;
     }
+
+    private RT130ToLocalSeismogram toSeismogram;
 
     private List flags;
 
