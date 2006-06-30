@@ -2,10 +2,21 @@ package edu.sc.seis.fissuresUtil.rt130;
 
 import java.io.DataInput;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
-import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.fissuresUtil.rt130.packetTypes.*;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.AuxiliaryDataParameterPacket;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.CalibrationParameterPacket;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.DataPacket;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.DataStreamParameterPacket;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.EventHeaderPacket;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.EventTrailerPacket;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.OperatingModeParameterPacket;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.StateOfHealthPacket;
+import edu.sc.seis.fissuresUtil.rt130.packetTypes.StationChannelParameterPacket;
 
 /**
  * @author fenner Created on Jun 14, 2005
@@ -110,7 +121,7 @@ public class PacketType {
         // Time
         String timeString = BCDRead.toString(this.readBytes(in, 6));
         // System.out.println("Time: " + timeString);
-        time = this.stringToMicroSecondDate(timeString, (year + 2000));
+        time = this.stringToMicroSecondDate(timeString, year);
         begin_time_of_first_packet = time;
         // System.out.println("Micro Second Date Time: " + time.toString());
         // Byte Count
@@ -168,63 +179,24 @@ public class PacketType {
     private MicroSecondDate stringToMicroSecondDate(String timeString,
                                                     int yearInt)
             throws RT130FormatException {
-        // System.out.println(timeString + " " + yearInt);
-        String fractionsOfSecond = "";
-        String seconds = "";
-        String minutes = "";
-        String hours = "";
-        String daysOfYearReversed = "";
-        if(timeString.length() >= 1) {
-            fractionsOfSecond = "" + timeString.charAt(timeString.length() - 3);
-            fractionsOfSecond = fractionsOfSecond
-                    + timeString.charAt(timeString.length() - 2);
-            fractionsOfSecond = fractionsOfSecond
-                    + timeString.charAt(timeString.length() - 1);
+        if(yearInt < 10) {
+            timeString = "0" + yearInt + timeString;
+        } else {
+            timeString = yearInt + timeString;
         }
-        if(timeString.length() >= 5) {
-            seconds = "" + timeString.charAt(timeString.length() - 5);
-            seconds = seconds + timeString.charAt(timeString.length() - 4);
+        try {
+            Date d;
+            synchronized(df) {
+                d = df.parse(timeString);
+            }
+            return new MicroSecondDate(d);
+        } catch(ParseException e) {
+            throw new RT130FormatException("Couldn't understand time string "
+                    + timeString + ".  " + e.getMessage());
         }
-        if(timeString.length() >= 7) {
-            minutes = "" + timeString.charAt(timeString.length() - 7);
-            minutes = minutes + timeString.charAt(timeString.length() - 6);
-        }
-        if(timeString.length() >= 9) {
-            hours = "" + timeString.charAt(timeString.length() - 9);
-            hours = hours + timeString.charAt(timeString.length() - 8);
-        }
-        if(timeString.length() >= 10) {
-            daysOfYearReversed = ""
-                    + timeString.charAt(timeString.length() - 10);
-        }
-        if(timeString.length() >= 11) {
-            daysOfYearReversed = daysOfYearReversed
-                    + timeString.charAt(timeString.length() - 11);
-        }
-        if(timeString.length() >= 12) {
-            daysOfYearReversed = daysOfYearReversed
-                    + timeString.charAt(timeString.length() - 12);
-        }
-        if(timeString.length() > 12 || timeString.length() < 9) {
-            throw new RT130FormatException("Cannot read time field of Packet Header.");
-        }
-        String daysOfYear = "0";
-        for(int i = daysOfYearReversed.length() - 1; i >= 0; i--) {
-            daysOfYear = daysOfYear.concat("" + daysOfYearReversed.charAt(i));
-        }
-        int daysOfYearInt = Integer.valueOf(daysOfYear).intValue();
-        int hoursInt = Integer.valueOf(hours).intValue();
-        int minutesInt = Integer.valueOf(minutes).intValue();
-        seconds = seconds.concat(".");
-        seconds = seconds.concat(fractionsOfSecond);
-        float secondsFloat = Float.valueOf(seconds).floatValue();
-        ISOTime isoTime = new ISOTime(yearInt,
-                                      daysOfYearInt,
-                                      hoursInt,
-                                      minutesInt,
-                                      secondsFloat);
-        return isoTime.getDate();
     }
+
+    private static DateFormat df = new SimpleDateFormat("yyDDDHHmmssSSS");
 
     protected String packetType, unitIdNumber;
 
