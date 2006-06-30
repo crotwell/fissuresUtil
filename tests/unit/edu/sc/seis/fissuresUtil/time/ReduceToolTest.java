@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.time;
 
+import java.util.Date;
 import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
@@ -8,6 +9,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
 
@@ -69,8 +71,63 @@ public class ReduceToolTest extends TestCase {
                                                                  contig}).length);
     }
 
+    public void testOverlappingMSTR() {
+        assertEquals(1,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[1],
+                                                                                           dates[3]),
+                                                                  new MicroSecondTimeRange(dates[0],
+                                                                                           dates[2])}).length);
+        assertEquals(1,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[0],
+                                                                                           dates[2]),
+                                                                  new MicroSecondTimeRange(dates[1],
+                                                                                           dates[3])}).length);
+    }
+    
+    public void testContainedMSTR(){
+        assertEquals(1,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[1],
+                                                                                           dates[2]),
+                                                                  new MicroSecondTimeRange(dates[0],
+                                                                                           dates[3])}).length);
+        assertEquals(1,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[0],
+                                                                                           dates[3]),
+                                                                  new MicroSecondTimeRange(dates[1],
+                                                                                           dates[2])}).length);
+    }
+    
+    public void testSplitMSTR(){
+        assertEquals(2,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[0],
+                                                                                           dates[1]),
+                                                                  new MicroSecondTimeRange(dates[2],
+                                                                                           dates[3])}).length);
+        assertEquals(2,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[2],
+                                                                                           dates[3]),
+                                                                  new MicroSecondTimeRange(dates[0],
+                                                                                           dates[1])}).length);
+    }
+    
+    public void testTouchingEndBeginMSTR(){
+        assertEquals(1,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[0],
+                                                                                           dates[1]),
+                                                                  new MicroSecondTimeRange(dates[1],
+                                                                                           dates[2])}).length);
+        assertEquals(1,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[1],
+                                                                                           dates[2]),
+                                                                  new MicroSecondTimeRange(dates[0],
+                                                                                           dates[1])}).length);
+    }
+static MicroSecondDate[] dates = new MicroSecondDate[4];
     static {
         BasicConfigurator.configure(new NullAppender());
+        for(int i = 0; i < dates.length; i++) {
+            dates[i] = new MicroSecondDate(new Date(i));
+        }
     }
 
     MicroSecondDate start = new MicroSecondDate();

@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
-import edu.iris.Fissures.model.ISOTime;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -58,6 +60,21 @@ public class FileNameParser {
         int hours = Integer.valueOf(fileName.substring(0, 2)).intValue();
         int minutes = Integer.valueOf(fileName.substring(2, 4)).intValue();
         int seconds = Integer.valueOf(fileName.substring(4, 6)).intValue();
-        return new ISOTime(year, dayOfYear, hours, minutes, seconds).getDate();
+        Date d;
+        synchronized(beginParserCal) {
+            beginParserCal.set(Calendar.YEAR, year);
+            beginParserCal.set(Calendar.DAY_OF_YEAR, dayOfYear);
+            beginParserCal.set(Calendar.HOUR_OF_DAY, hours);
+            beginParserCal.set(Calendar.MINUTE, minutes);
+            beginParserCal.set(Calendar.SECOND, seconds);
+            d = beginParserCal.getTime();
+        }
+        return new MicroSecondDate(d);
+    }
+
+    private static Calendar beginParserCal = Calendar.getInstance();
+    static {
+        beginParserCal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        beginParserCal.set(Calendar.MILLISECOND, 0);
     }
 }
