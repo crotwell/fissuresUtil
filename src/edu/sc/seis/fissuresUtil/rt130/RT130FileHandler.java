@@ -168,7 +168,6 @@ public class RT130FileHandler {
                     + "\n" + e.getMessage());
             return false;
         }
-        toSeismogram = RT130ToLocalSeismogram.create(props);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         Channel[] channel = toSeismogram.getChannels();
         // Check database for channels that match (with lat/long buffer)
@@ -317,7 +316,6 @@ public class RT130FileHandler {
                     + "\n" + e.getMessage());
             return false;
         }
-        toSeismogram = RT130ToLocalSeismogram.create(props);
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
             saveRefTekChannelToDatabase(knownChannel,
