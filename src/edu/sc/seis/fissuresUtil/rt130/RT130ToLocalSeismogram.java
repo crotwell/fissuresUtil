@@ -51,7 +51,7 @@ public class RT130ToLocalSeismogram {
         Map dataStreamToSampleRate = new HashMap();
         for(int i = 1; i < 7; i++) {
             if(props.containsKey(DATA_STREAM + i)) {
-                dataStreamToSampleRate.put(new Integer(i),
+                dataStreamToSampleRate.put(new Integer(i - 1),
                                            Integer.valueOf(props.getProperty(DATA_STREAM
                                                    + i)));
             }
