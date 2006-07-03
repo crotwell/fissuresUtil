@@ -18,6 +18,9 @@ import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 
 public class PopulationProperties {
+    public static NetworkAttrImpl getNetworkAttr(Properties props) {
+        return getNetworkAttr(props.getProperty(NETWORK_REMAP + "XX"), props);
+    }
 
     public static NetworkAttrImpl getNetworkAttr(String netString, Properties props) {
         if(netString.equals("XX") || netString.trim().length() == 0) {
