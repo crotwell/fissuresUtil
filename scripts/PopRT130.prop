@@ -37,7 +37,7 @@ leapSecondFile=LeapSeconds
 powerUpTimes=PowerUpTimes
 NCFile=snep.nc
 XYFile=SNEP_Sites.xy
-seismogramDir=D:\\rt130ServerTestData
+seismogramDir=/data/SNEP/Tar_Extracts
 
 #Length of data is given in milliseconds.
 nominalLengthOfData=3600000
