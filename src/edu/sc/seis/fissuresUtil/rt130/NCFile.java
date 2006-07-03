@@ -117,8 +117,7 @@ public class NCFile {
         }
         logger.warn("Unit name for DAS unit number " + unitId
                 + " was not found in the NC file.");
-        logger.warn("The name \"" + unitId
-                + "\" will be used instead.");
+        logger.warn("The name \"" + unitId + "\" will be used instead.");
         logger.warn("The time requested was: " + time.toString());
         return unitId;
     }
@@ -135,8 +134,7 @@ public class NCFile {
         }
         logger.warn("Unit number for DAS unit name " + unitName
                 + " was not found in the NC file.");
-        logger.warn("The number \"" + unitName
-                + "\" will be used instead.");
+        logger.warn("The number \"" + unitName + "\" will be used instead.");
         logger.warn("The time requested was: " + time.toString());
         return unitName;
     }
@@ -154,6 +152,6 @@ public class NCFile {
     private Map timeAndDataMapIdToName, timeAndDataMapNameToId;
 
     private File file;
-    
+
     private static final Logger logger = Logger.getLogger(NCFile.class);
 }
