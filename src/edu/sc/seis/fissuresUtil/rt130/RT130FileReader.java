@@ -295,8 +295,8 @@ public class RT130FileReader {
                                                 this.processData);
                 } catch(EOFException e) {
                     logger.warn("End of file reached before Event Trailer Packet was read."
-                            + "The file likely contains an incomplete seismogram."
-                            + "Local seismogram creation was not disturbed.");
+                            + " The file likely contains an incomplete seismogram."
+                            + " Local seismogram creation was not disturbed.");
                     for(Integer j = new Integer(0); seismogramData.containsKey(j); j = new Integer(j.intValue() + 1)) {
                         seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
                                                                       stateOfHealthData,
@@ -326,10 +326,10 @@ public class RT130FileReader {
             logger.warn("The Event Header Packet for channel "
                     + seismogramData.channel_number + " was missing "
                     + "from the beginning of the data file."
-                    + "This rare occurance is handled by using "
+                    + " This rare occurance is handled by using "
                     + "the header information from the first "
                     + "data packet instead."
-                    + "The only information unable to be recovered "
+                    + " The only information unable to be recovered "
                     + "this way is the data sample rate. The sample rate from "
                     + "the Event Trailer Packet will be used.");
         }
@@ -369,11 +369,12 @@ public class RT130FileReader {
                     + seismogramData.channel_number
                     + " were missing "
                     + "from the beginning and end of the data file."
-                    + "This rare occurance is handled by using "
+                    + " This rare occurance is handled by using "
                     + "the header information from the first "
                     + "data packet instead."
-                    + "The only information unable to be recovered "
-                    + "is the data sample rate. The current sample rate is "
+                    + " The only information unable to be recovered "
+                    + "is the data sample rate, which will be gathered from the props file."
+                    + " The current sample rate is "
                     + seismogramData.sample_rate + " samples per second.");
         }
         return new PacketType(seismogramData);
