@@ -122,6 +122,19 @@ public class ReduceToolTest extends TestCase {
                                                                   new MicroSecondTimeRange(dates[0],
                                                                                            dates[1])}).length);
     }
+    
+    public void testZeroLengthMSTR(){
+        assertEquals(1,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[0],
+                                                                                           dates[1]),
+                                                                  new MicroSecondTimeRange(dates[1],
+                                                                                           dates[1])}).length);
+        assertEquals(1,
+                     ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[1],
+                                                                                           dates[2]),
+                                                                  new MicroSecondTimeRange(dates[1],
+                                                                                           dates[1])}).length);
+    }
 static MicroSecondDate[] dates = new MicroSecondDate[4];
     static {
         BasicConfigurator.configure(new NullAppender());
