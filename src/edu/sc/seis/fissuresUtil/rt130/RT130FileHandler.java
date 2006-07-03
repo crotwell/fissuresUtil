@@ -132,7 +132,7 @@ public class RT130FileHandler {
                     Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
                             + datastream);
                     for(int i = 0; i < channel.length; i++) {
-                        saveRefTekChannelToDatabase(channel[i],
+                        addSeismogramToReport(channel[i],
                                                     beginTime,
                                                     endTime);
                     }
@@ -175,7 +175,7 @@ public class RT130FileHandler {
         for(int i = 0; i < seismogramArray.length; i++) {
             if(flags.contains(RT130FileHandlerFlag.SCAN)
                     || flags.contains(RT130FileHandlerFlag.FULL)) {
-                saveRefTekChannelToDatabase(channel[i],
+                addSeismogramToReport(channel[i],
                                             seismogramArray[i].getBeginTime(),
                                             seismogramArray[i].getEndTime());
             } else {
@@ -183,13 +183,13 @@ public class RT130FileHandler {
                                                                      new QuantityImpl(1,
                                                                                       UnitImpl.KILOMETER));
                 if(closeChannel == null) {
-                    saveRefTekChannelToDatabase(channel[i],
+                    addSeismogramToReport(channel[i],
                                                 seismogramArray[i].getBeginTime(),
                                                 seismogramArray[i].getEndTime());
                 } else {
                     jdbcSeisFile.setChannelBeginTimeToEarliest(closeChannel,
                                                                channel[i]);
-                    saveRefTekChannelToDatabase(closeChannel,
+                    addSeismogramToReport(closeChannel,
                                                 seismogramArray[i].getBeginTime(),
                                                 seismogramArray[i].getEndTime());
                 }
@@ -318,7 +318,7 @@ public class RT130FileHandler {
         }
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
-            saveRefTekChannelToDatabase(knownChannel,
+            addSeismogramToReport(knownChannel,
                                         LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
                                                                                     seismogramArray[i].getBeginTime()),
                                         LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
@@ -327,7 +327,7 @@ public class RT130FileHandler {
         return true;
     }
 
-    private void saveRefTekChannelToDatabase(Channel channel,
+    private void addSeismogramToReport(Channel channel,
                                              MicroSecondDate beginTime,
                                              MicroSecondDate endTime)
             throws SQLException, NotFound {
