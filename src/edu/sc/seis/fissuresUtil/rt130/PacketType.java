@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
-import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.AuxiliaryDataParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.CalibrationParameterPacket;
