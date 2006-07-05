@@ -68,6 +68,7 @@ public class RT130ReportGenerator {
                 logger.debug("Log creation: OFF");
             } else if(args[i].equals("-h") || args[i].equals("-help")) {
                 printHelp();
+                System.exit(0);
             }
         }
         if(scanMode == RT130FileHandlerFlag.SCAN) {
@@ -184,12 +185,12 @@ public class RT130ReportGenerator {
         System.out.println("    The default SOD properties file is server.properties.");
         System.out.println("    The default database properties file is server.properties.");
         System.out.println();
-        System.out.println("    -props   | Accepts alternate properties file");
-        System.out.println("    -hsql    | Accepts alternate database properties file");
-        System.out.println("    -f    | Accepts alternate data directory");
-        System.out.println("    -full    | Turn on full processing of RT130 data");
-        System.out.println("             | Scan processing of RT130 data is on by default");
-        System.out.println("             |   No other types of data can be processed");
+        System.out.println("    -props   | Accepts alternate properties file.");
+        System.out.println("    -hsql    | Accepts alternate database properties file.");
+        System.out.println("    -f       | Accepts alternate data directory.");
+        System.out.println("    -full    | Turn on full processing of RT130 data.");
+        System.out.println("             | Scan processing of RT130 data is on by default.");
+        System.out.println("             |   No other types of data can be processed using scan method.");
         System.out.println("    -nologs  | Do not produce master SOH file log.");
         System.out.println();
         System.out.println();
