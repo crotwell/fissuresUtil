@@ -42,31 +42,35 @@ public class RT130ReportGenerator {
         String baseFileSystemLocation = props.getProperty(BASE_FILE_SYSTEM_LOCATION);
         RT130FileHandlerFlag scanMode = RT130FileHandlerFlag.SCAN;
         RT130FileHandlerFlag makeLogs = RT130FileHandlerFlag.MAKE_LOGS;
-        for(int i = 1; i < args.length - 1; i++) {
+        for(int i = 1; i < args.length; i++) {
             if(args[i].equals("-props")) {
                 String propFileLocation = args[i + 1];
                 File file = new File(propFileLocation);
                 logger.debug("Properties file location: "
                         + file.getCanonicalPath());
+                i++;
             } else if(args[i].equals("-hsql")) {
                 String hsqlFileLocation = args[i + 1];
                 File file = new File(hsqlFileLocation);
                 logger.debug("HSQL properties file location: "
                         + file.getCanonicalPath());
+                i++;
             } else if(args[i].equals("-f")) {
                 baseFileSystemLocation = args[i + 1];
                 logger.debug("Using alternative data location: "
                         + baseFileSystemLocation);
-            }
-        }
-        for(int i = 0; i < args.length; i++) {
-            if(args[i].equals("-full")) {
+                i++;
+            } else if(args[i].equals("-full")) {
                 scanMode = RT130FileHandlerFlag.FULL;
                 logger.debug("Full processing of RT130 data: ON");
             } else if(args[i].equals("-nologs")) {
                 makeLogs = RT130FileHandlerFlag.NO_LOGS;
                 logger.debug("Log creation: OFF");
             } else if(args[i].equals("-h") || args[i].equals("-help")) {
+                printHelp();
+                System.exit(0);
+            } else {
+                System.out.println("Incorrect arguments entered.");
                 printHelp();
                 System.exit(0);
             }
