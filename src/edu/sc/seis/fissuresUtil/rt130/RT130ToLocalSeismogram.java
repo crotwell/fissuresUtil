@@ -53,7 +53,7 @@ public class RT130ToLocalSeismogram {
             if(props.containsKey(DATA_STREAM + i)) {
                 dataStreamToSampleRate.put(new Integer(i - 1),
                                            new Integer(pp.getInt(DATA_STREAM
-                                                   + "." + i)));
+                                                   + i)));
             }
         }
         NetworkAttr attr = PopulationProperties.getNetworkAttr(props);
@@ -88,7 +88,8 @@ public class RT130ToLocalSeismogram {
         Time mockBeginTimeOfChannel = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
         int numPoints = seismogramData.number_of_samples;
         if(seismogramData.sample_rate == 0) {
-            logger.debug("A sample rate of 0 samples per second was detected.");
+            logger.debug("A sample rate of 0 samples per second was detected for data stream number "
+                    + seismogramData.data_stream_number + ".");
             Integer dataStream = new Integer(seismogramData.data_stream_number);
             if(dataStreamToSampleRate.containsKey(dataStream)) {
                 seismogramData.sample_rate = ((Integer)dataStreamToSampleRate.get(dataStream)).intValue();
@@ -204,7 +205,7 @@ public class RT130ToLocalSeismogram {
 
     private NetworkAttr networkAttr;
 
-    public static final String DATA_STREAM = "dataStream";
+    public static final String DATA_STREAM = "dataStream.";
 
     private NCFile ncFile;
 
