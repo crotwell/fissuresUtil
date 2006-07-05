@@ -17,7 +17,6 @@ import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
-import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
@@ -134,12 +133,12 @@ public class RT130ToLocalSeismogram {
                                                 seismogramData.unitIdNumber);
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
-        networkId.begin_time = networkBeginTime;
+        networkAttr.get_id().begin_time = networkBeginTime;
         String tempCode = "B";
         if(seismogramData.sample_rate < 10) {
             tempCode = "L";
         }
-        ChannelId channelId = new ChannelId(networkId,
+        ChannelId channelId = new ChannelId(networkAttr.get_id(),
                                             stationCode,
                                             "00",
                                             tempCode
@@ -148,11 +147,11 @@ public class RT130ToLocalSeismogram {
                                             channelBeginTime);
         TimeRange effectiveChannelTime = new TimeRange(channelBeginTime,
                                                        TimeUtils.timeUnknown);
-        SiteId siteId = new SiteId(networkId,
+        SiteId siteId = new SiteId(networkAttr.get_id(),
                                    stationCode,
                                    "00",
                                    channelBeginTime);
-        StationId stationId = new StationId(networkId,
+        StationId stationId = new StationId(networkAttr.get_id(),
                                             stationCode,
                                             channelBeginTime);
         Location location = new Location(0,
@@ -200,8 +199,6 @@ public class RT130ToLocalSeismogram {
     public Channel[] getChannels() {
         return channel;
     }
-
-    private NetworkId networkId;
 
     private Channel[] channel;
 
