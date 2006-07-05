@@ -15,41 +15,11 @@ public class FileNameParser {
             System.err.println("The file is not 18 characters in length.");
             throw new RT130FormatException();
         } else {
-            String[] hexLengthOfData = {fileName.substring(17, 18),
-                                        fileName.substring(16, 17),
-                                        fileName.substring(15, 16),
-                                        fileName.substring(14, 15),
-                                        fileName.substring(13, 14),
-                                        fileName.substring(12, 13),
-                                        fileName.substring(11, 12),
-                                        fileName.substring(10, 11)};
-            double milliseconds = 0;
-            for(int i = 0; i < hexLengthOfData.length; i++) {
-                milliseconds = milliseconds
-                        + (convertHexToDecimal(hexLengthOfData[i]) * (Math.pow(16.0,
-                                                                               i)));
-            }
-            TimeInterval lengthOfData = new TimeInterval(milliseconds,
+            String stringLengthOfData = fileName.substring(10, 18);
+            long longLengthOfData = Long.parseLong(stringLengthOfData, 16);
+            TimeInterval lengthOfData = new TimeInterval(longLengthOfData,
                                                          UnitImpl.MILLISECOND);
             return lengthOfData;
-        }
-    }
-
-    private static int convertHexToDecimal(String a) {
-        if(a.equals("F")) {
-            return 15;
-        } else if(a.equals("E")) {
-            return 14;
-        } else if(a.equals("D")) {
-            return 13;
-        } else if(a.equals("C")) {
-            return 12;
-        } else if(a.equals("B")) {
-            return 11;
-        } else if(a.equals("A")) {
-            return 10;
-        } else {
-            return Integer.valueOf(a).intValue();
         }
     }
 
