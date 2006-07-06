@@ -48,8 +48,8 @@ public class RT130Report {
         List list = ((List)channelIdWithTime.get(channelId));
         list.add(timeRange);
     }
-    
-    private void mergeTimes(){
+
+    private void mergeTimes() {
         Iterator it = channelIdWithTime.keySet().iterator();
         while(it.hasNext()) {
             String key = (String)it.next();
@@ -71,8 +71,13 @@ public class RT130Report {
         this.numSacFiles++;
     }
 
-    public void makeReportImage() {
+    public void outputReport() {
         mergeTimes();
+        printReport();
+        makeReportImage();
+    }
+
+    private void makeReportImage() {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
         RT130ReportFactory reportFactory = new RT130ReportFactory(channelIdWithTime,
@@ -144,8 +149,7 @@ public class RT130Report {
         }
     }
 
-    public void printReport() {
-        mergeTimes();
+    private void printReport() {
         FileWriter report = null;
         try {
             report = new FileWriter("RT130Report.txt");
@@ -177,9 +181,13 @@ public class RT130Report {
         reportStream.println("  ----------------");
         printRefTekGapDescription(reportStream);
         reportStream.println();
-        reportStream.println("Problem Files");
-        reportStream.println("--------------");
-        printProblemFiles(reportStream);
+        reportStream.println("File Format Exception Files");
+        reportStream.println("----------------------------");
+        printFileFormatExceptionFiles(reportStream);
+        reportStream.println();
+        reportStream.println("Malformed File Name Exception Files");
+        reportStream.println("------------------------------------");
+        printMalformedFileNameExceptionFiles(reportStream);
         reportStream.close();
         try {
             report.close();
@@ -188,8 +196,13 @@ public class RT130Report {
         }
     }
 
-    public void addProblemFile(String fileLoc, String problemDescription) {
-        problemFiles.put(fileLoc, problemDescription);
+    public void addFileFormatException(String fileLoc, String problemDescription) {
+        fileFormatException.put(fileLoc, problemDescription);
+    }
+
+    public void addMalformedFileNameException(String fileLoc,
+                                              String problemDescription) {
+        malformedFileNameException.put(fileLoc, problemDescription);
     }
 
     public int getNumStations() {
@@ -230,15 +243,28 @@ public class RT130Report {
         return numMSeedFiles;
     }
 
-    private void printProblemFiles(PrintWriter reportStream) {
-        Iterator it = problemFiles.keySet().iterator();
+    private void printFileFormatExceptionFiles(PrintWriter reportStream) {
+        Iterator it = fileFormatException.keySet().iterator();
         if(!it.hasNext()) {
-            reportStream.println("No problem files.");
+            reportStream.println("No File Format Exception files.");
         }
         while(it.hasNext()) {
             String key = (String)it.next();
             reportStream.println("  " + key);
-            reportStream.println("  " + problemFiles.get(key));
+            reportStream.println("  " + fileFormatException.get(key));
+            reportStream.println();
+        }
+    }
+
+    private void printMalformedFileNameExceptionFiles(PrintWriter reportStream) {
+        Iterator it = malformedFileNameException.keySet().iterator();
+        if(!it.hasNext()) {
+            reportStream.println("No Malformed File Name Exception files.");
+        }
+        while(it.hasNext()) {
+            String key = (String)it.next();
+            reportStream.println("  " + key);
+            reportStream.println("  " + malformedFileNameException.get(key));
             reportStream.println();
         }
     }
@@ -274,7 +300,9 @@ public class RT130Report {
 
     private int numSacFiles, numMSeedFiles;
 
-    private Map problemFiles = new HashMap();
+    private Map fileFormatException = new HashMap();
+
+    private Map malformedFileNameException = new HashMap();
 
     private Map channelIdWithTime = new HashMap();
 
