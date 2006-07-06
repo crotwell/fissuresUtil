@@ -153,8 +153,10 @@ public class PacketType {
             this.eHP = new EventHeaderPacket(in);
             begin_time_of_seismogram = time;
             end_time_of_last_packet = time;
-            sample_rate = Integer.valueOf(this.eHP.sampleRate.trim())
-                    .intValue();
+            String stringSampleRate = this.eHP.sampleRate.trim();
+            if(stringSampleRate != null && !stringSampleRate.equals("")) {
+                sample_rate = Integer.valueOf(stringSampleRate).intValue();
+            }
         } else if(packetType.equals("ET")) {
             this.eTP = new EventTrailerPacket(in);
             sample_rate = Integer.valueOf(this.eTP.sampleRate.trim())
@@ -198,8 +200,7 @@ public class PacketType {
     }
 
     private static DateFormat df = new SimpleDateFormat("yyDDDHHmmssSSS");
-    
-    static{
+    static {
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
