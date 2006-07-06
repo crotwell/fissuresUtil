@@ -57,6 +57,20 @@ public class RT130Report {
             channelIdWithTime.put(channelId, list);
         }
     }
+    
+    private void mergeTimes(){
+        Iterator it = channelIdWithTime.keySet().iterator();
+        while(it.hasNext()) {
+            String key = (String)it.next();
+            List list = ((List)channelIdWithTime.get(key));
+            MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge((MicroSecondTimeRange[])list.toArray(new MicroSecondTimeRange[0]));
+            List newList = new LinkedList();
+            for(int i = 0; i < timeRangeArray.length; i++) {
+                newList.add(timeRangeArray[i]);
+            }
+            channelIdWithTime.put(key, newList);
+        }
+    }
 
     public void addMSeedSeismogram() {
         this.numMSeedFiles++;
@@ -67,6 +81,7 @@ public class RT130Report {
     }
 
     public void makeReportImage() {
+        mergeTimes();
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
         RT130ReportFactory reportFactory = new RT130ReportFactory(channelIdWithTime,
@@ -139,6 +154,7 @@ public class RT130Report {
     }
 
     public void printReport() {
+        mergeTimes();
         FileWriter report = null;
         try {
             report = new FileWriter("RT130Report.txt");
