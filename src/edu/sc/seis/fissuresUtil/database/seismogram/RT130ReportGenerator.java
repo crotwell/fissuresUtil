@@ -42,7 +42,7 @@ public class RT130ReportGenerator {
         String baseFileSystemLocation = props.getProperty(BASE_FILE_SYSTEM_LOCATION);
         RT130FileHandlerFlag scanMode = RT130FileHandlerFlag.SCAN;
         RT130FileHandlerFlag makeLogs = RT130FileHandlerFlag.MAKE_LOGS;
-        for(int i = 1; i < args.length; i++) {
+        for(int i = 0; i < args.length; i++) {
             if(args[i].equals("-props")) {
                 String propFileLocation = args[i + 1];
                 File file = new File(propFileLocation);
