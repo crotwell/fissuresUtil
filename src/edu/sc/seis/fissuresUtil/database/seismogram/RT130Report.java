@@ -7,10 +7,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,20 +42,11 @@ public class RT130Report {
         channelIdToChannel.put(channelId, channel);
         MicroSecondTimeRange timeRange = new MicroSecondTimeRange(beginTime,
                                                                   endTime);
-        if(channelIdWithTime.containsKey(channelId)) {
-            List list = ((List)channelIdWithTime.get(channelId));
-            list.add(timeRange);
-            MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge((MicroSecondTimeRange[])list.toArray(new MicroSecondTimeRange[0]));
-            List newList = new LinkedList();
-            for(int i = 0; i < timeRangeArray.length; i++) {
-                newList.add(timeRangeArray[i]);
-            }
-            channelIdWithTime.put(channelId, newList);
-        } else {
-            List list = new LinkedList();
-            list.add(timeRange);
-            channelIdWithTime.put(channelId, list);
+        if(!channelIdWithTime.containsKey(channelId)) {
+            channelIdWithTime.put(channelId, new ArrayList());
         }
+        List list = ((List)channelIdWithTime.get(channelId));
+        list.add(timeRange);
     }
     
     private void mergeTimes(){
@@ -64,7 +55,7 @@ public class RT130Report {
             String key = (String)it.next();
             List list = ((List)channelIdWithTime.get(key));
             MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge((MicroSecondTimeRange[])list.toArray(new MicroSecondTimeRange[0]));
-            List newList = new LinkedList();
+            List newList = new ArrayList();
             for(int i = 0; i < timeRangeArray.length; i++) {
                 newList.add(timeRangeArray[i]);
             }
