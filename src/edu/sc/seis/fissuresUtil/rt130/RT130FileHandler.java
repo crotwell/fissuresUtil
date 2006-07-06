@@ -79,7 +79,7 @@ public class RT130FileHandler {
             try {
                 fileData = rtFileReader.processRT130Data();
             } catch(RT130FormatException e) {
-                report.addProblemFile(fileLoc, fileName
+                report.addFileFormatException(fileLoc, fileName
                         + " seems to be an invalid rt130 file." + "\n"
                         + e.getMessage());
                 logger.error(fileName + " seems to be an invalid rt130 file."
@@ -115,7 +115,7 @@ public class RT130FileHandler {
                 if(lengthOfData.value > (nominalLengthOfData + (nominalLengthOfData * 0.05))) {
                     Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
                             + datastream);
-                    report.addProblemFile(fileLoc,
+                    report.addMalformedFileNameException(fileLoc,
                                           fileName
                                                   + " seems to be an invalid rt130 file name. The file will be read to determine its true length.");
                     logger.error(fileName
@@ -139,7 +139,7 @@ public class RT130FileHandler {
                     return true;
                 }
             } catch(RT130FormatException e) {
-                report.addProblemFile(fileLoc, fileName
+                report.addFileFormatException(fileLoc, fileName
                         + " seems to be an invalid rt130 file." + "\n"
                         + e.getMessage());
                 logger.error(fileName + " seems to be an invalid rt130 file."
@@ -161,7 +161,7 @@ public class RT130FileHandler {
         try {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
-            report.addProblemFile(fileLoc, fileName
+            report.addFileFormatException(fileLoc, fileName
                     + " seems to be an invalid rt130 file." + "\n"
                     + e.getMessage());
             logger.error(fileName + " seems to be an invalid rt130 file."
@@ -309,7 +309,7 @@ public class RT130FileHandler {
         try {
             seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
         } catch(RT130FormatException e) {
-            report.addProblemFile(fileLoc, fileName
+            report.addFileFormatException(fileLoc, fileName
                     + " seems to be an invalid rt130 file." + "\n"
                     + e.getMessage());
             logger.error(fileName + " seems to be an invalid rt130 file."

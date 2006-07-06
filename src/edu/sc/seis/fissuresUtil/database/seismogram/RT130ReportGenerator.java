@@ -100,8 +100,7 @@ public class RT130ReportGenerator {
             System.out.println();
             System.out.println("Database population complete.");
             System.out.println();
-            fileHandler.getReport().printReport();
-            fileHandler.getReport().makeReportImage();
+            fileHandler.getReport().outputReport();
         } else {
             printHelp();
         }
@@ -148,7 +147,7 @@ public class RT130ReportGenerator {
                 logger.debug("Ignoring Mac OS X file: " + fileName);
             } else {
                 fileHandler.getReport()
-                        .addProblemFile(fileLoc,
+                        .addMalformedFileNameException(fileLoc,
                                         fileName
                                                 + " can not be processed because it's file"
                                                 + " name is not formatted correctly, and therefore"
@@ -212,14 +211,14 @@ public class RT130ReportGenerator {
         try {
             sacTime.readHeader(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
-            report.addProblemFile(fileLoc, fileName
+            report.addFileFormatException(fileLoc, fileName
                     + " seems to be an invalid sac file." + "\n"
                     + e.getMessage());
             logger.error(fileName + " seems to be an invalid sac file." + "\n"
                     + e.getMessage());
             return false;
         } catch(FileNotFoundException e) {
-            report.addProblemFile(fileLoc, "Unable to find file " + fileName
+            report.addFileFormatException(fileLoc, "Unable to find file " + fileName
                     + "\n" + e.getMessage());
             logger.error("Unable to find file " + fileName + "\n"
                     + e.getMessage());
@@ -241,14 +240,14 @@ public class RT130ReportGenerator {
         try {
             mseedRead = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
         } catch(EOFException e) {
-            report.addProblemFile(fileLoc, fileName
+            report.addFileFormatException(fileLoc, fileName
                     + " seems to be an invalid mseed file." + "\n"
                     + e.getMessage());
             logger.error(fileName + " seems to be an invalid mseed file."
                     + "\n" + e.getMessage());
             return false;
         } catch(FileNotFoundException e) {
-            report.addProblemFile(fileLoc, "Unable to find file " + fileName
+            report.addFileFormatException(fileLoc, "Unable to find file " + fileName
                     + "\n" + e.getMessage());
             logger.error("Unable to find file " + fileName + "\n"
                     + e.getMessage());

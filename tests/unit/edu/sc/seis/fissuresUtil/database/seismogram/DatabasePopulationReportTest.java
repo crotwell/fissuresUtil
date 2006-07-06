@@ -88,9 +88,9 @@ public class DatabasePopulationReportTest extends TestCase {
         report.addSacSeismogram();
         report.addSacSeismogram();
         report.addSacSeismogram();
-        report.addProblemFile("File location01", "Problem description01");
-        report.addProblemFile("File location02", "Problem description02");
-        report.addProblemFile("File location03", "Problem description03");
+        report.addFileFormatException("File location01", "Problem description01");
+        report.addMalformedFileNameException("File location02", "Problem description02");
+        report.addFileFormatException("File location03", "Problem description03");
         Channel channel1 = MockChannel.createChannel();
         Channel channel2 = MockChannel.createOtherNetChan();
         ISOTime beginTime1 = new ISOTime(2005, 115, 12, 30, (float)15.0);
@@ -111,7 +111,7 @@ public class DatabasePopulationReportTest extends TestCase {
         report.addRefTekSeismogram(channel2,
                                    beginTime3.getDate(),
                                    endTime3.getDate());
-        report.printReport();
+        report.outputReport();
     }
 
     public void testMakeReportImage() {
@@ -121,9 +121,9 @@ public class DatabasePopulationReportTest extends TestCase {
         report.addSacSeismogram();
         report.addSacSeismogram();
         report.addSacSeismogram();
-        report.addProblemFile("File location01", "Problem description01");
-        report.addProblemFile("File location02", "Problem description02");
-        report.addProblemFile("File location03", "Problem description03");
+        report.addFileFormatException("File location01", "Problem description01");
+        report.addMalformedFileNameException("File location02", "Problem description02");
+        report.addFileFormatException("File location03", "Problem description03");
         Channel channel1 = MockChannel.createChannel();
         Channel channel2 = MockChannel.createOtherNetChan();
         ISOTime beginTime1 = new ISOTime(2005, 115, 12, 30, (float)15.0);
@@ -144,7 +144,7 @@ public class DatabasePopulationReportTest extends TestCase {
         report.addRefTekSeismogram(channel2,
                                    beginTime3.getDate(),
                                    endTime3.getDate());
-        report.makeReportImage();
+        report.outputReport();
     }
     
     private RT130Report report;
