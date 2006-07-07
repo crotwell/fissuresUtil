@@ -148,12 +148,12 @@ public class RT130ReportGenerator {
             } else {
                 fileHandler.getReport()
                         .addMalformedFileNameException(fileLoc,
-                                        fileName
-                                                + " can not be processed because it's file"
-                                                + " name is not formatted correctly, and therefore"
-                                                + " is assumed to be an invalid file format. If"
-                                                + " the data file format is valid (mini seed, sac, rt130)"
-                                                + " try renaming the file.");
+                                                       fileName
+                                                               + " can not be processed because it's file"
+                                                               + " name is not formatted correctly, and therefore"
+                                                               + " is assumed to be an invalid file format. If"
+                                                               + " the data file format is valid (mini seed, sac, rt130)"
+                                                               + " try renaming the file.");
                 logger.debug(fileName
                         + " can not be processed because it's file"
                         + " name is not formatted correctly, and therefore"
@@ -218,8 +218,8 @@ public class RT130ReportGenerator {
                     + e.getMessage());
             return false;
         } catch(FileNotFoundException e) {
-            report.addFileFormatException(fileLoc, "Unable to find file " + fileName
-                    + "\n" + e.getMessage());
+            report.addFileFormatException(fileLoc, "Unable to find file "
+                    + fileName + "\n" + e.getMessage());
             logger.error("Unable to find file " + fileName + "\n"
                     + e.getMessage());
             return false;
@@ -247,8 +247,8 @@ public class RT130ReportGenerator {
                     + "\n" + e.getMessage());
             return false;
         } catch(FileNotFoundException e) {
-            report.addFileFormatException(fileLoc, "Unable to find file " + fileName
-                    + "\n" + e.getMessage());
+            report.addFileFormatException(fileLoc, "Unable to find file "
+                    + fileName + "\n" + e.getMessage());
             logger.error("Unable to find file " + fileName + "\n"
                     + e.getMessage());
             return false;
