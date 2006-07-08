@@ -7,6 +7,7 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.OrientationRange;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.TauP.SphericalCoords;
 
 /**
@@ -14,41 +15,67 @@ import edu.sc.seis.TauP.SphericalCoords;
  */
 public class OrientationUtil {
 
-    public static Channel[] inOrientation(OrientationRange orient,
-                                          Channel[] chans) {
-        double centerAZ = orient.center.azimuth;
-        double centerDip = orient.center.dip;
-        double degDist = QuantityImpl.createQuantityImpl(orient.angular_distance)
-                .convertTo(UnitImpl.DEGREE).value;
-        List results = new ArrayList();
-        for(int i = 0; i < chans.length; i++) {
-            Channel chan = chans[i];
-            Orientation chanOrient = chan.an_orientation;
-            // Dip = Lat, Az = Lon
-            double dist = SphericalCoords.distance(centerDip,
-                                                   centerAZ,
-                                                   chanOrient.dip,
-                                                   chanOrient.azimuth);
-            if(dist <= degDist) {
-                results.add(chan);
-            }
-        }
-        return (Channel[])results.toArray(new Channel[results.size()]);
-    }
+	public static Channel[] inOrientation(OrientationRange orient,
+			Channel[] chans) {
+		double degDist = QuantityImpl.createQuantityImpl(
+				orient.angular_distance).convertTo(UnitImpl.DEGREE).value;
+		List results = new ArrayList();
+		for (int i = 0; i < chans.length; i++) {
+			Channel chan = chans[i];
+			Orientation chanOrient = chan.an_orientation;
+			double dist = angleBetween(orient.center, chanOrient);
+			if (dist <= degDist) {
+				results.add(chan);
+			}
+		}
+		return (Channel[]) results.toArray(new Channel[results.size()]);
+	}
 
-    public static boolean areOrthogonal(Orientation one, Orientation two) {
-        return areOrthogonal(one, two, 0.0001);
-    }
+	public static boolean areOrthogonal(Orientation one, Orientation two) {
+		return areOrthogonal(one, two, 0.0001);
+	}
 
-    public static boolean areOrthogonal(Orientation one, Orientation two, double tol) {
-        double dist = SphericalCoords.distance(one.dip, one.azimuth, two.dip, two.azimuth);
-        if (Math.abs(dist-90) < tol) {
-            return true;
-        } 
-        return false;
-    }
+	public static boolean areOrthogonal(Orientation one, Orientation two,
+			double tol) {
+		double dist = angleBetween(one, two);
+		if (Math.abs(dist - 90) < tol) {
+			return true;
+		}
+		return false;
+	}
 
-    public static String toString(Orientation orientation) {
-        return "az="+orientation.azimuth+", dip="+orientation.dip;
-    }
+	public static double angleBetween(Orientation one, Orientation two) {
+		// Dip = Lat, Az = Lon
+		return SphericalCoords.distance(one.dip, one.azimuth, two.dip,
+				two.azimuth);
+	}
+
+	public static Orientation getUp() {
+		return new Orientation(0, -90);
+	}
+
+	public static Orientation getNorth() {
+		return new Orientation(0, 0);
+	}
+
+	public static Orientation getEast() {
+		return new Orientation(0, 90);
+	}
+
+	public static Orientation flip(Orientation orient) {
+		return new Orientation(-1 * orient.dip, (orient.azimuth + 180) % 360);
+	}
+
+	public static ChannelImpl flip(Channel chan) {
+		return new ChannelImpl(chan.get_id(), 
+				chan.name,
+				flip(chan.an_orientation), 
+				chan.sampling_info,
+				chan.effective_time, 
+				chan.my_site);
+	}
+
+	public static String toString(Orientation orientation) {
+		return "az=" + orientation.azimuth + ", dip=" + orientation.dip;
+	}
 }
