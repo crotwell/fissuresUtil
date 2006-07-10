@@ -101,9 +101,9 @@ public class StationDataSummary implements Comparable {
                         total = total.add(timeRange.getInterval());
                     }
                 }
-                DecimalFormat format = new DecimalFormat();
-                format.setMaximumFractionDigits(2);
-                format.setMinimumFractionDigits(2);
+                DecimalFormat decFormat = new DecimalFormat();
+                decFormat.setMaximumFractionDigits(2);
+                decFormat.setMinimumFractionDigits(2);
                 reportStream.print("    ");
                 reportStream.print(stationCode);
                 if(total == null) {
@@ -111,9 +111,9 @@ public class StationDataSummary implements Comparable {
                 } else {
                     reportStream.print(" covers ");
                     double doubleDays = total.getValue(UnitImpl.DAY);
-                    String stringDays = format.format(doubleDays);
+                    String stringDays = decFormat.format(doubleDays);
                     reportStream.print(stringDays);
-                    if(new Double(stringDays).doubleValue() > 1) {
+                    if(doubleDays > 1.0049) {
                         reportStream.print(" days.");
                     } else {
                         reportStream.print(" day.");
