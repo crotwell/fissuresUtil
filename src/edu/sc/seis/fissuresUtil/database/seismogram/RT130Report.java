@@ -47,20 +47,23 @@ public class RT130Report {
         }
         List list = ((List)channelIdWithTime.get(channelId));
         list.add(timeRange);
+        if(list.size() > 1) {
+            mergeTimes(channelId);
+        }
     }
 
-    private void mergeTimes() {
-        Iterator it = channelIdWithTime.keySet().iterator();
-        while(it.hasNext()) {
-            String key = (String)it.next();
-            List list = ((List)channelIdWithTime.get(key));
-            MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge((MicroSecondTimeRange[])list.toArray(new MicroSecondTimeRange[0]));
-            List newList = new ArrayList();
-            for(int i = 0; i < timeRangeArray.length; i++) {
-                newList.add(timeRangeArray[i]);
-            }
-            channelIdWithTime.put(key, newList);
+    private void mergeTimes(String channelId) {
+        List list = ((List)channelIdWithTime.get(channelId));
+        MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge(new MicroSecondTimeRange[] {(MicroSecondTimeRange)list.get(list.size() - 2),
+                                                                                             (MicroSecondTimeRange)list.get(list.size() - 1)});
+        List newList = new ArrayList();
+        for(int i = 0; i < list.size() - 2; i++) {
+            newList.add(list.get(i));
         }
+        for(int i = 0; i < timeRangeArray.length; i++) {
+            newList.add(timeRangeArray[i]);
+        }
+        channelIdWithTime.put(channelId, newList);
     }
 
     public void addMSeedSeismogram() {
@@ -72,7 +75,6 @@ public class RT130Report {
     }
 
     public void outputReport() {
-        mergeTimes();
         printReport();
         makeReportImage();
     }
