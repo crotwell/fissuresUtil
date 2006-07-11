@@ -309,9 +309,9 @@ public class JDBCSeismogramFiles extends JDBCTable {
                                                   MicroSecondDate beginTime,
                                                   MicroSecondDate endTime)
             throws IOException, RT130FormatException {
-        RT130FileReader toSeismogramDataPacket = new RT130FileReader(seismogramFile,
-                                                                     true);
-        PacketType[] seismogramDataPacketArray = toSeismogramDataPacket.processRT130Data();
+        RT130FileReader toSeismogramDataPacket = new RT130FileReader();
+        PacketType[] seismogramDataPacketArray = toSeismogramDataPacket.processRT130Data(seismogramFile,
+                                                                                         true);
         // Use default constructor
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram();
         LocalSeismogramImpl[] seis = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
