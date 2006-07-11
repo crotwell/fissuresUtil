@@ -62,6 +62,7 @@ public class RT130FileHandler {
         this.props = props;
         stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
         toSeismogram = RT130ToLocalSeismogram.create(props);
+        rtFileReader = new RT130FileReader();
     }
 
     public boolean processSingleRefTekScan(String fileLoc, String fileName)
@@ -74,10 +75,10 @@ public class RT130FileHandler {
         String unitIdNumber = file.getParentFile().getParentFile().getName();
         String datastream = file.getParentFile().getName();
         if(!datastreamToFileData.containsKey(unitIdNumber + datastream)) {
-            RT130FileReader rtFileReader = new RT130FileReader(fileLoc, false);
+            
             PacketType[] fileData;
             try {
-                fileData = rtFileReader.processRT130Data();
+                fileData = rtFileReader.processRT130Data(fileLoc, false);
             } catch(RT130FormatException e) {
                 report.addFileFormatException(fileLoc, fileName
                         + " seems to be an invalid rt130 file." + "\n"
@@ -153,11 +154,10 @@ public class RT130FileHandler {
             logger.debug("No NC (Network Configuration) file was specified. "
                     + "The channel IDs created will not be correct.");
         }
-        RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
-                                                                      true);
         PacketType[] seismogramDataPacketArray = null;
         try {
-            seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
+            seismogramDataPacketArray = rtFileReader.processRT130Data(fileLoc,
+                                                                                 true);
         } catch(RT130FormatException e) {
             report.addFileFormatException(fileLoc, fileName
                     + " seems to be an invalid rt130 file." + "\n"
@@ -283,11 +283,11 @@ public class RT130FileHandler {
                                                         Channel knownChannel,
                                                         String unitIdNumber)
             throws IOException, SQLException, NotFound, ParseException {
-        RT130FileReader toSeismogramDataPackets = new RT130FileReader(fileLoc,
-                                                                      false);
+        RT130FileReader toSeismogramDataPackets = new RT130FileReader();
         PacketType[] seismogramDataPacketArray = null;
         try {
-            seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data();
+            seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data(fileLoc,
+                                                                                 false);
         } catch(RT130FormatException e) {
             report.addFileFormatException(fileLoc, fileName
                     + " seems to be an invalid rt130 file." + "\n"
@@ -348,6 +348,8 @@ public class RT130FileHandler {
     public JDBCSeismogramFiles getJDBCSeismogramFiles() {
         return jdbcSeisFile;
     }
+    
+    private RT130FileReader rtFileReader;
 
     private RT130ToLocalSeismogram toSeismogram;
 
