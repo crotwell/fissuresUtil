@@ -3,19 +3,25 @@ package edu.sc.seis.fissuresUtil.bag;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class FlippedChannel {
+    public static ChannelSeismogram correct(Channel chan,
+                                            LocalSeismogramImpl seis) throws FissuresException{
+        return correct(chan, seis, null);
+    }
 
     public static ChannelSeismogram correct(Channel chan,
-                                            LocalSeismogramImpl seis)
+                                            LocalSeismogramImpl seis,
+                                            Sensitivity sens)
             throws FissuresException {
         if(check(chan)) {
             return new ChannelSeismogram(OrientationUtil.flip(chan),
                                          Arithmatic.mul(seis, -1),
                                          null);
         }
-        return new ChannelSeismogram(chan, seis, null);
+        return new ChannelSeismogram(chan, seis, sens);
     }
 
     public static boolean check(Channel chan) {
