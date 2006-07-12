@@ -21,6 +21,9 @@ public class ChannelSeismogram {
 	}
 
 	public Sensitivity getSensitivity() {
+        if(sensitivity == null){
+            throw new UnsupportedOperationException("This channelseismogram has no sensitivity");
+        }
 		return sensitivity;
 	}
 
