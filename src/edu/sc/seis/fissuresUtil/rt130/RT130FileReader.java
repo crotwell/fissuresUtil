@@ -447,16 +447,6 @@ public class RT130FileReader {
                 seismogramData.begin_time_from_state_of_health_file = stateOfHealthData.begin_time_from_state_of_health_file;
             }
             if(stateOfHealthData.channel_name == null) {
-                System.out.println("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
-                        + "\n"
-                        + "The State Of Health file location is: \n"
-                        + stateOfHealthFileLoc
-                        + "\n"
-                        + "Used \"next\" State Of Health File: "
-                        + nextSOH
-                        + "\n"
-                        + "Used \"previous\" State Of HealthFile: "
-                        + prevSOH);
                 logger.error("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
                         + "\n"
                         + "The State Of Health file location is: \n"
