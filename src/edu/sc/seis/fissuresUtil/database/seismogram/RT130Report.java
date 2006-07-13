@@ -27,6 +27,7 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
@@ -38,8 +39,47 @@ public class RT130Report {
     public void addRefTekSeismogram(Channel channel,
                                     MicroSecondDate beginTime,
                                     MicroSecondDate endTime) {
-        String channelId = getIdString(channel);
-        channelIdToChannel.put(channelId, channel);
+        numRefTekEntries++;
+        addSeismogram(channel, beginTime, endTime);
+    }
+
+    public void addSacSeismogram(Channel channel,
+                                 MicroSecondDate beginTime,
+                                 MicroSecondDate endTime) {
+        numSacFiles++;
+        addSeismogram(channel, beginTime, endTime);
+    }
+
+    public void addMSeedSeismogram(ChannelId channelid,
+                                   MicroSecondDate beginTime,
+                                   MicroSecondDate endTime) {
+        numMSeedFiles++;
+        addSeismogram(channelid, beginTime, endTime);
+    }
+
+    private void addSeismogram(Channel channel,
+                               MicroSecondDate beginTime,
+                               MicroSecondDate endTime) {
+        String channelIdString = getIdString(channel);
+        channelIdStringToChannel.put(channelIdString, channel);
+        channelIdStringToChannelId.put(channelIdString, channel.get_id());
+        MicroSecondTimeRange timeRange = new MicroSecondTimeRange(beginTime,
+                                                                  endTime);
+        if(!channelIdWithTime.containsKey(channelIdString)) {
+            channelIdWithTime.put(channelIdString, new ArrayList());
+        }
+        List list = ((List)channelIdWithTime.get(channelIdString));
+        list.add(timeRange);
+        if(list.size() > 1) {
+            mergeTimes(channelIdString);
+        }
+    }
+
+    private void addSeismogram(ChannelId channelId,
+                               MicroSecondDate beginTime,
+                               MicroSecondDate endTime) {
+        String channelIdString = getIdString(channelId);
+        channelIdStringToChannelId.put(channelIdString, channelId);
         MicroSecondTimeRange timeRange = new MicroSecondTimeRange(beginTime,
                                                                   endTime);
         if(!channelIdWithTime.containsKey(channelId)) {
@@ -48,7 +88,7 @@ public class RT130Report {
         List list = ((List)channelIdWithTime.get(channelId));
         list.add(timeRange);
         if(list.size() > 1) {
-            mergeTimes(channelId);
+            mergeTimes(channelIdString);
         }
     }
 
@@ -83,7 +123,7 @@ public class RT130Report {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
         RT130ReportFactory reportFactory = new RT130ReportFactory(channelIdWithTime,
-                                                                  channelIdToChannel);
+                                                                  channelIdStringToChannelId);
         TaskSeries taskSeries = new TaskSeries("Stations");
         List stationDataSummaryList = reportFactory.getSortedStationDataSummaryList();
         Iterator it = stationDataSummaryList.iterator();
@@ -161,7 +201,8 @@ public class RT130Report {
         PrintWriter reportStream = new PrintWriter(report);
         reportStream.println("Report");
         reportStream.println("-------");
-        reportStream.println("  Number of stations read: " + getNumStations());
+        reportStream.println("  Number of RT130 stations read: "
+                + getNumStations());
         reportStream.println("  Number of channels read: " + getNumChannels());
         reportStream.println("  Number of channels read with incontiguous data: "
                 + getNumIncontiguousChannels());
@@ -176,20 +217,34 @@ public class RT130Report {
         reportStream.println();
         reportStream.println("RT130 Files");
         reportStream.println("------------");
+        reportStream.println("  Number of seismogram entries: "
+                + getNumRefTekEntries());
+        reportStream.println();
         reportStream.println("  Days Of Coverage");
         reportStream.println("  -----------------");
         printRefTekDaysOfCoverage(reportStream);
+        reportStream.println();
         reportStream.println("  Gap Description");
         reportStream.println("  ----------------");
         printRefTekGapDescription(reportStream);
         reportStream.println();
         reportStream.println("File Format Exception Files");
         reportStream.println("----------------------------");
-        printFileFormatExceptionFiles(reportStream);
+        printExceptionFiles(reportStream,
+                            fileFormatException,
+                            "No File Format Exception files.");
+        reportStream.println();
+        reportStream.println("Unsupported File Exception Files");
+        reportStream.println("---------------------------------");
+        printExceptionFiles(reportStream,
+                            unsupportedFileException,
+                            "No Unsupported File Exception files.");
         reportStream.println();
         reportStream.println("Malformed File Name Exception Files");
         reportStream.println("------------------------------------");
-        printMalformedFileNameExceptionFiles(reportStream);
+        printExceptionFiles(reportStream,
+                            malformedFileNameException,
+                            "No Malformed File Name Exception files.");
         reportStream.close();
         try {
             report.close();
@@ -207,13 +262,18 @@ public class RT130Report {
         malformedFileNameException.put(fileLoc, problemDescription);
     }
 
+    public void addUnsupportedFileException(String fileLoc,
+                                            String problemDescription) {
+        unsupportedFileException.put(fileLoc, problemDescription);
+    }
+
     public int getNumStations() {
         int numStations = 0;
         Set stations = new HashSet();
         Iterator it = channelIdWithTime.keySet().iterator();
         while(it.hasNext()) {
             String key = (String)it.next();
-            stations.add(StationIdUtil.toString(((Channel)channelIdToChannel.get(key)).my_site.my_station.get_id()));
+            stations.add(StationIdUtil.toString(((Channel)channelIdStringToChannel.get(key)).my_site.my_station.get_id()));
         }
         numStations = stations.size();
         return numStations;
@@ -245,28 +305,21 @@ public class RT130Report {
         return numMSeedFiles;
     }
 
-    private void printFileFormatExceptionFiles(PrintWriter reportStream) {
-        Iterator it = fileFormatException.keySet().iterator();
-        if(!it.hasNext()) {
-            reportStream.println("No File Format Exception files.");
-        }
-        while(it.hasNext()) {
-            String key = (String)it.next();
-            reportStream.println("  " + key);
-            reportStream.println("  " + fileFormatException.get(key));
-            reportStream.println();
-        }
+    public int getNumRefTekEntries() {
+        return numRefTekEntries;
     }
 
-    private void printMalformedFileNameExceptionFiles(PrintWriter reportStream) {
-        Iterator it = malformedFileNameException.keySet().iterator();
+    private void printExceptionFiles(PrintWriter reportStream,
+                                     Map exceptions,
+                                     String emptyMessage) {
+        Iterator it = exceptions.keySet().iterator();
         if(!it.hasNext()) {
-            reportStream.println("No Malformed File Name Exception files.");
+            reportStream.println("  " + emptyMessage);
         }
         while(it.hasNext()) {
             String key = (String)it.next();
             reportStream.println("  " + key);
-            reportStream.println("  " + malformedFileNameException.get(key));
+            reportStream.println("  " + exceptions.get(key));
             reportStream.println();
         }
     }
@@ -276,7 +329,7 @@ public class RT130Report {
         // top of the hierarchy, instead of channels being at the top.
         if(reportFactory == null) {
             reportFactory = new RT130ReportFactory(channelIdWithTime,
-                                                   channelIdToChannel);
+                                                   channelIdStringToChannelId);
         }
         reportFactory.printGapDescription(reportStream);
     }
@@ -286,29 +339,43 @@ public class RT130Report {
         // top of the hierarchy, instead of channels being at the top.
         if(reportFactory == null) {
             reportFactory = new RT130ReportFactory(channelIdWithTime,
-                                                   channelIdToChannel);
+                                                   channelIdStringToChannelId);
         }
         reportFactory.printDaysOfCoverage(reportStream);
     }
 
     private String getIdString(Channel chan) {
-        if(!channelToIDString.containsKey(chan)) {
-            channelToIDString.put(chan, ChannelIdUtil.toString(chan.get_id()));
+        if(!channelToIdString.containsKey(chan)) {
+            channelToIdString.put(chan, ChannelIdUtil.toString(chan.get_id()));
         }
-        return (String)channelToIDString.get(chan);
+        return (String)channelToIdString.get(chan);
+    }
+
+    private String getIdString(ChannelId channelId) {
+        if(!channelIdToIdString.containsKey(channelId)) {
+            channelIdToIdString.put(channelId,
+                                    ChannelIdUtil.toString(channelId));
+        }
+        return (String)channelIdToIdString.get(channelId);
     }
 
     private RT130ReportFactory reportFactory;
 
-    private int numSacFiles, numMSeedFiles;
+    private int numSacFiles, numMSeedFiles, numRefTekEntries;
 
     private Map fileFormatException = new HashMap();
 
     private Map malformedFileNameException = new HashMap();
 
+    private Map unsupportedFileException = new HashMap();
+
     private Map channelIdWithTime = new HashMap();
 
-    private Map channelIdToChannel = new HashMap();
+    private Map channelIdStringToChannel = new HashMap();
 
-    private Map channelToIDString = new HashMap();
+    private Map channelIdStringToChannelId = new HashMap();
+
+    private Map channelToIdString = new HashMap();
+
+    private Map channelIdToIdString = new HashMap();
 }

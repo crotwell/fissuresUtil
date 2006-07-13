@@ -34,12 +34,8 @@ public class DatabasePopulationReportTest extends TestCase {
         Channel channel2 = MockChannel.createOtherNetChan();
         ISOTime beginTime = new ISOTime(2005, 115, 12, 30, (float)15.0);
         ISOTime endTime = new ISOTime(2005, 115, 13, 30, (float)15.0);
-        report.addRefTekSeismogram(channel1,
-                                   beginTime.getDate(),
-                                   endTime.getDate());
-        report.addRefTekSeismogram(channel2,
-                                   beginTime.getDate(),
-                                   endTime.getDate());
+        report.addRefTekSeismogram(channel1, beginTime.getDate(), endTime.getDate());
+        report.addRefTekSeismogram(channel2, beginTime.getDate(), endTime.getDate());
         assertEquals(2, report.getNumStations());
     }
 
@@ -48,12 +44,8 @@ public class DatabasePopulationReportTest extends TestCase {
         Channel channel2 = MockChannel.createOtherNetChan();
         ISOTime beginTime = new ISOTime(2005, 115, 12, 30, (float)15.0);
         ISOTime endTime = new ISOTime(2005, 115, 13, 30, (float)15.0);
-        report.addRefTekSeismogram(channel1,
-                                   beginTime.getDate(),
-                                   endTime.getDate());
-        report.addRefTekSeismogram(channel2,
-                                   beginTime.getDate(),
-                                   endTime.getDate());
+        report.addRefTekSeismogram(channel1, beginTime.getDate(), endTime.getDate());
+        report.addRefTekSeismogram(channel2, beginTime.getDate(), endTime.getDate());
         assertEquals(2, report.getNumChannels());
     }
 
@@ -66,18 +58,10 @@ public class DatabasePopulationReportTest extends TestCase {
         ISOTime endTime2 = new ISOTime(2005, 115, 14, 30, (float)15.0);
         ISOTime beginTime3 = new ISOTime(2005, 115, 15, 30, (float)15.0);
         ISOTime endTime3 = new ISOTime(2005, 115, 16, 30, (float)15.0);
-        report.addRefTekSeismogram(channel1,
-                                   beginTime1.getDate(),
-                                   endTime1.getDate());
-        report.addRefTekSeismogram(channel1,
-                                   beginTime2.getDate(),
-                                   endTime2.getDate());
-        report.addRefTekSeismogram(channel2,
-                                   beginTime1.getDate(),
-                                   endTime1.getDate());
-        report.addRefTekSeismogram(channel2,
-                                   beginTime3.getDate(),
-                                   endTime3.getDate());
+        report.addRefTekSeismogram(channel1, beginTime1.getDate(), endTime1.getDate());
+        report.addRefTekSeismogram(channel1, beginTime2.getDate(), endTime2.getDate());
+        report.addRefTekSeismogram(channel2, beginTime1.getDate(), endTime1.getDate());
+        report.addRefTekSeismogram(channel2, beginTime3.getDate(), endTime3.getDate());
         assertEquals(1, report.getNumIncontiguousChannels());
     }
 
@@ -88,9 +72,12 @@ public class DatabasePopulationReportTest extends TestCase {
         report.addSacSeismogram();
         report.addSacSeismogram();
         report.addSacSeismogram();
-        report.addFileFormatException("File location01", "Problem description01");
-        report.addMalformedFileNameException("File location02", "Problem description02");
-        report.addFileFormatException("File location03", "Problem description03");
+        report.addFileFormatException("File location01",
+                                      "Problem description01");
+        report.addMalformedFileNameException("File location02",
+                                             "Problem description02");
+        report.addUnsupportedFileException("File location03",
+                                           "Problem description03");
         Channel channel1 = MockChannel.createChannel();
         Channel channel2 = MockChannel.createOtherNetChan();
         ISOTime beginTime1 = new ISOTime(2005, 115, 12, 30, (float)15.0);
@@ -99,18 +86,10 @@ public class DatabasePopulationReportTest extends TestCase {
         ISOTime endTime2 = new ISOTime(2005, 115, 14, 30, (float)15.0);
         ISOTime beginTime3 = new ISOTime(2005, 115, 15, 30, (float)15.0);
         ISOTime endTime3 = new ISOTime(2005, 115, 16, 30, (float)15.0);
-        report.addRefTekSeismogram(channel1,
-                                   beginTime1.getDate(),
-                                   endTime1.getDate());
-        report.addRefTekSeismogram(channel1,
-                                   beginTime2.getDate(),
-                                   endTime2.getDate());
-        report.addRefTekSeismogram(channel2,
-                                   beginTime1.getDate(),
-                                   endTime1.getDate());
-        report.addRefTekSeismogram(channel2,
-                                   beginTime3.getDate(),
-                                   endTime3.getDate());
+        report.addRefTekSeismogram(channel1, beginTime1.getDate(), endTime1.getDate());
+        report.addRefTekSeismogram(channel1, beginTime2.getDate(), endTime2.getDate());
+        report.addRefTekSeismogram(channel2, beginTime1.getDate(), endTime1.getDate());
+        report.addRefTekSeismogram(channel2, beginTime3.getDate(), endTime3.getDate());
         report.outputReport();
     }
 
@@ -121,9 +100,12 @@ public class DatabasePopulationReportTest extends TestCase {
         report.addSacSeismogram();
         report.addSacSeismogram();
         report.addSacSeismogram();
-        report.addFileFormatException("File location01", "Problem description01");
-        report.addMalformedFileNameException("File location02", "Problem description02");
-        report.addFileFormatException("File location03", "Problem description03");
+        report.addFileFormatException("File location01",
+                                      "Problem description01");
+        report.addMalformedFileNameException("File location02",
+                                             "Problem description02");
+        report.addUnsupportedFileException("File location03",
+                                           "Problem description03");
         Channel channel1 = MockChannel.createChannel();
         Channel channel2 = MockChannel.createOtherNetChan();
         ISOTime beginTime1 = new ISOTime(2005, 115, 12, 30, (float)15.0);
@@ -132,20 +114,12 @@ public class DatabasePopulationReportTest extends TestCase {
         ISOTime endTime2 = new ISOTime(2005, 115, 14, 30, (float)15.0);
         ISOTime beginTime3 = new ISOTime(2005, 115, 15, 30, (float)15.0);
         ISOTime endTime3 = new ISOTime(2005, 115, 16, 30, (float)15.0);
-        report.addRefTekSeismogram(channel1,
-                                   beginTime1.getDate(),
-                                   endTime1.getDate());
-        report.addRefTekSeismogram(channel1,
-                                   beginTime2.getDate(),
-                                   endTime2.getDate());
-        report.addRefTekSeismogram(channel2,
-                                   beginTime1.getDate(),
-                                   endTime1.getDate());
-        report.addRefTekSeismogram(channel2,
-                                   beginTime3.getDate(),
-                                   endTime3.getDate());
+        report.addRefTekSeismogram(channel1, beginTime1.getDate(), endTime1.getDate());
+        report.addRefTekSeismogram(channel1, beginTime2.getDate(), endTime2.getDate());
+        report.addRefTekSeismogram(channel2, beginTime1.getDate(), endTime1.getDate());
+        report.addRefTekSeismogram(channel2, beginTime3.getDate(), endTime3.getDate());
         report.outputReport();
     }
-    
+
     private RT130Report report;
 }

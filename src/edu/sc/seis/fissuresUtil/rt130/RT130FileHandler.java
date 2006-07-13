@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +18,7 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.StationId;
@@ -30,52 +29,51 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelImpl;
-import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
-import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.seismogram.RT130Report;
-import edu.sc.seis.fissuresUtil.database.seismogram.JDBCSeismogramFiles;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
 
 public class RT130FileHandler {
 
     public RT130FileHandler(Properties props, List rt130FileHandlerFlags)
-            throws SQLException, FileNotFoundException, IOException,
-            ParseException {
+            throws FileNotFoundException, IOException, ParseException {
+        PropParser pp = new PropParser(props);
         flags = rt130FileHandlerFlags;
         checkFlagsForIncompatibleSettings();
-        LeapSecondApplier.addLeapSeconds(props.getProperty(LeapSecondApplier.LEAP_SECOND_FILE));
-        LeapSecondApplier.addCorrections(props.getProperty(LeapSecondApplier.POWER_UP_TIMES));
-        ncFile = new NCFile(props.getProperty(NCFile.NC_FILE_LOC));
+        LeapSecondApplier.addLeapSeconds(pp.getPath(LeapSecondApplier.LEAP_SECOND_FILE));
+        LeapSecondApplier.addCorrections(pp.getPath(LeapSecondApplier.POWER_UP_TIMES));
+        ncFile = new NCFile(pp.getPath(NCFile.NC_FILE_LOC));
         logger.debug("NC file location: " + ncFile.getCanonicalPath());
-        String xyFileLoc = props.getProperty(XYReader.XY_FILE_LOC);
+        String xyFileLoc = pp.getPath(XYReader.XY_FILE_LOC);
         logger.debug("XY file location: " + xyFileLoc);
-        if(flags.contains(RT130FileHandlerFlag.FULL)) {
-            ConnectionCreator connCreator = new ConnectionCreator(props);
-            conn = connCreator.createConnection();
-            jdbcSeisFile = new JDBCSeismogramFiles(conn);
-        }
         this.report = new RT130Report();
+        this.propParser = pp;
         this.props = props;
         stationLocations = XYReader.read(new BufferedReader(new FileReader(xyFileLoc)));
-        toSeismogram = RT130ToLocalSeismogram.create(props);
+        Map dataStreamToSampleRate = new HashMap();
+        for(int i = 1; i < 7; i++) {
+            if(props.containsKey(RT130ToLocalSeismogram.DATA_STREAM + i)) {
+                dataStreamToSampleRate.put(new Integer(i - 1),
+                                           new Integer(pp.getInt(RT130ToLocalSeismogram.DATA_STREAM
+                                                   + i)));
+            }
+        }
+        netAttr = PopulationProperties.getNetworkAttr(props);
+        toSeismogram = new RT130ToLocalSeismogram(ncFile,
+                                                  stationLocations,
+                                                  dataStreamToSampleRate,
+                                                  netAttr);
         rtFileReader = new RT130FileReader();
     }
 
     public boolean processSingleRefTekScan(String fileLoc, String fileName)
-            throws IOException, SQLException, NotFound, ParseException {
+            throws IOException {
         File file = new File(fileLoc);
-        String yearAndDay = file.getParentFile()
-                .getParentFile()
-                .getParentFile()
-                .getName();
         String unitIdNumber = file.getParentFile().getParentFile().getName();
         String datastream = file.getParentFile().getName();
         if(!datastreamToFileData.containsKey(unitIdNumber + datastream)) {
-            
             PacketType[] fileData;
             try {
                 fileData = rtFileReader.processRT130Data(fileLoc, false);
@@ -95,39 +93,27 @@ public class RT130FileHandler {
             datastreamToChannel.put(unitIdNumber + datastream, newChannel);
         }
         if(fileName.endsWith("00000000")) {
-            Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
-                    + datastream);
-            for(int i = 0; i < channel.length; i++) {
-                processSingleRefTekWithKnownChannel(fileLoc,
-                                                    fileName,
-                                                    channel[i],
-                                                    unitIdNumber);
-            }
-            return true;
+            return processSingleRefTekFull(fileLoc, fileName);
         } else {
+            String yearAndDay = file.getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getName();
             try {
                 MicroSecondDate beginTime = FileNameParser.getBeginTime(yearAndDay,
                                                                         fileName);
                 beginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
                                                                         beginTime);
                 TimeInterval lengthOfData = FileNameParser.getLengthOfData(fileName);
-                double nominalLengthOfData = Double.valueOf(props.getProperty("nominalLengthOfData"))
+                double nominalLengthOfData = Double.valueOf(propParser.getString("nominalLengthOfData"))
                         .doubleValue();
                 if(lengthOfData.value > (nominalLengthOfData + (nominalLengthOfData * 0.05))) {
-                    Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
-                            + datastream);
                     report.addMalformedFileNameException(fileLoc,
                                                          fileName
                                                                  + " seems to be an invalid rt130 file name. The file will be read to determine its true length.");
                     logger.error(fileName
                             + " seems to be an invalid rt130 file name. The file was read to determine its true length.");
-                    for(int i = 0; i < channel.length; i++) {
-                        processSingleRefTekWithKnownChannel(fileLoc,
-                                                            fileName,
-                                                            channel[i],
-                                                            unitIdNumber);
-                    }
-                    return true;
+                    return processSingleRefTekFull(fileLoc, fileName);
                 } else {
                     MicroSecondDate endTime = beginTime.add(lengthOfData);
                     Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
@@ -149,31 +135,64 @@ public class RT130FileHandler {
     }
 
     public boolean processSingleRefTekFull(String fileLoc, String fileName)
-            throws IOException, SQLException, NotFound, ParseException {
-        if(ncFile == null) {
-            logger.debug("No NC (Network Configuration) file was specified. "
-                    + "The channel IDs created will not be correct.");
+            throws IOException {
+        File file = new File(fileLoc);
+        String unitIdNumber = file.getParentFile().getParentFile().getName();
+        if(flags.contains(RT130FileHandlerFlag.FULL)) {
+            String yearAndDay = file.getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getName();
+            try {
+                MicroSecondDate beginTime = FileNameParser.getBeginTime(yearAndDay,
+                                                                        fileName);
+                beginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
+                                                                        beginTime);
+                TimeInterval lengthOfData = FileNameParser.getLengthOfData(fileName);
+                double nominalLengthOfData = Double.valueOf(propParser.getString("nominalLengthOfData"))
+                        .doubleValue();
+                if(lengthOfData.value > (nominalLengthOfData + (nominalLengthOfData * 0.05))) {
+                    report.addMalformedFileNameException(fileLoc, fileName
+                            + " seems to be an invalid rt130 file name.");
+                    logger.error(fileName
+                            + " seems to be an invalid rt130 file name.");
+                }
+            } catch(RT130FormatException e) {
+                report.addFileFormatException(fileLoc, fileName
+                        + " seems to be an invalid rt130 file." + "\n"
+                        + e.getMessage());
+                logger.error(fileName + " seems to be an invalid rt130 file."
+                        + "\n" + e.getMessage());
+                return false;
+            }
         }
-        PacketType[] seismogramDataPacketArray = null;
-        try {
-            seismogramDataPacketArray = rtFileReader.processRT130Data(fileLoc,
-                                                                                 true);
-        } catch(RT130FormatException e) {
-            report.addFileFormatException(fileLoc, fileName
-                    + " seems to be an invalid rt130 file." + "\n"
-                    + e.getMessage());
-            logger.error(fileName + " seems to be an invalid rt130 file."
-                    + "\n" + e.getMessage());
-            return false;
+        String datastream = file.getParentFile().getName();
+        if(!datastreamToFileData.containsKey(unitIdNumber + datastream)) {
+            PacketType[] fileData;
+            try {
+                fileData = rtFileReader.processRT130Data(fileLoc, false);
+            } catch(RT130FormatException e) {
+                report.addFileFormatException(fileLoc, fileName
+                        + " seems to be an invalid rt130 file." + "\n"
+                        + e.getMessage());
+                logger.error(fileName + " seems to be an invalid rt130 file."
+                        + "\n" + e.getMessage());
+                return false;
+            }
+            datastreamToFileData.put(unitIdNumber + datastream, fileData[0]);
         }
-        LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
-        Channel[] channel = toSeismogram.getChannels();
-        // Check database for channels that match (with lat/long buffer)
-        // If channel exists, use it. If not, use new channel.
-        for(int i = 0; i < seismogramArray.length; i++) {
-            addSeismogramToReport(channel[i],
-                                  seismogramArray[i].getBeginTime(),
-                                  seismogramArray[i].getEndTime());
+        if(!datastreamToChannel.containsKey(unitIdNumber + datastream)
+                && (!datastream.equals("0"))) {
+            Channel[] newChannel = createChannels(unitIdNumber, datastream);
+            datastreamToChannel.put(unitIdNumber + datastream, newChannel);
+        }
+        Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
+                + datastream);
+        for(int i = 0; i < channel.length; i++) {
+            processSingleRefTekWithKnownChannel(fileLoc,
+                                                fileName,
+                                                channel[i],
+                                                unitIdNumber);
         }
         return true;
     }
@@ -182,13 +201,9 @@ public class RT130FileHandler {
         String stationCode = ncFile.getUnitName(((PacketType)(datastreamToFileData.get(unitIdNumber
                                                         + datastream))).begin_time_from_state_of_health_file,
                                                 unitIdNumber);
-        String networkIdString = props.getProperty(PopulationProperties.NETWORK_REMAP
-                + "XX");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
-        NetworkId networkId = PopulationProperties.getNetworkAttr(networkIdString,
-                                                                  props)
-                .get_id();
+        NetworkId networkId = netAttr.get_id();
         networkId.begin_time = networkBeginTime;
         String tempCode = "B";
         if(((PacketType)(datastreamToFileData.get(unitIdNumber + datastream))).sample_rate < 10) {
@@ -231,8 +246,6 @@ public class RT130FileHandler {
                     + ".\n"
                     + "The location used for the unit will be a lat/long of 0/0.");
         }
-        NetworkAttrImpl networkAttr = PopulationProperties.getNetworkAttr(networkIdString,
-                                                                          props);
         StationImpl station = new StationImpl(stationId,
                                               "",
                                               location,
@@ -240,7 +253,7 @@ public class RT130FileHandler {
                                               "",
                                               "",
                                               "",
-                                              networkAttr);
+                                              netAttr);
         SiteImpl site = new SiteImpl(siteId,
                                      location,
                                      effectiveChannelTime,
@@ -282,12 +295,11 @@ public class RT130FileHandler {
                                                         String fileName,
                                                         Channel knownChannel,
                                                         String unitIdNumber)
-            throws IOException, SQLException, NotFound, ParseException {
-        RT130FileReader toSeismogramDataPackets = new RT130FileReader();
+            throws IOException {
         PacketType[] seismogramDataPacketArray = null;
         try {
-            seismogramDataPacketArray = toSeismogramDataPackets.processRT130Data(fileLoc,
-                                                                                 false);
+            seismogramDataPacketArray = rtFileReader.processRT130Data(fileLoc,
+                                                                      false);
         } catch(RT130FormatException e) {
             report.addFileFormatException(fileLoc, fileName
                     + " seems to be an invalid rt130 file." + "\n"
@@ -299,18 +311,17 @@ public class RT130FileHandler {
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
             addSeismogramToReport(knownChannel,
-                                  LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
-                                                                              seismogramArray[i].getBeginTime()),
-                                  LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
-                                                                              seismogramArray[i].getEndTime()));
+                                  seismogramArray[i].getBeginTime(),
+                                  seismogramArray[i].getEndTime()
+                                          .add(seismogramArray[i].getSampling()
+                                                  .getPeriod()));
         }
         return true;
     }
 
     private void addSeismogramToReport(Channel channel,
                                        MicroSecondDate beginTime,
-                                       MicroSecondDate endTime)
-            throws SQLException, NotFound {
+                                       MicroSecondDate endTime) {
         report.addRefTekSeismogram(channel, beginTime, endTime);
     }
 
@@ -345,10 +356,8 @@ public class RT130FileHandler {
         return props;
     }
 
-    public JDBCSeismogramFiles getJDBCSeismogramFiles() {
-        return jdbcSeisFile;
-    }
-    
+    NetworkAttr netAttr;
+
     private RT130FileReader rtFileReader;
 
     private RT130ToLocalSeismogram toSeismogram;
@@ -359,11 +368,9 @@ public class RT130FileHandler {
 
     private RT130Report report;
 
-    private Connection conn;
+    private PropParser propParser;
 
     private Properties props;
-
-    private JDBCSeismogramFiles jdbcSeisFile;
 
     private Map stationLocations;
 

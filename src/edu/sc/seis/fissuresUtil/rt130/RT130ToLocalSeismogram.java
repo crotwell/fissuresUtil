@@ -166,7 +166,7 @@ public class RT130ToLocalSeismogram {
             logger.error("XY file did not contain a location for unit "
                     + stationCode
                     + ".\n"
-                    + "The location used for the unit will be the Gulf of Guinea (Atlantic Ocean).");
+                    + "The location used for the unit will be a lat/long of 0/0.");
         }
         StationImpl station = new StationImpl(stationId,
                                               stationCode,
