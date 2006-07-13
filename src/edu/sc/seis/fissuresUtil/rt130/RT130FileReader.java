@@ -267,16 +267,6 @@ public class RT130FileReader {
                 tryNextStateOfHealthFile();
                 return readEntireStateOfHealthFile();
             } else {
-                System.out.println("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
-                        + "\n"
-                        + "The State Of Health file location is: \n"
-                        + stateOfHealthFileLoc
-                        + "\n"
-                        + "Used \"next\" State Of Health File: "
-                        + nextSOH
-                        + "\n"
-                        + "Used \"previous\" State Of HealthFile: "
-                        + prevSOH);
                 logger.error("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
                         + "\n"
                         + "The State Of Health file location is: \n"
@@ -353,37 +343,37 @@ public class RT130FileReader {
             } else if(nextPacket.packetType.equals("AD")) {
                 logger.error("The given data file contains an unexpected Auxiliary Data Parameter Packet. "
                         + "More than likely you are reading a State-of-Health file.");
-                throw new RT130FormatException("The given data file contains an unexpected Auxiliary Data Parameter Packet. \n"
+                throw new RT130FormatException("  The given data file contains an unexpected Auxiliary Data Parameter Packet. \n"
                         + "  More than likely you are reading a State-of-Health file.");
             } else if(nextPacket.packetType.equals("CD")) {
                 logger.error("The given data file contains an unexpected Calibration Parameter Packet. "
                         + "More than likely you are reading a State-of-Health file.");
-                throw new RT130FormatException("The given data file contains an unexpected Calibration Parameter Packet. \n"
+                throw new RT130FormatException("  The given data file contains an unexpected Calibration Parameter Packet. \n"
                         + "  More than likely you are reading a State-of-Health file.");
             } else if(nextPacket.packetType.equals("DS")) {
                 logger.error("The given data file contains an unexpected Data Stream Parameter Packet. "
                         + "More than likely you are reading a State-of-Health file.");
-                throw new RT130FormatException("The given data file contains an unexpected Data Stream Parameter Packet. \n"
+                throw new RT130FormatException("  The given data file contains an unexpected Data Stream Parameter Packet. \n"
                         + "  More than likely you are reading a State-of-Health file.");
             } else if(nextPacket.packetType.equals("OM")) {
                 logger.error("The given data file contains an unexpected Operating Mode Parameter Packet. "
                         + "More than likely you are reading a State-of-Health file.");
-                throw new RT130FormatException("The given data file contains an unexpected Operating Mode Parameter Packet. \n"
+                throw new RT130FormatException("  The given data file contains an unexpected Operating Mode Parameter Packet. \n"
                         + "  More than likely you are reading a State-of-Health file.");
             } else if(nextPacket.packetType.equals("SH")) {
                 logger.error("The given data file contains an unexpected State-Of-Health Packet. "
                         + "More than likely you are reading a State-of-Health file.");
-                throw new RT130FormatException("The given data file contains an unexpected State-Of-Health Packet. \n"
+                throw new RT130FormatException("  The given data file contains an unexpected State-Of-Health Packet. \n"
                         + "  More than likely you are reading a State-of-Health file.");
             } else if(nextPacket.packetType.equals("SC")) {
                 logger.error("The given data file contains an unexpected Station/Channel Parameter Packet. "
                         + "More than likely you are reading a State-of-Health file.");
-                throw new RT130FormatException("The given data file contains an unexpected Station/Channel Parameter Packet. \n"
+                throw new RT130FormatException("  The given data file contains an unexpected Station/Channel Parameter Packet. \n"
                         + "  More than likely you are reading a State-of-Health file.");
             } else {
                 logger.error("The first two bytes of the Packet Header were not formatted "
                         + "correctly, and do not refer to a valid Packet Type.");
-                throw new RT130FormatException("The first two bytes of the Packet Header were not formatted "
+                throw new RT130FormatException("  The first two bytes of the Packet Header were not formatted "
                         + "correctly, and do not refer to a valid Packet Type.");
             }
             if(!done) {

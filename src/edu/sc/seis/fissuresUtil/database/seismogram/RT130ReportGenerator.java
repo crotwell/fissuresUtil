@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,13 +18,11 @@ import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
-import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileHandler;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileHandlerFlag;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
-import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.MiniSeedRead;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
@@ -34,8 +31,7 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
 public class RT130ReportGenerator {
 
     public static void main(String[] args) throws FissuresException,
-            IOException, SeedFormatException, SQLException, NotFound,
-            ParseException {
+            IOException, SeedFormatException, ParseException {
         Properties props = Initializer.loadProperties(args);
         PropertyConfigurator.configure(props);
         boolean finished = false;
@@ -107,8 +103,7 @@ public class RT130ReportGenerator {
     }
 
     private static boolean readSingleFile(String fileLoc) throws IOException,
-            FissuresException, SeedFormatException, SQLException, NotFound,
-            ParseException {
+            FissuresException, SeedFormatException, ParseException {
         boolean finished = false;
         StringTokenizer t;
         if(System.getProperty("os.name").startsWith("Windows")) {
@@ -129,13 +124,9 @@ public class RT130ReportGenerator {
                                                                fileName);
             }
         } else if(fileName.endsWith(".mseed")) {
-            finished = processMSeed(fileHandler.getJDBCSeismogramFiles(),
-                                    fileHandler.getReport(),
-                                    fileLoc,
-                                    fileName);
+            finished = processMSeed(fileHandler.getReport(), fileLoc, fileName);
         } else if(fileName.endsWith(".sac")) {
-            finished = processSac(fileHandler.getJDBCSeismogramFiles(),
-                                  fileHandler.getReport(),
+            finished = processSac(fileHandler.getReport(),
                                   fileLoc,
                                   fileName,
                                   fileHandler.getProps());
@@ -147,13 +138,13 @@ public class RT130ReportGenerator {
                 logger.debug("Ignoring Mac OS X file: " + fileName);
             } else {
                 fileHandler.getReport()
-                        .addMalformedFileNameException(fileLoc,
-                                                       fileName
-                                                               + " can not be processed because it's file"
-                                                               + " name is not formatted correctly, and therefore"
-                                                               + " is assumed to be an invalid file format. If"
-                                                               + " the data file format is valid (mini seed, sac, rt130)"
-                                                               + " try renaming the file.");
+                        .addUnsupportedFileException(fileLoc,
+                                                     fileName
+                                                             + " can not be processed because it's file"
+                                                             + " name is not formatted correctly, and therefore"
+                                                             + " is assumed to be an invalid file format. If"
+                                                             + " the data file format is valid (mini seed, sac, rt130)"
+                                                             + " try renaming the file.");
                 logger.debug(fileName
                         + " can not be processed because it's file"
                         + " name is not formatted correctly, and therefore"
@@ -167,7 +158,7 @@ public class RT130ReportGenerator {
 
     private static boolean readEntireDirectory(File baseDirectory)
             throws FissuresException, IOException, SeedFormatException,
-            SQLException, NotFound, ParseException {
+            ParseException {
         File[] files = baseDirectory.listFiles();
         if(files == null) {
             throw new IOException("Unable to get listing of directory: "
@@ -201,12 +192,11 @@ public class RT130ReportGenerator {
         System.out.println();
     }
 
-    private static boolean processSac(JDBCSeismogramFiles jdbcSeisFile,
-                                      RT130Report report,
+    private static boolean processSac(RT130Report report,
                                       String fileLoc,
                                       String fileName,
                                       Properties props) throws IOException,
-            FissuresException, SQLException {
+            FissuresException {
         SacTimeSeries sacTime = new SacTimeSeries();
         try {
             sacTime.readHeader(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
@@ -227,15 +217,14 @@ public class RT130ReportGenerator {
         SeismogramAttrImpl seis = SacToFissures.getSeismogramAttr(sacTime);
         Channel chan = SacToFissures.getChannel(sacTime);
         chan = PopulationProperties.fix(chan, props);
-        saveSacToDatabase(jdbcSeisFile, report, chan, seis, fileLoc);
+        report.addSacSeismogram(chan, seis.getBeginTime(), seis.getEndTime());
         return true;
     }
 
-    private static boolean processMSeed(JDBCSeismogramFiles jdbcSeisFile,
-                                        RT130Report report,
+    private static boolean processMSeed(RT130Report report,
                                         String fileLoc,
                                         String fileName) throws IOException,
-            SeedFormatException, FissuresException, SQLException {
+            SeedFormatException, FissuresException {
         MiniSeedRead mseedRead = null;
         try {
             mseedRead = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
@@ -261,31 +250,10 @@ public class RT130ReportGenerator {
             // must be all
         }
         LocalSeismogramImpl seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new DataRecord[0]));
-        saveMSeedToDatabase(jdbcSeisFile, report, seis, fileLoc);
+        report.addMSeedSeismogram(seis.channel_id,
+                                  seis.getBeginTime(),
+                                  seis.getEndTime());
         return true;
-    }
-
-    private static void saveSacToDatabase(JDBCSeismogramFiles jdbcSeisFile,
-                                          RT130Report report,
-                                          Channel chan,
-                                          SeismogramAttrImpl seis,
-                                          String fileLoc) throws SQLException {
-        report.addSacSeismogram();
-        jdbcSeisFile.saveSeismogramToDatabase(chan,
-                                              seis,
-                                              fileLoc,
-                                              SeismogramFileTypes.SAC);
-    }
-
-    private static void saveMSeedToDatabase(JDBCSeismogramFiles jdbcSeisFile,
-                                            RT130Report report,
-                                            SeismogramAttrImpl seis,
-                                            String fileLoc) throws SQLException {
-        report.addMSeedSeismogram();
-        jdbcSeisFile.saveSeismogramToDatabase(seis.channel_id,
-                                              seis,
-                                              fileLoc,
-                                              SeismogramFileTypes.MSEED);
     }
 
     public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";

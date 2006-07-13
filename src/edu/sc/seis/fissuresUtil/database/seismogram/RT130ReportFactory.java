@@ -9,13 +9,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
 
 public class RT130ReportFactory {
 
-    public RT130ReportFactory(Map channelIdWithTimeRanges, Map channelIdToChannel) {
+    public RT130ReportFactory(Map channelIdWithTimeRanges,
+                              Map channelIdStringToChannelId) {
         stationDataSummaryList = new LinkedList();
-        organizeByStationCode(channelIdWithTimeRanges, channelIdToChannel);
+        organizeByStationCode(channelIdWithTimeRanges,
+                              channelIdStringToChannelId);
     }
 
     public void printGapDescription(PrintWriter reportStream) {
@@ -26,7 +28,7 @@ public class RT130ReportFactory {
             reportStream.println();
         }
     }
-    
+
     public void printDaysOfCoverage(PrintWriter reportStream) {
         Collections.sort(stationDataSummaryList);
         Iterator it = stationDataSummaryList.iterator();
@@ -59,7 +61,7 @@ public class RT130ReportFactory {
         Set stationCodes = new HashSet();
         Iterator it = channelIdWithTimeRanges.keySet().iterator();
         while(it.hasNext()) {
-            stationCodes.add(((Channel)channelIdToChannel.get((String)it.next())).my_site.my_station.get_code());
+            stationCodes.add(((ChannelId)channelIdToChannel.get((String)it.next())).station_code);
         }
         Iterator jt = stationCodes.iterator();
         while(jt.hasNext()) {
@@ -68,9 +70,9 @@ public class RT130ReportFactory {
             Iterator kt = channelIdWithTimeRanges.keySet().iterator();
             while(kt.hasNext()) {
                 String channelIdKey = ((String)kt.next());
-                String stationCode = ((Channel)channelIdToChannel.get(channelIdKey)).my_site.my_station.get_code();
+                String stationCode = ((ChannelId)channelIdToChannel.get(channelIdKey)).station_code;
                 if(stationCode.equals(setStationCode)) {
-                    String channelCode = ((Channel)channelIdToChannel.get(channelIdKey)).get_code();
+                    String channelCode = ((ChannelId)channelIdToChannel.get(channelIdKey)).channel_code;
                     List timeRanges = (List)channelIdWithTimeRanges.get(channelIdKey);
                     channelCodesWithTimeRanges.put(channelCode, timeRanges);
                 }
