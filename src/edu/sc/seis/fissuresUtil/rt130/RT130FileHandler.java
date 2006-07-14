@@ -310,6 +310,7 @@ public class RT130FileHandler {
         }
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
+            // Add one sample period to end time on purpose.
             addSeismogramToReport(knownChannel,
                                   seismogramArray[i].getBeginTime(),
                                   seismogramArray[i].getEndTime()

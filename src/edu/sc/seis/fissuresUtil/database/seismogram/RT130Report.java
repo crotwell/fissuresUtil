@@ -228,23 +228,23 @@ public class RT130Report {
         reportStream.println("  ----------------");
         printRefTekGapDescription(reportStream);
         reportStream.println();
-        reportStream.println("File Format Exception Files");
-        reportStream.println("----------------------------");
+        reportStream.println("File Format Exceptions");
+        reportStream.println("-----------------------");
         printExceptionFiles(reportStream,
                             fileFormatException,
-                            "No File Format Exception files.");
+                            "No File Format Exceptions.");
         reportStream.println();
-        reportStream.println("Unsupported File Exception Files");
-        reportStream.println("---------------------------------");
+        reportStream.println("Unsupported File Exceptions");
+        reportStream.println("----------------------------");
         printExceptionFiles(reportStream,
                             unsupportedFileException,
-                            "No Unsupported File Exception files.");
+                            "No Unsupported File Exceptions.");
         reportStream.println();
-        reportStream.println("Malformed File Name Exception Files");
-        reportStream.println("------------------------------------");
+        reportStream.println("Malformed File Name Exceptions");
+        reportStream.println("-------------------------------");
         printExceptionFiles(reportStream,
                             malformedFileNameException,
-                            "No Malformed File Name Exception files.");
+                            "No Malformed File Name Exceptions.");
         reportStream.close();
         try {
             report.close();

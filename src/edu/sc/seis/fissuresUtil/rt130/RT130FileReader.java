@@ -6,14 +6,17 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 
@@ -37,170 +40,93 @@ public class RT130FileReader {
         BufferedInputStream bis = new BufferedInputStream(fis);
         DataInputStream dis = new DataInputStream(bis);
         this.seismogramDataInputStream = dis;
-        File dataStream = new File(file.getParent());
-        File unitId = new File(dataStream.getParent());
-        String stateOfHealthFileLoc = unitId.getAbsolutePath() + "/0/SOH.RT";
         this.processData = processData;
-        DataInput stateOfHealthDataInputStream = null;
-        try {
-            nextSOH = false;
-            prevSOH = false;
-            file = new File(stateOfHealthFileLoc);
-            fis = new FileInputStream(file);
-            bis = new BufferedInputStream(fis);
-            stateOfHealthDataInputStream = new DataInputStream(bis);
-        } catch(FileNotFoundException e) {
-            stateOfHealthFileLoc = getNextStateOfHealthFile();
-            try {
-                file = new File(stateOfHealthFileLoc);
-                fis = new FileInputStream(file);
-                bis = new BufferedInputStream(fis);
-                stateOfHealthDataInputStream = new DataInputStream(bis);
-            } catch(FileNotFoundException f) {
-                logger.error("Missing Sate of Health File.");
-                throw new RT130FormatException("  Missing Sate of Health File.",
-                                               f);
-            }
-        }
+        curSOH = false;
+        nextSOH = false;
+        prevSOH = false;
+        String stateOfHealthFileLoc = getStateOfHealthFileLoc();
         if(stateOfHealthFileLoc.equals(this.stateOfHealthFileLoc)) {
             return readEntireDataFile(stateOfHealthData);
         } else {
             this.stateOfHealthFileLoc = stateOfHealthFileLoc;
-            this.stateOfHealthDataInputStream = stateOfHealthDataInputStream;
             stateOfHealthData = readEntireStateOfHealthFile();
             return readEntireDataFile(stateOfHealthData);
         }
     }
 
-    private void tryPreviousStateOfHealthFile() throws RT130FormatException {
-        this.stateOfHealthFileLoc = getPreviousStateOfHealthFile();
-        try {
-            File file = new File(stateOfHealthFileLoc);
-            FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            stateOfHealthDataInputStream = new DataInputStream(bis);
-        } catch(FileNotFoundException f) {
-            logger.error("Missing Sate of Health File.");
-            throw new RT130FormatException("  Missing Sate of Health File.", f);
+    private String getStateOfHealthFileLoc() throws RT130FormatException {
+        File file = new File(this.dataFileLoc);
+        File dataStream = new File(file.getParent());
+        File unitId = new File(dataStream.getParent());
+        if(curSOH == false) {
+            curSOH = true;
+            return unitId.getAbsolutePath() + "/0/SOH.RT";
+        } else if(nextSOH == false) {
+            return getNextStateOfHealthFile();
+        } else if(prevSOH == false) {
+            return getPreviousStateOfHealthFile();
+        } else {
+            logger.error("Three different State Of Health files were tried, and none of them were found."
+                    + "\n" + "The data file location is: \n" + this.dataFileLoc);
+            throw new RT130FormatException("  Three different State Of Health files were tried, and none of them were found."
+                    + "\n"
+                    + "  The data file location is: \n  "
+                    + this.dataFileLoc);
         }
     }
 
-    private void tryNextStateOfHealthFile() throws RT130FormatException {
-        this.stateOfHealthFileLoc = getNextStateOfHealthFile();
-        try {
-            File file = new File(stateOfHealthFileLoc);
-            FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            stateOfHealthDataInputStream = new DataInputStream(bis);
-        } catch(FileNotFoundException f) {
-            logger.error("Missing Sate of Health File.");
-            throw new RT130FormatException("  Missing Sate of Health File.", f);
-        }
-    }
-
-    private String getNextStateOfHealthFile() {
+    private String getNextStateOfHealthFile() throws RT130FormatException {
+        logger.debug("Trying next SOH file.");
         nextSOH = true;
-        logger.debug("Using next SOH file.");
         File dataFile = new File(dataFileLoc);
         File dataStreamDirectory = new File(dataFile.getParent());
         File unitIdDirectory = new File(dataStreamDirectory.getParent());
         File dateDirectory = new File(unitIdDirectory.getParent());
-        String dateDirectoryLoc = dateDirectory.getAbsolutePath();
-        char[] dateDirectoryLocChars = dateDirectoryLoc.toCharArray();
-        char[] yearChars = new char[4];
-        char[] dayChars = new char[3];
-        for(int i = 0; i < yearChars.length; i++) {
-            yearChars[i] = dateDirectoryLocChars[dateDirectoryLocChars.length
-                    - (yearChars.length + dayChars.length) + i];
-        }
-        for(int i = 0; i < dayChars.length; i++) {
-            dayChars[i] = dateDirectoryLocChars[dateDirectoryLocChars.length
-                    - dayChars.length + i];
-        }
-        String yearString = new String(yearChars);
-        String dayString = new String(dayChars);
-        int yearInt = Integer.parseInt(yearString);
-        int dayInt = Integer.parseInt(dayString);
-        dayInt++;
-        if(dayInt > 365) {
-            yearInt++;
-            dayString = "001";
-        } else {
-            dayString = dayInt + "";
-        }
-        yearString = yearInt + "";
-        if(dayString.length() == 1) {
-            dayString = "00" + dayString;
-        }
-        if(dayString.length() == 2) {
-            dayString = "0" + dayString;
-        }
-        String dateString = yearString + dayString;
-        char[] dateChars = dateString.toCharArray();
-        for(int i = 0; i < dateChars.length; i++) {
-            dateDirectoryLocChars[dateDirectoryLocChars.length
-                    - dateChars.length + i] = dateChars[i];
-        }
-        String stateOfHealthFileLoc = new String(dateDirectoryLocChars) + "/"
-                + unitIdDirectory.getName() + "/0/SOH.RT";
+        File baseDirectory = new File(dateDirectory.getParent());
+        String baseDirectoryString = baseDirectory.getAbsolutePath();
+        MicroSecondDate date = DirectoryNameParser.getTime(dateDirectory);
+        MicroSecondDate newDate = date.add(new TimeInterval(1, UnitImpl.DAY));
+        String dateString = df.format(newDate);
+        String stateOfHealthFileLoc = baseDirectoryString + "/" + dateString
+                + "/" + unitIdDirectory.getName() + "/0/SOH.RT";
         return stateOfHealthFileLoc;
     }
 
-    private String getPreviousStateOfHealthFile() {
+    private String getPreviousStateOfHealthFile() throws RT130FormatException {
+        logger.debug("Trying previous SOH file.");
         prevSOH = true;
-        logger.debug("Using previous SOH file.");
         File dataFile = new File(dataFileLoc);
         File dataStreamDirectory = new File(dataFile.getParent());
         File unitIdDirectory = new File(dataStreamDirectory.getParent());
         File dateDirectory = new File(unitIdDirectory.getParent());
-        String dateDirectoryLoc = dateDirectory.getAbsolutePath();
-        char[] dateDirectoryLocChars = dateDirectoryLoc.toCharArray();
-        char[] yearChars = new char[4];
-        char[] dayChars = new char[3];
-        for(int i = 0; i < yearChars.length; i++) {
-            yearChars[i] = dateDirectoryLocChars[dateDirectoryLocChars.length
-                    - (yearChars.length + dayChars.length) + i];
-        }
-        for(int i = 0; i < dayChars.length; i++) {
-            dayChars[i] = dateDirectoryLocChars[dateDirectoryLocChars.length
-                    - dayChars.length + i];
-        }
-        String yearString = new String(yearChars);
-        String dayString = new String(dayChars);
-        int yearInt = Integer.parseInt(yearString);
-        int dayInt = Integer.parseInt(dayString);
-        dayInt--;
-        if(dayInt < 0) {
-            yearInt--;
-            dayString = "365";
-        } else {
-            dayString = dayInt + "";
-        }
-        yearString = yearInt + "";
-        if(dayString.length() == 1) {
-            dayString = "00" + dayString;
-        }
-        if(dayString.length() == 2) {
-            dayString = "0" + dayString;
-        }
-        String dateString = yearString + dayString;
-        char[] dateChars = dateString.toCharArray();
-        for(int i = 0; i < dateChars.length; i++) {
-            dateDirectoryLocChars[dateDirectoryLocChars.length
-                    - dateChars.length + i] = dateChars[i];
-        }
-        String stateOfHealthFileLoc = new String(dateDirectoryLocChars) + "/"
-                + unitIdDirectory.getName() + "/0/SOH.RT";
+        File baseDirectory = new File(dateDirectory.getParent());
+        String baseDirectoryString = baseDirectory.getAbsolutePath();
+        MicroSecondDate date = DirectoryNameParser.getTime(dateDirectory);
+        MicroSecondDate newDate = date.subtract(new TimeInterval(1,
+                                                                 UnitImpl.DAY));
+        String dateString = df.format(newDate);
+        String stateOfHealthFileLoc = baseDirectoryString + "/" + dateString
+                + "/" + unitIdDirectory.getName() + "/0/SOH.RT";
         return stateOfHealthFileLoc;
     }
 
     private PacketType readEntireStateOfHealthFile() throws IOException,
             RT130FormatException {
+        DataInputStream stateOfHealthDataInputStream = null;
+        try {
+            File file = new File(stateOfHealthFileLoc);
+            FileInputStream fis = new FileInputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            stateOfHealthDataInputStream = new DataInputStream(bis);
+        } catch(IOException e) {
+            stateOfHealthFileLoc = getStateOfHealthFileLoc();
+            return readEntireStateOfHealthFile();
+        }
         boolean done = false;
         PacketType nextPacket = new PacketType();
         PacketType stateOfHealthData = new PacketType();
         try {
-            nextPacket = new PacketType(this.stateOfHealthDataInputStream,
+            nextPacket = new PacketType(stateOfHealthDataInputStream,
                                         this.processData);
         } catch(EOFException e) {
             logger.error("End of file reached before any data processing was done. "
@@ -252,7 +178,7 @@ public class RT130FileReader {
             }
             if(!done) {
                 try {
-                    nextPacket = new PacketType(this.stateOfHealthDataInputStream,
+                    nextPacket = new PacketType(stateOfHealthDataInputStream,
                                                 this.processData);
                 } catch(EOFException e) {
                     done = true;
@@ -260,34 +186,20 @@ public class RT130FileReader {
             }
         }
         if(stateOfHealthData.channel_name == null) {
-            if(prevSOH == false) {
-                tryPreviousStateOfHealthFile();
-                return readEntireStateOfHealthFile();
-            } else if(nextSOH == false) {
-                tryNextStateOfHealthFile();
-                return readEntireStateOfHealthFile();
-            } else {
-                logger.error("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
-                        + "\n"
-                        + "The State Of Health file location is: \n"
-                        + stateOfHealthFileLoc
-                        + "\n"
-                        + "Used \"next\" State Of Health File: "
-                        + nextSOH
-                        + "\n"
-                        + "Used \"previous\" State Of HealthFile: "
-                        + prevSOH);
-                throw new RT130FormatException("  The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
-                        + "\n"
-                        + "  The State Of Health file location is: \n"
-                        + stateOfHealthFileLoc
-                        + "\n"
-                        + "  Used \"next\" State Of Health File: "
-                        + nextSOH
-                        + "\n"
-                        + "  Used \"previous\" State Of HealthFile: "
-                        + prevSOH);
-            }
+            logger.error("The State Of Health file contained no Auxiliary Data Parameter Packets"
+                    + "\n"
+                    + "The State Of Health file location is: \n"
+                    + stateOfHealthFileLoc
+                    + "\n"
+                    + "Used \"current\" State Of Health File: "
+                    + curSOH
+                    + "\n"
+                    + "Used \"next\" State Of Health File: "
+                    + nextSOH
+                    + "\n"
+                    + "Used \"previous\" State Of HealthFile: " + prevSOH);
+            stateOfHealthFileLoc = getStateOfHealthFileLoc();
+            return readEntireStateOfHealthFile();
         }
         return stateOfHealthData;
     }
@@ -447,26 +359,8 @@ public class RT130FileReader {
                 seismogramData.begin_time_from_state_of_health_file = stateOfHealthData.begin_time_from_state_of_health_file;
             }
             if(stateOfHealthData.channel_name == null) {
-                logger.error("The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
-                        + "\n"
-                        + "The State Of Health file location is: \n"
-                        + stateOfHealthFileLoc
-                        + "\n"
-                        + "Used \"next\" State Of Health File: "
-                        + nextSOH
-                        + "\n"
-                        + "Used \"previous\" State Of HealthFile: "
-                        + prevSOH);
-                throw new RT130FormatException("  The State Of Health file associated with this file contained no Auxiliary Data Parameter Packets"
-                        + "\n"
-                        + "  The State Of Health file location is: \n"
-                        + stateOfHealthFileLoc
-                        + "\n"
-                        + "  Used \"next\" State Of Health File: "
-                        + nextSOH
-                        + "\n"
-                        + "  Used \"previous\" State Of HealthFile: "
-                        + prevSOH);
+                logger.error("Sould never happen.");
+                throw new RT130FormatException("Should never happen.");
             } else {
                 seismogramData.channel_name = stateOfHealthData.channel_name;
             }
@@ -519,11 +413,16 @@ public class RT130FileReader {
         }
     }
 
-    private boolean processData, nextSOH, prevSOH;
+    private static DateFormat df = new SimpleDateFormat("yyyyDDD");
+    static {
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
+
+    private boolean processData, nextSOH, prevSOH, curSOH;
 
     private String stateOfHealthFileLoc, dataFileLoc;
 
-    private DataInput seismogramDataInputStream, stateOfHealthDataInputStream;
+    private DataInput seismogramDataInputStream;
 
     PacketType stateOfHealthData;
 
