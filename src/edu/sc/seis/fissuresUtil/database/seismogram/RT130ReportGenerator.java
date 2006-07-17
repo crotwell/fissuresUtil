@@ -44,12 +44,6 @@ public class RT130ReportGenerator {
                 logger.debug("Properties file location: "
                         + file.getCanonicalPath());
                 i++;
-            } else if(args[i].equals("-hsql")) {
-                String hsqlFileLocation = args[i + 1];
-                File file = new File(hsqlFileLocation);
-                logger.debug("HSQL properties file location: "
-                        + file.getCanonicalPath());
-                i++;
             } else if(args[i].equals("-f")) {
                 baseFileSystemLocation = args[i + 1];
                 logger.debug("Using alternative data location: "
