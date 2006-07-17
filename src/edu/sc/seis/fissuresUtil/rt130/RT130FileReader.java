@@ -41,6 +41,7 @@ public class RT130FileReader {
         DataInputStream dis = new DataInputStream(bis);
         this.seismogramDataInputStream = dis;
         this.processData = processData;
+        lowercaseSOH = false;
         curSOH = false;
         nextSOH = false;
         prevSOH = false;
@@ -58,17 +59,33 @@ public class RT130FileReader {
         File file = new File(this.dataFileLoc);
         File dataStream = new File(file.getParent());
         File unitId = new File(dataStream.getParent());
-        if(curSOH == false) {
-            curSOH = true;
-            return unitId.getAbsolutePath() + "/0/SOH.RT";
-        } else if(nextSOH == false) {
-            return getNextStateOfHealthFile();
-        } else if(prevSOH == false) {
-            return getPreviousStateOfHealthFile();
+        if(lowercaseSOH == false) {
+            if(curSOH == false) {
+                curSOH = true;
+                return unitId.getAbsolutePath() + "/0/SOH.RT";
+            } else if(nextSOH == false) {
+                return getNextStateOfHealthFile();
+            } else if(prevSOH == false) {
+                return getPreviousStateOfHealthFile();
+            } else {
+                lowercaseSOH = true;
+                curSOH = true;
+                nextSOH = false;
+                prevSOH = false;
+                return unitId.getAbsolutePath() + "/0/soh.rt";
+            }
         } else {
-            logger.error("Three different State Of Health files were tried, and none of them were found."
-                    + "\n" + "The data file location is: \n" + this.dataFileLoc);
-            throw new RT130FormatException("  Three different State Of Health files were tried, and none of them were found.");
+            if(nextSOH == false) {
+                return getNextStateOfHealthFile();
+            } else if(prevSOH == false) {
+                return getPreviousStateOfHealthFile();
+            } else {
+                logger.error("Three different State Of Health files were tried, and none of them were found."
+                        + "\n"
+                        + "The data file location is: \n"
+                        + this.dataFileLoc);
+                throw new RT130FormatException("  Three different State Of Health files were tried, and none of them were found.");
+            }
         }
     }
 
@@ -84,8 +101,14 @@ public class RT130FileReader {
         MicroSecondDate date = DirectoryNameParser.getTime(dateDirectory);
         MicroSecondDate newDate = date.add(new TimeInterval(1, UnitImpl.DAY));
         String dateString = df.format(newDate);
-        String stateOfHealthFileLoc = baseDirectoryString + "/" + dateString
-                + "/" + unitIdDirectory.getName() + "/0/SOH.RT";
+        String stateOfHealthFileLoc = null;
+        if(lowercaseSOH == false) {
+            stateOfHealthFileLoc = baseDirectoryString + "/" + dateString + "/"
+                    + unitIdDirectory.getName() + "/0/SOH.RT";
+        } else {
+            stateOfHealthFileLoc = baseDirectoryString + "/" + dateString + "/"
+                    + unitIdDirectory.getName() + "/0/soh.rt";
+        }
         return stateOfHealthFileLoc;
     }
 
@@ -102,8 +125,14 @@ public class RT130FileReader {
         MicroSecondDate newDate = date.subtract(new TimeInterval(1,
                                                                  UnitImpl.DAY));
         String dateString = df.format(newDate);
-        String stateOfHealthFileLoc = baseDirectoryString + "/" + dateString
-                + "/" + unitIdDirectory.getName() + "/0/SOH.RT";
+        String stateOfHealthFileLoc = null;
+        if(lowercaseSOH == false) {
+            stateOfHealthFileLoc = baseDirectoryString + "/" + dateString + "/"
+                    + unitIdDirectory.getName() + "/0/SOH.RT";
+        } else {
+            stateOfHealthFileLoc = baseDirectoryString + "/" + dateString + "/"
+                    + unitIdDirectory.getName() + "/0/soh.rt";
+        }
         return stateOfHealthFileLoc;
     }
 
@@ -415,7 +444,7 @@ public class RT130FileReader {
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    private boolean processData, nextSOH, prevSOH, curSOH;
+    private boolean processData, nextSOH, prevSOH, curSOH, lowercaseSOH;
 
     private String stateOfHealthFileLoc, dataFileLoc;
 
