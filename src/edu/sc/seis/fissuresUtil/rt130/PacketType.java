@@ -109,7 +109,8 @@ public class PacketType {
                 || packetType.equals("EH") || packetType.equals("ET")
                 || packetType.equals("OM") || packetType.equals("SC") || packetType.equals("SH"))) {
             throw new RT130FormatException("  The first two bytes of the Packet Header were not formatted "
-                    + "correctly, and do not refer to a valid Packet Type.");
+                    + "correctly, and do not refer to a valid Packet Type. \n"
+                    + "First two bytes parse to: " + packetType);
         }
         // Experiment Number
         experimentNumber = BCDRead.toInt(this.readBytes(in, 1));
@@ -171,7 +172,8 @@ public class PacketType {
             this.sOHP = new StateOfHealthPacket(in);
         } else {
             throw new RT130FormatException("  The first two bytes of the Packet Header were not formatted "
-                    + "correctly, and do not refer to a valid Packet Type.");
+                    + "correctly, and do not refer to a valid Packet Type. \n"
+                    + "First two bytes parse to: " + packetType);
         }
     }
 
