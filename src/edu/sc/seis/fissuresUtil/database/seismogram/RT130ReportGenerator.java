@@ -37,7 +37,6 @@ public class RT130ReportGenerator {
         boolean finished = false;
         String baseFileSystemLocation = props.getProperty(BASE_FILE_SYSTEM_LOCATION);
         RT130FileHandlerFlag scanMode = RT130FileHandlerFlag.SCAN;
-        RT130FileHandlerFlag makeLogs = RT130FileHandlerFlag.MAKE_LOGS;
         for(int i = 0; i < args.length; i++) {
             if(args[i].equals("-props")) {
                 String propFileLocation = args[i + 1];
@@ -59,9 +58,8 @@ public class RT130ReportGenerator {
             } else if(args[i].equals("-full")) {
                 scanMode = RT130FileHandlerFlag.FULL;
                 logger.debug("Full processing of RT130 data: ON");
-            } else if(args[i].equals("-nologs")) {
-                makeLogs = RT130FileHandlerFlag.NO_LOGS;
-                logger.debug("Log creation: OFF");
+            } else if(args[i].equals("-scan")) {
+                scanMode = RT130FileHandlerFlag.SCAN;
             } else if(args[i].equals("-h") || args[i].equals("-help")) {
                 printHelp();
                 System.exit(0);
@@ -74,13 +72,9 @@ public class RT130ReportGenerator {
         if(scanMode == RT130FileHandlerFlag.SCAN) {
             logger.debug("Scan processing of RT130 data: ON");
         }
-        if(makeLogs == RT130FileHandlerFlag.MAKE_LOGS) {
-            logger.debug("Log creation: ON");
-        }
         File file = new File(baseFileSystemLocation);
         List flags = new LinkedList();
         flags.add(scanMode);
-        flags.add(makeLogs);
         fileHandler = new RT130FileHandler(props, flags);
         if(file.isDirectory()) {
             finished = readEntireDirectory(file);
@@ -183,9 +177,11 @@ public class RT130ReportGenerator {
         System.out.println("    -hsql    | Accepts alternate database properties file.");
         System.out.println("    -f       | Accepts alternate data directory.");
         System.out.println("    -full    | Turn on full processing of RT130 data.");
-        System.out.println("             | Scan processing of RT130 data is on by default.");
+        System.out.println("    -scan    | Turn on scan processing of RT130 data.");
+        System.out.println("             |   Scan processing of RT130 data is on by default.");
         System.out.println("             |   No other types of data can be processed using scan method.");
-        System.out.println("    -nologs  | Do not produce master SOH file log.");
+        System.out.println("    -help    | Displays this message.");
+        System.out.println("    -h       | Displays this message.");
         System.out.println();
         System.out.println();
         System.out.println("Program finished before database population was completed.");

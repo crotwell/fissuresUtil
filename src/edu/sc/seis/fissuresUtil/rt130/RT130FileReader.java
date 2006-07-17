@@ -90,7 +90,6 @@ public class RT130FileReader {
     }
 
     private String getNextStateOfHealthFile() throws RT130FormatException {
-        logger.debug("Trying next SOH file.");
         nextSOH = true;
         File dataFile = new File(dataFileLoc);
         File dataStreamDirectory = new File(dataFile.getParent());
@@ -103,9 +102,11 @@ public class RT130FileReader {
         String dateString = df.format(newDate);
         String stateOfHealthFileLoc = null;
         if(lowercaseSOH == false) {
+            logger.debug("Trying next SOH file.");
             stateOfHealthFileLoc = baseDirectoryString + "/" + dateString + "/"
                     + unitIdDirectory.getName() + "/0/SOH.RT";
         } else {
+            logger.debug("Trying next lowercase SOH file.");
             stateOfHealthFileLoc = baseDirectoryString + "/" + dateString + "/"
                     + unitIdDirectory.getName() + "/0/soh.rt";
         }
@@ -113,7 +114,6 @@ public class RT130FileReader {
     }
 
     private String getPreviousStateOfHealthFile() throws RT130FormatException {
-        logger.debug("Trying previous SOH file.");
         prevSOH = true;
         File dataFile = new File(dataFileLoc);
         File dataStreamDirectory = new File(dataFile.getParent());
@@ -127,9 +127,11 @@ public class RT130FileReader {
         String dateString = df.format(newDate);
         String stateOfHealthFileLoc = null;
         if(lowercaseSOH == false) {
+            logger.debug("Trying previous SOH file.");
             stateOfHealthFileLoc = baseDirectoryString + "/" + dateString + "/"
                     + unitIdDirectory.getName() + "/0/SOH.RT";
         } else {
+            logger.debug("Trying previous lowercase SOH file.");
             stateOfHealthFileLoc = baseDirectoryString + "/" + dateString + "/"
                     + unitIdDirectory.getName() + "/0/soh.rt";
         }
@@ -216,6 +218,9 @@ public class RT130FileReader {
                     + "\n"
                     + "The State Of Health file location is: \n"
                     + stateOfHealthFileLoc
+                    + "\n"
+                    + "Used \"lowercase\" State Of Health File: "
+                    + lowercaseSOH
                     + "\n"
                     + "Used \"current\" State Of Health File: "
                     + curSOH
