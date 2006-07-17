@@ -131,7 +131,7 @@ public class RT130ReportGenerator {
                                   fileName,
                                   fileHandler.getProps());
         } else {
-            if(fileName.equals("SOH.RT")) {
+            if(fileName.equals("SOH.RT") || fileName.equals("soh.rt")) {
                 logger.debug("Ignoring Ref Tek file: " + fileName);
             } else if(fileName.equals(".DS_Store") || fileName.equals("._501")
                     || fileName.equals("._504")) {
