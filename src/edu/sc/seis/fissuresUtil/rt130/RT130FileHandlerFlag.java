@@ -41,10 +41,6 @@ public class RT130FileHandlerFlag {
             return SCAN;
         } else if(modeURL.equals(FULL.getURLValue().toString())) {
             return FULL;
-        } else if(modeURL.equals(NO_LOGS.getURLValue().toString())) {
-            return NO_LOGS;
-        } else if(modeURL.equals(MAKE_LOGS.getURLValue().toString())) {
-            return MAKE_LOGS;
         }
         throw new UnsupportedFileTypeException(modeURL);
     }
@@ -55,10 +51,6 @@ public class RT130FileHandlerFlag {
             return SCAN;
         } else if(type == FULL.getIntValue()) {
             return FULL;
-        } else if(type == NO_LOGS.getIntValue()) {
-            return NO_LOGS;
-        } else if(type == MAKE_LOGS.getIntValue()) {
-            return MAKE_LOGS;
         }
         throw new UnsupportedFileTypeException("" + type);
     }
@@ -68,12 +60,6 @@ public class RT130FileHandlerFlag {
 
     public static final RT130FileHandlerFlag FULL = new RT130FileHandlerFlag("full",
                                                                              2);
-
-    public static final RT130FileHandlerFlag NO_LOGS = new RT130FileHandlerFlag("nologs",
-                                                                                3);
-
-    public static final RT130FileHandlerFlag MAKE_LOGS = new RT130FileHandlerFlag("nologs",
-                                                                                  4);
 
     public static final String URL_PREFIX = "http://www.seis.sc.edu/xml/RT130FileHandlerMode/";
 

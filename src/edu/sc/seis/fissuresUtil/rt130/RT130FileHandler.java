@@ -335,14 +335,6 @@ public class RT130FileHandler {
             logger.warn("Both -scan and -full flags were set.");
             logger.warn("Scan processing of RT130 data: ON");
         }
-        if(flags.contains(RT130FileHandlerFlag.NO_LOGS)
-                && flags.contains(RT130FileHandlerFlag.MAKE_LOGS)) {
-            while(flags.contains(RT130FileHandlerFlag.NO_LOGS)) {
-                flags.remove(RT130FileHandlerFlag.NO_LOGS);
-            }
-            logger.warn("Both -nologs and -makelogs flags were set.");
-            logger.warn("Log creation: ON");
-        }
     }
 
     public List getFlags() {
