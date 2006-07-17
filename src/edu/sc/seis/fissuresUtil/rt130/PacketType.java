@@ -108,7 +108,8 @@ public class PacketType {
                 || packetType.equals("DS") || packetType.equals("DT")
                 || packetType.equals("EH") || packetType.equals("ET")
                 || packetType.equals("OM") || packetType.equals("SC") || packetType.equals("SH"))) {
-            throw new RT130FormatException("First two bytes of Packet Header were not formatted correctly, and do not refer to a valid Packet Type.");
+            throw new RT130FormatException("  The first two bytes of the Packet Header were not formatted "
+                    + "correctly, and do not refer to a valid Packet Type.");
         }
         // Experiment Number
         experimentNumber = BCDRead.toInt(this.readBytes(in, 1));
@@ -169,7 +170,8 @@ public class PacketType {
         } else if(packetType.equals("SH")) {
             this.sOHP = new StateOfHealthPacket(in);
         } else {
-            throw new RT130FormatException("First two bytes of Packet Header were not formatted correctly, and do not refer to a valid Packet Type.");
+            throw new RT130FormatException("  The first two bytes of the Packet Header were not formatted "
+                    + "correctly, and do not refer to a valid Packet Type.");
         }
     }
 
@@ -194,7 +196,7 @@ public class PacketType {
             }
             return new MicroSecondDate(d);
         } catch(ParseException e) {
-            throw new RT130FormatException("Couldn't understand time string "
+            throw new RT130FormatException("  Couldn't understand time string "
                     + timeString + ".  " + e.getMessage());
         }
     }

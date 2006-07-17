@@ -68,10 +68,7 @@ public class RT130FileReader {
         } else {
             logger.error("Three different State Of Health files were tried, and none of them were found."
                     + "\n" + "The data file location is: \n" + this.dataFileLoc);
-            throw new RT130FormatException("  Three different State Of Health files were tried, and none of them were found."
-                    + "\n"
-                    + "  The data file location is: \n  "
-                    + this.dataFileLoc);
+            throw new RT130FormatException("  Three different State Of Health files were tried, and none of them were found.");
         }
     }
 
