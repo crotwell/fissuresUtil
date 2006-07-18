@@ -45,47 +45,65 @@ public class RT130FileReader {
         curSOH = false;
         nextSOH = false;
         prevSOH = false;
-        String stateOfHealthFileLoc = getStateOfHealthFileLoc();
-        if(stateOfHealthFileLoc.equals(this.stateOfHealthFileLoc)) {
-            return readEntireDataFile(stateOfHealthData);
+        PacketType stateOfHealthData = getStateOfHealthData();
+        return readEntireDataFile(stateOfHealthData);
+    }
+
+    private PacketType getStateOfHealthData() throws RT130FormatException,
+            IOException {
+        File file = new File(this.dataFileLoc);
+        File dataStream = new File(file.getParent());
+        File unitId = new File(dataStream.getParent());
+        String unitIdDirectory = unitId.getAbsolutePath();
+        if(unitIdDirectory.equals(this.unitIdDirectory)) {
+            return stateOfHealthData;
         } else {
-            this.stateOfHealthFileLoc = stateOfHealthFileLoc;
+            this.unitIdDirectory = unitIdDirectory;
             stateOfHealthData = readEntireStateOfHealthFile();
-            return readEntireDataFile(stateOfHealthData);
+            return stateOfHealthData;
         }
     }
 
     private String getStateOfHealthFileLoc() throws RT130FormatException {
-        File file = new File(this.dataFileLoc);
-        File dataStream = new File(file.getParent());
-        File unitId = new File(dataStream.getParent());
-        if(lowercaseSOH == false) {
-            if(curSOH == false) {
-                curSOH = true;
-                return unitId.getAbsolutePath() + "/0/SOH.RT";
-            } else if(nextSOH == false) {
-                return getNextStateOfHealthFile();
-            } else if(prevSOH == false) {
-                return getPreviousStateOfHealthFile();
-            } else {
+        String stateOfHealthFileLoc = null;
+        if(curSOH == false) {
+            File file = new File(this.dataFileLoc);
+            File dataStream = new File(file.getParent());
+            File unitId = new File(dataStream.getParent());
+            if(lowercaseSOH == false) {
+                stateOfHealthFileLoc = unitId.getAbsolutePath() + "/0/SOH.RT";
                 lowercaseSOH = true;
-                curSOH = true;
-                nextSOH = false;
-                prevSOH = false;
-                return unitId.getAbsolutePath() + "/0/soh.rt";
+                return stateOfHealthFileLoc;
             }
+            logger.debug("Trying current lowercase SOH file.");
+            stateOfHealthFileLoc = unitId.getAbsolutePath() + "/0/soh.rt";
+            curSOH = true;
+            lowercaseSOH = false;
+            return stateOfHealthFileLoc;
+        } else if(nextSOH == false) {
+            if(lowercaseSOH == false) {
+                stateOfHealthFileLoc = getNextStateOfHealthFile();
+                lowercaseSOH = true;
+                return stateOfHealthFileLoc;
+            }
+            stateOfHealthFileLoc = getNextStateOfHealthFile();
+            nextSOH = true;
+            lowercaseSOH = false;
+            return stateOfHealthFileLoc;
+        } else if(prevSOH == false) {
+            if(lowercaseSOH == false) {
+                stateOfHealthFileLoc = getPreviousStateOfHealthFile();
+                lowercaseSOH = true;
+                return stateOfHealthFileLoc;
+            }
+            stateOfHealthFileLoc = getPreviousStateOfHealthFile();
+            prevSOH = true;
+            lowercaseSOH = false;
+            return stateOfHealthFileLoc;
         } else {
-            if(nextSOH == false) {
-                return getNextStateOfHealthFile();
-            } else if(prevSOH == false) {
-                return getPreviousStateOfHealthFile();
-            } else {
-                logger.error("Three different State Of Health files were tried, and none of them were found."
-                        + "\n"
-                        + "The data file location is: \n"
-                        + this.dataFileLoc);
-                throw new RT130FormatException("  Three different State Of Health files were tried, and none of them were found.");
-            }
+            logger.error("Three different State Of Health files were tried, and none of them were found."
+                    + "\n" + "The data file location is: \n" + this.dataFileLoc);
+            throw new RT130FormatException("  Three different State Of Health files were tried, and none of them were found.");
         }
     }
 
@@ -141,13 +159,14 @@ public class RT130FileReader {
     private PacketType readEntireStateOfHealthFile() throws IOException,
             RT130FormatException {
         DataInputStream stateOfHealthDataInputStream = null;
+        String stateOfHealthFileLoc = null;
         try {
+            stateOfHealthFileLoc = getStateOfHealthFileLoc();
             File file = new File(stateOfHealthFileLoc);
             FileInputStream fis = new FileInputStream(file);
             BufferedInputStream bis = new BufferedInputStream(fis);
             stateOfHealthDataInputStream = new DataInputStream(bis);
         } catch(IOException e) {
-            stateOfHealthFileLoc = getStateOfHealthFileLoc();
             return readEntireStateOfHealthFile();
         }
         boolean done = false;
@@ -229,7 +248,6 @@ public class RT130FileReader {
                     + nextSOH
                     + "\n"
                     + "Used \"previous\" State Of HealthFile: " + prevSOH);
-            stateOfHealthFileLoc = getStateOfHealthFileLoc();
             return readEntireStateOfHealthFile();
         }
         return stateOfHealthData;
@@ -451,7 +469,7 @@ public class RT130FileReader {
 
     private boolean processData, nextSOH, prevSOH, curSOH, lowercaseSOH;
 
-    private String stateOfHealthFileLoc, dataFileLoc;
+    private String unitIdDirectory, dataFileLoc;
 
     private DataInput seismogramDataInputStream;
 
