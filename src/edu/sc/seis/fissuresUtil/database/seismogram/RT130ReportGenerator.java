@@ -57,6 +57,10 @@ public class RT130ReportGenerator {
             } else if(args[i].equals("-h") || args[i].equals("-help")) {
                 printHelp();
                 System.exit(0);
+            } else if(args[i].equals("-p") || args[i].equals("-progress")) {
+                showProgress = true;
+                numFilesTotal = 0;
+                numFilesRead = 0;
             } else {
                 System.out.println("Incorrect arguments entered.");
                 printHelp();
@@ -67,6 +71,17 @@ public class RT130ReportGenerator {
             logger.debug("Scan processing of RT130 data: ON");
         }
         File file = new File(baseFileSystemLocation);
+        if(showProgress) {
+            logger.info("Counting the number of total files. Please wait...");
+            if(file.isDirectory()) {
+                finished = countEntireDirectory(file);
+            } else if(file.isFile()) {
+                numFilesTotal = 1;
+            }
+        }
+        if(showProgress) {
+            System.out.print("0%");
+        }
         List flags = new LinkedList();
         flags.add(scanMode);
         fileHandler = new RT130FileHandler(props, flags);
@@ -74,6 +89,10 @@ public class RT130ReportGenerator {
             finished = readEntireDirectory(file);
         } else if(file.isFile()) {
             finished = readSingleFile(baseFileSystemLocation);
+            if(showProgress) {
+                System.out.print(" " + (int)((numFilesRead / numFilesTotal) * 100)
+                        + "%");
+            }
         } else {
             logger.error("File: " + file
                     + " is not a file or a directory. This can"
@@ -92,6 +111,7 @@ public class RT130ReportGenerator {
 
     private static boolean readSingleFile(String fileLoc) throws IOException,
             FissuresException, SeedFormatException, ParseException {
+        numFilesRead++;
         boolean finished = false;
         StringTokenizer t;
         if(System.getProperty("os.name").startsWith("Windows")) {
@@ -144,9 +164,34 @@ public class RT130ReportGenerator {
         return finished;
     }
 
+    private static boolean countEntireDirectory(File baseDirectory)
+            throws FissuresException, IOException, SeedFormatException,
+            ParseException {
+        File[] files = baseDirectory.listFiles();
+        if(files == null) {
+            throw new IOException("Unable to get listing of directory: "
+                    + baseDirectory);
+        }
+        for(int i = 0; i < files.length; i++) {
+            if(files[i].isDirectory()) {
+                countEntireDirectory(files[i]);
+            } else {
+                numFilesTotal++;
+            }
+        }
+        return true;
+    }
+
     private static boolean readEntireDirectory(File baseDirectory)
             throws FissuresException, IOException, SeedFormatException,
             ParseException {
+        if(showProgress) {
+            int newPercentage = (int)((numFilesRead / numFilesTotal) * 100);
+            if(newPercentage != percentage) {
+                percentage = newPercentage;
+                System.out.print(" " + percentage + "%");
+            }
+        }
         File[] files = baseDirectory.listFiles();
         if(files == null) {
             throw new IOException("Unable to get listing of directory: "
@@ -167,15 +212,17 @@ public class RT130ReportGenerator {
         System.out.println("    The default SOD properties file is server.properties.");
         System.out.println("    The default database properties file is server.properties.");
         System.out.println();
-        System.out.println("    -props   | Accepts alternate properties file.");
-        System.out.println("    -hsql    | Accepts alternate database properties file.");
-        System.out.println("    -f       | Accepts alternate data directory.");
-        System.out.println("    -full    | Turn on full processing of RT130 data.");
-        System.out.println("    -scan    | Turn on scan processing of RT130 data.");
-        System.out.println("             |   Scan processing of RT130 data is on by default.");
-        System.out.println("             |   No other types of data can be processed using scan method.");
-        System.out.println("    -help    | Displays this message.");
-        System.out.println("    -h       | Displays this message.");
+        System.out.println("    -props     | Accepts alternate properties file.");
+        System.out.println("    -hsql      | Accepts alternate database properties file.");
+        System.out.println("    -f         | Accepts alternate data directory.");
+        System.out.println("    -full      | Turn on full processing of RT130 data.");
+        System.out.println("    -scan      | Turn on scan processing of RT130 data.");
+        System.out.println("               |   Scan processing of RT130 data is on by default.");
+        System.out.println("               |   No other types of data can be processed using scan method.");
+        System.out.println("    -help      | Displays this message.");
+        System.out.println("    -h         | Displays this message.");
+        System.out.println("    -progress  | Show percentage complete.");
+        System.out.println("    -p         | Show percentage complete.");
         System.out.println();
         System.out.println();
         System.out.println("Program finished before database population was completed.");
@@ -245,6 +292,12 @@ public class RT130ReportGenerator {
                                   seis.getEndTime());
         return true;
     }
+
+    private static boolean showProgress = false;
+
+    private static double numFilesTotal, numFilesRead;
+
+    private static int percentage = 0;
 
     public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";
 
