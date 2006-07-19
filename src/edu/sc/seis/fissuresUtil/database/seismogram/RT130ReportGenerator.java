@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +58,7 @@ public class RT130ReportGenerator {
             } else if(args[i].equals("-h") || args[i].equals("-help")) {
                 printHelp();
                 System.exit(0);
-            } else if(args[i].equals("-p") || args[i].equals("-progress")) {
+            } else if(args[i].equals("-progress")) {
                 showProgress = true;
                 numFilesTotal = 0;
                 numFilesRead = 0;
@@ -80,7 +81,7 @@ public class RT130ReportGenerator {
             }
         }
         if(showProgress) {
-            System.out.print("0%");
+            System.out.print("0.00%");
         }
         List flags = new LinkedList();
         flags.add(scanMode);
@@ -90,8 +91,7 @@ public class RT130ReportGenerator {
         } else if(file.isFile()) {
             finished = readSingleFile(baseFileSystemLocation);
             if(showProgress) {
-                System.out.print(" " + (int)((numFilesRead / numFilesTotal) * 100)
-                        + "%");
+                System.out.print("\b\b100.00%");
             }
         } else {
             logger.error("File: " + file
@@ -111,6 +111,15 @@ public class RT130ReportGenerator {
 
     private static boolean readSingleFile(String fileLoc) throws IOException,
             FissuresException, SeedFormatException, ParseException {
+        if(showProgress) {
+            double percentage = ((numFilesRead / numFilesTotal) * 100);
+            String stringPercentage = decFormat.format(percentage);
+            if(percentage <= 10) {
+                System.out.print("\b\b\b\b\b" + stringPercentage + "%");
+            } else {
+                System.out.print("\b\b\b\b\b\b" + stringPercentage + "%");
+            }
+        }
         numFilesRead++;
         boolean finished = false;
         StringTokenizer t;
@@ -185,13 +194,6 @@ public class RT130ReportGenerator {
     private static boolean readEntireDirectory(File baseDirectory)
             throws FissuresException, IOException, SeedFormatException,
             ParseException {
-        if(showProgress) {
-            int newPercentage = (int)((numFilesRead / numFilesTotal) * 100);
-            if(newPercentage != percentage) {
-                percentage = newPercentage;
-                System.out.print(" " + percentage + "%");
-            }
-        }
         File[] files = baseDirectory.listFiles();
         if(files == null) {
             throw new IOException("Unable to get listing of directory: "
@@ -222,10 +224,9 @@ public class RT130ReportGenerator {
         System.out.println("    -help      | Displays this message.");
         System.out.println("    -h         | Displays this message.");
         System.out.println("    -progress  | Show percentage complete.");
-        System.out.println("    -p         | Show percentage complete.");
         System.out.println();
         System.out.println();
-        System.out.println("Program finished before database population was completed.");
+        System.out.println("Program finished before the report was created.");
         System.out.println();
     }
 
@@ -293,11 +294,15 @@ public class RT130ReportGenerator {
         return true;
     }
 
+    private static DecimalFormat decFormat = new DecimalFormat();
+    static {
+        decFormat.setMaximumFractionDigits(2);
+        decFormat.setMinimumFractionDigits(2);
+    }
+
     private static boolean showProgress = false;
 
     private static double numFilesTotal, numFilesRead;
-
-    private static int percentage = 0;
 
     public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";
 

@@ -138,34 +138,6 @@ public class RT130FileHandler {
             throws IOException {
         File file = new File(fileLoc);
         String unitIdNumber = file.getParentFile().getParentFile().getName();
-        if(flags.contains(RT130FileHandlerFlag.FULL)) {
-            String yearAndDay = file.getParentFile()
-                    .getParentFile()
-                    .getParentFile()
-                    .getName();
-            try {
-                MicroSecondDate beginTime = FileNameParser.getBeginTime(yearAndDay,
-                                                                        fileName);
-                beginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
-                                                                        beginTime);
-                TimeInterval lengthOfData = FileNameParser.getLengthOfData(fileName);
-                double nominalLengthOfData = Double.valueOf(propParser.getString("nominalLengthOfData"))
-                        .doubleValue();
-                if(lengthOfData.value > (nominalLengthOfData + (nominalLengthOfData * 0.05))) {
-                    report.addMalformedFileNameException(fileLoc, fileName
-                            + " seems to be an invalid rt130 file name.");
-                    logger.error(fileName
-                            + " seems to be an invalid rt130 file name.");
-                }
-            } catch(RT130FormatException e) {
-                report.addFileFormatException(fileLoc, fileName
-                        + " seems to be an invalid rt130 file." + "\n"
-                        + e.getMessage());
-                logger.error(fileName + " seems to be an invalid rt130 file."
-                        + "\n" + e.getMessage());
-                return false;
-            }
-        }
         String datastream = file.getParentFile().getName();
         if(!datastreamToFileData.containsKey(unitIdNumber + datastream)) {
             PacketType[] fileData;
@@ -188,11 +160,38 @@ public class RT130FileHandler {
         }
         Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
                 + datastream);
+        TimeInterval totalSeismogramTime = new TimeInterval(0,
+                                                            UnitImpl.MILLISECOND);
         for(int i = 0; i < channel.length; i++) {
-            processSingleRefTekWithKnownChannel(fileLoc,
-                                                fileName,
-                                                channel[i],
-                                                unitIdNumber);
+            TimeInterval newSeismogramTime = processSingleRefTekWithKnownChannel(fileLoc,
+                                                                                 fileName,
+                                                                                 channel[i],
+                                                                                 unitIdNumber);
+            totalSeismogramTime = totalSeismogramTime.add(newSeismogramTime);
+        }
+        if(flags.contains(RT130FileHandlerFlag.FULL)) {
+            TimeInterval lengthOfDataFromFileName = null;
+            try {
+                lengthOfDataFromFileName = FileNameParser.getLengthOfData(fileName);
+            } catch(RT130FormatException e) {
+                report.addFileFormatException(fileLoc, fileName
+                        + " seems to be an invalid rt130 file." + "\n"
+                        + e.getMessage());
+                logger.error(fileName + " seems to be an invalid rt130 file."
+                        + "\n" + e.getMessage());
+                return false;
+            }
+            if(lengthOfDataFromFileName.value != (totalSeismogramTime.value / (toSeismogram.getChannels().length * channel.length))) {
+                report.addMalformedFileNameException(fileLoc,
+                                                     fileName
+                                                             + " seems to be an invalid rt130 file name."
+                                                             + " The length of data described in the file"
+                                                             + " name does not match the length of data in the file.");
+                logger.error(fileName
+                        + " seems to be an invalid rt130 file name."
+                        + " The length of data described in the file"
+                        + " name does not match the length of data in the file.");
+            }
         }
         return true;
     }
@@ -291,11 +290,13 @@ public class RT130FileHandler {
         return newChannel;
     }
 
-    private boolean processSingleRefTekWithKnownChannel(String fileLoc,
-                                                        String fileName,
-                                                        Channel knownChannel,
-                                                        String unitIdNumber)
+    private TimeInterval processSingleRefTekWithKnownChannel(String fileLoc,
+                                                             String fileName,
+                                                             Channel knownChannel,
+                                                             String unitIdNumber)
             throws IOException {
+        TimeInterval totalSeismogramTime = new TimeInterval(0,
+                                                            UnitImpl.MILLISECOND);
         PacketType[] seismogramDataPacketArray = null;
         try {
             seismogramDataPacketArray = rtFileReader.processRT130Data(fileLoc,
@@ -306,7 +307,7 @@ public class RT130FileHandler {
                     + e.getMessage());
             logger.error(fileName + " seems to be an invalid rt130 file."
                     + "\n" + e.getMessage());
-            return false;
+            return totalSeismogramTime;
         }
         LocalSeismogramImpl[] seismogramArray = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);
         for(int i = 0; i < seismogramArray.length; i++) {
@@ -316,8 +317,16 @@ public class RT130FileHandler {
                                   seismogramArray[i].getEndTime()
                                           .add(seismogramArray[i].getSampling()
                                                   .getPeriod()));
+            if(flags.contains(RT130FileHandlerFlag.FULL)) {
+                // Add one sample period to end time on purpose.
+                TimeInterval seismogramTime = new TimeInterval(seismogramArray[i].getBeginTime(),
+                                                               seismogramArray[i].getEndTime()
+                                                                       .add(seismogramArray[i].getSampling()
+                                                                               .getPeriod()));
+                totalSeismogramTime = totalSeismogramTime.add(seismogramTime);
+            }
         }
-        return true;
+        return totalSeismogramTime;
     }
 
     private void addSeismogramToReport(Channel channel,
