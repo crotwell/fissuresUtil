@@ -91,7 +91,7 @@ public class RT130ReportGenerator {
         } else if(file.isFile()) {
             finished = readSingleFile(baseFileSystemLocation);
             if(showProgress) {
-                System.out.print("\b\b100.00%");
+                System.out.print("\b\b\b\b\b100.00%");
             }
         } else {
             logger.error("File: " + file
