@@ -47,7 +47,9 @@ public class PhasePhilter {
 
         public String rename(Arrival a) {
             for(int i = 0; i < matchers.length; i++) {
-                if(matchers[i].matcher(a.getName()).matches()) { return replacements[i]; }
+                if(matchers[i].matcher(a.getName()).find()) {
+                    return replacements[i];
+                } 
             }
             return a.getName();
         }
