@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.AuxiliaryDataParameterPacket;
@@ -107,7 +108,11 @@ public class PacketType {
         if(!(packetType.equals("AD") || packetType.equals("CD")
                 || packetType.equals("DS") || packetType.equals("DT")
                 || packetType.equals("EH") || packetType.equals("ET")
-                || packetType.equals("OM") || packetType.equals("SC") || packetType.equals("SH"))) {
+                || packetType.equals("OM") || packetType.equals("SC")
+                || packetType.equals("SH") || packetType.equals("FD"))) {
+            logger.error("  The first two bytes of the Packet Header were not formatted "
+                    + "correctly, and do not refer to a valid Packet Type. \n"
+                    + "  First two bytes parse to: " + packetType);
             throw new RT130FormatException("  The first two bytes of the Packet Header were not formatted "
                     + "correctly, and do not refer to a valid Packet Type. \n"
                     + "  First two bytes parse to: " + packetType);
@@ -170,7 +175,14 @@ public class PacketType {
             this.channel_name = this.sCPP.channelName;
         } else if(packetType.equals("SH")) {
             this.sOHP = new StateOfHealthPacket(in);
+        } else if(packetType.equals("FD")) {
+            // Just skip FD packet. Using DataStreamParameterPacket is good for
+            // that.
+            new DataStreamParameterPacket(in);
         } else {
+            logger.error("  The first two bytes of the Packet Header were not formatted "
+                    + "correctly, and do not refer to a valid Packet Type. \n"
+                    + "  First two bytes parse to: " + packetType);
             throw new RT130FormatException("  The first two bytes of the Packet Header were not formatted "
                     + "correctly, and do not refer to a valid Packet Type. \n"
                     + "  First two bytes parse to: " + packetType);
@@ -250,4 +262,6 @@ public class PacketType {
     public StationChannelParameterPacket sCPP;
 
     public StateOfHealthPacket sOHP;
+
+    private static final Logger logger = Logger.getLogger(PacketType.class);
 }
