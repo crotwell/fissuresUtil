@@ -114,11 +114,11 @@ public class RT130ReportGenerator {
         if(showProgress) {
             double percentage = ((numFilesRead / numFilesTotal) * 100);
             String stringPercentage = decFormat.format(percentage);
-            if(percentage <= 10) {
-                System.out.print("\b\b\b\b\b" + stringPercentage + "%");
-            } else {
-                System.out.print("\b\b\b\b\b\b" + stringPercentage + "%");
+            for(int i = 0; i < lastOuuputLength; i++) {
+                System.out.print("\b");
             }
+            System.out.print(stringPercentage + "%");
+            lastOuuputLength = stringPercentage.length() + 1;
         }
         numFilesRead++;
         boolean finished = false;
@@ -299,6 +299,8 @@ public class RT130ReportGenerator {
         decFormat.setMaximumFractionDigits(2);
         decFormat.setMinimumFractionDigits(2);
     }
+
+    private static int lastOuuputLength = 5;
 
     private static boolean showProgress = false;
 

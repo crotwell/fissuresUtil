@@ -217,6 +217,8 @@ public class RT130FileReader {
             } else if(nextPacket.packetType.equals("SC")) {
                 stateOfHealthData = Append.appendStationChannelParameterPacket(stateOfHealthData,
                                                                                nextPacket);
+            } else if(nextPacket.packetType.equals("FD")) {
+                // Do nothing. FD packets are the suck.
             } else {
                 logger.error("The first two bytes of the Packet Header were not formatted "
                         + "correctly, and do not refer to a valid Packet Type.");
