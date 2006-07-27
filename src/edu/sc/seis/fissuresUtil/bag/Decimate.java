@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.model.SamplingImpl;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class Decimate implements LocalSeismogramFunction {
@@ -47,8 +48,8 @@ public class Decimate implements LocalSeismogramFunction {
                                           seis.properties,
                                           seis.begin_time,
                                           numPts,
-                                          new SamplingImpl(numPts - 1,
-                                                           seis.getTimeInterval()),
+                                          new SamplingImpl(seis.getSampling().getNumPoints(),
+                                                           (TimeInterval)seis.getSampling().getTimeInterval().multiplyBy(factor)),
                                           seis.y_unit,
                                           seis.channel_id,
                                           seis.parm_ids,
