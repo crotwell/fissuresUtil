@@ -108,7 +108,7 @@ public class NCFile {
     public String getUnitName(MicroSecondDate time, String unitId) {
         MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForIdToName.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
-            if(time.after(keyArray[i])) {
+            if(time.after(keyArray[i]) || time.equals(keyArray[i])) {
                 Map idToName = (Map)timeAndDataMapIdToName.get(keyArray[i]);
                 if(idToName.containsKey(unitId)) {
                     return (String)idToName.get(unitId);
@@ -125,7 +125,7 @@ public class NCFile {
     public String getUnitId(MicroSecondDate time, String unitName) {
         MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForNameToId.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
-            if(time.after(keyArray[i])) {
+            if(time.after(keyArray[i]) || time.equals(keyArray[i])) {
                 Map nameToId = (Map)timeAndDataMapNameToId.get(keyArray[i]);
                 if(nameToId.containsKey(unitName)) {
                     return (String)nameToId.get(unitName);
@@ -137,6 +137,27 @@ public class NCFile {
         logger.warn("The number \"" + unitName + "\" will be used instead.");
         logger.warn("The time requested was: " + time.toString());
         return unitName;
+    }
+
+    public MicroSecondDate getStationBeginTime(String unitId) {
+        MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForIdToName.toArray(new MicroSecondDate[0]);
+        for(int i = 0; i < keyArray.length; i++) {
+            Map idToName = (Map)timeAndDataMapIdToName.get(keyArray[i]);
+            if(idToName.containsKey(unitId)) {
+                return keyArray[i];
+            }
+        }
+        keyArray = (MicroSecondDate[])keyListForNameToId.toArray(new MicroSecondDate[0]);
+        for(int i = 0; i < keyArray.length; i++) {
+                Map nameToId = (Map)timeAndDataMapNameToId.get(keyArray[i]);
+                if(nameToId.containsKey(unitId)) {
+                    return keyArray[i];
+                }
+        }
+        logger.warn("Unit number or DAS unit name " + unitId
+                + " was not found in the NC file.");
+        logger.warn("The station begin time returned will be the network begin time.");
+        return network_begin_time;
     }
 
     public String getCanonicalPath() throws IOException {
