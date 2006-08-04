@@ -162,6 +162,9 @@ public class FissuresToSac {
         if (origin != null && channel != null) {
             DistAz distAz = new DistAz(channel, origin);
             sac.gcarc = (float)distAz.getDelta();
+            sac.dist = (float)distAz.getDelta()*111.19f;
+            sac.az = (float)distAz.getAz();
+            sac.baz = (float)distAz.getBaz();
         }
         return sac;
     }
@@ -301,5 +304,7 @@ public class FissuresToSac {
         a0 = Cmplx.div(numer, denom).mag();
         return a0;
     }
+    
+    UnitImpl DEFAULT_DEPTH_UNIT = UnitImpl.METER;
 
 }// FissuresToSac
