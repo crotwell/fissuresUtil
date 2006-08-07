@@ -188,6 +188,19 @@ public class JDBCStation extends NetworkTable {
         return getDBIds(netTable.getDbId(net), stationCode);
     }
     
+    public int getBestNetworkDbId(String netCode, String staCode) throws SQLException, NotFound {
+        NetworkId[] nets = getNetTable().getByCode(netCode);
+        for(int i = 0; i < nets.length; i++) {
+            StationId[] staIds = getAllStationIds(nets[i]);
+            for(int j = 0; j < staIds.length; j++) {
+                if (staIds[j].station_code.equals(staCode)) {
+                    return getNetTable().getDbId(staIds[j].network_id);
+                }
+            }
+        }
+        throw new NotFound(netCode+" "+staCode);
+    }
+    
     public JDBCLocation getLocationTable() {
         return locTable;
     }
