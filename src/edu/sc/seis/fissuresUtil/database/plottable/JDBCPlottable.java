@@ -215,69 +215,64 @@ public class JDBCPlottable extends JDBCTable {
         ResultSet rs;
         List chunks = new ArrayList();
         int requestPixels = getPixels(pixelsPerDay, requestRange);
-        synchronized(get) {
-            get.setTimestamp(index++, requestRange.getEndTime().getTimestamp());
-            get.setTimestamp(index++, requestRange.getBeginTime()
-                    .getTimestamp());
-            get.setInt(index++, chanDbId);
-            get.setInt(index++, pixelsPerDay);
-            rs = get.executeQuery();
-            logger.debug("Request made for " + requestPixels + " from "
-                    + requestRange + " at " + pixelsPerDay + "ppd");
-            while(rs.next()) {
-                Timestamp ts = rs.getTimestamp("start_time");
-                MicroSecondDate rowBeginTime = new MicroSecondDate(ts);
-                int offsetIntoRequestPixels = SimplePlotUtil.getPixel(requestPixels,
-                                                                      requestRange,
-                                                                      rowBeginTime);
-                int numPixels = rs.getInt("pixel_count");
-                int firstPixelForRequest = 0;
-                if(offsetIntoRequestPixels < 0) {
-                    // This db row has data starting before the request, start
-                    // at
-                    // pertinent point
-                    firstPixelForRequest = -1 * offsetIntoRequestPixels;
-                }
-                int lastPixelForRequest = numPixels;
-                if(offsetIntoRequestPixels + numPixels > requestPixels) {
-                    // This row has more data than was requested in it, only get
-                    // enough to fill the request
-                    lastPixelForRequest = requestPixels
-                            - offsetIntoRequestPixels;
-                }
-                int pixelsUsed = lastPixelForRequest - firstPixelForRequest;
-                int[] x = new int[pixelsUsed * 2];
-                int[] y = new int[pixelsUsed * 2];
-                byte[] dataBytes = rs.getBytes("data");
-                DataInputStream dis = new DataInputStream(new ByteArrayInputStream(dataBytes));
-                for(int i = 0; i < firstPixelForRequest; i++) {
-                    dis.readInt();
-                    dis.readInt();
-                }
-                for(int i = 0; i < pixelsUsed * 2; i++) {
-                    // x[i] = firstPixelForRequest + i / 2;
-                    x[i] = firstPixelForRequest + offsetIntoRequestPixels + i
-                            / 2;
-                    y[i] = dis.readInt();
-                }
-                if(x.length > 0) {
-                    logger.debug("x[0]: " + x[0]);
-                } else {
-                    logger.debug("ZERO LENGTH ARRAY!!!");
-                }
-                Plottable p = new Plottable(x, y);
-                PlottableChunk pc = new PlottableChunk(p,
-                                                       PlottableChunk.getPixel(rowBeginTime,
-                                                                               pixelsPerDay)
-                                                               + firstPixelForRequest,
-                                                       PlottableChunk.getJDay(rowBeginTime),
-                                                       PlottableChunk.getYear(rowBeginTime),
-                                                       pixelsPerDay,
-                                                       id);
-                chunks.add(pc);
-                logger.debug("Returning " + pc + " from chunk starting at "
-                        + rowBeginTime);
+        get.setTimestamp(index++, requestRange.getEndTime().getTimestamp());
+        get.setTimestamp(index++, requestRange.getBeginTime().getTimestamp());
+        get.setInt(index++, chanDbId);
+        get.setInt(index++, pixelsPerDay);
+        rs = get.executeQuery();
+        logger.debug("Request made for " + requestPixels + " from "
+                + requestRange + " at " + pixelsPerDay + "ppd");
+        while(rs.next()) {
+            Timestamp ts = rs.getTimestamp("start_time");
+            MicroSecondDate rowBeginTime = new MicroSecondDate(ts);
+            int offsetIntoRequestPixels = SimplePlotUtil.getPixel(requestPixels,
+                                                                  requestRange,
+                                                                  rowBeginTime);
+            int numPixels = rs.getInt("pixel_count");
+            int firstPixelForRequest = 0;
+            if(offsetIntoRequestPixels < 0) {
+                // This db row has data starting before the request, start
+                // at
+                // pertinent point
+                firstPixelForRequest = -1 * offsetIntoRequestPixels;
             }
+            int lastPixelForRequest = numPixels;
+            if(offsetIntoRequestPixels + numPixels > requestPixels) {
+                // This row has more data than was requested in it, only get
+                // enough to fill the request
+                lastPixelForRequest = requestPixels - offsetIntoRequestPixels;
+            }
+            int pixelsUsed = lastPixelForRequest - firstPixelForRequest;
+            int[] x = new int[pixelsUsed * 2];
+            int[] y = new int[pixelsUsed * 2];
+            byte[] dataBytes = rs.getBytes("data");
+            DataInputStream dis = new DataInputStream(new ByteArrayInputStream(dataBytes));
+            for(int i = 0; i < firstPixelForRequest; i++) {
+                dis.readInt();
+                dis.readInt();
+            }
+            for(int i = 0; i < pixelsUsed * 2; i++) {
+                // x[i] = firstPixelForRequest + i / 2;
+                x[i] = firstPixelForRequest + offsetIntoRequestPixels + i / 2;
+                y[i] = dis.readInt();
+            }
+            if(x.length > 0) {
+                logger.debug("x[0]: " + x[0]);
+            } else {
+                logger.debug("ZERO LENGTH ARRAY!!!");
+            }
+            Plottable p = new Plottable(x, y);
+            PlottableChunk pc = new PlottableChunk(p,
+                                                   PlottableChunk.getPixel(rowBeginTime,
+                                                                           pixelsPerDay)
+                                                           + firstPixelForRequest,
+                                                   PlottableChunk.getJDay(rowBeginTime),
+                                                   PlottableChunk.getYear(rowBeginTime),
+                                                   pixelsPerDay,
+                                                   id);
+            chunks.add(pc);
+            logger.debug("Returning " + pc + " from chunk starting at "
+                    + rowBeginTime);
         }
         return (PlottableChunk[])chunks.toArray(new PlottableChunk[chunks.size()]);
     }
