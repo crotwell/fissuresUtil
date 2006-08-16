@@ -76,6 +76,9 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
      */
     public void reset() {
         netDC.reset();
+        if(finder != null){
+            finder._release();
+        }
         finder = null;
     }
 

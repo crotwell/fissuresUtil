@@ -36,6 +36,9 @@ public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
     }
 
     public synchronized void reset() {
+        if(plottableDC != null){
+            plottableDC._release();
+        }
         plottableDC = null;
     }
 

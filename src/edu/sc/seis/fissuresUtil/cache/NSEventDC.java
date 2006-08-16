@@ -33,6 +33,9 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
     }
 
     public synchronized void reset() {
+        if(eventDC != null){
+            ((org.omg.CORBA.Object)eventDC)._release();
+        }
         eventDC = null;
     }
 
