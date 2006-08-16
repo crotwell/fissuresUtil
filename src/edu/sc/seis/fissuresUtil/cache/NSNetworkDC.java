@@ -55,6 +55,9 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
     }
 
     public synchronized void reset() {
+        if(netDC != null){
+            getCorbaObject()._release();
+        }
         netDC = null;
     }
 
