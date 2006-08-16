@@ -136,6 +136,9 @@ public class FissuresNamingService {
     }
 
     public void reset() {
+        if(rootNamingContext != null){
+            rootNamingContext._release();
+        }
         rootNamingContext = null;
     }
 
