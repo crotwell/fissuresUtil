@@ -133,6 +133,10 @@ public class SeismogramDisplayConfiguration implements Cloneable {
         return clone;
     }
 
+    public BorderConfiguration[] getBorders() {
+        return (BorderConfiguration[])borders.toArray(new BorderConfiguration[0]);
+    }
+
     private String type = "basic";
 
     private List borders = new ArrayList();
