@@ -171,6 +171,10 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
         SeismogramPDFBuilder.createPDF(this, os, pdfSeismogramsPerPage, landscape);
     }
     
+    public void outputToPDF(OutputStream os, boolean landscape, boolean separate) {
+        SeismogramPDFBuilder.createPDF(this, os, pdfSeismogramsPerPage, landscape, separate);
+    }
+    
     private int pdfSeismogramsPerPage = 1;
 
     private int i = 0;
