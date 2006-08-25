@@ -13,10 +13,10 @@ import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
 import edu.sc.seis.fissuresUtil.display.borders.Border;
 import edu.sc.seis.fissuresUtil.display.borders.DistanceBorder;
-import edu.sc.seis.fissuresUtil.display.borders.TriangleBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TitleProvider;
+import edu.sc.seis.fissuresUtil.display.borders.TriangleBorder;
 
 /**
  * @author groves Created on Feb 17, 2005
@@ -140,6 +140,10 @@ public class BorderConfiguration implements Cloneable {
         } else {
             return Border.BOTTOM;
         }
+    }
+
+    public BorderTitleConfiguration[] getTitles() {
+        return (BorderTitleConfiguration[])titles.toArray(new BorderTitleConfiguration[0]);
     }
 
     public String toString() {

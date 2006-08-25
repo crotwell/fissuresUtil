@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -160,6 +161,14 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
 
     public void outputToPDF(File f) throws FileNotFoundException {
         SeismogramPDFBuilder.createPDF(this, f, pdfSeismogramsPerPage, true);
+    }
+    
+    public void outputToPDF(OutputStream os) {
+        SeismogramPDFBuilder.createPDF(this, os, pdfSeismogramsPerPage, true);
+    }
+    
+    public void outputToPDF(OutputStream os, boolean landscape) {
+        SeismogramPDFBuilder.createPDF(this, os, pdfSeismogramsPerPage, landscape);
     }
     
     private int pdfSeismogramsPerPage = 1;

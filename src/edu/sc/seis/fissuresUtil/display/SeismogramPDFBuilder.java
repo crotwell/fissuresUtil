@@ -14,6 +14,7 @@ import java.awt.Graphics2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,11 +52,11 @@ public class SeismogramPDFBuilder {
         if(f.getParentFile() != null){ f.getParentFile().mkdirs();}
         createPDF(disp, new FileOutputStream(f), dispPerPage, landscape);
     }
-    public static void createPDF(SeismogramDisplay disp, FileOutputStream fos, int dispPerPage) {
+    public static void createPDF(SeismogramDisplay disp, OutputStream fos, int dispPerPage) {
         createPDF(disp, fos, dispPerPage, false);
     }
 
-    public static void createPDF(SeismogramDisplay disp, FileOutputStream fos, int dispPerPage, boolean landscape) {
+    public static void createPDF(SeismogramDisplay disp, OutputStream fos, int dispPerPage, boolean landscape) {
         List displays = new ArrayList();
         if(disp instanceof VerticalSeismogramDisplay){
             displays =  ((VerticalSeismogramDisplay)disp).getDisplays();

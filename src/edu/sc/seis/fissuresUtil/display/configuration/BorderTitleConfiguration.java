@@ -10,6 +10,9 @@ import edu.sc.seis.fissuresUtil.display.borders.UnchangingTitleProvider;
 public class BorderTitleConfiguration {
 
     public BorderTitleConfiguration(Element el) {
+        if(el.hasAttribute("id")) {
+            id = el.getAttribute("id");
+        }
         title = DOMHelper.extractText(el, "text");
         f = FontConfiguration.create(DOMHelper.extractElement(el, "font"));
         if(DOMHelper.hasElement(el, "titleColor")) {
@@ -25,6 +28,16 @@ public class BorderTitleConfiguration {
         }
         return tp;
     }
+
+    public void setText(String text) {
+        this.title = text;
+    }
+    
+    public String getId() {
+        return id;
+    }
+
+    private String id = "";
 
     private FontConfiguration f;
 
