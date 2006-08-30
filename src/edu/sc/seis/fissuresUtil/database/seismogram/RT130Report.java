@@ -194,7 +194,7 @@ public class RT130Report {
     private void printReport() {
         FileWriter report = null;
         try {
-            report = new FileWriter("RT130Report.txt");
+            report = new FileWriter("RT130Report.log");
         } catch(IOException e) {
             e.printStackTrace();
         }
