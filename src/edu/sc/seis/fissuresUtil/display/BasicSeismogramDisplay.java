@@ -8,8 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -64,11 +62,14 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
         this(tc, ac, null);
     }
 
-    public BasicSeismogramDisplay(TimeConfig tc, AmpConfig ac, Color borderColor) {
-        if(borderColor != null) {
-            color = borderColor;
+    public BasicSeismogramDisplay(TimeConfig tc,
+                                  AmpConfig ac,
+                                  Color outlineColor) {
+        if(outlineColor != null) {
+            color = outlineColor;
             setBorder(new LineBorder(color));
-        } else setBorder(BorderFactory.createEtchedBorder());
+        } else
+            setBorder(BorderFactory.createEtchedBorder());
         add(new AmpBorder(this), CENTER_LEFT);
         add(new TimeBorder(this), TOP_CENTER);
         add(new DisplayRemover(this));
@@ -285,7 +286,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
     }
 
     public boolean contains(DataSetSeismogram seismo) {
-        if(seismograms.contains(seismo)) { return true; }
+        if(seismograms.contains(seismo)) {
+            return true;
+        }
         return false;
     }
 
@@ -331,6 +334,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
     }
 
     public void drawSeismograms(Graphics2D g2, Dimension size) {
+        System.out.println(getBorder());
         g2.setColor(Color.WHITE);
         g2.fill(new Rectangle2D.Float(0, 0, size.width, size.height));
         g2.setFont(DisplayUtils.DEFAULT_FONT);
@@ -342,7 +346,15 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
                                                           (float)stringBounds.getHeight());
         for(int i = 0; i < drawables.size(); i++) {
             Drawable current = (Drawable)drawables.get(i);
-            current.draw(g2, size, currentTimeEvent, currentAmpEvent);
+            Dimension drawSize = size;
+            if(current instanceof DrawableSeismogram && PDF) {
+                g2.scale(0.25, 0.25);
+                drawSize = new Dimension(size.width * 4, size.height * 4);
+            }
+            current.draw(g2, drawSize, currentTimeEvent, currentAmpEvent);
+            if(current instanceof DrawableSeismogram && PDF) {
+                g2.scale(4, 4);
+            }
             if(current instanceof TimeAmpLabel && !PRINTING) {
                 TimeAmpLabel taPlotter = (TimeAmpLabel)current;
                 g2.setFont(DisplayUtils.MONOSPACED_FONT);
@@ -383,7 +395,7 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
 
     public void addSoundPlay() {
         try {
-            //drawables.add(new SoundPlay(this, new
+            // drawables.add(new SoundPlay(this, new
             // SeismogramContainer(getSeismograms()[0])));
         } catch(NullPointerException e) {
             GlobalExceptionHandler.handle("Sample Rate cannot be calculated, so sound is not permitted.",
