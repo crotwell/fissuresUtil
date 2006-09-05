@@ -128,7 +128,7 @@ public class SeismogramPDFBuilder {
             } else {
                 pixelsPerDisplayH = (int)Math.floor((pageH - vertMargins)
                         / (double)dispPerPage);
-                pixelsPerDisplayW = (int)Math.floor(pageW - horizMargins);// /(double)dispPerPage);
+                pixelsPerDisplayW = (int)Math.floor(pageW - horizMargins);
             }
             PdfContentByte cb = writer.getDirectContent();
             // layer for SeismogramDisplay
@@ -144,8 +144,11 @@ public class SeismogramPDFBuilder {
             while(it.hasNext()) {
                 // loop over all traces
                 SeismogramDisplay sd = (SeismogramDisplay)it.next();
+                boolean bufferingStatus = sd.isDoubleBuffered();
+                sd.setDoubleBuffered(false);
                 sd.renderToGraphics(g2Traces, new Dimension(pixelsPerDisplayW,
                                                             pixelsPerDisplayH));
+                sd.setDoubleBuffered(bufferingStatus);
                 if(++seisOnCurPage == dispPerPage) {
                     // page is full, finish page and create a new page.
                     cb.addTemplate(tpTraces, 0, 0);
