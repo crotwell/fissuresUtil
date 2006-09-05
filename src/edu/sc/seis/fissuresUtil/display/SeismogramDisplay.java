@@ -62,7 +62,6 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     public abstract SeismogramDisplayProvider createCenter();
 
     public void renderToGraphics(Graphics2D g, Dimension size) {
-        System.out.println(getBorder());
         PRINTING = true;
         boolean allHere = false;
         long totalWait = 0;
