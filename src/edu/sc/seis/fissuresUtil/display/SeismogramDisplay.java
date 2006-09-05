@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,8 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.BorderFactory;
 import org.apache.log4j.Logger;
-import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
@@ -60,6 +62,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     public abstract SeismogramDisplayProvider createCenter();
 
     public void renderToGraphics(Graphics2D g, Dimension size) {
+        System.out.println(getBorder());
         PRINTING = true;
         boolean allHere = false;
         long totalWait = 0;
@@ -127,30 +130,39 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
             Iterator it = iterator(colorGroupClass);
             while(it.hasNext()) {
                 Drawable cur = (Drawable)it.next();
-                if(cur.getColor().equals(classColors[i])) usages[i]++;
+                if(cur.getColor().equals(classColors[i]))
+                    usages[i]++;
                 if(cur instanceof DrawableSeismogram) {
                     DrawableSeismogram curSeis = (DrawableSeismogram)cur;
                     Iterator childIterator = curSeis.iterator(colorGroupClass);
                     while(childIterator.hasNext()) {
                         Drawable curChild = (Drawable)childIterator.next();
-                        if(curChild.getColor().equals(classColors[i])) usages[i]++;
+                        if(curChild.getColor().equals(classColors[i]))
+                            usages[i]++;
                     }
                 }
             }
         }
         for(int minUsage = 0; minUsage >= 0; minUsage++) {
             for(int i = 0; i < usages.length; i++) {
-                if(usages[i] == minUsage) return classColors[i];
+                if(usages[i] == minUsage)
+                    return classColors[i];
             }
         }
         return classColors[i++ % classColors.length];
+    }
+
+    public void setOutlineColor(Color c) {
+        setBorder(BorderFactory.createLineBorder(c));
     }
 
     public DrawableSeismogram getDrawableSeismogram(DataSetSeismogram ds) {
         DrawableIterator it = iterator(DrawableSeismogram.class);
         while(it.hasNext()) {
             DrawableSeismogram cur = (DrawableSeismogram)it.next();
-            if(cur.getSeismogram().equals(ds)) { return cur; }
+            if(cur.getSeismogram().equals(ds)) {
+                return cur;
+            }
         }
         throw new IllegalArgumentException("The passed in data set seismgoram must have a drawable seismogram using it in this display");
     }
@@ -160,21 +172,27 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     }
 
     public void outputToPDF(File f) throws FileNotFoundException {
-        SeismogramPDFBuilder.createPDF(this, f, pdfSeismogramsPerPage, true);
+        outputToPDF(new BufferedOutputStream(new FileOutputStream(f)));
     }
-    
+
     public void outputToPDF(OutputStream os) {
-        SeismogramPDFBuilder.createPDF(this, os, pdfSeismogramsPerPage, true);
+        outputToPDF(os, true);
     }
-    
+
     public void outputToPDF(OutputStream os, boolean landscape) {
-        SeismogramPDFBuilder.createPDF(this, os, pdfSeismogramsPerPage, landscape);
+        outputToPDF(os, landscape, true);
     }
-    
+
     public void outputToPDF(OutputStream os, boolean landscape, boolean separate) {
-        SeismogramPDFBuilder.createPDF(this, os, pdfSeismogramsPerPage, landscape, separate);
+        PDF = true;
+        SeismogramPDFBuilder.createPDF(this,
+                                       os,
+                                       pdfSeismogramsPerPage,
+                                       landscape,
+                                       separate);
+        PDF = false;
     }
-    
+
     private int pdfSeismogramsPerPage = 1;
 
     private int i = 0;
@@ -237,11 +255,10 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
         return pdfSeismogramsPerPage;
     }
 
-    
     public void setPdfSeismogramsPerPage(int pdfSeismogramsPerPage) {
         this.pdfSeismogramsPerPage = pdfSeismogramsPerPage;
     }
-    
+
     private static SDMouseMotionForwarder motionForwarder;
 
     private static SDMouseForwarder mouseForwarder;
@@ -272,8 +289,9 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
 
     public static boolean PRINTING = false;
 
+    public static boolean PDF = false;
+
     public void setDrawNamesForNamedDrawables(boolean drawNamesForNamedDrawables) {
         this.drawNamesForNamedDrawables = drawNamesForNamedDrawables;
     }
-
 }
