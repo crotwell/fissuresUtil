@@ -20,7 +20,6 @@ import java.util.List;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -29,8 +28,8 @@ import org.w3c.dom.NodeList;
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
+import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
-import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -41,16 +40,17 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
+import edu.sc.seis.fissuresUtil.display.configuration.DOMHelper;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
-import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
+import edu.sc.seis.fissuresUtil.psn.PSNToFissures;
+import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
+import edu.sc.seis.fissuresUtil.sac.SacToFissures;
+import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.MiniSeedRead;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
 import edu.sc.seis.seisFile.psn.PSNDataFile;
-import edu.sc.seis.fissuresUtil.psn.PSNToFissures;
-import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
-import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 
 /**
  * URLDataSetSeismogram.java Created: Tue Mar 18 15:37:07 2003
@@ -342,7 +342,8 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         return writeMSeed(seis, seisFile);
     }
 
-    public static File writeMSeed(LocalSeismogramImpl seis, File seisFile) throws SeedFormatException, FileNotFoundException, IOException {
+    public static File writeMSeed(LocalSeismogramImpl seis, File seisFile)
+            throws SeedFormatException, FileNotFoundException, IOException {
         DataRecord[] dr = FissuresConvert.toMSeed(seis);
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(seisFile)));
         for(int i = 0; i < dr.length; i++) {
@@ -440,6 +441,14 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         if(chanBegin != null && chanBegin instanceof String) {
             seis.channel_id.begin_time = new Time((String)chanBegin, -1);
         }
+        /*
+         * for now, let's avoid setting the y_unit on the seismogram directly.
+         * There's a line in UnitRangeImpl that HPC said could break gee, and it
+         * certainly does if you set the unit on the seismograms here.
+         */
+        // if(y_unit != null) {
+        // seis.y_unit = y_unit;
+        // }
         addToCache(seisURL, fileType[seisNum], seis);
         return seis;
     }
@@ -510,6 +519,15 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     .toString());
             XMLUtil.writeEndElementWithNewLine(writer);
         }
+        try {
+            LocalSeismogramImpl[] seismos = getSeismograms();
+            writer.writeStartElement("y_unit");
+            XMLUnit.insert(writer, seismos[0].y_unit);
+            XMLUtil.writeEndElementWithNewLine(writer);
+        } catch(Exception e) {
+            GlobalExceptionHandler.handle("problem getting y_unit from seismogram",
+                                          e);
+        }
         Iterator it = getAuxillaryDataKeys().iterator();
         while(it.hasNext()) {
             Object next = it.next();
@@ -566,6 +584,15 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     .toString());
             element.appendChild(urlElement);
         }
+        try {
+            LocalSeismogramImpl[] seismos = getSeismograms();
+            Element yUnit = doc.createElement("y_unit");
+            XMLUnit.insert(yUnit, seismos[0].y_unit);
+            element.appendChild(yUnit);
+        } catch(Exception e) {
+            GlobalExceptionHandler.handle("problem getting y_unit from seismogram",
+                                          e);
+        }
         Iterator it = getAuxillaryDataKeys().iterator();
         while(it.hasNext()) {
             Object next = it.next();
@@ -621,6 +648,10 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                         + urlNode.getNodeValue() + " is null, skipping."));
             }
         }
+        Unit y_unit = null;
+        if(DOMHelper.hasElement(element, "y_unit")) {
+            y_unit = XMLUnit.getUnit(DOMHelper.getElement(element, "y_unit"));
+        }
         URL[] urls = new URL[children.getLength()];
         urls = (URL[])urlList.toArray(urls);
         SeismogramFileTypes[] seisTypes = (SeismogramFileTypes[])fileTypeList.toArray(new SeismogramFileTypes[0]);
@@ -628,6 +659,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                                                seisTypes,
                                                                name,
                                                                request);
+        if(y_unit != null) {
+            urlDSS.setYUnit(y_unit);
+        }
         // children = element.getElementsByTagName(NAMED_VALUE);
         // for(int i = 0; i < children.getLength(); i++) {
         // Element nameElement =
@@ -668,12 +702,19 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                                                                      "role")));
             XMLUtil.getNextStartElement(parser);
         }
+        Unit y_unit = null;
+        if(parser.getLocalName().equals("y_unit")) {
+            y_unit = XMLUnit.getUnit(parser);
+        }
         URL[] urls = (URL[])urlList.toArray(new URL[0]);
         SeismogramFileTypes[] fileTypes = (SeismogramFileTypes[])fileTypeList.toArray(new SeismogramFileTypes[0]);
         URLDataSetSeismogram urlDSS = new URLDataSetSeismogram(urls,
                                                                fileTypes,
                                                                name,
                                                                request);
+        if(y_unit != null) {
+            urlDSS.y_unit = y_unit;
+        }
         while(parser.hasNext() && parser.getLocalName().equals("property")) {
             Property p = XMLProperty.getProperty(parser);
             urlDSS.addAuxillaryData(p.name, p.value);
