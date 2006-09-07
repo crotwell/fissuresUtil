@@ -233,7 +233,6 @@ public class AmpConfigData implements SeismogramContainerListener {
 
     public static boolean isAllFromSameSite(AmpConfigData[] ampData) {
         if(ampData.length == 0) {
-            System.out.println("AMPDATA length 0");
             return false;
         }
         DataSetSeismogram[] seis = getSeismograms(ampData);
