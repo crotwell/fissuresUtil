@@ -65,7 +65,7 @@ public class UnitDisplayUtil {
             }
         } else if(inRange.getUnit()
                 .isConvertableTo(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
-            //acceleration
+            // acceleration
             inRange = inRange.convertTo(UnitImpl.METER_PER_SECOND_PER_SECOND);
             if(Math.abs(inRange.getMinValue()) < .000001
                     && Math.abs(inRange.getMaxValue()) < .000001) {
@@ -81,7 +81,7 @@ public class UnitDisplayUtil {
                 outRange = inRange.convertTo(UnitImpl.MILLIMETER_PER_SECOND_PER_SECOND);
             }
         } else if(inRange.getUnit().isConvertableTo(UnitImpl.COUNT)) {
-            //acceleration
+            // acceleration
             inRange = inRange.convertTo(UnitImpl.COUNT);
             if(Math.abs(inRange.getMinValue()) < .001
                     && Math.abs(inRange.getMaxValue()) < .001) {
@@ -99,10 +99,10 @@ public class UnitDisplayUtil {
                 outRange = inRange.convertTo(UnitImpl.MEGACOUNT);
             }
         } else {
-            //            logger.debug("No case, using amp range of
+            // logger.debug("No case, using amp range of
             // "+outRange.getMinValue()+" to "
-            //                             +outRange.getMaxValue()+" "+
-            //                             outRange.getUnit());
+            // +outRange.getMaxValue()+" "+
+            // outRange.getUnit());
         }
         return outRange;
     }
@@ -122,7 +122,7 @@ public class UnitDisplayUtil {
                 // this is the constant to divide by to get real worl units (not
                 // counts)
                 float sensitivity = response.the_sensitivity.sensitivity_factor;
-                //        logger.debug("sensitivity is "+sensitivity+" to get to
+                // logger.debug("sensitivity is "+sensitivity+" to get to
                 // "+realWorldUnit);
                 if(sensitivity > 0) {
                     out = new UnitRangeImpl(ur.getMinValue() / sensitivity,
@@ -135,6 +135,11 @@ public class UnitDisplayUtil {
                     seismo.addAuxillaryData("sensitivity",
                                             response.the_sensitivity);
                 }
+            } else if(seismo.getYUnit() != null) {
+                UnitImpl y_unit = (UnitImpl)seismo.getYUnit();
+                out = new UnitRangeImpl(ur.getMinValue(),
+                                        ur.getMaxValue(),
+                                        y_unit);
             }
         }
         return getBestForDisplay(out);
@@ -146,30 +151,74 @@ public class UnitDisplayUtil {
      */
     public static String getNameForUnit(UnitImpl unit) {
         // most common
-        if(unit.equals(UnitImpl.METER_PER_SECOND)) { return "m/s"; }
-        if(unit.equals(UnitImpl.MICRON_PER_SECOND)) { return "microns/sec"; }
-        if(unit.equals(UnitImpl.MILLIMETER_PER_SECOND)) { return "mm/s"; }
-        if(unit.equals(UnitImpl.NANOMETER_PER_SECOND)) { return "nm/s"; }
-        if(unit.equals(UnitImpl.KILOMETER_PER_SECOND)) { return "km/s"; }
-        if(unit.equals(UnitImpl.KILOMETER)) { return "km"; }
-        if(unit.equals(UnitImpl.METER)) { return "m"; }
-        if(unit.equals(UnitImpl.MILLIMETER)) { return "mm"; }
-        if(unit.equals(UnitImpl.MICROMETER)) { return "micrometers"; }
-        if(unit.equals(UnitImpl.NANOMETER)) { return "nanometers"; }
-        if(unit.equals(UnitImpl.METER_PER_SECOND_PER_SECOND)) { return "m/s/s"; }
-        if(unit.equals(UnitImpl.MILLIMETER_PER_SECOND_PER_SECOND)) { return "mm/s/s"; }
-        if(unit.equals(UnitImpl.MICROMETER_PER_SECOND_PER_SECOND)) { return "microns/s/s"; }
-        if(unit.equals(UnitImpl.NANOMETER_PER_SECOND_PER_SECOND)) { return "nm/s/s"; }
-        if(unit.equals(UnitImpl.SECOND)) { return "s"; }
-        if(unit.equals(UnitImpl.DEGREE)) { return "deg"; }
-        if(unit.equals(UnitImpl.COUNT)) { return "COUNTS"; }
-        if(unit.equals(UnitImpl.MILLICOUNT)) { return "COUNTS x 10^-3"; }
-        if(unit.equals(UnitImpl.MICROCOUNT)) { return "COUNTS x 10^-6"; }
-        if(unit.equals(UnitImpl.KILOCOUNT)) { return "COUNTS x 10^3"; }
-        if(unit.equals(UnitImpl.MEGACOUNT)) { return "COUNTS x 10^6"; }
-        if(unit.equals(UnitImpl.DIMENSONLESS)) { return ""; }
+        if(unit.equals(UnitImpl.METER_PER_SECOND)) {
+            return "m/s";
+        }
+        if(unit.equals(UnitImpl.MICRON_PER_SECOND)) {
+            return "microns/sec";
+        }
+        if(unit.equals(UnitImpl.MILLIMETER_PER_SECOND)) {
+            return "mm/s";
+        }
+        if(unit.equals(UnitImpl.NANOMETER_PER_SECOND)) {
+            return "nm/s";
+        }
+        if(unit.equals(UnitImpl.KILOMETER_PER_SECOND)) {
+            return "km/s";
+        }
+        if(unit.equals(UnitImpl.KILOMETER)) {
+            return "km";
+        }
+        if(unit.equals(UnitImpl.METER)) {
+            return "m";
+        }
+        if(unit.equals(UnitImpl.MILLIMETER)) {
+            return "mm";
+        }
+        if(unit.equals(UnitImpl.MICROMETER)) {
+            return "micrometers";
+        }
+        if(unit.equals(UnitImpl.NANOMETER)) {
+            return "nanometers";
+        }
+        if(unit.equals(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
+            return "m/s/s";
+        }
+        if(unit.equals(UnitImpl.MILLIMETER_PER_SECOND_PER_SECOND)) {
+            return "mm/s/s";
+        }
+        if(unit.equals(UnitImpl.MICROMETER_PER_SECOND_PER_SECOND)) {
+            return "microns/s/s";
+        }
+        if(unit.equals(UnitImpl.NANOMETER_PER_SECOND_PER_SECOND)) {
+            return "nm/s/s";
+        }
+        if(unit.equals(UnitImpl.SECOND)) {
+            return "s";
+        }
+        if(unit.equals(UnitImpl.DEGREE)) {
+            return "deg";
+        }
+        if(unit.equals(UnitImpl.COUNT)) {
+            return "COUNTS";
+        }
+        if(unit.equals(UnitImpl.MILLICOUNT)) {
+            return "COUNTS x 10^-3";
+        }
+        if(unit.equals(UnitImpl.MICROCOUNT)) {
+            return "COUNTS x 10^-6";
+        }
+        if(unit.equals(UnitImpl.KILOCOUNT)) {
+            return "COUNTS x 10^3";
+        }
+        if(unit.equals(UnitImpl.MEGACOUNT)) {
+            return "COUNTS x 10^6";
+        }
+        if(unit.equals(UnitImpl.DIMENSONLESS)) {
+            return "";
+        }
         // not a unit we have a friendly name for
-        //logger.debug("not a unit we have a friendly name
+        // logger.debug("not a unit we have a friendly name
         // for"+unit.toString());
         return unit.toString();
     }
@@ -180,8 +229,11 @@ public class UnitDisplayUtil {
 
     public static String formatQuantityImpl(Quantity quantity,
                                             NumberFormat format) {
-        if(quantity != null) { return format.format(quantity.value) + " "
-                + getNameForUnit((UnitImpl)quantity.the_units).toLowerCase(); }
+        if(quantity != null) {
+            return format.format(quantity.value)
+                    + " "
+                    + getNameForUnit((UnitImpl)quantity.the_units).toLowerCase();
+        }
         return "...";
     }
 
