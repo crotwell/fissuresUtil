@@ -44,7 +44,7 @@ public class XMLUnitBase {
         return UnitBase.from_int(getUnitBaseType(base));
     }
 
-    public static int getUnitBaseInt(XMLStreamReader parser)
+    public static int getUnitBaseType(XMLStreamReader parser)
             throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "value");
         return Integer.parseInt(parser.getElementText());
@@ -52,6 +52,6 @@ public class XMLUnitBase {
 
     public static UnitBase getUnitBase(XMLStreamReader parser)
             throws XMLStreamException {
-        return UnitBase.from_int(getUnitBaseInt(parser));
+        return UnitBase.from_int(getUnitBaseType(parser));
     }
 }// XMLUnitBase
