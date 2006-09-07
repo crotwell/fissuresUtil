@@ -7,49 +7,51 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import edu.iris.Fissures.UnitBase;
 
-
 /**
  * XMLUnitBase.java
- *
- *
- * Created: Mon Jul  1 15:48:00 2002
- *
+ * 
+ * 
+ * Created: Mon Jul 1 15:48:00 2002
+ * 
  * @author <a href="mailto:">Srinivasa Telukutla</a>
  * @version
  */
-
 public class XMLUnitBase {
 
     /**
      * StAX insert
      */
     public static void insert(XMLStreamWriter writer, UnitBase unitBase)
-        throws XMLStreamException{
-
-        XMLUtil.writeTextElement(writer, "value", ""+unitBase.value());
+            throws XMLStreamException {
+        XMLUtil.writeTextElement(writer, "value", "" + unitBase.value());
     }
 
     /**
      * DOM insert
      */
     public static void insert(Element element, UnitBase unitBase) {
-
         Document doc = element.getOwnerDocument();
-        element.appendChild(XMLUtil.createTextElement(doc,
-                                                      "value",
-                                                      ""+unitBase.value()));
+        element.appendChild(XMLUtil.createTextElement(doc, "value", ""
+                + unitBase.value()));
+    }
+
+    public static int getUnitBaseType(Element base) {
+        return Integer.parseInt(XMLUtil.getText(XMLUtil.getElement(base,
+                                                                   "value")));
     }
 
     public static UnitBase getUnitBase(Element base) {
-
-        int value = Integer.parseInt(XMLUtil.getText(XMLUtil.getElement(base,"value")));
-        return UnitBase.from_int(value);
+        return UnitBase.from_int(getUnitBaseType(base));
     }
 
-    public static UnitBase getUnitBase(XMLStreamReader parser) throws XMLStreamException {
+    public static int getUnitBaseInt(XMLStreamReader parser)
+            throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "value");
-        int value = Integer.parseInt(parser.getElementText());
-        return UnitBase.from_int(value);
+        return Integer.parseInt(parser.getElementText());
     }
-    
+
+    public static UnitBase getUnitBase(XMLStreamReader parser)
+            throws XMLStreamException {
+        return UnitBase.from_int(getUnitBaseInt(parser));
+    }
 }// XMLUnitBase
