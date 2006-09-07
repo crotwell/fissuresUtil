@@ -68,8 +68,9 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
         if(outlineColor != null) {
             color = outlineColor;
             setBorder(new LineBorder(color));
-        } else
+        } else {
             setBorder(BorderFactory.createEtchedBorder());
+        }
         add(new AmpBorder(this), CENTER_LEFT);
         add(new TimeBorder(this), TOP_CENTER);
         add(new DisplayRemover(this));
@@ -334,7 +335,6 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
     }
 
     public void drawSeismograms(Graphics2D g2, Dimension size) {
-        System.out.println(getBorder());
         g2.setColor(Color.WHITE);
         g2.fill(new Rectangle2D.Float(0, 0, size.width, size.height));
         g2.setFont(DisplayUtils.DEFAULT_FONT);
@@ -434,6 +434,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
 
     public Color getColor() {
         return color;
+    }
+
+    public void setOutlineColor(Color c) {
+        color = c;
+        getCenter().setBorder(BorderFactory.createLineBorder(color));
+        super.setOutlineColor(c);
     }
 
     public final static int PREFERRED_HEIGHT = 150;
