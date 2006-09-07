@@ -93,7 +93,7 @@ public class XMLUnit {
     public static Unit getUnit(XMLStreamReader parser)
             throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "the_unit_base");
-        int unitBaseType = XMLUnitBase.getUnitBaseInt(parser);
+        int unitBaseType = XMLUnitBase.getUnitBaseType(parser);
         UnitBase unitBase = UnitBase.from_int(unitBaseType);
         List subUnits = new ArrayList();
         XMLUtil.getNextStartElement(parser);
