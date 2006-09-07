@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Category;
+import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -184,6 +185,14 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
 
     public ChannelId getChannelId() {
         return getRequestFilter().channel_id;
+    }
+
+    public Unit getYUnit() {
+        return y_unit;
+    }
+
+    public void setYUnit(Unit unit) {
+        y_unit = unit;
     }
 
     public void addRequestFilterChangeListener(RequestFilterChangeListener listener) {
@@ -382,6 +391,8 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
     private String name = null;
 
     private HashMap auxillaryData = new HashMap();
+
+    protected Unit y_unit;
 
     static Category logger = Category.getInstance(DataSetSeismogram.class.getName());
 }// DataSetSeismogram
