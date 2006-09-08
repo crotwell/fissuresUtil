@@ -31,7 +31,6 @@ import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
-import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
 
 public class RT130ToLocalSeismogram {
 
@@ -85,7 +84,6 @@ public class RT130ToLocalSeismogram {
 
     public LocalSeismogramImpl ConvertRT130ToLocalSeismogram(PacketType seismogramData,
                                                              int i) {
-        Time mockBeginTimeOfChannel = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
         int numPoints = seismogramData.number_of_samples;
         if(seismogramData.sample_rate == 0) {
             logger.debug("A sample rate of 0 samples per second was detected for data stream number "
@@ -104,17 +102,8 @@ public class RT130ToLocalSeismogram {
                                                  new TimeInterval(1,
                                                                   UnitImpl.SECOND));
         ChannelId channelId;
-        if(ncFile == null) {
-            channelId = new ChannelId(MockNetworkId.createNetworkID(),
-                                      seismogramData.unitIdNumber,
-                                      "" + seismogramData.data_stream_number,
-                                      "BH"
-                                              + seismogramData.channel_name[seismogramData.channel_number],
-                                      mockBeginTimeOfChannel);
-        } else {
-            this.channel[i] = createChannel(seismogramData, sampling);
-            channelId = channel[i].get_id();
-        }
+        this.channel[i] = createChannel(seismogramData, sampling);
+        channelId = channel[i].get_id();
         String id = channelId.toString();
         TimeSeriesDataSel timeSeriesDataSel = new TimeSeriesDataSel();
         timeSeriesDataSel.encoded_values(seismogramData.encoded_data);
@@ -130,21 +119,26 @@ public class RT130ToLocalSeismogram {
     }
 
     private Channel createChannel(PacketType seismogramData, Sampling sampling) {
-        String stationCode = ncFile.getUnitName(seismogramData.begin_time_from_state_of_health_file,
-                                                seismogramData.unitIdNumber);
+        String stationCode = ncFile.getUnitName(seismogramData.begin_time_from_first_data_file,
+                                                seismogramData.unitIdNumber,
+                                                "No file loc for RT130ToLocalSeismogram.");
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
-        Time channelBeginTime = seismogramData.begin_time_from_state_of_health_file.getFissuresTime();
+        Time channelBeginTime = seismogramData.begin_time_from_first_data_file.getFissuresTime();
         networkAttr.get_id().begin_time = networkBeginTime;
         String tempCode = "B";
         if(seismogramData.sample_rate < 10) {
             tempCode = "L";
         }
+        String chanDipAzi = ncFile.getChannelNamesAndOrientations(seismogramData.begin_time_from_first_data_file,
+                                                                  seismogramData.unitIdNumber,
+                                                                  "No file loc for RT130ToLocalSeismogram.");
+        ChannelNameAndOrientation[] channelNameAndOrientation = NCFileChanDipAziParser.parse(chanDipAzi);
         ChannelId channelId = new ChannelId(networkAttr.get_id(),
                                             stationCode,
                                             "00",
                                             tempCode
                                                     + "H"
-                                                    + seismogramData.channel_name[seismogramData.channel_number],
+                                                    + channelNameAndOrientation[seismogramData.channel_number].channelName,
                                             channelBeginTime);
         TimeRange effectiveChannelTime = new TimeRange(channelBeginTime,
                                                        TimeUtils.timeUnknown);
