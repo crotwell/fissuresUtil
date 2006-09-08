@@ -111,33 +111,24 @@ public class SeismogramPDFBuilder {
         } else {
             displays.add(disp);
         }
-        Document document = new Document(PageSize.LETTER);
+        Document document = null;
+        if(landscape) {
+            document = new Document(PageSize.LETTER.rotate());
+        } else {
+            document = new Document(PageSize.LETTER);
+        }
         try {
             PdfWriter writer = PdfWriter.getInstance(document, out);
             document.open();
-            int pageW = (int)PageSize.LETTER.width();
-            int pageH = (int)PageSize.LETTER.height();
-            // note H and W here refer to seismogram not paper, so for
-            // landscape H and W are reversed in pixelsPerDisplay
-            int pixelsPerDisplayH;
-            int pixelsPerDisplayW;
-            if(landscape) {
-                pixelsPerDisplayH = (int)Math.floor((pageW - horizMargins)
-                        / (double)dispPerPage);
-                pixelsPerDisplayW = (int)Math.floor((pageH - vertMargins));
-            } else {
-                pixelsPerDisplayH = (int)Math.floor((pageH - vertMargins)
-                        / (double)dispPerPage);
-                pixelsPerDisplayW = (int)Math.floor(pageW - horizMargins);
-            }
+            int pageW = (int)document.getPageSize().width();
+            int pageH = (int)document.getPageSize().height();
+            int pixelsPerDisplayH = (int)Math.floor((pageH - vertMargins)
+                    / (double)dispPerPage);
+            int pixelsPerDisplayW = (int)Math.floor(pageW - horizMargins);
             PdfContentByte cb = writer.getDirectContent();
             // layer for SeismogramDisplay
             PdfTemplate tpTraces = cb.createTemplate(pageW, pageH);
             Graphics2D g2Traces = tpTraces.createGraphics(pageW, pageH);
-            if(landscape) {
-                g2Traces.translate(pageW, 0);
-                g2Traces.rotate(Math.toRadians(90));
-            }
             g2Traces.translate(rightMargin, topMargin);
             int seisOnCurPage = 0;
             Iterator it = displays.iterator();
@@ -156,10 +147,6 @@ public class SeismogramPDFBuilder {
                     document.newPage();
                     tpTraces = cb.createTemplate(pageW, pageH);
                     g2Traces = tpTraces.createGraphics(pageW, pageH);
-                    if(landscape) {
-                        g2Traces.translate(pageW, 0);
-                        g2Traces.rotate(Math.toRadians(90));
-                    }
                     g2Traces.translate(rightMargin, topMargin);
                     // reset current count
                     seisOnCurPage = 0;
