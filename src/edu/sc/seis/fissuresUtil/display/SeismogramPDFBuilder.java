@@ -29,6 +29,7 @@ import java.util.List;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.PageSize;
+import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
@@ -111,17 +112,14 @@ public class SeismogramPDFBuilder {
         } else {
             displays.add(disp);
         }
-        Document document = null;
-        if(landscape) {
-            document = new Document(PageSize.LETTER.rotate());
-        } else {
-            document = new Document(PageSize.LETTER);
-        }
+        Rectangle pageSize = (landscape ? PageSize.LETTER.rotate()
+                : PageSize.LETTER);
+        Document document = new Document(pageSize);
         try {
             PdfWriter writer = PdfWriter.getInstance(document, out);
             document.open();
-            int pageW = (int)document.getPageSize().width();
-            int pageH = (int)document.getPageSize().height();
+            int pageW = (int)pageSize.width();
+            int pageH = (int)pageSize.height();
             int pixelsPerDisplayH = (int)Math.floor((pageH - vertMargins)
                     / (double)dispPerPage);
             int pixelsPerDisplayW = (int)Math.floor(pageW - horizMargins);
