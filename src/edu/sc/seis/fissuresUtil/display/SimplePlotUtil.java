@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 17195 2006-05-10 03:16:29Z groves $
+ * @version $Id: SimplePlotUtil.java 18167 2006-09-08 20:54:49Z oliverpa $
  */
 public class SimplePlotUtil {
 
@@ -417,13 +417,9 @@ public class SimplePlotUtil {
         width = (TimeInterval)width.multiplyBy(index);
         return beginTime.add(width);
     }
-
-    public static LocalSeismogramImpl createTestData() {
-        return createTestData("Fake Data");
-    }
-
-    public static LocalSeismogramImpl createTestData(String name) {
-        int[] dataBits = new int[100];
+    
+    public static int[] createRandomDataBits(int length) {
+        int[] dataBits = new int[length];
         double tmpDouble;
         for(int i = 0; i < dataBits.length; i++) {
             tmpDouble = Math.random() * 2.0 - 1.0;
@@ -434,7 +430,15 @@ public class SimplePlotUtil {
                     * tmpDouble;
             dataBits[i] = (int)Math.round(tmpDouble * 2000.0);
         }
-        return createTestData(name, dataBits);
+        return dataBits;
+    }
+
+    public static LocalSeismogramImpl createTestData() {
+        return createTestData("Fake Data");
+    }
+
+    public static LocalSeismogramImpl createTestData(String name) {
+        return createTestData(name, createRandomDataBits(100));
     }
 
     public static LocalSeismogramImpl createTestData(String name, int[] dataBits) {
