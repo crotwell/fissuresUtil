@@ -30,7 +30,7 @@ public class Append {
         seismogramData.number_of_samples = seismogramData.number_of_samples
                 + nextPacket.dP.numberOfSamples;
         // Update begin_time_of_seismogram is needed.
-        if(seismogramData.begin_time_of_seismogram == null){
+        if(seismogramData.begin_time_of_seismogram == null) {
             seismogramData.begin_time_of_seismogram = nextPacket.time;
         }
         // Update begin_time_of_first_packet.
@@ -56,14 +56,15 @@ public class Append {
     }
 
     public static PacketType appendEventHeaderPacket(PacketType seismogramData,
-                                                     PacketType nextPacket) throws RT130FormatException {
+                                                     PacketType nextPacket)
+            throws RT130FormatException {
         PacketType clone = new PacketType(nextPacket);
         return clone;
     }
 
     public static PacketType appendEventTrailerPacket(PacketType seismogramData,
                                                       PacketType nextPacket) {
-        if(seismogramData.sample_rate == 0){
+        if(seismogramData.sample_rate == 0) {
             seismogramData.sample_rate = nextPacket.sample_rate;
         }
         return seismogramData;
@@ -71,52 +72,31 @@ public class Append {
 
     public static PacketType appendAuxiliaryDataParameterPacket(PacketType stateOfHealthData,
                                                                 PacketType nextPacket) {
-        if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
-            stateOfHealthData.begin_time_from_state_of_health_file = nextPacket.time;
-        }
         return stateOfHealthData;
     }
 
     public static PacketType appendCalibrationParameterPacket(PacketType stateOfHealthData,
                                                               PacketType nextPacket) {
-        if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
-            stateOfHealthData.begin_time_from_state_of_health_file = nextPacket.time;
-        }
         return stateOfHealthData;
     }
 
     public static PacketType appendDataStreamParameterPacket(PacketType stateOfHealthData,
                                                              PacketType nextPacket) {
-        if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
-            stateOfHealthData.begin_time_from_state_of_health_file = nextPacket.time;
-        }
         return stateOfHealthData;
     }
 
     public static PacketType appendOperatingModeParameterPacket(PacketType stateOfHealthData,
                                                                 PacketType nextPacket) {
-        if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
-            stateOfHealthData.begin_time_from_state_of_health_file = nextPacket.time;
-        }
         return stateOfHealthData;
     }
 
     public static PacketType appendStateOfHealthPacket(PacketType stateOfHealthData,
                                                        PacketType nextPacket) {
-        if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
-            stateOfHealthData.begin_time_from_state_of_health_file = nextPacket.time;
-        }
         return stateOfHealthData;
     }
 
     public static PacketType appendStationChannelParameterPacket(PacketType stateOfHealthData,
                                                                  PacketType nextPacket) {
-        if(stateOfHealthData.begin_time_from_state_of_health_file == null) {
-            stateOfHealthData.begin_time_from_state_of_health_file = nextPacket.time;
-        }
-        if(stateOfHealthData.channel_name == null){
-            stateOfHealthData.channel_name = nextPacket.channel_name;
-        }
         return stateOfHealthData;
     }
 }

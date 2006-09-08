@@ -56,19 +56,11 @@ public class PacketType {
                              0,
                              original.encoded_data.length);
         }
-        this.begin_time_from_state_of_health_file = original.begin_time_from_state_of_health_file;
+        this.begin_time_from_first_data_file = original.begin_time_from_first_data_file;
         this.latitude_ = original.latitude_;
         this.longitude_ = original.longitude_;
         this.elevation_ = original.elevation_;
         this.number_of_location_readings = original.number_of_location_readings;
-        if(original.channel_name != null) {
-            this.channel_name = new String[original.channel_name.length];
-            System.arraycopy(original.channel_name,
-                             0,
-                             this.channel_name,
-                             0,
-                             original.channel_name.length);
-        }
         this.channel_number = original.channel_number;
         this.data_stream_number = original.data_stream_number;
         if(original.aDPP != null) {
@@ -129,9 +121,11 @@ public class PacketType {
         // Time
         String timeString = BCDRead.toString(this.readBytes(in, 6));
         // System.out.println("Time: " + timeString);
+        // logger.info("Time: " + timeString);
         time = this.stringToMicroSecondDate(timeString, year);
         begin_time_of_first_packet = time;
         // System.out.println("Micro Second Date Time: " + time.toString());
+        // logger.info("Micro Second Date Time: " + time.toString());
         // Byte Count
         byteCount = BCDRead.toInt(this.readBytes(in, 2));
         // System.out.println("Byte Count: " + byteCount);
@@ -172,7 +166,6 @@ public class PacketType {
             this.oMPP = new OperatingModeParameterPacket(in);
         } else if(packetType.equals("SC")) {
             this.sCPP = new StationChannelParameterPacket(in);
-            this.channel_name = this.sCPP.channelName;
         } else if(packetType.equals("SH")) {
             this.sOHP = new StateOfHealthPacket(in);
         } else if(packetType.equals("FD")) {
@@ -224,9 +217,7 @@ public class PacketType {
 
     protected MicroSecondDate time;
 
-    public String[] channel_name;
-
-    public MicroSecondDate begin_time_from_state_of_health_file;
+    public MicroSecondDate begin_time_from_first_data_file;
 
     protected MicroSecondDate begin_time_of_seismogram,
             begin_time_of_first_packet, end_time_of_last_packet;

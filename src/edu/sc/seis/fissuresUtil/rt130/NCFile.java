@@ -32,6 +32,7 @@ public class NCFile {
     private void readFile(DataInput in) throws IOException {
         timeAndDataMapIdToName = new HashMap();
         timeAndDataMapNameToId = new HashMap();
+        timeAndDataMapIdToChanDipAzi = new HashMap();
         boolean done = false;
         String data = "";
         String line = "";
@@ -63,6 +64,7 @@ public class NCFile {
                 }
                 Map idToName = new HashMap();
                 Map nameToId = new HashMap();
+                Map idToChanDipAzi = new HashMap();
                 while(!st.nextToken().startsWith("chan/dip/azi")) {
                     // Skip to relevant data
                 }
@@ -70,14 +72,16 @@ public class NCFile {
                 while(!temp.startsWith("END")) {
                     String unitName = temp;
                     String unitId = st.nextToken().substring(0, 4);
+                    st.nextToken();
+                    String chanDipAzi = st.nextToken();
                     idToName.put(unitId, unitName);
                     nameToId.put(unitName, unitId);
-                    st.nextToken();
-                    st.nextToken();
+                    idToChanDipAzi.put(unitId, chanDipAzi);
                     temp = st.nextToken();
                 }
                 timeAndDataMapIdToName.put(time, idToName);
                 timeAndDataMapNameToId.put(time, nameToId);
+                timeAndDataMapIdToChanDipAzi.put(time, idToChanDipAzi);
             }
         }
         Set keySet1 = timeAndDataMapIdToName.keySet();
@@ -94,6 +98,14 @@ public class NCFile {
             keyListForNameToId.add(keyArray2[i]);
         }
         Collections.sort(keyListForNameToId, new SortTool.AscendingTimeSorter());
+        Set keySet3 = timeAndDataMapIdToChanDipAzi.keySet();
+        MicroSecondDate[] keyArray3 = (MicroSecondDate[])keySet3.toArray(new MicroSecondDate[0]);
+        keyListForIdToChanDipAzi = new ArrayList(keyArray3.length);
+        for(int i = 0; i < keyArray3.length; i++) {
+            keyListForIdToChanDipAzi.add(keyArray3[i]);
+        }
+        Collections.sort(keyListForIdToChanDipAzi,
+                         new SortTool.AscendingTimeSorter());
     }
 
     private MicroSecondDate stringToMicroSecondDate(String timeString) {
@@ -105,7 +117,29 @@ public class NCFile {
         return isoTime.getDate();
     }
 
-    public String getUnitName(MicroSecondDate time, String unitId) {
+    public String getChannelNamesAndOrientations(MicroSecondDate time,
+                                                 String unitId,
+                                                 String fileLoc) {
+        MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForIdToChanDipAzi.toArray(new MicroSecondDate[0]);
+        for(int i = 0; i < keyArray.length; i++) {
+            if(time.after(keyArray[i]) || time.equals(keyArray[i])) {
+                Map idToChanDipAzi = (Map)timeAndDataMapIdToChanDipAzi.get(keyArray[i]);
+                if(idToChanDipAzi.containsKey(unitId)) {
+                    return (String)idToChanDipAzi.get(unitId);
+                }
+            }
+        }
+        logger.warn("Channel names and orientations for DAS unit number "
+                + unitId + " was not found in the NC file.");
+        logger.warn("The defaults will be used instead.");
+        logger.warn("The time requested was: " + time.toString());
+        logger.warn("The file location is: " + fileLoc);
+        return "default";
+    }
+
+    public String getUnitName(MicroSecondDate time,
+                              String unitId,
+                              String fileLoc) {
         MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForIdToName.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
             if(time.after(keyArray[i]) || time.equals(keyArray[i])) {
@@ -119,6 +153,7 @@ public class NCFile {
                 + " was not found in the NC file.");
         logger.warn("The name \"" + unitId + "\" will be used instead.");
         logger.warn("The time requested was: " + time.toString());
+        logger.warn("The file location is: " + fileLoc);
         return unitId;
     }
 
@@ -149,10 +184,10 @@ public class NCFile {
         }
         keyArray = (MicroSecondDate[])keyListForNameToId.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
-                Map nameToId = (Map)timeAndDataMapNameToId.get(keyArray[i]);
-                if(nameToId.containsKey(unitId)) {
-                    return keyArray[i];
-                }
+            Map nameToId = (Map)timeAndDataMapNameToId.get(keyArray[i]);
+            if(nameToId.containsKey(unitId)) {
+                return keyArray[i];
+            }
         }
         logger.warn("Unit number or DAS unit name " + unitId
                 + " was not found in the NC file.");
@@ -168,9 +203,11 @@ public class NCFile {
 
     public MicroSecondDate network_begin_time;
 
-    private List keyListForIdToName, keyListForNameToId;
+    private List keyListForIdToName, keyListForNameToId,
+            keyListForIdToChanDipAzi;
 
-    private Map timeAndDataMapIdToName, timeAndDataMapNameToId;
+    private Map timeAndDataMapIdToName, timeAndDataMapNameToId,
+            timeAndDataMapIdToChanDipAzi;
 
     private File file;
 

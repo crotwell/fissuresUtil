@@ -56,10 +56,10 @@ public class StationChannelParameterPacket extends PacketType {
         for(int i = 0; i < 5; i++) {
             // Channel Number
             channelNumber[i] = new String(this.readBytes(in, 2));
-            //System.out.println("Channel Number: " + channelNumber[i]);
+            // System.out.println("Channel Number: " + channelNumber[i]);
             // Channel Name
             channelName[i] = new String(this.readBytes(in, 10)).trim();
-            //System.out.println("Channel Name: " + channelName[i]);
+            // System.out.println("Channel Name: " + channelName[i]);
             // Azimuth
             azimuth[i] = new String(this.readBytes(in, 10));
             //System.out.println("Azimuth: " + azimuth[i]);
