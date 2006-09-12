@@ -1,15 +1,15 @@
 package edu.sc.seis.fissuresUtil.xml;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventFactory;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -52,6 +52,12 @@ public class XMLUtil {
         writer.writeCharacters("\n");
     }
 
+    public static XMLStreamReader getXMLStreamReader(File file)
+            throws XMLStreamException, FileNotFoundException {
+        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+        return staxInputFactory.createXMLStreamReader(inputStream);
+    }
+
     /**
      * Returns a StAXFileWriter without the root element being closed so that it
      * can be appended to. You are responsible for calling the close() method
@@ -61,7 +67,7 @@ public class XMLUtil {
     public static StAXFileWriter openXMLFileForAppending(File file)
             throws IOException, XMLStreamException {
         FileReader fileReader = new FileReader(file);
-        XMLStreamReader xmlReader = staxInputFactory.createXMLStreamReader(fileReader);
+        XMLStreamReader xmlReader = getXMLStreamReader(file);
         StAXFileWriter staxWriter = new StAXFileWriter(file);
         QName rootTag = emptyName;
         int i = xmlReader.next();
@@ -84,6 +90,13 @@ public class XMLUtil {
 
     public static void translateAndWrite(XMLStreamReader reader,
                                          XMLStreamWriter writer)
+            throws XMLStreamException {
+        translateAndWrite(reader, writer, true);
+    }
+
+    public static void translateAndWrite(XMLStreamReader reader,
+                                         XMLStreamWriter writer,
+                                         boolean newlinesAfterEndElements)
             throws XMLStreamException {
         int type = reader.getEventType();
         switch(type){
@@ -121,7 +134,11 @@ public class XMLUtil {
                 }
                 break;
             case XMLStreamConstants.END_ELEMENT:
-                XMLUtil.writeEndElementWithNewLine(writer);
+                if(newlinesAfterEndElements) {
+                    XMLUtil.writeEndElementWithNewLine(writer);
+                } else {
+                    writer.writeEndElement();
+                }
                 break;
             case XMLStreamConstants.PROCESSING_INSTRUCTION:
                 writer.writeProcessingInstruction(reader.getPITarget(),
@@ -184,131 +201,26 @@ public class XMLUtil {
         return buf.toString();
     }
 
-    // TODO make this method work again. I think newlines broke it.
-    public static void mergeDocs(File intoFile,
-                                 File fromFile,
-                                 QName compareTag,
-                                 QName rootTag) throws FileNotFoundException,
-            XMLStreamException, IOException {
-        // create reader for original File
-        FileReader fileReader1 = new FileReader(intoFile);
-        XMLEventReader xmlReader1 = staxInputFactory.createXMLEventReader(fileReader1);
-        // create reader for file with the new data to be merged in
-        FileReader fileReader2 = new FileReader(fromFile);
-        XMLEventReader xmlReader2 = staxInputFactory.createXMLEventReader(fileReader2);
-        // create writer for merged document
-        File tempFile = File.createTempFile("Temp_" + intoFile.getName() + "1",
-                                            "xml",
-                                            intoFile.getParentFile());
-        FileWriter fileWriter = new FileWriter(tempFile);
-        XMLEventWriter xmlWriter = staxOutputFactory.createXMLEventWriter(fileWriter);
-        XMLUtil.mergeDocs(xmlReader1,
-                          xmlReader2,
-                          xmlWriter,
-                          compareTag,
-                          rootTag);
-        // close the readers
-        xmlReader1.close();
-        xmlReader2.close();
-        fileReader1.close();
-        fileReader2.close();
-        // flush and close the writers
-        xmlWriter.flush();
-        fileWriter.flush();
-        xmlWriter.close();
-        fileWriter.close();
-        if(!tempFile.renameTo(intoFile)) {
-            // If unable to rename the tempfile, delete it and try again
-            if(intoFile.delete()) {
-                tempFile.renameTo(intoFile);
-            } else {
-                throw new IOException("Unable to move temp file over old file");
-            }
-        }
-    }
-
-    // TODO make this work again. I think newlines broke it
-    /**
-     * Merges two XML Documents using StAX. The root element of
-     * <code>reader1</code> will be used in the new document. Flushing and
-     * closing of the readers and the writer are to be done after this method is
-     * called.
-     */
-    public static void mergeDocs(XMLEventReader reader1,
-                                 XMLEventReader reader2,
-                                 XMLEventWriter writer,
-                                 QName compareTag,
-                                 QName rootTag) throws XMLStreamException {
-        javax.xml.stream.events.XMLEvent event;
-        // write prologue of from reader1
-        while(reader1.hasNext()
-                && !isOfName(compareTag, reader1.peek())
-                && !(reader1.peek().isEndElement() && reader1.peek()
-                        .asEndElement()
-                        .getName()
-                        .equals(rootTag))) {
-            event = reader1.nextEvent();
-            writer.add(event);
-        }
-        javax.xml.stream.events.XMLEvent curEvent = reader1.nextEvent();
-        // write the pertinant information that is being merged
-        if(isOfName(compareTag, curEvent)) {
-            moveElements(reader1, writer, curEvent, compareTag);
-        }
-        // skip prologue of reader2
-        while(reader2.hasNext() && !isOfName(compareTag, reader2.peek())) {
-            event = reader2.nextEvent();
-        }
-        curEvent = reader2.nextEvent();
-        // write more pertinant information
-        if(isOfName(compareTag, curEvent)) {
-            curEvent = moveElements(reader2, writer, curEvent, compareTag);
-        }
-        // try to get the rest of reader1. If there isn't anything left,
-        // the xml was either malformed or there was a problem parsing
-        writer.add(curEvent);
-    }
-
-    // TODO make this work again. I think newlines broke it.
-    /**
-     * Moves all elements of a particular type.
-     * 
-     * @precondition - reader must be queued up to the first occurrence of the
-     *               <code>compareTag</code>
-     */
-    public static javax.xml.stream.events.XMLEvent moveElements(XMLEventReader reader,
-                                                                XMLEventWriter writer,
-                                                                javax.xml.stream.events.XMLEvent currentEvent,
-                                                                QName compareTag)
+    public static void gotoNextStartElement(XMLStreamReader parser, String name)
             throws XMLStreamException {
-        while(isOfName(compareTag, currentEvent)) {
-            writer.add(currentEvent);
-            currentEvent = reader.nextEvent();
-            while(currentEvent.isAttribute()) {
-                writer.add(currentEvent);
-                currentEvent = reader.nextEvent();
+        while(parser.hasNext()) {
+            int event = parser.next();
+            if(event == XMLStreamConstants.START_ELEMENT) {
+                if(parser.getLocalName().equals(name)) {
+                    return;
+                }
             }
-            while(currentEvent.isStartElement()) {
-                currentEvent = moveElements(reader,
-                                            writer,
-                                            currentEvent,
-                                            currentEvent.asStartElement()
-                                                    .getName());
-            }
-            writer.add(currentEvent);
-            currentEvent = reader.nextEvent();
         }
-        return currentEvent;
     }
 
-    public static boolean isOfName(QName tag,
-                                   javax.xml.stream.events.XMLEvent event) {
-        return (event.isStartElement() && event.asStartElement()
-                .getName()
-                .equals(tag))
-                || (event.isEndElement() && event.asEndElement()
-                        .getName()
-                        .equals(tag));
+    public static void getNextStartElement(XMLStreamReader parser)
+            throws XMLStreamException {
+        while(parser.hasNext()) {
+            int event = parser.next();
+            if(event == XMLStreamConstants.START_ELEMENT) {
+                return;
+            }
+        }
     }
 
     public static XMLOutputFactory staxOutputFactory = XMLOutputFactory.newInstance();
@@ -481,28 +393,6 @@ public class XMLUtil {
             return (Element)nList.item(0);
         }
         return null;
-    }
-
-    public static void gotoNextStartElement(XMLStreamReader parser, String name)
-            throws XMLStreamException {
-        while(parser.hasNext()) {
-            int event = parser.next();
-            if(event == XMLStreamConstants.START_ELEMENT) {
-                if(parser.getLocalName().equals(name)) {
-                    return;
-                }
-            }
-        }
-    }
-
-    public static void getNextStartElement(XMLStreamReader parser)
-            throws XMLStreamException {
-        while(parser.hasNext()) {
-            int event = parser.next();
-            if(event == XMLStreamConstants.START_ELEMENT) {
-                return;
-            }
-        }
     }
 
     private static CachedXPathAPI xpath = new CachedXPathAPI();
