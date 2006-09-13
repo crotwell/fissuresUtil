@@ -3,7 +3,6 @@ package edu.sc.seis.fissuresUtil.rt130;
 import java.io.BufferedInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -33,30 +33,16 @@ public class NCFile {
         timeAndDataMapIdToName = new HashMap();
         timeAndDataMapNameToId = new HashMap();
         timeAndDataMapIdToChanDipAzi = new HashMap();
-        boolean done = false;
-        String data = "";
-        String line = "";
-        while(!done) {
-            try {
-                line = in.readLine();
-                if(line == null) {
-                    done = true;
-                } else {
-                    if(line.startsWith("#")) {
-                        // Do nothing
-                    } else {
-                        data = data.concat(line);
-                        data = data + "\n";
-                    }
-                }
-            } catch(EOFException e) {
-                done = true;
-            }
+        StringBuffer data = new StringBuffer();
+        String line;
+        while((line = in.readLine()) != null) {
+            
+            data.append(line);
+            data.append('\n');
         }
-        StringTokenizer st = new StringTokenizer(data);
-        String token = "";
+        StringTokenizer st = new StringTokenizer(data.toString());
         while(st.hasMoreTokens()) {
-            token = st.nextToken();
+            String token = st.nextToken();
             if(token.equals("START")) {
                 MicroSecondDate time = stringToMicroSecondDate(st.nextToken());
                 if(network_begin_time == null) {
@@ -78,6 +64,12 @@ public class NCFile {
                     nameToId.put(unitName, unitId);
                     idToChanDipAzi.put(unitId, chanDipAzi);
                     temp = st.nextToken();
+                    if(temp.startsWith("LOC")){
+                        st.nextToken();
+                        st.nextToken();
+                        st.nextToken();
+                        temp = st.nextToken();
+                    }
                 }
                 timeAndDataMapIdToName.put(time, idToName);
                 timeAndDataMapNameToId.put(time, nameToId);
@@ -118,8 +110,7 @@ public class NCFile {
     }
 
     public String getChannelNamesAndOrientations(MicroSecondDate time,
-                                                 String unitId,
-                                                 String fileLoc) {
+                                                 String unitId) {
         MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForIdToChanDipAzi.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
             if(time.after(keyArray[i]) || time.equals(keyArray[i])) {
@@ -132,14 +123,11 @@ public class NCFile {
         logger.warn("Channel names and orientations for DAS unit number "
                 + unitId + " was not found in the NC file.");
         logger.warn("The defaults will be used instead.");
-        logger.warn("The time requested was: " + time.toString());
-        logger.warn("The file location is: " + fileLoc);
+        logger.warn("The time requested was: " + time);
         return "default";
     }
 
-    public String getUnitName(MicroSecondDate time,
-                              String unitId,
-                              String fileLoc) {
+    public String getUnitName(MicroSecondDate time, String unitId) {
         MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForIdToName.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
             if(time.after(keyArray[i]) || time.equals(keyArray[i])) {
@@ -153,7 +141,6 @@ public class NCFile {
                 + " was not found in the NC file.");
         logger.warn("The name \"" + unitId + "\" will be used instead.");
         logger.warn("The time requested was: " + time.toString());
-        logger.warn("The file location is: " + fileLoc);
         return unitId;
     }
 
@@ -170,7 +157,7 @@ public class NCFile {
         logger.warn("Unit number for DAS unit name " + unitName
                 + " was not found in the NC file.");
         logger.warn("The number \"" + unitName + "\" will be used instead.");
-        logger.warn("The time requested was: " + time.toString());
+        logger.warn("The time requested was: " + time);
         return unitName;
     }
 
@@ -212,4 +199,10 @@ public class NCFile {
     private File file;
 
     private static final Logger logger = Logger.getLogger(NCFile.class);
+
+    public static void main(String[] args) throws IOException {
+        NCFile nc = new NCFile(args[0]);
+        System.out.println(nc.getCanonicalPath());
+        System.out.println(nc.getStationBeginTime("SNP85"));
+    }
 }
