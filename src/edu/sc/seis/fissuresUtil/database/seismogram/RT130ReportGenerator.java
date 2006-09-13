@@ -121,7 +121,6 @@ public class RT130ReportGenerator {
             lastOuuputLength = stringPercentage.length() + 1;
         }
         numFilesRead++;
-        boolean finished = false;
         StringTokenizer t;
         if(System.getProperty("os.name").startsWith("Windows")) {
             t = new StringTokenizer(fileLoc, "\\");
@@ -133,44 +132,46 @@ public class RT130ReportGenerator {
             fileName = t.nextToken();
         }
         if(fileName.length() == 18 && fileName.charAt(9) == '_') {
+            // HACK
+            if(fileLoc.endsWith("/data/SNEP/Tar_Extracts/May_Service_2006/930F_2005_273/2005345/930F/1/160620270_00FFAAAB")) {
+                logger.debug("Skipping Ben's favorite file");
+                return true;
+            }
+            // END HACK
             if(fileHandler.getFlags().contains(RT130FileHandlerFlag.SCAN)) {
-                finished = fileHandler.processSingleRefTekScan(fileLoc,
-                                                               fileName);
+                return fileHandler.processSingleRefTekScan(fileLoc, fileName);
             } else {
-                finished = fileHandler.processSingleRefTekFull(fileLoc,
-                                                               fileName);
+                return fileHandler.processSingleRefTekFull(fileLoc, fileName);
             }
         } else if(fileName.endsWith(".mseed")) {
-            finished = processMSeed(fileHandler.getReport(), fileLoc, fileName);
+            return processMSeed(fileHandler.getReport(), fileLoc, fileName);
         } else if(fileName.endsWith(".sac")) {
-            finished = processSac(fileHandler.getReport(),
-                                  fileLoc,
-                                  fileName,
-                                  fileHandler.getProps());
-        } else {
-            if(fileName.equals("SOH.RT") || fileName.equals("soh.rt")) {
-                logger.debug("Ignoring Ref Tek file: " + fileName);
-            } else if(fileName.equals(".DS_Store") || fileName.equals("._501")
-                    || fileName.equals("._504")) {
-                logger.debug("Ignoring Mac OS X file: " + fileName);
-            } else {
-                fileHandler.getReport()
-                        .addUnsupportedFileException(fileLoc,
-                                                     fileName
-                                                             + " can not be processed because it's file"
-                                                             + " name is not formatted correctly, and therefore"
-                                                             + " is assumed to be an invalid file format. If"
-                                                             + " the data file format is valid (mini seed, sac, rt130)"
-                                                             + " try renaming the file.");
-                logger.debug(fileName
-                        + " can not be processed because it's file"
-                        + " name is not formatted correctly, and therefore"
-                        + " is assumed to be an invalid file format. If"
-                        + " the data file format is valid (mini seed, sac, rt130)"
-                        + " try renaming the file.");
-            }
+            return processSac(fileHandler.getReport(),
+                              fileLoc,
+                              fileName,
+                              fileHandler.getProps());
         }
-        return finished;
+        if(fileName.equals("SOH.RT") || fileName.equals("soh.rt")) {
+            logger.debug("Ignoring Ref Tek file: " + fileName);
+        } else if(fileName.equals(".DS_Store") || fileName.equals("._501")
+                || fileName.equals("._504")) {
+            logger.debug("Ignoring Mac OS X file: " + fileName);
+        } else {
+            fileHandler.getReport()
+                    .addUnsupportedFileException(fileLoc,
+                                                 fileName
+                                                         + " can not be processed because it's file"
+                                                         + " name is not formatted correctly, and therefore"
+                                                         + " is assumed to be an invalid file format. If"
+                                                         + " the data file format is valid (mini seed, sac, rt130)"
+                                                         + " try renaming the file.");
+            logger.debug(fileName + " can not be processed because it's file"
+                    + " name is not formatted correctly, and therefore"
+                    + " is assumed to be an invalid file format. If"
+                    + " the data file format is valid (mini seed, sac, rt130)"
+                    + " try renaming the file.");
+        }
+        return false;
     }
 
     private static boolean countEntireDirectory(File baseDirectory)
