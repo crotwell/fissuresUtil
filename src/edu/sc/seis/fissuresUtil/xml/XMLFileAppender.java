@@ -104,7 +104,7 @@ public class XMLFileAppender {
                 break;
             }
         }
-        holdOn = !includeCurrentEvent;
+        holdOn = !includeDesiredEvent;
     }
 
     private boolean holdOnToCurrentReaderEvent() {
