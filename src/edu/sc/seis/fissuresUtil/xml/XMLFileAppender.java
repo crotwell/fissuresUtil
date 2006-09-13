@@ -123,6 +123,10 @@ public class XMLFileAppender {
         return writer.getStreamWriter();
     }
 
+    public void abort() throws XMLStreamException, IOException {
+        writer.abort();
+    }
+
     public void close() throws XMLStreamException, IOException {
         close(true);
     }

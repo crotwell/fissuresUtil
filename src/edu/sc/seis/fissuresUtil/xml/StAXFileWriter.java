@@ -36,6 +36,13 @@ public class StAXFileWriter {
         return xmlWriter;
     }
 
+    public synchronized void abort() throws XMLStreamException, IOException {
+        logger.debug("abort called");
+        xmlWriter.close();
+        fileWriter.close();
+        tempFile.delete();
+    }
+
     public synchronized void close() throws XMLStreamException, IOException {
         if(!isClosed) {
             xmlWriter.writeEndDocument();
