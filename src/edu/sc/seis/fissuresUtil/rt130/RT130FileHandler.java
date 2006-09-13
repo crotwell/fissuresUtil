@@ -89,7 +89,9 @@ public class RT130FileHandler {
         }
         if(!datastreamToChannel.containsKey(unitIdNumber + datastream)
                 && (!datastream.equals("0"))) {
-            Channel[] newChannel = createChannels(unitIdNumber, datastream, fileLoc);
+            Channel[] newChannel = createChannels(unitIdNumber,
+                                                  datastream,
+                                                  fileLoc);
             datastreamToChannel.put(unitIdNumber + datastream, newChannel);
         }
         if(fileName.endsWith("00000000")) {
@@ -155,7 +157,9 @@ public class RT130FileHandler {
         }
         if(!datastreamToChannel.containsKey(unitIdNumber + datastream)
                 && (!datastream.equals("0"))) {
-            Channel[] newChannel = createChannels(unitIdNumber, datastream, fileLoc);
+            Channel[] newChannel = createChannels(unitIdNumber,
+                                                  datastream,
+                                                  fileLoc);
             datastreamToChannel.put(unitIdNumber + datastream, newChannel);
         }
         Channel[] channel = (Channel[])datastreamToChannel.get(unitIdNumber
@@ -196,10 +200,12 @@ public class RT130FileHandler {
         return true;
     }
 
-    private Channel[] createChannels(String unitIdNumber, String datastream, String fileLoc) {
+    private Channel[] createChannels(String unitIdNumber,
+                                     String datastream,
+                                     String fileLoc) {
         String stationCode = ncFile.getUnitName(((PacketType)(datastreamToFileData.get(unitIdNumber
                                                         + datastream))).begin_time_from_first_data_file,
-                                                unitIdNumber, fileLoc);
+                                                unitIdNumber);
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = networkBeginTime;
         NetworkId networkId = netAttr.get_id();

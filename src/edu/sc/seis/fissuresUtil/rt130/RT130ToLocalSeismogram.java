@@ -120,8 +120,7 @@ public class RT130ToLocalSeismogram {
 
     private Channel createChannel(PacketType seismogramData, Sampling sampling) {
         String stationCode = ncFile.getUnitName(seismogramData.begin_time_from_first_data_file,
-                                                seismogramData.unitIdNumber,
-                                                "No file loc for RT130ToLocalSeismogram.");
+                                                seismogramData.unitIdNumber);
         Time networkBeginTime = ncFile.network_begin_time.getFissuresTime();
         Time channelBeginTime = seismogramData.begin_time_from_first_data_file.getFissuresTime();
         networkAttr.get_id().begin_time = networkBeginTime;
@@ -130,8 +129,7 @@ public class RT130ToLocalSeismogram {
             tempCode = "L";
         }
         String chanDipAzi = ncFile.getChannelNamesAndOrientations(seismogramData.begin_time_from_first_data_file,
-                                                                  seismogramData.unitIdNumber,
-                                                                  "No file loc for RT130ToLocalSeismogram.");
+                                                                  seismogramData.unitIdNumber);
         ChannelNameAndOrientation[] channelNameAndOrientation = NCFileChanDipAziParser.parse(chanDipAzi);
         ChannelId channelId = new ChannelId(networkAttr.get_id(),
                                             stationCode,
