@@ -184,7 +184,8 @@ public abstract class Border extends JComponent {
             if(direction == VERTICAL) {
                 return stringBounds.getHeight();
             }
-            return stringBounds.getWidth();
+            return stringBounds.getWidth() + 5; // +5 so the labels don't run
+                                                // together
         }
 
         protected double getLimitingSize() {
