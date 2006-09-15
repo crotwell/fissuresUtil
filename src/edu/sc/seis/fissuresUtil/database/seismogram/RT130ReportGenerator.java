@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -36,70 +38,68 @@ public class RT130ReportGenerator {
         Properties props = Initializer.loadProperties(args);
         PropertyConfigurator.configure(props);
         boolean finished = false;
-        String baseFileSystemLocation = props.getProperty(BASE_FILE_SYSTEM_LOCATION);
         RT130FileHandlerFlag scanMode = RT130FileHandlerFlag.SCAN;
-        for(int i = 0; i < args.length; i++) {
+        int i;
+        for(i = 0; i < args.length; i++) {
             if(args[i].equals("-props")) {
-                String propFileLocation = args[i + 1];
-                File file = new File(propFileLocation);
-                logger.debug("Properties file location: "
-                        + file.getCanonicalPath());
-                i++;
-            } else if(args[i].equals("-f")) {
-                baseFileSystemLocation = args[i + 1];
-                logger.debug("Using alternative data location: "
-                        + baseFileSystemLocation);
-                i++;
+                i++;//Handled by Initializer.loadProperties
             } else if(args[i].equals("-full")) {
                 scanMode = RT130FileHandlerFlag.FULL;
-                logger.debug("Full processing of RT130 data: ON");
             } else if(args[i].equals("-scan")) {
                 scanMode = RT130FileHandlerFlag.SCAN;
             } else if(args[i].equals("-h") || args[i].equals("-help")) {
                 printHelp();
-                System.exit(0);
             } else if(args[i].equals("-progress")) {
                 showProgress = true;
-                numFilesTotal = 0;
-                numFilesRead = 0;
-            } else {
-                System.out.println("Incorrect arguments entered.");
+            } else if(args[i].startsWith("-")) {
+                System.out.println("Don't understand argument '" + args[i]
+                        + "'");
                 printHelp();
-                System.exit(0);
+            } else {
+                break;// Not a flag so it must be files to read
             }
         }
-        if(scanMode == RT130FileHandlerFlag.SCAN) {
-            logger.debug("Scan processing of RT130 data: ON");
+        logger.debug("RT130 mode: " + scanMode);
+        List files = new ArrayList();
+        for(int j = 0; j + i < args.length; j++) {
+            files.add(new File(args[i + j]));
         }
-        File file = new File(baseFileSystemLocation);
         if(showProgress) {
-            logger.info("Counting the number of total files. Please wait...");
-            if(file.isDirectory()) {
-                finished = countEntireDirectory(file);
-            } else if(file.isFile()) {
-                numFilesTotal = 1;
+            Iterator it = files.iterator();
+            while(it.hasNext()) {
+                File file = (File)it.next();
+                logger.info("Counting the number of total files in " + file);
+                if(file.isDirectory()) {
+                    finished = countEntireDirectory(file);
+                } else if(file.isFile()) {
+                    numFilesTotal++;
+                }
             }
         }
         if(showProgress) {
-            System.out.print("0.00%");
+            System.out.print(decFormat.format(0));
         }
         List flags = new LinkedList();
         flags.add(scanMode);
         fileHandler = new RT130FileHandler(props, flags);
-        if(file.isDirectory()) {
-            finished = readEntireDirectory(file);
-        } else if(file.isFile()) {
-            finished = readSingleFile(baseFileSystemLocation);
-            if(showProgress) {
-                System.out.print("\b\b\b\b\b100.00%");
+        Iterator it = files.iterator();
+        while(it.hasNext()) {
+            File file = (File)it.next();
+            if(file.isDirectory()) {
+                finished = readEntireDirectory(file);
+            } else if(file.isFile()) {
+                finished = readSingleFile(file);
+            } else {
+                logger.error("File: " + file
+                        + " is not a file or a directory. This can"
+                        + " be caused in Windows when the file path includes"
+                        + " a Unix-style reference (soft or hard).");
             }
-        } else {
-            logger.error("File: " + file
-                    + " is not a file or a directory. This can"
-                    + " be caused in Windows when the file path includes"
-                    + " a Unix-style reference (soft or hard).");
         }
         if(finished) {
+            if(showProgress){
+            System.out.print("\b\b\b\b\b\b\b" + decFormat.format(1));
+            }
             System.out.println();
             System.out.println("Database population complete.");
             System.out.println();
@@ -109,16 +109,13 @@ public class RT130ReportGenerator {
         }
     }
 
-    private static boolean readSingleFile(String fileLoc) throws IOException,
+    private static boolean readSingleFile(File file) throws IOException,
             FissuresException, SeedFormatException, ParseException {
+        String fileLoc = file.getCanonicalPath();
         if(showProgress) {
-            double percentage = ((numFilesRead / numFilesTotal) * 100);
-            String stringPercentage = decFormat.format(percentage);
-            for(int i = 0; i < lastOuuputLength; i++) {
-                System.out.print("\b");
-            }
-            System.out.print(stringPercentage + "%");
-            lastOuuputLength = stringPercentage.length() + 1;
+            double percentage = numFilesRead / (double)numFilesTotal;
+            System.out.print("\b\b\b\b\b\b\b");
+            System.out.print(decFormat.format(percentage));
         }
         numFilesRead++;
         StringTokenizer t;
@@ -204,7 +201,7 @@ public class RT130ReportGenerator {
             if(files[i].isDirectory()) {
                 readEntireDirectory(files[i]);
             } else {
-                readSingleFile(files[i].getCanonicalPath());
+                readSingleFile(files[i]);
             }
         }
         return true;
@@ -229,6 +226,7 @@ public class RT130ReportGenerator {
         System.out.println();
         System.out.println("Program finished before the report was created.");
         System.out.println();
+        System.exit(0);
     }
 
     private static boolean processSac(RT130Report report,
@@ -295,17 +293,11 @@ public class RT130ReportGenerator {
         return true;
     }
 
-    private static DecimalFormat decFormat = new DecimalFormat();
-    static {
-        decFormat.setMaximumFractionDigits(2);
-        decFormat.setMinimumFractionDigits(2);
-    }
-
-    private static int lastOuuputLength = 5;
+    private static DecimalFormat decFormat = new DecimalFormat("000.00%");
 
     private static boolean showProgress = false;
 
-    private static double numFilesTotal, numFilesRead;
+    private static long numFilesTotal = 0, numFilesRead = 0;
 
     public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";
 
