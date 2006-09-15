@@ -14,6 +14,7 @@ import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
 import edu.sc.seis.fissuresUtil.display.borders.Border;
 import edu.sc.seis.fissuresUtil.display.borders.DistanceBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
+import edu.sc.seis.fissuresUtil.display.borders.TimeElapsedBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TitleProvider;
 import edu.sc.seis.fissuresUtil.display.borders.TriangleBorder;
@@ -73,8 +74,16 @@ public class BorderConfiguration implements Cloneable {
             return BorderedDisplay.CENTER_LEFT;
         } else if(position.equals(RIGHT)) {
             return BorderedDisplay.CENTER_RIGHT;
+        } else if(position.equals(TOP_LEFT)) {
+            return BorderedDisplay.TOP_LEFT;
+        } else if(position.equals(TOP_RIGHT)) {
+            return BorderedDisplay.TOP_RIGHT;
         } else if(position.equals(TOP)) {
             return BorderedDisplay.TOP_CENTER;
+        } else if(position.equals(BOTTOM_LEFT)) {
+            return BorderedDisplay.BOTTOM_LEFT;
+        } else if(position.equals(BOTTOM_RIGHT)) {
+            return BorderedDisplay.BOTTOM_RIGHT;
         } else {
             return BorderedDisplay.BOTTOM_CENTER;
         }
@@ -94,6 +103,8 @@ public class BorderConfiguration implements Cloneable {
                                    getSide(position),
                                    getOrder(order),
                                    colors);
+        } else if(type.equals(ELAPSED)) {
+            b = new TimeElapsedBorder(disp);
         } else {
             b = new TitleBorder(getSide(position), getOrder(order));
         }
@@ -180,10 +191,12 @@ public class BorderConfiguration implements Cloneable {
 
     private static ConfigDefinitions defs = new ConfigDefinitions();
 
-    private static final String LEFT = "left", RIGHT = "right", TOP = "top",
-            BOTTOM = "bottom", AMP = "amp", TIME = "time", DIST = "dist",
-            TITLE = "title", ASCENDING = "ascending",
-            DESCENDING = "descending", TRIANGLE = "triangle";
+    private static final String LEFT = "left", RIGHT = "right",
+            TOP_LEFT = "top left", TOP = "top", TOP_RIGHT = "top right",
+            BOTTOM_LEFT = "bottom left", BOTTOM = "bottom",
+            BOTTOM_RIGHT = "bottom right", AMP = "amp", TIME = "time",
+            DIST = "dist", TITLE = "title", ASCENDING = "ascending",
+            DESCENDING = "descending", TRIANGLE = "triangle", ELAPSED = "elapsed";
 
     private List titles = new ArrayList();
 
