@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -36,7 +35,6 @@ public class NCFile {
         StringBuffer data = new StringBuffer();
         String line;
         while((line = in.readLine()) != null) {
-            
             data.append(line);
             data.append('\n');
         }
@@ -64,7 +62,7 @@ public class NCFile {
                     nameToId.put(unitName, unitId);
                     idToChanDipAzi.put(unitId, chanDipAzi);
                     temp = st.nextToken();
-                    if(temp.startsWith("LOC")){
+                    if(temp.startsWith("LOC")) {
                         st.nextToken();
                         st.nextToken();
                         st.nextToken();
@@ -128,6 +126,12 @@ public class NCFile {
     }
 
     public String getUnitName(MicroSecondDate time, String unitId) {
+        return getUnitName(time, unitId, null);
+    }
+
+    public String getUnitName(MicroSecondDate time,
+                              String unitId,
+                              String rt130FileName) {
         MicroSecondDate[] keyArray = (MicroSecondDate[])keyListForIdToName.toArray(new MicroSecondDate[0]);
         for(int i = 0; i < keyArray.length; i++) {
             if(time.after(keyArray[i]) || time.equals(keyArray[i])) {
@@ -139,8 +143,11 @@ public class NCFile {
         }
         logger.warn("Unit name for DAS unit number " + unitId
                 + " was not found in the NC file.");
+        if(rt130FileName != null) {
+            logger.warn("The file location is: " + rt130FileName);
+        }
         logger.warn("The name \"" + unitId + "\" will be used instead.");
-        logger.warn("The time requested was: " + time.toString());
+        logger.warn("The time requested was: " + time);
         return unitId;
     }
 
