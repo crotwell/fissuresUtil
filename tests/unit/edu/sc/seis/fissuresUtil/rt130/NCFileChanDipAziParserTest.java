@@ -31,4 +31,15 @@ public class NCFileChanDipAziParserTest extends TestCase {
         assertTrue(OrientationUtil.areEqual(new Orientation(82, 0),
                                             chanNameAndOrientation[2].getOrientation()));
     }
+
+    public void testParseOrientations() {
+        Orientation[] ors = NCFileChanDipAziParser.parseOrientations("1/-90/0:2/0/352:3/0/82");
+        assertTrue(OrientationUtil.areEqual(new Orientation(0, -90), ors[0]));
+        assertTrue(OrientationUtil.areEqual(new Orientation(352, 0), ors[1]));
+        assertTrue(OrientationUtil.areEqual(new Orientation(82, 0), ors[2]));
+        ors = NCFileChanDipAziParser.parseOrientations("default");
+        assertTrue(OrientationUtil.areEqual(new Orientation(0, -90), ors[0]));
+        assertTrue(OrientationUtil.areEqual(new Orientation(0, 0), ors[1]));
+        assertTrue(OrientationUtil.areEqual(new Orientation(90, 0), ors[2]));
+    }
 }

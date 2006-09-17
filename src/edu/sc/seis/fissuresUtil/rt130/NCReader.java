@@ -143,12 +143,10 @@ public class NCReader {
                                Integer.parseInt(m.group(4)));
             }
             if(m.group(6) != null) {
-                scratchCal.set(Calendar.MINUTE,
-                               Integer.parseInt(m.group(6)));
+                scratchCal.set(Calendar.MINUTE, Integer.parseInt(m.group(6)));
             }
             if(m.group(8) != null) {
-                scratchCal.set(Calendar.SECOND,
-                               Integer.parseInt(m.group(8)));
+                scratchCal.set(Calendar.SECOND, Integer.parseInt(m.group(8)));
             }
             blockStart = new MicroSecondDate(scratchCal.getTime());
         }
@@ -178,17 +176,29 @@ public class NCReader {
         }
     }
 
+    /**
+     * Matches the orientation part of a station line in an nc file. Just
+     * contains 1 group, the entire string
+     */
+    public static final String ORIENTATION_RE = "(default|\\d/-?\\d+/-?\\d+:\\d/-?\\d+/-?\\d+:\\d/-?\\d+/-?\\d+)";
+
+    /**
+     * Matches the entire instrumentation portion of a station line. Contains
+     * two groups. The Fist is the entire string and the second is the
+     * orientation portion.
+     */
+    public static final String INSTRUMENT_RE = "(\\w+/\\d+\\s+\\w+/\\w+\\s+"
+            + ORIENTATION_RE + ")";
+
+    /**
+     * Matches a LOC specifier on a station line. The entire RE is optional so
+     * this will match nothing as well. There are four groups, the first is the
+     * entire string so check it for null to see if this matched anything Groups
+     * 2-4 are the latitude, longitude and elevation in meters respectively.
+     */
+    public static final String LOC_RE = "(\\s+LOC: (-?\\d+.\\d+) (-?\\d+.\\d+) (\\d+))?";
+
     public class StationHandler extends REHandler {
-
-        // 1 Group
-        private static final String ORIENTATION_RE = "(default|\\d/-?\\d+/-?\\d+:\\d/-?\\d+/-?\\d+:\\d/-?\\d+/-?\\d+)";// 1
-
-        // 2 Groups
-        private static final String INSTRUMENT_RE = "(\\w+/\\d+\\s+\\w+/\\w+\\s+"
-                + ORIENTATION_RE + ")";
-
-        // 4 Groups
-        private static final String LOC_RE = "(\\s+LOC: (-?\\d+.\\d+) (-?\\d+.\\d+) (\\d+))?";
 
         public StationHandler() {
             super("(\\w+)\\s+" + INSTRUMENT_RE + LOC_RE);

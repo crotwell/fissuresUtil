@@ -1,9 +1,7 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
@@ -96,7 +94,7 @@ public class NCReaderTest extends TestCase {
         return NCReader.class.getClassLoader().getResourceAsStream(path);
     }
 
-    static NetworkAttr net;
+    public static final NetworkAttr net;
 
     static Map initialLocs;
     static {
