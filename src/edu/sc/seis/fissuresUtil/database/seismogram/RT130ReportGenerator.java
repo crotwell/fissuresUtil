@@ -75,8 +75,6 @@ public class RT130ReportGenerator {
                     numFilesTotal++;
                 }
             }
-        }
-        if(showProgress) {
             System.out.print(decFormat.format(0));
         }
         List flags = new LinkedList();
@@ -101,7 +99,7 @@ public class RT130ReportGenerator {
             System.out.print("\b\b\b\b\b\b\b" + decFormat.format(1));
             }
             System.out.println();
-            System.out.println("Database population complete.");
+            System.out.println("Report generation complete.");
             System.out.println();
             fileHandler.getReport().outputReport();
         } else {
@@ -136,9 +134,9 @@ public class RT130ReportGenerator {
             }
             // END HACK
             if(fileHandler.getFlags().contains(RT130FileHandlerFlag.SCAN)) {
-                return fileHandler.processSingleRefTekScan(fileLoc, fileName);
+                return fileHandler.scan(fileLoc, fileName);
             } else {
-                return fileHandler.processSingleRefTekFull(fileLoc, fileName);
+                return fileHandler.read(fileLoc, fileName);
             }
         } else if(fileName.endsWith(".mseed")) {
             return processMSeed(fileHandler.getReport(), fileLoc, fileName);
