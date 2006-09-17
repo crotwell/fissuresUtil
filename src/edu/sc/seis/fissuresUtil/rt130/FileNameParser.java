@@ -12,15 +12,14 @@ public class FileNameParser {
     public static TimeInterval getLengthOfData(String fileName)
             throws RT130FormatException {
         if(fileName.length() != 18) {
-            System.err.println("The file is not 18 characters in length.");
-            throw new RT130FormatException();
-        } else {
-            String stringLengthOfData = fileName.substring(10, 18);
-            long longLengthOfData = Long.parseLong(stringLengthOfData, 16);
-            TimeInterval lengthOfData = new TimeInterval(longLengthOfData,
-                                                         UnitImpl.MILLISECOND);
-            return lengthOfData;
+            throw new RT130FormatException("The file '" + fileName
+                    + "'is not 18 characters in length.");
         }
+        String stringLengthOfData = fileName.substring(10, 18);
+        long longLengthOfData = Long.parseLong(stringLengthOfData, 16);
+        TimeInterval lengthOfData = new TimeInterval(longLengthOfData,
+                                                     UnitImpl.MILLISECOND);
+        return lengthOfData;
     }
 
     public static MicroSecondDate getBeginTime(String yearAndDay,
