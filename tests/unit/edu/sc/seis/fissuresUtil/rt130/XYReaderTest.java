@@ -46,6 +46,10 @@ public class XYReaderTest extends TestCase {
         assertEquals(new QuantityImpl(2944, UnitImpl.METER), loc.elevation);
         checkXYLocationInvariants(loc);
     }
+    
+    public Map createDefault() throws IOException{
+        return readFromString(SNP_56);
+    }
 
     private static Map readFromString(String s) throws IOException {
         return XYReader.read(new BufferedReader(new StringReader(s)));
