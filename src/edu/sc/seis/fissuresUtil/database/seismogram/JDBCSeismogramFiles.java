@@ -35,6 +35,7 @@ import edu.sc.seis.fissuresUtil.database.JDBCTime;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.rt130.FileNameParser;
 import edu.sc.seis.fissuresUtil.rt130.LeapSecondApplier;
@@ -111,10 +112,9 @@ public class JDBCSeismogramFiles extends JDBCTable {
         return seismogramFile.getPath();
     }
 
-    public int removeSeismogramFromDatabase(Channel channel, String seisFile)
+    public int removeSeismogramFromDatabase(String seisFile)
             throws SQLException {
-        remove.setInt(1, chanTable.put(channel.get_id()));
-        remove.setString(2, getLocation(seisFile));
+        remove.setString(1, getLocation(seisFile));
         return remove.executeUpdate();
     }
 
@@ -330,11 +330,10 @@ public class JDBCSeismogramFiles extends JDBCTable {
         // file from the file name, and the end time by adding the nominal
         // length of data from the props file. This method is not used to
         // allow this object to keep its ignorance of the props file.
-        TimeRange fileTimeWindow = new TimeRange(fileBeginTime.getFissuresTime(),
-                                                 endTime.getFissuresTime());
         PacketType[] seismogramDataPacketArray = toSeismogramDataPacket.processRT130Data(seismogramFile,
                                                                                          true,
-                                                                                         fileTimeWindow);
+                                                                                         new MicroSecondTimeRange(fileBeginTime,
+                                                                                                                  endTime));
         // Use default constructor
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram();
         LocalSeismogramImpl[] seis = toSeismogram.convert(seismogramDataPacketArray);
