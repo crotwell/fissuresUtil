@@ -117,20 +117,11 @@ public class RT130ReportGenerator {
         numFilesRead++;
         String fileName = file.getName();
         if(fileName.length() == 18 && fileName.charAt(9) == '_') {
-            // HACK
-            if(fileLoc.endsWith("/data/SNEP/Tar_Extracts/May_Service_2006/930F_2005_273/2005345/930F/1/160620270_00FFAAAB")) {
-                logger.debug("Skipping Ben's favorite file");
-                return true;
-            }
-            // END HACK
             return fileHandler.handle(file);
         } else if(fileName.endsWith(".mseed")) {
             return processMSeed(fileHandler.getReport(), fileLoc, fileName);
         } else if(fileName.endsWith(".sac")) {
-            return processSac(fileHandler.getReport(),
-                              fileLoc,
-                              fileName,
-                              props);
+            return processSac(fileHandler.getReport(), fileLoc, fileName, props);
         } else if(fileName.equals("SOH.RT") || fileName.equals("soh.rt")) {
             logger.debug("Ignoring Ref Tek file: " + fileName);
         } else if(fileName.equals(".DS_Store") || fileName.equals("._501")
@@ -285,7 +276,7 @@ public class RT130ReportGenerator {
     public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";
 
     private static RT130FileHandler fileHandler;
-    
+
     private static Properties props;
 
     private static final Logger logger = Logger.getLogger(RT130ReportGenerator.class);
