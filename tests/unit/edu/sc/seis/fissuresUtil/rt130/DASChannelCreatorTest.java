@@ -2,10 +2,12 @@ package edu.sc.seis.fissuresUtil.rt130;
 
 import java.io.IOException;
 import junit.framework.TestCase;
+import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.bag.OrientationUtil;
 
 public class DASChannelCreatorTest extends TestCase {
 
@@ -34,5 +36,16 @@ public class DASChannelCreatorTest extends TestCase {
         for(int i = 0; i < newChans.length; i++) {
             assertEquals(chans[i], newChans[i]);
         }
+    }
+
+    public void testParseOrientations() {
+        Orientation[] ors = DASChannelCreator.parseOrientations("1/-90/0:2/0/352:3/0/82");
+        assertTrue(OrientationUtil.areEqual(new Orientation(0, -90), ors[0]));
+        assertTrue(OrientationUtil.areEqual(new Orientation(352, 0), ors[1]));
+        assertTrue(OrientationUtil.areEqual(new Orientation(82, 0), ors[2]));
+        ors = DASChannelCreator.parseOrientations("default");
+        assertTrue(OrientationUtil.areEqual(new Orientation(0, -90), ors[0]));
+        assertTrue(OrientationUtil.areEqual(new Orientation(0, 0), ors[1]));
+        assertTrue(OrientationUtil.areEqual(new Orientation(90, 0), ors[2]));
     }
 }

@@ -1,9 +1,11 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
@@ -23,9 +25,9 @@ public class XYReader {
      * ie
      * 
      * <pre>
-     *      -118.3516 37.6599 1721. SNP27 
-     *      -118.6468 37.6832 2457. SNP36 
-     *      -120.2526 38.3331 1754. SNP95 # Provisional
+     *       -118.3516 37.6599 1721. SNP27 
+     *       -118.6468 37.6832 2457. SNP36 
+     *       -120.2526 38.3331 1754. SNP95 # Provisional
      * </pre>
      * 
      */
@@ -53,7 +55,13 @@ public class XYReader {
         return "Lat: " + loc.latitude + " Long: " + loc.longitude + " Elev: "
                 + loc.elevation;
     }
+
     public static final String XY_FILE_LOC = "XYFile";
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(XYReader.class);
+
+    public static Map create(Properties props) throws IOException {
+        PropParser pp = new PropParser(props);
+        return read(new BufferedReader(new FileReader(pp.getPath(XYReader.XY_FILE_LOC))));
+    }
 }
