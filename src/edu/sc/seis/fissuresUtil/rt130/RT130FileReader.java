@@ -16,11 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import org.apache.log4j.Logger;
-import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
-import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 /*
  * @author fenner Created on Jun 13, 2005
@@ -36,7 +35,7 @@ public class RT130FileReader {
 
     public PacketType[] processRT130Data(String dataFileLoc,
                                          boolean processData,
-                                         TimeRange fileTimeWindow)
+                                         MicroSecondTimeRange fileTimeWindow)
             throws RT130FormatException, IOException {
         this.dataFileLoc = dataFileLoc;
         File file = new File(this.dataFileLoc);
@@ -49,7 +48,7 @@ public class RT130FileReader {
         return readEntireDataFile(firstDataPacketOfFirstFile, fileTimeWindow);
     }
 
-    private PacketType getFirstDataPacketOfFirstFile(TimeRange fileTimeWindow)
+    private PacketType getFirstDataPacketOfFirstFile(MicroSecondTimeRange fileTimeWindow)
             throws RT130FormatException, IOException {
         File file = new File(this.dataFileLoc);
         File dataStream = new File(file.getParent());
@@ -64,7 +63,7 @@ public class RT130FileReader {
         }
     }
 
-    private PacketType readFirstDataPacketOfFirstFile(TimeRange fileTimeWindow)
+    private PacketType readFirstDataPacketOfFirstFile(MicroSecondTimeRange fileTimeWindow)
             throws IOException, RT130FormatException {
         DataInputStream firstFileDataInputStream = null;
         File file = new File(firstFileLoc);
@@ -97,7 +96,7 @@ public class RT130FileReader {
     }
 
     private PacketType[] readEntireDataFile(PacketType firstFileData,
-                                            TimeRange fileTimeWindow)
+                                            MicroSecondTimeRange fileTimeWindow)
             throws RT130FormatException, IOException {
         boolean done = false;
         List seismogramList = new ArrayList();
@@ -190,7 +189,7 @@ public class RT130FileReader {
             }
             if(!done) {
                 haveFile = false;
-                while(!haveFile) {
+                while(!haveFile && !done) {
                     try {
                         nextPacket = new PacketType(this.seismogramDataInputStream,
                                                     this.processData,
