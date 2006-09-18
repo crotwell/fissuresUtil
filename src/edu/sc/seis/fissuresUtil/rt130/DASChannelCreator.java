@@ -40,17 +40,15 @@ public class DASChannelCreator {
 
     public DASChannelCreator(Properties props) throws IOException {
         this(PopulationProperties.getNetworkAttr(props),
-             new RT130SamplingFinder(new RT130FileReader()),
              new NCReader(props).getSites());
     }
 
-    public DASChannelCreator(NetworkAttr net, SamplingFinder sf) {
-        this(net, sf, new ArrayList(0));
+    public DASChannelCreator(NetworkAttr net) {
+        this(net, new ArrayList(0));
     }
 
-    public DASChannelCreator(NetworkAttr net, SamplingFinder sf, List sites) {
+    public DASChannelCreator(NetworkAttr net, List sites) {
         this.net = net;
-        this.sf = sf;
         Iterator it = sites.iterator();
         while(it.hasNext()) {
             add((Site)it.next());
@@ -70,8 +68,8 @@ public class DASChannelCreator {
 
     private Site find(String unitIdNumber, MicroSecondDate beginTime) {
         Object siteOrList = unitIdToSites.get(unitIdNumber);
-        if(siteOrList instanceof Site) {// Only a site in the map. That means
-            // it's a dummy we created
+        if(siteOrList instanceof Site) {
+            // Only a site in the map. That means it's a dummy we created
             return (Site)siteOrList;
         }
         List sites = (List)siteOrList;
@@ -83,34 +81,79 @@ public class DASChannelCreator {
             }
         }
         throw new RT130FormatError(unitIdNumber
-                + " had defined sites for it and data outside of the effective time of those sites");
+                + " had defined sites for it and data at " + beginTime
+                + " outside of the effective time of those sites");
     }
 
     public static String getUnitId(Site s) {
         return s.comment.substring(0, s.comment.indexOf('/'));
     }
 
+    public class SamplingFinder {
+
+        public SamplingFinder() {}
+
+        public SamplingFinder(int val) {
+            this.sampling = val;
+        }
+
+        public int find() {
+            return sampling;
+        }
+
+        public int sampling;
+    }
+
+    public class LazySamplingFinder extends SamplingFinder {
+
+        public LazySamplingFinder(String file,
+                                  MicroSecondTimeRange fileTimeWindow) {
+            this.file = file;
+            this.fileTimeWindow = fileTimeWindow;
+        }
+
+        public int find() {
+            try {
+                return rtFileReader.processRT130Data(file,
+                                                     false,
+                                                     fileTimeWindow)[0].sample_rate;
+            } catch(RT130FormatException e) {
+                throw new RT130FormatError(e);
+            } catch(IOException e) {
+                throw new RT130FormatError(e);
+            }
+        }
+
+        private String file;
+
+        private MicroSecondTimeRange fileTimeWindow;
+    }
+
+    private RT130FileReader rtFileReader = new RT130FileReader();
+
     public Channel[] create(String unitIdNumber,
                             String fileLoc,
                             MicroSecondTimeRange fileTimeWindow) {
-        int sampleRate;
-        try {
-            sampleRate = sf.find(fileLoc, fileTimeWindow);
-        } catch(RT130FormatException e) {
-            throw new RT130FormatError(e);
-        } catch(IOException e) {
-            throw new RT130FormatError(e);
-        }
         return create(unitIdNumber,
                       fileTimeWindow.getBeginTime(),
                       new File(fileLoc).getParentFile().getName(),
-                      sampleRate);
+                      new LazySamplingFinder(fileLoc, fileTimeWindow));
     }
 
     public Channel[] create(String unitIdNumber,
                             MicroSecondDate beginTime,
                             String datastream,
                             int sampleRate) {
+        return create(unitIdNumber,
+                      beginTime,
+                      datastream,
+                      new SamplingFinder(sampleRate));
+    }
+
+    private Channel[] create(String unitIdNumber,
+                             MicroSecondDate beginTime,
+                             String datastream,
+                             SamplingFinder finder) {
         // Get site for unitIdNumber and time - create and cache if no real
         Site s;
         if(unitIdToSites.containsKey(unitIdNumber)) {
@@ -126,7 +169,7 @@ public class DASChannelCreator {
         if(dataStreamsToChannels.containsKey(datastream)) {
             return (Channel[])dataStreamsToChannels.get(datastream);
         }
-        Channel[] chans = createChannels(s, sampleRate);
+        Channel[] chans = createChannels(s, finder.find());
         dataStreamsToChannels.put(datastream, chans);
         return chans;
     }
@@ -223,8 +266,6 @@ public class DASChannelCreator {
     private static final Orientation UP = OrientationUtil.getUp(),
             NORTH = OrientationUtil.getNorth(),
             EAST = OrientationUtil.getEast();
-
-    private SamplingFinder sf;
 
     private Pattern instrumentationParser = Pattern.compile(NCReader.INSTRUMENT_RE);
 

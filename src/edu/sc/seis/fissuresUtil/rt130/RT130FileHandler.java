@@ -158,7 +158,13 @@ public class RT130FileHandler {
             return seismogramTime;
         }
         System.out.println(file.getCanonicalPath());
-        LocalSeismogramImpl[] seis = toSeismogram.convert(seismogramDataPacketArray);
+        LocalSeismogramImpl[] seis;
+        try{
+            seis = toSeismogram.convert(seismogramDataPacketArray);
+        }catch(RT130FormatError e){
+            reportFormatException(file, e);
+            return seismogramTime;
+        }
         Channel[] chans = toSeismogram.getChannels();
         for(int i = 0; i < seis.length; i++) {
             // Add one sample period to end time to pad to the start of the next
