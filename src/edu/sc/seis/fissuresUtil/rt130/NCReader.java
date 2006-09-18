@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -77,6 +79,30 @@ public class NCReader {
 
     public List getSites() {
         return sites;
+    }
+
+    public void dumpSites() {
+        DateFormat df = new SimpleDateFormat("yyyy:DDD:HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        System.out.println("station_code das_id start_time end_time");
+        Iterator it = sites.iterator();
+        MicroSecondDate now = new MicroSecondDate();
+        while(it.hasNext()) {
+            Site cur = (Site)it.next();
+            MicroSecondDate end = new MicroSecondDate(cur.effective_time.end_time);
+            String endstr;
+            if(end.after(now)) {
+                endstr = "ongoing";
+            } else {
+                endstr = df.format(end);
+            }
+            System.out.println(cur.my_station.get_code()
+                    + " "
+                    + DASChannelCreator.getUnitId(cur)
+                    + " "
+                    + df.format(new MicroSecondDate(cur.effective_time.start_time))
+                    + " " + endstr);
+        }
     }
 
     public String getUnitId(MicroSecondDate startTime, String stationCode) {
@@ -192,6 +218,24 @@ public class NCReader {
                     cur.effective_time.end_time = blockStart.getFissuresTime();
                     cur.my_station.effective_time.end_time = blockStart.getFissuresTime();
                     it.remove();
+                }
+            }
+            for(int i = 0; i < blockSites.size(); i++) {
+                Site ithSite = (Site)blockSites.get(i);
+                for(int j = i + 1; j < blockSites.size(); j++) {
+                    Site jthSite = (Site)blockSites.get(j);
+                    if(ithSite.my_station.get_code()
+                            .equals(jthSite.my_station.get_code())) {
+                        throw new FormatException("The station code '"
+                                + ithSite.my_station.get_code()
+                                + "' appears twice in this block");
+                    }
+                    if(DASChannelCreator.getUnitId(jthSite)
+                            .equals(DASChannelCreator.getUnitId(ithSite))) {
+                        throw new FormatException("The DAS Id '"
+                                + DASChannelCreator.getUnitId(jthSite)
+                                + "' appears twice in this block");
+                    }
                 }
             }
             blockStart = null;
