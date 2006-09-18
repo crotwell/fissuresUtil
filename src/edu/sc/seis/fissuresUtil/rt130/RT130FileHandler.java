@@ -204,7 +204,7 @@ public class RT130FileHandler {
 
     private DASChannelCreator chanCreator;
 
-    private RT130FileReader rtFileReader;
+    private RT130FileReader rtFileReader = new RT130FileReader();
 
     private RT130ToLocalSeismogram toSeismogram;
 
