@@ -364,6 +364,8 @@ public class NCReader {
         private String line;
 
         private int lineNum;
+
+        private static final long serialVersionUID = 1L;
     }
 
     private Map locs;

@@ -9,10 +9,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import org.apache.log4j.Logger;
-import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.TimeInterval;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.AuxiliaryDataParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.CalibrationParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.DataPacket;
@@ -34,7 +33,7 @@ public class PacketType {
 
     public PacketType(DataInput in,
                       boolean processData,
-                      TimeRange fileTimeWindow) throws IOException,
+                      MicroSecondTimeRange fileTimeWindow) throws IOException,
             RT130FormatException, RT130BadPacketException {
         encoded_data = new EncodedData[0];
         this.readNextPacket(in, processData, fileTimeWindow);
@@ -99,13 +98,13 @@ public class PacketType {
 
     public void readNextPacket(DataInput in,
                                boolean processData,
-                               TimeRange fileTimeWindow) throws IOException,
-            RT130FormatException, RT130BadPacketException {
+                               MicroSecondTimeRange fileTimeWindow)
+            throws IOException, RT130FormatException, RT130BadPacketException {
         Calendar beginTime = Calendar.getInstance();
-        MicroSecondDate beginDate = new MicroSecondDate(fileTimeWindow.start_time);
+        MicroSecondDate beginDate = new MicroSecondDate(fileTimeWindow.getBeginTime());
         beginTime.setTime(beginDate);
         Calendar endTime = Calendar.getInstance();
-        MicroSecondDate endDate = new MicroSecondDate(fileTimeWindow.end_time);
+        MicroSecondDate endDate = new MicroSecondDate(fileTimeWindow.getEndTime());
         endTime.setTime(endDate);
         // Packet Type
         packetType = new String(this.readBytes(in, 2));
@@ -145,8 +144,7 @@ public class PacketType {
         String timeString = BCDRead.toString(this.readBytes(in, 6));
         // logger.debug("Time: " + timeString);
         time = this.stringToMicroSecondDate(timeString, year);
-        if(packetType.equals("DT")
-                && (time.before(beginDate) || time.after(endDate))) {
+        if(packetType.equals("DT") && !fileTimeWindow.contains(time)) {
             logger.error("  The file contained a Data Packet with an invalid time. "
                     + "\n  The time parsed is: "
                     + time.toString()

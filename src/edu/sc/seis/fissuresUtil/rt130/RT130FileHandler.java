@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.log4j.Logger;
-import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
@@ -16,6 +15,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.seismogram.RT130Report;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class RT130FileHandler {
 
@@ -48,7 +48,6 @@ public class RT130FileHandler {
             return read(file);
         }
         String unitIdNumber = getUnitId(file);
-        MicroSecondDate beginTime = getBeginTime(file, unitIdNumber);
         TimeInterval lengthOfData;
         try {
             lengthOfData = FileNameParser.getLengthOfData(file.getName());
@@ -65,13 +64,13 @@ public class RT130FileHandler {
         TimeInterval nominalLengthOfData = new TimeInterval(new QuantityImpl(Double.valueOf(pp.getString("nominalLengthOfData"))
                                                                                      .doubleValue(),
                                                                              UnitImpl.MILLISECOND));
+        MicroSecondDate beginTime = getBeginTime(file, unitIdNumber);
         MicroSecondDate nominalEndTime = beginTime.add(nominalLengthOfData);
-        TimeRange fileTimeWindow = new TimeRange(beginTime.getFissuresTime(),
-                                                 nominalEndTime.getFissuresTime());
+        MicroSecondTimeRange fileTimeWindow = new MicroSecondTimeRange(beginTime,
+                                                                       nominalEndTime);
         Channel[] channel;
         try {
             channel = chanCreator.create(unitIdNumber,
-                                         beginTime,
                                          file.getCanonicalPath(),
                                          fileTimeWindow);
         } catch(RT130FormatError err) {
@@ -146,8 +145,8 @@ public class RT130FileHandler {
                                                                                      .doubleValue(),
                                                                              UnitImpl.MILLISECOND));
         MicroSecondDate endTime = beginTime.add(nominalLengthOfData);
-        TimeRange fileTimeWindow = new TimeRange(beginTime.getFissuresTime(),
-                                                 endTime.getFissuresTime());
+        MicroSecondTimeRange fileTimeWindow = new MicroSecondTimeRange(beginTime,
+                                                                       endTime);
         TimeInterval seismogramTime = new TimeInterval(0, UnitImpl.MILLISECOND);
         PacketType[] seismogramDataPacketArray;
         try {

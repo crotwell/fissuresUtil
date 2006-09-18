@@ -91,9 +91,8 @@ public class DASChannelCreator {
     }
 
     public Channel[] create(String unitIdNumber,
-                            MicroSecondDate beginTime,
                             String fileLoc,
-                            TimeRange fileTimeWindow) {
+                            MicroSecondTimeRange fileTimeWindow) {
         int sampleRate;
         try {
             sampleRate = sf.find(fileLoc, fileTimeWindow);
@@ -103,7 +102,7 @@ public class DASChannelCreator {
             throw new RT130FormatError(e);
         }
         return create(unitIdNumber,
-                      beginTime,
+                      fileTimeWindow.getBeginTime(),
                       new File(fileLoc).getParentFile().getName(),
                       sampleRate);
     }

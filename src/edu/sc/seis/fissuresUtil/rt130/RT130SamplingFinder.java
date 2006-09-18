@@ -1,7 +1,7 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
 import java.io.IOException;
-import edu.iris.Fissures.TimeRange;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class RT130SamplingFinder implements SamplingFinder {
 
@@ -9,7 +9,7 @@ public class RT130SamplingFinder implements SamplingFinder {
         this.rtFileReader = rtFileReader;
     }
 
-    public int find(String file, TimeRange fileTimeWindow)
+    public int find(String file, MicroSecondTimeRange fileTimeWindow)
             throws RT130FormatException, IOException {
         return rtFileReader.processRT130Data(file, false, fileTimeWindow)[0].sample_rate;
     }
