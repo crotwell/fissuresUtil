@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.AuxiliaryDataParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.CalibrationParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.DataPacket;
@@ -29,10 +32,12 @@ public class PacketType {
         encoded_data = new EncodedData[0];
     }
 
-    public PacketType(DataInput in, boolean processData) throws IOException,
-            RT130FormatException {
+    public PacketType(DataInput in,
+                      boolean processData,
+                      TimeRange fileTimeWindow) throws IOException,
+            RT130FormatException, RT130BadPacketException {
         encoded_data = new EncodedData[0];
-        this.readNextPacket(in, processData);
+        this.readNextPacket(in, processData, fileTimeWindow);
     }
 
     public PacketType(PacketType original) throws RT130FormatException {
@@ -92,11 +97,19 @@ public class PacketType {
         }
     }
 
-    public void readNextPacket(DataInput in, boolean processData)
-            throws IOException, RT130FormatException {
+    public void readNextPacket(DataInput in,
+                               boolean processData,
+                               TimeRange fileTimeWindow) throws IOException,
+            RT130FormatException, RT130BadPacketException {
+        Calendar beginTime = Calendar.getInstance();
+        MicroSecondDate beginDate = new MicroSecondDate(fileTimeWindow.start_time);
+        beginTime.setTime(beginDate);
+        Calendar endTime = Calendar.getInstance();
+        MicroSecondDate endDate = new MicroSecondDate(fileTimeWindow.end_time);
+        endTime.setTime(endDate);
         // Packet Type
         packetType = new String(this.readBytes(in, 2));
-        // System.out.println("Packet Type: " + packetType);
+        // logger.debug("Packet Type: " + packetType);
         if(!(packetType.equals("AD") || packetType.equals("CD")
                 || packetType.equals("DS") || packetType.equals("DT")
                 || packetType.equals("EH") || packetType.equals("ET")
@@ -114,18 +127,45 @@ public class PacketType {
         // System.out.println("Experiement Number: " + experimentNumber);
         // Year
         year = BCDRead.toInt(this.readBytes(in, 1));
-        // System.out.println("Year: " + year);
+        if((year + 2000) < beginTime.get(Calendar.YEAR)
+                || (year + 2000) > endTime.get(Calendar.YEAR) + 1) {
+            logger.warn("  The file contained a packet with an invalid year. \n"
+                    + "The year parsed is: "
+                    + (year + 2000)
+                    + "\n The year "
+                    + beginTime.get(Calendar.YEAR)
+                    + " was parsed from the file structure, and will be used instead.");
+            year = beginTime.get(Calendar.YEAR) - 2000;
+        }
+        // logger.debug("Year: " + year);
         // Unit ID Number
         unitIdNumber = HexRead.toString(this.readBytes(in, 2));
         // System.out.println("Unit ID Number: " + unitIdNumber);
         // Time
         String timeString = BCDRead.toString(this.readBytes(in, 6));
-        // System.out.println("Time: " + timeString);
-        // logger.info("Time: " + timeString);
+        // logger.debug("Time: " + timeString);
         time = this.stringToMicroSecondDate(timeString, year);
+        if(packetType.equals("DT")
+                && (time.before(beginDate) || time.after(endDate))) {
+            logger.error("  The file contained a Data Packet with an invalid time. "
+                    + "\n  The time parsed is: "
+                    + time.toString()
+                    + "\n  The time should be after: "
+                    + beginDate.toString()
+                    + "\n  The time should be before: "
+                    + endDate.toString()
+                    + "\n  The file will not be read.");
+            throw new RT130BadPacketException("  The file contained a Data Packet with an invalid time. "
+                    + "\n  The time parsed is: "
+                    + time.toString()
+                    + "\n  The time should be after: "
+                    + beginDate.toString()
+                    + "\n  The time should be before: "
+                    + endDate.toString()
+                    + "\n  The file will not be read.");
+        }
         begin_time_of_first_packet = time;
-        // System.out.println("Micro Second Date Time: " + time.toString());
-        // logger.info("Micro Second Date Time: " + time.toString());
+        // logger.debug("Micro Second Date Time: " + time.toString());
         // Byte Count
         byteCount = BCDRead.toInt(this.readBytes(in, 2));
         // System.out.println("Byte Count: " + byteCount);
