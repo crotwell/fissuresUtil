@@ -157,11 +157,10 @@ public class RT130FileHandler {
             reportFormatException(file, e);
             return seismogramTime;
         }
-        System.out.println(file.getCanonicalPath());
         LocalSeismogramImpl[] seis;
-        try{
+        try {
             seis = toSeismogram.convert(seismogramDataPacketArray);
-        }catch(RT130FormatError e){
+        } catch(RT130FormatError e) {
             reportFormatException(file, e);
             return seismogramTime;
         }
