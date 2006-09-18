@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -35,6 +36,8 @@ import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.database.network.JDBCChannel;
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.rt130.FileNameParser;
+import edu.sc.seis.fissuresUtil.rt130.LeapSecondApplier;
 import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileReader;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
@@ -310,8 +313,28 @@ public class JDBCSeismogramFiles extends JDBCTable {
                                                   MicroSecondDate endTime)
             throws IOException, RT130FormatException {
         RT130FileReader toSeismogramDataPacket = new RT130FileReader();
+        File file = new File(seismogramFile);
+        String fileName = file.getName();
+        String unitIdNumber = file.getParentFile().getParentFile().getName();
+        String yearAndDay = file.getParentFile()
+                .getParentFile()
+                .getParentFile()
+                .getName();
+        MicroSecondDate fileBeginTime = FileNameParser.getBeginTime(yearAndDay,
+                                                                    fileName);
+        fileBeginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
+                                                                    beginTime);
+        // fileTimeWindow is calculated using the begin time from the file name
+        // and end time from the request. This is not the typical, or an ideal
+        // method. The typical method involves obtaining the begin time of the
+        // file from the file name, and the end time by adding the nominal
+        // length of data from the props file. This method is not used to
+        // allow this object to keep its ignorance of the props file.
+        TimeRange fileTimeWindow = new TimeRange(fileBeginTime.getFissuresTime(),
+                                                 endTime.getFissuresTime());
         PacketType[] seismogramDataPacketArray = toSeismogramDataPacket.processRT130Data(seismogramFile,
-                                                                                         true);
+                                                                                         true,
+                                                                                         fileTimeWindow);
         // Use default constructor
         RT130ToLocalSeismogram toSeismogram = new RT130ToLocalSeismogram();
         LocalSeismogramImpl[] seis = toSeismogram.ConvertRT130ToLocalSeismogram(seismogramDataPacketArray);

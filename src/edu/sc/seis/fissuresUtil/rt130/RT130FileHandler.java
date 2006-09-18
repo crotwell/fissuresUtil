@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -19,7 +21,7 @@ public class RT130FileHandler {
 
     public RT130FileHandler(Properties props, List rt130FileHandlerFlags)
             throws FileNotFoundException, IOException, ParseException {
-        PropParser pp = new PropParser(props);
+        pp = new PropParser(props);
         flags = rt130FileHandlerFlags;
         checkFlagsForIncompatibleSettings();
         LeapSecondApplier.addLeapSeconds(pp.getPath(LeapSecondApplier.LEAP_SECOND_FILE));
@@ -60,11 +62,18 @@ public class RT130FileHandler {
                                   + " indicates more data than in a regular rt130 file. The file will be read to determine its true length.");
             return read(file);
         }
+        TimeInterval nominalLengthOfData = new TimeInterval(new QuantityImpl(Double.valueOf(pp.getString("nominalLengthOfData"))
+                                                                                     .doubleValue(),
+                                                                             UnitImpl.MILLISECOND));
+        MicroSecondDate nominalEndTime = beginTime.add(nominalLengthOfData);
+        TimeRange fileTimeWindow = new TimeRange(beginTime.getFissuresTime(),
+                                                 nominalEndTime.getFissuresTime());
         Channel[] channel;
         try {
             channel = chanCreator.create(unitIdNumber,
                                          beginTime,
-                                         file.getCanonicalPath());
+                                         file.getCanonicalPath(),
+                                         fileTimeWindow);
         } catch(RT130FormatError err) {
             reportFormatException(file, err);
             return false;
@@ -124,11 +133,27 @@ public class RT130FileHandler {
 
     private TimeInterval processAllChannels(File file, String unitIdNumber)
             throws IOException {
+        String fileName = file.getName();
+        String yearAndDay = file.getParentFile()
+                .getParentFile()
+                .getParentFile()
+                .getName();
+        MicroSecondDate beginTime = FileNameParser.getBeginTime(yearAndDay,
+                                                                fileName);
+        beginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
+                                                                beginTime);
+        TimeInterval nominalLengthOfData = new TimeInterval(new QuantityImpl(Double.valueOf(pp.getString("nominalLengthOfData"))
+                                                                                     .doubleValue(),
+                                                                             UnitImpl.MILLISECOND));
+        MicroSecondDate endTime = beginTime.add(nominalLengthOfData);
+        TimeRange fileTimeWindow = new TimeRange(beginTime.getFissuresTime(),
+                                                 endTime.getFissuresTime());
         TimeInterval seismogramTime = new TimeInterval(0, UnitImpl.MILLISECOND);
         PacketType[] seismogramDataPacketArray;
         try {
             seismogramDataPacketArray = rtFileReader.processRT130Data(file.getCanonicalPath(),
-                                                                      false);
+                                                                      true,
+                                                                      fileTimeWindow);
         } catch(RT130FormatException e) {
             reportFormatException(file, e);
             return seismogramTime;
@@ -184,6 +209,8 @@ public class RT130FileHandler {
     private RT130ToLocalSeismogram toSeismogram;
 
     private List flags;
+
+    private PropParser pp;
 
     private RT130Report report = new RT130Report();
 
