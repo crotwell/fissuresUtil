@@ -6,6 +6,7 @@ import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.bag.OrientationUtil;
 
@@ -15,14 +16,18 @@ public class DASChannelCreatorTest extends TestCase {
         DASChannelCreator creator = new DASChannelCreator(NCReaderTest.net,
                                                           new SamplingFinder() {
 
-                                                              public int find(String file)
+                                                              public int find(String file,
+                                                                              TimeRange fileTimeWindow)
                                                                       throws RT130FormatException,
                                                                       IOException {
                                                                   return 40;
                                                               }
                                                           });
         MicroSecondDate now = new MicroSecondDate();
-        Channel[] chans = creator.create("1337", now, "1/00331133");
+        Channel[] chans = creator.create("1337",
+                                         now,
+                                         "1/00331133",
+                                         new TimeRange());
         assertEquals(3, chans.length);
         assertEquals("1337", chans[0].my_site.my_station.get_code());
         // We assume that the channels are BH[ZNE]
@@ -30,7 +35,8 @@ public class DASChannelCreatorTest extends TestCase {
         Channel[] newChans = creator.create("1337",
                                             now.subtract(new TimeInterval(1,
                                                                           UnitImpl.MINUTE)),
-                                            "1/00331133");
+                                            "1/00331133",
+                                            new TimeRange());
         // Dummy DAS channels just expand to fill whatever time is requsted of
         // that das
         for(int i = 0; i < newChans.length; i++) {
