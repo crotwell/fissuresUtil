@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import edu.iris.Fissures.FissuresException;
@@ -35,14 +34,14 @@ public class RT130ReportGenerator {
 
     public static void main(String[] args) throws FissuresException,
             IOException, SeedFormatException, ParseException {
-        Properties props = Initializer.loadProperties(args);
+        props = Initializer.loadProperties(args);
         PropertyConfigurator.configure(props);
         boolean finished = false;
         RT130FileHandlerFlag scanMode = RT130FileHandlerFlag.SCAN;
         int i;
         for(i = 0; i < args.length; i++) {
             if(args[i].equals("-props")) {
-                i++;//Handled by Initializer.loadProperties
+                i++;// Handled by Initializer.loadProperties
             } else if(args[i].equals("-full")) {
                 scanMode = RT130FileHandlerFlag.FULL;
             } else if(args[i].equals("-scan")) {
@@ -95,8 +94,8 @@ public class RT130ReportGenerator {
             }
         }
         if(finished) {
-            if(showProgress){
-            System.out.print("\b\b\b\b\b\b\b" + decFormat.format(1));
+            if(showProgress) {
+                System.out.print("\b\b\b\b\b\b\b" + decFormat.format(1));
             }
             System.out.println();
             System.out.println("Report generation complete.");
@@ -116,16 +115,7 @@ public class RT130ReportGenerator {
             System.out.print(decFormat.format(percentage));
         }
         numFilesRead++;
-        StringTokenizer t;
-        if(System.getProperty("os.name").startsWith("Windows")) {
-            t = new StringTokenizer(fileLoc, "\\");
-        } else {
-            t = new StringTokenizer(fileLoc, "/");
-        }
-        String fileName = "";
-        while(t.hasMoreTokens()) {
-            fileName = t.nextToken();
-        }
+        String fileName = file.getName();
         if(fileName.length() == 18 && fileName.charAt(9) == '_') {
             // HACK
             if(fileLoc.endsWith("/data/SNEP/Tar_Extracts/May_Service_2006/930F_2005_273/2005345/930F/1/160620270_00FFAAAB")) {
@@ -133,20 +123,15 @@ public class RT130ReportGenerator {
                 return true;
             }
             // END HACK
-            if(fileHandler.getFlags().contains(RT130FileHandlerFlag.SCAN)) {
-                return fileHandler.scan(fileLoc, fileName);
-            } else {
-                return fileHandler.read(fileLoc, fileName);
-            }
+            return fileHandler.handle(file);
         } else if(fileName.endsWith(".mseed")) {
             return processMSeed(fileHandler.getReport(), fileLoc, fileName);
         } else if(fileName.endsWith(".sac")) {
             return processSac(fileHandler.getReport(),
                               fileLoc,
                               fileName,
-                              fileHandler.getProps());
-        }
-        if(fileName.equals("SOH.RT") || fileName.equals("soh.rt")) {
+                              props);
+        } else if(fileName.equals("SOH.RT") || fileName.equals("soh.rt")) {
             logger.debug("Ignoring Ref Tek file: " + fileName);
         } else if(fileName.equals(".DS_Store") || fileName.equals("._501")
                 || fileName.equals("._504")) {
@@ -300,6 +285,8 @@ public class RT130ReportGenerator {
     public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";
 
     private static RT130FileHandler fileHandler;
+    
+    private static Properties props;
 
     private static final Logger logger = Logger.getLogger(RT130ReportGenerator.class);
 }

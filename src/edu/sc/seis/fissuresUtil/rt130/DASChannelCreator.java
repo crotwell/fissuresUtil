@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import edu.iris.Fissures.Location;
@@ -32,9 +33,16 @@ import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.bag.OrientationUtil;
+import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class DASChannelCreator {
+
+    public DASChannelCreator(Properties props) throws IOException {
+        this(PopulationProperties.getNetworkAttr(props),
+             new RT130SamplingFinder(new RT130FileReader()),
+             new NCReader(props).getSites());
+    }
 
     public DASChannelCreator(NetworkAttr net, SamplingFinder sf) {
         this(net, sf, new ArrayList(0));
@@ -57,12 +65,13 @@ public class DASChannelCreator {
         List sites = (List)unitIdToSites.get(unitId);
         sites.add(s);
         siteToChannels.put(s, new HashMap());
+        allSites.add(s);
     }
 
     private Site find(String unitIdNumber, MicroSecondDate beginTime) {
         Object siteOrList = unitIdToSites.get(unitIdNumber);
         if(siteOrList instanceof Site) {// Only a site in the map. That means
-                                        // it's a dummy we created
+            // it's a dummy we created
             return (Site)siteOrList;
         }
         List sites = (List)siteOrList;
@@ -77,7 +86,7 @@ public class DASChannelCreator {
                 + " had defined sites for it and data outside of the effective time of those sites");
     }
 
-    private String getUnitId(Site s) {
+    public static String getUnitId(Site s) {
         return s.comment.substring(0, s.comment.indexOf('/'));
     }
 
@@ -86,7 +95,7 @@ public class DASChannelCreator {
                             String fileLoc) {
         int sampleRate;
         try {
-            sampleRate = sf.find(fileLoc);;
+            sampleRate = sf.find(fileLoc);
         } catch(RT130FormatException e) {
             throw new RT130FormatError(e);
         } catch(IOException e) {
@@ -110,6 +119,7 @@ public class DASChannelCreator {
             s = createSite(unitIdNumber, beginTime);
             unitIdToSites.put(unitIdNumber, s);
             siteToChannels.put(s, new HashMap());
+            allSites.add(s);
         }
         // Get channels for site for datastream - create and cache if necessary
         Map dataStreamsToChannels = (Map)siteToChannels.get(s);
@@ -154,7 +164,11 @@ public class DASChannelCreator {
                     + " has a malformed instrumentation specification '"
                     + s.comment + "'");
         }
-        Orientation[] orientations = NCFileChanDipAziParser.parseOrientations(m.group(2));
+        Orientation[] orientations = parseOrientations(m.group(2));
+        if(orientations.length < 3) {
+            System.out.println("GOT " + orientations.length
+                    + " orientations from " + m.group(2) + " from " + s.comment);
+        }
         int curUnmatched = 1;
         SamplingImpl sampling = new SamplingImpl(sampleRate,
                                                  new TimeInterval(1,
@@ -186,6 +200,26 @@ public class DASChannelCreator {
         return newChannel;
     }
 
+    public static Orientation[] parseOrientations(String orientationString) {
+        Matcher m = orientation.matcher(orientationString);
+        if(!m.matches()) {
+            throw new IllegalArgumentException("The orientation string must be either 'default' or a channel orientation specification");
+        }
+        if(m.group(1) != null) {
+            return new Orientation[] {new Orientation(0, -90),
+                                      new Orientation(0, 0),
+                                      new Orientation(90, 0)};
+        }
+        Orientation[] orientations = new Orientation[3];
+        for(int i = 0; i < orientations.length; i++) {
+            orientations[i] = new Orientation(Integer.parseInt(m.group(3 + i * 2)),
+                                              Integer.parseInt(m.group(2 + i * 2)));
+        }
+        return orientations;
+    }
+
+    private static Pattern orientation = Pattern.compile("(default)|\\d/(-?\\d+)/(-?\\d+):\\d/(-?\\d+)/(-?\\d+):\\d/(-?\\d+)/(-?\\d+)");
+
     private static final Orientation UP = OrientationUtil.getUp(),
             NORTH = OrientationUtil.getNorth(),
             EAST = OrientationUtil.getEast();
@@ -199,6 +233,8 @@ public class DASChannelCreator {
     private Map unitIdToSites = new HashMap();
 
     private Map siteToChannels = new HashMap();
+
+    private List allSites = new ArrayList();
 
     private static final String TAG = "CreatedBy/DASChannelCreator";
 }

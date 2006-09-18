@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,6 +11,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,8 +27,16 @@ import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
+import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class NCReader {
+
+    public NCReader(Properties props) throws IOException {
+        this(PopulationProperties.getNetworkAttr(props), XYReader.create(props));
+        PropParser pp = new PropParser(props);
+        load(new FileInputStream(pp.getPath(NCReader.NC_FILE_LOC)));
+    }
 
     /**
      * All items created by this DeluxeNCFile will be part of Network net.
@@ -67,6 +77,19 @@ public class NCReader {
 
     public List getSites() {
         return sites;
+    }
+
+    public String getUnitId(MicroSecondDate startTime, String stationCode) {
+        Iterator it = sites.iterator();
+        while(it.hasNext()) {
+            Site cur = (Site)it.next();
+            if(cur.my_station.get_code().equals(stationCode)
+                    && new MicroSecondTimeRange(cur.effective_time).contains(startTime)) {
+                return DASChannelCreator.getUnitId(cur);
+            }
+        }
+        throw new IllegalArgumentException("No station of code '" + stationCode
+                + "' operating at " + startTime);
     }
 
     private static class LineHandler {
@@ -323,4 +346,6 @@ public class NCReader {
                                                         unmatched};
 
     private Calendar scratchCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+    public static final String NC_FILE_LOC = "NCFile";
 }
