@@ -74,7 +74,12 @@ public class RT130ReportFactory {
                 if(stationCode.equals(setStationCode)) {
                     String channelCode = ((ChannelId)channelIdToChannel.get(channelIdKey)).channel_code;
                     List timeRanges = (List)channelIdWithTimeRanges.get(channelIdKey);
-                    channelCodesWithTimeRanges.put(channelCode, timeRanges);
+                    if(channelCodesWithTimeRanges.containsKey(channelCode)) {
+                        List current = (List)channelCodesWithTimeRanges.get(channelCode);
+                        current.addAll(timeRanges);
+                    } else {
+                        channelCodesWithTimeRanges.put(channelCode, timeRanges);
+                    }
                 }
             }
             StationDataSummary temp = new StationDataSummary(setStationCode,
