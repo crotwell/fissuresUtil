@@ -122,27 +122,23 @@ public class RT130Report {
     private void makeReportImage() {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
-        RT130ReportFactory reportFactory = new RT130ReportFactory(channelIdWithTime,
-                                                                  channelIdStringToChannelId);
+        RT130ReportFactory factory = new RT130ReportFactory(channelIdWithTime,
+                                                            channelIdStringToChannelId);
         TaskSeries taskSeries = new TaskSeries("Stations");
-        List stationDataSummaryList = reportFactory.getSortedStationDataSummaryList();
+        List stationDataSummaryList = factory.getSortedStationDataSummaryList();
         Iterator it = stationDataSummaryList.iterator();
-        Task task = null;
-        for(int i = 0; it.hasNext(); i++) {
+        while(it.hasNext()){
             StationDataSummary stationDataSummary = (StationDataSummary)it.next();
-            Map channelsToTimeRanges = stationDataSummary.getChannelsWithTimeRanges();
-            String channelCodeWithMostGaps = stationDataSummary.getChannelCodeWithMostGaps();
-            List timeRangeList = (List)channelsToTimeRanges.get(channelCodeWithMostGaps);
-            Iterator ik = timeRangeList.iterator();
             MicroSecondTimeRange firstTimeRange = stationDataSummary.getEncompassingTimeRange();
-            task = new Task(stationDataSummary.getStationCode(),
-                            firstTimeRange.getBeginTime(),
-                            firstTimeRange.getEndTime());
-            while(ik.hasNext()) {
-                MicroSecondTimeRange allOtherTimeRanges = (MicroSecondTimeRange)ik.next();
+            Task task = new Task(stationDataSummary.getStationCode(),
+                                 firstTimeRange.getBeginTime(),
+                                 firstTimeRange.getEndTime());
+            Iterator jt = stationDataSummary.getRecordedTimes().iterator();
+            while(jt.hasNext()){
+                MicroSecondTimeRange chanTime = (MicroSecondTimeRange)jt.next();
                 task.addSubtask(new Task(stationDataSummary.getStationCode(),
-                                         allOtherTimeRanges.getBeginTime(),
-                                         allOtherTimeRanges.getEndTime()));
+                                         chanTime.getBeginTime(),
+                                         chanTime.getEndTime()));
             }
             taskSeries.add(task);
         }

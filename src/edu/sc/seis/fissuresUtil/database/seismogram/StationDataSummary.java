@@ -21,11 +21,11 @@ public class StationDataSummary implements Comparable {
         return stationCode;
     }
 
-    public Map getChannelsWithTimeRanges() {
-        return channelCodesWithTimeRanges;
+    public List getRecordedTimes() {
+        return (List)channelCodesWithTimeRanges.get(getChannelCodeWithMostGaps());
     }
 
-    public String getChannelCodeWithMostGaps() {
+    private String getChannelCodeWithMostGaps() {
         Set channelCodesSet = channelCodesWithTimeRanges.keySet();
         Iterator it = channelCodesSet.iterator();
         int num = 0;
@@ -46,21 +46,13 @@ public class StationDataSummary implements Comparable {
         Set channelCodeSet = channelCodesWithTimeRanges.keySet();
         Iterator it = channelCodeSet.iterator();
         while(it.hasNext()) {
-            Iterator ij = ((List)channelCodesWithTimeRanges.get((String)it.next())).iterator();
+            Iterator ij = ((List)channelCodesWithTimeRanges.get(it.next())).iterator();
             while(ij.hasNext()) {
                 MicroSecondTimeRange newTimeRange = (MicroSecondTimeRange)ij.next();
                 if(result == null) {
                     result = newTimeRange;
                 } else {
-                    if(newTimeRange.getBeginTime()
-                            .before(result.getBeginTime())) {
-                        result = new MicroSecondTimeRange(newTimeRange.getBeginTime(),
-                                                          result.getEndTime());
-                    }
-                    if(newTimeRange.getEndTime().after(result.getEndTime())) {
-                        result = new MicroSecondTimeRange(result.getBeginTime(),
-                                                          newTimeRange.getEndTime());
-                    }
+                    result = new MicroSecondTimeRange(newTimeRange, result);
                 }
             }
         }
@@ -125,7 +117,8 @@ public class StationDataSummary implements Comparable {
 
     public int compareTo(Object o) {
         if(o instanceof StationDataSummary) {
-            return (((StationDataSummary)o).stationCode.compareTo(this.stationCode) * (-1));
+            // Sort in alphabetical station code order
+            return (((StationDataSummary)o).stationCode.compareTo(stationCode) * (-1));
         }
         return 1;
     }
