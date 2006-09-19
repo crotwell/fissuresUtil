@@ -133,8 +133,9 @@ public class JDBCChannel extends NetworkTable {
         getAllIdsForStation.setInt(1, sta_id);
         return extractAllChanIds(getAllIdsForStation);
     }
-    
-    public ChannelId[] getAllChannelIdsForSiteDbId(int siteDbId) throws SQLException {
+
+    public ChannelId[] getAllChannelIdsForSiteDbId(int siteDbId)
+            throws SQLException {
         getAllIdsForSite.setInt(1, siteDbId);
         return extractAllChanIds(getAllIdsForSite);
     }
@@ -152,9 +153,16 @@ public class JDBCChannel extends NetworkTable {
 
     public Channel[] getAllChannels(StationId station) throws NotFound,
             SQLException {
-        int sta_id = stationTable.getDBId(station);
-        getAllChansForStation.setInt(1, sta_id);
+        int stationId = stationTable.getDBId(station);
+        getAllChansForStation.setInt(1, stationId);
         return extractAllChans(getAllChansForStation);
+    }
+
+    public Channel[] getFirstChannel(StationId station) throws NotFound,
+            SQLException {
+        int stationId = stationTable.getDBId(station);
+        getFirstChanForStation.setInt(1, stationId);
+        return extractAllChans(getFirstChanForStation);
     }
 
     public Channel[] getByCode(NetworkId networkId,
@@ -317,16 +325,17 @@ public class JDBCChannel extends NetworkTable {
             insertAdditonalChannelStuff(dbid, siteDbIdForChannel, chan);
             ChannelId[] sameSiteChans = getAllChannelIdsForSiteDbId(currentSiteId);
             // only delete if no other channels refer to this site
-            if (sameSiteChans.length == 0) {
+            if(sameSiteChans.length == 0) {
                 siteTable.cleanupVestigesOfLonelyChannelId(currentSiteId);
             }
         }
     }
 
     private PreparedStatement getAllChans, getAllChansForStation,
-            getAllChansForNetwork, getByDBId, putAll, updateNonId, putId,
-            getAllIds, getAllIdsForStation, getAllIdsForNetwork, getByCodes,
-            getIdsByCodes, getStationDbId, getAllIdsForSite;
+            getAllChansForNetwork, getFirstChanForStation, getByDBId, putAll,
+            updateNonId, putId, getAllIds, getAllIdsForStation,
+            getAllIdsForNetwork, getByCodes, getIdsByCodes, getStationDbId,
+            getAllIdsForSite;
 
     private JDBCNetwork netTable;
 
@@ -339,7 +348,7 @@ public class JDBCChannel extends NetworkTable {
     private JDBCStation stationTable;
 
     private JDBCTime time;
-    
+
     public Channel extract(ResultSet rs) throws SQLException, NotFound {
         return extract(rs, siteTable, time, quantityTable);
     }
