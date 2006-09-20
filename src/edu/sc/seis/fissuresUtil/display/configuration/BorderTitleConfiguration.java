@@ -13,7 +13,9 @@ public class BorderTitleConfiguration {
         if(el.hasAttribute("id")) {
             id = el.getAttribute("id");
         }
-        title = DOMHelper.extractText(el, "text");
+        if(DOMHelper.hasElement(el, "text")) {
+            title = DOMHelper.extractText(el, "text");
+        }
         f = FontConfiguration.create(DOMHelper.extractElement(el, "font"));
         if(DOMHelper.hasElement(el, "titleColor")) {
             titleColor = ColorConfiguration.create(DOMHelper.getElement(el,
@@ -32,7 +34,7 @@ public class BorderTitleConfiguration {
     public void setText(String text) {
         this.title = text;
     }
-    
+
     public String getId() {
         return id;
     }
@@ -43,5 +45,5 @@ public class BorderTitleConfiguration {
 
     private ColorConfiguration titleColor;
 
-    private String title;
+    private String title = "";
 }
