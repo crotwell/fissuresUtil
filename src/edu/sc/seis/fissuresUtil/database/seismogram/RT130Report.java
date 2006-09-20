@@ -155,7 +155,7 @@ public class RT130Report {
         final CategoryItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesPaint(0, Color.PINK);
         renderer.setOutlinePaint(Color.BLACK);
-        printChartToPDF(chart, 1024, 768, "RT130Report.pdf");
+        printChartToPDF(chart, 1600, 1200, "RT130Report.pdf");
     }
 
     private void printChartToPDF(JFreeChart chart,
