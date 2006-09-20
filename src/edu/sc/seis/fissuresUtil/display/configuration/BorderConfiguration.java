@@ -50,6 +50,17 @@ public class BorderConfiguration implements Cloneable {
             colors = ColorClassConfiguration.extractColors(DOMHelper.getElement(element,
                                                                                 "triangleColors"));
         }
+        if(DOMHelper.hasElement(element, "titleCentered")) {
+            titleCentered = Boolean.valueOf(DOMHelper.extractText(element,
+                                                                  "titleCentered",
+                                                                  titleCentered
+                                                                          + ""))
+                    .booleanValue();
+        }
+        if(DOMHelper.hasElement(element, "background")) {
+            background = ColorConfiguration.create(DOMHelper.getElement(element,
+                                                                        "background"));
+        }
     }
 
     public static BorderConfiguration create(Element el,
@@ -127,6 +138,7 @@ public class BorderConfiguration implements Cloneable {
         if(clipTicks) {
             b.setClipTicks(minTickValue, maxTickValue);
         }
+        b.setTitleCentered(titleCentered);
         Iterator it = titles.iterator();
         while(it.hasNext()) {
             b.add(((BorderTitleConfiguration)it.next()).createTitle());
@@ -174,6 +186,7 @@ public class BorderConfiguration implements Cloneable {
         clone.minTickValue = minTickValue;
         clone.maxTickValue = maxTickValue;
         clone.titles.addAll(titles);
+        clone.titleCentered = titleCentered;
         return clone;
     }
 
@@ -189,6 +202,8 @@ public class BorderConfiguration implements Cloneable {
 
     private double maxTickValue = Double.POSITIVE_INFINITY;
 
+    private boolean titleCentered = true;
+
     private static ConfigDefinitions defs = new ConfigDefinitions();
 
     private static final String LEFT = "left", RIGHT = "right",
@@ -196,7 +211,8 @@ public class BorderConfiguration implements Cloneable {
             BOTTOM_LEFT = "bottom left", BOTTOM = "bottom",
             BOTTOM_RIGHT = "bottom right", AMP = "amp", TIME = "time",
             DIST = "dist", TITLE = "title", ASCENDING = "ascending",
-            DESCENDING = "descending", TRIANGLE = "triangle", ELAPSED = "elapsed";
+            DESCENDING = "descending", TRIANGLE = "triangle",
+            ELAPSED = "elapsed";
 
     private List titles = new ArrayList();
 
