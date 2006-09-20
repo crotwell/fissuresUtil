@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.Location;
-import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
