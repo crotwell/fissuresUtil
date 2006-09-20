@@ -138,6 +138,10 @@ public abstract class Border extends JComponent {
         }
     }
 
+    public void setTitleCentered(boolean centered) {
+        titleCentered = centered;
+    }
+
     private List titles = new ArrayList();
 
     protected abstract List createFormats();
@@ -185,7 +189,7 @@ public abstract class Border extends JComponent {
                 return stringBounds.getHeight();
             }
             return stringBounds.getWidth() + 5; // +5 so the labels don't run
-                                                // together
+            // together
         }
 
         protected double getLimitingSize() {
@@ -229,7 +233,10 @@ public abstract class Border extends JComponent {
                     g2d.rotate(Math.PI / 2);
                     g2d.translate(-x, -y);
                 } else {
-                    int x = (int)(getWidth() / 2 - titleBounds.getWidth() / 2);
+                    int x = 5;
+                    if(titleCentered) {
+                        x = (int)(getWidth() / 2 - titleBounds.getWidth() / 2);
+                    }
                     int y;
                     if(side == TOP)
                         y = cumulativeTitleHeight - 5;
@@ -462,4 +469,6 @@ public abstract class Border extends JComponent {
     protected int tickPad = 3, labelTickLength = 10, tickLength = 4;
 
     protected Color color = Color.BLACK;
+
+    protected boolean titleCentered = true;
 }
