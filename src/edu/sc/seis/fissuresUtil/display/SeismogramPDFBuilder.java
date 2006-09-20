@@ -34,6 +34,7 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
+import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class SeismogramPDFBuilder {
@@ -98,17 +99,18 @@ public class SeismogramPDFBuilder {
                                  int dispPerPage,
                                  boolean landscape,
                                  boolean separateDisplays) {
+        createPDF(disp, out, dispPerPage, landscape, separateDisplays, null);
+    }
+
+    public static void createPDF(SeismogramDisplay disp,
+                                 OutputStream out,
+                                 int dispPerPage,
+                                 boolean landscape,
+                                 boolean separateDisplays,
+                                 TitleBorder header) {
         List displays = new ArrayList();
         if(separateDisplays && disp instanceof VerticalSeismogramDisplay) {
-            displays = ((VerticalSeismogramDisplay)disp).getDisplays();
-            Iterator it = displays.iterator();
-            while(it.hasNext()) {
-                BasicSeismogramDisplay cur = (BasicSeismogramDisplay)it.next();
-                cur.clear(BorderedDisplay.BOTTOM_CENTER);
-                if(!cur.isFilled(BorderedDisplay.TOP_CENTER)) {
-                    cur.add(new TimeBorder(cur), BorderedDisplay.TOP_CENTER);
-                }
-            }
+            displays.addAll(breakOutSeparateDisplays(disp));
         } else {
             displays.add(disp);
         }
@@ -116,11 +118,17 @@ public class SeismogramPDFBuilder {
                 : PageSize.LETTER);
         Document document = new Document(pageSize);
         try {
+            int headerHeight = 0;
+            if(header != null) {
+                header.setSize(header.getPreferredSize());
+                headerHeight = header.getHeight();
+                System.out.println("header height: " + headerHeight);
+            }
             PdfWriter writer = PdfWriter.getInstance(document, out);
             document.open();
             int pageW = (int)pageSize.width();
             int pageH = (int)pageSize.height();
-            int pixelsPerDisplayH = (int)Math.floor((pageH - vertMargins)
+            int pixelsPerDisplayH = (int)Math.floor((pageH - vertMargins - headerHeight)
                     / (double)dispPerPage);
             int pixelsPerDisplayW = (int)Math.floor(pageW - horizMargins);
             PdfContentByte cb = writer.getDirectContent();
@@ -128,6 +136,14 @@ public class SeismogramPDFBuilder {
             PdfTemplate tpTraces = cb.createTemplate(pageW, pageH);
             Graphics2D g2Traces = tpTraces.createGraphics(pageW, pageH);
             g2Traces.translate(rightMargin, topMargin);
+            if(header != null) {
+                header.setSize(new Dimension(pixelsPerDisplayW, headerHeight));
+                boolean bufferingStatus = header.isDoubleBuffered();
+                header.setDoubleBuffered(false);
+                header.paint(g2Traces);
+                header.setDoubleBuffered(bufferingStatus);
+                g2Traces.translate(0, headerHeight);
+            }
             int seisOnCurPage = 0;
             Iterator it = displays.iterator();
             while(it.hasNext()) {
@@ -166,6 +182,19 @@ public class SeismogramPDFBuilder {
         if(disp instanceof VerticalSeismogramDisplay) {
             ((VerticalSeismogramDisplay)disp).setBorders();
         }
+    }
+
+    private static List breakOutSeparateDisplays(SeismogramDisplay disp) {
+        List displays = ((VerticalSeismogramDisplay)disp).getDisplays();
+        Iterator it = displays.iterator();
+        while(it.hasNext()) {
+            BasicSeismogramDisplay cur = (BasicSeismogramDisplay)it.next();
+            cur.clear(BorderedDisplay.BOTTOM_CENTER);
+            if(!cur.isFilled(BorderedDisplay.TOP_CENTER)) {
+                cur.add(new TimeBorder(cur), BorderedDisplay.TOP_CENTER);
+            }
+        }
+        return displays;
     }
 
     private static int leftMargin = 50, rightMargin = 50, topMargin = 50,
