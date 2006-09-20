@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import org.apache.log4j.Logger;
+import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
@@ -174,6 +175,14 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
         outputToPDF(new BufferedOutputStream(new FileOutputStream(f)));
     }
 
+    public void outputToPDF(File f, TitleBorder header)
+            throws FileNotFoundException {
+        outputToPDF(new BufferedOutputStream(new FileOutputStream(f)),
+                    true,
+                    true,
+                    header);
+    }
+
     public void outputToPDF(OutputStream os) {
         outputToPDF(os, true);
     }
@@ -183,12 +192,20 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     }
 
     public void outputToPDF(OutputStream os, boolean landscape, boolean separate) {
+        outputToPDF(os, landscape, separate, null);
+    }
+
+    public void outputToPDF(OutputStream os,
+                            boolean landscape,
+                            boolean separate,
+                            TitleBorder header) {
         PDF = true;
         SeismogramPDFBuilder.createPDF(this,
                                        os,
                                        pdfSeismogramsPerPage,
                                        landscape,
-                                       separate);
+                                       separate,
+                                       header);
         PDF = false;
     }
 
