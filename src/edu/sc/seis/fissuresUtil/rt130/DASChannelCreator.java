@@ -89,6 +89,11 @@ public class DASChannelCreator {
         return s.comment.substring(0, s.comment.indexOf('/'));
     }
 
+    public static String getSensorId(Site s) {
+        String commentSansDasId = s.comment.split("\\s+")[1];
+        return commentSansDasId.substring(0, commentSansDasId.indexOf('/'));
+    }
+
     public class SamplingFinder {
 
         public SamplingFinder() {}
@@ -249,9 +254,7 @@ public class DASChannelCreator {
             throw new IllegalArgumentException("The orientation string must be either 'default' or a channel orientation specification");
         }
         if(m.group(1) != null) {
-            return new Orientation[] {new Orientation(0, -90),
-                                      new Orientation(0, 0),
-                                      new Orientation(90, 0)};
+            return new Orientation[] {UP, NORTH, EAST};
         }
         Orientation[] orientations = new Orientation[3];
         for(int i = 0; i < orientations.length; i++) {
