@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.log4j.PropertyConfigurator;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
@@ -31,6 +32,7 @@ import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class NCReader {
 
@@ -84,21 +86,28 @@ public class NCReader {
     public void dumpSites() {
         DateFormat df = new SimpleDateFormat("yyyy:DDD:HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
-        System.out.println("station_code das_id start_time end_time");
+        System.out.println("station_code das_id sensor latitude longitude elevation start_time end_time moved");
         Iterator it = sites.iterator();
         MicroSecondDate now = new MicroSecondDate();
         while(it.hasNext()) {
             Site cur = (Site)it.next();
             MicroSecondDate end = new MicroSecondDate(cur.effective_time.end_time);
-            String endstr;
-            if(end.after(now)) {
-                endstr = "ongoing";
-            } else {
+            String endstr = "ongoing";
+            if(!end.after(now)) {
                 endstr = df.format(end);
             }
+            Location loc = cur.my_location;
             System.out.println(cur.my_station.get_code()
                     + " "
                     + DASChannelCreator.getUnitId(cur)
+                    + " "
+                    + DASChannelCreator.getSensorId(cur)
+                    + " "
+                    + loc.latitude
+                    + " "
+                    + loc.longitude
+                    + " "
+                    + loc.elevation.value
                     + " "
                     + df.format(new MicroSecondDate(cur.effective_time.start_time))
                     + " " + endstr);
@@ -280,8 +289,11 @@ public class NCReader {
                                             code,
                                             blockStart.getFissuresTime());
             String instrumentInfo = m.group(2);
+            if(!locs.containsKey(code)){
+                throw new FormatException("There's an entry for station '"+code+"' in the nc file but not in the xy file");
+            }
             StationImpl sta = new StationImpl(staId,
-                                              "",
+                                              code,
                                               (Location)locs.get(code),
                                               net.owner,
                                               "",
@@ -394,4 +406,15 @@ public class NCReader {
     private Calendar scratchCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
     public static final String NC_FILE_LOC = "NCFile";
+
+    public static void main(String[] args) throws IOException {
+        Properties props = Initializer.loadProperties(args);
+        PropertyConfigurator.configure(props);
+        try {
+            new NCReader(props).dumpSites();
+        } catch(FormatException fe) {
+            System.err.println(fe.getMessage());
+            System.exit(1);
+        }
+    }
 }

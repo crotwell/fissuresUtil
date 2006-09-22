@@ -81,13 +81,12 @@ public class RT130FileReader {
                                                    fileTimeWindow);
                     haveFile = true;
                 } catch(EOFException e) {
-                    logger.error("End of file was reached before any Data Packets were found. "
-                            + "The file likely contains no data. "
-                            + "The file will not be read.");
                     throw new RT130FormatException("  End of file was reached before any Data Packets were found. "
                             + "The file likely contains no data. "
                             + "The file will not be read.");
                 } catch(RT130BadPacketException e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                     // Skip bad packet.
                 }
             }
