@@ -60,7 +60,6 @@ public class PacketType {
                              0,
                              original.encoded_data.length);
         }
-        this.begin_time_from_first_data_file = original.begin_time_from_first_data_file;
         this.latitude_ = original.latitude_;
         this.longitude_ = original.longitude_;
         this.elevation_ = original.elevation_;
@@ -103,6 +102,9 @@ public class PacketType {
         Calendar beginTime = Calendar.getInstance();
         beginTime.setTimeZone(TimeZone.getTimeZone("GMT"));
         beginTime.setTime(fileTimeWindow.getBeginTime());
+        Calendar endTime = Calendar.getInstance();
+        endTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+        endTime.setTime(fileTimeWindow.getEndTime());
         // Packet Type
         packetType = new String(this.readBytes(in, 2));
         // logger.debug("Packet Type: " + packetType);
@@ -120,7 +122,8 @@ public class PacketType {
         // System.out.println("Experiement Number: " + experimentNumber);
         // Year
         year = BCDRead.toInt(this.readBytes(in, 1));
-        if((year + 2000) != beginTime.get(Calendar.YEAR)) {
+        if((year + 2000) < beginTime.get(Calendar.YEAR)
+                || (year + 2000) > endTime.get(Calendar.YEAR) + 1) {
             logger.warn("  The file contained a packet with an invalid year. \n"
                     + "The year parsed is: "
                     + (year + 2000)
@@ -139,6 +142,10 @@ public class PacketType {
         time = this.stringToMicroSecondDate(timeString, year);
         if(packetType.equals("DT") && !fileTimeWindow.contains(time)) {
             logger.warn("  The file contained a Data Packet with an invalid time. "
+                    + "\n  The time parsed is: "
+                    + time
+                    + "\n  The time should be inside: " + fileTimeWindow);
+            throw new RT130BadPacketException("  The file contained a Data Packet with an invalid time. "
                     + "\n  The time parsed is: "
                     + time
                     + "\n  The time should be inside: " + fileTimeWindow);
@@ -235,8 +242,6 @@ public class PacketType {
     protected String packetType, unitIdNumber;
 
     protected MicroSecondDate time;
-
-    public MicroSecondDate begin_time_from_first_data_file;
 
     protected MicroSecondDate begin_time_of_seismogram,
             begin_time_of_first_packet, end_time_of_last_packet;
