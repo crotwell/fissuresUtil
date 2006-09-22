@@ -34,6 +34,7 @@ public class XYReader {
     public static Map read(BufferedReader reader) throws IOException {
         Map locs = new HashMap();
         String line;
+        int num = 1;
         while((line = reader.readLine()) != null) {
             StringTokenizer st = new StringTokenizer(line, " ");
             Location loc = new Location();
@@ -44,9 +45,13 @@ public class XYReader {
             loc.depth = new QuantityImpl(0, UnitImpl.METER);
             loc.type = LocationType.GEOGRAPHIC;
             String stationCode = st.nextToken();
+            if(locs.containsKey(stationCode)){
+                System.err.println("Inserting second location for '" + stationCode + "' on line " + num);
+            }
             locs.put(stationCode, loc);
             logger.debug("Read in location for " + stationCode + " "
                     + toString(loc));
+            num++;
         }
         return locs;
     }
