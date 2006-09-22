@@ -44,58 +44,10 @@ public class RT130FileReader {
         DataInputStream dis = new DataInputStream(bis);
         this.seismogramDataInputStream = dis;
         this.processData = processData;
-        PacketType firstDataPacketOfFirstFile = getFirstDataPacketOfFirstFile(fileTimeWindow);
-        return readEntireDataFile(firstDataPacketOfFirstFile, fileTimeWindow);
+        return readEntireDataFile(fileTimeWindow);
     }
 
-    private PacketType getFirstDataPacketOfFirstFile(MicroSecondTimeRange fileTimeWindow)
-            throws RT130FormatException, IOException {
-        File file = new File(this.dataFileLoc);
-        File dataStream = new File(file.getParent());
-        File[] fileNames = dataStream.listFiles();
-        Arrays.sort(fileNames);
-        if(fileNames[0].equals(this.firstFileLoc)) {
-            return firstDataPacketOfFirstFile;
-        } else {
-            this.firstFileLoc = fileNames[0].getAbsolutePath();
-            firstDataPacketOfFirstFile = readFirstDataPacketOfFirstFile(fileTimeWindow);
-            return firstDataPacketOfFirstFile;
-        }
-    }
-
-    private PacketType readFirstDataPacketOfFirstFile(MicroSecondTimeRange fileTimeWindow)
-            throws IOException, RT130FormatException {
-        DataInputStream firstFileDataInputStream = null;
-        File file = new File(firstFileLoc);
-        FileInputStream fis = new FileInputStream(file);
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        firstFileDataInputStream = new DataInputStream(bis);
-        PacketType firstFileData = new PacketType();
-        firstFileData.packetType = "";
-        while(!firstFileData.packetType.equals("DT")) {
-            boolean haveFile = false;
-            while(!haveFile) {
-                try {
-                    firstFileData = new PacketType(firstFileDataInputStream,
-                                                   this.processData,
-                                                   fileTimeWindow);
-                    haveFile = true;
-                } catch(EOFException e) {
-                    throw new RT130FormatException("  End of file was reached before any Data Packets were found. "
-                            + "The file likely contains no data. "
-                            + "The file will not be read.");
-                } catch(RT130BadPacketException e) {
-                    System.out.println(e.getMessage());
-                    e.printStackTrace();
-                    // Skip bad packet.
-                }
-            }
-        }
-        return firstFileData;
-    }
-
-    private PacketType[] readEntireDataFile(PacketType firstFileData,
-                                            MicroSecondTimeRange fileTimeWindow)
+    private PacketType[] readEntireDataFile(MicroSecondTimeRange fileTimeWindow)
             throws RT130FormatException, IOException {
         boolean done = false;
         List seismogramList = new ArrayList();
@@ -129,11 +81,7 @@ public class RT130FileReader {
                 TimeInterval lengthOfData = new TimeInterval(((double)nextPacket.dP.numberOfSamples / (double)((PacketType)seismogramData.get(i)).sample_rate),
                                                              UnitImpl.SECOND);
                 nextPacket.end_time_of_last_packet = nextPacket.begin_time_of_first_packet.add(lengthOfData);
-                append(seismogramData,
-                       i,
-                       nextPacket,
-                       seismogramList,
-                       firstFileData);
+                append(seismogramData, i, nextPacket, seismogramList);
             } else if(nextPacket.packetType.equals("EH")) {
                 seismogramData.put(new Integer(0),
                                    Append.appendEventHeaderPacket(new PacketType(),
@@ -146,7 +94,6 @@ public class RT130FileReader {
                                        Append.appendEventTrailerPacket((PacketType)seismogramData.get(j),
                                                                        nextPacket));
                     seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
-                                                                  firstFileData,
                                                                   false));
                 }
                 done = true;
@@ -200,7 +147,6 @@ public class RT130FileReader {
                                 + " Local seismogram creation was not disturbed.");
                         for(Integer j = new Integer(0); seismogramData.containsKey(j); j = new Integer(j.intValue() + 1)) {
                             seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(j),
-                                                                          firstFileData,
                                                                           false));
                         }
                         done = true;
@@ -245,7 +191,6 @@ public class RT130FileReader {
     }
 
     private PacketType finalizeSeismogramCreation(PacketType seismogramData,
-                                                  PacketType firstFileData,
                                                   boolean gapInData)
             throws RT130FormatException {
         if(gapInData) {
@@ -253,16 +198,6 @@ public class RT130FileReader {
                     + seismogramData.channel_number
                     + " for a period of time longer than allowed."
                     + " A new seismogram will be created to hold the rest of the data.");
-        }
-        if(firstFileData == null) {
-            logger.error("The first file's data was not read correctly, and was returned as null.");
-            throw new RT130FormatException("  The first file's data was not read correctly, and was returned as null.");
-        } else {
-            if(firstFileData.time == null) {
-                logger.warn("The begin time for the channel is not present in the first file's first data packet.");
-            } else {
-                seismogramData.begin_time_from_first_data_file = firstFileData.time;
-            }
         }
         if(seismogramData.sample_rate == 0) {
             logger.warn("The Event Header and Event Trailer Packets for channel "
@@ -291,8 +226,7 @@ public class RT130FileReader {
     private void append(Map seismogramData,
                         Integer i,
                         PacketType nextPacket,
-                        List seismogramList,
-                        PacketType firstFileData) throws RT130FormatException {
+                        List seismogramList) throws RT130FormatException {
         if(seismogramIsContinuos((PacketType)seismogramData.get(i), nextPacket)) {
             seismogramData.put(i,
                                Append.appendDataPacket((PacketType)seismogramData.get(i),
@@ -300,10 +234,9 @@ public class RT130FileReader {
                                                        this.processData));
         } else {
             seismogramList.add(finalizeSeismogramCreation((PacketType)seismogramData.get(i),
-                                                          firstFileData,
                                                           true));
             resetSeismogramData((PacketType)seismogramData.get(i), nextPacket);
-            append(seismogramData, i, nextPacket, seismogramList, firstFileData);
+            append(seismogramData, i, nextPacket, seismogramList);
         }
     }
 
