@@ -101,11 +101,8 @@ public class PacketType {
                                MicroSecondTimeRange fileTimeWindow)
             throws IOException, RT130FormatException, RT130BadPacketException {
         Calendar beginTime = Calendar.getInstance();
-        MicroSecondDate beginDate = new MicroSecondDate(fileTimeWindow.getBeginTime());
-        beginTime.setTime(beginDate);
-        Calendar endTime = Calendar.getInstance();
-        MicroSecondDate endDate = new MicroSecondDate(fileTimeWindow.getEndTime());
-        endTime.setTime(endDate);
+        beginTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+        beginTime.setTime(fileTimeWindow.getBeginTime());
         // Packet Type
         packetType = new String(this.readBytes(in, 2));
         // logger.debug("Packet Type: " + packetType);
@@ -114,9 +111,6 @@ public class PacketType {
                 || packetType.equals("EH") || packetType.equals("ET")
                 || packetType.equals("OM") || packetType.equals("SC")
                 || packetType.equals("SH") || packetType.equals("FD"))) {
-            logger.error("  The first two bytes of the Packet Header were not formatted "
-                    + "correctly, and do not refer to a valid Packet Type. \n"
-                    + "  First two bytes parse to: " + packetType);
             throw new RT130FormatException("  The first two bytes of the Packet Header were not formatted "
                     + "correctly, and do not refer to a valid Packet Type. \n"
                     + "  First two bytes parse to: " + packetType);
@@ -126,8 +120,7 @@ public class PacketType {
         // System.out.println("Experiement Number: " + experimentNumber);
         // Year
         year = BCDRead.toInt(this.readBytes(in, 1));
-        if((year + 2000) < beginTime.get(Calendar.YEAR)
-                || (year + 2000) > endTime.get(Calendar.YEAR) + 1) {
+        if((year + 2000) != beginTime.get(Calendar.YEAR)) {
             logger.warn("  The file contained a packet with an invalid year. \n"
                     + "The year parsed is: "
                     + (year + 2000)
@@ -145,22 +138,10 @@ public class PacketType {
         // logger.debug("Time: " + timeString);
         time = this.stringToMicroSecondDate(timeString, year);
         if(packetType.equals("DT") && !fileTimeWindow.contains(time)) {
-            logger.error("  The file contained a Data Packet with an invalid time. "
+            logger.warn("  The file contained a Data Packet with an invalid time. "
                     + "\n  The time parsed is: "
-                    + time.toString()
-                    + "\n  The time should be after: "
-                    + beginDate.toString()
-                    + "\n  The time should be before: "
-                    + endDate.toString()
-                    + "\n  The file will not be read.");
-            throw new RT130BadPacketException("  The file contained a Data Packet with an invalid time. "
-                    + "\n  The time parsed is: "
-                    + time.toString()
-                    + "\n  The time should be after: "
-                    + beginDate.toString()
-                    + "\n  The time should be before: "
-                    + endDate.toString()
-                    + "\n  The file will not be read.");
+                    + time
+                    + "\n  The time should be inside: " + fileTimeWindow);
         }
         begin_time_of_first_packet = time;
         // logger.debug("Micro Second Date Time: " + time.toString());
