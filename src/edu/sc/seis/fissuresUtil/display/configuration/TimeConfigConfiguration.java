@@ -91,6 +91,12 @@ public class TimeConfigConfiguration implements Cloneable {
         return clone;
     }
 
+    public static TimeConfigConfiguration createBasicTimeConfigConfig() {
+        TimeConfigConfiguration tcc = new TimeConfigConfiguration();
+        tcc.type = "basic";
+        return tcc;
+    }
+
     private String type;
 
     private String phaseName;
