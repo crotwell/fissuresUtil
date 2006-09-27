@@ -122,7 +122,6 @@ public class SeismogramPDFBuilder {
             if(header != null) {
                 header.setSize(header.getPreferredSize());
                 headerHeight = header.getHeight();
-                System.out.println("header height: " + headerHeight);
             }
             PdfWriter writer = PdfWriter.getInstance(document, out);
             document.open();
