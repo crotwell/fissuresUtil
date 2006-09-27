@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
@@ -20,26 +21,37 @@ public class Alohomora extends org.omg.CORBA.LocalObject implements
     private static final String DARK_MAGIC_PASSWORD_FILE = "darkMagic.passwordFile";
 
     public Alohomora() throws IOException {
-        String darkFileName = System.getProperty(DARK_MAGIC_PASSWORD_FILE);
+        Properties props = getPasswordProps();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        props.store(out, "darkMagic passwords");
+        propBytes = out.toByteArray();
+    }
+
+    public static Properties getPasswordProps() throws FileNotFoundException,
+            IOException {
+        return getPasswordProps(System.getProperties());
+    }
+
+    public static Properties getPasswordProps(Properties baseProperties)
+            throws FileNotFoundException, IOException {
+        String darkFileName = baseProperties.getProperty(DARK_MAGIC_PASSWORD_FILE);
+        new Properties();
         Properties props = new Properties();
         if(darkFileName == null) {
-            logger.info("Loading Alohomora passwords from system properties");
-            Properties sys = System.getProperties();
-            Iterator it = sys.keySet().iterator();
+            logger.info("Loading darkMagic passwords from system properties");
+            Iterator it = baseProperties.keySet().iterator();
             while(it.hasNext()) {
                 String key = (String)it.next();
                 if(key.startsWith("darkMagic.")
                         && !key.equals(DARK_MAGIC_PASSWORD_FILE)) {
-                    props.put(key, sys.getProperty(key));
+                    props.put(key, baseProperties.getProperty(key));
                 }
             }
         } else {
-            logger.info("Loading Alohomora passwords from " + darkFileName);
+            logger.info("Loading darkMagic passwords from " + darkFileName);
             props.load(new BufferedInputStream(new FileInputStream(darkFileName)));
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        props.store(out, "darkMagic passwords");
-        propBytes = out.toByteArray();
+        return props;
     }
 
     public void send_request(ClientRequestInfo info) throws ForwardRequest {
