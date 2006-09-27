@@ -145,6 +145,13 @@ public class SeismogramDisplayConfiguration implements Cloneable {
         return (BorderConfiguration[])borders.toArray(new BorderConfiguration[0]);
     }
 
+    public TimeConfigConfiguration getTimeConfig() {
+        if(tcConfig == null) {
+            return TimeConfigConfiguration.createBasicTimeConfigConfig();
+        }
+        return tcConfig;
+    }
+
     private String type = "basic";
 
     private List borders = new ArrayList();
