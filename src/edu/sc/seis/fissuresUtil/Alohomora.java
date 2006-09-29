@@ -7,53 +7,41 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
+import org.apache.log4j.Logger;
+import org.omg.CORBA.LocalObject;
 import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.ORBInitializer;
 
 /**
  * @author crotwell Created on Feb 10, 2005
  */
-public class Alohomora extends org.omg.CORBA.LocalObject implements
-        ClientRequestInterceptor {
-
-    private static final String DARK_MAGIC_PASSWORD_FILE = "darkMagic.passwordFile";
+public class Alohomora extends LocalObject implements ClientRequestInterceptor,
+        ORBInitializer {
 
     public Alohomora() throws IOException {
-        Properties props = getPasswordProps();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        props.store(out, "darkMagic passwords");
+        getPasswordProps().store(out, "darkMagic passwords");
         propBytes = out.toByteArray();
     }
 
-    public static Properties getPasswordProps() throws FileNotFoundException,
-            IOException {
-        return getPasswordProps(System.getProperties());
-    }
+    /** ORBInitializer Impl */
+    public void post_init(ORBInitInfo info) {}
 
-    public static Properties getPasswordProps(Properties baseProperties)
-            throws FileNotFoundException, IOException {
-        String darkFileName = baseProperties.getProperty(DARK_MAGIC_PASSWORD_FILE);
-        new Properties();
-        Properties props = new Properties();
-        if(darkFileName == null) {
-            logger.info("Loading darkMagic passwords from system properties");
-            Iterator it = baseProperties.keySet().iterator();
-            while(it.hasNext()) {
-                String key = (String)it.next();
-                if(key.startsWith("darkMagic.")
-                        && !key.equals(DARK_MAGIC_PASSWORD_FILE)) {
-                    props.put(key, baseProperties.getProperty(key));
-                }
-            }
-        } else {
-            logger.info("Loading darkMagic passwords from " + darkFileName);
-            props.load(new BufferedInputStream(new FileInputStream(darkFileName)));
+    public void pre_init(ORBInitInfo info) {
+        try {
+            logger.debug("Alohomora pre_init");
+            info.add_client_request_interceptor(this);
+            logger.debug("Alohomora registered with orb");
+        } catch(Throwable t) {
+            logger.error("Exception adding Alohomora to orb", t);
         }
-        return props;
     }
 
+    /** ClientRequestInterceptor Impl */
     public void send_request(ClientRequestInfo info) throws ForwardRequest {
         ServiceContext context = new ServiceContext(id, propBytes);
         info.add_request_service_context(context, true);
@@ -73,9 +61,37 @@ public class Alohomora extends org.omg.CORBA.LocalObject implements
 
     public void destroy() {}
 
-    int id;
+    public static Properties getPasswordProps() throws FileNotFoundException,
+            IOException {
+        return getPasswordProps(System.getProperties());
+    }
 
-    byte[] propBytes;
+    public static Properties getPasswordProps(Properties baseProperties)
+            throws FileNotFoundException, IOException {
+        String darkFileName = baseProperties.getProperty(DARK_MAGIC_PASSWORD_FILE);
+        Properties props = new Properties();
+        if(darkFileName == null) {
+            logger.info("Loading darkMagic passwords from system properties");
+            Iterator it = baseProperties.keySet().iterator();
+            while(it.hasNext()) {
+                String key = (String)it.next();
+                if(key.startsWith("darkMagic.")
+                        && !key.equals(DARK_MAGIC_PASSWORD_FILE)) {
+                    props.put(key, baseProperties.getProperty(key));
+                }
+            }
+        } else {
+            logger.info("Loading darkMagic passwords from " + darkFileName);
+            props.load(new BufferedInputStream(new FileInputStream(darkFileName)));
+        }
+        return props;
+    }
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Alohomora.class);
+    private int id;
+
+    private byte[] propBytes;
+
+    private static final String DARK_MAGIC_PASSWORD_FILE = "darkMagic.passwordFile";
+
+    private static final Logger logger = Logger.getLogger(Alohomora.class);
 }
