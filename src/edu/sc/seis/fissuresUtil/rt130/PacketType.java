@@ -238,13 +238,22 @@ public class PacketType {
     static {
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
+    
+    public MicroSecondDate getBeginTimeOfSeismogram(){
+        return begin_time_of_seismogram;
+    }
 
+    public void setBeginTimeOfSeismogram(MicroSecondDate newDate){
+        begin_time_of_seismogram = newDate;
+    }
+    
     protected String packetType, unitIdNumber;
 
     protected MicroSecondDate time;
 
-    protected MicroSecondDate begin_time_of_seismogram,
-            begin_time_of_first_packet, end_time_of_last_packet;
+    private MicroSecondDate begin_time_of_seismogram;
+    
+    protected MicroSecondDate begin_time_of_first_packet, end_time_of_last_packet;
 
     protected int experimentNumber, year, byteCount, packetSequence;
 

@@ -30,8 +30,8 @@ public class Append {
         seismogramData.number_of_samples = seismogramData.number_of_samples
                 + nextPacket.dP.numberOfSamples;
         // Update begin_time_of_seismogram is needed.
-        if(seismogramData.begin_time_of_seismogram == null) {
-            seismogramData.begin_time_of_seismogram = nextPacket.time;
+        if(seismogramData.getBeginTimeOfSeismogram() == null) {
+            seismogramData.setBeginTimeOfSeismogram(nextPacket.time);
         }
         // Update begin_time_of_first_packet.
         seismogramData.begin_time_of_first_packet = nextPacket.begin_time_of_first_packet;
