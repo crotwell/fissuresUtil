@@ -78,7 +78,7 @@ public class RT130ToLocalSeismogram {
         TimeSeriesDataSel timeSeriesDataSel = new TimeSeriesDataSel();
         timeSeriesDataSel.encoded_values(seismogramData.encoded_data);
         MicroSecondDate beginTimeOfSeismogram = LeapSecondApplier.applyLeapSecondCorrection(seismogramData.unitIdNumber,
-                                                                                            seismogramData.begin_time_of_seismogram);
+                                                                                            seismogramData.getBeginTimeOfSeismogram());
         return new LocalSeismogramImpl(ChannelIdUtil.toString(id),
                                        beginTimeOfSeismogram.getFissuresTime(),
                                        numPoints,
@@ -90,7 +90,7 @@ public class RT130ToLocalSeismogram {
 
     private Channel[] createChannel(PacketType seismogramData) {
         return chanCreator.create(seismogramData.unitIdNumber,
-                                  seismogramData.begin_time_of_seismogram,
+                                  seismogramData.getBeginTimeOfSeismogram(),
                                   "" + seismogramData.data_stream_number,
                                   seismogramData.sample_rate);
     }

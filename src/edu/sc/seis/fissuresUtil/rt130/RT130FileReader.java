@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +170,7 @@ public class RT130FileReader {
                 && dataPacket.packetType.equals("DT")) {
             seismogramData = new PacketType(dataPacket);
             seismogramData.dP.dataFrames = new byte[0];
-            seismogramData.begin_time_of_seismogram = dataPacket.begin_time_of_first_packet;
+            seismogramData.setBeginTimeOfSeismogram(dataPacket.begin_time_of_first_packet);
             seismogramData.end_time_of_last_packet = dataPacket.begin_time_of_first_packet;
             logger.warn("The Event Header Packet for channel "
                     + seismogramData.channel_number + " was missing "
@@ -217,7 +216,7 @@ public class RT130FileReader {
 
     private void resetSeismogramData(PacketType seismogramData,
                                      PacketType nextPacket) {
-        seismogramData.begin_time_of_seismogram = nextPacket.time;
+        seismogramData.setBeginTimeOfSeismogram(nextPacket.time);
         seismogramData.end_time_of_last_packet = nextPacket.time;
         seismogramData.number_of_samples = 0;
         seismogramData.encoded_data = new EncodedData[0];
@@ -247,7 +246,7 @@ public class RT130FileReader {
 
     private boolean processData;
 
-    private String firstFileLoc, dataFileLoc;
+    private String dataFileLoc;
 
     private DataInput seismogramDataInputStream;
 

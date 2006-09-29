@@ -64,8 +64,11 @@ public class RT130FileHandler {
         TimeInterval nominalLengthOfData = new TimeInterval(new QuantityImpl(Double.valueOf(pp.getString("nominalLengthOfData"))
                                                                                      .doubleValue(),
                                                                              UnitImpl.MILLISECOND));
+        TimeInterval acceptableLengthOfData = new TimeInterval(nominalLengthOfData.value
+                                                                       + (nominalLengthOfData.value * 0.05),
+                                                               UnitImpl.MILLISECOND);
         MicroSecondDate beginTime = getBeginTime(file, unitIdNumber);
-        MicroSecondDate nominalEndTime = beginTime.add(nominalLengthOfData);
+        MicroSecondDate nominalEndTime = beginTime.add(acceptableLengthOfData);
         MicroSecondTimeRange fileTimeWindow = new MicroSecondTimeRange(beginTime,
                                                                        nominalEndTime);
         Channel[] channel;
@@ -144,7 +147,10 @@ public class RT130FileHandler {
         TimeInterval nominalLengthOfData = new TimeInterval(new QuantityImpl(Double.valueOf(pp.getString("nominalLengthOfData"))
                                                                                      .doubleValue(),
                                                                              UnitImpl.MILLISECOND));
-        MicroSecondDate endTime = beginTime.add(nominalLengthOfData);
+        TimeInterval acceptableLengthOfData = new TimeInterval(nominalLengthOfData.value
+                                                                       + (nominalLengthOfData.value * 0.05),
+                                                               UnitImpl.MILLISECOND);
+        MicroSecondDate endTime = beginTime.add(acceptableLengthOfData);
         MicroSecondTimeRange fileTimeWindow = new MicroSecondTimeRange(beginTime,
                                                                        endTime);
         TimeInterval seismogramTime = new TimeInterval(0, UnitImpl.MILLISECOND);

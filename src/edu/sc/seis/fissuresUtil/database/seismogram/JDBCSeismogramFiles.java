@@ -322,7 +322,7 @@ public class JDBCSeismogramFiles extends JDBCTable {
         MicroSecondDate fileBeginTime = FileNameParser.getBeginTime(yearAndDay,
                                                                     fileName);
         fileBeginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
-                                                                    beginTime);
+                                                                    fileBeginTime);
         // fileTimeWindow is calculated using the begin time from the file name
         // and end time from the request. This is not the typical, or an ideal
         // method. The typical method involves obtaining the begin time of the
