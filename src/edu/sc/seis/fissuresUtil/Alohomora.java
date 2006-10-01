@@ -43,7 +43,7 @@ public class Alohomora extends LocalObject implements ClientRequestInterceptor,
 
     /** ClientRequestInterceptor Impl */
     public void send_request(ClientRequestInfo info) throws ForwardRequest {
-        ServiceContext context = new ServiceContext(id, propBytes);
+        ServiceContext context = new ServiceContext(ID, propBytes);
         info.add_request_service_context(context, true);
     }
 
@@ -77,6 +77,7 @@ public class Alohomora extends LocalObject implements ClientRequestInterceptor,
                 String key = (String)it.next();
                 if(key.startsWith("darkMagic.")
                         && !key.equals(DARK_MAGIC_PASSWORD_FILE)) {
+                    logger.info("Adding password for " + key);
                     props.put(key, baseProperties.getProperty(key));
                 }
             }
@@ -87,9 +88,9 @@ public class Alohomora extends LocalObject implements ClientRequestInterceptor,
         return props;
     }
 
-    private int id;
-
     private byte[] propBytes;
+
+    public static final int ID = 3948;
 
     private static final String DARK_MAGIC_PASSWORD_FILE = "darkMagic.passwordFile";
 
