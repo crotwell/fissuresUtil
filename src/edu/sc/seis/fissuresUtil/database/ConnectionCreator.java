@@ -76,7 +76,7 @@ public class ConnectionCreator {
     public static Properties loadDbProperties(String[] args) {
         return loadDbProperties(loadDbPropsFromArgProps(args));
     }
-    
+
     public static Properties loadDbProperties(Properties propsFromArgs) {
         Properties dbProps = loadDbPropsFromHSQLProps();
         dbProps.putAll(propsFromArgs);
@@ -116,17 +116,14 @@ public class ConnectionCreator {
 
     public static Properties loadDbPropsFromArgProps(String[] args) {
         Properties dbProperties = new Properties();
-        for(int i = 0; i < args.length - 1; i++) {
-            if(args[i].equals("-props")) {
-                System.out.println("Loading db props");
-                try {
-                    Initializer.loadProps(new FileInputStream(args[i + 1]),
-                                          dbProperties);
-                } catch(FileNotFoundException e) {
-                    logger.error("Unable to find file " + args[i + 1]
-                            + " specified by -props");
-                }
-            }
+        System.out.println("Loading db props");
+        try {
+            Initializer.loadProperties(args, dbProperties);
+        } catch(FileNotFoundException e) {
+            logger.error("Unable to find specified props file: "
+                    + e.getMessage());
+        } catch(IOException e) {
+            logger.error("Trouble reading from props file: " + e.getMessage());
         }
         return dbProperties;
     }
