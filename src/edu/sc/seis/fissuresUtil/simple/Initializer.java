@@ -1,12 +1,7 @@
-/**
- * AbstractClient.java
- * 
- * @author Created by Omnicore CodeGuide
- */
 package edu.sc.seis.fissuresUtil.simple;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.log4j.Logger;
@@ -16,7 +11,6 @@ import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.AllVTFactory;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public abstract class Initializer {
@@ -24,7 +18,12 @@ public abstract class Initializer {
     public static void init(String[] args) {
         synchronized(initLock) {
             if(fisName == null) {
-                props = loadProperties(args);
+                try {
+                    props = loadProperties(args);
+                } catch(IOException e) {
+                    System.err.println("Using props as the props file can't be loaded: "
+                            + e.getMessage());
+                }
                 /** Configure log4j, not required for DHI, but is useful. */
                 // BasicConfigurator.configure();
                 PropertyConfigurator.configure(props);
@@ -73,20 +72,35 @@ public abstract class Initializer {
         logger.info("register valuetype factories");
     }
 
-    public static Properties loadProperties(String[] args) {
-        String propFilename;
-        Properties sysProps = System.getProperties();
+    // DESPAIR at the VERY THOUGHT of stumping APOP(Advanced Prop Option Parser)
+    // Actually, despair that you have reached this juncture where 7 equivalent
+    // options are accepted
+    public static final String[] POSSIBLE_PROP_OPTION_NAMES = new String[] {"-p",
+                                                                            "-props",
+                                                                            "-prop",
+                                                                            "-properties",
+                                                                            "--prop",
+                                                                            "--props",
+                                                                            "--properties"};
+
+    public static Properties loadProperties(String[] args) throws IOException {
+        return loadProperties(args, System.getProperties());
+    }
+
+    public static Properties loadProperties(String[] args, Properties baseProps)
+            throws IOException {
         for(int i = 0; i < args.length - 1; i++) {
-            if(args[i].equals("-props") || args[i].equals("-p")) {
-                propFilename = args[i + 1];
-                try {
-                    loadProps(new FileInputStream(propFilename), sysProps);
-                } catch(FileNotFoundException f) {
-                    System.err.println(" file missing " + f + " using defaults");
+            for(int j = 0; j < POSSIBLE_PROP_OPTION_NAMES.length; j++) {
+                String propFilename = args[i + 1];
+                if(args[i].equals(POSSIBLE_PROP_OPTION_NAMES[j])) {
+                    // override with values in local directory,
+                    // but still load defaults with original name
+                    loadProps(new FileInputStream(propFilename), baseProps);
+                    System.out.println("loaded props file from " + args[i + 1]);
                 }
             }
         }
-        return sysProps;
+        return baseProps;
     }
 
     public static org.omg.CORBA_2_3.ORB getORB() {
@@ -105,14 +119,10 @@ public abstract class Initializer {
         return props;
     }
 
-    public static void loadProps(InputStream propStream, Properties baseProps) {
-        try {
-            baseProps.load(propStream);
-            propStream.close();
-        } catch(Exception f) {
-            GlobalExceptionHandler.handle("Problem loading props!", f);
-            System.exit(0);
-        }
+    public static void loadProps(InputStream propStream, Properties baseProps)
+            throws IOException {
+        baseProps.load(propStream);
+        propStream.close();
     }
 
     private static Properties props;

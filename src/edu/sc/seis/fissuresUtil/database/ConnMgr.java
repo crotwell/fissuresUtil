@@ -169,7 +169,11 @@ public class ConnMgr {
         Connection conn = DriverManager.getConnection(getURL(),
                                                       getUser(),
                                                       getPass());
-        if(firstConnection && getURL().startsWith("jdbc:hsql") && conn.getMetaData().getDatabaseProductVersion().compareTo("1.8.0") >= 0) {
+        if(firstConnection
+                && getURL().startsWith("jdbc:hsql")
+                && conn.getMetaData()
+                        .getDatabaseProductVersion()
+                        .compareTo("1.8.0") >= 0) {
             Statement stmt = conn.createStatement();
             try {
                 stmt.execute("SET PROPERTY \"hsqldb.default_table_type\" 'CACHED'");
@@ -233,6 +237,9 @@ public class ConnMgr {
                 } catch(FileNotFoundException e) {
                     logger.error("Unable to find file " + args[i + 1]
                             + " specified by -hsql");
+                } catch(IOException e) {
+                    logger.error("Error reading " + args[i + 1]
+                            + " specified by -hsql", e);
                 }
                 loadedFromArg = true;
             }
@@ -245,6 +252,8 @@ public class ConnMgr {
                 logger.debug("loaded props from server.properties in working directory");
             } catch(FileNotFoundException e) {
                 logger.debug("Didn't find default server.properties file");
+            } catch(IOException e) {
+                logger.error("Error reading default server.properties file", e);
             }
         }
         return dbProperties;

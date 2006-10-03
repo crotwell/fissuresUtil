@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -15,7 +16,7 @@ import edu.sc.seis.fissuresUtil.simple.Initializer;
  */
 public class RegisterMockWithNS {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Properties props = Initializer.loadProperties(args);
         // configure logging from properties...
         PropertyConfigurator.configure(props);
