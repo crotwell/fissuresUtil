@@ -153,15 +153,23 @@ public class JDBCChannel extends NetworkTable {
 
     public Channel[] getAllChannels(StationId station) throws NotFound,
             SQLException {
-        int stationId = stationTable.getDBId(station);
-        getAllChansForStation.setInt(1, stationId);
+        return getAllChannelsForStation(stationTable.getDBId(station));
+    }
+
+    public Channel[] getAllChannelsForStation(int stationDbId) throws NotFound,
+            SQLException {
+        getAllChansForStation.setInt(1, stationDbId);
         return extractAllChans(getAllChansForStation);
     }
 
     public Channel[] getFirstChannel(StationId station) throws NotFound,
             SQLException {
-        int stationId = stationTable.getDBId(station);
-        getFirstChanForStation.setInt(1, stationId);
+        return getFirstChannelForStation(stationTable.getDBId(station));
+    }
+
+    public Channel[] getFirstChannelForStation(int stationDbId)
+            throws NotFound, SQLException {
+        getFirstChanForStation.setInt(1, stationDbId);
         return extractAllChans(getFirstChanForStation);
     }
 
