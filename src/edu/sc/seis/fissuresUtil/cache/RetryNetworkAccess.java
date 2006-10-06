@@ -36,12 +36,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public ChannelId[] retrieve_grouping(ChannelId id) throws ChannelNotFound {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_grouping(id);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -56,12 +56,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public Station[] retrieve_stations() {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_stations();
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -76,7 +76,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public Channel[] retrieve_for_station(StationId id) {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 if (count != 0) {
                     logger.info("before retrieve_for_station after failure "+count+" of "+retry);
@@ -99,12 +99,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public AuditElement[] get_audit_trail_for_channel(ChannelId id) throws ChannelNotFound, NotImplemented {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.get_audit_trail_for_channel(id);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -119,12 +119,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public TimeCorrection[] retrieve_time_corrections(ChannelId id, TimeRange time_range) throws ChannelNotFound, NotImplemented {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_time_corrections(id, time_range);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -139,7 +139,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public NetworkAttr get_attributes() {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.get_attributes();
             } catch (SystemException t) {
@@ -158,12 +158,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public ChannelId[][] retrieve_groupings() {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_groupings();
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -178,12 +178,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time) throws ChannelNotFound {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_instrumentation(id, the_time);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -198,12 +198,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public AuditElement[] get_audit_trail() throws NotImplemented {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.get_audit_trail();
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -218,12 +218,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public Channel retrieve_channel(ChannelId id) throws ChannelNotFound {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_channel(id);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -238,12 +238,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public Channel[] locate_channels(Area the_area, SamplingRange sampling, OrientationRange orientation) {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.locate_channels(the_area, sampling, orientation);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -258,12 +258,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public ChannelId[] retrieve_all_channels(int seq_max, ChannelIdIterHolder iter) {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_all_channels(seq_max, iter);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -278,12 +278,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     public Calibration[] retrieve_calibrations(ChannelId id, TimeRange the_time)throws ChannelNotFound, NotImplemented {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_calibrations(id, the_time);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -301,12 +301,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         throws ChannelNotFound {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return net.retrieve_channels_by_code(station_code, site_code, channel_code);
             } catch (SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+                logMessage(count, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch (OutOfMemoryError e) {
@@ -316,6 +316,14 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
             count++;
         }
         throw lastException;
+    }
+    
+    private void logMessage(int count, SystemException t) {
+        if (retry != -1) {
+            logger.warn("Caught exception, retrying "+count+" of "+retry, t);
+        } else {
+            logger.warn("Caught exception, retrying "+count+" of infinity", t);
+        }
     }
 
     private int retry;

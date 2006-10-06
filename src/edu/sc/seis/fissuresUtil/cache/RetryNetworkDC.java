@@ -27,7 +27,7 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
     public NetworkExplorer a_explorer() {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return netDC.a_explorer();
             } catch (SystemException t) {
@@ -47,7 +47,7 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
     public NetworkFinder a_finder() {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        while (count < retry || retry == -1) {
             try {
                 return netDC.a_finder();
             } catch (SystemException t) {
