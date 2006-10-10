@@ -19,7 +19,6 @@ import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
-import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.JDBCQuantity;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
@@ -75,17 +74,17 @@ public class JDBCChannel extends NetworkTable {
         return (ChannelId[])aList.toArray(new ChannelId[aList.size()]);
     }
 
-    public Channel[] extractAllChans(PreparedStatement query)
+    public DBChannel[] extractAllChans(PreparedStatement query)
             throws SQLException, NotFound {
         ResultSet rs = query.executeQuery();
         List aList = new ArrayList();
         while(rs.next()) {
             aList.add(extract(rs, siteTable, time, quantityTable));
         }
-        return (Channel[])aList.toArray(new Channel[aList.size()]);
+        return (DBChannel[])aList.toArray(new DBChannel[aList.size()]);
     }
 
-    public Channel get(ChannelId id) throws SQLException, NotFound {
+    public DBChannel get(ChannelId id) throws SQLException, NotFound {
         return get(getDBId(id));
     }
 
@@ -98,7 +97,7 @@ public class JDBCChannel extends NetworkTable {
         throw new NotFound("No ChannelId found for database id = " + dbid);
     }
 
-    public Channel get(int dbid) throws SQLException, NotFound {
+    public DBChannel get(int dbid) throws SQLException, NotFound {
         getByDBId.setInt(1, dbid);
         ResultSet rs = getByDBId.executeQuery();
         if(rs.next()) {
@@ -140,43 +139,43 @@ public class JDBCChannel extends NetworkTable {
         return extractAllChanIds(getAllIdsForSite);
     }
 
-    public Channel[] getAllChannels() throws NotFound, SQLException {
+    public DBChannel[] getAllChannels() throws NotFound, SQLException {
         return extractAllChans(getAllChans);
     }
 
-    public Channel[] getAllChannels(NetworkId network) throws NotFound,
+    public DBChannel[] getAllChannels(NetworkId network) throws NotFound,
             SQLException {
         int net_id = netTable.getDbId(network);
         getAllChansForNetwork.setInt(1, net_id);
         return extractAllChans(getAllChansForNetwork);
     }
 
-    public Channel[] getAllChannels(StationId station) throws NotFound,
+    public DBChannel[] getAllChannels(StationId station) throws NotFound,
             SQLException {
         return getAllChannelsForStation(stationTable.getDBId(station));
     }
 
-    public Channel[] getAllChannelsForStation(int stationDbId) throws NotFound,
-            SQLException {
+    public DBChannel[] getAllChannelsForStation(int stationDbId)
+            throws NotFound, SQLException {
         getAllChansForStation.setInt(1, stationDbId);
         return extractAllChans(getAllChansForStation);
     }
 
-    public Channel[] getFirstChannel(StationId station) throws NotFound,
+    public DBChannel[] getFirstChannel(StationId station) throws NotFound,
             SQLException {
         return getFirstChannelForStation(stationTable.getDBId(station));
     }
 
-    public Channel[] getFirstChannelForStation(int stationDbId)
+    public DBChannel[] getFirstChannelForStation(int stationDbId)
             throws NotFound, SQLException {
         getFirstChanForStation.setInt(1, stationDbId);
         return extractAllChans(getFirstChanForStation);
     }
 
-    public Channel[] getByCode(NetworkId networkId,
-                               String station_code,
-                               String site_code,
-                               String channel_code) throws SQLException,
+    public DBChannel[] getByCode(NetworkId networkId,
+                                 String station_code,
+                                 String site_code,
+                                 String channel_code) throws SQLException,
             NotFound {
         int net_id = netTable.getDbId(networkId);
         int index = 1;
@@ -357,14 +356,14 @@ public class JDBCChannel extends NetworkTable {
 
     private JDBCTime time;
 
-    public Channel extract(ResultSet rs) throws SQLException, NotFound {
+    public DBChannel extract(ResultSet rs) throws SQLException, NotFound {
         return extract(rs, siteTable, time, quantityTable);
     }
 
-    public static Channel extract(ResultSet rs,
-                                  JDBCSite siteTable,
-                                  JDBCTime time,
-                                  JDBCQuantity quantityTable)
+    public static DBChannel extract(ResultSet rs,
+                                    JDBCSite siteTable,
+                                    JDBCTime time,
+                                    JDBCQuantity quantityTable)
             throws SQLException, NotFound {
         Orientation ori = new Orientation(rs.getFloat("chan_orientation_az"),
                                           rs.getFloat("chan_orientation_dip"));
@@ -372,13 +371,14 @@ public class JDBCChannel extends NetworkTable {
         Sampling sampling = new SamplingImpl(rs.getInt("chan_sampling_numpoints"),
                                              t);
         ChannelId id = extractId(rs, siteTable, time);
-        return new ChannelImpl(id,
-                               rs.getString("chan_name"),
-                               ori,
-                               sampling,
-                               new TimeRange(id.begin_time,
-                                             time.get(rs.getInt("chan_end_id"))),
-                               siteTable.get(rs.getInt("site_id")));
+        return new DBChannel(id,
+                             rs.getString("chan_name"),
+                             ori,
+                             sampling,
+                             new TimeRange(id.begin_time,
+                                           time.get(rs.getInt("chan_end_id"))),
+                             siteTable.get(rs.getInt("site_id")),
+                             rs.getInt("chan_id"));
     }
 
     public static ChannelId extractId(ResultSet rs,
