@@ -3,7 +3,6 @@ package edu.sc.seis.fissuresUtil.database;
 import java.sql.SQLException;
 import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
