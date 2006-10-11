@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -124,6 +126,7 @@ public class RT130Report {
         // top of the hierarchy, instead of channels being at the top.
         RT130ReportFactory factory = new RT130ReportFactory(channelIdWithTime,
                                                             channelIdStringToChannelId);
+        int numStations = 0;
         TaskSeries taskSeries = new TaskSeries("Stations");
         List stationDataSummaryList = factory.getSortedStationDataSummaryList();
         Iterator it = stationDataSummaryList.iterator();
@@ -140,11 +143,12 @@ public class RT130Report {
                                          chanTime.getBeginTime(),
                                          chanTime.getEndTime()));
             }
+            numStations++;
             taskSeries.add(task);
         }
         TaskSeriesCollection dataset = new TaskSeriesCollection();
         dataset.add(taskSeries);
-        JFreeChart chart = ChartFactory.createGanttChart("RT130 Report",
+        JFreeChart chart = ChartFactory.createGanttChart(getCurrentDate() + " RT130 Report",
                                                          "Station",
                                                          "Time",
                                                          dataset,
@@ -155,7 +159,7 @@ public class RT130Report {
         final CategoryItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesPaint(0, Color.PINK);
         renderer.setOutlinePaint(Color.BLACK);
-        printChartToPDF(chart, 1600, 1200, "RT130Report.pdf");
+        printChartToPDF(chart, 1600, (numStations * 25) + 100, getCurrentDate() + " RT130Report.pdf");
     }
 
     private void printChartToPDF(JFreeChart chart,
@@ -190,7 +194,7 @@ public class RT130Report {
     private void printReport() {
         FileWriter report = null;
         try {
-            report = new FileWriter("RT130Report.log");
+            report = new FileWriter(getCurrentDate() + " RT130Report.log");
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -355,6 +359,12 @@ public class RT130Report {
         return (String)channelIdToIdString.get(channelId);
     }
 
+    private String getCurrentDate(){
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        java.util.Date date = new java.util.Date();
+        return dateFormat.format(date);
+    }
+    
     private RT130ReportFactory reportFactory;
 
     private int numSacFiles, numMSeedFiles, numRefTekEntries;
