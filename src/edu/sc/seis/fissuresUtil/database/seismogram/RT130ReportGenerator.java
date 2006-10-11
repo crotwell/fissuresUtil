@@ -188,7 +188,6 @@ public class RT130ReportGenerator {
         System.out.println();
         System.out.println("    -props     | Accepts alternate properties file.");
         System.out.println("    -hsql      | Accepts alternate database properties file.");
-        System.out.println("    -f         | Accepts alternate data directory.");
         System.out.println("    -full      | Turn on full processing of RT130 data.");
         System.out.println("    -scan      | Turn on scan processing of RT130 data.");
         System.out.println("               |   Scan processing of RT130 data is on by default.");
