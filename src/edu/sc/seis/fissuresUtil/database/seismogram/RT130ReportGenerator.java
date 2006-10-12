@@ -38,6 +38,7 @@ public class RT130ReportGenerator {
         PropertyConfigurator.configure(props);
         boolean finished = false;
         RT130FileHandlerFlag scanMode = RT130FileHandlerFlag.SCAN;
+        String reportName = null;
         int i;
         for(i = 0; i < args.length; i++) {
             if(args[i].equals("-props")) {
@@ -48,6 +49,8 @@ public class RT130ReportGenerator {
                 scanMode = RT130FileHandlerFlag.SCAN;
             } else if(args[i].equals("-h") || args[i].equals("-help")) {
                 printHelp();
+            } else if(args[i].equals("-n") || args[i].equals("-name")) {
+                reportName = args[++i];
             } else if(args[i].equals("-progress")) {
                 showProgress = true;
             } else if(args[i].startsWith("-")) {
@@ -100,7 +103,7 @@ public class RT130ReportGenerator {
             System.out.println();
             System.out.println("Report generation complete.");
             System.out.println();
-            fileHandler.getReport().outputReport();
+            fileHandler.getReport().outputReport(reportName);
         } else {
             printHelp();
         }
@@ -188,12 +191,15 @@ public class RT130ReportGenerator {
         System.out.println();
         System.out.println("    -props     | Accepts alternate properties file.");
         System.out.println("    -hsql      | Accepts alternate database properties file.");
+        System.out.println("    -name      | Accepts alternate report name.");
+        System.out.println("               |   The default name is in the format yyyy-mm-dd_RT130Report.");
+        System.out.println("    -n         | See: -name");
         System.out.println("    -full      | Turn on full processing of RT130 data.");
         System.out.println("    -scan      | Turn on scan processing of RT130 data.");
         System.out.println("               |   Scan processing of RT130 data is on by default.");
         System.out.println("               |   No other types of data can be processed using scan method.");
         System.out.println("    -help      | Displays this message.");
-        System.out.println("    -h         | Displays this message.");
+        System.out.println("    -h         | See: -help");
         System.out.println("    -progress  | Show percentage complete.");
         System.out.println();
         System.out.println();
