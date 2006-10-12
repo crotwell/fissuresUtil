@@ -66,7 +66,7 @@ public class OrientationUtil {
     }
 
     public static Orientation getEast() {
-        return new Orientation(0, 90);
+        return new Orientation(90, 0);
     }
 
     public static Orientation flip(Orientation orient) {
