@@ -116,12 +116,18 @@ public class RT130Report {
         this.numSacFiles++;
     }
 
-    public void outputReport() {
-        printReport();
-        makeReportImage();
+    public void outputReport(String reportName) {
+        String name;
+        if(reportName == null){
+            name = getCurrentDate() + "_RT130Report";
+        } else {
+            name = reportName;
+        }
+        printReport(name);
+        makeReportImage(name);
     }
 
-    private void makeReportImage() {
+    private void makeReportImage(String reportName) {
         // ReportFactory is used to organize the data with station codes at the
         // top of the hierarchy, instead of channels being at the top.
         RT130ReportFactory factory = new RT130ReportFactory(channelIdWithTime,
@@ -148,7 +154,7 @@ public class RT130Report {
         }
         TaskSeriesCollection dataset = new TaskSeriesCollection();
         dataset.add(taskSeries);
-        JFreeChart chart = ChartFactory.createGanttChart(getCurrentDate() + " RT130 Report",
+        JFreeChart chart = ChartFactory.createGanttChart(reportName,
                                                          "Station",
                                                          "Time",
                                                          dataset,
@@ -159,7 +165,7 @@ public class RT130Report {
         final CategoryItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesPaint(0, Color.PINK);
         renderer.setOutlinePaint(Color.BLACK);
-        printChartToPDF(chart, 1600, (numStations * 25) + 100, getCurrentDate() + " RT130Report.pdf");
+        printChartToPDF(chart, 1600, (numStations * 25) + 100, reportName + ".pdf");
     }
 
     private void printChartToPDF(JFreeChart chart,
@@ -191,10 +197,10 @@ public class RT130Report {
         }
     }
 
-    private void printReport() {
+    private void printReport(String reportName) {
         FileWriter report = null;
         try {
-            report = new FileWriter(getCurrentDate() + " RT130Report.log");
+            report = new FileWriter(reportName + ".log");
         } catch(IOException e) {
             e.printStackTrace();
         }
