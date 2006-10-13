@@ -8,15 +8,16 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 
 public class NSNetworkFinder extends ProxyNetworkFinder {
 
-    public NSNetworkFinder(ProxyNetworkDC netDC) {
+    public NSNetworkFinder(ProxyNetworkDC netDC, int numRetry) {
         super();
         this.netDC = netDC;
+        this.numRetry = numRetry;
     }
 
     private synchronized ProxyNetworkFinder getFinder() {
         if(finder == null) {
             finder = new RetryNetworkFinder(new SynchronizedNetworkFinder(netDC.a_finder()),
-                                            3);
+                                            numRetry);
         }
         return finder;
     }
@@ -76,7 +77,7 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
      */
     public void reset() {
         netDC.reset();
-        if(finder != null){
+        if(finder != null) {
             finder._release();
         }
         finder = null;
@@ -95,4 +96,6 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
     ProxyNetworkDC netDC;
 
     private ProxyNetworkFinder finder;
+
+    private int numRetry;
 }

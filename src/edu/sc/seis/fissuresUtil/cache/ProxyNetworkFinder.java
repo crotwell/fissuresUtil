@@ -78,8 +78,9 @@ public abstract class ProxyNetworkFinder implements NetworkFinder {
     public void _release() {
         if(hasCorbaObject()) {
             getCorbaObject()._release();
-        }
+        }else{
         throw new NO_IMPLEMENT();
+        }
     }
 
     public boolean _non_existent() {
