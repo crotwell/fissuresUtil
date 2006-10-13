@@ -90,7 +90,7 @@ public class DatabasePopulationReportTest extends TestCase {
         report.addRefTekSeismogram(channel1, beginTime2.getDate(), endTime2.getDate());
         report.addRefTekSeismogram(channel2, beginTime1.getDate(), endTime1.getDate());
         report.addRefTekSeismogram(channel2, beginTime3.getDate(), endTime3.getDate());
-        report.outputReport();
+        report.outputReport(null);
     }
 
     public void testMakeReportImage() {
@@ -118,7 +118,7 @@ public class DatabasePopulationReportTest extends TestCase {
         report.addRefTekSeismogram(channel1, beginTime2.getDate(), endTime2.getDate());
         report.addRefTekSeismogram(channel2, beginTime1.getDate(), endTime1.getDate());
         report.addRefTekSeismogram(channel2, beginTime3.getDate(), endTime3.getDate());
-        report.outputReport();
+        report.outputReport(null);
     }
 
     private RT130Report report;
