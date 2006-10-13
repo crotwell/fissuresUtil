@@ -7,7 +7,7 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     public VestingNetworkFinder(ProxyNetworkDC netDC, int numRetry) {
-        super(new NSNetworkFinder(netDC));
+        super(new NSNetworkFinder(netDC, numRetry));
         this.numRetry = numRetry;
     }
 

@@ -17,7 +17,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
         int count = 0;
         SystemException lastException = null;
-        while(count < retry) {
+        while(count < retry || retry == -1) {
             try {
                 return nf.retrieve_by_id(id);
             } catch(SystemException t) {
@@ -37,7 +37,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
     public NetworkAccess[] retrieve_by_code(String code) throws NetworkNotFound {
         int count = 0;
         SystemException lastException = null;
-        while(count < retry) {
+        while(count < retry || retry == -1) {
             try {
                 return nf.retrieve_by_code(code);
             } catch(SystemException t) {
@@ -57,7 +57,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
     public NetworkAccess[] retrieve_by_name(String name) throws NetworkNotFound {
         int count = 0;
         SystemException lastException = null;
-        while(count < retry) {
+        while(count < retry || retry == -1) {
             try {
                 return nf.retrieve_by_name(name);
             } catch(SystemException t) {
@@ -77,7 +77,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
     public NetworkAccess[] retrieve_all() {
         int count = 0;
         SystemException lastException = null;
-        while(count < retry) {
+        while(count < retry || retry == -1) {
             try {
                 return nf.retrieve_all();
             } catch(SystemException t) {
