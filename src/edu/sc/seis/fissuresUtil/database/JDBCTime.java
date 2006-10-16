@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 /**
  * JDBCTime.java
@@ -23,10 +24,9 @@ public class JDBCTime extends JDBCTable{
 
     public JDBCTime(Connection conn) throws SQLException{
         super("time", conn);
+        TableSetup.setup(this,
+        "edu/sc/seis/fissuresUtil/database/props/default.props");
         seq = new JDBCSequence(conn, "TimeSeq");
-        if(!DBUtil.tableExists("time", conn)){
-            conn.createStatement().executeUpdate(ConnMgr.getSQL("time.create"));
-        }
         getById = conn.prepareStatement("SELECT * FROM time WHERE time_id = ?");
         put = conn.prepareStatement("INSERT INTO time " +
                                         "(time_id, time_stamp, time_nanos, time_leapsec) " +
