@@ -32,4 +32,5 @@ time.create=CREATE TABLE time (time_id int, \
                                time_nanos int, \
                                time_leapsec int, \
                                PRIMARY KEY (time_id))
+time.index_time_stamp=create index time_stamp_idx on time (time_stamp)
 
