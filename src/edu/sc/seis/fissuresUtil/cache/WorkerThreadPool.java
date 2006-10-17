@@ -36,7 +36,7 @@ public class WorkerThreadPool {
     private void fillPool() {
         int numNewThreads = poolSize - tg.activeCount();
         for(int i = 0; i < numNewThreads; i++) {
-            BackgroundWorker bw = new BackgroundWorker(tg, ""
+            BackgroundWorker bw = new BackgroundWorker(tg, tg.getName()+" "
                     + totalNumCreated++, tg.getMaxPriority());
             idle.add(bw);
             bw.start();
