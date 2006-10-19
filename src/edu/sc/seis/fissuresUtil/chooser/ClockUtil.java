@@ -6,16 +6,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-import org.apache.log4j.Category;
 import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
@@ -28,9 +22,7 @@ public class ClockUtil {
 
     /**
      * Calculates the difference between the CPU clock and the time retreived
-     * from the server. This uses a simple cgi-bin script located at
-     * http://www.seis.sc.edu/cgi-bin/date_time.pl. The URL can be overridden
-     * with the setTimeURL method.
+     * from the http://www.seis.sc.edu/cgi-bin/date_time.pl. 
      */
     public static TimeInterval getTimeOffset() {
         if(serverOffset == null) {
@@ -45,7 +37,7 @@ public class ClockUtil {
                     GlobalExceptionHandler.handle("Unable to check the time from the server and the computer's clock is obviously wrong. Please reset the clock on your computer to be closer to real time. \nComputer Time="
                                                           + localNow
                                                           + "\nTime checking url="
-                                                          + getTimeURL(),
+                                                          + SEIS_SC_EDU_URL,
                                                   e);
                 }
                 return ZERO_OFFSET;
@@ -67,26 +59,8 @@ public class ClockUtil {
         return now().add(ONE_DAY);
     }
 
-    /**
-     * Sets the URL used to get a time. The format of the string returned from
-     * the URL must correspond to the form at
-     * http://www.seis.sc.edu/cgi-bin/date_time.pl.
-     */
-    public static void setTimeURL(URL newTimeURL) {
-        timeURL = newTimeURL;
-        serverOffset = null;
-    }
-
-    public static URL getTimeURL() {
-        return timeURL;
-    }
-
     public static TimeInterval getServerTimeOffset() throws IOException {
-        if(timeURL == null) {
-            setTimeURL(SEIS_SC_EDU_URL);
-        } // end of if ()
-        URL url = timeURL;
-        InputStream is = url.openStream();
+        InputStream is = SEIS_SC_EDU_URL.openStream();
         InputStreamReader isReader = new InputStreamReader(is);
         BufferedReader bufferedReader = new BufferedReader(isReader);
         String str;
@@ -99,35 +73,7 @@ public class ClockUtil {
         if(timeStr != null) {
             serverTime = new edu.iris.Fissures.Time(timeStr, -1);
         }
-        MicroSecondDate serverDate = new MicroSecondDate(serverTime);
-        TimeInterval offset = new TimeInterval(localTime, serverDate);
-        // assume small time
-        //if(java.lang.Math.abs(offset.value) < 2000000) offset = new
-        // TimeInterval(serverDate, serverDate);
-        return offset;
-    }
-
-    public static MicroSecondTimeRange today() {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTime(now());
-        MicroSecondDate start = new MicroSecondDate(new Date((cal.get(Calendar.YEAR) - 1900),
-                                                             cal.get(Calendar.MONTH),
-                                                             cal.get(Calendar.DAY_OF_MONTH),
-                                                             0,
-                                                             0,
-                                                             0));
-        MicroSecondDate end = new MicroSecondDate(new Date((cal.get(Calendar.YEAR) - 1900),
-                                                             cal.get(Calendar.MONTH),
-                                                             cal.get(Calendar.DAY_OF_MONTH),
-                                                             23,
-                                                             59,
-                                                             59));
-        MicroSecondTimeRange range = new MicroSecondTimeRange(start, end);
-        return range;
-    }
-    
-    public static Calendar getGMTCalendar() {
-        return new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        return new TimeInterval(localTime, new MicroSecondDate(serverTime));
     }
 
     private static boolean warnBadBadClock = false;
@@ -138,8 +84,6 @@ public class ClockUtil {
                                                                      UnitImpl.SECOND);
 
     private static URL SEIS_SC_EDU_URL;
-
-    private static Category logger = Category.getInstance(ClockUtil.class.getName());
     static {
         // we have to do this in a static block because of the exception
         try {
@@ -154,6 +98,4 @@ public class ClockUtil {
     private static MicroSecondDate OLD_DATE = new ISOTime("2004-04-01T00:00:00.000Z").getDate();
 
     private static TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
-
-    private static URL timeURL = null;
 } // ClockUtil

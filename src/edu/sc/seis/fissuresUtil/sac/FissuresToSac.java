@@ -222,7 +222,7 @@ public class FissuresToSac {
     }
     
     public static void setKZTime(SacTimeSeries sac, MicroSecondDate date) {
-        Calendar cal = ClockUtil.getGMTCalendar();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.setTime(date);
         sac.nzyear = cal.get(Calendar.YEAR);
         sac.nzjday = cal.get(Calendar.DAY_OF_YEAR);
