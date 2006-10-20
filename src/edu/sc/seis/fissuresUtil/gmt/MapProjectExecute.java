@@ -49,7 +49,7 @@ public class MapProjectExecute {
             return pixelLocs;
         } catch(NoSuchElementException e) {
             GlobalExceptionHandler.handle("problem translating points.  input was\n"
-                    + buf.toString());
+                    + buf.toString(), e);
         }
         throw new IOException("there was a problem using mapproject");
     }
