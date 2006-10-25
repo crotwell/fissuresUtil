@@ -108,6 +108,9 @@ public class RT130FileHandler {
                 return false;
             }
             if(lengthOfDataFromFileName.value != seismogramTime.value) {
+                System.out.println("File name: "
+                        + lengthOfDataFromFileName.value + " True length: "
+                        + seismogramTime.value);
                 reportBadName(file,
                               file.getName()
                                       + " seems to be an invalid rt130 file name."
@@ -188,7 +191,7 @@ public class RT130FileHandler {
                 seismogramTime = new TimeInterval(seis[i].getBeginTime(), end);
             }
         }
-        return seismogramTime;
+        return (TimeInterval)seismogramTime.convertTo(UnitImpl.MILLISECOND);
     }
 
     private void addToReport(Channel channel,
