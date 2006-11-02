@@ -39,12 +39,8 @@ public class MapProjectExecute {
         int[][] pixelLocs = new int[points.length][2];
         try {
             for(int i = 0; i < points.length; i++) {
-                String xString = tok.nextToken();
-                logger.debug("pixelLocs[" + i + "][0] will be " + xString);
-                String yString = tok.nextToken();
-                logger.debug("pixelLocs[" + i + "][1] will be " + yString);
-                pixelLocs[i][0] = (int)Double.parseDouble(xString);
-                pixelLocs[i][1] = (int)Double.parseDouble(yString);
+                pixelLocs[i][0] = (int)Double.parseDouble(tok.nextToken());
+                pixelLocs[i][1] = (int)Double.parseDouble(tok.nextToken());
             }
             return pixelLocs;
         } catch(NoSuchElementException e) {
