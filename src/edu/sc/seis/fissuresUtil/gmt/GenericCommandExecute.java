@@ -27,7 +27,10 @@ public class GenericCommandExecute {
                               OutputStream stdout,
                               OutputStream stderr) throws InterruptedException,
             IOException {
-        return execute(command, stdin, new OutputStreamWriter(stdout), new OutputStreamWriter(stderr));
+        return execute(command,
+                       stdin,
+                       new OutputStreamWriter(stdout),
+                       new OutputStreamWriter(stderr));
     }
 
     public static int execute(String command,
@@ -36,44 +39,47 @@ public class GenericCommandExecute {
                               Writer stderr) throws InterruptedException,
             IOException {
         Runtime rt = Runtime.getRuntime();
-        //System.out.println("executing command: " + command);
+        // System.out.println("executing command: " + command);
         Process proc = rt.exec(command);
         Reader reader = new InputStreamReader(proc.getInputStream());
-        //BufferedWriter writer = new BufferedWriter(stdout);
+        // BufferedWriter writer = new BufferedWriter(stdout);
         Writer inWriter = new OutputStreamWriter(proc.getOutputStream());
         Reader errReader = new InputStreamReader(proc.getErrorStream());
-        //BufferedWriter errWriter = new BufferedWriter(stderr);
+        // BufferedWriter errWriter = new BufferedWriter(stderr);
         StreamPump pump = new StreamPump(reader, stdout, false);
         pump.setName("stdout");
         pump.start();
         StreamPump errPump = new StreamPump(errReader, stderr, false);
         errPump.setName("stderr");
         errPump.start();
-        StreamPump stdInPump = new StreamPump(stdin,
-                                              inWriter,
-                                              true);
+        StreamPump stdInPump = new StreamPump(stdin, inWriter, true);
         stdInPump.setName("stdin");
         stdInPump.start();
         int exitVal = proc.waitFor();
-        //waiting for finish of StreamPump runs
+        // waiting for finish of StreamPump runs
         try {
             pump.join();
-        } catch (InterruptedException e) {
+        } catch(InterruptedException e) {
             // assume all is well???
         }
         try {
             errPump.join();
-        } catch (InterruptedException e) {
+        } catch(InterruptedException e) {
             // assume all is well???
         }
         try {
             stdInPump.join();
-        } catch (InterruptedException e) {
+        } catch(InterruptedException e) {
             // assume all is well???
         }
-        logger.info("command " + command + " returned exit value " + exitVal);
-        if(!pump.hasCompleted() || !errPump.hasCompleted()) { 
-            throw new IllegalStateException("Pumps must complete: stdout:"+pump.hasCompleted()+"  stderr:"+errPump.hasCompleted()+"  exitValue:"+exitVal);
+        if(exitVal != 0) {
+            logger.info("command " + command + " returned exit value "
+                    + exitVal);
+        }
+        if(!pump.hasCompleted() || !errPump.hasCompleted()) {
+            throw new IllegalStateException("Pumps must complete: stdout:"
+                    + pump.hasCompleted() + "  stderr:"
+                    + errPump.hasCompleted() + "  exitValue:" + exitVal);
         }
         return exitVal;
     }
@@ -89,6 +95,6 @@ public class GenericCommandExecute {
             e.printStackTrace();
         }
     }
-    
+
     private static Logger logger = Logger.getLogger(GenericCommandExecute.class);
 }
