@@ -289,28 +289,26 @@ public class FissuresToSac {
 		}
 		return new SacPoleZero(poles, zeros, constant);
 	}
-
+	
 	private static double calc_A0(Cmplx[] poles, Cmplx[] zeros, double ref_freq) {
 		int i;
-		Cmplx numer, denom, f0, hold;
+		Cmplx numer = ONE;
+		Cmplx denom = ONE;
+		Cmplx f0;
 		double a0;
 		f0 = new Cmplx(0, 2 * Math.PI * ref_freq);
-		hold = zeros[0];
-		denom = Cmplx.sub(f0, hold);
-		for (i = 1; i < zeros.length; i++) {
-			hold = zeros[i];
-			denom = Cmplx.mul(denom, Cmplx.sub(f0, hold));
+		for (i = 0; i < zeros.length; i++) {
+			denom = Cmplx.mul(denom, Cmplx.sub(f0, zeros[i]));
 		}
-		hold = poles[0];
-		numer = Cmplx.sub(f0, hold);
-		for (i = 1; i < poles.length; i++) {
-			hold = poles[i];
-			numer = Cmplx.mul(numer, Cmplx.sub(f0, hold));
+		for (i = 0; i < poles.length; i++) {
+			numer = Cmplx.mul(numer, Cmplx.sub(f0, poles[i]));
 		}
 		a0 = Cmplx.div(numer, denom).mag();
 		return a0;
 	}
 
-	UnitImpl DEFAULT_DEPTH_UNIT = UnitImpl.METER;
+	private static Cmplx ONE = new Cmplx(1,0);
+	
+	private UnitImpl DEFAULT_DEPTH_UNIT = UnitImpl.METER;
 
 }// FissuresToSac
