@@ -59,7 +59,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
                 dc.cancel_request(a_request);
             } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
+                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch(OutOfMemoryError e) {
@@ -96,7 +96,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
                                               expiration_time);
             } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
+                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch(OutOfMemoryError e) {
@@ -118,7 +118,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
                 return dc.retrieve_seismograms(a_filterseq);
             } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
+                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch(OutOfMemoryError e) {
@@ -140,7 +140,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
                 return dc.retrieve_queue(a_request);
             } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
+                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch(OutOfMemoryError e) {
@@ -161,7 +161,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
                 return dc.available_data(a_filterseq);
             } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
+                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch(OutOfMemoryError e) {
@@ -182,7 +182,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
                 return dc.request_status(a_request);
             } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
+                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch(OutOfMemoryError e) {
@@ -204,7 +204,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
                 return dc.queue_seismograms(a_filterseq);
             } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
+                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
                 BulletproofVestFactory.retrySleep(count);
                 reset();
             } catch(OutOfMemoryError e) {
