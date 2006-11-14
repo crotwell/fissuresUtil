@@ -6,11 +6,14 @@ import edu.iris.Fissures.IfNetwork.NetworkDC;
 
 public class NamedNetDC {
 
+    public static final String VECTOR = "Vector";
+    public static final String SINGLE_CHANNEL = "SingleChannel";
+
     public static NetworkDC create(String name) {
-        if(name.equals("SingleChannel")) {
+        if(name.equals(SINGLE_CHANNEL)) {
             return new SingleChannel();
-        }else if(name.equals("Vector")){
-        return new Vector();
+        } else if(name.equals(VECTOR)) {
+            return new Vector();
         }
         throw new RuntimeException("No mock net dc by the name of " + name
                 + " known");
