@@ -45,6 +45,20 @@ public abstract class ProxyNetworkAccess implements NetworkAccess {
         return net;
     }
 
+    public String getDNS() {
+        if(net instanceof ProxyNetworkAccess) {
+            return ((ProxyNetworkAccess)net).getDNS();
+        }
+        return null;
+    }
+
+    public String getName() {
+        if(net instanceof ProxyNetworkAccess) {
+            return ((ProxyNetworkAccess)net).getName();
+        }
+        return null;
+    }
+
     protected void setNetworkAccess(NetworkAccess na) {
         net = na;
     }
@@ -105,7 +119,7 @@ public abstract class ProxyNetworkAccess implements NetworkAccess {
 
     public Unit retrieve_final_units(ChannelId id, Time the_time)
             throws ChannelNotFound {
-        Stage[] stages = retrieve_instrumentation(id, the_time).the_response.stages; 
+        Stage[] stages = retrieve_instrumentation(id, the_time).the_response.stages;
         return stages[stages.length - 1].output_units;
     }
 

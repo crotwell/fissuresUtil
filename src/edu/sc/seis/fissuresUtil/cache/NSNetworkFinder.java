@@ -91,6 +91,14 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
         return getFinder().getCorbaObject();
     }
 
+    public String getDNS() {
+        return netDC.getServerDNS();
+    }
+
+    public String getName() {
+        return netDC.getServerName();
+    }
+
     private static Logger logger = Logger.getLogger(NSNetworkFinder.class);
 
     ProxyNetworkDC netDC;

@@ -58,6 +58,20 @@ public abstract class ProxyNetworkFinder implements NetworkFinder {
         } else if(!(nf instanceof ProxyNetworkFinder)) { return nf; }
         return null;
     }
+    
+    public String getName() {
+        if(nf instanceof ProxyNetworkFinder) {
+            return ((ProxyNetworkFinder)nf).getName();
+        }
+        return null;
+    }
+
+    public String getDNS() {
+        if(nf instanceof ProxyNetworkFinder) {
+            return ((ProxyNetworkFinder)nf).getDNS();
+        }
+        return null;
+    }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
         return nf.retrieve_by_id(id);

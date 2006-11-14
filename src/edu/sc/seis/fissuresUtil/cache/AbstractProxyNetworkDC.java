@@ -49,6 +49,20 @@ public abstract class AbstractProxyNetworkDC implements ProxyNetworkDC {
         }
     }
 
+    public String getServerName() {
+        if(netDC instanceof ProxyNetworkDC) {
+            return ((ProxyNetworkDC)netDC).getServerName();
+        }
+        return null;
+    }
+
+    public String getServerDNS() {
+        if(netDC instanceof ProxyNetworkDC) {
+            return ((ProxyNetworkDC)netDC).getServerDNS();
+        }
+        return null;
+    }
+
     public NetworkExplorer a_explorer() {
         return netDC.a_explorer();
     }

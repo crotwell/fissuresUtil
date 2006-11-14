@@ -7,7 +7,7 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 
-public interface ProxyNetworkDC extends NetworkDCOperations {
+public interface ProxyNetworkDC extends NetworkDCOperations, ServerNameDNS{
 
     /**
      * Returns the DataCenterOperations directly inside of this one

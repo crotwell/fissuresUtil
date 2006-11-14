@@ -55,4 +55,12 @@ public class NSNetworkAccess extends ProxyNetworkAccess {
     private VestingNetworkFinder vnf;
 
     private NetworkId id;
+
+    public String getDNS() {
+        return vnf.getDNS();
+    }
+
+    public String getName() {
+        return vnf.getName();
+    }
 }
