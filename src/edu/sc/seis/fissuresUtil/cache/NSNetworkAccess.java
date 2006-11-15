@@ -56,11 +56,11 @@ public class NSNetworkAccess extends ProxyNetworkAccess {
 
     private NetworkId id;
 
-    public String getDNS() {
-        return vnf.getDNS();
+    public String getServerDNS() {
+        return vnf.getServerDNS();
     }
 
-    public String getName() {
-        return vnf.getName();
+    public String getServerName() {
+        return vnf.getServerName();
     }
 }

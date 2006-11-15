@@ -32,6 +32,10 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
         return serverName;
     }
 
+    public String getServerType() {
+        return "EventDC";
+    }
+
     public synchronized void reset() {
         if(eventDC != null){
             ((org.omg.CORBA.Object)eventDC)._release();

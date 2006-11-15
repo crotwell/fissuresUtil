@@ -41,6 +41,10 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
         return serverName;
     }
 
+    public String getServerType() {
+        return SEISDC_TYPE;
+    }
+
     public synchronized void reset() {
         if(dc != null){
             dc._release();

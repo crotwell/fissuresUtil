@@ -22,7 +22,7 @@ import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.IfNetwork.TimeCorrection;
 
-public abstract class ProxyNetworkAccess implements NetworkAccess {
+public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWrapper {
 
     public ProxyNetworkAccess(NetworkAccess net) {
         this.net = net;
@@ -45,18 +45,22 @@ public abstract class ProxyNetworkAccess implements NetworkAccess {
         return net;
     }
 
-    public String getDNS() {
+    public String getServerDNS() {
         if(net instanceof ProxyNetworkAccess) {
-            return ((ProxyNetworkAccess)net).getDNS();
+            return ((ProxyNetworkAccess)net).getServerDNS();
         }
         return null;
     }
 
-    public String getName() {
+    public String getServerName() {
         if(net instanceof ProxyNetworkAccess) {
-            return ((ProxyNetworkAccess)net).getName();
+            return ((ProxyNetworkAccess)net).getServerName();
         }
         return null;
+    }
+    
+    public String getServerType(){
+        return NETACCESS_TYPE;
     }
 
     protected void setNetworkAccess(NetworkAccess na) {

@@ -28,7 +28,7 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
  * 
  * @author groves Created on Dec 2, 2004
  */
-public abstract class ProxyNetworkFinder implements NetworkFinder {
+public abstract class ProxyNetworkFinder implements NetworkFinder, CorbaServerWrapper{
 
     public ProxyNetworkFinder() {
         this(null);
@@ -59,18 +59,22 @@ public abstract class ProxyNetworkFinder implements NetworkFinder {
         return null;
     }
     
-    public String getName() {
+    public String getServerName() {
         if(nf instanceof ProxyNetworkFinder) {
-            return ((ProxyNetworkFinder)nf).getName();
+            return ((ProxyNetworkFinder)nf).getServerName();
         }
         return null;
     }
 
-    public String getDNS() {
+    public String getServerDNS() {
         if(nf instanceof ProxyNetworkFinder) {
-            return ((ProxyNetworkFinder)nf).getDNS();
+            return ((ProxyNetworkFinder)nf).getServerDNS();
         }
         return null;
+    }
+
+    public String getServerType() {
+        return NETFINDER_TYPE;
     }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {

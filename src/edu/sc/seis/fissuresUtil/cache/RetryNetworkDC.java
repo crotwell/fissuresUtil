@@ -20,53 +20,52 @@ import edu.iris.Fissures.IfNetwork.NetworkFinder;
 public class RetryNetworkDC extends AbstractProxyNetworkDC {
 
     public RetryNetworkDC(NetworkDCOperations netDC, int retry) {
+        this(netDC, retry, new ClassicRetryStrategy());
+    }
+
+    public RetryNetworkDC(NetworkDCOperations netDC,
+                          int retry,
+                          RetryStrategy handler) {
         super(netDC);
         this.retry = retry;
-    }
-
-    public NetworkExplorer a_explorer() {
-        int count = 0;
-        SystemException lastException = null;
-        while (count < retry || retry == -1) {
-            try {
-                return netDC.a_explorer();
-            } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
-                throw new RuntimeException("Out of memory", e);
-            }
-            count++;
-        }
-        throw lastException;
-    }
-
-    public NetworkFinder a_finder() {
-        int count = 0;
-        SystemException lastException = null;
-        while (count < retry || retry == -1) {
-            try {
-                return netDC.a_finder();
-            } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
-                throw new RuntimeException("Out of memory", e);
-            }
-            count++;
-        }
-        throw lastException;
+        this.handler = handler;
     }
 
     public int getNumRetry() {
         return retry;
     }
+
+    public NetworkExplorer a_explorer() {
+        int count = 0;
+        while(true) {
+            try {
+                return netDC.a_explorer();
+            } catch(SystemException t) {
+                if(!handler.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
+            } catch(OutOfMemoryError e) {
+                throw new RuntimeException("Out of memory", e);
+            }
+        }
+    }
+
+    public NetworkFinder a_finder() {
+        int count = 0;
+        while(true) {
+            try {
+                return netDC.a_finder();
+            } catch(SystemException t) {
+                if(!handler.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
+            } catch(OutOfMemoryError e) {
+                throw new RuntimeException("Out of memory", e);
+            }
+        }
+    }
+
+    private RetryStrategy handler;
 
     int retry;
 
