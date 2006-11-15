@@ -29,6 +29,11 @@ import edu.iris.Fissures.IfNetwork.TimeCorrection;
 public class RetryNetworkAccess extends ProxyNetworkAccess {
 
     public RetryNetworkAccess(NetworkAccess net,
+                              int retry){
+        this(net, retry, new ClassicRetryStrategy());
+    }
+
+    public RetryNetworkAccess(NetworkAccess net,
                               int retry,
                               RetryStrategy handler) {
         super(net);
