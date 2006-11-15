@@ -7,8 +7,15 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     public VestingNetworkFinder(ProxyNetworkDC netDC, int numRetry) {
-        super(new NSNetworkFinder(netDC, numRetry));
+        this(netDC, numRetry, new ClassicRetryStrategy());
+    }
+
+    public VestingNetworkFinder(ProxyNetworkDC netDC,
+                                int numRetry,
+                                RetryStrategy handler) {
+        super(new NSNetworkFinder(netDC, numRetry, handler));
         this.numRetry = numRetry;
+        this.handler = handler;
     }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
@@ -36,14 +43,17 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     }
 
     public NetworkAccess vest(NetworkAccess na) {
-        return vest(na, this, numRetry);
+        return vest(na, this, numRetry, handler);
     }
 
-    public static ProxyNetworkAccess vest(NetworkAccess na,
-                                          VestingNetworkFinder vnf,
-                                          int numRetry) {
+    private static ProxyNetworkAccess vest(NetworkAccess na,
+                                           VestingNetworkFinder vnf,
+                                           int numRetry,
+                                           RetryStrategy handler) {
         SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
-        RetryNetworkAccess retry = new RetryNetworkAccess(synch, numRetry);
+        RetryNetworkAccess retry = new RetryNetworkAccess(synch,
+                                                          numRetry,
+                                                          handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry);
         NetworkId id = cache.get_attributes().get_id();
         NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, vnf);
@@ -51,6 +61,8 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         cache.setNetworkAccess(retry);
         return cache;
     }
-    
+
     int numRetry;
+
+    private RetryStrategy handler;
 }

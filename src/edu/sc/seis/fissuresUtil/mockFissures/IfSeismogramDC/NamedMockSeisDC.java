@@ -7,9 +7,10 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class NamedMockSeisDC {
-	
-	public static final String SOMETIMES_AVAIL_UNKNOWN = "SometimesAvailUnknown";
-	private static AvailUnknown avUn = new AvailUnknown();
+
+    public static final String SOMETIMES_AVAIL_UNKNOWN = "SometimesAvailUnknown";
+
+    private static AvailUnknown avUn = new AvailUnknown();
 
     public static DataCenter create(String name) {
         if(name.equals("SometimesNoAvail")) {
@@ -62,8 +63,6 @@ public class NamedMockSeisDC {
 
     private static class SometimesNoData extends FailCounter {
 
-        // Alternates between an UNKNOWN then all data available per 10
-        // requests
         public LocalSeismogram[] retrieve_seismograms(RequestFilter[] a_filterseq) {
             if(failThisTime()) {
                 return new LocalSeismogramImpl[0];
