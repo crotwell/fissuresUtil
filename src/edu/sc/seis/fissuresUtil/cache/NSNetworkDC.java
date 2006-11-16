@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Category;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
@@ -104,9 +103,6 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
         try {
             return getNetworkDC().a_explorer();
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in a_explorer(), regetting from nameservice to try again.",
-                        e);
             reset();
             return getNetworkDC().a_explorer();
         } // end of try-catch
@@ -116,9 +112,6 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
         try {
             return getNetworkDC().a_finder();
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in a_finder(), regetting from nameservice to try again.",
-                        e);
             reset();
             return getNetworkDC().a_finder();
         } // end of try-catch
@@ -130,5 +123,4 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
 
     protected FissuresNamingService namingService;
 
-    private static Category logger = Category.getInstance(NSNetworkDC.class.getName());
 } // NSNetworkDC

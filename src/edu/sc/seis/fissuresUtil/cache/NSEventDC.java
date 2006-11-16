@@ -5,7 +5,6 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
@@ -82,9 +81,6 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
         try {
             return getEventDC().a_channel_finder();
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.",
-                        e);
             reset();
             return getEventDC().a_channel_finder();
         } // end of try-catch
@@ -94,9 +90,6 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
         try {
             return getEventDC().a_finder();
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in a_finder(), regetting from nameservice to try again.",
-                        e);
             reset();
             return getEventDC().a_finder();
         } // end of try-catch
@@ -108,5 +101,4 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
 
     protected FissuresNamingService namingService;
 
-    private static Logger logger = Logger.getLogger(NSEventDC.class);
 }

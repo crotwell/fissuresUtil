@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -30,9 +29,6 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
         try {
             return getFinder().retrieve_by_id(id);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in retrieve_by_id(), regetting from nameservice to try again.",
-                        e);
             reset();
             return getFinder().retrieve_by_id(id);
         } // end of try-catch
@@ -42,9 +38,6 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
         try {
             return getFinder().retrieve_by_code(code);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in retrieve_by_code(), regetting from nameservice to try again.",
-                        e);
             reset();
             return getFinder().retrieve_by_code(code);
         } // end of try-catch
@@ -54,9 +47,6 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
         try {
             return getFinder().retrieve_by_name(name);
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in retrieve_by_name(), regetting from nameservice to try again.",
-                        e);
             reset();
             return getFinder().retrieve_by_name(name);
         } // end of try-catch
@@ -66,9 +56,6 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
         try {
             return getFinder().retrieve_all();
         } catch(Throwable e) {
-            // retry in case regetting from name service helps
-            logger.warn("Exception in retrieve_all(), regetting from nameservice to try again.",
-                        e);
             reset();
             return getFinder().retrieve_all();
         } // end of try-catch
@@ -102,8 +89,6 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
     public String getServerName() {
         return netDC.getServerName();
     }
-
-    private static Logger logger = Logger.getLogger(NSNetworkFinder.class);
 
     ProxyNetworkDC netDC;
 

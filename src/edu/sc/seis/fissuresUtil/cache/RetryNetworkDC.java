@@ -5,7 +5,6 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkExplorer;
@@ -67,7 +66,5 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
 
     private RetryStrategy handler;
 
-    int retry;
-
-    static Logger logger = Logger.getLogger(RetryNetworkDC.class);
+    private int retry;
 }
