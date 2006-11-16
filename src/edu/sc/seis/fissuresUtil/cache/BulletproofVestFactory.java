@@ -22,7 +22,7 @@ public class BulletproofVestFactory {
         if(eventAccess instanceof CacheEvent) {
             return (ProxyEventAccessOperations)eventAccess;
         }
-        RetryEventAccess retry = new RetryEventAccess(eventAccess,
+        RetryEventAccessOperations retry = new RetryEventAccessOperations(eventAccess,
                                                                           numRetry);
         CacheEvent cache = new CacheEvent(retry);
         return cache;
@@ -31,15 +31,20 @@ public class BulletproofVestFactory {
     public static ProxyEventDC vestEventDC(String serverDNS,
                                            String serverName,
                                            FissuresNamingService fisName) {
-        return vestEventDC(serverDNS, serverName, fisName, getDefaultNumRetry());
+        return vestEventDC(serverDNS,
+                           serverName,
+                           fisName,
+                           getDefaultNumRetry(),
+                           new ClassicRetryStrategy());
     }
 
     public static ProxyEventDC vestEventDC(String serverDNS,
                                            String serverName,
                                            FissuresNamingService fisName,
-                                           int numRetry) {
+                                           int numRetry,
+                                           RetryStrategy strat) {
         NSEventDC ns = new NSEventDC(serverDNS, serverName, fisName);
-        RetryEventDC retry = new RetryEventDC(ns, numRetry);
+        RetryEventDC retry = new RetryEventDC(ns, numRetry, strat);
         CacheEventDC cache = new CacheEventDC(retry);
         return cache;
     }

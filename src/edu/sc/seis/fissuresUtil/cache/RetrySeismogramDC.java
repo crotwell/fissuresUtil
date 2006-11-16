@@ -5,21 +5,24 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
-import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 
-public class RetrySeismogramDC implements ProxySeismogramDC {
+public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper {
 
-    public RetrySeismogramDC(DataCenterOperations dc, int retry) {
+    public RetrySeismogramDC(NSSeismogramDC dc, int retry) {
+        this(dc, retry, new ClassicRetryStrategy());
+    }
+
+    public RetrySeismogramDC(NSSeismogramDC dc, int retry, RetryStrategy strat) {
         this.dc = dc;
         this.retry = retry;
+        this.strat = strat;
     }
 
     public void reset() {
@@ -41,34 +44,22 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
     }
 
     public org.omg.CORBA.Object getCorbaObject() {
-        if(dc instanceof ProxySeismogramDC) {
-            return ((ProxySeismogramDC)dc).getCorbaObject();
-        } else {
-            // this is bad as the dc need not be a DataCenter, but hopefully
-            // always will be. If not, the offending class should be recoded
-            // to be a ProxySeismogramDC
-            return (DataCenter)dc;
-        }
+        return dc.getCorbaObject();
     }
 
     public void cancel_request(String a_request) throws FissuresException {
         int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
+        while(true) {
             try {
                 dc.cancel_request(a_request);
             } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
+                if(!strat.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
             } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
-        throw lastException;
     }
 
     /**
@@ -87,142 +78,120 @@ public class RetrySeismogramDC implements ProxySeismogramDC {
                                       Time expiration_time)
             throws FissuresException {
         int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
+        while(true) {
             try {
                 return dc.request_seismograms(a_filterseq,
                                               a_client,
                                               long_lived,
                                               expiration_time);
             } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
+                if(!strat.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
             } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
             }
             count++;
         }
-        throw lastException;
     }
 
-    /***/
     public LocalSeismogram[] retrieve_seismograms(RequestFilter[] a_filterseq)
             throws FissuresException {
         int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
+        while(true) {
             try {
                 return dc.retrieve_seismograms(a_filterseq);
             } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
+                if(!strat.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
             } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
-        throw lastException;
     }
 
-    /***/
     public LocalSeismogram[] retrieve_queue(String a_request)
             throws FissuresException {
         int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
+        while(true) {
             try {
                 return dc.retrieve_queue(a_request);
             } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
+                if(!strat.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
             } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
-        throw lastException;
     }
 
-    /***/
     public RequestFilter[] available_data(RequestFilter[] a_filterseq) {
         int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
+        while(true) {
             try {
                 return dc.available_data(a_filterseq);
             } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
+                if(!strat.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
             } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
-        throw lastException;
     }
 
-    /***/
     public String request_status(String a_request) throws FissuresException {
         int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
+        while(true) {
             try {
                 return dc.request_status(a_request);
             } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
+                if(!strat.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
             } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
-        throw lastException;
     }
 
-    /***/
     public String queue_seismograms(RequestFilter[] a_filterseq)
             throws FissuresException {
         int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
+        while(true) {
             try {
                 return dc.queue_seismograms(a_filterseq);
             } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count+" of "+retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
+                if(!strat.shouldRetry(t, this, count++, retry)) {
+                    throw t;
+                }
             } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
-        throw lastException;
     }
 
     public String toString() {
         return "Retry " + dc.toString();
     }
 
-    DataCenterOperations dc;
+    public String getServerDNS() {
+        return dc.getServerDNS();
+    }
 
-    int retry;
+    public String getServerName() {
+        return dc.getServerName();
+    }
 
-    private static final Logger logger = Logger.getLogger(RetrySeismogramDC.class);
+    public String getServerType() {
+        return dc.getServerType();
+    }
+
+    private NSSeismogramDC dc;
+
+    private int retry;
+
+    private RetryStrategy strat;
 }

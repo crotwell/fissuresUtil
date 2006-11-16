@@ -3,7 +3,6 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventFinder;
@@ -13,54 +12,47 @@ import edu.iris.Fissures.IfEvent.EventFinder;
  */
 public class RetryEventDC extends ProxyEventDC {
 
-    public RetryEventDC(ProxyEventDC eventDC, int retry) {
+    public RetryEventDC(ProxyEventDC eventDC, int retry, RetryStrategy strat) {
         setEventDC(eventDC);
+        this.handler = strat;
         this.retry = retry;
-    }
-
-    public EventFinder a_finder() {
-        int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
-            try {
-                return getEventDC().a_finder();
-            } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count + " of "
-                        + retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
-                throw new RuntimeException("Out of memory", e);
-            }
-            count++;
-        }
-        throw lastException;
     }
 
     public EventChannelFinder a_channel_finder() {
         int count = 0;
-        SystemException lastException = null;
-        while(count < retry) {
+        while(true) {
             try {
                 return getEventDC().a_channel_finder();
             } catch(SystemException t) {
-                lastException = t;
-                logger.warn("Caught exception, retrying " + count + " of "
-                        + retry, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
+                if(!shouldRetry(count++, t)) {
+                    throw t;
+                }
             } catch(OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
-        throw lastException;
+    }
+
+    private boolean shouldRetry(int i, SystemException t) {
+        return handler.shouldRetry(t, this, i, retry);
+    }
+
+    public EventFinder a_finder() {
+        int count = 0;
+        while(true) {
+            try {
+                return getEventDC().a_finder();
+            } catch(SystemException t) {
+                if(!shouldRetry(count++, t)) {
+                    throw t;
+                }
+            } catch(OutOfMemoryError e) {
+                throw new RuntimeException("Out of memory", e);
+            }
+        }
     }
 
     protected int retry;
 
-    private static final Logger logger = Logger.getLogger(RetryEventDC.class);
+    private RetryStrategy handler;
 }

@@ -17,8 +17,9 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
 
-    public NSEventDC(String serverDNS, String serverName,
-            FissuresNamingService fissuresNamingService) {
+    public NSEventDC(String serverDNS,
+                     String serverName,
+                     FissuresNamingService fissuresNamingService) {
         this.serverDNS = serverDNS;
         this.serverName = serverName;
         this.namingService = fissuresNamingService;
@@ -32,12 +33,8 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
         return serverName;
     }
 
-    public String getServerType() {
-        return "EventDC";
-    }
-
     public synchronized void reset() {
-        if(eventDC != null){
+        if(eventDC != null) {
             ((org.omg.CORBA.Object)eventDC)._release();
         }
         eventDC = null;
