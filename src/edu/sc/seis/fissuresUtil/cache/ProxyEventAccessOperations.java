@@ -3,7 +3,6 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.IfEvent.Event;
@@ -217,5 +216,4 @@ public abstract class ProxyEventAccessOperations implements
 
     protected EventAccessOperations event;
 
-    private static final Logger logger = Logger.getLogger(ProxyEventAccessOperations.class);
 }
