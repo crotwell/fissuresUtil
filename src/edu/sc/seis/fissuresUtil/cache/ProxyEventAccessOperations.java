@@ -34,16 +34,24 @@ public abstract class ProxyEventAccessOperations implements
         }
     }
 
+    public boolean hasCorbaObject() {
+        return event != null;
+    }
+
     public EventAccessOperations getWrappedEventAccess() {
         return event;
     }
 
     public EventAccessOperations getWrappedEventAccess(Class wrappedClass) {
-        if(getClass().equals(wrappedClass)) { return this; }
+        if(getClass().equals(wrappedClass)) {
+            return this;
+        }
         if(getWrappedEventAccess().getClass().equals(wrappedClass)) {
             return getWrappedEventAccess();
         } else if(getWrappedEventAccess().getClass()
-                .equals(ProxyEventAccessOperations.class)) { return ((ProxyEventAccessOperations)getWrappedEventAccess()).getWrappedEventAccess(wrappedClass); }
+                .equals(ProxyEventAccessOperations.class)) {
+            return ((ProxyEventAccessOperations)getWrappedEventAccess()).getWrappedEventAccess(wrappedClass);
+        }
         throw new IllegalArgumentException("This doesn't contain an Event of class "
                 + wrappedClass);
     }
@@ -100,13 +108,17 @@ public abstract class ProxyEventAccessOperations implements
 
     public Locator[] get_locators(String an_origin) throws OriginNotFound,
             NotImplemented {
-        if(event != null) { return event.get_locators(an_origin); }
+        if(event != null) {
+            return event.get_locators(an_origin);
+        }
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
     public AuditElement[] get_audit_trail_for_origin(String the_origin)
             throws OriginNotFound, NotImplemented {
-        if(event != null) { return event.get_audit_trail_for_origin(the_origin); }
+        if(event != null) {
+            return event.get_audit_trail_for_origin(the_origin);
+        }
         throw new NotImplemented();
     }
 
@@ -158,7 +170,9 @@ public abstract class ProxyEventAccessOperations implements
                 if(thisOrigin == otherOrigin) {
                     return true;
                 } else if(thisOrigin != null
-                        && thisOrigin.equals(EventUtil.extractOrigin(oEvent))) { return true; }
+                        && thisOrigin.equals(EventUtil.extractOrigin(oEvent))) {
+                    return true;
+                }
             }
         }
         return false;
@@ -172,7 +186,9 @@ public abstract class ProxyEventAccessOperations implements
         if(get_attributes().equals(event.get_attributes())
                 && getOrigin() instanceof OriginImpl
                 && EventUtil.extractOrigin(event) instanceof OriginImpl
-                && ((OriginImpl)getOrigin()).close(((OriginImpl)EventUtil.extractOrigin(event)))) { return true; }
+                && ((OriginImpl)getOrigin()).close(((OriginImpl)EventUtil.extractOrigin(event)))) {
+            return true;
+        }
         return false;
     }
 
