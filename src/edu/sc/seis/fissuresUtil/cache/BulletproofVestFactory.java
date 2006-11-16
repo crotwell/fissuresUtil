@@ -6,10 +6,14 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 public class BulletproofVestFactory {
 
     public static ProxyEventAccessOperations vestEventAccess(EventAccessOperations eventAccess) {
-        // this does not use the default retry as eventAccess currently cannot reset back to the
-        // name service, so it makes more sense to fail after 3 tries than to keep retrying over
-        // and over again. Also because of the cache, as long as the cache is populated right 
-        // after the eventAccess is retrieved, there is little chance of a failure.
+        // this does not use the default retry as eventAccess currently cannot
+        // reset back to the
+        // name service, so it makes more sense to fail after 3 tries than to
+        // keep retrying over
+        // and over again. Also because of the cache, as long as the cache is
+        // populated right
+        // after the eventAccess is retrieved, there is little chance of a
+        // failure.
         return vestEventAccess(eventAccess, 3);
     }
 
@@ -18,7 +22,7 @@ public class BulletproofVestFactory {
         if(eventAccess instanceof CacheEvent) {
             return (ProxyEventAccessOperations)eventAccess;
         }
-        RetryEventAccessOperations retry = new RetryEventAccessOperations(eventAccess,
+        RetryEventAccess retry = new RetryEventAccess(eventAccess,
                                                                           numRetry);
         CacheEvent cache = new CacheEvent(retry);
         return cache;
@@ -53,8 +57,20 @@ public class BulletproofVestFactory {
                                                      String serverName,
                                                      FissuresNamingService fisName,
                                                      int numRetry) {
+        return vestSeismogramDC(serverDNS,
+                                serverName,
+                                fisName,
+                                numRetry,
+                                new ClassicRetryStrategy());
+    }
+
+    public static ProxySeismogramDC vestSeismogramDC(String serverDNS,
+                                                     String serverName,
+                                                     FissuresNamingService fisName,
+                                                     int numRetry,
+                                                     RetryStrategy strat) {
         NSSeismogramDC ns = new NSSeismogramDC(serverDNS, serverName, fisName);
-        RetrySeismogramDC retryDC = new RetrySeismogramDC(ns, numRetry);
+        RetrySeismogramDC retryDC = new RetrySeismogramDC(ns, numRetry, strat);
         return retryDC;
     }
 
@@ -84,25 +100,26 @@ public class BulletproofVestFactory {
     public static void setDefaultNumRetry(int defaultNum) {
         defaultNumRetry = defaultNum;
     }
-    
-    /** Sleep for some time between retries. Each RetryXYZDC proxy uses this to retry less
-     * frequently as the number of failures in a row increases.
+
+    /**
+     * Sleep for some time between retries. Each RetryXYZDC proxy uses this to
+     * retry less frequently as the number of failures in a row increases.
      */
     public static void retrySleep(int count) {
-        if (count>3) {
+        if(count > 3) {
             try {
-                if (count>10) {
-                    Thread.sleep(10*sleepSeconds*1000);
-                }else {
-                    Thread.sleep(sleepSeconds*1000);
+                if(count > 10) {
+                    Thread.sleep(10 * sleepSeconds * 1000);
+                } else {
+                    Thread.sleep(sleepSeconds * 1000);
                 }
             } catch(InterruptedException e) {
-                //  oh well
+                // oh well
             }
         }
     }
 
     protected static int sleepSeconds = 1;
-    
+
     private static int defaultNumRetry = 3;
 }
