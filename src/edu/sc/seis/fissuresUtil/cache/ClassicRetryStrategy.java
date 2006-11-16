@@ -14,8 +14,9 @@ public class ClassicRetryStrategy extends BaseRetryStrategy {
         } else {
             tryString = "infinity";
         }
-        logger.debug("Caught exception on " + server + ", retrying " + tryCount
-                + " of " + tryString, exc);
+        logger.debug("Caught exception on " + server.getServerDNS() + "/"
+                + server.getServerName() + ", retrying " + tryCount + " of "
+                + tryString, exc);
         return basicShouldRetry(exc, server, tryCount, numRetries);
     }
 
