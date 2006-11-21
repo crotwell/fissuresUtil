@@ -408,24 +408,39 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         LocalSeismogramImpl seis;
         if(isPSN(seisNum)) {
             URL psnURL = getURLfromPSNURL(seisURL);
+            // Don't need to close this InputStream, the PSNDataFile constructor
+            // does it.
             PSNDataFile psnDataFile = new PSNDataFile(new DataInputStream(new BufferedInputStream(psnURL.openStream())));
             int evRecIndex = getIndexFromPSNURL(seisURL);
             seis = PSNToFissures.getSeismograms(psnDataFile)[evRecIndex];
         } else if(isMSeed(seisNum)) {
-            MiniSeedRead mseedRead = new MiniSeedRead(new DataInputStream(new BufferedInputStream(seisURL.openStream())));
-            LinkedList list = new LinkedList();
+            DataInputStream dis = null;
+            List list = new ArrayList();
             try {
+                dis = new DataInputStream(new BufferedInputStream(seisURL.openStream()));
+                MiniSeedRead mseedRead = new MiniSeedRead(dis);
                 while(true) {
-                    DataRecord dr = mseedRead.getNextRecord();
-                    list.add(dr);
+                    list.add(mseedRead.getNextRecord());
                 }
             } catch(EOFException e) {
                 // must be all
+            } finally {
+                if(dis != null) {
+                    dis.close();
+                }
             }
             seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new DataRecord[0]));
         } else if(isSac(seisNum)) {
             SacTimeSeries sacTime = new SacTimeSeries();
-            sacTime.read(new DataInputStream(new BufferedInputStream(seisURL.openStream())));
+            DataInputStream dis = null;
+            try {
+                dis = new DataInputStream(new BufferedInputStream(seisURL.openStream()));
+                sacTime.read(dis);
+            } finally {
+                if(dis != null) {
+                    dis.close();
+                }
+            }
             seis = SacToFissures.getSeismogram(sacTime);
         } else {
             throw new UnsupportedFileTypeException("File type "
@@ -519,15 +534,9 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     .toString());
             XMLUtil.writeEndElementWithNewLine(writer);
         }
-        try {
-            LocalSeismogramImpl[] seismos = getSeismograms();
-            writer.writeStartElement("y_unit");
-            XMLUnit.insert(writer, seismos[0].y_unit);
-            XMLUtil.writeEndElementWithNewLine(writer);
-        } catch(Exception e) {
-            GlobalExceptionHandler.handle("problem getting y_unit from seismogram",
-                                          e);
-        }
+        writer.writeStartElement("y_unit");
+        XMLUnit.insert(writer, getYUnit());
+        XMLUtil.writeEndElementWithNewLine(writer);
         Iterator it = getAuxillaryDataKeys().iterator();
         while(it.hasNext()) {
             Object next = it.next();
@@ -702,18 +711,14 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                                                                                      "role")));
             XMLUtil.getNextStartElement(parser);
         }
-        Unit y_unit = null;
-        if(parser.getLocalName().equals("y_unit")) {
-            y_unit = XMLUnit.getUnit(parser);
-        }
         URL[] urls = (URL[])urlList.toArray(new URL[0]);
         SeismogramFileTypes[] fileTypes = (SeismogramFileTypes[])fileTypeList.toArray(new SeismogramFileTypes[0]);
         URLDataSetSeismogram urlDSS = new URLDataSetSeismogram(urls,
                                                                fileTypes,
                                                                name,
                                                                request);
-        if(y_unit != null) {
-            urlDSS.y_unit = y_unit;
+        if(parser.getLocalName().equals("y_unit")) {
+            urlDSS.setYUnit(XMLUnit.getUnit(parser));
         }
         while(parser.hasNext() && parser.getLocalName().equals("property")) {
             Property p = XMLProperty.getProperty(parser);
