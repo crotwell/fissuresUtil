@@ -16,48 +16,78 @@ import edu.sc.seis.fissuresUtil.bag.Cut;
 import edu.sc.seis.fissuresUtil.database.plottable.JDBCPlottable;
 import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.time.SortTool.SeisSizeSorter;
 
 /**
  * @author groves Created on Oct 29, 2004
  */
 public class ReduceTool {
-    
+
+    private static boolean contains(LocalSeismogramImpl container,
+                                    LocalSeismogramImpl containee) {
+        return equalsOrBefore(container.getBeginTime(),
+                              containee.getBeginTime())
+                && equalsOrAfter(container.getEndTime(), containee.getEndTime());
+    }
+
+    /**
+     * Return an array with any overlapping seismograms turned into a single
+     * seismogram and any contained seismograms thrown away. The input array is
+     * unmodified.
+     */
     public static LocalSeismogramImpl[] cutOverlap(LocalSeismogramImpl[] seis)
             throws FissuresException {
-        // first get rid of totally contained overlaps
-        seis = removeContained(seis);
-        SortTool.byLengthAscending(seis);
-        SeisSizeSorter sorter = new SeisSizeSorter();
-        List results = new ArrayList();
-        for(int i = seis.length-1; i >= 0; i--) {
-            if (seis[i] == null) {continue;}
-            results.add(seis[i]);
-            for(int j = i - 1; j >= 0; j--) {
-                if (seis[j] == null) {continue;}
-                if(RangeTool.areOverlapping(seis[i], seis[j])) {
-                    MicroSecondDate iEnd = seis[i].getEndTime();
-                    MicroSecondDate iBegin = seis[i].getBeginTime();
-                    TimeInterval halfSample = (TimeInterval)seis[i].getSampling().getPeriod().divideBy(2);
-                    if (iEnd.before(seis[j].getEndTime())) {
-                        // overlap on i's end
-                        Cut cut = new Cut(iEnd.add(halfSample), seis[j].getEndTime().add(halfSample));
-                        seis[j] = cut.apply(seis[j]);   
-                    } else {
-                        Cut cut = new Cut(seis[j].getBeginTime().subtract(halfSample), iBegin.subtract(halfSample));
-                        seis[j] = cut.apply(seis[j]);
+        // Don't modify the passed in array
+        LocalSeismogramImpl[] tmp = new LocalSeismogramImpl[seis.length];
+        for(int i = 0; i < tmp.length; i++) {
+            tmp[i] = seis[i];
+        }
+        seis = tmp;
+        LSMerger merger = new LSMerger();
+        for(int i = 0; i < seis.length; i++) {
+            if(seis[i] == null) {
+                continue;
+            }
+            boolean changeMade;
+            do {
+                changeMade = false;
+                for(int j = i + 1; j < seis.length; j++) {
+                    if(seis[j] == null) {
+                        continue;
                     }
-                    for(int k=j-1; k>=0; k++) {
-                        if (seis[k] != null && sorter.compare(seis[k], seis[k+1]) == 1) {
-                            // cut has made order no longer ascending
-                            LocalSeismogramImpl tmp = seis[k];
-                            seis[k] = seis[k+1];
-                            seis[k+1] = tmp;
+                    if(contains(seis[i], seis[j])) {
+                        seis[j] = null;
+                        changeMade = true;
+                    } else if(contains(seis[j], seis[i])) {
+                        seis[i] = seis[j];
+                        seis[j] = null;
+                        changeMade = true;
+                    } else if(RangeTool.areOverlapping(seis[i], seis[j])) {
+                        MicroSecondDate iEnd = seis[i].getEndTime();
+                        MicroSecondDate iBegin = seis[i].getBeginTime();
+                        TimeInterval halfSample = (TimeInterval)seis[i].getSampling()
+                                .getPeriod()
+                                .divideBy(2);
+                        if(iEnd.before(seis[j].getEndTime())) {
+                            // overlap on i's end
+                            Cut cut = new Cut(iEnd.add(halfSample),
+                                              seis[j].getEndTime());
+                            seis[j] = cut.apply(seis[j]);
                         } else {
-                            break;
+                            Cut cut = new Cut(seis[j].getBeginTime(),
+                                              iBegin.subtract(halfSample));
+                            seis[j] = cut.apply(seis[j]);
                         }
+                        seis[i] = merger.merge(seis[i], seis[j]);
+                        seis[j] = null;
+                        changeMade = true;
                     }
                 }
+            } while(changeMade);
+        }
+        List results = new ArrayList(seis.length);
+        for(int i = 0; i < seis.length; i++) {
+            if(seis[i] != null) {
+                results.add(seis[i]);
             }
         }
         return (LocalSeismogramImpl[])results.toArray(new LocalSeismogramImpl[0]);
@@ -156,7 +186,7 @@ public class ReduceTool {
         public boolean shouldMerge(Object one, Object two) {
             MicroSecondTimeRange o = (MicroSecondTimeRange)one;
             MicroSecondTimeRange t = (MicroSecondTimeRange)two;
-            if(o.getBeginTime().before(t.getBeginTime())){
+            if(o.getBeginTime().before(t.getBeginTime())) {
                 return !o.getEndTime().before(t.getBeginTime());
             }
             return !t.getEndTime().before(o.getBeginTime());
@@ -204,8 +234,11 @@ public class ReduceTool {
     private static class LSMerger extends Merger {
 
         public Object merge(Object one, Object two) {
-            LocalSeismogramImpl seis = (LocalSeismogramImpl)one;
-            LocalSeismogramImpl seis2 = (LocalSeismogramImpl)two;
+            return merge((LocalSeismogramImpl)one, (LocalSeismogramImpl)two);
+        }
+
+        public LocalSeismogramImpl merge(LocalSeismogramImpl seis,
+                                         LocalSeismogramImpl seis2) {
             MicroSecondTimeRange fullRange = new MicroSecondTimeRange(toMSTR(seis),
                                                                       toMSTR(seis2));
             if(fullRange.equals(toMSTR(seis))) {
@@ -231,7 +264,8 @@ public class ReduceTool {
                                      laterED.length);
                     TimeSeriesDataSel td = new TimeSeriesDataSel();
                     td.encoded_values(outED);
-                    LocalSeismogramImpl newSeis =  new LocalSeismogramImpl(earlier, td);
+                    LocalSeismogramImpl newSeis = new LocalSeismogramImpl(earlier,
+                                                                          td);
                     newSeis.num_points = seis.num_points + seis2.num_points;
                     return newSeis;
                 }
@@ -249,7 +283,8 @@ public class ReduceTool {
                                      earlier.getNumPoints(),
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outS);
-                } else if(seis.can_convert_to_long() && seis2.can_convert_to_long()) {
+                } else if(seis.can_convert_to_long()
+                        && seis2.can_convert_to_long()) {
                     int[] outI = new int[numPoints];
                     System.arraycopy(earlier.get_as_longs(),
                                      0,
@@ -262,7 +297,8 @@ public class ReduceTool {
                                      earlier.getNumPoints(),
                                      later.getNumPoints());
                     return new LocalSeismogramImpl(earlier, outI);
-                } else if(seis.can_convert_to_float() && seis2.can_convert_to_float()) {
+                } else if(seis.can_convert_to_float()
+                        && seis2.can_convert_to_float()) {
                     float[] outF = new float[numPoints];
                     System.arraycopy(earlier.get_as_floats(),
                                      0,
