@@ -28,47 +28,52 @@ public class ReduceToolTest extends TestCase {
     }
 
     public void testContiguousSeismograms() {
-        LocalSeismogramImpl first = SimplePlotUtil.createSpike();
-        LocalSeismogramImpl second = createContiguous(first);
-        assertEquals(1,
-                     ReduceTool.merge(new LocalSeismogramImpl[] {second, first}).length);
+        assertEquals(1, ReduceTool.merge(createContiguous()).length);
     }
 
-    private LocalSeismogramImpl createContiguous(LocalSeismogramImpl first) {
+    public static LocalSeismogramImpl[] createContiguous() {
+        LocalSeismogramImpl first = SimplePlotUtil.createSpike();
+        return new LocalSeismogramImpl[] {first, createContiguous(first)};
+    }
+
+    public static LocalSeismogramImpl[] createEqual() {
+        return new LocalSeismogramImpl[] {SimplePlotUtil.createSpike(start),
+                                          SimplePlotUtil.createSpike(start)};
+    }
+
+    public static LocalSeismogramImpl[] createOverlapping() {
+        LocalSeismogramImpl first = SimplePlotUtil.createSpike(start);
+        return new LocalSeismogramImpl[] {first,
+                                          SimplePlotUtil.createSpike(first.getBeginTime()
+                                                  .add((TimeInterval)first.getTimeInterval()
+                                                          .divideBy(2)))};
+    }
+
+    private static LocalSeismogramImpl createContiguous(LocalSeismogramImpl first) {
         return SimplePlotUtil.createSpike(first.getEndTime()
                 .add(first.getSampling().getPeriod()));
     }
 
     public void testEqualSeismograms() {
-        LocalSeismogramImpl first = SimplePlotUtil.createSpike(start);
-        LocalSeismogramImpl second = SimplePlotUtil.createSpike(start);
-        LocalSeismogramImpl[] result = ReduceTool.merge(new LocalSeismogramImpl[] {first,
-                                                                                   second});
+        LocalSeismogramImpl[] input = createEqual();
+        LocalSeismogramImpl[] result = ReduceTool.merge(input);
         assertEquals(1, result.length);
-        assertEquals(first.getBeginTime(), result[0].getBeginTime());
-        assertEquals(first.getEndTime(), result[0].getEndTime());
-        assertEquals(first.getNumPoints(), result[0].getNumPoints());
+        assertEquals(input[0].getBeginTime(), result[0].getBeginTime());
+        assertEquals(input[0].getEndTime(), result[0].getEndTime());
+        assertEquals(input[0].getNumPoints(), result[0].getNumPoints());
     }
 
     public void testOverlappingSeismograms() {
-        LocalSeismogramImpl first = SimplePlotUtil.createSpike();
-        LocalSeismogramImpl second = SimplePlotUtil.createSpike(first.getBeginTime()
-                .add((TimeInterval)first.getTimeInterval().divideBy(2)));
-        assertEquals(2,
-                     ReduceTool.merge(new LocalSeismogramImpl[] {second, first}).length);
+        assertEquals(2, ReduceTool.merge(createOverlapping()).length);
     }
 
     public void testContiguousEqualAndOverlappingSeismograms() {
-        LocalSeismogramImpl base = SimplePlotUtil.createSpike(start);
-        LocalSeismogramImpl overlap = SimplePlotUtil.createSpike(base.getBeginTime()
-                .add((TimeInterval)base.getTimeInterval().divideBy(2)));
-        LocalSeismogramImpl equal = SimplePlotUtil.createSpike(start);
-        LocalSeismogramImpl contig = createContiguous(base);
+        LocalSeismogramImpl[] overlapping = createOverlapping();
         assertEquals(2,
-                     ReduceTool.merge(new LocalSeismogramImpl[] {base,
-                                                                 overlap,
-                                                                 equal,
-                                                                 contig}).length);
+                     ReduceTool.merge(new LocalSeismogramImpl[] {overlapping[0],
+                                                                 overlapping[1],
+                                                                 SimplePlotUtil.createSpike(start),
+                                                                 createContiguous(overlapping[0])}).length);
     }
 
     public void testOverlappingMSTR() {
@@ -83,8 +88,8 @@ public class ReduceToolTest extends TestCase {
                                                                   new MicroSecondTimeRange(dates[1],
                                                                                            dates[3])}).length);
     }
-    
-    public void testContainedMSTR(){
+
+    public void testContainedMSTR() {
         assertEquals(1,
                      ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[1],
                                                                                            dates[2]),
@@ -96,8 +101,8 @@ public class ReduceToolTest extends TestCase {
                                                                   new MicroSecondTimeRange(dates[1],
                                                                                            dates[2])}).length);
     }
-    
-    public void testSplitMSTR(){
+
+    public void testSplitMSTR() {
         assertEquals(2,
                      ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[0],
                                                                                            dates[1]),
@@ -109,8 +114,8 @@ public class ReduceToolTest extends TestCase {
                                                                   new MicroSecondTimeRange(dates[0],
                                                                                            dates[1])}).length);
     }
-    
-    public void testTouchingEndBeginMSTR(){
+
+    public void testTouchingEndBeginMSTR() {
         assertEquals(1,
                      ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[0],
                                                                                            dates[1]),
@@ -122,8 +127,8 @@ public class ReduceToolTest extends TestCase {
                                                                   new MicroSecondTimeRange(dates[0],
                                                                                            dates[1])}).length);
     }
-    
-    public void testZeroLengthMSTR(){
+
+    public void testZeroLengthMSTR() {
         assertEquals(1,
                      ReduceTool.merge(new MicroSecondTimeRange[] {new MicroSecondTimeRange(dates[0],
                                                                                            dates[1]),
@@ -135,7 +140,8 @@ public class ReduceToolTest extends TestCase {
                                                                   new MicroSecondTimeRange(dates[1],
                                                                                            dates[1])}).length);
     }
-static MicroSecondDate[] dates = new MicroSecondDate[4];
+
+    static MicroSecondDate[] dates = new MicroSecondDate[4];
     static {
         BasicConfigurator.configure(new NullAppender());
         for(int i = 0; i < dates.length; i++) {
@@ -143,9 +149,9 @@ static MicroSecondDate[] dates = new MicroSecondDate[4];
         }
     }
 
-    MicroSecondDate start = new MicroSecondDate();
+    static MicroSecondDate start = new MicroSecondDate();
 
-    MicroSecondDate end = start.add(new TimeInterval(1, UnitImpl.HOUR));
+    static MicroSecondDate end = start.add(new TimeInterval(1, UnitImpl.HOUR));
 
     RequestFilter fullRequest = new RequestFilter(MockChannel.createChannel()
             .get_id(), start.getFissuresTime(), end.getFissuresTime());
