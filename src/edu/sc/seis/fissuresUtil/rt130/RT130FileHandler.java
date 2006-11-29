@@ -19,8 +19,9 @@ import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class RT130FileHandler {
 
-    public RT130FileHandler(Properties props, List rt130FileHandlerFlags)
+    public RT130FileHandler(Properties props, List rt130FileHandlerFlags, RT130Report report)
             throws FileNotFoundException, IOException, ParseException {
+        this.report = report;
         pp = new PropParser(props);
         flags = rt130FileHandlerFlags;
         checkFlagsForIncompatibleSettings();
@@ -33,6 +34,7 @@ public class RT130FileHandler {
                                                   dataStreamToSampleRate);
         double nominalLengthOfData = Double.parseDouble(pp.getString("nominalLengthOfData"));
         acceptableLengthOfData = (nominalLengthOfData + (nominalLengthOfData * 0.05));
+        
     }
 
     public boolean handle(File f) throws IOException {
@@ -208,10 +210,6 @@ public class RT130FileHandler {
         }
     }
 
-    public RT130Report getReport() {
-        return report;
-    }
-
     private DASChannelCreator chanCreator;
 
     private RT130FileReader rtFileReader = new RT130FileReader();
@@ -222,7 +220,7 @@ public class RT130FileHandler {
 
     private PropParser pp;
 
-    private RT130Report report = new RT130Report();
+    private RT130Report report;
 
     private static final Logger logger = Logger.getLogger(RT130FileHandler.class);
 

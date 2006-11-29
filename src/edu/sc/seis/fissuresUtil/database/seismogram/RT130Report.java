@@ -10,16 +10,20 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.renderer.category.GanttRenderer;
 import org.jfree.data.gantt.Task;
 import org.jfree.data.gantt.TaskSeries;
 import org.jfree.data.gantt.TaskSeriesCollection;
@@ -38,9 +42,29 @@ import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
 public class RT130Report {
 
+    /**
+     * Creates a report that shows from the start of the data to its end.
+     */
+    public RT130Report() {
+        this(null, null, null);
+    }
+
+    /**
+     * Creates a report that shows from start to end. If start or end is null,
+     * the start or end time of the data in the report is used
+     */
+    public RT130Report(Date start, Date end, Set stationCodesToDisplay) {
+        this.start = start;
+        this.end = end;
+        this.stationCodesToDisplay = stationCodesToDisplay;
+    }
+
     public void addRefTekSeismogram(Channel channel,
                                     MicroSecondDate beginTime,
                                     MicroSecondDate endTime) {
+        if(!shouldDisplay(channel.get_id())) {
+            return;
+        }
         numRefTekEntries++;
         addSeismogram(channel, beginTime, endTime);
     }
@@ -48,6 +72,9 @@ public class RT130Report {
     public void addSacSeismogram(Channel channel,
                                  MicroSecondDate beginTime,
                                  MicroSecondDate endTime) {
+        if(!shouldDisplay(channel.get_id())) {
+            return;
+        }
         numSacFiles++;
         addSeismogram(channel, beginTime, endTime);
     }
@@ -55,6 +82,9 @@ public class RT130Report {
     public void addMSeedSeismogram(ChannelId channelid,
                                    MicroSecondDate beginTime,
                                    MicroSecondDate endTime) {
+        if(!shouldDisplay(channelid)) {
+            return;
+        }
         numMSeedFiles++;
         addSeismogram(channelid, beginTime, endTime);
     }
@@ -75,6 +105,11 @@ public class RT130Report {
         if(list.size() > 1) {
             mergeTimes(channelIdString);
         }
+    }
+
+    private boolean shouldDisplay(ChannelId id) {
+        return stationCodesToDisplay == null
+                || stationCodesToDisplay.contains(id.station_code);
     }
 
     private void addSeismogram(ChannelId channelId,
@@ -118,7 +153,7 @@ public class RT130Report {
 
     public void outputReport(String reportName) {
         String name;
-        if(reportName == null){
+        if(reportName == null) {
             name = getCurrentDate() + "_RT130Report";
         } else {
             name = reportName;
@@ -136,14 +171,14 @@ public class RT130Report {
         TaskSeries taskSeries = new TaskSeries("Stations");
         List stationDataSummaryList = factory.getSortedStationDataSummaryList();
         Iterator it = stationDataSummaryList.iterator();
-        while(it.hasNext()){
+        while(it.hasNext()) {
             StationDataSummary stationDataSummary = (StationDataSummary)it.next();
             MicroSecondTimeRange firstTimeRange = stationDataSummary.getEncompassingTimeRange();
             Task task = new Task(stationDataSummary.getStationCode(),
                                  firstTimeRange.getBeginTime(),
                                  firstTimeRange.getEndTime());
             Iterator jt = stationDataSummary.getRecordedTimes().iterator();
-            while(jt.hasNext()){
+            while(jt.hasNext()) {
                 MicroSecondTimeRange chanTime = (MicroSecondTimeRange)jt.next();
                 task.addSubtask(new Task(stationDataSummary.getStationCode(),
                                          chanTime.getBeginTime(),
@@ -154,18 +189,30 @@ public class RT130Report {
         }
         TaskSeriesCollection dataset = new TaskSeriesCollection();
         dataset.add(taskSeries);
-        JFreeChart chart = ChartFactory.createGanttChart(reportName,
-                                                         "Station",
-                                                         "Time",
-                                                         dataset,
-                                                         false,
-                                                         false,
-                                                         false);
-        final CategoryPlot plot = (CategoryPlot)chart.getPlot();
-        final CategoryItemRenderer renderer = plot.getRenderer();
+        DateAxis dateAxis = new DateAxis("Time");
+        CategoryItemRenderer renderer = new GanttRenderer();
+        CategoryPlot plot = new CategoryPlot(dataset,
+                                             new CategoryAxis("Station"),
+                                             dateAxis,
+                                             renderer);
+        plot.setOrientation(PlotOrientation.HORIZONTAL);
+        JFreeChart chart = new JFreeChart(reportName,
+                                          JFreeChart.DEFAULT_TITLE_FONT,
+                                          plot,
+                                          false);
         renderer.setSeriesPaint(0, Color.PINK);
         renderer.setOutlinePaint(Color.BLACK);
-        printChartToPDF(chart, 1600, (numStations * 25) + 100, reportName + ".pdf");
+        if(numStations > 0) {//JFreeChart doesn't like setting the time on an empty chart
+            if(start == null) {
+                start = dateAxis.getMinimumDate();
+            }
+            if(end == null) {
+                end = dateAxis.getMaximumDate();
+            }
+            dateAxis.setRange(start, end);
+        }
+        printChartToPDF(chart, 1600, (numStations * 25) + 100, reportName
+                + ".pdf");
     }
 
     private void printChartToPDF(JFreeChart chart,
@@ -365,12 +412,16 @@ public class RT130Report {
         return (String)channelIdToIdString.get(channelId);
     }
 
-    private String getCurrentDate(){
+    private String getCurrentDate() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         java.util.Date date = new java.util.Date();
         return dateFormat.format(date);
     }
-    
+
+    private Date start, end;
+
+    private Set stationCodesToDisplay;
+
     private RT130ReportFactory reportFactory;
 
     private int numSacFiles, numMSeedFiles, numRefTekEntries;
