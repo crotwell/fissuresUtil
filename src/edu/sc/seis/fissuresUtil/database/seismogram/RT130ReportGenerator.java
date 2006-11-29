@@ -7,13 +7,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import edu.iris.Fissures.FissuresException;
@@ -39,11 +44,27 @@ public class RT130ReportGenerator {
         boolean finished = false;
         RT130FileHandlerFlag scanMode = RT130FileHandlerFlag.SCAN;
         String reportName = null;
+        Date start = null;
+        Date end = null;
+        Set codes = null;
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         int i;
         for(i = 0; i < args.length; i++) {
             if(args[i].equals("-props")) {
                 i++;// Handled by Initializer.loadProperties
-            } else if(args[i].equals("-full")) {
+            } else if(args[i].equals("-start")) {
+                start = df.parse(args[++i]);
+            } else if(args[i].equals("-end")) {
+                end = df.parse(args[++i]);
+            } else if(args[i].equals("-stations")) {
+                codes = new HashSet();
+                String[] stations = args[++i].split(",");
+                System.out.println("GOT " + args[i]);
+                for(int j = 0; j < stations.length; j++){
+                    System.out.println("Adding " + stations[j]);
+                    codes.add(stations[j]);
+                }
+            }else if(args[i].equals("-full")) {
                 scanMode = RT130FileHandlerFlag.FULL;
             } else if(args[i].equals("-scan")) {
                 scanMode = RT130FileHandlerFlag.SCAN;
@@ -79,9 +100,10 @@ public class RT130ReportGenerator {
             }
             System.out.print(decFormat.format(0));
         }
+        report = new RT130Report(start, end, codes);
         List flags = new LinkedList();
         flags.add(scanMode);
-        fileHandler = new RT130FileHandler(props, flags);
+        fileHandler = new RT130FileHandler(props, flags, report);
         Iterator it = files.iterator();
         while(it.hasNext()) {
             File file = (File)it.next();
@@ -103,7 +125,7 @@ public class RT130ReportGenerator {
             System.out.println();
             System.out.println("Report generation complete.");
             System.out.println();
-            fileHandler.getReport().outputReport(reportName);
+            report.outputReport(reportName);
         } else {
             printHelp();
         }
@@ -122,16 +144,16 @@ public class RT130ReportGenerator {
         if(fileName.length() == 18 && fileName.charAt(9) == '_') {
             return fileHandler.handle(file);
         } else if(fileName.endsWith(".mseed")) {
-            return processMSeed(fileHandler.getReport(), fileLoc, fileName);
+            return processMSeed(fileLoc, fileName);
         } else if(fileName.endsWith(".sac")) {
-            return processSac(fileHandler.getReport(), fileLoc, fileName, props);
+            return processSac(fileLoc, fileName, props);
         } else if(fileName.equals("SOH.RT") || fileName.equals("soh.rt")) {
             logger.debug("Ignoring Ref Tek file: " + fileName);
         } else if(fileName.equals(".DS_Store") || fileName.equals("._501")
                 || fileName.equals("._504")) {
             logger.debug("Ignoring Mac OS X file: " + fileName);
         } else {
-            fileHandler.getReport()
+            report
                     .addUnsupportedFileException(fileLoc,
                                                  fileName
                                                          + " can not be processed because it's file"
@@ -208,8 +230,7 @@ public class RT130ReportGenerator {
         System.exit(0);
     }
 
-    private static boolean processSac(RT130Report report,
-                                      String fileLoc,
+    private static boolean processSac(String fileLoc,
                                       String fileName,
                                       Properties props) throws IOException,
             FissuresException {
@@ -237,8 +258,7 @@ public class RT130ReportGenerator {
         return true;
     }
 
-    private static boolean processMSeed(RT130Report report,
-                                        String fileLoc,
+    private static boolean processMSeed(String fileLoc,
                                         String fileName) throws IOException,
             SeedFormatException, FissuresException {
         MiniSeedRead mseedRead = null;
@@ -281,6 +301,8 @@ public class RT130ReportGenerator {
     public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";
 
     private static RT130FileHandler fileHandler;
+    
+    private static RT130Report report;
 
     private static Properties props;
 
