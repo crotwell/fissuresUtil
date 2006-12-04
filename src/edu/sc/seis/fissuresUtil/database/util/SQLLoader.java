@@ -56,7 +56,7 @@ public class SQLLoader {
     public static void setupVelocityLogger(Properties velocityProps,  Logger velocityLogger) {
         velocityProps.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
                           "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-        velocityProps.setProperty("runtime.log.logsystem.log4j.category",
+        velocityProps.setProperty(VELOCITY_LOGGER_NAME,
                           logger.getName());
         velocityLogger.setLevel(Level.WARN);
     }
@@ -84,6 +84,8 @@ public class SQLLoader {
     private Properties sqlProps = new Properties();
 
     private static final String propsLoc = "edu/sc/seis/fissuresUtil/database/util/SQLLoader.prop";
+
+    public static final String VELOCITY_LOGGER_NAME = "runtime.log.logsystem.log4j.category";
 
     private static final Logger logger = Logger.getLogger(SQLLoader.class);
 
