@@ -59,9 +59,7 @@ public class RT130ReportGenerator {
             } else if(args[i].equals("-stations")) {
                 codes = new HashSet();
                 String[] stations = args[++i].split(",");
-                System.out.println("GOT " + args[i]);
                 for(int j = 0; j < stations.length; j++){
-                    System.out.println("Adding " + stations[j]);
                     codes.add(stations[j]);
                 }
             }else if(args[i].equals("-full")) {
