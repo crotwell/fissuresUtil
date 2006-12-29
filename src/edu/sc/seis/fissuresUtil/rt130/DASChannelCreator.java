@@ -217,26 +217,31 @@ public class DASChannelCreator {
             System.out.println("GOT " + orientations.length
                     + " orientations from " + m.group(2) + " from " + s.comment);
         }
-        int curUnmatched = 1;
         SamplingImpl sampling = new SamplingImpl(sampleRate,
                                                  new TimeInterval(1,
                                                                   UnitImpl.SECOND));
         Channel[] newChannel = new ChannelImpl[orientations.length];
-        for(int i = 0; i < orientations.length; i++) {
-            String orientationCode;
-            if(OrientationUtil.areEqual(UP, orientations[i])) {
-                orientationCode = "Z";
-            } else if(OrientationUtil.areEqual(EAST, orientations[i])) {
-                orientationCode = "E";
-            } else if(OrientationUtil.areEqual(NORTH, orientations[i])) {
-                orientationCode = "N";
-            } else {
-                orientationCode = "" + curUnmatched++;
+        String[] orientationCodes = new String[orientations.length];
+        if(traditionallyAligned(orientations)) {
+            for(int i = 0; i < orientationCodes.length; i++) {
+                if(OrientationUtil.areEqual(UP, orientations[i])) {
+                    orientationCodes[i] = "Z";
+                } else if(OrientationUtil.areEqual(NORTH, orientations[i])) {
+                    orientationCodes[i] = "N";
+                } else {
+                    orientationCodes[i] = "E";
+                }
             }
+        } else {
+            for(int i = 0; i < orientationCodes.length; i++) {
+                orientationCodes[i] = "" + (i + 1);
+            }
+        }
+        for(int i = 0; i < orientations.length; i++) {
             ChannelId id = new ChannelId(net.get_id(),
                                          s.my_station.get_code(),
                                          s.get_code(),
-                                         band + "H" + orientationCode,
+                                         band + "H" + orientationCodes[i],
                                          s.effective_time.start_time);
             newChannel[i] = new ChannelImpl(id,
                                             "",
@@ -246,6 +251,21 @@ public class DASChannelCreator {
                                             s);
         }
         return newChannel;
+    }
+
+    private boolean traditionallyAligned(Orientation[] orientations) {
+        return orientations.length == 3 && contains(orientations, UP)
+                && contains(orientations, EAST)
+                && contains(orientations, NORTH);
+    }
+
+    private boolean contains(Orientation[] orientations, Orientation desired) {
+        for(int i = 0; i < orientations.length; i++) {
+            if(OrientationUtil.areEqual(orientations[i], desired)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Orientation[] parseOrientations(String orientationString) {
