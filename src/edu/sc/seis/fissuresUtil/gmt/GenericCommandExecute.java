@@ -1,7 +1,5 @@
 package edu.sc.seis.fissuresUtil.gmt;
 
-import java.io.Reader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -71,10 +69,6 @@ public class GenericCommandExecute {
             stdInPump.join();
         } catch(InterruptedException e) {
             // assume all is well???
-        }
-        if(exitVal != 0) {
-            logger.info("command " + command + " returned exit value "
-                    + exitVal);
         }
         if(!pump.hasCompleted() || !errPump.hasCompleted()) {
             throw new IllegalStateException("Pumps must complete: stdout:"
