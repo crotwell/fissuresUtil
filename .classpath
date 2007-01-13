@@ -10,20 +10,21 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/openmap/jars/openmap-4.6.2.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/vecmath/jars/vecmath.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.4.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xml-apis/jars/xml-apis-2.6.2.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xerces/jars/xml-apis-2.7.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/stax/jars/stax-1.1.1-dev.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xalan/jars/xalan-2.6.0.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.6.2.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.8.0.2.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.7.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.8.0.4_USC1.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/fissuresImpl1"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/TauP"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry output="target/test-classes" kind="src" path="tests/database"/>
-	<classpathentry output="target/test-classes" kind="src" path="tests/display"/>
-	<classpathentry output="target/test-classes" kind="src" path="tests/unit"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jfreechart/jars/jfreechart-1.0.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jfreechart/jars/jcommon-1.0.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/TauP/jars/TauP-1.2beta.jar"/>
+	<classpathentry kind="src" output="target/test-classes" path="tests/database"/>
+	<classpathentry kind="src" output="target/test-classes" path="tests/display"/>
+	<classpathentry kind="src" output="target/test-classes" path="tests/unit"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jfreechart/jars/jfreechart-1.0.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jfreechart/jars/jcommon-1.0.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/TauP/jars/TauP-1.2beta.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/JavaCSV/jars/javacsv-2.0.jar" sourcepath="/MAVEN_REPO/JavaCSV/jars/javacsv-2.0-src.zip"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
