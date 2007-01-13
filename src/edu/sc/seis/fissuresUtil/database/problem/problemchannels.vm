@@ -1,0 +1,83 @@
+problemtype.create=CREATE TABLE problemtype (type_id int NOT NULL, \
+	                                         type_name varchar NOT NULL, \
+											 PRIMARY KEY (type_id))
+											 
+problemtype.put=INSERT INTO problemtype (type_id, type_name) VALUES (?, ?)
+
+problemtype.get=SELECT type_name FROM problemtype WHERE type_id = ?
+
+problemtype.getDbId=SELECT type_id FROM problemtype WHERE type_name = ?
+
+problemstatus.create=CREATE TABLE problemstatus (status_id int NOT NULL, \
+                                                 status_name varchar NOT NULL, \
+												 PRIMARY KEY (status_id))
+												 
+problemstatus.put=INSERT INTO problemstatus (status_id, status_name) VALUES (?, ?)
+
+problemstatus.get=SELECT status_name FROM problemstatus WHERE status_id = ?
+
+problemstatus.getDbId=SELECT status_id FROM problemstatus WHERE status_name = ?
+
+problemstation.create=CREATE TABLE problemstation (station_id int NOT NULL, \
+                                                   station_code varchar(5) NOT NULL, \
+												   PRIMARY KEY (station_id))
+												   
+problemstation.put=INSERT INTO problemstation (station_id, station_code) VALUES (?, ?)
+
+problemstation.get=SELECT station_code FROM problemstation WHERE station_id = ?
+
+problemstation.getDbId=SELECT station_id FROM problemstation WHERE station_code = ?
+
+problem.create=CREATE TABLE problem (problem_id int NOT NULL, \
+                                      station_id int NOT NULL, \
+                                      type_id int, \
+        							  status_id int, \
+        							  PRIMARY KEY (problem_id), \
+        							  FOREIGN KEY (station_id) REFERENCES problemstation (station_id), \
+        							  FOREIGN KEY (type_id) REFERENCES problemtype (type_id), \
+        							  FOREIGN KEY (status_id) REFERENCES problemstatus (status_id))
+									  
+problem.put=INSERT INTO problem (problem_id, station_id, type_id, status_id) VALUES (?, ?, ?, ?)
+
+problem.get=SELECT * FROM problem WHERE station_id = ?
+
+problem.getDbId=SELECT problem_id FROM problem WHERE station_id = ? \
+                                               AND type_id = ? \
+											   AND status_id = ?
+											   
+problemcomponent.create=CREATE TABLE problemcomponent (component_id int NOT NULL, \
+                                                       component_name varchar NOT NULL, \
+													   PRIMARY KEY (component_id))
+													   
+problemcomponent.put=INSERT INTO problemcomponent (component_id, component_name) VALUES (?, ?)
+
+problemcomponent.get=SELECT component_name FROM problemcomponent WHERE component_id = ?
+
+problemcomponent.getDbId=SELECT component_id FROM problemcomponent WHERE component_name = ?
+
+problemcomponenttimerange.create=CREATE TABLE problemcomponenttimerange(comptr_id int NOT NULL, \
+                                                                 problem_id int NOT NULL, \
+																 component_id int NOT NULL, \
+																 start_id int, \
+																 end_id int, \
+																 PRIMARY KEY (comptr_id), \
+																 FOREIGN KEY (problem_id) REFERENCES problem (problem_id), \
+																 FOREIGN KEY (component_id) REFERENCES problemcomponent (component_id), \
+																 FOREIGN KEY (start_id) REFERENCES time (time_id), \
+																 FOREIGN KEY (end_id) REFERENCES time (time_id))
+																 
+problemcomponenttimerange.put=INSERT INTO problemcomponenttimerange (comptr_id, \
+                                                                     problem_id, \
+																	 component_id, \
+																	 start_id, \
+																	 end_id) \
+															 VALUES (?, ?, ?, ?, ?)
+															 
+problemcomponenttimerange.get=SELECT * FROM problemcomponenttimerange WHERE comptr_id = ?
+
+problemcomponenttimerange.getAll=SELECT * FROM problemcomponenttimerange
+
+problemcomponenttimerange.getDbId=SELECT comptr_id FROM problemcomponenttimerange WHERE problem_id = ? \
+                                                                                  AND component_id = ? \
+																				  AND start_id = ? \
+																				  AND end_id = ?
