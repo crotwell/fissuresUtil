@@ -242,11 +242,6 @@
             <artifactId>jfreechart</artifactId>
             <version>1.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>JavaCsv</groupId>
-            <artifactId>javacsv</artifactId>
-            <version>2.0</version>
-        </dependency>
     </dependencies>
     <build>
         <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>

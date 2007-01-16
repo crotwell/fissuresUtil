@@ -25,6 +25,5 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jfreechart/jars/jfreechart-1.0.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jfreechart/jars/jcommon-1.0.0.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/TauP/jars/TauP-1.2beta.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/JavaCSV/jars/javacsv-2.0.jar" sourcepath="/MAVEN_REPO/JavaCSV/jars/javacsv-2.0-src.zip"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
