@@ -1,5 +1,11 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.TimeZone;
@@ -23,7 +29,13 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.iris.dmc.seedcodec.B1000Types;
 import edu.sc.seis.fissuresUtil.database.DataCenterUtil;
-import edu.sc.seis.seisFile.mseed.*;
+import edu.sc.seis.seisFile.mseed.Blockette;
+import edu.sc.seis.seisFile.mseed.Blockette100;
+import edu.sc.seis.seisFile.mseed.Blockette1000;
+import edu.sc.seis.seisFile.mseed.Btime;
+import edu.sc.seis.seisFile.mseed.DataHeader;
+import edu.sc.seis.seisFile.mseed.DataRecord;
+import edu.sc.seis.seisFile.mseed.SeedFormatException;
 
 /**
  * FissuresConvert.java
@@ -390,4 +402,21 @@ public class FissuresConvert {
     static final byte RECORD_SIZE_POWER = 12;
 
     static int RECORD_SIZE = (int)Math.pow(2, RECORD_SIZE_POWER);
+
+    /**
+     * Turns a serializable into a byte array
+     */
+    public static byte[] toBytes(Serializable obj) throws IOException {
+        ByteArrayOutputStream byteHolder = new ByteArrayOutputStream();
+        ObjectOutputStream fissuresWriter = new ObjectOutputStream(byteHolder);
+        fissuresWriter.writeObject(obj);
+        return byteHolder.toByteArray();
+    }
+
+    /**
+     * Turns a byte array containing just a serialized object back into an object 
+     */
+    public static Object fromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
+        return new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
+    }
 } // FissuresConvert
