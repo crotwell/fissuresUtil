@@ -59,10 +59,10 @@ public class RT130ReportGenerator {
             } else if(args[i].equals("-stations")) {
                 codes = new HashSet();
                 String[] stations = args[++i].split(",");
-                for(int j = 0; j < stations.length; j++){
+                for(int j = 0; j < stations.length; j++) {
                     codes.add(stations[j]);
                 }
-            }else if(args[i].equals("-full")) {
+            } else if(args[i].equals("-full")) {
                 scanMode = RT130FileHandlerFlag.FULL;
             } else if(args[i].equals("-scan")) {
                 scanMode = RT130FileHandlerFlag.SCAN;
@@ -151,14 +151,12 @@ public class RT130ReportGenerator {
                 || fileName.equals("._504")) {
             logger.debug("Ignoring Mac OS X file: " + fileName);
         } else {
-            report
-                    .addUnsupportedFileException(fileLoc,
-                                                 fileName
-                                                         + " can not be processed because it's file"
-                                                         + " name is not formatted correctly, and therefore"
-                                                         + " is assumed to be an invalid file format. If"
-                                                         + " the data file format is valid (mini seed, sac, rt130)"
-                                                         + " try renaming the file.");
+            report.addUnsupportedFileException(fileLoc, fileName
+                    + " can not be processed because it's file"
+                    + " name is not formatted correctly, and therefore"
+                    + " is assumed to be an invalid file format. If"
+                    + " the data file format is valid (mini seed, sac, rt130)"
+                    + " try renaming the file.");
             logger.debug(fileName + " can not be processed because it's file"
                     + " name is not formatted correctly, and therefore"
                     + " is assumed to be an invalid file format. If"
@@ -256,9 +254,8 @@ public class RT130ReportGenerator {
         return true;
     }
 
-    private static boolean processMSeed(String fileLoc,
-                                        String fileName) throws IOException,
-            SeedFormatException, FissuresException {
+    private static boolean processMSeed(String fileLoc, String fileName)
+            throws IOException, SeedFormatException, FissuresException {
         MiniSeedRead mseedRead = null;
         try {
             mseedRead = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
@@ -299,7 +296,7 @@ public class RT130ReportGenerator {
     public static final String BASE_FILE_SYSTEM_LOCATION = "seismogramDir";
 
     private static RT130FileHandler fileHandler;
-    
+
     private static RT130Report report;
 
     private static Properties props;

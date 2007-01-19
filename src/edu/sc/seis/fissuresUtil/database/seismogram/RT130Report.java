@@ -103,7 +103,7 @@ public class RT130Report {
         List list = ((List)channelIdWithTime.get(channelIdString));
         list.add(timeRange);
         if(list.size() > 1) {
-            mergeTimes(channelIdString);
+            mergeTimes(list);
         }
     }
 
@@ -125,22 +125,21 @@ public class RT130Report {
         List list = ((List)channelIdWithTime.get(channelId));
         list.add(timeRange);
         if(list.size() > 1) {
-            mergeTimes(channelIdString);
+            mergeTimes(list);
         }
     }
 
-    private void mergeTimes(String channelId) {
-        List list = ((List)channelIdWithTime.get(channelId));
-        MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge(new MicroSecondTimeRange[] {(MicroSecondTimeRange)list.get(list.size() - 2),
-                                                                                             (MicroSecondTimeRange)list.get(list.size() - 1)});
-        List newList = new ArrayList();
-        for(int i = 0; i < list.size() - 2; i++) {
-            newList.add(list.get(i));
-        }
+    private void mergeTimes(List channelTimes) {
+        MicroSecondTimeRange[] toMerge = new MicroSecondTimeRange[] {pop(channelTimes),
+                                                                     pop(channelTimes)};
+        MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge(toMerge);
         for(int i = 0; i < timeRangeArray.length; i++) {
-            newList.add(timeRangeArray[i]);
+            channelTimes.add(timeRangeArray[i]);
         }
-        channelIdWithTime.put(channelId, newList);
+    }
+
+    private static MicroSecondTimeRange pop(List channelTimes) {
+        return (MicroSecondTimeRange)channelTimes.remove(channelTimes.size() - 1);
     }
 
     public void addMSeedSeismogram() {
@@ -202,7 +201,8 @@ public class RT130Report {
                                           false);
         renderer.setSeriesPaint(0, Color.PINK);
         renderer.setOutlinePaint(Color.BLACK);
-        if(numStations > 0) {//JFreeChart doesn't like setting the time on an empty chart
+        if(numStations > 0) {// JFreeChart doesn't like setting the time on
+            // an empty chart
             if(start == null) {
                 start = dateAxis.getMinimumDate();
             }
