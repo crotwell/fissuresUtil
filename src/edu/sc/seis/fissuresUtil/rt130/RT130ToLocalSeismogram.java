@@ -91,7 +91,7 @@ public class RT130ToLocalSeismogram {
     private Channel[] createChannel(PacketType seismogramData) {
         return chanCreator.create(seismogramData.unitIdNumber,
                                   seismogramData.getBeginTimeOfSeismogram(),
-                                  "" + seismogramData.data_stream_number,
+                                  "" + seismogramData.data_stream_number + 1,//Actual file datastreams start at 1 due to SOH
                                   seismogramData.sample_rate);
     }
 
