@@ -29,6 +29,7 @@ public class FileNameParser {
         int hours = Integer.valueOf(fileName.substring(0, 2)).intValue();
         int minutes = Integer.valueOf(fileName.substring(2, 4)).intValue();
         int seconds = Integer.valueOf(fileName.substring(4, 6)).intValue();
+        int millis = Integer.valueOf(fileName.substring(6,9)).intValue();
         Date d;
         synchronized(beginParserCal) {
             beginParserCal.set(Calendar.YEAR, year);
@@ -36,6 +37,7 @@ public class FileNameParser {
             beginParserCal.set(Calendar.HOUR_OF_DAY, hours);
             beginParserCal.set(Calendar.MINUTE, minutes);
             beginParserCal.set(Calendar.SECOND, seconds);
+            beginParserCal.set(Calendar.MILLISECOND, millis);
             d = beginParserCal.getTime();
         }
         return new MicroSecondDate(d);
