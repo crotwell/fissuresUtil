@@ -10,17 +10,19 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.database.seismogram.RT130Report;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class RT130FileHandler {
 
-    public RT130FileHandler(Properties props, List rt130FileHandlerFlags, RT130Report report)
-            throws FileNotFoundException, IOException, ParseException {
+    public RT130FileHandler(Properties props,
+                            List rt130FileHandlerFlags,
+                            RT130Report report) throws FileNotFoundException,
+            IOException, ParseException {
         this.report = report;
         pp = new PropParser(props);
         flags = rt130FileHandlerFlags;
@@ -33,8 +35,8 @@ public class RT130FileHandler {
         toSeismogram = new RT130ToLocalSeismogram(chanCreator,
                                                   dataStreamToSampleRate);
         double nominalLengthOfData = Double.parseDouble(pp.getString("nominalLengthOfData"));
-        acceptableLengthOfData = (nominalLengthOfData + (nominalLengthOfData * 0.05));
-        
+        acceptableLengthOfData = new TimeInterval((nominalLengthOfData + (nominalLengthOfData * 0.05)),
+                                                  UnitImpl.MILLISECOND);
     }
 
     public boolean handle(File f) throws IOException {
@@ -57,18 +59,12 @@ public class RT130FileHandler {
             reportFormatException(file, e);
             return false;
         }
-        if(lengthOfData.value > acceptableLengthOfData) {
+        if(lengthOfData.greaterThan(acceptableLengthOfData)) {
             reportBadName(file,
                           file.getName()
                                   + " indicates more data than in a regular rt130 file. The file will be read to determine its true length.");
             return read(file);
         }
-        TimeInterval nominalLengthOfData = new TimeInterval(new QuantityImpl(Double.valueOf(pp.getString("nominalLengthOfData"))
-                                                                                     .doubleValue(),
-                                                                             UnitImpl.MILLISECOND));
-        TimeInterval acceptableLengthOfData = new TimeInterval(nominalLengthOfData.value
-                                                                       + (nominalLengthOfData.value * 0.05),
-                                                               UnitImpl.MILLISECOND);
         MicroSecondDate beginTime = getBeginTime(file, unitIdNumber);
         MicroSecondDate nominalEndTime = beginTime.add(acceptableLengthOfData);
         MicroSecondTimeRange fileTimeWindow = new MicroSecondTimeRange(beginTime,
@@ -146,12 +142,6 @@ public class RT130FileHandler {
                                                                 fileName);
         beginTime = LeapSecondApplier.applyLeapSecondCorrection(unitIdNumber,
                                                                 beginTime);
-        TimeInterval nominalLengthOfData = new TimeInterval(new QuantityImpl(Double.valueOf(pp.getString("nominalLengthOfData"))
-                                                                                     .doubleValue(),
-                                                                             UnitImpl.MILLISECOND));
-        TimeInterval acceptableLengthOfData = new TimeInterval(nominalLengthOfData.value
-                                                                       + (nominalLengthOfData.value * 0.05),
-                                                               UnitImpl.MILLISECOND);
         MicroSecondDate endTime = beginTime.add(acceptableLengthOfData);
         MicroSecondTimeRange fileTimeWindow = new MicroSecondTimeRange(beginTime,
                                                                        endTime);
@@ -224,5 +214,5 @@ public class RT130FileHandler {
 
     private static final Logger logger = Logger.getLogger(RT130FileHandler.class);
 
-    private double acceptableLengthOfData;
+    private TimeInterval acceptableLengthOfData;
 }
