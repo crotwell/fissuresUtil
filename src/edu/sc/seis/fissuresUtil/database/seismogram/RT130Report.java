@@ -130,9 +130,10 @@ public class RT130Report {
     }
 
     private void mergeTimes(List channelTimes) {
-        MicroSecondTimeRange[] toMerge = new MicroSecondTimeRange[] {pop(channelTimes),
-                                                                     pop(channelTimes)};
-        MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge(toMerge);
+        //Pop off the end then merge from second to end to end to keep the entries in time order
+        MicroSecondTimeRange latest = pop(channelTimes);
+        MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge(new MicroSecondTimeRange[] {pop(channelTimes),
+                                                                                             latest});
         for(int i = 0; i < timeRangeArray.length; i++) {
             channelTimes.add(timeRangeArray[i]);
         }
