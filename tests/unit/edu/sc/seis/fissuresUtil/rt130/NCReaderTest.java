@@ -60,6 +60,13 @@ public class NCReaderTest extends TestCase {
         assertEnded(sites[0].my_station.effective_time.end_time);
     }
 
+    public void testSensorSwap() throws IOException {
+        NCReader delux = new NCReader(net, initialLocs);
+        delux.load(getStream("edu/sc/seis/fissuresUtil/rt130/sensor_swap.nc"));
+        Site[] sites = (Site[])delux.getSites().toArray(new Site[0]);
+        assertEquals(2, sites.length);
+    }
+
     public void testReadingNonstandardDirection() throws IOException {
         NCReader delux = new NCReader(net, initialLocs);
         delux.load(getStream("edu/sc/seis/fissuresUtil/rt130/nonstandarddirection.nc"));
