@@ -5,12 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.TimeZone;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
+import edu.iris.Fissures.UnitBase;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfRealTimeCollector.DataChunk;
@@ -278,7 +278,8 @@ public class FissuresConvert {
                                             new Time(isoTime, -1));
         String seisId = channelId.network_id.network_code + ":"
                 + channelId.station_code + ":" + channelId.site_code + ":"
-                + channelId.channel_code + ":" + getISOTime(header.getStartBtime());
+                + channelId.channel_code + ":"
+                + getISOTime(header.getStartBtime());
         Property[] props = new Property[1];
         props[0] = new Property("Name", seisId);
         Blockette[] blocketts = seed.getBlockettes(100);
@@ -352,13 +353,11 @@ public class FissuresConvert {
         // wasteful as this does the data as well...
         return toFissures(seed);
     }
-    
-
 
     /**
-     get the value of start time in ISO format
-
-     @return the value of start time in ISO format
+     * get the value of start time in ISO format
+     * 
+     * @return the value of start time in ISO format
      */
     public static String getISOTime(Btime startStruct) {
         float fSecond = startStruct.sec + startStruct.tenthMilli / 10000f;
@@ -370,53 +369,74 @@ public class FissuresConvert {
     }
 
     /**
-     get the value of start time in MicroSecondDate format
-
-     @return the value of start time in MicroSecondDate format
+     * get the value of start time in MicroSecondDate format
+     * 
+     * @return the value of start time in MicroSecondDate format
      */
     public MicroSecondDate getMicroSecondTime(Btime startStruct) {
-        ISOTime iso =  new ISOTime(startStruct.year,
-                                                            startStruct.jday,
-                                                            startStruct.hour,
-                                                            startStruct.min,
-                                                            startStruct.sec);
-        MicroSecondDate d = iso.getDate().add(new TimeInterval(startStruct.tenthMilli, UnitImpl.TENTHMILLISECOND));
+        ISOTime iso = new ISOTime(startStruct.year,
+                                  startStruct.jday,
+                                  startStruct.hour,
+                                  startStruct.min,
+                                  startStruct.sec);
+        MicroSecondDate d = iso.getDate()
+                .add(new TimeInterval(startStruct.tenthMilli,
+                                      UnitImpl.TENTHMILLISECOND));
         return d;
     }
 
     public static Btime getBtime(MicroSecondDate date) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.setTime(date);
-
         Btime btime = new Btime();
-        btime.tenthMilli = (int)(cal.get(cal.MILLISECOND)*10+(Math.round(date.getMicroSeconds()/100.0)));
-        btime.year = cal.get(cal.YEAR);
-        btime.jday = cal.get(cal.DAY_OF_YEAR);
-        btime.hour = cal.get(cal.HOUR_OF_DAY);
-        btime.min = cal.get(cal.MINUTE);
-        btime.sec = cal.get(cal.SECOND);
+        btime.tenthMilli = (int)(cal.get(Calendar.MILLISECOND) * 10 + (Math.round(date.getMicroSeconds() / 100.0)));
+        btime.year = cal.get(Calendar.YEAR);
+        btime.jday = cal.get(Calendar.DAY_OF_YEAR);
+        btime.hour = cal.get(Calendar.HOUR_OF_DAY);
+        btime.min = cal.get(Calendar.MINUTE);
+        btime.sec = cal.get(Calendar.SECOND);
         return btime;
     }
-
 
     static final byte RECORD_SIZE_POWER = 12;
 
     static int RECORD_SIZE = (int)Math.pow(2, RECORD_SIZE_POWER);
 
     /**
-     * Turns a serializable into a byte array
+     * Turns a UnitImpl into a byte array using Java serialization
      */
-    public static byte[] toBytes(Serializable obj) throws IOException {
+    public static byte[] toBytes(UnitImpl obj) {
         ByteArrayOutputStream byteHolder = new ByteArrayOutputStream();
-        ObjectOutputStream fissuresWriter = new ObjectOutputStream(byteHolder);
-        fissuresWriter.writeObject(obj);
-        return byteHolder.toByteArray();
+        try {
+            ObjectOutputStream fissuresWriter = new ObjectOutputStream(byteHolder);
+            fissuresWriter.writeObject(obj);
+            return byteHolder.toByteArray();
+        } catch(IOException io) {
+            throw new RuntimeException("Didn't think it was possible to get an IO exception dealing entirely with in memory streams",
+                                       io);
+        }
     }
 
     /**
-     * Turns a byte array containing just a serialized object back into an object 
+     * Turns a byte array containing just a serialized UnitImpl object back into
+     * an UnitImpl
      */
-    public static Object fromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
-        return new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
+    public static UnitImpl fromBytes(byte[] bytes) throws IOException {
+        UnitImpl impl;
+        try {
+            impl = (UnitImpl)new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
+        } catch(ClassNotFoundException cnf) {
+            throw new IllegalArgumentException("The serialized bytes passed to fromBytes must contain a serialized UnitImpl, instead it was a class we couldn't find",
+                                               cnf);
+        }
+        singletonizeUnitBase(impl);
+        return impl;
+    }
+
+    private static void singletonizeUnitBase(UnitImpl impl) {
+        impl.the_unit_base = UnitBase.from_int(impl.the_unit_base.value());
+        for(int i = 0; i < impl.elements.length; i++) {
+            singletonizeUnitBase((UnitImpl)impl.elements[i]);
+        }
     }
 } // FissuresConvert
