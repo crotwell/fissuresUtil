@@ -66,7 +66,7 @@ public class RT130ReportFactory {
         Iterator jt = stationCodes.iterator();
         while(jt.hasNext()) {
             String setStationCode = (String)jt.next();
-            Map channelCodesWithTimeRanges = new HashMap();
+            Map timeRangesByChannelCode = new HashMap();
             Iterator kt = channelIdWithTimeRanges.keySet().iterator();
             while(kt.hasNext()) {
                 String channelIdKey = ((String)kt.next());
@@ -74,16 +74,16 @@ public class RT130ReportFactory {
                 if(stationCode.equals(setStationCode)) {
                     String channelCode = ((ChannelId)channelIdToChannel.get(channelIdKey)).channel_code;
                     List timeRanges = (List)channelIdWithTimeRanges.get(channelIdKey);
-                    if(channelCodesWithTimeRanges.containsKey(channelCode)) {
-                        List current = (List)channelCodesWithTimeRanges.get(channelCode);
+                    if(timeRangesByChannelCode.containsKey(channelCode)) {
+                        List current = (List)timeRangesByChannelCode.get(channelCode);
                         current.addAll(timeRanges);
                     } else {
-                        channelCodesWithTimeRanges.put(channelCode, timeRanges);
+                        timeRangesByChannelCode.put(channelCode, timeRanges);
                     }
                 }
             }
             StationDataSummary temp = new StationDataSummary(setStationCode,
-                                                             channelCodesWithTimeRanges);
+                                                             timeRangesByChannelCode);
             stationDataSummaryList.add(temp);
         }
     }

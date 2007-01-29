@@ -130,7 +130,8 @@ public class RT130Report {
     }
 
     private void mergeTimes(List channelTimes) {
-        //Pop off the end then merge from second to end to end to keep the entries in time order
+        // Pop off the end then merge from second to end to end to keep the
+        // entries in time order
         MicroSecondTimeRange latest = pop(channelTimes);
         MicroSecondTimeRange[] timeRangeArray = ReduceTool.merge(new MicroSecondTimeRange[] {pop(channelTimes),
                                                                                              latest});
@@ -177,12 +178,11 @@ public class RT130Report {
             Task task = new Task(stationDataSummary.getStationCode(),
                                  firstTimeRange.getBeginTime(),
                                  firstTimeRange.getEndTime());
-            Iterator jt = stationDataSummary.getRecordedTimes().iterator();
-            while(jt.hasNext()) {
-                MicroSecondTimeRange chanTime = (MicroSecondTimeRange)jt.next();
+            MicroSecondTimeRange[] recordedTimes = stationDataSummary.getRecordedTimes();
+            for(int i = 0; i < recordedTimes.length; i++) {
                 task.addSubtask(new Task(stationDataSummary.getStationCode(),
-                                         chanTime.getBeginTime(),
-                                         chanTime.getEndTime()));
+                                         recordedTimes[i].getBeginTime(),
+                                         recordedTimes[i].getEndTime()));
             }
             numStations++;
             taskSeries.add(task);
