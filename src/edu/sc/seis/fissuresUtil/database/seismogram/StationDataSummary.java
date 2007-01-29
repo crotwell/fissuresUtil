@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.database.seismogram;
 
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -9,44 +10,34 @@ import java.util.Set;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
 public class StationDataSummary implements Comparable {
 
-    public StationDataSummary(String stationCode, Map channelsWithTimeRanges) {
+    public StationDataSummary(String stationCode, Map timeRangesByChannelCode) {
         this.stationCode = stationCode;
-        this.channelCodesWithTimeRanges = channelsWithTimeRanges;
+        this.timeRangesByChannelCode = timeRangesByChannelCode;
     }
 
     public String getStationCode() {
         return stationCode;
     }
 
-    public List getRecordedTimes() {
-        return (List)channelCodesWithTimeRanges.get(getChannelCodeWithMostGaps());
-    }
-
-    private String getChannelCodeWithMostGaps() {
-        Set channelCodesSet = channelCodesWithTimeRanges.keySet();
-        Iterator it = channelCodesSet.iterator();
-        int num = 0;
-        String channelCode = "";
+    public MicroSecondTimeRange[] getRecordedTimes() {
+        Iterator it = timeRangesByChannelCode.keySet().iterator();
+        List allTimeRanges = new ArrayList();
         while(it.hasNext()) {
-            String tempString = (String)it.next();
-            int temp = ((List)channelCodesWithTimeRanges.get(tempString)).size();
-            if(temp > num) {
-                num = temp;
-                channelCode = tempString;
-            }
+            allTimeRanges.addAll((List)timeRangesByChannelCode.get(it.next()));
         }
-        return channelCode;
+        return ReduceTool.merge((MicroSecondTimeRange[])allTimeRanges.toArray(new MicroSecondTimeRange[0]));
     }
 
     public MicroSecondTimeRange getEncompassingTimeRange() {
         MicroSecondTimeRange result = null;
-        Set channelCodeSet = channelCodesWithTimeRanges.keySet();
+        Set channelCodeSet = timeRangesByChannelCode.keySet();
         Iterator it = channelCodeSet.iterator();
         while(it.hasNext()) {
-            Iterator ij = ((List)channelCodesWithTimeRanges.get(it.next())).iterator();
+            Iterator ij = ((List)timeRangesByChannelCode.get(it.next())).iterator();
             while(ij.hasNext()) {
                 MicroSecondTimeRange newTimeRange = (MicroSecondTimeRange)ij.next();
                 if(result == null) {
@@ -60,10 +51,10 @@ public class StationDataSummary implements Comparable {
     }
 
     public void printGapDescription(PrintWriter reportStream) {
-        Iterator it = channelCodesWithTimeRanges.keySet().iterator();
+        Iterator it = timeRangesByChannelCode.keySet().iterator();
         while(it.hasNext()) {
             String channelCode = (String)it.next();
-            Iterator jt = ((List)channelCodesWithTimeRanges.get(channelCode)).iterator();
+            Iterator jt = ((List)timeRangesByChannelCode.get(channelCode)).iterator();
             while(jt.hasNext()) {
                 MicroSecondTimeRange timeRange = (MicroSecondTimeRange)jt.next();
                 reportStream.print("    ");
@@ -79,12 +70,12 @@ public class StationDataSummary implements Comparable {
     }
 
     public void printDaysOfCoverage(PrintWriter reportStream) {
-        Iterator it = channelCodesWithTimeRanges.keySet().iterator();
+        Iterator it = timeRangesByChannelCode.keySet().iterator();
         while(it.hasNext()) {
             String channelCode = (String)it.next();
             if(channelCode.equals("BHZ")) {
                 TimeInterval total = null;
-                Iterator jt = ((List)channelCodesWithTimeRanges.get(channelCode)).iterator();
+                Iterator jt = ((List)timeRangesByChannelCode.get(channelCode)).iterator();
                 while(jt.hasNext()) {
                     MicroSecondTimeRange timeRange = (MicroSecondTimeRange)jt.next();
                     if(total == null) {
@@ -125,5 +116,5 @@ public class StationDataSummary implements Comparable {
 
     private String stationCode;
 
-    private Map channelCodesWithTimeRanges;
+    private Map timeRangesByChannelCode;
 }
