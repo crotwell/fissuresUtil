@@ -72,6 +72,11 @@ public abstract class ProxyNetworkFinder implements NetworkFinder, CorbaServerWr
         }
         return null;
     }
+    
+    public String getFullName(){
+        return getServerDNS() + "/" + getServerName();
+    }
+
 
     public String getServerType() {
         return NETFINDER_TYPE;

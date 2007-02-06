@@ -34,6 +34,11 @@ public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
     public String getServerName() {
         return serverName;
     }
+    
+    public String getFullName(){
+        return getServerDNS() + "/" + getServerName();
+    }
+
 
     public String getServerType() {
         return PLOTTABLEDC_TYPE;

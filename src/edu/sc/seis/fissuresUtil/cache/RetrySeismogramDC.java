@@ -47,130 +47,185 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         return dc.getCorbaObject();
     }
 
-    public void cancel_request(String a_request) throws FissuresException {
+    public RequestFilter[] available_data(RequestFilter[] a_filterseq) {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return dc.available_data(a_filterseq);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(latest, this, count++, retry)) {
             try {
-                dc.cancel_request(a_request);
+                RequestFilter[] result = dc.available_data(a_filterseq);
+                strat.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!strat.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
-    /**
-     * if long_lived is true then the request is "sticky" in that the client
-     * wants the data center to return not just the data that it has in its
-     * archive currently, but also any data that it receives up to the
-     * expiration_time. For instance if a station sends its data by mailing
-     * tapes, then a researcher could issue a request for data that is expected
-     * to be delivered from a recent earthquake, even thought the data center
-     * does not yet have the data. Note that expiration_time is ignored if
-     * long_lived is false.
-     */
+    public void cancel_request(String a_request) throws FissuresException {
+        int count = 0;
+        SystemException latest;
+        try {
+            dc.cancel_request(a_request);
+            return;
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(latest, this, count++, retry)) {
+            try {
+                dc.cancel_request(a_request);
+                strat.serverRecovered(this);
+            } catch(SystemException t) {
+                latest = t;
+            } catch(OutOfMemoryError e) {
+                throw new RuntimeException("Out of memory", e);
+            }
+        }
+        throw latest;
+    }
+
+    public String queue_seismograms(RequestFilter[] a_filterseq)
+            throws FissuresException {
+        int count = 0;
+        SystemException latest;
+        try {
+            return dc.queue_seismograms(a_filterseq);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(latest, this, count++, retry)) {
+            try {
+                String result = dc.queue_seismograms(a_filterseq);
+                strat.serverRecovered(this);
+                return result;
+            } catch(SystemException t) {
+                latest = t;
+            } catch(OutOfMemoryError e) {
+                throw new RuntimeException("Out of memory", e);
+            }
+        }
+        throw latest;
+    }
+
     public String request_seismograms(RequestFilter[] a_filterseq,
                                       DataCenterCallBack a_client,
                                       boolean long_lived,
                                       Time expiration_time)
             throws FissuresException {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return dc.request_seismograms(a_filterseq,
+                                          a_client,
+                                          long_lived,
+                                          expiration_time);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(latest, this, count++, retry)) {
             try {
-                return dc.request_seismograms(a_filterseq,
-                                              a_client,
-                                              long_lived,
-                                              expiration_time);
+                String result = dc.request_seismograms(a_filterseq,
+                                                       a_client,
+                                                       long_lived,
+                                                       expiration_time);
+                strat.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!strat.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
+        throw latest;
     }
 
-    public LocalSeismogram[] retrieve_seismograms(RequestFilter[] a_filterseq)
-            throws FissuresException {
+    public String request_status(String a_request) throws FissuresException {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return dc.request_status(a_request);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(latest, this, count++, retry)) {
             try {
-                return dc.retrieve_seismograms(a_filterseq);
+                String result = dc.request_status(a_request);
+                strat.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!strat.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public LocalSeismogram[] retrieve_queue(String a_request)
             throws FissuresException {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return dc.retrieve_queue(a_request);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(latest, this, count++, retry)) {
             try {
-                return dc.retrieve_queue(a_request);
+                LocalSeismogram[] result = dc.retrieve_queue(a_request);
+                strat.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!strat.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
-    public RequestFilter[] available_data(RequestFilter[] a_filterseq) {
-        int count = 0;
-        while(true) {
-            try {
-                return dc.available_data(a_filterseq);
-            } catch(SystemException t) {
-                if(!strat.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
-            } catch(OutOfMemoryError e) {
-                throw new RuntimeException("Out of memory", e);
-            }
-        }
-    }
-
-    public String request_status(String a_request) throws FissuresException {
-        int count = 0;
-        while(true) {
-            try {
-                return dc.request_status(a_request);
-            } catch(SystemException t) {
-                if(!strat.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
-            } catch(OutOfMemoryError e) {
-                throw new RuntimeException("Out of memory", e);
-            }
-        }
-    }
-
-    public String queue_seismograms(RequestFilter[] a_filterseq)
+    public LocalSeismogram[] retrieve_seismograms(RequestFilter[] a_filterseq)
             throws FissuresException {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return dc.retrieve_seismograms(a_filterseq);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(latest, this, count++, retry)) {
             try {
-                return dc.queue_seismograms(a_filterseq);
+                LocalSeismogram[] result = dc.retrieve_seismograms(a_filterseq);
+                strat.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!strat.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public String toString() {
@@ -183,6 +238,10 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
 
     public String getServerName() {
         return dc.getServerName();
+    }
+
+    public String getFullName() {
+        return getServerDNS() + "/" + getServerName();
     }
 
     public String getServerType() {

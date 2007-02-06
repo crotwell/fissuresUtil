@@ -52,6 +52,11 @@ public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
     public String getServerName() {
         return serverName;
     }
+    
+    public String getFullName(){
+        return getServerDNS() + "/" + getServerName();
+    }
+
 
     public String getServerType() {
         return NETDC_TYPE;

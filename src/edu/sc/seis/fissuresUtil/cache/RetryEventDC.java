@@ -20,36 +20,54 @@ public class RetryEventDC extends ProxyEventDC {
 
     public EventChannelFinder a_channel_finder() {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return getEventDC().a_channel_finder();
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return getEventDC().a_channel_finder();
+                EventChannelFinder result = getEventDC().a_channel_finder();
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
-    }
-
-    private boolean shouldRetry(int i, SystemException t) {
-        return handler.shouldRetry(t, this, i, retry);
+        throw latest;
     }
 
     public EventFinder a_finder() {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return getEventDC().a_finder();
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return getEventDC().a_finder();
+                EventFinder result = getEventDC().a_finder();
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
+    }
+
+    private boolean shouldRetry(int i, SystemException t) {
+        return handler.shouldRetry(t, this, i, retry);
     }
 
     protected int retry;

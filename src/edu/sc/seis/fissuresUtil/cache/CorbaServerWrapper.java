@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 public interface CorbaServerWrapper {
+    
+    public String getFullName();
 
     public String getServerName();
 
