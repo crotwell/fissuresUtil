@@ -41,11 +41,21 @@ public class DOMHelper {
     public static String extractText(Element el,
                                      String xpath,
                                      String defaultValue) {
-        xpath = xpath + "/text()";
+        return extractText(el, xpath, defaultValue, false);
+    }
+
+    public static String extractText(Element el,
+                                     String xpath,
+                                     String defaultValue,
+                                     boolean emptyElementMeansEmptyString) {
         try {
-            Node n = XPathAPI.selectSingleNode(el, xpath);
+            Node n = XPathAPI.selectSingleNode(el, xpath + "/text()");
             if(n == null) {
-                if(defaultValue == null) {
+                // See if the element is there with no text content
+                if(emptyElementMeansEmptyString
+                        && XPathAPI.selectSingleNode(el, xpath) != null) {
+                    return "";
+                } else if(defaultValue == null) {
                     throw new RuntimeException("No nodes found matching XPath "
                             + xpath);
                 }
@@ -55,7 +65,7 @@ public class DOMHelper {
         } catch(DOMException e) {
             handle(e);
         } catch(TransformerException e) {
-            handle(e, xpath);
+            handle(e, xpath + "/text()");
         }
         throw new RuntimeException("Should be unreachable");
     }
