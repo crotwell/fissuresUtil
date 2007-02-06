@@ -41,6 +41,11 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
         }
         return null;
     }
+    
+    public String getFullName(){
+        return getServerDNS() + "/" + getServerName();
+    }
+
 
     public String getServerType() {
         return EVENTFINDER_TYPE;

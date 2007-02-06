@@ -36,32 +36,50 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
 
     public NetworkExplorer a_explorer() {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return netDC.a_explorer();
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(handler.shouldRetry(latest, this, count++, retry)) {
             try {
-                return netDC.a_explorer();
+                NetworkExplorer result = netDC.a_explorer();
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!handler.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public NetworkFinder a_finder() {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return netDC.a_finder();
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(handler.shouldRetry(latest, this, count++, retry)) {
             try {
-                return netDC.a_finder();
+                NetworkFinder result = netDC.a_finder();
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!handler.shouldRetry(t, this, count++, retry)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     private RetryStrategy handler;

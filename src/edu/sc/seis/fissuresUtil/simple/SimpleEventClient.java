@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.EventDC;
@@ -17,6 +18,7 @@ import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.PointDistanceAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -126,7 +128,8 @@ public class SimpleEventClient implements TestingClient {
         String[] magTypes = {};
         String[] catalogs = {};
         String[] contributors = {};
-        EventAccess[] events = finder.query_events(new GlobalAreaImpl(),
+        EventAccess[] events = finder.query_events(new PointDistanceAreaImpl(0, -180, new QuantityImpl(0, UnitImpl.DEGREE), 
+                                                                             new QuantityImpl(10, UnitImpl.DEGREE)),
                                                    new QuantityImpl(0,
                                                                     UnitImpl.KILOMETER),
                                                    new QuantityImpl(1000,

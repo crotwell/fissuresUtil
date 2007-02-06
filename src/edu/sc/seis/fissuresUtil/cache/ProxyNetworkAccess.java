@@ -59,6 +59,11 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
         return null;
     }
     
+    public String getFullName(){
+        return getServerDNS() + "/" + getServerName();
+    }
+
+    
     public String getServerType(){
         return NETACCESS_TYPE;
     }

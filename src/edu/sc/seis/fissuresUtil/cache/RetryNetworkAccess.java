@@ -43,112 +43,177 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
 
     public NetworkAttr get_attributes() {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.get_attributes();
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.get_attributes();
+                NetworkAttr result = net.get_attributes();
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public AuditElement[] get_audit_trail_for_channel(ChannelId id)
             throws ChannelNotFound, NotImplemented {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.get_audit_trail_for_channel(id);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.get_audit_trail_for_channel(id);
+                AuditElement[] result = net.get_audit_trail_for_channel(id);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public AuditElement[] get_audit_trail() throws NotImplemented {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.get_audit_trail();
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.get_audit_trail();
+                AuditElement[] result = net.get_audit_trail();
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public Channel[] locate_channels(Area the_area,
                                      SamplingRange sampling,
                                      OrientationRange orientation) {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.locate_channels(the_area, sampling, orientation);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.locate_channels(the_area, sampling, orientation);
+                Channel[] result = net.locate_channels(the_area,
+                                                       sampling,
+                                                       orientation);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public ChannelId[] retrieve_all_channels(int seq_max,
                                              ChannelIdIterHolder iter) {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_all_channels(seq_max, iter);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_all_channels(seq_max, iter);
+                ChannelId[] result = net.retrieve_all_channels(seq_max, iter);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public Calibration[] retrieve_calibrations(ChannelId id, TimeRange the_time)
             throws ChannelNotFound, NotImplemented {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_calibrations(id, the_time);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_calibrations(id, the_time);
+                Calibration[] result = net.retrieve_calibrations(id, the_time);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public Channel retrieve_channel(ChannelId id) throws ChannelNotFound {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_channel(id);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_channel(id);
+                Channel result = net.retrieve_channel(id);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public Channel[] retrieve_channels_by_code(String station_code,
@@ -156,112 +221,179 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
                                                String channel_code)
             throws ChannelNotFound {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_channels_by_code(station_code,
+                                                 site_code,
+                                                 channel_code);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_channels_by_code(station_code,
-                                                     site_code,
-                                                     channel_code);
+                Channel[] result = net.retrieve_channels_by_code(station_code,
+                                                                 site_code,
+                                                                 channel_code);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public Channel[] retrieve_for_station(StationId p1) {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_for_station(p1);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_for_station(p1);
+                Channel[] result = net.retrieve_for_station(p1);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public ChannelId[] retrieve_grouping(ChannelId id) throws ChannelNotFound {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_grouping(id);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_grouping(id);
+                ChannelId[] result = net.retrieve_grouping(id);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public ChannelId[][] retrieve_groupings() {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_groupings();
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_groupings();
+                ChannelId[][] result = net.retrieve_groupings();
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_instrumentation(id, the_time);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_instrumentation(id, the_time);
+                Instrumentation result = net.retrieve_instrumentation(id,
+                                                                      the_time);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public Station[] retrieve_stations() {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_stations();
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_stations();
+                Station[] result = net.retrieve_stations();
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     public TimeCorrection[] retrieve_time_corrections(ChannelId id,
                                                       TimeRange time_range)
             throws ChannelNotFound, NotImplemented {
         int count = 0;
-        while(true) {
+        SystemException latest;
+        try {
+            return net.retrieve_time_corrections(id, time_range);
+        } catch(SystemException t) {
+            latest = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(shouldRetry(count++, latest)) {
             try {
-                return net.retrieve_time_corrections(id, time_range);
+                TimeCorrection[] result = net.retrieve_time_corrections(id,
+                                                                        time_range);
+                handler.serverRecovered(this);
+                return result;
             } catch(SystemException t) {
-                if(!shouldRetry(count++, t)) {
-                    throw t;
-                }
+                latest = t;
             } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
         }
+        throw latest;
     }
 
     private boolean shouldRetry(int count, SystemException t) {

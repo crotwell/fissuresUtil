@@ -21,4 +21,6 @@ public interface RetryStrategy {
                                CorbaServerWrapper server,
                                int tryCount,
                                int numRetries);
+    
+    public void serverRecovered(CorbaServerWrapper server);
 }

@@ -17,4 +17,6 @@ public abstract class BaseRetryStrategy implements RetryStrategy {
         //server.reset();
         return numRetries == -1 || tryCount <= numRetries;
     }
+    
+    public void serverRecovered(CorbaServerWrapper server){}
 }

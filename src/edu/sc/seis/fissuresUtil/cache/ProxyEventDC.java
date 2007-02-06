@@ -37,6 +37,10 @@ public abstract class ProxyEventDC implements EventDCOperations,
         }
         return null;
     }
+    
+    public String getFullName(){
+        return getServerDNS() + "/" + getServerName();
+    }
 
     public String getServerType() {
         return EVENTDC_TYPE;

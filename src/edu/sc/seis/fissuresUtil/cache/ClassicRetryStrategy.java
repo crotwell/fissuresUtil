@@ -14,10 +14,13 @@ public class ClassicRetryStrategy extends BaseRetryStrategy {
         } else {
             tryString = "infinity";
         }
-        logger.debug("Caught exception on " + server.getServerDNS() + "/"
-                + server.getServerName() + ", retrying " + tryCount + " of "
-                + tryString, exc);
+        logger.debug("Caught exception on " + server.getFullName()
+                + ", retrying " + tryCount + " of " + tryString, exc);
         return basicShouldRetry(exc, server, tryCount, numRetries);
+    }
+
+    public void serverRecovered(CorbaServerWrapper server) {
+        logger.debug(server.getFullName() + " recovered");
     }
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ClassicRetryStrategy.class);

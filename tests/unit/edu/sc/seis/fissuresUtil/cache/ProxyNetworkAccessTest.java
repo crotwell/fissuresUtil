@@ -21,7 +21,13 @@ public class ProxyNetworkAccessTest extends TestCase {
             return true;
         }
 
+        public void serverRecovered(CorbaServerWrapper server) {
+            recovered = true;
+        }
+
         private int count = 0;
+        
+        private boolean recovered = false;
     }
 
     public void testGettingNameAndDNS() {
@@ -48,5 +54,6 @@ public class ProxyNetworkAccessTest extends TestCase {
         NetworkAccess[] nets = ndc.a_finder().retrieve_all();
         nets[0].retrieve_stations();
         assertEquals(1, c.count);
+        assertEquals(true,c.recovered);
     }
 }
