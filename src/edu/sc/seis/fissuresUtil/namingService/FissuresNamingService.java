@@ -136,7 +136,7 @@ public class FissuresNamingService {
     }
 
     public void reset() {
-        if(rootNamingContext != null){
+        if(rootNamingContext != null) {
             rootNamingContext._release();
         }
         rootNamingContext = null;
@@ -791,7 +791,7 @@ public class FissuresNamingService {
         throw new IllegalArgumentException(cl.getName() + " not recognized");
     }
 
-    private String nameServiceCorbaLoc = null;
+    private String nameServiceCorbaLoc;
 
     private org.omg.CORBA_2_3.ORB orb;
 
