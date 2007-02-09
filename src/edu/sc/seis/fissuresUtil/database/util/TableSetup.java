@@ -3,6 +3,8 @@ package edu.sc.seis.fissuresUtil.database.util;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
@@ -32,7 +34,12 @@ public class TableSetup {
                              Object tableObj,
                              String propFile,
                              String[] subtableNames) throws SQLException {
-        setup(tableName, conn, tableObj, propFile, new VelocityContext(), subtableNames);
+        setup(tableName,
+              conn,
+              tableObj,
+              propFile,
+              new VelocityContext(),
+              subtableNames);
     }
 
     public static void setup(String tableName,
@@ -100,10 +107,18 @@ public class TableSetup {
                                           Connection conn,
                                           SQLLoader statements)
             throws SQLException {
+        synchronized(createdTables) {
+            if(createdTables.contains(tablename)){
+                return;
+            }
+            createdTables.add(tablename);
+        }
         if(!DBUtil.tableExists(tablename, conn)) {
             String creationStmt = statements.get(tablename + ".create");
-            if(creationStmt == null) { throw new IllegalArgumentException("creation Statement, cannot be null: "
-                    + tablename + ".create"); }
+            if(creationStmt == null) {
+                throw new IllegalArgumentException("creation Statement, cannot be null: "
+                        + tablename + ".create");
+            }
             try {
                 conn.createStatement().executeUpdate(creationStmt);
             } catch(SQLException e) {
@@ -116,6 +131,8 @@ public class TableSetup {
             createIndices(tablename, conn, statements);
         }
     }
+
+    private static Set createdTables = new HashSet();
 
     private static void createIndices(String tablename,
                                       Connection conn,
