@@ -31,7 +31,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 12416 2005-03-11 18:50:08Z crotwell $
+ * @version $Id: EventInfoDisplay.java 18858 2007-02-21 17:14:01Z oliverpa $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay{
@@ -258,22 +258,6 @@ public class EventInfoDisplay extends TextInfoDisplay{
         appendLabelValue(doc, "Magnitude\t", mag.value+" "+mag.type+"  "+mag.contributor);
     }
 
-    public static Magnitude getBestForDisplay(Magnitude[] mags) {
-        if (mags == null || mags.length == 0) {
-            logger.warn("mag array must not be empty");
-            return null;
-        }
-
-        // prefer Mw magnitude over others, as this is what the dmc uses
-        // for pond inclusion/exclusion
-        for (int i = 0; i < mags.length; i++) {
-            if (mags[i].type.equalsIgnoreCase("mw")) {
-                return mags[i];
-            }
-        }
-        // no Mw, so return first item
-        return mags[0];
-    }
 
     public static Station[] sortStationsByDistance(Station[] stations,
                                                    EventAccessOperations event,
