@@ -62,8 +62,10 @@ public class BasicLayoutConfig implements LayoutConfig {
                 }
             }
         }
-        logger.debug("Seismograms not plotted becuase distance could not be determined: "
-                + noDist.size());
+        if(noDist.size() > 0) {
+            logger.debug(noDist.size()
+                    + " seismograms not plotted because distance could not be determined");
+        }
         if(someAdded) {
             fireLayoutEvent();
         }
@@ -175,9 +177,9 @@ public class BasicLayoutConfig implements LayoutConfig {
                 }
             }
             if(minDistBetween == Double.POSITIVE_INFINITY) {// if minDistBetween
-                                                            // hasn't changed,
-                                                            // all the seis are
-                                                            // at one place
+                // hasn't changed,
+                // all the seis are
+                // at one place
                 LayoutData[] data = new LayoutData[seis.length];
                 for(int i = 0; i < data.length; i++) {
                     data[i] = new LayoutData(seis[i], 0.0, 1.0);
