@@ -1,10 +1,7 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import java.io.OutputStream;
-import java.util.Calendar;
-import java.util.Date;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -15,10 +12,7 @@ import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
-import edu.iris.Fissures.network.ChannelIdUtil;
-import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * XMLParameter.java Created: Thu Jun 13 11:29:36 2002
@@ -381,10 +375,8 @@ public class XMLParameter {
         if(c.equals(EventAccessOperations.class)) {
             return makeEvent(parser);
         } else if(c.equals(Channel.class)) {
-            logger.debug("Class: " + c.getName() + ". making object for class Channel.class");
             return makeChannel(parser);
         }
-        logger.debug("Class: " + c.getName() + ".  returning null");
         return null;
     }
 
@@ -400,9 +392,6 @@ public class XMLParameter {
             throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "channel");
         Channel channel = XMLChannel.getChannel(parser);
-        if (channel != null) {
-            System.out.println("got channel " + ChannelIdUtil.toString(channel.get_id()));
-        }
         return channel;
     }
 

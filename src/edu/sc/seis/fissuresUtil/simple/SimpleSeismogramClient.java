@@ -24,8 +24,8 @@ public class SimpleSeismogramClient implements TestingClient {
         String serverDNS;
         String serverName;
         // iris
-//        serverDNS = "edu/iris/dmc";
-//        serverName = "IRIS_BudDataCenter";
+        serverDNS = "edu/iris/dmc";
+        serverName = "IRIS_BudDataCenter";
         // or
         //serverName = "IRIS_PondDataCenter";
         // or If using the archive, swtich the request filter used in exercise
@@ -36,8 +36,6 @@ public class SimpleSeismogramClient implements TestingClient {
         // South Carolina (SCEPP)
         //serverDNS="edu/sc/seis";
         //serverName="SCEPPSeismogramDC";
-        serverDNS = "edu/sc/seis/test";
-        serverName = "SNEP";
         try {
             /*
              * This step is not required, but sometimes helps to determine if a
@@ -77,7 +75,7 @@ public class SimpleSeismogramClient implements TestingClient {
 
     public void queuedRetrieve(String name) {
         try {
-            String id = seisDC.queue_seismograms(createOldRF());
+            String id = seisDC.queue_seismograms(createCurrentRF());
             logger.info("got id " + id + " for " + name);
             String status = seisDC.request_status(id);
             while(status.equals("Processing")) {
@@ -109,7 +107,7 @@ public class SimpleSeismogramClient implements TestingClient {
 
     public LocalSeismogram[] retrieve_seismograms(boolean verbose) {
         try {
-            LocalSeismogram[] seis = seisDC.retrieve_seismograms(createOldRF());
+            LocalSeismogram[] seis = seisDC.retrieve_seismograms(createCurrentRF());
             if(verbose) {
                 printSeisResults(seis);
             }
@@ -163,13 +161,13 @@ public class SimpleSeismogramClient implements TestingClient {
         Time[] queryTimes = new Time[2];
         SimpleDateFormat formatter = new SimpleDateFormat("G yyyy.MM.dd hh:mm:ss z");
         try {
-            queryTimes[0] = new MicroSecondDate(formatter.parse("AD 2006.09.20 06:23:25 GMT")).getFissuresTime();
-            queryTimes[1] = new MicroSecondDate(formatter.parse("AD 2006.09.21 06:46:29 GMT")).getFissuresTime();
+            queryTimes[0] = new MicroSecondDate(formatter.parse("AD 2003.07.20 06:23:25 GMT")).getFissuresTime();
+            queryTimes[1] = new MicroSecondDate(formatter.parse("AD 2003.09.20 06:46:29 GMT")).getFissuresTime();
         } catch(ParseException e) {
             e.printStackTrace();
         }
-        rf[0].channel_id = new ChannelId(new NetworkId("XE", queryTimes[1]),
-                                         "SNP43",
+        rf[0].channel_id = new ChannelId(new NetworkId("IU", queryTimes[1]),
+                                         "*",
                                          "*",
                                          "BHZ",
                                          queryTimes[1]);
@@ -177,8 +175,6 @@ public class SimpleSeismogramClient implements TestingClient {
         rf[0].start_time = queryTimes[0];
         return rf;
     }
-    
-    
 
     protected DataCenterOperations seisDC;
 

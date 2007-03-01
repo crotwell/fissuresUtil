@@ -11,7 +11,6 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
-import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.OrientationRange;
@@ -67,8 +66,6 @@ public class SimpleNetworkClient implements TestingClient {
              * you to find individual networks, and then retrieve information
              * about them.
              */
-            NetworkExplorer explorer = netDC.a_explorer();
-            logger.info("got NetworkExplorer");
             NetworkFinder finder = netDC.a_finder();
             logger.info("got NetworkFinder");
             /*

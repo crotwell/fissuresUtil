@@ -11,7 +11,6 @@ import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.Site;
-import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
 
 /**
@@ -95,7 +94,6 @@ public class XMLChannel {
             throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "id");
         ChannelId id = XMLChannelId.getChannelId(parser);
-        System.out.println("getChannel called for station " + ChannelIdUtil.toString(id));
         XMLUtil.gotoNextStartElement(parser, "name");
         String name = parser.getElementText();
         XMLUtil.gotoNextStartElement(parser, "an_orientation");

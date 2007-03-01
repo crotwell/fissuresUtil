@@ -701,7 +701,6 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         XMLUtil.gotoNextStartElement(parser, "url");
         List urlList = new ArrayList();
         List fileTypeList = new ArrayList();
-        System.out.println(parser.getAttributeValue(null, "href"));
         urlList.add(new URL(base, parser.getAttributeValue(null, "href")));
         fileTypeList.add(SeismogramFileTypes.fromString(parser.getAttributeValue(null,
                                                                                  "role")));
