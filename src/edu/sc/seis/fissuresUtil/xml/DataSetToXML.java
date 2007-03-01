@@ -284,7 +284,6 @@ public class DataSetToXML {
         DataSet dataset = null;
         DocumentBuilder docBuilder = getDocumentBuilder();
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        factory.setProperty("javax.xml.stream.isNamespaceAware", Boolean.FALSE);
         try {
             XMLStreamReader parser = factory.createXMLStreamReader(datasetURL.openStream());
             while(parser.hasNext()) {

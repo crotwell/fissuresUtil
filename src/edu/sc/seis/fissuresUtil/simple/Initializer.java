@@ -178,17 +178,6 @@ public abstract class Initializer {
                                                               "BHE",
                                                               new Time("20001209T01:00:00.000Z",
                                                                        22));
-    
-    public static final NetworkId SNEPNETWORK = new NetworkId("XE",
-                                                     new Time("20051209T01:00:00.000Z",
-                                                              22));
-
-    public static final ChannelId SNEPCHANNEL = new ChannelId(SNEPNETWORK,
-                                                              "SNP43",
-                                                              "*",
-                                                              "*",
-                                                              new Time("20051209T01:00:00.000Z",
-                                                                       22));
 
     public static final NetworkId fakeNet;
 

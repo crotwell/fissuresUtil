@@ -114,7 +114,7 @@ public class SimpleEventClient implements TestingClient {
     public EventAccess[] query_events(boolean verbose) {
         EventSeqIterHolder iter = new EventSeqIterHolder();
         MicroSecondDate end = ClockUtil.now();
-        MicroSecondDate start = end.subtract(new TimeInterval(2.0, UnitImpl.WEEK));
+        MicroSecondDate start = end.subtract(ONE_DAY);
 
         if(serverName.equals("NCSN_EventDC") || serverName.equals("Memphis")) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -171,8 +171,7 @@ public class SimpleEventClient implements TestingClient {
                         + o.my_location.latitude + ", "
                         + o.my_location.longitude + ") " + "with depth of "
                         + o.my_location.depth.value + " "
-                        + o.my_location.depth.the_units + " from catalogue " 
-                        + o.catalog);
+                        + o.my_location.depth.the_units);
         }
         return o;
     }
