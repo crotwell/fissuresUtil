@@ -33,3 +33,4 @@ edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:nameservice.seis.sc.e
 jacorb.connection.client.pending_reply_timeout=120000
 org.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
 org.omg.CORBA.ORBClass=org.jacorb.orb.ORB
+jacorb.log.verbosity=4
