@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 18167 2006-09-08 20:54:49Z oliverpa $
+ * @version $Id: SimplePlotUtil.java 18891 2007-03-07 01:47:10Z oliverpa $
  */
 public class SimplePlotUtil {
 
@@ -417,7 +417,7 @@ public class SimplePlotUtil {
         width = (TimeInterval)width.multiplyBy(index);
         return beginTime.add(width);
     }
-    
+
     public static int[] createRandomDataBits(int length) {
         int[] dataBits = new int[length];
         double tmpDouble;
@@ -442,34 +442,27 @@ public class SimplePlotUtil {
     }
 
     public static LocalSeismogramImpl createTestData(String name, int[] dataBits) {
-        String id = "Nowhere: " + name;
+        return createTestData(name, createBits(dataBits), dataBits.length);
+    }
+
+    public static LocalSeismogramImpl createTestData(String name,
+                                                     float[] dataBits) {
+        return createTestData(name, createBits(dataBits), dataBits.length);
+    }
+
+    private static LocalSeismogramImpl createTestData(String name,
+                                                      TimeSeriesDataSel bits,
+                                                      int bitsLength) {
         edu.iris.Fissures.Time time = new edu.iris.Fissures.Time("19991231T235959.000Z",
                                                                  -1);
         TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
         SamplingImpl sampling = new SamplingImpl(20, timeInterval);
-        ChannelId channelID = new ChannelId(new NetworkId("XX", time),
-                                            "FAKE",
-                                            "00",
-                                            "BHZ",
-                                            time);
-        TimeSeriesDataSel bits = new TimeSeriesDataSel();
-        bits.int_values(dataBits);
-        Property[] props = new Property[1];
-        props[0] = new Property("Name", name);
-        TimeInterval[] time_corr = new TimeInterval[1];
-        time_corr[0] = new TimeInterval(.123, UnitImpl.SECOND);
-        LocalSeismogramImpl seis = new LocalSeismogramImpl(id,
-                                                           props,
-                                                           time,
-                                                           dataBits.length,
-                                                           sampling,
-                                                           UnitImpl.COUNT,
-                                                           channelID,
-                                                           new ParameterRef[0],
-                                                           time_corr,
-                                                           new SamplingImpl[0],
-                                                           bits);
-        return seis;
+        return createTestData(name,
+                              bits,
+                              bitsLength,
+                              time,
+                              makeChanId(time),
+                              sampling);
     }
 
     public static ChannelId makeChanId(edu.iris.Fissures.Time time) {
@@ -500,9 +493,34 @@ public class SimplePlotUtil {
                                                      edu.iris.Fissures.Time time,
                                                      ChannelId channelID,
                                                      SamplingImpl sampling) {
+        return createTestData(name,
+                              createBits(dataBits),
+                              dataBits.length,
+                              time,
+                              channelID,
+                              sampling);
+    }
+
+    public static LocalSeismogramImpl createTestData(String name,
+                                                     float[] dataBits,
+                                                     edu.iris.Fissures.Time time,
+                                                     ChannelId channelID,
+                                                     SamplingImpl sampling) {
+        return createTestData(name,
+                              createBits(dataBits),
+                              dataBits.length,
+                              time,
+                              channelID,
+                              sampling);
+    }
+
+    private static LocalSeismogramImpl createTestData(String name,
+                                                      TimeSeriesDataSel bits,
+                                                      int bitsLength,
+                                                      edu.iris.Fissures.Time time,
+                                                      ChannelId channelID,
+                                                      SamplingImpl sampling) {
         String id = "Nowhere: " + name;
-        TimeSeriesDataSel bits = new TimeSeriesDataSel();
-        bits.int_values(dataBits);
         Property[] props = new Property[1];
         props[0] = new Property("Name", name);
         TimeInterval[] time_corr = new TimeInterval[1];
@@ -510,7 +528,7 @@ public class SimplePlotUtil {
         LocalSeismogramImpl seis = new LocalSeismogramImpl(id,
                                                            props,
                                                            time,
-                                                           dataBits.length,
+                                                           bitsLength,
                                                            sampling,
                                                            UnitImpl.COUNT,
                                                            channelID,
@@ -519,6 +537,18 @@ public class SimplePlotUtil {
                                                            new SamplingImpl[0],
                                                            bits);
         return seis;
+    }
+
+    private static TimeSeriesDataSel createBits(int[] dataBits) {
+        TimeSeriesDataSel bits = new TimeSeriesDataSel();
+        bits.int_values(dataBits);
+        return bits;
+    }
+
+    private static TimeSeriesDataSel createBits(float[] dataBits) {
+        TimeSeriesDataSel bits = new TimeSeriesDataSel();
+        bits.flt_values(dataBits);
+        return bits;
     }
 
     public static LocalSeismogramImpl createCustomSineWave() {
@@ -559,6 +589,18 @@ public class SimplePlotUtil {
             dataBits[i] = (int)Math.round(Math.sin(phase + i * Math.PI * hertz
                     / 20.0)
                     * amp);
+        }
+        return createTestData("Sine Wave, phase " + phase + " hertz " + hertz,
+                              dataBits);
+    }
+
+    public static LocalSeismogramImpl createFloatSineWave(double phase,
+                                                          double hertz,
+                                                          int numPoints,
+                                                          double amp) {
+        float[] dataBits = new float[numPoints];
+        for(int i = 0; i < dataBits.length; i++) {
+            dataBits[i] = (float)(Math.sin(phase + i * Math.PI * hertz / 20.0) * amp);
         }
         return createTestData("Sine Wave, phase " + phase + " hertz " + hertz,
                               dataBits);
