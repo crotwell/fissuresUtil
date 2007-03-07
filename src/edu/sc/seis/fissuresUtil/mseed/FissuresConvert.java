@@ -176,20 +176,13 @@ public class FissuresConvert {
             header.setLocationIdentifier(channel_id.site_code);
             header.setChannelIdentifier(channel_id.channel_code);
             header.setNetworkCode(channel_id.network_id.network_code);
-            TimeInterval sampPeriod = sampling_info.getPeriod();
             header.setStartBtime(getBtime(start));
             header.setNumSamples((short)eData[i].num_points);
+            TimeInterval sampPeriod = sampling_info.getPeriod();
             start = start.add((TimeInterval)sampPeriod.multiplyBy(eData[i].num_points));
-            double sps = 1 / sampPeriod.convertTo(UnitImpl.SECOND).getValue();
-            // don't get too close to the max for a short, use ceil as neg
-            int divisor = (int)Math.ceil((Short.MIN_VALUE + 2) / sps);
-            // don't get too close to the max for a short
-            if(divisor < Short.MIN_VALUE + 2) {
-                divisor = Short.MIN_VALUE + 2;
-            }
-            int factor = (int)Math.round(-1 * sps * divisor);
-            header.setSampleRateFactor((short)factor);
-            header.setSampleRateMultiplier((short)divisor);
+            short[] multiAndFactor = calcSeedMultipilerFactor(sampling_info);
+            header.setSampleRateFactor(multiAndFactor[0]);
+            header.setSampleRateMultiplier(multiAndFactor[1]);
             b1000.setEncodingFormat((byte)eData[i].compression);
             if(eData[i].byte_order) {
                 // seed uses oposite convention
@@ -210,6 +203,32 @@ public class FissuresConvert {
             list.add(dr);
         } // end of for ()
         return list;
+    }
+
+    public static short[] calcSeedMultipilerFactor(SamplingImpl sampling) {
+        TimeInterval sampPeriod = sampling.getPeriod();
+        double sps = 1 / sampPeriod.convertTo(UnitImpl.SECOND).getValue();
+        if(sps >= 1) {
+            // don't get too close to the max for a short, use ceil as neg
+            int divisor = (int)Math.ceil((Short.MIN_VALUE + 2) / sps);
+            // don't get too close to the max for a short
+            if(divisor < Short.MIN_VALUE + 2) {
+                divisor = Short.MIN_VALUE + 2;
+            }
+            int factor = (int)Math.round(-1 * sps * divisor);
+            return new short[] {(short)factor, (short)divisor};
+        } else {
+            // don't get too close to the max for a short, use ceil as neg
+            int factor = -1*(int)Math.round(Math.floor(1.0 * sps
+                    * (Short.MAX_VALUE - 2))
+                    / sps);
+            // don't get too close to the max for a short
+            if(factor > Short.MAX_VALUE - 2) {
+                factor = Short.MAX_VALUE - 2;
+            }
+            int divisor = (int)Math.round(-1 * factor * sps);
+            return new short[] {(short)factor, (short)divisor};
+        }
     }
 
     /**
@@ -282,37 +301,7 @@ public class FissuresConvert {
                 + getISOTime(header.getStartBtime());
         Property[] props = new Property[1];
         props[0] = new Property("Name", seisId);
-        Blockette[] blocketts = seed.getBlockettes(100);
-        int numPerSampling;
-        TimeInterval timeInterval;
-        if(blocketts.length != 0) {
-            Blockette100 b100 = (Blockette100)blocketts[0];
-            float f = b100.getActualSampleRate();
-            numPerSampling = 1;
-            timeInterval = new TimeInterval(1 / f, UnitImpl.SECOND);
-        } else {
-            if(header.getSampleRateFactor() > 0) {
-                numPerSampling = header.getSampleRateFactor();
-                timeInterval = new TimeInterval(1, UnitImpl.SECOND);
-                if(header.getSampleRateMultiplier() > 0) {
-                    numPerSampling *= header.getSampleRateMultiplier();
-                } else {
-                    timeInterval = (TimeInterval)timeInterval.multiplyBy(-1
-                            * header.getSampleRateMultiplier());
-                }
-            } else {
-                numPerSampling = 1;
-                timeInterval = new TimeInterval(-1
-                        * header.getSampleRateFactor(), UnitImpl.SECOND);
-                if(header.getSampleRateMultiplier() > 0) {
-                    numPerSampling *= header.getSampleRateMultiplier();
-                } else {
-                    timeInterval = (TimeInterval)timeInterval.multiplyBy(-1
-                            * header.getSampleRateMultiplier());
-                }
-            }
-        }
-        SamplingImpl sampling = new SamplingImpl(numPerSampling, timeInterval);
+        SamplingImpl sampling = convertSampleRate(seed);
         TimeSeriesDataSel bits = convertData(seed);
         return new LocalSeismogramImpl(seisId,
                                        props,
@@ -325,6 +314,49 @@ public class FissuresConvert {
                                        new QuantityImpl[0],
                                        new SamplingImpl[0],
                                        bits);
+    }
+
+    public static SamplingImpl convertSampleRate(DataRecord seed) {
+        SamplingImpl sampling;
+        Blockette[] blocketts = seed.getBlockettes(100);
+        int numPerSampling;
+        TimeInterval timeInterval;
+        if(blocketts.length != 0) {
+            Blockette100 b100 = (Blockette100)blocketts[0];
+            float f = b100.getActualSampleRate();
+            numPerSampling = 1;
+            timeInterval = new TimeInterval(1 / f, UnitImpl.SECOND);
+            sampling = new SamplingImpl(numPerSampling, timeInterval);
+        } else {
+            DataHeader header = seed.getHeader();
+            sampling = convertSampleRate(header.getSampleRateMultiplier(),
+                                         header.getSampleRateFactor());
+        }
+        return sampling;
+    }
+
+    public static SamplingImpl convertSampleRate(int multi, int factor) {
+        int numPerSampling;
+        TimeInterval timeInterval;
+        if(factor > 0) {
+            numPerSampling = factor;
+            timeInterval = new TimeInterval(1, UnitImpl.SECOND);
+            if(multi > 0) {
+                numPerSampling *= multi;
+            } else {
+                timeInterval = (TimeInterval)timeInterval.multiplyBy(-1 * multi);
+            }
+        } else {
+            numPerSampling = 1;
+            timeInterval = new TimeInterval(-1 * factor, UnitImpl.SECOND);
+            if(multi > 0) {
+                numPerSampling *= multi;
+            } else {
+                timeInterval = (TimeInterval)timeInterval.multiplyBy(-1 * multi);
+            }
+        }
+        SamplingImpl sampling = new SamplingImpl(numPerSampling, timeInterval);
+        return sampling;
     }
 
     public static TimeSeriesDataSel convertData(DataRecord seed)
