@@ -31,11 +31,6 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
     public String getServerName() {
         return serverName;
     }
-    
-    public String getFullName(){
-        return getServerDNS() + "/" + getServerName();
-    }
-
 
     public synchronized void reset() {
         if(eventDC != null) {

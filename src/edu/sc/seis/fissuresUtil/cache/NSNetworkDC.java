@@ -11,7 +11,7 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
  * @author <a href="mailto:crotwell@owl.seis.sc.edu">Philip Crotwell </a>
  * @version 1.0
  */
-public class NSNetworkDC implements ServerNameDNS, ProxyNetworkDC {
+public class NSNetworkDC implements ProxyNetworkDC {
 
     public NSNetworkDC(String serverDNS,
                        String serverName,
