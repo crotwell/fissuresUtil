@@ -44,6 +44,19 @@ public class CoverageToolTest extends TestCase {
         }
     }
 
+    public void testPatchyCoverageIgnoreGaps() {
+        MicroSecondTimeRange[] patches = {makeTimeRange(1, 2),
+                                          makeTimeRange(6, 7)};
+        RequestFilter[] uncovered = CoverageTool.notCoveredIgnoreGaps(toArray(TEN_RF),
+                                                                      patches);
+        assertEquals(2, uncovered.length);
+        RequestFilter[] actualUncovered = {makeRF(0, 1), makeRF(7, 10)};
+        for(int i = 0; i < actualUncovered.length; i++) {
+            assertTrue(RequestFilterUtil.areEqual(actualUncovered[i],
+                                                  uncovered[i]));
+        }
+    }
+
     public void testOverCovered() {
         MicroSecondTimeRange[] times = {makeTimeRange(-1, 15),
                                         makeTimeRange(2, 27)};
