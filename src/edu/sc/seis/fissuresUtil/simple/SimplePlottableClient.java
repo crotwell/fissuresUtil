@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.simple;
 
-import org.apache.log4j.BasicConfigurator;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.Dimension;
@@ -21,9 +20,9 @@ public class SimplePlottableClient implements TestingClient {
         // Delilah BUD Plottable Server
         serverDNS = "edu/sc/seis";
         // serves only cached plottable data
-        //serverName = "DelilahCache";
+        serverName = "DelilahCache";
         // goes to BUD to get any non-cached plottable data
-        serverName = "Delilah";
+        // serverName = "Delilah";
         try {
             /*
              * This step is not required, but sometimes helps to determine if a
