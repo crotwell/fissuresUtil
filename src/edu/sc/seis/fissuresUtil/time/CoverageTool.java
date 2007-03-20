@@ -83,4 +83,12 @@ public class CoverageTool {
         }
         return (RequestFilter[])unsatisfied.toArray(new RequestFilter[unsatisfied.size()]);
     }
+
+    public static RequestFilter[] notCoveredIgnoreGaps(RequestFilter[] filters,
+                                                       MicroSecondTimeRange[] timeRanges) {
+        timeRanges = SortTool.byBeginTimeAscending(timeRanges);
+        MicroSecondTimeRange allCoverage = new MicroSecondTimeRange(timeRanges[0],
+                                                                    timeRanges[timeRanges.length - 1]);
+        return notCovered(filters, new MicroSecondTimeRange[] {allCoverage});
+    }
 }
