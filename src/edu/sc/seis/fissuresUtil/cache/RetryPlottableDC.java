@@ -1,10 +1,10 @@
 /**
  * RetryPlottableDC.java
- *
+ * 
  * @author Philip Crotwell
  */
-
 package edu.sc.seis.fissuresUtil.cache;
+
 import org.omg.CORBA.SystemException;
 import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.NotImplemented;
@@ -17,52 +17,67 @@ import edu.iris.Fissures.IfPlottable.PlottableNotAvailable;
 import edu.iris.Fissures.IfPlottable.UnsupportedDimension;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 
+public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
 
+    public RetryPlottableDC(NSPlottableDC plottable, int retry) {
+        this(plottable, retry, new ClassicRetryStrategy());
+    }
 
-public class RetryPlottableDC implements ProxyPlottableDC {
-
-    public RetryPlottableDC(PlottableDCOperations plottable, int retry) {
+    public RetryPlottableDC(NSPlottableDC plottable,
+                            int retry,
+                            RetryStrategy strat) {
         this.plottable = plottable;
         this.retry = retry;
+        this.strat = strat;
     }
 
     public boolean custom_sizes() {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        try {
+            return plottable.custom_sizes();
+        } catch(SystemException t) {
+            lastException = t;
+        } catch(OutOfMemoryError e) {
+            // repackage to get at least a partial stack trace
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(lastException, this, count++, retry)) {
             try {
-                return plottable.custom_sizes();
-            } catch (SystemException t) {
+                boolean result = plottable.custom_sizes();
+                strat.serverRecovered(this);
+                return result;
+            } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch (OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
+            } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
         throw lastException;
     }
 
-    public Plottable[] get_plottable(RequestFilter request, Dimension pixel_size) throws PlottableNotAvailable, UnsupportedDimension, NotImplemented {
-
+    public Plottable[] get_plottable(RequestFilter request, Dimension pixel_size)
+            throws PlottableNotAvailable, UnsupportedDimension, NotImplemented {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        try {
+            return plottable.get_plottable(request, pixel_size);
+        } catch(SystemException t) {
+            lastException = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(lastException, this, count++, retry)) {
             try {
-                return plottable.get_plottable(request, pixel_size);
-            } catch (SystemException t) {
+                Plottable[] result = plottable.get_plottable(request,
+                                                             pixel_size);
+                strat.serverRecovered(this);
+                return result;
+            } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch (OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
+            } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
         throw lastException;
     }
@@ -70,39 +85,54 @@ public class RetryPlottableDC implements ProxyPlottableDC {
     public Dimension[] get_whole_day_sizes() {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        try {
+            return plottable.get_whole_day_sizes();
+        } catch(SystemException t) {
+            lastException = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(lastException, this, count++, retry)) {
             try {
-                return plottable.get_whole_day_sizes();
-            } catch (SystemException t) {
+                Dimension[] result = plottable.get_whole_day_sizes();
+                strat.serverRecovered(this);
+                return result;
+            } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch (OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
+            } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
         throw lastException;
     }
 
-    public Plottable[] get_for_day(ChannelId channel_id, int year, int jday, Dimension pixel_size) throws PlottableNotAvailable, UnsupportedDimension {
+    public Plottable[] get_for_day(ChannelId channel_id,
+                                   int year,
+                                   int jday,
+                                   Dimension pixel_size)
+            throws PlottableNotAvailable, UnsupportedDimension {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        try {
+            return plottable.get_for_day(channel_id, year, jday, pixel_size);
+        } catch(SystemException t) {
+            lastException = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(lastException, this, count++, retry)) {
             try {
-                return plottable.get_for_day(channel_id, year, jday, pixel_size);
-            } catch (SystemException t) {
+                Plottable[] result = plottable.get_for_day(channel_id,
+                                                           year,
+                                                           jday,
+                                                           pixel_size);
+                strat.serverRecovered(this);
+                return result;
+            } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch (OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
+            } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
         throw lastException;
     }
@@ -110,39 +140,52 @@ public class RetryPlottableDC implements ProxyPlottableDC {
     public Dimension[] get_event_sizes() {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        try {
+            return plottable.get_event_sizes();
+        } catch(SystemException t) {
+            lastException = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(lastException, this, count++, retry)) {
             try {
-                return plottable.get_event_sizes();
-            } catch (SystemException t) {
+                Dimension[] result = plottable.get_event_sizes();
+                strat.serverRecovered(this);
+                return result;
+            } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch (OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
+            } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
         throw lastException;
     }
 
-    public Plottable[] get_for_event(EventAccess event, ChannelId channel_id, Dimension pixel_size) throws PlottableNotAvailable, UnsupportedDimension {
+    public Plottable[] get_for_event(EventAccess event,
+                                     ChannelId channel_id,
+                                     Dimension pixel_size)
+            throws PlottableNotAvailable, UnsupportedDimension {
         int count = 0;
         SystemException lastException = null;
-        while (count < retry) {
+        try {
+            return plottable.get_for_event(event, channel_id, pixel_size);
+        } catch(SystemException t) {
+            lastException = t;
+        } catch(OutOfMemoryError e) {
+            throw new RuntimeException("Out of memory", e);
+        }
+        while(strat.shouldRetry(lastException, this, count++, retry)) {
             try {
-                return plottable.get_for_event(event, channel_id, pixel_size);
-            } catch (SystemException t) {
+                Plottable[] result = plottable.get_for_event(event,
+                                                             channel_id,
+                                                             pixel_size);
+                strat.serverRecovered(this);
+                return result;
+            } catch(SystemException t) {
                 lastException = t;
-                logger.warn("Caught exception, retrying "+count, t);
-                BulletproofVestFactory.retrySleep(count);
-                reset();
-            } catch (OutOfMemoryError e) {
-                // repackage to get at least a partial stack trace
+            } catch(OutOfMemoryError e) {
                 throw new RuntimeException("Out of memory", e);
             }
-            count++;
         }
         throw lastException;
     }
@@ -152,34 +195,52 @@ public class RetryPlottableDC implements ProxyPlottableDC {
     }
 
     public PlottableDCOperations getWrappedDC(Class wrappedClass) {
-        if(getWrappedDC().getClass().equals(wrappedClass)){
+        if(getWrappedDC().getClass().equals(wrappedClass)) {
             return getWrappedDC();
-        }else if(getWrappedDC().getClass().equals(ProxySeismogramDC.class)){
+        } else if(getWrappedDC().getClass().equals(ProxySeismogramDC.class)) {
             ((ProxySeismogramDC)getWrappedDC()).getWrappedDC(wrappedClass);
         }
-        throw new IllegalArgumentException("This doesn't contain a DC of class " + wrappedClass);
+        throw new IllegalArgumentException("This doesn't contain a DC of class "
+                + wrappedClass);
     }
 
     public void reset() {
-        if (plottable instanceof ProxyPlottableDC) {
+        if(plottable instanceof ProxyPlottableDC) {
             ((ProxyPlottableDC)plottable).reset();
         }
     }
 
     public PlottableDC getCorbaObject() {
-        if (plottable instanceof PlottableDC) {
+        if(plottable instanceof PlottableDC) {
             return (PlottableDC)plottable;
-        } else if (plottable instanceof ProxyPlottableDC) {
+        } else if(plottable instanceof ProxyPlottableDC) {
             return ((ProxyPlottableDC)plottable).getCorbaObject();
         } else {
             throw new RuntimeException("subplottable not a PlottableDC or ProxyPlottableDC");
         }
     }
 
-    PlottableDCOperations plottable;
+    public String getFullName() {
+        return getServerDNS() + "/" + getServerName();
+    }
+
+    public String getServerDNS() {
+        return plottable.getServerDNS();
+    }
+
+    public String getServerName() {
+        return plottable.getServerName();
+    }
+
+    public String getServerType() {
+        return plottable.getServerType();
+    }
+
+    NSPlottableDC plottable;
+
     int retry;
 
+    RetryStrategy strat;
+
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RetryPlottableDC.class);
-
 }
-
