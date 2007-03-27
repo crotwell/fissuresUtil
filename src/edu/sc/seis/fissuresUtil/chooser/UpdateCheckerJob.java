@@ -5,10 +5,11 @@
  */
 package edu.sc.seis.fissuresUtil.chooser;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
-import org.apache.log4j.Logger;
 import com.isti.util.updatechecker.LocationUpdate;
 import com.isti.util.updatechecker.UpdateAction;
 import com.isti.util.updatechecker.UpdateInformation;
@@ -60,6 +61,9 @@ public class UpdateCheckerJob extends AbstractJob {
         }
         checkedYet = true;
         boolean checkNeeded = true;
+        //Turn off pref logging so it doesn't complain on Linux if the pref node isn't there.
+        Logger prefsLogger = Logger.getLogger("java.util.prefs");
+        prefsLogger.setLevel(Level.OFF);
         prefs = prefs.node("UpdateCheckerTask");
         MicroSecondDate now = ClockUtil.now();
         String nextCheckDate = prefs.get(prefsName, now.subtract(SIX_HOUR)
@@ -182,5 +186,5 @@ public class UpdateCheckerJob extends AbstractJob {
 
     static final String NEXT_CHECK_DATE = "nextCheckDate";
 
-    private static final Logger logger = Logger.getLogger(UpdateCheckerJob.class);
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(UpdateCheckerJob.class);
 }
