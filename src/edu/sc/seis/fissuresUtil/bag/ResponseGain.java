@@ -9,14 +9,8 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.InstrumentationLoader;
 
 /**
- * Applys the overall sensitivity to a seismogram. This is purely a scale
+ * Applies the overall sensitivity to a seismogram. This is purely a scale
  * factor, no frequency change is done.
- * 
- * 
- * Created: Wed Nov 6 18:37:15 2002
- * 
- * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version
  */
 public class ResponseGain {
 
