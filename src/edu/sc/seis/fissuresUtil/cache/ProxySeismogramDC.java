@@ -7,7 +7,7 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 
-public interface ProxySeismogramDC extends DataCenterOperations {
+public interface ProxySeismogramDC extends DataCenterOperations, CorbaServerWrapper {
 
     /**
      * Returns the DataCenterOperations directly inside of this one
