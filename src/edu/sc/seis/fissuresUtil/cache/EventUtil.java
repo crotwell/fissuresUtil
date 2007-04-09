@@ -6,9 +6,14 @@ package edu.sc.seis.fissuresUtil.cache;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.TimeZone;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
+import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -35,6 +40,46 @@ public class EventUtil {
             }
             throw new RuntimeException("No preferred origin", e);
         }
+    }
+
+    public static Magnitude[] sortMagnitudes(Magnitude[] mags) {
+        List compMagList = new ArrayList();
+        for(int i = 0; i < mags.length; i++) {
+            compMagList.add(new ComparableTypeMagnitudeWrapper(mags[i]));
+        }
+        Collections.sort(compMagList);
+        Magnitude[] sortedMags = new Magnitude[mags.length];
+        for(int i = 0; i < compMagList.size(); i++) {
+            sortedMags[i] = ((ComparableTypeMagnitudeWrapper)compMagList.get(i)).mag;
+        }
+        return sortedMags;
+    }
+
+    public static Magnitude getBestMagnitude(Magnitude[] mags) {
+        return sortMagnitudes(mags)[0];
+    }
+
+    private static class ComparableTypeMagnitudeWrapper implements Comparable {
+
+        public ComparableTypeMagnitudeWrapper(Magnitude mag) {
+            this.mag = mag;
+        }
+
+        public int compareTo(Object obj) {
+            ComparableTypeMagnitudeWrapper compMag = (ComparableTypeMagnitudeWrapper)obj;
+            if(PREFERRED_MAG_TYPES.contains(mag.type)) {
+                if(PREFERRED_MAG_TYPES.contains(compMag.mag.type)) {
+                    return PREFERRED_MAG_TYPES.indexOf(mag.type)
+                            - PREFERRED_MAG_TYPES.indexOf(compMag.mag.type);
+                }
+                return -1;
+            } else if(PREFERRED_MAG_TYPES.contains(compMag.mag.type)) {
+                return 1;
+            }
+            return mag.type.compareTo(compMag.mag.type);
+        }
+
+        Magnitude mag;
     }
 
     /**
@@ -157,8 +202,24 @@ public class EventUtil {
                                                   CONTRIB};
 
     public static final String NO_ARG_STRING = "Event: " + LOC + " | " + TIME
-            + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT + " | ("
-            + LAT + ", " + LON + ")";
+            + " | Mag: " + MAG + " | Depth " + DEPTH + " " + DEPTH_UNIT
+            + " | (" + LAT + ", " + LON + ")";
+
+    public static List PREFERRED_MAG_TYPES;
+    static {
+        String[] prefMagTypes = {"MO",
+                                 "Mo",
+                                 "MW",
+                                 "Mw",
+                                 "MS",
+                                 "Ms",
+                                 "MB",
+                                 "Mb",
+                                 "ML",
+                                 "Ml",
+                                 "M"};
+        PREFERRED_MAG_TYPES = Arrays.asList(prefMagTypes);
+    }
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(EventUtil.class);
 }
