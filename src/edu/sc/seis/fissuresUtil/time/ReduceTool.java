@@ -77,8 +77,10 @@ public class ReduceTool {
                                               iBegin.subtract(halfSample));
                             seis[j] = cut.apply(seis[j]);
                         }
-                        seis[i] = merger.merge(seis[i], seis[j]);
-                        seis[j] = null;
+                        if (seis[j] != null) {
+                            seis[i] = merger.merge(seis[i], seis[j]);
+                            seis[j] = null;
+                        }
                         changeMade = true;
                     }
                 }
