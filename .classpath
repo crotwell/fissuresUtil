@@ -18,10 +18,10 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.8.0.4_USC1.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/fissuresImpl1"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/TauP"/>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="edu/sc/seis/fissuresUtil/display/usgsFECode/" kind="src" path="src"/>
 	<classpathentry kind="src" output="target/test-classes" path="tests/database"/>
 	<classpathentry kind="src" output="target/test-classes" path="tests/display"/>
-	<classpathentry kind="src" output="target/test-classes" path="tests/unit"/>
+	<classpathentry excluding="edu/sc/seis/fissuresUtil/display/drawable/EventBoxesTest.java" kind="src" output="target/test-classes" path="tests/unit"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jfreechart/jars/jfreechart-1.0.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jfreechart/jars/jcommon-1.0.0.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/TauP/jars/TauP-1.2beta.jar"/>
