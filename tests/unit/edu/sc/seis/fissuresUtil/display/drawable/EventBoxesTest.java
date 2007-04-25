@@ -12,6 +12,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.SeismicPhase;
 import edu.sc.seis.TauP.TauModel;
+import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
@@ -87,7 +88,7 @@ public class EventBoxesTest extends TestCase {
                                         double arrivalTimeInSeconds) {
         CacheEvent ev = MockEventAccessOperations.createEvent();
         PlottableDisplay disp = new PlottableDisplay();
-        Arrival arr = new Arrival(new SeismicPhase("3kmps", new TauModel()),
+        Arrival arr = new Arrival(new SeismicPhase("3kmps", TauPUtil.getTauPUtil().getTauModel()),
                                   arrivalTimeInSeconds,
                                   1d,
                                   1d,
