@@ -17,19 +17,17 @@ public class ButterworthFilter
     extends edu.sc.seis.fissuresUtil.freq.ButterworthFilter
     implements LocalSeismogramFunction {
 
-    public ButterworthFilter(SeisGramText localeText,
-                             double lowFreqCorner,
+    public ButterworthFilter(double lowFreqCorner,
                              double highFreqCorner,
                              int numPoles){
-        super(localeText, lowFreqCorner, highFreqCorner, numPoles);
+        super(new SeisGramText(), lowFreqCorner, highFreqCorner, numPoles);
     }
 
-    public ButterworthFilter(SeisGramText localeText,
-                             double lowFreqCorner,
+    public ButterworthFilter(double lowFreqCorner,
                              double highFreqCorner,
                              int numPoles,
                              int filterType){
-        super(localeText, lowFreqCorner, highFreqCorner, numPoles, filterType);
+        super(new SeisGramText(), lowFreqCorner, highFreqCorner, numPoles, filterType);
     }
 
     /** Applys the cut to the seismogram. Returns null if no data is within
