@@ -95,7 +95,7 @@ public class ClockUtil {
         } // end of try-catch
     }
 
-    private static MicroSecondDate OLD_DATE = new ISOTime("2004-04-01T00:00:00.000Z").getDate();
+    private static MicroSecondDate OLD_DATE = new ISOTime("2007-04-01T00:00:00.000Z").getDate();
 
     private static TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 } // ClockUtil
