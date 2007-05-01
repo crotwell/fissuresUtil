@@ -42,27 +42,49 @@ public class EventUtil {
         }
     }
 
-    public static Magnitude[] sortMagnitudes(Magnitude[] mags) {
+    public static Magnitude[] sortByValue(Magnitude[] mags) {
+        List compMagList = new ArrayList();
+        for(int i = 0; i < mags.length; i++) {
+            compMagList.add(new ComparableValueMagnitudeWrapper(mags[i]));
+        }
+        return sortAndExtract(compMagList);
+    }
+
+    public static Magnitude getSmallest(Magnitude[] mags) {
+        return sortByValue(mags)[0];
+    }
+
+    public static Magnitude getLargest(Magnitude[] mags) {
+        return sortByValue(mags)[mags.length - 1];
+    }
+
+    public static Magnitude[] sortByType(Magnitude[] mags) {
         List compMagList = new ArrayList();
         for(int i = 0; i < mags.length; i++) {
             compMagList.add(new ComparableTypeMagnitudeWrapper(mags[i]));
         }
-        Collections.sort(compMagList);
-        Magnitude[] sortedMags = new Magnitude[mags.length];
-        for(int i = 0; i < compMagList.size(); i++) {
-            sortedMags[i] = ((ComparableTypeMagnitudeWrapper)compMagList.get(i)).mag;
+        return sortAndExtract(compMagList);
+    }
+
+    public static Magnitude getBestByType(Magnitude[] mags) {
+        return sortByType(mags)[0];
+    }
+
+    private static abstract class ComparableMagnitudeWrapper implements
+            Comparable {
+
+        public ComparableMagnitudeWrapper(Magnitude mag) {
+            this.mag = mag;
         }
-        return sortedMags;
+
+        Magnitude mag;
     }
 
-    public static Magnitude getBestMagnitude(Magnitude[] mags) {
-        return sortMagnitudes(mags)[0];
-    }
-
-    private static class ComparableTypeMagnitudeWrapper implements Comparable {
+    private static class ComparableTypeMagnitudeWrapper extends
+            ComparableMagnitudeWrapper {
 
         public ComparableTypeMagnitudeWrapper(Magnitude mag) {
-            this.mag = mag;
+            super(mag);
         }
 
         public int compareTo(Object obj) {
@@ -78,8 +100,28 @@ public class EventUtil {
             }
             return mag.type.compareTo(compMag.mag.type);
         }
+    }
 
-        Magnitude mag;
+    private static class ComparableValueMagnitudeWrapper extends
+            ComparableMagnitudeWrapper {
+
+        public ComparableValueMagnitudeWrapper(Magnitude mag) {
+            super(mag);
+        }
+
+        public int compareTo(Object obj) {
+            ComparableValueMagnitudeWrapper compMag = (ComparableValueMagnitudeWrapper)obj;
+            return Float.compare(mag.value, compMag.mag.value);
+        }
+    }
+
+    private static Magnitude[] sortAndExtract(List wrappedComparableMagnitudes) {
+        Collections.sort(wrappedComparableMagnitudes);
+        Magnitude[] sortedMags = new Magnitude[wrappedComparableMagnitudes.size()];
+        for(int i = 0; i < wrappedComparableMagnitudes.size(); i++) {
+            sortedMags[i] = ((ComparableMagnitudeWrapper)wrappedComparableMagnitudes.get(i)).mag;
+        }
+        return sortedMags;
     }
 
     /**
