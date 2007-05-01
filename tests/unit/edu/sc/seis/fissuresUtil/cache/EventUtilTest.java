@@ -10,7 +10,7 @@ public class EventUtilTest extends TestCase {
         Magnitude[] controlMags = createMagArray(controlTypes);
         String[] unsortedTypes = {"A", "M", "ME", "MO", "Mw"};
         Magnitude[] unsortedMags = createMagArray(unsortedTypes);
-        Magnitude[] sortedMagnitudes = EventUtil.sortMagnitudes(unsortedMags);
+        Magnitude[] sortedMagnitudes = EventUtil.sortByType(unsortedMags);
         for(int i = 0; i < sortedMagnitudes.length; i++) {
             assertEquals(controlMags[i].type, sortedMagnitudes[i].type);
         }
