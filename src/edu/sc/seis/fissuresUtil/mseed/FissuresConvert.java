@@ -458,8 +458,8 @@ public class FissuresConvert {
         try {
             impl = (UnitImpl)new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
         } catch(ClassNotFoundException cnf) {
-            throw new IllegalArgumentException("The serialized bytes passed to fromBytes must contain a serialized UnitImpl, instead it was a class we couldn't find",
-                                               cnf);
+            throw new IllegalArgumentException("The serialized bytes passed to fromBytes must contain a serialized UnitImpl, instead it was a class we couldn't find: "
+                    + cnf.getMessage());
         }
         singletonizeUnitBase(impl);
         return impl;
