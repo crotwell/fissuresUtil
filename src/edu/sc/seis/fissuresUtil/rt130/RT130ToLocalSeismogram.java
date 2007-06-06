@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.log4j.Logger;
+import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.Sampling;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.SamplingImpl;
@@ -79,12 +83,22 @@ public class RT130ToLocalSeismogram {
         timeSeriesDataSel.encoded_values(seismogramData.encoded_data);
         MicroSecondDate beginTimeOfSeismogram = LeapSecondApplier.applyLeapSecondCorrection(seismogramData.unitIdNumber,
                                                                                             seismogramData.getBeginTimeOfSeismogram());
+        Property[] properties = new Property[0];
+        TimeInterval correction = seismogramData.getBeginTimeOfSeismogram().subtract(beginTimeOfSeismogram);
+        if (correction.value != 0) {
+            properties = new Property[] { new Property("SNEP Server Leap Seconds",
+                                                       ""+correction.getValue(UnitImpl.SECOND)) };
+        }
         return new LocalSeismogramImpl(ChannelIdUtil.toString(id),
+                                       properties,
                                        beginTimeOfSeismogram.getFissuresTime(),
                                        numPoints,
                                        sampling,
                                        UnitImpl.COUNT,
                                        id,
+                                       new ParameterRef[0] ,
+                                       new Quantity[0] ,
+                                       new Sampling[0] ,
                                        timeSeriesDataSel);
     }
 
