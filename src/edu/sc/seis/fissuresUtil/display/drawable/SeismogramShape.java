@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
@@ -24,7 +25,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  * SeismogramShape.java Created: Fri Jul 26 16:06:52 2002
  * 
  * @author <a href="mailto:">Charlie Groves </a>
- * @version $Id: SeismogramShape.java 16890 2006-04-14 20:39:12Z groves $
+ * @version $Id: SeismogramShape.java 19046 2007-06-07 17:49:09Z crotwell $
  */
 public class SeismogramShape implements Shape, SeismogramContainerListener {
 
@@ -257,9 +258,12 @@ public class SeismogramShape implements Shape, SeismogramContainerListener {
                     + (lastPoint * difference);
         }
         if(Math.floor(unroundEndPoint) > Math.ceil(unroundStartPoint)) {
-            values[1] = container.getIterator()
-                    .getValueAt(endPoint + 1)
-                    .getValue();
+            QuantityImpl tmpVal = container.getIterator().getValueAt(endPoint + 1);
+            if (tmpVal != null) {
+                values[1] = tmpVal.getValue();
+            } else {
+                values[1] = values[0];
+            }
         } else {
             values[1] = values[0];
         }
