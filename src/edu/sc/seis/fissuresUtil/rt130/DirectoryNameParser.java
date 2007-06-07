@@ -19,7 +19,9 @@ public class DirectoryNameParser {
      */
     public static MicroSecondDate getTime(File file) {
         String name = file.getName();
-        if(dumpyDasDir.matcher(name).matches()) {
+        if (name.startsWith(".")) {
+            return null;
+        } else if(dumpyDasDir.matcher(name).matches()) {
             return getTimeFromDumppyDirectory(file);
         } else if(dayDir.matcher(name).matches()) {
             return getTimeFromDayDirectory(file);
