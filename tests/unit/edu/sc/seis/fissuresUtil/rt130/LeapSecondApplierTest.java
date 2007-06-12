@@ -145,11 +145,11 @@ public class LeapSecondApplierTest extends TestCase {
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("xxxx",
                                                                               date);
         cal.setTime(newDate);
-        assertEquals(cal.get(Calendar.YEAR), 2006);
-        assertEquals(cal.get(Calendar.DAY_OF_YEAR), 005);
-        assertEquals(cal.get(Calendar.HOUR_OF_DAY), 12);
-        assertEquals(cal.get(Calendar.MINUTE), 30);
-        assertEquals(cal.get(Calendar.SECOND), 29);
+        assertEquals(2006, cal.get(Calendar.YEAR));
+        assertEquals(005, cal.get(Calendar.DAY_OF_YEAR));
+        assertEquals( 12, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(30, cal.get(Calendar.MINUTE));
+        assertEquals(29, cal.get(Calendar.SECOND));
     }
 
     public void testApplicationOfLeapSecond_AfterTwoLeapSecondOccurences_WithUnkownUnitId()
@@ -158,11 +158,11 @@ public class LeapSecondApplierTest extends TestCase {
         MicroSecondDate newDate = LeapSecondApplier.applyLeapSecondCorrection("xxxx",
                                                                               date);
         cal.setTime(newDate);
-        assertEquals(cal.get(Calendar.YEAR), 2006);
-        assertEquals(cal.get(Calendar.DAY_OF_YEAR), 182);
-        assertEquals(cal.get(Calendar.HOUR_OF_DAY), 12);
-        assertEquals(cal.get(Calendar.MINUTE), 30);
-        assertEquals(cal.get(Calendar.SECOND), 28);
+        assertEquals(2006, cal.get(Calendar.YEAR));
+        assertEquals(182, cal.get(Calendar.DAY_OF_YEAR));
+        assertEquals(12, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(30, cal.get(Calendar.MINUTE));
+        assertEquals(28, cal.get(Calendar.SECOND));
     }
 
     private String leapSecondsFileLoc = "edu/sc/seis/fissuresUtil/rt130/LeapSecondsFile.txt";
