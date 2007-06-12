@@ -85,11 +85,9 @@ public class RT130ToLocalSeismogram {
                                                                                             seismogramData.getBeginTimeOfSeismogram());
         Property[] properties = new Property[0];
         TimeInterval correction = seismogramData.getBeginTimeOfSeismogram().subtract(beginTimeOfSeismogram);
-        if (correction.value != 0) {
             properties = new Property[] { new Property("SNEP Server Leap Seconds",
                                                        ""+correction.getValue(UnitImpl.SECOND)) };
-        }
-        return new LocalSeismogramImpl(ChannelIdUtil.toString(id),
+            LocalSeismogramImpl out =  new LocalSeismogramImpl(ChannelIdUtil.toString(id),
                                        properties,
                                        beginTimeOfSeismogram.getFissuresTime(),
                                        numPoints,
@@ -100,6 +98,7 @@ public class RT130ToLocalSeismogram {
                                        new Quantity[0] ,
                                        new Sampling[0] ,
                                        timeSeriesDataSel);
+            return out;
     }
 
     private Channel[] createChannel(PacketType seismogramData) {
