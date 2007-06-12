@@ -26,7 +26,7 @@ public class LeapSecondApplier {
 
     private static List leapSecondOccurrences = new LinkedList();
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yy:DDD:HH:mm:ss:SSS");
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyy:DDD:HH:mm:ss:SSS");
     static {
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
@@ -49,6 +49,7 @@ public class LeapSecondApplier {
         String nextLine;
         while((nextLine = in.readLine()) != null) {
             StringTokenizer st = new StringTokenizer(nextLine, ";");
+            String station = st.nextToken();
             String unitId = st.nextToken();
             MicroSecondDate date = stringToMicroSecondDate((st.nextToken()));
             if(unitIdToCorrections.containsKey(unitId)) {
@@ -79,19 +80,21 @@ public class LeapSecondApplier {
     public static MicroSecondDate applyLeapSecondCorrection(String unitId,
                                                             MicroSecondDate time) {
         if(unitIdToCorrections.containsKey(unitId)) {
-            time = time.subtract(new TimeInterval(howManyLeapSeconds(unitId,
+            return time.subtract(new TimeInterval(howManyLeapSeconds(unitId,
                                                                      time),
                                                   UnitImpl.SECOND));
         } else {
-            time = time.subtract(new TimeInterval(howManyLeapSeconds(time),
-                                                  UnitImpl.SECOND));
+            // dont' do anything if we know nothing about this das
+            return time;
         }
-        return time;
     }
 
     private static int howManyLeapSeconds(String unitId, MicroSecondDate time) {
         int numLeapSeconds = 0;
         List powerOnTimes = (List)unitIdToCorrections.get(unitId);
+        if (powerOnTimes == null) {
+            throw new IllegalArgumentException("Nothing known for unit="+unitId);
+        }
         MicroSecondTimeRange timeWindow = null;
         for(Iterator i = leapSecondOccurrences.iterator(); i.hasNext();) {
             MicroSecondDate leapSecondOccurance = (MicroSecondDate)i.next();
