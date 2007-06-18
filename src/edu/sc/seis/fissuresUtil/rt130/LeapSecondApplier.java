@@ -38,6 +38,7 @@ public class LeapSecondApplier {
         while((nextLine = in.readLine()) != null) {
             MicroSecondDate date = stringToMicroSecondDate(nextLine);
             if(!leapSecondOccurrences.contains(date)) {
+                logger.info("Adding leap seconds at: "+date);
                 leapSecondOccurrences.add(date);
             }
         }
@@ -58,6 +59,7 @@ public class LeapSecondApplier {
                 unitIdToCorrections.put(unitId, new LinkedList());
                 ((List)unitIdToCorrections.get(unitId)).add(date);
             }
+            logger.info("Added PowerUp date: "+date);
         }
     }
 
@@ -144,4 +146,6 @@ public class LeapSecondApplier {
 
     public static final String LEAP_SECOND_FILE = "leapSecondFile",
             POWER_UP_TIMES = "powerUpTimes";
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(LeapSecondApplier.class);
 }
