@@ -14,7 +14,10 @@ public abstract class BaseRetryStrategy implements RetryStrategy {
                                        int tryCount,
                                        int numRetries) {
         BulletproofVestFactory.retrySleep(tryCount);
-        //server.reset();
+        // do a reset every other time
+        if (tryCount % 2 == 0) {
+            server.reset();
+        }
         return numRetries == -1 || tryCount <= numRetries;
     }
     

@@ -49,7 +49,7 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
         if(net instanceof ProxyNetworkAccess) {
             return ((ProxyNetworkAccess)net).getServerDNS();
         }
-        return null;
+        return net.getClass().getName()+":Unknown";
     }
 
     public String getServerName() {
