@@ -51,10 +51,12 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
                                            int numRetry,
                                            RetryStrategy handler) {
         SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
-        RetryNetworkAccess retry = new RetryNetworkAccess(synch,
+        ProxyNetworkAccess justToHaveServerAndName = new JustToHaveServerAndName(synch, vnf);
+        RetryNetworkAccess retry = new RetryNetworkAccess(justToHaveServerAndName,
                                                           numRetry,
                                                           handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry);
+        
         NetworkId id = cache.get_attributes().get_id();
         NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, vnf);
         retry.setNetworkAccess(nsNetworkAccess);
@@ -65,4 +67,22 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     int numRetry;
 
     private RetryStrategy handler;
+    
+    static class JustToHaveServerAndName extends ProxyNetworkAccess {
+
+        public JustToHaveServerAndName(NetworkAccess net, VestingNetworkFinder vnf) {
+            super(net);
+            this.vnf = vnf;
+        }
+
+        public String getServerDNS() {
+            return vnf.getServerDNS();
+        }
+
+        public String getServerName() {
+            return vnf.getServerName();
+        }
+
+        private VestingNetworkFinder vnf;
+    }
 }
