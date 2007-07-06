@@ -36,6 +36,7 @@ public class RT130FileReader {
                                          boolean processData,
                                          MicroSecondTimeRange fileTimeWindow)
             throws RT130FormatException, IOException {
+        logger.info("reading: "+dataFileLoc);
         this.dataFileLoc = dataFileLoc;
         File file = new File(this.dataFileLoc);
         FileInputStream fis = new FileInputStream(file);
