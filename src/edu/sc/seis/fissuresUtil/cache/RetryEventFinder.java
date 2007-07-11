@@ -14,6 +14,8 @@ public class RetryEventFinder extends ProxyEventFinder implements EventFinder {
 
     public RetryEventFinder(ProxyEventDC edc, int retries, RetryStrategy strat) {
         super(new NSEventFinder(edc));
+        this.retry = retries;
+        this.handler = strat;
     }
 
     public EventChannelFinder a_channel_finder() {
