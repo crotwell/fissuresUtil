@@ -51,9 +51,9 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
 
     public synchronized void reset() {
         if(dc != null){
-            dc._release();
+            ((DataCenter)dc.get())._release();
         }
-        dc = null;
+        dc.set(null);
     }
 
     public org.omg.CORBA.Object getCorbaObject() {
@@ -61,13 +61,13 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
     }
 
     public synchronized DataCenter getDataCenter() {
-        if(dc == null) {
+        if(dc.get() == null) {
             try {
                 try {
-                    dc = nameService.getSeismogramDC(serverDNS, serverName);
+                    dc.set(nameService.getSeismogramDC(serverDNS, serverName));
                 } catch(Throwable t) {
                     nameService.reset();
-                    dc = nameService.getSeismogramDC(serverDNS, serverName);
+                    dc.set(nameService.getSeismogramDC(serverDNS, serverName));
                 }
             } catch(org.omg.CosNaming.NamingContextPackage.NotFound e) {
                 repackageException(e);
@@ -77,7 +77,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
                 repackageException(e);
             } // end of try-catch
         } // end of if ()
-        return dc;
+        return (DataCenter)dc.get();
     }
 
     protected void repackageException(org.omg.CORBA.UserException e) {
@@ -96,7 +96,12 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
             return getDataCenter().queue_seismograms(a_filterseq);
         } catch(Throwable e) {
             reset();
-            return getDataCenter().queue_seismograms(a_filterseq);
+            try {
+                return getDataCenter().queue_seismograms(a_filterseq);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -106,7 +111,12 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
             return getDataCenter().retrieve_queue(a_request);
         } catch(Throwable e) {
             reset();
-            return getDataCenter().retrieve_queue(a_request);
+            try {
+                return getDataCenter().retrieve_queue(a_request);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -115,7 +125,13 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
             return getDataCenter().available_data(a_filterseq);
         } catch(Throwable e) {
             reset();
-            return getDataCenter().available_data(a_filterseq);
+            try {
+                return getDataCenter().available_data(a_filterseq);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
+            
         } // end of try-catch
     }
 
@@ -124,7 +140,12 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
             getDataCenter().cancel_request(a_request);
         } catch(Throwable e) {
             reset();
-            getDataCenter().cancel_request(a_request);
+            try {
+                getDataCenter().cancel_request(a_request);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -140,10 +161,15 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
                                                        expiration_time);
         } catch(Throwable e) {
             reset();
-            return getDataCenter().request_seismograms(a_filterseq,
-                                                       a_client,
-                                                       long_lived,
-                                                       expiration_time);
+            try {
+                return getDataCenter().request_seismograms(a_filterseq,
+                                                           a_client,
+                                                           long_lived,
+                                                           expiration_time);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -152,7 +178,12 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
             return getDataCenter().request_status(a_request);
         } catch(Throwable e) {
             reset();
-            return getDataCenter().request_status(a_request);
+            try {
+                return getDataCenter().request_status(a_request);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -162,7 +193,12 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
             return getDataCenter().retrieve_seismograms(a_filterseq);
         } catch(Throwable e) {
             reset();
-            return getDataCenter().retrieve_seismograms(a_filterseq);
+            try {
+                return getDataCenter().retrieve_seismograms(a_filterseq);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -176,7 +212,9 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
 
     protected String serverDNS, serverName;
 
-    private DataCenter dc;
+    private ThreadLocal dc;
 
     protected FissuresNamingService nameService;
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(NSSeismogramDC.class);
 }
