@@ -33,18 +33,22 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
     }
 
     public synchronized void reset() {
-        if(eventDC != null) {
-            ((org.omg.CORBA.Object)eventDC)._release();
+        if(threadEventDC.get() != null) {
+            ((org.omg.CORBA.Object)threadEventDC.get())._release();
         }
-        eventDC = null;
+        threadEventDC.set(null);
     }
 
     public EventDCOperations getEventDC() {
         return (EventDC)getCorbaObject();
     }
 
+    public void setEventDC(EventDCOperations eventDC) {
+        threadEventDC.set(eventDC);
+    }
+
     public synchronized org.omg.CORBA.Object getCorbaObject() {
-        if(eventDC == null) {
+        if(threadEventDC.get() == null) {
             try {
                 try {
                     loadEventDC();
@@ -60,7 +64,7 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
                 repackageException(e);
             } // end of try-catch
         } // end of if ()
-        return (org.omg.CORBA.Object)eventDC;
+        return (org.omg.CORBA.Object)threadEventDC.get();
     }
 
     private void loadEventDC() throws NotFound, CannotProceed, InvalidName {
@@ -82,7 +86,12 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
             return getEventDC().a_channel_finder();
         } catch(Throwable e) {
             reset();
-            return getEventDC().a_channel_finder();
+            try {
+                return getEventDC().a_channel_finder();
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -91,7 +100,12 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
             return getEventDC().a_finder();
         } catch(Throwable e) {
             reset();
-            return getEventDC().a_finder();
+            try {
+                return getEventDC().a_finder();
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -100,5 +114,7 @@ public class NSEventDC extends ProxyEventDC implements ServerNameDNS {
     protected String serverName;
 
     protected FissuresNamingService namingService;
+    
+    protected ThreadLocal threadEventDC = new ThreadLocal();
 
 }

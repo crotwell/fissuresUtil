@@ -17,23 +17,23 @@ public abstract class ProxyEventDC implements EventDCOperations,
     }
 
     public org.omg.CORBA.Object getCorbaObject() {
-        if(eventDC instanceof ProxyEventDC) {
-            return ((ProxyEventDC)eventDC).getCorbaObject();
+        if(getEventDC() instanceof ProxyEventDC) {
+            return ((ProxyEventDC)getEventDC()).getCorbaObject();
         } else {
-            return (EventDC)eventDC;
+            return (EventDC)getEventDC();
         }
     }
 
     public String getServerDNS() {
-        if(eventDC instanceof ProxyEventDC) {
-            return ((ProxyEventDC)eventDC).getServerDNS();
+        if(getEventDC() instanceof ProxyEventDC) {
+            return ((ProxyEventDC)getEventDC()).getServerDNS();
         }
         return null;
     }
 
     public String getServerName() {
-        if(eventDC instanceof ProxyEventDC) {
-            return ((ProxyEventDC)eventDC).getServerName();
+        if(getEventDC() instanceof ProxyEventDC) {
+            return ((ProxyEventDC)getEventDC()).getServerName();
         }
         return null;
     }
@@ -47,8 +47,8 @@ public abstract class ProxyEventDC implements EventDCOperations,
     }
 
     public void reset() {
-        if(eventDC instanceof ProxyEventDC) {
-            ((ProxyEventDC)eventDC).reset();
+        if(getEventDC() instanceof ProxyEventDC) {
+            ((ProxyEventDC)getEventDC()).reset();
         }
     }
 
