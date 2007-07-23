@@ -125,8 +125,10 @@ public class BulletproofVestFactory {
     public static void retrySleep(int count) {
         if(count > 3) {
             try {
-                if(count > 10) {
-                    Thread.sleep(10 * sleepSeconds * 1000);
+                if(count > 30) {
+                    Thread.sleep(60 * sleepSeconds * 1000);
+                } else if(count > 10) {
+                        Thread.sleep(10 * sleepSeconds * 1000);
                 } else {
                     Thread.sleep(sleepSeconds * 1000);
                 }
