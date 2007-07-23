@@ -16,19 +16,19 @@ public class NSEventFinder extends ProxyEventFinder {
         this.edc = edc;
     }
 
-    private EventFinderOperations getFinder() {
-        if(finder == null) {
-            finder = edc.a_finder();
+    private EventFinder getFinder() {
+        if(finder.get() == null) {
+            finder.set(edc.a_finder());
         }
-        return finder;
+        return (EventFinder)finder.get();
     }
 
     public void reset() {
         edc.reset();
-        if(finder != null) {
-            finder._release();
+        if(finder.get() != null) {
+            ((EventFinder)finder.get())._release();
         }
-        finder = null;
+        finder.set(null);
     }
 
     public EventChannelFinder a_channel_finder() {
@@ -36,7 +36,12 @@ public class NSEventFinder extends ProxyEventFinder {
             return getFinder().a_channel_finder();
         } catch(Throwable e) {
             reset();
-            return getFinder().a_channel_finder();
+            try {
+                return getFinder().a_channel_finder();
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -45,7 +50,12 @@ public class NSEventFinder extends ProxyEventFinder {
             return getFinder().a_factory();
         } catch(Throwable e) {
             reset();
-            return getFinder().a_factory();
+            try {
+                return getFinder().a_factory();
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -54,7 +64,12 @@ public class NSEventFinder extends ProxyEventFinder {
             return getFinder().a_finder();
         } catch(Throwable e) {
             reset();
-            return getFinder().a_finder();
+            try {
+                return getFinder().a_finder();
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -63,7 +78,12 @@ public class NSEventFinder extends ProxyEventFinder {
             return getFinder().catalogs_from(contrib);
         } catch(Throwable e) {
             reset();
-            return getFinder().catalogs_from(contrib);
+            try {
+                return getFinder().catalogs_from(contrib);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -72,7 +92,12 @@ public class NSEventFinder extends ProxyEventFinder {
             return getFinder().get_by_name(name);
         } catch(Throwable e) {
             reset();
-            return getFinder().get_by_name(name);
+            try {
+                return getFinder().get_by_name(name);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -81,7 +106,12 @@ public class NSEventFinder extends ProxyEventFinder {
             return getFinder().known_catalogs();
         } catch(Throwable e) {
             reset();
-            return getFinder().known_catalogs();
+            try {
+                return getFinder().known_catalogs();
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -90,7 +120,12 @@ public class NSEventFinder extends ProxyEventFinder {
             return getFinder().known_contributors();
         } catch(Throwable e) {
             reset();
-            return getFinder().known_contributors();
+            try {
+                return getFinder().known_contributors();
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
@@ -119,21 +154,26 @@ public class NSEventFinder extends ProxyEventFinder {
                                             iter);
         } catch(Throwable e) {
             reset();
-            return getFinder().query_events(the_area,
-                                            min_depth,
-                                            max_depth,
-                                            time_range,
-                                            search_types,
-                                            min_magnitude,
-                                            max_magnitude,
-                                            catalogs,
-                                            contributors,
-                                            seq_max,
-                                            iter);
+            try {
+                return getFinder().query_events(the_area,
+                                                min_depth,
+                                                max_depth,
+                                                time_range,
+                                                search_types,
+                                                min_magnitude,
+                                                max_magnitude,
+                                                catalogs,
+                                                contributors,
+                                                seq_max,
+                                                iter);
+            } catch(RuntimeException ee) {
+                reset();
+                throw ee;
+            }
         } // end of try-catch
     }
 
-    private EventFinder finder;
+    private ThreadLocal finder; // holds an EventFinder per thread
 
     private ProxyEventDC edc;
 }

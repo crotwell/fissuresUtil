@@ -23,14 +23,14 @@ public class CacheEventDC extends ProxyEventDC {
 
 	public EventFinder a_finder() {
 		if (evFinder == null){
-			evFinder = eventDC.a_finder();
+			evFinder = getEventDC().a_finder();
 		}
 		return evFinder;
 	}
 
 	public EventChannelFinder a_channel_finder() {
 		if (evChanFinder == null){
-			evChanFinder = eventDC.a_channel_finder();
+			evChanFinder = getEventDC().a_channel_finder();
 		}
 		return evChanFinder;
 	}
