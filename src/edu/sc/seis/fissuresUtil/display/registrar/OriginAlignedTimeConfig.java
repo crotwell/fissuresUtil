@@ -35,6 +35,6 @@ public class OriginAlignedTimeConfig extends RelativeTimeConfig {
     }
 
     public String getTypeOfRelativity() {
-        return "Time since the earthquake";
+        return "Time since earthquake (h:min:s)";
     }
 }
