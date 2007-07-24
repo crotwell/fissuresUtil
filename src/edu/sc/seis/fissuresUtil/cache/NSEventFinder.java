@@ -7,7 +7,6 @@ import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventFactory;
 import edu.iris.Fissures.IfEvent.EventFinder;
-import edu.iris.Fissures.IfEvent.EventFinderOperations;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
 
 public class NSEventFinder extends ProxyEventFinder {
@@ -173,7 +172,8 @@ public class NSEventFinder extends ProxyEventFinder {
         } // end of try-catch
     }
 
-    private ThreadLocal finder; // holds an EventFinder per thread
+    private ThreadLocal finder = new ThreadLocal(); // holds an EventFinder per
+                                                    // thread
 
     private ProxyEventDC edc;
 }
