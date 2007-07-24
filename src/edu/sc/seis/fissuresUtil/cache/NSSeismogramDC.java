@@ -212,7 +212,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
 
     protected String serverDNS, serverName;
 
-    private ThreadLocal dc;
+    private ThreadLocal dc = new ThreadLocal();
 
     protected FissuresNamingService nameService;
     
