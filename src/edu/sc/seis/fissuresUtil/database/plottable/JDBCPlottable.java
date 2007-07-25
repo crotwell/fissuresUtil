@@ -48,31 +48,19 @@ public class JDBCPlottable extends JDBCTable {
         PlottableChunk[] dbChunks = get(stuffInDB,
                                         chunks[0].getChannel(),
                                         chunks[0].getPixelsPerDay());
-        logger.debug("got " + dbChunks.length
-                + " chunks from stuff that was already in the database");
-        logger.debug("combining chunks from database with new chunks");
         PlottableChunk[] everything = new PlottableChunk[chunks.length
                 + dbChunks.length];
         System.arraycopy(dbChunks, 0, everything, 0, dbChunks.length);
         System.arraycopy(chunks, 0, everything, dbChunks.length, chunks.length);
         // scrutinizeEverything(everything, "unmerged");
-        logger.debug("Merging " + everything.length + " chunks");
         everything = ReduceTool.merge(everything);
         // scrutinizeEverything(everything, "merged");
-        logger.debug("Breaking "
-                + everything.length
-                + " remaining chunks after merge into seperate chunks based on day");
         everything = breakIntoDays(everything);
         // scrutinizeEverything(everything, "split into days");
-        logger.debug("Adding " + everything.length + " chunks split on days");
-        logger.debug("Dropping data within time range of " + stuffInDB);
         int rowsDropped = drop(stuffInDB,
                                chunks[0].getChannel(),
                                chunks[0].getPixelsPerDay());
-        logger.debug("Dropped " + rowsDropped
-                + " rows of stuff that new data covered");
         for(int i = 0; i < everything.length; i++) {
-            logger.debug("putting chunk " + i + ": " + everything[i]);
             int stmtIndex = 1;
             PlottableChunk chunk = everything[i];
             synchronized(put) {
@@ -252,14 +240,8 @@ public class JDBCPlottable extends JDBCTable {
                 dis.readInt();
             }
             for(int i = 0; i < pixelsUsed * 2; i++) {
-                // x[i] = firstPixelForRequest + i / 2;
                 x[i] = firstPixelForRequest + offsetIntoRequestPixels + i / 2;
                 y[i] = dis.readInt();
-            }
-            if(x.length > 0) {
-                logger.debug("x[0]: " + x[0]);
-            } else {
-                logger.debug("ZERO LENGTH ARRAY!!!");
             }
             Plottable p = new Plottable(x, y);
             PlottableChunk pc = new PlottableChunk(p,

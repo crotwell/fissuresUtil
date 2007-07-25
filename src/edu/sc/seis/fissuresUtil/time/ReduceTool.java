@@ -359,8 +359,6 @@ public class ReduceTool {
             PlottableChunk chunk2 = cast(two);
             MicroSecondTimeRange fullRange = new MicroSecondTimeRange(chunk.getTimeRange(),
                                                                       chunk2.getTimeRange());
-            logger.debug("Merging " + chunk + " and " + chunk2 + " into "
-                    + fullRange);
             int samples = (int)Math.floor(chunk.getPixelsPerDay() * 2
                     * fullRange.getInterval().convertTo(UnitImpl.DAY).value);
             int[] y = new int[samples];
@@ -403,6 +401,4 @@ public class ReduceTool {
                                          MicroSecondDate second) {
         return first.equals(second) || first.before(second);
     }
-
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ReduceTool.class);
 }

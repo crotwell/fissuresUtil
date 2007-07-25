@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 18891 2007-03-07 01:47:10Z oliverpa $
+ * @version $Id: SimplePlotUtil.java 19111 2007-07-25 20:01:29Z oliverpa $
  */
 public class SimplePlotUtil {
 
@@ -42,9 +42,6 @@ public class SimplePlotUtil {
                                           MicroSecondTimeRange tr,
                                           int pixelsPerDay)
             throws CodecException {
-        logger.debug("making plottable from seismogram spanning from "
-                + seis.getBeginTime() + " to " + seis.getEndTime()
-                + " within time range " + tr + " at resolution " + pixelsPerDay);
         if(tr.getEndTime().before(seis.getBeginTime())
                 || tr.getBeginTime().after(seis.getEndTime())
                 || !canMakeAtLeastOnePixel(seis, pixelsPerDay)) {
@@ -72,21 +69,7 @@ public class SimplePlotUtil {
         int pixelPoint = startPixel < 0 ? 0 : startPoint;
         MicroSecondDate pixelEndTime = correctedSeisRange.getBeginTime();
         TimeInterval pixelPeriod = getPixelPeriod(pixelsPerDay);
-        if(corrected) {
-            logger.warn("corrected for freak extra pixel!");
-            logger.debug("end of range would have been " + rangeEnd
-                    + " without correction");
-            logger.debug("correctedSeisRange: " + correctedSeisRange);
-            logger.debug("end of range would have been " + rangeEnd
-                    + " without correction");
-            logger.debug("seis.num_points: " + seis.num_points);
-            logger.debug("startPoint: " + startPoint);
-            logger.debug("endPoint: " + endPoint);
-            logger.debug("seisPixelRange: " + seisPixelRange);
-            logger.debug("numPixels after correction: " + numPixels);
-            logger.debug("startPixel: " + startPixel);
-            logger.debug("pixelPeriod: " + pixelPeriod);
-        }
+        if(corrected) {}
         for(int i = 0; i < numPixels; i++) {
             pixelEndTime = pixelEndTime.add(pixelPeriod);
             int pos = 2 * i;
@@ -114,6 +97,28 @@ public class SimplePlotUtil {
     public static Plottable getEmptyPlottable() {
         int[] empty = new int[0];
         return new Plottable(empty, empty);
+    }
+
+    public static void debugExtraPixel(MicroSecondTimeRange correctedSeisRange,
+                                       MicroSecondDate rangeEnd,
+                                       LocalSeismogramImpl seis,
+                                       int startPoint,
+                                       int endPoint,
+                                       int numPixels,
+                                       IntRange seisPixelRange,
+                                       int startPixel,
+                                       TimeInterval pixelPeriod) {
+        logger.warn("corrected for freak extra pixel!");
+        logger.debug("correctedSeisRange: " + correctedSeisRange);
+        logger.debug("end of range would have been " + rangeEnd
+                + " without correction");
+        logger.debug("seis.num_points: " + seis.num_points);
+        logger.debug("startPoint: " + startPoint);
+        logger.debug("endPoint: " + endPoint);
+        logger.debug("seisPixelRange: " + seisPixelRange);
+        logger.debug("numPixels after correction: " + numPixels);
+        logger.debug("startPixel: " + startPixel);
+        logger.debug("pixelPeriod: " + pixelPeriod);
     }
 
     public static TimeInterval getPixelPeriod(int pixelsPerDay) {
