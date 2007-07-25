@@ -45,10 +45,10 @@ public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
     }
 
     public synchronized void reset() {
-        if(plottableDC != null){
-            plottableDC._release();
+        if(plottableDC.get() != null){
+            ((PlottableDC)plottableDC.get())._release();
         }
-        plottableDC = null;
+        plottableDC.set(null);
     }
 
     public org.omg.CORBA.Object getRealCorbaObject() {
@@ -60,15 +60,15 @@ public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
     }
 
     public synchronized PlottableDC getPlottableDC() {
-        if(plottableDC == null) {
+        if(plottableDC.get() == null) {
             try {
                 try {
-                    plottableDC = namingService.getPlottableDC(serverDNS,
-                                                               serverName);
+                    plottableDC.set(namingService.getPlottableDC(serverDNS,
+                                                                 serverName));
                 } catch(Throwable t) {
                     namingService.reset();
-                    plottableDC = namingService.getPlottableDC(serverDNS,
-                                                               serverName);
+                    plottableDC.set(namingService.getPlottableDC(serverDNS,
+                                                                 serverName));
                 }
             } catch(org.omg.CosNaming.NamingContextPackage.NotFound e) {
                 throw new org.omg.CORBA.TRANSIENT("Unable to resolve "
@@ -93,7 +93,7 @@ public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
                                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             } // end of try-catch
         } // end of if ()
-        return plottableDC;
+        return (PlottableDC)plottableDC.get();
     }
 
     public Dimension[] get_whole_day_sizes() {
@@ -176,7 +176,7 @@ public class NSPlottableDC implements ServerNameDNS, PlottableDCOperations {
         } // end of try-catch
     }
 
-    protected PlottableDC plottableDC = null;
+    protected ThreadLocal plottableDC = new ThreadLocal();
 
     protected String serverDNS;
 
