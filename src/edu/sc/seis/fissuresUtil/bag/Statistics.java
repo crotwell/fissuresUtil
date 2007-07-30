@@ -11,7 +11,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 16435 2006-03-15 15:52:21Z crotwell $
+ * @version $Id: Statistics.java 19144 2007-07-30 20:24:21Z crotwell $
  */
 
 public class Statistics  {
@@ -624,6 +624,20 @@ public class Statistics  {
             return histo;
         }
         return new int[0];
+    }
+    
+    public String toString() {
+        String out = nv("Length", getLength());
+        out += nv("Min", min());
+        out += nv("Max", max());
+        out += nv("Mean", mean());
+        out += nv("Var", var());
+        out += nv("StdDev", stddev());
+        return out;
+    }
+    
+    private String nv(String name, double val) {
+        return name+": "+val+"\n";
     }
 
     /**
