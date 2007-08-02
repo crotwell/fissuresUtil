@@ -10,46 +10,53 @@ import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.model.UnsupportedFormat;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * ClockUtil.java Created: Mon Mar 17 09:34:25 2003
  * 
- * @author <a href="mailto:crotwell@owl-seis-sc-edu.local.">Philip Crotwell </a>
- * @version 1.0
+ * @author Philip Crotwell
  */
 public class ClockUtil {
 
     /**
-     * Calculates the difference between the CPU clock and the time retreived
+     * Calculates the difference between the CPU clock and the time retrieved
      * from the http://www.seis.sc.edu/cgi-bin/date_time.pl. 
      */
     public static TimeInterval getTimeOffset() {
         if(serverOffset == null) {
             try {
                 serverOffset = getServerTimeOffset();
+            } catch(UnsupportedFormat e) {
+            	noGoClock(e);
+                return ZERO_OFFSET;
             } catch(IOException e) {
-                // oh well, cant get to server, use CPU time, so
-                // offset is zero, check for really bad clocks first
-                MicroSecondDate localNow = new MicroSecondDate();
-                if(!warnBadBadClock && OLD_DATE.after(localNow)) {
-                    warnBadBadClock = true;
-                    GlobalExceptionHandler.handle("Unable to check the time from the server and the computer's clock is obviously wrong. Please reset the clock on your computer to be closer to real time. \nComputer Time="
-                                                          + localNow
-                                                          + "\nTime checking url="
-                                                          + SEIS_SC_EDU_URL,
-                                                  e);
-                }
+            	noGoClock(e);
                 return ZERO_OFFSET;
             } // end of try-catch
         } // end of if ()
         return serverOffset;
     }
+    
+    private static void noGoClock(Throwable e) {
+        // oh well, can't get to server, use CPU time, so
+        // offset is zero, check for really bad clocks first
+        MicroSecondDate localNow = new MicroSecondDate();
+        if(!warnBadBadClock && OLD_DATE.after(localNow)) {
+            warnBadBadClock = true;
+            GlobalExceptionHandler.handle("Unable to check the time from the server and the computer's clock is obviously wrong. Please reset the clock on your computer to be closer to real time. \nComputer Time="
+                                                  + localNow
+                                                  + "\nTime checking url="
+                                                  + SEIS_SC_EDU_URL,
+                                          e);
+        }
+    }
 
     /**
      * Creates a new MicroSecondDate that reflects the current time to the best
      * ability of the system. If a connection to a remote server cannot be
-     * estabilished, then the current CPU time is used.
+     * established, then the current CPU time is used.
      */
     public static MicroSecondDate now() {
         return new MicroSecondDate().add(getTimeOffset());
@@ -95,6 +102,7 @@ public class ClockUtil {
         } // end of try-catch
     }
 
+    /** Used to check for really obviously wrong system clocks, set to a day prior to the release date. */
     private static MicroSecondDate OLD_DATE = new ISOTime("2007-04-01T00:00:00.000Z").getDate();
 
     private static TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
