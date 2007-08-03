@@ -243,7 +243,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     public synchronized boolean contains(DataSetSeismogram seismo) {
         DataSetSeismogram[] seismos = getSeismograms();
         for(int i = 0; i < seismos.length; i++) {
-            if(seismos[i].equals(seismo)) { return true; }
+            if(seismos[i].equals(seismo)) {
+                return true;
+            }
         }
         return false;
     }
@@ -276,11 +278,11 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     public HashMap getPixelMap() {
         return seisToPixelMap;
     }
-    
-    public boolean getSwapAxes(){
+
+    public boolean getSwapAxes() {
         return this.swapAxes;
     }
-    
+
     public int getMinSeisPixelHeight() {
         return minSeisPixelHeight;
     }
@@ -297,8 +299,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
             LayoutData current = (LayoutData)it.next();
             double drawHeight = (current.getEnd() - current.getStart())
                     * height;
-            //If the draw height is less than minPixelHeight, change the scale so that
-            //it is
+            // If the draw height is less than minPixelHeight, change the scale
+            // so that it is
             if(drawHeight < minSeisPixelHeight && checkDrawHeight) {
                 if(drawHeight == 0) {
                     drawHeight = 1;
@@ -308,7 +310,7 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
                 if(scaler != null) {
                     scaler.increaseScale(percentIncreaseNeeded);
                 } else {
-                    scalingChanged(scaling*percentIncreaseNeeded);
+                    scalingChanged(scaling * percentIncreaseNeeded);
                 }
                 checkDrawHeight = false;
             }
@@ -323,8 +325,8 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
             if(swapAxes) {
                 AffineTransform at = new AffineTransform();
                 at.translate(width / 2, height / 2);
-                at.rotate(-Math.PI/2);
-                at.translate(-height / 2,  -width / 2);
+                at.rotate(-Math.PI / 2);
+                at.translate(-height / 2, -width / 2);
                 g2.transform(at);
                 int temp = width;
                 width = height;
@@ -335,38 +337,24 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
             Iterator it = curLayoutEvent.iterator();
             while(it.hasNext()) {
                 LayoutData current = (LayoutData)it.next();
-                double midPoint = current.getStart() * height
-                        + ((current.getEnd() - current.getStart()) * height)
-                        / 2;
-                double drawHeight = (current.getEnd() - current.getStart())
-                        * height;
-                double topLeftY = Math.abs(current.getStart() * height);
-                double bottomRightY = current.getEnd() * height;
+                double curEnd = current.getEnd();
+                double curStart = current.getStart();
+                double drawHeight = (curEnd - curStart) * height;
+                double midPoint = curStart * height + drawHeight / 2;
+                double topLeftY = Math.abs(curStart * height);
+                double bottomRightY = curEnd * height;
                 double distBorderWidth = distBorder.getWidth();
                 storePixels(current, distBorderWidth, topLeftY, width
                         + distBorderWidth, bottomRightY);
                 double neededYPos = midPoint - drawHeight / 2;
-                if(neededYPos < 0) {
+                if(neededYPos < 0 && !swapAxes) {
                     neededYPos = 0;
                 }
-                double translatePoint = midPoint + drawHeight / 2;
-                if(swapAxes) {
-                    g2.translate(0, translatePoint);
-                    g2.scale(-1, 1);
-                    g2.rotate(Math.PI);
-                } else {
-                    g2.translate(0, neededYPos);
-                }
+                g2.translate(0, neededYPos);
                 Dimension drawSize = new Dimension(width, (int)drawHeight);
                 DrawableSeismogram cur = toDrawable(current.getSeis());
                 cur.draw(g2, drawSize, timeEvent, ampEvent);
-                if(swapAxes) {
-                    g2.rotate(Math.PI);
-                    g2.scale(-1, 1);
-                    g2.translate(0, -translatePoint);
-                } else {
-                    g2.translate(0, -neededYPos);
-                }
+                g2.translate(0, -neededYPos);
                 if(drawNamesForNamedDrawables) {
                     cur.drawName(g2, 5, (int)(neededYPos + drawHeight / 2));
                 }
@@ -406,7 +394,9 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
         DrawableSeismogram current = null;
         while(it.hasNext()) {
             current = (DrawableSeismogram)it.next();
-            if(current.getSeismogram().equals(seis)) { return current; }
+            if(current.getSeismogram().equals(seis)) {
+                return current;
+            }
         }
         return current;
     }
@@ -463,12 +453,12 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
     private double scaling = LayoutScaler.INITIAL_SCALE;
 
     private int minSeisPixelHeight = 40;
-    
+
     private CurrentTimeFlag currentTimeFlag = new CurrentTimeFlag();
 
     private LayoutScaler scaler = null;
 
     private boolean checkDrawHeight = false;
-    
+
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RecordSectionDisplay.class);
 }
