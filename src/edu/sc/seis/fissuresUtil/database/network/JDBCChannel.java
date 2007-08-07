@@ -19,6 +19,7 @@ import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.JDBCQuantity;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
@@ -446,6 +447,9 @@ public class JDBCChannel extends NetworkTable {
                                         int index,
                                         JDBCQuantity quantityTable,
                                         JDBCTime time) throws SQLException {
+        if (chan.sampling_info == null) {
+            throw new SQLException("Channel's sampling_info is NULL for "+ChannelIdUtil.toString(chan.get_id()));
+        }
         stmt.setInt(index++, time.put(chan.effective_time.end_time));
         stmt.setString(index++, chan.name);
         stmt.setFloat(index++, chan.an_orientation.azimuth);
