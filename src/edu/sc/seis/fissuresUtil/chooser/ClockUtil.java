@@ -28,10 +28,7 @@ public class ClockUtil {
         if(serverOffset == null) {
             try {
                 serverOffset = getServerTimeOffset();
-            } catch(UnsupportedFormat e) {
-            	noGoClock(e);
-                return ZERO_OFFSET;
-            } catch(IOException e) {
+            } catch(Throwable e) {
             	noGoClock(e);
                 return ZERO_OFFSET;
             } // end of try-catch
@@ -42,6 +39,7 @@ public class ClockUtil {
     private static void noGoClock(Throwable e) {
         // oh well, can't get to server, use CPU time, so
         // offset is zero, check for really bad clocks first
+        logger.warn("Unable to make a connection to "+SEIS_SC_EDU_URL+" to verify system clock.", e);
         MicroSecondDate localNow = new MicroSecondDate();
         if(!warnBadBadClock && OLD_DATE.after(localNow)) {
             warnBadBadClock = true;
@@ -103,7 +101,9 @@ public class ClockUtil {
     }
 
     /** Used to check for really obviously wrong system clocks, set to a day prior to the release date. */
-    private static MicroSecondDate OLD_DATE = new ISOTime("2007-04-01T00:00:00.000Z").getDate();
+    private static MicroSecondDate OLD_DATE = new ISOTime("2007-08-01T00:00:00.000Z").getDate();
 
     private static TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ClockUtil.class);
 } // ClockUtil
