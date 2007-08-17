@@ -9,6 +9,7 @@ import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 public class JDBCLocation extends JDBCTable {
 
@@ -21,10 +22,7 @@ public class JDBCLocation extends JDBCTable {
         super("location", conn);
         this.quantityTable = jdbcQuantity;
         seq = new JDBCSequence(conn, "LocationSeq");
-        if(!DBUtil.tableExists("location", conn)) {
-            conn.createStatement()
-                    .executeUpdate(ConnMgr.getSQL("location.create"));
-        }
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/default.props");
         putStmt = conn.prepareStatement(" INSERT INTO location ( loc_id, "
                 + "loc_lat, loc_lon, loc_elev_id, "
                 + "loc_depth_id, loc_type) " + "VALUES (?,?,?,?,?,?)");

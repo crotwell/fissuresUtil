@@ -17,6 +17,7 @@ import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCParameterRef;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 public class JDBCEventAttr extends EventTable {
     public JDBCEventAttr(Connection conn) throws SQLException{
@@ -36,12 +37,8 @@ public class JDBCEventAttr extends EventTable {
         this.flinnEngdahl = flinnEngdahl;
         seq = new JDBCSequence(conn, "EventAttrSeq");
         Statement stmt = conn.createStatement();
-        if(!DBUtil.tableExists("eventattr", conn)){
-            stmt.executeUpdate(ConnMgr.getSQL("eventattr.create"));
-        }
-        if(!DBUtil.tableExists("eventparameterreference", conn)){
-            stmt.executeUpdate(ConnMgr.getSQL("eventparameterreference.create"));
-        }
+        String props = "edu/sc/seis/fissuresUtil/database/props/event/default.props";
+        TableSetup.setup(getTableName(), conn, this, props, new String[] { "eventparameterreference" });
         putStmt = conn.prepareStatement(" INSERT INTO eventattr"+
                                             " (eventattr_id, eventattr_name ,"+
                                             " flinnengdahlid)"+

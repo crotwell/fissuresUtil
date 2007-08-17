@@ -34,3 +34,8 @@ time.create=CREATE TABLE time (time_id int, \
                                PRIMARY KEY (time_id))
 time.index_time_stamp=create index time_stamp_idx on time (time_stamp)
 
+parameterref.create = CREATE TABLE parameterref ( \
+                                   parameterid int, \
+                                   parametera_id varchar, \
+                                   parametercreator varchar, \
+                                   PRIMARY KEY (parameterid))
