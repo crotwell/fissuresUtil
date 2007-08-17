@@ -94,6 +94,11 @@ magnitude.getStmt = SELECT magnitudetype , magnitudevalue, contributor_name \
     
 magnitude.dropAll = DELETE FROM magnitude
 
+flinnengdahl.create = CREATE TABLE flinnengdahl \
+                                   (flinnengdahlid int primary key, \
+                                   flinnengdahltype int, \
+                                   flinnengdahlnumber int)
+                                   
 eventattr.create=CREATE TABLE eventattr ( eventattr_id int, \
                                           eventattr_name varchar, \
                                           flinnengdahlid int,  \

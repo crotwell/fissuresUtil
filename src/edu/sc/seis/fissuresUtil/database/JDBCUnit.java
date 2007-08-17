@@ -11,6 +11,7 @@ import java.util.Iterator;
 import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.UnitBase;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 /**
  * JDBCUnit.java
  *
@@ -29,11 +30,8 @@ import edu.iris.Fissures.model.UnitImpl;
 public class JDBCUnit extends JDBCTable {
     public  JDBCUnit(Connection conn) throws SQLException {
         super("unit", conn);
-        Statement stmt = conn.createStatement();
         seq = new JDBCSequence(conn, "unit_seq");
-        if(!DBUtil.tableExists("unit", conn)){
-            stmt.executeUpdate(ConnMgr.getSQL("unit.create"));
-        }
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/default.props");
         putStmt = conn.prepareStatement("INSERT INTO unit" +
                                             " ( unit_id, unit_name, unit_base, unit_subunit_id, "+
                                             " unit_exponent, unit_multFactor, unit_power )"+

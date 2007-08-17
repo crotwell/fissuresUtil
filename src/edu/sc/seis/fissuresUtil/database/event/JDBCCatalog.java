@@ -10,6 +10,7 @@ import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 public class JDBCCatalog extends EventTable {
     public JDBCCatalog(Connection conn) throws SQLException{
@@ -21,10 +22,8 @@ public class JDBCCatalog extends EventTable {
         super("catalog", conn);
         this.jdbcContributor = jdbcContributor;
         seq = new JDBCSequence(conn, "CatalogSeq");
-        Statement stmt = conn.createStatement();
-        if(!DBUtil.tableExists("catalog", conn)){
-            stmt.executeUpdate(ConnMgr.getSQL("catalog.create"));
-        }
+        TableSetup.setup(this,
+        "edu/sc/seis/fissuresUtil/database/props/event/default.props");
         put = conn.prepareStatement(" INSERT INTO catalog (catalog_id,"+
                                         " catalog_contributor_id, catalog_name )"+
                                         " VALUES( ?, ?, ?) ");

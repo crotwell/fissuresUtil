@@ -9,6 +9,7 @@ import edu.iris.Fissures.model.FlinnEngdahlRegionImpl;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 public class JDBCFlinnEngdahl extends EventTable {
 
@@ -23,12 +24,7 @@ public class JDBCFlinnEngdahl extends EventTable {
         seq = new JDBCSequence(conn, "FlinnEngdahlSeq");
 
         //creating the table FlinnEngdahl
-        if(!DBUtil.tableExists("flinnengdahl", conn)){
-            stmt.executeUpdate(" CREATE TABLE flinnengdahl"+
-                                   "(flinnengdahlid int primary key, " +
-                                   "flinnengdahltype int, "+
-                                   "flinnengdahlnumber int)");
-        }
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/event/default.props");
         putStmt = conn.prepareStatement( "INSERT INTO flinnengdahl"+
                                             " ( flinnengdahlid,"+
                                             " flinnengdahltype,"+

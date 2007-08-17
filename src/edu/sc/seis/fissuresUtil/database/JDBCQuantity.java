@@ -7,8 +7,9 @@ import java.sql.SQLException;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
-public class JDBCQuantity  {
+public class JDBCQuantity  extends JDBCTable {
     public JDBCQuantity()throws SQLException{
         this(ConnMgr.createConnection());
     }
@@ -18,11 +19,11 @@ public class JDBCQuantity  {
     }
 
     public JDBCQuantity(JDBCUnit unit, Connection conn) throws SQLException{
+    	super("quantity", conn);
         this.jdbcUnit = unit;
         seq = new JDBCSequence(conn, "QuantitySeq");
-        if(!DBUtil.tableExists("quantity", conn)){
-            conn.createStatement().executeUpdate(ConnMgr.getSQL("quantity.create"));
-        }
+
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/default.props");
         put = conn.prepareStatement(" INSERT INTO quantity ( quantity_id, "+
                                         "quantity_unit_id, quantity_value) "+
                                         "VALUES (?,?,?)");

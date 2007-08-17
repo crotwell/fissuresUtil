@@ -10,15 +10,15 @@ import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 public class JDBCContributor extends EventTable {
     public JDBCContributor(Connection conn) throws SQLException {
         super("contributor", conn);
         seq = new JDBCSequence(conn, "ContributorSeq");
         Statement stmt = conn.createStatement();
-        if(!DBUtil.tableExists("contributor", conn)){
-            stmt.executeUpdate(ConnMgr.getSQL("contributor.create"));
-        }
+        TableSetup.setup(this,
+        "edu/sc/seis/fissuresUtil/database/props/event/default.props");
         putStmt = conn.prepareStatement(" INSERT INTO contributor "+
                                             " (contributor_id, "+
                                             " contributor_name)"+

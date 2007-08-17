@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 public class JDBCParameterRef extends JDBCTable {
     public JDBCParameterRef(Connection conn) throws SQLException {
@@ -13,13 +14,7 @@ public class JDBCParameterRef extends JDBCTable {
         //Created the sequence.
         seq = new JDBCSequence(conn, "ParameterRefSeq");
         //Created the table
-        if(!DBUtil.tableExists("parameterref", conn)){
-            stmt.executeUpdate("CREATE TABLE parameterref("+
-                                   "parameterid int,"+
-                                   " parametera_id varchar,"+
-                                   " parametercreator varchar, "+
-                                   "PRIMARY KEY (parameterid))");
-        }
+        TableSetup.setup(getTableName(), conn, this, "edu/sc/seis/fissuresUtil/database/props/default.props");
         
         insert = conn.prepareStatement("INSERT INTO parameterref"+
                                            " ( parameterid,"+
