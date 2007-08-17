@@ -103,34 +103,34 @@ public class TableSetup {
         createTableOrView(tablename, conn, statements);
     }
 
-    private static void createTableOrView(String tablename,
-                                          Connection conn,
-                                          SQLLoader statements)
-            throws SQLException {
-        synchronized(createdTables) {
-            if(createdTables.contains(tablename)){
-                return;
-            }
-            createdTables.add(tablename);
-        }
-        if(!DBUtil.tableExists(tablename, conn)) {
-            String creationStmt = statements.get(tablename + ".create");
-            if(creationStmt == null) {
-                throw new IllegalArgumentException("creation Statement, cannot be null: "
-                        + tablename + ".create");
-            }
-            try {
-                conn.createStatement().executeUpdate(creationStmt);
-            } catch(SQLException e) {
-                logger.error("problem statement: " + creationStmt);
-                SQLException sqle = new SQLException(e.getMessage() + " "
-                        + creationStmt);
-                sqle.setStackTrace(e.getStackTrace());
-                throw sqle;
-            }
-            createIndices(tablename, conn, statements);
-        }
-    }
+    private static void createTableOrView(String tablename, Connection conn,
+			SQLLoader statements) throws SQLException {
+		synchronized (createdTables) {
+			if (createdTables.contains(tablename)) {
+				return;
+			}
+			if (!DBUtil.tableExists(tablename, conn)) {
+				String creationStmt = statements.get(tablename + ".create");
+				if (creationStmt == null) {
+					throw new IllegalArgumentException(
+							"creation Statement, cannot be null: " + tablename
+									+ ".create");
+				}
+				try {
+					conn.createStatement().executeUpdate(creationStmt);
+					createdTables.add(tablename);
+				} catch (SQLException e) {
+					logger.error("problem with table creation (" + tablename
+							+ ") statement: " + creationStmt, e);
+					SQLException sqle = new SQLException(e.getMessage() + " "
+							+ creationStmt);
+					sqle.setStackTrace(e.getStackTrace());
+					throw sqle;
+				}
+				createIndices(tablename, conn, statements);
+			}
+		}
+	}
 
     private static Set createdTables = new HashSet();
 
