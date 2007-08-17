@@ -146,7 +146,7 @@
         <dependency>
             <groupId>SeedCodec</groupId>
             <artifactId>SeedCodec</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>TauP</groupId>
@@ -252,7 +252,7 @@
     <build>
         <nagEmailAddress>jaster@seis.sc.edu</nagEmailAddress>
         <sourceDirectory>src</sourceDirectory>
-        <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+        <unitTestSourceDirectory>tests/database</unitTestSourceDirectory>
         <unitTest>
             <includes>
                 <include>edu/**/*Test.java</include>
