@@ -146,7 +146,7 @@
         <dependency>
             <groupId>SeedCodec</groupId>
             <artifactId>SeedCodec</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>TauP</groupId>
