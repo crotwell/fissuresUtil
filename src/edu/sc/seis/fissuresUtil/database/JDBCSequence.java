@@ -9,8 +9,10 @@ public class JDBCSequence{
     
     public JDBCSequence(Connection conn, String name)throws SQLException{
         try{
-            if(!DBUtil.sequenceExists(name, conn)){
-                conn.createStatement().executeUpdate(initCreateStmt(conn, name));
+            synchronized(JDBCSequence.class) {
+                if(!DBUtil.sequenceExists(name, conn)){
+                    conn.createStatement().executeUpdate(initCreateStmt(conn, name));
+                }
             }
         }catch(SQLException e){
             logger.info("Sequence must already exist for "+name, e);
