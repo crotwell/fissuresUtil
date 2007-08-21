@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 
-public class JDBCQuantityTest extends TestCase{
+public class JDBCQuantityTest extends JDBCTearDown {
     public void testDoublePut() throws SQLException, NotFound{
         JDBCQuantity table = new JDBCQuantity();
         QuantityImpl twelveCubicMeters = new QuantityImpl(12, UnitImpl.CUBIC_METER);

@@ -3,8 +3,7 @@ package edu.sc.seis.fissuresUtil.database;
 import java.sql.SQLException;
 import junit.framework.TestCase;
 
-public class JDBCSequenceTest extends TestCase{
-    public JDBCSequenceTest(String name) { super(name); }
+public class JDBCSequenceTest extends JDBCTearDown {
 
     public void testNext() throws SQLException{
         next5(createTestSeq());

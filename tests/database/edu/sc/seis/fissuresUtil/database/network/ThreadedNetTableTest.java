@@ -5,9 +5,10 @@ import java.sql.SQLException;
 import junit.framework.TestCase;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
 
-public class ThreadedNetTableTest extends TestCase {
+public class ThreadedNetTableTest extends JDBCTearDown {
 
 	public void testThreadedPut() {
 		Runnable r = new Runnable() {
@@ -23,13 +24,22 @@ public class ThreadedNetTableTest extends TestCase {
 				}
 			}
 		};
-		Thread[] t = new Thread[10];
-		for (int i = 0; i < t.length; i++) {
-			t[i] = new Thread(r);
-		}
-		for (int i = 0; i < t.length; i++) {
-			t[i].start();
-		}
-		r.run();
+        ThreadGroup tgroup = new ThreadGroup("ThreadedNetTableTest");
+        Thread[] t = new Thread[4];
+        for(int i = 0; i < t.length; i++) {
+            t[i] = new Thread(tgroup, r);
+        }
+        for(int i = 0; i < t.length; i++) {
+            t[i].start();
+        }
+        try {
+            Thread.sleep(100);
+        } catch(InterruptedException e) {}
+        r.run();
+        while (tgroup.activeCount() > 0) {
+            try {
+                Thread.sleep(100);
+            } catch(InterruptedException e) {}
+        }
 	}
 }
