@@ -131,6 +131,10 @@ public class TableSetup {
 			}
 		}
 	}
+    
+    public static void clearCreatedTableList() {
+    	createdTables.clear();
+    }
 
     private static Set createdTables = new HashSet();
 
