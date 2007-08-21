@@ -8,7 +8,6 @@ import edu.iris.Fissures.model.PointDistanceAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.bag.AreaUtilTest;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
@@ -108,12 +107,12 @@ public class JDBCEventAccessTest extends JDBCTearDown {
         assertEquals(1, eventTable.query(q).length);
         q.setArea(new PointDistanceAreaImpl(0,
                                             0,
-                                            AreaUtilTest.ZERO,
-                                            AreaUtilTest.TEN_DEG));
+                                            ZERO,
+                                            TEN_DEG));
         assertEquals(1, eventTable.query(q).length);
         q.setArea(new PointDistanceAreaImpl(0,
                                             0,
-                                            AreaUtilTest.ZERO,
+                                            ZERO,
                                             new QuantityImpl(90,
                                                              UnitImpl.DEGREE)));
         assertEquals(2, eventTable.query(q).length);
@@ -129,8 +128,8 @@ public class JDBCEventAccessTest extends JDBCTearDown {
         EventFinderQuery q = new EventFinderQuery();
         q.setArea(new PointDistanceAreaImpl(0,
                                             179,
-                                            AreaUtilTest.ZERO,
-                                            AreaUtilTest.TEN_DEG));
+                                            ZERO,
+                                            TEN_DEG));
         assertEquals(1, eventTable.query(q).length);
     }
 
@@ -163,4 +162,9 @@ public class JDBCEventAccessTest extends JDBCTearDown {
     }
 
     private JDBCEventAccess eventTable;
+
+    public static final QuantityImpl ZERO = new QuantityImpl(0, UnitImpl.DEGREE);
+
+    public static final QuantityImpl TEN_DEG = new QuantityImpl(10,
+                                                                UnitImpl.DEGREE);
 }
