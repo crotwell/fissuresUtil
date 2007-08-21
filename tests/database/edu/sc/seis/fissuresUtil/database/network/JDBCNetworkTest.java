@@ -10,10 +10,11 @@ import java.sql.SQLException;
 import junit.framework.TestCase;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkAttr;
 
-public class JDBCNetworkTest extends TestCase{
+public class JDBCNetworkTest extends JDBCTearDown {
 
     public void testDoublePut() throws SQLException, NotFound{
         JDBCNetwork net = new JDBCNetwork();

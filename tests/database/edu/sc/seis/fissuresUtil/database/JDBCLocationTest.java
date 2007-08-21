@@ -6,8 +6,7 @@ import junit.framework.TestCase;
 import edu.iris.Fissures.Location;
 import edu.sc.seis.fissuresUtil.mockFissures.MockLocation;
 
-public class JDBCLocationTest extends TestCase {
-    public JDBCLocationTest(String testname) { super(testname); }
+public class JDBCLocationTest extends JDBCTearDown {
     
     protected void setUp() throws SQLException {
         Connection conn = ConnMgr.createConnection();

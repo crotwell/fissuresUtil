@@ -6,8 +6,7 @@ import java.sql.SQLException;
 import junit.framework.TestCase;
 import edu.iris.Fissures.model.UnitImpl;
 
-public class JDBCUnitTest extends TestCase {
-    public JDBCUnitTest(String testname) { super(testname);  }
+public class JDBCUnitTest extends JDBCTearDown {
     
     public void setUp() throws SQLException{
         table = new JDBCUnit(ConnMgr.createConnection());

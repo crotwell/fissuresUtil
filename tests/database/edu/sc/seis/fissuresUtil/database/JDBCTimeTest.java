@@ -9,9 +9,7 @@ import edu.iris.Fissures.model.TimeUtils;
  * @author crotwell
  * Created on Sep 15, 2004
  */
-public class JDBCTimeTest extends TestCase {
-    
-    public JDBCTimeTest(String testname) { super(testname);  }
+public class JDBCTimeTest extends JDBCTearDown {
     
     public void setUp() throws SQLException{
         table = new JDBCTime(ConnMgr.createConnection());
