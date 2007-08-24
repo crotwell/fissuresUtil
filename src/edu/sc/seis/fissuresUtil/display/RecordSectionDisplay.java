@@ -351,14 +351,14 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
                     neededYPos = 0;
                 }
                 g2.translate(0, neededYPos);
-                if(PDF) {
+                if(isPDF) {
                     g2.scale(.25, .25);
                 }
-                Dimension drawSize = new Dimension((PDF ? 4 : 1) * width,
-                                                   (int)((PDF ? 4.0 : 1.0) * drawHeight));
+                Dimension drawSize = new Dimension((isPDF ? 4 : 1) * width,
+                                                   (int)((isPDF ? 4.0 : 1.0) * drawHeight));
                 DrawableSeismogram cur = toDrawable(current.getSeis());
                 cur.draw(g2, drawSize, timeEvent, ampEvent);
-                if(PDF) {
+                if(isPDF) {
                     g2.scale(4.0, 4.0);
                 }
                 g2.translate(0, -neededYPos);

@@ -199,14 +199,14 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
                             boolean landscape,
                             boolean separate,
                             TitleBorder header) {
-        PDF = true;
+        isPDF = true;
         SeismogramPDFBuilder.createPDF(this,
                                        os,
                                        pdfSeismogramsPerPage,
                                        landscape,
                                        separate,
                                        header);
-        PDF = false;
+        isPDF = false;
     }
 
     private int pdfSeismogramsPerPage = 1;
@@ -305,7 +305,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
 
     public static boolean PRINTING = false;
 
-    public static boolean PDF = false;
+    protected boolean isPDF = false;
 
     public void setDrawNamesForNamedDrawables(boolean drawNamesForNamedDrawables) {
         this.drawNamesForNamedDrawables = drawNamesForNamedDrawables;
