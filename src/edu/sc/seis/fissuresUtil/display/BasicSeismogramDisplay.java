@@ -347,12 +347,12 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
         for(int i = 0; i < drawables.size(); i++) {
             Drawable current = (Drawable)drawables.get(i);
             Dimension drawSize = size;
-            if(current instanceof DrawableSeismogram && PDF) {
+            if(current instanceof DrawableSeismogram && isPDF) {
                 g2.scale(0.25, 0.25);
                 drawSize = new Dimension(size.width * 4, size.height * 4);
             }
             current.draw(g2, drawSize, currentTimeEvent, currentAmpEvent);
-            if(current instanceof DrawableSeismogram && PDF) {
+            if(current instanceof DrawableSeismogram && isPDF) {
                 g2.scale(4, 4);
             }
             if(current instanceof TimeAmpLabel && !PRINTING) {
