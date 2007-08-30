@@ -4,6 +4,7 @@ import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.event.OriginImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.Defaults;
 import edu.sc.seis.fissuresUtil.mockFissures.MockLocation;
 import edu.sc.seis.fissuresUtil.mockFissures.IfParameterMgr.MockParameterRef;
@@ -43,5 +44,15 @@ public class MockOrigin {
 
     public static Origin createOrigin() {
         return create();
+    }
+    
+
+    public static Origin[] createOrigins(int num) {
+        Origin[] out = new Origin[num];
+        Magnitude[] mags = MockMagnitude.createMagnitudes();
+        for(int i = 0; i < out.length; i++) {
+            out[i] = create(ClockUtil.now(), mags);
+        }
+        return out;
     }
 }
