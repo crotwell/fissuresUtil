@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="edu.sc.seis.fissuresUtil.cache.CacheEvent"
+		table="event">
+		<id column="id" type="integer">
+			<generator class="native" />
+		</id>
+		<many-to-one name="preferred"
+			class="edu.iris.Fissures.event.OriginImpl" column="preferred" foreign-key="FK_preferred_origin" cascade="all" access="field"/>
+		<array name="origins" table="event_origin" cascade="all">
+			<key column="event_origin_id" />
+			<list-index column="sortOrder" />
+			<many-to-many column="origin_id"
+				class="edu.iris.Fissures.event.OriginImpl" />
+		</array>
+		<component name="attr"
+			class="edu.iris.Fissures.event.EventAttrImpl" access="field" >
+			<property name="name" access="field" />
+			<many-to-one name="region"
+				class="edu.iris.Fissures.model.FlinnEngdahlRegionImpl"
+				access="field" cascade="all" foreign-key="FK_feregion"/>
+		</component>
+	</class>
+	
+	<class name="edu.iris.Fissures.model.FlinnEngdahlRegionImpl"
+		table="feregion">
+		<id column="id" type="integer">
+			<generator class="native" />
+		</id>
+		<property name="number" type="integer" access="field" />
+		<property name="typeAsInt" type="integer" />
+	</class>
+
+	<class name="edu.iris.Fissures.event.OriginImpl" table="origin">
+		<id column="id" type="integer">
+			<generator class="native" />
+		</id>
+		<property name="origin_time"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType" access="field">
+			<column name="time" sql-type="timestamp"></column>
+			<column name="nanos" sql-type="integer"></column>
+			<column name="leaps" sql-type="integer"></column>
+		</property>
+		<component name="my_location" class="edu.iris.Fissures.Location"
+			access="field">
+			<property name="latitude" type="float" access="field" />
+			<property name="longitude" type="float" access="field" />
+			<component name="depth"
+				class="edu.iris.Fissures.model.QuantityImpl" access="field">
+				<property name="value" column="depth_value"
+					type="double" access="field" />
+				<many-to-one name="unit"
+					class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
+					foreign-key="FK_DEPTH_UNIT_ID" cascade="all" />
+			</component>
+			<component name="elevation"
+				class="edu.iris.Fissures.model.QuantityImpl" access="field">
+				<property name="value" type="double" column="elev_value"
+					access="field" />
+				<many-to-one name="unit"
+					class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
+					foreign-key="FK_ELEV_UNIT_ID" cascade="all" />
+			</component>
+		</component>
+		<array name="magnitudes" table="origin_magnitude" cascade="all"
+			access="field">
+			<key column="origin_mag_id" />
+			<list-index column="sortOrder" />
+			<many-to-many column="mag_id"
+				class="edu.iris.Fissures.IfEvent.Magnitude" />
+		</array>
+		<property name="catalog" access="field" />
+		<property name="contributor" access="field" />
+	</class>
+
+	<class name="edu.iris.Fissures.IfEvent.Magnitude"
+		table="magnitude">
+		<id column="mag_id" type="integer">
+			<generator class="native" />
+		</id>
+		<property name="type" access="field" />
+		<property name="value" access="field" />
+		<property name="contributor" access="field" />
+	</class>
+
+	<class name="edu.iris.Fissures.model.UnitImpl" table="unit">
+		<id column="unit_id" type="integer">
+			<generator class="native" />
+		</id>
+		<property name="baseUnitInt" type="integer">
+			<column name="base" />
+		</property>
+		<array name="subUnits" table="SubUnitsArray" cascade="all">
+			<key column="subunit_id" />
+			<list-index column="sortOrder" />
+			<many-to-many column="unit_id"
+				class="edu.iris.Fissures.model.UnitImpl" />
+		</array>
+
+		<property name="power" type="integer" access="field" />
+		<property name="name" access="field" />
+		<property name="multi_factor" type="double" access="field" />
+		<property name="exponent" type="integer" access="field" />
+	</class>
+
+
+</hibernate-mapping>
