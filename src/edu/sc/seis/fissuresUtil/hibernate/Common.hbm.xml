@@ -5,8 +5,8 @@
 
 <hibernate-mapping>
 
-	<class name="edu.iris.Fissures.model.UnitImpl" table="unit">
-		<id column="unit_id" type="integer">
+	<class name="edu.iris.Fissures.model.UnitImpl" table="unit" mutable="false">
+		<id column="dbid" type="integer">
 			<generator class="native" />
 		</id>
 		<property name="baseUnitInt" type="integer">
