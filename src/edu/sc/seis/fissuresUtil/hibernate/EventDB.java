@@ -5,24 +5,23 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 import edu.iris.Fissures.BoxArea;
+import edu.iris.Fissures.Location;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.bag.AreaUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 
-public class EventDB {
-
-    public EventDB(SessionFactory factory) {
-        this.factory = factory;
+public class EventDB extends AbstractHibernateDB {
+    
+    public EventDB() {
+        this(HibernateUtil.getSessionFactory());
     }
 
-    protected Session getSession() {
-        Session session = factory.openSession();
-        Transaction tx = session.beginTransaction();
-        return session;
+    public EventDB(SessionFactory factory) {
+        super(factory);
     }
 
     public CacheEvent[] query(EventFinderQuery q) {
@@ -43,7 +42,6 @@ public class EventDB {
         query.setFloat("maxLon", ba.max_longitude);
         List result = query.list();
         CacheEvent[] out = (CacheEvent[])result.toArray(new CacheEvent[0]);
-        session.close();
         return out;
     }
 
@@ -54,7 +52,6 @@ public class EventDB {
         List result = query.list();
         if(result.size() > 0) {
             CacheEvent out = (CacheEvent)result.get(0);
-            session.close();
             return out;
         }
         throw new NotFound();
@@ -62,14 +59,27 @@ public class EventDB {
 
     public long put(CacheEvent event) {
         Session session = getSession();
-        Long dbid = (Long)session.save(event);
-        session.getTransaction().commit();
+        internUnit(event.getOrigin().my_location);
+        Integer dbid = (Integer)session.save(event);
+        event.setDbId(dbid.intValue());
         return dbid.longValue();
     }
 
-    SessionFactory factory;
-
+    public CacheEvent getLastEvent() throws NotFound {
+        Session session = getSession();
+        Query query = session.createQuery(getLastEventString);
+        query.setMaxResults(1);
+        List result = query.list();
+        if(result.size() > 0) {
+            CacheEvent out = (CacheEvent)result.get(0);
+            return out;
+        }
+        throw new NotFound();
+    }
+    
     static String getByDbIdString = "From edu.sc.seis.fissuresUtil.cache.CacheEvent e WHERE id = :id";
+    
+    static String getLastEventString = "From edu.sc.seis.fissuresUtil.cache.CacheEvent e ORDER BY e.id desc";
 
     static String finderQueryBase = "select e FROM edu.sc.seis.fissuresUtil.cache.CacheEvent e join e.preferred.magnitudes m "
             + "WHERE e.preferred.my_location.latitude between :minLat AND :maxLat "

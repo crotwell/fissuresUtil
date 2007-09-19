@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,23 +16,28 @@ import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import edu.iris.Fissures.GlobalArea;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
 import edu.sc.seis.fissuresUtil.database.event.JDBCOrigin;
+import edu.sc.seis.fissuresUtil.database.network.JDBCStation;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAttr;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockOrigin;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStation;
 import edu.sc.seis.fissuresUtil.simple.TimeOMatic;
 
 public class Play {
 
     public static void main(String[] args) throws SQLException {
         BasicConfigurator.configure();
-        //Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.INFO);
         Play mgr = new Play();
         TimeOMatic.start();
         String todo = args[2];
@@ -45,8 +52,59 @@ public class Play {
             mgr.oldStore();
         } else if(todo.equals("oldretrieve")) {
             mgr.oldRetrieve();
+// network
+        } else if(todo.equals("storenet")) {
+            mgr.createAndStoreNet();
+        } else if(todo.equals("retrievenet")) {
+            mgr.retrieveNet();
+        } else if(todo.equals("oldstorenet")) {
+            mgr.oldStoreNet();
+        } else if(todo.equals("oldretrievenet")) {
+            mgr.oldRetrieveNet();
+        } else {
+            System.err.println("Unknown arg: "+todo);
         }
         TimeOMatic.print("end");
+    }
+
+    private Station[] createStation() {
+        return MockStation.createMultiSplendoredStations();
+    }
+    
+    private Channel[] createChannel() {
+        ArrayList out = new ArrayList();
+        Station[] sta = createStation();
+        for(int i = 0; i < sta.length; i++) {
+            out.add(MockChannel.createMotionVector(sta[i]));
+        }
+        return (Channel[])out.toArray(new Channel[0]);
+    }
+    private void oldRetrieveNet() throws SQLException {
+        JDBCStation j = new JDBCStation(getConn());
+        Station[] s = j.getAllStations();
+    }
+
+    private void oldStoreNet() throws SQLException {
+        JDBCStation j = new JDBCStation(getConn());
+        Station[] s = createStation();
+        for(int i = 0; i < s.length; i++) {
+            j.put(s[i]);
+        }
+    }
+
+    private void retrieveNet() {
+        NetworkDB netDB = new NetworkDB();
+        Station[] out = netDB.getAllStations();
+        System.out.println("retrieved "+out.length+" stations");
+    }
+
+    private void createAndStoreNet() {
+        NetworkDB netDB = new NetworkDB();
+        Station[] s = createStation();
+        for(int i = 0; i < s.length; i++) {
+            netDB.put(s[i]);
+        }
+        netDB.commit();
     }
 
     private void schema() {
@@ -64,15 +122,12 @@ public class Play {
     }
 
     private void createAndStoreEvent(String title, Date theDate) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        EventDB eventDB = new EventDB();
         CacheEvent[] origins = getOrigins();
-        session.beginTransaction();
-        // session.save(origins[0].my_location.depth.the_units);
-        // session.save(origins[0].my_location.elevation.the_units);
         for(int i = 0; i < origins.length; i++) {
-            session.save(origins[i]);
+            eventDB.put(origins[i]);
         }
-        session.getTransaction().commit();
+        eventDB.commit();
     }
 
     private void retrieve() {
@@ -92,8 +147,7 @@ public class Play {
 
     private void oldStore() throws SQLException {
         CacheEvent[] origins = getOrigins();
-        ConnMgr.setURL("jdbc:hsqldb:hsql://localhost");
-        JDBCEventAccess jdbcEA = new JDBCEventAccess(ConnMgr.createConnection());
+        JDBCEventAccess jdbcEA = new JDBCEventAccess(getConn());
         JDBCOrigin jdbcOrigin = jdbcEA.getJDBCOrigin();
         for(int i = 0; i < origins.length; i++) {
             jdbcEA.put(origins[i], null, null, null);
@@ -101,9 +155,13 @@ public class Play {
     }
 
     private void oldRetrieve() throws SQLException {
-        ConnMgr.setURL("jdbc:hsqldb:hsql://localhost");
-        JDBCEventAccess jdbcEA = new JDBCEventAccess(ConnMgr.createConnection());
+        JDBCEventAccess jdbcEA = new JDBCEventAccess(getConn());
         List out = jdbcEA.getAllEventsList();
         System.out.println("Got " + out.size() + " origins");
+    }
+    
+    private Connection getConn() throws SQLException {
+        ConnMgr.setURL("jdbc:hsqldb:hsql://localhost");
+        return ConnMgr.createConnection();
     }
 }

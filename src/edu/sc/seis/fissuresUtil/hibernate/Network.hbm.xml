@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="edu.iris.Fissures.IfNetwork.NetworkId">
+		<id column="dbid" type="integer">
+			<generator class="native" />
+		</id>
+		<property name="network_code" access="field" />
+		<property name="begin_time"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
+			access="field">
+			<column name="net_begin_time" sql-type="timestamp"></column>
+			<column name="net_begin_nanos" sql-type="integer"></column>
+			<column name="net_begin_leaps" sql-type="integer"></column>
+		</property>
+	</class>
+
+	<class name="edu.iris.Fissures.network.NetworkAttrImpl"
+		table="network">
+		<id column="dbid" type="integer">
+			<generator class="native" />
+		</id>
+		<many-to-one name="id"
+			class="edu.iris.Fissures.IfNetwork.NetworkId" column="network_id"
+			foreign-key="FK_ATTR_NETWORK_ID" cascade="all" />
+		<property name="name" access="field" />
+		<property name="description" access="field" />
+		<property name="owner" access="field" />
+		<property name="endTime"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
+			<column name="net_end_time" sql-type="timestamp"></column>
+			<column name="net_end_nanos" sql-type="integer"></column>
+			<column name="net_end_leaps" sql-type="integer"></column>
+		</property>
+	</class>
+
+	<class name="edu.iris.Fissures.IfNetwork.StationId">
+		<id column="dbid" type="integer">
+			<generator class="native" />
+		</id>
+		<many-to-one name="network_id"
+			class="edu.iris.Fissures.IfNetwork.NetworkId" column="network_id"
+			foreign-key="FK_STATIONID_NETWORK_ID" cascade="all" access="field" />
+		<property name="station_code" access="field" />
+		<property name="begin_time"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
+			access="field">
+			<column name="time" sql-type="timestamp"></column>
+			<column name="nanos" sql-type="integer"></column>
+			<column name="leaps" sql-type="integer"></column>
+		</property>
+	</class>
+
+	<class name="edu.iris.Fissures.network.StationImpl"
+		table="station">
+		<id column="dbid" type="integer">
+			<generator class="native" />
+		</id>
+		<many-to-one name="id"
+			class="edu.iris.Fissures.IfNetwork.StationId" column="station_id"
+			foreign-key="FK_STATION_STATION_ID" cascade="all" />
+		<property name="name" access="field" />
+		<component name="my_location" class="edu.iris.Fissures.Location"
+			access="field">
+			<property name="latitude" type="float" access="field" />
+			<property name="longitude" type="float" access="field" />
+			<component name="depth"
+				class="edu.iris.Fissures.model.QuantityImpl" access="field">
+				<property name="value" column="depth_value"
+					type="double" access="field" />
+				<many-to-one name="unit"
+					class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
+					foreign-key="FK_STATION_DEPTH_UNIT_ID" cascade="all" />
+			</component>
+			<component name="elevation"
+				class="edu.iris.Fissures.model.QuantityImpl" access="field">
+				<property name="value" type="double" column="elev_value"
+					access="field" />
+				<many-to-one name="unit"
+					class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
+					foreign-key="FK_STATION_ELEV_UNIT_ID" cascade="all" />
+			</component>
+		</component>
+		<property name="operator" access="field" />
+		<property name="description" access="field" />
+		<property name="comment" access="field" />
+	</class>
+
+
+
+	<class name="edu.iris.Fissures.IfNetwork.ChannelId" table="channelid" >
+		<id column="dbid" type="integer">
+			<generator class="native" />
+		</id>
+		<many-to-one name="network_id"
+			class="edu.iris.Fissures.IfNetwork.NetworkId" column="network_id"
+			foreign-key="FK_CHANNELID_NETWORK_ID" cascade="all" access="field" />
+		<property name="station_code" access="field" />
+		<property name="site_code" access="field" />
+		<property name="channel_code" access="field" />
+		<property name="begin_time"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
+			access="field">
+			<column name="time" sql-type="timestamp"></column>
+			<column name="nanos" sql-type="integer"></column>
+			<column name="leaps" sql-type="integer"></column>
+		</property>
+	</class>
+
+	<class name="edu.iris.Fissures.network.ChannelImpl"
+		table="channel">
+		<id column="dbid" type="integer">
+			<generator class="native" />
+		</id>
+		<many-to-one name="id"
+			class="edu.iris.Fissures.IfNetwork.ChannelId" column="channel_id"
+			foreign-key="FK_CHANNEL_CHANNEL_ID" cascade="all" />
+		<property name="name" access="field" />
+		<component name="orientation"
+			class="edu.iris.Fissures.Orientation">
+			<property name="azimuth" type="float" access="field" />
+			<property name="dip" type="float" access="field" />
+		</component>
+		<component name="samplingInfo"
+			class="edu.iris.Fissures.model.SamplingImpl">
+			<component name="interval"
+				class="edu.iris.Fissures.model.QuantityImpl" access="field">
+				<property name="value" column="interval_value"
+					type="double" access="field" />
+				<many-to-one name="unit"
+					class="edu.iris.Fissures.model.UnitImpl" column="interval_unit_id"
+					foreign-key="FK_SAMPLINE_INTERVAL_UNIT_ID" cascade="all" />
+			</component>
+			<property name="numPoints" type="integer" access="field" />
+		</component>
+		<component name="site"
+			class="edu.iris.Fissures.network.SiteImpl">
+			<component name="id"
+				class="edu.iris.Fissures.IfNetwork.SiteId" access="field">
+				<many-to-one name="network_id"
+					class="edu.iris.Fissures.IfNetwork.NetworkId" column="network_id"
+					foreign-key="FK_SITE_NETWORK_ID" cascade="all" access="field" />
+				<property name="station_code"
+					formula="channel_id.station_code" access="field" />
+				<property name="site_code"
+					formula="channel_id.site_code" access="field" />
+				<property name="begin_time"
+					type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
+					access="field">
+					<column name="time" sql-type="timestamp"></column>
+					<column name="nanos" sql-type="integer"></column>
+					<column name="leaps" sql-type="integer"></column>
+				</property>
+			</component>
+		</component>
+	</class>
+
+</hibernate-mapping>
