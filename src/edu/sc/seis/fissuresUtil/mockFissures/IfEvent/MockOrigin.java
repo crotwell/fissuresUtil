@@ -49,9 +49,8 @@ public class MockOrigin {
 
     public static Origin[] createOrigins(int num) {
         Origin[] out = new Origin[num];
-        Magnitude[] mags = MockMagnitude.createMagnitudes();
         for(int i = 0; i < out.length; i++) {
-            out[i] = create(ClockUtil.now(), mags);
+            out[i] = create(ClockUtil.now(), MockMagnitude.createMagnitudes());
         }
         return out;
     }
