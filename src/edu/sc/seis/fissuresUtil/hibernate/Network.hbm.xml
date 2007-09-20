@@ -9,11 +9,11 @@
 		<id column="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<property name="network_code" access="field" />
+		<property name="network_code" access="field" unique-key="code_date"/>
 		<property name="begin_time"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
 			access="field">
-			<column name="net_begin_time" sql-type="timestamp"></column>
+			<column name="net_begin_time" sql-type="timestamp" unique-key="code_date"></column>
 			<column name="net_begin_nanos" sql-type="integer"></column>
 			<column name="net_begin_leaps" sql-type="integer"></column>
 		</property>
@@ -88,6 +88,8 @@
 		<property name="operator" access="field" />
 		<property name="description" access="field" />
 		<property name="comment" access="field" />
+		<many-to-one name="networkAttr" class="edu.iris.Fissures.network.NetworkAttrImpl" column="network"
+			foreign-key="FK_STATION_NETWORK" cascade="all" />
 	</class>
 
 
