@@ -16,6 +16,9 @@ import edu.iris.Fissures.event.EventAttrImpl;
  */
 public class CacheEvent extends ProxyEventAccessOperations {
 
+    /** for use by hibernate */
+    protected CacheEvent() {}
+    
     /**
      * Initializes the origins array to be just the single prefferred origin.
      */
@@ -52,6 +55,15 @@ public class CacheEvent extends ProxyEventAccessOperations {
             origins = event.get_origins();
         }
         return origins;
+    }
+    
+    public Origin[] getOrigins() {
+        return get_origins();
+    }
+    
+    /** for use by hibernate */
+    protected void setOrigins(Origin[] origins) {
+        this.origins = origins;
     }
 
     public Origin get_origin(String the_origin) throws OriginNotFound {
