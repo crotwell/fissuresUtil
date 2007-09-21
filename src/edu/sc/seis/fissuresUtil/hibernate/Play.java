@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import edu.iris.Fissures.GlobalArea;
@@ -31,6 +32,7 @@ import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAttr;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockOrigin;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkAttr;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStation;
 import edu.sc.seis.fissuresUtil.simple.TimeOMatic;
 
@@ -69,7 +71,7 @@ public class Play {
     }
 
     private Station[] createStation() {
-        return MockStation.createMultiSplendoredStations();
+        return MockStation.createMultiSplendoredStations(2,2);
     }
     
     private Channel[] createChannel() {
@@ -101,11 +103,18 @@ public class Play {
 
     private void createAndStoreNet() {
         NetworkDB netDB = new NetworkDB();
+        try {
+        netDB.put(MockNetworkAttr.createNetworkAttr());
+        netDB.put(MockNetworkAttr.createOtherNetworkAttr());
+        } catch (ConstraintViolationException e) {
+            logger.debug("Caught e, going on", e);
+        }
         Station[] s = createStation();
         for(int i = 0; i < s.length; i++) {
+            System.out.println("preput station "+i);
             netDB.put(s[i]);
+            System.out.println("postput station "+i);
         }
-        netDB.commit();
     }
 
     private void schema() {
@@ -171,4 +180,6 @@ public class Play {
         ConnMgr.setURL("jdbc:hsqldb:hsql://localhost");
         return ConnMgr.createConnection();
     }
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Play.class);
 }
