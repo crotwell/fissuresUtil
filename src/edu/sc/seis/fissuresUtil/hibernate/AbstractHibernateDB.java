@@ -7,7 +7,6 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import edu.iris.Fissures.Location;
@@ -37,21 +36,26 @@ public abstract class AbstractHibernateDB {
     }
     
     protected Session createSession() {
-        session = factory.getCurrentSession();
-        Transaction tx = session.beginTransaction();
-        return session;
+        cacheSession = factory.openSession();
+        cacheSession.beginTransaction();
+        return cacheSession;
     }
 
     protected Session getSession() {
-        if (session == null) {
+        if (cacheSession == null) {
             createSession();
         }
-        return session;
+        return cacheSession;
     }
     
     public void commit() {
         getSession().getTransaction().commit();
-        session = null;
+        cacheSession = null;
+    }
+    
+    public void rollback() {
+        getSession().getTransaction().rollback();
+        cacheSession = null;
     }
 
     public void internUnit(Location loc) {
@@ -76,5 +80,5 @@ public abstract class AbstractHibernateDB {
     protected HashSet unitCache = new HashSet();
     
     SessionFactory factory;
-    Session session;
+    private Session cacheSession;
 }

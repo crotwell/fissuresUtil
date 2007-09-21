@@ -37,7 +37,7 @@
 
 	<class name="edu.iris.Fissures.network.StationImpl"
 		table="station">
-		<id column="dbid" type="integer">
+		<id name="dbid" column="dbid" type="integer">
 			<generator class="native" />
 		</id>
 		<component name="id"

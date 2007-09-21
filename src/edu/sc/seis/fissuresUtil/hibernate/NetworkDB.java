@@ -29,25 +29,35 @@ public class NetworkDB extends AbstractHibernateDB {
     public int put(NetworkAttr net) {
         Session session = getSession();
         Integer dbid = (Integer)session.save(net);
+        commit();
         return dbid.intValue();
     }
 
     public int put(Station sta) {
+        Integer dbid;
         Session session = getSession();
-        internUnit(sta.my_location);
         try {
-            int netDbid = put(sta.my_network);
-            System.out.println("Put net: "+netDbid+"  "+((NetworkAttrImpl)sta.my_network).getDbid());
+            int netDbid = ((Integer)session.save(sta.my_network)).intValue();
+            System.out.println("Put net: " + netDbid + "  "
+                    + ((NetworkAttrImpl)sta.my_network).getDbid());
         } catch(ConstraintViolationException e) {
+            rollback();
+            session = getSession();
             // assume network is already put, attach net
             try {
-            sta.my_network = getNetworkByCode(sta.my_network.get_id());
-            } catch (NotFound ee) {
+                sta.my_network = getNetworkByCode(sta.my_network.get_id());
+            } catch(NotFound ee) {
                 // something bad happening to the database...
                 throw new RuntimeException(e);
             }
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        Integer dbid = (Integer)session.save(sta);
+        System.out.println("net done"+((NetworkAttrImpl)sta.my_network).getDbid());
+        internUnit(sta.my_location);
+        dbid = (Integer)session.save(sta);
+        commit();
+        System.out.println("Save sta="+sta.get_code()+" at dbid="+dbid+"  "+((StationImpl)sta).getDbid());
         return dbid.intValue();
     }
 
@@ -55,12 +65,14 @@ public class NetworkDB extends AbstractHibernateDB {
         Session session = getSession();
         Query query = session.createQuery(getNetworkByCodeString);
         query.setString("netCode", netId.network_code);
+        System.out.println("Query: " + query);
         List result = query.list();
         if(NetworkIdUtil.isTemporary(netId)) {
             Iterator it = result.iterator();
             while(it.hasNext()) {
                 NetworkAttr n = (NetworkAttr)it.next();
-                if (NetworkIdUtil.areEqual(netId, n.get_id())) {
+                if(NetworkIdUtil.areEqual(netId, n.get_id())) {
+                    commit();
                     return n;
                 }
             }
@@ -68,6 +80,7 @@ public class NetworkDB extends AbstractHibernateDB {
         } else {
             if(result.size() > 0) {
                 NetworkAttr out = (NetworkAttr)result.get(0);
+                commit();
                 return out;
             }
             throw new NotFound();
