@@ -5,28 +5,25 @@
 
 <hibernate-mapping>
 
-	<class name="edu.iris.Fissures.IfNetwork.NetworkId">
-		<id column="dbid" type="integer">
-			<generator class="native" />
-		</id>
-		<property name="network_code" access="field" unique-key="code_date"/>
-		<property name="begin_time"
-			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
-			access="field">
-			<column name="net_begin_time" sql-type="timestamp" unique-key="code_date"></column>
-			<column name="net_begin_nanos" sql-type="integer"></column>
-			<column name="net_begin_leaps" sql-type="integer"></column>
-		</property>
-	</class>
-
 	<class name="edu.iris.Fissures.network.NetworkAttrImpl"
 		table="network">
 		<id column="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<many-to-one name="id"
-			class="edu.iris.Fissures.IfNetwork.NetworkId" column="network_id"
-			foreign-key="FK_ATTR_NETWORK_ID" cascade="all" />
+		<component name="id"
+			class="edu.iris.Fissures.IfNetwork.NetworkId">
+			<property name="network_code" access="field"
+				unique-key="code_date" />
+			<property name="begin_time"
+				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
+				access="field">
+				<column name="net_begin_time" sql-type="timestamp"
+					unique-key="code_date">
+				</column>
+				<column name="net_begin_nanos" sql-type="integer"></column>
+				<column name="net_begin_leaps" sql-type="integer"></column>
+			</property>
+		</component>
 		<property name="name" access="field" />
 		<property name="description" access="field" />
 		<property name="owner" access="field" />
@@ -38,31 +35,22 @@
 		</property>
 	</class>
 
-	<class name="edu.iris.Fissures.IfNetwork.StationId">
-		<id column="dbid" type="integer">
-			<generator class="native" />
-		</id>
-		<many-to-one name="network_id"
-			class="edu.iris.Fissures.IfNetwork.NetworkId" column="network_id"
-			foreign-key="FK_STATIONID_NETWORK_ID" cascade="all" access="field" />
-		<property name="station_code" access="field" />
-		<property name="begin_time"
-			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
-			access="field">
-			<column name="time" sql-type="timestamp"></column>
-			<column name="nanos" sql-type="integer"></column>
-			<column name="leaps" sql-type="integer"></column>
-		</property>
-	</class>
-
 	<class name="edu.iris.Fissures.network.StationImpl"
 		table="station">
 		<id column="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<many-to-one name="id"
-			class="edu.iris.Fissures.IfNetwork.StationId" column="station_id"
-			foreign-key="FK_STATION_STATION_ID" cascade="all" />
+		<component name="id"
+			class="edu.iris.Fissures.IfNetwork.StationId">
+			<property name="station_code" access="field" />
+			<property name="begin_time"
+				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
+				access="field">
+				<column name="time" sql-type="timestamp"></column>
+				<column name="nanos" sql-type="integer"></column>
+				<column name="leaps" sql-type="integer"></column>
+			</property>
+		</component>
 		<property name="name" access="field" />
 		<component name="my_location" class="edu.iris.Fissures.Location"
 			access="field">
@@ -88,29 +76,9 @@
 		<property name="operator" access="field" />
 		<property name="description" access="field" />
 		<property name="comment" access="field" />
-		<many-to-one name="networkAttr" class="edu.iris.Fissures.network.NetworkAttrImpl" column="network"
+		<many-to-one name="networkAttr"
+			class="edu.iris.Fissures.network.NetworkAttrImpl" column="network"
 			foreign-key="FK_STATION_NETWORK" cascade="all" />
-	</class>
-
-
-
-	<class name="edu.iris.Fissures.IfNetwork.ChannelId" table="channelid" >
-		<id column="dbid" type="integer">
-			<generator class="native" />
-		</id>
-		<many-to-one name="network_id"
-			class="edu.iris.Fissures.IfNetwork.NetworkId" column="network_id"
-			foreign-key="FK_CHANNELID_NETWORK_ID" cascade="all" access="field" />
-		<property name="station_code" access="field" />
-		<property name="site_code" access="field" />
-		<property name="channel_code" access="field" />
-		<property name="begin_time"
-			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
-			access="field">
-			<column name="time" sql-type="timestamp"></column>
-			<column name="nanos" sql-type="integer"></column>
-			<column name="leaps" sql-type="integer"></column>
-		</property>
 	</class>
 
 	<class name="edu.iris.Fissures.network.ChannelImpl"
@@ -118,9 +86,19 @@
 		<id column="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<many-to-one name="id"
-			class="edu.iris.Fissures.IfNetwork.ChannelId" column="channel_id"
-			foreign-key="FK_CHANNEL_CHANNEL_ID" cascade="all" />
+		<component name="id"
+			class="edu.iris.Fissures.IfNetwork.ChannelId">
+			<property name="station_code" access="field" />
+			<property name="site_code" access="field" />
+			<property name="channel_code" access="field" />
+			<property name="begin_time"
+				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
+				access="field">
+				<column name="time" sql-type="timestamp"></column>
+				<column name="nanos" sql-type="integer"></column>
+				<column name="leaps" sql-type="integer"></column>
+			</property>
+		</component>
 		<property name="name" access="field" />
 		<component name="orientation"
 			class="edu.iris.Fissures.Orientation">
@@ -143,9 +121,6 @@
 			class="edu.iris.Fissures.network.SiteImpl">
 			<component name="id"
 				class="edu.iris.Fissures.IfNetwork.SiteId" access="field">
-				<many-to-one name="network_id"
-					class="edu.iris.Fissures.IfNetwork.NetworkId" column="network_id"
-					foreign-key="FK_SITE_NETWORK_ID" cascade="all" access="field" />
 				<property name="station_code"
 					formula="channel_id.station_code" access="field" />
 				<property name="site_code"
@@ -153,11 +128,20 @@
 				<property name="begin_time"
 					type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
 					access="field">
-					<column name="time" sql-type="timestamp"></column>
-					<column name="nanos" sql-type="integer"></column>
-					<column name="leaps" sql-type="integer"></column>
+					<column name="site_begin_time"
+						sql-type="timestamp">
+					</column>
+					<column name="site_begin_nanos"
+						sql-type="integer">
+					</column>
+					<column name="site_begin_leaps"
+						sql-type="integer">
+					</column>
 				</property>
 			</component>
+			<many-to-one name="station"
+				class="edu.iris.Fissures.network.StationImpl" column="station"
+				foreign-key="FK_CHANNEL_STATION" cascade="all" />
 		</component>
 	</class>
 

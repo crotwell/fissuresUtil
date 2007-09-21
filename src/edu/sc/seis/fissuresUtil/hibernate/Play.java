@@ -11,6 +11,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import edu.iris.Fissures.GlobalArea;
@@ -113,7 +114,7 @@ public class Play {
     }
 
     private CacheEvent[] getOrigins() {
-        Origin[] origins = MockOrigin.createOrigins(1000);
+        Origin[] origins = MockOrigin.createOrigins(10);
         CacheEvent[] out = new CacheEvent[origins.length];
         for(int i = 0; i < out.length; i++) {
             out[i] = new CacheEvent(MockEventAttr.create(i % 700), origins[i]);
@@ -127,7 +128,13 @@ public class Play {
         for(int i = 0; i < origins.length; i++) {
             eventDB.put(origins[i]);
         }
+        for (int i = 0; i < origins.length; i++) {
+			System.out.println("before origin: "+i+"  dbid="+origins[i].getDbId());
+		}
         eventDB.commit();
+        for (int i = 0; i < origins.length; i++) {
+			System.out.println("origin: "+i+"  dbid="+origins[i].getDbId());
+		}
     }
 
     private void retrieve() {
