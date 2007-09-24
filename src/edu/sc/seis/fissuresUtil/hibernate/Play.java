@@ -38,148 +38,159 @@ import edu.sc.seis.fissuresUtil.simple.TimeOMatic;
 
 public class Play {
 
-    public static void main(String[] args) throws SQLException {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
-        Play mgr = new Play();
-        TimeOMatic.start();
-        String todo = args[2];
-        System.out.println("arg is: " + todo);
-        if(todo.equals("schema")) {
-            mgr.schema();
-        } else if(todo.equals("store")) {
-            mgr.createAndStoreEvent("My Event", new Date());
-        } else if(todo.equals("retrieve")) {
-            mgr.retrieve();
-        } else if(todo.equals("oldstore")) {
-            mgr.oldStore();
-        } else if(todo.equals("oldretrieve")) {
-            mgr.oldRetrieve();
-// network
-        } else if(todo.equals("storenet")) {
-            mgr.createAndStoreNet();
-        } else if(todo.equals("retrievenet")) {
-            mgr.retrieveNet();
-        } else if(todo.equals("oldstorenet")) {
-            mgr.oldStoreNet();
-        } else if(todo.equals("oldretrievenet")) {
-            mgr.oldRetrieveNet();
-        } else {
-            System.err.println("Unknown arg: "+todo);
-        }
-        TimeOMatic.print("end");
-    }
-
-    private Station[] createStation() {
-        return MockStation.createMultiSplendoredStations(2,2);
-    }
-    
-    private Channel[] createChannel() {
-        ArrayList out = new ArrayList();
-        Station[] sta = createStation();
-        for(int i = 0; i < sta.length; i++) {
-            out.add(MockChannel.createMotionVector(sta[i]));
-        }
-        return (Channel[])out.toArray(new Channel[0]);
-    }
-    private void oldRetrieveNet() throws SQLException {
-        JDBCStation j = new JDBCStation(getConn());
-        Station[] s = j.getAllStations();
-    }
-
-    private void oldStoreNet() throws SQLException {
-        JDBCStation j = new JDBCStation(getConn());
-        Station[] s = createStation();
-        for(int i = 0; i < s.length; i++) {
-            j.put(s[i]);
-        }
-    }
-
-    private void retrieveNet() {
-        NetworkDB netDB = new NetworkDB();
-        Station[] out = netDB.getAllStations();
-        System.out.println("retrieved "+out.length+" stations");
-    }
-
-    private void createAndStoreNet() {
-        NetworkDB netDB = new NetworkDB();
-        try {
-        netDB.put(MockNetworkAttr.createNetworkAttr());
-        netDB.put(MockNetworkAttr.createOtherNetworkAttr());
-        } catch (ConstraintViolationException e) {
-            logger.debug("Caught e, going on", e);
-        }
-        Station[] s = createStation();
-        for(int i = 0; i < s.length; i++) {
-            System.out.println("preput station "+i);
-            netDB.put(s[i]);
-            System.out.println("postput station "+i);
-        }
-    }
-
-    private void schema() {
-        SchemaUpdate update = new SchemaUpdate(HibernateUtil.getConfiguration());
-        update.execute(false, true);
-    }
-
-    private CacheEvent[] getOrigins() {
-        Origin[] origins = MockOrigin.createOrigins(10);
-        CacheEvent[] out = new CacheEvent[origins.length];
-        for(int i = 0; i < out.length; i++) {
-            out[i] = new CacheEvent(MockEventAttr.create(i % 700), origins[i]);
-        }
-        return out;
-    }
-
-    private void createAndStoreEvent(String title, Date theDate) {
-        EventDB eventDB = new EventDB();
-        CacheEvent[] origins = getOrigins();
-        for(int i = 0; i < origins.length; i++) {
-            eventDB.put(origins[i]);
-        }
-        for (int i = 0; i < origins.length; i++) {
-			System.out.println("before origin: "+i+"  dbid="+origins[i].getDbId());
+	public static void main(String[] args) throws SQLException {
+		try {
+			BasicConfigurator.configure();
+			Logger.getRootLogger().setLevel(Level.INFO);
+			Play mgr = new Play();
+			TimeOMatic.start();
+			String todo = args[2];
+			System.out.println("arg is: " + todo);
+			if (todo.equals("schema")) {
+				mgr.schema();
+			} else if (todo.equals("store")) {
+				mgr.createAndStoreEvent("My Event", new Date());
+			} else if (todo.equals("retrieve")) {
+				mgr.retrieve();
+			} else if (todo.equals("oldstore")) {
+				mgr.oldStore();
+			} else if (todo.equals("oldretrieve")) {
+				mgr.oldRetrieve();
+				// network
+			} else if (todo.equals("storenet")) {
+				mgr.createAndStoreNet();
+			} else if (todo.equals("retrievenet")) {
+				mgr.retrieveNet();
+			} else if (todo.equals("oldstorenet")) {
+				mgr.oldStoreNet();
+			} else if (todo.equals("oldretrievenet")) {
+				mgr.oldRetrieveNet();
+			} else {
+				System.err.println("Unknown arg: " + todo);
+			}
+			TimeOMatic.print("end");
+		} catch (Throwable t) {
+			logger.error("big problem!", t);
 		}
-        eventDB.commit();
-        for (int i = 0; i < origins.length; i++) {
-			System.out.println("origin: "+i+"  dbid="+origins[i].getDbId());
+	}
+
+	private Station[] createStation() {
+		return MockStation.createMultiSplendoredStations(2, 2);
+	}
+
+	private Channel[] createChannel() {
+		ArrayList out = new ArrayList();
+		Station[] sta = createStation();
+		for (int i = 0; i < sta.length; i++) {
+			out.add(MockChannel.createMotionVector(sta[i]));
 		}
-    }
+		return (Channel[]) out.toArray(new Channel[0]);
+	}
 
-    private void retrieve() {
-        EventFinderQuery q = new EventFinderQuery();
-        q.setArea(new GlobalAreaImpl());
-        q.setMaxDepth(1000);
-        q.setMaxMag(10);
-        q.setMinDepth(0);
-        q.setTime(new MicroSecondTimeRange(new MicroSecondDate(new Time("2006-07-01T000000Z", -1)),
-                                           new MicroSecondDate(new Time("2007-10-01T000000Z", -1))));
-        q.setMinMag(0);
-        EventDB eventDB= new EventDB(HibernateUtil.getSessionFactory());
-        CacheEvent[] events = eventDB.query(q);
-        System.out.println("Got " + events.length + " origins");
-        HibernateUtil.getSessionFactory().close();
-    }
+	private void oldRetrieveNet() throws SQLException {
+		JDBCStation j = new JDBCStation(getConn());
+		Station[] s = j.getAllStations();
+	}
 
-    private void oldStore() throws SQLException {
-        CacheEvent[] origins = getOrigins();
-        JDBCEventAccess jdbcEA = new JDBCEventAccess(getConn());
-        JDBCOrigin jdbcOrigin = jdbcEA.getJDBCOrigin();
-        for(int i = 0; i < origins.length; i++) {
-            jdbcEA.put(origins[i], null, null, null);
-        }
-    }
+	private void oldStoreNet() throws SQLException {
+		JDBCStation j = new JDBCStation(getConn());
+		Station[] s = createStation();
+		for (int i = 0; i < s.length; i++) {
+			j.put(s[i]);
+		}
+	}
 
-    private void oldRetrieve() throws SQLException {
-        JDBCEventAccess jdbcEA = new JDBCEventAccess(getConn());
-        List out = jdbcEA.getAllEventsList();
-        System.out.println("Got " + out.size() + " origins");
-    }
-    
-    private Connection getConn() throws SQLException {
-        ConnMgr.setURL("jdbc:hsqldb:hsql://localhost");
-        return ConnMgr.createConnection();
-    }
-    
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Play.class);
+	private void retrieveNet() {
+		NetworkDB netDB = new NetworkDB();
+		Station[] out = netDB.getAllStations();
+		System.out.println("retrieved " + out.length + " stations");
+	}
+
+	private void createAndStoreNet() {
+		NetworkDB netDB = new NetworkDB();
+		try {
+			netDB.put(MockNetworkAttr.createNetworkAttr());
+			netDB.put(MockNetworkAttr.createOtherNetworkAttr());
+		} catch (ConstraintViolationException e) {
+			logger.debug("Caught e, going on", e);
+			netDB.rollback();
+		}
+		Station[] s = createStation();
+		for (int i = 0; i < s.length; i++) {
+			System.out.println("preput station " + i);
+			netDB.put(s[i]);
+			System.out.println("postput station " + i);
+		}
+		netDB.commit();
+	}
+
+	private void schema() {
+		SchemaUpdate update = new SchemaUpdate(HibernateUtil.getConfiguration());
+		update.execute(false, true);
+	}
+
+	private CacheEvent[] getOrigins() {
+		Origin[] origins = MockOrigin.createOrigins(10);
+		CacheEvent[] out = new CacheEvent[origins.length];
+		for (int i = 0; i < out.length; i++) {
+			out[i] = new CacheEvent(MockEventAttr.create(i % 700), origins[i]);
+		}
+		return out;
+	}
+
+	private void createAndStoreEvent(String title, Date theDate) {
+		EventDB eventDB = new EventDB();
+		CacheEvent[] origins = getOrigins();
+		for (int i = 0; i < origins.length; i++) {
+			eventDB.put(origins[i]);
+		}
+		for (int i = 0; i < origins.length; i++) {
+			System.out.println("before origin: " + i + "  dbid="
+					+ origins[i].getDbId());
+		}
+		eventDB.commit();
+		for (int i = 0; i < origins.length; i++) {
+			System.out.println("origin: " + i + "  dbid="
+					+ origins[i].getDbId());
+		}
+	}
+
+	private void retrieve() {
+		EventFinderQuery q = new EventFinderQuery();
+		q.setArea(new GlobalAreaImpl());
+		q.setMaxDepth(1000);
+		q.setMaxMag(10);
+		q.setMinDepth(0);
+		q.setTime(new MicroSecondTimeRange(new MicroSecondDate(new Time(
+				"2006-07-01T000000Z", -1)), new MicroSecondDate(new Time(
+				"2007-10-01T000000Z", -1))));
+		q.setMinMag(0);
+		EventDB eventDB = new EventDB(HibernateUtil.getSessionFactory());
+		CacheEvent[] events = eventDB.query(q);
+		System.out.println("Got " + events.length + " origins");
+		HibernateUtil.getSessionFactory().close();
+	}
+
+	private void oldStore() throws SQLException {
+		CacheEvent[] origins = getOrigins();
+		JDBCEventAccess jdbcEA = new JDBCEventAccess(getConn());
+		JDBCOrigin jdbcOrigin = jdbcEA.getJDBCOrigin();
+		for (int i = 0; i < origins.length; i++) {
+			jdbcEA.put(origins[i], null, null, null);
+		}
+	}
+
+	private void oldRetrieve() throws SQLException {
+		JDBCEventAccess jdbcEA = new JDBCEventAccess(getConn());
+		List out = jdbcEA.getAllEventsList();
+		System.out.println("Got " + out.size() + " origins");
+	}
+
+	private Connection getConn() throws SQLException {
+		ConnMgr.setURL("jdbc:hsqldb:hsql://localhost");
+		return ConnMgr.createConnection();
+	}
+
+	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger
+			.getLogger(Play.class);
 }
