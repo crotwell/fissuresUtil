@@ -13,50 +13,50 @@ import edu.iris.Fissures.network.ChannelImpl;
 
 public class MockChannel {
 
-    public static Channel createChannel() {
+    public static ChannelImpl createChannel() {
         return createChannel(MockChannelId.createVerticalChanId(),
                              "Vertical Channel",
                              MockSite.createSite(),
                              VERTICAL);
     }
 
-    public static Channel createNorthChannel() {
+    public static ChannelImpl createNorthChannel() {
         return createChannel(MockChannelId.createNorthChanId(),
                              "North Channel",
                              MockSite.createSite(),
                              NORTH);
     }
 
-    public static Channel createEastChannel() {
+    public static ChannelImpl createEastChannel() {
         return createChannel(MockChannelId.createEastChanId(),
                              "East Channel",
                              MockSite.createSite(),
                              EAST);
     }
 
-    public static Channel createOtherSiteSameStationChan() {
+    public static ChannelImpl createOtherSiteSameStationChan() {
         return createChannel(MockChannelId.createOtherSiteSameStationChanId(),
                              "Other Site Same Station Vertical Channel",
                              MockSite.createOtherSiteSameStation(),
                              VERTICAL);
     }
 
-    public static Channel createOtherNetChan() {
+    public static ChannelImpl createOtherNetChan() {
         return createChannel(MockChannelId.createOtherNetChanId(),
                              "Other Net Vertical Channel",
                              MockSite.createOtherSite(),
                              VERTICAL);
     }
 
-    public static Channel[] createChannelsAtLocs(Location[] locs) {
-        Channel[] chans = new Channel[locs.length];
+    public static ChannelImpl[] createChannelsAtLocs(Location[] locs) {
+        ChannelImpl[] chans = new ChannelImpl[locs.length];
         for(int i = 0; i < chans.length; i++) {
             chans[i] = createChannel(locs[i]);
         }
         return chans;
     }
 
-    private static Channel createChannel(Location location) {
+    private static ChannelImpl createChannel(Location location) {
         Site s = MockSite.createSite(location);
         return createChannel(MockChannelId.createChanId("BHZ", s),
                              location.toString(),
@@ -64,7 +64,7 @@ public class MockChannel {
                              VERTICAL);
     }
 
-    private static Channel createChannel(ChannelId id,
+    private static ChannelImpl createChannel(ChannelId id,
                                          String info,
                                          Site s,
                                          Orientation o) {
@@ -78,12 +78,12 @@ public class MockChannel {
                                s);
     }
 
-    public static Channel[] createMotionVector() {
+    public static ChannelImpl[] createMotionVector() {
         return createMotionVector(MockStation.createStation());
     }
 
-    public static Channel[] createMotionVector(Station station) {
-        Channel[] channels = new Channel[3];
+    public static ChannelImpl[] createMotionVector(Station station) {
+        ChannelImpl[] channels = new ChannelImpl[3];
         Site s = MockSite.createSite(station);
         String[] codes = {"BHZ", "BHN", "BHE"};
         for(int i = 0; i < codes.length; i++) {
