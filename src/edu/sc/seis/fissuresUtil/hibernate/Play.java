@@ -22,6 +22,7 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
@@ -78,13 +79,17 @@ public class Play {
 		return MockStation.createMultiSplendoredStations(2, 2);
 	}
 
-	private Channel[] createChannel() {
+	private ChannelImpl[] createChannel() {
 		ArrayList out = new ArrayList();
 		Station[] sta = createStation();
 		for (int i = 0; i < sta.length; i++) {
-			out.add(MockChannel.createMotionVector(sta[i]));
+		    ChannelImpl[] c = MockChannel.createMotionVector(sta[i]);
+		    for(int j = 0; j < c.length; j++) {
+		        out.add(c[j]);
+            }
+			
 		}
-		return (Channel[]) out.toArray(new Channel[0]);
+		return (ChannelImpl[]) out.toArray(new ChannelImpl[0]);
 	}
 
 	private void oldRetrieveNet() throws SQLException {
@@ -109,18 +114,22 @@ public class Play {
 	private void createAndStoreNet() {
 		NetworkDB netDB = new NetworkDB();
 		try {
-			netDB.put(MockNetworkAttr.createNetworkAttr());
-			netDB.put(MockNetworkAttr.createOtherNetworkAttr());
-		} catch (ConstraintViolationException e) {
-			logger.debug("Caught e, going on", e);
-			netDB.rollback();
-		}
-		Station[] s = createStation();
-		for (int i = 0; i < s.length; i++) {
-			System.out.println("preput station " + i);
-			netDB.put(s[i]);
-			System.out.println("postput station " + i);
-		}
+            netDB.put(MockNetworkAttr.createNetworkAttr());
+            netDB.put(MockNetworkAttr.createOtherNetworkAttr());
+        } catch (ConstraintViolationException e) {
+            logger.debug("Caught e, going on", e);
+            netDB.rollback();
+        }
+        Station[] s = createStation();
+        for (int i = 0; i < s.length; i++) {
+            System.out.println("preput station " + i);
+            netDB.put(s[i]);
+            System.out.println("postput station " + i);
+        }
+		ChannelImpl[] chan = createChannel();
+		for(int i = 0; i < chan.length; i++) {
+            netDB.put(chan[i]);
+        }
 		netDB.commit();
 	}
 

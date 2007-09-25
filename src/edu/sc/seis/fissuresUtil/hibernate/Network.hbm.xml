@@ -13,12 +13,12 @@
 		<component name="id"
 			class="edu.iris.Fissures.IfNetwork.NetworkId">
 			<property name="network_code" access="field"
-				unique-key="code_date" />
+				unique-key="net_code_date" />
 			<property name="begin_time"
 				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
 				access="field">
 				<column name="net_begin_time" sql-type="timestamp"
-					unique-key="code_date">
+					unique-key="net_code_date">
 				</column>
 				<column name="net_begin_nanos" sql-type="integer"></column>
 				<column name="net_begin_leaps" sql-type="integer"></column>
@@ -42,13 +42,16 @@
 		</id>
 		<component name="id"
 			class="edu.iris.Fissures.IfNetwork.StationId">
-			<property name="station_code" access="field" />
+			<property name="station_code" access="field"
+				unique-key="sta_code_date" />
 			<property name="begin_time"
 				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
-				access="field">
-				<column name="time" sql-type="timestamp"></column>
-				<column name="nanos" sql-type="integer"></column>
-				<column name="leaps" sql-type="integer"></column>
+				access="field" unique-key="sta_code_date">
+				<column name="sta_begin_time" sql-type="timestamp"
+					unique-key="sta_code_date">
+				</column>
+				<column name="sta_begin_nanos" sql-type="integer"></column>
+				<column name="sta_begin_leaps" sql-type="integer"></column>
 			</property>
 		</component>
 		<property name="name" access="field" />
@@ -76,9 +79,16 @@
 		<property name="operator" access="field" />
 		<property name="description" access="field" />
 		<property name="comment" access="field" />
+		<property name="endTime"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
+			<column name="sta_end_time" sql-type="timestamp"></column>
+			<column name="sta_end_nanos" sql-type="integer"></column>
+			<column name="sta_end_leaps" sql-type="integer"></column>
+		</property>
 		<many-to-one name="networkAttr"
 			class="edu.iris.Fissures.network.NetworkAttrImpl" column="network"
-			foreign-key="FK_STATION_NETWORK" cascade="all" />
+			foreign-key="FK_STATION_NETWORK" cascade="all"
+			unique-key="sta_code_date" />
 	</class>
 
 	<class name="edu.iris.Fissures.network.ChannelImpl"
@@ -89,17 +99,23 @@
 		<component name="id"
 			class="edu.iris.Fissures.IfNetwork.ChannelId">
 			<property name="station_code" access="field" />
-			<property name="site_code" access="field" />
-			<property name="channel_code" access="field" />
+			<property name="site_code" access="field" unique-key="chan_code_date" />
+			<property name="channel_code" access="field" unique-key="chan_code_date" />
 			<property name="begin_time"
 				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
 				access="field">
-				<column name="time" sql-type="timestamp"></column>
-				<column name="nanos" sql-type="integer"></column>
-				<column name="leaps" sql-type="integer"></column>
+				<column name="chan_begin_time" sql-type="timestamp" unique-key="chan_code_date"></column>
+				<column name="chan_begin_nanos" sql-type="integer"></column>
+				<column name="chan_begin_leaps" sql-type="integer"></column>
 			</property>
 		</component>
 		<property name="name" access="field" />
+		<property name="endTime"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
+			<column name="chan_end_time" sql-type="timestamp"></column>
+			<column name="chan_end_nanos" sql-type="integer"></column>
+			<column name="chan_end_leaps" sql-type="integer"></column>
+		</property>
 		<component name="orientation"
 			class="edu.iris.Fissures.Orientation">
 			<property name="azimuth" type="float" access="field" />
@@ -139,9 +155,36 @@
 					</column>
 				</property>
 			</component>
+			<component name="my_location"
+				class="edu.iris.Fissures.Location" access="field">
+				<property name="latitude" type="float" access="field" />
+				<property name="longitude" type="float" access="field" />
+				<component name="depth"
+					class="edu.iris.Fissures.model.QuantityImpl" access="field">
+					<property name="value" column="depth_value"
+						type="double" access="field" />
+					<many-to-one name="unit"
+						class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
+						foreign-key="FK_SITE_DEPTH_UNIT_ID" cascade="all" />
+				</component>
+				<component name="elevation"
+					class="edu.iris.Fissures.model.QuantityImpl" access="field">
+					<property name="value" type="double"
+						column="elev_value" access="field" />
+					<many-to-one name="unit"
+						class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
+						foreign-key="FK_SITE_ELEV_UNIT_ID" cascade="all" />
+				</component>
+			</component>
+			<property name="endTime"
+				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
+				<column name="site_end_time" sql-type="timestamp"></column>
+				<column name="site_end_nanos" sql-type="integer"></column>
+				<column name="site_end_leaps" sql-type="integer"></column>
+			</property>
 			<many-to-one name="station"
 				class="edu.iris.Fissures.network.StationImpl" column="station"
-				foreign-key="FK_CHANNEL_STATION" cascade="all" />
+				foreign-key="FK_CHANNEL_STATION" cascade="all"  unique-key="chan_code_date"/>
 		</component>
 	</class>
 
