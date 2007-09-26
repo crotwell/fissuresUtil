@@ -17,6 +17,7 @@ import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.network.ChannelIdUtil;
@@ -162,15 +163,38 @@ public class JDBCChannel extends NetworkTable {
         return extractAllChans(getAllChansForStation);
     }
 
+    public DBChannel[] getAllChannelsForStation(int stationDbId,
+                                                MicroSecondDate activeAt)
+            throws NotFound, SQLException {
+        getAllChansForStationOnDate.setInt(1, stationDbId);
+        getAllChansForStationOnDate.setTimestamp(2, activeAt.getTimestamp());
+        getAllChansForStationOnDate.setTimestamp(3, activeAt.getTimestamp());
+        return extractAllChans(getAllChansForStationOnDate);
+    }
+
     public DBChannel[] getFirstChannel(StationId station) throws NotFound,
             SQLException {
         return getFirstChannelForStation(stationTable.getDBId(station));
+    }
+
+    public DBChannel[] getFirstChannel(StationId station, MicroSecondDate date)
+            throws NotFound, SQLException {
+        return getFirstChannelForStation(stationTable.getDBId(station), date);
     }
 
     public DBChannel[] getFirstChannelForStation(int stationDbId)
             throws NotFound, SQLException {
         getFirstChanForStation.setInt(1, stationDbId);
         return extractAllChans(getFirstChanForStation);
+    }
+
+    public DBChannel[] getFirstChannelForStation(int stationDbId,
+                                                 MicroSecondDate activeAt)
+            throws NotFound, SQLException {
+        getFirstChanForStationOnDate.setInt(1, stationDbId);
+        getFirstChanForStationOnDate.setTimestamp(2, activeAt.getTimestamp());
+        getFirstChanForStationOnDate.setTimestamp(3, activeAt.getTimestamp());
+        return extractAllChans(getFirstChanForStationOnDate);
     }
 
     public DBChannel[] getByCode(NetworkId networkId,
@@ -340,8 +364,9 @@ public class JDBCChannel extends NetworkTable {
     }
 
     private PreparedStatement getAllChans, getAllChansForStation,
-            getAllChansForNetwork, getFirstChanForStation, getByDBId, putAll,
-            updateNonId, putId, getAllIds, getAllIdsForStation,
+            getAllChansForStationOnDate, getAllChansForNetwork,
+            getFirstChanForStation, getFirstChanForStationOnDate, getByDBId,
+            putAll, updateNonId, putId, getAllIds, getAllIdsForStation,
             getAllIdsForNetwork, getByCodes, getIdsByCodes, getStationDbId,
             getAllIdsForSite;
 
@@ -447,8 +472,9 @@ public class JDBCChannel extends NetworkTable {
                                         int index,
                                         JDBCQuantity quantityTable,
                                         JDBCTime time) throws SQLException {
-        if (chan.sampling_info == null) {
-            throw new SQLException("Channel's sampling_info is NULL for "+ChannelIdUtil.toString(chan.get_id()));
+        if(chan.sampling_info == null) {
+            throw new SQLException("Channel's sampling_info is NULL for "
+                    + ChannelIdUtil.toString(chan.get_id()));
         }
         stmt.setInt(index++, time.put(chan.effective_time.end_time));
         stmt.setString(index++, chan.name);

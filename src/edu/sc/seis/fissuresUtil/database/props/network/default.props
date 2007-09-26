@@ -170,12 +170,19 @@ channel.getAllIdsForNetwork = $channel_getAllIdsQuery \
 
 channel.getAllChans = $channel_getAllQuery
 
-#set ( $channel_allForStation = "$channel_getAllQuery , site WHERE channel.site_id = site.site_id AND site.sta_id = ?" )
+#set ( $channel_allForStationCriteria = "site WHERE channel.site_id = site.site_id AND site.sta_id = ?" )
+
+#set ( $channel_allForStation = "$channel_getAllQuery , $channel_allForStationCriteria" )
 
 channel.getAllChansForStation = $channel_allForStation
 
 channel.getFirstChanForStation = $channel_allForStation LIMIT 1
                 
+#set ( $channel_allForStationOnDate = "$channel_getAllQuery , time as chan_begin, time as chan_end, $channel_allForStationCriteria AND channel.chan_begin_id = chan_begin.time_id AND channel.chan_end_id = chan_end.time_id AND chan_begin.time_stamp < ? AND chan_end.time_stamp > ?" )
+
+channel.getAllChansForStationOnDate = $channel_allForStationOnDate
+
+channel.getFirstChanForStationOnDate = $channel_allForStationOnDate LIMIT 1
 
 channel.getByCodes = $channel_getAllQuery, site, station \
                 WHERE channel.site_id = site.site_id AND \
