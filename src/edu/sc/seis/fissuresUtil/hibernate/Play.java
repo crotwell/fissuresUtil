@@ -9,16 +9,11 @@ import java.util.List;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
-import edu.iris.Fissures.GlobalArea;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
