@@ -77,19 +77,19 @@ public class EventDB extends AbstractHibernateDB {
         throw new NotFound();
     }
     
-    static String getByDbIdString = "From edu.sc.seis.fissuresUtil.cache.CacheEvent e WHERE id = :id";
+    protected static String getByDbIdString = "From edu.sc.seis.fissuresUtil.cache.CacheEvent e WHERE id = :id";
     
-    static String getLastEventString = "From edu.sc.seis.fissuresUtil.cache.CacheEvent e ORDER BY e.id desc";
+    protected static String getLastEventString = "From edu.sc.seis.fissuresUtil.cache.CacheEvent e ORDER BY e.id desc";
 
-    static String finderQueryBase = "select e FROM edu.sc.seis.fissuresUtil.cache.CacheEvent e join e.preferred.magnitudes m "
+    protected static String finderQueryBase = "select e FROM edu.sc.seis.fissuresUtil.cache.CacheEvent e join e.preferred.magnitudes m "
             + "WHERE e.preferred.my_location.latitude between :minLat AND :maxLat "
             + "AND m member of e.preferred.magnitudes AND m.value between :minMag AND :maxMag  "
             + "AND e.preferred.origin_time.time between :minTime AND :maxTime  "
             + "AND e.preferred.my_location.depth.value between :minDepth and :maxDepth  ";
 
-    static String finderQueryAvoidDateline = finderQueryBase
+    protected static String finderQueryAvoidDateline = finderQueryBase
             + "AND e.preferred.my_location.longitude between :minLon and :maxLon ";
 
-    static String finderQueryAroundDateline = finderQueryBase
+    protected static String finderQueryAroundDateline = finderQueryBase
             + " AND ((? <= e.preferred.my_location.longitude) OR (e.preferred.my_location.longitude <= ?))";
 }
