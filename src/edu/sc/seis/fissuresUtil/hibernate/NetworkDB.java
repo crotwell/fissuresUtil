@@ -119,4 +119,9 @@ public class NetworkDB extends AbstractHibernateDB {
     static String getAllStationsString = "From edu.iris.Fissures.network.StationImpl s";
 
     static String getNetworkByCodeString = "From edu.iris.Fissures.network.NetworkAttrImpl n WHERE network_code = :netCode";
+
+    public ChannelImpl getChannel(int chanId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
