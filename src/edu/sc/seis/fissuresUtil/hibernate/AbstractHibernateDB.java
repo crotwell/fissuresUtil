@@ -48,6 +48,10 @@ public abstract class AbstractHibernateDB {
         return cacheSession;
     }
     
+    public void flush() {
+        getSession().flush();
+    }
+    
     public void commit() {
         getSession().getTransaction().commit();
         cacheSession = null;
