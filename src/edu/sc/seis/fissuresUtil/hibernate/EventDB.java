@@ -8,6 +8,8 @@ import org.hibernate.SessionFactory;
 
 import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.bag.AreaUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
@@ -15,81 +17,129 @@ import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 
 public class EventDB extends AbstractHibernateDB {
-    
-    public EventDB() {
-        this(HibernateUtil.getSessionFactory());
-    }
 
-    public EventDB(SessionFactory factory) {
-        super(factory);
-    }
+	public EventDB() {
+		this(HibernateUtil.getSessionFactory());
+	}
 
-    public CacheEvent[] query(EventFinderQuery q) {
-        BoxArea ba = AreaUtil.makeContainingBox(q.getArea());
-        String queryString = (ba.min_longitude <= ba.max_longitude ? finderQueryAvoidDateline
-                : finderQueryAroundDateline);
-        Session session = getSession();
-        Query query = session.createQuery(queryString);
-        query.setFloat("minLat", ba.min_latitude);
-        query.setFloat("maxLat", ba.max_latitude);
-        query.setFloat("minMag", q.getMinMag());
-        query.setFloat("maxMag", q.getMaxMag());
-        query.setTimestamp("minTime", q.getTime().getBeginTime().getTimestamp());
-        query.setTimestamp("maxTime", q.getTime().getEndTime().getTimestamp());
-        query.setDouble("minDepth", q.getMinDepth());
-        query.setDouble("maxDepth", q.getMaxDepth());
-        query.setFloat("minLon", ba.min_longitude);
-        query.setFloat("maxLon", ba.max_longitude);
-        List result = query.list();
-        CacheEvent[] out = (CacheEvent[])result.toArray(new CacheEvent[0]);
-        return out;
-    }
+	public EventDB(SessionFactory factory) {
+		super(factory);
 
-    public CacheEvent getEvent(int dbid) throws NotFound {
-        Session session = getSession();
-        Query query = session.createQuery(getByDbIdString);
-        query.setInteger("id", dbid);
-        List result = query.list();
-        if(result.size() > 0) {
-            CacheEvent out = (CacheEvent)result.get(0);
-            return out;
-        }
-        throw new NotFound();
-    }
+	}
 
-    public long put(CacheEvent event) {
-        Session session = getSession();
-        internUnit(event.getOrigin().my_location);
-        Integer dbid = (Integer)session.save(event);
-        event.setDbId(dbid.intValue());
-        return dbid.longValue();
-    }
+	protected void initQueryStrings() {
+		getLastEventString = "From " + getEventClass().getName()
+				+ " e ORDER BY e.id desc";
+		finderQueryBase = "select e FROM "
+				+ getEventClass().getName()
+				+ " e join e.preferred.magnitudes m "
+				+ "WHERE e.preferred.my_location.latitude between :minLat AND :maxLat "
+				+ "AND m member of e.preferred.magnitudes AND m.value between :minMag AND :maxMag  "
+				+ "AND e.preferred.origin_time.time between :minTime AND :maxTime  "
+				+ "AND e.preferred.my_location.depth.value between :minDepth and :maxDepth  ";
+		finderQueryAvoidDateline = finderQueryBase
+				+ "AND e.preferred.my_location.longitude between :minLon and :maxLon ";
+		finderQueryAroundDateline = finderQueryBase
+				+ " AND ((? <= e.preferred.my_location.longitude) OR (e.preferred.my_location.longitude <= ?))";
+		getIdenticalEventString = "From " + getEventClass().getName()
+				+ " e WHERE " + "e.preferred.origin_time.time = :originTime "
+				+ "AND e.preferred.my_location.latitude = :lat "
+				+ "AND e.preferred.my_location.latitude = :lon "
+				+ "AND e.preferred.my_location.depth.value = :depth";
+	}
 
-    public CacheEvent getLastEvent() throws NotFound {
-        Session session = getSession();
-        Query query = session.createQuery(getLastEventString);
-        query.setMaxResults(1);
-        List result = query.list();
-        if(result.size() > 0) {
-            CacheEvent out = (CacheEvent)result.get(0);
-            return out;
-        }
-        throw new NotFound();
-    }
-    
-    protected static String getByDbIdString = "From edu.sc.seis.fissuresUtil.cache.CacheEvent e WHERE id = :id";
-    
-    protected static String getLastEventString = "From edu.sc.seis.fissuresUtil.cache.CacheEvent e ORDER BY e.id desc";
+	public CacheEvent[] query(EventFinderQuery q) {
+		BoxArea ba = AreaUtil.makeContainingBox(q.getArea());
+		String queryString = (ba.min_longitude <= ba.max_longitude ? finderQueryAvoidDateline
+				: finderQueryAroundDateline);
+		Session session = getSession();
+		Query query = session.createQuery(queryString);
+		query.setFloat("minLat", ba.min_latitude);
+		query.setFloat("maxLat", ba.max_latitude);
+		query.setFloat("minMag", q.getMinMag());
+		query.setFloat("maxMag", q.getMaxMag());
+		query
+				.setTimestamp("minTime", q.getTime().getBeginTime()
+						.getTimestamp());
+		query.setTimestamp("maxTime", q.getTime().getEndTime().getTimestamp());
+		query.setDouble("minDepth", q.getMinDepth());
+		query.setDouble("maxDepth", q.getMaxDepth());
+		query.setFloat("minLon", ba.min_longitude);
+		query.setFloat("maxLon", ba.max_longitude);
+		List result = query.list();
+		CacheEvent[] out = (CacheEvent[]) result.toArray(new CacheEvent[0]);
+		return out;
+	}
 
-    protected static String finderQueryBase = "select e FROM edu.sc.seis.fissuresUtil.cache.CacheEvent e join e.preferred.magnitudes m "
-            + "WHERE e.preferred.my_location.latitude between :minLat AND :maxLat "
-            + "AND m member of e.preferred.magnitudes AND m.value between :minMag AND :maxMag  "
-            + "AND e.preferred.origin_time.time between :minTime AND :maxTime  "
-            + "AND e.preferred.my_location.depth.value between :minDepth and :maxDepth  ";
+	public CacheEvent getEvent(int dbid) throws NotFound {
+		Session session = getSession();
+		CacheEvent out = (CacheEvent) session.get(getEventClass(), new Integer(
+				dbid));
+		if (out == null) {
+			throw new NotFound();
+		}
+		return out;
+	}
 
-    protected static String finderQueryAvoidDateline = finderQueryBase
-            + "AND e.preferred.my_location.longitude between :minLon and :maxLon ";
+	public long put(CacheEvent event) {
+		Session session = getSession();
+		internUnit(event.getOrigin().my_location);
+		Integer dbid = (Integer) session.save(event);
+		event.setDbId(dbid.intValue());
+		return dbid.longValue();
+	}
 
-    protected static String finderQueryAroundDateline = finderQueryBase
-            + " AND ((? <= e.preferred.my_location.longitude) OR (e.preferred.my_location.longitude <= ?))";
+	public CacheEvent getLastEvent() throws NotFound {
+		Session session = getSession();
+		Query query = session.createQuery(getLastEventString);
+		query.setMaxResults(1);
+		List result = query.list();
+		if (result.size() > 0) {
+			CacheEvent out = (CacheEvent) result.get(0);
+			return out;
+		}
+		throw new NotFound();
+	}
+
+	public CacheEvent getIdenticalEvent(CacheEvent e) {
+		Session session = getSession();
+		Query query = session.createQuery(getLastEventString);
+		query.setMaxResults(1);
+		try {
+			query.setTimestamp("originTime", new MicroSecondDate(e
+					.get_preferred_origin().origin_time).getTimestamp());
+			query.setDouble("depth",
+					e.get_preferred_origin().my_location.depth.value);
+			query.setDouble("lat",
+					e.get_preferred_origin().my_location.latitude);
+			query.setDouble("lon",
+					e.get_preferred_origin().my_location.longitude);
+			List result = query.list();
+			if (result.size() > 0) {
+				CacheEvent out = (CacheEvent) result.get(0);
+				return out;
+			}
+		} catch (NoPreferredOrigin npo) {
+
+		}
+		return null;
+	}
+
+	/**
+	 * override to use queries on subclasses of CacheEvent. For example SOD uses
+	 * StatefulEvent.
+	 */
+	protected Class getEventClass() {
+		return CacheEvent.class;
+	}
+
+	protected String getLastEventString;
+
+	protected String finderQueryBase;
+
+	protected String finderQueryAvoidDateline;
+
+	protected String finderQueryAroundDateline;
+
+	protected String getIdenticalEventString;
 }
