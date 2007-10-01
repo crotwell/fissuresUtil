@@ -36,6 +36,7 @@ public class XYReader {
         String line;
         int num = 1;
         while((line = reader.readLine()) != null) {
+        	if (line.trim().length() == 0) {continue;}
             StringTokenizer st = new StringTokenizer(line, " ");
             Location loc = new Location();
             loc.longitude = Float.parseFloat(st.nextToken());
