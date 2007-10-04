@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.hibernate.SessionFactory;
 
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -16,6 +18,9 @@ import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationImpl;
+import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
+import edu.sc.seis.fissuresUtil.cache.LazyNetworkAccess;
+import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class NetworkDB extends AbstractHibernateDB {
@@ -95,33 +100,55 @@ public class NetworkDB extends AbstractHibernateDB {
         }
     }
 
-    public Station getStation(int dbid) throws NotFound {
-        Query query = getSession().createQuery(getStationByDbIdString);
-        query.setInteger("dbid", dbid);
-        List result = query.list();
-        if(result.size() > 0) {
-            StationImpl out = (StationImpl)result.get(0);
-            return out;
+    public StationImpl getStation(int dbid) throws NotFound {
+        StationImpl out = (StationImpl)getSession().get(StationImpl.class, new Integer(dbid));
+        if (out == null) {
+            throw new NotFound();
         }
-        throw new NotFound();
+        return out;
     }
 
-    public Station[] getAllStations() {
+    public StationImpl[] getAllStations() {
         Query query = getSession().createQuery(getAllStationsString);
         List result = query.list();
-        return (Station[])result.toArray(new Station[0]);
+        return (StationImpl[])result.toArray(new StationImpl[0]);
     }
 
-    static String getStationByIdString = "SELECT s From edu.iris.Fissures.network.StationImpl s WHERE s.networkAttr.id.network_code = :netCode AND s.id.station_code = :staCode AND sta_begin_time = :staBegin";
-
-    static String getStationByDbIdString = "From edu.iris.Fissures.network.StationImpl s WHERE dbid = :dbid";
-
-    static String getAllStationsString = "From edu.iris.Fissures.network.StationImpl s";
-
-    static String getNetworkByCodeString = "From edu.iris.Fissures.network.NetworkAttrImpl n WHERE network_code = :netCode";
+    public StationImpl[] getStationForNet(NetworkAttrImpl attr) {
+        Query query = getSession().createQuery(getStationForNetwork);
+        query.setEntity(1, attr);
+        List result = query.list();
+        return (StationImpl[])result.toArray(new StationImpl[0]);
+    }
 
     public ChannelImpl getChannel(int chanId) {
         // TODO Auto-generated method stub
         return null;
     }
+
+    public CacheNetworkAccess[] getAllNets(ProxyNetworkDC networkDC) {
+        Query query = getSession().createQuery(getAllNetsString);
+        List result = query.list();
+        List out = new ArrayList();
+        Iterator it = result.iterator();
+        while (it.hasNext()) {
+            NetworkAttrImpl attr = (NetworkAttrImpl)it.next();
+            CacheNetworkAccess cnet = new LazyNetworkAccess(attr, networkDC);
+            out.add(cnet);
+        }
+        return (CacheNetworkAccess[])result.toArray(new CacheNetworkAccess[0]);
+    }
+    
+    static String STA_TABLE = "edu.iris.Fissures.network.StationImpl";
+    
+    static String getStationByIdString = "SELECT s From "+STA_TABLE+" s WHERE s.networkAttr.id.network_code = :netCode AND s.id.station_code = :staCode AND sta_begin_time = :staBegin";
+
+    static String getStationForNetwork = "From "+STA_TABLE+" s WHERE s.networkAttr = :netAttr";
+    
+    static String getAllStationsString = "From edu.iris.Fissures.network.StationImpl s";
+
+    static String getAllNetsString = "From edu.iris.Fissures.network.NetworkAttrImpl n";
+    
+    static String getNetworkByCodeString = getAllNetsString+" WHERE network_code = :netCode";
+
 }
