@@ -33,28 +33,28 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
      * reset on that network access. Otherwise it just falls through.
      */
     public void reset() {
-        if(net instanceof ProxyNetworkAccess) {
-            ((ProxyNetworkAccess)net).reset();
+        if(getNet() instanceof ProxyNetworkAccess) {
+            ((ProxyNetworkAccess)getNet()).reset();
         }
     }
 
     public NetworkAccess getCorbaObject() {
-        if(net instanceof ProxyNetworkAccess) {
-            return ((ProxyNetworkAccess)net).getCorbaObject();
+        if(getNet() instanceof ProxyNetworkAccess) {
+            return ((ProxyNetworkAccess)getNet()).getCorbaObject();
         }
-        return net;
+        return getNet();
     }
 
     public String getServerDNS() {
-        if(net instanceof ProxyNetworkAccess) {
-            return ((ProxyNetworkAccess)net).getServerDNS();
+        if(getNet() instanceof ProxyNetworkAccess) {
+            return ((ProxyNetworkAccess)getNet()).getServerDNS();
         }
-        return net.getClass().getName()+":Unknown";
+        return getNet().getClass().getName()+":Unknown";
     }
 
     public String getServerName() {
-        if(net instanceof ProxyNetworkAccess) {
-            return ((ProxyNetworkAccess)net).getServerName();
+        if(getNet() instanceof ProxyNetworkAccess) {
+            return ((ProxyNetworkAccess)getNet()).getServerName();
         }
         return null;
     }
@@ -73,34 +73,34 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
     }
 
     public NetworkAttr get_attributes() {
-        return net.get_attributes();
+        return getNet().get_attributes();
     }
 
     public Station[] retrieve_stations() {
-        return net.retrieve_stations();
+        return getNet().retrieve_stations();
     }
 
     public Channel[] retrieve_for_station(StationId p1) {
-        return net.retrieve_for_station(p1);
+        return getNet().retrieve_for_station(p1);
     }
 
     public ChannelId[] retrieve_grouping(ChannelId id) throws ChannelNotFound {
-        return net.retrieve_grouping(id);
+        return getNet().retrieve_grouping(id);
     }
 
     public ChannelId[][] retrieve_groupings() {
-        return net.retrieve_groupings();
+        return getNet().retrieve_groupings();
     }
 
     public Channel retrieve_channel(ChannelId id) throws ChannelNotFound {
-        return net.retrieve_channel(id);
+        return getNet().retrieve_channel(id);
     }
 
     public Channel[] retrieve_channels_by_code(String station_code,
                                                String site_code,
                                                String channel_code)
             throws ChannelNotFound {
-        return net.retrieve_channels_by_code(station_code,
+        return getNet().retrieve_channels_by_code(station_code,
                                              site_code,
                                              channel_code);
     }
@@ -108,12 +108,12 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
     public Channel[] locate_channels(Area the_area,
                                      SamplingRange sampling,
                                      OrientationRange orientation) {
-        return net.locate_channels(the_area, sampling, orientation);
+        return getNet().locate_channels(the_area, sampling, orientation);
     }
 
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
-        return net.retrieve_instrumentation(id, the_time);
+        return getNet().retrieve_instrumentation(id, the_time);
     }
 
     public Sensitivity retrieve_sensitivity(ChannelId id, Time the_time)
@@ -134,28 +134,32 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
 
     public Calibration[] retrieve_calibrations(ChannelId id, TimeRange the_time)
             throws ChannelNotFound, NotImplemented {
-        return net.retrieve_calibrations(id, the_time);
+        return getNet().retrieve_calibrations(id, the_time);
     }
 
     public TimeCorrection[] retrieve_time_corrections(ChannelId id,
                                                       TimeRange time_range)
             throws ChannelNotFound, NotImplemented {
-        return net.retrieve_time_corrections(id, time_range);
+        return getNet().retrieve_time_corrections(id, time_range);
     }
 
     public ChannelId[] retrieve_all_channels(int seq_max,
                                              ChannelIdIterHolder iter) {
-        return net.retrieve_all_channels(seq_max, iter);
+        return getNet().retrieve_all_channels(seq_max, iter);
     }
 
     public AuditElement[] get_audit_trail_for_channel(ChannelId id)
             throws ChannelNotFound, NotImplemented {
-        return net.get_audit_trail_for_channel(id);
+        return getNet().get_audit_trail_for_channel(id);
     }
 
     public AuditElement[] get_audit_trail() throws NotImplemented {
-        return net.get_audit_trail();
+        return getNet().get_audit_trail();
     }
 
+    public NetworkAccess getNet() {
+        return net;
+    }
+    
     protected NetworkAccess net;
 }
