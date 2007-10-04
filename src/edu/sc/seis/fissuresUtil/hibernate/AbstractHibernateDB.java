@@ -41,7 +41,7 @@ public abstract class AbstractHibernateDB {
         return cacheSession;
     }
 
-    protected Session getSession() {
+    public Session getSession() {
         if (cacheSession == null) {
             createSession();
         }
