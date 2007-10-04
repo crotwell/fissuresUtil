@@ -81,6 +81,7 @@ public class JDBCEventAccess extends EventTable {
         Origin[] allOrigins = jdbcOrigin.getOrigins(dbid);
         EventAttr attr = jdbcAttr.get(rs.getInt("eventattr_id"));
         CacheEvent ev = new CacheEvent(attr, allOrigins, preferredOrigin);
+        ev.setDbId(dbid);
         idsToEvents.put(new Integer(dbid), ev);
         touchEventId(dbid);
         ev.setDbId(dbid);
