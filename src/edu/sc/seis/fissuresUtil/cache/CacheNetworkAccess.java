@@ -288,9 +288,9 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     private Map knownSites = Collections.synchronizedMap(new HashMap());
 
-    private NetworkAttr attr;
+    protected NetworkAttr attr;
 
-    private Station[] stations;
+    protected Station[] stations;
 
     private HashMap channelMap = new HashMap();
 
