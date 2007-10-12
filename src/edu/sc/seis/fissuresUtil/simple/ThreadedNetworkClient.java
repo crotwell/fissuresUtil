@@ -6,13 +6,13 @@ import org.apache.log4j.Logger;
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
 import edu.iris.Fissures.IfNetwork.NetworkAccessHelper;
 
-public class ThreadedNetClient extends SimpleNetworkClient {
+public class ThreadedNetworkClient extends SimpleNetworkClient {
 
-    public ThreadedNetClient() {
+    public ThreadedNetworkClient() {
         super();
     }
 
-    public ThreadedNetClient(String networkCode, String serverDNS, String serverName) {
+    public ThreadedNetworkClient(String networkCode, String serverDNS, String serverName) {
         super(networkCode, serverDNS, serverName);
     }
 
@@ -26,7 +26,7 @@ public class ThreadedNetClient extends SimpleNetworkClient {
     }
 
     public Runnable[] createRunnables() {
-        Runnable[] runnables = new Runnable[6];
+        Runnable[] runnables = new Runnable[7];
         runnables[0] = new RetrieveForStation();
         runnables[1] = new RetrieveStations();
         runnables[2] = new GetAttributes();
@@ -112,20 +112,20 @@ public class ThreadedNetClient extends SimpleNetworkClient {
         }
     }
 
-    private static Logger logger = Logger.getLogger(ThreadedNetClient.class);
+    private static Logger logger = Logger.getLogger(ThreadedNetworkClient.class);
 
     public static void main(String[] args) {
         BasicConfigurator.configure();
         Initializer.init(args);
         Properties props = Initializer.getProps();
         try {
-            ThreadedNetClient client;
+            ThreadedNetworkClient client;
             if(props.containsKey("serverName") && props.containsKey("serverDNS")) {
-                client = new ThreadedNetClient(props.getProperty("netCode", "II"),
+                client = new ThreadedNetworkClient(props.getProperty("netCode", "II"),
                                                props.getProperty("serverDNS"),
                                                props.getProperty("serverName"));
             } else {
-                client = new ThreadedNetClient();
+                client = new ThreadedNetworkClient();
             }
             Tester.runAll(client.createRunnables());
         } catch(Throwable e) {

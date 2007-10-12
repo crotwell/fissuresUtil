@@ -92,7 +92,7 @@ public class Tester{
     public static void main(String[] args){
         Initializer.init(args);
         new ThreadedSeisClient().exercise();
-        new ThreadedNetClient().exercise();
+        new ThreadedNetworkClient().exercise();
         new ThreadedEventClient().exercise();
     }
 }
