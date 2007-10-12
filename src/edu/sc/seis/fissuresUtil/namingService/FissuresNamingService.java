@@ -57,6 +57,10 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.NamedMockSeisDC;
  */
 public class FissuresNamingService {
 
+    public FissuresNamingService() {
+        this(System.getProperties());
+    }
+    
     /**
      * Creates a new <code>FissuresNamingService</code> instance.
      */
@@ -181,7 +185,7 @@ public class FissuresNamingService {
                                         String objectname) throws NotFound,
             CannotProceed, InvalidName {
         String nameString = piecesToNameString(dns, interfacename, objectname);
-        logger.info("the final dns resolved is " + dns);
+        logger.info("resolved: " + nameString);
         // try 2 times in case of an exception
         int maxTry = 1;
         for(int i = 0; i <= maxTry; i++) {
