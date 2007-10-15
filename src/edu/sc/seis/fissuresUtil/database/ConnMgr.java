@@ -127,11 +127,11 @@ public class ConnMgr {
         return url;
     }
 
-    private static String getPass() {
+    public static String getPass() {
         return getProps().getProperty("password");
     }
 
-    private static String getUser() {
+    public static String getUser() {
         return getProps().getProperty("user");
     }
 
