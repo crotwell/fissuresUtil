@@ -24,7 +24,7 @@ public class EventDB extends AbstractHibernateDB {
 
 	public EventDB(SessionFactory factory) {
 		super(factory);
-
+		initQueryStrings();
 	}
 
 	protected void initQueryStrings() {
@@ -103,7 +103,7 @@ public class EventDB extends AbstractHibernateDB {
 
 	public CacheEvent getIdenticalEvent(CacheEvent e) {
 		Session session = getSession();
-		Query query = session.createQuery(getLastEventString);
+		Query query = session.createQuery(getIdenticalEventString);
 		query.setMaxResults(1);
 		try {
 			query.setTimestamp("originTime", new MicroSecondDate(e
