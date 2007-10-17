@@ -116,7 +116,7 @@ public class NetworkDB extends AbstractHibernateDB {
 
     public StationImpl[] getStationForNet(NetworkAttrImpl attr) {
         Query query = getSession().createQuery(getStationForNetwork);
-        query.setEntity(1, attr);
+        query.setEntity("netAttr", attr);
         List result = query.list();
         return (StationImpl[])result.toArray(new StationImpl[0]);
     }
