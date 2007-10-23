@@ -7,7 +7,7 @@
 
 	<class name="edu.iris.Fissures.network.NetworkAttrImpl"
 		table="network">
-		<id column="dbid" type="integer">
+		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
 		<component name="id"
@@ -93,7 +93,7 @@
 
 	<class name="edu.iris.Fissures.network.ChannelImpl"
 		table="channel">
-		<id column="dbid" type="integer">
+		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
 		<component name="id"
