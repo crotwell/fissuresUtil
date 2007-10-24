@@ -13,11 +13,14 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import edu.iris.Fissures.Time;
+import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
+import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
@@ -102,8 +105,12 @@ public class Play {
 
 	private void retrieveNet() {
 		NetworkDB netDB = new NetworkDB();
-		Station[] out = netDB.getAllStations();
+		StationImpl[] out = netDB.getAllStations();
+		ChannelImpl[] chanout = netDB.getChannelsForStation(out[0]);
 		System.out.println("retrieved " + out.length + " stations");
+		for(int i = 0; i < chanout.length; i++) {
+            System.out.println("Channel: "+ChannelIdUtil.toString(chanout[i].get_id()));
+        }
 	}
 
 	private void createAndStoreNet() {
@@ -148,18 +155,15 @@ public class Play {
 		for (int i = 0; i < origins.length; i++) {
 			eventDB.put(origins[i]);
 		}
-		for (int i = 0; i < origins.length; i++) {
-			System.out.println("before origin: " + i + "  dbid="
-					+ origins[i].getDbId());
-		}
+		
 		eventDB.commit();
 		for (int i = 0; i < origins.length; i++) {
 			System.out.println("origin: " + i + "  dbid="
-					+ origins[i].getDbId());
+					+ origins[i].getDbid());
 		}
 	}
 
-	private void retrieve() {
+	private void retrieve() throws NoPreferredOrigin {
 		EventFinderQuery q = new EventFinderQuery();
 		q.setArea(new GlobalAreaImpl());
 		q.setMaxDepth(1000);
@@ -167,11 +171,14 @@ public class Play {
 		q.setMinDepth(0);
 		q.setTime(new MicroSecondTimeRange(new MicroSecondDate(new Time(
 				"2006-07-01T000000Z", -1)), new MicroSecondDate(new Time(
-				"2007-10-01T000000Z", -1))));
+				"2008-10-01T000000Z", -1))));
 		q.setMinMag(0);
 		EventDB eventDB = new EventDB(HibernateUtil.getSessionFactory());
 		CacheEvent[] events = eventDB.query(q);
 		System.out.println("Got " + events.length + " origins");
+		for(int i = 0; i < events.length; i++) {
+            System.out.println("Event "+i+"  "+events[i].get_preferred_origin().origin_time+"  "+events[i].get_preferred_origin().my_location+"  "+events[i].get_attributes());
+        }
 		HibernateUtil.getSessionFactory().close();
 	}
 

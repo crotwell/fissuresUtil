@@ -20,12 +20,11 @@ public abstract class AbstractHibernateDB {
 
     public AbstractHibernateDB(SessionFactory factory) {
         this.factory = factory;
-        createSession();
-        loadUnits();
+        logger.debug("init "+factory.toString());
     }
 
-    private void loadUnits() {
-        Query q = getSession().createQuery("From edu.iris.Fissures.model.UnitImpl");
+    private void loadUnits(Session s) {
+        Query q = s.createQuery("From edu.iris.Fissures.model.UnitImpl");
         List result = q.list();
         unitCache.addAll(result);
     }
@@ -36,30 +35,42 @@ public abstract class AbstractHibernateDB {
     }
     
     protected Session createSession() {
-        cacheSession = factory.openSession();
+        Session cacheSession = factory.openSession();
         cacheSession.beginTransaction();
+        logger.debug("TRANSACTION Begin: "+this+" on "+cacheSession);
+        loadUnits(cacheSession);
         return cacheSession;
     }
 
-    public Session getSession() {
-        if (cacheSession == null) {
-            createSession();
+    public synchronized Session getSession() {
+        Session s = (Session)sessionTL.get();
+        if (s == null) {
+            s = createSession();
+            sessionTL.set(s);
         }
-        return cacheSession;
+        return s;
     }
     
     public void flush() {
         getSession().flush();
     }
     
-    public void commit() {
-        getSession().getTransaction().commit();
-        cacheSession = null;
+    public synchronized  void commit() {
+        Session s = (Session)sessionTL.get();
+        if (s == null) {throw new RuntimeException("Can not commit before session creation");}
+        logger.debug("TRANSACTION Commit: "+this+" on "+s);
+        s.getTransaction().commit();
+        s.close();
+        sessionTL.set(null);
     }
     
-    public void rollback() {
-        getSession().getTransaction().rollback();
-        cacheSession = null;
+    public synchronized  void rollback() {
+        Session s = (Session)sessionTL.get();
+        if (s == null) {throw new RuntimeException("Can not rollback before session creation");}
+        logger.debug("TRANSACTION Rollback: "+this+" on "+s);
+        s.getTransaction().rollback();
+        s.close();
+        sessionTL.set(null);
     }
 
     public void internUnit(Location loc) {
@@ -84,5 +95,13 @@ public abstract class AbstractHibernateDB {
     protected HashSet unitCache = new HashSet();
     
     SessionFactory factory;
-    private Session cacheSession;
+
+    private ThreadLocal sessionTL = new ThreadLocal() {
+        protected synchronized Object initialValue() { 
+            logger.debug("new networkDB");
+            return createSession();
+        }
+    };
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AbstractHibernateDB.class);
 }

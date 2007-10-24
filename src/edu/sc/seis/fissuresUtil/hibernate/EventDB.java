@@ -32,9 +32,9 @@ public class EventDB extends AbstractHibernateDB {
 				+ " e ORDER BY e.id desc";
 		finderQueryBase = "select e FROM "
 				+ getEventClass().getName()
-				+ " e join e.preferred.magnitudes m "
+				+ " e join e.preferred.magnitudeList m "
 				+ "WHERE e.preferred.my_location.latitude between :minLat AND :maxLat "
-				+ "AND m member of e.preferred.magnitudes AND m.value between :minMag AND :maxMag  "
+				+ "AND m.value between :minMag AND :maxMag  "
 				+ "AND e.preferred.origin_time.time between :minTime AND :maxTime  "
 				+ "AND e.preferred.my_location.depth.value between :minDepth and :maxDepth  ";
 		finderQueryAvoidDateline = finderQueryBase
@@ -85,7 +85,7 @@ public class EventDB extends AbstractHibernateDB {
 		Session session = getSession();
 		internUnit(event.getOrigin().my_location);
 		Integer dbid = (Integer) session.save(event);
-		event.setDbId(dbid.intValue());
+		//event.setDbId(dbid.intValue());
 		return dbid.longValue();
 	}
 

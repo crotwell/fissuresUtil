@@ -11,21 +11,22 @@ public class HibernateUtil {
 
     private static Configuration configuration;
 
-    public static SessionFactory getSessionFactory() {
+    public synchronized static SessionFactory getSessionFactory() {
         if(sessionFactory == null) {
             sessionFactory = getConfiguration().buildSessionFactory();
         }
         return sessionFactory;
     }
 
-    public static Configuration getConfiguration() {
+    public synchronized static Configuration getConfiguration() {
         if(configuration == null) {
             configuration = new Configuration().configure(configFile);
         }
         return configuration;
     }
     
-    public static void setConfigFile(String s) {
+    public synchronized static void setConfigFile(String s) {
+        System.out.println("WARNING: Reseting hibernate configuration: "+s);
         configFile = s;
         sessionFactory = null;
         configuration = null;
