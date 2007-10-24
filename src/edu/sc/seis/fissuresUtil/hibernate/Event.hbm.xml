@@ -7,11 +7,13 @@
 
 	<class name="edu.sc.seis.fissuresUtil.cache.CacheEvent"
 		table="event">
-		<id column="dbid" type="integer">
+		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
 		<many-to-one name="preferred"
-			class="edu.iris.Fissures.event.OriginImpl" column="preferred" foreign-key="FK_preferred_origin" cascade="all" access="field"/>
+			class="edu.iris.Fissures.event.OriginImpl" column="preferred"
+			foreign-key="FK_preferred_origin" cascade="all" access="field"
+			lazy="false" />
 		<array name="origins" table="event_origin" cascade="all">
 			<key column="event_origin_id" />
 			<list-index column="sortOrder" />
@@ -19,14 +21,14 @@
 				class="edu.iris.Fissures.event.OriginImpl" />
 		</array>
 		<component name="attr"
-			class="edu.iris.Fissures.event.EventAttrImpl" access="field" >
+			class="edu.iris.Fissures.event.EventAttrImpl" access="field">
 			<property name="name" access="field" />
 			<many-to-one name="region"
 				class="edu.iris.Fissures.model.FlinnEngdahlRegionImpl"
-				access="field" cascade="all" foreign-key="FK_feregion"/>
+				access="field" cascade="all" foreign-key="FK_feregion" />
 		</component>
 	</class>
-	
+
 	<class name="edu.iris.Fissures.model.FlinnEngdahlRegionImpl"
 		table="feregion">
 		<id column="dbid" type="integer">
@@ -37,11 +39,12 @@
 	</class>
 
 	<class name="edu.iris.Fissures.event.OriginImpl" table="origin">
-		<id column="dbid" type="integer">
+		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
 		<property name="origin_time"
-			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType" access="field">
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
+			access="field">
 			<column name="time" sql-type="timestamp"></column>
 			<column name="nanos" sql-type="integer"></column>
 			<column name="leaps" sql-type="integer"></column>
@@ -67,24 +70,16 @@
 					foreign-key="FK_ELEV_UNIT_ID" cascade="all" />
 			</component>
 		</component>
-		<array name="magnitudes" table="origin_magnitude" cascade="all"
-			access="field">
-			<key column="origin_mag_id" />
+		<list name="magnitudeList" table="origin_magnitude">
+			<key column="mag_id" />
 			<list-index column="sortOrder" />
-			<many-to-many column="mag_id"
-				class="edu.iris.Fissures.IfEvent.Magnitude" />
-		</array>
+			<composite-element class="edu.iris.Fissures.IfEvent.Magnitude">
+				<property name="value" type="float" not-null="true" access="field" />
+				<property name="type" not-null="true" access="field" />
+				<property name="contributor" not-null="true" access="field" />
+			</composite-element>
+		</list>
 		<property name="catalog" access="field" />
-		<property name="contributor" access="field" />
-	</class>
-
-	<class name="edu.iris.Fissures.IfEvent.Magnitude"
-		table="magnitude">
-		<id column="mag_id" type="integer">
-			<generator class="native" />
-		</id>
-		<property name="type" access="field" />
-		<property name="value" access="field" />
 		<property name="contributor" access="field" />
 	</class>
 

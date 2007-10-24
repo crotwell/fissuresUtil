@@ -138,9 +138,9 @@
 			<component name="id"
 				class="edu.iris.Fissures.IfNetwork.SiteId" access="field">
 				<property name="station_code"
-					formula="channel_id.station_code" access="field" />
+					formula="station_code" access="field" />
 				<property name="site_code"
-					formula="channel_id.site_code" access="field" />
+					formula="site_code" access="field" />
 				<property name="begin_time"
 					type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
 					access="field">
@@ -183,7 +183,7 @@
 				<column name="site_end_leaps" sql-type="integer"></column>
 			</property>
 			<many-to-one name="station"
-				class="edu.iris.Fissures.network.StationImpl" column="station"
+				class="edu.iris.Fissures.network.StationImpl"
 				foreign-key="FK_CHANNEL_STATION" cascade="all"  unique-key="chan_code_date"/>
 		</component>
 	</class>

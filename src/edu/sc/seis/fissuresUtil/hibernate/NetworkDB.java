@@ -33,6 +33,16 @@ public class NetworkDB extends AbstractHibernateDB {
         super(factory);
     }
 
+    public void rollback() {
+        System.out.println("Rollback: "+this);
+        super.rollback();
+    }
+
+    public void commit() {
+        System.out.println("commit: "+this);
+        super.commit();
+    }
+    
     public int put(NetworkAttr net) {
         Session session = getSession();
         Integer dbid = (Integer)session.save(net);
@@ -41,12 +51,14 @@ public class NetworkDB extends AbstractHibernateDB {
 
     public int put(Station sta) {
         Integer dbid;
-        // assume network is already put, attach net
-        try {
-            sta.my_network = getNetworkById(sta.my_network.get_id());
-        } catch(NotFound ee) {
-            // must not have been added yet
-            put(sta.my_network);
+        if (((NetworkAttrImpl)sta.my_network).getDbid() == 0) {
+            // assume network info is already put, attach net
+            try {
+                sta.my_network = getNetworkById(sta.my_network.get_id());
+            } catch(NotFound ee) {
+                // must not have been added yet
+                put(sta.my_network);
+            }
         }
         internUnit(sta.my_location);
         dbid = (Integer)getSession().save(sta);
@@ -136,7 +148,14 @@ public class NetworkDB extends AbstractHibernateDB {
             CacheNetworkAccess cnet = new LazyNetworkAccess(attr, networkDC);
             out.add(cnet);
         }
-        return (CacheNetworkAccess[])result.toArray(new CacheNetworkAccess[0]);
+        return (CacheNetworkAccess[])out.toArray(new CacheNetworkAccess[0]);
+    }
+    
+    public ChannelImpl[] getChannelsForStation(StationImpl station) {
+        Query query = getSession().createQuery(getChannelForStation);
+        query.setEntity("station", station);
+        List result = query.list();
+        return (ChannelImpl[])result.toArray(new ChannelImpl[0]);
     }
     
     static String STA_TABLE = "edu.iris.Fissures.network.StationImpl";
@@ -144,6 +163,8 @@ public class NetworkDB extends AbstractHibernateDB {
     static String getStationByIdString = "SELECT s From "+STA_TABLE+" s WHERE s.networkAttr.id.network_code = :netCode AND s.id.station_code = :staCode AND sta_begin_time = :staBegin";
 
     static String getStationForNetwork = "From "+STA_TABLE+" s WHERE s.networkAttr = :netAttr";
+    
+    static String getChannelForStation = "From "+ChannelImpl.class.getName()+" c WHERE c.site.station = :station";
     
     static String getAllStationsString = "From edu.iris.Fissures.network.StationImpl s";
 
