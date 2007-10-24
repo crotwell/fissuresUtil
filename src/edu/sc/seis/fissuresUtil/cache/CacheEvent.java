@@ -95,20 +95,19 @@ public class CacheEvent extends ProxyEventAccessOperations {
         return attr != null && preferred != null;
     }
 
-    public boolean hasDbId(){
+    public boolean hasDbid(){
         return dbid > -1;
     }
     
-    public int getDbId() {
-        if(hasDbId()) { return dbid; }
-        throw new UnsupportedOperationException("This event didn't come from our database, it doesn't have a dbid");
+    public int getDbid() {
+        return dbid;
     }
 
-    public void setDbId(int id) {
+    public void setDbid(int id) {
         dbid = id;
     }
 
-    private int dbid = -1;
+    private int dbid;
 
     protected EventAttr attr;
 
