@@ -25,7 +25,11 @@ public class ClockUtil {
      * from the http://www.seis.sc.edu/cgi-bin/date_time.pl. 
      */
     public static TimeInterval getTimeOffset() {
-        if(serverOffset == null) {
+        if(serverOffset == null ) {
+            if (warnServerFail ) {
+                // already tried and failed, so...
+                return ZERO_OFFSET;
+            }
             try {
                 serverOffset = getServerTimeOffset();
             } catch(Throwable e) {
@@ -37,6 +41,7 @@ public class ClockUtil {
     }
     
     private static void noGoClock(Throwable e) {
+        warnServerFail = true;
         // oh well, can't get to server, use CPU time, so
         // offset is zero, check for really bad clocks first
         logger.warn("Unable to make a connection to "+SEIS_SC_EDU_URL+" to verify system clock.", e);
@@ -80,6 +85,8 @@ public class ClockUtil {
         }
         return new TimeInterval(localTime, new MicroSecondDate(serverTime));
     }
+    
+    private static boolean warnServerFail = false;
 
     private static boolean warnBadBadClock = false;
 
