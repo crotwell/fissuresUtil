@@ -52,8 +52,8 @@ public class MockStation {
                                MockNetworkAttr.createNetworkAttr());
     }
 
-    public static Station[] createMultiSplendoredStations(int rows, int columns) {
-        Station[] stations = new Station[rows * columns];
+    public static StationImpl[] createMultiSplendoredStations(int rows, int columns) {
+        StationImpl[] stations = new StationImpl[rows * columns];
         Location[] locations = MockLocation.create(rows, columns);
         for(int i = 0; i < stations.length; i++) {
             stations[i] = new StationImpl(MockStationId.createMultiSplendoredId("MS"
