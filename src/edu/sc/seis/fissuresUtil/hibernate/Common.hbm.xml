@@ -14,7 +14,7 @@
 			unique-key="unique_unit">
 			<column name="base" />
 		</property>
-		<list name="subUnitsList" table="SubUnits" cascade="all">
+		<list name="subUnitsList" table="SubUnits" >
 			<key column="subunit_id" />
 			<list-index column="sortOrder" />
 			<many-to-many column="unit_id"
