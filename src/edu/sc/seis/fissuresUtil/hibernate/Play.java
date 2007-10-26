@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.hibernate.LockMode;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
@@ -45,35 +46,42 @@ public class Play {
 			TimeOMatic.start();
 			String todo = args[2];
 			System.out.println("arg is: " + todo);
-			if (todo.equals("schema")) {
-				mgr.schema();
-			} else if (todo.equals("store")) {
-				mgr.createAndStoreEvent("My Event", new Date());
-			} else if (todo.equals("retrieve")) {
-				mgr.retrieve();
-			} else if (todo.equals("oldstore")) {
-				mgr.oldStore();
-			} else if (todo.equals("oldretrieve")) {
-				mgr.oldRetrieve();
-				// network
-			} else if (todo.equals("storenet")) {
-				mgr.createAndStoreNet();
-			} else if (todo.equals("retrievenet")) {
-				mgr.retrieveNet();
-			} else if (todo.equals("oldstorenet")) {
-				mgr.oldStoreNet();
-			} else if (todo.equals("oldretrievenet")) {
-				mgr.oldRetrieveNet();
-			} else {
-				System.err.println("Unknown arg: " + todo);
+			if ( ! mgr.doIt(todo)) {
+	            System.err.println("Unknown arg: " + todo);
 			}
 			TimeOMatic.print("end");
 		} catch (Throwable t) {
 			logger.error("big problem!", t);
 		}
 	}
+	
+	protected boolean doIt(String todo) throws Exception {
+        if (todo.equals("schema")) {
+            schema();
+        } else if (todo.equals("store")) {
+            createAndStoreEvent("My Event", new Date());
+        } else if (todo.equals("retrieve")) {
+            retrieve();
+        } else if (todo.equals("oldstore")) {
+            oldStore();
+        } else if (todo.equals("oldretrieve")) {
+            oldRetrieve();
+            // network
+        } else if (todo.equals("storenet")) {
+            createAndStoreNet();
+        } else if (todo.equals("retrievenet")) {
+            retrieveNet();
+        } else if (todo.equals("oldstorenet")) {
+            oldStoreNet();
+        } else if (todo.equals("oldretrievenet")) {
+            oldRetrieveNet();
+        } else {
+            return false;
+        }
+        return true;
+	}
 
-	private Station[] createStation() {
+	private StationImpl[] createStation() {
 		return MockStation.createMultiSplendoredStations(2, 2);
 	}
 
@@ -122,7 +130,7 @@ public class Play {
             logger.debug("Caught e, going on", e);
             netDB.rollback();
         }
-        Station[] s = createStation();
+        StationImpl[] s = createStation();
         for (int i = 0; i < s.length; i++) {
             System.out.println("preput station " + i);
             netDB.put(s[i]);
@@ -133,6 +141,9 @@ public class Play {
             netDB.put(chan[i]);
         }
 		netDB.commit();
+		// try reattach
+        netDB.getSession().lock(s[0], LockMode.NONE);
+        netDB.getSession().lock(chan[0], LockMode.NONE);
 	}
 
 	private void schema() {
@@ -161,6 +172,8 @@ public class Play {
 			System.out.println("origin: " + i + "  dbid="
 					+ origins[i].getDbid());
 		}
+        // try reattach
+        eventDB.getSession().lock(origins[0], LockMode.NONE);
 	}
 
 	private void retrieve() throws NoPreferredOrigin {
