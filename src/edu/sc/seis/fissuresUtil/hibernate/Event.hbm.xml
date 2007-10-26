@@ -14,28 +14,26 @@
 			class="edu.iris.Fissures.event.OriginImpl" column="preferred"
 			foreign-key="FK_preferred_origin" cascade="all" access="field"
 			lazy="false" />
-		<array name="origins" table="event_origin" cascade="all">
+		<!--
+			<array name="origins" table="event_origin" cascade="all">
 			<key column="event_origin_id" />
 			<list-index column="sortOrder" />
 			<many-to-many column="origin_id"
-				class="edu.iris.Fissures.event.OriginImpl" />
-		</array>
+			class="edu.iris.Fissures.event.OriginImpl" />
+			</array>
+		-->
 		<component name="attr"
 			class="edu.iris.Fissures.event.EventAttrImpl" access="field">
 			<property name="name" access="field" />
-			<many-to-one name="region"
+			<component name="region"
 				class="edu.iris.Fissures.model.FlinnEngdahlRegionImpl"
-				access="field" cascade="all" foreign-key="FK_feregion" />
+				access="field">
+				<property name="number" column="feregion" type="integer"
+					access="field" />
+				<property name="typeAsInt" column="fetype"
+					type="integer" />
+			</component>
 		</component>
-	</class>
-
-	<class name="edu.iris.Fissures.model.FlinnEngdahlRegionImpl"
-		table="feregion">
-		<id column="dbid" type="integer">
-			<generator class="native" />
-		</id>
-		<property name="number" type="integer" access="field" />
-		<property name="typeAsInt" type="integer" />
 	</class>
 
 	<class name="edu.iris.Fissures.event.OriginImpl" table="origin">
@@ -68,17 +66,24 @@
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
 					foreign-key="FK_ELEV_UNIT_ID" cascade="all" />
+
 			</component>
 		</component>
-		<list name="magnitudeList" table="origin_magnitude">
+
+		<list name="magnitudeList" table="origin_magnitude"
+			cascade="all" lazy="false">
 			<key column="mag_id" />
 			<list-index column="sortOrder" />
-			<composite-element class="edu.iris.Fissures.IfEvent.Magnitude">
-				<property name="value" type="float" not-null="true" access="field" />
+			<composite-element
+				class="edu.iris.Fissures.IfEvent.Magnitude">
+				<property name="value" type="float" not-null="true"
+					access="field" />
 				<property name="type" not-null="true" access="field" />
-				<property name="contributor" not-null="true" access="field" />
+				<property name="contributor" not-null="true"
+					access="field" />
 			</composite-element>
 		</list>
+
 		<property name="catalog" access="field" />
 		<property name="contributor" access="field" />
 	</class>

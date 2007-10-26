@@ -9,6 +9,8 @@ import org.hibernate.SessionFactory;
 import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
+import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.event.OriginImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.bag.AreaUtil;
@@ -84,6 +86,10 @@ public class EventDB extends AbstractHibernateDB {
 	public long put(CacheEvent event) {
 		Session session = getSession();
 		internUnit(event.getOrigin().my_location);
+		Origin[] origins = event.get_origins();
+		for(int i = 0; i < origins.length; i++) {
+            internUnit(origins[i].my_location);
+        }
 		Integer dbid = (Integer) session.save(event);
 		//event.setDbId(dbid.intValue());
 		return dbid.longValue();

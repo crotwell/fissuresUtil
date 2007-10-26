@@ -14,6 +14,7 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
@@ -49,7 +50,7 @@ public class NetworkDB extends AbstractHibernateDB {
         return dbid.intValue();
     }
 
-    public int put(Station sta) {
+    public int put(StationImpl sta) {
         Integer dbid;
         if (((NetworkAttrImpl)sta.my_network).getDbid() == 0) {
             // assume network info is already put, attach net
@@ -60,18 +61,18 @@ public class NetworkDB extends AbstractHibernateDB {
                 put(sta.my_network);
             }
         }
-        internUnit(sta.my_location);
+        internUnit(sta);
         dbid = (Integer)getSession().save(sta);
         return dbid.intValue();
     }
 
     public int put(ChannelImpl chan) {
         Integer dbid;
-        internUnit(chan.my_site.my_location);
+        internUnit(chan);
         try {
             chan.my_site.my_station = getStationById(chan.my_site.my_station.get_id());
         } catch(NotFound e) {
-            int staDbid = put(chan.my_site.my_station);
+            int staDbid = put((StationImpl)chan.my_site.my_station);
         }
         dbid = (Integer)getSession().save(chan);
         return dbid.intValue();
@@ -156,6 +157,16 @@ public class NetworkDB extends AbstractHibernateDB {
         query.setEntity("station", station);
         List result = query.list();
         return (ChannelImpl[])result.toArray(new ChannelImpl[0]);
+    }
+
+    public void internUnit(StationImpl sta) {
+        internUnit(sta.my_location);
+    }
+    
+    /** assumes station has aready been interned as this needs to happen to avoid dup stations. */
+    public void internUnit(ChannelImpl chan) {
+        internUnit(chan.my_site.my_location);
+        internUnit(chan.sampling_info.interval);
     }
     
     static String STA_TABLE = "edu.iris.Fissures.network.StationImpl";
