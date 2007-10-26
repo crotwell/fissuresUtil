@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.model.UnitImpl;
 
 public abstract class AbstractHibernateDB {
@@ -20,88 +21,118 @@ public abstract class AbstractHibernateDB {
 
     public AbstractHibernateDB(SessionFactory factory) {
         this.factory = factory;
-        logger.debug("init "+factory.toString());
+        logger.debug("init " + factory.toString());
     }
 
     private void loadUnits(Session s) {
         Query q = s.createQuery("From edu.iris.Fissures.model.UnitImpl");
         List result = q.list();
-        unitCache.addAll(result);
+        getUnitCache().addAll(result);
     }
 
     public void deploySchema() {
         SchemaUpdate update = new SchemaUpdate(HibernateUtil.getConfiguration());
         update.execute(false, true);
     }
-    
+
     protected Session createSession() {
         Session cacheSession = factory.openSession();
         cacheSession.beginTransaction();
-        logger.debug("TRANSACTION Begin: "+this+" on "+cacheSession);
-        loadUnits(cacheSession);
+        logger.debug("TRANSACTION Begin: " + this + " on " + cacheSession);
         return cacheSession;
     }
 
     public synchronized Session getSession() {
         Session s = (Session)sessionTL.get();
-        if (s == null) {
+        if(s == null) {
             s = createSession();
             sessionTL.set(s);
         }
         return s;
     }
-    
+
     public void flush() {
         getSession().flush();
     }
-    
-    public synchronized  void commit() {
+
+    public synchronized void commit() {
         Session s = (Session)sessionTL.get();
-        if (s == null) {throw new RuntimeException("Can not commit before session creation");}
-        logger.debug("TRANSACTION Commit: "+this+" on "+s);
+        if(s == null) {
+            throw new RuntimeException("Can not commit before session creation");
+        }
+        logger.debug("TRANSACTION Commit: " + this + " on " + s);
+        sessionTL.set(null);
+        unitCacheTL.set(null);
         s.getTransaction().commit();
         s.close();
-        sessionTL.set(null);
     }
-    
-    public synchronized  void rollback() {
+
+    public synchronized void rollback() {
         Session s = (Session)sessionTL.get();
-        if (s == null) {throw new RuntimeException("Can not rollback before session creation");}
-        logger.debug("TRANSACTION Rollback: "+this+" on "+s);
+        if(s == null) {
+            throw new RuntimeException("Can not rollback before session creation");
+        }
+        logger.debug("TRANSACTION Rollback: " + this + " on " + s);
+        sessionTL.set(null);
+        unitCacheTL.set(null);
         s.getTransaction().rollback();
         s.close();
-        sessionTL.set(null);
     }
 
     public void internUnit(Location loc) {
-        loc.depth.the_units = intern((UnitImpl)loc.depth.the_units);
-        loc.elevation.the_units = intern((UnitImpl)loc.elevation.the_units);
+        internUnit(loc.depth);
+        internUnit(loc.elevation);
     }
-    
+    public void internUnit(Quantity q) {
+        q.the_units = intern((UnitImpl)q.the_units);
+    }
+
     protected UnitImpl intern(UnitImpl unit) {
+        HashSet unitCache = getUnitCache();
+        if(unitCache.size() == 0) {
+            loadUnits(getSession());
+        }
         Iterator it = unitCache.iterator();
         while(it.hasNext()) {
             UnitImpl internUnit = (UnitImpl)it.next();
-            if (unit.equals(internUnit)) {
+            if(unit.equals(internUnit)) {
                 return internUnit;
             }
+        }
+        for(int i = 0; i < unit.getSubUnits().length; i++) {
+            intern(unit.getSubUnit(i));
         }
         Session session = getSession();
         Integer dbid = (Integer)session.save(unit);
         unitCache.add(unit);
         return unit;
     }
-    
-    protected HashSet unitCache = new HashSet();
-    
+
+    protected HashSet getUnitCache() {
+        HashSet out = (HashSet)unitCacheTL.get();
+        if(out == null) {
+            out = new HashSet();
+            unitCacheTL.set(out);
+        }
+        return out;
+    }
+
+    private ThreadLocal unitCacheTL = new ThreadLocal() {
+
+        protected synchronized Object initialValue() {
+            return new HashSet();
+        }
+    };
+
     SessionFactory factory;
 
     private ThreadLocal sessionTL = new ThreadLocal() {
-        protected synchronized Object initialValue() { 
-            logger.debug("new networkDB");
+
+        protected synchronized Object initialValue() {
+            logger.debug("new hibernate session");
             return createSession();
         }
     };
-    
+
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AbstractHibernateDB.class);
 }

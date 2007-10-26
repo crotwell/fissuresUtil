@@ -5,24 +5,28 @@
 
 <hibernate-mapping>
 
-	<class name="edu.iris.Fissures.model.UnitImpl" table="unit" mutable="false">
-		<id column="dbid" type="integer">
+	<class name="edu.iris.Fissures.model.UnitImpl" table="unit"
+		mutable="false">
+		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<property name="baseUnitInt" type="integer">
+		<property name="baseUnitInt" type="integer"
+			unique-key="unique_unit">
 			<column name="base" />
 		</property>
-		<array name="subUnits" table="SubUnitsArray" cascade="all">
+		<list name="subUnitsList" table="SubUnits" cascade="all">
 			<key column="subunit_id" />
 			<list-index column="sortOrder" />
 			<many-to-many column="unit_id"
 				class="edu.iris.Fissures.model.UnitImpl" />
-		</array>
-
-		<property name="power" type="integer" access="field" />
-		<property name="name" access="field" />
-		<property name="multi_factor" type="double" access="field" />
-		<property name="exponent" type="integer" access="field" />
+		</list>
+		<property name="power" type="integer" access="field"
+			unique-key="unique_unit" />
+		<property name="name" access="field" unique-key="unique_unit" />
+		<property name="multi_factor" type="double" access="field"
+			unique-key="unique_unit" />
+		<property name="exponent" type="integer" access="field"
+			unique-key="unique_unit" />
 	</class>
-	
+
 </hibernate-mapping>
