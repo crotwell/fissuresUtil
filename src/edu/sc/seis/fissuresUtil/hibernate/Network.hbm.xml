@@ -65,7 +65,7 @@
 					type="double" access="field" />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
-					foreign-key="FK_STATION_DEPTH_UNIT_ID" cascade="all" />
+					foreign-key="FK_STATION_DEPTH_UNIT_ID"/>
 			</component>
 			<component name="elevation"
 				class="edu.iris.Fissures.model.QuantityImpl" access="field">
@@ -73,7 +73,7 @@
 					access="field" />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
-					foreign-key="FK_STATION_ELEV_UNIT_ID" cascade="all" />
+					foreign-key="FK_STATION_ELEV_UNIT_ID" />
 			</component>
 		</component>
 		<property name="operator" access="field" />
@@ -87,7 +87,7 @@
 		</property>
 		<many-to-one name="networkAttr"
 			class="edu.iris.Fissures.network.NetworkAttrImpl" column="network"
-			foreign-key="FK_STATION_NETWORK" cascade="all"
+			foreign-key="FK_STATION_NETWORK" cascade="save-update"
 			unique-key="sta_code_date" />
 	</class>
 
@@ -129,7 +129,7 @@
 					type="double" access="field" />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="interval_unit_id"
-					foreign-key="FK_SAMPLINE_INTERVAL_UNIT_ID" cascade="all" />
+					foreign-key="FK_SAMPLINE_INTERVAL_UNIT_ID"  />
 			</component>
 			<property name="numPoints" type="integer" access="field" />
 		</component>
@@ -165,7 +165,7 @@
 						type="double" access="field" />
 					<many-to-one name="unit"
 						class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
-						foreign-key="FK_SITE_DEPTH_UNIT_ID" cascade="all" />
+						foreign-key="FK_SITE_DEPTH_UNIT_ID"  />
 				</component>
 				<component name="elevation"
 					class="edu.iris.Fissures.model.QuantityImpl" access="field">
@@ -173,7 +173,7 @@
 						column="elev_value" access="field" />
 					<many-to-one name="unit"
 						class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
-						foreign-key="FK_SITE_ELEV_UNIT_ID" cascade="all" />
+						foreign-key="FK_SITE_ELEV_UNIT_ID"  />
 				</component>
 			</component>
 			<property name="endTime"
@@ -184,7 +184,7 @@
 			</property>
 			<many-to-one name="station"
 				class="edu.iris.Fissures.network.StationImpl"
-				foreign-key="FK_CHANNEL_STATION" cascade="all"  unique-key="chan_code_date"/>
+				foreign-key="FK_CHANNEL_STATION" cascade="save-update"  unique-key="chan_code_date"/>
 		</component>
 	</class>
 
