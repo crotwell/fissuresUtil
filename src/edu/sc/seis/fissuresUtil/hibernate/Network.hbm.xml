@@ -92,7 +92,7 @@
 	</class>
 
 	<class name="edu.iris.Fissures.network.ChannelImpl"
-		table="channel">
+		table="channel" lazy="false">
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
@@ -134,7 +134,7 @@
 			<property name="numPoints" type="integer" access="field" />
 		</component>
 		<component name="site"
-			class="edu.iris.Fissures.network.SiteImpl">
+			class="edu.iris.Fissures.network.SiteImpl" lazy="false">
 			<component name="id"
 				class="edu.iris.Fissures.IfNetwork.SiteId" access="field">
 				<property name="station_code"
@@ -156,7 +156,7 @@
 				</property>
 			</component>
 			<component name="my_location"
-				class="edu.iris.Fissures.Location" access="field">
+				class="edu.iris.Fissures.Location" access="field" lazy="false">
 				<property name="latitude" type="float" access="field" />
 				<property name="longitude" type="float" access="field" />
 				<component name="depth"
@@ -184,7 +184,7 @@
 			</property>
 			<many-to-one name="station"
 				class="edu.iris.Fissures.network.StationImpl"
-				foreign-key="FK_CHANNEL_STATION" cascade="save-update"  unique-key="chan_code_date"/>
+				foreign-key="FK_CHANNEL_STATION" cascade="save-update"  unique-key="chan_code_date" lazy="false"/>
 		</component>
 	</class>
 
