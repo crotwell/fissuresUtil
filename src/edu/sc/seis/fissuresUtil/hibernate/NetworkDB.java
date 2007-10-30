@@ -160,13 +160,14 @@ public class NetworkDB extends AbstractHibernateDB {
     }
 
     public void internUnit(StationImpl sta) {
-        internUnit(sta.my_location);
+        internUnit(sta.getLocation());
     }
     
     /** assumes station has aready been interned as this needs to happen to avoid dup stations. */
     public void internUnit(ChannelImpl chan) {
-        internUnit(chan.my_site.my_location);
-        internUnit(chan.sampling_info.interval);
+        internUnit(chan.getSite().getLocation());
+        internUnit(chan.getSite().getStation());
+        internUnit(chan.getSamplingInfo().interval);
     }
     
     static String STA_TABLE = "edu.iris.Fissures.network.StationImpl";
