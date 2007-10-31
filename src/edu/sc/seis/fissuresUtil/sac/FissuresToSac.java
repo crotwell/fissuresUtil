@@ -77,7 +77,7 @@ public class FissuresToSac {
 		QuantityImpl period = samp.getPeriod();
 		period = period.convertTo(UnitImpl.SECOND);
 		float f = (float) period.get_value();
-		sac.e = sac.npts * f;
+		sac.e = (sac.npts-1) * f;
 		sac.iftype = sac.ITIME;
 		sac.leven = sac.TRUE;
 		sac.delta = f;
