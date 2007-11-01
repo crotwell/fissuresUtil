@@ -28,6 +28,17 @@ public abstract class AbstractHibernateDB {
         Query q = s.createQuery("From edu.iris.Fissures.model.UnitImpl");
         List result = q.list();
         getUnitCache().addAll(result);
+        // check common units to make sure in db
+        synchronized(AbstractHibernateDB.class) {
+            UnitImpl[] unitsToAdd = new UnitImpl[] {UnitImpl.METER, UnitImpl.KILOMETER, UnitImpl.SECOND};
+            for(int i = 0; i < unitsToAdd.length; i++) {
+                if ( ! getUnitCache().contains(unitsToAdd[i])) {
+                    getUnitCache().add(unitsToAdd[i]);
+                    getSession().save(unitsToAdd[i]);
+                }
+            }
+                
+        }
     }
 
     public void deploySchema() {
