@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -134,9 +135,12 @@ public class NetworkDB extends AbstractHibernateDB {
         return (StationImpl[])result.toArray(new StationImpl[0]);
     }
 
-    public ChannelImpl getChannel(int chanId) {
-        // TODO Auto-generated method stub
-        return null;
+    public ChannelImpl getChannel(int dbid) throws NotFound {
+        ChannelImpl out = (ChannelImpl)getSession().get(ChannelImpl.class, new Integer(dbid));
+        if (out == null) {
+            throw new NotFound();
+        }
+        return out;
     }
 
     public CacheNetworkAccess[] getAllNets(ProxyNetworkDC networkDC) {
@@ -158,6 +162,34 @@ public class NetworkDB extends AbstractHibernateDB {
         List result = query.list();
         return (ChannelImpl[])result.toArray(new ChannelImpl[0]);
     }
+    
+    public ChannelImpl[] getChannelsForStation(StationImpl station, MicroSecondDate when) {
+        Query query = getSession().createQuery(getChannelForStationAtTime);
+        query.setEntity("station", station);
+        query.setTimestamp("when", when.getTimestamp());
+        List result = query.list();
+        return (ChannelImpl[])result.toArray(new ChannelImpl[0]);
+    }
+    
+    public ChannelImpl getChannel(String net,
+                                  String sta,
+                                  String site,
+                                  String chan,
+                                  MicroSecondDate when)
+            throws NotFound {
+        Query query = getSession().createQuery(getChannelByCode);
+        query.setString("netCode", net);
+        query.setString("stationCode", sta);
+        query.setString("siteCode", site);
+        query.setString("channelCode", chan);
+        query.setTimestamp("when", when.getTimestamp());
+        query.setMaxResults(1);
+        List result = query.list();
+        if (result.size() == 0) {
+            throw new NotFound();
+        }
+        return (ChannelImpl)result.get(0);
+    }
 
     public void internUnit(StationImpl sta) {
         internUnit(sta.getLocation());
@@ -177,6 +209,10 @@ public class NetworkDB extends AbstractHibernateDB {
     static String getStationForNetwork = "From "+STA_TABLE+" s WHERE s.networkAttr = :netAttr";
     
     static String getChannelForStation = "From "+ChannelImpl.class.getName()+" c WHERE c.site.station = :station";
+    
+    static String getChannelForStationAtTime = getChannelForStation+" and :when between c.beginTime and c.endTime";
+    
+    static String getChannelByCode = "From "+ChannelImpl.class.getName()+" c WHERE c.code = :chanCode AND c.site.code = :siteCode AND c.site.station.code = :stationCode AND c.site.station..networkAttr.id.network_code = :netCode AND :when between c.begin and c.end";
     
     static String getAllStationsString = "From edu.iris.Fissures.network.StationImpl s";
 
