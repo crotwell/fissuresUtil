@@ -221,6 +221,7 @@ public class FissuresToSac {
 		sacBMarker = (TimeInterval) sacBMarker.convertTo(UnitImpl.SECOND);
 		sac.b = (float) sacBMarker.value;
 		sac.o = 0;
+		sac.iztype = SacTimeSeries.IO;
 		if (origin.magnitudes.length > 0) {
 			sac.mag = origin.magnitudes[0].value;
 		}
