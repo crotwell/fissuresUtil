@@ -26,9 +26,11 @@ public class HibernateUtil {
     }
     
     public synchronized static void setConfigFile(String s) {
-        System.out.println("WARNING: Reseting hibernate configuration: "+s);
+        logger.warn("Reseting hibernate configuration: "+s);
         configFile = s;
         sessionFactory = null;
         configuration = null;
     }
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(HibernateUtil.class);
 }
