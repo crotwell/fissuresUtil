@@ -79,6 +79,14 @@ public class NetworkDB extends AbstractHibernateDB {
         return dbid.intValue();
     }
 
+    public StationImpl[] getStationByCodes(String netCode, String staCode) {
+        Query query = getSession().createQuery(getStationByCodes);
+        query.setEntity("netCode", netCode);
+        query.setEntity("staCode", staCode);
+        List result = query.list();
+        return (StationImpl[])result.toArray(new StationImpl[0]);
+    }
+    
     private StationImpl getStationById(StationId staId) throws NotFound {
         Query query = getSession().createQuery(getStationByIdString);
         query.setString("netCode", staId.network_id.network_code);
@@ -91,11 +99,15 @@ public class NetworkDB extends AbstractHibernateDB {
         }
         throw new NotFound();
     }
+    
+    public List getNetworkByCode(String netCode) {
+        Query query = getSession().createQuery(getNetworkByCodeString);
+        query.setString("netCode", netCode);
+        return query.list();
+    }
 
     private NetworkAttr getNetworkById(NetworkId netId) throws NotFound {
-        Query query = getSession().createQuery(getNetworkByCodeString);
-        query.setString("netCode", netId.network_code);
-        List result = query.list();
+        List result = getNetworkByCode(netId.network_code);
         if(NetworkIdUtil.isTemporary(netId)) {
             Iterator it = result.iterator();
             while(it.hasNext()) {
@@ -134,7 +146,7 @@ public class NetworkDB extends AbstractHibernateDB {
         List result = query.list();
         return (StationImpl[])result.toArray(new StationImpl[0]);
     }
-
+    
     public ChannelImpl getChannel(int dbid) throws NotFound {
         ChannelImpl out = (ChannelImpl)getSession().get(ChannelImpl.class, new Integer(dbid));
         if (out == null) {
@@ -204,9 +216,13 @@ public class NetworkDB extends AbstractHibernateDB {
     
     static String STA_TABLE = "edu.iris.Fissures.network.StationImpl";
     
-    static String getStationByIdString = "SELECT s From "+STA_TABLE+" s WHERE s.networkAttr.id.network_code = :netCode AND s.id.station_code = :staCode AND sta_begin_time = :staBegin";
+    static String getStationByCodes = "SELECT s From "+STA_TABLE+" s WHERE s.networkAttr.id.network_code = :netCode AND s.id.station_code = :staCode";
+    
+    static String getStationByIdString = getStationByCodes + " AND sta_begin_time = :staBegin";
 
     static String getStationForNetwork = "From "+STA_TABLE+" s WHERE s.networkAttr = :netAttr";
+    
+    static String getStationForNetworkStation = getStationForNetwork+" and s.code = :staCode";
     
     static String getChannelForStation = "From "+ChannelImpl.class.getName()+" c WHERE c.site.station = :station";
     
