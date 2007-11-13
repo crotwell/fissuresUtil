@@ -87,6 +87,13 @@ public class NetworkDB extends AbstractHibernateDB {
         return (StationImpl[])result.toArray(new StationImpl[0]);
     }
     
+    
+    public List getAllStationsByCode(String staCode) {
+        Query query = getSession().createQuery(getAllStationsByCode);
+        query.setEntity("staCode", staCode);
+        return query.list();
+    }
+    
     private StationImpl getStationById(StationId staId) throws NotFound {
         Query query = getSession().createQuery(getStationByIdString);
         query.setString("netCode", staId.network_id.network_code);
@@ -214,13 +221,13 @@ public class NetworkDB extends AbstractHibernateDB {
         internUnit(chan.getSamplingInfo().interval);
     }
     
-    static String STA_TABLE = "edu.iris.Fissures.network.StationImpl";
+    static String getStationByCodes = "SELECT s From "+StationImpl.class.getName()+" s WHERE s.networkAttr.id.network_code = :netCode AND s.id.station_code = :staCode";
     
-    static String getStationByCodes = "SELECT s From "+STA_TABLE+" s WHERE s.networkAttr.id.network_code = :netCode AND s.id.station_code = :staCode";
+    static String getAllStationsByCode = "SELECT s From "+StationImpl.class.getName()+" s WHERE s.id.station_code = :staCode";
     
     static String getStationByIdString = getStationByCodes + " AND sta_begin_time = :staBegin";
 
-    static String getStationForNetwork = "From "+STA_TABLE+" s WHERE s.networkAttr = :netAttr";
+    static String getStationForNetwork = "From "+StationImpl.class.getName()+" s WHERE s.networkAttr = :netAttr";
     
     static String getStationForNetworkStation = getStationForNetwork+" and s.code = :staCode";
     
