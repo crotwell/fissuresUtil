@@ -60,9 +60,7 @@ public class EventDB extends AbstractHibernateDB {
 		query.setFloat("maxLat", ba.max_latitude);
 		query.setFloat("minMag", q.getMinMag());
 		query.setFloat("maxMag", q.getMaxMag());
-		query
-				.setTimestamp("minTime", q.getTime().getBeginTime()
-						.getTimestamp());
+		query.setTimestamp("minTime", q.getTime().getBeginTime().getTimestamp());
 		query.setTimestamp("maxTime", q.getTime().getEndTime().getTimestamp());
 		query.setDouble("minDepth", q.getMinDepth());
 		query.setDouble("maxDepth", q.getMaxDepth());
