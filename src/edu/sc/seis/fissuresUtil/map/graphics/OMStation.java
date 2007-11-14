@@ -81,9 +81,11 @@ public class OMStation extends OMPoly implements FissuresGraphic{
     private Station station;
 
     private Color defaultColor;
+    
+    public static int SHIFT = 5;
 
-    private static int[] xPoints = {-5, 0, 5};
+    private static int[] xPoints = {-SHIFT, 0, SHIFT};
 
-    private static int[] yPoints = {5, -5, 5};
+    private static int[] yPoints = {SHIFT, -SHIFT, SHIFT};
 }
 
