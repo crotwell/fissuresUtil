@@ -49,6 +49,10 @@ public class EventDB extends AbstractHibernateDB {
 				+ "AND e.preferred.my_location.latitude = :lon "
 				+ "AND e.preferred.my_location.depth.value = :depth";
 	}
+	
+	public List getAll() {
+	    return getSession().createQuery("from "+getEventClass()).list();
+	}
 
 	public CacheEvent[] query(EventFinderQuery q) {
 		BoxArea ba = AreaUtil.makeContainingBox(q.getArea());
