@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.PropertyConfigurator;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
+import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;
@@ -28,6 +29,7 @@ import edu.iris.Fissures.model.LocationUtil;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
@@ -86,7 +88,8 @@ public class NCReader {
     public void dumpSites() {
         DateFormat df = new SimpleDateFormat("yyyy:DDD:HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
-        System.out.println("station_code das_id sensor latitude longitude elevation start_time end_time moved");
+        Pattern instrumentationParser = Pattern.compile(NCReader.INSTRUMENT_RE);
+        System.out.println("station_code das_id sensor latitude longitude elevation orientation start_time end_time moved");
         Iterator it = sites.iterator();
         MicroSecondDate now = new MicroSecondDate();
         while(it.hasNext()) {
@@ -97,6 +100,13 @@ public class NCReader {
                 endstr = df.format(end);
             }
             Location loc = cur.my_location;
+            Matcher m = instrumentationParser.matcher(cur.comment);
+            if(!m.matches()) {
+                throw new RT130FormatError(SiteIdUtil.toString(cur.get_id())
+                        + " has a malformed instrumentation specification '"
+                        + cur.comment + "'");
+            }
+            String orientations = m.group(2);
             System.out.println(cur.my_station.get_code()
                     + " "
                     + DASChannelCreator.getUnitId(cur)
@@ -108,6 +118,8 @@ public class NCReader {
                     + loc.longitude
                     + " "
                     + loc.elevation.value
+                    + " "
+                    + orientations
                     + " "
                     + df.format(new MicroSecondDate(cur.effective_time.start_time))
                     + " " + endstr);
