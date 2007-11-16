@@ -62,9 +62,9 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener,
     }
 
     protected void loadEvents(EQDataEvent eqDataEvent) {
-        EventAccessOperations[] events = eqDataEvent.getEvents();
-        for(int i = 0; i < events.length; i++) {
-            EventLoader loader = new EventLoader((CacheEvent)events[i], this);
+        Iterator it = eqDataEvent.getEvents().iterator();
+        while(it.hasNext()) {
+            EventLoader loader = new EventLoader((CacheEvent)it.next(), this);
             WorkerThreadPool.getDefaultPool().invokeLater(loader);
         }
     }
