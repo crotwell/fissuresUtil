@@ -49,7 +49,7 @@ public abstract class AbstractHibernateDB {
     protected Session createSession() {
         Session cacheSession = factory.openSession();
         cacheSession.beginTransaction();
-        logger.debug("TRANSACTION Begin: " + this + " on " + cacheSession);
+        //logger.debug("TRANSACTION Begin: " + this + " on " + cacheSession);
         return cacheSession;
     }
 
@@ -71,7 +71,7 @@ public abstract class AbstractHibernateDB {
         if(s == null) {
             throw new RuntimeException("Can not commit before session creation");
         }
-        logger.debug("TRANSACTION Commit: " + this + " on " + s);
+        //logger.debug("TRANSACTION Commit: " + this + " on " + s);
         sessionTL.set(null);
         unitCacheTL.set(null);
         s.getTransaction().commit();
@@ -83,7 +83,7 @@ public abstract class AbstractHibernateDB {
         if(s == null) {
             throw new RuntimeException("Can not rollback before session creation");
         }
-        logger.debug("TRANSACTION Rollback: " + this + " on " + s);
+        //logger.debug("TRANSACTION Rollback: " + this + " on " + s);
         sessionTL.set(null);
         unitCacheTL.set(null);
         s.getTransaction().rollback();
