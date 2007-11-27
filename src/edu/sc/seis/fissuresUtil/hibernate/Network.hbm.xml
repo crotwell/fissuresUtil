@@ -24,9 +24,9 @@
 				<column name="net_begin_leaps" sql-type="integer"></column>
 			</property>
 		</component>
-		<property name="name" access="field" />
-		<property name="description" access="field" />
-		<property name="owner" access="field" />
+		<property name="name" />
+		<property name="description" />
+		<property name="owner" />
 		<property name="endTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
 			<column name="net_end_time" sql-type="timestamp"></column>
@@ -54,31 +54,29 @@
 				<column name="sta_begin_leaps" sql-type="integer"></column>
 			</property>
 		</component>
-		<property name="name" access="field" />
-		<component name="my_location" class="edu.iris.Fissures.Location"
-			access="field">
+		<property name="name" />
+		<component name="location" class="edu.iris.Fissures.Location" >
 			<property name="latitude" type="float" access="field" />
 			<property name="longitude" type="float" access="field" />
 			<component name="depth"
 				class="edu.iris.Fissures.model.QuantityImpl" access="field">
 				<property name="value" column="depth_value"
-					type="double" access="field" />
+					type="double" />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
 					foreign-key="FK_STATION_DEPTH_UNIT_ID"/>
 			</component>
 			<component name="elevation"
 				class="edu.iris.Fissures.model.QuantityImpl" access="field">
-				<property name="value" type="double" column="elev_value"
-					access="field" />
+				<property name="value" type="double" column="elev_value"  />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
 					foreign-key="FK_STATION_ELEV_UNIT_ID" />
 			</component>
 		</component>
-		<property name="operator" access="field" />
-		<property name="description" access="field" />
-		<property name="comment" access="field" />
+		<property name="operator"/>
+		<property name="description" />
+		<property name="comment"  />
 		<property name="endTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
 			<column name="sta_end_time" sql-type="timestamp"></column>
@@ -109,7 +107,7 @@
 				<column name="chan_begin_leaps" sql-type="integer"></column>
 			</property>
 		</component>
-		<property name="name" access="field" />
+		<property name="name" />
 		<property name="endTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
 			<column name="chan_end_time" sql-type="timestamp"></column>
@@ -123,20 +121,20 @@
 		</component>
 		<component name="samplingInfo"
 			class="edu.iris.Fissures.model.SamplingImpl">
-			<component name="interval"
-				class="edu.iris.Fissures.model.QuantityImpl" access="field">
+			<component name="timeInterval"
+				class="edu.iris.Fissures.model.QuantityImpl">
 				<property name="value" column="interval_value"
-					type="double" access="field" />
+					type="double"  />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="interval_unit_id"
 					foreign-key="FK_SAMPLINE_INTERVAL_UNIT_ID"  />
 			</component>
-			<property name="numPoints" type="integer" access="field" />
+			<property name="numPoints" type="integer"  />
 		</component>
 		<component name="site"
 			class="edu.iris.Fissures.network.SiteImpl" lazy="false">
 			<component name="id"
-				class="edu.iris.Fissures.IfNetwork.SiteId" access="field">
+				class="edu.iris.Fissures.IfNetwork.SiteId" >
 				<property name="station_code"
 					formula="station_code" access="field" />
 				<property name="site_code"
@@ -155,14 +153,14 @@
 					</column>
 				</property>
 			</component>
-			<component name="my_location"
-				class="edu.iris.Fissures.Location" access="field" lazy="false">
+			<component name="location"
+				class="edu.iris.Fissures.Location"  lazy="false">
 				<property name="latitude" type="float" access="field" />
 				<property name="longitude" type="float" access="field" />
 				<component name="depth"
 					class="edu.iris.Fissures.model.QuantityImpl" access="field">
 					<property name="value" column="depth_value"
-						type="double" access="field" />
+						type="double" />
 					<many-to-one name="unit"
 						class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
 						foreign-key="FK_SITE_DEPTH_UNIT_ID"  />
@@ -170,7 +168,7 @@
 				<component name="elevation"
 					class="edu.iris.Fissures.model.QuantityImpl" access="field">
 					<property name="value" type="double"
-						column="elev_value" access="field" />
+						column="elev_value"  />
 					<many-to-one name="unit"
 						class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
 						foreign-key="FK_SITE_ELEV_UNIT_ID"  />

@@ -146,7 +146,7 @@ public class Play {
         netDB.getSession().lock(chan[0], LockMode.NONE);
 	}
 
-	private void schema() {
+	protected void schema() {
 		SchemaUpdate update = new SchemaUpdate(HibernateUtil.getConfiguration());
 		update.execute(false, true);
 	}

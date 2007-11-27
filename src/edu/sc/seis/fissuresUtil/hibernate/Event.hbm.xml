@@ -40,29 +40,26 @@
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<property name="origin_time"
-			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
-			access="field">
+		<property name="originTime"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
 			<column name="time" sql-type="timestamp"></column>
 			<column name="nanos" sql-type="integer"></column>
 			<column name="leaps" sql-type="integer"></column>
 		</property>
-		<component name="my_location" class="edu.iris.Fissures.Location"
-			access="field">
+		<component name="location" class="edu.iris.Fissures.Location" >
 			<property name="latitude" type="float" access="field" />
 			<property name="longitude" type="float" access="field" />
 			<component name="depth"
 				class="edu.iris.Fissures.model.QuantityImpl" access="field">
 				<property name="value" column="depth_value"
-					type="double" access="field" />
+					type="double"  />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
 					foreign-key="FK_DEPTH_UNIT_ID"  />
 			</component>
 			<component name="elevation"
 				class="edu.iris.Fissures.model.QuantityImpl" access="field">
-				<property name="value" type="double" column="elev_value"
-					access="field" />
+				<property name="value" type="double" column="elev_value"  />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
 					foreign-key="FK_ELEV_UNIT_ID" />
@@ -84,8 +81,8 @@
 			</composite-element>
 		</list>
 
-		<property name="catalog" access="field" />
-		<property name="contributor" access="field" />
+		<property name="catalog"  />
+		<property name="contributor"  />
 	</class>
 
 
