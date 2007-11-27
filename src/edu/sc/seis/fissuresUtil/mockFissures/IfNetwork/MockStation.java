@@ -7,7 +7,7 @@ import edu.sc.seis.fissuresUtil.mockFissures.MockLocation;
 
 public class MockStation {
 
-    public static Station createStation() {
+    public static StationImpl createStation() {
         return new StationImpl(MockStationId.createStationId(),
                                "Test Station",
                                MockLocation.create(),
@@ -17,7 +17,7 @@ public class MockStation {
                                MockNetworkAttr.createNetworkAttr());
     }
 
-    public static Station createRestartedStation() {
+    public static StationImpl createRestartedStation() {
         return new StationImpl(MockStationId.createRestartedStationId(),
                                "Test Station",
                                MockLocation.create(),
@@ -27,7 +27,7 @@ public class MockStation {
                                MockNetworkAttr.createNetworkAttr());
     }
 
-    public static Station createOtherStation() {
+    public static StationImpl createOtherStation() {
         return new StationImpl(MockStationId.createOtherStationId(),
                                "Noitats tset",
                                MockLocation.createBerlin(),
@@ -37,11 +37,11 @@ public class MockStation {
                                MockNetworkAttr.createOtherNetworkAttr());
     }
 
-    public static Station[] createMultiSplendoredStations() {
+    public static StationImpl[] createMultiSplendoredStations() {
         return createMultiSplendoredStations(4, 5);
     }
     
-    public static Station createCloseStation(Station in) {
+    public static StationImpl createCloseStation(Station in) {
         Location loc = new Location(in.my_location.latitude+.01f, in.my_location.longitude+.01f, in.my_location.elevation, in.my_location.depth, in.my_location.type);
         return new StationImpl(MockStationId.createCloseStationId(),
                                "Close Station",
@@ -68,7 +68,7 @@ public class MockStation {
         return stations;
     }
 
-    public static Station createStation(Location location) {
+    public static StationImpl createStation(Location location) {
         return new StationImpl(MockStationId.createMultiSplendoredId(location.latitude
                                        + "" + location.longitude),
                                "Test Station",
