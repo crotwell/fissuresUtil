@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.JComponent;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.PageSize;
@@ -114,8 +115,46 @@ public class SeismogramPDFBuilder {
         } else {
             displays.add(disp);
         }
-        Rectangle pageSize = (landscape ? PageSize.LETTER.rotate()
-                : PageSize.LETTER);
+        createPDF((JComponent[])displays.toArray(new JComponent[0]),
+                  out,
+                  dispPerPage,
+                  landscape,
+                  header);
+        if(disp instanceof VerticalSeismogramDisplay) {
+            ((VerticalSeismogramDisplay)disp).setBorders();
+        }
+    }
+
+    private static List breakOutSeparateDisplays(SeismogramDisplay disp) {
+        List displays = ((VerticalSeismogramDisplay)disp).getDisplays();
+        Iterator it = displays.iterator();
+        while(it.hasNext()) {
+            BasicSeismogramDisplay cur = (BasicSeismogramDisplay)it.next();
+            cur.clear(BorderedDisplay.BOTTOM_CENTER);
+            if(!cur.isFilled(BorderedDisplay.TOP_CENTER)) {
+                cur.add(new TimeBorder(cur), BorderedDisplay.TOP_CENTER);
+            }
+        }
+        return displays;
+    }
+
+    public static void createPDF(JComponent[] comps,
+                                 OutputStream out,
+                                 int dispPerPage,
+                                 boolean landscape,
+                                 TitleBorder header) {
+        createPDF(comps,
+                  out,
+                  dispPerPage,
+                  (landscape ? PageSize.LETTER.rotate() : PageSize.LETTER),
+                  header);
+    }
+
+    public static void createPDF(JComponent[] comps,
+                                 OutputStream out,
+                                 int dispPerPage,
+                                 Rectangle pageSize,
+                                 TitleBorder header) {
         Document document = new Document(pageSize);
         try {
             int headerHeight = 0;
@@ -125,8 +164,8 @@ public class SeismogramPDFBuilder {
             }
             PdfWriter writer = PdfWriter.getInstance(document, out);
             document.open();
-            int pageW = (int)pageSize.width();
-            int pageH = (int)pageSize.height();
+            int pageW = (int)pageSize.getWidth();
+            int pageH = (int)pageSize.getHeight();
             int pixelsPerDisplayH = (int)Math.floor((pageH - vertMargins - headerHeight)
                     / (double)dispPerPage);
             int pixelsPerDisplayW = (int)Math.floor(pageW - horizMargins);
@@ -144,15 +183,18 @@ public class SeismogramPDFBuilder {
                 g2Traces.translate(0, headerHeight);
             }
             int seisOnCurPage = 0;
-            Iterator it = displays.iterator();
-            while(it.hasNext()) {
+            for(int i = 0; i < comps.length; i++) {
                 // loop over all traces
-                SeismogramDisplay sd = (SeismogramDisplay)it.next();
-                boolean bufferingStatus = sd.isDoubleBuffered();
-                sd.setDoubleBuffered(false);
-                sd.renderToGraphics(g2Traces, new Dimension(pixelsPerDisplayW,
-                                                            pixelsPerDisplayH));
-                sd.setDoubleBuffered(bufferingStatus);
+                boolean bufferingStatus = comps[i].isDoubleBuffered();
+                comps[i].setDoubleBuffered(false);
+                if(comps[i] instanceof Graphics2DRenderer) {
+                    ((Graphics2DRenderer)comps[i]).renderToGraphics(g2Traces,
+                                                                    new Dimension(pixelsPerDisplayW,
+                                                                                  pixelsPerDisplayH));
+                } else {
+                    comps[i].paint(g2Traces);
+                }
+                comps[i].setDoubleBuffered(bufferingStatus);
                 if(++seisOnCurPage == dispPerPage) {
                     // page is full, finish page and create a new page.
                     cb.addTemplate(tpTraces, 0, 0);
@@ -178,22 +220,6 @@ public class SeismogramPDFBuilder {
         }
         // step 5: we close the document
         document.close();
-        if(disp instanceof VerticalSeismogramDisplay) {
-            ((VerticalSeismogramDisplay)disp).setBorders();
-        }
-    }
-
-    private static List breakOutSeparateDisplays(SeismogramDisplay disp) {
-        List displays = ((VerticalSeismogramDisplay)disp).getDisplays();
-        Iterator it = displays.iterator();
-        while(it.hasNext()) {
-            BasicSeismogramDisplay cur = (BasicSeismogramDisplay)it.next();
-            cur.clear(BorderedDisplay.BOTTOM_CENTER);
-            if(!cur.isFilled(BorderedDisplay.TOP_CENTER)) {
-                cur.add(new TimeBorder(cur), BorderedDisplay.TOP_CENTER);
-            }
-        }
-        return displays;
     }
 
     private static int leftMargin = 50, rightMargin = 50, topMargin = 50,

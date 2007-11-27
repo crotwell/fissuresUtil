@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class BorderedDisplay extends JPanel {
+public class BorderedDisplay extends JPanel implements Graphics2DRenderer {
 
     public BorderedDisplay() {
         this.setLayout(new GridBagLayout());
@@ -55,7 +55,8 @@ public class BorderedDisplay extends JPanel {
                                                size.height,
                                                BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = bImg.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                             RenderingHints.VALUE_ANTIALIAS_ON);
         renderToGraphics(g2d, size);
         try {
             ImageIO.write(bImg, "png", loc);
@@ -69,9 +70,9 @@ public class BorderedDisplay extends JPanel {
     }
 
     public void renderToGraphics(Graphics2D g, Dimension size) {
-        //addNotify tells the java component it's ok to lay itself out.
-        //In the case where this isn't being drawn to screen and is not in a an
-        //AWT component, ie JFrame, this needs to be done so you don't get a
+        // addNotify tells the java component it's ok to lay itself out.
+        // In the case where this isn't being drawn to screen and is not in a an
+        // AWT component, ie JFrame, this needs to be done so you don't get a
         // gray box
         if(getRootPane() == null) {
             addNotify();
@@ -103,17 +104,18 @@ public class BorderedDisplay extends JPanel {
         clear(position);
         comps[position] = comp;
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;//Fill all panels in both directions
+        gbc.fill = GridBagConstraints.BOTH;// Fill all panels in both
+                                            // directions
         gbc.gridx = position % 3;
         gbc.gridy = position / 3;
         if(gbc.gridx == 1)
-            gbc.weightx = 1;//All row 1 components have a x
+            gbc.weightx = 1;// All row 1 components have a x
         else
-            gbc.weightx = 0;//weight of 1
+            gbc.weightx = 0;// weight of 1
         if(gbc.gridy == 1)
             gbc.weighty = 1;// All column 1 components have y
         else
-            gbc.weighty = 0;//weight of 1
+            gbc.weighty = 0;// weight of 1
         super.add(comp, gbc);
     }
 

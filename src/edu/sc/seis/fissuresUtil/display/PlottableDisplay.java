@@ -45,7 +45,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * @author Srinivasa Telukutla Modified: Georgina Coleman
  * @version
  */
-public class PlottableDisplay extends JComponent {
+public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
 
     public PlottableDisplay() {
         this(TOTAL_WIDTH);
@@ -264,12 +264,9 @@ public class PlottableDisplay extends JComponent {
 
     void drawTimeTicks(Graphics g, Date date) {
         Graphics2D g2 = (Graphics2D)g;
-        //int hour = 0;
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        //String minutes = ":00 ";
         String minutes = ":" + formatMinutes(date.getMinutes()) + " ";
         int hourinterval = totalHours / rows;
-        String hourmin = hour + minutes;
         int houroffset;
         int xShift = totalWidth / rows + LABEL_X_SHIFT;
         for(int currRow = 0; currRow < rows; currRow++) {
@@ -279,10 +276,9 @@ public class PlottableDisplay extends JComponent {
             } else {
                 g2.setPaint(oddColor);
             }
-            g2.drawString(hourmin, houroffset, titleHeight + rowOffset
+            g2.drawString(hour + minutes, houroffset, titleHeight + rowOffset
                     * currRow);
             hour = (hour + hourinterval) % 24;
-            hourmin = hour + minutes;
             houroffset = calcHourOffset(hour);
             g2.drawString(hour + minutes, xShift + houroffset, titleHeight
                     + rowOffset * currRow);
@@ -303,31 +299,31 @@ public class PlottableDisplay extends JComponent {
         return "" + minutes;
     }
 
-    void drawPlottableNew(Graphics g) {
+    private void drawPlottableNew(Graphics g) {
         int mean = getMean();
         // get new graphics to avoid messing up original
         Graphics2D g2 = (Graphics2D)g.create();
-        g2.setClip(LABEL_X_SHIFT, 0, rowWidth, Integer.MAX_VALUE);
+        g2.setClip(LABEL_X_SHIFT, 0, rowWidth, rowOffset * rows);
         AffineTransform originalTransform = AffineTransform.getTranslateInstance(LABEL_X_SHIFT,
                                                                                  titleHeight);
         for(int row = 0; row < rows && currentImageGraphics == g; row++) {
-            //use title and label transform to draw red center lines
+            // use title and label transform to draw red center lines
             g2.setTransform(originalTransform);
             g2.setPaint(axisColor);
             int yLoc = rowOffset * row;
             g2.drawLine(0, yLoc, rowWidth, yLoc);
-            //Create new transform to draw plottable scaled correctly
+            // Create new transform to draw plottable scaled correctly
             g2.setTransform(new AffineTransform());
-            //shift the shape left to get to the correct point for this row
-            //and down to get to the correct draw height
+            // shift the shape left to get to the correct point for this row
+            // and down to get to the correct draw height
             g2.translate(-1 * rowWidth * row + LABEL_X_SHIFT, yLoc
                     + titleHeight);
-            //flip the y axis to make going lower positive
+            // flip the y axis to make going lower positive
             g2.scale(1, -1);
-            //scale for the amplitude slider
+            // scale for the amplitude slider
             g2.scale(1, ampScale);
             g2.scale(1, ampScalePercent);
-            //center the mean
+            // center the mean
             g2.translate(0, -1 * mean);
             if(row % 2 == 0) {
                 g2.setPaint(evenColor);
@@ -350,7 +346,7 @@ public class PlottableDisplay extends JComponent {
                                                            SHAPESIZE + 1);
                 currentShape.moveTo(plot[a].x_coor[0], plot[a].y_coor[0]);
                 for(int i = 1; i < plot[a].x_coor.length; i++) {
-                    //split into smaller shapes
+                    // split into smaller shapes
                     if(i % SHAPESIZE == 0) {
                         // duplicate last point
                         if(plot[a].x_coor[i - 1] == plot[a].x_coor[i] - 1) {
@@ -404,7 +400,7 @@ public class PlottableDisplay extends JComponent {
     public Image createImage() {
         final int width = getSize().width;
         final int height = getSize().height;
-        //final Image offImg = super.createImage(width, height);
+        // final Image offImg = super.createImage(width, height);
         final Image offImg = new BufferedImage(width,
                                                height,
                                                BufferedImage.TYPE_INT_RGB);
@@ -430,6 +426,10 @@ public class PlottableDisplay extends JComponent {
         return offImg;
     }
 
+    public void renderToGraphics(Graphics2D g) {
+        renderToGraphics(g, getPreferredSize());
+    }
+
     public void renderToGraphics(Graphics2D g, Dimension size) {
         if(getRootPane() == null) {
             addNotify();
@@ -452,6 +452,14 @@ public class PlottableDisplay extends JComponent {
         validate();
     }
 
+    public void prepForOutput() {
+        configChanged();
+        if(getRootPane() == null) {
+            addNotify();
+            repaint();
+        }
+    }
+
     public void outputToPNG(String filename) throws IOException {
         outputToPNG(new File(filename));
     }
@@ -467,18 +475,50 @@ public class PlottableDisplay extends JComponent {
     }
 
     public void outputToPNG(OutputStream out) throws IOException {
-        configChanged();
-        if(getRootPane() == null) {
-            addNotify();
-            repaint();
-        }
+        prepForOutput();
         BufferedImage img = new BufferedImage(getPreferredSize().width,
                                               getPreferredSize().height,
                                               BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                             RenderingHints.VALUE_ANTIALIAS_ON);
         renderToGraphics(g2d, getSize());
         ImageIO.write(img, "png", out);
+    }
+
+    public void outputToPDF(String fileName) throws IOException {
+        outputToPDF(new File(fileName));
+    }
+
+    public void outputToPDF(File file) throws IOException {
+        file.getCanonicalFile().getParentFile().mkdirs();
+        File temp = File.createTempFile(file.getName(),
+                                        null,
+                                        file.getParentFile());
+        outputToPDF(new FileOutputStream(temp));
+        file.delete();
+        temp.renameTo(file);
+    }
+
+    /**
+     * TODO outputToPDF doesn't work properly yet. There are some issues with
+     * the SeismogramPDFBuilder's margins that need to be resolved. One possible
+     * solution is to rewrite the PlottableDisplay so that the time ticks,
+     * titles, and plottable are all separate JComponents. However, my time left
+     * here is short, and I'm not entirely sure what all this revamping will
+     * entail. I will probably take a stab at the revamping, but I'm going ahead
+     * and committing what has been done so far with the PDFs just in case.
+     * --Phil
+     */
+    public void outputToPDF(OutputStream out) {
+        prepForOutput();
+        PDF = true;
+        SeismogramPDFBuilder.createPDF(new JComponent[] {this},
+                                       out,
+                                       1,
+                                       true,
+                                       null);
+        PDF = false;
     }
 
     public int[] findMinMax(Plottable[] arrayplottable) {
@@ -535,7 +575,7 @@ public class PlottableDisplay extends JComponent {
         Iterator iterator = eventPlotterList.iterator();
         while(iterator.hasNext()) {
             EventFlag plotter = (EventFlag)iterator.next();
-            //plotter.setAlpha(127);
+            // plotter.setAlpha(127);
             plotter.draw(g);
         }
     }
@@ -613,7 +653,7 @@ public class PlottableDisplay extends JComponent {
 
     public static final int LABEL_X_SHIFT = 50;
 
-    //Plottable instance values
+    // Plottable instance values
     public int getRows() {
         return rows;
     }
@@ -683,6 +723,8 @@ public class PlottableDisplay extends JComponent {
     private Graphics currentImageGraphics = null;
 
     private boolean includeText;
+
+    private boolean PDF = false;
 
     private static SimpleDateFormat dateFormater = new SimpleDateFormat("EEEE, d MMMM yyyy");
 
