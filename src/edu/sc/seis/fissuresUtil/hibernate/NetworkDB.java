@@ -64,14 +64,14 @@ public class NetworkDB extends AbstractHibernateDB {
     }
 
     public int put(ChannelImpl chan) {
-        Long dbid;
+        Integer dbid;
         internUnit(chan);
         try {
             chan.my_site.my_station = getStationById(chan.my_site.my_station.get_id());
         } catch(NotFound e) {
             int staDbid = put((StationImpl)chan.my_site.my_station);
         }
-        dbid = (Long)getSession().save(chan);
+        dbid = (Integer)getSession().save(chan);
         return dbid.intValue();
     }
 
