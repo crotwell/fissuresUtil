@@ -11,11 +11,11 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfParameterMgr.MockParameterRef;
 
 public class MockOrigin {
 
-    public static Origin create() {
+    public static OriginImpl create() {
         return create(Defaults.EPOCH, MockMagnitude.createMagnitudes());
     }
 
-    public static Origin create(MicroSecondDate time, Magnitude[] mags) {
+    public static OriginImpl create(MicroSecondDate time, Magnitude[] mags) {
         return new OriginImpl("Epoch in Central Alaska",
                               "Test Data",
                               "Charlie Groves",
@@ -25,7 +25,7 @@ public class MockOrigin {
                               MockParameterRef.createParams());
     }
 
-    public static Origin createWallFallOrigin() {
+    public static OriginImpl createWallFallOrigin() {
         return new OriginImpl("Fall of the Berlin Wall",
                               "Test Data",
                               "Charlie Groves",
@@ -35,20 +35,20 @@ public class MockOrigin {
                               MockParameterRef.createParams());
     }
 
-    public static Origin[] createOrigins() {
-        Origin[] origins = new Origin[2];
+    public static OriginImpl[] createOrigins() {
+        OriginImpl[] origins = new OriginImpl[2];
         origins[0] = create();
         origins[1] = createWallFallOrigin();
         return origins;
     }
 
-    public static Origin createOrigin() {
+    public static OriginImpl createOrigin() {
         return create();
     }
     
 
-    public static Origin[] createOrigins(int num) {
-        Origin[] out = new Origin[num];
+    public static OriginImpl[] createOrigins(int num) {
+        OriginImpl[] out = new OriginImpl[num];
         for(int i = 0; i < out.length; i++) {
             out[i] = create(ClockUtil.now(), MockMagnitude.createMagnitudes());
         }

@@ -37,8 +37,8 @@ public class MockEventAccessOperations {
                            MockEventAttr.create(feRegion));
     }
 
-    public static CacheEvent createEvent(Origin origin, EventAttr attr) {
-        Origin[] origins = {origin};
+    public static CacheEvent createEvent(OriginImpl origin, EventAttr attr) {
+        OriginImpl[] origins = {origin};
         return new CacheEvent(attr, origins, origins[0]);
     }
 
@@ -66,7 +66,7 @@ public class MockEventAccessOperations {
         for(int i = 0; i < numEvents; i++) {
             MicroSecondDate eventBegin = timeRange.getBeginTime()
                     .add((TimeInterval)timeBetweenEvents.multiplyBy(i));
-            Origin o = new OriginImpl("Mock Event " + i,
+            OriginImpl o = new OriginImpl("Mock Event " + i,
                                       "Mockalog",
                                       "Charlie Groves",
                                       eventBegin.getFissuresTime(),

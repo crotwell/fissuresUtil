@@ -7,6 +7,7 @@ import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfEvent.OriginNotFound;
 import edu.iris.Fissures.event.EventAttrImpl;
+import edu.iris.Fissures.event.OriginImpl;
 
 /**
  * CacheEvent.java Created: Mon Jan 8 16:33:52 2001
@@ -22,11 +23,11 @@ public class CacheEvent extends ProxyEventAccessOperations {
     /**
      * Initializes the origins array to be just the single prefferred origin.
      */
-    public CacheEvent(EventAttr attr, Origin preferred) {
+    public CacheEvent(EventAttr attr, OriginImpl preferred) {
         this(attr, new Origin[] {preferred}, preferred);
     }
 
-    public CacheEvent(EventAttr attr, Origin[] origins, Origin preferred) {
+    public CacheEvent(EventAttr attr, Origin[] origins, OriginImpl preferred) {
         if(attr == null) { throw new IllegalArgumentException("EventAttr cannot be null"); }
         if(origins == null) { throw new IllegalArgumentException("origins cannot be null"); }
         this.attr = attr;
@@ -78,14 +79,22 @@ public class CacheEvent extends ProxyEventAccessOperations {
     }
 
     public Origin get_preferred_origin() throws NoPreferredOrigin {
+        return getPreferred();
+    }
+
+    public OriginImpl getPreferred() throws NoPreferredOrigin {
         if(preferred == null) {
             if(event != null) {
-                preferred = event.get_preferred_origin();
+                preferred = (OriginImpl)event.get_preferred_origin();
             } else {
                 throw new NoPreferredOrigin();
             }
         }
         return preferred;
+    }
+    
+    protected void setPreferred(OriginImpl o) {
+        this.preferred = o;
     }
 
     /**
@@ -113,7 +122,7 @@ public class CacheEvent extends ProxyEventAccessOperations {
 
     protected Origin[] origins;
 
-    protected Origin preferred;
+    protected OriginImpl preferred;
 
     private static final Logger logger = Logger.getLogger(CacheEvent.class);
 } // CacheEvent
