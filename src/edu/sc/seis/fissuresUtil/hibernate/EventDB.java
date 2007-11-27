@@ -35,19 +35,19 @@ public class EventDB extends AbstractHibernateDB {
 		finderQueryBase = "select e FROM "
 				+ getEventClass().getName()
 				+ " e join e.preferred.magnitudeList m "
-				+ "WHERE e.preferred.my_location.latitude between :minLat AND :maxLat "
+				+ "WHERE e.preferred.location.latitude between :minLat AND :maxLat "
 				+ "AND m.value between :minMag AND :maxMag  "
-				+ "AND e.preferred.origin_time.time between :minTime AND :maxTime  "
-				+ "AND e.preferred.my_location.depth.value between :minDepth and :maxDepth  ";
+				+ "AND e.preferred.originTime.time between :minTime AND :maxTime  "
+				+ "AND e.preferred.location.depth.value between :minDepth and :maxDepth  ";
 		finderQueryAvoidDateline = finderQueryBase
-				+ "AND e.preferred.my_location.longitude between :minLon and :maxLon ";
+				+ "AND e.preferred.location.longitude between :minLon and :maxLon ";
 		finderQueryAroundDateline = finderQueryBase
-				+ " AND ((? <= e.preferred.my_location.longitude) OR (e.preferred.my_location.longitude <= ?))";
+				+ " AND ((? <= e.preferred.location.longitude) OR (e.preferred.location.longitude <= ?))";
 		getIdenticalEventString = "From " + getEventClass().getName()
-				+ " e WHERE " + "e.preferred.origin_time.time = :originTime "
-				+ "AND e.preferred.my_location.latitude = :lat "
-				+ "AND e.preferred.my_location.latitude = :lon "
-				+ "AND e.preferred.my_location.depth.value = :depth";
+				+ " e WHERE " + "e.preferred.originTime.time = :originTime "
+				+ "AND e.preferred.location.latitude = :lat "
+				+ "AND e.preferred.location.latitude = :lon "
+				+ "AND e.preferred.location.depth.value = :depth";
 	}
 	
 	public List getAll() {
