@@ -12,6 +12,7 @@ import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
+import edu.iris.Fissures.event.OriginImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 
 /**
@@ -399,16 +400,16 @@ public class XMLParameter {
         Element event = XMLUtil.getElement(XMLUtil.getElement(base, "value"),
                                            "event");
         EventAttr eventAttr = XMLEvent.getEvent(event);
-        Origin preferred_origin = XMLEvent.getPreferredOrigin(event);
-        return new CacheEvent(eventAttr, new Origin[0], preferred_origin);
+        OriginImpl preferred_origin = XMLEvent.getPreferredOrigin(event);
+        return new CacheEvent(eventAttr, new OriginImpl[0], preferred_origin);
     }
 
     private static EventAccessOperations makeEvent(XMLStreamReader parser)
             throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "event");
         EventAttr eventAttr = XMLEvent.getEvent(parser);
-        Origin preferred_origin = XMLEvent.getPreferredOrigin(parser);
-        return new CacheEvent(eventAttr, new Origin[0], preferred_origin);
+        OriginImpl preferred_origin = XMLEvent.getPreferredOrigin(parser);
+        return new CacheEvent(eventAttr, new OriginImpl[0], preferred_origin);
     }
 
     /**

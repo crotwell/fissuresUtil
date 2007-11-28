@@ -262,7 +262,7 @@ public class SacToFissures {
                 && sac.evlo != sac.FLOAT_UNDEF && sac.evdp != sac.FLOAT_UNDEF) {
             MicroSecondDate beginTime = getEventOriginTime(sac);
             EventAttr attr = new EventAttrImpl("SAC Event");
-            Origin[] origins = new Origin[1];
+            OriginImpl[] origins = new OriginImpl[1];
             Location loc;
             if(sac.evdp > 1000) {
                 loc = new Location(sac.evla,

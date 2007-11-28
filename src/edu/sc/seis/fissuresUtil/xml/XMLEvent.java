@@ -11,6 +11,7 @@ import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.event.EventAttrImpl;
+import edu.iris.Fissures.event.OriginImpl;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
 
 /**
@@ -71,10 +72,10 @@ public class XMLEvent {
         return new EventAttrImpl(name, flinnEngdahlRegion);
     }
 
-    public static Origin getPreferredOrigin(Element base) {
+    public static OriginImpl getPreferredOrigin(Element base) {
         Element preferred_originElement = XMLUtil.getElement(base,
                                                              "preferred_origin");
-        Origin preferred_origin;
+        OriginImpl preferred_origin;
         if(preferred_originElement != null) {
             preferred_origin = XMLOrigin.getOrigin(preferred_originElement);
         } else
@@ -82,7 +83,7 @@ public class XMLEvent {
         return preferred_origin;
     }
 
-    public static Origin getPreferredOrigin(XMLStreamReader parser) throws XMLStreamException {
+    public static OriginImpl getPreferredOrigin(XMLStreamReader parser) throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "preferred_origin");
         if(parser.hasNext()){
             return XMLOrigin.getOrigin(parser);
