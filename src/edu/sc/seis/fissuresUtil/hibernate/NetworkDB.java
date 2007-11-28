@@ -217,6 +217,15 @@ public class NetworkDB extends AbstractHibernateDB {
         internUnit(chan.getSamplingInfo().interval);
     }
     
+    private static NetworkDB singleton;
+    
+    public static NetworkDB getSingleton() {
+        if (singleton == null) {
+            singleton = new NetworkDB();
+        }
+        return singleton;
+    }
+    
     static String getStationByCodes = "SELECT s From "+StationImpl.class.getName()+" s WHERE s.networkAttr.id.network_code = :netCode AND s.id.station_code = :staCode";
     
     static String getAllStationsByCode = "SELECT s From "+StationImpl.class.getName()+" s WHERE s.id.station_code = :staCode";
