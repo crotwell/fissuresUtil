@@ -16,6 +16,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.event.OriginImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.PointDistanceAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;
@@ -77,8 +78,8 @@ public class JDBCEventAccess extends EventTable {
 
     private CacheEvent getEvent(ResultSet rs, int dbid) throws NotFound,
             SQLException {
-        Origin preferredOrigin = jdbcOrigin.get(rs.getInt("origin_id"));
-        Origin[] allOrigins = jdbcOrigin.getOrigins(dbid);
+        OriginImpl preferredOrigin = jdbcOrigin.get(rs.getInt("origin_id"));
+        OriginImpl[] allOrigins = jdbcOrigin.getOrigins(dbid);
         EventAttr attr = jdbcAttr.get(rs.getInt("eventattr_id"));
         CacheEvent ev = new CacheEvent(attr, allOrigins, preferredOrigin);
         ev.setDbid(dbid);

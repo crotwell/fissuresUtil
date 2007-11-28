@@ -17,6 +17,7 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.event.OriginImpl;
 import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
@@ -152,7 +153,7 @@ public class Play {
 	}
 
 	private CacheEvent[] getOrigins() {
-		Origin[] origins = MockOrigin.createOrigins(10);
+		OriginImpl[] origins = MockOrigin.createOrigins(10);
 		CacheEvent[] out = new CacheEvent[origins.length];
 		for (int i = 0; i < out.length; i++) {
 			out[i] = new CacheEvent(MockEventAttr.create(i % 700), origins[i]);

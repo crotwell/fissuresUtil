@@ -79,7 +79,7 @@ public class XMLOrigin {
         }
     }
 
-    public static Origin getOrigin(Element base) {
+    public static OriginImpl getOrigin(Element base) {
         String id = XMLUtil.getText(XMLUtil.getElement(base, "id"));
         String catalog = XMLUtil.getText(XMLUtil.getElement(base, "catalog"));
         String contributor = XMLUtil.getText(XMLUtil.getElement(base,
@@ -102,7 +102,7 @@ public class XMLOrigin {
                               new ParameterRef[0]);
     }
 
-    public static Origin getOrigin(XMLStreamReader parser)
+    public static OriginImpl getOrigin(XMLStreamReader parser)
             throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "id");
         String id = parser.getElementText();

@@ -155,16 +155,16 @@ public class JDBCOrigin extends EventTable {
         throw new NotFound('\n' + getDBIdStmt.toString());
     }
 
-    public Origin[] getOrigins(int eventid) throws SQLException, NotFound {
+    public OriginImpl[] getOrigins(int eventid) throws SQLException, NotFound {
         getAllStmt.setInt(1, eventid);
         ResultSet rs = getAllStmt.executeQuery();
         List origins = new ArrayList();
         while(rs.next())
             origins.add(get(rs.getInt("origin_id")));
-        return (Origin[])origins.toArray(new Origin[origins.size()]);
+        return (OriginImpl[])origins.toArray(new OriginImpl[origins.size()]);
     }
 
-    public Origin get(int originId) throws SQLException, NotFound {
+    public OriginImpl get(int originId) throws SQLException, NotFound {
         getStmt.setInt(1, originId);
         ResultSet rs = getStmt.executeQuery();
         if(rs.next()) return extract(rs);
@@ -213,7 +213,7 @@ public class JDBCOrigin extends EventTable {
      * 
      * @return - Origin
      */
-    public Origin extract(ResultSet rs) throws SQLException,
+    public OriginImpl extract(ResultSet rs) throws SQLException,
             NotFound {
         int originId = rs.getInt("origin_id");
         ParameterRef[] params = getParams(originId);

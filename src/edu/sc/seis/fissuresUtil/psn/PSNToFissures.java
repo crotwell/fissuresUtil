@@ -204,7 +204,7 @@ public class PSNToFissures{
 
                 EventAttr attr = new EventAttrImpl("PSN Event");
                 attr.region = new FlinnEngdahlRegionImpl(FlinnEngdahlType.GEOGRAPHIC_REGION, 0);
-                Origin[] origins = new Origin[1];
+                OriginImpl[] origins = new OriginImpl[1];
                 Location loc;
 
                 loc = new Location((float)evInfo.getLat(),
