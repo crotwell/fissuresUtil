@@ -132,7 +132,16 @@ public class EventDB extends AbstractHibernateDB {
 		}
 		return null;
 	}
+	
+	private static EventDB singleton;
 
+	public static EventDB getSingleton() {
+	    if (singleton == null) {
+	        singleton = new EventDB();
+	    }
+	    return singleton;
+	}
+	
 	/**
 	 * override to use queries on subclasses of CacheEvent. For example SOD uses
 	 * StatefulEvent.
