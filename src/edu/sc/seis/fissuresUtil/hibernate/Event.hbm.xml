@@ -12,7 +12,7 @@
 		</id>
 		<many-to-one name="preferred"
 			class="edu.iris.Fissures.event.OriginImpl" column="preferred"
-			foreign-key="FK_preferred_origin" cascade="all" access="field"
+			foreign-key="FK_preferred_origin" cascade="all" 
 			lazy="false" />
 		<!--
 			<array name="origins" table="event_origin" cascade="all">
