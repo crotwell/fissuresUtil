@@ -55,14 +55,14 @@
 					type="double"  />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
-					foreign-key="FK_DEPTH_UNIT_ID"  />
+					foreign-key="FK_DEPTH_UNIT_ID" lazy="false" />
 			</component>
 			<component name="elevation"
 				class="edu.iris.Fissures.model.QuantityImpl" access="field">
 				<property name="value" type="double" column="elev_value"  />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
-					foreign-key="FK_ELEV_UNIT_ID" />
+					foreign-key="FK_ELEV_UNIT_ID" lazy="false" />
 
 			</component>
 		</component>
