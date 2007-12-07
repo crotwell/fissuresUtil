@@ -26,11 +26,6 @@ import edu.sc.seis.fissuresUtil.database.NotFound;
 public class NetworkDB extends AbstractHibernateDB {
 
     public NetworkDB() {
-        this(HibernateUtil.getSessionFactory());
-    }
-
-    public NetworkDB(SessionFactory factory) {
-        super(factory);
     }
 
     public void rollback() {

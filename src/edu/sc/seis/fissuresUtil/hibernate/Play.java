@@ -187,7 +187,7 @@ public class Play {
 				"2006-07-01T000000Z", -1)), new MicroSecondDate(new Time(
 				"2008-10-01T000000Z", -1))));
 		q.setMinMag(0);
-		EventDB eventDB = new EventDB(HibernateUtil.getSessionFactory());
+		EventDB eventDB = new EventDB();
 		CacheEvent[] events = eventDB.query(q);
 		System.out.println("Got " + events.length + " origins");
 		for(int i = 0; i < events.length; i++) {
