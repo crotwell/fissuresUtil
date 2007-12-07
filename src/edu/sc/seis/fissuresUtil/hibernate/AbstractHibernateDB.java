@@ -16,15 +16,10 @@ import edu.iris.Fissures.model.UnitImpl;
 public abstract class AbstractHibernateDB {
 
     public AbstractHibernateDB() {
-        this(HibernateUtil.getSessionFactory());
+        logger.debug("init "+this);
     }
 
-    public AbstractHibernateDB(SessionFactory factory) {
-        this.factory = factory;
-        logger.debug("init " + factory.toString());
-    }
-
-    private void loadUnits(Session s) {
+    private static void loadUnits(Session s) {
         Query q = s.createQuery("From edu.iris.Fissures.model.UnitImpl");
         List result = q.list();
         getUnitCache().addAll(result);
@@ -41,19 +36,19 @@ public abstract class AbstractHibernateDB {
         }
     }
 
-    public void deploySchema() {
+    public static void deploySchema() {
         SchemaUpdate update = new SchemaUpdate(HibernateUtil.getConfiguration());
         update.execute(false, true);
     }
 
-    protected Session createSession() {
-        Session cacheSession = factory.openSession();
+    protected static Session createSession() {
+        Session cacheSession = HibernateUtil.getSessionFactory().openSession();
         cacheSession.beginTransaction();
         //logger.debug("TRANSACTION Begin: " + this + " on " + cacheSession);
         return cacheSession;
     }
 
-    public synchronized Session getSession() {
+    public static synchronized Session getSession() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
             s = createSession();
@@ -62,11 +57,16 @@ public abstract class AbstractHibernateDB {
         return s;
     }
 
-    public void flush() {
-        getSession().flush();
+    public static void flush() {
+        Session s = (Session)sessionTL.get();
+        if(s == null) {
+            throw new RuntimeException("Can not flush before session creation");
+        }
+        s.flush();
     }
 
-    public synchronized void commit() {
+    /** commits the current session that is associated with the current thread. */
+    public static synchronized void commit() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
             throw new RuntimeException("Can not commit before session creation");
@@ -78,7 +78,8 @@ public abstract class AbstractHibernateDB {
         s.close();
     }
 
-    public synchronized void rollback() {
+    /** rolls back the current session that is associated with the current thread. */
+    public static synchronized void rollback() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
             throw new RuntimeException("Can not rollback before session creation");
@@ -90,15 +91,15 @@ public abstract class AbstractHibernateDB {
         s.close();
     }
 
-    public void internUnit(Location loc) {
+    public static void internUnit(Location loc) {
         internUnit(loc.depth);
         internUnit(loc.elevation);
     }
-    public void internUnit(Quantity q) {
+    public static void internUnit(Quantity q) {
         q.the_units = intern((UnitImpl)q.the_units);
     }
 
-    protected UnitImpl intern(UnitImpl unit) {
+    protected static UnitImpl intern(UnitImpl unit) {
         HashSet unitCache = getUnitCache();
         if(unitCache.size() == 0) {
             loadUnits(getSession());
@@ -119,7 +120,7 @@ public abstract class AbstractHibernateDB {
         return unit;
     }
 
-    protected HashSet getUnitCache() {
+    protected static HashSet getUnitCache() {
         HashSet out = (HashSet)unitCacheTL.get();
         if(out == null) {
             out = new HashSet();
@@ -128,16 +129,14 @@ public abstract class AbstractHibernateDB {
         return out;
     }
 
-    private ThreadLocal unitCacheTL = new ThreadLocal() {
+    private static ThreadLocal unitCacheTL = new ThreadLocal() {
 
         protected synchronized Object initialValue() {
             return new HashSet();
         }
     };
 
-    SessionFactory factory;
-
-    private ThreadLocal sessionTL = new ThreadLocal() {
+    private static ThreadLocal sessionTL = new ThreadLocal() {
 
         protected synchronized Object initialValue() {
             logger.debug("new hibernate session");
