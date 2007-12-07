@@ -25,19 +25,6 @@ import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class NetworkDB extends AbstractHibernateDB {
 
-    public NetworkDB() {
-    }
-
-    public void rollback() {
-        System.out.println("Rollback: " + this);
-        super.rollback();
-    }
-
-    public void commit() {
-        System.out.println("commit: " + this);
-        super.commit();
-    }
-
     public int put(NetworkAttrImpl net) {
         Session session = getSession();
         try {
