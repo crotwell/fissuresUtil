@@ -7,7 +7,6 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Dimension;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
@@ -28,10 +27,11 @@ public class BasicSeismogramDisplayTest extends TestCase {
         sd.outputToPNG(outPNG, new Dimension(600, 300));
     }
 
-    public void testOutputToPDF() throws FileNotFoundException {
+    public void testOutputToPDF() throws IOException {
         File outPDF = new File("./testOutput.pdf");
         outPDF.deleteOnExit();
-        SeismogramPDFBuilder.createPDF(sd, outPDF, 1);
+        SeismogramPDFBuilder builder = new SeismogramPDFBuilder(false, 1, true);
+        builder.createPDF(sd, outPDF);
     }
 
     public void setUp() {
@@ -39,10 +39,10 @@ public class BasicSeismogramDisplayTest extends TestCase {
         System.setProperty("swing.volatileImageBufferEnabled", "false");
         LocalSeismogramImpl lsi = SimplePlotUtil.createTestData();
         MemoryDataSetSeismogram memDSS = new MemoryDataSetSeismogram(lsi);
-        //sd = SeismogramDisplayConfigurationTest.create("arrayMon")
-        //        .createDisplay();
-        //sd.add(new Flag(memDSS.getBeginMicroSecondDate()
-        //        .add(new TimeInterval(1, UnitImpl.SECOND)), "P-Wave"));
+        // sd = SeismogramDisplayConfigurationTest.create("arrayMon")
+        // .createDisplay();
+        // sd.add(new Flag(memDSS.getBeginMicroSecondDate()
+        // .add(new TimeInterval(1, UnitImpl.SECOND)), "P-Wave"));
         sd = new BasicSeismogramDisplay();
         sd.add(new MemoryDataSetSeismogram[] {memDSS});
     }

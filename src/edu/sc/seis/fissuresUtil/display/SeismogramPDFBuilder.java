@@ -1,27 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-/**
- * <p>
- * Title:
- * </p>
- * <p>
- * Description:
- * </p>
- * <p>
- * Copyright: Copyright (c) 2003
- * </p>
- * <p>
- * Company: Univ of South Carolina
- * </p>
- * 
- * @author unascribed
- * @version 1.0
- */
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,121 +23,152 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class SeismogramPDFBuilder {
 
-    public static void createPDF(SeismogramDisplay disp, String fileName)
-            throws FileNotFoundException {
-        createPDF(disp, fileName, 1);
+    public SeismogramPDFBuilder() {
+        this(true, 1, true);
     }
 
-    public static void createPDF(SeismogramDisplay disp,
-                                 String fileName,
-                                 boolean landscape)
-            throws FileNotFoundException {
-        createPDF(disp, fileName, 1, landscape);
+    public SeismogramPDFBuilder(boolean landscape,
+                                int dispPerPage,
+                                boolean separateDisplays) {
+        this(landscape, PAGE_SIZE, MARGIN, dispPerPage, separateDisplays);
     }
 
-    public static void createPDF(SeismogramDisplay disp,
-                                 String fileName,
-                                 int dispPerPage) throws FileNotFoundException {
-        createPDF(disp, new File(fileName), dispPerPage);
+    public SeismogramPDFBuilder(boolean landscape,
+                                Rectangle pageSize,
+                                int margin,
+                                int dispPerPage,
+                                boolean separateDisplays) {
+        this(landscape,
+             pageSize,
+             margin,
+             margin,
+             margin,
+             margin,
+             dispPerPage,
+             separateDisplays);
     }
 
-    public static void createPDF(SeismogramDisplay disp,
-                                 String fileName,
-                                 int dispPerPage,
-                                 boolean landscape)
-            throws FileNotFoundException {
-        createPDF(disp, new File(fileName), dispPerPage, landscape);
+    public SeismogramPDFBuilder(boolean landscape,
+                                Rectangle pageSize,
+                                int topMargin,
+                                int rightMargin,
+                                int bottomMargin,
+                                int leftMargin,
+                                int dispPerPage,
+                                boolean separateDisplays) {
+        setPageSize(landscape ? pageSize.rotate() : pageSize);
+        setMargins(topMargin, rightMargin, bottomMargin, leftMargin);
+        setDispPerPage(dispPerPage);
     }
 
-    public static void createPDF(SeismogramDisplay disp, File f, int dispPerPage)
-            throws FileNotFoundException {
-        createPDF(disp, f, dispPerPage, false);
+    public void setPageSize(Rectangle pageSize) {
+        this.pageSize = pageSize;
     }
 
-    public static void createPDF(SeismogramDisplay disp,
-                                 File f,
-                                 int dispPerPage,
-                                 boolean landscape)
-            throws FileNotFoundException {
-        if(f.getParentFile() != null) {
-            f.getParentFile().mkdirs();
-        }
-        createPDF(disp, new FileOutputStream(f), dispPerPage, landscape);
+    public Rectangle getPageSize() {
+        return pageSize;
     }
 
-    public static void createPDF(SeismogramDisplay disp,
-                                 OutputStream out,
-                                 int dispPerPage) {
-        createPDF(disp, out, dispPerPage, false);
+    public void setMargins(int margin) {
+        setMargins(margin, margin, margin, margin);
     }
 
-    public static void createPDF(SeismogramDisplay disp,
-                                 OutputStream out,
-                                 int dispPerPage,
-                                 boolean landscape) {
-        createPDF(disp, out, dispPerPage, landscape, true);
+    public void setMargins(int topMargin,
+                           int rightMargin,
+                           int bottomMargin,
+                           int leftMargin) {
+        setTopMargin(topMargin);
+        setRightMargin(rightMargin);
+        setBottomMargin(bottomMargin);
+        setLeftMargin(leftMargin);
     }
 
-    public static void createPDF(SeismogramDisplay disp,
-                                 OutputStream out,
-                                 int dispPerPage,
-                                 boolean landscape,
-                                 boolean separateDisplays) {
-        createPDF(disp, out, dispPerPage, landscape, separateDisplays, null);
+    public void setTopMargin(int topMargin) {
+        this.topMargin = topMargin;
+        recalculateVertMargins();
     }
 
-    public static void createPDF(SeismogramDisplay disp,
-                                 OutputStream out,
-                                 int dispPerPage,
-                                 boolean landscape,
-                                 boolean separateDisplays,
-                                 TitleBorder header) {
+    public int getTopMargin() {
+        return topMargin;
+    }
+
+    public void setRightMargin(int rightMargin) {
+        this.rightMargin = rightMargin;
+        recalculateHorizMargins();
+    }
+
+    public int getRightMargin() {
+        return rightMargin;
+    }
+
+    public void setBottomMargin(int bottomMargin) {
+        this.bottomMargin = bottomMargin;
+        recalculateVertMargins();
+    }
+
+    public int getBottomMargin() {
+        return bottomMargin;
+    }
+
+    public void setLeftMargin(int leftMargin) {
+        this.leftMargin = leftMargin;
+        recalculateHorizMargins();
+    }
+
+    public int getLeftMargin() {
+        return leftMargin;
+    }
+
+    public void setDispPerPage(int dispPerPage) {
+        this.dispPerPage = dispPerPage;
+    }
+
+    public int getDispPerPage() {
+        return dispPerPage;
+    }
+
+    public void setSeparateDisplays(boolean separateDisplays) {
+        this.separateDisplays = separateDisplays;
+    }
+
+    public boolean getSeparateDisplays() {
+        return separateDisplays;
+    }
+
+    public void setHeader(TitleBorder header) {
+        this.header = header;
+    }
+
+    public TitleBorder getHeader() {
+        return header;
+    }
+
+    public Dimension getPrintableSize() {
+        return new Dimension((int)(pageSize.getWidth() - leftMargin - rightMargin),
+                             (int)(pageSize.getHeight() - topMargin - bottomMargin));
+    }
+
+    public void createPDF(JComponent disp, File file) throws IOException {
+        file.getCanonicalFile().getParentFile().mkdirs();
+        File temp = File.createTempFile(file.getName(),
+                                        null,
+                                        file.getParentFile());
+        createPDF(disp, new FileOutputStream(temp));
+        file.delete();
+        temp.renameTo(file);
+    }
+
+    public void createPDF(JComponent comp, OutputStream out) {
         List displays = new ArrayList();
-        if(separateDisplays && disp instanceof VerticalSeismogramDisplay) {
-            displays.addAll(breakOutSeparateDisplays(disp));
+        if(separateDisplays && comp instanceof VerticalSeismogramDisplay) {
+            displays.addAll(breakOutSeparateDisplays((VerticalSeismogramDisplay)comp));
         } else {
-            displays.add(disp);
+            displays.add(comp);
         }
-        createPDF((JComponent[])displays.toArray(new JComponent[0]),
-                  out,
-                  dispPerPage,
-                  landscape,
-                  header);
-        if(disp instanceof VerticalSeismogramDisplay) {
-            ((VerticalSeismogramDisplay)disp).setBorders();
-        }
+        createPDF((JComponent[])displays.toArray(new JComponent[0]), out);
     }
 
-    private static List breakOutSeparateDisplays(SeismogramDisplay disp) {
-        List displays = ((VerticalSeismogramDisplay)disp).getDisplays();
-        Iterator it = displays.iterator();
-        while(it.hasNext()) {
-            BasicSeismogramDisplay cur = (BasicSeismogramDisplay)it.next();
-            cur.clear(BorderedDisplay.BOTTOM_CENTER);
-            if(!cur.isFilled(BorderedDisplay.TOP_CENTER)) {
-                cur.add(new TimeBorder(cur), BorderedDisplay.TOP_CENTER);
-            }
-        }
-        return displays;
-    }
-
-    public static void createPDF(JComponent[] comps,
-                                 OutputStream out,
-                                 int dispPerPage,
-                                 boolean landscape,
-                                 TitleBorder header) {
-        createPDF(comps,
-                  out,
-                  dispPerPage,
-                  (landscape ? PageSize.LETTER.rotate() : PageSize.LETTER),
-                  header);
-    }
-
-    public static void createPDF(JComponent[] comps,
-                                 OutputStream out,
-                                 int dispPerPage,
-                                 Rectangle pageSize,
-                                 TitleBorder header) {
+    public void createPDF(JComponent[] comps, OutputStream out) {
         Document document = new Document(pageSize);
         try {
             int headerHeight = 0;
@@ -222,9 +236,40 @@ public class SeismogramPDFBuilder {
         document.close();
     }
 
-    private static int leftMargin = 50, rightMargin = 50, topMargin = 50,
-            bottomMargin = 50;
+    private List breakOutSeparateDisplays(VerticalSeismogramDisplay disp) {
+        List displays = ((VerticalSeismogramDisplay)disp).getDisplays();
+        Iterator it = displays.iterator();
+        while(it.hasNext()) {
+            BasicSeismogramDisplay cur = (BasicSeismogramDisplay)it.next();
+            cur.clear(BorderedDisplay.BOTTOM_CENTER);
+            if(!cur.isFilled(BorderedDisplay.TOP_CENTER)) {
+                cur.add(new TimeBorder(cur), BorderedDisplay.TOP_CENTER);
+            }
+        }
+        return displays;
+    }
 
-    private static int horizMargins = leftMargin + rightMargin,
-            vertMargins = topMargin + bottomMargin;
+    private void recalculateHorizMargins() {
+        horizMargins = leftMargin + rightMargin;
+    }
+
+    private void recalculateVertMargins() {
+        vertMargins = topMargin + bottomMargin;
+    }
+
+    private int topMargin, rightMargin, bottomMargin, leftMargin;
+
+    private int horizMargins, vertMargins;
+
+    private Rectangle pageSize;
+
+    private int dispPerPage;
+
+    private boolean separateDisplays;
+
+    private TitleBorder header;
+
+    public static final Rectangle PAGE_SIZE = PageSize.LETTER;
+
+    public static final int MARGIN = 50;
 }

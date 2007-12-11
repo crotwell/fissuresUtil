@@ -200,12 +200,11 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
                             boolean separate,
                             TitleBorder header) {
         isPDF = true;
-        SeismogramPDFBuilder.createPDF(this,
-                                       os,
-                                       pdfSeismogramsPerPage,
-                                       landscape,
-                                       separate,
-                                       header);
+        SeismogramPDFBuilder builder = new SeismogramPDFBuilder(landscape,
+                                                                pdfSeismogramsPerPage,
+                                                                separate);
+        builder.setHeader(header);
+        builder.createPDF(this, os);
         isPDF = false;
     }
 
