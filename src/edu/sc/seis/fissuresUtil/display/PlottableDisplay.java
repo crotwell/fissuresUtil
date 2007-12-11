@@ -268,7 +268,7 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
         String minutes = ":" + formatMinutes(date.getMinutes()) + " ";
         int hourinterval = totalHours / rows;
         int houroffset;
-        int xShift = totalWidth / rows + LABEL_X_SHIFT;
+        int xShift = rowWidth + LABEL_X_SHIFT;
         for(int currRow = 0; currRow < rows; currRow++) {
             houroffset = calcHourOffset(hour);
             if(currRow % 2 == 0) {
@@ -303,21 +303,30 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
         int mean = getMean();
         // get new graphics to avoid messing up original
         Graphics2D g2 = (Graphics2D)g.create();
-        g2.setClip(LABEL_X_SHIFT, 0, rowWidth, rowOffset * rows);
-        AffineTransform originalTransform = AffineTransform.getTranslateInstance(LABEL_X_SHIFT,
-                                                                                 titleHeight);
+        g2.setClip(LABEL_X_SHIFT, 0, rowWidth, rowOffset * (rows + 1));
+        int xShift = LABEL_X_SHIFT;
+        int yShift = titleHeight;
+        AffineTransform originalTransform = AffineTransform.getTranslateInstance(xShift,
+                                                                                 yShift);
+        if(PDF) {
+            // we need to add to the transform from the pdf graphic rather than
+            // making a new one
+            originalTransform = g2.getTransform();
+            originalTransform.translate(xShift, yShift);
+        }
         for(int row = 0; row < rows && currentImageGraphics == g; row++) {
             // use title and label transform to draw red center lines
             g2.setTransform(originalTransform);
             g2.setPaint(axisColor);
             int yLoc = rowOffset * row;
             g2.drawLine(0, yLoc, rowWidth, yLoc);
-            // Create new transform to draw plottable scaled correctly
-            g2.setTransform(new AffineTransform());
             // shift the shape left to get to the correct point for this row
             // and down to get to the correct draw height
-            g2.translate(-1 * rowWidth * row + LABEL_X_SHIFT, yLoc
-                    + titleHeight);
+            g2.translate(-1 * rowWidth * row, yLoc);
+            // scale the width to fit page if PDF
+            if(PDF) {
+                g2.scale(rowScale, 1);
+            }
             // flip the y axis to make going lower positive
             g2.scale(1, -1);
             // scale for the amplitude slider
@@ -332,7 +341,7 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
             }
             if(plottableShape != null) {
                 g2.draw(plottableShape);
-            } // end of if (plottableShape != null)
+            }
         }
         repaint();
     }
@@ -500,24 +509,15 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
         temp.renameTo(file);
     }
 
-    /**
-     * TODO outputToPDF doesn't work properly yet. There are some issues with
-     * the SeismogramPDFBuilder's margins that need to be resolved. One possible
-     * solution is to rewrite the PlottableDisplay so that the time ticks,
-     * titles, and plottable are all separate JComponents. However, my time left
-     * here is short, and I'm not entirely sure what all this revamping will
-     * entail. I will probably take a stab at the revamping, but I'm going ahead
-     * and committing what has been done so far with the PDFs just in case.
-     * --Phil
-     */
     public void outputToPDF(OutputStream out) {
         prepForOutput();
         PDF = true;
-        SeismogramPDFBuilder.createPDF(new JComponent[] {this},
-                                       out,
-                                       1,
-                                       true,
-                                       null);
+        SeismogramPDFBuilder builder = new SeismogramPDFBuilder();
+        int oldRowWidth = rowWidth;
+        rowScale = (builder.getPrintableSize().getWidth() / (2 * LABEL_X_SHIFT + oldRowWidth));
+        rowWidth = (int)(oldRowWidth * rowScale);
+        builder.createPDF(this, out);
+        rowWidth = oldRowWidth;
         PDF = false;
     }
 
@@ -725,6 +725,8 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
     private boolean includeText;
 
     private boolean PDF = false;
+
+    private double rowScale;
 
     private static SimpleDateFormat dateFormater = new SimpleDateFormat("EEEE, d MMMM yyyy");
 

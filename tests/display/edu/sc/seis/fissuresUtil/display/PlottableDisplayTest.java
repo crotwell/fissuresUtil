@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.Date;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -35,19 +36,19 @@ public class PlottableDisplayTest extends TestCase {
         BasicConfigurator.configure();
     }
 
-    public static void testFromServer() throws NotFound, CannotProceed,
-            InvalidName, PlottableNotAvailable, UnsupportedDimension {
+    public void ttestFromServer() throws NotFound, CannotProceed, InvalidName,
+            PlottableNotAvailable, UnsupportedDimension {
         System.setProperty(FissuresNamingService.CORBALOC_PROP,
-                           "corbaloc:iiop:pooh.seis.sc.edu:6371/NameService");
+                           "corbaloc:iiop:nameservice.seis.sc.edu:6371/NameService");
         PlottableDC impl = Initializer.getNS().getPlottableDC("edu/sc/seis",
-                                                              "BUD");
-        Time t = new Time("2004313J000000.000Z", 0);
+                                                              "DelilahCache");
+        Time t = new Time("2007113J000000.000Z", 0);
         show(impl.get_for_day(KZAChannel,
                               2005,
                               3,
                               new edu.iris.Fissures.Dimension(6000, 0)),
              new MicroSecondDate(t),
-             Initializer.ANDYChannel);
+             KZAChannel);
     }
 
     public static final NetworkId KN = new NetworkId("KN",
@@ -61,10 +62,36 @@ public class PlottableDisplayTest extends TestCase {
                                                              new Time("2000165T093659.0000Z",
                                                                       -1));
 
-    public static void ttMadeupData() {
+    public void ttestMadeupData() {
         PlottableChunk c = JDBCPlottableTest.createFullDayPlottable();
         Plottable plott = c.getData();
         show(new Plottable[] {plott}, c.getBeginTime(), c.getChannel());
+    }
+
+    public void ttestPDF() throws IOException {
+        getPreppedDisplayFakeData().outputToPDF("test.pdf");
+    }
+
+    public void ttestPNG() throws IOException {
+        getPreppedDisplayFakeData().outputToPNG("test.png");
+    }
+
+    public void ttestPNGPDF() throws IOException {
+        PlottableDisplay disp = getPreppedDisplayFakeData();
+        disp.outputToPNG("test.png");
+        disp.outputToPDF("test.pdf");
+    }
+
+    private static PlottableDisplay getPreppedDisplayFakeData() {
+        PlottableChunk c = JDBCPlottableTest.createFullDayPlottable();
+        Plottable plott = c.getData();
+        PlottableDisplay disp = new PlottableDisplay(5400, false);
+        disp.setPlottable(new Plottable[] {plott},
+                          c.getChannel().station_code,
+                          c.getChannel().channel_code,
+                          c.getBeginTime(),
+                          Initializer.ANDYChannel);
+        return disp;
     }
 
     public static void show(Plottable[] plott, Date d, ChannelId id) {
