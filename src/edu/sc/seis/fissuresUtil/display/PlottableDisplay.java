@@ -514,10 +514,13 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
         PDF = true;
         SeismogramPDFBuilder builder = new SeismogramPDFBuilder();
         int oldRowWidth = rowWidth;
+        int oldRowOffset = rowOffset;
         rowScale = (builder.getPrintableSize().getWidth() - (2.0 * LABEL_X_SHIFT))/ oldRowWidth;
         rowWidth = (int)(oldRowWidth * rowScale);
+        rowOffset = (int)(builder.getPrintableSize().getHeight()/rows);
         builder.createPDF(this, out);
         rowWidth = oldRowWidth;
+        rowOffset = oldRowOffset;
         PDF = false;
     }
 
