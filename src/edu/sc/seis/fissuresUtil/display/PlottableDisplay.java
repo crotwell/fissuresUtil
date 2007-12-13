@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,10 +14,15 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,6 +30,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -34,6 +41,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.drawable.EventBoxes;
 import edu.sc.seis.fissuresUtil.display.drawable.EventFlag;
 import edu.sc.seis.fissuresUtil.display.drawable.PlottableSelection;
@@ -340,7 +348,11 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
                 g2.setPaint(oddColor);
             }
             if(plottableShape != null) {
-                g2.draw(plottableShape);
+                if(PDF) {
+                    g2.fill((new BasicStroke(1f)).createStrokedShape(plottableShape));
+                } else {
+                    g2.draw(plottableShape);
+                }
             }
         }
         repaint();
@@ -348,10 +360,10 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
 
     private Shape makeShape(Plottable[] plot) {
         final int SHAPESIZE = 100;
-        GeneralPath wholeShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
+        GeneralPath wholeShape = new GeneralPath(GeneralPath.WIND_NON_ZERO);
         for(int a = 0; a < plot.length; a++) {
             if(plot[a].x_coor.length >= 2) {
-                GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD,
+                GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_NON_ZERO,
                                                            SHAPESIZE + 1);
                 currentShape.moveTo(plot[a].x_coor[0], plot[a].y_coor[0]);
                 for(int i = 1; i < plot[a].x_coor.length; i++) {
@@ -510,14 +522,25 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
     }
 
     public void outputToPDF(OutputStream out) {
+        outputToPDF(out, null);
+    }
+
+    public void outputToPDF(OutputStream out, TitleBorder header) {
         prepForOutput();
         PDF = true;
         SeismogramPDFBuilder builder = new SeismogramPDFBuilder();
         int oldRowWidth = rowWidth;
         int oldRowOffset = rowOffset;
-        rowScale = (builder.getPrintableSize().getWidth() - (2.0 * LABEL_X_SHIFT))/ oldRowWidth;
+        rowScale = (builder.getPrintableSize().getWidth() - (2.0 * LABEL_X_SHIFT))
+                / oldRowWidth;
         rowWidth = (int)(oldRowWidth * rowScale);
-        rowOffset = (int)(builder.getPrintableSize().getHeight()/rows);
+        int headerHeight = 0;
+        if(header != null) {
+            header.setSize(header.getPreferredSize());
+            headerHeight = header.getHeight();
+            builder.setHeader(header);
+        }
+        rowOffset = (int)((builder.getPrintableSize().getHeight() - headerHeight) / rows);
         builder.createPDF(this, out);
         rowWidth = oldRowWidth;
         rowOffset = oldRowOffset;
