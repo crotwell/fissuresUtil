@@ -105,7 +105,7 @@ public class PlottableDisplayTest extends TestCase {
     }
 
     private static PlottableDisplay getPreppedDisplayStoredData()
-            throws IOException, ParseException {
+            throws Exception {
         String dateString = "200712121500";
         Plottable plott[] = createPlottableFromFile(dateString + ".plot");
         SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
@@ -149,7 +149,7 @@ public class PlottableDisplayTest extends TestCase {
     }
 
     public static Plottable[] createPlottableFromFile(String filename)
-            throws IOException {
+            throws Exception {
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         String line = reader.readLine();
         List plots = new ArrayList();
@@ -170,7 +170,7 @@ public class PlottableDisplayTest extends TestCase {
                 curPlot.y_coor[cursor] = Integer.parseInt(tok.nextToken());
                 cursor++;
             } else {
-                throw new RuntimeException("this fucked up");
+                throw new Exception("problem reading file");
             }
             line = reader.readLine();
         }
