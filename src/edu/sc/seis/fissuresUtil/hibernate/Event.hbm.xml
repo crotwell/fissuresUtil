@@ -40,6 +40,7 @@
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
+		<property name="_id"/>
 		<property name="originTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
 			<column name="time" sql-type="timestamp"></column>
@@ -65,6 +66,7 @@
 					foreign-key="FK_ELEV_UNIT_ID" lazy="false" />
 
 			</component>
+			<property name="type" access="edu.sc.seis.fissuresUtil.hibernate.LocTypeAccess" type="integer"></property>
 		</component>
 
 		<list name="magnitudeList" table="origin_magnitude"
