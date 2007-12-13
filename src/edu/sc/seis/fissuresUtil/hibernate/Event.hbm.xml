@@ -23,7 +23,7 @@
 			</array>
 		-->
 		<component name="attr"
-			class="edu.iris.Fissures.event.EventAttrImpl" access="field">
+			class="edu.iris.Fissures.event.EventAttrImpl" access="field" lazy="false">
 			<property name="name" access="field" />
 			<component name="region"
 				class="edu.iris.Fissures.model.FlinnEngdahlRegionImpl"
