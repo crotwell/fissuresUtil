@@ -5,8 +5,18 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.StringTokenizer;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import junit.framework.TestCase;
@@ -76,7 +86,7 @@ public class PlottableDisplayTest extends TestCase {
         getPreppedDisplayFakeData().outputToPNG("test.png");
     }
 
-    public void ttestPNGPDF() throws IOException {
+    public void testPNGPDF() throws IOException, ParseException {
         PlottableDisplay disp = getPreppedDisplayFakeData();
         disp.outputToPNG("test.png");
         disp.outputToPDF("test.pdf");
@@ -94,6 +104,20 @@ public class PlottableDisplayTest extends TestCase {
         return disp;
     }
 
+    private static PlottableDisplay getPreppedDisplayStoredData()
+            throws IOException, ParseException {
+        String dateString = "200712121500";
+        Plottable plott[] = createPlottableFromFile(dateString + ".plot");
+        SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+        PlottableDisplay disp = new PlottableDisplay(5400, false);
+        disp.setPlottable(plott,
+                          "DAV",
+                          "BHZ",
+                          fileDateFormat.parse(dateString),
+                          Initializer.ANDYChannel);
+        return disp;
+    }
+
     public static void show(Plottable[] plott, Date d, ChannelId id) {
         PlottableDisplay disp = new PlottableDisplay();
         disp.setPlottable(plott,
@@ -107,6 +131,50 @@ public class PlottableDisplayTest extends TestCase {
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void savePlottableToFile(Plottable[] plot, String filename)
+            throws IOException {
+        Writer writer = new BufferedWriter(new FileWriter(filename));
+        for(int i = 0; i < plot.length; i++) {
+            Plottable curPlot = plot[i];
+            writer.append("n," + curPlot.x_coor.length + '\n');
+            for(int j = 0; j < curPlot.x_coor.length; j++) {
+                writer.append("c," + curPlot.x_coor[j] + ","
+                        + curPlot.y_coor[j] + '\n');
+            }
+        }
+        writer.flush();
+        writer.close();
+    }
+
+    public static Plottable[] createPlottableFromFile(String filename)
+            throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        String line = reader.readLine();
+        List plots = new ArrayList();
+        Plottable curPlot = null;
+        int cursor = 0;
+        while(line != null) {
+            StringTokenizer tok = new StringTokenizer(line, ",");
+            String controlString = tok.nextToken();
+            if(controlString.equals("n")) {
+                int length = Integer.parseInt(tok.nextToken());
+                if(curPlot != null) {
+                    plots.add(curPlot);
+                }
+                curPlot = new Plottable(new int[length], new int[length]);
+                cursor = 0;
+            } else if(controlString.equals("c")) {
+                curPlot.x_coor[cursor] = Integer.parseInt(tok.nextToken());
+                curPlot.y_coor[cursor] = Integer.parseInt(tok.nextToken());
+                cursor++;
+            } else {
+                throw new RuntimeException("this fucked up");
+            }
+            line = reader.readLine();
+        }
+        return (Plottable[])plots.toArray(new Plottable[0]);
     }
 
     private static void setupFrame(JComponent contents) {
