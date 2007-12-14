@@ -27,38 +27,35 @@ public class NetworkDB extends AbstractHibernateDB {
 
     public int put(NetworkAttrImpl net) {
         Session session = getSession();
-        try {
-            return ((Integer)session.save(net)).intValue();
-        } catch(ConstraintViolationException e) {
-            // likely networkAttr is already in db, so update
-            Iterator fromDB = getNetworkByCode(net.get_code()).iterator();
-            if(fromDB.hasNext()) {
-                if(NetworkIdUtil.isTemporary(net.get_code())) {
-                    while(fromDB.hasNext()) {
-                        NetworkAttrImpl indb = (NetworkAttrImpl)fromDB.next();
-                        if(net.get_code() == indb.get_code()
-                                && NetworkIdUtil.getTwoCharYear(net.get_id()) == NetworkIdUtil.getTwoCharYear(indb.get_id())) {
-                            net.associateInDB(indb);
-                            getSession().evict(indb);
-                            getSession().saveOrUpdate(net);
-                            return net.getDbid();
-                        }
-                        // shouldn't happen...
-                        throw new RuntimeException("can't find by code/date after ConstraintViolationException",
-                                                   e);
-                    }
-                } else {
-                    // use first and only net
-                    NetworkAttrImpl inDb = (NetworkAttrImpl)fromDB.next();
-                    net.associateInDB(inDb);
-                    getSession().saveOrUpdate(net);
-                    return net.getDbid();
-                }
-            }
-            // shouldn't happen...
-            throw new RuntimeException("can't find by code after ConstraintViolationException",
-                                       e);
+        if (net.getDbid() != 0) {
+            session.saveOrUpdate(net);
+            return net.getDbid();
         }
+        Iterator fromDB = getNetworkByCode(net.get_code()).iterator();
+        if(fromDB.hasNext()) {
+            if(NetworkIdUtil.isTemporary(net.get_code())) {
+                while(fromDB.hasNext()) {
+                    NetworkAttrImpl indb = (NetworkAttrImpl)fromDB.next();
+                    if(net.get_code() == indb.get_code()
+                            && NetworkIdUtil.getTwoCharYear(net.get_id()) == NetworkIdUtil.getTwoCharYear(indb.get_id())) {
+                        net.associateInDB(indb);
+                        getSession().evict(indb);
+                        getSession().saveOrUpdate(net);
+                        return net.getDbid();
+                    }
+                    // shouldn't happen...
+                    throw new RuntimeException("can't find by code/date after ConstraintViolationException");
+                }
+            } else {
+                // use first and only net
+                NetworkAttrImpl indb = (NetworkAttrImpl)fromDB.next();
+                net.associateInDB(indb);
+                getSession().evict(indb);
+                getSession().saveOrUpdate(net);
+                return net.getDbid();
+            }
+        }
+        return ((Integer)session.save(net)).intValue();
     }
 
     public int put(StationImpl sta) {
@@ -101,18 +98,14 @@ public class NetworkDB extends AbstractHibernateDB {
             }
         }
         try {
+            ChannelImpl indb = getChannel(chan.get_id());
+            chan.associateInDB(indb);
+            getSession().evict(indb);
+            getSession().saveOrUpdate(chan);
+            return chan.getDbid();
+        } catch(NotFound nf) {
             dbid = (Integer)getSession().save(chan);
             return dbid.intValue();
-        } catch(ConstraintViolationException e) {
-            // likely station is already in db, so update
-            try {
-                ChannelImpl indb = getChannel(chan.get_id());
-                chan.associateInDB(indb);
-                getSession().saveOrUpdate(chan);
-                return chan.getDbid();
-            } catch(NotFound nf) {
-                throw new RuntimeException("Shouldn't happen", e);
-            }
         }
     }
 
