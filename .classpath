@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/itext/jars/itext-1.4.4.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/itext/jars/itext-2.0.7.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/j3dcore/jars/j3dcore.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/j3dutils/jars/j3dutils.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/isti/jars/isti.util-1.0.1USC.jar"/>
