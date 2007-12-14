@@ -1,7 +1,11 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.util.Properties;
+
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
 
 public class HibernateUtil {
 
@@ -33,4 +37,16 @@ public class HibernateUtil {
     }
     
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(HibernateUtil.class);
+
+    public static void setUpFromConnMgr(Properties props) {
+        synchronized(HibernateUtil.class) {
+            getConfiguration()
+                    .setProperty("hibernate.connection.url", ConnMgr.getURL())
+                    .setProperty("hibernate.connection.username",
+                                 ConnMgr.getUser())
+                    .setProperty("hibernate.connection.password",
+                                 ConnMgr.getPass())
+                    .addProperties(props);
+        }
+    }
 }
