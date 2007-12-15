@@ -354,10 +354,10 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
 
     private Shape makeShape(Plottable[] plot) {
         final int SHAPESIZE = 100;
-        GeneralPath wholeShape = new GeneralPath(GeneralPath.WIND_NON_ZERO);
+        GeneralPath wholeShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
         for(int a = 0; a < plot.length; a++) {
             if(plot[a].x_coor.length >= 2) {
-                GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_NON_ZERO,
+                GeneralPath currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD,
                                                            SHAPESIZE + 1);
                 currentShape.moveTo(plot[a].x_coor[0], plot[a].y_coor[0]);
                 for(int i = 1; i < plot[a].x_coor.length; i++) {
@@ -370,7 +370,7 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
                         } else {
                             currentShape.lineTo(plot[a].x_coor[i],
                                                 plot[a].y_coor[i]);
-                        } // end of else
+                        }
                         wholeShape.append(currentShape, false);
                         currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD,
                                                        SHAPESIZE + 1);
@@ -381,7 +381,7 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
                     } else {
                         currentShape.lineTo(plot[a].x_coor[i],
                                             plot[a].y_coor[i]);
-                    } // end of else
+                    }
                 }
                 wholeShape.append(currentShape, false);
             } else if(plot[a].x_coor.length == 1) {
@@ -415,7 +415,6 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
     public Image createImage() {
         final int width = getSize().width;
         final int height = getSize().height;
-        // final Image offImg = super.createImage(width, height);
         final Image offImg = new BufferedImage(width,
                                                height,
                                                BufferedImage.TYPE_INT_RGB);
