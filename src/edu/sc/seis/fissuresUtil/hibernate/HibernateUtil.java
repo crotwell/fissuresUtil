@@ -17,6 +17,7 @@ public class HibernateUtil {
 
     public synchronized static SessionFactory getSessionFactory() {
         if(sessionFactory == null) {
+            logger.debug("Sessionfactory is null, creating...");
             sessionFactory = getConfiguration().buildSessionFactory();
         }
         return sessionFactory;
@@ -24,6 +25,7 @@ public class HibernateUtil {
 
     public synchronized static Configuration getConfiguration() {
         if(configuration == null) {
+            logger.debug("Hibernate configuration is null, loading config from "+configFile);
             configuration = new Configuration().configure(configFile);
         }
         return configuration;
