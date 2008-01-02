@@ -111,19 +111,19 @@ public class NetworkDB extends AbstractHibernateDB {
 
     public StationImpl[] getStationByCodes(String netCode, String staCode) {
         Query query = getSession().createQuery(getStationByCodes);
-        query.setEntity("netCode", netCode);
-        query.setEntity("staCode", staCode);
+        query.setString("netCode", netCode);
+        query.setString("staCode", staCode);
         List result = query.list();
         return (StationImpl[])result.toArray(new StationImpl[0]);
     }
 
     public List getAllStationsByCode(String staCode) {
         Query query = getSession().createQuery(getAllStationsByCode);
-        query.setEntity("staCode", staCode);
+        query.setString("staCode", staCode);
         return query.list();
     }
 
-    private StationImpl getStationById(StationId staId) throws NotFound {
+    public StationImpl getStationById(StationId staId) throws NotFound {
         Query query = getSession().createQuery(getStationByIdString);
         query.setString("netCode", staId.network_id.network_code);
         query.setString("staCode", staId.station_code);
@@ -305,13 +305,15 @@ public class NetworkDB extends AbstractHibernateDB {
     static String getChannelForStationAtTime = getChannelForStation
             + " and :when between c.beginTime and c.endTime";
 
+    static String chanCodeHQL = " c.id.channel_code = :channelCode AND c.id.site_code = :siteCode AND c.id.station_code = :stationCode AND c.site.station.networkAttr.id.network_code = :netCode ";
+
     static String getChannelByCode = "From "
             + ChannelImpl.class.getName()
-            + " c WHERE c.code = :chanCode AND c.site.code = :siteCode AND c.site.station.code = :stationCode AND c.site.station.networkAttr.id.network_code = :netCode AND :when between c.begin and c.end";
+            + " c WHERE "+chanCodeHQL+" AND :when between c.id.begin_time.chan_begin_time and c.end_time.chan_end_time";
 
     static String getChannelById = "From "
             + ChannelImpl.class.getName()
-            + " c WHERE c.code = :chanCode AND c.site.code = :siteCode AND c.site.station.code = :stationCode AND c.site.station.networkAttr.id.network_code = :netCode AND :when = c.begin";
+            + " c WHERE "+chanCodeHQL+" AND chan_begin_time =  :when";
 
     static String getAllStationsString = "From edu.iris.Fissures.network.StationImpl s";
 
