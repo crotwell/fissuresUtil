@@ -122,7 +122,7 @@ public class Play {
         }
     }
 
-    private void createAndStoreNet() {
+    private void createAndStoreNet() throws Exception {
         NetworkDB netDB = new NetworkDB();
         try {
             netDB.put(MockNetworkAttr.createNetworkAttr());
@@ -136,6 +136,10 @@ public class Play {
             System.out.println("preput station " + i);
             netDB.put(s[i]);
             System.out.println("postput station " + i);
+            netDB.getStationById(s[i].get_id());
+            netDB.getStationByCodes(s[i].get_id().network_id.network_code, s[i].get_code());
+            netDB.getAllStationsByCode( s[i].get_code());
+            netDB.getStationForNet(s[i].getNetworkAttr());
         }
         ChannelImpl[] chan = createChannel();
         for(int i = 0; i < chan.length; i++) {
@@ -145,6 +149,7 @@ public class Play {
         // try reattach
         netDB.getSession().lock(s[0], LockMode.NONE);
         netDB.getSession().lock(chan[0], LockMode.NONE);
+        netDB.getChannel(chan[0].get_id());
     }
 
     protected void schema() {
