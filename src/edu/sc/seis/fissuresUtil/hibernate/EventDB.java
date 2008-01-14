@@ -43,10 +43,13 @@ public class EventDB extends AbstractHibernateDB {
 				+ "AND e.preferred.location.latitude = :lat "
 				+ "AND e.preferred.location.latitude = :lon "
 				+ "AND e.preferred.location.depth.value = :depth";
+		eventByTimeAndDepth = "From " + getEventClass().getName()
+        + " e WHERE " + "e.preferred.origin_time.time between :minTime and :maxTime"
+        + "AND e.preferred.my_location.depth.value between :minDepth and :maxDepth";
 	}
 	
 	public List getAll() {
-	    return getSession().createQuery("from "+getEventClass()).list();
+	    return getSession().createQuery("from "+getEventClass().getName()).list();
 	}
 
 	public CacheEvent[] query(EventFinderQuery q) {
@@ -130,6 +133,21 @@ public class EventDB extends AbstractHibernateDB {
 	
 	private static EventDB singleton;
 
+    public CacheEvent[] getEventsByTimeAndDepthRanges(MicroSecondDate minTime,
+                                                      MicroSecondDate maxTime,
+                                                      double minDepth,
+                                                      double maxDepth) {
+        Session session = getSession();
+        Query query = session.createQuery(eventByTimeAndDepth);
+        query.setTimestamp("minTime", minTime.getTimestamp());
+        query.setTimestamp("maxTime", maxTime.getTimestamp());
+        query.setDouble("minDepth", minDepth);
+        query.setDouble("maxDepth", maxDepth);
+        List result = query.list();
+        CacheEvent[] out = (CacheEvent[]) result.toArray(new CacheEvent[0]);
+        return out;
+    }
+    
 	public static EventDB getSingleton() {
 	    if (singleton == null) {
 	        singleton = new EventDB();
@@ -154,4 +172,6 @@ public class EventDB extends AbstractHibernateDB {
 	protected String finderQueryAroundDateline;
 
 	protected String getIdenticalEventString;
+	
+	protected String eventByTimeAndDepth;
 }
