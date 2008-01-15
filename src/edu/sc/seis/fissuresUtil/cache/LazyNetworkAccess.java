@@ -17,17 +17,17 @@ public class LazyNetworkAccess extends CacheNetworkAccess {
         this.netDC = netDC;
     }
 
-    public NetworkAccess getNet() {
-        if(super.getNet() == null) {
+    public NetworkAccess getNetworkAccess() {
+        if(super.getNetworkAccess() == null) {
             try {
-                net = netDC.a_finder().retrieve_by_id(attr.get_id());
+                setNetworkAccess(netDC.a_finder().retrieve_by_id(attr.get_id()));
             } catch(NetworkNotFound e) {
                 throw new RuntimeException("unable to reconnect to networkaccess: "
                                                    + NetworkIdUtil.toString(attr),
                                            e);
             }
         }
-        return super.getNet();
+        return super.getNetworkAccess();
     }
 
     ProxyNetworkDC netDC;

@@ -45,7 +45,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.get_attributes();
+            return getNetworkAccess().get_attributes();
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -53,7 +53,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                NetworkAttr result = net.get_attributes();
+                NetworkAttr result = getNetworkAccess().get_attributes();
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -70,7 +70,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.get_audit_trail_for_channel(id);
+            return getNetworkAccess().get_audit_trail_for_channel(id);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -78,7 +78,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                AuditElement[] result = net.get_audit_trail_for_channel(id);
+                AuditElement[] result = getNetworkAccess().get_audit_trail_for_channel(id);
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -94,7 +94,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.get_audit_trail();
+            return getNetworkAccess().get_audit_trail();
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -102,7 +102,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                AuditElement[] result = net.get_audit_trail();
+                AuditElement[] result = getNetworkAccess().get_audit_trail();
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -120,7 +120,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.locate_channels(the_area, sampling, orientation);
+            return getNetworkAccess().locate_channels(the_area, sampling, orientation);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -128,7 +128,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                Channel[] result = net.locate_channels(the_area,
+                Channel[] result = getNetworkAccess().locate_channels(the_area,
                                                        sampling,
                                                        orientation);
                 handler.serverRecovered(this);
@@ -147,7 +147,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_all_channels(seq_max, iter);
+            return getNetworkAccess().retrieve_all_channels(seq_max, iter);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -155,7 +155,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                ChannelId[] result = net.retrieve_all_channels(seq_max, iter);
+                ChannelId[] result = getNetworkAccess().retrieve_all_channels(seq_max, iter);
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -172,7 +172,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_calibrations(id, the_time);
+            return getNetworkAccess().retrieve_calibrations(id, the_time);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -180,7 +180,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                Calibration[] result = net.retrieve_calibrations(id, the_time);
+                Calibration[] result = getNetworkAccess().retrieve_calibrations(id, the_time);
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -196,7 +196,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_channel(id);
+            return getNetworkAccess().retrieve_channel(id);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -204,7 +204,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                Channel result = net.retrieve_channel(id);
+                Channel result = getNetworkAccess().retrieve_channel(id);
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -223,7 +223,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_channels_by_code(station_code,
+            return getNetworkAccess().retrieve_channels_by_code(station_code,
                                                  site_code,
                                                  channel_code);
         } catch(SystemException t) {
@@ -233,7 +233,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                Channel[] result = net.retrieve_channels_by_code(station_code,
+                Channel[] result = getNetworkAccess().retrieve_channels_by_code(station_code,
                                                                  site_code,
                                                                  channel_code);
                 handler.serverRecovered(this);
@@ -251,7 +251,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_for_station(p1);
+            return getNetworkAccess().retrieve_for_station(p1);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -259,7 +259,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                Channel[] result = net.retrieve_for_station(p1);
+                Channel[] result = getNetworkAccess().retrieve_for_station(p1);
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -275,7 +275,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_grouping(id);
+            return getNetworkAccess().retrieve_grouping(id);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -283,7 +283,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                ChannelId[] result = net.retrieve_grouping(id);
+                ChannelId[] result = getNetworkAccess().retrieve_grouping(id);
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -299,7 +299,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_groupings();
+            return getNetworkAccess().retrieve_groupings();
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -307,7 +307,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                ChannelId[][] result = net.retrieve_groupings();
+                ChannelId[][] result = getNetworkAccess().retrieve_groupings();
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -324,7 +324,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_instrumentation(id, the_time);
+            return getNetworkAccess().retrieve_instrumentation(id, the_time);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -332,7 +332,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                Instrumentation result = net.retrieve_instrumentation(id,
+                Instrumentation result = getNetworkAccess().retrieve_instrumentation(id,
                                                                       the_time);
                 handler.serverRecovered(this);
                 return result;
@@ -349,7 +349,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_stations();
+            return getNetworkAccess().retrieve_stations();
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -357,7 +357,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                Station[] result = net.retrieve_stations();
+                Station[] result = getNetworkAccess().retrieve_stations();
                 handler.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -375,7 +375,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         int count = 0;
         SystemException latest;
         try {
-            return net.retrieve_time_corrections(id, time_range);
+            return getNetworkAccess().retrieve_time_corrections(id, time_range);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -383,7 +383,7 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                TimeCorrection[] result = net.retrieve_time_corrections(id,
+                TimeCorrection[] result = getNetworkAccess().retrieve_time_corrections(id,
                                                                         time_range);
                 handler.serverRecovered(this);
                 return result;

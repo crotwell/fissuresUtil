@@ -55,7 +55,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     public NetworkAttr get_attributes() {
         synchronized(this) {
             if(attr == null) {
-                attr = net.get_attributes();
+                attr = getNetworkAccess().get_attributes();
                 attr.description = attr.description.intern();
                 attr.name = attr.name.intern();
                 attr.owner = attr.owner.intern();
@@ -78,7 +78,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     public Station[] retrieve_stations() {
         synchronized(knownStations) {
             if(stations == null) {
-                stations = net.retrieve_stations();
+                stations = getNetworkAccess().retrieve_stations();
                 for(int i = 0; i < stations.length; i++) {
                     stations[i] = intern(stations[i]);
                 }
@@ -96,7 +96,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         String idStr = StationIdUtil.toString(id);
         synchronized(channelMap) {
             if(!channelMap.containsKey(idStr)) {
-                Channel[] chans = net.retrieve_for_station(id);
+                Channel[] chans = getNetworkAccess().retrieve_for_station(id);
                 for(int i = 0; i < chans.length; i++) {
                     intern(chans[i]);
                 }
@@ -114,7 +114,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
-        Instrumentation inst = net.retrieve_instrumentation(id, the_time);
+        Instrumentation inst = getNetworkAccess().retrieve_instrumentation(id, the_time);
         updateHolder(id, the_time, inst);
         return inst;
     }
