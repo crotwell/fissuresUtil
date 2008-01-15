@@ -38,7 +38,7 @@ public class NSNetworkAccess extends ProxyNetworkAccess {
     public void reset() {
         try {
             vnf.reset();
-            net = getAccess(id, vnf);
+            setNetworkAccess( getAccess(id, vnf));
         } catch(NetworkNotFound e) {
             TRANSIENT t = new TRANSIENT("Unable to find the network to reset it");
             t.initCause(e);

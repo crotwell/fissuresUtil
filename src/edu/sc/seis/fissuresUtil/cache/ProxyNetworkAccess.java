@@ -25,7 +25,7 @@ import edu.iris.Fissures.IfNetwork.TimeCorrection;
 public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWrapper {
 
     public ProxyNetworkAccess(NetworkAccess net) {
-        this.net = net;
+        setNetworkAccess(net);
     }
 
     /**
@@ -33,28 +33,28 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
      * reset on that network access. Otherwise it just falls through.
      */
     public void reset() {
-        if(getNet() instanceof ProxyNetworkAccess) {
-            ((ProxyNetworkAccess)getNet()).reset();
+        if(getNetworkAccess() instanceof ProxyNetworkAccess) {
+            ((ProxyNetworkAccess)getNetworkAccess()).reset();
         }
     }
 
     public NetworkAccess getCorbaObject() {
-        if(getNet() instanceof ProxyNetworkAccess) {
-            return ((ProxyNetworkAccess)getNet()).getCorbaObject();
+        if(getNetworkAccess() instanceof ProxyNetworkAccess) {
+            return ((ProxyNetworkAccess)getNetworkAccess()).getCorbaObject();
         }
-        return getNet();
+        return getNetworkAccess();
     }
 
     public String getServerDNS() {
-        if(getNet() instanceof ProxyNetworkAccess) {
-            return ((ProxyNetworkAccess)getNet()).getServerDNS();
+        if(getNetworkAccess() instanceof ProxyNetworkAccess) {
+            return ((ProxyNetworkAccess)getNetworkAccess()).getServerDNS();
         }
-        return getNet().getClass().getName()+":Unknown";
+        return getNetworkAccess().getClass().getName()+":Unknown";
     }
 
     public String getServerName() {
-        if(getNet() instanceof ProxyNetworkAccess) {
-            return ((ProxyNetworkAccess)getNet()).getServerName();
+        if(getNetworkAccess() instanceof ProxyNetworkAccess) {
+            return ((ProxyNetworkAccess)getNetworkAccess()).getServerName();
         }
         return null;
     }
@@ -69,38 +69,41 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
     }
 
     protected void setNetworkAccess(NetworkAccess na) {
+        if ( na == null) {
+            throw new IllegalArgumentException("NetworkAccess argument is NULL");
+        }
         net = na;
     }
 
     public NetworkAttr get_attributes() {
-        return getNet().get_attributes();
+        return getNetworkAccess().get_attributes();
     }
 
     public Station[] retrieve_stations() {
-        return getNet().retrieve_stations();
+        return getNetworkAccess().retrieve_stations();
     }
 
     public Channel[] retrieve_for_station(StationId p1) {
-        return getNet().retrieve_for_station(p1);
+        return getNetworkAccess().retrieve_for_station(p1);
     }
 
     public ChannelId[] retrieve_grouping(ChannelId id) throws ChannelNotFound {
-        return getNet().retrieve_grouping(id);
+        return getNetworkAccess().retrieve_grouping(id);
     }
 
     public ChannelId[][] retrieve_groupings() {
-        return getNet().retrieve_groupings();
+        return getNetworkAccess().retrieve_groupings();
     }
 
     public Channel retrieve_channel(ChannelId id) throws ChannelNotFound {
-        return getNet().retrieve_channel(id);
+        return getNetworkAccess().retrieve_channel(id);
     }
 
     public Channel[] retrieve_channels_by_code(String station_code,
                                                String site_code,
                                                String channel_code)
             throws ChannelNotFound {
-        return getNet().retrieve_channels_by_code(station_code,
+        return getNetworkAccess().retrieve_channels_by_code(station_code,
                                              site_code,
                                              channel_code);
     }
@@ -108,12 +111,12 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
     public Channel[] locate_channels(Area the_area,
                                      SamplingRange sampling,
                                      OrientationRange orientation) {
-        return getNet().locate_channels(the_area, sampling, orientation);
+        return getNetworkAccess().locate_channels(the_area, sampling, orientation);
     }
 
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
-        return getNet().retrieve_instrumentation(id, the_time);
+        return getNetworkAccess().retrieve_instrumentation(id, the_time);
     }
 
     public Sensitivity retrieve_sensitivity(ChannelId id, Time the_time)
@@ -134,32 +137,32 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
 
     public Calibration[] retrieve_calibrations(ChannelId id, TimeRange the_time)
             throws ChannelNotFound, NotImplemented {
-        return getNet().retrieve_calibrations(id, the_time);
+        return getNetworkAccess().retrieve_calibrations(id, the_time);
     }
 
     public TimeCorrection[] retrieve_time_corrections(ChannelId id,
                                                       TimeRange time_range)
             throws ChannelNotFound, NotImplemented {
-        return getNet().retrieve_time_corrections(id, time_range);
+        return getNetworkAccess().retrieve_time_corrections(id, time_range);
     }
 
     public ChannelId[] retrieve_all_channels(int seq_max,
                                              ChannelIdIterHolder iter) {
-        return getNet().retrieve_all_channels(seq_max, iter);
+        return getNetworkAccess().retrieve_all_channels(seq_max, iter);
     }
 
     public AuditElement[] get_audit_trail_for_channel(ChannelId id)
             throws ChannelNotFound, NotImplemented {
-        return getNet().get_audit_trail_for_channel(id);
+        return getNetworkAccess().get_audit_trail_for_channel(id);
     }
 
     public AuditElement[] get_audit_trail() throws NotImplemented {
-        return getNet().get_audit_trail();
+        return getNetworkAccess().get_audit_trail();
     }
 
-    public NetworkAccess getNet() {
+    public NetworkAccess getNetworkAccess() {
         return net;
     }
     
-    protected NetworkAccess net;
+    private NetworkAccess net;
 }

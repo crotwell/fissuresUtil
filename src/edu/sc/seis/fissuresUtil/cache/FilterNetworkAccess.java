@@ -25,7 +25,7 @@ public class FilterNetworkAccess extends ProxyNetworkAccess {
     }
 
     public Station[] retrieve_stations() {
-        Station[] stations = net.retrieve_stations();
+        Station[] stations = getNetworkAccess().retrieve_stations();
         List acceptableStations = new ArrayList();
         for(int i = 0; i < stations.length; i++) {
             String netAndStaCode = getStationString(stations[i].get_id());
