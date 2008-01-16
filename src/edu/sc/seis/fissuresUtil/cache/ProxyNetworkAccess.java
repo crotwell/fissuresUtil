@@ -69,9 +69,6 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
     }
 
     protected void setNetworkAccess(NetworkAccess na) {
-        if ( na == null) {
-            throw new IllegalArgumentException("NetworkAccess argument is NULL");
-        }
         net = na;
     }
 
