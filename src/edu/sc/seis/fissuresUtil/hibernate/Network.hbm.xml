@@ -127,7 +127,7 @@
 					type="double"  />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="interval_unit_id"
-					foreign-key="FK_SAMPLINE_INTERVAL_UNIT_ID"  />
+					foreign-key="FK_SAMPLINE_INTERVAL_UNIT_ID" lazy="false"/>
 			</component>
 			<property name="numPoints" type="integer"  />
 		</component>
