@@ -68,7 +68,9 @@ public abstract class AbstractHibernateDB {
     public static synchronized void commit() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
-            throw new RuntimeException("Can not commit before session creation");
+            // no session here, nothing to do
+            logger.info("Commit session before creation, nothing to do");
+            return;
         }
         //logger.debug("TRANSACTION Commit: " + this + " on " + s);
         sessionTL.set(null);
