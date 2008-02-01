@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.exception.ConstraintViolationException;
 
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
@@ -79,6 +77,7 @@ public class NetworkDB extends AbstractHibernateDB {
             StationImpl indb = getStationById(sta.get_id());
             sta.associateInDB(indb);
             getSession().evict(indb);
+            getSession().evict(indb.my_network);
             getSession().saveOrUpdate(sta);
             return sta.getDbid();
         } catch(NotFound e) {
@@ -101,6 +100,8 @@ public class NetworkDB extends AbstractHibernateDB {
             ChannelImpl indb = getChannel(chan.get_id());
             chan.associateInDB(indb);
             getSession().evict(indb);
+            getSession().evict(indb.my_site.my_station);
+            getSession().evict(indb.my_site.my_station.my_network);
             getSession().saveOrUpdate(chan);
             return chan.getDbid();
         } catch(NotFound nf) {
@@ -321,4 +322,5 @@ public class NetworkDB extends AbstractHibernateDB {
 
     static String getNetworkByCodeString = getAllNetsString
             + " WHERE network_code = :netCode";
+    
 }
