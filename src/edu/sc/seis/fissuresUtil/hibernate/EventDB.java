@@ -1,21 +1,29 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import edu.iris.Fissures.Area;
 import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.event.OriginImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.PointDistanceAreaImpl;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.bag.AreaUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
+import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 
 public class EventDB extends AbstractHibernateDB {
@@ -46,12 +54,22 @@ public class EventDB extends AbstractHibernateDB {
 		eventByTimeAndDepth = "From " + getEventClass().getName()
         + " e WHERE " + "e.preferred.origin_time.time between :minTime and :maxTime"
         + "AND e.preferred.my_location.depth.value between :minDepth and :maxDepth";
+		eventByName = "From " + getEventClass().getName()
+        + " e WHERE " + "e.attr.name = :name";
 	}
 	
 	public List getAll() {
 	    return getSession().createQuery("from "+getEventClass().getName()).list();
 	}
 
+	public CacheEvent[] getByName(String name) {
+        Query query = getSession().createQuery(eventByName);
+        query.setString("name", name);
+        List result = query.list();
+        CacheEvent[] out = (CacheEvent[]) result.toArray(new CacheEvent[0]);
+        return out;
+	}
+	
 	public CacheEvent[] query(EventFinderQuery q) {
 		BoxArea ba = AreaUtil.makeContainingBox(q.getArea());
 		String queryString = (ba.min_longitude <= ba.max_longitude ? finderQueryAvoidDateline
@@ -131,8 +149,57 @@ public class EventDB extends AbstractHibernateDB {
 		return null;
 	}
 	
+	public String[] getCatalogs() {
+	    Query q = getSession().createQuery("select distinct catalog from "+OriginImpl.class.getName());
+	    List out = q.list();
+	    return (String[])out.toArray(new String[0]);
+	}
+    
+    public String[] getContributors() {
+        Query q = getSession().createQuery("select distinct contributor from "+OriginImpl.class.getName());
+        List out = q.list();
+        return (String[])out.toArray(new String[0]);
+    }
+    
+    public String[] getCatalogsFor(String contributor) {
+        Query q = getSession().createQuery("select distinct catalog from "+OriginImpl.class.getName()+" where contributor = :contributor");
+        q.setString("contributor", contributor);
+        List out = q.list();
+        return (String[])out.toArray(new String[0]);
+    }
+	
 	private static EventDB singleton;
 
+    /*
+     * gets events from the database that vary in position or time by small
+     * amounts. results will include the original event, as well (or at least
+     * one would hope).
+     */
+    public CacheEvent[] getSimilarEvents(CacheEvent event, TimeInterval timeTolerance, QuantityImpl positionTolerance)
+            throws SQLException, NotFound {
+        EventFinderQuery query = new EventFinderQuery();
+        Origin origin = EventUtil.extractOrigin(event);
+        // get query time range
+        MicroSecondDate evTime = new MicroSecondDate(origin.origin_time);
+        MicroSecondTimeRange timeRange = new MicroSecondTimeRange(evTime.subtract(timeTolerance),
+                                                                  evTime.add(timeTolerance));
+        // get query area
+        Area area = new PointDistanceAreaImpl(origin.my_location.latitude,
+                                              origin.my_location.longitude,
+                                              new QuantityImpl(0.0,
+                                                               UnitImpl.DEGREE),
+                                              positionTolerance);
+        // set query vars
+        query.setTime(timeRange);
+        query.setArea(area);
+        query.setMinMag(JDBCEventAccess.INCONCEIVABLY_SMALL_MAGNITUDE);
+        query.setMaxMag(JDBCEventAccess.INCONCEIVABLY_LARGE_MAGNITUDE);
+        query.setMinDepth(JDBCEventAccess.INCONCEIVABLY_SMALL_DEPTH);
+        query.setMaxDepth(JDBCEventAccess.INCONCEIVABLY_LARGE_DEPTH);
+        CacheEvent[] events = query(query);
+        return events;
+    }
+    
     public CacheEvent[] getEventsByTimeAndDepthRanges(MicroSecondDate minTime,
                                                       MicroSecondDate maxTime,
                                                       double minDepth,
@@ -174,4 +241,6 @@ public class EventDB extends AbstractHibernateDB {
 	protected String getIdenticalEventString;
 	
 	protected String eventByTimeAndDepth;
+	
+	protected String eventByName;
 }
