@@ -50,7 +50,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
     }
 
     public synchronized void reset() {
-        if(dc != null){
+        if(dc.get() != null){
             ((DataCenter)dc.get())._release();
         }
         dc.set(null);
