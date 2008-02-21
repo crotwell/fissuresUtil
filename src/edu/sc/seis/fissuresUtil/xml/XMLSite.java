@@ -26,21 +26,21 @@ public class XMLSite {
     /**
      * StAX insert
      */
-    public static void insert(XMLStreamWriter writer, Site site)
+    public static void insert(XMLStreamWriter writer, SiteImpl site)
             throws XMLStreamException {
         writer.writeStartElement("id");
         XMLSiteId.insert(writer, site.get_id());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("my_location");
-        XMLLocation.insert(writer, site.my_location);
+        XMLLocation.insert(writer, site.getLocation());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("effective_time");
-        XMLTimeRange.insert(writer, site.effective_time);
+        XMLTimeRange.insert(writer, site.getEffectiveTime());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("my_station");
-        XMLStation.insert(writer, site.my_station);
+        XMLStation.insert(writer, site.getStation());
         XMLUtil.writeEndElementWithNewLine(writer);
-        XMLUtil.writeTextElement(writer, "comment", site.comment);
+        XMLUtil.writeTextElement(writer, "comment", site.getComment());
     }
 
     /**

@@ -24,16 +24,16 @@ public class XMLNetworkAttr {
     /**
      * StAX insert
      */
-    public static void insert(XMLStreamWriter writer, NetworkAttr networkAttr)
+    public static void insert(XMLStreamWriter writer, NetworkAttrImpl networkAttr)
             throws XMLStreamException {
-        XMLUtil.writeTextElement(writer, "name", networkAttr.name);
-        XMLUtil.writeTextElement(writer, "description", networkAttr.description);
-        XMLUtil.writeTextElement(writer, "owner", networkAttr.owner);
+        XMLUtil.writeTextElement(writer, "name", networkAttr.getName());
+        XMLUtil.writeTextElement(writer, "description", networkAttr.getDescription());
+        XMLUtil.writeTextElement(writer, "owner", networkAttr.getOwner());
         writer.writeStartElement("id");
         XMLNetworkId.insert(writer, networkAttr.get_id());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("effective_time");
-        XMLTimeRange.insert(writer, networkAttr.effective_time);
+        XMLTimeRange.insert(writer, networkAttr.getEffectiveTime());
         XMLUtil.writeEndElementWithNewLine(writer);
     }
 
