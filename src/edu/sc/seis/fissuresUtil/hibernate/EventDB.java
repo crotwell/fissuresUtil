@@ -112,6 +112,10 @@ public class EventDB extends AbstractHibernateDB {
 		//event.setDbId(dbid.intValue());
 		return dbid.longValue();
 	}
+	
+	public void delete(CacheEvent event) {
+	    getSession().delete(event);
+	}
 
 	public CacheEvent getLastEvent() throws NotFound {
 		Session session = getSession();

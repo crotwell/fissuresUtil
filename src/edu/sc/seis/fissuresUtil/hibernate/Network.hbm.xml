@@ -59,7 +59,7 @@
 			<property name="latitude" type="float" access="field" />
 			<property name="longitude" type="float" access="field" />
 			<component name="depth"
-				class="edu.iris.Fissures.model.QuantityImpl" access="field">
+				class="edu.iris.Fissures.model.QuantityImpl" access="field" lazy="false">
 				<property name="value" column="depth_value"
 					type="double" />
 				<many-to-one name="unit"
@@ -67,12 +67,13 @@
 					foreign-key="FK_STATION_DEPTH_UNIT_ID"/>
 			</component>
 			<component name="elevation"
-				class="edu.iris.Fissures.model.QuantityImpl" access="field">
+				class="edu.iris.Fissures.model.QuantityImpl" access="field" lazy="false">
 				<property name="value" type="double" column="elev_value"  />
 				<many-to-one name="unit"
 					class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
 					foreign-key="FK_STATION_ELEV_UNIT_ID" />
 			</component>
+			<property name="type" access="edu.sc.seis.fissuresUtil.hibernate.LocTypeAccess" type="integer"/>
 		</component>
 		<property name="operator"/>
 		<property name="description" />
@@ -163,7 +164,7 @@
 						type="double" />
 					<many-to-one name="unit"
 						class="edu.iris.Fissures.model.UnitImpl" column="depth_unit_id"
-						foreign-key="FK_SITE_DEPTH_UNIT_ID"  />
+						foreign-key="FK_SITE_DEPTH_UNIT_ID"  lazy="false"/>
 				</component>
 				<component name="elevation"
 					class="edu.iris.Fissures.model.QuantityImpl" access="field">
@@ -171,8 +172,11 @@
 						column="elev_value"  />
 					<many-to-one name="unit"
 						class="edu.iris.Fissures.model.UnitImpl" column="elev_unit_id"
-						foreign-key="FK_SITE_ELEV_UNIT_ID"  />
+						foreign-key="FK_SITE_ELEV_UNIT_ID"  lazy="false"/>
 				</component>
+				<property name="type"
+					access="edu.sc.seis.fissuresUtil.hibernate.LocTypeAccess"
+					type="integer"/>
 			</component>
 			<property name="endTime"
 				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
@@ -180,6 +184,7 @@
 				<column name="site_end_nanos" sql-type="integer"></column>
 				<column name="site_end_leaps" sql-type="integer"></column>
 			</property>
+			<property name="comment"/>
 			<many-to-one name="station"
 				class="edu.iris.Fissures.network.StationImpl"
 				foreign-key="FK_CHANNEL_STATION" cascade="save-update"  unique-key="chan_code_date" lazy="false"/>
