@@ -13,6 +13,7 @@ import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
 import edu.iris.Fissures.event.OriginImpl;
+import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 
 /**
@@ -58,7 +59,7 @@ public class XMLParameter {
             throws XMLStreamException {
         XMLUtil.writeTextElement(writer, "name", name);
         writer.writeStartElement("type");
-        if(value instanceof CacheEvent || value instanceof Channel) {
+        if(value instanceof CacheEvent || value instanceof ChannelImpl) {
             XMLUtil.writeTextElement(writer,
                                      "definition",
                                      "http://www.seis.sc.edu/xschema/fissures.xsd");
@@ -70,14 +71,14 @@ public class XMLParameter {
             XMLUtil.writeTextElement(writer, "name", "xsd:string");
         }
         XMLUtil.writeEndElementWithNewLine(writer);
-        if(value instanceof CacheEvent || value instanceof Channel) {
+        if(value instanceof CacheEvent || value instanceof ChannelImpl) {
             writer.writeStartElement("value");
             if(value instanceof CacheEvent) {
                 writer.writeStartElement("event");
                 XMLEvent.insert(writer, (CacheEvent)value);
             } else {
                 writer.writeStartElement("channel");
-                XMLChannel.insert(writer, (Channel)value);
+                XMLChannel.insert(writer, (ChannelImpl)value);
             }
             XMLUtil.writeEndElementWithNewLine(writer);
             XMLUtil.writeEndElementWithNewLine(writer);

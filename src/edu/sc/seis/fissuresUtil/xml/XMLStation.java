@@ -26,23 +26,23 @@ public class XMLStation {
     /**
      * StAX insert
      */
-    public static void insert(XMLStreamWriter writer, Station station)
+    public static void insert(XMLStreamWriter writer, StationImpl station)
             throws XMLStreamException {
         writer.writeStartElement("id");
         XMLStationId.insert(writer, station.get_id());
         XMLUtil.writeEndElementWithNewLine(writer);
-        XMLUtil.writeTextElement(writer, "name", station.name);
+        XMLUtil.writeTextElement(writer, "name", station.getName());
         writer.writeStartElement("my_location");
-        XMLLocation.insert(writer, station.my_location);
+        XMLLocation.insert(writer, station.getLocation());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("effective_time");
-        XMLTimeRange.insert(writer, station.effective_time);
+        XMLTimeRange.insert(writer, station.getEffectiveTime());
         XMLUtil.writeEndElementWithNewLine(writer);
-        XMLUtil.writeTextElement(writer, "operator", station.operator);
-        XMLUtil.writeTextElement(writer, "description", station.description);
-        XMLUtil.writeTextElement(writer, "comment", station.comment);
+        XMLUtil.writeTextElement(writer, "operator", station.getOperator());
+        XMLUtil.writeTextElement(writer, "description", station.getDescription());
+        XMLUtil.writeTextElement(writer, "comment", station.getComment());
         writer.writeStartElement("my_network");
-        XMLNetworkAttr.insert(writer, station.my_network);
+        XMLNetworkAttr.insert(writer, station.getNetworkAttr());
         XMLUtil.writeEndElementWithNewLine(writer);
     }
 

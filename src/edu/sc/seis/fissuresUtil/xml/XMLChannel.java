@@ -27,23 +27,23 @@ public class XMLChannel {
     /**
      * StAX insert method
      */
-    public static void insert(XMLStreamWriter writer, Channel channel)
+    public static void insert(XMLStreamWriter writer, ChannelImpl channel)
             throws XMLStreamException {
         writer.writeStartElement("id");
         XMLChannelId.insert(writer, channel.get_id());
         XMLUtil.writeEndElementWithNewLine(writer);
-        XMLUtil.writeTextElement(writer, "name", channel.name);
+        XMLUtil.writeTextElement(writer, "name", channel.getName());
         writer.writeStartElement("an_orientation");
-        XMLOrientation.insert(writer, channel.an_orientation);
+        XMLOrientation.insert(writer, channel.getOrientation());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("sampling_info");
-        XMLSampling.insert(writer, channel.sampling_info);
+        XMLSampling.insert(writer, channel.getSamplingInfo());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("effective_time");
-        XMLTimeRange.insert(writer, channel.effective_time);
+        XMLTimeRange.insert(writer, channel.getEffectiveTime());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("my_site");
-        XMLSite.insert(writer, channel.my_site);
+        XMLSite.insert(writer, channel.getSite());
         XMLUtil.writeEndElementWithNewLine(writer);
     }
 
