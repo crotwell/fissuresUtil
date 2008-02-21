@@ -23,8 +23,20 @@ public class WorkerThreadPool {
         tg.setMaxPriority(priority);
         fillPool();
     }
+    
+    public void setMaxQueueSize(int i) {
+        if (i < 1) {
+            throw new IllegalArgumentException("queue must be at least size 1 > "+i);
+        }
+        maxQueueSize = i;
+    }
 
     public synchronized void invokeLater(Runnable runnable) {
+        while (queue.size() > maxQueueSize) {
+            try {
+                Thread.sleep(100);
+            } catch(InterruptedException e) {}
+        }
         if(!queue.contains(runnable)) {
             queue.addFirst(runnable);
         }
@@ -72,6 +84,8 @@ public class WorkerThreadPool {
     private int totalNumCreated = 0;
 
     private int poolSize;
+    
+    private int maxQueueSize = DEFAULT_MAX_QUEUE_SIZE;
 
     private ThreadGroup tg;
 
@@ -80,6 +94,8 @@ public class WorkerThreadPool {
     private Set idle = Collections.synchronizedSet(new HashSet());
 
     private static WorkerThreadPool defaultPool;
+    
+    public static final int DEFAULT_MAX_QUEUE_SIZE = 1000;
 
     private class BackgroundWorker extends Thread {
 
