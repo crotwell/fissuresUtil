@@ -2,7 +2,7 @@ package edu.sc.seis.fissuresUtil.simple;
 
 import org.apache.log4j.Logger;
 
-public class ThreadedSeisClient extends SimpleSeismogramClient{
+public class ThreadedSeismogramClient extends SimpleSeismogramClient{
     public void exercise(){
         super.exercise();
         try {
@@ -31,10 +31,10 @@ public class ThreadedSeisClient extends SimpleSeismogramClient{
         return runnables;
     }
 
-    private static Logger logger = Logger.getLogger(ThreadedSeisClient.class);
+    private static Logger logger = Logger.getLogger(ThreadedSeismogramClient.class);
 
     public static void main(String[] args){
         Initializer.init(args);
-        new ThreadedSeisClient().exercise();
+        new ThreadedSeismogramClient().exercise();
     }
 }
