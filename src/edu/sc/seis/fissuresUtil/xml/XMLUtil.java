@@ -24,6 +24,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import edu.sc.seis.fissuresUtil.exceptionHandler.Extractor;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+
 /**
  * XMLUtil.java Created: Wed Jun 12 10:03:01 2002
  * 
@@ -31,6 +34,31 @@ import org.w3c.dom.Text;
  * @version
  */
 public class XMLUtil {
+    
+    static {
+        GlobalExceptionHandler.add(new Extractor() {
+
+            public boolean canExtract(Throwable throwable) {
+                return (throwable instanceof XMLStreamException);
+            }
+
+            public String extract(Throwable throwable) {
+                String out = "";
+                if(throwable instanceof XMLStreamException) {
+                    XMLStreamException mie = (XMLStreamException)throwable;
+                    out += "XML Location: " + mie.getLocation() + "\n";
+                }
+                return out;
+            }
+
+            public Throwable getSubThrowable(Throwable throwable) {
+                if(throwable instanceof XMLStreamException) {
+                    return ((XMLStreamException)throwable).getNestedException();
+                }
+                return null;
+            }
+        });
+    }
 
     // ---------------------------------------------------------
     // Begin StAX stuff. DOM stuff is at the bottom.
