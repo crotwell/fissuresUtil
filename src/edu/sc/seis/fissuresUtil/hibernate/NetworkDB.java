@@ -118,7 +118,7 @@ public class NetworkDB extends AbstractHibernateDB {
         return (StationImpl[])result.toArray(new StationImpl[0]);
     }
 
-    public List getAllStationsByCode(String staCode) {
+    public List<StationImpl> getAllStationsByCode(String staCode) {
         Query query = getSession().createQuery(getAllStationsByCode);
         query.setString("staCode", staCode);
         return query.list();
@@ -137,18 +137,18 @@ public class NetworkDB extends AbstractHibernateDB {
         throw new NotFound();
     }
 
-    public List getNetworkByCode(String netCode) {
+    public List<NetworkAttrImpl> getNetworkByCode(String netCode) {
         Query query = getSession().createQuery(getNetworkByCodeString);
         query.setString("netCode", netCode);
         return query.list();
     }
 
     private NetworkAttr getNetworkById(NetworkId netId) throws NotFound {
-        List result = getNetworkByCode(netId.network_code);
+        List<NetworkAttrImpl> result = getNetworkByCode(netId.network_code);
         if(NetworkIdUtil.isTemporary(netId)) {
-            Iterator it = result.iterator();
+            Iterator<NetworkAttrImpl> it = result.iterator();
             while(it.hasNext()) {
-                NetworkAttr n = (NetworkAttr)it.next();
+                NetworkAttr n = it.next();
                 if(NetworkIdUtil.areEqual(netId, n.get_id())) {
                     return n;
                 }
@@ -156,8 +156,7 @@ public class NetworkDB extends AbstractHibernateDB {
             throw new NotFound();
         } else {
             if(result.size() > 0) {
-                NetworkAttr out = (NetworkAttr)result.get(0);
-                return out;
+                return result.get(0);
             }
             throw new NotFound();
         }

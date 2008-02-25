@@ -58,7 +58,7 @@ public class EventDB extends AbstractHibernateDB {
         + " e WHERE " + "e.attr.name = :name";
 	}
 	
-	public List getAll() {
+	public List<CacheEvent> getAll() {
 	    return getSession().createQuery("from "+getEventClass().getName()).list();
 	}
 
