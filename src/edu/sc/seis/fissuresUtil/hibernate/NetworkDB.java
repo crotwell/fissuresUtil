@@ -303,7 +303,7 @@ public class NetworkDB extends AbstractHibernateDB {
             + " c WHERE c.site.station = :station";
 
     static String getChannelForStationAtTime = getChannelForStation
-            + " and :when between c.beginTime and c.endTime";
+            + " and :when between c.id.chan_begin_time and c.chan_end_time";
 
     static String chanCodeHQL = " c.id.channel_code = :channelCode AND c.id.site_code = :siteCode AND c.id.station_code = :stationCode AND c.site.station.networkAttr.id.network_code = :netCode ";
 
