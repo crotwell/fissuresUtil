@@ -52,8 +52,8 @@ public class EventDB extends AbstractHibernateDB {
 				+ "AND e.preferred.location.latitude = :lon "
 				+ "AND e.preferred.location.depth.value = :depth";
 		eventByTimeAndDepth = "From " + getEventClass().getName()
-        + " e WHERE " + "e.preferred.origin_time.time between :minTime and :maxTime"
-        + "AND e.preferred.my_location.depth.value between :minDepth and :maxDepth";
+        + " e WHERE " + "e.preferred.originTime.time between :minTime and :maxTime "
+        + "AND e.preferred.location.depth.value between :minDepth and :maxDepth";
 		eventByName = "From " + getEventClass().getName()
         + " e WHERE " + "e.attr.name = :name";
 	}
