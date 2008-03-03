@@ -35,18 +35,18 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     }
 
     public NetworkAccess[] vest(NetworkAccess[] accesses) {
-        NetworkAccess[] vested = new NetworkAccess[accesses.length];
+        CacheNetworkAccess[] vested = new CacheNetworkAccess[accesses.length];
         for(int i = 0; i < accesses.length; i++) {
             vested[i] = vest(accesses[i]);
         }
         return vested;
     }
 
-    public NetworkAccess vest(NetworkAccess na) {
+    public CacheNetworkAccess vest(NetworkAccess na) {
         return vest(na, this, numRetry, handler);
     }
 
-    private static ProxyNetworkAccess vest(NetworkAccess na,
+    private static CacheNetworkAccess vest(NetworkAccess na,
                                            VestingNetworkFinder vnf,
                                            int numRetry,
                                            RetryStrategy handler) {
