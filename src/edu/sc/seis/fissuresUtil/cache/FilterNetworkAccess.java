@@ -11,7 +11,7 @@ import edu.iris.Fissures.network.StationIdUtil;
 /**
  * @author groves Created on Dec 1, 2004
  */
-public class FilterNetworkAccess extends ProxyNetworkAccess {
+public class FilterNetworkAccess extends CacheNetworkAccess {
 
     private Pattern[] patterns;
 
@@ -25,8 +25,8 @@ public class FilterNetworkAccess extends ProxyNetworkAccess {
     }
 
     public Station[] retrieve_stations() {
-        Station[] stations = getNetworkAccess().retrieve_stations();
-        List acceptableStations = new ArrayList();
+        Station[] stations = super.retrieve_stations();
+        List<Station> acceptableStations = new ArrayList<Station>();
         for(int i = 0; i < stations.length; i++) {
             String netAndStaCode = getStationString(stations[i].get_id());
             for(int j = 0; j < patterns.length; j++) {
