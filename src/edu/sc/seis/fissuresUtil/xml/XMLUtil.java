@@ -35,29 +35,38 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  */
 public class XMLUtil {
     
+    private static boolean needToRegisteredWithGEH = true;
+    
+    public static void registerExtractorWithExceptionHandler() {
+        // don't register twice
+        if (needToRegisteredWithGEH) {
+            GlobalExceptionHandler.add(new Extractor() {
+                
+                public boolean canExtract(Throwable throwable) {
+                    return (throwable instanceof XMLStreamException);
+                }
+
+                public String extract(Throwable throwable) {
+                    String out = "";
+                    if(throwable instanceof XMLStreamException) {
+                        XMLStreamException mie = (XMLStreamException)throwable;
+                        out += "XML Location: " + mie.getLocation() + "\n";
+                    }
+                    return out;
+                }
+
+                public Throwable getSubThrowable(Throwable throwable) {
+                    if(throwable instanceof XMLStreamException) {
+                        return ((XMLStreamException)throwable).getNestedException();
+                    }
+                    return null;
+                }
+            });
+        }
+    }
+    
     static {
-        GlobalExceptionHandler.add(new Extractor() {
-
-            public boolean canExtract(Throwable throwable) {
-                return (throwable instanceof XMLStreamException);
-            }
-
-            public String extract(Throwable throwable) {
-                String out = "";
-                if(throwable instanceof XMLStreamException) {
-                    XMLStreamException mie = (XMLStreamException)throwable;
-                    out += "XML Location: " + mie.getLocation() + "\n";
-                }
-                return out;
-            }
-
-            public Throwable getSubThrowable(Throwable throwable) {
-                if(throwable instanceof XMLStreamException) {
-                    return ((XMLStreamException)throwable).getNestedException();
-                }
-                return null;
-            }
-        });
+        registerExtractorWithExceptionHandler();
     }
 
     // ---------------------------------------------------------
