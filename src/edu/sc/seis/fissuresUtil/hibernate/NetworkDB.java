@@ -303,13 +303,13 @@ public class NetworkDB extends AbstractHibernateDB {
             + " c WHERE c.site.station = :station";
 
     static String getChannelForStationAtTime = getChannelForStation
-            + " and :when between c.id.chan_begin_time and c.chan_end_time";
+            + " and :when between chan_begin_time and chan_end_time";
 
     static String chanCodeHQL = " c.id.channel_code = :channelCode AND c.id.site_code = :siteCode AND c.id.station_code = :stationCode AND c.site.station.networkAttr.id.network_code = :netCode ";
 
     static String getChannelByCode = "From "
             + ChannelImpl.class.getName()
-            + " c WHERE "+chanCodeHQL+" AND :when between c.id.begin_time.chan_begin_time and c.end_time.chan_end_time";
+            + " WHERE "+chanCodeHQL+" AND :when between chan_begin_time and chan_end_time";
 
     static String getChannelById = "From "
             + ChannelImpl.class.getName()
