@@ -14,16 +14,15 @@
 			class="edu.iris.Fissures.IfNetwork.NetworkId">
 			<property name="network_code" access="field"
 				unique-key="net_code_date" />
-			<property name="begin_time"
-				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
-				access="field">
-				<column name="net_begin_time" sql-type="timestamp"
-					unique-key="net_code_date">
-				</column>
-				<column name="net_begin_nanos" sql-type="integer"></column>
-				<column name="net_begin_leaps" sql-type="integer"></column>
-			</property>
 		</component>
+		<property name="beginTime"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
+			<column name="net_begin_time" sql-type="timestamp"
+				unique-key="net_code_date">
+			</column>
+			<column name="net_begin_nanos" sql-type="integer"></column>
+			<column name="net_begin_leaps" sql-type="integer"></column>
+		</property>
 		<property name="name" />
 		<property name="description" />
 		<property name="owner" />
@@ -44,16 +43,15 @@
 			class="edu.iris.Fissures.IfNetwork.StationId">
 			<property name="station_code" access="field"
 				unique-key="sta_code_date" />
-			<property name="begin_time"
-				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
-				access="field" unique-key="sta_code_date">
-				<column name="sta_begin_time" sql-type="timestamp"
-					unique-key="sta_code_date">
-				</column>
-				<column name="sta_begin_nanos" sql-type="integer"></column>
-				<column name="sta_begin_leaps" sql-type="integer"></column>
-			</property>
 		</component>
+		<property name="beginTime"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType" unique-key="sta_code_date">
+			<column name="sta_begin_time" sql-type="timestamp"
+				unique-key="sta_code_date">
+			</column>
+			<column name="sta_begin_nanos" sql-type="integer"></column>
+			<column name="sta_begin_leaps" sql-type="integer"></column>
+		</property>
 		<property name="name" />
 		<component name="location" class="edu.iris.Fissures.Location" >
 			<property name="latitude" type="float" access="field" />
@@ -100,14 +98,15 @@
 			<property name="station_code" access="field" />
 			<property name="site_code" access="field" unique-key="chan_code_date" />
 			<property name="channel_code" access="field" unique-key="chan_code_date" />
-			<property name="begin_time"
-				type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"
-				access="field">
-				<column name="chan_begin_time" sql-type="timestamp" unique-key="chan_code_date"></column>
-				<column name="chan_begin_nanos" sql-type="integer"></column>
-				<column name="chan_begin_leaps" sql-type="integer"></column>
-			</property>
 		</component>
+		<property name="beginTime"
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
+			<column name="chan_begin_time" sql-type="timestamp"
+				unique-key="chan_code_date">
+			</column>
+			<column name="chan_begin_nanos" sql-type="integer"></column>
+			<column name="chan_begin_leaps" sql-type="integer"></column>
+		</property>
 		<property name="name" />
 		<property name="endTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
