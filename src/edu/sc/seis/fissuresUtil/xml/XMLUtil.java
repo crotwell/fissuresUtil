@@ -40,6 +40,7 @@ public class XMLUtil {
     public static void registerExtractorWithExceptionHandler() {
         // don't register twice
         if (needToRegisteredWithGEH) {
+            needToRegisteredWithGEH = false;
             GlobalExceptionHandler.add(new Extractor() {
                 
                 public boolean canExtract(Throwable throwable) {
