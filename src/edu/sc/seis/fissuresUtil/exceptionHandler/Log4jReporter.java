@@ -1,41 +1,46 @@
 /**
  * Log4jReporter.java
- *
+ * 
  * @author Created by Omnicore CodeGuide
  */
-
 package edu.sc.seis.fissuresUtil.exceptionHandler;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Logger;
 
+public class Log4jReporter implements ExceptionReporter {
 
-
-public class Log4jReporter implements ExceptionReporter{
-
-    public void report(String message, Throwable e, List sections) throws IOException{
-        logger.error(message, e);
-        if (e.getCause() != null) {
-            logger.error("...caused by:", e.getCause());
-        } else {
+    public void report(String message, Throwable e, List sections)
+            throws IOException {
+        if(e != null) {
+            logger.error(message, e);
+            if(e.getCause() != null) {
+                logger.error("...caused by:", e.getCause());
+            }
             Iterator it = GlobalExceptionHandler.getExtractors().iterator();
             while(it.hasNext()) {
                 Extractor ext = (Extractor)it.next();
-                if (ext.canExtract(e)) {
-                    report("...caused by subthrowable:", ext.getSubThrowable(e), new ArrayList());
+                if(ext.canExtract(e)) {
+                    logger.error(ext.getClass().getSimpleName()+": "+ext.extract(e));
+                    if(ext.getSubThrowable(e) != null) {
+                        report("...caused by subthrowable:",
+                               ext.getSubThrowable(e),
+                               new ArrayList());
+                    }
                 }
             }
+        } else {
+            logger.error(message);
         }
-        Iterator it = sections.iterator();
-        while(it.hasNext()) {
-            Section section = (Section)it.next();
-            logger.debug(section.getName()+":"+section.getContents());
+        Iterator sectionIt = sections.iterator();
+        while(sectionIt.hasNext()) {
+            Section section = (Section)sectionIt.next();
+            logger.debug(section.getName() + ":" + section.getContents());
         }
     }
 
     private static Logger logger = Logger.getLogger(Log4jReporter.class);
-
 }
-
