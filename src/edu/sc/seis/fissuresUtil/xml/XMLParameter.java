@@ -63,7 +63,11 @@ public class XMLParameter {
             XMLUtil.writeTextElement(writer,
                                      "definition",
                                      "http://www.seis.sc.edu/xschema/fissures.xsd");
-            XMLUtil.writeTextElement(writer, "name", value.getClass().getName());
+            if(value instanceof CacheEvent ) {
+                XMLUtil.writeTextElement(writer, "name", CacheEvent.class.getName());
+            } else if (value instanceof ChannelImpl) {
+                XMLUtil.writeTextElement(writer, "name", ChannelImpl.class.getName());
+            }
         } else {
             XMLUtil.writeTextElement(writer,
                                      "definition",
@@ -202,14 +206,6 @@ public class XMLParameter {
          */
     }
 
-    /**
-     * Describe <code>write</code> method here.
-     * 
-     * @param out
-     *            an <code>OutputStream</code> value
-     * @param value
-     *            an <code>Object</code> value
-     */
     public static void write(OutputStream out, Object value) {
         try {
             DocumentBuilder builder = XMLDataSet.getDocumentBuilder();
@@ -233,16 +229,6 @@ public class XMLParameter {
         }
     }
 
-    /**
-     * Describe <code>insert</code> method here.
-     * 
-     * @param element
-     *            an <code>Element</code> value
-     * @param name
-     *            a <code>String</code> value
-     * @param value
-     *            an <code>Object</code> value
-     */
     public static void insert(Element element, String name, Object value) {
         Document doc = element.getOwnerDocument();
         element.appendChild(XMLUtil.createTextElement(doc, "name", name));
@@ -254,8 +240,7 @@ public class XMLParameter {
                                                            "http://www.seis.sc.edu/xschema/fissures.xsd"));
             typeName.appendChild(XMLUtil.createTextElement(doc,
                                                            "name",
-                                                           value.getClass()
-                                                                   .getName()));
+                                                           CacheEvent.class.getName()));
             element.appendChild(typeName);
             Element event = doc.createElement("event");
             XMLEvent.insert(event, (CacheEvent)value);
@@ -267,8 +252,7 @@ public class XMLParameter {
                                                            "http://www.seis.sc.edu/xschema/fissures.xsd"));
             typeName.appendChild(XMLUtil.createTextElement(doc,
                                                            "name",
-                                                           value.getClass()
-                                                                   .getName()));
+                                                           Channel.class.getName()));
             element.appendChild(typeName);
             Element channel = doc.createElement("channel");
             XMLChannel.insert(channel, (Channel)value);
@@ -326,7 +310,7 @@ public class XMLParameter {
             }
         } catch(ClassNotFoundException e) {
             logger.debug("unable to find class of type " + className
-                    + " loading parameter as a string");
+                    + " loading parameter as a string",e);
         }
         String value = XMLUtil.getText(XMLUtil.getElement(base, "value"));
         return new ParameterRef(name, value);
@@ -352,7 +336,7 @@ public class XMLParameter {
             }
         } catch(ClassNotFoundException e) {
             logger.debug("unable to find class of type " + className
-                    + " loading parameter as a string");
+                    + " loading parameter as a string", e);
         }
         XMLUtil.gotoNextStartElement(parser, "value");
         String value = parser.getElementText();
@@ -360,11 +344,11 @@ public class XMLParameter {
     }
 
     public static boolean isRecognizedClass(Class c) {
-        return c.equals(EventAccessOperations.class) || c.equals(Channel.class);
+        return c.equals(CacheEvent.class) || c.equals(Channel.class);
     }
 
     public static Object makeForClass(Class c, Element base) {
-        if(c.equals(EventAccessOperations.class)) {
+        if(c.equals(CacheEvent.class)) {
             return makeEvent(base);
         } else if(c.equals(Channel.class)) {
             return makeChannel(base);
@@ -374,7 +358,7 @@ public class XMLParameter {
 
     public static Object makeForClass(Class c, XMLStreamReader parser)
             throws XMLStreamException {
-        if(c.equals(EventAccessOperations.class)) {
+        if(c.equals(CacheEvent.class)) {
             return makeEvent(parser);
         } else if(c.equals(Channel.class)) {
             return makeChannel(parser);
@@ -397,7 +381,7 @@ public class XMLParameter {
         return channel;
     }
 
-    private static EventAccessOperations makeEvent(Element base) {
+    private static CacheEvent makeEvent(Element base) {
         Element event = XMLUtil.getElement(XMLUtil.getElement(base, "value"),
                                            "event");
         EventAttr eventAttr = XMLEvent.getEvent(event);
@@ -405,7 +389,7 @@ public class XMLParameter {
         return new CacheEvent(eventAttr, new OriginImpl[0], preferred_origin);
     }
 
-    private static EventAccessOperations makeEvent(XMLStreamReader parser)
+    private static CacheEvent makeEvent(XMLStreamReader parser)
             throws XMLStreamException {
         XMLUtil.gotoNextStartElement(parser, "event");
         EventAttr eventAttr = XMLEvent.getEvent(parser);
@@ -413,13 +397,6 @@ public class XMLParameter {
         return new CacheEvent(eventAttr, new OriginImpl[0], preferred_origin);
     }
 
-    /**
-     * Describe <code>getObjectType</code> method here.
-     * 
-     * @param object
-     *            an <code>Object</code> value
-     * @return a <code>String</code> value
-     */
     public static String getObjectType(Object object) {
         if(object instanceof Channel)
             return "edu.sc.seis.fissuresUtil.xml.XMLChannel";
