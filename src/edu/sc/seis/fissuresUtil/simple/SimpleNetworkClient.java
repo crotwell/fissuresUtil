@@ -115,6 +115,7 @@ public class SimpleNetworkClient implements TestingClient {
         get_attributes(true);
         retrieve_stations(true);
         locate_channels(true);
+        explorer_locate_channels(true);
     }
 
     /**
@@ -177,6 +178,30 @@ public class SimpleNetworkClient implements TestingClient {
         }
         return chans;
     }
+
+    public ChannelId[] explorer_locate_channels(boolean verbose) {
+        TimeInterval oneSecond = new TimeInterval(1, UnitImpl.SECOND);
+        Sampling minSample = new SamplingImpl(1, oneSecond);
+        Sampling maxSample = new SamplingImpl(100, oneSecond);
+        SamplingRange sampleRange = new SamplingRangeImpl(minSample, maxSample);
+        Orientation orient = new Orientation(0, -90);
+        Quantity angle = new QuantityImpl(45, UnitImpl.DEGREE);
+        OrientationRange orientationRange = new OrientationRangeImpl(orient,
+                                                                     angle);
+        Area area = new GlobalAreaImpl();
+        area = new BoxAreaImpl(0, 90, -130, -90);
+        ChannelId[] chans = netDC.a_explorer().locate_channels(area,
+                                              sampleRange,
+                                              orientationRange,
+                                              1000,
+                                              new ChannelIdIterHolder());
+        if(verbose) {
+            logger.info("Received " + chans.length + " channels by explorer.locate_chan
+nels");
+        }
+        return chans;
+    }
+
 
     protected Channel testChannel;
 
