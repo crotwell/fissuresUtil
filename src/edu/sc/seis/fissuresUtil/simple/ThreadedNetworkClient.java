@@ -33,6 +33,7 @@ public class ThreadedNetworkClient extends SimpleNetworkClient {
         runnables[3] = new IORConverter();
         runnables[4] = new NetworkAccessNarrow();
         runnables[5] = new RetrieveChannel();
+        runnables[6] = new LocateChannel();
         return runnables;
     }
 
@@ -109,6 +110,22 @@ public class ThreadedNetworkClient extends SimpleNetworkClient {
 
         public String toString() {
             return "retrieve_channel";
+        }
+    }
+
+    private class LocateChannel implements Runnable {
+
+        public void run() {
+            try {
+                explorer_locate_channels(true);
+            } catch(Throwable e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+
+        public String toString() {
+            return "explorer_locate_chanels";
         }
     }
 
