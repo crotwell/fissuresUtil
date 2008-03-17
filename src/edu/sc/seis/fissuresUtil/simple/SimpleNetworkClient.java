@@ -8,6 +8,8 @@ import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.Sampling;
 import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.ChannelIdIterHolder;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
@@ -58,7 +60,7 @@ public class SimpleNetworkClient implements TestingClient {
              * the individual server name. The dmc lists their servers under the
              * edu/iris/dmc and their main network server is IRIS_NetworkDC.
              */
-            NetworkDC netDC = Initializer.getNS().getNetworkDC(serverDNS,
+            netDC = Initializer.getNS().getNetworkDC(serverDNS,
                                                                serverName);
             logger.info("got NetworkDC");
             /*
@@ -196,8 +198,7 @@ public class SimpleNetworkClient implements TestingClient {
                                               1000,
                                               new ChannelIdIterHolder());
         if(verbose) {
-            logger.info("Received " + chans.length + " channels by explorer.locate_chan
-nels");
+            logger.info("Received " + chans.length + " channels by explorer.locate_channels");
         }
         return chans;
     }
@@ -209,6 +210,8 @@ nels");
 
     protected NetworkAccess net;
 
+    protected NetworkDC netDC;
+    
     private static Logger logger = Logger.getLogger(SimpleNetworkClient.class);
 
     /**
