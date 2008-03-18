@@ -43,9 +43,9 @@
 		<property name="_id"/>
 		<property name="originTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
-			<column name="time" sql-type="timestamp"></column>
-			<column name="nanos" sql-type="integer"></column>
-			<column name="leaps" sql-type="integer"></column>
+			<column name="time" sql-type="timestamp" index="origin_time_idx"/>
+			<column name="nanos" sql-type="integer"/>
+			<column name="leaps" sql-type="integer"/>
 		</property>
 		<component name="location" class="edu.iris.Fissures.Location" >
 			<property name="latitude" type="float" access="field" />
@@ -83,8 +83,8 @@
 			</composite-element>
 		</list>
 
-		<property name="catalog"  />
-		<property name="contributor"  />
+		<property name="catalog" index="origin_catalog_idx" />
+		<property name="contributor" />
 	</class>
 
 
