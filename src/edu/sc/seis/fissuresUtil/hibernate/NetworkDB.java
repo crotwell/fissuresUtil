@@ -305,7 +305,7 @@ public class NetworkDB extends AbstractHibernateDB {
     static String getChannelForStationAtTime = getChannelForStation
             + " and :when between chan_begin_time and chan_end_time";
 
-    static String chanCodeHQL = " c.id.channel_code = :channelCode AND c.id.site_code = :siteCode AND c.id.station_code = :stationCode AND c.site.station.networkAttr.id.network_code = :netCode ";
+    static String chanCodeHQL = " id.channel_code = :channelCode AND id.site_code = :siteCode AND id.station_code = :stationCode AND site.station.networkAttr.id.network_code = :netCode ";
 
     static String getChannelByCode = "From "
             + ChannelImpl.class.getName()
@@ -313,7 +313,7 @@ public class NetworkDB extends AbstractHibernateDB {
 
     static String getChannelById = "From "
             + ChannelImpl.class.getName()
-            + " c WHERE "+chanCodeHQL+" AND chan_begin_time =  :when";
+            + " WHERE "+chanCodeHQL+" AND chan_begin_time =  :when";
 
     static String getAllStationsString = "From edu.iris.Fissures.network.StationImpl s";
 
