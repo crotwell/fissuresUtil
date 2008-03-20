@@ -143,12 +143,12 @@ public class NetworkDB extends AbstractHibernateDB {
         return query.list();
     }
 
-    private NetworkAttr getNetworkById(NetworkId netId) throws NotFound {
+    public NetworkAttrImpl getNetworkById(NetworkId netId) throws NotFound {
         List<NetworkAttrImpl> result = getNetworkByCode(netId.network_code);
         if(NetworkIdUtil.isTemporary(netId)) {
             Iterator<NetworkAttrImpl> it = result.iterator();
             while(it.hasNext()) {
-                NetworkAttr n = it.next();
+                NetworkAttrImpl n = it.next();
                 if(NetworkIdUtil.areEqual(netId, n.get_id())) {
                     return n;
                 }
