@@ -178,13 +178,11 @@ public class ImageAugmenter {
         int[] triCoords = new int[6];
         double staRadius = staDiameter / 2 + staStrokeWidth;
         for(int i = 0; i < 3; i++) {
-            double rads = i * TWO_THIRDS_PI - ONE_HALF_PI;
             triCoords[i * 2] = (int)(centerCoords[0] + staRadius
-                    * Math.cos(rads));
+                    * cos[i]);
             triCoords[i * 2 + 1] = (int)(centerCoords[1] + staRadius
-                    * Math.sin(rads));
+                    * sin[i]);
         }
-        //System.out.println("triCoords: " + printIntArray(triCoords));
         return triCoords;
     }
 
@@ -227,6 +225,19 @@ public class ImageAugmenter {
     private static double TWO_THIRDS_PI = Math.PI * (2 / 3d);
 
     private static double ONE_HALF_PI = Math.PI * (1 / 2d);
+    
+    private static double[] cos;
+    private static double[] sin;
+    
+    static {
+        sin = new double[3];
+        cos = new double[3];
+        for(int i = 0; i < 3; i++) {
+            double rads = i * TWO_THIRDS_PI - ONE_HALF_PI;
+            cos[i] =  Math.cos(rads);
+            sin[i] = Math.sin(rads);
+        }
+    }
 
     private static Logger logger = Logger.getLogger(ImageAugmenter.class);
 
