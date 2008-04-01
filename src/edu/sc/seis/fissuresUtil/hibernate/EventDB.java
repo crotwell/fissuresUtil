@@ -49,7 +49,7 @@ public class EventDB extends AbstractHibernateDB {
 		getIdenticalEventString = "From " + getEventClass().getName()
 				+ " e WHERE " + "e.preferred.originTime.time = :originTime "
 				+ "AND e.preferred.location.latitude = :lat "
-				+ "AND e.preferred.location.latitude = :lon "
+				+ "AND e.preferred.location.longitude = :lon "
 				+ "AND e.preferred.location.depth.value = :depth";
 		eventByTimeAndDepth = "From " + getEventClass().getName()
         + " e WHERE " + "e.preferred.originTime.time between :minTime and :maxTime "
