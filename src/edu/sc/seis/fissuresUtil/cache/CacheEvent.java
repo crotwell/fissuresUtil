@@ -8,6 +8,7 @@ import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfEvent.OriginNotFound;
 import edu.iris.Fissures.event.EventAttrImpl;
 import edu.iris.Fissures.event.OriginImpl;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
  * CacheEvent.java Created: Mon Jan 8 16:33:52 2001
@@ -38,6 +39,15 @@ public class CacheEvent extends ProxyEventAccessOperations {
     public CacheEvent(EventAccessOperations event) {
         if(event == null) { throw new IllegalArgumentException("EventAccess cannot be null"); }
         setEventAccess(event);
+    }
+    
+    protected void setEventAccess(EventAccessOperations evo) {
+        super.setEventAccess(evo);
+        try {
+            preferred = (OriginImpl)evo.get_preferred_origin();
+        } catch(NoPreferredOrigin e) {
+            GlobalExceptionHandler.handle("no preferred origin, oh well...", e);
+        }
     }
 
     public EventAttr get_attributes() {
