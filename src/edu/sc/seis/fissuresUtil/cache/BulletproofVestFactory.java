@@ -19,9 +19,6 @@ public class BulletproofVestFactory {
 
     public static ProxyEventAccessOperations vestEventAccess(EventAccessOperations eventAccess,
                                                              int numRetry) {
-        if (eventAccess == null) {
-            throw new IllegalArgumentException("eventAccess cannot be null");
-        }
         if(eventAccess instanceof CacheEvent) {
             return (ProxyEventAccessOperations)eventAccess;
         }
