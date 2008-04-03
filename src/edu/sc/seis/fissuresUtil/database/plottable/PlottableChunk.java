@@ -20,6 +20,9 @@ import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
  */
 public class PlottableChunk {
 
+    /** for hibernate */
+    protected PlottableChunk() {}
+
     /**
      * Creates a plottable chunk consisting of the plottable in data, starting
      * start pixels into the jday and year of otherstuff at
@@ -262,6 +265,41 @@ public class PlottableChunk {
         }
         return (PlottableChunk[])dayChunks.toArray(new PlottableChunk[0]);
     }
+
+    // hibernate
+    protected void setChannel(ChannelId channel) {
+        this.channel = channel;
+    }
+
+    protected void setData(Plottable data) {
+        this.data = data;
+    }
+
+    protected void setPixelsPerDay(int pixelsPerDay) {
+        this.pixelsPerDay = pixelsPerDay;
+    }
+
+    protected void setBeginPixel(int beginPixel) {
+        this.beginPixel = beginPixel;
+    }
+
+    protected void setJday(int jday) {
+        this.jday = jday;
+    }
+
+    protected void setYear(int year) {
+        this.year = year;
+    }
+
+    public long getDbid() {
+        return dbid;
+    }
+
+    protected void setDbid(long dbid) {
+        this.dbid = dbid;
+    }
+
+    private long dbid;
 
     private ChannelId channel;
 
