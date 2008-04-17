@@ -24,7 +24,7 @@
 			<column name="net_begin_leaps" sql-type="integer"></column>
 		</property>
 		<property name="name" />
-		<property name="description" />
+		<property name="description" type="text"/>
 		<property name="owner" />
 		<property name="endTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
@@ -74,8 +74,8 @@
 			<property name="type" access="edu.sc.seis.fissuresUtil.hibernate.LocTypeAccess" type="integer"/>
 		</component>
 		<property name="operator"/>
-		<property name="description" />
-		<property name="comment"  />
+		<property name="description" type="text" />
+		<property name="comment" type="text" />
 		<property name="endTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
 			<column name="sta_end_time" sql-type="timestamp"></column>
@@ -183,7 +183,7 @@
 				<column name="site_end_nanos" sql-type="integer"></column>
 				<column name="site_end_leaps" sql-type="integer"></column>
 			</property>
-			<property name="comment"/>
+			<property name="comment" type="text" />
 			<many-to-one name="station"
 				class="edu.iris.Fissures.network.StationImpl"
 				foreign-key="FK_CHANNEL_STATION" cascade="save-update"  unique-key="chan_code_date" lazy="false"/>
