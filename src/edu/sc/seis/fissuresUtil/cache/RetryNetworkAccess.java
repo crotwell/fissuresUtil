@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.omg.CORBA.SystemException;
+import org.omg.CORBA.UNKNOWN;
+
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
@@ -19,6 +21,7 @@ import edu.iris.Fissures.IfNetwork.SamplingRange;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.IfNetwork.TimeCorrection;
+import edu.iris.Fissures.network.ChannelIdUtil;
 
 /**
  * Just a pass thru class for the remote networkAccess, but this will retry if
@@ -325,6 +328,9 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
         SystemException latest;
         try {
             return getNetworkAccess().retrieve_instrumentation(id, the_time);
+        } catch(UNKNOWN t) {
+            latest = t;
+            logger.warn("UNKNOWN on retrieve_instrumentation("+ChannelIdUtil.toString(id)+", "+the_time.date_time);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -403,4 +409,6 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     private int retry;
 
     private RetryStrategy handler;
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RetryNetworkAccess.class);
 }
