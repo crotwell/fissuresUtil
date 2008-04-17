@@ -25,6 +25,7 @@ import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
@@ -52,10 +53,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         super.reset();
     }
 
-    public NetworkAttr get_attributes() {
+    public NetworkAttrImpl get_attributes() {
         synchronized(this) {
             if(attr == null) {
-                attr = getNetworkAccess().get_attributes();
+                attr = (NetworkAttrImpl)getNetworkAccess().get_attributes();
                 attr.description = attr.description.intern();
                 attr.name = attr.name.intern();
                 attr.owner = attr.owner.intern();
@@ -288,7 +289,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     private Map knownSites = Collections.synchronizedMap(new HashMap());
 
-    protected NetworkAttr attr;
+    protected NetworkAttrImpl attr;
 
     protected Station[] stations;
 
