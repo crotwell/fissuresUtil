@@ -100,12 +100,28 @@ public class ConnMgr {
         return SQL;
     }
 
-    private static String getDriver() {
+    /** @returns the classname of the jdbc driver. */
+    public static String getDriver() {
         return getProps().getProperty("driver");
+    }
+    
+    /** @returns the database product, ie hsql, postgres, etc. */
+    public static String getDB_TYPE() {
+        return DB_NAME;
     }
 
     public static void setURL(String url) {
         ConnMgr.url = url;
+        if (url.startsWith("jdbc:hsql")) {
+            DB_NAME = HSQL;
+        } else if (url.startsWith("jdbc:postgresql")) {
+            DB_NAME = POSTGRES;
+        }
+        try {
+            checkDriver();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to load driver: "+getDriver(), e);
+        }
     }
 
     public static void setURL(String url,
@@ -145,9 +161,12 @@ public class ConnMgr {
         }
         return props;
     }
-
-    public static Connection createConnection() throws SQLException {
-        try {
+    
+    public static Properties getDBProps() {
+        return dbProperties;
+    }
+    
+    static void checkDriver() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
             String driver = getDriver();
             if(firstTime) {
                 logger.debug("Using " + driver + " on " + getURL());
@@ -161,10 +180,15 @@ public class ConnMgr {
                 lastDriverForConnection = driver;
             }
             Class.forName(getDriver()).newInstance();
-        } catch(Exception e) {
-            SQLException ee = new SQLException("Unable to instantiate driver");
-            ee.initCause(e);
-            throw ee;
+    }
+
+    public static Connection createConnection() throws SQLException {
+        try {
+            checkDriver();
+        } catch (Exception e) {
+            SQLException sql = new SQLException("Cannot create driver: "+getDriver());
+            sql.initCause(e);
+            throw sql;
         }
         Connection conn = DriverManager.getConnection(getURL(),
                                                       getUser(),
@@ -200,6 +224,7 @@ public class ConnMgr {
 
     public static void installDbProperties(Properties sysProperties,
                                            Properties dbProperties) {
+        ConnMgr.dbProperties = dbProperties;
         if(dbProperties.containsKey(DB_SERVER_PORT)) {
             if(dbProperties.containsKey(DBURL_KEY)) {
                 logger.error("-hsql properties and SOD properties are both specifying the db connection.  Using -hsql properties");
@@ -214,10 +239,14 @@ public class ConnMgr {
             if(dbProperties.containsKey("server.dbname.0")) {
                 url += dbProperties.getProperty("server.dbname.0");
             }
-            logger.debug("Setting db url to " + url);
+            logger.debug("Setting db url from "+DB_SERVER_PORT+" to " + url);
             setURL(url);
+        } else if(dbProperties.containsKey(DBURL_KEY)) {
+            logger.debug("Setting db url from "+DBURL_KEY+" to "
+                         + dbProperties.getProperty(DBURL_KEY));
+            setURL(dbProperties.getProperty(DBURL_KEY));
         } else if(sysProperties.containsKey(DBURL_KEY)) {
-            logger.debug("Setting db url to "
+            logger.debug("Setting db url from "+DBURL_KEY+" in sys props to "
                     + sysProperties.getProperty(DBURL_KEY));
             setURL(sysProperties.getProperty(DBURL_KEY));
         } else {
@@ -230,7 +259,7 @@ public class ConnMgr {
         boolean loadedFromArg = false;
         for(int i = 0; i < args.length - 1; i++) {
             if(args[i].equals("-hsql")) {
-                System.out.println("Loading db props");
+                System.out.println("Loading db props from "+args[i+1]);
                 try {
                     Initializer.loadProps(new FileInputStream(args[i + 1]),
                                           dbProperties);
@@ -288,7 +317,7 @@ public class ConnMgr {
 
     private static String DB_NAME = HSQL;
 
-    private static Properties props;
+    private static Properties props, dbProperties;
 
     private static List propLocs = new ArrayList();
 
