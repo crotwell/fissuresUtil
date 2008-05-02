@@ -12,6 +12,7 @@ import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
@@ -86,6 +87,12 @@ public class NetworkDB extends AbstractHibernateDB {
         }
     }
 
+    /** Puts a channel into the database. If there is an existing channel in the database
+     *  with the same database id, but different attributes (reflecting a change at the 
+     *  server) the existing channel is expired and the new channel is inserted. This preserves any
+     *  existing objects that refer to the old channel, while allowing future work to
+     *  only access the new channel.
+     */
     public int put(ChannelImpl chan) {
         Integer dbid;
         internUnit(chan);
@@ -98,6 +105,9 @@ public class NetworkDB extends AbstractHibernateDB {
         }
         try {
             ChannelImpl indb = getChannel(chan.get_id());
+            if (ChannelIdUtil.areEqual(indb, chan)) {
+                
+            }
             chan.associateInDB(indb);
             getSession().evict(indb);
             getSession().evict(indb.my_site.my_station);
@@ -108,6 +118,11 @@ public class NetworkDB extends AbstractHibernateDB {
             dbid = (Integer)getSession().save(chan);
             return dbid.intValue();
         }
+    }
+    
+    public int put(ChannelGroup cg) {
+        int dbid = (Integer)getSession().save(cg);
+        return dbid;
     }
 
     public StationImpl[] getStationByCodes(String netCode, String staCode) {
