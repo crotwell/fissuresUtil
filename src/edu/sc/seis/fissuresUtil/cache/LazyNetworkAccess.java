@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.network.NetworkIdUtil;
 
@@ -11,7 +12,7 @@ import edu.iris.Fissures.network.NetworkIdUtil;
  */
 public class LazyNetworkAccess extends CacheNetworkAccess {
 
-    public LazyNetworkAccess(NetworkAttr attr, ProxyNetworkDC netDC) {
+    public LazyNetworkAccess(NetworkAttrImpl attr, ProxyNetworkDC netDC) {
         super(null);
         this.attr = attr;
         this.netDC = netDC;
