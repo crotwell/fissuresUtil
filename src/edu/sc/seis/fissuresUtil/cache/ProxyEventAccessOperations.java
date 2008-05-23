@@ -202,7 +202,7 @@ public abstract class ProxyEventAccessOperations implements
         return hashValue;
     }
 
-    public Origin getOrigin() {
+    public OriginImpl getOrigin() {
         return EventUtil.extractOrigin(this);
     }
 
