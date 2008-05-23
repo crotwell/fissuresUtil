@@ -23,6 +23,16 @@ public class ChannelGroup {
     protected ChannelGroup() {
     }
 
+    protected int dbid;
+    
+    protected void setDbid(int i) {
+        dbid = i;
+    }
+    
+    protected int getDbid() {
+        return dbid;
+    }
+    
     public ChannelImpl[] getChannels() {
         return channels;
     }
@@ -176,6 +186,37 @@ public class ChannelGroup {
             }
         }
         return -1;
+    }
+    
+    public Channel getChannel1() {
+        return getChannels()[0];
+    }
+    
+    public Channel getChannel2() {
+        return getChannels()[1];
+    }
+    
+    public Channel getChannel3() {
+        return getChannels()[2];
+    }
+    
+    private void setChannel(int index, ChannelImpl chan) {
+        if (channels == null) {
+         channels = new ChannelImpl[3];   
+        }
+        channels[index-1] = chan;
+    }
+    
+    protected void setChannel1(ChannelImpl chan) {
+        setChannel(0, chan);
+    }
+    
+    protected void setChannel2(ChannelImpl chan) {
+        setChannel(1, chan);
+    }
+    
+    protected void setChannel3(ChannelImpl chan) {
+        setChannel(2, chan);
     }
 
     private ChannelImpl[] channels;

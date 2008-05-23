@@ -16,6 +16,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
+import edu.iris.Fissures.event.OriginImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.ParseRegions;
@@ -29,14 +30,14 @@ public class EventUtil {
     /**
      * This gets around the NoPreferredOrigin exception
      */
-    public static Origin extractOrigin(EventAccessOperations ev) {
+    public static OriginImpl extractOrigin(EventAccessOperations ev) {
         try {
-            return ev.get_preferred_origin();
+            return (OriginImpl)ev.get_preferred_origin();
         } catch(NoPreferredOrigin e) {
             logger.info("No preferred origin in event.  Trying get_origins instead");
             Origin[] oArray = ev.get_origins();
             if(oArray.length > 0) {
-                return oArray[0];
+                return (OriginImpl)oArray[0];
             }
             throw new RuntimeException("No preferred origin", e);
         }
