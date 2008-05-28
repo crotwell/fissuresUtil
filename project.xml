@@ -4,7 +4,7 @@
     <artifactId>fissuresUtil</artifactId>
     <name>fissuresUtil</name>
     <groupId>fissuresUtil</groupId>
-    <currentVersion>1.0.19internal</currentVersion>
+    <currentVersion>1.1.0internal</currentVersion>
     <organization>
         <name>Seismology at the University of South Carolina</name>
         <url>http://www.seis.sc.edu</url>
@@ -115,7 +115,7 @@
         <dependency>
            <artifactId>seisFile</artifactId>
            <groupId>seisFile</groupId>
-           <version>1.0.3</version>
+           <version>1.0.4beta</version>
         </dependency>
         <dependency>
             <groupId>isti</groupId>
