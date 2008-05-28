@@ -247,6 +247,38 @@ public class FissuresConvert {
         return seis;
     }
 
+
+    /**
+     * assume all records from same channel and in time order with no
+     * gaps/overlaps.
+     * Specifying a default compression and byte order. This should only be used in cases
+     * where the miniseed records are older than the Blockette 1000 SEED specification
+     * and where the compression and byte order are known from outside sources. Per the SEED
+     * specification, valid miniseed MUST have a blockette 1000 and so this method exists only
+     * for reading older data.
+     * @param defaultCompression compression to use if there is no blockette 1000, See the SEED specification
+     * for blockette 1000 for valid compression types.
+     * @param defaultByteOrder byte order to use if there is no blockette 1000. 0 indicates little-endian  order 
+     * and a 1 indicates big-endian.
+     */
+    public static LocalSeismogramImpl toFissures(DataRecord[] seed, byte defaultCompression, byte defaultByteOrder)
+            throws SeedFormatException, FissuresException {
+        DataRecord[] seedCopy = new DataRecord[seed.length];
+        for(int i = 0; i < seed.length; i++) {
+            if (seed[i].getBlockettes(1000).length == 0) {
+                seedCopy[i] = new DataRecord(seed[i]);
+                Blockette1000 fakeB1000 = new Blockette1000();
+                fakeB1000.setEncodingFormat(defaultCompression);
+                fakeB1000.setWordOrder(defaultByteOrder);
+                fakeB1000.setDataRecordLength((byte)30);// should be huge and we will never write this out
+                seedCopy[i].setRecordSize(8184); // make this bug enough for the extra blockette
+                seedCopy[i].addBlockette(fakeB1000);
+            } else {
+                seedCopy[i] = seed[i];
+            }
+        }
+        return toFissures(seedCopy);
+    }
     /**
      * assume all records from same channel and in time order with no
      * gaps/overlaps.
@@ -361,14 +393,7 @@ public class FissuresConvert {
 
     public static TimeSeriesDataSel convertData(DataRecord seed)
             throws SeedFormatException {
-        Blockette[] allBs = seed.getBlockettes(1000);
-        if(allBs.length == 0) {
-            throw new SeedFormatException("No blockette 1000s in the volume.");
-        } else if(allBs.length > 1) {
-            throw new SeedFormatException("Multiple blockette 1000s in the volume. "
-                    + allBs.length);
-        }
-        Blockette1000 b1000 = (Blockette1000)allBs[0];
+        Blockette1000 b1000 = (Blockette1000)seed.getUniqueBlockette(1000);
         EncodedData eData = new EncodedData(b1000.getEncodingFormat(),
                                             seed.getData(),
                                             seed.getHeader().getNumSamples(),
