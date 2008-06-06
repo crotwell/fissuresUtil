@@ -55,18 +55,18 @@ public class XMLChannel {
         Element id = doc.createElement("id");
         XMLChannelId.insert(id, channel.get_id());
         element.appendChild(id);
-        element.appendChild(XMLUtil.createTextElement(doc, "name", channel.name));
+        element.appendChild(XMLUtil.createTextElement(doc, "name", channel.getName()));
         Element an_orientation = doc.createElement("an_orientation");
-        XMLOrientation.insert(an_orientation, channel.an_orientation);
+        XMLOrientation.insert(an_orientation, channel.getOrientation());
         element.appendChild(an_orientation);
         Element sampling_info = doc.createElement("sampling_info");
-        XMLSampling.insert(sampling_info, channel.sampling_info);
+        XMLSampling.insert(sampling_info, channel.getSamplingInfo());
         element.appendChild(sampling_info);
         Element effective_time = doc.createElement("effective_time");
-        XMLTimeRange.insert(effective_time, channel.effective_time);
+        XMLTimeRange.insert(effective_time, channel.getEffectiveTime());
         element.appendChild(effective_time);
         Element my_site = doc.createElement("my_site");
-        XMLSite.insert(my_site, channel.my_site);
+        XMLSite.insert(my_site, channel.getSite());
         element.appendChild(my_site);
     }
 

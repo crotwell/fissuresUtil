@@ -31,7 +31,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 18858 2007-02-21 17:14:01Z oliverpa $
+ * @version $Id: EventInfoDisplay.java 19806 2008-06-06 19:54:52Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay{
@@ -112,7 +112,7 @@ public class EventInfoDisplay extends TextInfoDisplay{
         stationNames[0] = "Station Name";
         int longest = stationNames[0].length();
         for (int i = 0; i < station.length; i++) {
-            stationNames[i + 1] = station[i].name;
+            stationNames[i + 1] = station[i].getName();
             if (stationNames[i + 1].length() > longest){
                 longest = stationNames[i + 1].length();
             }
@@ -138,16 +138,16 @@ public class EventInfoDisplay extends TextInfoDisplay{
                     Origin origin = event.get_preferred_origin();
                     dist = sph.distance(origin.my_location.latitude,
                                         origin.my_location.longitude,
-                                        station[i].my_location.latitude,
-                                        station[i].my_location.longitude);
-                    baz = sph.azimuth(station[i].my_location.latitude,
-                                      station[i].my_location.longitude,
+                                        station[i].getLocation().latitude,
+                                        station[i].getLocation().longitude);
+                    baz = sph.azimuth(station[i].getLocation().latitude,
+                                      station[i].getLocation().longitude,
                                       origin.my_location.latitude,
                                       origin.my_location.longitude);
                     az = sph.azimuth(origin.my_location.latitude,
                                      origin.my_location.longitude,
-                                     station[i].my_location.latitude,
-                                     station[i].my_location.longitude);
+                                     station[i].getLocation().latitude,
+                                     station[i].getLocation().longitude);
                     String firstPTakeoff = "";
                     String firstPRayParam = "";
                     try {
@@ -170,8 +170,8 @@ public class EventInfoDisplay extends TextInfoDisplay{
 
                     }
                     appendLabelValue(doc, stationNames[i+1] + printTextLine(' ', longest - stationNames[i+1].length()),
-                                     '\t' + twoDecimal.format(station[i].my_location.latitude)+'\t'+
-                                         twoDecimal.format(station[i].my_location.longitude)+ '\t'+
+                                     '\t' + twoDecimal.format(station[i].getLocation().latitude)+'\t'+
+                                         twoDecimal.format(station[i].getLocation().longitude)+ '\t'+
                                          twoDecimal.format(dist)+ '\t'+
                                          twoDecimal.format(dist*111.19)+ '\t'+
                                          twoDecimal.format(baz)+ '\t'+
@@ -181,16 +181,16 @@ public class EventInfoDisplay extends TextInfoDisplay{
                                     );
                 } else {
                     appendLabelValue(doc, stationNames[i+1] + printTextLine(' ', longest - stationNames[i+1].length()),
-                                     twoDecimal.format(station[i].my_location.latitude)+
-                                         " "+twoDecimal.format(station[i].my_location.longitude)+
+                                     twoDecimal.format(station[i].getLocation().latitude)+
+                                         " "+twoDecimal.format(station[i].getLocation().longitude)+
                                          "--- ,  ---");
 
                 } // end of else
 
             } catch (NoPreferredOrigin e) {
                 appendLabelValue(doc, station[i].get_code(),
-                                 twoDecimal.format(station[i].my_location.latitude)+
-                                     " "+twoDecimal.format(station[i].my_location.longitude)+
+                                 twoDecimal.format(station[i].getLocation().latitude)+
+                                     " "+twoDecimal.format(station[i].getLocation().longitude)+
                                      "--- ,  ---");
             } // end of try-catch
 
@@ -313,8 +313,8 @@ public class EventInfoDisplay extends TextInfoDisplay{
             currentStation = stations[i];
             currentDistance = sph.distance(event.get_preferred_origin().my_location.latitude,
                                            event.get_preferred_origin().my_location.longitude,
-                                           currentStation.my_location.latitude,
-                                           currentStation.my_location.longitude);
+                                           currentStation.getLocation().latitude,
+                                           currentStation.getLocation().longitude);
             if (currentDistance < closestDistance){
                 closestDistance = currentDistance;
                 index = i;

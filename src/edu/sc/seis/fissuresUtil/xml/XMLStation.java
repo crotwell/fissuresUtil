@@ -26,7 +26,7 @@ public class XMLStation {
     /**
      * StAX insert
      */
-    public static void insert(XMLStreamWriter writer, StationImpl station)
+    public static void insert(XMLStreamWriter writer, Station station)
             throws XMLStreamException {
         writer.writeStartElement("id");
         XMLStationId.insert(writer, station.get_id());
@@ -54,24 +54,24 @@ public class XMLStation {
         Element id = doc.createElement("id");
         XMLStationId.insert(id, station.get_id());
         element.appendChild(id);
-        element.appendChild(XMLUtil.createTextElement(doc, "name", station.name));
+        element.appendChild(XMLUtil.createTextElement(doc, "name", station.getName()));
         Element my_location = doc.createElement("my_location");
-        XMLLocation.insert(my_location, station.my_location);
+        XMLLocation.insert(my_location, station.getLocation());
         element.appendChild(my_location);
         Element effective_time = doc.createElement("effective_time");
-        XMLTimeRange.insert(effective_time, station.effective_time);
+        XMLTimeRange.insert(effective_time, station.getEffectiveTime());
         element.appendChild(effective_time);
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "operator",
-                                                      station.operator));
+                                                      station.getOperator()));
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "description",
-                                                      station.description));
+                                                      station.getDescription()));
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "comment",
-                                                      station.comment));
+                                                      station.getComment()));
         Element my_network = doc.createElement("my_network");
-        XMLNetworkAttr.insert(my_network, station.my_network);
+        XMLNetworkAttr.insert(my_network, station.getNetworkAttr());
         element.appendChild(my_network);
     }
 

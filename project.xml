@@ -181,7 +181,7 @@
         <dependency>
             <groupId>fissuresIDL</groupId>
             <artifactId>fissuresIDL</artifactId>
-            <version>1.0</version>
+            <version>1.0_getset</version>
         </dependency>
         <dependency>
             <groupId>SeedCodec</groupId>

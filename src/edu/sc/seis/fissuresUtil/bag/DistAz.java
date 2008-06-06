@@ -28,6 +28,8 @@ import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.network.SiteImpl;
+import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
 
 public class DistAz {
@@ -37,7 +39,10 @@ public class DistAz {
      c getBaz()   => Back Azimuth from event to station in degrees
      */
     public DistAz(Station sta, EventAccessOperations ev){
-        this(sta.my_location, getLoc(ev));
+        this((StationImpl)sta, ev);
+    }
+    public DistAz(StationImpl sta, EventAccessOperations ev){
+        this(sta.getLocation(), getLoc(ev));
     }
 
     /**
@@ -46,7 +51,10 @@ public class DistAz {
      c getBaz()   => Back Azimuth from origin to station in degrees
      */
     public DistAz(Station sta, Origin origin){
-        this(sta.my_location, getLoc(origin));
+        this((StationImpl)sta, origin);
+    }
+    public DistAz(StationImpl sta, Origin origin){
+        this(sta.getLocation(), getLoc(origin));
     }
 
     /**
@@ -55,7 +63,10 @@ public class DistAz {
      c getBaz()   => Back Azimuth from event to site in degrees
      */
     public DistAz(Site site, EventAccessOperations ev){
-        this(site.my_location, getLoc(ev));
+        this((SiteImpl)site, ev);
+    }
+    public DistAz(SiteImpl site, EventAccessOperations ev){
+        this(site.getLocation(), getLoc(ev));
     }
 
     /**
@@ -64,7 +75,7 @@ public class DistAz {
      c getBaz()   => Back Azimuth from origin to site in degrees
      */
     public DistAz(Site site, Origin origin){
-        this(site.my_location, getLoc(origin));
+        this(site.getLocation(), getLoc(origin));
     }
 
     /**
@@ -73,7 +84,7 @@ public class DistAz {
      c getBaz()   => Back Azimuth from event to channel in degrees
      */
     public DistAz(Channel chan, EventAccessOperations ev){
-        this(chan.my_site.my_location, getLoc(ev));
+        this(chan.getSite(), ev);
     }
 
     /**
@@ -82,7 +93,7 @@ public class DistAz {
      c getBaz()   => Back Azimuth from origin to channel in degrees
      */
     public DistAz(Channel chan, Origin origin){
-        this(chan.my_site.my_location, getLoc(origin));
+        this(chan.getSite().getLocation(), getLoc(origin));
     }
 
     /**

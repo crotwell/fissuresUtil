@@ -327,7 +327,7 @@ public class RT130Report {
         Iterator it = channelIdWithTime.keySet().iterator();
         while(it.hasNext()) {
             String key = (String)it.next();
-            stations.add(StationIdUtil.toString(((Channel)channelIdStringToChannel.get(key)).my_site.my_station.get_id()));
+            stations.add(StationIdUtil.toString(((Channel)channelIdStringToChannel.get(key)).getSite().getStation().get_id()));
         }
         numStations = stations.size();
         return numStations;

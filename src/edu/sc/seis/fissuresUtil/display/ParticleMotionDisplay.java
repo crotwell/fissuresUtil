@@ -156,9 +156,9 @@ public class ParticleMotionDisplay extends JPanel{
         if(cacheEvent != null) {
             try {
                 Origin origin = cacheEvent.get_preferred_origin();
-                Station station = channel.my_site.my_station;
-                double azimuth = SphericalCoords.azimuth(station.my_location.latitude,
-                                                         station.my_location.longitude,
+                Station station = channel.getSite().getStation();
+                double azimuth = SphericalCoords.azimuth(station.getLocation().latitude,
+                                                         station.getLocation().longitude,
                                                          origin.my_location.latitude,
                                                          origin.my_location.longitude);
                 double angle = 90 - azimuth;

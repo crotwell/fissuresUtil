@@ -14,9 +14,9 @@ public class LocationExtractor {
         } else if(o instanceof EventAccessOperations) {
             return EventUtil.extractOrigin((EventAccessOperations)o).my_location;
         } else if(o instanceof Station) {
-            return ((Station)o).my_location;
+            return ((Station)o).getLocation();
         } else if(o instanceof Channel) {
-            return ((Channel)o).my_site.my_location;
+            return ((Channel)o).getSite().getLocation();
         }
         return null;
     }

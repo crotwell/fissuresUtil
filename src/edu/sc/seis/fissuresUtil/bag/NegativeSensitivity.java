@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
+import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class NegativeSensitivity {
@@ -11,7 +11,7 @@ public class NegativeSensitivity {
 		return sensitivity.sensitivity_factor < 0;
 	}
 
-	public static ChannelSeismogram correct(Channel chan,
+	public static ChannelSeismogram correct(ChannelImpl chan,
 			LocalSeismogramImpl seis, Sensitivity sensitivity)
 			throws FissuresException {
 		if (check(sensitivity)) {

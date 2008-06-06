@@ -48,7 +48,7 @@ import edu.sc.seis.fissuresUtil.cache.VestingNetworkDC;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 15328 2005-11-28 21:38:23Z groves $
+ * @version $Id: ChannelChooser.java 19806 2008-06-06 19:54:52Z crotwell $
  */
 /**
  * @author Charlie Groves
@@ -375,8 +375,8 @@ public class ChannelChooser extends JPanel {
                         // probably should remove stations
                         Station[] stations = net.retrieve_stations();
                         for(int j = 0; j < stations.length; j++) {
-                            stationNames.removeElement(stations[j].name);
-                            stationMap.remove(stations[j].name);
+                            stationNames.removeElement(stations[j].getName());
+                            stationMap.remove(stations[j].getName());
                         }
                     }
                 }
@@ -514,14 +514,14 @@ public class ChannelChooser extends JPanel {
         boolean addedStation = false;
         for(int i = 0; i < stations.length; i++) {
             Station sta = stations[i];
-            if(!stationMap.containsKey(sta.name)) {
+            if(!stationMap.containsKey(sta.getName())) {
                 stationNames.addElement(sta);
                 addedStation = true;
             } // end of if ()
-            LinkedList staList = (LinkedList)stationMap.get(sta.name);
+            LinkedList staList = (LinkedList)stationMap.get(sta.getName());
             if(staList == null) {
                 staList = new LinkedList();
-                stationMap.put(sta.name, staList);
+                stationMap.put(sta.getName(), staList);
             } // end of if ()
             staList.add(sta);
         }
@@ -596,7 +596,7 @@ public class ChannelChooser extends JPanel {
         // logger.debug("Object array length: " + objArray.length);
         // logger.debug("stationNames size: " + stationNames.getSize());
         for(int i = 0; i < objArray.length; i++) {
-            String name = ((Station)objArray[i]).name;
+            String name = ((Station)objArray[i]).getName();
             LinkedList staList = (LinkedList)stationMap.get(name);
             if(staList == null) {
                 logger.warn("no stations for name=" + name);
@@ -648,8 +648,8 @@ public class ChannelChooser extends JPanel {
         Channel[] in = getChannels(station);
         LinkedList out = new LinkedList();
         for(int i = 0; i < in.length; i++) {
-            MicroSecondDate b = new MicroSecondDate(in[i].effective_time.start_time);
-            MicroSecondDate e = new MicroSecondDate(in[i].effective_time.end_time);
+            MicroSecondDate b = new MicroSecondDate(in[i].getBeginTime());
+            MicroSecondDate e = new MicroSecondDate(in[i].getEndTime());
             if(when.after(b) && when.before(e)) {
                 out.add(in[i]);
             }
@@ -681,7 +681,7 @@ public class ChannelChooser extends JPanel {
         LinkedList out = new LinkedList();
         Object[] selected = stationList.getSelectedValues();
         for(int i = 0; i < selected.length; i++) {
-            LinkedList staList = (LinkedList)stationMap.get(((Station)selected[i]).name);
+            LinkedList staList = (LinkedList)stationMap.get(((Station)selected[i]).getName());
             out.addAll(staList);
         } // end of for ()
         return (Station[])out.toArray(new Station[0]);
@@ -696,8 +696,8 @@ public class ChannelChooser extends JPanel {
                                                        Station[] in) {
         LinkedList out = new LinkedList();
         for(int i = 0; i < in.length; i++) {
-            MicroSecondDate b = new MicroSecondDate(in[i].effective_time.start_time);
-            MicroSecondDate e = new MicroSecondDate(in[i].effective_time.end_time);
+            MicroSecondDate b = new MicroSecondDate(in[i].getBeginTime());
+            MicroSecondDate e = new MicroSecondDate(in[i].getEndTime());
             if(when.after(b) && when.before(e)) {
                 out.add(in[i]);
             }
@@ -795,11 +795,11 @@ public class ChannelChooser extends JPanel {
         for(int i = 0; i < selectedStations.length - 1; i++) {
             boolean foundDup = false;
             for(int j = i + 1; j < selectedStations.length; j++) {
-                if(selectedStations[i].name.equals(selectedStations[j].name)
+                if(selectedStations[i].getName().equals(selectedStations[j].getName())
                         && selectedStations[i].get_code()
                                 .equals(selectedStations[j].get_code())
-                        && selectedStations[i].my_location.latitude == selectedStations[j].my_location.latitude
-                        && selectedStations[i].my_location.longitude == selectedStations[j].my_location.longitude) {
+                        && selectedStations[i].getLocation().latitude == selectedStations[j].getLocation().latitude
+                        && selectedStations[i].getLocation().longitude == selectedStations[j].getLocation().longitude) {
                     foundDup = true;
                     break;
                 }
@@ -825,7 +825,7 @@ public class ChannelChooser extends JPanel {
                     bandSearch : for(int bandNum = 0; bandNum < selectedChannelCodes.length; bandNum++) {
                         for(int chanNum = 0; chanNum < staChans.length; chanNum++) {
                             for(int h = 0; h < siteCodeHeuristic.length; h++) {
-                                if(staChans[chanNum].my_site.get_code()
+                                if(staChans[chanNum].getSite().get_code()
                                         .equals(siteCodeHeuristic[h])
                                         && staChans[chanNum].get_code()
                                                 .equals(selectedChannelCodes[bandNum])) {
@@ -868,7 +868,7 @@ public class ChannelChooser extends JPanel {
                 search : for(int i = 0; i < inChannels.length; i++) {
                     for(int j = 0; j < selectedSiteCodes.length; j++) {
                         for(int k = 0; k < selectedChannelCodes.length; k++) {
-                            if(inChannels[i].my_site.get_code()
+                            if(inChannels[i].getSite().get_code()
                                     .equals(selectedSiteCodes[j])
                                     && inChannels[i].get_code()
                                             .equals(selectedChannelCodes[k])) {
@@ -912,7 +912,7 @@ public class ChannelChooser extends JPanel {
             tmpV = BestChannelUtil.getChannel(allChannels,
                                               bandCode,
                                               "Z",
-                                              tmpH[0].my_site.get_code(),
+                                              tmpH[0].getSite().get_code(),
                                               tmpH[0].get_code()
                                                       .substring(1, 2));
             if(tmpV != null) {
@@ -1296,7 +1296,7 @@ public class ChannelChooser extends JPanel {
             setProgressOwner(this);
             setProgressMax(this, e.getLastIndex() - e.getFirstIndex() + 1);
             for(int i = e.getFirstIndex(); i <= e.getLastIndex(); i++) {
-                String staName = ((Station)stationNames.getElementAt(i)).name;
+                String staName = ((Station)stationNames.getElementAt(i)).getName();
                 LinkedList stations = (LinkedList)stationMap.get(staName);
                 Iterator it = stations.iterator();
                 while(it.hasNext()) {
@@ -1319,7 +1319,7 @@ public class ChannelChooser extends JPanel {
                         chans = net.retrieve_for_station(sta.get_id());
                     } else {
                         logger.warn("Unable to find network server for station "
-                                + sta.name
+                                + sta.getName()
                                 + " "
                                 + StationIdUtil.toString(sta.get_id()));
                         continue;
@@ -1345,8 +1345,8 @@ public class ChannelChooser extends JPanel {
                 String chanKey = ChannelIdUtil.toString(chans[j].get_id());
                 if(!channelMap.containsKey(chanKey)) {
                     channelMap.put(chanKey, chans[j]);
-                    if(!sites.contains(chans[j].my_site.get_code())) {
-                        sites.addElement(chans[j].my_site.get_code());
+                    if(!sites.contains(chans[j].getSite().get_code())) {
+                        sites.addElement(chans[j].getSite().get_code());
                     }
                     if(!channels.contains(chans[j].get_code())) {
                         channels.addElement(chans[j].get_code());

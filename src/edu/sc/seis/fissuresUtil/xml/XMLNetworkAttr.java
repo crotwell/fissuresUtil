@@ -24,7 +24,7 @@ public class XMLNetworkAttr {
     /**
      * StAX insert
      */
-    public static void insert(XMLStreamWriter writer, NetworkAttrImpl networkAttr)
+    public static void insert(XMLStreamWriter writer, NetworkAttr networkAttr)
             throws XMLStreamException {
         XMLUtil.writeTextElement(writer, "name", networkAttr.getName());
         XMLUtil.writeTextElement(writer, "description", networkAttr.getDescription());

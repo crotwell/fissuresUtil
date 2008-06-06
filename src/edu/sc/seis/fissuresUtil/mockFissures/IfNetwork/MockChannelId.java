@@ -21,10 +21,10 @@ public class MockChannelId{
     public static ChannelId createChanId(String chanCode, Site site){
         ChannelId chanId = new ChannelId();
         chanId.channel_code = chanCode;
-        chanId.network_id = site.my_station.my_network.get_id();
+        chanId.network_id = site.getStation().getNetworkAttr().get_id();
         chanId.site_code = site.get_code();
-        chanId.station_code = site.my_station.get_code();
-        chanId.begin_time = site.my_station.effective_time.start_time;
+        chanId.station_code = site.getStation().get_code();
+        chanId.begin_time = site.getStation().getEffectiveTime().start_time;
         return chanId;
     }
 }

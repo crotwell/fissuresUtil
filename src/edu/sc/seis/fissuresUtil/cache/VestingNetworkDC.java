@@ -5,7 +5,7 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public class VestingNetworkDC extends AbstractProxyNetworkDC {
 
-    public VestingNetworkDC(ProxyNetworkDC netDC) {
+    protected VestingNetworkDC(ProxyNetworkDC netDC) {
         super(netDC);
         proxy = netDC;
     }

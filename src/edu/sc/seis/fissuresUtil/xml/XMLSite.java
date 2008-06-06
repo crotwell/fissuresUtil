@@ -26,7 +26,7 @@ public class XMLSite {
     /**
      * StAX insert
      */
-    public static void insert(XMLStreamWriter writer, SiteImpl site)
+    public static void insert(XMLStreamWriter writer, Site site)
             throws XMLStreamException {
         writer.writeStartElement("id");
         XMLSiteId.insert(writer, site.get_id());
@@ -52,17 +52,17 @@ public class XMLSite {
         XMLSiteId.insert(id, site.get_id());
         element.appendChild(id);
         Element my_location = doc.createElement("my_location");
-        XMLLocation.insert(my_location, site.my_location);
+        XMLLocation.insert(my_location, site.getLocation());
         element.appendChild(my_location);
         Element effective_time = doc.createElement("effective_time");
-        XMLTimeRange.insert(effective_time, site.effective_time);
+        XMLTimeRange.insert(effective_time, site.getEffectiveTime());
         element.appendChild(effective_time);
         Element my_station = doc.createElement("my_station");
-        XMLStation.insert(my_station, site.my_station);
+        XMLStation.insert(my_station, site.getStation());
         element.appendChild(my_station);
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "comment",
-                                                      site.comment));
+                                                      site.getComment()));
     }
 
     public static Site getSite(Element base) {

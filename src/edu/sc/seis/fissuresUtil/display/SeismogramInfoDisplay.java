@@ -58,33 +58,33 @@ public class SeismogramInfoDisplay extends TextInfoDisplay {
             Channel chan = dss.getDataSet().getChannel(rf.channel_id);
             if (chan != null) {
                 appendHeader(doc, "Channel");
-                appendLabelValue(doc, "Name", chan.name);
-                appendLabelValue(doc, "Orientation", chan.an_orientation.azimuth+"/"+chan.an_orientation.dip);
-                appendLabelValue(doc, "Effective Time", chan.effective_time.start_time.date_time+" to "+chan.effective_time.end_time.date_time);
+                appendLabelValue(doc, "Name", chan.getName());
+                appendLabelValue(doc, "Orientation", chan.getOrientation().azimuth+"/"+chan.getOrientation().dip);
+                appendLabelValue(doc, "Effective Time", chan.getBeginTime().date_time+" to "+chan.getEndTime().date_time);
                 appendLabelValue(doc, "Id", ChannelIdUtil.toString(chan.get_id()));
-                appendLabelValue(doc, "Sampling", chan.sampling_info.numPoints+" in "+chan.sampling_info.interval);
+                appendLabelValue(doc, "Sampling", chan.getSamplingInfo().numPoints+" in "+chan.getSamplingInfo().interval);
                 appendHeader(doc, "Site");
-                Site site = chan.my_site;
+                Site site = chan.getSite();
                 appendLabelValue(doc, "Id", SiteIdUtil.toString(site.get_id()));
-                appendLabelValue(doc, "Effective Time", site.effective_time.start_time.date_time+" to "+site.effective_time.end_time.date_time);
-                appendLabelValue(doc, "Comment", site.comment);
-                appendLabelValue(doc, "Location", site.my_location.latitude+"/"+site.my_location.longitude+" elev="+site.my_location.elevation+" depth="+site.my_location.depth);
+                appendLabelValue(doc, "Effective Time", site.getBeginTime().date_time+" to "+site.getEndTime().date_time);
+                appendLabelValue(doc, "Comment", site.getComment());
+                appendLabelValue(doc, "Location", site.getLocation().latitude+"/"+site.getLocation().longitude+" elev="+site.getLocation().elevation+" depth="+site.getLocation().depth);
                 appendHeader(doc, "Station");
-                Station sta = site.my_station;
+                Station sta = site.getStation();
                 appendLabelValue(doc, "Id", StationIdUtil.toString(sta.get_id()));
-                appendLabelValue(doc, "Effective Time", sta.effective_time.start_time.date_time+" to "+sta.effective_time.end_time.date_time);
-                appendLabelValue(doc, "Name", sta.name);
-                appendLabelValue(doc, "Description", sta.description);
-                appendLabelValue(doc, "Operator", sta.operator);
-                appendLabelValue(doc, "Comment", sta.comment);
-                appendLabelValue(doc, "Location", sta.my_location.latitude+"/"+sta.my_location.longitude+" elev="+sta.my_location.elevation+" depth="+sta.my_location.depth);
+                appendLabelValue(doc, "Effective Time", sta.getBeginTime().date_time+" to "+sta.getEndTime().date_time);
+                appendLabelValue(doc, "Name", sta.getName());
+                appendLabelValue(doc, "Description", sta.getDescription());
+                appendLabelValue(doc, "Operator", sta.getOperator());
+                appendLabelValue(doc, "Comment", sta.getComment());
+                appendLabelValue(doc, "Location", sta.getLocation().latitude+"/"+sta.getLocation().longitude+" elev="+sta.getLocation().elevation+" depth="+sta.getLocation().depth);
                 appendHeader(doc, "Network");
-                NetworkAttr net = sta.my_network;
+                NetworkAttr net = sta.getNetworkAttr();
                 appendLabelValue(doc, "Id", NetworkIdUtil.toString(net.get_id()));
                 appendLabelValue(doc, "Effective Time", net.effective_time.start_time.date_time+" to "+net.effective_time.end_time.date_time);
-                appendLabelValue(doc, "Name", sta.name);
-                appendLabelValue(doc, "Description", sta.description);
-                appendLabelValue(doc, "Owner", sta.operator);
+                appendLabelValue(doc, "Name", sta.getName());
+                appendLabelValue(doc, "Description", sta.getDescription());
+                appendLabelValue(doc, "Owner", sta.getOperator());
             }
             Object respObj = dss.getAuxillaryData(StdAuxillaryDataNames.RESPONSE);
             if (respObj != null && respObj instanceof Response) {
@@ -94,7 +94,7 @@ public class SeismogramInfoDisplay extends TextInfoDisplay {
                 appendLabelValue(doc, "Number of Stages", ""+resp.stages.length);
                 TimeRange effTime;
                 if (chan != null) {
-                    effTime = chan.effective_time;
+                    effTime = chan.getEffectiveTime();
                 } else {
                     effTime = new TimeRange(rf.start_time, rf.end_time);
                 }

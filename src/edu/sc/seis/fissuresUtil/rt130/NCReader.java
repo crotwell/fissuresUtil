@@ -94,20 +94,20 @@ public class NCReader {
         MicroSecondDate now = new MicroSecondDate();
         while(it.hasNext()) {
             Site cur = (Site)it.next();
-            MicroSecondDate end = new MicroSecondDate(cur.effective_time.end_time);
+            MicroSecondDate end = new MicroSecondDate(cur.getEndTime());
             String endstr = "ongoing";
             if(!end.after(now)) {
                 endstr = df.format(end);
             }
-            Location loc = cur.my_location;
-            Matcher m = instrumentationParser.matcher(cur.comment);
+            Location loc = cur.getLocation();
+            Matcher m = instrumentationParser.matcher(cur.getComment());
             if(!m.matches()) {
                 throw new RT130FormatError(SiteIdUtil.toString(cur.get_id())
                         + " has a malformed instrumentation specification '"
-                        + cur.comment + "'");
+                        + cur.getComment() + "'");
             }
             String orientations = m.group(2);
-            System.out.println(cur.my_station.get_code()
+            System.out.println(cur.getStation().get_code()
                     + " "
                     + DASChannelCreator.getUnitId(cur)
                     + " "
@@ -121,7 +121,7 @@ public class NCReader {
                     + " "
                     + orientations
                     + " "
-                    + df.format(new MicroSecondDate(cur.effective_time.start_time))
+                    + df.format(new MicroSecondDate(cur.getBeginTime()))
                     + " " + endstr);
         }
     }
@@ -130,8 +130,8 @@ public class NCReader {
         Iterator it = sites.iterator();
         while(it.hasNext()) {
             Site cur = (Site)it.next();
-            if(cur.my_station.get_code().equals(stationCode)
-                    && new MicroSecondTimeRange(cur.effective_time).contains(startTime)) {
+            if(cur.getStation().get_code().equals(stationCode)
+                    && new MicroSecondTimeRange(cur.getEffectiveTime()).contains(startTime)) {
                 return DASChannelCreator.getUnitId(cur);
             }
         }
@@ -236,8 +236,8 @@ public class NCReader {
             while(it.hasNext()) {
                 Site cur = (Site)it.next();
                 if(!blockSites.contains(cur)) {
-                    cur.effective_time.end_time = blockStart.getFissuresTime();
-                    cur.my_station.effective_time.end_time = blockStart.getFissuresTime();
+                    cur.getEffectiveTime().end_time = blockStart.getFissuresTime();
+                    cur.getStation().getEffectiveTime().end_time = blockStart.getFissuresTime();
                     it.remove();
                 }
             }
@@ -245,10 +245,10 @@ public class NCReader {
                 Site ithSite = (Site)blockSites.get(i);
                 for(int j = i + 1; j < blockSites.size(); j++) {
                     Site jthSite = (Site)blockSites.get(j);
-                    if(ithSite.my_station.get_code()
-                            .equals(jthSite.my_station.get_code())) {
+                    if(ithSite.getStation().get_code()
+                            .equals(jthSite.getStation().get_code())) {
                         throw new FormatException("The station code '"
-                                + ithSite.my_station.get_code()
+                                + ithSite.getStation().get_code()
                                 + "' appears twice in this block");
                     }
                     if(DASChannelCreator.getUnitId(jthSite)
@@ -327,16 +327,16 @@ public class NCReader {
                                        new QuantityImpl(0.0, UnitImpl.METER),
                                        LocationType.GEOGRAPHIC);
             } else {
-                siteLoc = sta.my_location;
+                siteLoc = sta.getLocation();
             }
             SiteImpl site = new SiteImpl(siteId, siteLoc, sta, instrumentInfo);
             Iterator it = activeSites.iterator();
             int siteCount = 0;
             while(it.hasNext()) {
                 Site s = (Site)it.next();
-                if(s.my_station.get_code().equals(code)) {
-                    if(s.comment.equals(site.comment)
-                            && LocationUtil.areEqual(siteLoc, s.my_location)) {
+                if(s.getStation().get_code().equals(code)) {
+                    if(s.getComment().equals(site.getComment())
+                            && LocationUtil.areEqual(siteLoc, s.getLocation())) {
                         blockSites.add(s);
                         return;
                     } else {// A new active site at this station, bump our site
@@ -349,8 +349,8 @@ public class NCReader {
             it = sites.iterator();
             while(it.hasNext()) {
                 Site cur = (Site)it.next();
-                if(cur.my_station.get_code().equals(code)) {
-                    site.my_station = cur.my_station;
+                if(cur.getStation().get_code().equals(code)) {
+                    site.setStation(cur.getStation());
                     break;
                 }
             }

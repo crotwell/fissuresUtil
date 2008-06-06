@@ -1,12 +1,15 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
+
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.Unit;
@@ -17,6 +20,7 @@ import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;
@@ -29,13 +33,26 @@ import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
-import edu.sc.seis.fissuresUtil.bag.ResponseGain;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     public CacheNetworkAccess(NetworkAccess net) {
         super(net);
+    }
+    
+    public CacheNetworkAccess(NetworkAccess net, NetworkAttrImpl attr) {
+        super(net);
+        this.attr = attr;
+    }
+    
+    public static CacheNetworkAccess create(NetworkAttrImpl attr, FissuresNamingService fisName) throws NetworkNotFound {
+        VestingNetworkDC netdc = new VestingNetworkDC(attr.getSourceServerDNS(),
+                                                      attr.getSourceServerName(),
+                                                      fisName);
+        VestingNetworkFinder vFinder = (VestingNetworkFinder)netdc.a_finder();
+        return vFinder.vest(attr);   
     }
 
     /**
@@ -47,7 +64,6 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         stations = null;
         channelMap.clear();
         knownStations.clear();
-        knownTimes.clear();
         knownSites.clear();
         sensMap.clear();
         super.reset();
@@ -57,18 +73,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         synchronized(this) {
             if(attr == null) {
                 attr = (NetworkAttrImpl)getNetworkAccess().get_attributes();
-                attr.description = attr.description.intern();
-                attr.name = attr.name.intern();
-                attr.owner = attr.owner.intern();
-                intern(attr.get_id());
+                NetworkAttr.intern(attr);
             }
         }
         return attr;
-    }
-
-    private void intern(NetworkId id) {
-        id.begin_time = intern(id.begin_time);
-        id.network_code = id.network_code.intern();
     }
 
     /**
@@ -81,7 +89,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
             if(stations == null) {
                 stations = getNetworkAccess().retrieve_stations();
                 for(int i = 0; i < stations.length; i++) {
-                    stations[i] = intern(stations[i]);
+                    stations[i] = Station.intern(stations[i]);
                 }
             }
         }
@@ -99,7 +107,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
             if(!channelMap.containsKey(idStr)) {
                 Channel[] chans = getNetworkAccess().retrieve_for_station(id);
                 for(int i = 0; i < chans.length; i++) {
-                    intern(chans[i]);
+                    Channel.intern(chans[i]);
                 }
                 if(chans.length == 0) {
                     logger.debug("Got 0 channels for station "
@@ -206,88 +214,9 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         MicroSecondTimeRange range;
     }
 
-    private void intern(Channel channel) {
-        intern(channel.get_id());
-        channel.my_site = intern(channel.my_site);
-        intern(channel.effective_time);
-        channel.name = channel.name.intern();
-    }
-
-    private void intern(ChannelId id) {
-        id.channel_code = id.channel_code.intern();
-        id.network_id = get_attributes().get_id();
-        id.station_code = id.station_code.intern();
-        id.site_code = id.site_code.intern();
-        id.begin_time = intern(id.begin_time);
-    }
-
-    private void intern(SiteId id) {
-        id.network_id = get_attributes().get_id();
-        id.station_code = id.station_code.intern();
-        id.site_code = id.site_code.intern();
-        id.begin_time = intern(id.begin_time);
-    }
-
-    private void intern(StationId id) {
-        if(NetworkIdUtil.areEqual(id.network_id, get_attributes().get_id())) {
-            id.network_id = get_attributes().get_id();
-        }
-        id.station_code = id.station_code.intern();
-        id.begin_time = intern(id.begin_time);
-    }
-
-    private Site intern(Site site) {
-        synchronized(knownSites) {
-            String id = SiteIdUtil.toString(site.get_id());
-            if(!knownSites.containsKey(id)) {
-                intern(site.get_id());
-                site.comment = site.comment.intern();
-                site.my_station = intern(site.my_station);
-                site.effective_time = intern(site.effective_time);
-                knownSites.put(id, site);
-                return site;
-            }
-            return (Site)knownSites.get(id);
-        }
-    }
-
-    private TimeRange intern(TimeRange effective_time) {
-        effective_time.end_time = intern(effective_time.end_time);
-        effective_time.start_time = intern(effective_time.start_time);
-        return effective_time;
-    }
-
-    public Station intern(Station station) {
-        synchronized(knownStations) {
-            String id = StationIdUtil.toString(station.get_id());
-            if(!knownStations.containsKey(id)) {
-                intern(station.get_id());
-                if(NetworkIdUtil.areEqual(station.my_network.get_id(),
-                                          get_attributes().get_id())) {
-                    station.my_network = get_attributes();
-                }
-                knownStations.put(id, station);
-                return station;
-            }
-            return (Station)knownStations.get(id);
-        }
-    }
-
-    private Time intern(Time unknownTime) {
-        synchronized(knownTimes) {
-            if(!knownTimes.containsKey(unknownTime.date_time)) {
-                knownTimes.put(unknownTime.date_time, unknownTime);
-                return unknownTime;
-            }
-            return (Time)knownTimes.get(unknownTime.date_time);
-        }
-    }
-
-    private Map knownTimes = Collections.synchronizedMap(new HashMap());
-
-    private Map knownStations = Collections.synchronizedMap(new HashMap());
-
-    private Map knownSites = Collections.synchronizedMap(new HashMap());
+    private  Map<String, Site> knownSites = Collections.synchronizedMap(new HashMap<String, Site>());
+    
+    private Map<String, Station> knownStations = Collections.synchronizedMap(new HashMap<String, Station>());
 
     protected NetworkAttrImpl attr;
 

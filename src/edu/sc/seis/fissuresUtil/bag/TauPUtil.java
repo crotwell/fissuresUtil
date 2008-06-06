@@ -25,7 +25,7 @@ public class TauPUtil {
     }
 
     public Arrival[] calcTravelTimes(Station station, Origin origin, String[] phaseNames) throws TauModelException {
-        return calcTravelTimes(station.my_location, origin, phaseNames);
+        return calcTravelTimes(station.getLocation(), origin, phaseNames);
     }
 
     public synchronized Arrival[] calcTravelTimes(Location stationLoc, Origin origin, String[] phaseNames) throws TauModelException {

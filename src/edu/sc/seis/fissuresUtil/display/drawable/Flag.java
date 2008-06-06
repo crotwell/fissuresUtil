@@ -242,7 +242,7 @@ public class Flag implements Drawable {
                                          DataSetSeismogram dss,
                                          EventAccessOperations event) {
         Station station = dss.getDataSet()
-                .getChannel(dss.getRequestFilter().channel_id).my_site.my_station;
+                .getChannel(dss.getRequestFilter().channel_id).getSite().getStation();
         Origin origin = EventUtil.extractOrigin(event);
         try {
             Arrival[] arrivals = taup.calcTravelTimes(station,

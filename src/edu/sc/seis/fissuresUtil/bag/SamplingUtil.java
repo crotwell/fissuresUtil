@@ -22,7 +22,7 @@ public class SamplingUtil {
         List results = new ArrayList();
         for(int i = 0; i < chans.length; i++) {
             Channel chan = chans[i];
-            double chanSPS = getSamplesPerSecond(chan.sampling_info);
+            double chanSPS = getSamplesPerSecond(chan.getSamplingInfo());
             if(minSPS <= chanSPS && chanSPS <= maxSPS) {
                 results.add(chan);
             }

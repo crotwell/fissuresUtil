@@ -91,7 +91,7 @@ public class ParticleMotionDisplayThread {
     }
 
     public boolean isHorizontalPlane(Channel one, Channel two) {
-        return one.an_orientation.dip == 0 && two.an_orientation.dip == 0;
+        return one.getOrientation().dip == 0 && two.getOrientation().dip == 0;
     }
 
     /**

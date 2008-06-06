@@ -172,9 +172,9 @@ public class JDBCSeismogramFiles extends JDBCTable {
             if(ChannelIdUtil.areEqualExceptForBeginTime(newChannelId,
                                                         channelId[i])) {
                 Channel closeChannel = getChannel(channelId[i]);
-                Location locationFromDatabase = closeChannel.my_site.my_location;
+                Location locationFromDatabase = closeChannel.getSite().getLocation();
                 DistAz da = new DistAz(locationFromDatabase,
-                                       newChannel.my_site.my_location);
+                                       newChannel.getSite().getLocation());
                 QuantityImpl siteDistance = new QuantityImpl(DistAz.degreesToKilometers(da.getDelta()),
                                                              UnitImpl.KILOMETER);
                 if(siteDistance.lessThan(distance)) {
@@ -202,9 +202,9 @@ public class JDBCSeismogramFiles extends JDBCTable {
                                               Channel newChannel)
             throws SQLException, NotFound {
         MicroSecondDate newChannelBeginTime = new MicroSecondDate(newChannel.get_id().begin_time);
-        MicroSecondDate newChannelEndTime = new MicroSecondDate(newChannel.effective_time.end_time);
+        MicroSecondDate newChannelEndTime = new MicroSecondDate(newChannel.getEndTime());
         MicroSecondDate channelFromDatabaseBeginTime = new MicroSecondDate(channelFromDatabase.get_id().begin_time);
-        MicroSecondDate channelFromDatabaseEndTime = new MicroSecondDate(channelFromDatabase.effective_time.end_time);
+        MicroSecondDate channelFromDatabaseEndTime = new MicroSecondDate(channelFromDatabase.getEndTime());
         if(newChannelBeginTime.before(channelFromDatabaseBeginTime)
                 && newChannelEndTime.equals(channelFromDatabaseEndTime)) {
             updateChannelBeginTime.setInt(1,

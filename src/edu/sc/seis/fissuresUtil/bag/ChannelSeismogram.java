@@ -1,18 +1,18 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
+import edu.iris.Fissures.network.ChannelImpl;
 
 public class ChannelSeismogram {
 
-	public ChannelSeismogram(Channel chan, LocalSeismogram seis, Sensitivity sensitivity) {
+	public ChannelSeismogram(ChannelImpl chan, LocalSeismogram seis, Sensitivity sensitivity) {
 		this.seis = seis;
 		this.chan = chan;
 		this.sensitivity = sensitivity;
 	}
 
-	public Channel getChannel() {
+	public ChannelImpl getChannel() {
 		return chan;
 	}
 
@@ -29,7 +29,7 @@ public class ChannelSeismogram {
 
 	LocalSeismogram seis;
 
-	Channel chan;
+	ChannelImpl chan;
 
 	Sensitivity sensitivity;
 }

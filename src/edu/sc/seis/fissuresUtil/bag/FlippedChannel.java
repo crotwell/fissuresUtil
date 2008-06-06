@@ -4,15 +4,16 @@ import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
+import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class FlippedChannel {
-    public static ChannelSeismogram correct(Channel chan,
+    public static ChannelSeismogram correct(ChannelImpl chan,
                                             LocalSeismogramImpl seis) throws FissuresException{
         return correct(chan, seis, null);
     }
 
-    public static ChannelSeismogram correct(Channel chan,
+    public static ChannelSeismogram correct(ChannelImpl chan,
                                             LocalSeismogramImpl seis,
                                             Sensitivity sens)
             throws FissuresException {
@@ -34,7 +35,7 @@ public class FlippedChannel {
     }
 
     public static boolean check(Orientation correct, Channel chan) {
-        return OrientationUtil.angleBetween(correct, chan.an_orientation) >= 180 - tol;
+        return OrientationUtil.angleBetween(correct, chan.getOrientation()) >= 180 - tol;
     }
 
     private static double tol = 0.01;

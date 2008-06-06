@@ -14,8 +14,8 @@ import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 
 public class OMStation extends OMPoly implements FissuresGraphic{
     public OMStation(Station stat, Layer stationLayer){
-        super(stat.my_location.latitude,
-              stat.my_location.longitude, xPoints, yPoints,
+        super(stat.getLocation().latitude,
+              stat.getLocation().longitude, xPoints, yPoints,
               OMPoly.COORDMODE_ORIGIN);
         station = stat;
         setDefaultColor(DisplayUtils.NO_STATUS_STATION);

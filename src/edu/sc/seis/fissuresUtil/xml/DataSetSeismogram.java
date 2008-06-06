@@ -142,7 +142,7 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
     }
 
     public static String generateName(Channel chan) {
-        return chan.my_site.my_station.name + " " + chan.get_id().channel_code;
+        return chan.getSite().getStation().getName() + " " + chan.get_id().channel_code;
     }
 
     public String toString() {

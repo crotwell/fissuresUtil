@@ -74,7 +74,7 @@ public class MockChannel {
                                new SamplingImpl(20,
                                                 new TimeInterval(1.0,
                                                                  UnitImpl.SECOND)),
-                               s.effective_time,
+                               s.getEffectiveTime(),
                                s);
     }
 
