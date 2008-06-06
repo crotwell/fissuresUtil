@@ -6,17 +6,18 @@
 <hibernate-mapping>
 
 	<class name="edu.iris.Fissures.network.NetworkAttrImpl"
-		table="network">
+		table="network" >
+		<cache usage="read-write"/>
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
 		<component name="id"
-			class="edu.iris.Fissures.IfNetwork.NetworkId">
-			<property name="network_code" access="field"
+			class="edu.iris.Fissures.IfNetwork.NetworkId"  lazy="false">
+			<property name="network_code" access="field" lazy="false"
 				unique-key="net_code_date" />
 		</component>
 		<property name="beginTime"
-			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType" lazy="false">
 			<column name="net_begin_time" sql-type="timestamp"
 				unique-key="net_code_date">
 			</column>
@@ -32,10 +33,13 @@
 			<column name="net_end_nanos" sql-type="integer"></column>
 			<column name="net_end_leaps" sql-type="integer"></column>
 		</property>
+		<property name="sourceServerName" />
+		<property name="sourceServerDNS" />
 	</class>
 
 	<class name="edu.iris.Fissures.network.StationImpl"
 		table="station">
+		<cache usage="read-write"/>
 		<id name="dbid" column="dbid" type="integer">
 			<generator class="native" />
 		</id>
@@ -53,9 +57,9 @@
 			<column name="sta_begin_leaps" sql-type="integer"></column>
 		</property>
 		<property name="name" />
-		<component name="location" class="edu.iris.Fissures.Location" >
-			<property name="latitude" type="float" access="field" />
-			<property name="longitude" type="float" access="field" />
+		<component name="location" class="edu.iris.Fissures.Location"  lazy="false">
+			<property name="latitude" type="float" access="field"  lazy="false"/>
+			<property name="longitude" type="float" access="field"  lazy="false"/>
 			<component name="depth"
 				class="edu.iris.Fissures.model.QuantityImpl" access="field" lazy="false">
 				<property name="value" column="depth_value"
@@ -89,18 +93,19 @@
 	</class>
 
 	<class name="edu.iris.Fissures.network.ChannelImpl"
-		table="channel" lazy="false">
+		table="channel">
+		<cache usage="read-write"/>
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
 		<component name="id"
-			class="edu.iris.Fissures.IfNetwork.ChannelId">
-			<property name="station_code" access="field" />
-			<property name="site_code" access="field" unique-key="chan_code_date" />
-			<property name="channel_code" access="field" unique-key="chan_code_date" />
+			class="edu.iris.Fissures.IfNetwork.ChannelId"  lazy="false">
+			<property name="station_code" access="field"  lazy="false"/>
+			<property name="site_code" access="field" unique-key="chan_code_date"  lazy="false"/>
+			<property name="channel_code" access="field" unique-key="chan_code_date"  lazy="false"/>
 		</component>
 		<property name="beginTime"
-			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
+			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType"  lazy="false">
 			<column name="chan_begin_time" sql-type="timestamp"
 				unique-key="chan_code_date">
 			</column>
@@ -205,5 +210,6 @@
 			class="edu.iris.Fissures.network.ChannelImpl" column="channel3"
 			foreign-key="FK_evp_channel3" unique-key="channelgroup_chan3_key" />
 	</class>
+		
 
 </hibernate-mapping>

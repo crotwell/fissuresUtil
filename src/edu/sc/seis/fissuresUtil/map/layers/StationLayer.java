@@ -109,16 +109,16 @@ public class StationLayer extends MouseAdapterLayer implements
 	public void stationDataChanged(StationDataEvent s) {
 		Station[] stations = s.getStations();
 		for (int i = 0; i < stations.length; i++) {
-			if (!stationMap.containsKey(stations[i].name)) {
-				stationNames.add(stations[i].name);
+			if (!stationMap.containsKey(stations[i].getName())) {
+				stationNames.add(stations[i].getName());
 				synchronized (omgraphics) {
 					omgraphics.add(new OMStation(stations[i], this));
 				}
 			}
-			List stationList = (List) stationMap.get(stations[i].name);
+			List stationList = (List) stationMap.get(stations[i].getName());
 			if (stationList == null) {
 				stationList = new LinkedList();
-				stationMap.put(stations[i].name, stationList);
+				stationMap.put(stations[i].getName(), stationList);
 			}
 			stationList.add(stations[i]);
 		}
@@ -173,7 +173,7 @@ public class StationLayer extends MouseAdapterLayer implements
 			boolean found = false;
 			while (it.hasNext() && !found) {
 				OMStation current = (OMStation) it.next();
-				if (current.getStation().name.equals(station.name)) {
+				if (current.getStation().getName().equals(station.getName())) {
 					// if (StationIdUtil.areEqual(current.getStation().get_id(),
 					// station.get_id())){
 					current.setIsUp(isUp);
@@ -331,12 +331,12 @@ public class StationLayer extends MouseAdapterLayer implements
     public static String getStationInfo(Station station, EventAccessOperations event){
         StringBuffer buf = new StringBuffer();
         buf.append("Station: ");
-        buf.append(station.my_network.get_code() + "." + station.get_code() + "-");
-        buf.append(station.name);
+        buf.append(station.getNetworkAttr().get_code() + "." + station.get_code() + "-");
+        buf.append(station.getName());
         if (event != null){
             try{
-                double dist = StationLayer.calcDistEventFromLocation(station.my_location.latitude,
-                                                                     station.my_location.longitude,
+                double dist = StationLayer.calcDistEventFromLocation(station.getLocation().latitude,
+                                                                     station.getLocation().longitude,
                                                                      event);
                 buf.append(" | Distance from Event: ");
                 buf.append(dist);

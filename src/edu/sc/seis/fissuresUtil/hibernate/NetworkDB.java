@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
@@ -59,13 +60,13 @@ public class NetworkDB extends AbstractHibernateDB {
 
     public int put(StationImpl sta) {
         Integer dbid;
-        if(((NetworkAttrImpl)sta.my_network).getDbid() == 0) {
+        if(((NetworkAttrImpl)sta.getNetworkAttr()).getDbid() == 0) {
             // assume network info is already put, attach net
             try {
-                sta.my_network = getNetworkById(sta.my_network.get_id());
+                sta.setNetworkAttr(getNetworkById(sta.getNetworkAttr().get_id()));
             } catch(NotFound ee) {
                 // must not have been added yet
-                put((NetworkAttrImpl)sta.my_network);
+                put((NetworkAttrImpl)sta.getNetworkAttr());
             }
         }
         internUnit(sta);
@@ -78,7 +79,7 @@ public class NetworkDB extends AbstractHibernateDB {
             StationImpl indb = getStationById(sta.get_id());
             sta.associateInDB(indb);
             getSession().evict(indb);
-            getSession().evict(indb.my_network);
+            getSession().evict(indb.getNetworkAttr());
             getSession().saveOrUpdate(sta);
             return sta.getDbid();
         } catch(NotFound e) {
@@ -96,11 +97,11 @@ public class NetworkDB extends AbstractHibernateDB {
     public int put(ChannelImpl chan) {
         Integer dbid;
         internUnit(chan);
-        if(((StationImpl)chan.my_site.my_station).getDbid() == 0) {
+        if(((StationImpl)chan.getSite().getStation()).getDbid() == 0) {
             try {
-                chan.my_site.my_station = getStationById(chan.my_site.my_station.get_id());
+                chan.getSite().setStation( getStationById(chan.getSite().getStation().get_id()));
             } catch(NotFound e) {
-                int staDbid = put((StationImpl)chan.my_site.my_station);
+                int staDbid = put((StationImpl)chan.getSite().getStation());
             }
         }
         try {
@@ -110,8 +111,8 @@ public class NetworkDB extends AbstractHibernateDB {
             }
             chan.associateInDB(indb);
             getSession().evict(indb);
-            getSession().evict(indb.my_site.my_station);
-            getSession().evict(indb.my_site.my_station.my_network);
+            getSession().evict(indb.getSite().getStation());
+            getSession().evict(indb.getSite().getStation().getNetworkAttr());
             getSession().saveOrUpdate(chan);
             return chan.getDbid();
         } catch(NotFound nf) {
@@ -175,6 +176,15 @@ public class NetworkDB extends AbstractHibernateDB {
             }
             throw new NotFound();
         }
+    }
+
+    public NetworkAttrImpl getNetwork(int dbid) throws NotFound {
+        NetworkAttrImpl out = (NetworkAttrImpl)getSession().get(NetworkAttrImpl.class,
+                                                        new Integer(dbid));
+        if(out == null) {
+            throw new NotFound();
+        }
+        return out;
     }
 
     public StationImpl getStation(int dbid) throws NotFound {
@@ -274,7 +284,7 @@ public class NetworkDB extends AbstractHibernateDB {
         return (ChannelImpl)result.get(0);
     }
 
-    public void internUnit(StationImpl sta) {
+    public void internUnit(Station sta) {
         internUnit(sta.getLocation());
     }
 

@@ -48,8 +48,8 @@
 			<column name="leaps" sql-type="integer"/>
 		</property>
 		<component name="location" class="edu.iris.Fissures.Location" >
-			<property name="latitude" type="float" access="field" />
-			<property name="longitude" type="float" access="field" />
+			<property name="latitude" type="float" access="field"  lazy="false"/>
+			<property name="longitude" type="float" access="field"  lazy="false"/>
 			<component name="depth"
 				class="edu.iris.Fissures.model.QuantityImpl" access="field">
 				<property name="value" column="depth_value"

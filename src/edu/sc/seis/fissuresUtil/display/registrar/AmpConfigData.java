@@ -236,10 +236,10 @@ public class AmpConfigData implements SeismogramContainerListener {
             return false;
         }
         DataSetSeismogram[] seis = getSeismograms(ampData);
-        Site site = seis[0].getChannel().my_site;
+        Site site = seis[0].getChannel().getSite();
         for(int i = 1; i < seis.length; i++) {
             if(!SiteIdUtil.areEqual(site.get_id(),
-                                    seis[i].getChannel().my_site.get_id())) {
+                                    seis[i].getChannel().getSite().get_id())) {
                 return false;
             }
         }

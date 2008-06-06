@@ -76,7 +76,7 @@ public class DASChannelCreator {
         Iterator it = sites.iterator();
         while(it.hasNext()) {
             Site s = (Site)it.next();
-            if(new MicroSecondTimeRange(s.effective_time).contains(beginTime)) {
+            if(new MicroSecondTimeRange(s.getEffectiveTime()).contains(beginTime)) {
                 return s;
             }
         }
@@ -86,11 +86,11 @@ public class DASChannelCreator {
     }
 
     public static String getUnitId(Site s) {
-        return s.comment.substring(0, s.comment.indexOf('/'));
+        return s.getComment().substring(0, s.getComment().indexOf('/'));
     }
 
     public static String getSensorId(Site s) {
-        String commentSansDasId = s.comment.split("\\s+")[1];
+        String commentSansDasId = s.getComment().split("\\s+")[1];
         return commentSansDasId.substring(0, commentSansDasId.indexOf('/'));
     }
 
@@ -206,16 +206,16 @@ public class DASChannelCreator {
         if(sampleRate < 10) {
             band = "L";
         }
-        Matcher m = instrumentationParser.matcher(s.comment);
+        Matcher m = instrumentationParser.matcher(s.getComment());
         if(!m.matches()) {
             throw new RT130FormatError(SiteIdUtil.toString(s.get_id())
                     + " has a malformed instrumentation specification '"
-                    + s.comment + "'");
+                    + s.getComment() + "'");
         }
         Orientation[] orientations = parseOrientations(m.group(2));
         if(orientations.length < 3) {
             System.out.println("GOT " + orientations.length
-                    + " orientations from " + m.group(2) + " from " + s.comment);
+                    + " orientations from " + m.group(2) + " from " + s.getComment());
         }
         SamplingImpl sampling = new SamplingImpl(sampleRate,
                                                  new TimeInterval(1,
@@ -239,15 +239,15 @@ public class DASChannelCreator {
         }
         for(int i = 0; i < orientations.length; i++) {
             ChannelId id = new ChannelId(net.get_id(),
-                                         s.my_station.get_code(),
+                                         s.getStation().get_code(),
                                          s.get_code(),
                                          band + "H" + orientationCodes[i],
-                                         s.effective_time.start_time);
+                                         s.getEffectiveTime().start_time);
             newChannel[i] = new ChannelImpl(id,
                                             "",
                                             orientations[i],
                                             sampling,
-                                            s.effective_time,
+                                            s.getEffectiveTime(),
                                             s);
         }
         return newChannel;

@@ -57,7 +57,7 @@ public class AreaUtil {
     public static Channel[] inArea(Area area, Channel[] channels) {
         List out = new ArrayList(channels.length);
         for(int i = 0; i < channels.length; i++) {
-            if(inArea(area, channels[i].my_site.my_location)) {
+            if(inArea(area, channels[i].getSite().getLocation())) {
                 out.add(channels[i]);
             }
         }

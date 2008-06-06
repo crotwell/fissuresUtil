@@ -1,13 +1,18 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.TimeZone;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.UnitBase;
@@ -35,6 +40,8 @@ import edu.sc.seis.seisFile.mseed.Blockette1000;
 import edu.sc.seis.seisFile.mseed.Btime;
 import edu.sc.seis.seisFile.mseed.DataHeader;
 import edu.sc.seis.seisFile.mseed.DataRecord;
+import edu.sc.seis.seisFile.mseed.MiniSeedRead;
+import edu.sc.seis.seisFile.mseed.MissingBlockette1000;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
 
 /**
@@ -494,6 +501,46 @@ public class FissuresConvert {
         impl.the_unit_base = UnitBase.from_int(impl.the_unit_base.value());
         for(int i = 0; i < impl.elements.length; i++) {
             singletonizeUnitBase((UnitImpl)impl.elements[i]);
+        }
+    }
+    
+    public static void main(String[] args) {
+
+        DataInputStream ls = null;
+        try {
+            System.out.println("open socket");
+            if(args.length == 0) {
+                Socket lissConnect = new Socket("anmo.iu.liss.org", 4000);
+                ls = new DataInputStream(new BufferedInputStream(lissConnect.getInputStream(),
+                                                                 1024));
+            } else {
+                ls = new DataInputStream(new BufferedInputStream(new FileInputStream(args[0]), 4096));
+            }
+            MiniSeedRead rf = new MiniSeedRead(ls);
+            DataRecord[] sr = new DataRecord[11];
+            for(int i = 0; i < 11; i++) {
+                try {
+                    sr[i] = rf.getNextRecord();
+                } catch(MissingBlockette1000 e) {
+                    System.out.println("Missing Blockette1000, trying with record size of 4096");
+                    // try with 4096 as default
+                    sr[i] = rf.getNextRecord(4096);
+                }
+                System.out.println(sr[i]);
+                if(sr[i] instanceof DataRecord) {
+                    DataRecord dr = (DataRecord)sr[i];
+                    byte[] data = dr.getData();
+                }
+            }
+            LocalSeismogramImpl seis = FissuresConvert.toFissures(sr, (byte)B1000Types.STEIM1, (byte)1);
+        } catch(Exception e) {
+            System.out.println(e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if(ls != null)
+                    ls.close();
+            } catch(Exception ee) {}
         }
     }
 } // FissuresConvert

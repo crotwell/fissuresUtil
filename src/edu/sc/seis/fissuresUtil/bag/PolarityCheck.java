@@ -3,17 +3,18 @@ package edu.sc.seis.fissuresUtil.bag;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
+import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 public class PolarityCheck {
 
-	public static boolean check(Channel chan, LocalSeismogramImpl seis,
+	public static boolean check(ChannelImpl chan, LocalSeismogramImpl seis,
 			Sensitivity sensitivity) throws FissuresException {
 		return FlippedChannel.check(chan)
 				&& NegativeSensitivity.check(sensitivity);
 	}
 
-	public static ChannelSeismogram correct(Channel chan,
+	public static ChannelSeismogram correct(ChannelImpl chan,
 			LocalSeismogramImpl seis, Sensitivity sensitivity)
 			throws FissuresException {
 		if (NegativeSensitivity.check(sensitivity)

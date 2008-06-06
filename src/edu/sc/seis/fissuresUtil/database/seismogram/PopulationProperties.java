@@ -54,7 +54,7 @@ public class PopulationProperties {
         // in case of remap of network code
         netString = NetworkIdUtil.toStringNoDates(netAttr.get_id());
         StationImpl station;
-        String stationString = netString + "." + chan.my_site.my_station.get_code();
+        String stationString = netString + "." + chan.getSite().getStation().get_code();
         if(stations.containsKey(stationString)) {
             station = (StationImpl)stations.get(stationString);
         } else {
@@ -66,14 +66,14 @@ public class PopulationProperties {
                                                                                   TimeUtils.timeUnknown.date_time),
                                                                 -1));
             StationId stationId = new StationId(netAttr.get_id(),
-                                                chan.my_site.my_station.get_code(),
+                                                chan.getSite().getStation().get_code(),
                                                 staEffectiveTime.start_time);
             station = new StationImpl(stationId,
-                                      chan.my_site.my_station.name,
-                                      chan.my_site.my_station.my_location,
-                                      chan.my_site.my_station.operator,
-                                      chan.my_site.my_station.description,
-                                      chan.my_site.my_station.comment,
+                                      chan.getSite().getStation().getName(),
+                                      chan.getSite().getStation().getLocation(),
+                                      chan.getSite().getStation().getOperator(),
+                                      chan.getSite().getStation().getDescription(),
+                                      chan.getSite().getStation().getComment(),
                                       netAttr);
             stations.put(stationString, station);
         }
@@ -82,16 +82,16 @@ public class PopulationProperties {
         // check lower case
         chan.get_id().channel_code=props.getProperty(CHANNEL_REMAP+chan.get_code().toLowerCase(), chan.get_code());
         // sac processor will split a 5 char kcmpnm into site and channel code
-        if (props.containsKey(CHANNEL_REMAP+chan.my_site.get_code()+chan.get_code())) {
+        if (props.containsKey(CHANNEL_REMAP+chan.getSite().get_code()+chan.get_code())) {
             chan.get_id().site_code = "  ";
-            chan.my_site.get_id().site_code = "  ";
-            chan.get_id().channel_code=props.getProperty(CHANNEL_REMAP+chan.my_site.get_code()+chan.get_code(), chan.get_code());
+            chan.getSite().get_id().site_code = "  ";
+            chan.get_id().channel_code=props.getProperty(CHANNEL_REMAP+chan.getSite().get_code()+chan.get_code(), chan.get_code());
         }
         // check lower case
-        String key = CHANNEL_REMAP+chan.my_site.get_code().toLowerCase()+chan.get_code().toLowerCase();
+        String key = CHANNEL_REMAP+chan.getSite().get_code().toLowerCase()+chan.get_code().toLowerCase();
         if (props.containsKey(key)) {
             chan.get_id().site_code = "  ";
-            chan.my_site.get_id().site_code = "  ";
+            chan.getSite().get_id().site_code = "  ";
             chan.get_id().channel_code=props.getProperty(key);
         }
         Channel out;
@@ -103,34 +103,34 @@ public class PopulationProperties {
             // start time from props
             SiteId siteId = new SiteId(netAttr.get_id(),
                                        station.get_code(),
-                                       chan.my_site.get_code(),
-                                       station.effective_time.start_time);
+                                       chan.getSite().get_code(),
+                                       station.getEffectiveTime().start_time);
             Site site = new SiteImpl(siteId,
-                                     chan.my_site.my_location,
-                                     station.effective_time,
+                                     chan.getSite().getLocation(),
+                                     station.getEffectiveTime(),
                                      station,
-                                     chan.my_site.comment);
+                                     chan.getSite().getComment());
             ChannelId chanId = new ChannelId(netAttr.get_id(),
                                              station.get_code(),
                                              siteId.site_code,
                                              chan.get_code(),
-                                             station.effective_time.start_time);
+                                             station.getEffectiveTime().start_time);
             // check for undef az on Z
-            if (chan.an_orientation.dip == -90 && chan.an_orientation.azimuth == -12345) {
-                chan.an_orientation.azimuth = 0;
+            if (chan.getOrientation().dip == -90 && chan.getOrientation().azimuth == -12345) {
+                chan.getOrientation().azimuth = 0;
             }
             // check for elevation or depth bad
-            if (chan.my_site.my_location.elevation.value == -12345) {
-                chan.my_site.my_location.elevation.value = 0;
+            if (chan.getSite().getLocation().elevation.value == -12345) {
+                chan.getSite().getLocation().elevation.value = 0;
             }
-            if (chan.my_site.my_location.depth.value == -12345) {
-                chan.my_site.my_location.depth.value = 0;
+            if (chan.getSite().getLocation().depth.value == -12345) {
+                chan.getSite().getLocation().depth.value = 0;
             }
             out = new ChannelImpl(chanId,
-                                  chan.name,
-                                  chan.an_orientation,
-                                  chan.sampling_info,
-                                  station.effective_time,
+                                  chan.getName(),
+                                  chan.getOrientation(),
+                                  chan.getSamplingInfo(),
+                                  station.getEffectiveTime(),
                                   site);
             channels.put(channelString, out);
             return out;

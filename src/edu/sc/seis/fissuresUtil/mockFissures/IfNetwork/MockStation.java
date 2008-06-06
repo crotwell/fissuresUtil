@@ -42,7 +42,7 @@ public class MockStation {
     }
     
     public static StationImpl createCloseStation(Station in) {
-        Location loc = new Location(in.my_location.latitude+.01f, in.my_location.longitude+.01f, in.my_location.elevation, in.my_location.depth, in.my_location.type);
+        Location loc = new Location(in.getLocation().latitude+.01f, in.getLocation().longitude+.01f, in.getLocation().elevation, in.getLocation().depth, in.getLocation().type);
         return new StationImpl(MockStationId.createCloseStationId(),
                                "Close Station",
                                loc,

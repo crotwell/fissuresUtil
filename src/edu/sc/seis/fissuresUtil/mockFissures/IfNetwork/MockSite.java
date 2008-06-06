@@ -32,7 +32,7 @@ public class MockSite {
 
     public static Site createSite(Station station) {
         return new SiteImpl(MockSiteId.createSiteId(station),
-                            station.my_location,
+                            station.getLocation(),
                             station,
                             "Mock Site for station "
                                     + StationIdUtil.toStringNoDates(station.get_id()));
@@ -41,7 +41,7 @@ public class MockSite {
     public static Site createSite(Location location) {
         Station station = MockStation.createStation(location);
         return new SiteImpl(MockSiteId.createSiteId(station),
-                            station.my_location,
+                            station.getLocation(),
                             station,
                             "Mock Site for station "
                                     + StationIdUtil.toStringNoDates(station.get_id()));

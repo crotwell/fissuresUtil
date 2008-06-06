@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
+import edu.iris.Fissures.network.NetworkAttrImpl;
 
 public class VestingNetworkFinder extends ProxyNetworkFinder {
 
@@ -63,6 +65,15 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         cache.setNetworkAccess(retry);
         return cache;
     }
+    
+    public CacheNetworkAccess vest(NetworkAttrImpl attr) throws NetworkNotFound {
+        NetworkId id = attr.get_id();
+        NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(id, this);
+        RetryNetworkAccess retry = new RetryNetworkAccess(nsNetworkAccess,
+                                                          numRetry,
+                                                          handler);
+        return new CacheNetworkAccess(retry, attr);
+    }
 
     int numRetry;
 
@@ -73,6 +84,22 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         public JustToHaveServerAndName(NetworkAccess net, VestingNetworkFinder vnf) {
             super(net);
             this.vnf = vnf;
+        }
+
+        
+        protected NetworkAttrImpl setSource(NetworkAttr attr) {
+            NetworkAttrImpl impl = (NetworkAttrImpl)attr;
+            impl.setSourceServerDNS(getServerDNS());
+            impl.setSourceServerName(getServerName());
+            return impl;
+        }
+
+        @Override
+        public NetworkAttr get_attributes() {
+            NetworkAttrImpl impl = (NetworkAttrImpl)super.get_attributes();
+            impl.setSourceServerDNS(getServerDNS());
+            impl.setSourceServerName(getServerName());
+            return impl;
         }
 
         public String getServerDNS() {

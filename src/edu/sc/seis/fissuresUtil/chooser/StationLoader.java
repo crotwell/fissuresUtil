@@ -50,9 +50,9 @@ public class StationLoader extends Thread {
 
                 for (int j=0; j<newStations.length; j++) {
                     // check station name not exist, use code in that case
-                    if (newStations[j].name == null ||
-                        newStations[j].name.length() < 3) {
-                        newStations[j].name = newStations[j].get_code();
+                    if (newStations[j].getName() == null ||
+                        newStations[j].getName().length() < 3) {
+                        newStations[j].setName(newStations[j].get_code());
                     }
                     chooser.setProgressValue(this, progressValue+netProgressInc/2-
                                                  (newStations.length-j)/newStations.length);

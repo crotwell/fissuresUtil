@@ -39,7 +39,7 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
         if(ds != null && (eao = ds.getEvent()) != null) {
             Channel chan = ds.getChannel(seis.getRequestFilter().channel_id);
             if(chan == null) { return super.getInitialTime(seis); }
-            Location stationLoc = chan.my_site.my_station.my_location;
+            Location stationLoc = chan.getSite().getStation().getLocation();
             MicroSecondDate phaseTime;
             try {
                 phaseTime = calculate(EventUtil.extractOrigin(eao), stationLoc);

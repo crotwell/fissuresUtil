@@ -89,14 +89,14 @@ public class PhaseRequest  {
         Origin origin = EventUtil.extractOrigin(event);
         if(prevRequestFilter != null
                 && origin.my_location.equals(prevOriginLoc)
-                && channel.my_site.my_location.equals(prevSiteLoc)) {
+                && channel.getSite().getLocation().equals(prevSiteLoc)) {
             // don't need to do any work
             return new RequestFilter(channel.get_id(),
                                      prevRequestFilter.start_time,
                                      prevRequestFilter.end_time);
         }
         prevOriginLoc = origin.my_location;
-        prevSiteLoc = channel.my_site.my_location;
+        prevSiteLoc = channel.getSite().getLocation();
         prevRequestFilter = null;
         double begin = getArrivalTime(beginPhase, channel, origin);
         double end = getArrivalTime(endPhase, channel, origin);
@@ -137,7 +137,7 @@ public class PhaseRequest  {
                 + " to "
                 + eDate
                 + " for "
-                + StationIdUtil.toStringNoDates(channel.my_site.my_station.get_id()));
+                + StationIdUtil.toStringNoDates(channel.getSite().getStation().get_id()));
         return prevRequestFilter;
     }
 
@@ -147,7 +147,7 @@ public class PhaseRequest  {
             return 0;
         }
         String[] phases = {phase};
-        Arrival[] arrivals = util.calcTravelTimes(chan.my_site.my_location,
+        Arrival[] arrivals = util.calcTravelTimes(chan.getSite().getLocation(),
                                                   origin,
                                                   phases);
         if(arrivals.length == 0) {

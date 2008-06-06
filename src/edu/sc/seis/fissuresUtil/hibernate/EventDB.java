@@ -5,11 +5,9 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.BoxArea;
-import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.event.OriginImpl;
@@ -22,7 +20,6 @@ import edu.sc.seis.fissuresUtil.bag.AreaUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
-import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 
@@ -196,10 +193,10 @@ public class EventDB extends AbstractHibernateDB {
         // set query vars
         query.setTime(timeRange);
         query.setArea(area);
-        query.setMinMag(JDBCEventAccess.INCONCEIVABLY_SMALL_MAGNITUDE);
-        query.setMaxMag(JDBCEventAccess.INCONCEIVABLY_LARGE_MAGNITUDE);
-        query.setMinDepth(JDBCEventAccess.INCONCEIVABLY_SMALL_DEPTH);
-        query.setMaxDepth(JDBCEventAccess.INCONCEIVABLY_LARGE_DEPTH);
+        query.setMinMag(INCONCEIVABLY_SMALL_MAGNITUDE);
+        query.setMaxMag(INCONCEIVABLY_LARGE_MAGNITUDE);
+        query.setMinDepth(INCONCEIVABLY_SMALL_DEPTH);
+        query.setMaxDepth(INCONCEIVABLY_LARGE_DEPTH);
         CacheEvent[] events = query(query);
         return events;
     }
@@ -247,4 +244,13 @@ public class EventDB extends AbstractHibernateDB {
 	protected String eventByTimeAndDepth;
 	
 	protected String eventByName;
+	
+	public static final float INCONCEIVABLY_SMALL_MAGNITUDE = -99.0f;
+	         
+	public static final float INCONCEIVABLY_LARGE_MAGNITUDE = 12.0f;
+	         
+	public static final float INCONCEIVABLY_SMALL_DEPTH = -99.0f;
+	         
+	public static final float INCONCEIVABLY_LARGE_DEPTH = 7000.0f;
+	
 }

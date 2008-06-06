@@ -45,9 +45,9 @@ public class ChannelGroup {
      * Finds the vertical channel. If no channel has a dip of -90 then null is
      * returned.
      */
-    public Channel getVertical() {
+    public ChannelImpl getVertical() {
         for(int i = 0; i < channels.length; i++) {
-            if(channels[i].an_orientation.dip == -90) {
+            if(channels[i].getOrientation().dip == -90) {
                 return channels[i];
             }
         }
@@ -57,9 +57,9 @@ public class ChannelGroup {
     /**
      * Finds the 2 horizontal channels.
      */
-    public Channel[] getHorizontal() {
+    public ChannelImpl[] getHorizontal() {
         int[] indices = getHorizontalIndices();
-        Channel[] out = new Channel[indices.length];
+        ChannelImpl[] out = new ChannelImpl[indices.length];
         for(int i = 0; i < indices.length; i++) {
             out[i] = channels[indices[i]];
         }
@@ -69,7 +69,7 @@ public class ChannelGroup {
     private int[] getHorizontalIndices() {
         int first = -1;
         for(int i = 0; i < channels.length; i++) {
-            if(channels[i].an_orientation.dip == 0) {
+            if(channels[i].getOrientation().dip == 0) {
                 if(first == -1) {
                     first = i;
                 } else {
@@ -89,18 +89,18 @@ public class ChannelGroup {
      * the first's + 90 degrees. If this is not possible, then a zero length
      * array is returned.
      */
-    public Channel[] getHorizontalXY() {
-        Channel[] out = getHorizontal();
+    public ChannelImpl[] getHorizontalXY() {
+        ChannelImpl[] out = getHorizontal();
         if(out.length != 2) {
-            out = new Channel[0];
-        } else if((out[0].an_orientation.azimuth + 90) % 360 == out[1].an_orientation.azimuth % 360) {
+            out = new ChannelImpl[0];
+        } else if((out[0].getOrientation().azimuth + 90) % 360 == out[1].getOrientation().azimuth % 360) {
             // in right order
-        } else if((out[1].an_orientation.azimuth + 90) % 360 == out[0].an_orientation.azimuth % 360) {
-            Channel tmp = out[0];
+        } else if((out[1].getOrientation().azimuth + 90) % 360 == out[0].getOrientation().azimuth % 360) {
+            ChannelImpl tmp = out[0];
             out[0] = out[1];
             out[1] = tmp;
         } else {
-            out = new Channel[0];
+            out = new ChannelImpl[0];
         }
         return out;
     }
@@ -111,7 +111,7 @@ public class ChannelGroup {
      * seismogram that has been rotated to GCP, ie it has R or T as its
      * orientation code.
      */
-    public Channel getChannel(ChannelId chanId, EventAccessOperations event) {
+    public ChannelImpl getChannel(ChannelId chanId, EventAccessOperations event) {
         for(int i = 0; i < channels.length; i++) {
             if(ChannelIdUtil.areEqual(chanId, channels[i].get_id())) {
                 return channels[i];
@@ -149,13 +149,13 @@ public class ChannelGroup {
     public ChannelImpl getRadial(Location eventLoc) {
         return new ChannelImpl(Rotate.replaceChannelOrientation(channels[0].get_id(),
                                                                 "R"),
-                               channels[0].name + "Radial",
-                               new Orientation((float)Rotate.getRadialAzimuth(channels[0].my_site.my_location,
+                               channels[0].getName() + "Radial",
+                               new Orientation((float)Rotate.getRadialAzimuth(channels[0].getSite().getLocation(),
                                                                               eventLoc),
                                                0),
-                               channels[0].sampling_info,
-                               channels[0].effective_time,
-                               channels[0].my_site);
+                               channels[0].getSamplingInfo(),
+                               channels[0].getEffectiveTime(),
+                               channels[0].getSite());
     }
 
     public ChannelImpl getTransverse(EventAccessOperations event) {
@@ -165,13 +165,13 @@ public class ChannelGroup {
     public ChannelImpl getTransverse(Location eventLoc) {
         return new ChannelImpl(Rotate.replaceChannelOrientation(channels[0].get_id(),
                                                                 "T"),
-                               channels[0].name + "Transverse",
-                               new Orientation((float)Rotate.getTransverseAzimuth(channels[0].my_site.my_location,
+                               channels[0].getName() + "Transverse",
+                               new Orientation((float)Rotate.getTransverseAzimuth(channels[0].getSite().getLocation(),
                                                                                   eventLoc),
                                                0),
-                               channels[0].sampling_info,
-                               channels[0].effective_time,
-                               channels[0].my_site);
+                               channels[0].getSamplingInfo(),
+                               channels[0].getEffectiveTime(),
+                               channels[0].getSite());
     }
 
     private int getIndex(Channel chan) {

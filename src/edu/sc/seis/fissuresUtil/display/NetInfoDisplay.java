@@ -54,7 +54,7 @@ public class NetInfoDisplay extends TextInfoDisplay {
         Document doc = textPane.getDocument();
         try {
             doc.remove(0, doc.getLength());
-            appendNetwork(sta.my_network, doc);
+            appendNetwork(sta.getNetworkAttr(), doc);
             appendStation(sta, doc);
             toTop();
         } catch (BadLocationException ble) {
@@ -71,14 +71,14 @@ public class NetInfoDisplay extends TextInfoDisplay {
         throws BadLocationException  {
         appendHeader(doc, "Station");
         appendLabelValue(doc, "Code", sta.get_id().station_code);
-        appendLabelValue(doc, "Name", sta.name);
-        appendLabelValue(doc, "Location", "("+sta.my_location.latitude+
-                             ", "+sta.my_location.longitude+")");
-        appendLabelValue(doc, "Begin", sta.effective_time.start_time.date_time);
-        appendLabelValue(doc, "End", sta.effective_time.end_time.date_time);
-        appendLabelValue(doc, "Operator", sta.operator);
-        appendLabelValue(doc, "Description", sta.description);
-        appendLabelValue(doc, "Comment", sta.comment);
+        appendLabelValue(doc, "Name", sta.getName());
+        appendLabelValue(doc, "Location", "("+sta.getLocation().latitude+
+                             ", "+sta.getLocation().longitude+")");
+        appendLabelValue(doc, "Begin", sta.getBeginTime().date_time);
+        appendLabelValue(doc, "End", sta.getEndTime().date_time);
+        appendLabelValue(doc, "Operator", sta.getOperator());
+        appendLabelValue(doc, "Description", sta.getDescription());
+        appendLabelValue(doc, "Comment", sta.getComment());
         appendLine(doc, "");
     }
 
@@ -86,8 +86,8 @@ public class NetInfoDisplay extends TextInfoDisplay {
         Document doc = textPane.getDocument();
         try {
             doc.remove(0, doc.getLength());
-            appendNetwork(site.my_station.my_network, doc);
-            appendStation(site.my_station, doc);
+            appendNetwork(site.getStation().getNetworkAttr(), doc);
+            appendStation(site.getStation(), doc);
             appendSite(site, doc);
             toTop();
         } catch (BadLocationException ble) {
@@ -103,13 +103,13 @@ public class NetInfoDisplay extends TextInfoDisplay {
     protected void appendSite(Site site, Document doc)
         throws BadLocationException  {
         appendHeader(doc, "Site");
-        appendLabelValue(doc, "Location", "("+site.my_location.latitude+
-                             ", "+site.my_location.longitude+")");
+        appendLabelValue(doc, "Location", "("+site.getLocation().latitude+
+                             ", "+site.getLocation().longitude+")");
         appendLabelValue(doc, "Begin",
-                         site.effective_time.start_time.date_time);
+                         site.getEffectiveTime().start_time.date_time);
         appendLabelValue(doc, "End",
-                         site.effective_time.end_time.date_time);
-        appendLabelValue(doc, "Comment", site.comment);
+                         site.getEffectiveTime().end_time.date_time);
+        appendLabelValue(doc, "Comment", site.getComment());
         appendLine(doc, "");
     }
 
@@ -117,9 +117,9 @@ public class NetInfoDisplay extends TextInfoDisplay {
         Document doc = textPane.getDocument();
         try {
             doc.remove(0, doc.getLength());
-            appendNetwork(chan.my_site.my_station.my_network, doc);
-            appendStation(chan.my_site.my_station, doc);
-            appendSite(chan.my_site, doc);
+            appendNetwork(chan.getSite().getStation().getNetworkAttr(), doc);
+            appendStation(chan.getSite().getStation(), doc);
+            appendSite(chan.getSite(), doc);
             appendChannel(chan, doc);
             toTop();
         } catch (BadLocationException ble) {
@@ -137,19 +137,19 @@ public class NetInfoDisplay extends TextInfoDisplay {
         appendHeader(doc, "Channel");
         appendLabelValue(doc, "Chan Code", chan.get_code());
         appendLabelValue(doc, "Orientation",
-                         "("+chan.an_orientation.azimuth+
-                             ", "+chan.an_orientation.dip+")");
-        if (chan.sampling_info != null) {
+                         "("+chan.getOrientation().azimuth+
+                             ", "+chan.getOrientation().dip+")");
+        if (chan.getSamplingInfo() != null) {
             appendLabelValue(doc, "Sampling",
-                             chan.sampling_info.numPoints+" points in "+
-                                 chan.sampling_info.interval.toString());
+                             chan.getSamplingInfo().numPoints+" points in "+
+                                 chan.getSamplingInfo().interval.toString());
         } else {
             appendLabelValue(doc, "Sampling", "null value");
         }
         appendLabelValue(doc, "Begin",
-                         chan.effective_time.start_time.date_time);
+                         chan.getBeginTime().date_time);
         appendLabelValue(doc, "End",
-                         chan.effective_time.end_time.date_time);
+                         chan.getEndTime().date_time);
         appendLine(doc, "");
     }
 

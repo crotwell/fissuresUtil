@@ -38,6 +38,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.B1000Types;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.display.configuration.DOMHelper;
@@ -420,7 +421,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                 dis = new DataInputStream(new BufferedInputStream(seisURL.openStream()));
                 MiniSeedRead mseedRead = new MiniSeedRead(dis);
                 while(true) {
-                    list.add(mseedRead.getNextRecord());
+                    list.add(mseedRead.getNextRecord(4096));
                 }
             } catch(EOFException e) {
                 // must be all
@@ -429,7 +430,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     dis.close();
                 }
             }
-            seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new DataRecord[0]));
+            seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new DataRecord[0]), (byte)B1000Types.STEIM1, (byte)1);
         } else if(isSac(seisNum)) {
             SacTimeSeries sacTime = new SacTimeSeries();
             DataInputStream dis = null;

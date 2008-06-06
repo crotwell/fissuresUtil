@@ -56,12 +56,12 @@ public class NameListCellRenderer extends DefaultListCellRenderer {
         if(useNames) {
             if(useCodes) {
                 if(codeIsFirst) {
-                    return getCodes(sta) + " - " + sta.name;
+                    return getCodes(sta) + " - " + sta.getName();
                 } else {
-                    return sta.name + " - " + getCodes(sta);
+                    return sta.getName() + " - " + getCodes(sta);
                 }
             } else {
-                return sta.name;
+                return sta.getName();
             }
         }
         return getCodes(sta);
@@ -104,7 +104,7 @@ public class NameListCellRenderer extends DefaultListCellRenderer {
             name = ((Site)value).get_code();
         }
         if(value instanceof Channel) {
-            name = getDisplayString(((Channel)value).name,
+            name = getDisplayString(((Channel)value).getName(),
                                     ((Channel)value).get_code());
         }
         if(value instanceof String) {

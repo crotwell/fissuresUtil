@@ -12,6 +12,8 @@ import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.cache.VestingNetworkDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkDC;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.NamedNetDC;
+import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
 /**
  * @author Charlie Groves
@@ -21,7 +23,7 @@ public class ChannelChooserTest extends TestCase {
     public ChannelChooserTest() throws NetworkNotFound {
         BasicConfigurator.configure();
         MockNetworkDC mockDC = new MockNetworkDC();
-        VestingNetworkDC[] dcs = new VestingNetworkDC[] {new VestingNetworkDC(mockDC)};
+        VestingNetworkDC[] dcs = new VestingNetworkDC[] {new VestingNetworkDC(FissuresNamingService.MOCK_DNS, NamedNetDC.VECTOR, new FissuresNamingService())};
         cc = new ChannelChooser(dcs);
         try {
             Thread.sleep(500);

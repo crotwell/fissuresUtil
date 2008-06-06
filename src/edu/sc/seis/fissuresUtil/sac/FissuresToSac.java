@@ -183,17 +183,17 @@ public class FissuresToSac {
 	 *            a <code>Channel</code>
 	 */
 	public static void addChannel(SacTimeSeries sac, Channel channel) {
-		sac.stla = (float) channel.my_site.my_location.latitude;
-		sac.stlo = (float) channel.my_site.my_location.longitude;
-		QuantityImpl z = (QuantityImpl) channel.my_site.my_location.elevation;
+		sac.stla = (float) channel.getSite().getLocation().latitude;
+		sac.stlo = (float) channel.getSite().getLocation().longitude;
+		QuantityImpl z = (QuantityImpl) channel.getSite().getLocation().elevation;
 		sac.stel = (float) z.convertTo(UnitImpl.METER).value;
-		z = (QuantityImpl) channel.my_site.my_location.depth;
+		z = (QuantityImpl) channel.getSite().getLocation().depth;
 		sac.stdp = (float) z.convertTo(UnitImpl.METER).value;
 
-		sac.cmpaz = channel.an_orientation.azimuth;
+		sac.cmpaz = channel.getOrientation().azimuth;
 		// sac vert. is 0, fissures and seed vert. is -90
 		// sac hor. is 90, fissures and seed hor. is 0
-		sac.cmpinc = 90 + channel.an_orientation.dip;
+		sac.cmpinc = 90 + channel.getOrientation().dip;
 	}
 
 	/**

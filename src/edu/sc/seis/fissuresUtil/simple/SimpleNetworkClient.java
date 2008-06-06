@@ -151,9 +151,9 @@ public class SimpleNetworkClient implements TestingClient {
         if(verbose) {
             logger.info("Received " + stations.length + " stations");
             for(int i = 0; i < stations.length; i++) {
-                logger.info(stations[i].get_code() + "  " + stations[i].name
-                        + " (" + stations[i].my_location.latitude + ", "
-                        + stations[i].my_location.longitude + ")");
+                logger.info(stations[i].get_code() + "  " + stations[i].getName()
+                        + " (" + stations[i].getLocation().latitude + ", "
+                        + stations[i].getLocation().longitude + ")");
             }
         }
         Channel[] chan = net.retrieve_for_station(stations[0].get_id());

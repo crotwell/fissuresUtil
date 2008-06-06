@@ -22,7 +22,7 @@ public class OrientationUtil {
         List results = new ArrayList();
         for(int i = 0; i < chans.length; i++) {
             Channel chan = chans[i];
-            Orientation chanOrient = chan.an_orientation;
+            Orientation chanOrient = chan.getOrientation();
             double dist = angleBetween(orient.center, chanOrient);
             if(dist <= degDist) {
                 results.add(chan);
@@ -75,11 +75,11 @@ public class OrientationUtil {
 
     public static ChannelImpl flip(Channel chan) {
         return new ChannelImpl(chan.get_id(),
-                               chan.name,
-                               flip(chan.an_orientation),
-                               chan.sampling_info,
-                               chan.effective_time,
-                               chan.my_site);
+                               chan.getName(),
+                               flip(chan.getOrientation()),
+                               chan.getSamplingInfo(),
+                               chan.getEffectiveTime(),
+                               chan.getSite());
     }
 
     public static String toString(Orientation orientation) {

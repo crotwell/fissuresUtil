@@ -19,6 +19,10 @@ public class CacheEvent extends ProxyEventAccessOperations {
 
     /** for use by hibernate */
     protected CacheEvent() {}
+
+    public CacheEvent(EventAttr attr, Origin preferred) {
+        this(attr, (OriginImpl)preferred);
+    }
     
     /**
      * Initializes the origins array to be just the single prefferred origin.

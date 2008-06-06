@@ -37,9 +37,9 @@ public class BestChannelUtil {
         LinkedList out = new LinkedList();
         for (int i = 0; i < inChan.length; i++) {
             if (when.before(new MicroSecondDate(
-                    inChan[i].effective_time.end_time))
+                    inChan[i].getEndTime()))
                     && when.after(new MicroSecondDate(
-                            inChan[i].effective_time.start_time))) {
+                            inChan[i].getBeginTime()))) {
                 out.add(inChan[i]);
             }
         }
@@ -59,9 +59,9 @@ public class BestChannelUtil {
             if (ChannelIdUtil.toStringNoDates(inChan[i].get_id()).equals(
                     ChannelIdUtil.toStringNoDates(current.get_id()))) {
                 if (when.before(new MicroSecondDate(
-                        inChan[i].effective_time.end_time))
+                        inChan[i].getEndTime()))
                         && when.after(new MicroSecondDate(
-                                inChan[i].effective_time.start_time))) { return inChan[i]; }
+                                inChan[i].getBeginTime()))) { return inChan[i]; }
             }
         } // end of for (int i=0; i<inChan.length; i++)
 
@@ -112,7 +112,7 @@ public class BestChannelUtil {
     private static Channel getChannelForOrientation(Channel[] group,
             String orientation, Channel matchThis) {
         return getChannel(group, getBand(matchThis), orientation,
-                matchThis.my_site.get_code(), getGain(matchThis));
+                matchThis.getSite().get_code(), getGain(matchThis));
     }
 
     public static String getBand(Channel chan) {
@@ -204,7 +204,7 @@ public class BestChannelUtil {
             String orientationCode, String siteCode, String gainCode) {
         String desiredChannelCode = bandCode + gainCode + orientationCode;
         for (int chanNum = 0; chanNum < inChan.length; chanNum++) {
-            if (inChan[chanNum].my_site.get_code().equals(siteCode)
+            if (inChan[chanNum].getSite().get_code().equals(siteCode)
                     && inChan[chanNum].get_code().equals(desiredChannelCode)) { return inChan[chanNum]; }
         }
         // oh well, return null

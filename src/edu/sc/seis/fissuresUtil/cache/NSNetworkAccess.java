@@ -1,8 +1,26 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.omg.CORBA.TRANSIENT;
+
+import edu.iris.Fissures.Area;
+import edu.iris.Fissures.NotImplemented;
+import edu.iris.Fissures.Time;
+import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.IfNetwork.Calibration;
+import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.ChannelIdIterHolder;
+import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.Instrumentation;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
+import edu.iris.Fissures.IfNetwork.OrientationRange;
+import edu.iris.Fissures.IfNetwork.SamplingRange;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
+import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.network.NetworkAttrImpl;
 
 /**
  * A NSNetworkAccess allows for the NetworkAccess reference inside of it to go
@@ -50,6 +68,66 @@ public class NSNetworkAccess extends ProxyNetworkAccess {
                                                        VestingNetworkFinder vnf)
             throws NetworkNotFound {
         return new SynchronizedNetworkAccess(((ProxyNetworkAccess)vnf.retrieve_by_id(id)).getCorbaObject());
+    }
+    
+    protected NetworkAttrImpl setSource(NetworkAttr attr) {
+        NetworkAttrImpl impl = (NetworkAttrImpl)attr;
+        impl.setSourceServerDNS(getServerDNS());
+        impl.setSourceServerName(getServerName());
+        return impl;
+    }
+
+    @Override
+    public NetworkAttr get_attributes() {
+        return setSource(super.get_attributes());
+    }
+
+    @Override
+    public Channel[] locate_channels(Area the_area,
+                                     SamplingRange sampling,
+                                     OrientationRange orientation) {
+        Channel[] chans = super.locate_channels(the_area, sampling, orientation);
+        for(int i = 0; i < chans.length; i++) {
+            setSource(chans[i].getSite().getStation().getNetworkAttr());
+        }
+        return chans;
+    }
+
+    @Override
+    public Channel retrieve_channel(ChannelId id) throws ChannelNotFound {
+        Channel chan =  super.retrieve_channel(id);
+        setSource(chan.getSite().getStation().getNetworkAttr());
+        return chan;
+    }
+
+    @Override
+    public Channel[] retrieve_channels_by_code(String station_code,
+                                               String site_code,
+                                               String channel_code)
+            throws ChannelNotFound {
+        Channel[] chans =  super.retrieve_channels_by_code(station_code, site_code, channel_code);
+        for(int i = 0; i < chans.length; i++) {
+            setSource(chans[i].getSite().getStation().getNetworkAttr());
+        }
+        return chans;
+    }
+
+    @Override
+    public Channel[] retrieve_for_station(StationId p1) {
+        Channel[] chans =  super.retrieve_for_station(p1);
+        for(int i = 0; i < chans.length; i++) {
+            setSource(chans[i].getSite().getStation().getNetworkAttr());
+        }
+        return chans;
+    }
+
+    @Override
+    public Station[] retrieve_stations() {
+        Station[] sta = super.retrieve_stations();
+        for(int i = 0; i < sta.length; i++) {
+            setSource(sta[i].getNetworkAttr());
+        }
+        return sta;
     }
 
     private VestingNetworkFinder vnf;
