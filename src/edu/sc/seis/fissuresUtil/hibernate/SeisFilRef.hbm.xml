@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="edu.sc.seis.fissuresUtil.hibernate.SeismogramFileReference"
+		table="seisFileRef">
+		<id name="dbid" type="integer">
+			<generator class="native" />
+		</id>
+		<property name="network_code" />
+		<property name="station_code"/>
+		<property name="site_code" />
+		<property name="channel_code"/>
+		<property name="beginTime" type="timestamp"/>
+		<property name="endTime" type="timestamp"/>
+		<property name="filePath"/>
+		<property name="fileType" type="integer" />
+	</class>
+
+</hibernate-mapping>
