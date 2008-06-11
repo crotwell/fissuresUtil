@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.database.plottable;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 import org.apache.log4j.Logger;
@@ -297,6 +299,18 @@ public class PlottableChunk {
 
     protected void setDbid(long dbid) {
         this.dbid = dbid;
+    }
+    
+    protected Timestamp getBeginTimestamp() {
+        return getBeginTime().getTimestamp();
+    }
+    
+    protected void setBeginTimestamp(Timestamp begin) {
+        MicroSecondDate msd = new MicroSecondDate(begin);
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTime(msd);
+        year = cal.get(Calendar.YEAR);
+        jday = cal.get(Calendar.DAY_OF_YEAR);
     }
 
     private long dbid;

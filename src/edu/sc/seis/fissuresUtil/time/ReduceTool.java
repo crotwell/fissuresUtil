@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.time;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -13,9 +14,9 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Cut;
-import edu.sc.seis.fissuresUtil.database.plottable.JDBCPlottable;
 import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 
 /**
  * @author groves Created on Oct 29, 2004
@@ -362,8 +363,8 @@ public class ReduceTool {
             int samples = (int)Math.floor(chunk.getPixelsPerDay() * 2
                     * fullRange.getInterval().convertTo(UnitImpl.DAY).value);
             int[] y = new int[samples];
-            JDBCPlottable.fill(fullRange, y, chunk);
-            JDBCPlottable.fill(fullRange, y, chunk2);
+            fill(fullRange, y, chunk);
+            fill(fullRange, y, chunk2);
             Plottable mergedData = new Plottable(null, y);
             PlottableChunk earlier = chunk;
             if(chunk2.getBeginTime().before(chunk.getBeginTime())) {
@@ -389,6 +390,29 @@ public class ReduceTool {
         public PlottableChunk[] merge(PlottableChunk[] chunks) {
             return (PlottableChunk[])internalMerge(chunks,
                                                    new PlottableChunk[0]);
+        }
+
+        public static int[] fill(MicroSecondTimeRange fullRange,
+                                 int[] y,
+                                 PlottableChunk chunk) {
+            MicroSecondDate rowBeginTime = chunk.getBeginTime();
+            int offsetIntoRequestSamples = SimplePlotUtil.getPixel(y.length / 2,
+                                                                   fullRange,
+                                                                   rowBeginTime) * 2;
+            int[] dataY = chunk.getData().y_coor;
+            int numSamples = dataY.length;
+            int firstSampleForRequest = 0;
+            if(offsetIntoRequestSamples < 0) {
+                firstSampleForRequest = -1 * offsetIntoRequestSamples;
+            }
+            int lastSampleForRequest = numSamples;
+            if(offsetIntoRequestSamples + numSamples > y.length) {
+                lastSampleForRequest = y.length - offsetIntoRequestSamples;
+            }
+            for(int i = firstSampleForRequest; i < lastSampleForRequest; i++) {
+                y[i + offsetIntoRequestSamples] = dataY[i];
+            }
+            return y;
         }
     }
 
