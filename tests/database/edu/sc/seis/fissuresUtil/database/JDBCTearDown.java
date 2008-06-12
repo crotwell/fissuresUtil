@@ -1,12 +1,13 @@
 package edu.sc.seis.fissuresUtil.database;
 
 import java.sql.SQLException;
+
 import junit.framework.TestCase;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import edu.sc.seis.fissuresUtil.database.event.JDBCEventAccess;
-import edu.sc.seis.fissuresUtil.database.network.JDBCStation;
+
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 
 /**
@@ -25,7 +26,5 @@ public abstract class JDBCTearDown extends TestCase {
     public static void cleanupDB() throws SQLException {
         ConnMgr.createConnection().createStatement().execute("SHUTDOWN");
         TableSetup.clearCreatedTableList();
-        JDBCEventAccess.emptyCache();
-        JDBCStation.emptyCache();
     }
 }

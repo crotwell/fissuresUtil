@@ -23,10 +23,10 @@ public class NCReaderTest extends TestCase {
         delux.load(getStream("edu/sc/seis/fissuresUtil/rt130/simple.nc"));
         assertEquals(1, delux.getSites().size());
         Site site = (Site)delux.getSites().get(0);
-        Station sta = site.my_station;
+        Station sta = site.getStation();
         assertEquals("SNP56", sta.get_code());
-        assertEquals("XE", sta.my_network.get_code());
-        assertEquals(-119.1693, sta.my_location.longitude, .01);
+        assertEquals("XE", sta.getNetworkAttr().get_code());
+        assertEquals(-119.1693, sta.getLocation().longitude, .01);
     }
 
     public void testStartHandler() throws IOException {
@@ -45,7 +45,7 @@ public class NCReaderTest extends TestCase {
         NCReader delux = new NCReader(net, initialLocs);
         delux.load(getStream("edu/sc/seis/fissuresUtil/rt130/twostation.nc"));
         assertEquals(2, delux.getSites().size());
-        assertEnded(((Site)delux.getSites().get(1)).effective_time.end_time);
+        assertEnded(((Site)delux.getSites().get(1)).getEndTime());
     }
 
     public void testMovedSite() throws IOException {
@@ -54,10 +54,10 @@ public class NCReaderTest extends TestCase {
         Site[] sites = (Site[])delux.getSites().toArray(new Site[] {});
         assertEquals(4, sites.length);
         for(int i = 1; i < sites.length; i++) {
-            assertEquals(sites[i - 1].my_station, sites[i].my_station);
+            assertEquals(sites[i - 1].getStation(), sites[i].getStation());
         }
-        assertEnded(sites[0].effective_time.end_time);
-        assertEnded(sites[0].my_station.effective_time.end_time);
+        assertEnded(sites[0].getEndTime());
+        assertEnded(sites[0].getStation().getEndTime());
     }
 
     public void testSensorSwap() throws IOException {
