@@ -15,7 +15,7 @@ public class DASChannelCreatorTest extends TestCase {
         MicroSecondDate now = new MicroSecondDate();
         Channel[] chans = creator.create("1337", now, "1", 40);
         assertEquals(3, chans.length);
-        assertEquals("1337", chans[0].my_site.my_station.get_code());
+        assertEquals("1337", chans[0].getSite().getStation().get_code());
         // We assume that the channels are BH[ZNE]
         assertEquals("BHZ", chans[0].get_code());
         Channel[] newChans = creator.create("1337",
