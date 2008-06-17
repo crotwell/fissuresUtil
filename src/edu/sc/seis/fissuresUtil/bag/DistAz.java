@@ -259,7 +259,7 @@ public class DistAz {
     }
 
     private static Location getLoc(Origin ev){
-        return ev.my_location;
+        return ev.getLocation();
     }
 
     private double delta, az, baz;

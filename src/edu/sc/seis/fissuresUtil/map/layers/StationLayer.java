@@ -351,8 +351,8 @@ public class StationLayer extends MouseAdapterLayer implements
         throws NoPreferredOrigin{
 
         Origin origin = event.get_preferred_origin();
-        double dist = SphericalCoords.distance(origin.my_location.latitude,
-                                               origin.my_location.longitude,
+        double dist = SphericalCoords.distance(origin.getLocation().latitude,
+                                               origin.getLocation().longitude,
                                                latitude,
                                                longitude);
 

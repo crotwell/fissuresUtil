@@ -72,7 +72,7 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
         Arrival[] arrivals = util.calcTravelTimes(station,
                                                   origin,
                                                   new String[] {phaseName});
-        MicroSecondDate out = new MicroSecondDate(origin.origin_time);
+        MicroSecondDate out = new MicroSecondDate(origin.getOriginTime());
         if(arrivals.length > 0) {
             out = out.add(new TimeInterval(arrivals[0].getTime(),
                                            UnitImpl.SECOND));

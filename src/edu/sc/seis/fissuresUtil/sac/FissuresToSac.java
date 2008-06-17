@@ -205,25 +205,25 @@ public class FissuresToSac {
 	 *            an <code>Origin</code> value
 	 */
 	public static void addOrigin(SacTimeSeries sac, Origin origin) {
-		sac.evla = origin.my_location.latitude;
-		sac.evlo = origin.my_location.longitude;
-		QuantityImpl z = (QuantityImpl) origin.my_location.elevation;
+		sac.evla = origin.getLocation().latitude;
+		sac.evlo = origin.getLocation().longitude;
+		QuantityImpl z = (QuantityImpl) origin.getLocation().elevation;
 		sac.evel = (float) z.convertTo(UnitImpl.METER).value;
-		z = (QuantityImpl) origin.my_location.depth;
+		z = (QuantityImpl) origin.getLocation().depth;
 		sac.evdp = (float) z.convertTo(UnitImpl.METER).value;
 
 		ISOTime isoTime = new ISOTime(sac.nzyear, sac.nzjday, sac.nzhour,
 				sac.nzmin, sac.nzsec + sac.nzmsec / 1000f);
 		MicroSecondDate beginTime = isoTime.getDate();
-		MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
+		MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
 		setKZTime(sac, originTime);
 		TimeInterval sacBMarker = (TimeInterval) beginTime.subtract(originTime);
 		sacBMarker = (TimeInterval) sacBMarker.convertTo(UnitImpl.SECOND);
 		sac.b = (float) sacBMarker.value;
 		sac.o = 0;
 		sac.iztype = SacTimeSeries.IO;
-		if (origin.magnitudes.length > 0) {
-			sac.mag = origin.magnitudes[0].value;
+		if (origin.getMagnitudes().length > 0) {
+			sac.mag = origin.getMagnitudes()[0].value;
 		}
 	}
 

@@ -15,20 +15,19 @@ import edu.sc.seis.TauP.SphericalCoords;
  */
 public class OrientationUtil {
 
-    public static Channel[] inOrientation(OrientationRange orient,
-                                          Channel[] chans) {
+    public static List<ChannelImpl> inOrientation(OrientationRange orient,
+                                          List<ChannelImpl> chans) {
         double degDist = QuantityImpl.createQuantityImpl(orient.angular_distance)
                 .convertTo(UnitImpl.DEGREE).value;
         List results = new ArrayList();
-        for(int i = 0; i < chans.length; i++) {
-            Channel chan = chans[i];
+        for(ChannelImpl chan : chans) {
             Orientation chanOrient = chan.getOrientation();
             double dist = angleBetween(orient.center, chanOrient);
             if(dist <= degDist) {
                 results.add(chan);
             }
         }
-        return (Channel[])results.toArray(new Channel[results.size()]);
+        return results;
     }
 
     public static boolean areEqual(Orientation one, Orientation two) {

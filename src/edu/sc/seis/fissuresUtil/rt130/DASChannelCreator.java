@@ -145,7 +145,7 @@ public class DASChannelCreator {
                       new LazySamplingFinder(fileLoc, fileTimeWindow));
     }
 
-    public Channel[] create(String unitIdNumber,
+    public ChannelImpl[] create(String unitIdNumber,
                             MicroSecondDate beginTime,
                             String datastream,
                             int sampleRate) {
@@ -155,7 +155,7 @@ public class DASChannelCreator {
                       new SamplingFinder(sampleRate));
     }
 
-    private Channel[] create(String unitIdNumber,
+    private ChannelImpl[] create(String unitIdNumber,
                              MicroSecondDate beginTime,
                              String datastream,
                              SamplingFinder finder) {
@@ -172,9 +172,9 @@ public class DASChannelCreator {
         // Get channels for site for datastream - create and cache if necessary
         Map dataStreamsToChannels = (Map)siteToChannels.get(s);
         if(dataStreamsToChannels.containsKey(datastream)) {
-            return (Channel[])dataStreamsToChannels.get(datastream);
+            return (ChannelImpl[])dataStreamsToChannels.get(datastream);
         }
-        Channel[] chans = createChannels(s, finder.find());
+        ChannelImpl[] chans = createChannels(s, finder.find());
         dataStreamsToChannels.put(datastream, chans);
         return chans;
     }
@@ -201,7 +201,7 @@ public class DASChannelCreator {
                 + "/123 " + TAG + " default");
     }
 
-    private Channel[] createChannels(Site s, int sampleRate) {
+    private ChannelImpl[] createChannels(Site s, int sampleRate) {
         String band = "B";
         if(sampleRate < 10) {
             band = "L";
@@ -220,7 +220,7 @@ public class DASChannelCreator {
         SamplingImpl sampling = new SamplingImpl(sampleRate,
                                                  new TimeInterval(1,
                                                                   UnitImpl.SECOND));
-        Channel[] newChannel = new ChannelImpl[orientations.length];
+        ChannelImpl[] newChannel = new ChannelImpl[orientations.length];
         String[] orientationCodes = new String[orientations.length];
         if(traditionallyAligned(orientations)) {
             for(int i = 0; i < orientationCodes.length; i++) {

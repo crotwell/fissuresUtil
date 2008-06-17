@@ -173,9 +173,9 @@ public class Play {
         System.out.println("Got " + events.length + " origins");
         for(int i = 0; i < events.length; i++) {
             System.out.println("Event " + i + "  "
-                    + events[i].get_preferred_origin().origin_time + "  "
-                    + events[i].get_preferred_origin().my_location + "  "
-                    + events[i].get_preferred_origin().my_location.type + "  "
+                    + events[i].get_preferred_origin().getOriginTime() + "  "
+                    + events[i].get_preferred_origin().getLocation() + "  "
+                    + events[i].get_preferred_origin().getLocation().type + "  "
                     + events[i].get_attributes());
         }
         HibernateUtil.getSessionFactory().close();

@@ -70,7 +70,7 @@ public class DistanceLayer extends MouseAdapterLayer implements EQSelectionListe
         try{
             events = eqSelectionEvent.getEvents();
             Origin origin = events[0].get_preferred_origin();
-            LatLonPoint llp = new LatLonPoint(origin.my_location.latitude, origin.my_location.longitude);
+            LatLonPoint llp = new LatLonPoint(origin.getLocation().latitude, origin.getLocation().longitude);
             makeDistCircles(llp);
             repaint();
         }

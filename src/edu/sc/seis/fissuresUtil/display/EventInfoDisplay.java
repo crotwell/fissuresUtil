@@ -31,7 +31,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 19806 2008-06-06 19:54:52Z crotwell $
+ * @version $Id: EventInfoDisplay.java 19826 2008-06-17 14:48:33Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay{
@@ -136,16 +136,16 @@ public class EventInfoDisplay extends TextInfoDisplay{
             try {
                 if ( event != null) {
                     Origin origin = event.get_preferred_origin();
-                    dist = sph.distance(origin.my_location.latitude,
-                                        origin.my_location.longitude,
+                    dist = sph.distance(origin.getLocation().latitude,
+                                        origin.getLocation().longitude,
                                         station[i].getLocation().latitude,
                                         station[i].getLocation().longitude);
                     baz = sph.azimuth(station[i].getLocation().latitude,
                                       station[i].getLocation().longitude,
-                                      origin.my_location.latitude,
-                                      origin.my_location.longitude);
-                    az = sph.azimuth(origin.my_location.latitude,
-                                     origin.my_location.longitude,
+                                      origin.getLocation().latitude,
+                                      origin.getLocation().longitude);
+                    az = sph.azimuth(origin.getLocation().latitude,
+                                     origin.getLocation().longitude,
                                      station[i].getLocation().latitude,
                                      station[i].getLocation().longitude);
                     String firstPTakeoff = "";
@@ -154,7 +154,7 @@ public class EventInfoDisplay extends TextInfoDisplay{
                         Arrival[] a = taup.calcTravelTimes(station[i], origin, new String[] { "ttp" } );
                         if (a.length > 0) {
                             firstPRayParam = twoDecimal.format((a[0].getRayParam()*Math.PI/180));
-                            double originDepth = QuantityImpl.createQuantityImpl(origin.my_location.depth).convertTo(UnitImpl.KILOMETER).get_value();
+                            double originDepth = QuantityImpl.createQuantityImpl(origin.getLocation().depth).convertTo(UnitImpl.KILOMETER).get_value();
                             VelocityModel vmod = taup.getTauModel().getVelocityModel();
                             firstPTakeoff = twoDecimal.format((180/Math.PI)*Math.asin((a[0].getRayParam()*vmod.evaluateBelow(originDepth, 'P'))/(vmod.getRadiusOfEarth()-originDepth)));
                         }
@@ -227,12 +227,12 @@ public class EventInfoDisplay extends TextInfoDisplay{
         throws BadLocationException {
         appendHeader(doc, "Origin");
         appendLabelValue(doc, "Location\t", "latitude="+
-                             twoDecimal.format(origin.my_location.latitude)+
+                             twoDecimal.format(origin.getLocation().latitude)+
                              ",  longitude="+
-                             twoDecimal.format(origin.my_location.longitude));
-        MicroSecondDate oTime = new ISOTime(origin.origin_time.date_time).getDate();
+                             twoDecimal.format(origin.getLocation().longitude));
+        MicroSecondDate oTime = new ISOTime(origin.getOriginTime().date_time).getDate();
         appendLabelValue(doc, "Time\t", dateFormat.format(oTime));
-        QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
+        QuantityImpl depth = (QuantityImpl)origin.getLocation().depth;
         depth = depth.convertTo(UnitImpl.KILOMETER);
         appendLabelValue(doc, "Depth\t",
                          twoDecimal.format(depth.value)+" kilometers");
@@ -242,8 +242,8 @@ public class EventInfoDisplay extends TextInfoDisplay{
         //appendLabelValue(doc, "Contributor", origin.contributor);
 
         appendLine(doc, "");
-        for (int i=0; i<origin.magnitudes.length; i++) {
-            appendMagnitude(origin.magnitudes[i], doc);
+        for (int i=0; i<origin.getMagnitudes().length; i++) {
+            appendMagnitude(origin.getMagnitudes()[i], doc);
         } // end of for (int i=0; i<origin.magnitudes.length; i++)
 
     }
@@ -311,8 +311,8 @@ public class EventInfoDisplay extends TextInfoDisplay{
 
         for (int i = startIndex; i < stations.length; i++){
             currentStation = stations[i];
-            currentDistance = sph.distance(event.get_preferred_origin().my_location.latitude,
-                                           event.get_preferred_origin().my_location.longitude,
+            currentDistance = sph.distance(event.get_preferred_origin().getLocation().latitude,
+                                           event.get_preferred_origin().getLocation().longitude,
                                            currentStation.getLocation().latitude,
                                            currentStation.getLocation().longitude);
             if (currentDistance < closestDistance){

@@ -14,7 +14,7 @@ public class TimeExtractor {
         }
         Origin o = oExtractor .extract(object);
         if(o != null){
-            return o.origin_time;
+            return o.getOriginTime();
         }
         return null;
     }

@@ -28,7 +28,7 @@ public class DepthEventColorizer implements EventColorizer{
 
     public static Color getDepthColor(ProxyEventAccessOperations eao){
         Origin prefOrigin = eao.getOrigin();
-        QuantityImpl depth = (QuantityImpl)prefOrigin.my_location.depth;
+        QuantityImpl depth = (QuantityImpl)prefOrigin.getLocation().depth;
         double depthKM = depth.convertTo(UnitImpl.KILOMETER).value;
         Color color = DisplayUtils.EVENT_ORANGE;
         if (depthKM <= 40.0){ color = DisplayUtils.EVENT_RED; }

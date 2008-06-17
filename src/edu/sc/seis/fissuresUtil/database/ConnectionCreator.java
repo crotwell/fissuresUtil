@@ -25,36 +25,36 @@ public class ConnectionCreator {
         this(props.getProperty(DB_URL_KEY, "jdbc:hsqldb:."),
              props.getProperty(DB_TYPE_KEY, "HSQL"),
              props.getProperty(DB_USER_KEY, "SA"),
-             props.getProperty(DB_PASS_KEY, ""));
+             props.getProperty(DB_PASS_KEY, ""),
+             props);
     }
 
     public ConnectionCreator(String url,
                              String type,
                              String username,
-                             String password) {
+                             String password,
+                             Properties extraProps) {
         this.url = url;
         this.type = type;
         this.username = username;
         this.password = password;
-        jdbcDrivers = new Properties();
-        try {
-            jdbcDrivers.load(getClass().getClassLoader()
-                    .getResourceAsStream("edu/sc/seis/fissuresUtil/database/props/drivers.props"));
-        } catch(Exception e) {
-            throw new RuntimeException("unable to load database driver properties");
-        }
+        this.extraProps = extraProps;
     }
 
     public Connection createConnection() throws SQLException {
+            getDriverClass();
+        return DriverManager.getConnection(url, username, password);
+    }
+    
+    public Class getDriverClass() {
         try {
-            Class.forName(jdbcDrivers.getProperty(JDBC_DRIVER_PREFIX + type));
-        } catch(Exception e) {
-            SQLException ee = new SQLException("Unable to instantiate DBDriver. type="
+            return Class.forName(jdbcDrivers.getProperty(JDBC_DRIVER_PREFIX + type));
+        } catch(Throwable e) {
+            RuntimeException ee = new RuntimeException("Unable to instantiate DBDriver. type="
                     + type);
             ee.initCause(e);
             throw ee;
         }
-        return DriverManager.getConnection(url, username, password);
     }
 
     public String getPassword() {
@@ -71,6 +71,10 @@ public class ConnectionCreator {
 
     public String getUsername() {
         return username;
+    }
+    
+    public Properties getExtraProps() {
+        return extraProps;
     }
 
     public static Properties loadDbProperties(String[] args) {
@@ -144,7 +148,9 @@ public class ConnectionCreator {
     }
 
     private String url, type, username, password;
-
+    
+    private Properties extraProps;
+    
     private static Logger logger = Logger.getLogger(ConnectionCreator.class);
 
     public static final String DB_PROP_PREFIX = "fissuresUtil.database.";
@@ -172,5 +178,11 @@ public class ConnectionCreator {
 
     public static final String JDBC_DRIVER_PREFIX = DB_PROP_PREFIX + "driver.";
 
-    private Properties jdbcDrivers;
+    private static Properties jdbcDrivers = new Properties();
+    
+    static {
+        jdbcDrivers.put("fissuresUtil.database.driver.HSQL", "org.hsqldb.jdbcDriver");
+        jdbcDrivers.put("fissuresUtil.database.driver.MCKOI", "com.mckoi.JDBCDriver");
+        jdbcDrivers.put("fissuresUtil.database.driver.POSTGRES", "org.postgresql.Driver");
+    }
 }

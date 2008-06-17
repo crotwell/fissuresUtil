@@ -179,7 +179,7 @@ public class MockEventFinder implements EventFinder {
     public String[] known_catalogs() {
         List catalogs = new ArrayList();
         for(int i = 0; i < events.length; i++) {
-            catalogs.add(events[i].getOrigin().catalog);
+            catalogs.add(events[i].getOrigin().getCatalog());
         }
         return (String[])catalogs.toArray(new String[0]);
     }
@@ -187,7 +187,7 @@ public class MockEventFinder implements EventFinder {
     public String[] known_contributors() {
         List contribs = new ArrayList();
         for(int i = 0; i < events.length; i++) {
-            contribs.add(events[i].getOrigin().contributor);
+            contribs.add(events[i].getOrigin().getContributor());
         }
         return (String[])contribs.toArray(new String[0]);
     }

@@ -143,7 +143,7 @@ public class ChannelGroup {
     }
 
     public ChannelImpl getRadial(EventAccessOperations event) {
-        return getRadial(EventUtil.extractOrigin(event).my_location);
+        return getRadial(EventUtil.extractOrigin(event).getLocation());
     }
 
     public ChannelImpl getRadial(Location eventLoc) {
@@ -159,7 +159,7 @@ public class ChannelGroup {
     }
 
     public ChannelImpl getTransverse(EventAccessOperations event) {
-        return getTransverse(EventUtil.extractOrigin(event).my_location);
+        return getTransverse(EventUtil.extractOrigin(event).getLocation());
     }
 
     public ChannelImpl getTransverse(Location eventLoc) {

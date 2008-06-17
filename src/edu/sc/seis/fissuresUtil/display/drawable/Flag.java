@@ -310,7 +310,7 @@ public class Flag implements Drawable {
     public static TimeInterval getTimeDifferenceFromOrigin(Flag flag,
                                                            EventAccessOperations event) {
         Origin origin = EventUtil.extractOrigin(event);
-        MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
+        MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
         MicroSecondDate flagTime = flag.getFlagTime();
         return originTime.difference(flagTime);
     }
