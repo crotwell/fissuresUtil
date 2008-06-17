@@ -11,7 +11,7 @@ public class MagnitudeExtractor {
         }
         Origin origin = originExtractor.extract(o);
         if(origin != null) {
-            return origin.magnitudes[0];
+            return origin.getMagnitudes()[0];
         }
         return null;
     }

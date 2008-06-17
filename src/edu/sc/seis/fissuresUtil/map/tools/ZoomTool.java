@@ -85,7 +85,7 @@ public class ZoomTool extends OpenMapTool {
                         .getSelectedEvents()[0];
                 Origin orig = EventUtil.extractOrigin(event);
                 center.setLatitude(0f);
-                center.setLongitude((float)orig.my_location.longitude);
+                center.setLongitude((float)orig.getLocation().longitude);
             }
         }
         map.getMapBean().setCenter(center);

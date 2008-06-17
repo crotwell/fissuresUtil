@@ -88,14 +88,14 @@ public class PhaseRequest  {
                                          Channel channel) throws Exception {
         Origin origin = EventUtil.extractOrigin(event);
         if(prevRequestFilter != null
-                && origin.my_location.equals(prevOriginLoc)
+                && origin.getLocation().equals(prevOriginLoc)
                 && channel.getSite().getLocation().equals(prevSiteLoc)) {
             // don't need to do any work
             return new RequestFilter(channel.get_id(),
                                      prevRequestFilter.start_time,
                                      prevRequestFilter.end_time);
         }
-        prevOriginLoc = origin.my_location;
+        prevOriginLoc = origin.getLocation();
         prevSiteLoc = channel.getSite().getLocation();
         prevRequestFilter = null;
         double begin = getArrivalTime(beginPhase, channel, origin);
@@ -104,7 +104,7 @@ public class PhaseRequest  {
             // no arrivals found, return zero length request filters
             return null;
         }
-        MicroSecondDate originDate = new MicroSecondDate(origin.origin_time);
+        MicroSecondDate originDate = new MicroSecondDate(origin.getOriginTime());
         TimeInterval bInterval = new TimeInterval(begin, UnitImpl.SECOND);
         TimeInterval eInterval = new TimeInterval(end, UnitImpl.SECOND);
         MicroSecondDate bDate = originDate.add(bInterval);

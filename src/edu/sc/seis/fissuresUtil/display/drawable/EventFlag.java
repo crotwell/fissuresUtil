@@ -141,7 +141,7 @@ public class EventFlag {
     }
 
     protected MicroSecondDate getOriginTime() {
-        return new MicroSecondDate(EventUtil.extractOrigin(eventAccess).origin_time);
+        return new MicroSecondDate(EventUtil.extractOrigin(eventAccess).getOriginTime());
     }
 
     private int getOriginRow() {

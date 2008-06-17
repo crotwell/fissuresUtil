@@ -46,13 +46,13 @@ public class PhaseCut {
 
         MicroSecondDate beginTime = null;
         MicroSecondDate endTime = null;
-        MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
+        MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
         if (beginArrivals.length != 0) {
             beginTime = originTime.add(new TimeInterval(beginArrivals[0].getTime(),
                                                         UnitImpl.SECOND));
             beginTime = beginTime.add(beginOffset);
         } else {
-            DistAz distAz = new DistAz(stationLoc, origin.my_location);
+            DistAz distAz = new DistAz(stationLoc, origin.getLocation());
             throw new PhaseNonExistent("Phase "+beginPhase+
                                            " does not exist at this distance, "+
                                            distAz.getDelta()+" degrees");
@@ -63,7 +63,7 @@ public class PhaseCut {
                                                         UnitImpl.SECOND));
             endTime = endTime.add(endOffset);
         } else {
-            DistAz distAz = new DistAz(stationLoc, origin.my_location);
+            DistAz distAz = new DistAz(stationLoc, origin.getLocation());
             throw new PhaseNonExistent("Phase "+endPhase+
                                            " does not exist at this distance, "+
                                            distAz.getDelta()+" degrees");

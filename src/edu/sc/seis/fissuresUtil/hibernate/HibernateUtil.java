@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
+import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
 
 public class HibernateUtil {
 
@@ -42,23 +43,45 @@ public class HibernateUtil {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(HibernateUtil.class);
 
     public static void setUpFromConnMgr(Properties props) {
+        String dialect;
+        if(ConnMgr.getDB_TYPE().equals(ConnMgr.HSQL)) {
+            logger.info("using hsql dialect");
+            dialect = org.hibernate.dialect.HSQLDialect.class.getName();
+        } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.POSTGRES)) {
+            logger.info("using postgres dialect");
+            dialect = org.hibernate.dialect.PostgreSQLDialect.class.getName();
+        } else {
+            throw new RuntimeException("Unknown database type: '"+ConnMgr.getDB_TYPE()+"'");
+        }
+        setUp(dialect, ConnMgr.getDriver(), ConnMgr.getURL(), ConnMgr.getUser(), ConnMgr.getPass(), props);
+        getConfiguration().addProperties(ConnMgr.getDBProps());
+    }
+    
+    public static void setUpFromConnectionCreator(ConnectionCreator c) {
+        String dialect;
+        if(c.getType().equals(ConnectionCreator.HSQL)) {
+            logger.info("using hsql dialect");
+            dialect = org.hibernate.dialect.HSQLDialect.class.getName();
+        } else if(c.getType().equals(ConnectionCreator.POSTGRES)) {
+            logger.info("using postgres dialect");
+            dialect = org.hibernate.dialect.PostgreSQLDialect.class.getName();
+        } else {
+            throw new RuntimeException("Unknown database type: '"+c.getType()+"'");
+        }
+        setUp(dialect, c.getDriverClass().getName(), c.getUrl(), c.getUsername(), c.getPassword(), c.getExtraProps());
+    }
+    
+    public static void setUp(String dialect, String driverClass, String dbURL, String username, String password, Properties props) {
         synchronized(HibernateUtil.class) {
-            if(ConnMgr.getDB_TYPE().equals(ConnMgr.HSQL)) {
-                logger.info("using hsql dialect");
-                getConfiguration().setProperty("hibernate.dialect", org.hibernate.dialect.HSQLDialect.class.getName());
-            } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.POSTGRES)) {
-                logger.info("using postgres dialect");
-                getConfiguration().setProperty("hibernate.dialect", org.hibernate.dialect.PostgreSQLDialect.class.getName());
-            }
+            getConfiguration().setProperty("hibernate.dialect", dialect);
             getConfiguration().setProperty("hibernate.connection.driver_class",
-                                           ConnMgr.getDriver())
-                    .setProperty("hibernate.connection.url", ConnMgr.getURL())
+                                           driverClass)
+                    .setProperty("hibernate.connection.url", dbURL)
                     .setProperty("hibernate.connection.username",
-                                 ConnMgr.getUser())
+                                 username)
                     .setProperty("hibernate.connection.password",
-                                 ConnMgr.getPass())
-                    .addProperties(props)
-                    .addProperties(ConnMgr.getDBProps());
+                                 password)
+                    .addProperties(props);
         }
     }
 }

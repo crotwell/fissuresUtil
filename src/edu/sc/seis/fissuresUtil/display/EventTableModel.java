@@ -29,7 +29,7 @@ import edu.sc.seis.fissuresUtil.map.layers.StationLayer;
  * Created: Mon Jan 8 15:59:05 2001
  * 
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 17074 2006-05-01 19:19:28Z groves $
+ * @version $Id: EventTableModel.java 19826 2008-06-17 14:48:33Z crotwell $
  */
 public class EventTableModel extends AbstractTableModel implements
         EventLoadedListener {
@@ -88,29 +88,29 @@ public class EventTableModel extends AbstractTableModel implements
                     }
                     return FERegions.getGeographicRegionName(cache.get_attributes().region.number);
                 case CATALOG:
-                    return cache.get_preferred_origin().catalog;
+                    return cache.get_preferred_origin().getCatalog();
                 case CONTRIBUTOR:
-                    return cache.get_preferred_origin().contributor;
+                    return cache.get_preferred_origin().getContributor();
                 case LATITUDE:
-                    return new Float(cache.get_preferred_origin().my_location.latitude);
+                    return new Float(cache.get_preferred_origin().getLocation().latitude);
                 case LONGITUDE:
-                    return new Float(cache.get_preferred_origin().my_location.longitude);
+                    return new Float(cache.get_preferred_origin().getLocation().longitude);
                 case DEPTH:
-                    QuantityImpl q = (QuantityImpl)cache.get_preferred_origin().my_location.depth;
+                    QuantityImpl q = (QuantityImpl)cache.get_preferred_origin().getLocation().depth;
                     q = q.convertTo(UnitImpl.KILOMETER);
                     return depthFormat.format(q.getValue()) + " km";
                 case ORIGINTIME:
-                    edu.iris.Fissures.Time fisDate = cache.get_preferred_origin().origin_time;
+                    edu.iris.Fissures.Time fisDate = cache.get_preferred_origin().getOriginTime();
                     MicroSecondDate msd = new MicroSecondDate(fisDate);
                     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
                     sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
                     return sdf.format(msd);
                 // return msd.toString();
                 case MAGVALUE:
-                    if(cache.get_preferred_origin().magnitudes.length == 0) {
+                    if(cache.get_preferred_origin().getMagnitudes().length == 0) {
                         return "none";
                     }
-                    String type = cache.get_preferred_origin().magnitudes[0].type;
+                    String type = cache.get_preferred_origin().getMagnitudes()[0].type;
                     if(type.equals(edu.iris.Fissures.MB_MAG_TYPE.value)) {
                         type = "mb";
                     }
@@ -132,7 +132,7 @@ public class EventTableModel extends AbstractTableModel implements
                     if(type.equals(edu.iris.Fissures.MW_MAG_TYPE.value)) {
                         type = "MW";
                     }
-                    return new Float(cache.get_preferred_origin().magnitudes[0].value).toString()
+                    return new Float(cache.get_preferred_origin().getMagnitudes()[0].value).toString()
                             + " " + type;
                 default:
                     return "XXXX";

@@ -20,7 +20,7 @@ public class MagnitudeTypeExtractorTest extends TestCase {
 
     public void testEvent() {
         EventAccessOperations ev = MockEventAccessOperations.createEvent();
-        assertEquals(EventUtil.extractOrigin(ev).magnitudes[0].type,
+        assertEquals(EventUtil.extractOrigin(ev).getMagnitudes()[0].type,
                      new MagnitudeTypeExtractor().extract(ev));
     }
 

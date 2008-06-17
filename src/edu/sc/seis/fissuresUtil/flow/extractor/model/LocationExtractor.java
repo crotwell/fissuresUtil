@@ -12,7 +12,7 @@ public class LocationExtractor {
         if(o instanceof Location) {
             return (Location)o;
         } else if(o instanceof EventAccessOperations) {
-            return EventUtil.extractOrigin((EventAccessOperations)o).my_location;
+            return EventUtil.extractOrigin((EventAccessOperations)o).getLocation();
         } else if(o instanceof Station) {
             return ((Station)o).getLocation();
         } else if(o instanceof Channel) {

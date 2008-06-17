@@ -332,7 +332,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                         .getFissuresTime(), now.getFissuresTime());
             } else {
                 // use origin time offset
-                MicroSecondDate oTime = new MicroSecondDate(origin.origin_time);
+                MicroSecondDate oTime = new MicroSecondDate(origin.getOriginTime());
                 range = new TimeRange(oTime.getFissuresTime(),
                                       oTime.add(TEN_MINUTES).getFissuresTime());
             }

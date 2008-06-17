@@ -182,20 +182,20 @@ public class EventUtil {
                                        String format,
                                        DateFormat sdf) {
         // Get Date and format it accordingly
-        MicroSecondDate msd = new MicroSecondDate(origin.origin_time);
+        MicroSecondDate msd = new MicroSecondDate(origin.getOriginTime());
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String originTimeString = sdf.format(msd);
         // Get Magnitude
         float mag = Float.NaN;
-        if(origin.magnitudes.length > 0) {
-            mag = origin.magnitudes[0].value;
+        if(origin.getMagnitudes().length > 0) {
+            mag = origin.getMagnitudes()[0].value;
         }
         // get depth
-        Quantity depth = origin.my_location.depth;
-        float latitude = origin.my_location.latitude;
-        float longitude = origin.my_location.longitude;
-        String catalog = origin.catalog;
-        String contributor = origin.contributor;
+        Quantity depth = origin.getLocation().depth;
+        float latitude = origin.getLocation().latitude;
+        float longitude = origin.getLocation().longitude;
+        String catalog = origin.getCatalog();
+        String contributor = origin.getContributor();
         StringBuffer buf = new StringBuffer(format);
         for(int i = 0; i < magicStrings.length; i++) {
             int index = buf.indexOf(magicStrings[i]);

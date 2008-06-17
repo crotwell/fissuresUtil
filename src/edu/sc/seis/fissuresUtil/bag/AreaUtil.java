@@ -21,6 +21,7 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.BoxAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.TauP.SphericalCoords;
 
 public class AreaUtil {
@@ -54,14 +55,14 @@ public class AreaUtil {
         return lon;
     }
 
-    public static Channel[] inArea(Area area, Channel[] channels) {
-        List out = new ArrayList(channels.length);
-        for(int i = 0; i < channels.length; i++) {
-            if(inArea(area, channels[i].getSite().getLocation())) {
-                out.add(channels[i]);
+    public static List<ChannelImpl> inArea(Area area, List<ChannelImpl> channels) {
+        List out = new ArrayList<ChannelImpl>();
+        for(ChannelImpl chan : channels) {
+            if(inArea(area, chan.getSite().getLocation())) {
+                out.add(chan);
             }
         }
-        return (Channel[])out.toArray(new Channel[out.size()]);
+        return out;
     }
 
     public static boolean inArea(Area area, Location point) {

@@ -36,17 +36,17 @@ public class XMLOrigin {
     public static void insert(XMLStreamWriter writer, Origin origin)
             throws XMLStreamException {
         XMLUtil.writeTextElement(writer, "id", origin.get_id());
-        XMLUtil.writeTextElement(writer, "catalog", origin.catalog);
-        XMLUtil.writeTextElement(writer, "contributor", origin.contributor);
+        XMLUtil.writeTextElement(writer, "catalog", origin.getCatalog());
+        XMLUtil.writeTextElement(writer, "contributor", origin.getContributor());
         writer.writeStartElement("origin_time");
-        XMLTime.insert(writer, origin.origin_time);
+        XMLTime.insert(writer, origin.getOriginTime());
         XMLUtil.writeEndElementWithNewLine(writer);
         writer.writeStartElement("my_location");
-        XMLLocation.insert(writer, origin.my_location);
+        XMLLocation.insert(writer, origin.getLocation());
         XMLUtil.writeEndElementWithNewLine(writer);
-        for(int i = 0; i < origin.magnitudes.length; i++) {
+        for(int i = 0; i < origin.getMagnitudes().length; i++) {
             writer.writeStartElement("magnitude");
-            XMLMagnitude.insert(writer, origin.magnitudes[i]);
+            XMLMagnitude.insert(writer, origin.getMagnitudes()[i]);
             XMLUtil.writeEndElementWithNewLine(writer);
         }
     }
@@ -61,20 +61,20 @@ public class XMLOrigin {
                                                       origin.get_id()));
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "catalog",
-                                                      origin.catalog));
+                                                      origin.getCatalog()));
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "contributor",
-                                                      origin.contributor));
+                                                      origin.getContributor()));
         Element originTime = doc.createElement("origin_time");
-        XMLTime.insert(originTime, origin.origin_time);
+        XMLTime.insert(originTime, origin.getOriginTime());
         element.appendChild(originTime);
         Element location = doc.createElement("my_location");
-        XMLLocation.insert(location, origin.my_location);
+        XMLLocation.insert(location, origin.getLocation());
         element.appendChild(location);
         Element magnitude;
-        for(int i = 0; i < origin.magnitudes.length; i++) {
+        for(int i = 0; i < origin.getMagnitudes().length; i++) {
             magnitude = doc.createElement("magnitude");
-            XMLMagnitude.insert(magnitude, origin.magnitudes[i]);
+            XMLMagnitude.insert(magnitude, origin.getMagnitudes()[i]);
             element.appendChild(magnitude);
         }
     }

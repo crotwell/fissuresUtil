@@ -20,7 +20,7 @@ public class TimeExtractorTest extends TestCase {
 
     public void testEvent() {
         EventAccessOperations ea = MockEventAccessOperations.createEvent();
-        assertEquals(EventUtil.extractOrigin(ea).origin_time,
+        assertEquals(EventUtil.extractOrigin(ea).getOriginTime(),
                      new TimeExtractor().extract(ea));
     }
 }

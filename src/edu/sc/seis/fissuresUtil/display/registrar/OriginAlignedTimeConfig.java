@@ -19,7 +19,7 @@ public class OriginAlignedTimeConfig extends RelativeTimeConfig {
         DataSet ds = seis.getDataSet();
         EventAccessOperations eao = ds.getEvent();
         if(eao != null) {
-            MicroSecondDate originTime = new MicroSecondDate(EventUtil.extractOrigin(eao).origin_time);
+            MicroSecondDate originTime = new MicroSecondDate(EventUtil.extractOrigin(eao).getOriginTime());
             TimeInterval interval;
             if(initialTime != null) {
                 interval = initialTime.getInterval();

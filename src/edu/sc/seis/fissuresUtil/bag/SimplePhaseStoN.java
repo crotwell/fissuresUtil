@@ -96,7 +96,7 @@ public class SimplePhaseStoN {
         
         Arrival[] arrivals = taup.calcTravelTimes(stationLoc, origin, new String[] {phase});
         MicroSecondDate phaseTime = null;
-        MicroSecondDate originTime = new MicroSecondDate(origin.origin_time);
+        MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
         if (arrivals.length != 0) {
             phaseTime = originTime.add(new TimeInterval(arrivals[0].getTime(),
                                                         UnitImpl.SECOND));

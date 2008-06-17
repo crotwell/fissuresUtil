@@ -100,10 +100,10 @@ public class EventDB extends AbstractHibernateDB {
 
 	public long put(CacheEvent event) {
 		Session session = getSession();
-		internUnit(event.getOrigin().my_location);
+		internUnit(event.getOrigin().getLocation());
 		Origin[] origins = event.get_origins();
 		for(int i = 0; i < origins.length; i++) {
-            internUnit(origins[i].my_location);
+            internUnit(origins[i].getLocation());
         }
 		Integer dbid = (Integer) session.save(event);
 		//event.setDbId(dbid.intValue());
@@ -132,13 +132,13 @@ public class EventDB extends AbstractHibernateDB {
 		query.setMaxResults(1);
 		try {
 			query.setTimestamp("originTime", new MicroSecondDate(e
-					.get_preferred_origin().origin_time).getTimestamp());
+					.get_preferred_origin().getOriginTime()).getTimestamp());
 			query.setDouble("depth",
-					e.get_preferred_origin().my_location.depth.value);
+					e.get_preferred_origin().getLocation().depth.value);
 			query.setDouble("lat",
-					e.get_preferred_origin().my_location.latitude);
+					e.get_preferred_origin().getLocation().latitude);
 			query.setDouble("lon",
-					e.get_preferred_origin().my_location.longitude);
+					e.get_preferred_origin().getLocation().longitude);
 			List result = query.list();
 			if (result.size() > 0) {
 				CacheEvent out = (CacheEvent) result.get(0);
@@ -181,12 +181,12 @@ public class EventDB extends AbstractHibernateDB {
         EventFinderQuery query = new EventFinderQuery();
         Origin origin = EventUtil.extractOrigin(event);
         // get query time range
-        MicroSecondDate evTime = new MicroSecondDate(origin.origin_time);
+        MicroSecondDate evTime = new MicroSecondDate(origin.getOriginTime());
         MicroSecondTimeRange timeRange = new MicroSecondTimeRange(evTime.subtract(timeTolerance),
                                                                   evTime.add(timeTolerance));
         // get query area
-        Area area = new PointDistanceAreaImpl(origin.my_location.latitude,
-                                              origin.my_location.longitude,
+        Area area = new PointDistanceAreaImpl(origin.getLocation().latitude,
+                                              origin.getLocation().longitude,
                                               new QuantityImpl(0.0,
                                                                UnitImpl.DEGREE),
                                               positionTolerance);

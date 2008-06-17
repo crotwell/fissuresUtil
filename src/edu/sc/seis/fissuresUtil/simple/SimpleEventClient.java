@@ -157,21 +157,21 @@ public class SimpleEventClient implements TestingClient {
     public Origin get_preferred_origin(EventAccess ev, boolean verbose)
             throws NoPreferredOrigin {
         Origin o = ev.get_preferred_origin();
-        if(o.magnitudes.length == 0) {
+        if(o.getMagnitudes().length == 0) {
             logger.error("Origin has zero magnitudes: "
-                    + o.origin_time.date_time + " at ("
-                    + o.my_location.latitude + ", " + o.my_location.longitude
-                    + ") " + "with depth of " + o.my_location.depth.value + " "
-                    + o.my_location.depth.the_units);
+                    + o.getOriginTime().date_time + " at ("
+                    + o.getLocation().latitude + ", " + o.getLocation().longitude
+                    + ") " + "with depth of " + o.getLocation().depth.value + " "
+                    + o.getLocation().depth.the_units);
         } else {
             if(verbose)
-                logger.info("Event occurred at " + o.origin_time.date_time
-                        + " mag=" + o.magnitudes[0].type + " "
-                        + o.magnitudes[0].value + " at ("
-                        + o.my_location.latitude + ", "
-                        + o.my_location.longitude + ") " + "with depth of "
-                        + o.my_location.depth.value + " "
-                        + o.my_location.depth.the_units);
+                logger.info("Event occurred at " + o.getOriginTime().date_time
+                        + " mag=" + o.getMagnitudes()[0].type + " "
+                        + o.getMagnitudes()[0].value + " at ("
+                        + o.getLocation().latitude + ", "
+                        + o.getLocation().longitude + ") " + "with depth of "
+                        + o.getLocation().depth.value + " "
+                        + o.getLocation().depth.the_units);
         }
         return o;
     }

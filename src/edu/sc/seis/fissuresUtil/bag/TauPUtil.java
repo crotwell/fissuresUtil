@@ -29,9 +29,9 @@ public class TauPUtil {
     }
 
     public synchronized Arrival[] calcTravelTimes(Location stationLoc, Origin origin, String[] phaseNames) throws TauModelException {
-        QuantityImpl depth = (QuantityImpl)origin.my_location.depth;
+        QuantityImpl depth = (QuantityImpl)origin.getLocation().depth;
         depth = depth.convertTo(UnitImpl.KILOMETER);
-        DistAz distAz = new DistAz(stationLoc, origin.my_location);
+        DistAz distAz = new DistAz(stationLoc, origin.getLocation());
         return calcTravelTimes(distAz.getDelta(), depth.getValue(), phaseNames);
     }
 

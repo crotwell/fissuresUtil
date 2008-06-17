@@ -62,7 +62,7 @@ public class OMEvent extends OMGraphicList implements FissuresGraphic {
                 map.getMapBean()
                         .center(new CenterEvent(this,
                                                 0.0f,
-                                                event.get_preferred_origin().my_location.longitude));
+                                                event.get_preferred_origin().getLocation().longitude));
             } catch(NoPreferredOrigin e) {
                 GlobalExceptionHandler.handle("For some reason, a NoPreferredOrigin has been called.",
                                               e);

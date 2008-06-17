@@ -135,9 +135,9 @@ public class DataSetEventOrganizer extends TopLevelOrganizer implements
             // try appending magnitude
             try {
                 Origin origin = event.get_preferred_origin();
-                if(origin.magnitudes.length > 0) {
-                    dataSetName += " " + origin.magnitudes[0].value
-                            + origin.magnitudes[0].type;
+                if(origin.getMagnitudes().length > 0) {
+                    dataSetName += " " + origin.getMagnitudes()[0].value
+                            + origin.getMagnitudes()[0].type;
                 }
             } catch(NoPreferredOrigin e) {
                 // oh well...
