@@ -51,10 +51,10 @@ public class ParseRegions {
     }
 
     public GeographicRegion getGeographicRegion(int geoNum){
-        if(geoNum < NUM_GEOGRAPHIC_REGIONS && geoNum > 0){
+        if(geoNum <= NUM_GEOGRAPHIC_REGIONS && geoNum > 0){
             return geogRegions[geoNum - 1];
         }
-        throw new IllegalArgumentException("No geographic region for num " + geoNum);
+        return new GeographicRegion(new SeismicRegion("Unknown", 0),"Unknown (" + geoNum+")", geoNum);
     }
 
     public String getGeographicRegionName(int geoNum) {
