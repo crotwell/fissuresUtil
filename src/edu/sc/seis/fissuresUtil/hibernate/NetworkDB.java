@@ -125,6 +125,12 @@ public class NetworkDB extends AbstractHibernateDB {
         int dbid = (Integer)getSession().save(cg);
         return dbid;
     }
+    
+    public ChannelGroup getChannelGroup(ChannelImpl chan) {
+        Query query = getSession().createQuery("from "+ChannelGroup.class.getName()+" where channel1 = :chan or channel2 = :chan or channel3 = :chan");
+        query.setEntity("chan", chan);
+        return (ChannelGroup)query.uniqueResult();
+    }
 
     public StationImpl[] getStationByCodes(String netCode, String staCode) {
         Query query = getSession().createQuery(getStationByCodes);

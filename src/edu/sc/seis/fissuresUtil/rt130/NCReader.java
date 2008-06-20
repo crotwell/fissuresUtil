@@ -307,7 +307,7 @@ public class NCReader {
             StationImpl sta = new StationImpl(staId,
                                               code,
                                               (Location)locs.get(code),
-                                              net.owner,
+                                              net.getOwner(),
                                               "",
                                               "",
                                               net);

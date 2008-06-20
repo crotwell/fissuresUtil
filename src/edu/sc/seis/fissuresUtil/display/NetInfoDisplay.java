@@ -42,11 +42,11 @@ public class NetInfoDisplay extends TextInfoDisplay {
         throws BadLocationException  {
         appendHeader(doc, "Network");
         appendLabelValue(doc, "Code", attr.get_code());
-        appendLabelValue(doc, "Name", attr.name);
-        appendLabelValue(doc, "Description", attr.description);
-        appendLabelValue(doc, "Owner", attr.owner);
-        appendLabelValue(doc, "Begin", attr.effective_time.start_time.date_time);
-        appendLabelValue(doc, "End", attr.effective_time.end_time.date_time);
+        appendLabelValue(doc, "Name", attr.getName());
+        appendLabelValue(doc, "Description", attr.getDescription());
+        appendLabelValue(doc, "Owner", attr.getOwner());
+        appendLabelValue(doc, "Begin", attr.getEffectiveTime().start_time.date_time);
+        appendLabelValue(doc, "End", attr.getEffectiveTime().end_time.date_time);
         appendLine(doc, "");
     }
 

@@ -44,18 +44,18 @@ public class XMLNetworkAttr {
         Document doc = element.getOwnerDocument();
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "name",
-                                                      networkAttr.name));
+                                                      networkAttr.getName()));
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "description",
-                                                      networkAttr.description));
+                                                      networkAttr.getDescription()));
         element.appendChild(XMLUtil.createTextElement(doc,
                                                       "owner",
-                                                      networkAttr.owner));
+                                                      networkAttr.getOwner()));
         Element network_id = doc.createElement("id");
         XMLNetworkId.insert(network_id, networkAttr.get_id());
         element.appendChild(network_id);
         Element effective_time_range = doc.createElement("effective_time");
-        XMLTimeRange.insert(effective_time_range, networkAttr.effective_time);
+        XMLTimeRange.insert(effective_time_range, networkAttr.getEffectiveTime());
         element.appendChild(effective_time_range);
     }
 

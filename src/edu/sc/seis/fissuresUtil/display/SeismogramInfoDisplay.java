@@ -81,7 +81,7 @@ public class SeismogramInfoDisplay extends TextInfoDisplay {
                 appendHeader(doc, "Network");
                 NetworkAttr net = sta.getNetworkAttr();
                 appendLabelValue(doc, "Id", NetworkIdUtil.toString(net.get_id()));
-                appendLabelValue(doc, "Effective Time", net.effective_time.start_time.date_time+" to "+net.effective_time.end_time.date_time);
+                appendLabelValue(doc, "Effective Time", net.getEffectiveTime().start_time.date_time+" to "+net.getEffectiveTime().end_time.date_time);
                 appendLabelValue(doc, "Name", sta.getName());
                 appendLabelValue(doc, "Description", sta.getDescription());
                 appendLabelValue(doc, "Owner", sta.getOperator());

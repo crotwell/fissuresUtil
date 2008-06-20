@@ -132,8 +132,8 @@ public class SimpleNetworkClient implements TestingClient {
     public NetworkAttr get_attributes(boolean verbose) {
         NetworkAttr attr = net.get_attributes();
         if(verbose) logger.info("Network " + attr.get_code()
-                + " retrieved, owner=" + attr.owner + " desc="
-                + attr.description);
+                + " retrieved, owner=" + attr.getOwner() + " desc="
+                + attr.getDescription());
         return attr;
     }
 
